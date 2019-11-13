@@ -13,6 +13,12 @@
 namespace MaterialX
 {
 
+const string IMAGE_PROPERTY_SEPARATOR("_");
+const string UADDRESS_MODE_SUFFIX(IMAGE_PROPERTY_SEPARATOR + "uaddressmode");
+const string VADDRESS_MODE_SUFFIX(IMAGE_PROPERTY_SEPARATOR + "vaddressmode");
+const string FILTER_TYPE_SUFFIX(IMAGE_PROPERTY_SEPARATOR + "filtertype");
+const string DEFAULT_COLOR_SUFFIX(IMAGE_PROPERTY_SEPARATOR + "default");
+
 string ImageDesc::BASETYPE_UINT8 = "UINT8";
 string ImageDesc::BASETYPE_HALF = "HALF";
 string ImageDesc::BASETYPE_FLOAT = "FLOAT";
@@ -214,38 +220,33 @@ void ImageHandler::clearImageCache()
 void ImageSamplingProperties::setProperties(const string& fileNameUniform,
                                             const VariableBlock& uniformBlock)
 {
-    const string IMAGE_SEPARATOR("_");
-    const string UADDRESS_MODE_POST_FIX("_uaddressmode");
-    const string VADDRESS_MODE_POST_FIX("_vaddressmode");
-    const string FILTER_TYPE_POST_FIX("_filtertype");
-    const string DEFAULT_COLOR_POST_FIX("_default");
     const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
 
     // Get the additional texture parameters based on image uniform name
     // excluding the trailing "_file" postfix string
     string root = fileNameUniform;
-    size_t pos = root.find_last_of(IMAGE_SEPARATOR);
+    size_t pos = root.find_last_of(IMAGE_PROPERTY_SEPARATOR);
     if (pos != string::npos)
     {
         root = root.substr(0, pos);
     }
 
-    const string uaddressmodeStr = root + UADDRESS_MODE_POST_FIX;
+    const string uaddressmodeStr = root + UADDRESS_MODE_SUFFIX;
     const ShaderPort* port = uniformBlock.find(uaddressmodeStr);
     ValuePtr intValue = port ? port->getValue() : nullptr;
     uaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-    const string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
+    const string vaddressmodeStr = root + VADDRESS_MODE_SUFFIX;
     port = uniformBlock.find(vaddressmodeStr);
     intValue = port ? port->getValue() : nullptr;
     vaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-    const string filtertypeStr = root + FILTER_TYPE_POST_FIX;
+    const string filtertypeStr = root + FILTER_TYPE_SUFFIX;
     port = uniformBlock.find(filtertypeStr);
     intValue = port ? port->getValue() : nullptr;
     filterType = ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-    const string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
+    const string defaultColorStr = root + DEFAULT_COLOR_SUFFIX;
     port = uniformBlock.find(defaultColorStr);
     ValuePtr colorValue = port ? port->getValue() : nullptr;
     if (colorValue)

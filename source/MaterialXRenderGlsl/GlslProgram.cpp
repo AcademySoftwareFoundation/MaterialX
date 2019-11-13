@@ -19,12 +19,6 @@ unsigned int GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID = 0;
 int GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION = -1;
 int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 
-/// Sampling constants
-static string UADDRESS_MODE_POST_FIX("_uaddressmode");
-static string VADDRESS_MODE_POST_FIX("_vaddressmode");
-static string FILTER_TYPE_POST_FIX("_filtertype");
-static string DEFAULT_COLOR_POST_FIX("_default");
-
 //
 // GlslProgram methods
 //
@@ -376,12 +370,11 @@ void GlslProgram::bindPartition(MeshPartitionPtr partition)
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    size_t UINT_SIZE = sizeof(unsigned int);
     MeshIndexBuffer& indexData = partition->getIndices();
     _indexBufferSize = indexData.size();
     glGenBuffers(1, &_indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (unsigned int)(_indexBufferSize*UINT_SIZE), &indexData[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indexBufferSize * sizeof(uint32_t), &indexData[0], GL_STATIC_DRAW);
 }
 
 void GlslProgram::bindStreams(MeshPtr mesh)
@@ -1263,7 +1256,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         // Throw an error if any type mismatches were found
         if (uniformTypeMismatchFound)
         {
-            ExceptionShaderRenderError(errorType, errors);
+            throw ExceptionShaderRenderError(errorType, errors);
         }
     }
 
@@ -1389,7 +1382,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
         // Throw an error if any type mismatches were found
         if (uniformTypeMismatchFound)
         {
-            ExceptionShaderRenderError(errorType, errors);
+            throw ExceptionShaderRenderError(errorType, errors);
         }
     }
 

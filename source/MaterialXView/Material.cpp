@@ -14,6 +14,8 @@
 using MatrixXfProxy = Eigen::Map<const ng::MatrixXf>;
 using MatrixXuProxy = Eigen::Map<const ng::MatrixXu>;
 
+const mx::Color4 IMAGE_DEFAULT_COLOR(0, 0, 0, 1);
+
 //
 // Material methods
 //
@@ -325,7 +327,6 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
     _boundImages.clear();
 
     const mx::VariableBlock* publicUniforms = getPublicUniforms();
-    mx::Color4 fallbackColor(0, 0, 0, 1);
     for (const auto& uniform : publicUniforms->getVariableOrder())
     {
         if (uniform->getType() != mx::Type::FILENAME)
@@ -344,7 +345,7 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
         samplingProperties.setProperties(uniformVariable, *publicUniforms);
 
         mx::ImageDesc desc;
-        if (bindImage(filename, uniformVariable, imageHandler, desc, samplingProperties, &fallbackColor))
+        if (bindImage(filename, uniformVariable, imageHandler, desc, samplingProperties, &IMAGE_DEFAULT_COLOR))
         {
             _boundImages.push_back(desc);
         }
@@ -352,7 +353,7 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
 }
 
 bool Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-                         mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, mx::Color4* fallbackColor)
+                         mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const mx::Color4* fallbackColor)
 {
     if (!_glShader)
     {
@@ -460,12 +461,11 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
             _glShader->setUniform(mx::HW::ENV_RADIANCE_SAMPLES, envSamples);
         }
     }
-    mx::StringMap lightTextures = {
-        { mx::HW::ENV_RADIANCE, indirectLighting ? (std::string) lightHandler->getLightEnvRadiancePath() : mx::EMPTY_STRING },
-        { mx::HW::ENV_IRRADIANCE, indirectLighting ? (std::string) lightHandler->getLightEnvIrradiancePath() : mx::EMPTY_STRING }
+    std::vector< std::pair<std::string, mx::FilePath> > lightTextures =
+    {
+        { mx::HW::ENV_RADIANCE, indirectLighting ? lightHandler->getLightEnvRadiancePath() : mx::FilePath() },
+        { mx::HW::ENV_IRRADIANCE, indirectLighting ? lightHandler->getLightEnvIrradiancePath() : mx::FilePath() }
     };
-    const std::string udim;
-    mx::Color4 fallbackColor(0, 0, 0, 1);
     for (const auto& pair : lightTextures)
     {
         if (_glShader->uniform(pair.first, false) != -1)
@@ -479,7 +479,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
             samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CUBIC;
 
-            if (bindImage(filename, pair.first, imageHandler, desc, samplingProperties, &fallbackColor))
+            if (bindImage(filename, pair.first, imageHandler, desc, samplingProperties, &IMAGE_DEFAULT_COLOR))
             {
                 if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
                 {
