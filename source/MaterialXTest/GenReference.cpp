@@ -71,6 +71,10 @@ TEST_CASE("GenShader: OSL Reference", "[genshader]")
     mx::GenContext context(generator);
     context.registerSourceCodeSearchPath(librariesPath);
 
+    const mx::FilePath logPath("genosl_reference_generate_test.txt");
+    std::ofstream logFile;
+    logFile.open(logPath);
+
     const std::vector<mx::NodeDefPtr> nodedefs = stdlibDoc->getNodeDefs();
     for (const mx::NodeDefPtr& nodedef : nodedefs)
     {
@@ -122,8 +126,8 @@ TEST_CASE("GenShader: OSL Reference", "[genshader]")
         }
         catch (mx::ExceptionShaderGenError& e)
         {
-            std::cout << "Failed generating node '" << nodeName << " : ";
-            std::cout << e.what() << std::endl;
+            logFile << "Generating node not current supported: '" << nodeName << " : ";
+            logFile << e.what() << std::endl;
         }
 
         stdlibDoc->removeChild(node->getName());
@@ -131,4 +135,6 @@ TEST_CASE("GenShader: OSL Reference", "[genshader]")
     }
 
     mx::writeToXmlFile(implDoc, outputPath / "stdlib_osl_impl.mtlx");
+
+    logFile.close();
 }
