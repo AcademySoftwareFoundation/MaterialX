@@ -138,7 +138,7 @@ void PropertyEditor::create(Viewer& parent)
 }
 
 ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, const std::string& label, mx::ValuePtr value,
-                                                     bool editable, mx::ValuePtr min, mx::ValuePtr max,
+                                                     bool editable, const mx::UIProperties& ui,
                                                      Viewer* viewer, const std::string& path)
 {
     new ng::Label(container, label);
@@ -147,19 +147,39 @@ ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, cons
 
     ng::Slider *slider = new ng::Slider(container);
     slider->setValue(v);
+    auto range = std::pair<float, float>(0.0f, 0.0f);
 
     ng::FloatBox<float>* floatVar = new ng::FloatBox<float>(container, v);
     floatVar->setFixedSize(ng::Vector2i(100, 20));
     floatVar->setEditable(editable);
     floatVar->setFontSize(15);
     floatVar->setAlignment(ng::TextBox::Alignment::Right);
-    if (min)
+    if (ui.uiMin)
     {
-        floatVar->setMinValue(min->asA<float>());
+        floatVar->setMinValue(ui.uiMin->asA<float>());
+        range.first = ui.uiMin->asA<float>();
     }
-    if (max)
+    if (ui.uiMax)
     {
-        floatVar->setMinValue(min->asA<float>());
+        floatVar->setMaxValue(ui.uiMax->asA<float>());
+        range.second = ui.uiMax->asA<float>();
+    }
+    if (ui.uiSoftMin)
+    {
+        range.first = ui.uiSoftMin->asA<float>();
+    }
+    if (ui.uiSoftMax)
+    {
+        range.second = ui.uiSoftMax->asA<float>();
+    }
+    if (range.first != range.second)
+    {
+        slider->setRange(range);
+    }
+    if (ui.uiStep)
+    {
+        floatVar->setValueIncrement(ui.uiStep->asA<float>());
+        floatVar->setSpinnable(true);
     }
 
     slider->setCallback([floatVar, path, viewer](float value) 
@@ -168,11 +188,13 @@ ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, cons
         MaterialPtr material = viewer->getSelectedMaterial();
         if (material)
         {
-            material->setUniformFloat(path, value);            
+            material->setUniformFloat(path, floatVar->value());
         }
     });
-    floatVar->setCallback([slider, path, viewer](float value)
+    floatVar->setCallback([floatVar, slider, path, viewer](float /*unclamped*/)
     {
+        // https://github.com/wjakob/nanogui/issues/205
+        float value = floatVar->value();
         slider->setValue(value);
         MaterialPtr material = viewer->getSelectedMaterial();
         if (material)
@@ -201,8 +223,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         label += std::string(" (") + unit + std::string(")");
     }
     const std::string& path = item.variable->getPath();
-    mx::ValuePtr min = ui.uiMin;
-    mx::ValuePtr max = ui.uiMax;
     const mx::StringVec& enumeration = ui.enumeration;
     const std::vector<mx::ValuePtr> enumValues = ui.enumerationValues;
 
@@ -279,15 +299,30 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             auto intVar = new ng::IntBox<int>(twoColumns);
             intVar->setFixedSize(ng::Vector2i(100, 20));
             intVar->setFontSize(15);
+            intVar->setEditable(editable);
             intVar->setSpinnable(editable);
-            intVar->setCallback([path, viewer](int v)
+            intVar->setCallback([intVar, path, viewer](int /*unclamped*/)
             {
                 MaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
-                    material->setUniformInt(path, v);
+                    // https://github.com/wjakob/nanogui/issues/205
+                    material->setUniformInt(path, intVar->value());
                 }
             });
+            if (ui.uiMin)
+            {
+                intVar->setMinValue(ui.uiMin->asA<int>());
+            }
+            if (ui.uiMax)
+            {
+                intVar->setMaxValue(ui.uiMax->asA<int>());
+            }
+            if (ui.uiStep)
+            {
+                intVar->setValueIncrement(ui.uiStep->asA<int>());
+            }
+            intVar->setValue(value->asA<int>());
         }
     }
 
@@ -296,7 +331,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     {
         ng::Widget* threeColumns = new ng::Widget(container);
         threeColumns->setLayout(_gridLayout3);
-        makeFloatWidget(threeColumns, label, value, editable, min, max, viewer, path);
+        makeFloatWidget(threeColumns, label, value, editable, ui, viewer, path);
     }
 
     // Boolean widget

@@ -4,7 +4,7 @@ surface
 constant_color4
     [[ string description = "Simple closure for constant color surface rendering" ]]
 (
-	color4 Cin = {(0.0, 0.0, 0.0), 0.0}
+	color4 Cin = {color(0.0, 0.0, 0.0), 0.0}
         [[  string description = "Input color to modulate emission with" ]]
 )
 {

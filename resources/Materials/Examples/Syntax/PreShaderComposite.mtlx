@@ -5,11 +5,12 @@
        applicable to several renderers, second is specific to rmanris and has
        slightly different parameter names.
   -->
-  <nodedef name="ND_basic_surface_surface" type="surfaceshader" node="basic_surface">
+  <nodedef name="ND_basic_surface_surface" node="basic_surface">
     <input name="diff_albedo" type="color3" value="0.18,0.18,0.18"/>
     <input name="spec_color" type="color3" value="1,1,1"/>
     <input name="roughness" type="float" value="0.3"/>
     <parameter name="fresnel_exp" type="float" value="0.25"/>
+    <output name="out" type="surfaceshader"/>
   </nodedef>
 
   <implementation name="IM_basicsurface_surface_osl"
@@ -26,9 +27,10 @@
   <!-- Define interface and shading network for a simple blended material driven
        by mask image files.
   -->
-  <nodedef name="ND_triblendsrf_surface" type="surfaceshader" node="triblendsrf">
+  <nodedef name="ND_triblendsrf_surface" node="triblendsrf">
     <parameter name="paintmaskfile" type="filename" value=""/>
     <parameter name="rustmaskfile" type="filename" value=""/>
+    <output name="out" type="surfaceshader"/>
   </nodedef>
 
   <nodegraph name="NG_triblendsrf_surface" nodedef="ND_triblendsrf_surface">

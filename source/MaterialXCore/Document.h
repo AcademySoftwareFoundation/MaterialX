@@ -319,7 +319,10 @@ class Document : public GraphElement
                           const string& node = EMPTY_STRING)
     {
         NodeDefPtr child = addChild<NodeDef>(name);
-        child->setType(type);
+        if (!type.empty() && type != MULTI_OUTPUT_TYPE_STRING)
+        {
+            child->addOutput("out", type);
+        }
         if (!node.empty())
         {
             child->setNodeString(node);
