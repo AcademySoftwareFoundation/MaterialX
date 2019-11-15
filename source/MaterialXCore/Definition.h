@@ -121,7 +121,7 @@ class NodeDef : public InterfaceElement
         }
         else
         {
-            throw Exception("Nodedef: " + getName() + " has no outputs");
+            return EMPTY_STRING;
         }
     }
 

@@ -209,7 +209,10 @@ FilePathVec FilePath::getSubDirectories() const
         while (struct dirent* entry = readdir(dir))
         {
             string path = entry->d_name;
-            if (path == "." || path == "..") continue;
+            if (path == "." || path == "..")
+            {
+                continue;
+            }
 
             auto d_type = entry->d_type;
             FilePath newDir = *this / path;
