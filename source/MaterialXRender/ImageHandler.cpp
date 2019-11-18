@@ -19,43 +19,148 @@ const string VADDRESS_MODE_SUFFIX(IMAGE_PROPERTY_SEPARATOR + "vaddressmode");
 const string FILTER_TYPE_SUFFIX(IMAGE_PROPERTY_SEPARATOR + "filtertype");
 const string DEFAULT_COLOR_SUFFIX(IMAGE_PROPERTY_SEPARATOR + "default");
 
-string ImageDesc::BASETYPE_UINT8 = "UINT8";
-string ImageDesc::BASETYPE_HALF = "HALF";
-string ImageDesc::BASETYPE_FLOAT = "FLOAT";
+const string ImageLoader::BMP_EXTENSION = "bmp";
+const string ImageLoader::EXR_EXTENSION = "exr";
+const string ImageLoader::GIF_EXTENSION = "gif";
+const string ImageLoader::HDR_EXTENSION = "hdr";
+const string ImageLoader::JPG_EXTENSION = "jpg";
+const string ImageLoader::JPEG_EXTENSION = "jpeg";
+const string ImageLoader::PIC_EXTENSION = "pic";
+const string ImageLoader::PNG_EXTENSION = "png";
+const string ImageLoader::PSD_EXTENSION = "psd";
+const string ImageLoader::TGA_EXTENSION = "tga";
+const string ImageLoader::TIF_EXTENSION = "tif";
+const string ImageLoader::TIFF_EXTENSION = "tiff";
+const string ImageLoader::TX_EXTENSION = "tx";
+const string ImageLoader::TXT_EXTENSION = "txt";
+const string ImageLoader::TXR_EXTENSION = "txr";
 
-string ImageDesc::IMAGETYPE_2D = "IMAGE2D";
+//
+// Image methods
+//
 
-void ImageDesc::freeResourceBuffer()
+Image::Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType) :
+    _width(width),
+    _height(height),
+    _channelCount(channelCount),
+    _baseType(baseType),
+    _resourceBuffer(nullptr),
+    _resourceBufferDeallocator(nullptr),
+    _resourceId(0)
 {
-    if (resourceBuffer)
+}
+
+Image::~Image()
+{
+    releaseResourceBuffer();
+}
+
+unsigned int Image::getBaseStride() const
+{
+    if (_baseType == BaseType::HALF)
     {
-        if (resourceBufferDeallocator)
+        return 2;
+    }
+    if (_baseType == BaseType::FLOAT)
+    {
+        return 4;
+    }
+    return 1;
+}
+
+unsigned int Image::getMaxMipCount() const
+{
+    return (unsigned int) std::log2(std::max(_width, _height)) + 1;
+}
+
+ImagePtr Image::createConstantColor(unsigned int width, unsigned int height, const Color4& color)
+{
+    unsigned int channelCount = 4;
+    size_t bufferSize = width * height * channelCount;
+    if (!bufferSize)
+    {
+        return nullptr;
+    }
+
+    ImagePtr image = create(width, height, channelCount, Image::BaseType::FLOAT);
+    image->createResourceBuffer();
+    float* pixel = static_cast<float*>(image->getResourceBuffer());
+    for (size_t i = 0; i < image->getWidth(); i++)
+    {
+        for (size_t j = 0; j < image->getHeight(); j++)
         {
-            resourceBufferDeallocator(resourceBuffer);
+            for (unsigned int c = 0; c < image->getChannelCount(); c++)
+            {
+                *pixel++ = color[c];
+            }
+        }
+    }
+    return image;
+}
+
+Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
+{
+    if (x >= _width || y >= _height)
+    {
+        throw Exception("Invalid coordinates in getTexelColor");
+    }
+    if (!_resourceBuffer)
+    {
+        throw Exception("Invalid resource buffer in getTexelColor");
+    }
+
+    if (_baseType == BaseType::FLOAT)
+    {
+        float* data = static_cast<float*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        if (_channelCount == 4)
+        {
+            return Color4(data[0], data[1], data[2], data[3]);
+        }
+        else if (_channelCount == 3)
+        {
+            return Color4(data[0], data[1], data[2], 1.0f);
+        }
+        else if (_channelCount == 1)
+        {
+            return Color4(data[0], data[0], data[0], 1.0f);
         }
         else
         {
-            free(resourceBuffer);
+            throw Exception("Unsupported channel count in getTexelColor");
         }
-        resourceBuffer = nullptr;
+    }
+    else
+    {
+        throw Exception("Unsupported base type in getTexelColor");
     }
 }
 
-string ImageLoader::BMP_EXTENSION = "bmp";
-string ImageLoader::EXR_EXTENSION = "exr";
-string ImageLoader::GIF_EXTENSION = "gif";
-string ImageLoader::HDR_EXTENSION = "hdr";
-string ImageLoader::JPG_EXTENSION = "jpg";
-string ImageLoader::JPEG_EXTENSION = "jpeg";
-string ImageLoader::PIC_EXTENSION = "pic";
-string ImageLoader::PNG_EXTENSION = "png";
-string ImageLoader::PSD_EXTENSION = "psd";
-string ImageLoader::TGA_EXTENSION = "tga";
-string ImageLoader::TIF_EXTENSION = "tif";
-string ImageLoader::TIFF_EXTENSION = "tiff";
-string ImageLoader::TX_EXTENSION = "tx";
-string ImageLoader::TXT_EXTENSION = "txt";
-string ImageLoader::TXR_EXTENSION = "txr";
+void Image::createResourceBuffer()
+{
+    releaseResourceBuffer();
+    _resourceBuffer = malloc(_width * _height * _channelCount * getBaseStride());
+    _resourceBufferDeallocator = nullptr;
+}
+
+void Image::releaseResourceBuffer()
+{
+    if (_resourceBuffer)
+    {
+        if (_resourceBufferDeallocator)
+        {
+            _resourceBufferDeallocator(_resourceBuffer);
+        }
+        else
+        {
+            free(_resourceBuffer);
+        }
+        _resourceBuffer = nullptr;
+    }
+}
+
+//
+// ImageHandler methods
+//
 
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
@@ -85,10 +190,10 @@ void ImageHandler::supportedExtensions(StringSet& extensions)
 }
 
 bool ImageHandler::saveImage(const FilePath& filePath,
-                             const ImageDesc &imageDesc,
+                             ImagePtr image,
                              bool verticalFlip)
 {
-    FilePath foundFilePath = findFile(filePath);
+    FilePath foundFilePath =  _searchPath.find(filePath);
     if (foundFilePath.isEmpty())
     {
         return false;
@@ -101,7 +206,7 @@ bool ImageHandler::saveImage(const FilePath& filePath,
         ImageLoaderPtr loader = iter->second;
         if (loader && loader->supportedExtensions().count(extension))
         {
-            bool saved = iter->second->saveImage(foundFilePath, imageDesc, verticalFlip);
+            bool saved = iter->second->saveImage(foundFilePath, image, verticalFlip);
             if (saved)
             {
                 return true;
@@ -111,83 +216,65 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     return false;
 }
 
-bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc& imageDesc, bool /*generateMipMaps*/, const Color4* /*fallbackColor*/)
+ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4* fallbackColor, string* message)
 {
-    if (filePath.isEmpty())
-    {
-        return false;
-    }
-
-    string extension = filePath.getExtension();
+    FilePath foundFilePath =  _searchPath.find(filePath);
+    string extension = foundFilePath.getExtension();
     ImageLoaderMap::reverse_iterator iter;
     for (iter = _imageLoaders.rbegin(); iter != _imageLoaders.rend(); ++iter)
     {
         ImageLoaderPtr loader = iter->second;
         if (loader && loader->supportedExtensions().count(extension))
         {
-            bool acquired = loader->loadImage(filePath, imageDesc, getRestrictions());
-            if (acquired)
+            ImagePtr image = loader->loadImage(foundFilePath);
+            if (image)
             {
-                return true;
+                cacheImage(foundFilePath, image);
+                return image;
             }
         }
     }
-    return false;
-}
 
-bool ImageHandler::createColorImage(const Color4& color, ImageDesc& desc)
-{
-    unsigned int bufferSize = desc.width * desc.height * desc.channelCount;
-    if (bufferSize < 1)
+    if (message && !filePath.isEmpty())
     {
-        return false;
+        *message = string("Error loading image: ") + filePath.asString();
     }
-
-    // Create a solid color image
-    //
-    desc.resourceBuffer = new float[bufferSize];
-    float* pixel = static_cast<float*>(desc.resourceBuffer);
-    for (size_t i = 0; i<desc.width; i++)
+    if (fallbackColor)
     {
-        for (size_t j = 0; j<desc.height; j++)
+        ImagePtr image = Image::createConstantColor(1, 1, *fallbackColor);
+        if (image)
         {
-            for (unsigned int c = 0; c < desc.channelCount; c++)
-            {
-                *pixel++ = color[c];
-            }
+            cacheImage(filePath, image);
+            return image;
         }
     }
-    desc.computeMipCount();
-    desc.resourceBufferDeallocator = [](void *buffer)
-    {
-        delete[] static_cast<float*>(buffer);
-    };
-    return true;
+
+    return nullptr;
 }
 
-bool ImageHandler::bindImage(const ImageDesc&, const ImageSamplingProperties&)
+bool ImageHandler::bindImage(ImagePtr, const ImageSamplingProperties&)
 {
     return false;
 }
 
-bool ImageHandler::unbindImage(const ImageDesc&)
+bool ImageHandler::unbindImage(ImagePtr)
 {
     return false;
 }
 
-void ImageHandler::cacheImage(const string& filePath, const ImageDesc& desc)
+void ImageHandler::cacheImage(const string& filePath, ImagePtr image)
 {
     if (!_imageCache.count(filePath))
     {
-        _imageCache[filePath] = desc;
+        _imageCache[filePath] = image;
     }
 }
 
-const ImageDesc* ImageHandler::getCachedImage(const FilePath& filePath)
+ImagePtr ImageHandler::getCachedImage(const FilePath& filePath)
 {
     if (_imageCache.count(filePath))
     {
-        return &(_imageCache[filePath]);
+        return _imageCache[filePath];
     }
     if (!filePath.isAbsolute())
     {
@@ -196,16 +283,16 @@ const ImageDesc* ImageHandler::getCachedImage(const FilePath& filePath)
             FilePath combined = path / filePath;
             if (_imageCache.count(combined))
             {
-                return &(_imageCache[combined]);
+                return _imageCache[combined];
             }
         }
     }
     return nullptr;
 }
 
-void ImageHandler::deleteImage(ImageDesc& imageDesc)
+void ImageHandler::deleteImage(ImagePtr image)
 {
-    imageDesc.freeResourceBuffer();
+    image->releaseResourceBuffer();
 }
 
 void ImageHandler::clearImageCache()
@@ -216,6 +303,10 @@ void ImageHandler::clearImageCache()
     }
     _imageCache.clear();
 }
+
+//
+// ImageSamplingProperties methods
+//
 
 void ImageSamplingProperties::setProperties(const string& fileNameUniform,
                                             const VariableBlock& uniformBlock)

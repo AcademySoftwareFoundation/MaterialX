@@ -46,7 +46,7 @@ class GlslProgram
 
     /// Set up code stages to validate based on an input hardware shader.
     /// @param shader Hardware shader to use
-    void setStages(const ShaderPtr shader);
+    void setStages(ShaderPtr shader);
 
     /// Set the code stages based on a list of stage strings.
     /// Refer to the ordering of stages as defined by a HwShader.
@@ -231,9 +231,8 @@ class GlslProgram
     /// @{
 
     /// Bind an individual texture to a program uniform location
-    bool bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
-                     ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties,
-                     ImageDesc& desc);
+    ImagePtr bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
+                         ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
 
     /// Utility to check for OpenGL context errors.
     /// Will throw an ExceptionShaderRenderError exception which will list of the errors found

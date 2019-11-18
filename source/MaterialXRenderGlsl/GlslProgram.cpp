@@ -43,7 +43,7 @@ GlslProgram::~GlslProgram()
     deleteProgram();
 }
 
-void GlslProgram::setStages(const ShaderPtr shader)
+void GlslProgram::setStages(ShaderPtr shader)
 {
     if (!shader)
     {
@@ -518,22 +518,20 @@ void GlslProgram::unbindTextures(ImageHandlerPtr imageHandler)
     checkErrors();
 }
 
-bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
-                              ImageHandlerPtr imageHandler, bool generateMipMaps,
-                              const ImageSamplingProperties& samplingProperties, ImageDesc& desc)
+ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
+                                  ImageHandlerPtr imageHandler, bool generateMipMaps,
+                                  const ImageSamplingProperties& samplingProperties)
 {
-    bool textureBound = false;
-
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
         // Acquire the image.
-        if (imageHandler->acquireImage(filePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
+        ImagePtr image = imageHandler->acquireImage(filePath, generateMipMaps, &(samplingProperties.defaultColor));
+        if (image)
         {
-            textureBound = imageHandler->bindImage(desc, samplingProperties);
-            if (textureBound)
+            if (imageHandler->bindImage(image, samplingProperties))
             {
-                int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
+                int textureLocation = imageHandler->getBoundTextureLocation(image->getResourceId());
                 if (textureLocation >= 0)
                 {
                     glUniform1i(uniformLocation, textureLocation);
@@ -541,8 +539,10 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
             }
         }
         checkErrors();
+        return image;
     }
-    return textureBound;
+
+    return nullptr;
 }
 
 MaterialX::ValuePtr GlslProgram::findUniformValue(const std::string& uniformName, const GlslProgram::InputMap& uniformList)
@@ -624,8 +624,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 samplingProperties.defaultColor[1] = defaultColor[1];
                 samplingProperties.defaultColor[2] = defaultColor[2];
                 samplingProperties.defaultColor[3] = defaultColor[3];
-                ImageDesc desc;
-                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties, desc);
+                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties);
             }
         }
     }
@@ -701,8 +700,8 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
                 fileName = ibl.second;
             }
 
-            ImageDesc desc;
-            if (bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, ImageSamplingProperties(), desc))
+            ImagePtr image = bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, ImageSamplingProperties());
+            if (image)
             {
                 if (iblUniform->first == HW::ENV_RADIANCE)
                 {
@@ -710,7 +709,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
                     auto mipsUniform = uniformList.find(HW::ENV_RADIANCE_MIPS);
                     if (mipsUniform != uniformList.end() && mipsUniform->second->location >= 0)
                     {
-                        glUniform1i(mipsUniform->second->location, desc.mipCount);
+                        glUniform1i(mipsUniform->second->location, image->getMaxMipCount());
                     }
                 }
             }
