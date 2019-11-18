@@ -33,27 +33,27 @@ namespace MaterialX
 {
 
 bool OiioImageLoader::saveImage(const FilePath& filePath,
-                                const ImageDesc &imageDesc,
+                                ImagePtr image,
                                 bool verticalFlip)
 {
     OIIO::ImageSpec imageSpec;
-    imageSpec.width = imageDesc.width;
-    imageSpec.height = imageDesc.height;
-    imageSpec.nchannels = imageDesc.channelCount;
+    imageSpec.width = image->getWidth();
+    imageSpec.height = image->getHeight();
+    imageSpec.nchannels = image->getChannelCount();
 
     unsigned int byteCount = 1;
     OIIO::TypeDesc format = OIIO::TypeDesc::UINT8;
-    if (imageDesc.baseType == ImageDesc::BASETYPE_FLOAT)
+    if (image->getBaseType() == Image::BaseType::FLOAT)
     {
         format = OIIO::TypeDesc::FLOAT;
         byteCount = 4;
     }
-    else if (imageDesc.baseType == ImageDesc::BASETYPE_HALF)
+    else if (image->getBaseType() == Image::BaseType::HALF)
     {
         format = OIIO::TypeDesc::HALF;
         byteCount = 2;
     }
-    else if (imageDesc.baseType != ImageDesc::BASETYPE_UINT8)
+    else if (image->getBaseType() != Image::BaseType::UINT8)
     {
         return false;
     }
@@ -66,7 +66,7 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
         {
             if (verticalFlip)
             {
-                int scanlinesize = imageDesc.width * imageDesc.channelCount * byteCount;
+                int scanlinesize = image->getWidth() * image->getChannelCount() * byteCount;
                 written = imageOutput->write_image(
                             format,
                             static_cast<char *>(imageDesc.resourceBuffer) + (imageDesc.height - 1) * scanlinesize,
@@ -78,7 +78,7 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
             {
                 written = imageOutput->write_image(
                             format,
-                            imageDesc.resourceBuffer);
+                            image->getResourceBuffer());
             }
             imageOutput->close();
         }
@@ -86,74 +86,51 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
     return written;
 }
 
-bool OiioImageLoader::loadImage(const FilePath& filePath,
-                                ImageDesc& imageDesc,
-                                const ImageDescRestrictions* restrictions)
+ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
 {
-    imageDesc.width = imageDesc.height = imageDesc.channelCount = 0;
-    imageDesc.resourceBuffer = nullptr;
-
     OIIO::ImageInput* imageInput = OIIO::ImageInput::open(filePath);
     if (!imageInput)
     {
-        return false;
+        return nullptr;
     }
 
     OIIO::ImageSpec imageSpec = imageInput->spec();
+    Image::BaseType baseType = Image::BaseType::UINT8;
     switch (imageSpec.format.basetype)
     {
         case OIIO::TypeDesc::UINT8:
         {
-            imageDesc.baseType = ImageDesc::BASETYPE_UINT8;
+            baseType = Image::BaseType::UINT8;
             break;
         }
         case OIIO::TypeDesc::FLOAT:
         {
-            imageDesc.baseType = ImageDesc::BASETYPE_FLOAT;
+            baseType = Image::BaseType::FLOAT;
             break;
         }
         case OIIO::TypeDesc::HALF:
         {
-            // If 16-bit float is not support try loading in 32-bit float.
-            if (restrictions && restrictions->supportedBaseTypes.count(ImageDesc::BASETYPE_HALF) == 0)
-            {
-                imageSpec.set_format(OIIO::TypeDesc::FLOAT);
-                imageDesc.baseType = ImageDesc::BASETYPE_FLOAT;
-            }
-            else
-            {
-                imageDesc.baseType = ImageDesc::BASETYPE_HALF;
-            }
+            baseType = Image::BaseType::HALF;
             break;
         }
         default:
             break;
     };
 
-    bool read = false;
-    // Check if base type is unsupported before trying to load
-    if (!restrictions || restrictions->supportedBaseTypes.count(imageDesc.baseType))
+    ImagePtr image = Image::create(imageSpec.width, imageSpec.height, imageSpec.nchannel, baseType);
+    size_t imageBytes = (size_t) imageSpec.image_bytes();
+    void* imageBuf = malloc(imageBytes);
+    if (imageInput->read_image(imageSpec.format, imageBuf))
     {
-        imageDesc.width = imageSpec.width;
-        imageDesc.height = imageSpec.height;
-        imageDesc.channelCount = imageSpec.nchannels;
-        imageDesc.computeMipCount();
-
-        size_t imageBytes = (size_t)imageSpec.image_bytes();
-        void* imageBuf = malloc(imageBytes);
-        if (imageInput->read_image(imageSpec.format, imageBuf))
-        {
-            imageDesc.resourceBuffer = imageBuf;
-            imageDesc.resourceBufferDeallocator = [](void* buffer)
-            {
-                free(buffer);
-            };
-            read = true;
-        }
+        image->setResourceBuffer(imageBuf);
     }
-
+    else
+    {
+        image = nullptr;
+    }
     imageInput->close();
-    return read;
+
+    return image;
 }
 
 } // namespace MaterialX

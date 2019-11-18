@@ -311,9 +311,9 @@ void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44
 
 void Material::unbindImages(mx::ImageHandlerPtr imageHandler)
 {
-    for (const mx::ImageDesc& desc : _boundImages)
+    for (mx::ImagePtr image : _boundImages)
     {
-        imageHandler->unbindImage(desc);
+        imageHandler->unbindImage(image);
     }
 }
 
@@ -344,20 +344,20 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
         mx::ImageSamplingProperties samplingProperties;
         samplingProperties.setProperties(uniformVariable, *publicUniforms);
 
-        mx::ImageDesc desc;
-        if (bindImage(filename, uniformVariable, imageHandler, desc, samplingProperties, &IMAGE_DEFAULT_COLOR))
+        mx::ImagePtr image = bindImage(filename, uniformVariable, imageHandler, samplingProperties, &IMAGE_DEFAULT_COLOR);
+        if (image)
         {
-            _boundImages.push_back(desc);
+            _boundImages.push_back(image);
         }
     }
 }
 
-bool Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-                         mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const mx::Color4* fallbackColor)
+mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
+                                 const mx::ImageSamplingProperties& samplingProperties, const mx::Color4* fallbackColor)
 {
     if (!_glShader)
     {
-        return false;
+        return nullptr;
     }
 
     // Create a filename resolver for geometric properties.
@@ -369,23 +369,28 @@ bool Material::bindImage(const mx::FilePath& filePath, const std::string& unifor
     imageHandler->setFilenameResolver(resolver);
 
     // Acquire the given image.
-    if (!imageHandler->acquireImage(filePath, desc, true, fallbackColor) && !filePath.isEmpty())
+    std::string error;
+    mx::ImagePtr image = imageHandler->acquireImage(filePath, true, fallbackColor, &error);
+    if (!error.empty())
     {
-        std::cerr << "Failed to load image: " << filePath.asString() << std::endl;
-        return false;
+        std::cerr << error << std::endl;
+    }
+    if (!image)
+    {
+        return nullptr;
     }
 
     // Bind the image and set its sampling properties.
-    if (imageHandler->bindImage(desc, samplingProperties))
+    if (imageHandler->bindImage(image, samplingProperties))
     {
-        int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
+        int textureLocation = imageHandler->getBoundTextureLocation(image->getResourceId());
         if (textureLocation >= 0)
         {
             _glShader->setUniform(uniformName, textureLocation, false);
-            return true;
+            return image;
         }
     }
-    return false;
+    return nullptr;
 }
 
 void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
@@ -471,25 +476,21 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
         if (_glShader->uniform(pair.first, false) != -1)
         {
             mx::FilePath path = imagePath.find(pair.second);
-            const std::string filename = path.asString();
 
-            mx::ImageDesc desc;
             mx::ImageSamplingProperties samplingProperties;
             samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CUBIC;
 
-            if (bindImage(filename, pair.first, imageHandler, desc, samplingProperties, &IMAGE_DEFAULT_COLOR))
+            mx::ImagePtr image = bindImage(path, pair.first, imageHandler, samplingProperties, &IMAGE_DEFAULT_COLOR);
+            if (image && specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
             {
-                if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+                // Bind any associated uniforms.
+                if (pair.first == mx::HW::ENV_RADIANCE)
                 {
-                    // Bind any associated uniforms.
-                    if (pair.first == mx::HW::ENV_RADIANCE)
+                    if (_glShader->uniform(mx::HW::ENV_RADIANCE_MIPS, false) != -1)
                     {
-                        if (_glShader->uniform(mx::HW::ENV_RADIANCE_MIPS, false) != -1)
-                        {
-                            _glShader->setUniform(mx::HW::ENV_RADIANCE_MIPS, desc.mipCount);
-                        }
+                        _glShader->setUniform(mx::HW::ENV_RADIANCE_MIPS, image->getMaxMipCount());
                     }
                 }
             }

@@ -31,18 +31,18 @@ class GLTextureHandler : public ImageHandler
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
-    bool acquireImage(const FilePath& filePath,
-                      ImageDesc& imageDesc,
-                      bool generateMipMaps,
-                      const Color4* fallbackColor = nullptr) override;
+    ImagePtr acquireImage(const FilePath& filePath,
+                          bool generateMipMaps,
+                          const Color4* fallbackColor = nullptr,
+                          string* message = nullptr) override;
 
     /// Bind an image. This method will bind the texture to an active texture
     /// unit as defined by the corresponding image description. The method
     /// will fail if there are not enough available image units to bind to.
-    bool bindImage(const ImageDesc& desc, const ImageSamplingProperties& samplingProperties) override;
+    bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties) override;
 
     /// Unbind an image. 
-    bool unbindImage(const ImageDesc& desc) override;
+    bool unbindImage(ImagePtr image) override;
 
     /// Utility to map an address mode enumeration to an OpenGL address mode
     static int mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum);
@@ -59,24 +59,13 @@ class GLTextureHandler : public ImageHandler
 
     // Delete an image. Any OpenGL texture resource and as well as any CPU-side
     // resource memory will be deleted.
-    void deleteImage(ImageDesc& imageDesc) override;
-
-    // Return restrictions specific to this handler
-    const ImageDescRestrictions* getRestrictions() const override
-    {
-        return &_restrictions;
-    }
+    void deleteImage(ImagePtr image) override;
 
     // Return the first free texture location that can be bound to.
     int getNextAvailableTextureLocation();
 
   protected:
-    // Maximum number of available image units
     int _maxImageUnits;
-
-    // Support restrictions
-    ImageDescRestrictions _restrictions;
-
     std::vector<unsigned int> _boundTextureLocations;
 };
 

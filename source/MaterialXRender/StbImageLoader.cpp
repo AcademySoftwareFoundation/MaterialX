@@ -29,11 +29,11 @@ namespace MaterialX
 {
 
 bool StbImageLoader::saveImage(const FilePath& filePath,
-                               const ImageDesc& imageDesc,
+                               ImagePtr image,
                                bool verticalFlip)
 {
-    bool isChar = imageDesc.baseType == ImageDesc::BASETYPE_UINT8;
-    bool isFloat = imageDesc.baseType == ImageDesc::BASETYPE_FLOAT;
+    bool isChar = image->getBaseType() == Image::BaseType::UINT8;
+    bool isFloat = image->getBaseType() == Image::BaseType::FLOAT;
     if (!isChar && !isFloat)
     {
         return false;
@@ -45,10 +45,10 @@ bool StbImageLoader::saveImage(const FilePath& filePath,
     int prevFlip = stbi__flip_vertically_on_write;
     stbi__flip_vertically_on_write = verticalFlip ? 1 : 0;
 
-    int w = static_cast<int>(imageDesc.width);
-    int h = static_cast<int>(imageDesc.height);
-    int channels = static_cast<int>(imageDesc.channelCount);
-    void* data = imageDesc.resourceBuffer;
+    int w = static_cast<int>(image->getWidth());
+    int h = static_cast<int>(image->getHeight());
+    int channels = static_cast<int>(image->getChannelCount());
+    void* data = image->getResourceBuffer();
 
     const string filePathName = filePath.asString();
 
@@ -87,56 +87,36 @@ bool StbImageLoader::saveImage(const FilePath& filePath,
     return (returnValue == 1);
 }
 
-bool StbImageLoader::loadImage(const FilePath& filePath, ImageDesc &imageDesc,
-                               const ImageDescRestrictions* restrictions)
+ImagePtr StbImageLoader::loadImage(const FilePath& filePath)
 {
-    imageDesc.width = imageDesc.height = imageDesc.channelCount = 0;
-    imageDesc.resourceBuffer = nullptr;
-
-    int iwidth = 0;
-    int iheight = 0;
-    int ichannelCount = 0;
+    int width = 0;
+    int height = 0;
+    int channelCount = 0;
+    Image::BaseType baseType = Image::BaseType::UINT8;
     void *buffer = nullptr;
 
-    // Set to 0 to mean to not override the read-in number of channels
-    const int REQUIRED_CHANNEL_COUNT = 0;
-
-    const string fileName = filePath.asString();
-
-    // If HDR, switch to float reader
+    // Select standard or float reader based on file extension.
     string extension = filePath.getExtension();
     if (extension == HDR_EXTENSION)
     {
-        // Early out if base type is unsupported
-        if (restrictions && restrictions->supportedBaseTypes.count(ImageDesc::BASETYPE_FLOAT) == 0)
-        {
-            return false;
-        }
-        buffer = stbi_loadf(fileName.c_str(), &iwidth, &iheight, &ichannelCount, REQUIRED_CHANNEL_COUNT);
-        imageDesc.baseType = ImageDesc::BASETYPE_FLOAT;
+        buffer = stbi_loadf(filePath.asString().c_str(), &width, &height, &channelCount, 0);
+        baseType = Image::BaseType::FLOAT;
     }
-    // Otherwise use fixed point reader
     else
     {
-        // Early out if base type is unsupported
-        if (restrictions && restrictions->supportedBaseTypes.count(ImageDesc::BASETYPE_UINT8) == 0)
-        {
-            return false;
-        }
-        buffer = stbi_load(fileName.c_str(), &iwidth, &iheight, &ichannelCount, REQUIRED_CHANNEL_COUNT);
-        imageDesc.baseType = ImageDesc::BASETYPE_UINT8;
+        buffer = stbi_load(filePath.asString().c_str(), &width, &height, &channelCount, 0);
+        baseType = Image::BaseType::UINT8;
     }
-    if (buffer)
+    if (!buffer)
     {
-        imageDesc.resourceBuffer = buffer;
-        imageDesc.width = iwidth;
-        imageDesc.height = iheight;
-        imageDesc.channelCount = ichannelCount;
-        imageDesc.computeMipCount();
-        // Set the deallocator to be the one provided with the library
-        imageDesc.resourceBufferDeallocator = &stbi_image_free;
+        return nullptr;
     }
-    return (imageDesc.resourceBuffer != nullptr);
+
+    // Create the image object.
+    ImagePtr image = Image::create(width, height, channelCount, baseType);
+    image->setResourceBuffer(buffer);
+    image->setResourceBufferDeallocator(&stbi_image_free);
+    return image;
 }
 
 } // namespace MaterialX

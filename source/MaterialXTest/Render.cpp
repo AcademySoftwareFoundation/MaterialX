@@ -65,7 +65,6 @@ void testGeomHandler(GeomHandlerTestOptions& options)
         for (const mx::FilePath& file : files)
         {
             const mx::FilePath filePath = imagePath / file;
-            mx::ImageDesc desc;
             bool loaded = options.geomHandler->loadGeometry(filePath);
             if (options.logFile)
             {
@@ -140,15 +139,15 @@ void testImageHandler(ImageHandlerTestOptions& options)
         for (const mx::FilePath& file : files)
         {
             const mx::FilePath filePath = imagePath / file;
-            mx::ImageDesc desc;
-            bool loaded = options.imageHandler->acquireImage(filePath, desc, false);
-            desc.freeResourceBuffer();
-            CHECK(!desc.resourceBuffer);
+            mx::ImagePtr image = options.imageHandler->acquireImage(filePath, false);
+            CHECK(image);
+            image->releaseResourceBuffer();
+            CHECK(!image->getResourceBuffer());
             if (options.logFile)
             {
-                *(options.logFile) << "Loaded image: " << filePath.asString() << ". Loaded: " << loaded << std::endl;
+                *(options.logFile) << "Loaded image: " << filePath.asString() << ". Loaded: " << (bool) image << std::endl;
             }
-            if (!loaded)
+            if (!image)
             {
                 loadFailed++;
             }
@@ -164,20 +163,14 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
     bool imagesLoaded = false;
     try
     {
-        // Create a stock color image
-        mx::ImageHandlerPtr imageHandler = mx::ImageHandler::create(nullptr);
         mx::Color4 color(1.0f, 0.0f, 0.0f, 1.0f);
-        mx::ImageDesc desc;
-        bool createdColorImage = imageHandler->createColorImage(color, desc);
-        CHECK(!createdColorImage);
-        desc.width = 1;
-        desc.height = 1;
-        desc.channelCount = 3;
-        createdColorImage = imageHandler->createColorImage(color, desc);
-        CHECK(createdColorImage);
-        desc.freeResourceBuffer();
-        CHECK(!desc.resourceBuffer);
+        mx::ImagePtr uniformImage = mx::Image::createConstantColor(1, 1, color);
+        CHECK(uniformImage->getWidth() == 1);
+        CHECK(uniformImage->getHeight() == 1);
+        CHECK(uniformImage->getMaxMipCount() == 1);
+        CHECK(uniformImage->getTexelColor(0, 0) == color);
 
+        mx::ImageHandlerPtr imageHandler = mx::ImageHandler::create(nullptr);
         ImageHandlerTestOptions options;
         options.logFile = &imageHandlerLog;
 
