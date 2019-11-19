@@ -17,6 +17,8 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
+#include <MaterialXRenderOsl/OslRenderer.h>
+
 namespace mx = MaterialX;
 
 const mx::ShaderPort* getShaderPort(const mx::ShaderStage& stage, const std::string& name)
@@ -71,10 +73,15 @@ TEST_CASE("GenShader: OSL Reference", "[genshader]")
     mx::GenContext context(generator);
     context.registerSourceCodeSearchPath(librariesPath);
 
+    mx::OslRendererPtr oslRenderer = mx::OslRenderer::create();
+    oslRenderer->setOslCompilerExecutable(MATERIALX_OSLC_EXECUTABLE);
+    oslRenderer->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
+
     const mx::FilePath logPath("genosl_reference_generate_test.txt");
     std::ofstream logFile;
     logFile.open(logPath);
 
+    size_t i = 0;
     const std::vector<mx::NodeDefPtr> nodedefs = stdlibDoc->getNodeDefs();
     for (const mx::NodeDefPtr& nodedef : nodedefs)
     {
@@ -98,6 +105,8 @@ TEST_CASE("GenShader: OSL Reference", "[genshader]")
             REQUIRE(file.is_open());
             file << shader->getSourceCode();
             file.close();
+
+            oslRenderer->compileOSL(filepath);
 
             mx::ImplementationPtr impl = implDoc->addImplementation("IM_" + nodeName + "_osl");
             impl->setNodeDef(nodedef);
@@ -124,14 +133,15 @@ TEST_CASE("GenShader: OSL Reference", "[genshader]")
                 }
             }
         }
-        catch (mx::ExceptionShaderGenError& e)
+        catch (mx::Exception & e)
         {
-            logFile << "Generating node not current supported: '" << nodeName << " : ";
+            logFile << "Error generating OSL reference for '" << nodeName << "' : " << std::endl;
             logFile << e.what() << std::endl;
         }
 
         stdlibDoc->removeChild(node->getName());
 
+        std::cout << ++i << " of " << nodedefs.size() << " completed." << std::endl;
     }
 
     mx::writeToXmlFile(implDoc, outputPath / "stdlib_osl_impl.mtlx");
