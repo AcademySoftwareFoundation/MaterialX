@@ -27,7 +27,7 @@ class PyShaderRenderer : public mx::ShaderRenderer
         );
     }
 
-    void createProgram(mx::ShaderPtr shader) override
+    void createProgram(const mx::ShaderPtr shader) override
     {
         PYBIND11_OVERLOAD_PURE(
             void,
@@ -88,7 +88,7 @@ void bindPyShaderRenderer(py::module& mod)
         .def("getGeometryHandler", &mx::ShaderRenderer::getGeometryHandler)
         .def("setViewHandler", &mx::ShaderRenderer::setViewHandler)
         .def("getViewHandler", &mx::ShaderRenderer::getViewHandler)
-        .def("createProgram", static_cast<void (mx::ShaderRenderer::*)(mx::ShaderPtr)>(&mx::ShaderRenderer::createProgram))
+        .def("createProgram", static_cast<void (mx::ShaderRenderer::*)(const mx::ShaderPtr)>(&mx::ShaderRenderer::createProgram))
         .def("createProgram", static_cast<void (mx::ShaderRenderer::*)(const mx::ShaderRenderer::StageMap&)>(&mx::ShaderRenderer::createProgram))
         .def("validateInputs", &mx::ShaderRenderer::validateInputs)
         .def("render", &mx::ShaderRenderer::render)

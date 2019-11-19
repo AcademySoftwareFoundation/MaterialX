@@ -254,6 +254,7 @@ class BindInput : public ValueElement
     }
     virtual ~BindInput() { }
 
+    /// @}
     /// @name NodeGraph String
     /// @{
 

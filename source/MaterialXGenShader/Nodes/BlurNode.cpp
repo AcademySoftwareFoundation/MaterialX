@@ -110,22 +110,6 @@ void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, Sha
         // Sample count is square of filter size
         const unsigned int sampleCount = filterWidth*filterWidth;
 
-        // Check for type of filter to apply
-        // Default to box filter
-        //
-        string weightArrayVariable = BOX_WEIGHTS_VARIABLE;
-        if (sampleCount > 1)
-        {
-            if (filterTypeInput->getValue())
-            {
-                // Use Gaussian filter.
-                if (filterTypeInput->getValue()->getValueString() == GAUSSIAN_FILTER)
-                {
-                    weightArrayVariable = GAUSSIAN_WEIGHTS_VARIABLE;
-                }
-            }
-        }
-
         // Emit samples
         // Note: The maximum sample count MX_MAX_SAMPLE_COUNT is defined in the shader code and 
         // is assumed to be 49 (7x7 kernel). If this changes the filter size logic here 

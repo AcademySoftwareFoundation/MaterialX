@@ -226,6 +226,7 @@ FilePathVec FilePath::getSubDirectories() const
             }
             if (d_type == DT_DIR)
             {
+                FilePath newDir = *this / path;
                 FilePathVec newDirs = newDir.getSubDirectories();
                 dirs.insert(dirs.end(), newDirs.begin(), newDirs.end());
             }

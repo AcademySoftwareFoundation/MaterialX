@@ -61,7 +61,7 @@ class GlslRenderer : public ShaderRenderer
 
     /// Create GLSL program based on an input shader
     /// @param shader Input HwShader
-    void createProgram(ShaderPtr shader) override;
+    void createProgram(const ShaderPtr shader) override;
 
     /// Create GLSL program based on shader stage source code.
     /// @param stages Map of name and source code for the shader stages.

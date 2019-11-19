@@ -68,6 +68,7 @@ class Document : public GraphElement
     /// Get a list of source URI's referenced by the document
     StringSet getReferencedSourceUris() const;
 
+    /// @}
     /// @name NodeGraph Elements
     /// @{
 

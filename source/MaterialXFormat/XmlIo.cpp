@@ -23,6 +23,8 @@ const string MTLX_EXTENSION = "mtlx";
 namespace {
 
 const string XINCLUDE_TAG = "xi:include";
+const string XINCLUDE_NAMESPACE = "xmlns:xi";
+const string XINCLUDE_URL = "http://www.w3.org/2001/XInclude";
 
 void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions)
 {
@@ -103,6 +105,10 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
             {
                 if (!writtenSourceFiles.count(sourceUri))
                 {
+                    if (!xmlNode.attribute(XINCLUDE_NAMESPACE.c_str()))
+                    {
+                        xmlNode.append_attribute(XINCLUDE_NAMESPACE.c_str()) = XINCLUDE_URL.c_str();
+                    }
                     xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
                     xml_attribute includeAttr = includeNode.append_attribute("href");
                     FilePath includePath(sourceUri);
@@ -178,8 +184,8 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const FileSearchPath& 
                 XmlReadOptions xiReadOptions = readOptions ? *readOptions : XmlReadOptions();
                 xiReadOptions.parentXIncludes.push_back(filename);
 
-                // Prepend the directory of the parent to accomodate
-                // includes relative the the parent file location.
+                // Prepend the directory of the parent to accommodate
+                // includes relative to the parent file location.
                 if (includeSearchPath.isEmpty())
                 {
                     string parentUri = doc->getSourceUri();

@@ -71,6 +71,7 @@ class Value
     /// Create a deep copy of the value.
     virtual ValuePtr copy() const = 0;
 
+    /// @}
     /// @name Data Accessors
     /// @{
 

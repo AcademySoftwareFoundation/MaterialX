@@ -31,7 +31,6 @@ void NSOpenGLClearDrawable(void* pContext);
 void NSOpenGLDescribePixelFormat(void* pPixelFormat, int attrib, int* vals);
 void NSOpenGLGetInteger(void* pContext, int param, int* vals);
 void NSOpenGLUpdate(void* pContext);
-void* NSOpenGLCGLContextObj(void* pContext);
 void* NSOpenGLGetWindow(void* pView);
 void NSOpenGLInitializeGLLibrary();
 
