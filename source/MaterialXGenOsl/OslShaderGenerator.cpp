@@ -227,31 +227,13 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitLine(functionName, stage, false);
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
-    // Emit all varying inputs
-    const VariableBlock& inputs = stage.getInputBlock(OSL::INPUTS);
-    for (size_t i=0; i < inputs.size(); ++i)
-    {
-        const ShaderPort* input = inputs[i];
-        const string& type = _syntax->getTypeName(input->getType());
-        const string& value = _syntax->getDefaultValue(input->getType(), true);
-        emitLine(type + " " + input->getName() + " = " + value + " [[ int lockgeom=0 ]],", stage, false);
-    }
-
-    // Emit all uniform inputs
-    const VariableBlock& uniforms = stage.getUniformBlock(OSL::UNIFORMS);
-    emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), COMMA, context, stage);
+    // Emit shader inputs
+    emitShaderInputs(stage.getInputBlock(OSL::INPUTS), stage);
+    emitShaderInputs(stage.getUniformBlock(OSL::UNIFORMS), stage);
 
     // Emit shader output
     const VariableBlock& outputs = stage.getOutputBlock(OSL::OUTPUTS);
-    for (size_t i = 0; i < outputs.size(); ++i)
-    {
-        const ShaderPort* output = outputs[i];
-        const TypeDesc* outputType = output->getType();
-        const string type = _syntax->getOutputTypeName(outputType);
-        const string value = _syntax->getDefaultValue(outputType, true);
-        const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : COMMA;
-        emitLine(type + " " + output->getVariable() + " = " + value + delim, stage, false);
-    }
+    emitShaderOutputs(outputs, stage);
 
     // End shader signature
     emitScopeEnd(stage);
@@ -352,6 +334,78 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
     }
 
     emitLineBreak(stage);
+}
+
+namespace
+{
+    std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
+    {
+        {"Pobject", "transform(\"object\", P)"},
+        {"Pworld", "P"},
+        {"Nobject", "transform(\"object\", N)"},
+        {"Nworld", "N"},
+        {"Tobject", "transform(\"object\", dPdu)"},
+        {"Tworld", "dPdu"},
+        {"Bobject", "transform(\"object\", dPdv)"},
+        {"Bworld", "dPdv"},
+        {"UV0", "{u,v}"},
+        {"Vworld", "I"}
+    };
+
+    std::unordered_map<string, string> UI_WIDGET_METADATA =
+    {
+        {"filename", "string widget = \"filename\""},
+        {"boolean", "string widget = \"checkBox\""}
+    };
+}
+
+void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
+{
+    for (size_t i = 0; i < inputs.size(); ++i)
+    {
+        const ShaderPort* input = inputs[i];
+        const string& type = _syntax->getTypeName(input->getType());
+        const string value = (input->getValue() ?
+            _syntax->getValue(input->getType(), *input->getValue(), true) :
+            _syntax->getDefaultValue(input->getType(), true));
+
+        emitLineBegin(stage);
+
+        const string& geomprop = input->getGeomProp();
+        if (!geomprop.empty())
+        {
+            auto it = GEOMPROP_DEFINITIONS.find(geomprop);
+            const string& v = it != GEOMPROP_DEFINITIONS.end() ? it->second : value;
+            emitString(type + " " + input->getVariable() + " = " + v, stage);
+        }
+        else
+        {
+            emitString(type + " " + input->getVariable() + " = " + value, stage);
+        }
+
+        // Add widget metadata.
+        auto it = UI_WIDGET_METADATA.find(input->getType()->getName());
+        if (it != UI_WIDGET_METADATA.end())
+        {
+            emitString(" [[ " + it->second + " ]]", stage);
+        }
+
+        emitString(",", stage);
+        emitLineEnd(stage, false);
+    }
+}
+
+void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderStage& stage) const
+{
+    for (size_t i = 0; i < outputs.size(); ++i)
+    {
+        const ShaderPort* output = outputs[i];
+        const TypeDesc* outputType = output->getType();
+        const string type = _syntax->getOutputTypeName(outputType);
+        const string value = _syntax->getDefaultValue(outputType, true);
+        const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : COMMA;
+        emitLine(type + " " + output->getVariable() + " = " + value + delim, stage, false);
+    }
 }
 
 namespace OSL

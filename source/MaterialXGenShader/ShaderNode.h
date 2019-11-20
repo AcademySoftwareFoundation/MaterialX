@@ -98,6 +98,13 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     /// Return the unit type for the value on this port.
     const string& getUnit() const { return _unit; }
 
+    /// Set geomprop name if the input has a default
+    /// geomprop to be assigned when it is unconnected.
+    void setGeomProp(const string& geomprop) { _geomprop = geomprop; }
+
+    /// Get geomprop name.
+    const string& getGeomProp() const { return _geomprop; }
+
     /// Set the path to this port.
     void setPath(const string& path) { _path = path; }
 
@@ -131,6 +138,7 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     string _variable;
     ValuePtr _value;
     string _unit;
+    string _geomprop;
     unsigned int _flags;
 };
 
