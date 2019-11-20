@@ -6,11 +6,9 @@
 #include <MaterialXRender/OiioImageLoader.h>
 
 #if defined(_WIN32)
-#pragma warning( push )
-#pragma warning( disable: 4100)
-#pragma warning( disable: 4505)
-#pragma warning( disable: 4800)
-#pragma warning( disable: 4244)
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#pragma warning(disable: 4244)
 #elif defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
@@ -22,7 +20,7 @@
 #include <OpenImageIO/imageio.h>
 
 #if defined(_WIN32)
-#pragma warning( pop )
+#pragma warning(pop)
 #elif defined(__clang__)
 #pragma clang diagnostic pop
 #else
@@ -41,44 +39,43 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
     imageSpec.height = image->getHeight();
     imageSpec.nchannels = image->getChannelCount();
 
-    unsigned int byteCount = 1;
-    OIIO::TypeDesc format = OIIO::TypeDesc::UINT8;
-    if (image->getBaseType() == Image::BaseType::FLOAT)
+    OIIO::TypeDesc format;
+    switch (image->getBaseType())
     {
-        format = OIIO::TypeDesc::FLOAT;
-        byteCount = 4;
-    }
-    else if (image->getBaseType() == Image::BaseType::HALF)
-    {
-        format = OIIO::TypeDesc::HALF;
-        byteCount = 2;
-    }
-    else if (image->getBaseType() != Image::BaseType::UINT8)
-    {
-        return false;
+        case Image::BaseType::UINT8:
+            format = OIIO::TypeDesc::UINT8;
+            break;
+        case Image::BaseType::HALF:
+            format = OIIO::TypeDesc::HALF;
+            break;
+        case Image::BaseType::FLOAT:
+            format = OIIO::TypeDesc::FLOAT;
+            break;
+        default:
+            return false;
     }
 
     bool written = false;
-    OIIO::ImageOutput* imageOutput = OIIO::ImageOutput::create(filePath);
+    std::unique_ptr<OIIO::ImageOutput> imageOutput = OIIO::ImageOutput::create(filePath);
     if (imageOutput)
     {
         if (imageOutput->open(filePath, imageSpec))
         {
             if (verticalFlip)
             {
-                int scanlinesize = image->getWidth() * image->getChannelCount() * byteCount;
+                int scanlinesize = image->getWidth() * image->getChannelCount() * image->getBaseStride();
                 written = imageOutput->write_image(
-                            format,
-                            static_cast<char *>(imageDesc.resourceBuffer) + (imageDesc.height - 1) * scanlinesize,
-                            OIIO::AutoStride, // default x stride
-                            static_cast<OIIO::stride_t>(-scanlinesize), // special y stride
-                            OIIO::AutoStride);
+                    format,
+                    static_cast<char*>(image->getResourceBuffer()) + (image->getHeight() - 1) * scanlinesize,
+                    OIIO::AutoStride, // default x stride
+                    static_cast<OIIO::stride_t>(-scanlinesize), // special y stride
+                    OIIO::AutoStride);
             }
             else
             {
                 written = imageOutput->write_image(
-                            format,
-                            image->getResourceBuffer());
+                    format,
+                    image->getResourceBuffer());
             }
             imageOutput->close();
         }
@@ -88,43 +85,33 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
 
 ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
 {
-    OIIO::ImageInput* imageInput = OIIO::ImageInput::open(filePath);
+    std::unique_ptr<OIIO::ImageInput> imageInput = OIIO::ImageInput::open(filePath);
     if (!imageInput)
     {
         return nullptr;
     }
 
     OIIO::ImageSpec imageSpec = imageInput->spec();
-    Image::BaseType baseType = Image::BaseType::UINT8;
+    Image::BaseType baseType;
     switch (imageSpec.format.basetype)
     {
         case OIIO::TypeDesc::UINT8:
-        {
             baseType = Image::BaseType::UINT8;
             break;
-        }
-        case OIIO::TypeDesc::FLOAT:
-        {
-            baseType = Image::BaseType::FLOAT;
-            break;
-        }
         case OIIO::TypeDesc::HALF:
-        {
             baseType = Image::BaseType::HALF;
             break;
-        }
-        default:
+        case OIIO::TypeDesc::FLOAT:
+            baseType = Image::BaseType::FLOAT;
             break;
+        default:
+            imageInput->close();
+            return nullptr;
     };
 
-    ImagePtr image = Image::create(imageSpec.width, imageSpec.height, imageSpec.nchannel, baseType);
-    size_t imageBytes = (size_t) imageSpec.image_bytes();
-    void* imageBuf = malloc(imageBytes);
-    if (imageInput->read_image(imageSpec.format, imageBuf))
-    {
-        image->setResourceBuffer(imageBuf);
-    }
-    else
+    ImagePtr image = Image::create(imageSpec.width, imageSpec.height, imageSpec.nchannels, baseType);
+    image->createResourceBuffer();
+    if (!imageInput->read_image(imageSpec.format, image->getResourceBuffer()))
     {
         image = nullptr;
     }
