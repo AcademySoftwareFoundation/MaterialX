@@ -544,6 +544,16 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 }
             }
 
+            if (nodedefPort->isA<Input>())
+            {
+                GeomPropDefPtr geomprop = nodedefPort->asA<Input>()->getDefaultGeomProp();
+                if (geomprop)
+                {
+                    inputSocket->setGeomProp(geomprop->getName());
+                    input->setGeomProp(geomprop->getName());
+                }
+            }
+
             // Connect to the graph input
             inputSocket->makeConnection(input);
         }
@@ -660,12 +670,18 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 }
             }
 
+            GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
+            if (geomprop)
+            {
+                inputSocket->setGeomProp(geomprop->getName());
+                input->setGeomProp(geomprop->getName());
+            }
+
             // If no explicit connection, connect to geometric node if a geomprop is used
             // or otherwise to the graph interface.
             const string& connection = bindInput ? bindInput->getOutputString() : EMPTY_STRING;
             if (connection.empty())
             {
-                GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
                 if (geomprop)
                 {
                     graph->addDefaultGeomNode(input, *geomprop, context);

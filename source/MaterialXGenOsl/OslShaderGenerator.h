@@ -52,6 +52,12 @@ protected:
 
     /// Emit include headers needed by the generated shader code.
     virtual void emitIncludes(ShaderStage& stage, GenContext& context) const;
+
+    /// Emit a block of shader inputs.
+    virtual void emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const;
+
+    /// Emit a block of shader outputs.
+    virtual void emitShaderOutputs(const VariableBlock& inputs, ShaderStage& stage) const;
 };
 
 namespace OSL
