@@ -18,6 +18,7 @@ const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
+const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
 
 // Map from type strings to swizzle pattern character sets.
 const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =

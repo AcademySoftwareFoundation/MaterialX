@@ -608,11 +608,19 @@ void Document::upgradeVersion()
         if (interfaceElem && interfaceElem->hasType())
         {
             string type = interfaceElem->getAttribute(TypedElement::TYPE_ATTRIBUTE);
-            if (type != MULTI_OUTPUT_TYPE_STRING)
+            OutputPtr outputPtr;
+            if (!type.empty() && type != MULTI_OUTPUT_TYPE_STRING)
             {
-                interfaceElem->addOutput("out", type);
+                outputPtr = interfaceElem->addOutput("out", type);
             }
             interfaceElem->removeAttribute(TypedElement::TYPE_ATTRIBUTE);
+
+            const string& defaultInput = interfaceElem->getAttribute(Output::DEFAULT_INPUT_ATTRIBUTE);
+            if (outputPtr && !defaultInput.empty())
+            {
+                outputPtr->setAttribute(Output::DEFAULT_INPUT_ATTRIBUTE, defaultInput);
+            }
+            interfaceElem->removeAttribute(Output::DEFAULT_INPUT_ATTRIBUTE);
         }
     }
 

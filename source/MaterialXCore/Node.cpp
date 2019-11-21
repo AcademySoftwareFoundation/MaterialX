@@ -391,7 +391,7 @@ string GraphElement::asStringDot() const
             dot += "    \"" + nameMap[node->getName()] + "\" ";
             NodeDefPtr nodeDef = node->getNodeDef();
             const string& nodeGroup = nodeDef ? nodeDef->getNodeGroup() : EMPTY_STRING;
-            if (nodeGroup == CONDITIONAL_NODE_GROUP)
+            if (nodeGroup == NodeDef::CONDITIONAL_NODE_GROUP)
             {
                 dot += "[shape=diamond];\n";
             }
