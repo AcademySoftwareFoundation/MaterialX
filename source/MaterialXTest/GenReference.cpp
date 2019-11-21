@@ -53,7 +53,97 @@ const mx::ShaderPort* getShaderPort(const mx::ShaderStage& stage, const std::str
     return nullptr;
 }
 
-TEST_CASE("GenShader: OSL Reference", "[genshader]")
+TEST_CASE("GenReference: Reference implementation file test", "[genreference]")
+{
+    const std::string LIBRARY = "stdlib";
+
+    mx::DocumentPtr stdlibDoc = mx::createDocument();
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    loadLibraries({ LIBRARY }, searchPath, stdlibDoc);    
+
+    const std::string DEFINITION_PREFIX = "ND_";
+    const std::string IMPLEMENTATION_PREFIX = "IM_";
+    const std::string IMPLEMENTATION_STRING = "impl";
+
+    const mx::StringVec genlanguage = { "genglsl", "genosl" };
+    const mx::StringVec language = { "glsl", "osl" };
+    const std::vector<bool> outputFunction = { false, true };
+
+    for (size_t i = 0; i < genlanguage.size(); i++)
+    {
+        mx::FilePath librariesPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+        mx::FilePath outputPathRel = LIBRARY + "/" + "reference/" + genlanguage[i];
+        mx::FilePath implPath = LIBRARY + "/" + genlanguage[i];
+
+        mx::FilePath outputPath = librariesPath / outputPathRel;
+
+        // Create output directory
+        outputPath.getParentPath().createDirectory();
+        outputPath.createDirectory();
+
+        // Create an implementation per nodedef
+        //
+        const std::string logFilename = genlanguage[i] + "_impl_file_test.txt";
+        const mx::FilePath logPath(logFilename);
+        std::ofstream logFile;
+
+        mx::DocumentPtr implDoc = mx::createDocument();
+        const std::vector<mx::NodeDefPtr> nodedefs = stdlibDoc->getNodeDefs();
+        for (const mx::NodeDefPtr& nodedef : nodedefs)
+        {
+            bool hasOutputs = !nodedef->getActiveOutputs().empty();
+            CHECK(hasOutputs);
+            if (!hasOutputs)
+            {
+                if (!logFile.is_open())
+                {
+                    logFile.open(logPath);
+                }
+                logFile << "Cannot create implementation reference for nodedef which has not outputs: '" << nodedef->getName() << std::endl;
+            }
+
+            std::string nodeName = nodedef->getName();
+            if (nodeName.size() > 3 && nodeName.substr(0, 3) == DEFINITION_PREFIX)
+            {
+                nodeName = nodeName.substr(3);
+            }
+
+            const std::string filename = nodeName + "." + language[i];
+            try
+            {
+                mx::ImplementationPtr impl = implDoc->addImplementation(
+                    IMPLEMENTATION_PREFIX + nodeName + "_" + genlanguage[i]);
+                impl->setNodeDef(nodedef);
+                impl->setFile((implPath / filename).asString(mx::FilePath::FormatPosix));
+                if (outputFunction[i])
+                {
+                    impl->setFunction("mx_" + nodeName);
+                }
+                impl->setLanguage(genlanguage[i]);
+            }
+            catch (mx::ExceptionShaderGenError& e)
+            {
+                if (!logFile.is_open())
+                {
+                    logFile.open(logPath);
+                }
+                logFile << "Cannot create implementation reference for node: '" << nodeName << " : ";
+                logFile << e.what() << std::endl;
+            }
+        }
+
+        // Save implementations to disk
+        const std::string implFileName = LIBRARY + "_" + language[i] + "_" + IMPLEMENTATION_STRING + ".refmtlx";
+        mx::writeToXmlFile(implDoc, outputPath / implFileName);
+
+        if (logFile.is_open())
+        {
+            logFile.close();
+        }
+    }
+}
+
+TEST_CASE("GenReference: OSL Reference", "[genreference]")
 {
     mx::DocumentPtr stdlibDoc = mx::createDocument();
     mx::DocumentPtr implDoc = mx::createDocument();
@@ -142,7 +232,7 @@ TEST_CASE("GenShader: OSL Reference", "[genshader]")
         stdlibDoc->removeChild(node->getName());
     }
 
-    mx::writeToXmlFile(implDoc, outputPath / "stdlib_osl_impl.mtlx");
+    mx::writeToXmlFile(implDoc, outputPath / "stdlib_osl_impl.refmtlx");
 
     logFile.close();
 }

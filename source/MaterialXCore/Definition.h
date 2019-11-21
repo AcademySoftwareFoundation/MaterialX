@@ -19,12 +19,6 @@ namespace MaterialX
 extern const string COLOR_SEMANTIC;
 extern const string SHADER_SEMANTIC;
 
-extern const string TEXTURE_NODE_GROUP;
-extern const string PROCEDURAL_NODE_GROUP;
-extern const string GEOMETRIC_NODE_GROUP;
-extern const string ADJUSTMENT_NODE_GROUP;
-extern const string CONDITIONAL_NODE_GROUP;
-
 class NodeDef;
 class Implementation;
 class TypeDef;
@@ -107,23 +101,7 @@ class NodeDef : public InterfaceElement
     }
 
     /// Return the element's output type.
-    const string& getType() const override
-    {
-        const vector<OutputPtr>& activeOutputs = getActiveOutputs();
-        size_t numActiveOutputs = activeOutputs.size();
-        if (numActiveOutputs > 1)
-        {
-            return MULTI_OUTPUT_TYPE_STRING;
-        }
-        else if (numActiveOutputs == 1)
-        {
-            return activeOutputs[0]->getType();
-        }
-        else
-        {
-            throw Exception("Nodedef: " + getName() + " has no outputs");
-        }
-    }
+    const string& getType() const override;
 
     /// @}
     /// @name Node Group
@@ -197,6 +175,13 @@ class NodeDef : public InterfaceElement
     static const string CATEGORY;
     static const string NODE_ATTRIBUTE;
     static const string NODE_GROUP_ATTRIBUTE;
+
+    static const string TEXTURE_NODE_GROUP;
+    static const string PROCEDURAL_NODE_GROUP;
+    static const string GEOMETRIC_NODE_GROUP;
+    static const string ADJUSTMENT_NODE_GROUP;
+    static const string CONDITIONAL_NODE_GROUP;
+    static const string ORGANIZATION_NODE_GROUP;
 };
 
 /// @class Implementation

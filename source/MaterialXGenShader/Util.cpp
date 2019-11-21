@@ -75,12 +75,12 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
     }
 }
 
-void loadLibrary(const FilePath& file, DocumentPtr doc)
+void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath)
 {
     DocumentPtr libDoc = createDocument();
     XmlReadOptions readOptions;
     readOptions.skipConflictingElements = true;
-    readFromXmlFile(libDoc, file, FileSearchPath(), &readOptions);
+    readFromXmlFile(libDoc, file, searchPath ? *searchPath : FileSearchPath(), &readOptions);
     CopyOptions copyOptions;
     copyOptions.skipConflictingElements = true;
     doc->importLibrary(libDoc, &copyOptions);
@@ -102,7 +102,7 @@ StringVec loadLibraries(const StringVec& libraryNames,
                 if (!excludeFiles || !excludeFiles->count(filename))
                 {
                     const FilePath& file = path / filename;
-                    loadLibrary(file, doc);
+                    loadLibrary(file, doc, &searchPath);
                     loadedLibraries.push_back(file.asString());
                 }
             }

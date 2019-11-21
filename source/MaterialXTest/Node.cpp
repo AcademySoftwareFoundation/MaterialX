@@ -67,7 +67,7 @@ TEST_CASE("Node", "[node]")
 
     // Create a custom nodedef.
     mx::NodeDefPtr customNodeDef = doc->addNodeDef("ND_turbulence3d", "float", "turbulence3d");
-    customNodeDef->setNodeGroup(mx::PROCEDURAL_NODE_GROUP);
+    customNodeDef->setNodeGroup(mx::NodeDef::PROCEDURAL_NODE_GROUP);
     customNodeDef->setParameterValue("octaves", 3);
     customNodeDef->setParameterValue("lacunarity", 2.0f);
     customNodeDef->setParameterValue("gain", 0.5f);
@@ -75,7 +75,7 @@ TEST_CASE("Node", "[node]")
     // Reference the custom nodedef.
     mx::NodePtr custom = doc->addNodeInstance(customNodeDef);
     REQUIRE(custom->getNodeDefString() == customNodeDef->getName());
-    REQUIRE(custom->getNodeDef()->getNodeGroup() == mx::PROCEDURAL_NODE_GROUP);
+    REQUIRE(custom->getNodeDef()->getNodeGroup() == mx::NodeDef::PROCEDURAL_NODE_GROUP);
     REQUIRE(custom->getParameterValue("octaves")->isA<int>());
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 3);
     custom->setParameterValue("octaves", 5);

@@ -321,6 +321,7 @@ class Output : public PortElement
 
   public:
     static const string CATEGORY;
+    static const string DEFAULT_INPUT_ATTRIBUTE;
 };
 
 /// @class InterfaceElement
