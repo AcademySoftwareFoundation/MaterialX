@@ -18,7 +18,7 @@ class PyImageLoader : public mx::ImageLoader
     {
     }
 
-    bool saveImage(const mx::FilePath& filePath, mx::ImagePtr image, bool verticalFlip) override
+    bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip) override
     {
         PYBIND11_OVERLOAD_PURE(
             bool,
@@ -50,7 +50,7 @@ class PyImageHandler : public mx::ImageHandler
     {
     }
 
-    bool saveImage(const mx::FilePath& filePath, mx::ImagePtr image, bool verticalFlip = false) override
+    bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip = false) override
     {
         PYBIND11_OVERLOAD(
             bool,
@@ -75,7 +75,7 @@ class PyImageHandler : public mx::ImageHandler
         );
     }
 
-    bool bindImage(mx::ImagePtr image, const mx::ImageSamplingProperties& samplingProperties) override
+    bool bindImage(mx::ConstImagePtr image, const mx::ImageSamplingProperties& samplingProperties) override
     {
         PYBIND11_OVERLOAD(
             bool,
@@ -100,25 +100,6 @@ class PyImageHandler : public mx::ImageHandler
 
 void bindPyImageHandler(py::module& mod)
 {
-    py::class_<mx::ImageBufferDeallocator>(mod, "ImageBufferDeallocator");
-
-    py::class_<mx::Image>(mod, "Image")
-        .def_static("create", &mx::Image::create)
-        .def_static("createConstantColor", &mx::Image::createConstantColor)
-        .def("getWidth", &mx::Image::getWidth)
-        .def("getHeight", &mx::Image::getHeight)
-        .def("getChannelCount", &mx::Image::getChannelCount)
-        .def("getBaseType", &mx::Image::getBaseType)
-        .def("getBaseStride", &mx::Image::getBaseStride)
-        .def("getMaxMipCount", &mx::Image::getMaxMipCount)
-        .def("setResourceBuffer", &mx::Image::setResourceBuffer)
-        .def("getResourceBuffer", &mx::Image::getResourceBuffer)
-        .def("createResourceBuffer", &mx::Image::createResourceBuffer)
-        .def("releaseResourceBuffer", &mx::Image::releaseResourceBuffer)
-        .def("setResourceBufferDeallocator", &mx::Image::setResourceBufferDeallocator)
-        .def("getResourceBufferDeallocator", &mx::Image::getResourceBufferDeallocator)
-        .def("getTexelColor", &mx::Image::getTexelColor);
-
     py::class_<mx::ImageSamplingProperties>(mod, "ImageSamplingProperties")
         .def_readwrite("uaddressMode", &mx::ImageSamplingProperties::uaddressMode)
         .def_readwrite("vaddressMode", &mx::ImageSamplingProperties::vaddressMode)

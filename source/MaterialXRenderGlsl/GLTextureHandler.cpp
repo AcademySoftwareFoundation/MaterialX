@@ -134,7 +134,7 @@ ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
     return image;
 }
 
-bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
+bool GLTextureHandler::bindImage(ConstImagePtr image, const ImageSamplingProperties& samplingProperties)
 {
     // Bind a texture to the next available slot
     if (_maxImageUnits < 0)
@@ -177,7 +177,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     return true;
 }
 
-bool GLTextureHandler::unbindImage(ImagePtr image)
+bool GLTextureHandler::unbindImage(ConstImagePtr image)
 {
     if (!glActiveTexture)
     {

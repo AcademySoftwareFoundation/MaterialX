@@ -9,6 +9,8 @@
 /// @file
 /// Image handler interfaces
 
+#include <MaterialXRender/Image.h>
+
 #include <MaterialXFormat/File.h>
 
 #include <MaterialXCore/Element.h>
@@ -24,128 +26,18 @@ extern const string VADDRESS_MODE_SUFFIX;
 extern const string FILTER_TYPE_SUFFIX;
 extern const string DEFAULT_COLOR_SUFFIX;
 
-class Image;
+class ImageHandler;
+class ImageLoader;
 class VariableBlock;
 
-/// A shared pointer to an image
-using ImagePtr = shared_ptr<Image>;
+/// Shared pointer to an ImageHandler
+using ImageHandlerPtr = std::shared_ptr<ImageHandler>;
 
-/// A function to perform image buffer deallocation
-using ImageBufferDeallocator = std::function<void(void*)>;
+/// Shared pointer to an ImageLoader
+using ImageLoaderPtr = std::shared_ptr<ImageLoader>;
 
-/// @class Image
-/// A class representing an image in memory
-class Image
-{
-  public:
-    enum class BaseType
-    {
-        UINT8 = 0,
-        HALF = 1,
-        FLOAT = 2
-    };
-
-  public:
-    /// Create an empty image with the given properties.
-    static ImagePtr create(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType = BaseType::UINT8)
-    {
-        return ImagePtr(new Image(width, height, channelCount, baseType));
-    }
-
-    /// Create a constant color image with the given properties.
-    static ImagePtr createConstantColor(unsigned int width, unsigned int height, const Color4& color);
-
-    ~Image();
-
-    /// Return the width of the image.
-    unsigned int getWidth() const
-    {
-        return _width;
-    }
-
-    /// Return the height of the image.
-    unsigned int getHeight() const
-    {
-        return _height;
-    }
-
-    /// Return the channel count of the image.
-    unsigned int getChannelCount() const
-    {
-        return _channelCount;
-    }
-
-    /// Return the base type of the image.
-    BaseType getBaseType() const
-    {
-        return _baseType;
-    }
-
-    /// Return the stride of our base type in bytes.
-    unsigned int getBaseStride() const;
-
-    /// Return the maximum number of mipmaps for this image.
-    unsigned int getMaxMipCount() const;
-
-    /// Set the resource buffer for this image.
-    void setResourceBuffer(void* buffer)
-    {
-        _resourceBuffer = buffer;
-    }
-
-    /// Return the resource buffer for this image.
-    void* getResourceBuffer() const
-    {
-        return _resourceBuffer;
-    }
-
-    /// Set the resource buffer deallocator for this image.
-    void setResourceBufferDeallocator(ImageBufferDeallocator deallocator)
-    {
-        _resourceBufferDeallocator = deallocator;
-    }
-
-    /// Return the resource buffer deallocator for this image.
-    ImageBufferDeallocator getResourceBufferDeallocator() const
-    {
-        return _resourceBufferDeallocator;
-    }
-
-    /// Set the resource ID for this image.
-    void setResourceId(unsigned int id)
-    {
-        _resourceId = id;
-    }
-
-    /// Return the resource ID for this image.
-    unsigned int getResourceId() const
-    {
-        return _resourceId;
-    }
-
-    /// Return the texel color at the given coordinates.  If the coordinates
-    /// or image resource buffer are invalid, then an exception is thrown.
-    Color4 getTexelColor(unsigned int x, unsigned int y) const;
-
-    /// Allocate a resource buffer for this image that matches its properties.
-    void createResourceBuffer();
-
-    /// Release the resource buffer for this image.
-    void releaseResourceBuffer();
-
-  protected:
-    Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType);
-
-  protected:
-    unsigned int _width;
-    unsigned int _height;
-    unsigned int _channelCount;
-    BaseType _baseType;
-
-    void* _resourceBuffer;
-    ImageBufferDeallocator _resourceBufferDeallocator;
-    unsigned int _resourceId;
-};
+/// Map from strings to image loaders
+using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
 
 /// @class ImageSamplingProperties
 /// Interface to describe sampling properties for images.
@@ -193,12 +85,6 @@ class ImageSamplingProperties
     Color4 defaultColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 
-/// A map from strings to images.
-using ImageMap = std::unordered_map<string, ImagePtr>;
-
-/// Shared pointer to an ImageLoader
-using ImageLoaderPtr = std::shared_ptr<class ImageLoader>;
-
 /// @class ImageLoader
 /// Abstract base class for file-system image loaders
 class ImageLoader
@@ -234,12 +120,12 @@ class ImageLoader
     }
 
     /// Save an image to the file system. This method must be implemented by derived classes.
-    /// @param filePath Path to save image to
-    /// @param imageDesc Description of image
+    /// @param filePath File path to be written
+    /// @param image The image to be saved
     /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
-                           ImagePtr image,
+                           ConstImagePtr image,
                            bool verticalFlip = false) = 0;
 
     /// Load an image from the file system. This method must be implemented by derived classes.
@@ -251,12 +137,6 @@ class ImageLoader
     // List of supported string extensions
     StringSet _extensions;
 };
-
-/// Shared pointer to an ImageHandler
-using ImageHandlerPtr = std::shared_ptr<class ImageHandler>;
-
-/// Map of extensions to image loaders
-using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
 
 /// @class ImageHandler
 /// Base image handler class. Keeps track of images which are loaded from
@@ -284,12 +164,12 @@ class ImageHandler
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
-    /// @param filePath Name of file to save image to
-    /// @param imageDesc Description of image
+    /// @param filePath File path to be written
+    /// @param image The image to be saved
     /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
-                           ImagePtr image,
+                           ConstImagePtr image,
                            bool verticalFlip = false);
 
     /// Acquire an image from the cache or file system.  If the image is not
@@ -311,11 +191,11 @@ class ImageHandler
     /// an image resource. The default implementation performs no action.
     /// @param desc The image to bind
     /// @param samplingProperties Sampling properties for the image
-    virtual bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties);
+    virtual bool bindImage(ConstImagePtr image, const ImageSamplingProperties& samplingProperties);
 
     /// Unbind an image. The default implementation performs no action.
     /// @param desc The image to unbind
-    virtual bool unbindImage(ImagePtr image);
+    virtual bool unbindImage(ConstImagePtr image);
 
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cached image to

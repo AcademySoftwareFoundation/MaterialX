@@ -29,7 +29,7 @@ namespace MaterialX
 {
 
 bool StbImageLoader::saveImage(const FilePath& filePath,
-                               ImagePtr image,
+                               ConstImagePtr image,
                                bool verticalFlip)
 {
     bool isChar = image->getBaseType() == Image::BaseType::UINT8;
