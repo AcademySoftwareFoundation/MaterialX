@@ -48,7 +48,7 @@ class OiioImageLoader : public ImageLoader
 
     /// Save an image to the file system.
     bool saveImage(const FilePath& filePath,
-                   ImagePtr image,
+                   ConstImagePtr image,
                    bool verticalFlip = false) override;
 
     /// Load an image from the file system.

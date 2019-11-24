@@ -31,7 +31,7 @@ namespace MaterialX
 {
 
 bool OiioImageLoader::saveImage(const FilePath& filePath,
-                                ImagePtr image,
+                                ConstImagePtr image,
                                 bool verticalFlip)
 {
     OIIO::ImageSpec imageSpec;

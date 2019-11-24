@@ -39,10 +39,10 @@ class GLTextureHandler : public ImageHandler
     /// Bind an image. This method will bind the texture to an active texture
     /// unit as defined by the corresponding image description. The method
     /// will fail if there are not enough available image units to bind to.
-    bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties) override;
+    bool bindImage(ConstImagePtr image, const ImageSamplingProperties& samplingProperties) override;
 
     /// Unbind an image. 
-    bool unbindImage(ImagePtr image) override;
+    bool unbindImage(ConstImagePtr image) override;
 
     /// Utility to map an address mode enumeration to an OpenGL address mode
     static int mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum);

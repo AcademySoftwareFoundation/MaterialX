@@ -8,8 +8,6 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 
-#include <cmath>
-
 namespace MaterialX
 {
 
@@ -34,129 +32,6 @@ const string ImageLoader::TIFF_EXTENSION = "tiff";
 const string ImageLoader::TX_EXTENSION = "tx";
 const string ImageLoader::TXT_EXTENSION = "txt";
 const string ImageLoader::TXR_EXTENSION = "txr";
-
-//
-// Image methods
-//
-
-Image::Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType) :
-    _width(width),
-    _height(height),
-    _channelCount(channelCount),
-    _baseType(baseType),
-    _resourceBuffer(nullptr),
-    _resourceBufferDeallocator(nullptr),
-    _resourceId(0)
-{
-}
-
-Image::~Image()
-{
-    releaseResourceBuffer();
-}
-
-unsigned int Image::getBaseStride() const
-{
-    if (_baseType == BaseType::HALF)
-    {
-        return 2;
-    }
-    if (_baseType == BaseType::FLOAT)
-    {
-        return 4;
-    }
-    return 1;
-}
-
-unsigned int Image::getMaxMipCount() const
-{
-    return (unsigned int) std::log2(std::max(_width, _height)) + 1;
-}
-
-ImagePtr Image::createConstantColor(unsigned int width, unsigned int height, const Color4& color)
-{
-    unsigned int channelCount = 4;
-    size_t bufferSize = width * height * channelCount;
-    if (!bufferSize)
-    {
-        return nullptr;
-    }
-
-    ImagePtr image = create(width, height, channelCount, Image::BaseType::FLOAT);
-    image->createResourceBuffer();
-    float* pixel = static_cast<float*>(image->getResourceBuffer());
-    for (size_t i = 0; i < image->getWidth(); i++)
-    {
-        for (size_t j = 0; j < image->getHeight(); j++)
-        {
-            for (unsigned int c = 0; c < image->getChannelCount(); c++)
-            {
-                *pixel++ = color[c];
-            }
-        }
-    }
-    return image;
-}
-
-Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
-{
-    if (x >= _width || y >= _height)
-    {
-        throw Exception("Invalid coordinates in getTexelColor");
-    }
-    if (!_resourceBuffer)
-    {
-        throw Exception("Invalid resource buffer in getTexelColor");
-    }
-
-    if (_baseType == BaseType::FLOAT)
-    {
-        float* data = static_cast<float*>(_resourceBuffer) + (y * _width + x) * _channelCount;
-        if (_channelCount == 4)
-        {
-            return Color4(data[0], data[1], data[2], data[3]);
-        }
-        else if (_channelCount == 3)
-        {
-            return Color4(data[0], data[1], data[2], 1.0f);
-        }
-        else if (_channelCount == 1)
-        {
-            return Color4(data[0], data[0], data[0], 1.0f);
-        }
-        else
-        {
-            throw Exception("Unsupported channel count in getTexelColor");
-        }
-    }
-    else
-    {
-        throw Exception("Unsupported base type in getTexelColor");
-    }
-}
-
-void Image::createResourceBuffer()
-{
-    releaseResourceBuffer();
-    _resourceBuffer = malloc(_width * _height * _channelCount * getBaseStride());
-    _resourceBufferDeallocator = nullptr;
-}
-
-void Image::releaseResourceBuffer()
-{
-    if (_resourceBuffer)
-    {
-        if (_resourceBufferDeallocator)
-        {
-            _resourceBufferDeallocator(_resourceBuffer);
-        }
-        else
-        {
-            free(_resourceBuffer);
-        }
-        _resourceBuffer = nullptr;
-    }
-}
 
 //
 // ImageHandler methods
@@ -190,7 +65,7 @@ void ImageHandler::supportedExtensions(StringSet& extensions)
 }
 
 bool ImageHandler::saveImage(const FilePath& filePath,
-                             ImagePtr image,
+                             ConstImagePtr image,
                              bool verticalFlip)
 {
     FilePath foundFilePath =  _searchPath.find(filePath);
@@ -252,12 +127,12 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
     return nullptr;
 }
 
-bool ImageHandler::bindImage(ImagePtr, const ImageSamplingProperties&)
+bool ImageHandler::bindImage(ConstImagePtr, const ImageSamplingProperties&)
 {
     return false;
 }
 
-bool ImageHandler::unbindImage(ImagePtr)
+bool ImageHandler::unbindImage(ConstImagePtr)
 {
     return false;
 }
