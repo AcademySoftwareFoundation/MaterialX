@@ -46,22 +46,13 @@ class OiioImageLoader : public ImageLoader
     /// Create a new OpenImageIO image loader
     static OiioImageLoaderPtr create() { return std::make_shared<OiioImageLoader>(); }
 
-    /// Save image to disk. This method must be implemented by derived classes.
-    /// @param filePath Path to file to save image to
-    /// @param imageDesc Description of image
-    /// @param verticalFlip Whether the image should be flipped in Y during save
-    /// @return if save succeeded
+    /// Save an image to the file system.
     bool saveImage(const FilePath& filePath,
-                   const ImageDesc &imageDesc,
+                   ConstImagePtr image,
                    bool verticalFlip = false) override;
 
-    /// Load an image from disk. This method must be implemented by derived classes.
-    /// @param filePath Path to file to load image from
-    /// @param imageDesc Description of image updated during load.
-    /// @param restrictions Hardware image description restrictions. Default value is nullptr, meaning no restrictions.
-    /// @return if load succeeded
-    bool loadImage(const FilePath& filePath, ImageDesc &imageDesc,
-                   const ImageDescRestrictions* restrictions = nullptr) override;
+    /// Load an image from the file system.
+    ImagePtr loadImage(const FilePath& filePath) override;
 };
 
 } // namespace MaterialX

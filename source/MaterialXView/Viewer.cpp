@@ -1402,22 +1402,16 @@ void Viewer::drawScene3D()
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glReadBuffer(GL_COLOR_ATTACHMENT0);
 
-        // Must multipy by pixel ratio to handle device DPI
-        int w = mSize.x() * static_cast<int>(mPixelRatio);
-        int h = mSize.y() * static_cast<int>(mPixelRatio);
-        size_t bufferSize = w * h * 3;
-        std::vector<uint8_t> buffer(bufferSize);
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+        // Create an image with dimensions adjusted for device DPI.
+        mx::ImagePtr image = mx::Image::create((unsigned int) (mSize.x() * mPixelRatio),
+                                               (unsigned int) (mSize.y() * mPixelRatio), 3);
+        image->createResourceBuffer();
 
-        mx::ImageDesc desc;
-        desc.width = w;
-        desc.height = h;
-        desc.channelCount = 3;
-        desc.resourceBuffer = buffer.data();
-        desc.baseType = mx::ImageDesc::BASETYPE_UINT8;
+        // Read pixels into the image buffer.
+        glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
 
-        bool saved = _imageHandler->saveImage(_captureFrameFileName, desc, true);
-        desc.resourceBuffer = nullptr;
+        // Save the image to disk.
+        bool saved = _imageHandler->saveImage(_captureFrameFileName, image, true);
         if (!saved)
         {
             new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
