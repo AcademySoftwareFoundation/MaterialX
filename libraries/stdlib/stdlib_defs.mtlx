@@ -193,8 +193,8 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
-    <parameter name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
-    <parameter name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -207,8 +207,8 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
-    <parameter name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
-    <parameter name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -221,8 +221,8 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
-    <parameter name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
-    <parameter name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -235,8 +235,8 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
-    <parameter name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
-    <parameter name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -249,8 +249,8 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
-    <parameter name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
-    <parameter name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -263,6 +263,8 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
+    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -275,6 +277,8 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
+    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>

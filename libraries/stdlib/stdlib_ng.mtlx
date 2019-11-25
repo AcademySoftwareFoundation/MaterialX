@@ -24,10 +24,18 @@
       <input name="in1" type="vector2" nodename="N_mult_float"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
+    <divide name="N_divtilesize_float" type="vector2">
+      <input name="in1" type="vector2" nodename="N_sub_float"/>
+      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
+    </divide>
+    <multiply name="N_multtilesize_float" type="vector2">
+      <input name="in1" type="vector2" nodename="N_divtilesize_float"/>
+      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
+    </multiply>
     <image name="N_img_float" type="float">
       <parameter name="file" type="filename" interfacename="file"/>
       <parameter name="default" type="float" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_sub_float"/>
+      <input name="texcoord" type="vector2" nodename="N_multtilesize_float"/>
       <parameter name="uaddressmode" type="string" value="periodic"/>
       <parameter name="vaddressmode" type="string" value="periodic"/>
       <parameter name="filtertype" type="string" interfacename="filtertype"/>
@@ -47,10 +55,18 @@
       <input name="in1" type="vector2" nodename="N_mult_color2"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
+    <divide name="N_divtilesize_color2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_sub_color2"/>
+      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
+    </divide>
+    <multiply name="N_multtilesize_color2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_divtilesize_color2"/>
+      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
+    </multiply>
     <image name="N_img_color2" type="color2">
       <parameter name="file" type="filename" interfacename="file"/>
       <parameter name="default" type="color2" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_sub_color2"/>
+      <input name="texcoord" type="vector2" nodename="N_multtilesize_color2"/>
       <parameter name="uaddressmode" type="string" value="periodic"/>
       <parameter name="vaddressmode" type="string" value="periodic"/>
       <parameter name="filtertype" type="string" interfacename="filtertype"/>
@@ -70,10 +86,18 @@
       <input name="in1" type="vector2" nodename="N_mult_color3"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
+    <divide name="N_divtilesize_color3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_sub_color3"/>
+      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
+    </divide>
+    <multiply name="N_multtilesize_color3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_divtilesize_color3"/>
+      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
+    </multiply>
     <image name="N_img_color3" type="color3">
       <parameter name="file" type="filename" interfacename="file"/>
       <parameter name="default" type="color3" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_sub_color3"/>
+      <input name="texcoord" type="vector2" nodename="N_multtilesize_color3"/>
       <parameter name="uaddressmode" type="string" value="periodic"/>
       <parameter name="vaddressmode" type="string" value="periodic"/>
       <parameter name="filtertype" type="string" interfacename="filtertype"/>
@@ -93,10 +117,18 @@
       <input name="in1" type="vector2" nodename="N_mult_color4"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
+    <divide name="N_divtilesize_color4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_sub_color4"/>
+      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
+    </divide>
+    <multiply name="N_multtilesize_color4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_divtilesize_color4"/>
+      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
+    </multiply>
     <image name="N_img_color4" type="color4">
       <parameter name="file" type="filename" interfacename="file"/>
       <parameter name="default" type="color4" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_sub_color4"/>
+      <input name="texcoord" type="vector2" nodename="N_multtilesize_color4"/>
       <parameter name="uaddressmode" type="string" value="periodic"/>
       <parameter name="vaddressmode" type="string" value="periodic"/>
       <parameter name="filtertype" type="string" interfacename="filtertype"/>
@@ -116,10 +148,18 @@
       <input name="in1" type="vector2" nodename="N_mult_vector2"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
+    <divide name="N_divtilesize_vector2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_sub_vector2"/>
+      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
+    </divide>
+    <multiply name="N_multtilesize_vector2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_divtilesize_vector2"/>
+      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
+    </multiply>
     <image name="N_img_vector2" type="vector2">
       <parameter name="file" type="filename" interfacename="file"/>
       <parameter name="default" type="vector2" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_sub_vector2"/>
+      <input name="texcoord" type="vector2" nodename="N_multtilesize_vector2"/>
       <parameter name="uaddressmode" type="string" value="periodic"/>
       <parameter name="vaddressmode" type="string" value="periodic"/>
       <parameter name="filtertype" type="string" interfacename="filtertype"/>
@@ -139,10 +179,18 @@
       <input name="in1" type="vector2" nodename="N_mult_vector3"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
+    <divide name="N_divtilesize_vector3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_sub_vector3"/>
+      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
+    </divide>
+    <multiply name="N_multtilesize_vector3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_divtilesize_vector3"/>
+      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
+    </multiply>
     <image name="N_img_vector3" type="vector3">
       <parameter name="file" type="filename" interfacename="file"/>
       <parameter name="default" type="vector3" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_sub_vector3"/>
+      <input name="texcoord" type="vector2" nodename="N_multtilesize_vector3"/>
       <parameter name="uaddressmode" type="string" value="periodic"/>
       <parameter name="vaddressmode" type="string" value="periodic"/>
       <parameter name="filtertype" type="string" interfacename="filtertype"/>
@@ -162,10 +210,18 @@
       <input name="in1" type="vector2" nodename="N_mult_vector4"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
+    <divide name="N_divtilesize_vector4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_sub_vector4"/>
+      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
+    </divide>
+    <multiply name="N_multtilesize_vector4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_divtilesize_vector4"/>
+      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
+    </multiply>
     <image name="N_img_vector4" type="vector4">
       <parameter name="file" type="filename" interfacename="file"/>
       <parameter name="default" type="vector4" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_sub_vector4"/>
+      <input name="texcoord" type="vector2" nodename="N_multtilesize_vector4"/>
       <parameter name="uaddressmode" type="string" value="periodic"/>
       <parameter name="vaddressmode" type="string" value="periodic"/>
       <parameter name="filtertype" type="string" interfacename="filtertype"/>
