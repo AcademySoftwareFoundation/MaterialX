@@ -21,9 +21,19 @@ namespace mx = MaterialX;
 class OgsXmlShaderGeneratorTester : public GlslShaderGeneratorTester
 {
 public:
-    OgsXmlShaderGeneratorTester(const mx::FilePathVec& testRootPaths, const mx::FilePath& libSearchPath,
-        const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
-        GlslShaderGeneratorTester(mx::GlslFragmentGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logFilePath)
+    OgsXmlShaderGeneratorTester(
+        const mx::FilePathVec& testRootPaths,
+        const mx::FilePath& libSearchPath,
+        const mx::FileSearchPath& srcSearchPath,
+        const mx::FilePath& logFilePath
+    )
+        : GlslShaderGeneratorTester(
+            mx::GlslFragmentGenerator::create(),
+            testRootPaths,
+            libSearchPath,
+            srcSearchPath,
+            logFilePath
+        )
     {
         dumpMaterials = { "Tiled_Brass", "Brass_Wire_Mesh" };
     }
@@ -34,21 +44,23 @@ public:
     }
 
     // Generate source code for a given element and check that code was produced.
-    bool generateCode(mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
-        std::ostream& log, mx::StringVec testStages, mx::StringVec&) override
+    bool generateCode(
+        mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
+        std::ostream& log, mx::StringVec testStages, mx::StringVec&
+    ) override
     {
-        mx::ShaderPtr shader = nullptr;
+        mx::ShaderPtr glslShader = nullptr;
         try
         {
-            shader = context.getShaderGenerator().generate(shaderName, element, context);
+            glslShader = context.getShaderGenerator().generate(shaderName, element, context);
         }
         catch (mx::Exception& e)
         {
             log << ">> GLSL Code generation failure: " << e.what() << "\n";
-            shader = nullptr;
+            glslShader = nullptr;
         }
-        CHECK(shader);
-        if (!shader)
+        CHECK(glslShader);
+        if (!glslShader)
         {
             log << ">> Failed to generate GLSL shader for element: " << element->getNamePath() << std::endl;
             return false;
@@ -58,7 +70,7 @@ public:
         std::ostringstream sourceStream;
 
         constexpr bool hwTransparency = false;
-        xmlGenerator.generate(cleanShaderName, shader.get(), nullptr, hwTransparency, sourceStream);
+        mx::OgsXmlGenerator::generate(cleanShaderName, *glslShader, "", hwTransparency, sourceStream);
         std::string fragmentSource = sourceStream.str();
         if (fragmentSource.empty())
         {
@@ -91,7 +103,6 @@ protected:
         };
     }
 
-    mx::OgsXmlGenerator xmlGenerator;
     mx::StringSet dumpMaterials;
 };
 

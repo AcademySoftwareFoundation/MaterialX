@@ -64,6 +64,8 @@ set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO
 mark_as_advanced(MATERIALX_OIIO_DIR)
 option(MATERIALX_BUILD_CONTRIB "Build contribution folder." ON)
 mark_as_advanced(MATERIALX_BUILD_CONTRIB)
+option(MATERIALX_BUILD_CROSS "Build MaterialXCross folder." OFF)
+mark_as_advanced(MATERIALX_BUILD_CROSS)
 
 # Helpers for OSL validation
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
@@ -164,6 +166,11 @@ else()
     add_subdirectory(source/MaterialXRenderOsl)
     add_subdirectory(source/MaterialXRenderHw)
     add_subdirectory(source/MaterialXRenderGlsl)
+endif()
+
+if (MATERIALX_BUILD_CROSS)
+    add_definitions(-DMATERIALX_BUILD_CROSS)
+    add_subdirectory(source/MaterialXCross)
 endif()
 
 if (MATERIALX_BUILD_CONTRIB)

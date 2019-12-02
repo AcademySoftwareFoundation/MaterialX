@@ -104,7 +104,7 @@ std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
     );
 
     const bool createAsTexture = nodeTypeToCreate == NodeTypeToCreate::TEXTURE
-        || (nodeTypeToCreate == NodeTypeToCreate::AUTO && !ogsFragment->elementIsAShader());
+        || (nodeTypeToCreate == NodeTypeToCreate::AUTO && !ogsFragment->isElementAShader());
 
     // Create the MaterialX node
     MObject nodeObj = _dgModifier.createNode(

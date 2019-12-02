@@ -541,7 +541,7 @@ class Element : public std::enable_shared_from_this<Element>
         setAttribute(attrib, toValueString(data));
     }
 
-    /// Return the the value of an implicitly typed attribute.  If the given
+    /// Return the value of an implicitly typed attribute. If the given
     /// attribute is not present, or cannot be converted to the given data
     /// type, then the zero value for the data type is returned.
     template<class T> T getTypedAttribute(const string& attrib) const

@@ -78,21 +78,25 @@ namespace
         { "u_time", "Time" }
     };
 
+    namespace OgsInputFlags
+    {
+        static const std::string
+            VARYING_INPUT_PARAM = "varyingInputParam",
+            IS_REQUIREMENT_ONLY = "isRequirementOnly";
+    }
+
+
     // Custom flags required by OGS XML
     static const StringMap OGS_FLAGS_MAP = 
     {
-        // Note: Nw has to be a varyingInputParam instead of a global (isRequirementOnly).
-        // This is because the pixel shader main function generated preprocesses Nw before passing it 
-        // to the main function of the fragment graph.
-        //
-        { "Pw", "isRequirementOnly" },
-        { "Pm", "isRequirementOnly" },
-        { "Nw", "varyingInputParam" },
-        { "Nm", "isRequirementOnly" },
-        { "Tw", "isRequirementOnly" },
-        { "Tm", "isRequirementOnly" },
-        { "Bw", "isRequirementOnly" },
-        { "Bm", "isRequirementOnly" } 
+        { "Pw", OgsInputFlags::VARYING_INPUT_PARAM },
+        { "Pm", OgsInputFlags::IS_REQUIREMENT_ONLY },
+        { "Nw", OgsInputFlags::VARYING_INPUT_PARAM },
+        { "Nm", OgsInputFlags::IS_REQUIREMENT_ONLY },
+        { "Tw", OgsInputFlags::VARYING_INPUT_PARAM },
+        { "Tm", OgsInputFlags::IS_REQUIREMENT_ONLY },
+        { "Bw", OgsInputFlags::IS_REQUIREMENT_ONLY },
+        { "Bm", OgsInputFlags::IS_REQUIREMENT_ONLY }
     };
 
     // String constants
@@ -138,75 +142,57 @@ namespace
         }
     }
 
-    void xmlSetProperty(pugi::xml_node& prop, const string& name, const string& variable, const string& flags = EMPTY_STRING)
+    void xmlSetProperty(pugi::xml_node& prop, const string& name, const string& variable, const string& defaultFlags = EMPTY_STRING)
     {
         prop.append_attribute(NAME) = variable.c_str();
-        auto semantic = OGS_SEMANTICS_MAP.find(name);
+        const auto semantic = OGS_SEMANTICS_MAP.find(name);
         if (semantic != OGS_SEMANTICS_MAP.end())
         {
             prop.append_attribute(SEMANTIC) = semantic->second;
         }
-        auto flag = OGS_FLAGS_MAP.find(name);
+        const auto flag = OGS_FLAGS_MAP.find(name);
         if (flag != OGS_FLAGS_MAP.end())
         {
             prop.append_attribute(FLAGS) = flag->second.c_str();
         }
-        else if (!flags.empty())
+        else if (!defaultFlags.empty())
         {
-            prop.append_attribute(FLAGS) = flags.c_str();
+            prop.append_attribute(FLAGS) = defaultFlags.c_str();
         }
     }
 
-    void xmlAddProperties(pugi::xml_node& parent, const VariableBlock& block, const string& flags = EMPTY_STRING)
+    void xmlAddProperties(pugi::xml_node& parent, const VariableBlock& block, const string& defaultFlags = EMPTY_STRING)
     {
         for (size_t i = 0; i < block.size(); ++i)
         {
-            const ShaderPort* p = block[i];
-            if (p->getName() == "Pw")
-            {
-                auto type = OGS_TYPE_MAP.find(p->getType());
-                if (type != OGS_TYPE_MAP.end())
-                {
-                    pugi::xml_node prop = parent.append_child(type->second);
-                    xmlSetProperty(prop, p->getName(), p->getVariable(), flags);
-                }
-            }
-        }
+            const ShaderPort* const shaderPort = block[i];
 
-        for (size_t i = 0; i < block.size(); ++i)
-        {
-            const ShaderPort* p = block[i];
-
-            if (p->getName() == "Pw")
+            if (shaderPort->getType() == Type::FILENAME)
             {
-                continue;
-            }
-            if (p->getType() == Type::FILENAME)
-            {
-                const string& samplerName = p->getVariable();
-                if (samplerName.size() > 7 && samplerName.substr(samplerName.size() - 7) == OgsXmlGenerator::SAMPLER_SUFFIX)
+                const string& samplerName = shaderPort->getVariable();
+                const string textureName = OgsXmlGenerator::samplerToTextureName(samplerName);
+                if (!textureName.empty())
                 {
-                    string textureName = samplerName.substr(0, samplerName.size() - 7);
                     pugi::xml_node texture = parent.append_child(TEXTURE2);
-                    xmlSetProperty(texture, p->getName(), textureName, flags);
+                    xmlSetProperty(texture, shaderPort->getName(), textureName, defaultFlags);
                     pugi::xml_node sampler = parent.append_child(SAMPLER);
-                    xmlSetProperty(sampler, p->getName(), samplerName, flags);
+                    xmlSetProperty(sampler, shaderPort->getName(), samplerName, defaultFlags);
                 }
             }
             else
             {
-                auto type = OGS_TYPE_MAP.find(p->getType());
+                const auto type = OGS_TYPE_MAP.find(shaderPort->getType());
                 if (type != OGS_TYPE_MAP.end())
                 {
                     pugi::xml_node prop = parent.append_child(type->second);
-                    if (p->getType() == Type::MATRIX33)
+                    if (shaderPort->getType() == Type::MATRIX33)
                     {
-                        string var = p->getVariable() + GlslFragmentGenerator::MATRIX3_TO_MATRIX4_POSTFIX;
-                        xmlSetProperty(prop, p->getName(), var, flags);
+                        const string var = shaderPort->getVariable() + GlslFragmentGenerator::MATRIX3_TO_MATRIX4_POSTFIX;
+                        xmlSetProperty(prop, shaderPort->getName(), var, defaultFlags);
                     }
                     else
                     {
-                        xmlSetProperty(prop, p->getName(), p->getVariable(), flags);
+                        xmlSetProperty(prop, shaderPort->getName(), shaderPort->getVariable(), defaultFlags);
                     }
                 }
             }
@@ -252,23 +238,46 @@ namespace
 
 const string OgsXmlGenerator::OUTPUT_NAME = "outColor";
 const string OgsXmlGenerator::VP_TRANSPARENCY_NAME = "vp2Transparency";
-const string OgsXmlGenerator::SAMPLER_SUFFIX = "Sampler";
+const string OgsXmlGenerator::SAMPLER_SUFFIX = "_sampler";
 
-OgsXmlGenerator::OgsXmlGenerator()
+bool OgsXmlGenerator::isSamplerName(const string& name)
 {
+    // We follow the SPIRV-Cross naming conventions for HLSL samplers
+    // auto-generated from combined GLSL samplers. This happens to be compatible
+    // with the OGS convention for pairing samplers and textures which only
+    // requires that the texture name be a substring of the sampler name.
+    
+    static const size_t SUFFIX_LENGTH = SAMPLER_SUFFIX.size();
+    return name.size() > SUFFIX_LENGTH + 1
+        && name[0] == '_'
+        && 0 == name.compare(name.size() - SUFFIX_LENGTH, SUFFIX_LENGTH, SAMPLER_SUFFIX);
 }
 
-void OgsXmlGenerator::generate( const std::string& shaderName, const Shader* glsl, const Shader* hlsl,
-                                bool hwTransparency, std::ostream& stream)
+string OgsXmlGenerator::textureToSamplerName(const string& textureName)
 {
-    if (glsl == nullptr && hlsl == nullptr)
-    {
-        throw ExceptionShaderGenError("Both GLSL and HLSL shaders are null, at least one language must be given to generate XML fragments");
-    }
+    string result = "_";
+    result += textureName;
+    result += SAMPLER_SUFFIX;
+    return result;
+}
 
+string OgsXmlGenerator::samplerToTextureName(const string& samplerName)
+{
+    static const size_t PREFIX_SUFFIX_LENGTH = SAMPLER_SUFFIX.size() + 1;
+    return isSamplerName(samplerName)
+        ? samplerName.substr(1, samplerName.size() - PREFIX_SUFFIX_LENGTH) : "";
+}
+
+void OgsXmlGenerator::generate(
+    const std::string& shaderName,
+    const Shader& glslShader,
+    const std::string& hlslSource,
+    bool hwTransparency,
+    std::ostream& stream
+)
+{
     // Create the interface using one of the shaders (interface should be the same)
-    const Shader* shader = glsl != nullptr ? glsl : hlsl;
-    const ShaderStage& stage = shader->getStage(Stage::PIXEL);
+    const ShaderStage& glslPixelStage = glslShader.getStage(Stage::PIXEL);
 
     xml_document xmlDocument;
 
@@ -284,9 +293,9 @@ void OgsXmlGenerator::generate( const std::string& shaderName, const Shader* gls
 
     // Add properties
     pugi::xml_node xmlProperties = xmlRoot.append_child(PROPERTIES);
-    xmlAddProperties(xmlProperties, stage.getUniformBlock(HW::PRIVATE_UNIFORMS), "isRequirementOnly");
-    xmlAddProperties(xmlProperties, stage.getUniformBlock(HW::PUBLIC_UNIFORMS));
-    xmlAddProperties(xmlProperties, stage.getInputBlock(HW::VERTEX_DATA), "isRequirementOnly, varyingInputParam");
+    xmlAddProperties(xmlProperties, glslPixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS), OgsInputFlags::IS_REQUIREMENT_ONLY);
+    xmlAddProperties(xmlProperties, glslPixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS));
+    xmlAddProperties(xmlProperties, glslPixelStage.getInputBlock(HW::VERTEX_DATA), OgsInputFlags::VARYING_INPUT_PARAM);
 
     if (hwTransparency)
     {
@@ -300,11 +309,11 @@ void OgsXmlGenerator::generate( const std::string& shaderName, const Shader* gls
 
     // Add values
     pugi::xml_node xmlValues = xmlRoot.append_child(VALUES);
-    xmlAddValues(xmlValues, stage.getUniformBlock(HW::PRIVATE_UNIFORMS));
-    xmlAddValues(xmlValues, stage.getUniformBlock(HW::PUBLIC_UNIFORMS));
+    xmlAddValues(xmlValues, glslPixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS));
+    xmlAddValues(xmlValues, glslPixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS));
 
     // Add a color3 output
-    const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
+    const VariableBlock& outputs = glslPixelStage.getOutputBlock(HW::PIXEL_OUTPUTS);
     if (outputs.empty())
     {
         throw ExceptionShaderGenError("Shader stage has no output");
@@ -315,9 +324,9 @@ void OgsXmlGenerator::generate( const std::string& shaderName, const Shader* gls
 
     // Add implementations
     pugi::xml_node xmlImpementations = xmlRoot.append_child(IMPLEMENTATION);
-    xmlAddImplementation(xmlImpementations, "GLSL", "3.0",  stage.getFunctionName(), glsl ? glsl->getSourceCode(Stage::PIXEL) : "// GLSL");
-    xmlAddImplementation(xmlImpementations, "HLSL", "11.0", stage.getFunctionName(), hlsl ? hlsl->getSourceCode(Stage::PIXEL) : "// HLSL");
-    xmlAddImplementation(xmlImpementations, "Cg", "2.1", stage.getFunctionName(), "// Cg");
+    xmlAddImplementation(xmlImpementations, "GLSL", "3.0",  glslPixelStage.getFunctionName(), glslShader.getSourceCode(Stage::PIXEL));
+    xmlAddImplementation(xmlImpementations, "HLSL", "11.0", glslPixelStage.getFunctionName(), hlslSource);
+    xmlAddImplementation(xmlImpementations, "Cg", "2.1", glslPixelStage.getFunctionName(), "// Cg");
 
     xmlDocument.save(stream, INDENTATION);
 }

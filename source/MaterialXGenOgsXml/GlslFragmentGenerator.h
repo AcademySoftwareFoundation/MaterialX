@@ -15,6 +15,14 @@
 namespace MaterialX
 {
 
+namespace Stage
+{
+    /// A special stage for private uniform definitions that are not included
+    /// in the GLSL fragment but need to be known to the GLSL-to-HLSL
+    /// cross-compiler.
+    extern const string PRIVATE_UNIFORMS;
+}
+
 /// Syntax class for GLSL fragments.
 class GlslFragmentSyntax : public GlslSyntax
 {
@@ -34,9 +42,10 @@ class GlslFragmentGenerator : public GlslShaderGenerator
 
     const string& getTarget() const override { return TARGET; }
 
-    ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
+    ShaderPtr createShader(const string& name, ElementPtr, GenContext&) const override;
+    ShaderPtr generate(const string& name, ElementPtr, GenContext&) const override;
 
-    void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
+    void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext&, ShaderStage&,
                                  bool assignValue = true) const override;
 
     static const string TARGET;

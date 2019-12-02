@@ -178,8 +178,8 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const FileSearchPath& 
                 XmlReadOptions xiReadOptions = readOptions ? *readOptions : XmlReadOptions();
                 xiReadOptions.parentXIncludes.push_back(filename);
 
-                // Prepend the directory of the parent to accomodate
-                // includes relative the the parent file location.
+                // Prepend the directory of the parent to accommodate
+                // includes relative to the parent file location.
                 if (includeSearchPath.isEmpty())
                 {
                     string parentUri = doc->getSourceUri();

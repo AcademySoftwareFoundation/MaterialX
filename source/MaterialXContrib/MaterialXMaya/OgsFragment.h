@@ -60,10 +60,10 @@ class OgsFragment
 
     /// Return whether the element to render represents a surface shader graph
     /// as opposed to a texture graph.
-    bool elementIsAShader() const;
+    bool isElementAShader() const;
 
     /// Get image sampling properties for a given file parameter.
-    mx::ImageSamplingProperties getImageSamplngProperties(const std::string& fileParameterName) const;
+    mx::ImageSamplingProperties getImageSamplingProperties(const std::string& fileParameterName) const;
 
     /// Return whether the fragment represents a transparent surface, as
     /// determined by MaterialX at generation time.
@@ -86,7 +86,7 @@ class OgsFragment
     
     mx::StringMap _pathInputMap; ///< Maps MaterialX element paths to fragment input names.
 
-    mx::ShaderPtr _shader;      ///< The MaterialX shader.
+    mx::ShaderPtr _glslShader;      ///< The MaterialX-generated GLSL shader.
 
     bool _isTransparent = false;    ///< Whether the fragment represents a transparent surface.
 };

@@ -119,7 +119,7 @@ class MaterialXNode : public MPxNode
 
   private:
     /// If the current document pointer is null, creates a new document based
-    /// on the the document file path attribute.
+    /// on the document file path attribute.
     /// (Re)generates the OGS fragment based on the element path attribute and
     /// registers it in VP2 under a unique name.
     void createAndRegisterFragment();
