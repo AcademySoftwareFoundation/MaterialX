@@ -3,7 +3,6 @@
 #include "Plugin.h"
 #include "MaterialXUtil.h"
 #include "MayaUtil.h"
-#include "OgsFragment.h"
 
 #include <maya/MDGModifier.h>
 #include <maya/MShaderManager.h>
@@ -12,6 +11,7 @@
 
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenOgsXml/OgsFragment.h>
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 #include <MaterialXRender/ImageHandler.h>
 

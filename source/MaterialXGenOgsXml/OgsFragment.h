@@ -9,7 +9,6 @@
 #include <MaterialXRender/ImageHandler.h>
 
 namespace mx = MaterialX;
-
 namespace MaterialXMaya
 {
 
@@ -77,14 +76,14 @@ class OgsFragment
     /// Generate the fragment.
     void generateFragment(const mx::FileSearchPath& librarySearchPath);
     
-    mx::DocumentPtr _document;  ///< The MaterialX document.
-    mx::ElementPtr _element;    ///< The MaterialX element.
+    mx::DocumentPtr _document;      ///< The MaterialX document.
+    mx::ElementPtr _element;        ///< The MaterialX element.
     
-    std::string _fragmentName;  ///< An automatically generated fragment name.
+    std::string _fragmentName;      ///< An automatically generated fragment name.
 
-    std::string _fragmentSource;    ///< The ganerated fragment source.
+    std::string _fragmentSource;    ///< The generated fragment source.
     
-    mx::StringMap _pathInputMap; ///< Maps MaterialX element paths to fragment input names.
+    mx::StringMap _pathInputMap;    ///< Maps MaterialX element paths to fragment input names.
 
     mx::ShaderPtr _glslShader;      ///< The MaterialX-generated GLSL shader.
 
@@ -93,4 +92,4 @@ class OgsFragment
 
 } // namespace MaterialXMaya
 
-#endif // MATERIALX_DATA_H
+#endif

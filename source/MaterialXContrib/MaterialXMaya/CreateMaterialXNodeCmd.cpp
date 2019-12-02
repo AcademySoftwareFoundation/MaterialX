@@ -1,10 +1,10 @@
 #include "CreateMaterialXNodeCmd.h"
 #include "MaterialXNode.h"
-#include "OgsFragment.h"
 #include "MaterialXUtil.h"
 #include "MayaUtil.h"
 #include "Plugin.h"
 
+#include <MaterialXGenOgsXml/OgsFragment.h>
 #include <MaterialXFormat/XmlIo.h>
 
 #include <maya/MArgParser.h>

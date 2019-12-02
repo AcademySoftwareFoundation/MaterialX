@@ -1,5 +1,4 @@
 #include "OgsFragment.h"
-#include "MaterialXUtil.h"
 
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXGenShader/Util.h>
@@ -12,16 +11,18 @@
 #include <MaterialXCross/Cross.h>
 #endif
 
-#include <maya/MGlobal.h>
+#include <iostream>
 
 namespace MaterialXMaya
 {
 
-OgsFragment::OgsFragment(mx::DocumentPtr document,
-                             mx::ElementPtr element,
-                             const mx::FileSearchPath& librarySearchPath ) :
-    _document(document),
-    _element(element)
+OgsFragment::OgsFragment(
+    mx::DocumentPtr document,
+    mx::ElementPtr element,
+    const mx::FileSearchPath& librarySearchPath
+)
+    : _document(document)
+    , _element(element)
 {
     if (!_document)
     {
@@ -155,9 +156,7 @@ void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
         }
         catch (std::exception& e)
         {
-            MString message("Failed to cross-compile GLSL fragment to HLSL: ");
-            message += MString(e.what());
-            MGlobal::displayError(message);
+            std::cerr << "Failed to cross-compile GLSL fragment to HLSL: " << e.what() <<"\n";
         }
 #endif
         std::ostringstream sourceStream;
