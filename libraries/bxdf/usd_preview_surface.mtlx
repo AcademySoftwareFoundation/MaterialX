@@ -111,12 +111,12 @@
     <bitangent name="Bw" type="vector3">
       <parameter name="space" type="string" value="world"/>
     </bitangent>
-    <separate name="normal_components" type="multioutput">
+    <separate3 name="normal_components" type="multioutput">
       <input name="in" type="vector3" interfacename="normal"/>
       <output name="outx" type="float" />
       <output name="outy" type="float" />
       <output name="outz" type="float" />
-    </separate>
+    </separate3>
     <multiply name="normal_x" type="vector3">
       <input name="in1" type="vector3" nodename="Tw"/>
       <input name="in2" type="float" nodename="normal_components" output="outx"/>
@@ -253,12 +253,12 @@
       <parameter name="low" type="float" value="0.00001"/>
       <parameter name="high" type="float" value="1.0"/>
     </clamp>
-    <compare name="cutout_opacity" type="float">
-      <input name="intest" type="float" nodename="opacity_clamped" />
-      <parameter name="cutoff" type="float" interfacename="opacityThreshold" />
-      <input name="in1" type="float" value="0" />
-      <input name="in2" type="float" value="1" />
-    </compare>
+    <ifgreater name="cutout_opacity" type="float">
+      <input name="value1" type="float" nodename="opacity_clamped" />
+      <input name="value2" type="float" interfacename="opacityThreshold" />
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" value="0" />
+    </ifgreater>
     <surface name="surface_constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="coat_bsdf" />
       <input name="edf" type="EDF" nodename="emission_edf" />

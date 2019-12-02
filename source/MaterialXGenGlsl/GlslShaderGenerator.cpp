@@ -33,7 +33,7 @@
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
-#include <MaterialXGenShader/Nodes/CompareNode.h>
+#include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 
@@ -55,15 +55,34 @@ GlslShaderGenerator::GlslShaderGenerator() :
     // Register all custom node implementation classes
     //
 
-    // <!-- <compare> -->
-    registerImplementation("IM_compare_float_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
-    registerImplementation("IM_compare_color2_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
-    registerImplementation("IM_compare_color3_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
-    registerImplementation("IM_compare_color4_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
-    registerImplementation("IM_compare_vector2_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
-    registerImplementation("IM_compare_vector3_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
-    registerImplementation("IM_compare_vector4_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
-
+    // <!-- <if*> -->
+    static const string SEPARATOR = "_";
+    static const string INT_SEPARATOR = "I_";
+    static const string BOOL_SEPARATOR = "B_";
+    static const StringVec IMPL_PREFIXES = { "IM_ifgreater_", "IM_ifgreatereq_", "IM_ifequal_" };
+    static const vector<CreatorFunction<ShaderNodeImpl>> IMPL_CREATE_FUNCTIONS =
+            { IfGreaterNode::create,  IfGreaterEqNode::create, IfEqualNode::create };
+    static const vector<bool> IMPL_HAS_INTVERSION = { true, true, true };
+    static const vector<bool> IMPL_HAS_BOOLVERSION = { false, false, true };
+    static const StringVec IMPL_TYPES = { "float", "color2", "color3", "color4", "vector2", "vector3", "vector4" };
+    for (size_t i=0; i<IMPL_PREFIXES.size(); i++)
+    {
+        const string& implPrefix = IMPL_PREFIXES[i];
+        for (const string& implType : IMPL_TYPES)
+        {
+            const string implRoot = implPrefix + implType;
+            registerImplementation(implRoot + SEPARATOR + GlslShaderGenerator::LANGUAGE, IMPL_CREATE_FUNCTIONS[i]);
+            if (IMPL_HAS_INTVERSION[i])
+            {
+                registerImplementation(implRoot + INT_SEPARATOR + GlslShaderGenerator::LANGUAGE, IMPL_CREATE_FUNCTIONS[i]);
+            }
+            if (IMPL_HAS_BOOLVERSION[i])
+            {
+                registerImplementation(implRoot + BOOL_SEPARATOR + GlslShaderGenerator::LANGUAGE, IMPL_CREATE_FUNCTIONS[i]);
+            }
+        }
+    }
+    
     // <!-- <switch> -->
     // <!-- 'which' type : float -->
     registerImplementation("IM_switch_float_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
@@ -170,16 +189,16 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_convert_integer_float_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
 
     // <!-- <combine> -->
-    registerImplementation("IM_combine_color2_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_vector2_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_color3_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_vector3_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_color4_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_vector4_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_color4CF_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_vector4VF_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_color4CC_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine_vector4VV_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine2_color2_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine2_vector2_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine2_color4CF_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine2_vector4VF_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine2_color4CC_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine2_vector4VV_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine3_color3_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine3_vector3_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine4_color4_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine4_vector4_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
 
     // <!-- <position> -->
     registerImplementation("IM_position_vector3_" + GlslShaderGenerator::LANGUAGE, PositionNodeGlsl::create);

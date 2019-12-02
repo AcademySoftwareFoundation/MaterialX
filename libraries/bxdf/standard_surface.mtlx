@@ -116,6 +116,46 @@
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
     </roughness_anisotropy>
 
+    <!-- Tangent rotation -->
+    <multiply name="tangent_rotate_degree" type="float">
+      <input name="in1" type="float" interfacename="specular_rotation" />
+      <input name="in2" type="float" value="360" />
+    </multiply>
+    <rotate name="tangent_rotate" type="vector3">
+      <input name="in" type="vector3" interfacename="tangent" />
+      <input name="amount" type="float" nodename="tangent_rotate_degree" />
+      <parameter name="axis" type="vector3" interfacename="normal"/>
+    </rotate>
+    <normalize name="tangent_rotate_normalize" type="vector3">
+      <input name="in" type="vector3" nodename="tangent_rotate" />
+    </normalize>
+    <ifgreater name="main_tangent" type="vector3">
+      <input name="value1" type="float" interfacename="specular_anisotropy" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="vector3" nodename="tangent_rotate_normalize" />
+      <input name="in2" type="vector3" interfacename="tangent" />
+    </ifgreater>
+
+    <!-- Coat tangent rotation -->
+    <multiply name="coat_tangent_rotate_degree" type="float">
+      <input name="in1" type="float" interfacename="coat_rotation" />
+      <input name="in2" type="float" value="360" />
+    </multiply>
+    <rotate name="coat_tangent_rotate" type="vector3">
+      <input name="in" type="vector3" interfacename="tangent" />
+      <input name="amount" type="float" nodename="coat_tangent_rotate_degree" />
+      <parameter name="axis" type="vector3" interfacename="coat_normal"/>
+    </rotate>
+    <normalize name="coat_tangent_rotate_normalize" type="vector3">
+      <input name="in" type="vector3" nodename="coat_tangent_rotate" />
+    </normalize>
+     <ifgreater name="coat_tangent" type="vector3">
+      <input name="value1" type="float" interfacename="coat_anisotropy" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="vector3" nodename="coat_tangent_rotate_normalize" />
+      <input name="in2" type="vector3" interfacename="tangent" />
+    </ifgreater>
+
     <!-- Colors influenced by coat ("coat gamma") -->
     <clamp name="coat_clamped" type="float">
       <input name="in" type="float" interfacename="coat" />
@@ -162,8 +202,8 @@
       <input name="in" type="color3" interfacename="subsurface_radius" />
     </convert>
     <multiply name="subsurface_radius_scaled" type="vector3">
-      <input name="in1" type="vector3" nodename="subsurface_radius_vector" />
-      <input name="in2" type="float" interfacename="subsurface_scale" />
+        <input name="in1" type="vector3" nodename="subsurface_radius_vector" />
+        <input name="in2" type="float" interfacename="subsurface_scale" />
     </multiply>
     <subsurface_brdf name="subsurface_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
@@ -193,7 +233,7 @@
       <input name="ior" type="float" interfacename="specular_IOR" />
       <input name="roughness" type="vector2" nodename="main_rougness" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
       <input name="interior" type="VDF" value="" />
     </dielectric_btdf>
@@ -210,7 +250,7 @@
       <input name="ior" type="float" interfacename="specular_IOR" />
       <input name="roughness" type="vector2" nodename="main_rougness" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
       <input name="base" type="BSDF" nodename="transmission_mix" />
     </dielectric_brdf>
@@ -230,7 +270,7 @@
       <input name="edge_color" type="color3" nodename="metal_edgecolor"/>
       <input name="roughness" type="vector2" nodename="main_rougness" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="tangent" type="vector3" interfacename="tangent" />
+      <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
     </conductor_brdf>
     <mix name="metalness_mix" type="BSDF">
@@ -259,6 +299,7 @@
       <input name="ior" type="float" interfacename="coat_IOR" />
       <input name="roughness" type="vector2" nodename="coat_roughness" />
       <input name="normal" type="vector3" interfacename="coat_normal" />
+      <input name="tangent" type="vector3" nodename="coat_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
       <input name="base" type="BSDF" nodename="metalness_mix_attenuated" />
     </dielectric_brdf>
