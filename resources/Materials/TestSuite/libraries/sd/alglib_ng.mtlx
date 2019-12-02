@@ -327,11 +327,11 @@
       <input name="in1" type="float" nodename="ND_constant_float_76" />
       <input name="in2" type="float" interfacename="intensity" />
     </divide>
-    <combine name="ND_combine_vector3_78" type="vector3">
+    <combine3 name="ND_combine_vector3_78" type="vector3">
       <input name="in1" type="float" nodename="ND_divide_float_73" />
       <input name="in2" type="float" nodename="ND_divide_float_75" />
       <input name="in3" type="float" nodename="ND_divide_float_77" />
-    </combine>
+  </combine3>
     <normalize name="ND_normalize_vector3_79" type="vector3">
       <input name="in" type="vector3" nodename="ND_combine_vector3_78" />
     </normalize>

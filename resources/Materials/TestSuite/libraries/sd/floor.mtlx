@@ -142,11 +142,11 @@
          <input name="in1" type="float" nodename="node_mix_29" />
          <input name="in2" type="float" nodename="node_image_float_30" />
       </add>
-      <combine name="node_combine_color3_26" type="color3">
+      <combine3 name="node_combine_color3_26" type="color3">
          <input name="in1" type="float" nodename="node_algclamp_11" />
          <input name="in2" type="float" nodename="node_algclamp_11" />
          <input name="in3" type="float" nodename="node_algclamp_11" />
-      </combine>
+     </combine3>
       <mix name="node_mix_14" type="float">
          <input name="fg" type="float" nodename="node_image_float_28" />
          <input name="bg" type="float" interfacename="rust_metallic" />

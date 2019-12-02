@@ -129,11 +129,12 @@
     <normalize name="tangent_rotate_normalize" type="vector3">
       <input name="in" type="vector3" nodename="tangent_rotate" />
     </normalize>
-    <compare name="main_tangent" type="vector3">
-      <input name="intest" type="float" interfacename="specular_anisotropy" />
-      <input name="in1" type="vector3" interfacename="tangent" />
-      <input name="in2" type="vector3" nodename="tangent_rotate_normalize" />
-    </compare>
+    <ifgreater name="main_tangent" type="vector3">
+      <input name="value1" type="float" interfacename="specular_anisotropy" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="vector3" nodename="tangent_rotate_normalize" />
+      <input name="in2" type="vector3" interfacename="tangent" />
+    </ifgreater>
 
     <!-- Coat tangent rotation -->
     <multiply name="coat_tangent_rotate_degree" type="float">
@@ -148,11 +149,12 @@
     <normalize name="coat_tangent_rotate_normalize" type="vector3">
       <input name="in" type="vector3" nodename="coat_tangent_rotate" />
     </normalize>
-    <compare name="coat_tangent" type="vector3">
-      <input name="intest" type="float" interfacename="coat_anisotropy" />
-      <input name="in1" type="vector3" interfacename="tangent" />
-      <input name="in2" type="vector3" nodename="coat_tangent_rotate_normalize" />
-    </compare>
+     <ifgreater name="coat_tangent" type="vector3">
+      <input name="value1" type="float" interfacename="coat_anisotropy" />
+      <input name="value2" type="float" value="0.0" />
+      <input name="in1" type="vector3" nodename="coat_tangent_rotate_normalize" />
+      <input name="in2" type="vector3" interfacename="tangent" />
+    </ifgreater>
 
     <!-- Colors influenced by coat ("coat gamma") -->
     <clamp name="coat_clamped" type="float">

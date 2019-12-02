@@ -3741,56 +3741,358 @@
   <!-- ======================================================================== -->
 
   <!--
-    Node: <compare>
-    Compare the value of an incoming float selector stream against a specified cutoff value,
-    then pass the value of one of two other incoming streams depending on whether the selector
-    stream value is greater than the fixed cutoff value.
+    Node: <ifgreater>
+    Output the value of in1 if value1>value2, or the value of in2 if value1<=value2.
   -->
-  <nodedef name="ND_compare_float" node="compare" nodegroup="conditional">
-    <input name="intest" type="float" value="0.0"/>
-    <parameter name="cutoff" type="float" value="0.0"/>
+  <nodedef name="ND_ifgreater_float" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
-    <output name="out" type="float"  defaultinput="in1"/>
+    <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_compare_color2" node="compare" nodegroup="conditional">
-    <input name="intest" type="float" value="0.0"/>
-    <parameter name="cutoff" type="float" value="0.0"/>
+  <nodedef name="ND_ifgreater_color2" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
     <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0" defaultinput="in1"/>
-    <output name="out" type="color2"/>
+    <input name="in2" type="color2" value="0.0, 0.0"/>
+    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_compare_color3" node="compare" nodegroup="conditional">
-    <input name="intest" type="float" value="0.0"/>
-    <parameter name="cutoff" type="float" value="0.0"/>
+  <nodedef name="ND_ifgreater_color3" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
-    <output name="out" type="color3"  defaultinput="in1"/>
+    <output name="out" type="color3" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_compare_color4" node="compare" nodegroup="conditional">
-    <input name="intest" type="float" value="0.0"/>
-    <parameter name="cutoff" type="float" value="0.0"/>
+  <nodedef name="ND_ifgreater_color4" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
     <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <output name="out" type="color4" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_compare_vector2" node="compare" nodegroup="conditional">
-    <input name="intest" type="float" value="0.0"/>
-    <parameter name="cutoff" type="float" value="0.0"/>
+  <nodedef name="ND_ifgreater_vector2" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
     <input name="in1" type="vector2" value="0.0, 0.0"/>
     <input name="in2" type="vector2" value="0.0, 0.0"/>
     <output name="out" type="vector2" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_compare_vector3" node="compare" nodegroup="conditional">
-    <input name="intest" type="float" value="0.0"/>
-    <parameter name="cutoff" type="float" value="0.0"/>
+  <nodedef name="ND_ifgreater_vector3" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
     <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="vector3" value="0.0, 0.0, 0.0"/>
     <output name="out" type="vector3" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_compare_vector4" node="compare" nodegroup="conditional">
-    <input name="intest" type="float" value="0.0"/>
-    <parameter name="cutoff" type="float" value="0.0"/>
+  <nodedef name="ND_ifgreater_vector4" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="vector4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreater_floatI" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="float" value="0.0"/>
+    <input name="in2" type="float" value="0.0"/>
+    <output name="out" type="float" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreater_color2I" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color2" value="0.0, 0.0"/>
+    <input name="in2" type="color2" value="0.0, 0.0"/>
+    <output name="out" type="color2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreater_color3I" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="color3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreater_color4I" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="color4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreater_vector2I" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector2" value="0.0, 0.0"/>
+    <input name="in2" type="vector2" value="0.0, 0.0"/>
+    <output name="out" type="vector2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreater_vector3I" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="vector3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreater_vector4I" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="vector4" defaultinput="in1"/>
+  </nodedef>
+
+  <!--
+    Node: <ifgreatereq>
+    Output the value of in1 if value1>=value2, or the value of in2 if value1<value2.
+  -->
+  <nodedef name="ND_ifgreatereq_float" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="float" value="0.0"/>
+    <input name="in2" type="float" value="0.0"/>
+    <output name="out" type="float" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_color2" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="color2" value="0.0, 0.0"/>
+    <input name="in2" type="color2" value="0.0, 0.0"/>
+    <output name="out" type="color2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_color3" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="color3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_color4" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="color4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_vector2" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="vector2" value="0.0, 0.0"/>
+    <input name="in2" type="vector2" value="0.0, 0.0"/>
+    <output name="out" type="vector2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_vector3" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="vector3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_vector4" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="vector4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_floatI" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="float" value="0.0"/>
+    <input name="in2" type="float" value="0.0"/>
+    <output name="out" type="float" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_color2I" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color2" value="0.0, 0.0"/>
+    <input name="in2" type="color2" value="0.0, 0.0"/>
+    <output name="out" type="color2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_color3I" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="color3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_color4I" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="color4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_vector2I" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector2" value="0.0, 0.0"/>
+    <input name="in2" type="vector2" value="0.0, 0.0"/>
+    <output name="out" type="vector2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_vector3I" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="vector3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_vector4I" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="vector4" defaultinput="in1"/>
+  </nodedef>
+
+  <!--
+    Node: <ifequal>
+    Output the value of in1 if value1==value2, or the value of in2 if value1!=value2.
+  -->
+  <nodedef name="ND_ifequal_float" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="float" value="0.0"/>
+    <input name="in2" type="float" value="0.0"/>
+    <output name="out" type="float" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color2" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="color2" value="0.0, 0.0"/>
+    <input name="in2" type="color2" value="0.0, 0.0"/>
+    <output name="out" type="color2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color3" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="color3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color4" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="color4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector2" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="vector2" value="0.0, 0.0"/>
+    <input name="in2" type="vector2" value="0.0, 0.0"/>
+    <output name="out" type="vector2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector3" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="vector3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector4" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0"/>
+    <input name="value2" type="float" value="0.0"/>
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="vector4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_floatI" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="float" value="0.0"/>
+    <input name="in2" type="float" value="0.0"/>
+    <output name="out" type="float" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color2I" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color2" value="0.0, 0.0"/>
+    <input name="in2" type="color2" value="0.0, 0.0"/>
+    <output name="out" type="color2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color3I" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="color3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color4I" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="color4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector2I" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector2" value="0.0, 0.0"/>
+    <input name="in2" type="vector2" value="0.0, 0.0"/>
+    <output name="out" type="vector2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector3I" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="vector3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector4I" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0"/>
+    <input name="value2" type="integer" value="0"/>
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="vector4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_floatB" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false"/>
+    <input name="value2" type="boolean" value="false"/>
+    <input name="in1" type="float" value="0.0"/>
+    <input name="in2" type="float" value="0.0"/>
+    <output name="out" type="float" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color2B" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false"/>
+    <input name="value2" type="boolean" value="false"/>
+    <input name="in1" type="color2" value="0.0, 0.0"/>
+    <input name="in2" type="color2" value="0.0, 0.0"/>
+    <output name="out" type="color2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color3B" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false"/>
+    <input name="value2" type="boolean" value="false"/>
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="color3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_color4B" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false"/>
+    <input name="value2" type="boolean" value="false"/>
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="in2" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <output name="out" type="color4" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector2B" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false"/>
+    <input name="value2" type="boolean" value="false"/>
+    <input name="in1" type="vector2" value="0.0, 0.0"/>
+    <input name="in2" type="vector2" value="0.0, 0.0"/>
+    <output name="out" type="vector2" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector3B" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false"/>
+    <input name="value2" type="boolean" value="false"/>
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0"/>
+    <output name="out" type="vector3" defaultinput="in1"/>
+  </nodedef>
+  <nodedef name="ND_ifequal_vector4B" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false"/>
+    <input name="value2" type="boolean" value="false"/>
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <output name="out" type="vector4" defaultinput="in1"/>
@@ -4315,64 +4617,74 @@
   </nodedef>
 
   <!--
-    Node: <combine>
-    Combine the channels from two, three or four streams into the same number of channels of a
+    Node: <combine2>
+    Combine the channels from two streams into the same number of channels of a
     single output stream of a specified compatible type.
   -->
-  <nodedef name="ND_combine_color2" node="combine" nodegroup="channel">
+  <nodedef name="ND_combine2_color2" node="combine2" nodegroup="channel">
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
-  <nodedef name="ND_combine_vector2" node="combine" nodegroup="channel">
+  <nodedef name="ND_combine2_vector2" node="combine2" nodegroup="channel">
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="vector2" default="0.0, 0.0"/>
   </nodedef>
-  <nodedef name="ND_combine_color3" node="combine" nodegroup="channel">
+  <nodedef name="ND_combine2_color4CF" node="combine2" nodegroup="channel">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="float" value="0.0"/>
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_combine2_vector4VF" node="combine2" nodegroup="channel">
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="in2" type="float" value="0.0"/>
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_combine2_color4CC" node="combine2" nodegroup="channel">
+    <input name="in1" type="color2" value="0.0, 0.0"/>
+    <input name="in2" type="color2" value="0.0, 0.0"/>
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_combine2_vector4VV" node="combine2" nodegroup="channel">
+    <input name="in1" type="vector2" value="0.0, 0.0"/>
+    <input name="in2" type="vector2" value="0.0, 0.0"/>
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <!--
+    Node: <combine3>
+    Combine the channels from three streams into the same number of channels of a
+    single output stream of a specified compatible type.
+  -->
+  <nodedef name="ND_combine3_color3" node="combine3" nodegroup="channel">
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <input name="in3" type="float" value="0.0"/>
     <output name="out" type="color3" default="0.0, 0.0, 0.0"/>
   </nodedef>
-  <nodedef name="ND_combine_vector3" node="combine" nodegroup="channel">
+  <nodedef name="ND_combine3_vector3" node="combine3" nodegroup="channel">
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <input name="in3" type="float" value="0.0"/>
     <output name="out" type="vector3" default="0.0, 0.0, 0.0"/>
   </nodedef>
-  <nodedef name="ND_combine_color4" node="combine" nodegroup="channel">
+  <!--
+    Node: <combine4>
+    Combine the channels from four streams into the same number of channels of a
+    single output stream of a specified compatible type.
+  -->
+  <nodedef name="ND_combine4_color4" node="combine4" nodegroup="channel">
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <input name="in3" type="float" value="0.0"/>
     <input name="in4" type="float" value="0.0"/>
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0"/>
   </nodedef>
-  <nodedef name="ND_combine_vector4" node="combine" nodegroup="channel">
+  <nodedef name="ND_combine4_vector4" node="combine4" nodegroup="channel">
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <input name="in3" type="float" value="0.0"/>
     <input name="in4" type="float" value="0.0"/>
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
- <nodedef name="ND_combine_color4CF" node="combine" nodegroup="channel">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
-    <input name="in2" type="float" value="0.0"/>
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_combine_vector4VF" node="combine" nodegroup="channel">
-    <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="in2" type="float" value="0.0"/>
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_combine_color4CC" node="combine" nodegroup="channel">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_combine_vector4VV" node="combine" nodegroup="channel">
-    <input name="in1" type="vector2" value="0.0, 0.0"/>
-    <input name="in2" type="vector2" value="0.0, 0.0"/>
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
   </nodedef>
 
@@ -4412,39 +4724,39 @@
   </nodedef>
 
   <!--
-    Node: <separate> Supplemental Node
+    Node: <separate2>, <separate3>, <separate4> Supplemental Nodes
     Output each of the channels of a color/vector stream as a separate float output.
   -->
-  <nodedef name="ND_separate_color2" node="separate" nodegroup="channel">
+  <nodedef name="ND_separate2_color2" node="separate2" nodegroup="channel">
     <input name="in" type="color2" value="0.0, 0.0"/>
     <output name="outr" type="float" default="0.0"/>
     <output name="outa" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_separate_vector2" node="separate" nodegroup="channel">
+  <nodedef name="ND_separate2_vector2" node="separate2" nodegroup="channel">
     <input name="in" type="vector2" value="0.0, 0.0"/>
     <output name="outx" type="float" default="0.0"/>
     <output name="outy" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_separate_color3" node="separate" nodegroup="channel">
+  <nodedef name="ND_separate3_color3" node="separate3" nodegroup="channel">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <output name="outr" type="float" default="0.0"/>
     <output name="outg" type="float" default="0.0"/>
     <output name="outb" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_separate_vector3" node="separate" nodegroup="channel">
+  <nodedef name="ND_separate3_vector3" node="separate3" nodegroup="channel">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
     <output name="outx" type="float" default="0.0"/>
     <output name="outy" type="float" default="0.0"/>
     <output name="outz" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_separate_color4" node="separate" nodegroup="channel">
+  <nodedef name="ND_separate4_color4" node="separate4" nodegroup="channel">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <output name="outr" type="float" default="0.0"/>
     <output name="outg" type="float" default="0.0"/>
     <output name="outb" type="float" default="0.0"/>
     <output name="outa" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_separate_vector4" node="separate" nodegroup="channel">
+  <nodedef name="ND_separate4_vector4" node="separate4" nodegroup="channel">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <output name="outx" type="float" default="0.0"/>
     <output name="outy" type="float" default="0.0"/>

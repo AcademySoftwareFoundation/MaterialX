@@ -74,11 +74,11 @@ def main(args=None):
                     diffPath = None
                 fh.write("    <tr>\n")
                 if glslFile:
-                    fh.write("        <td class='td_image'><img src='" + fullGlslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + fullGlslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
                 if oslFile:
-                    fh.write("        <td class='td_image'><img src='" + fullOslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + fullOslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
                 if diffPath:
-                    fh.write("        <td class='td_image'><img src='" + diffPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + diffPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
                 fh.write("    </tr>\n")
                 fh.write("    <tr>\n")
                 if glslFile:

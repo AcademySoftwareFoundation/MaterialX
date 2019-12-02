@@ -67,7 +67,8 @@ TEST_CASE("GenReference: Reference implementation file test", "[genreference]")
 
     const mx::StringVec genlanguage = { "genglsl", "genosl" };
     const mx::StringVec language = { "glsl", "osl" };
-    const std::vector<bool> outputFunction = { false, true };
+    const std::vector<bool> outputFunction = { false, false };
+    const std::vector<bool> outputFile = { false, false };
 
     for (size_t i = 0; i < genlanguage.size(); i++)
     {
@@ -114,7 +115,10 @@ TEST_CASE("GenReference: Reference implementation file test", "[genreference]")
                 mx::ImplementationPtr impl = implDoc->addImplementation(
                     IMPLEMENTATION_PREFIX + nodeName + "_" + genlanguage[i]);
                 impl->setNodeDef(nodedef);
-                impl->setFile((implPath / filename).asString(mx::FilePath::FormatPosix));
+                if (outputFile[i])
+                {
+                    impl->setFile((implPath / filename).asString(mx::FilePath::FormatPosix));
+                }
                 if (outputFunction[i])
                 {
                     impl->setFunction("mx_" + nodeName);
