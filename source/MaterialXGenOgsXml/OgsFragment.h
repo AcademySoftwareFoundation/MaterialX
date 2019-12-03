@@ -22,6 +22,7 @@ class OgsFragment
 {
   public:
     OgsFragment(mx::ElementPtr, const mx::FileSearchPath& librarySearchPath);
+    OgsFragment(mx::ElementPtr, mx::GenContext&);
 
     OgsFragment(const OgsFragment&) = delete;
     OgsFragment(OgsFragment&&) = delete;
@@ -71,19 +72,11 @@ class OgsFragment
     static std::string getMatrix4Name(const std::string& matrix3Name);
 
   private:
-    /// Generate the fragment.
-    void generateFragment(const mx::FileSearchPath& librarySearchPath);
-    
     mx::ElementPtr _element;        ///< The MaterialX element.
-    
     std::string _fragmentName;      ///< An automatically generated fragment name.
-
     std::string _fragmentSource;    ///< The generated fragment source.
-    
     mx::StringMap _pathInputMap;    ///< Maps MaterialX element paths to fragment input names.
-
     mx::ShaderPtr _glslShader;      ///< The MaterialX-generated GLSL shader.
-
     bool _isTransparent = false;    ///< Whether the fragment represents a transparent surface.
 };
 
