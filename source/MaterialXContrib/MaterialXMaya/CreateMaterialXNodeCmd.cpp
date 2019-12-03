@@ -95,9 +95,7 @@ std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
                                                 const MString& envRadianceFileName,
                                                 const MString& envIrradianceFileName )
 {
-    std::unique_ptr<OgsFragment> ogsFragment{ new OgsFragment(document,
-                                                              renderableElement,
-                                                              searchPath) };
+    auto ogsFragment = std::make_unique<OgsFragment>(renderableElement, searchPath);
 
     MayaUtil::registerFragment(
         ogsFragment->getFragmentName(), ogsFragment->getFragmentSource()

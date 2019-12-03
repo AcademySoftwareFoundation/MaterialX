@@ -17,18 +17,11 @@ namespace MaterialXMaya
 {
 
 OgsFragment::OgsFragment(
-    mx::DocumentPtr document,
     mx::ElementPtr element,
     const mx::FileSearchPath& librarySearchPath
 )
-    : _document(document)
-    , _element(element)
+    : _element(element)
 {
-    if (!_document)
-    {
-        throw mx::Exception("No document specified");
-    }
-
     if (!_element)
     {
         throw mx::Exception("No element specified");
@@ -99,8 +92,10 @@ void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
         )
         {
             glslGenerator->setColorManagementSystem(colorManagementSystem);
-            colorManagementSystem->loadLibrary(_document);
-            const std::string& documentColorSpace = _document->getAttribute(mx::Element::COLOR_SPACE_ATTRIBUTE);
+
+            mx::DocumentPtr document = _element->getDocument();
+            colorManagementSystem->loadLibrary(document);
+            const std::string& documentColorSpace = document->getAttribute(mx::Element::COLOR_SPACE_ATTRIBUTE);
 
             static const std::string MATERIALX_LINEAR_WORKING_SPACE("lin_rec709");
             genOptions.targetColorSpaceOverride =

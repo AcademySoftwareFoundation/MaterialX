@@ -21,9 +21,7 @@ namespace MaterialXMaya
 class OgsFragment
 {
   public:
-    OgsFragment(mx::DocumentPtr document,
-                mx::ElementPtr element,
-                const mx::FileSearchPath& librarySearchPath);
+    OgsFragment(mx::ElementPtr, const mx::FileSearchPath& librarySearchPath);
 
     OgsFragment(const OgsFragment&) = delete;
     OgsFragment(OgsFragment&&) = delete;
@@ -43,7 +41,7 @@ class OgsFragment
     /// Return the MaterialX document.
     mx::DocumentPtr getDocument() const
     {
-        return _document;
+        return _element ? _element->getDocument() : mx::DocumentPtr();
     }
 
     /// Return the source of the OGS fragment as a string.
@@ -76,7 +74,6 @@ class OgsFragment
     /// Generate the fragment.
     void generateFragment(const mx::FileSearchPath& librarySearchPath);
     
-    mx::DocumentPtr _document;      ///< The MaterialX document.
     mx::ElementPtr _element;        ///< The MaterialX element.
     
     std::string _fragmentName;      ///< An automatically generated fragment name.
