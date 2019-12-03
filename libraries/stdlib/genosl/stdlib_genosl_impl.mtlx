@@ -760,15 +760,6 @@
   <implementation name="IM_switch_vector2I_genosl" nodedef="ND_switch_vector2I" language="genosl"/>
   <implementation name="IM_switch_vector3I_genosl" nodedef="ND_switch_vector3I" language="genosl"/>
   <implementation name="IM_switch_vector4I_genosl" nodedef="ND_switch_vector4I" language="genosl"/>
-  <!-- 'which' type : boolean -->
-  <implementation name="IM_switch_floatB_genosl" nodedef="ND_switch_floatB" language="genosl"/>
-  <implementation name="IM_switch_color2B_genosl" nodedef="ND_switch_color2B" language="genosl"/>
-  <implementation name="IM_switch_color3B_genosl" nodedef="ND_switch_color3B" language="genosl"/>
-  <implementation name="IM_switch_color4B_genosl" nodedef="ND_switch_color4B" language="genosl"/>
-  <implementation name="IM_switch_vector2B_genosl" nodedef="ND_switch_vector2B" language="genosl"/>
-  <implementation name="IM_switch_vector3B_genosl" nodedef="ND_switch_vector3B" language="genosl"/>
-  <implementation name="IM_switch_vector4B_genosl" nodedef="ND_switch_vector4B" language="genosl"/>
-
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->

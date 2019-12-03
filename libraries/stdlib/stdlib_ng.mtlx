@@ -1610,11 +1610,12 @@
     <clamp name="N_clamp_float" type="float">
       <input name="in" type="float" nodename="N_remap2_float"/>
     </clamp>
-    <switch name="N_switch_float" type="float">
-      <input name="in1" type="float" nodename="N_remap2_float"/>
-      <input name="in2" type="float" nodename="N_clamp_float"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_float" type="float">
+      <input name="in1" type="float" nodename="N_clamp_float"/>
+      <input name="in2" type="float" nodename="N_remap2_float"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_float" type="float" nodename="N_switch_float"/>
   </nodegraph>
 
@@ -1654,11 +1655,12 @@
     <clamp name="N_clamp_color2" type="color2">
       <input name="in" type="color2" nodename="N_remap2_color2"/>
     </clamp>
-    <switch name="N_switch_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_remap2_color2"/>
-      <input name="in2" type="color2" nodename="N_clamp_color2"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_color2" type="color2">
+      <input name="in1" type="color2" nodename="N_clamp_color2"/>
+      <input name="in2" type="color2" nodename="N_remap2_color2"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_color2" type="color2" nodename="N_switch_color2"/>
   </nodegraph>
 
@@ -1698,11 +1700,12 @@
     <clamp name="N_clamp_color3" type="color3">
       <input name="in" type="color3" nodename="N_remap2_color3"/>
     </clamp>
-    <switch name="N_switch_color3" type="color3">
-      <input name="in1" type="color3" nodename="N_remap2_color3"/>
-      <input name="in2" type="color3" nodename="N_clamp_color3"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_color3" type="color3">
+      <input name="in1" type="color3" nodename="N_clamp_color3"/>
+      <input name="in2" type="color3" nodename="N_remap2_color3"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_color3" type="color3" nodename="N_switch_color3"/>
   </nodegraph>
 
@@ -1742,11 +1745,13 @@
     <clamp name="N_clamp_color4" type="color4">
       <input name="in" type="color4" nodename="N_remap2_color4"/>
     </clamp>
-    <switch name="N_switch_color4" type="color4">
-      <input name="in1" type="color4" nodename="N_remap2_color4"/>
-      <input name="in2" type="color4" nodename="N_clamp_color4"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_color4" type="color4">
+      <input name="in1" type="color4" nodename="N_clamp_color4"/>
+      <input name="in2" type="color4" nodename="N_remap2_color4"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
+    <input name="value1" type="boolean" interfacename="doclamp"/>
     <output name="N_out_color4" type="color4" nodename="N_switch_color4"/>
   </nodegraph>
 
@@ -1786,11 +1791,12 @@
     <clamp name="N_clamp_vector2" type="vector2">
       <input name="in" type="vector2" nodename="N_remap2_vector2"/>
     </clamp>
-    <switch name="N_switch_vector2" type="vector2">
-      <input name="in1" type="vector2" nodename="N_remap2_vector2"/>
-      <input name="in2" type="vector2" nodename="N_clamp_vector2"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_vector2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_clamp_vector2"/>
+      <input name="in2" type="vector2" nodename="N_remap2_vector2"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_vector2" type="vector2" nodename="N_switch_vector2"/>
   </nodegraph>
 
@@ -1830,11 +1836,12 @@
     <clamp name="N_clamp_vector3" type="vector3">
       <input name="in" type="vector3" nodename="N_remap2_vector3"/>
     </clamp>
-    <switch name="N_switch_vector3" type="vector3">
-      <input name="in1" type="vector3" nodename="N_remap2_vector3"/>
-      <input name="in2" type="vector3" nodename="N_clamp_vector3"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_vector3" type="vector3">
+      <input name="in1" type="vector3" nodename="N_clamp_vector3"/>
+      <input name="in2" type="vector3" nodename="N_remap2_vector3"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_vector3" type="vector3" nodename="N_switch_vector3"/>
   </nodegraph>
 
@@ -1874,11 +1881,12 @@
     <clamp name="N_clamp_vector4" type="vector4">
       <input name="in" type="vector4" nodename="N_remap2_vector4"/>
     </clamp>
-    <switch name="N_switch_vector4" type="vector4">
-      <input name="in1" type="vector4" nodename="N_remap2_vector4"/>
-      <input name="in2" type="vector4" nodename="N_clamp_vector4"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_vector4" type="vector4">
+      <input name="in1" type="vector4" nodename="N_clamp_vector4"/>
+      <input name="in2" type="vector4" nodename="N_remap2_vector4"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_vector4" type="vector4" nodename="N_switch_vector4"/>
   </nodegraph>
 
@@ -1918,11 +1926,12 @@
     <clamp name="N_clamp_color2FA" type="color2">
       <input name="in" type="color2" nodename="N_remap2_color2FA"/>
     </clamp>
-    <switch name="N_switch_color2FA" type="color2">
-      <input name="in1" type="color2" nodename="N_remap2_color2FA"/>
-      <input name="in2" type="color2" nodename="N_clamp_color2FA"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_color2FA" type="color2">
+      <input name="in1" type="color2" nodename="N_clamp_color2FA"/>
+      <input name="in2" type="color2" nodename="N_remap2_color2FA"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_color2FA" type="color2" nodename="N_switch_color2FA"/>
   </nodegraph>
 
@@ -1962,11 +1971,12 @@
     <clamp name="N_clamp_color3FA" type="color3">
       <input name="in" type="color3" nodename="N_remap2_color3FA"/>
     </clamp>
-    <switch name="N_switch_color3FA" type="color3">
-      <input name="in1" type="color3" nodename="N_remap2_color3FA"/>
-      <input name="in2" type="color3" nodename="N_clamp_color3FA"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_color3FA" type="color3">
+      <input name="in1" type="color3" nodename="N_clamp_color3FA"/>
+      <input name="in2" type="color3" nodename="N_remap2_color3FA"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_color3FA" type="color3" nodename="N_switch_color3FA"/>
   </nodegraph>
 
@@ -2006,11 +2016,12 @@
     <clamp name="N_clamp_color4FA" type="color4">
       <input name="in" type="color4" nodename="N_remap2_color4FA"/>
     </clamp>
-    <switch name="N_switch_color4FA" type="color4">
-      <input name="in1" type="color4" nodename="N_remap2_color4FA"/>
-      <input name="in2" type="color4" nodename="N_clamp_color4FA"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_color4FA" type="color4">
+      <input name="in1" type="color4" nodename="N_clamp_color4FA"/>
+      <input name="in2" type="color4" nodename="N_remap2_color4FA"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_color4FA" type="color4" nodename="N_switch_color4FA"/>
   </nodegraph>
 
@@ -2050,11 +2061,12 @@
     <clamp name="N_clamp_vector2FA" type="vector2">
       <input name="in" type="vector2" nodename="N_remap2_vector2FA"/>
     </clamp>
-    <switch name="N_switch_vector2FA" type="vector2">
-      <input name="in1" type="vector2" nodename="N_remap2_vector2FA"/>
-      <input name="in2" type="vector2" nodename="N_clamp_vector2FA"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_vector2FA" type="vector2">
+      <input name="in1" type="vector2" nodename="N_clamp_vector2FA"/>
+      <input name="in2" type="vector2" nodename="N_remap2_vector2FA"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_vector2FA" type="vector2" nodename="N_switch_vector2FA"/>
   </nodegraph>
 
@@ -2094,11 +2106,12 @@
     <clamp name="N_clamp_vector3FA" type="vector3">
       <input name="in" type="vector3" nodename="N_remap2_vector3FA"/>
     </clamp>
-    <switch name="N_switch_vector3FA" type="vector3">
-      <input name="in1" type="vector3" nodename="N_remap2_vector3FA"/>
-      <input name="in2" type="vector3" nodename="N_clamp_vector3FA"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_vector3FA" type="vector3">
+      <input name="in1" type="vector3" nodename="N_clamp_vector3FA"/>
+      <input name="in2" type="vector3" nodename="N_remap2_vector3FA"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_vector3FA" type="vector3" nodename="N_switch_vector3FA"/>
   </nodegraph>
 
@@ -2138,11 +2151,12 @@
     <clamp name="N_clamp_vector4FA" type="vector4">
       <input name="in" type="vector4" nodename="N_remap2_vector4FA"/>
     </clamp>
-    <switch name="N_switch_vector4FA" type="vector4">
-      <input name="in1" type="vector4" nodename="N_remap2_vector4FA"/>
-      <input name="in2" type="vector4" nodename="N_clamp_vector4FA"/>
-      <parameter name="which" type="boolean" interfacename="doclamp"/>
-    </switch>
+    <ifequal name="N_switch_vector4FA" type="vector4">
+      <input name="in1" type="vector4" nodename="N_clamp_vector4FA"/>
+      <input name="in2" type="vector4" nodename="N_remap2_vector4FA"/>
+      <input name="value1" type="boolean" interfacename="doclamp"/>
+      <input name="value2" type="boolean" value="true"/>
+    </ifequal>
     <output name="N_out_vector4FA" type="vector4" nodename="N_switch_vector4FA"/>
   </nodegraph>
 

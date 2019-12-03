@@ -27,11 +27,11 @@
          <input name="in1" type="vector2" nodename="node_texcoord_vector2_1" />
          <input name="in2" type="float" interfacename="pattern_tiling" />
       </multiply>
-      <switch name="node_switch__2" type="float">
-         <input name="in1" type="float" value="1.0" />
-         <input name="in2" type="float" nodename="node_float_3" />
-         <parameter name="which" type="boolean" interfacename="visualize_mask" />
-      </switch>
+      <ifequal name="node_switch__2" type="float">
+         <input name="in2" type="float" value="1.0" />
+         <input name="in1" type="float" nodename="node_float_3" />
+         <input name="value1" type="boolean" interfacename="visualize_mask" />
+      </ifequal>
       <power name="node_power_4" type="vector3">
          <input name="in1" type="vector3" nodename="node_mix_5" />
          <input name="in2" type="vector3" value=" 1.000000, 1.000000, 0.450000" />
