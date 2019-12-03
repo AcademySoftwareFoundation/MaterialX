@@ -128,9 +128,13 @@ void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
         throw mx::Exception("Element is NULL");
     }
 
-    std::string baseFragmentName = mx::createValidName(_element->getNamePath());
+    // The non-unique name of the fragment.
+    // Must match the name of the root function of the fragment.
+    const std::string baseFragmentName = mx::createValidName(_element->getNamePath());
 
     {
+        // Generate the GLSL version of the fragment.
+        //
         mx::GenContext glslGenContext = createGlslGenerator(_element, librarySearchPath);
         _glslShader = glslGenContext.getShaderGenerator().generate(baseFragmentName, _element, glslGenContext);
         if (!_glslShader)
@@ -161,7 +165,14 @@ void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
             std::cerr << "Failed to cross-compile GLSL fragment to HLSL: " << e.what() <<"\n";
         }
 #endif
-        _fragmentSource = mx::OgsXmlGenerator::generate(FRAGMENT_NAME_TOKEN, *_glslShader, hlslSource, _isTransparent);
+        // Generate the XML wrapper for the fragment embedding both the GLSL
+        // and HLSL code.
+        // Supply a placeholder name token to be replaced with an actual unique
+        // name later.
+        //
+        _fragmentSource = mx::OgsXmlGenerator::generate(
+            FRAGMENT_NAME_TOKEN, *_glslShader, hlslSource, _isTransparent
+        );
         if (_fragmentSource.empty())
         {
             throw mx::Exception("Generated fragment source is empty");
@@ -174,6 +185,11 @@ void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
     );
 
     {
+        // Hash the generated fragment source and generate a unique fragment
+        // name to use for registration with Maya API that won't clash with
+        // other fragments (possibly different versions of the same MaterialX
+        // fragment).
+
         std::ostringstream nameStream;
         const size_t sourceHash = std::hash<std::string>{}(_fragmentSource);
         nameStream << baseFragmentName << "__" << std::hex << sourceHash;
@@ -181,8 +197,7 @@ void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
     }
 
     {
-        // Note: This name must match the fragment name used for fragment
-        // registration in Maya API or the registration will fail.
+        // Substitute the placeholder name token with the actual name.
         //
         const mx::StringMap substitutions{ {FRAGMENT_NAME_TOKEN, _fragmentName} };
         mx::tokenSubstitution(substitutions, _fragmentSource);
