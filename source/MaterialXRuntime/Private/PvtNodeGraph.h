@@ -3,11 +3,11 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_PRVNODEGRAPH_H
-#define MATERIALX_PRVNODEGRAPH_H
+#ifndef MATERIALX_PVTNODEGRAPH_H
+#define MATERIALX_PVTNODEGRAPH_H
 
-#include <MaterialXRuntime/Private/PrvElement.h>
-#include <MaterialXRuntime/Private/PrvNode.h>
+#include <MaterialXRuntime/Private/PvtElement.h>
+#include <MaterialXRuntime/Private/PvtNode.h>
 
 #include <MaterialXRuntime/RtObject.h>
 
@@ -17,12 +17,12 @@
 namespace MaterialX
 {
 
-class PrvNodeGraph : public PrvNode
+class PvtNodeGraph : public PvtNode
 {
 public:
-    static PrvObjectHandle createNew(PrvElement* parent, const RtToken& name);
+    static PvtObjectHandle createNew(PvtElement* parent, const RtToken& name);
 
-    void addNode(PrvObjectHandle node);
+    void addNode(PvtObjectHandle node);
 
     void removeNode(const RtToken& name)
     {
@@ -33,13 +33,13 @@ public:
 
     RtPort getInputSocket(size_t index) const
     {
-        const PrvPortDef* portdef = inputSocketsNodeDef()->getPort(index);
+        const PvtPortDef* portdef = inputSocketsNodeDef()->getPort(index);
         return portdef ? RtPort(_inputSockets, index) : RtPort();
     }
 
     RtPort getOutputSocket(size_t index) const
     {
-        const PrvPortDef* portdef = outputSocketsNodeDef()->getPort(index);
+        const PvtPortDef* portdef = outputSocketsNodeDef()->getPort(index);
         return portdef ? RtPort(_outputSockets, index) : RtPort();
     }
 
@@ -55,14 +55,14 @@ public:
         return index != INVALID_INDEX ? RtPort(_outputSockets, index) : RtPort();
     }
 
-    PrvNode* getNode(size_t index) const
+    PvtNode* getNode(size_t index) const
     {
-        return (PrvNode*)getChild(index).get();
+        return (PvtNode*)getChild(index).get();
     }
 
-    PrvNode* findNode(const RtToken& name) const
+    PvtNode* findNode(const RtToken& name) const
     {
-        return (PrvNode*)findChildByName(name).get();
+        return (PvtNode*)findChildByName(name).get();
     }
 
     string asStringDot() const;
@@ -76,21 +76,21 @@ public:
     static const RtToken SOCKETS_NODE_NAME;
 
 protected:
-    PrvNodeGraph(const RtToken& name);
+    PvtNodeGraph(const RtToken& name);
 
-    void addPort(PrvObjectHandle portdef);
+    void addPort(PvtObjectHandle portdef);
 
-    PrvNodeDef* inputSocketsNodeDef() const { return (PrvNodeDef*)_inputSocketsNodeDef.get(); }
-    PrvNode* inputSockets() const { return (PrvNode*)_inputSockets.get(); }
+    PvtNodeDef* inputSocketsNodeDef() const { return (PvtNodeDef*)_inputSocketsNodeDef.get(); }
+    PvtNode* inputSockets() const { return (PvtNode*)_inputSockets.get(); }
 
-    PrvNodeDef* outputSocketsNodeDef() const { return (PrvNodeDef*)_outputSocketsNodeDef.get(); }
-    PrvNode* outputSockets() const { return (PrvNode*)_outputSockets.get(); }
+    PvtNodeDef* outputSocketsNodeDef() const { return (PvtNodeDef*)_outputSocketsNodeDef.get(); }
+    PvtNode* outputSockets() const { return (PvtNode*)_outputSockets.get(); }
 
-    PrvObjectHandle _inputSocketsNodeDef;
-    PrvObjectHandle _inputSockets;
-    PrvObjectHandle _outputSocketsNodeDef;
-    PrvObjectHandle _outputSockets;
-    friend class PrvPortDef;
+    PvtObjectHandle _inputSocketsNodeDef;
+    PvtObjectHandle _inputSockets;
+    PvtObjectHandle _outputSocketsNodeDef;
+    PvtObjectHandle _outputSockets;
+    friend class PvtPortDef;
 };
 
 }

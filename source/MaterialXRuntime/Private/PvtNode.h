@@ -3,10 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_PRVNODE_H
-#define MATERIALX_PRVNODE_H
+#ifndef MATERIALX_PVTNODE_H
+#define MATERIALX_PVTNODE_H
 
-#include <MaterialXRuntime/Private/PrvNodeDef.h>
+#include <MaterialXRuntime/Private/PvtNodeDef.h>
 
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtValue.h>
@@ -19,12 +19,12 @@ namespace MaterialX
 
 using RtPortVec = vector<RtPort>;
 
-class PrvNode : public PrvAllocatingElement
+class PvtNode : public PvtAllocatingElement
 {
 public:
-    static PrvObjectHandle createNew(PrvElement* parent, const PrvObjectHandle& nodedef, const RtToken& name);
+    static PvtObjectHandle createNew(PvtElement* parent, const PvtObjectHandle& nodedef, const RtToken& name);
 
-    PrvObjectHandle getNodeDef() const
+    PvtObjectHandle getNodeDef() const
     {
         return _nodedef;
     }
@@ -61,7 +61,7 @@ public:
 
     RtPort getPort(size_t index)
     {
-        PrvPortDef* portdef = nodeDef()->getPort(index);
+        PvtPortDef* portdef = nodeDef()->getPort(index);
         return portdef ? RtPort(shared_from_this(), index) : RtPort();
     }
 
@@ -78,15 +78,15 @@ public:
 protected:
     // Constructor creating a node with a fixed interface
     // This is the constructor to use for ordinary nodes.
-    PrvNode(const RtToken& name, const PrvObjectHandle& nodedef);
+    PvtNode(const RtToken& name, const PvtObjectHandle& nodedef);
 
     // Constructor creating a node without a fixed interface.
     // Used for constructing nodegraphs.
-    PrvNode(const RtToken& name);
+    PvtNode(const RtToken& name);
 
-    PrvNodeDef* nodeDef() const
+    PvtNodeDef* nodeDef() const
     {
-        return _nodedef->asA<PrvNodeDef>();
+        return _nodedef->asA<PvtNodeDef>();
     }
 
 protected:
@@ -99,11 +99,11 @@ protected:
         RtPortVec connections;
     };
 
-    PrvObjectHandle _nodedef;
+    PvtObjectHandle _nodedef;
     vector<Port> _ports;
 
     friend class RtPort;
-    friend class PrvNodeGraph;
+    friend class PvtNodeGraph;
 };
 
 }

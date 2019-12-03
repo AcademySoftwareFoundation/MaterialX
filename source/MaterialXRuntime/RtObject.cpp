@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtObject.h>
-#include <MaterialXRuntime/Private/PrvObject.h>
+#include <MaterialXRuntime/Private/PvtObject.h>
 
 namespace MaterialX
 {
@@ -64,7 +64,7 @@ namespace
 }
 
 RtObject::RtObject() :
-    _data(PrvObjectHandle())
+    _data(PvtObjectHandle())
 {
 }
 
@@ -73,7 +73,7 @@ RtObject::RtObject(const RtObject& other) :
 {
 }
 
-RtObject::RtObject(PrvObjectHandle data) :
+RtObject::RtObject(PvtObjectHandle data) :
     _data(data)
 {
 }
@@ -99,11 +99,11 @@ bool RtObject::hasApi(RtApiType type) const
 
 
 RtApiBase::RtApiBase() :
-    _data(PrvObjectHandle())
+    _data(PvtObjectHandle())
 {
 }
 
-RtApiBase::RtApiBase(PrvObjectHandle data) :
+RtApiBase::RtApiBase(PvtObjectHandle data) :
     _data(data)
 {
 }
@@ -138,7 +138,7 @@ bool RtApiBase::isValid() const
     return _data && isSupported(_data->getObjType());
 }
 
-void RtApiBase::setData(PrvObjectHandle data)
+void RtApiBase::setData(PvtObjectHandle data)
 {
     if (data && !isSupported(data->getObjType()))
     {

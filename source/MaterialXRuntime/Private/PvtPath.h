@@ -3,31 +3,31 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_PRVPATH_H
-#define MATERIALX_PRVPATH_H
+#ifndef MATERIALX_PVTPATH_H
+#define MATERIALX_PVTPATH_H
 
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 
-#include <MaterialXRuntime/Private/PrvElement.h>
+#include <MaterialXRuntime/Private/PvtElement.h>
 
 namespace MaterialX
 {
 
-class PrvPath
+class PvtPath
 {
 public:
-    PrvPath();
-    PrvPath(PrvObjectHandle obj);
+    PvtPath();
+    PvtPath(PvtObjectHandle obj);
 
     bool isValid() const
     {
         return getObject() != nullptr;
     }
 
-    PrvObjectHandle getObject() const;
+    PvtObjectHandle getObject() const;
 
-    void setObject(PrvObjectHandle obj);
+    void setObject(PvtObjectHandle obj);
 
     string getPathString()
     {
@@ -49,13 +49,13 @@ public:
         _path.pop_back();
     }
 
-    bool operator==(const PrvPath& other) const
+    bool operator==(const PvtPath& other) const
     {
         return _root == other._root && _path == other._path;
     }
 
 private:
-    PrvObjectHandle _root;
+    PvtObjectHandle _root;
     vector<RtToken> _path;
 };
 

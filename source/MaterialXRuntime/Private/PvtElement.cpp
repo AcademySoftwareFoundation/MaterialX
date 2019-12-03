@@ -3,25 +3,25 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvElement.h>
-#include <MaterialXRuntime/Private/PrvNode.h>
-#include <MaterialXRuntime/Private/PrvNodeDef.h>
+#include <MaterialXRuntime/Private/PvtElement.h>
+#include <MaterialXRuntime/Private/PvtNode.h>
+#include <MaterialXRuntime/Private/PvtNodeDef.h>
 
 #include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
 
-const string PrvElement::PATH_SEPARATOR = "/";
+const string PvtElement::PATH_SEPARATOR = "/";
 
-PrvElement::PrvElement(RtObjType objType, const RtToken& name) :
-    PrvObject(objType),
+PvtElement::PvtElement(RtObjType objType, const RtToken& name) :
+    PvtObject(objType),
     _name(name),
     _parent(nullptr)
 {
 }
 
-RtToken PrvElement::makeUniqueChildName(const RtToken& name) const
+RtToken PvtElement::makeUniqueChildName(const RtToken& name) const
 {
     RtToken newName = name;
     if (findChildByName(name))
@@ -44,7 +44,7 @@ RtToken PrvElement::makeUniqueChildName(const RtToken& name) const
     return newName;
 }
 
-void PrvElement::setName(const RtToken& name)
+void PvtElement::setName(const RtToken& name)
 {
     if (name != _name)
     {
@@ -59,9 +59,9 @@ void PrvElement::setName(const RtToken& name)
     }
 }
 
-PrvElement* PrvElement::getRoot() const
+PvtElement* PvtElement::getRoot() const
 {
-    PrvElement* root = const_cast<PrvElement*>(this);
+    PvtElement* root = const_cast<PvtElement*>(this);
     while (root->_parent)
     {
         root = root->_parent;
@@ -69,15 +69,15 @@ PrvElement* PrvElement::getRoot() const
     return root;
 }
 
-void PrvElement::addChild(PrvObjectHandle elemH)
+void PvtElement::addChild(PvtObjectHandle elemH)
 {
     if (!elemH->hasApi(RtApiType::ELEMENT))
     {
         throw ExceptionRuntimeError("Given object is not a valid element");
     }
 
-    PrvElement* elem = elemH->asA<PrvElement>();
-    PrvElement* parent = elem->getParent();
+    PvtElement* elem = elemH->asA<PvtElement>();
+    PvtElement* parent = elem->getParent();
     if (parent)
     {
         if (parent == this)
@@ -99,11 +99,11 @@ void PrvElement::addChild(PrvObjectHandle elemH)
     _childrenByName[elem->getName()] = elemH;
 }
 
-void PrvElement::removeChild(const RtToken& name)
+void PvtElement::removeChild(const RtToken& name)
 {
     for (auto it = _children.begin(); it != _children.end(); ++it)
     {
-        PrvElement* child = (*it)->asA<PrvElement>();
+        PvtElement* child = (*it)->asA<PvtElement>();
         if (child->getName() == name)
         {
             _children.erase(it);
@@ -114,13 +114,13 @@ void PrvElement::removeChild(const RtToken& name)
     _childrenByName.erase(name);
 }
 
-PrvObjectHandle PrvElement::findChildByName(const RtToken& name) const
+PvtObjectHandle PvtElement::findChildByName(const RtToken& name) const
 {
     auto it = _childrenByName.find(name);
     return it != _childrenByName.end() ? it->second : nullptr;
 }
 
-PrvObjectHandle PrvElement::findChildByPath(const string& path) const
+PvtObjectHandle PvtElement::findChildByPath(const string& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -130,27 +130,27 @@ PrvObjectHandle PrvElement::findChildByPath(const string& path) const
 
     size_t i = 0;
     RtToken name = RtToken(elementNames[i++]);
-    PrvObjectHandle elem = findChildByName(name);
+    PvtObjectHandle elem = findChildByName(name);
 
     while (elem != nullptr && i < elementNames.size())
     {
         name = RtToken(elementNames[i++]);
         if (elem->hasApi(RtApiType::NODE))
         {
-            PrvNode* node = elem->asA<PrvNode>();
-            PrvNodeDef* nodedef = node->getNodeDef()->asA<PrvNodeDef>();
+            PvtNode* node = elem->asA<PvtNode>();
+            PvtNodeDef* nodedef = node->getNodeDef()->asA<PvtNodeDef>();
             elem = nodedef->findChildByName(name);
         }
         else
         {
-            elem = elem->asA<PrvElement>()->findChildByName(name);
+            elem = elem->asA<PvtElement>()->findChildByName(name);
         }
     }
 
     return elem;
 }
 
-RtAttribute* PrvElement::addAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
+RtAttribute* PvtElement::addAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
 {
     auto it = _attributesByName.find(name);
     if (it != _attributesByName.end())
@@ -165,7 +165,7 @@ RtAttribute* PrvElement::addAttribute(const RtToken& name, const RtToken& type, 
     return attr.get();
 }
 
-void PrvElement::removeAttribute(const RtToken& name)
+void PvtElement::removeAttribute(const RtToken& name)
 {
     for (auto it = _attributes.begin(); it != _attributes.end(); ++it)
     {
@@ -178,7 +178,7 @@ void PrvElement::removeAttribute(const RtToken& name)
     _attributesByName.erase(name);
 }
 
-PrvAllocator& PrvElement::getAllocator()
+PvtAllocator& PvtElement::getAllocator()
 {
     if (!_parent)
     {
@@ -187,15 +187,15 @@ PrvAllocator& PrvElement::getAllocator()
     return _parent->getAllocator();
 }
 
-PrvUnknownElement::PrvUnknownElement(const RtToken& name, const RtToken& category) :
-    PrvElement(RtObjType::UNKNOWN, name),
+PvtUnknownElement::PvtUnknownElement(const RtToken& name, const RtToken& category) :
+    PvtElement(RtObjType::UNKNOWN, name),
     _category(category)
 {
 }
 
-PrvObjectHandle PrvUnknownElement::createNew(PrvElement* parent, const RtToken& name, const RtToken& category)
+PvtObjectHandle PvtUnknownElement::createNew(PvtElement* parent, const RtToken& name, const RtToken& category)
 {
-    PrvObjectHandle elem(new PrvUnknownElement(name, category));
+    PvtObjectHandle elem(new PvtUnknownElement(name, category));
     if (parent)
     {
         parent->addChild(elem);

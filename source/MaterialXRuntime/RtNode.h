@@ -139,18 +139,18 @@ public:
     }
 
     /// Return the data handle.
-    PrvObjectHandle data() const
+    PvtObjectHandle data() const
     {
         return _data;
     }
 
 private:
-    RtPort(PrvObjectHandle data, size_t index);
+    RtPort(PvtObjectHandle data, size_t index);
 
-    PrvObjectHandle _data;
+    PvtObjectHandle _data;
     size_t _index;
-    friend class PrvNode;
-    friend class PrvNodeGraph;
+    friend class PvtNode;
+    friend class PvtNodeGraph;
 };
 
 /// @class RtNode

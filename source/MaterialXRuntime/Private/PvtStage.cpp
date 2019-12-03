@@ -3,10 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvStage.h>
-#include <MaterialXRuntime/Private/PrvNodeDef.h>
-#include <MaterialXRuntime/Private/PrvNode.h>
-#include <MaterialXRuntime/Private/PrvNodeGraph.h>
+#include <MaterialXRuntime/Private/PvtStage.h>
+#include <MaterialXRuntime/Private/PvtNodeDef.h>
+#include <MaterialXRuntime/Private/PvtNode.h>
+#include <MaterialXRuntime/Private/PvtNodeGraph.h>
 
 #include <MaterialXRuntime/RtObject.h>
 
@@ -18,18 +18,18 @@
 namespace MaterialX
 {
 
-PrvStage::PrvStage(const RtToken& name) :
-    PrvAllocatingElement(RtObjType::STAGE, name),
+PvtStage::PvtStage(const RtToken& name) :
+    PvtAllocatingElement(RtObjType::STAGE, name),
     _selfRefCount(0)
 {
 }
 
-PrvObjectHandle PrvStage::createNew(const RtToken& name)
+PvtObjectHandle PvtStage::createNew(const RtToken& name)
 {
-    return std::make_shared<PrvStage>(name);
+    return std::make_shared<PvtStage>(name);
 }
 
-void PrvStage::addReference(PrvObjectHandle stage)
+void PvtStage::addReference(PvtObjectHandle stage)
 {
     if (!stage->hasApi(RtApiType::STAGE))
     {
@@ -40,15 +40,15 @@ void PrvStage::addReference(PrvObjectHandle stage)
         throw ExceptionRuntimeError("Given object is not a valid stage");
     }
 
-    stage->asA<PrvStage>()->_selfRefCount++;
+    stage->asA<PvtStage>()->_selfRefCount++;
     _refStages.push_back(stage);
 }
 
-void PrvStage::removeReference(const RtToken& name)
+void PvtStage::removeReference(const RtToken& name)
 {
     for (auto it = _refStages.begin(); it != _refStages.end(); ++it)
     {
-        PrvStage* stage = (*it)->asA<PrvStage>();
+        PvtStage* stage = (*it)->asA<PvtStage>();
         if (stage->getName() == name)
         {
             stage->_selfRefCount--;
@@ -59,28 +59,28 @@ void PrvStage::removeReference(const RtToken& name)
     }
 }
 
-void PrvStage::removeReferences()
+void PvtStage::removeReferences()
 {
     _selfRefCount = 0;
     _refStages.clear();
     _refStagesSet.clear();
 }
 
-size_t PrvStage::numReferences() const
+size_t PvtStage::numReferences() const
 {
     return _refStages.size();
 }
 
-PrvObjectHandle PrvStage::getReference(size_t index) const
+PvtObjectHandle PvtStage::getReference(size_t index) const
 {
     return index < _refStages.size() ? _refStages[index] : nullptr;
 }
 
-PrvObjectHandle PrvStage::findReference(const RtToken& name) const
+PvtObjectHandle PvtStage::findReference(const RtToken& name) const
 {
     for (auto it = _refStages.begin(); it != _refStages.end(); ++it)
     {
-        PrvStage* stage = (*it)->asA<PrvStage>();
+        PvtStage* stage = (*it)->asA<PvtStage>();
         if (stage->getName() == name)
         {
             return *it;
@@ -89,7 +89,7 @@ PrvObjectHandle PrvStage::findReference(const RtToken& name) const
     return nullptr;
 }
 
-PrvObjectHandle PrvStage::findChildByName(const RtToken& name) const
+PvtObjectHandle PvtStage::findChildByName(const RtToken& name) const
 {
     auto it = _childrenByName.find(name);
     if (it != _childrenByName.end())
@@ -98,8 +98,8 @@ PrvObjectHandle PrvStage::findChildByName(const RtToken& name) const
     }
     for (auto rs : _refStages)
     {
-        PrvStage* refStage = rs->asA<PrvStage>();
-        PrvObjectHandle elem = refStage->findChildByName(name);
+        PvtStage* refStage = rs->asA<PvtStage>();
+        PvtObjectHandle elem = refStage->findChildByName(name);
         if (elem)
         {
             return elem;
@@ -108,7 +108,7 @@ PrvObjectHandle PrvStage::findChildByName(const RtToken& name) const
     return nullptr;
 }
 
-PrvObjectHandle PrvStage::findChildByPath(const string& path) const
+PvtObjectHandle PvtStage::findChildByPath(const string& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -118,7 +118,7 @@ PrvObjectHandle PrvStage::findChildByPath(const string& path) const
 
     size_t i = 0;
     RtToken name(elementNames[i++]);
-    PrvObjectHandle elem = findChildByName(name);
+    PvtObjectHandle elem = findChildByName(name);
 
     while (elem && i < elementNames.size())
     {
@@ -126,13 +126,13 @@ PrvObjectHandle PrvStage::findChildByPath(const string& path) const
         if (elem->getObjType() == RtObjType::NODE)
         {
             // For nodes find the portdef on the corresponding nodedef
-            PrvNode* node = elem->asA<PrvNode>();
-            PrvNodeDef* nodedef = node->getNodeDef()->asA<PrvNodeDef>();
+            PvtNode* node = elem->asA<PvtNode>();
+            PvtNodeDef* nodedef = node->getNodeDef()->asA<PvtNodeDef>();
             elem = nodedef->findChildByName(name);
         }
         else
         {
-            elem = elem->asA<PrvElement>()->findChildByName(name);
+            elem = elem->asA<PvtElement>()->findChildByName(name);
         }
     }
 
@@ -142,7 +142,7 @@ PrvObjectHandle PrvStage::findChildByPath(const string& path) const
         // any referenced stages as well.
         for (auto it : _refStages)
         {
-            PrvStage* refStage = it->asA<PrvStage>();
+            PvtStage* refStage = it->asA<PvtStage>();
             elem = refStage->findChildByPath(path);
             if (elem)
             {

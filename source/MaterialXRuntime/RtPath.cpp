@@ -5,71 +5,71 @@
 
 #include <MaterialXRuntime/RtPath.h>
 
-#include <MaterialXRuntime/Private/PrvPath.h>
+#include <MaterialXRuntime/Private/PvtPath.h>
 
 namespace MaterialX
 {
 
 RtPath::RtPath() :
-    _ptr(new PrvPath())
+    _ptr(new PvtPath())
 {
 }
 
 RtPath::RtPath(const RtObject& obj) :
-    _ptr(new PrvPath())
+    _ptr(new PvtPath())
 {
     setObject(obj);
 }
 
 RtPath::~RtPath()
 {
-    delete static_cast<PrvPath*>(_ptr);
+    delete static_cast<PvtPath*>(_ptr);
 }
 
 bool RtPath::isValid() const
 {
-    return static_cast<PrvPath*>(_ptr)->isValid();
+    return static_cast<PvtPath*>(_ptr)->isValid();
 }
 
 RtObjType RtPath::getObjType() const
 {
-    return static_cast<PrvPath*>(_ptr)->getObject()->getObjType();
+    return static_cast<PvtPath*>(_ptr)->getObject()->getObjType();
 }
 
 bool RtPath::hasApi(RtApiType type) const
 {
-    return static_cast<PrvPath*>(_ptr)->getObject()->hasApi(type);
+    return static_cast<PvtPath*>(_ptr)->getObject()->hasApi(type);
 }
 
 RtObject RtPath::getObject() const
 {
-    return RtObject(static_cast<PrvPath*>(_ptr)->getObject());
+    return RtObject(static_cast<PvtPath*>(_ptr)->getObject());
 }
 
 void RtPath::setObject(const RtObject& obj)
 {
-    static_cast<PrvPath*>(_ptr)->setObject(obj.data());
+    static_cast<PvtPath*>(_ptr)->setObject(obj.data());
 }
 
 string RtPath::getPathString() const
 {
-    return static_cast<PrvPath*>(_ptr)->getPathString();
+    return static_cast<PvtPath*>(_ptr)->getPathString();
 }
 
 void RtPath::push(const RtToken& childName)
 {
-    return static_cast<PrvPath*>(_ptr)->push(childName);
+    return static_cast<PvtPath*>(_ptr)->push(childName);
 }
 
 void RtPath::pop()
 {
-    return static_cast<PrvPath*>(_ptr)->pop();
+    return static_cast<PvtPath*>(_ptr)->pop();
 }
 
 bool RtPath::operator==(const RtPath& other) const
 {
-    const PrvPath* otherPath = static_cast<PrvPath*>(other._ptr);
-    return static_cast<PrvPath*>(_ptr)->operator==(*otherPath);
+    const PvtPath* otherPath = static_cast<PvtPath*>(other._ptr);
+    return static_cast<PvtPath*>(_ptr)->operator==(*otherPath);
 }
 
 }

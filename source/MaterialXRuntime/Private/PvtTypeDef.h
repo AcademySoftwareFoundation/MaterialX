@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_PRVTYPEDEF_H
-#define MATERIALX_PRVTYPEDEF_H
+#ifndef MATERIALX_PVTTYPEDEF_H
+#define MATERIALX_PVTTYPEDEF_H
 
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtTypeDef.h>
@@ -12,13 +12,13 @@
 namespace MaterialX
 {
 
-class PrvTypeDef
+class PvtTypeDef
 {
 public:
     using ChannelMap = std::unordered_map<char, int>;
 
 public:
-    PrvTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic,
+    PvtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic,
         size_t size, const ChannelMap& channelMap = ChannelMap());
 
     const RtToken& getName() const
@@ -66,14 +66,14 @@ private:
     RtTokenSet _connectionTypes;
 };
 
-class PrvTypeDefRegistry
+class PvtTypeDefRegistry
 {
 public:
-    PrvTypeDefRegistry();
+    PvtTypeDefRegistry();
 
     RtTypeDef* newType(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs,
         const RtToken& sematic = RtTypeDef::SEMANTIC_NONE, size_t size = 1,
-        const PrvTypeDef::ChannelMap& channelMap = PrvTypeDef::ChannelMap());
+        const PvtTypeDef::ChannelMap& channelMap = PvtTypeDef::ChannelMap());
 
     size_t numTypes()
     {
@@ -91,9 +91,9 @@ public:
         return it != _typesByName.end() ? it->second : nullptr;
     }
 
-    static PrvTypeDefRegistry& get()
+    static PvtTypeDefRegistry& get()
     {
-        static PrvTypeDefRegistry _registry;
+        static PvtTypeDefRegistry _registry;
         return _registry;
     }
 

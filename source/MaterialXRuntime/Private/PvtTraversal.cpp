@@ -3,39 +3,39 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvTraversal.h>
-#include <MaterialXRuntime/Private/PrvElement.h>
+#include <MaterialXRuntime/Private/PvtTraversal.h>
+#include <MaterialXRuntime/Private/PvtElement.h>
 
 namespace MaterialX
 {
 
-PrvStageIterator::PrvStageIterator() :
+PvtStageIterator::PvtStageIterator() :
     _current(nullptr),
     _filter(nullptr)
 {
 }
 
-PrvStageIterator::PrvStageIterator(PrvObjectHandle root, RtTraversalFilter filter) :
+PvtStageIterator::PvtStageIterator(PvtObjectHandle root, RtTraversalFilter filter) :
     _current(nullptr),
     _filter(filter)
 {
     if (root->hasApi(RtApiType::STAGE))
     {
         // Initialize the stack and start iteration to the first element.
-        PrvStage* stage = root->asA<PrvStage>();
+        PvtStage* stage = root->asA<PvtStage>();
         _stack.push_back(std::make_tuple(stage, -1, -1));
         ++*this;
     }
 }
 
-PrvStageIterator::PrvStageIterator(const PrvStageIterator& other) :
+PvtStageIterator::PvtStageIterator(const PvtStageIterator& other) :
     _current(other._current),
     _stack(other._stack),
     _filter(other._filter)
 {
 }
 
-PrvStageIterator& PrvStageIterator::operator++()
+PvtStageIterator& PvtStageIterator::operator++()
 {
     while (true)
     {
@@ -47,7 +47,7 @@ PrvStageIterator& PrvStageIterator::operator++()
         }
 
         StackFrame& frame = _stack.back();
-        PrvStage* stage = std::get<0>(frame);
+        PvtStage* stage = std::get<0>(frame);
         int& elemIndex = std::get<1>(frame);
         int& stageIndex = std::get<2>(frame);
 
@@ -64,7 +64,7 @@ PrvStageIterator& PrvStageIterator::operator++()
         }
         else if (stageIndex + 1 < int(stage->getReferencedStages().size()))
         {
-            PrvStage* refStage = stage->getReferencedStages()[++stageIndex]->asA<PrvStage>();
+            PvtStage* refStage = stage->getReferencedStages()[++stageIndex]->asA<PvtStage>();
             if (!refStage->getChildren().empty())
             {
                 _stack.push_back(std::make_tuple(refStage, 0, stageIndex));
@@ -85,33 +85,33 @@ PrvStageIterator& PrvStageIterator::operator++()
 }
 
 
-PrvTreeIterator::PrvTreeIterator() :
+PvtTreeIterator::PvtTreeIterator() :
     _current(nullptr),
     _filter(nullptr)
 {
 }
 
-PrvTreeIterator::PrvTreeIterator(PrvObjectHandle root, RtTraversalFilter filter) :
+PvtTreeIterator::PvtTreeIterator(PvtObjectHandle root, RtTraversalFilter filter) :
     _current(nullptr),
     _filter(filter)
 {
     if (root->hasApi(RtApiType::ELEMENT))
     {
         // Initialize the stack and start iteration to the first element.
-        PrvElement* elem = root->asA<PrvElement>();
+        PvtElement* elem = root->asA<PvtElement>();
         _stack.push_back(std::make_tuple(elem, -1, -1));
         ++*this;
     }
 }
 
-PrvTreeIterator::PrvTreeIterator(const PrvTreeIterator& other) :
+PvtTreeIterator::PvtTreeIterator(const PvtTreeIterator& other) :
     _current(other._current),
     _stack(other._stack),
     _filter(other._filter)
 {
 }
 
-PrvTreeIterator& PrvTreeIterator::operator++()
+PvtTreeIterator& PvtTreeIterator::operator++()
 {
     while (true)
     {
@@ -126,7 +126,7 @@ PrvTreeIterator& PrvTreeIterator::operator++()
             _current->hasApi(RtApiType::ELEMENT) &&
             !_current->hasApi(RtApiType::STAGE))
         {
-            PrvElement* elem = _current->asA<PrvElement>();
+            PvtElement* elem = _current->asA<PvtElement>();
             if (elem->numChildren())
             {
                 _stack.push_back(std::make_tuple(elem, 0, -1));
@@ -139,7 +139,7 @@ PrvTreeIterator& PrvTreeIterator::operator++()
         }
 
         StackFrame& frame = _stack.back();
-        PrvElement* elem = std::get<0>(frame);
+        PvtElement* elem = std::get<0>(frame);
         int& elemIndex = std::get<1>(frame);
         int& stageIndex = std::get<2>(frame);
 
@@ -156,10 +156,10 @@ PrvTreeIterator& PrvTreeIterator::operator++()
         }
         else if (elem->hasApi(RtApiType::STAGE))
         {
-            PrvStage* stage = elem->asA<PrvStage>();
+            PvtStage* stage = elem->asA<PvtStage>();
             if (stageIndex + 1 < int(stage->getReferencedStages().size()))
             {
-                PrvStage* refStage = stage->getReferencedStages()[++stageIndex]->asA<PrvStage>();
+                PvtStage* refStage = stage->getReferencedStages()[++stageIndex]->asA<PvtStage>();
                 if (refStage->numChildren())
                 {
                     _stack.push_back(std::make_tuple(refStage, 0, stageIndex));
@@ -185,12 +185,12 @@ PrvTreeIterator& PrvTreeIterator::operator++()
 
 
 
-PrvGraphIterator::PrvGraphIterator() :
+PvtGraphIterator::PvtGraphIterator() :
     _filter(nullptr)
 {
 }
 
-PrvGraphIterator::PrvGraphIterator(RtPort root, RtTraversalFilter filter) :
+PvtGraphIterator::PvtGraphIterator(RtPort root, RtTraversalFilter filter) :
     _filter(filter)
 {
     if (root.isOutput())
@@ -204,18 +204,18 @@ PrvGraphIterator::PrvGraphIterator(RtPort root, RtTraversalFilter filter) :
     }
 }
 
-PrvGraphIterator::PrvGraphIterator(const PrvGraphIterator& other) :
+PvtGraphIterator::PvtGraphIterator(const PvtGraphIterator& other) :
     _current(other._current),
     _stack(other._stack),
     _filter(other._filter)
 {
 }
 
-PrvGraphIterator& PrvGraphIterator::operator++()
+PvtGraphIterator& PvtGraphIterator::operator++()
 {
     if (_current.first.data())
     {
-        PrvNode* node = _current.first.data()->asA<PrvNode>();
+        PvtNode* node = _current.first.data()->asA<PvtNode>();
 
         // Check if we have any inputs.
         if (node->numInputs())
@@ -251,7 +251,7 @@ PrvGraphIterator& PrvGraphIterator::operator++()
 
         // Traverse to our siblings.
         StackFrame& parentFrame = _stack.back();
-        PrvNode* node = parentFrame.first.data()->asA<PrvNode>();
+        PvtNode* node = parentFrame.first.data()->asA<PvtNode>();
         while (parentFrame.second + 1 < node->numPorts())
         {
             RtPort input = node->getPort(++parentFrame.second);
@@ -271,12 +271,12 @@ PrvGraphIterator& PrvGraphIterator::operator++()
     return *this;
 }
 
-void PrvGraphIterator::extendPathUpstream(const RtPort& upstream, const RtPort& downstream)
+void PvtGraphIterator::extendPathUpstream(const RtPort& upstream, const RtPort& downstream)
 {
     // Check for cycles.
     if (_path.count(upstream))
     {
-        throw ExceptionRuntimeError("Encountered cycle at element: " + upstream.data()->asA<PrvNode>()->getName().str() + "." + upstream.getName().str());
+        throw ExceptionRuntimeError("Encountered cycle at element: " + upstream.data()->asA<PvtNode>()->getName().str() + "." + upstream.getName().str());
     }
 
     // Extend the current path to the new element.
@@ -285,7 +285,7 @@ void PrvGraphIterator::extendPathUpstream(const RtPort& upstream, const RtPort& 
     _current.second = downstream;
 }
 
-void PrvGraphIterator::returnPathDownstream(const RtPort& upstream)
+void PvtGraphIterator::returnPathDownstream(const RtPort& upstream)
 {
     _path.erase(upstream);
     _current.first = RtPort();

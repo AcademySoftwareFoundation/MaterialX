@@ -88,7 +88,7 @@ private:
     RtToken _type;
     RtValue _value;
     uint32_t _flags;
-    friend class PrvElement;
+    friend class PvtElement;
 };
 
 }

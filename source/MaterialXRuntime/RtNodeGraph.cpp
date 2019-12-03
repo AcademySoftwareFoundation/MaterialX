@@ -6,8 +6,8 @@
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtObject.h>
 
-#include <MaterialXRuntime/Private/PrvNodeGraph.h>
-#include <MaterialXRuntime/Private/PrvStage.h>
+#include <MaterialXRuntime/Private/PvtNodeGraph.h>
+#include <MaterialXRuntime/Private/PvtStage.h>
 
 namespace MaterialX
 {
@@ -23,7 +23,7 @@ RtObject RtNodeGraph::createNew(RtObject parent, const RtToken& name)
     {
         throw ExceptionRuntimeError("Parent object must be a stage or a nodegraph");
     }
-    return RtObject(PrvNodeGraph::createNew(parent.data()->asA<PrvElement>(), name));
+    return RtObject(PvtNodeGraph::createNew(parent.data()->asA<PvtElement>(), name));
 }
 
 RtApiType RtNodeGraph::getApiType() const
@@ -33,7 +33,7 @@ RtApiType RtNodeGraph::getApiType() const
 
 void RtNodeGraph::addNode(RtObject node)
 {
-    return data()->asA<PrvNodeGraph>()->addNode(node.data());
+    return data()->asA<PvtNodeGraph>()->addNode(node.data());
 }
 
 void RtNodeGraph::removeNode(RtObject node)
@@ -42,8 +42,8 @@ void RtNodeGraph::removeNode(RtObject node)
     {
         throw ExceptionRuntimeError("Given object is not a node");
     }
-    PrvNode* n = node.data()->asA<PrvNode>();
-    return data()->asA<PrvNodeGraph>()->removeNode(n->getName());
+    PvtNode* n = node.data()->asA<PvtNode>();
+    return data()->asA<PvtNodeGraph>()->removeNode(n->getName());
 }
 
 void RtNodeGraph::removePort(RtObject portdef)
@@ -52,50 +52,50 @@ void RtNodeGraph::removePort(RtObject portdef)
     {
         throw ExceptionRuntimeError("Given object is not a portdef");
     }
-    PrvPortDef* p = portdef.data()->asA<PrvPortDef>();
-    return data()->asA<PrvNodeGraph>()->removePort(p->getName());
+    PvtPortDef* p = portdef.data()->asA<PvtPortDef>();
+    return data()->asA<PvtNodeGraph>()->removePort(p->getName());
 }
 
 size_t RtNodeGraph::numNodes() const
 {
-    return data()->asA<PrvNodeGraph>()->numChildren();
+    return data()->asA<PvtNodeGraph>()->numChildren();
 }
 
 RtObject RtNodeGraph::getNode(size_t index) const
 {
-    PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getChild(index);
+    PvtObjectHandle node = data()->asA<PvtNodeGraph>()->getChild(index);
     return RtObject(node);
 }
 
 RtObject RtNodeGraph::findNode(const RtToken& name) const
 {
-    PrvObjectHandle node = data()->asA<PrvNodeGraph>()->findChildByName(name);
+    PvtObjectHandle node = data()->asA<PvtNodeGraph>()->findChildByName(name);
     return RtObject(node);
 }
 
 RtPort RtNodeGraph::getOutputSocket(size_t index) const
 {
-    return data()->asA<PrvNodeGraph>()->getOutputSocket(index);
+    return data()->asA<PvtNodeGraph>()->getOutputSocket(index);
 }
 
 RtPort RtNodeGraph::getInputSocket(size_t index) const
 {
-    return data()->asA<PrvNodeGraph>()->getInputSocket(index);
+    return data()->asA<PvtNodeGraph>()->getInputSocket(index);
 }
 
 RtPort RtNodeGraph::findOutputSocket(const RtToken& name) const
 {
-    return data()->asA<PrvNodeGraph>()->findOutputSocket(name);
+    return data()->asA<PvtNodeGraph>()->findOutputSocket(name);
 }
 
 RtPort RtNodeGraph::findInputSocket(const RtToken& name) const
 {
-    return data()->asA<PrvNodeGraph>()->findInputSocket(name);
+    return data()->asA<PvtNodeGraph>()->findInputSocket(name);
 }
 
 string RtNodeGraph::asStringDot() const
 {
-    return data()->asA<PrvNodeGraph>()->asStringDot();
+    return data()->asA<PvtNodeGraph>()->asStringDot();
 }
 
 }

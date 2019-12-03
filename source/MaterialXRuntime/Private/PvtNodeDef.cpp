@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvNodeDef.h>
-#include <MaterialXRuntime/Private/PrvPortDef.h>
+#include <MaterialXRuntime/Private/PvtNodeDef.h>
+#include <MaterialXRuntime/Private/PvtPortDef.h>
 
 /// @file
 /// TODO: Docs
@@ -12,21 +12,21 @@
 namespace MaterialX
 {
 
-PrvNodeDef::PrvNodeDef(const RtToken& name, const RtToken& nodeName) :
-    PrvAllocatingElement(RtObjType::NODEDEF, name),
+PvtNodeDef::PvtNodeDef(const RtToken& name, const RtToken& nodeName) :
+    PvtAllocatingElement(RtObjType::NODEDEF, name),
     _nodeName(nodeName),
     _numOutputs(0)
 {
 }
 
-PrvObjectHandle PrvNodeDef::createNew(PrvElement* parent, const RtToken& name, const RtToken& category)
+PvtObjectHandle PvtNodeDef::createNew(PvtElement* parent, const RtToken& name, const RtToken& category)
 {
     if (parent && !parent->hasApi(RtApiType::STAGE))
     {
         throw ExceptionRuntimeError("Given parent object is not a stage");
     }
 
-    PrvObjectHandle nodedef(new PrvNodeDef(name, category));
+    PvtObjectHandle nodedef(new PvtNodeDef(name, category));
     if (parent)
     {
         parent->addChild(nodedef);
@@ -35,14 +35,14 @@ PrvObjectHandle PrvNodeDef::createNew(PrvElement* parent, const RtToken& name, c
     return nodedef;
 }
 
-void PrvNodeDef::addPort(PrvObjectHandle portdef)
+void PvtNodeDef::addPort(PvtObjectHandle portdef)
 {
     if (!portdef->hasApi(RtApiType::PORTDEF))
     {
         throw ExceptionRuntimeError("Given object is not a valid portdef");
     }
 
-    PrvPortDef* p = portdef->asA<PrvPortDef>();
+    PvtPortDef* p = portdef->asA<PvtPortDef>();
     if (_childrenByName.count(p->getName()))
     {
         throw ExceptionRuntimeError("A port named '" + p->getName().str() + "' already exists for nodedef '" + getName().str() + "'");
@@ -72,9 +72,9 @@ void PrvNodeDef::addPort(PrvObjectHandle portdef)
     rebuildPortIndex();
 }
 
-void PrvNodeDef::removePort(const RtToken& name)
+void PvtNodeDef::removePort(const RtToken& name)
 {
-    PrvPortDef* p = findPort(name);
+    PvtPortDef* p = findPort(name);
     if (p)
     {
         _numOutputs -= p->isOutput();
@@ -83,7 +83,7 @@ void PrvNodeDef::removePort(const RtToken& name)
     }
 }
 
-void PrvNodeDef::rebuildPortIndex()
+void PvtNodeDef::rebuildPortIndex()
 {
     for (size_t i = 0; i < numPorts(); ++i)
     {

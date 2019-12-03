@@ -3,10 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_PRVELEMENT_H
-#define MATERIALX_PRVELEMENT_H
+#ifndef MATERIALX_PVTELEMENT_H
+#define MATERIALX_PVTELEMENT_H
 
-#include <MaterialXRuntime/Private/PrvObject.h>
+#include <MaterialXRuntime/Private/PvtObject.h>
 
 #include <MaterialXRuntime/RtElement.h>
 
@@ -16,18 +16,18 @@
 namespace MaterialX
 {
 
-using PrvObjectHandleVec = vector<PrvObjectHandle>;
-using PrvObjectHandleSet = std::set<PrvObjectHandle>;
+using PvtObjectHandleVec = vector<PvtObjectHandle>;
+using PvtObjectHandleSet = std::set<PvtObjectHandle>;
 
 // Allocator class handling allocation of data for elements.
 // The data allocated is kept by the allocator and freed
 // upon allocator destruction or by calling free() explicitly.
 // NOTE: Data is stored as raw byte pointers and destructors
 // for allocated objects will not be called when freeing data.
-class PrvAllocator
+class PvtAllocator
 {
 public:
-    ~PrvAllocator()
+    ~PvtAllocator()
     {
         free();
     }
@@ -64,10 +64,10 @@ private:
 };
 
 
-class PrvElement : public PrvObject
+class PvtElement : public PvtObject
 {
 public:
-    virtual ~PrvElement() {}
+    virtual ~PvtElement() {}
 
     const RtToken& getName() const
     {
@@ -76,21 +76,21 @@ public:
 
     void setName(const RtToken& name);
 
-    PrvElement* getParent() const
+    PvtElement* getParent() const
     {
         return _parent;
     }
 
     // Note: This should only be called from inside addChild or addPort.
     // Arbitrary reparenting of elements is not supported.
-    void setParent(PrvElement* parent)
+    void setParent(PvtElement* parent)
     {
         _parent = parent;
     }
 
-    PrvElement* getRoot() const;
+    PvtElement* getRoot() const;
 
-    void addChild(PrvObjectHandle elem);
+    void addChild(PvtObjectHandle elem);
 
     void removeChild(const RtToken& name);
 
@@ -99,19 +99,19 @@ public:
         return _children.size();
     }
 
-    PrvObjectHandle getChild(size_t index) const
+    PvtObjectHandle getChild(size_t index) const
     {
         return index < _children.size() ? _children[index] : nullptr;
     }
 
-    const PrvObjectHandleVec& getChildren() const
+    const PvtObjectHandleVec& getChildren() const
     {
         return _children;
     }
 
-    virtual PrvObjectHandle findChildByName(const RtToken& name) const;
+    virtual PvtObjectHandle findChildByName(const RtToken& name) const;
 
-    virtual PrvObjectHandle findChildByPath(const string& path) const;
+    virtual PvtObjectHandle findChildByPath(const string& path) const;
 
     RtAttribute* addAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
@@ -144,50 +144,50 @@ public:
         return _attributes.size();
     }
 
-    virtual PrvAllocator& getAllocator();
+    virtual PvtAllocator& getAllocator();
 
     static const string PATH_SEPARATOR;
 
 protected:
-    PrvElement(RtObjType objType, const RtToken& name);
+    PvtElement(RtObjType objType, const RtToken& name);
 
     // Make a unique name among the element's children.
     RtToken makeUniqueChildName(const RtToken& name) const;
 
     RtToken _name;
-    PrvElement* _parent;
-    PrvObjectHandleVec _children;
-    RtTokenMap<PrvObjectHandle> _childrenByName;
+    PvtElement* _parent;
+    PvtObjectHandleVec _children;
+    RtTokenMap<PvtObjectHandle> _childrenByName;
 
     using AttrPtr = std::shared_ptr<RtAttribute>;
     vector<AttrPtr> _attributes;
     RtTokenMap<AttrPtr> _attributesByName;
 
-    friend class PrvStage;
+    friend class PvtStage;
 };
 
 
-class PrvAllocatingElement : public PrvElement
+class PvtAllocatingElement : public PvtElement
 {
 public:
-    PrvAllocator& getAllocator() override
+    PvtAllocator& getAllocator() override
     {
         return _allocator;
     }
 
 protected:
-    PrvAllocatingElement(RtObjType objType, const RtToken& name):
-        PrvElement(objType, name)
+    PvtAllocatingElement(RtObjType objType, const RtToken& name):
+        PvtElement(objType, name)
     {}
 
-    PrvAllocator _allocator;
+    PvtAllocator _allocator;
 };
 
 
-class PrvUnknownElement : public PrvElement
+class PvtUnknownElement : public PvtElement
 {
 public:
-    static PrvObjectHandle createNew(PrvElement* parent, const RtToken& name, const RtToken& category);
+    static PvtObjectHandle createNew(PvtElement* parent, const RtToken& name, const RtToken& category);
 
     const RtToken& getCategory() const
     {
@@ -195,7 +195,7 @@ public:
     }
 
 protected:
-    PrvUnknownElement(const RtToken& name, const RtToken& category);
+    PvtUnknownElement(const RtToken& name, const RtToken& category);
 
     const RtToken _category;
 };

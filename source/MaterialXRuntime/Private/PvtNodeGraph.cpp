@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvNodeGraph.h>
+#include <MaterialXRuntime/Private/PvtNodeGraph.h>
 
 #include <MaterialXRuntime/RtTypeDef.h>
 
@@ -18,26 +18,26 @@ namespace
     const RtToken DEFAULT_NODEGRAPH_NAME("nodegraph1");
 }
 
-const RtToken PrvNodeGraph::UNPUBLISHED_NODEDEF("__unpublished_nodedef__");
-const RtToken PrvNodeGraph::INPUT_SOCKETS_NODEDEF("__inputsockets_nodedef__");
-const RtToken PrvNodeGraph::OUTPUT_SOCKETS_NODEDEF("__outputsockets_nodedef__");
-const RtToken PrvNodeGraph::INPUT_SOCKETS("__inputsockets__");
-const RtToken PrvNodeGraph::OUTPUT_SOCKETS("__outputsockets__");
-const RtToken PrvNodeGraph::SOCKETS_NODE_NAME("__sockets__");
+const RtToken PvtNodeGraph::UNPUBLISHED_NODEDEF("__unpublished_nodedef__");
+const RtToken PvtNodeGraph::INPUT_SOCKETS_NODEDEF("__inputsockets_nodedef__");
+const RtToken PvtNodeGraph::OUTPUT_SOCKETS_NODEDEF("__outputsockets_nodedef__");
+const RtToken PvtNodeGraph::INPUT_SOCKETS("__inputsockets__");
+const RtToken PvtNodeGraph::OUTPUT_SOCKETS("__outputsockets__");
+const RtToken PvtNodeGraph::SOCKETS_NODE_NAME("__sockets__");
 
-PrvNodeGraph::PrvNodeGraph(const RtToken& name) :
-    PrvNode(name)
+PvtNodeGraph::PvtNodeGraph(const RtToken& name) :
+    PvtNode(name)
 {
-    _nodedef = PrvNodeDef::createNew(nullptr, UNPUBLISHED_NODEDEF, UNPUBLISHED_NODEDEF);
+    _nodedef = PvtNodeDef::createNew(nullptr, UNPUBLISHED_NODEDEF, UNPUBLISHED_NODEDEF);
 
-    _inputSocketsNodeDef = PrvNodeDef::createNew(nullptr, INPUT_SOCKETS_NODEDEF, SOCKETS_NODE_NAME);
-    _inputSockets = PrvNode::createNew(nullptr, _inputSocketsNodeDef, INPUT_SOCKETS);
+    _inputSocketsNodeDef = PvtNodeDef::createNew(nullptr, INPUT_SOCKETS_NODEDEF, SOCKETS_NODE_NAME);
+    _inputSockets = PvtNode::createNew(nullptr, _inputSocketsNodeDef, INPUT_SOCKETS);
 
-    _outputSocketsNodeDef = PrvNodeDef::createNew(nullptr, OUTPUT_SOCKETS_NODEDEF, SOCKETS_NODE_NAME);
-    _outputSockets = PrvNode::createNew(nullptr, _outputSocketsNodeDef, OUTPUT_SOCKETS);
+    _outputSocketsNodeDef = PvtNodeDef::createNew(nullptr, OUTPUT_SOCKETS_NODEDEF, SOCKETS_NODE_NAME);
+    _outputSockets = PvtNode::createNew(nullptr, _outputSocketsNodeDef, OUTPUT_SOCKETS);
 }
 
-PrvObjectHandle PrvNodeGraph::createNew(PrvElement* parent, const RtToken& name)
+PvtObjectHandle PvtNodeGraph::createNew(PvtElement* parent, const RtToken& name)
 {
     if (parent && !(parent->hasApi(RtApiType::STAGE) || parent->hasApi(RtApiType::NODEGRAPH)))
     {
@@ -49,7 +49,7 @@ PrvObjectHandle PrvNodeGraph::createNew(PrvElement* parent, const RtToken& name)
     // when the node is added to the parent below.
     RtToken graphName = name == EMPTY_TOKEN ? DEFAULT_NODEGRAPH_NAME : name;
 
-    PrvObjectHandle node(new PrvNodeGraph(graphName));
+    PvtObjectHandle node(new PvtNodeGraph(graphName));
     if (parent)
     {
         parent->addChild(node);
@@ -58,7 +58,7 @@ PrvObjectHandle PrvNodeGraph::createNew(PrvElement* parent, const RtToken& name)
     return node;
 }
 
-void PrvNodeGraph::addNode(PrvObjectHandle node)
+void PvtNodeGraph::addNode(PvtObjectHandle node)
 {
     if (!node->hasApi(RtApiType::NODE))
     {
@@ -67,12 +67,12 @@ void PrvNodeGraph::addNode(PrvObjectHandle node)
     addChild(node);
 }
 
-void PrvNodeGraph::addPort(PrvObjectHandle portdef)
+void PvtNodeGraph::addPort(PvtObjectHandle portdef)
 {
-    const PrvPortDef* pd = portdef->asA<PrvPortDef>();
+    const PvtPortDef* pd = portdef->asA<PvtPortDef>();
     const uint32_t flags = pd->getFlags();
 
-    PrvNode::Port p;
+    PvtNode::Port p;
     p.value = pd->getValue();
     p.colorspace = pd->getColorSpace();
     p.unit = pd->getUnit();
@@ -92,23 +92,23 @@ void PrvNodeGraph::addPort(PrvObjectHandle portdef)
     // Add to internal interface
     if (pd->isOutput())
     {
-        PrvObjectHandle socket = PrvPortDef::createNew(outputSocketsNodeDef(), pd->getName(), pd->getType(), flags & ~RtPortFlag::OUTPUT);
-        socket->asA<PrvPortDef>()->setValue(pd->getValue());
+        PvtObjectHandle socket = PvtPortDef::createNew(outputSocketsNodeDef(), pd->getName(), pd->getType(), flags & ~RtPortFlag::OUTPUT);
+        socket->asA<PvtPortDef>()->setValue(pd->getValue());
 
         outputSockets()->_ports.push_back(p);
     }
     else
     {
-        PrvObjectHandle socket = PrvPortDef::createNew(inputSocketsNodeDef(), pd->getName(), pd->getType(), flags | RtPortFlag::OUTPUT);
-        socket->asA<PrvPortDef>()->setValue(pd->getValue());
+        PvtObjectHandle socket = PvtPortDef::createNew(inputSocketsNodeDef(), pd->getName(), pd->getType(), flags | RtPortFlag::OUTPUT);
+        socket->asA<PvtPortDef>()->setValue(pd->getValue());
 
         inputSockets()->_ports.push_back(p);
     }
 }
 
-void PrvNodeGraph::removePort(const RtToken& name)
+void PvtNodeGraph::removePort(const RtToken& name)
 {
-    const PrvPortDef* portdef = nodeDef()->findPort(name);
+    const PvtPortDef* portdef = nodeDef()->findPort(name);
     if (!portdef)
     {
         return;
@@ -143,7 +143,7 @@ void PrvNodeGraph::removePort(const RtToken& name)
     nodeDef()->removePort(name);
 }
 
-string PrvNodeGraph::asStringDot() const
+string PvtNodeGraph::asStringDot() const
 {
     string dot = "digraph {\n";
 
@@ -160,7 +160,7 @@ string PrvNodeGraph::asStringDot() const
         dot += "[shape=ellipse];\n";
     }
 
-    auto writeConnections = [](PrvNode* n, string& dot)
+    auto writeConnections = [](PvtNode* n, string& dot)
     {
         string dstName = n->getName().str();
         if (n->getName() == OUTPUT_SOCKETS)

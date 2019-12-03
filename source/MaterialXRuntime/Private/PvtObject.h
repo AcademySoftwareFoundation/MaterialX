@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_PRVOBJECT_H
-#define MATERIALX_PRVOBJECT_H
+#ifndef MATERIALX_PVTOBJECT_H
+#define MATERIALX_PVTOBJECT_H
 
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtToken.h>
@@ -18,12 +18,12 @@
 namespace MaterialX
 {
 
-class PrvObject : public std::enable_shared_from_this<PrvObject>
+class PvtObject : public std::enable_shared_from_this<PvtObject>
 {
 public:
-    PrvObject(RtObjType type);
+    PvtObject(RtObjType type);
 
-    virtual ~PrvObject();
+    virtual ~PvtObject();
 
     /// Return the type for this object.
     RtObjType getObjType() const

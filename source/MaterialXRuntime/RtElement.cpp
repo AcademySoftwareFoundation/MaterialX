@@ -5,7 +5,7 @@
 
 #include <MaterialXRuntime/RtElement.h>
 
-#include <MaterialXRuntime/Private/PrvElement.h>
+#include <MaterialXRuntime/Private/PvtElement.h>
 
 namespace MaterialX
 {
@@ -22,47 +22,47 @@ RtApiType RtElement::getApiType() const
 
 const RtToken& RtElement::getName() const
 {
-    return data()->asA<PrvElement>()->getName();
+    return data()->asA<PvtElement>()->getName();
 }
 
 void RtElement::setName(const RtToken& name)
 {
-    data()->asA<PrvElement>()->setName(name);
+    data()->asA<PvtElement>()->setName(name);
 }
 
 RtAttribute* RtElement::addAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    PrvElement* elem = data()->asA<PrvElement>();
+    PvtElement* elem = data()->asA<PvtElement>();
     return elem->addAttribute(name, type, flags);
 }
 
 const RtAttribute* RtElement::getAttribute(const RtToken& name) const
 {
-    PrvElement* elem = data()->asA<PrvElement>();
+    PvtElement* elem = data()->asA<PvtElement>();
     return elem->getAttribute(name);
 }
 
 RtAttribute* RtElement::getAttribute(const RtToken& name)
 {
-    PrvElement* elem = data()->asA<PrvElement>();
+    PvtElement* elem = data()->asA<PvtElement>();
     return elem->getAttribute(name);
 }
 
 const RtAttribute* RtElement::getAttribute(size_t index) const
 {
-    PrvElement* elem = data()->asA<PrvElement>();
+    PvtElement* elem = data()->asA<PvtElement>();
     return elem->getAttribute(index);
 }
 
 RtAttribute* RtElement::getAttribute(size_t index)
 {
-    PrvElement* elem = data()->asA<PrvElement>();
+    PvtElement* elem = data()->asA<PvtElement>();
     return elem->getAttribute(index);
 }
 
 size_t RtElement::numAttributes() const
 {
-    return data()->asA<PrvElement>()->numAttributes();
+    return data()->asA<PvtElement>()->numAttributes();
 }
 
 RtTreeIterator RtElement::traverseTree(RtTraversalFilter filter)

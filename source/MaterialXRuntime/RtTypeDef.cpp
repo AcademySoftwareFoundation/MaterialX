@@ -5,7 +5,7 @@
 
 #include <MaterialXRuntime/RtTypeDef.h>
 
-#include <MaterialXRuntime/Private/PrvTypeDef.h>
+#include <MaterialXRuntime/Private/PvtTypeDef.h>
 
 namespace MaterialX
 {
@@ -53,65 +53,65 @@ const RtToken RtTypeDef::SEMANTIC_CLOSURE = "closure";
 const RtToken RtTypeDef::SEMANTIC_SHADER = "shader";
 
 RtTypeDef::RtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic, size_t size) :
-    _ptr(new PrvTypeDef(name, basetype, funcs, semantic, size))
+    _ptr(new PvtTypeDef(name, basetype, funcs, semantic, size))
 {
 }
 
 RtTypeDef::~RtTypeDef()
 {
-    delete static_cast<PrvTypeDef*>(_ptr);
+    delete static_cast<PvtTypeDef*>(_ptr);
 }
 
 RtValue RtTypeDef::createValue(RtObject& owner) const
 {
-    return static_cast<PrvTypeDef*>(_ptr)->getValueFuncs().create(owner);
+    return static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().create(owner);
 }
 
 void RtTypeDef::copyValue(const RtValue& src, RtValue& dest) const
 {
-    static_cast<PrvTypeDef*>(_ptr)->getValueFuncs().copy(src, dest);
+    static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().copy(src, dest);
 }
 
 void RtTypeDef::toStringValue(const RtValue& src, string& dest) const
 {
-    static_cast<PrvTypeDef*>(_ptr)->getValueFuncs().toString(src, dest);
+    static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().toString(src, dest);
 }
 
 void RtTypeDef::fromStringValue(const string& src, RtValue& dest) const
 {
-    static_cast<PrvTypeDef*>(_ptr)->getValueFuncs().fromString(src, dest);
+    static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().fromString(src, dest);
 }
 
 const RtToken& RtTypeDef::getName() const
 {
-    return static_cast<PrvTypeDef*>(_ptr)->getName();
+    return static_cast<PvtTypeDef*>(_ptr)->getName();
 }
 
 const RtToken& RtTypeDef::getBaseType() const
 {
-    return static_cast<PrvTypeDef*>(_ptr)->getBaseType();
+    return static_cast<PvtTypeDef*>(_ptr)->getBaseType();
 }
 
 const RtToken& RtTypeDef::getSemantic() const
 {
-    return static_cast<PrvTypeDef*>(_ptr)->getSemantic();
+    return static_cast<PvtTypeDef*>(_ptr)->getSemantic();
 }
 
 size_t RtTypeDef::getSize() const
 {
-    return static_cast<PrvTypeDef*>(_ptr)->getSize();
+    return static_cast<PvtTypeDef*>(_ptr)->getSize();
 }
 
 int RtTypeDef::getChannelIndex(char channel) const
 {
-    PrvTypeDef* ptr = static_cast<PrvTypeDef*>(_ptr);
+    PvtTypeDef* ptr = static_cast<PvtTypeDef*>(_ptr);
     auto it = ptr->getChannelMap().find(channel);
     return it != ptr->getChannelMap().end() ? it->second : -1;
 }
 
 char RtTypeDef::getChannelName(int index) const
 {
-    PrvTypeDef* ptr = static_cast<PrvTypeDef*>(_ptr);
+    PvtTypeDef* ptr = static_cast<PvtTypeDef*>(_ptr);
     for (auto it : ptr->getChannelMap())
     {
         if (it.second == index)
@@ -124,37 +124,37 @@ char RtTypeDef::getChannelName(int index) const
 
 void RtTypeDef::setChannelIndex(char channel, int index)
 {
-    static_cast<PrvTypeDef*>(_ptr)->getChannelMap()[channel] = index;
+    static_cast<PvtTypeDef*>(_ptr)->getChannelMap()[channel] = index;
 }
 
 const RtTokenSet& RtTypeDef::getValidConnectionTypes() const
 {
-    return static_cast<PrvTypeDef*>(_ptr)->getValidConnectionTypes();
+    return static_cast<PvtTypeDef*>(_ptr)->getValidConnectionTypes();
 }
 
 RtTypeDef* RtTypeDef::registerType(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs,
                                    const RtToken& semantic, size_t size)
 {
-    if (PrvTypeDefRegistry::get().findType(name))
+    if (PvtTypeDefRegistry::get().findType(name))
     {
         throw ExceptionRuntimeError("A type named '" + name.str() + "' is already registered");
     }
-    return PrvTypeDefRegistry::get().newType(name, basetype, funcs, semantic, size);
+    return PvtTypeDefRegistry::get().newType(name, basetype, funcs, semantic, size);
 }
 
 size_t RtTypeDef::numTypes()
 {
-    return PrvTypeDefRegistry::get().numTypes();
+    return PvtTypeDefRegistry::get().numTypes();
 }
 
 const RtTypeDef* RtTypeDef::getType(size_t index)
 {
-    return PrvTypeDefRegistry::get().getType(index);
+    return PvtTypeDefRegistry::get().getType(index);
 }
 
 const RtTypeDef* RtTypeDef::findType(const RtToken& name)
 {
-    return PrvTypeDefRegistry::get().findType(name);
+    return PvtTypeDefRegistry::get().findType(name);
 }
 
 }

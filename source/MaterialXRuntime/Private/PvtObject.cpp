@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvObject.h>
+#include <MaterialXRuntime/Private/PvtObject.h>
 
 #include <set>
 
@@ -60,16 +60,16 @@ namespace
     };
 }
 
-PrvObject::PrvObject(RtObjType type) :
+PvtObject::PvtObject(RtObjType type) :
     _objType(type)
 {
 }
 
-PrvObject::~PrvObject()
+PvtObject::~PvtObject()
 {
 }
 
-bool PrvObject::hasApi(RtApiType type) const
+bool PvtObject::hasApi(RtApiType type) const
 {
     return OBJ_TO_API_RTTI[int(_objType)].count(type) != 0;
 }

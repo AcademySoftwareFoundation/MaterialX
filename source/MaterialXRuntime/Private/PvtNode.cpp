@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvNode.h>
+#include <MaterialXRuntime/Private/PvtNode.h>
 #include <MaterialXRuntime/RtToken.h>
 
 /// @file
@@ -12,15 +12,15 @@
 namespace MaterialX
 {
 
-PrvNode::Port::Port() :
+PvtNode::Port::Port() :
     colorspace(EMPTY_TOKEN),
     unit(EMPTY_TOKEN)
 {
 }
 
 // Construction with an interface is for nodes.
-PrvNode::PrvNode(const RtToken& name, const PrvObjectHandle& nodedef) :
-    PrvAllocatingElement(RtObjType::NODE, name),
+PvtNode::PvtNode(const RtToken& name, const PvtObjectHandle& nodedef) :
+    PvtAllocatingElement(RtObjType::NODE, name),
     _nodedef(nodedef)
 {
     const size_t numPorts = nodeDef()->numPorts();
@@ -29,19 +29,19 @@ PrvNode::PrvNode(const RtToken& name, const PrvObjectHandle& nodedef) :
     // Set indices and default values
     for (size_t i = 0; i < numPorts; ++i)
     {
-        PrvPortDef* p = nodeDef()->getPort(i);
+        PvtPortDef* p = nodeDef()->getPort(i);
         _ports[i].value = p->getValue();
     }
 }
 
 // Construction without an interface is only for nodegraphs.
-PrvNode::PrvNode(const RtToken& name) :
-    PrvAllocatingElement(RtObjType::NODEGRAPH, name),
+PvtNode::PvtNode(const RtToken& name) :
+    PvtAllocatingElement(RtObjType::NODEGRAPH, name),
     _nodedef(nullptr)
 {
 }
 
-PrvObjectHandle PrvNode::createNew(PrvElement* parent, const PrvObjectHandle& nodedef, const RtToken& name)
+PvtObjectHandle PvtNode::createNew(PvtElement* parent, const PvtObjectHandle& nodedef, const RtToken& name)
 {
     if (parent && !(parent->hasApi(RtApiType::STAGE) || parent->hasApi(RtApiType::NODEGRAPH)))
     {
@@ -54,10 +54,10 @@ PrvObjectHandle PrvNode::createNew(PrvElement* parent, const PrvObjectHandle& no
     RtToken nodeName = name;
     if (nodeName == EMPTY_TOKEN)
     {
-        nodeName = RtToken(nodedef->asA<PrvNodeDef>()->getNodeName().str() + "1");
+        nodeName = RtToken(nodedef->asA<PvtNodeDef>()->getNodeName().str() + "1");
     }
 
-    PrvObjectHandle node(new PrvNode(nodeName, nodedef));
+    PvtObjectHandle node(new PvtNode(nodeName, nodedef));
     if (parent)
     {
         parent->addChild(node);
@@ -66,7 +66,7 @@ PrvObjectHandle PrvNode::createNew(PrvElement* parent, const PrvObjectHandle& no
     return node;
 }
 
-void PrvNode::connect(const RtPort& source, const RtPort& dest)
+void PvtNode::connect(const RtPort& source, const RtPort& dest)
 {
     if (dest.isConnected())
     {
@@ -81,8 +81,8 @@ void PrvNode::connect(const RtPort& source, const RtPort& dest)
         throw ExceptionRuntimeError("Destination port is not a connectable input");
     }
 
-    PrvNode* sourceNode = source._data->asA<PrvNode>();
-    PrvNode* destNode = dest._data->asA<PrvNode>();
+    PvtNode* sourceNode = source._data->asA<PvtNode>();
+    PvtNode* destNode = dest._data->asA<PvtNode>();
     RtPortVec& sourceConnections = sourceNode->_ports[source._index].connections;
     RtPortVec& destConnections = destNode->_ports[dest._index].connections;
 
@@ -92,9 +92,9 @@ void PrvNode::connect(const RtPort& source, const RtPort& dest)
     sourceConnections.push_back(dest);
 }
 
-void PrvNode::disconnect(const RtPort& source, const RtPort& dest)
+void PvtNode::disconnect(const RtPort& source, const RtPort& dest)
 {
-    PrvNode* destNode = dest._data->asA<PrvNode>();
+    PvtNode* destNode = dest._data->asA<PvtNode>();
     RtPortVec& destConnections = destNode->_ports[dest._index].connections;
     if (destConnections.size() != 1 || destConnections[0] != source)
     {
@@ -103,7 +103,7 @@ void PrvNode::disconnect(const RtPort& source, const RtPort& dest)
 
     destConnections.clear();
 
-    PrvNode* sourceNode = source._data->asA<PrvNode>();
+    PvtNode* sourceNode = source._data->asA<PvtNode>();
     RtPortVec& sourceConnections = sourceNode->_ports[source._index].connections;
     for (auto it = sourceConnections.begin(); it != sourceConnections.end(); ++it)
     {

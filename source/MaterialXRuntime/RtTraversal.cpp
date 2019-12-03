@@ -5,32 +5,32 @@
 
 #include <MaterialXRuntime/RtTraversal.h>
 
-#include <MaterialXRuntime/Private/PrvTraversal.h>
+#include <MaterialXRuntime/Private/PvtTraversal.h>
 
 namespace MaterialX
 {
 
 RtStageIterator::RtStageIterator() :
     RtApiBase(),
-    _ptr(new PrvStageIterator())
+    _ptr(new PvtStageIterator())
 {
 }
 
 RtStageIterator::RtStageIterator(RtObject root, RtTraversalFilter filter) :
     RtApiBase(root),
-    _ptr(new PrvStageIterator(root.data(), filter))
+    _ptr(new PvtStageIterator(root.data(), filter))
 {
 }
 
 RtStageIterator::RtStageIterator(const RtStageIterator& other) :
     RtApiBase(other),
-    _ptr(new PrvStageIterator(*static_cast<PrvStageIterator*>(other._ptr)))
+    _ptr(new PvtStageIterator(*static_cast<PvtStageIterator*>(other._ptr)))
 {
 }
 
 RtStageIterator::~RtStageIterator()
 {
-    PrvStageIterator* it = static_cast<PrvStageIterator*>(_ptr);
+    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
     delete it;
 }
 
@@ -41,8 +41,8 @@ RtApiType RtStageIterator::getApiType() const
 
 bool RtStageIterator::operator==(const RtStageIterator& other) const
 {
-    PrvStageIterator* lhs = static_cast<PrvStageIterator*>(_ptr);
-    PrvStageIterator* rhs = static_cast<PrvStageIterator*>(other._ptr);
+    PvtStageIterator* lhs = static_cast<PvtStageIterator*>(_ptr);
+    PvtStageIterator* rhs = static_cast<PvtStageIterator*>(other._ptr);
     return lhs->operator==(*rhs);
 }
 bool RtStageIterator::operator!=(const RtStageIterator& other) const
@@ -52,51 +52,51 @@ bool RtStageIterator::operator!=(const RtStageIterator& other) const
 
 RtObject RtStageIterator::operator*() const
 {
-    PrvStageIterator* it = static_cast<PrvStageIterator*>(_ptr);
+    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
     return RtObject(it->operator*());
 }
 
 RtStageIterator& RtStageIterator::operator++()
 {
-    PrvStageIterator* it = static_cast<PrvStageIterator*>(_ptr);
+    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
     it->operator++();
     return *this;
 }
 
 bool RtStageIterator::isDone() const
 {
-    PrvStageIterator* it = static_cast<PrvStageIterator*>(_ptr);
+    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
     return it->isDone();
 }
 
 void RtStageIterator::abort()
 {
-    PrvStageIterator* it = static_cast<PrvStageIterator*>(_ptr);
+    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
     return it->abort();
 }
 
 
 RtTreeIterator::RtTreeIterator() :
     RtApiBase(),
-    _ptr(new PrvTreeIterator())
+    _ptr(new PvtTreeIterator())
 {
 }
 
 RtTreeIterator::RtTreeIterator(RtObject root, RtTraversalFilter filter) :
     RtApiBase(root),
-    _ptr(new PrvTreeIterator(root.data(), filter))
+    _ptr(new PvtTreeIterator(root.data(), filter))
 {
 }
 
 RtTreeIterator::RtTreeIterator(const RtTreeIterator& other) :
     RtApiBase(other),
-    _ptr(new PrvTreeIterator(*static_cast<PrvTreeIterator*>(other._ptr)))
+    _ptr(new PvtTreeIterator(*static_cast<PvtTreeIterator*>(other._ptr)))
 {
 }
 
 RtTreeIterator::~RtTreeIterator()
 {
-    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
+    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
     delete it;
 }
 
@@ -107,8 +107,8 @@ RtApiType RtTreeIterator::getApiType() const
 
 bool RtTreeIterator::operator==(const RtTreeIterator& other) const
 {
-    PrvTreeIterator* lhs = static_cast<PrvTreeIterator*>(_ptr);
-    PrvTreeIterator* rhs = static_cast<PrvTreeIterator*>(other._ptr);
+    PvtTreeIterator* lhs = static_cast<PvtTreeIterator*>(_ptr);
+    PvtTreeIterator* rhs = static_cast<PvtTreeIterator*>(other._ptr);
     return lhs->operator==(*rhs);
 }
 bool RtTreeIterator::operator!=(const RtTreeIterator& other) const
@@ -118,26 +118,26 @@ bool RtTreeIterator::operator!=(const RtTreeIterator& other) const
 
 RtObject RtTreeIterator::operator*() const
 {
-    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
+    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
     return RtObject(it->operator*());
 }
 
 RtTreeIterator& RtTreeIterator::operator++()
 {
-    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
+    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
     it->operator++();
     return *this;
 }
 
 bool RtTreeIterator::isDone() const
 {
-    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
+    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
     return it->isDone();
 }
 
 void RtTreeIterator::abort()
 {
-    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
+    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
     return it->abort();
 }
 
@@ -145,19 +145,19 @@ void RtTreeIterator::abort()
 
 RtGraphIterator::RtGraphIterator(RtPort root, RtTraversalFilter filter) :
     RtApiBase(root.data()),
-    _ptr(new PrvGraphIterator(root, filter))
+    _ptr(new PvtGraphIterator(root, filter))
 {
 }
 
 RtGraphIterator::RtGraphIterator(const RtGraphIterator& other) :
     RtApiBase(other),
-    _ptr(new PrvGraphIterator(*static_cast<PrvGraphIterator*>(other._ptr)))
+    _ptr(new PvtGraphIterator(*static_cast<PvtGraphIterator*>(other._ptr)))
 {
 }
 
 RtGraphIterator::~RtGraphIterator()
 {
-    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
     delete it;
 }
 
@@ -168,8 +168,8 @@ RtApiType RtGraphIterator::getApiType() const
 
 bool RtGraphIterator::operator==(const RtGraphIterator& other) const
 {
-    PrvGraphIterator* lhs = static_cast<PrvGraphIterator*>(_ptr);
-    PrvGraphIterator* rhs = static_cast<PrvGraphIterator*>(other._ptr);
+    PvtGraphIterator* lhs = static_cast<PvtGraphIterator*>(_ptr);
+    PvtGraphIterator* rhs = static_cast<PvtGraphIterator*>(other._ptr);
     return lhs->operator==(*rhs);
 }
 bool RtGraphIterator::operator!=(const RtGraphIterator& other) const
@@ -179,26 +179,26 @@ bool RtGraphIterator::operator!=(const RtGraphIterator& other) const
 
 RtEdge RtGraphIterator::operator*() const
 {
-    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
     return it->operator*();
 }
 
 RtGraphIterator& RtGraphIterator::operator++()
 {
-    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
     it->operator++();
     return *this;
 }
 
 bool RtGraphIterator::isDone() const
 {
-    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
     return it->isDone();
 }
 
 void RtGraphIterator::abort()
 {
-    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
     return it->abort();
 }
 }

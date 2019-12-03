@@ -3,58 +3,58 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_PRVTRAVERSAL_H
-#define MATERIALX_PRVTRAVERSAL_H
+#ifndef MATERIALX_PVTTRAVERSAL_H
+#define MATERIALX_PVTTRAVERSAL_H
 
 /// @file
 /// TODO: Docs
 
 #include <MaterialXRuntime/RtTraversal.h>
 
-#include <MaterialXRuntime/Private/PrvStage.h>
-#include <MaterialXRuntime/Private/PrvNode.h>
+#include <MaterialXRuntime/Private/PvtStage.h>
+#include <MaterialXRuntime/Private/PvtNode.h>
 
 namespace MaterialX
 {
 
-/// @class PrvStageIterator
+/// @class PvtStageIterator
 /// TODO: Docs
-class PrvStageIterator
+class PvtStageIterator
 {
 public:
     /// Empty constructor.
-    PrvStageIterator();
+    PvtStageIterator();
 
     /// Constructor, setting the stage to iterate on
     /// and optionally a filter function to restrict
     /// the set of returned objects.
-    PrvStageIterator(PrvObjectHandle stage, RtTraversalFilter filter = nullptr);
+    PvtStageIterator(PvtObjectHandle stage, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
-    PrvStageIterator(const PrvStageIterator& other);
+    PvtStageIterator(const PvtStageIterator& other);
 
     /// Equality operator.
-    bool operator==(const PrvStageIterator& other) const
+    bool operator==(const PvtStageIterator& other) const
     {
         return _current == other._current &&
             _stack == other._stack;
     }
 
     /// Inequality operator.
-    bool operator!=(const PrvStageIterator& other) const
+    bool operator!=(const PvtStageIterator& other) const
     {
         return !(*this == other);
     }
 
     /// Dereference this iterator, returning the current element in the
     /// traversal.
-    PrvObjectHandle operator*() const
+    PvtObjectHandle operator*() const
     {
         return _current;
     }
 
     /// Iterate to the next element in the traversal.
-    PrvStageIterator& operator++();
+    PvtStageIterator& operator++();
 
     /// Return true if there are no more elements in the iteration.
     bool isDone() const
@@ -69,51 +69,51 @@ public:
     }
 
 private:
-    using StackFrame = std::tuple<PrvStage*, int, int>;
+    using StackFrame = std::tuple<PvtStage*, int, int>;
 
-    PrvObjectHandle _current;
+    PvtObjectHandle _current;
     vector<StackFrame> _stack;
     RtTraversalFilter _filter;
 };
 
 
-/// @class PrvTreeIterator
+/// @class PvtTreeIterator
 /// TODO: Docs
-class PrvTreeIterator
+class PvtTreeIterator
 {
 public:
     /// Empty constructor.
-    PrvTreeIterator();
+    PvtTreeIterator();
 
     /// Constructor, setting the root element to start
     /// the iteration from, and an optional filter function.
-    PrvTreeIterator(PrvObjectHandle root, RtTraversalFilter filter = nullptr);
+    PvtTreeIterator(PvtObjectHandle root, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
-    PrvTreeIterator(const PrvTreeIterator& other);
+    PvtTreeIterator(const PvtTreeIterator& other);
 
     /// Equality operator.
-    bool operator==(const PrvTreeIterator& other) const
+    bool operator==(const PvtTreeIterator& other) const
     {
         return _current == other._current &&
             _stack == other._stack;
     }
 
     /// Inequality operator.
-    bool operator!=(const PrvTreeIterator& other) const
+    bool operator!=(const PvtTreeIterator& other) const
     {
         return !(*this == other);
     }
 
     /// Dereference this iterator, returning the current element in the
     /// traversal.
-    PrvObjectHandle operator*() const
+    PvtObjectHandle operator*() const
     {
         return _current;
     }
 
     /// Iterate to the next element in the traversal.
-    PrvTreeIterator& operator++();
+    PvtTreeIterator& operator++();
 
     /// Return true if there are no more elements in the iteration.
     bool isDone() const
@@ -128,39 +128,39 @@ public:
     }
 
 private:
-    using StackFrame = std::tuple<PrvElement*, int, int>;
+    using StackFrame = std::tuple<PvtElement*, int, int>;
 
-    PrvObjectHandle _current;
+    PvtObjectHandle _current;
     vector<StackFrame> _stack;
     RtTraversalFilter _filter;
 };
 
 
 
-/// @class PrvGraphIterator
+/// @class PvtGraphIterator
 /// TODO: Docs
-class PrvGraphIterator
+class PvtGraphIterator
 {
 public:
     /// Empty constructor.
-    PrvGraphIterator();
+    PvtGraphIterator();
 
     /// Constructor, setting the root port to start
     /// the iteration on and an optional filter function.
-    PrvGraphIterator(RtPort root, RtTraversalFilter filter = nullptr);
+    PvtGraphIterator(RtPort root, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
-    PrvGraphIterator(const PrvGraphIterator& other);
+    PvtGraphIterator(const PvtGraphIterator& other);
 
     /// Equality operator.
-    bool operator==(const PrvGraphIterator& other) const
+    bool operator==(const PvtGraphIterator& other) const
     {
         return _current == other._current &&
             _stack == other._stack;
     }
 
     /// Inequality operator.
-    bool operator!=(const PrvGraphIterator& other) const
+    bool operator!=(const PvtGraphIterator& other) const
     {
         return !(*this == other);
     }
@@ -173,7 +173,7 @@ public:
     }
 
     /// Iterate to the next element in the traversal.
-    PrvGraphIterator& operator++();
+    PvtGraphIterator& operator++();
 
     /// Return true if there are no more elements in the iteration.
     bool isDone() const

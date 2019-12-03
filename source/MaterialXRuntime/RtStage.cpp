@@ -5,7 +5,7 @@
 
 #include <MaterialXRuntime/RtStage.h>
 
-#include <MaterialXRuntime/Private/PrvStage.h>
+#include <MaterialXRuntime/Private/PvtStage.h>
 
 namespace MaterialX
 {
@@ -22,37 +22,37 @@ RtApiType RtStage::getApiType() const
 
 RtObject RtStage::createNew(const RtToken& name)
 {
-    return RtObject(PrvStage::createNew(name));
+    return RtObject(PvtStage::createNew(name));
 }
 
 void RtStage::addReference(RtObject stage)
 {
-    data()->asA<PrvStage>()->addReference(stage.data());
+    data()->asA<PvtStage>()->addReference(stage.data());
 }
 
 void RtStage::removeReference(const RtToken& name)
 {
-    data()->asA<PrvStage>()->removeReference(name);
+    data()->asA<PvtStage>()->removeReference(name);
 }
 
 void RtStage::removeReferences()
 {
-    data()->asA<PrvStage>()->removeReferences();
+    data()->asA<PvtStage>()->removeReferences();
 }
 
 size_t RtStage::numReferences() const
 {
-    return data()->asA<PrvStage>()->numReferences();
+    return data()->asA<PvtStage>()->numReferences();
 }
 
 RtObject RtStage::getReference(size_t index) const
 {
-    return data()->asA<PrvStage>()->getReference(index);
+    return data()->asA<PvtStage>()->getReference(index);
 }
 
 RtObject RtStage::findReference(const RtToken& name) const
 {
-    return RtObject(data()->asA<PrvStage>()->findReference(name));
+    return RtObject(data()->asA<PvtStage>()->findReference(name));
 }
 
 void RtStage::addElement(RtObject elem)
@@ -61,23 +61,23 @@ void RtStage::addElement(RtObject elem)
     {
         throw ExceptionRuntimeError("A stage cannot be added as direct child of another stage. Use addReference() instead to reference the stage.");
     }
-    data()->asA<PrvStage>()->addChild(elem.data());
+    data()->asA<PvtStage>()->addChild(elem.data());
 }
 
 void RtStage::removeElement(const RtToken& name)
 {
-    data()->asA<PrvStage>()->removeChild(name);
+    data()->asA<PvtStage>()->removeChild(name);
 }
 
 RtObject RtStage::findElementByName(const RtToken& name) const
 {
-    PrvObjectHandle elem = data()->asA<PrvStage>()->findChildByName(name);
+    PvtObjectHandle elem = data()->asA<PvtStage>()->findChildByName(name);
     return RtObject(elem);
 }
 
 RtObject RtStage::findElementByPath(const string& path) const
 {
-    PrvObjectHandle elem = data()->asA<PrvStage>()->findChildByPath(path);
+    PvtObjectHandle elem = data()->asA<PvtStage>()->findChildByPath(path);
     return RtObject(elem);
 }
 

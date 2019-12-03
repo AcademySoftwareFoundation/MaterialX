@@ -5,9 +5,9 @@
 
 #include <MaterialXRuntime/RtPortDef.h>
 
-#include <MaterialXRuntime/Private/PrvPortDef.h>
-#include <MaterialXRuntime/Private/PrvNodeDef.h>
-#include <MaterialXRuntime/Private/PrvNodeGraph.h>
+#include <MaterialXRuntime/Private/PvtPortDef.h>
+#include <MaterialXRuntime/Private/PvtNodeDef.h>
+#include <MaterialXRuntime/Private/PvtNodeGraph.h>
 
 namespace MaterialX
 {
@@ -23,7 +23,7 @@ RtObject RtPortDef::createNew(RtObject parent, const RtToken& name, const RtToke
     {
         throw ExceptionRuntimeError("Parent object must be a nodedef or a nodegraph");
     }
-    return RtObject(PrvPortDef::createNew(parent.data()->asA<PrvElement>(), name, type, flags));
+    return RtObject(PvtPortDef::createNew(parent.data()->asA<PvtElement>(), name, type, flags));
 }
 
 RtApiType RtPortDef::getApiType() const
@@ -33,72 +33,72 @@ RtApiType RtPortDef::getApiType() const
 
 const RtToken& RtPortDef::getType() const
 {
-    return data()->asA<PrvPortDef>()->getType();
+    return data()->asA<PvtPortDef>()->getType();
 }
 
 const RtValue& RtPortDef::getValue() const
 {
-    return data()->asA<PrvPortDef>()->getValue();
+    return data()->asA<PvtPortDef>()->getValue();
 }
 
 RtValue& RtPortDef::getValue()
 {
-    return data()->asA<PrvPortDef>()->getValue();
+    return data()->asA<PvtPortDef>()->getValue();
 }
 
 void RtPortDef::setValue(const RtValue& v)
 {
-    return data()->asA<PrvPortDef>()->setValue(v);
+    return data()->asA<PvtPortDef>()->setValue(v);
 }
 
 const RtToken& RtPortDef::getColorSpace() const
 {
-    return data()->asA<PrvPortDef>()->getColorSpace();
+    return data()->asA<PvtPortDef>()->getColorSpace();
 }
 
 void RtPortDef::setColorSpace(const RtToken& colorspace)
 {
-    return data()->asA<PrvPortDef>()->setColorSpace(colorspace);
+    return data()->asA<PvtPortDef>()->setColorSpace(colorspace);
 }
 
 const RtToken& RtPortDef::getUnit() const
 {
-    return data()->asA<PrvPortDef>()->getUnit();
+    return data()->asA<PvtPortDef>()->getUnit();
 }
 
 void RtPortDef::setUnit(const RtToken& unit)
 {
-    return data()->asA<PrvPortDef>()->setUnit(unit);
+    return data()->asA<PvtPortDef>()->setUnit(unit);
 }
 
 int32_t RtPortDef::getFlags() const
 {
-    return data()->asA<PrvPortDef>()->getFlags();
+    return data()->asA<PvtPortDef>()->getFlags();
 }
 
 bool RtPortDef::hasFlag(uint32_t flag) const
 {
-    return data()->asA<PrvPortDef>()->hasFlag(flag);
+    return data()->asA<PvtPortDef>()->hasFlag(flag);
 }
 
 bool RtPortDef::isInput() const
 {
-    return data()->asA<PrvPortDef>()->isInput();
+    return data()->asA<PvtPortDef>()->isInput();
 }
 
 bool RtPortDef::isOutput() const
 {
-    return data()->asA<PrvPortDef>()->isOutput();
+    return data()->asA<PvtPortDef>()->isOutput();
 }
 
 bool RtPortDef::isConnectable() const
 {
-    return data()->asA<PrvPortDef>()->isConnectable();
+    return data()->asA<PvtPortDef>()->isConnectable();
 }
 
 bool RtPortDef::isUniform() const
 {
-    return data()->asA<PrvPortDef>()->isUniform();
+    return data()->asA<PvtPortDef>()->isUniform();
 }
 
 }

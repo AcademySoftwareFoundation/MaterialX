@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvTypeDef.h>
+#include <MaterialXRuntime/Private/PvtTypeDef.h>
 
 #include <MaterialXRuntime/RtTypeDef.h>
 
@@ -270,7 +270,7 @@ void unmarshalNoneValue(const string&, RtValue& dest)
 
 }
 
-PrvTypeDef::PrvTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic,
+PvtTypeDef::PvtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic,
     size_t size, const ChannelMap& channelMap) :
     _name(name),
     _basetype(basetype),
@@ -283,7 +283,7 @@ PrvTypeDef::PrvTypeDef(const RtToken& name, const RtToken& basetype, const RtVal
     _connectionTypes.insert(name);
 }
 
-PrvTypeDefRegistry::PrvTypeDefRegistry()
+PvtTypeDefRegistry::PvtTypeDefRegistry()
 {
     // Register all default types.
 
@@ -350,8 +350,8 @@ PrvTypeDefRegistry::PrvTypeDefRegistry()
     newType("auto", RtTypeDef::BASETYPE_NONE, noneFuncs);
 }
 
-RtTypeDef* PrvTypeDefRegistry::newType(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs,
-    const RtToken& sematic, size_t size, const PrvTypeDef::ChannelMap& channelMapping)
+RtTypeDef* PvtTypeDefRegistry::newType(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs,
+    const RtToken& sematic, size_t size, const PvtTypeDef::ChannelMap& channelMapping)
 {
     _types.push_back(std::unique_ptr<RtTypeDef>(new RtTypeDef(name, basetype, funcs, sematic, size)));
 

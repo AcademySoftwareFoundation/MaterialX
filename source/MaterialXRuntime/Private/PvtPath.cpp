@@ -3,53 +3,53 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Private/PrvPath.h>
+#include <MaterialXRuntime/Private/PvtPath.h>
 
 namespace MaterialX
 {
 
-PrvPath::PrvPath() :
+PvtPath::PvtPath() :
     _root(nullptr)
 {
 }
 
-PrvPath::PrvPath(PrvObjectHandle obj) :
+PvtPath::PvtPath(PvtObjectHandle obj) :
     _root(nullptr)
 {
     setObject(obj);
 }
 
-PrvObjectHandle PrvPath::getObject() const
+PvtObjectHandle PvtPath::getObject() const
 {
     if (!_root || _path.empty())
     {
         return nullptr;
     }
 
-    PrvElement* parent = _root->asA<PrvElement>();
-    PrvObjectHandle elem = nullptr;
+    PvtElement* parent = _root->asA<PvtElement>();
+    PvtObjectHandle elem = nullptr;
     size_t i = 0;
     while (parent)
     {
         elem = parent->findChildByName(_path[i++]);
-        parent = elem && (i < _path.size()) ? elem->asA<PrvElement>() : nullptr;
+        parent = elem && (i < _path.size()) ? elem->asA<PvtElement>() : nullptr;
     }
 
     return elem;
 }
 
-void PrvPath::setObject(PrvObjectHandle obj)
+void PvtPath::setObject(PvtObjectHandle obj)
 {
     if (!(obj && obj->hasApi(RtApiType::ELEMENT)))
     {
         throw ExceptionRuntimeError("Cannot construct path, given object is not a valid element");
     }
 
-    PrvElement* elem = obj->asA<PrvElement>();
-    PrvElement* root = elem->getRoot();
+    PvtElement* elem = obj->asA<PvtElement>();
+    PvtElement* root = elem->getRoot();
     _root = root ? root->shared_from_this() : nullptr;
 
-    PrvElement* parent = elem->getParent();
+    PvtElement* parent = elem->getParent();
 
     // Get the path from child down to parent and then reverse it
     _path.push_back(elem->getName());

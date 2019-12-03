@@ -6,7 +6,7 @@
 #ifndef MATERIALX_RTPORTDEFDATA_H
 #define MATERIALX_RTPORTDEFDATA_H
 
-#include <MaterialXRuntime/Private/PrvElement.h>
+#include <MaterialXRuntime/Private/PvtElement.h>
 
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtPortDef.h>
@@ -18,10 +18,10 @@
 namespace MaterialX
 {
 
-class PrvPortDef : public PrvElement
+class PvtPortDef : public PvtElement
 {
 public:
-    static PrvObjectHandle createNew(PrvElement* parent, const RtToken& name, const RtToken& type, uint32_t flags = 0);
+    static PvtObjectHandle createNew(PvtElement* parent, const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
     const RtToken& getType() const
     {
@@ -100,12 +100,12 @@ public:
         return (_flags & RtPortFlag::UNIFORM) != 0;
     }
 
-    bool canConnectTo(const PrvPortDef* dest) const;
+    bool canConnectTo(const PvtPortDef* dest) const;
 
     static const RtToken DEFAULT_OUTPUT_NAME;
 
 protected:
-    PrvPortDef(const RtToken& name, const RtToken& type, uint32_t flags, PrvAllocatingElement* parent);
+    PvtPortDef(const RtToken& name, const RtToken& type, uint32_t flags, PvtAllocatingElement* parent);
 
     RtToken _type;
     RtValue _value;
