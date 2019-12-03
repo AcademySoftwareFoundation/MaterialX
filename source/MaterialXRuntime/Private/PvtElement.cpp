@@ -21,29 +21,6 @@ PvtElement::PvtElement(RtObjType objType, const RtToken& name) :
 {
 }
 
-RtToken PvtElement::makeUniqueChildName(const RtToken& name) const
-{
-    RtToken newName = name;
-    if (findChildByName(name))
-    {
-        // Find a number to append to the name, incrementing
-        // the counter until a unique name is found.
-        string baseName = name.str();
-        int i = 1;
-        const size_t n = name.str().find_last_not_of("0123456789") + 1;
-        if (n < name.str().size())
-        {
-            const string number = name.str().substr(n);
-            i = std::stoi(number) + 1;
-            baseName = baseName.substr(0, n);
-        }
-        do {
-            newName = baseName + std::to_string(i++);
-        } while (findChildByName(newName));
-    }
-    return newName;
-}
-
 void PvtElement::setName(const RtToken& name)
 {
     if (name != _name)
@@ -158,7 +135,7 @@ RtAttribute* PvtElement::addAttribute(const RtToken& name, const RtToken& type, 
         throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists for '" + getName().str() + "'");
     }
 
-    AttrPtr attr(new RtAttribute(name, type, getObject(), flags));
+    PvtAttributePtr attr = createAttribute(name, type, flags);
     _attributes.push_back(attr);
     _attributesByName[name] = attr;
 
@@ -185,6 +162,34 @@ PvtAllocator& PvtElement::getAllocator()
         throw ExceptionRuntimeError("Trying to get allocator for an element with no allocator and no parent: '" + getName().str() + "'");
     }
     return _parent->getAllocator();
+}
+
+RtToken PvtElement::makeUniqueChildName(const RtToken& name) const
+{
+    RtToken newName = name;
+    if (findChildByName(name))
+    {
+        // Find a number to append to the name, incrementing
+        // the counter until a unique name is found.
+        string baseName = name.str();
+        int i = 1;
+        const size_t n = name.str().find_last_not_of("0123456789") + 1;
+        if (n < name.str().size())
+        {
+            const string number = name.str().substr(n);
+            i = std::stoi(number) + 1;
+            baseName = baseName.substr(0, n);
+        }
+        do {
+            newName = baseName + std::to_string(i++);
+        } while (findChildByName(newName));
+    }
+    return newName;
+}
+
+PvtAttributePtr PvtElement::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    return PvtAttributePtr(new RtAttribute(name, type, getObject(), flags));
 }
 
 PvtUnknownElement::PvtUnknownElement(const RtToken& name, const RtToken& category) :

@@ -266,8 +266,8 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(addDef.numPorts() == 4);
 
     // Delete a port
-    mx::RtObject in3Port = addDef.findPort("in3");
-    addDef.removePort(in3Port);
+    mx::RtObject in3Obj = addDef.findPort("in3");
+    addDef.removePort(in3Obj);
     REQUIRE(addDef.numPorts() == 3);
 
     // Test the new ports
@@ -315,6 +315,21 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add2_in1.isValid());
     REQUIRE(add2_in2.isValid());
     REQUIRE(add2_out.isValid());
+
+    // Test setting port attributes
+    const mx::RtToken meter("meter");
+    const mx::RtToken srgb("srgb");
+    add1_in1.setUnit(meter);
+    add1_in2.setColorSpace(srgb);
+    REQUIRE(add1_in1.getUnit() == meter);
+    REQUIRE(add1_in1.getColorSpace() == mx::EMPTY_TOKEN);
+    REQUIRE(add1_in2.getUnit() == mx::EMPTY_TOKEN);
+    REQUIRE(add1_in2.getColorSpace() == srgb);
+    mx::RtAttribute* fooAttr = add1_in1.addAttribute("foo", mx::RtType::FLOAT);
+    fooAttr->getValue().asFloat() = 7.0f;
+    REQUIRE(fooAttr == add1_in1.getAttribute("foo"));
+    add1_in1.removeAttribute("foo");
+    REQUIRE(nullptr == add1_in1.getAttribute("foo"));
 
     // Test port connectability
     REQUIRE(add1_out.canConnectTo(add2_in1));

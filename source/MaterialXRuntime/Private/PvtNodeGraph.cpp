@@ -74,20 +74,12 @@ void PvtNodeGraph::addPort(PvtObjectHandle portdef)
 
     PvtNode::Port p;
     p.value = pd->getValue();
-    p.colorspace = pd->getColorSpace();
-    p.unit = pd->getUnit();
 
     // Add to external interface
     nodeDef()->addPort(portdef);
-    if (_ports.empty())
-    {
-        _ports.push_back(p);
-    }
-    else
-    {
-        size_t index = nodeDef()->findPortIndex(pd->getName());
-        _ports.insert(_ports.begin() + index, p);
-    }
+    const size_t index = nodeDef()->findPortIndex(pd->getName());
+    _ports.insert(_ports.begin() + index, p);
+    _portAttrs.insert(_portAttrs.begin() + index, nullptr);
 
     // Add to internal interface
     if (pd->isOutput())
@@ -103,6 +95,16 @@ void PvtNodeGraph::addPort(PvtObjectHandle portdef)
         socket->asA<PvtPortDef>()->setValue(pd->getValue());
 
         inputSockets()->_ports.push_back(p);
+    }
+
+    // Set port meta data like colorspace and units.
+    if (pd->getColorSpace() != EMPTY_TOKEN)
+    {
+        setPortColorSpace(index, pd->getColorSpace());
+    }
+    if (pd->getUnit() != EMPTY_TOKEN)
+    {
+        setPortUnit(index, pd->getUnit());
     }
 }
 

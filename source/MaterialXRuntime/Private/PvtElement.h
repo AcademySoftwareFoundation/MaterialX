@@ -18,6 +18,12 @@ namespace MaterialX
 
 using PvtObjectHandleVec = vector<PvtObjectHandle>;
 using PvtObjectHandleSet = std::set<PvtObjectHandle>;
+using PvtObjectHandleMap = RtTokenMap<PvtObjectHandle>;
+
+using PvtAttributePtr = std::shared_ptr<RtAttribute>;
+using PvtAttributeVec = vector<PvtAttributePtr>;
+using PvtAttributeMap = RtTokenMap<PvtAttributePtr>;
+
 
 // Allocator class handling allocation of data for elements.
 // The data allocated is kept by the allocator and freed
@@ -154,14 +160,14 @@ protected:
     // Make a unique name among the element's children.
     RtToken makeUniqueChildName(const RtToken& name) const;
 
+    PvtAttributePtr createAttribute(const RtToken& name, const RtToken& type, uint32_t flags);
+
     RtToken _name;
     PvtElement* _parent;
     PvtObjectHandleVec _children;
-    RtTokenMap<PvtObjectHandle> _childrenByName;
-
-    using AttrPtr = std::shared_ptr<RtAttribute>;
-    vector<AttrPtr> _attributes;
-    RtTokenMap<AttrPtr> _attributesByName;
+    PvtObjectHandleMap _childrenByName;
+    PvtAttributeVec _attributes;
+    PvtAttributeMap _attributesByName;
 
     friend class PvtStage;
 };

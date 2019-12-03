@@ -10,6 +10,7 @@
 
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtValue.h>
+#include <MaterialXRuntime/RtTypeDef.h>
 
 /// @file
 /// TODO: Docs
@@ -71,9 +72,56 @@ public:
         return index != INVALID_INDEX ? RtPort(shared_from_this(), index) : RtPort();
     }
 
+    RtAttribute* addPortAttribute(size_t index, const RtToken& attrName, const RtToken& attrType, uint32_t attrFlags = 0);
+
+    void removePortAttribute(size_t index, const RtToken& attrName);
+
+    RtAttribute* getPortAttribute(size_t index, const RtToken& attrName);
+
+    const RtAttribute* getPortAttribute(size_t index, const RtToken& attrName) const
+    {
+        return const_cast<PvtNode*>(this)->getPortAttribute(index, attrName);
+    }
+
     static void connect(const RtPort& source, const RtPort& dest);
 
     static void disconnect(const RtPort& source, const RtPort& dest);
+
+    const RtToken& getPortColorSpace(size_t index) const
+    {
+        const RtAttribute* attr = getPortAttribute(index, ATTR_COLOR_SPACE);
+        return attr ? attr->getValue().asToken() : EMPTY_TOKEN;
+    }
+
+    void setPortColorSpace(size_t index, const RtToken& colorspace)
+    {
+        RtAttribute* attr = getPortAttribute(index, ATTR_COLOR_SPACE);
+        if (!attr)
+        {
+            attr = addPortAttribute(index, ATTR_COLOR_SPACE, RtType::TOKEN);
+        }
+        attr->getValue().asToken() = colorspace;
+    }
+
+    const RtToken& getPortUnit(size_t index) const
+    {
+        const RtAttribute* attr = getPortAttribute(index, ATTR_UNIT);
+        return attr ? attr->getValue().asToken() : EMPTY_TOKEN;
+    }
+
+    void setPortUnit(size_t index, const RtToken& unit)
+    {
+        RtAttribute* attr = getPortAttribute(index, ATTR_UNIT);
+        if (!attr)
+        {
+            attr = addPortAttribute(index, ATTR_UNIT, RtType::TOKEN);
+        }
+        attr->getValue().asToken() = unit;
+    }
+
+    // Attribute names.
+    static const RtToken ATTR_COLOR_SPACE;
+    static const RtToken ATTR_UNIT;
 
 protected:
     // Constructor creating a node with a fixed interface
@@ -92,15 +140,15 @@ protected:
 protected:
     struct Port
     {
-        Port();
         RtValue value;
-        RtToken colorspace;
-        RtToken unit;
         RtPortVec connections;
     };
 
+    using PvtAttributeMapPtr = std::unique_ptr<PvtAttributeMap>;
+
     PvtObjectHandle _nodedef;
     vector<Port> _ports;
+    vector<PvtAttributeMapPtr> _portAttrs;
 
     friend class RtPort;
     friend class PvtNodeGraph;

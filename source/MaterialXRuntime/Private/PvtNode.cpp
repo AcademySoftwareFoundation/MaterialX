@@ -5,6 +5,7 @@
 
 #include <MaterialXRuntime/Private/PvtNode.h>
 #include <MaterialXRuntime/RtToken.h>
+#include <MaterialXRuntime/RtTypeDef.h>
 
 /// @file
 /// TODO: Docs
@@ -12,11 +13,8 @@
 namespace MaterialX
 {
 
-PvtNode::Port::Port() :
-    colorspace(EMPTY_TOKEN),
-    unit(EMPTY_TOKEN)
-{
-}
+const RtToken PvtNode::ATTR_COLOR_SPACE("colorspace");
+const RtToken PvtNode::ATTR_UNIT("unit");
 
 // Construction with an interface is for nodes.
 PvtNode::PvtNode(const RtToken& name, const PvtObjectHandle& nodedef) :
@@ -25,6 +23,7 @@ PvtNode::PvtNode(const RtToken& name, const PvtObjectHandle& nodedef) :
 {
     const size_t numPorts = nodeDef()->numPorts();
     _ports.resize(numPorts);
+    _portAttrs.resize(numPorts);
 
     // Set indices and default values
     for (size_t i = 0; i < numPorts; ++i)
@@ -64,6 +63,40 @@ PvtObjectHandle PvtNode::createNew(PvtElement* parent, const PvtObjectHandle& no
     }
 
     return node;
+}
+
+RtAttribute* PvtNode::addPortAttribute(size_t index, const RtToken& attrName, const RtToken& attrType, uint32_t attrFlags)
+{
+    PvtAttributeMapPtr& entry = _portAttrs[index];
+    if (!entry)
+    {
+        entry.reset(new PvtAttributeMap());
+    }
+
+    PvtAttributePtr attr = createAttribute(attrName, attrType, attrFlags);
+    (*entry)[attrName] = attr;
+
+    return attr.get();
+}
+
+void PvtNode::removePortAttribute(size_t index, const RtToken& attrName)
+{
+    const PvtAttributeMapPtr& entry = _portAttrs[index];
+    if (entry)
+    {
+        entry->erase(attrName);
+    }
+}
+
+RtAttribute* PvtNode::getPortAttribute(size_t index, const RtToken & attrName)
+{
+    const PvtAttributeMapPtr& entry = _portAttrs[index];
+    if (entry)
+    {
+        auto it = entry->find(attrName);
+        return it != entry->end() ? it->second.get() : nullptr;
+    }
+    return nullptr;
 }
 
 void PvtNode::connect(const RtPort& source, const RtPort& dest)

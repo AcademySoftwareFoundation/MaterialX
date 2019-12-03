@@ -133,28 +133,52 @@ void RtPort::setValueString(const string& v)
     RtValue::fromString(getType(), v, node->_ports[_index].value);
 }
 
+RtAttribute* RtPort::addAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    PvtNode* node = _data->asA<PvtNode>();
+    return node->addPortAttribute(_index, name, type, flags);
+}
+
+void RtPort::removeAttribute(const RtToken& name)
+{
+    PvtNode* node = _data->asA<PvtNode>();
+    return node->removePortAttribute(_index, name);
+}
+
+const RtAttribute* RtPort::getAttribute(const RtToken& name) const
+{
+    PvtNode* node = _data->asA<PvtNode>();
+    return node->getPortAttribute(_index, name);
+}
+
+RtAttribute* RtPort::getAttribute(const RtToken& name)
+{
+    PvtNode* node = _data->asA<PvtNode>();
+    return node->getPortAttribute(_index, name);
+}
+
 const RtToken& RtPort::getColorSpace() const
 {
     PvtNode* node = _data->asA<PvtNode>();
-    return node->_ports[_index].colorspace;
+    return node->getPortColorSpace(_index);
 }
 
 void RtPort::setColorSpace(const RtToken& colorspace)
 {
     PvtNode* node = _data->asA<PvtNode>();
-    node->_ports[_index].colorspace = colorspace;
+    node->setPortColorSpace(_index, colorspace);
 }
 
 const RtToken& RtPort::getUnit() const
 {
     PvtNode* node = _data->asA<PvtNode>();
-    return node->_ports[_index].unit;
+    return node->getPortUnit(_index);
 }
 
 void RtPort::setUnit(const RtToken& unit)
 {
     PvtNode* node = _data->asA<PvtNode>();
-    node->_ports[_index].unit = unit;
+    node->setPortUnit(_index, unit);
 }
 
 bool RtPort::isConnected() const

@@ -83,16 +83,30 @@ public:
     /// Set the port value from a string representation.
     void setValueString(const string& v);
 
-    /// Get the color space for this value.
+    /// Add an attribute to this port.
+    RtAttribute* addAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    /// Remove an attribute from this port.
+    void removeAttribute(const RtToken& name);
+
+    /// Get an attribute from this port.
+    const RtAttribute* getAttribute(const RtToken& name) const;
+
+    /// Get an attribute from this port.
+    RtAttribute* getAttribute(const RtToken& name);
+
+    /// Get the colorspace attribute value.
+    /// Returns EMPTY_TOKEN if no color space is set.
     const RtToken& getColorSpace() const;
 
-    /// Set the color space for this value.
+    /// Set the colorspace attribute value.
     void setColorSpace(const RtToken& colorspace);
 
-    /// Get the color space for this value.
+    /// Get the unit attribute value.
+    /// Returns EMPTY_TOKEN if no unit is set.
     const RtToken& getUnit() const;
 
-    /// Set the unit for this value.
+    /// Set the unit attribute value.
     void setUnit(const RtToken& unit);
 
     /// Return true if this port is connected.
