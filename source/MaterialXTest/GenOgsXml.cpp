@@ -21,8 +21,6 @@
 #include <MaterialXCross/Cross.h>
 #endif
 
-#include <memory>
-
 namespace mx = MaterialX;
 
 class OgsXmlShaderGeneratorTester : public GlslShaderGeneratorTester
@@ -59,7 +57,7 @@ public:
         std::unique_ptr<MaterialXMaya::OgsFragment> fragment;
         try
         {
-            fragment = std::make_unique<MaterialXMaya::OgsFragment>(element, context);
+            fragment.reset(new MaterialXMaya::OgsFragment(element, context));
         }
         catch (mx::Exception& e)
         {
