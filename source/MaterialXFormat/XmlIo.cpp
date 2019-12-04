@@ -105,7 +105,8 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
             {
                 if (!writtenSourceFiles.count(sourceUri))
                 {
-                    if (!xmlNode.attribute(XINCLUDE_NAMESPACE.c_str())) {
+                    if (!xmlNode.attribute(XINCLUDE_NAMESPACE.c_str()))
+                    {
                         xmlNode.append_attribute(XINCLUDE_NAMESPACE.c_str()) = XINCLUDE_URL.c_str();
                     }
                     xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
