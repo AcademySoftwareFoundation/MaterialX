@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.36" xmlns:xi="http://www.w3.org/2001/XInclude">
    <xi:include href="alglib_defs.mtlx" />
    <nodegraph name="NG_algclamp_float" nodedef="ND_algclamp_float">
     <max name="ND_max_float_1" type="float">

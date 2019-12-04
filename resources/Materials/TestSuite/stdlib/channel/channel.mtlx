@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
 Basic channel function tests each test is in a separate graph for each variation in input type.
@@ -6,8 +7,6 @@ Basic channel function tests each test is in a separate graph for each variation
 - separate
 
 -->
-
-<?xml version="1.0"?>
 <materialx version="1.36">
   <nodegraph name="combine_color2" type="" xpos="6.25517" ypos="49.37">
     <combine2 name="combine1" type="color2" xpos="5.74483" ypos="4.58">
