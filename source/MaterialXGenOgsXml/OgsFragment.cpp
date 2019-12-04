@@ -19,10 +19,15 @@ namespace
 {
 class GlslGeneratorWrapperBase
 {
+    GlslGeneratorWrapperBase() = delete;
+
 protected:
     GlslGeneratorWrapperBase(mx::ElementPtr element)
         : _element(element)
     {
+        if (!_element)
+            throw mx::Exception("No element specified");
+
         if (element->asA<mx::ShaderRef>())
         {
             _isSurface = true;
@@ -74,6 +79,9 @@ public:
     {
     }
 
+    ~LocalGlslGeneratorWrapper()
+    {}
+
     std::pair<mx::ShaderPtr, bool> operator()(const std::string& baseFragmentName)
     {
         mx::ShaderGeneratorPtr generator = mx::GlslFragmentGenerator::create();
@@ -111,7 +119,37 @@ public:
     const mx::FileSearchPath& _librarySearchPath;
 };
 
-// @return The unique name of the fragment
+class ExternalGlslGeneratorWrapper
+    : public GlslGeneratorWrapperBase
+{
+public:
+    ExternalGlslGeneratorWrapper(mx::ElementPtr element, mx::GenContext& genContext)
+        : GlslGeneratorWrapperBase(element)
+        , _genContext(genContext)
+    {}
+
+    ~ExternalGlslGeneratorWrapper()
+    {}
+
+    std::pair<mx::ShaderPtr, bool> operator()(const std::string& baseFragmentName)
+    {
+        mx::ShaderGenerator& generator = _genContext.getShaderGenerator();
+        mx::GenOptions& genOptions = _genContext.getOptions();
+
+        setCommonOptions(genOptions, generator);
+
+        return std::make_pair(
+            generator.generate(baseFragmentName, _element, _genContext),
+            genOptions.hwTransparency
+        );
+    }
+
+private:
+    mx::GenContext& _genContext;
+};
+
+/// Generate the complete XML fragment source embedding both GLSL and HLSL code.
+/// @return The unique name of the fragment
 std::string
 generateFragment(
     std::string& fragmentSource,
@@ -187,7 +225,16 @@ OgsFragment::OgsFragment(
         element,
         LocalGlslGeneratorWrapper(element, librarySearchPath)
     )
-{}
+{
+}
+
+OgsFragment::OgsFragment(mx::ElementPtr element, mx::GenContext& genContext)
+    : OgsFragment(
+        element,
+        ExternalGlslGeneratorWrapper(element, genContext)
+    )
+{
+}
 
 template <typename GLSL_GENERATOR_WRAPPER>
 OgsFragment::OgsFragment(
