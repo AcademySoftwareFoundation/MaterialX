@@ -17,11 +17,13 @@ namespace MaterialXMaya
 {
 namespace
 {
+// The base class for classes wrapping GLSL fragment generators for use during
+// OgsFragment construction.
 class GlslGeneratorWrapperBase
 {
     GlslGeneratorWrapperBase() = delete;
 
-protected:
+  protected:
     GlslGeneratorWrapperBase(mx::ElementPtr element)
         : _element(element)
     {
@@ -38,7 +40,7 @@ protected:
         }
     }
 
-protected:
+  protected:
     void setCommonOptions(mx::GenOptions& genOptions, const mx::ShaderGenerator& generator)
     {
         // Use FIS environment lookup for surface shader generation but
@@ -66,6 +68,9 @@ private:
     bool _isSurface = false;
 };
 
+// Knows how to create a temporary local GLSL fragment generator to generate
+// GLSL fragment code during OgsFragment construction.
+//
 class LocalGlslGeneratorWrapper
     : public GlslGeneratorWrapperBase
 {
@@ -119,6 +124,10 @@ public:
     const mx::FileSearchPath& _librarySearchPath;
 };
 
+// Wraps an externally-provided GLSL fragment generator (such as the one
+// created once for multiple tests by the test harness) to generate
+// GLSL fragment code during OgsFragment construction.
+//
 class ExternalGlslGeneratorWrapper
     : public GlslGeneratorWrapperBase
 {

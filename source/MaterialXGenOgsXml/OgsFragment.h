@@ -20,7 +20,11 @@ namespace MaterialXMaya
 class OgsFragment
 {
   public:
+    /// Creates a local GLSL fragment generator
     OgsFragment(mx::ElementPtr, const mx::FileSearchPath& librarySearchPath);
+
+    /// Reuses an externally-provided GLSL fragment generator. Used in the test
+    /// harness.
     OgsFragment(mx::ElementPtr, mx::GenContext&);
 
     explicit OgsFragment(const OgsFragment&) = delete;
@@ -71,6 +75,7 @@ class OgsFragment
     static std::string getMatrix4Name(const std::string& matrix3Name);
 
   private:
+    /// The constructor implementation that public constructors delegate to.
     template <typename GLSL_GENERATOR_WRAPPER>
     OgsFragment(mx::ElementPtr, GLSL_GENERATOR_WRAPPER&&);
 
