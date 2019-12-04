@@ -21,6 +21,8 @@
 #include <MaterialXCross/Cross.h>
 #endif
 
+#include <memory>
+
 namespace mx = MaterialX;
 
 class OgsXmlShaderGeneratorTester : public GlslShaderGeneratorTester
