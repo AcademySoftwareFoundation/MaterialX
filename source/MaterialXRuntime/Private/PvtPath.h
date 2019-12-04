@@ -50,6 +50,11 @@ public:
         return getObject() != nullptr;
     }
 
+    bool isRoot() const
+    {
+        return _path.empty();
+    }
+
     PvtDataHandle getObject() const;
 
     void setObject(PvtDataHandle obj);
@@ -59,9 +64,9 @@ public:
         string str;
         for (const RtToken& elem : _path)
         {
-            str += "/" + elem.str();
+            str += SEPARATOR + elem.str();
         }
-        return str;
+        return str.empty() ? SEPARATOR : str;
     }
 
     void push(const RtToken& childName)
@@ -71,13 +76,18 @@ public:
 
     void pop()
     {
-        _path.pop_back();
+        if (!_path.empty())
+        {
+            _path.pop_back();
+        }
     }
 
     bool operator==(const PvtPath& other) const
     {
         return _root == other._root && _path == other._path;
     }
+
+    static const string SEPARATOR;
 
 private:
     PvtDataHandle _root;

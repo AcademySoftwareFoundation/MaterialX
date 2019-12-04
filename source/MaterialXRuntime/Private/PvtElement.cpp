@@ -6,13 +6,12 @@
 #include <MaterialXRuntime/Private/PvtElement.h>
 #include <MaterialXRuntime/Private/PvtNode.h>
 #include <MaterialXRuntime/Private/PvtNodeDef.h>
+#include <MaterialXRuntime/Private/PvtPath.h>
 
 #include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
-
-const string PvtElement::PATH_SEPARATOR = "/";
 
 PvtElement::PvtElement(RtObjType objType, const RtToken& name) :
     PvtObject(objType),
@@ -99,7 +98,7 @@ PvtDataHandle PvtElement::findChildByName(const RtToken& name) const
 
 PvtDataHandle PvtElement::findChildByPath(const string& path) const
 {
-    const StringVec elementNames = splitString(path, PATH_SEPARATOR);
+    const StringVec elementNames = splitString(path, PvtPath::SEPARATOR);
     if (elementNames.empty())
     {
         return nullptr;

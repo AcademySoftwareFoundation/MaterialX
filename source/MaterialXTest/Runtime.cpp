@@ -403,7 +403,17 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(path2.isValid());
     REQUIRE(path2.getPathString() == "/ND_add_float");
     path2.pop();
-    REQUIRE(!path2.isValid());
+    REQUIRE(path2.isValid());
+    REQUIRE(path2.isRoot());
+    REQUIRE(path2.getObject() == stageObj);
+    REQUIRE(path2.getPathString() == "/");
+
+    mx::RtPath stagePath(stageObj);
+    REQUIRE(stagePath.isValid());
+    REQUIRE(stagePath.isRoot());
+    REQUIRE(stagePath.getObject() == stageObj);
+    REQUIRE(stagePath.getPathString() == "/");
+    REQUIRE(stagePath == path2);
 
     mx::RtPath pathA, pathB;
     REQUIRE(!pathA.isValid());

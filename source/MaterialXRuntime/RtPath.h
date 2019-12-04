@@ -43,6 +43,10 @@ public:
     /// Return true if the path points to a valid object.
     bool isValid() const;
 
+    /// Return true if the object at the end of the path
+    /// is a root object. An object with no parent.
+    bool isRoot() const;
+
     /// Return the type for the object at the end of the path.
     RtObjType getObjType() const;
 

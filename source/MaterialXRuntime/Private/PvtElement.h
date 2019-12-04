@@ -152,8 +152,6 @@ public:
 
     virtual PvtAllocator& getAllocator();
 
-    static const string PATH_SEPARATOR;
-
 protected:
     PvtElement(RtObjType objType, const RtToken& name);
 

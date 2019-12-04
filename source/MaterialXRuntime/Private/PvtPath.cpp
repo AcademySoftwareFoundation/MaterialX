@@ -8,11 +8,17 @@
 namespace MaterialX
 {
 
+const string PvtPath::SEPARATOR = "/";
+
 PvtDataHandle PvtPath::getObject() const
 {
-    if (!_root || _path.empty())
+    if (!_root)
     {
         return nullptr;
+    }
+    if (_path.empty())
+    {
+        return _root;
     }
 
     PvtElement* parent = _root->asA<PvtElement>();
@@ -39,20 +45,22 @@ void PvtPath::setObject(PvtDataHandle obj)
     _root = root ? root->shared_from_this() : nullptr;
 
     PvtElement* parent = elem->getParent();
-
-    // Get the path from child down to parent and then reverse it
-    _path.push_back(elem->getName());
-    while (parent)
+    if (parent)
     {
-        if (parent == root)
+        // Get the path from child down to parent and then reverse it
+        _path.push_back(elem->getName());
+        while (parent)
         {
-            // Stop when reaching the root.
-            break;
+            if (parent == root)
+            {
+                // Stop when reaching the root.
+                break;
+            }
+            _path.push_back(parent->getName());
+            parent = parent->getParent();
         }
-        _path.push_back(parent->getName());
-        parent = parent->getParent();
+        std::reverse(_path.begin(), _path.end());
     }
-    std::reverse(_path.begin(), _path.end());
 }
 
 }

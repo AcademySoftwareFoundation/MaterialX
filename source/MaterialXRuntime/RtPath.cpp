@@ -43,6 +43,11 @@ bool RtPath::isValid() const
     return static_cast<PvtPath*>(_ptr)->isValid();
 }
 
+bool RtPath::isRoot() const
+{
+    return static_cast<PvtPath*>(_ptr)->isRoot();
+}
+
 RtObjType RtPath::getObjType() const
 {
     return static_cast<PvtPath*>(_ptr)->getObject()->getObjType();

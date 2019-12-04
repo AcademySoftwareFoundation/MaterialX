@@ -7,6 +7,7 @@
 #include <MaterialXRuntime/Private/PvtNodeDef.h>
 #include <MaterialXRuntime/Private/PvtNode.h>
 #include <MaterialXRuntime/Private/PvtNodeGraph.h>
+#include <MaterialXRuntime/Private/PvtPath.h>
 
 #include <MaterialXRuntime/RtObject.h>
 
@@ -110,7 +111,7 @@ PvtDataHandle PvtStage::findChildByName(const RtToken& name) const
 
 PvtDataHandle PvtStage::findChildByPath(const string& path) const
 {
-    const StringVec elementNames = splitString(path, PATH_SEPARATOR);
+    const StringVec elementNames = splitString(path, PvtPath::SEPARATOR);
     if (elementNames.empty())
     {
         return nullptr;
