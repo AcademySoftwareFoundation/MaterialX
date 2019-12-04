@@ -23,7 +23,8 @@ RtObject RtNodeGraph::createNew(RtObject parent, const RtToken& name)
     {
         throw ExceptionRuntimeError("Parent object must be a stage or a nodegraph");
     }
-    return RtObject(PvtNodeGraph::createNew(parent.data()->asA<PvtElement>(), name));
+    PvtDataHandle data = PvtNodeGraph::createNew(PvtObject::ptr<PvtElement>(parent), name);
+    return PvtObject::object(data);
 }
 
 RtApiType RtNodeGraph::getApiType() const
@@ -33,7 +34,7 @@ RtApiType RtNodeGraph::getApiType() const
 
 void RtNodeGraph::addNode(RtObject node)
 {
-    return data()->asA<PvtNodeGraph>()->addNode(node.data());
+    return data()->asA<PvtNodeGraph>()->addNode(PvtObject::data(node));
 }
 
 void RtNodeGraph::removeNode(RtObject node)
@@ -42,7 +43,7 @@ void RtNodeGraph::removeNode(RtObject node)
     {
         throw ExceptionRuntimeError("Given object is not a node");
     }
-    PvtNode* n = node.data()->asA<PvtNode>();
+    PvtNode* n = PvtObject::ptr<PvtNode>(node);
     return data()->asA<PvtNodeGraph>()->removeNode(n->getName());
 }
 
@@ -52,7 +53,7 @@ void RtNodeGraph::removePort(RtObject portdef)
     {
         throw ExceptionRuntimeError("Given object is not a portdef");
     }
-    PvtPortDef* p = portdef.data()->asA<PvtPortDef>();
+    PvtPortDef* p = PvtObject::ptr<PvtPortDef>(portdef);
     return data()->asA<PvtNodeGraph>()->removePort(p->getName());
 }
 
@@ -63,14 +64,14 @@ size_t RtNodeGraph::numNodes() const
 
 RtObject RtNodeGraph::getNode(size_t index) const
 {
-    PvtObjectHandle node = data()->asA<PvtNodeGraph>()->getChild(index);
-    return RtObject(node);
+    PvtDataHandle node = data()->asA<PvtNodeGraph>()->getChild(index);
+    return PvtObject::object(node);
 }
 
 RtObject RtNodeGraph::findNode(const RtToken& name) const
 {
-    PvtObjectHandle node = data()->asA<PvtNodeGraph>()->findChildByName(name);
-    return RtObject(node);
+    PvtDataHandle node = data()->asA<PvtNodeGraph>()->findChildByName(name);
+    return PvtObject::object(node);
 }
 
 RtPort RtNodeGraph::getOutputSocket(size_t index) const

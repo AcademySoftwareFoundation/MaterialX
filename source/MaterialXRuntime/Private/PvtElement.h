@@ -16,9 +16,9 @@
 namespace MaterialX
 {
 
-using PvtObjectHandleVec = vector<PvtObjectHandle>;
-using PvtObjectHandleSet = std::set<PvtObjectHandle>;
-using PvtObjectHandleMap = RtTokenMap<PvtObjectHandle>;
+using PvtDataHandleVec = vector<PvtDataHandle>;
+using PvtDataHandleSet = std::set<PvtDataHandle>;
+using PvtDataHandleMap = RtTokenMap<PvtDataHandle>;
 
 using PvtAttributePtr = std::shared_ptr<RtAttribute>;
 using PvtAttributeVec = vector<PvtAttributePtr>;
@@ -96,7 +96,7 @@ public:
 
     PvtElement* getRoot() const;
 
-    void addChild(PvtObjectHandle elem);
+    void addChild(const PvtDataHandle& elem);
 
     void removeChild(const RtToken& name);
 
@@ -105,19 +105,19 @@ public:
         return _children.size();
     }
 
-    PvtObjectHandle getChild(size_t index) const
+    const PvtDataHandle& getChild(size_t index) const
     {
-        return index < _children.size() ? _children[index] : nullptr;
+        return index < _children.size() ? _children[index] : PvtObject::NULL_DATA_HANDLE;
     }
 
-    const PvtObjectHandleVec& getChildren() const
+    const PvtDataHandleVec& getChildren() const
     {
         return _children;
     }
 
-    virtual PvtObjectHandle findChildByName(const RtToken& name) const;
+    virtual PvtDataHandle findChildByName(const RtToken& name) const;
 
-    virtual PvtObjectHandle findChildByPath(const string& path) const;
+    virtual PvtDataHandle findChildByPath(const string& path) const;
 
     RtAttribute* addAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
@@ -164,8 +164,8 @@ protected:
 
     RtToken _name;
     PvtElement* _parent;
-    PvtObjectHandleVec _children;
-    PvtObjectHandleMap _childrenByName;
+    PvtDataHandleVec _children;
+    PvtDataHandleMap _childrenByName;
     PvtAttributeVec _attributes;
     PvtAttributeMap _attributesByName;
 
@@ -193,7 +193,7 @@ protected:
 class PvtUnknownElement : public PvtElement
 {
 public:
-    static PvtObjectHandle createNew(PvtElement* parent, const RtToken& name, const RtToken& category);
+    static PvtDataHandle createNew(PvtElement* parent, const RtToken& name, const RtToken& category);
 
     const RtToken& getCategory() const
     {

@@ -22,7 +22,7 @@ namespace MaterialX
 RtValue::RtValue(const Matrix33& v, RtObject& owner)
 {
     // Allocate storage for the value.
-    PvtAllocator& allocator = owner.data()->asA<PvtElement>()->getAllocator();
+    PvtAllocator& allocator = PvtObject::ptr<PvtElement>(owner)->getAllocator();
     *reinterpret_cast<Matrix33**>(&_data) = allocator.allocType<Matrix33>();
 
     // Copy the value.
@@ -32,7 +32,7 @@ RtValue::RtValue(const Matrix33& v, RtObject& owner)
 RtValue::RtValue(const Matrix44& v, RtObject& owner)
 {
     // Allocate storage for the value.
-    PvtAllocator& allocator = owner.data()->asA<PvtElement>()->getAllocator();
+    PvtAllocator& allocator = PvtObject::ptr<PvtElement>(owner)->getAllocator();
     *reinterpret_cast<Matrix44**>(&_data) = allocator.allocType<Matrix44>();
 
     // Copy the value.
@@ -42,7 +42,7 @@ RtValue::RtValue(const Matrix44& v, RtObject& owner)
 RtValue::RtValue(const string& v, RtObject& owner)
 {
     // Allocate storage for the value.
-    PvtAllocator& allocator = owner.data()->asA<PvtElement>()->getAllocator();
+    PvtAllocator& allocator = PvtObject::ptr<PvtElement>(owner)->getAllocator();
     *reinterpret_cast<string**>(&_data) = allocator.allocType<string>();
 
     // Copy the value.

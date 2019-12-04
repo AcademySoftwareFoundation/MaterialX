@@ -13,13 +13,13 @@ PvtPath::PvtPath() :
 {
 }
 
-PvtPath::PvtPath(PvtObjectHandle obj) :
+PvtPath::PvtPath(PvtDataHandle obj) :
     _root(nullptr)
 {
     setObject(obj);
 }
 
-PvtObjectHandle PvtPath::getObject() const
+PvtDataHandle PvtPath::getObject() const
 {
     if (!_root || _path.empty())
     {
@@ -27,7 +27,7 @@ PvtObjectHandle PvtPath::getObject() const
     }
 
     PvtElement* parent = _root->asA<PvtElement>();
-    PvtObjectHandle elem = nullptr;
+    PvtDataHandle elem = nullptr;
     size_t i = 0;
     while (parent)
     {
@@ -38,7 +38,7 @@ PvtObjectHandle PvtPath::getObject() const
     return elem;
 }
 
-void PvtPath::setObject(PvtObjectHandle obj)
+void PvtPath::setObject(PvtDataHandle obj)
 {
     if (!(obj && obj->hasApi(RtApiType::ELEMENT)))
     {

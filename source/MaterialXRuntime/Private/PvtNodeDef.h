@@ -23,7 +23,7 @@ class PvtNodeDef : public PvtAllocatingElement
 public:
     PvtNodeDef(const RtToken& name, const RtToken& category);
 
-    static PvtObjectHandle createNew(PvtElement* parent, const RtToken& name, const RtToken& nodeName);
+    static PvtDataHandle createNew(PvtElement* parent, const RtToken& name, const RtToken& nodeName);
 
     const RtToken& getNodeName() const
     {
@@ -86,7 +86,7 @@ public:
     }
 
 protected:
-    void addPort(PvtObjectHandle portdef);
+    void addPort(PvtDataHandle portdef);
 
     void rebuildPortIndex();
 

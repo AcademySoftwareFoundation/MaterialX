@@ -23,9 +23,9 @@ using RtPortVec = vector<RtPort>;
 class PvtNode : public PvtAllocatingElement
 {
 public:
-    static PvtObjectHandle createNew(PvtElement* parent, const PvtObjectHandle& nodedef, const RtToken& name);
+    static PvtDataHandle createNew(PvtElement* parent, const PvtDataHandle& nodedef, const RtToken& name);
 
-    PvtObjectHandle getNodeDef() const
+    PvtDataHandle getNodeDef() const
     {
         return _nodedef;
     }
@@ -126,7 +126,7 @@ public:
 protected:
     // Constructor creating a node with a fixed interface
     // This is the constructor to use for ordinary nodes.
-    PvtNode(const RtToken& name, const PvtObjectHandle& nodedef);
+    PvtNode(const RtToken& name, const PvtDataHandle& nodedef);
 
     // Constructor creating a node without a fixed interface.
     // Used for constructing nodegraphs.
@@ -146,7 +146,7 @@ protected:
 
     using PvtAttributeMapPtr = std::unique_ptr<PvtAttributeMap>;
 
-    PvtObjectHandle _nodedef;
+    PvtDataHandle _nodedef;
     vector<Port> _ports;
     vector<PvtAttributeMapPtr> _portAttrs;
 

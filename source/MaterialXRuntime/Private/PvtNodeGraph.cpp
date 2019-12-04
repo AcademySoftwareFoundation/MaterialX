@@ -37,7 +37,7 @@ PvtNodeGraph::PvtNodeGraph(const RtToken& name) :
     _outputSockets = PvtNode::createNew(nullptr, _outputSocketsNodeDef, OUTPUT_SOCKETS);
 }
 
-PvtObjectHandle PvtNodeGraph::createNew(PvtElement* parent, const RtToken& name)
+PvtDataHandle PvtNodeGraph::createNew(PvtElement* parent, const RtToken& name)
 {
     if (parent && !(parent->hasApi(RtApiType::STAGE) || parent->hasApi(RtApiType::NODEGRAPH)))
     {
@@ -49,7 +49,7 @@ PvtObjectHandle PvtNodeGraph::createNew(PvtElement* parent, const RtToken& name)
     // when the node is added to the parent below.
     RtToken graphName = name == EMPTY_TOKEN ? DEFAULT_NODEGRAPH_NAME : name;
 
-    PvtObjectHandle node(new PvtNodeGraph(graphName));
+    PvtDataHandle node(new PvtNodeGraph(graphName));
     if (parent)
     {
         parent->addChild(node);
@@ -58,7 +58,7 @@ PvtObjectHandle PvtNodeGraph::createNew(PvtElement* parent, const RtToken& name)
     return node;
 }
 
-void PvtNodeGraph::addNode(PvtObjectHandle node)
+void PvtNodeGraph::addNode(PvtDataHandle node)
 {
     if (!node->hasApi(RtApiType::NODE))
     {
@@ -67,7 +67,7 @@ void PvtNodeGraph::addNode(PvtObjectHandle node)
     addChild(node);
 }
 
-void PvtNodeGraph::addPort(PvtObjectHandle portdef)
+void PvtNodeGraph::addPort(PvtDataHandle portdef)
 {
     const PvtPortDef* pd = portdef->asA<PvtPortDef>();
     const uint32_t flags = pd->getFlags();
@@ -84,14 +84,14 @@ void PvtNodeGraph::addPort(PvtObjectHandle portdef)
     // Add to internal interface
     if (pd->isOutput())
     {
-        PvtObjectHandle socket = PvtPortDef::createNew(outputSocketsNodeDef(), pd->getName(), pd->getType(), flags & ~RtPortFlag::OUTPUT);
+        PvtDataHandle socket = PvtPortDef::createNew(outputSocketsNodeDef(), pd->getName(), pd->getType(), flags & ~RtPortFlag::OUTPUT);
         socket->asA<PvtPortDef>()->setValue(pd->getValue());
 
         outputSockets()->_ports.push_back(p);
     }
     else
     {
-        PvtObjectHandle socket = PvtPortDef::createNew(inputSocketsNodeDef(), pd->getName(), pd->getType(), flags | RtPortFlag::OUTPUT);
+        PvtDataHandle socket = PvtPortDef::createNew(inputSocketsNodeDef(), pd->getName(), pd->getType(), flags | RtPortFlag::OUTPUT);
         socket->asA<PvtPortDef>()->setValue(pd->getValue());
 
         inputSockets()->_ports.push_back(p);

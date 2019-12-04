@@ -19,7 +19,7 @@ class PvtStage : public PvtAllocatingElement
 public:
     PvtStage(const RtToken& name);
 
-    static PvtObjectHandle createNew(const RtToken& name);
+    static PvtDataHandle createNew(const RtToken& name);
 
     const RtTokenList& getSourceUri() const
     {
@@ -31,7 +31,7 @@ public:
         _sourceUri.push_back(uri);
     }
 
-    void addReference(PvtObjectHandle stage);
+    void addReference(PvtDataHandle stage);
 
     void removeReference(const RtToken& name);
 
@@ -39,23 +39,23 @@ public:
 
     size_t numReferences() const;
 
-    PvtObjectHandle getReference(size_t index) const;
+    PvtDataHandle getReference(size_t index) const;
 
-    PvtObjectHandle findReference(const RtToken& name) const;
+    PvtDataHandle findReference(const RtToken& name) const;
 
-    const PvtObjectHandleVec& getReferencedStages() const
+    const PvtDataHandleVec& getReferencedStages() const
     {
         return _refStages;
     }
 
-    PvtObjectHandle findChildByName(const RtToken& name) const override;
+    PvtDataHandle findChildByName(const RtToken& name) const override;
 
-    PvtObjectHandle findChildByPath(const string& path) const override;
+    PvtDataHandle findChildByPath(const string& path) const override;
 
 protected:
     size_t _selfRefCount;
-    PvtObjectHandleVec _refStages;
-    PvtObjectHandleSet _refStagesSet;
+    PvtDataHandleVec _refStages;
+    PvtDataHandleSet _refStagesSet;
     RtTokenList _sourceUri;
 };
 

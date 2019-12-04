@@ -37,6 +37,14 @@ public:
     /// the scope of this element and its siblings.
     void setName(const RtToken& name);
 
+    /// Return the parent object for this element, or a null object
+    /// if this element does not have a parent.
+    RtObject getParent() const;
+
+    /// Return the root object for this element. If the element has
+    /// no parent the element object itself is returned as the root.
+    RtObject getRoot() const;
+
     /// Add an attribute.
     RtAttribute* addAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 

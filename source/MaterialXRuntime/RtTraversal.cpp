@@ -18,7 +18,7 @@ RtStageIterator::RtStageIterator() :
 
 RtStageIterator::RtStageIterator(RtObject root, RtTraversalFilter filter) :
     RtApiBase(root),
-    _ptr(new PvtStageIterator(root.data(), filter))
+    _ptr(new PvtStageIterator(PvtObject::data(root), filter))
 {
 }
 
@@ -53,7 +53,7 @@ bool RtStageIterator::operator!=(const RtStageIterator& other) const
 RtObject RtStageIterator::operator*() const
 {
     PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
-    return RtObject(it->operator*());
+    return PvtObject::object(it->operator*());
 }
 
 RtStageIterator& RtStageIterator::operator++()
@@ -84,7 +84,7 @@ RtTreeIterator::RtTreeIterator() :
 
 RtTreeIterator::RtTreeIterator(RtObject root, RtTraversalFilter filter) :
     RtApiBase(root),
-    _ptr(new PvtTreeIterator(root.data(), filter))
+    _ptr(new PvtTreeIterator(PvtObject::data(root), filter))
 {
 }
 
@@ -119,7 +119,7 @@ bool RtTreeIterator::operator!=(const RtTreeIterator& other) const
 RtObject RtTreeIterator::operator*() const
 {
     PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
-    return RtObject(it->operator*());
+    return PvtObject::object(it->operator*());
 }
 
 RtTreeIterator& RtTreeIterator::operator++()

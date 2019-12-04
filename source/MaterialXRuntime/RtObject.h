@@ -21,7 +21,7 @@ class PvtObject;
 
 // A handle to private data
 // TODO: implement a custom refcounted handle class
-using PvtObjectHandle = std::shared_ptr<PvtObject>;
+using PvtDataHandle = std::shared_ptr<PvtObject>;
 
 /// Type identifiers for concrete runtime objects.
 enum class RtObjType
@@ -60,9 +60,6 @@ public:
     /// Default constructor.
     RtObject();
 
-    /// Construct from a data handle.
-    RtObject(PvtObjectHandle data);
-
     /// Copy constructor.
     RtObject(const RtObject& other);
 
@@ -97,14 +94,23 @@ public:
         return _data == other._data;
     }
 
+    /// A null object.
+    static const RtObject NULL_OBJECT;
+
+private:
+    /// Construct from a data handle.
+    RtObject(PvtDataHandle data);
+
     /// Return the data handle.
-    PvtObjectHandle data() const
+    const PvtDataHandle& data() const
     {
         return _data;
     }
 
-private:
-    PvtObjectHandle _data;
+    /// Internal data.
+    PvtDataHandle _data;
+    friend class PvtObject;
+    friend class RtApiBase;
 };
 
 /// @class RtObject
@@ -161,7 +167,7 @@ protected:
     RtApiBase();
 
     /// Construct from a data handle.
-    RtApiBase(PvtObjectHandle data);
+    RtApiBase(PvtDataHandle data);
 
     /// Construct from an object.
     RtApiBase(const RtObject& obj);
@@ -170,17 +176,17 @@ protected:
     RtApiBase(const RtApiBase& other);
 
     /// Set data for this API.
-    void setData(PvtObjectHandle data);
+    void setData(PvtDataHandle data);
 
     /// Return data set for this API.
-    PvtObjectHandle& data() { return _data; }
+    PvtDataHandle& data() { return _data; }
 
     /// Return data set for this API.
-    const PvtObjectHandle& data() const { return _data; }
+    const PvtDataHandle& data() const { return _data; }
 
 private:
     /// Internal data attached to the API.
-    PvtObjectHandle _data;
+    PvtDataHandle _data;
 };
 
 }

@@ -60,6 +60,8 @@ namespace
     };
 }
 
+const PvtDataHandle PvtObject::NULL_DATA_HANDLE(nullptr);
+
 PvtObject::PvtObject(RtObjType type) :
     _objType(type)
 {

@@ -24,12 +24,12 @@ PvtStage::PvtStage(const RtToken& name) :
 {
 }
 
-PvtObjectHandle PvtStage::createNew(const RtToken& name)
+PvtDataHandle PvtStage::createNew(const RtToken& name)
 {
     return std::make_shared<PvtStage>(name);
 }
 
-void PvtStage::addReference(PvtObjectHandle stage)
+void PvtStage::addReference(PvtDataHandle stage)
 {
     if (!stage->hasApi(RtApiType::STAGE))
     {
@@ -71,12 +71,12 @@ size_t PvtStage::numReferences() const
     return _refStages.size();
 }
 
-PvtObjectHandle PvtStage::getReference(size_t index) const
+PvtDataHandle PvtStage::getReference(size_t index) const
 {
     return index < _refStages.size() ? _refStages[index] : nullptr;
 }
 
-PvtObjectHandle PvtStage::findReference(const RtToken& name) const
+PvtDataHandle PvtStage::findReference(const RtToken& name) const
 {
     for (auto it = _refStages.begin(); it != _refStages.end(); ++it)
     {
@@ -89,7 +89,7 @@ PvtObjectHandle PvtStage::findReference(const RtToken& name) const
     return nullptr;
 }
 
-PvtObjectHandle PvtStage::findChildByName(const RtToken& name) const
+PvtDataHandle PvtStage::findChildByName(const RtToken& name) const
 {
     auto it = _childrenByName.find(name);
     if (it != _childrenByName.end())
@@ -99,7 +99,7 @@ PvtObjectHandle PvtStage::findChildByName(const RtToken& name) const
     for (auto rs : _refStages)
     {
         PvtStage* refStage = rs->asA<PvtStage>();
-        PvtObjectHandle elem = refStage->findChildByName(name);
+        PvtDataHandle elem = refStage->findChildByName(name);
         if (elem)
         {
             return elem;
@@ -108,7 +108,7 @@ PvtObjectHandle PvtStage::findChildByName(const RtToken& name) const
     return nullptr;
 }
 
-PvtObjectHandle PvtStage::findChildByPath(const string& path) const
+PvtDataHandle PvtStage::findChildByPath(const string& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -118,7 +118,7 @@ PvtObjectHandle PvtStage::findChildByPath(const string& path) const
 
     size_t i = 0;
     RtToken name(elementNames[i++]);
-    PvtObjectHandle elem = findChildByName(name);
+    PvtDataHandle elem = findChildByName(name);
 
     while (elem && i < elementNames.size())
     {

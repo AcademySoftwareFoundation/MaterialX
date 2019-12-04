@@ -63,8 +63,10 @@ namespace
     };
 }
 
+const RtObject RtObject::NULL_OBJECT(nullptr);
+
 RtObject::RtObject() :
-    _data(PvtObjectHandle())
+    _data(PvtDataHandle())
 {
 }
 
@@ -73,7 +75,7 @@ RtObject::RtObject(const RtObject& other) :
 {
 }
 
-RtObject::RtObject(PvtObjectHandle data) :
+RtObject::RtObject(PvtDataHandle data) :
     _data(data)
 {
 }
@@ -99,11 +101,11 @@ bool RtObject::hasApi(RtApiType type) const
 
 
 RtApiBase::RtApiBase() :
-    _data(PvtObjectHandle())
+    _data(PvtDataHandle())
 {
 }
 
-RtApiBase::RtApiBase(PvtObjectHandle data) :
+RtApiBase::RtApiBase(PvtDataHandle data) :
     _data(data)
 {
 }
@@ -138,7 +140,7 @@ bool RtApiBase::isValid() const
     return _data && isSupported(_data->getObjType());
 }
 
-void RtApiBase::setData(PvtObjectHandle data)
+void RtApiBase::setData(PvtDataHandle data)
 {
     if (data && !isSupported(data->getObjType()))
     {

@@ -17,7 +17,7 @@ const RtToken PvtNode::ATTR_COLOR_SPACE("colorspace");
 const RtToken PvtNode::ATTR_UNIT("unit");
 
 // Construction with an interface is for nodes.
-PvtNode::PvtNode(const RtToken& name, const PvtObjectHandle& nodedef) :
+PvtNode::PvtNode(const RtToken& name, const PvtDataHandle& nodedef) :
     PvtAllocatingElement(RtObjType::NODE, name),
     _nodedef(nodedef)
 {
@@ -40,7 +40,7 @@ PvtNode::PvtNode(const RtToken& name) :
 {
 }
 
-PvtObjectHandle PvtNode::createNew(PvtElement* parent, const PvtObjectHandle& nodedef, const RtToken& name)
+PvtDataHandle PvtNode::createNew(PvtElement* parent, const PvtDataHandle& nodedef, const RtToken& name)
 {
     if (parent && !(parent->hasApi(RtApiType::STAGE) || parent->hasApi(RtApiType::NODEGRAPH)))
     {
@@ -56,7 +56,7 @@ PvtObjectHandle PvtNode::createNew(PvtElement* parent, const PvtObjectHandle& no
         nodeName = RtToken(nodedef->asA<PvtNodeDef>()->getNodeName().str() + "1");
     }
 
-    PvtObjectHandle node(new PvtNode(nodeName, nodedef));
+    PvtDataHandle node(new PvtNode(nodeName, nodedef));
     if (parent)
     {
         parent->addChild(node);

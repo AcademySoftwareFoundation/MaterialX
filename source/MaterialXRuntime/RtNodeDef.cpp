@@ -24,9 +24,9 @@ RtObject RtNodeDef::createNew(RtObject stage, const RtToken& name, const RtToken
         throw ExceptionRuntimeError("Given object is not a valid stage");
     }
 
-    PvtObjectHandle nodedef = PvtNodeDef::createNew(stage.data()->asA<PvtElement>(), name, category);
+    PvtDataHandle nodedef = PvtNodeDef::createNew(PvtObject::ptr<PvtElement>(stage), name, category);
 
-    return RtObject(nodedef);
+    return PvtObject::object(nodedef);
 }
 
 RtApiType RtNodeDef::getApiType() const
@@ -45,7 +45,7 @@ void RtNodeDef::removePort(RtObject portdef)
     {
         throw ExceptionRuntimeError("Given object is not a portdef");
     }
-    PvtPortDef* p = portdef.data()->asA<PvtPortDef>();
+    PvtPortDef* p = PvtObject::ptr<PvtPortDef>(portdef);
     return data()->asA<PvtNodeDef>()->removePort(p->getName());
 }
 
@@ -71,14 +71,14 @@ size_t RtNodeDef::getInputsOffset() const
 
 RtObject RtNodeDef::getPort(size_t index) const
 {
-    PvtObjectHandle portdef = data()->asA<PvtNodeDef>()->getChild(index);
-    return RtObject(portdef);
+    PvtDataHandle portdef = data()->asA<PvtNodeDef>()->getChild(index);
+    return PvtObject::object(portdef);
 }
 
 RtObject RtNodeDef::findPort(const RtToken& name) const
 {
-    PvtObjectHandle portdef = data()->asA<PvtNodeDef>()->findChildByName(name);
-    return RtObject(portdef);
+    PvtDataHandle portdef = data()->asA<PvtNodeDef>()->findChildByName(name);
+    return PvtObject::object(portdef);
 }
 
 }

@@ -22,6 +22,11 @@ class RtAttrFlag
 public:
     /// Attribute is internal and hidden from UI or file output.
     static const uint32_t INTERNAL = 0x00000001;
+
+    /// Attribute is not known or used by the runtime, but still
+    /// loaded in as it could be custom data used by clients.
+    /// Custom attributes are stored as interned strings (RtToken).
+    static const uint32_t CUSTOM = 0x00000002;
 };
 
 /// @class RtAttribute

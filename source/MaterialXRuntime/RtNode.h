@@ -153,15 +153,15 @@ public:
     }
 
     /// Return the data handle.
-    PvtObjectHandle data() const
+    PvtDataHandle data() const
     {
         return _data;
     }
 
 private:
-    RtPort(PvtObjectHandle data, size_t index);
+    RtPort(PvtDataHandle data, size_t index);
 
-    PvtObjectHandle _data;
+    PvtDataHandle _data;
     size_t _index;
     friend class PvtNode;
     friend class PvtNodeGraph;

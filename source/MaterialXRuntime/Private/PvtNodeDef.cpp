@@ -19,14 +19,14 @@ PvtNodeDef::PvtNodeDef(const RtToken& name, const RtToken& nodeName) :
 {
 }
 
-PvtObjectHandle PvtNodeDef::createNew(PvtElement* parent, const RtToken& name, const RtToken& category)
+PvtDataHandle PvtNodeDef::createNew(PvtElement* parent, const RtToken& name, const RtToken& category)
 {
     if (parent && !parent->hasApi(RtApiType::STAGE))
     {
         throw ExceptionRuntimeError("Given parent object is not a stage");
     }
 
-    PvtObjectHandle nodedef(new PvtNodeDef(name, category));
+    PvtDataHandle nodedef(new PvtNodeDef(name, category));
     if (parent)
     {
         parent->addChild(nodedef);
@@ -35,7 +35,7 @@ PvtObjectHandle PvtNodeDef::createNew(PvtElement* parent, const RtToken& name, c
     return nodedef;
 }
 
-void PvtNodeDef::addPort(PvtObjectHandle portdef)
+void PvtNodeDef::addPort(PvtDataHandle portdef)
 {
     if (!portdef->hasApi(RtApiType::PORTDEF))
     {

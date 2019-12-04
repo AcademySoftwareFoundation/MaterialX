@@ -22,12 +22,12 @@ RtApiType RtStage::getApiType() const
 
 RtObject RtStage::createNew(const RtToken& name)
 {
-    return RtObject(PvtStage::createNew(name));
+    return PvtObject::object(PvtStage::createNew(name));
 }
 
 void RtStage::addReference(RtObject stage)
 {
-    data()->asA<PvtStage>()->addReference(stage.data());
+    data()->asA<PvtStage>()->addReference(PvtObject::data(stage));
 }
 
 void RtStage::removeReference(const RtToken& name)
@@ -47,12 +47,14 @@ size_t RtStage::numReferences() const
 
 RtObject RtStage::getReference(size_t index) const
 {
-    return data()->asA<PvtStage>()->getReference(index);
+    PvtDataHandle ref = data()->asA<PvtStage>()->getReference(index);
+    return PvtObject::object(ref);
 }
 
 RtObject RtStage::findReference(const RtToken& name) const
 {
-    return RtObject(data()->asA<PvtStage>()->findReference(name));
+    PvtDataHandle ref = data()->asA<PvtStage>()->findReference(name);
+    return PvtObject::object(ref);
 }
 
 void RtStage::addElement(RtObject elem)
@@ -61,7 +63,7 @@ void RtStage::addElement(RtObject elem)
     {
         throw ExceptionRuntimeError("A stage cannot be added as direct child of another stage. Use addReference() instead to reference the stage.");
     }
-    data()->asA<PvtStage>()->addChild(elem.data());
+    data()->asA<PvtStage>()->addChild(PvtObject::data(elem));
 }
 
 void RtStage::removeElement(const RtToken& name)
@@ -71,14 +73,14 @@ void RtStage::removeElement(const RtToken& name)
 
 RtObject RtStage::findElementByName(const RtToken& name) const
 {
-    PvtObjectHandle elem = data()->asA<PvtStage>()->findChildByName(name);
-    return RtObject(elem);
+    PvtDataHandle elem = data()->asA<PvtStage>()->findChildByName(name);
+    return PvtObject::object(elem);
 }
 
 RtObject RtStage::findElementByPath(const string& path) const
 {
-    PvtObjectHandle elem = data()->asA<PvtStage>()->findChildByPath(path);
-    return RtObject(elem);
+    PvtDataHandle elem = data()->asA<PvtStage>()->findChildByPath(path);
+    return PvtObject::object(elem);
 }
 
 RtStageIterator RtStage::traverseStage(RtTraversalFilter filter)

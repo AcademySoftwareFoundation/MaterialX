@@ -22,14 +22,14 @@ _flags(flags)
 {
 }
 
-PvtObjectHandle PvtPortDef::createNew(PvtElement* parent, const RtToken& name, const RtToken& type, uint32_t flags)
+PvtDataHandle PvtPortDef::createNew(PvtElement* parent, const RtToken& name, const RtToken& type, uint32_t flags)
 {
     if (!(parent && (parent->hasApi(RtApiType::NODEDEF) || parent->hasApi(RtApiType::NODEGRAPH))))
     {
         throw ExceptionRuntimeError("PvtPortDef::createNew: Parent must be a nodedef or nodegraph");
     }
 
-    PvtObjectHandle portdef(new PvtPortDef(name, type, flags, parent->asA<PvtAllocatingElement>()));
+    PvtDataHandle portdef(new PvtPortDef(name, type, flags, parent->asA<PvtAllocatingElement>()));
 
     if (parent->hasApi(RtApiType::NODEDEF))
     {

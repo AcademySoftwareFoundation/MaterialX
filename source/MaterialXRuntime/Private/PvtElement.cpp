@@ -46,7 +46,7 @@ PvtElement* PvtElement::getRoot() const
     return root;
 }
 
-void PvtElement::addChild(PvtObjectHandle elemH)
+void PvtElement::addChild(const PvtDataHandle& elemH)
 {
     if (!elemH->hasApi(RtApiType::ELEMENT))
     {
@@ -91,13 +91,13 @@ void PvtElement::removeChild(const RtToken& name)
     _childrenByName.erase(name);
 }
 
-PvtObjectHandle PvtElement::findChildByName(const RtToken& name) const
+PvtDataHandle PvtElement::findChildByName(const RtToken& name) const
 {
     auto it = _childrenByName.find(name);
     return it != _childrenByName.end() ? it->second : nullptr;
 }
 
-PvtObjectHandle PvtElement::findChildByPath(const string& path) const
+PvtDataHandle PvtElement::findChildByPath(const string& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -107,7 +107,7 @@ PvtObjectHandle PvtElement::findChildByPath(const string& path) const
 
     size_t i = 0;
     RtToken name = RtToken(elementNames[i++]);
-    PvtObjectHandle elem = findChildByName(name);
+    PvtDataHandle elem = findChildByName(name);
 
     while (elem != nullptr && i < elementNames.size())
     {
@@ -198,9 +198,9 @@ PvtUnknownElement::PvtUnknownElement(const RtToken& name, const RtToken& categor
 {
 }
 
-PvtObjectHandle PvtUnknownElement::createNew(PvtElement* parent, const RtToken& name, const RtToken& category)
+PvtDataHandle PvtUnknownElement::createNew(PvtElement* parent, const RtToken& name, const RtToken& category)
 {
-    PvtObjectHandle elem(new PvtUnknownElement(name, category));
+    PvtDataHandle elem(new PvtUnknownElement(name, category));
     if (parent)
     {
         parent->addChild(elem);

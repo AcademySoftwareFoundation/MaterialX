@@ -23,7 +23,8 @@ RtObject RtPortDef::createNew(RtObject parent, const RtToken& name, const RtToke
     {
         throw ExceptionRuntimeError("Parent object must be a nodedef or a nodegraph");
     }
-    return RtObject(PvtPortDef::createNew(parent.data()->asA<PvtElement>(), name, type, flags));
+    PvtDataHandle data = PvtPortDef::createNew(PvtObject::ptr<PvtElement>(parent), name, type, flags);
+    return PvtObject::object(data);
 }
 
 RtApiType RtPortDef::getApiType() const

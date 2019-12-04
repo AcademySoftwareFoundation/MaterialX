@@ -20,9 +20,9 @@ namespace MaterialX
 class PvtNodeGraph : public PvtNode
 {
 public:
-    static PvtObjectHandle createNew(PvtElement* parent, const RtToken& name);
+    static PvtDataHandle createNew(PvtElement* parent, const RtToken& name);
 
-    void addNode(PvtObjectHandle node);
+    void addNode(PvtDataHandle node);
 
     void removeNode(const RtToken& name)
     {
@@ -78,7 +78,7 @@ public:
 protected:
     PvtNodeGraph(const RtToken& name);
 
-    void addPort(PvtObjectHandle portdef);
+    void addPort(PvtDataHandle portdef);
 
     PvtNodeDef* inputSocketsNodeDef() const { return (PvtNodeDef*)_inputSocketsNodeDef.get(); }
     PvtNode* inputSockets() const { return (PvtNode*)_inputSockets.get(); }
@@ -86,10 +86,10 @@ protected:
     PvtNodeDef* outputSocketsNodeDef() const { return (PvtNodeDef*)_outputSocketsNodeDef.get(); }
     PvtNode* outputSockets() const { return (PvtNode*)_outputSockets.get(); }
 
-    PvtObjectHandle _inputSocketsNodeDef;
-    PvtObjectHandle _inputSockets;
-    PvtObjectHandle _outputSocketsNodeDef;
-    PvtObjectHandle _outputSockets;
+    PvtDataHandle _inputSocketsNodeDef;
+    PvtDataHandle _inputSockets;
+    PvtDataHandle _outputSocketsNodeDef;
+    PvtDataHandle _outputSockets;
     friend class PvtPortDef;
 };
 

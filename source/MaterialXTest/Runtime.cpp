@@ -480,6 +480,14 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.findInputSocket("b").numDestinationPorts() == 1);
     REQUIRE(graph1.findOutputSocket("out").getSourcePort() == add2.findPort("out"));
 
+    // Test query of parent and root.
+    REQUIRE(add1.getParent() == graphObj1);
+    REQUIRE(add1.getRoot() == stageObj);
+    REQUIRE(graph1.getParent() == stageObj);
+    REQUIRE(graph1.getRoot() == stageObj);
+    REQUIRE(stage.getRoot() == stageObj);
+    REQUIRE(!stage.getParent().isValid());
+
     // Test finding a port by path.
     mx::RtObject node = stage.findElementByPath("/graph1/add2");
     mx::RtObject portdef = stage.findElementByPath("/graph1/add2/out");

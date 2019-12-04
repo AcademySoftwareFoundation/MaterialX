@@ -10,6 +10,7 @@
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtTypeDef.h>
+#include <MaterialXRuntime/RtAttribute.h>
 
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtNodeDef.h>
@@ -24,31 +25,25 @@ namespace MaterialX
 
 namespace
 {
-    // Ignore lists for attributes which are handled explicitly by import.
-    // These do not need to be stored as string attributes since at export 
-    // they are added explicitly.
-    //
-    // TODO: Make into a TokenSet
-    //
-    static const StringSet nodedefIgnoreAttr    = { "name", "type", "node" };
-    static const StringSet portdefIgnoreAttr    = { "name", "type", "value", "nodename", "output", "colorspace", "unit" };
-    static const StringSet nodeIgnoreAttr       = { "name", "type", "node" };
-    static const StringSet nodegraphIgnoreAttr  = { "name", "nodedef" };
-    static const StringSet unknownIgnoreAttr    = { "name" };
+    // Lists of known attributes which are handled explicitly by import/export.
+    static const RtTokenSet nodedefAttrs    = { "name", "type", "node" };
+    static const RtTokenSet portdefAttrs    = { "name", "type", "value", "nodename", "output", "colorspace", "unit" };
+    static const RtTokenSet nodeAttrs       = { "name", "type", "node" };
+    static const RtTokenSet nodegraphAttrs  = { "name", "nodedef" };
+    static const RtTokenSet unknownAttrs    = { "name" };
 
-    void readAttributes(const ElementPtr src, PvtElement* dest, const StringSet& ignoreList)
+    void readCustomAttributes(const ElementPtr src, PvtElement* dest, const RtTokenSet& knownAttrs)
     {
-        // Read in any attributes so we can export the element again
-        // without loosing data. Since it's just for storage we can
-        // keep the attributes as strings (tokens).
+        // Read in all custom attributes so we can export the element again
+        // without loosing data.
         for (const string& name : src->getAttributeNames())
         {
-            if (!ignoreList.count(name))
+            if (!knownAttrs.count(RtToken(name)))
             {
-                // Save all attributes as string tokens.
+                // Store all custom attributes as string tokens.
                 const RtToken attrName(name);
                 const RtToken attrValue(src->getAttribute(name));
-                RtAttribute* attr = dest->addAttribute(attrName, RtType::TOKEN);
+                RtAttribute* attr = dest->addAttribute(attrName, RtType::TOKEN, RtAttrFlag::CUSTOM);
                 attr->getValue().asToken() = attrValue;
             }
         }
@@ -68,10 +63,10 @@ namespace
         const RtToken name(src->getName());
         const RtToken nodeName(src->getNodeString());
 
-        PvtObjectHandle nodedefH = PvtNodeDef::createNew(stage, name, nodeName);
+        PvtDataHandle nodedefH = PvtNodeDef::createNew(stage, name, nodeName);
         PvtNodeDef* nodedef = nodedefH->asA<PvtNodeDef>();
 
-        readAttributes(src, nodedef, nodedefIgnoreAttr);
+        readCustomAttributes(src, nodedef, nodedefAttrs);
 
         // Add outputs
         if (src->getOutputCount() > 0)
@@ -80,9 +75,9 @@ namespace
             {
                 const RtToken portName(elem->getName());
                 const RtToken portType(elem->getType());
-                PvtObjectHandle outputH = PvtPortDef::createNew(nodedef, portName, portType, RtPortFlag::OUTPUT);
+                PvtDataHandle outputH = PvtPortDef::createNew(nodedef, portName, portType, RtPortFlag::OUTPUT);
                 PvtPortDef* output = outputH->asA<PvtPortDef>();
-                readAttributes(elem, output, portdefIgnoreAttr);
+                readCustomAttributes(elem, output, portdefAttrs);
             }
         }
         else
@@ -100,7 +95,7 @@ namespace
                 const RtToken portType(elem->getType());
                 const string& valueStr = elem->getValueString();
 
-                PvtObjectHandle inputH = PvtPortDef::createNew(nodedef, portName, portType);
+                PvtDataHandle inputH = PvtPortDef::createNew(nodedef, portName, portType);
                 PvtPortDef* input = inputH->asA<PvtPortDef>();
                 if (!valueStr.empty())
                 {
@@ -109,7 +104,7 @@ namespace
                 input->setColorSpace(RtToken(elem->getColorSpace()));
                 // TODO: fix when units are implemented in core
                 // input->setUnit(RtToken(elem->getUnit()));
-                readAttributes(elem, input, portdefIgnoreAttr);
+                readCustomAttributes(elem, input, portdefAttrs);
             }
             else if (elem->isA<Parameter>())
             {
@@ -117,7 +112,7 @@ namespace
                 const RtToken portType(elem->getType());
                 const string& valueStr = elem->getValueString();
 
-                PvtObjectHandle inputH = PvtPortDef::createNew(nodedef, portName, portType, RtPortFlag::UNIFORM);
+                PvtDataHandle inputH = PvtPortDef::createNew(nodedef, portName, portType, RtPortFlag::UNIFORM);
                 PvtPortDef* input = inputH->asA<PvtPortDef>();
                 if (!valueStr.empty())
                 {
@@ -126,7 +121,7 @@ namespace
                 input->setColorSpace(RtToken(elem->getColorSpace()));
                 // TODO: fix when units are implemented in core
                 // input->setUnit(RtToken(elem->getUnit()));
-                readAttributes(elem, input, portdefIgnoreAttr);
+                readCustomAttributes(elem, input, portdefAttrs);
             }
         }
     }
@@ -140,7 +135,7 @@ namespace
         }
 
         const RtToken nodedefName(srcNodedef->getName());
-        PvtObjectHandle nodedefH = stage->findChildByName(nodedefName);
+        PvtDataHandle nodedefH = stage->findChildByName(nodedefName);
         if (!nodedefH)
         {
             // NodeDef is not loaded yet so create it now.
@@ -148,10 +143,10 @@ namespace
         }
 
         const RtToken nodeName(src->getName());
-        PvtObjectHandle nodeH = PvtNode::createNew(parent, nodedefH, nodeName);
+        PvtDataHandle nodeH = PvtNode::createNew(parent, nodedefH, nodeName);
         PvtNode* node = nodeH->asA<PvtNode>();
 
-        readAttributes(src, node, nodeIgnoreAttr);
+        readCustomAttributes(src, node, nodeAttrs);
 
         // Copy input values.
         for (auto elem : src->getChildrenOfType<ValueElement>())
@@ -176,10 +171,10 @@ namespace
     PvtNodeGraph* readNodeGraph(const NodeGraphPtr& src, PvtElement* parent, PvtStage* stage)
     {
         const RtToken nodegraphName(src->getName());
-        PvtObjectHandle nodegraphH = PvtNodeGraph::createNew(parent, nodegraphName);
+        PvtDataHandle nodegraphH = PvtNodeGraph::createNew(parent, nodegraphName);
         PvtNodeGraph* nodegraph = nodegraphH->asA<PvtNodeGraph>();
 
-        readAttributes(src, nodegraph, nodegraphIgnoreAttr);
+        readCustomAttributes(src, nodegraph, nodegraphAttrs);
 
         bool fixedInterface = false;
         NodeDefPtr srcNodeDef = src->getNodeDef();
@@ -251,7 +246,7 @@ namespace
                                     nodegraph->getName().str() + "'");
                             }
                             const RtToken portType(elem->getType());
-                            PvtObjectHandle socket = PvtPortDef::createNew(nodegraph, internalInputName, portType);
+                            PvtDataHandle socket = PvtPortDef::createNew(nodegraph, internalInputName, portType);
                             
                             const string& valueStr = elem->getValueString();
                             if (!valueStr.empty())
@@ -323,10 +318,10 @@ namespace
         const RtToken name(src->getName());
         const RtToken category(src->getCategory());
 
-        PvtObjectHandle elemH = PvtUnknownElement::createNew(parent, name, category);
+        PvtDataHandle elemH = PvtUnknownElement::createNew(parent, name, category);
         PvtUnknownElement* elem = elemH->asA<PvtUnknownElement>();
 
-        readAttributes(src, elem, unknownIgnoreAttr);
+        readCustomAttributes(src, elem, unknownAttrs);
 
         for (auto child : src->getChildren())
         {
@@ -350,7 +345,7 @@ namespace
         // Set the source location 
         const std::string& uri = doc->getSourceUri();
         stage->addSourceUri(RtToken(uri));
-        readAttributes(doc, stage, {});
+        readCustomAttributes(doc, stage, {});
 
         RtReadOptions::ReadFilter filter = readOptions ? readOptions->readFilter : nullptr;
 
@@ -541,7 +536,7 @@ namespace
 
     void writeSourceUris(const PvtStage* stage, DocumentPtr doc)
     {
-        const PvtObjectHandleVec& refs = stage->getReferencedStages();
+        const PvtDataHandleVec& refs = stage->getReferencedStages();
         for (size_t i = 0; i < refs.size(); i++)
         {
             const PvtStage* pStage = refs[i]->asA<PvtStage>();
@@ -573,8 +568,8 @@ namespace
         RtWriteOptions::WriteFilter filter = writeOptions ? writeOptions->writeFilter : nullptr;
         for (size_t i = 0; i < stage->numChildren(); ++i)
         {
-            PvtObjectHandle elem = stage->getChild(i);
-            if (!filter || filter(RtObject(elem)))
+            PvtDataHandle elem = stage->getChild(i);
+            if (!filter || filter(PvtObject::object(elem)))
             {
                 if (elem->getObjType() == RtObjType::NODEDEF)
                 {

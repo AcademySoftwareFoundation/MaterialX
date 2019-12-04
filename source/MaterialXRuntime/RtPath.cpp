@@ -43,12 +43,12 @@ bool RtPath::hasApi(RtApiType type) const
 
 RtObject RtPath::getObject() const
 {
-    return RtObject(static_cast<PvtPath*>(_ptr)->getObject());
+    return PvtObject::object(static_cast<PvtPath*>(_ptr)->getObject());
 }
 
 void RtPath::setObject(const RtObject& obj)
 {
-    static_cast<PvtPath*>(_ptr)->setObject(obj.data());
+    static_cast<PvtPath*>(_ptr)->setObject(PvtObject::data(obj));
 }
 
 string RtPath::getPathString() const

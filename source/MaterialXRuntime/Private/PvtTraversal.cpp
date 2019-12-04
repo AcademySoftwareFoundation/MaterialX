@@ -15,7 +15,7 @@ PvtStageIterator::PvtStageIterator() :
 {
 }
 
-PvtStageIterator::PvtStageIterator(PvtObjectHandle root, RtTraversalFilter filter) :
+PvtStageIterator::PvtStageIterator(PvtDataHandle root, RtTraversalFilter filter) :
     _current(nullptr),
     _filter(filter)
 {
@@ -56,7 +56,7 @@ PvtStageIterator& PvtStageIterator::operator++()
         if (elemIndex + 1 < int(stage->getChildren().size()))
         {
             _current = stage->getChildren()[++elemIndex];
-            if (!_filter || _filter(RtObject(_current)))
+            if (!_filter || _filter(PvtObject::object(_current)))
             {
                 return *this;
             }
@@ -69,7 +69,7 @@ PvtStageIterator& PvtStageIterator::operator++()
             {
                 _stack.push_back(std::make_tuple(refStage, 0, stageIndex));
                 _current = refStage->getChildren()[0];
-                if (!_filter || _filter(RtObject(_current)))
+                if (!_filter || _filter(PvtObject::object(_current)))
                 {
                     return *this;
                 }
@@ -91,7 +91,7 @@ PvtTreeIterator::PvtTreeIterator() :
 {
 }
 
-PvtTreeIterator::PvtTreeIterator(PvtObjectHandle root, RtTraversalFilter filter) :
+PvtTreeIterator::PvtTreeIterator(PvtDataHandle root, RtTraversalFilter filter) :
     _current(nullptr),
     _filter(filter)
 {
@@ -131,7 +131,7 @@ PvtTreeIterator& PvtTreeIterator::operator++()
             {
                 _stack.push_back(std::make_tuple(elem, 0, -1));
                 _current = elem->getChild(0);
-                if (!_filter || _filter(RtObject(_current)))
+                if (!_filter || _filter(PvtObject::object(_current)))
                 {
                     return *this;
                 }
@@ -148,7 +148,7 @@ PvtTreeIterator& PvtTreeIterator::operator++()
         if (elemIndex + 1 < int(elem->getChildren().size()))
         {
             _current = elem->getChildren()[++elemIndex];
-            if (!_filter || _filter(RtObject(_current)))
+            if (!_filter || _filter(PvtObject::object(_current)))
             {
                 return *this;
             }
@@ -164,7 +164,7 @@ PvtTreeIterator& PvtTreeIterator::operator++()
                 {
                     _stack.push_back(std::make_tuple(refStage, 0, stageIndex));
                     _current = refStage->getChild(0);
-                    if (!_filter || _filter(RtObject(_current)))
+                    if (!_filter || _filter(PvtObject::object(_current)))
                     {
                         return *this;
                     }

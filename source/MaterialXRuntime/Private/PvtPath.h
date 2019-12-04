@@ -18,16 +18,16 @@ class PvtPath
 {
 public:
     PvtPath();
-    PvtPath(PvtObjectHandle obj);
+    PvtPath(PvtDataHandle obj);
 
     bool isValid() const
     {
         return getObject() != nullptr;
     }
 
-    PvtObjectHandle getObject() const;
+    PvtDataHandle getObject() const;
 
-    void setObject(PvtObjectHandle obj);
+    void setObject(PvtDataHandle obj);
 
     string getPathString()
     {
@@ -55,7 +55,7 @@ public:
     }
 
 private:
-    PvtObjectHandle _root;
+    PvtDataHandle _root;
     vector<RtToken> _path;
 };
 

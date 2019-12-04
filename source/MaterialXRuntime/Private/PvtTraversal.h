@@ -28,7 +28,7 @@ public:
     /// Constructor, setting the stage to iterate on
     /// and optionally a filter function to restrict
     /// the set of returned objects.
-    PvtStageIterator(PvtObjectHandle stage, RtTraversalFilter filter = nullptr);
+    PvtStageIterator(PvtDataHandle stage, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
     PvtStageIterator(const PvtStageIterator& other);
@@ -48,7 +48,7 @@ public:
 
     /// Dereference this iterator, returning the current element in the
     /// traversal.
-    PvtObjectHandle operator*() const
+    PvtDataHandle operator*() const
     {
         return _current;
     }
@@ -71,7 +71,7 @@ public:
 private:
     using StackFrame = std::tuple<PvtStage*, int, int>;
 
-    PvtObjectHandle _current;
+    PvtDataHandle _current;
     vector<StackFrame> _stack;
     RtTraversalFilter _filter;
 };
@@ -87,7 +87,7 @@ public:
 
     /// Constructor, setting the root element to start
     /// the iteration from, and an optional filter function.
-    PvtTreeIterator(PvtObjectHandle root, RtTraversalFilter filter = nullptr);
+    PvtTreeIterator(PvtDataHandle root, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
     PvtTreeIterator(const PvtTreeIterator& other);
@@ -107,7 +107,7 @@ public:
 
     /// Dereference this iterator, returning the current element in the
     /// traversal.
-    PvtObjectHandle operator*() const
+    PvtDataHandle operator*() const
     {
         return _current;
     }
@@ -130,7 +130,7 @@ public:
 private:
     using StackFrame = std::tuple<PvtElement*, int, int>;
 
-    PvtObjectHandle _current;
+    PvtDataHandle _current;
     vector<StackFrame> _stack;
     RtTraversalFilter _filter;
 };

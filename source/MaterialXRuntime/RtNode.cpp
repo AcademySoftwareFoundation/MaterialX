@@ -31,14 +31,14 @@ RtPort::RtPort(const RtObject& node, const RtObject& portdef) :
 {
     if (node.hasApi(RtApiType::NODE) && portdef.hasApi(RtApiType::PORTDEF))
     {
-        _data = node.data();
+        _data = PvtObject::data(node);
         PvtNode* n = _data->asA<PvtNode>();
         RtPortDef pd(portdef);
         _index = n->nodeDef()->findPortIndex(pd.getName());
     }
 }
 
-RtPort::RtPort(PvtObjectHandle data, size_t index) :
+RtPort::RtPort(PvtDataHandle data, size_t index) :
     _data(data),
     _index(index)
 {
@@ -68,7 +68,7 @@ const RtToken& RtPort::getType() const
 
 RtObject RtPort::getNode() const
 {
-    return RtObject(_data);
+    return PvtObject::object(_data);
 }
 
 int32_t RtPort::getFlags() const
@@ -251,8 +251,9 @@ RtObject RtNode::createNew(RtObject parent, RtObject nodedef, const RtToken& nam
         throw ExceptionRuntimeError("Given nodedef object is not a valid nodedef");
     }
 
-    PvtElement* parentElem = parent.data()->asA<PvtElement>();
-    return RtObject(PvtNode::createNew(parentElem, nodedef.data(), name));
+    PvtElement* parentElem = PvtObject::ptr<PvtElement>(parent);
+    PvtDataHandle data = PvtNode::createNew(parentElem, PvtObject::data(nodedef), name);
+    return PvtObject::object(data);
 }
 
 RtApiType RtNode::getApiType() const
@@ -262,7 +263,7 @@ RtApiType RtNode::getApiType() const
 
 RtObject RtNode::getNodeDef() const
 {
-    return RtObject(data()->asA<PvtNode>()->getNodeDef());
+    return PvtObject::object(data()->asA<PvtNode>()->getNodeDef());
 }
 
 const RtToken& RtNode::getNodeName() const
@@ -309,7 +310,7 @@ RtPort RtNode::getPort(RtObject portdef) const
 {
     if (portdef.hasApi(RtApiType::PORTDEF))
     {
-        PvtPortDef* pd = portdef.data()->asA<PvtPortDef>();
+        PvtPortDef* pd = PvtObject::ptr<PvtPortDef>(portdef);
         return data()->asA<PvtNode>()->findPort(pd->getName());
     }
     return RtPort();

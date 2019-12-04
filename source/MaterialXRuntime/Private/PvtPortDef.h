@@ -21,7 +21,7 @@ namespace MaterialX
 class PvtPortDef : public PvtElement
 {
 public:
-    static PvtObjectHandle createNew(PvtElement* parent, const RtToken& name, const RtToken& type, uint32_t flags = 0);
+    static PvtDataHandle createNew(PvtElement* parent, const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
     const RtToken& getType() const
     {
