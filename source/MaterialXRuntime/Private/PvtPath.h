@@ -17,8 +17,33 @@ namespace MaterialX
 class PvtPath
 {
 public:
-    PvtPath();
-    PvtPath(PvtDataHandle obj);
+    // Empty constructor.
+    PvtPath() :
+        _root(nullptr)
+    {
+    }
+
+    // Construct from a data handle.
+    PvtPath(PvtDataHandle obj) :
+        _root(nullptr)
+    {
+        setObject(obj);
+    }
+
+    // Copy constructor.
+    PvtPath(const PvtPath& other) :
+        _root(other._root),
+        _path(other._path)
+    {
+    }
+
+    // Assignment operator.
+    PvtPath& operator=(const PvtPath& other)
+    {
+        _root = other._root;
+        _path = other._path;
+        return *this;
+    }
 
     bool isValid() const
     {

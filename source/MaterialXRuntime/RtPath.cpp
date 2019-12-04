@@ -21,6 +21,18 @@ RtPath::RtPath(const RtObject& obj) :
     setObject(obj);
 }
 
+RtPath::RtPath(const RtPath& other) :
+    _ptr(new PvtPath(*static_cast<PvtPath*>(other._ptr)))
+{
+}
+
+RtPath& RtPath::operator=(const RtPath& other)
+{
+    const PvtPath* otherPath = static_cast<const PvtPath*>(other._ptr);
+    static_cast<PvtPath*>(_ptr)->operator=(*otherPath);
+    return *this;
+}
+
 RtPath::~RtPath()
 {
     delete static_cast<PvtPath*>(_ptr);
@@ -68,7 +80,7 @@ void RtPath::pop()
 
 bool RtPath::operator==(const RtPath& other) const
 {
-    const PvtPath* otherPath = static_cast<PvtPath*>(other._ptr);
+    const PvtPath* otherPath = static_cast<const PvtPath*>(other._ptr);
     return static_cast<PvtPath*>(_ptr)->operator==(*otherPath);
 }
 

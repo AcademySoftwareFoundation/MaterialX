@@ -8,17 +8,6 @@
 namespace MaterialX
 {
 
-PvtPath::PvtPath() :
-    _root(nullptr)
-{
-}
-
-PvtPath::PvtPath(PvtDataHandle obj) :
-    _root(nullptr)
-{
-    setObject(obj);
-}
-
 PvtDataHandle PvtPath::getObject() const
 {
     if (!_root || _path.empty())

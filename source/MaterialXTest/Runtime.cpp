@@ -413,6 +413,10 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(pathA == pathB);
     pathB.setObject(add2Obj);
     REQUIRE(pathA != pathB);
+    pathB = pathA;
+    REQUIRE(pathA == pathB);
+    mx::RtPath pathC = pathB;
+    REQUIRE(pathC == pathB);
 }
 
 TEST_CASE("Runtime: NodeGraphs", "[runtime]")

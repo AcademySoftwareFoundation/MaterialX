@@ -31,6 +31,12 @@ public:
     /// Construct a path from an object.
     RtPath(const RtObject& obj);
 
+    /// Copy constructor.
+    RtPath(const RtPath& obj);
+
+    /// Assignment operator.
+    RtPath& operator=(const RtPath& other);
+
     /// Destructor.
     ~RtPath();
 
