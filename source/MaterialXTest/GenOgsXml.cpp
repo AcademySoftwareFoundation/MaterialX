@@ -17,6 +17,10 @@
 #include <MaterialXTest/GenShaderUtil.h>
 #include <MaterialXTest/GenGlsl.h>
 
+#ifdef MATERIALX_BUILD_CROSS
+#include <MaterialXCross/Cross.h>
+#endif
+
 namespace mx = MaterialX;
 
 class OgsXmlShaderGeneratorTester : public GlslShaderGeneratorTester
@@ -111,7 +115,14 @@ static void generateXmlCode()
 
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPaths.front() / mx::FilePath("_options.mtlx");
+
+#ifdef MATERIALX_BUILD_CROSS
+    mx::Cross::initialize();
+#endif
     tester.validate(genOptions, optionsFilePath);
+#ifdef MATERIALX_BUILD_CROSS
+    mx::Cross::finalize();
+#endif
 }
 
 TEST_CASE("GenShader: OGS XML Shader Generation", "[genogsxml]")
