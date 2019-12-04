@@ -121,11 +121,11 @@
       <input name="in1" type="float" interfacename="specular_rotation" />
       <input name="in2" type="float" value="360" />
     </multiply>
-    <rotate name="tangent_rotate" type="vector3">
+    <rotate3d name="tangent_rotate" type="vector3">
       <input name="in" type="vector3" interfacename="tangent" />
       <input name="amount" type="float" nodename="tangent_rotate_degree" />
       <parameter name="axis" type="vector3" interfacename="normal"/>
-    </rotate>
+    </rotate3d>
     <normalize name="tangent_rotate_normalize" type="vector3">
       <input name="in" type="vector3" nodename="tangent_rotate" />
     </normalize>
@@ -141,11 +141,11 @@
       <input name="in1" type="float" interfacename="coat_rotation" />
       <input name="in2" type="float" value="360" />
     </multiply>
-    <rotate name="coat_tangent_rotate" type="vector3">
+    <rotate3d name="coat_tangent_rotate" type="vector3">
       <input name="in" type="vector3" interfacename="tangent" />
       <input name="amount" type="float" nodename="coat_tangent_rotate_degree" />
       <parameter name="axis" type="vector3" interfacename="coat_normal"/>
-    </rotate>
+    </rotate3d>
     <normalize name="coat_tangent_rotate_normalize" type="vector3">
       <input name="in" type="vector3" nodename="coat_tangent_rotate" />
     </normalize>

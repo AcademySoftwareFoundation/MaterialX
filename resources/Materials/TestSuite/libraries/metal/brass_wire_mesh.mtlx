@@ -24,10 +24,10 @@
 
       <!-- SurfaceNormal -->
       <texcoord name="normal_texcoord" type="vector2" />
-      <transformpoint name="normal_transform" type="vector2">
+      <transformmatrix name="normal_transform" type="vector2">
          <input name="mat" type="matrix33" value="31.4961, 0.0, 0.0, 0.0, 31.4961, 0.0, 0.0, 0.0,1.0" />
          <input name="in" type="vector2" nodename="normal_texcoord" />
-      </transformpoint>
+      </transformmatrix>
       <image name="normal_image" type="vector3" colorspace="Raw">
          <parameter name="file" type="filename" value="textures/mesh_wire_norm.png" />
          <input name="texcoord" type="vector2" nodename="normal_transform" />
@@ -44,10 +44,10 @@
          <input name="texcoord" type="vector2" nodename="cutout_transform" />
       </image>
       <texcoord name="cutout_texcoord" type="vector2" />
-      <transformpoint name="cutout_transform" type="vector2">
+      <transformmatrix name="cutout_transform" type="vector2">
          <input name="mat" type="matrix33" value="31.4961, 0.0, 0.0, 0.0, 31.4961, 0.0, 0.0, 0.0,1.0" />
          <input name="in" type="vector2" nodename="cutout_texcoord" />
-      </transformpoint>
+      </transformmatrix>
       <output name="SurfaceCutout_output" type="color3" nodename="SurfaceCutout_mask" />
    </nodegraph>
 </materialx>

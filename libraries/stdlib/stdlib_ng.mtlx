@@ -1336,10 +1336,10 @@
       <input name="in1" type="vector2" nodename="N_subpivot"/>
       <input name="in2" type="vector2" interfacename="scale"/>
     </divide>
-    <rotate name="N_applyrot" type="vector2">
+    <rotate2d name="N_applyrot" type="vector2">
       <input name="in" type="vector2" nodename="N_applyscale"/>
       <input name="amount" type="float" interfacename="rotate"/>
-    </rotate>
+    </rotate2d>
     <subtract name="N_applyoffset" type="vector2">
       <input name="in1" type="vector2" nodename="N_applyrot"/>
       <input name="in2" type="vector2" interfacename="offset"/>

@@ -79,10 +79,10 @@
     <constant name="constant1" type="matrix33">
       <parameter name="value" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
     </constant>
-    <transformvector name="transformvector1" type="vector3">
+    <transformmatrix name="transformvector1" type="vector3">
       <input name="in" type="vector3" value="0.5, 0.5, 0.5"/>
       <input name="mat" type="matrix33" nodename="dot1"/>
-    </transformvector>
+    </transformmatrix>
     <output name="out" type="vector3" nodename="transformvector1"/>
   </nodegraph>
   -->
@@ -94,10 +94,10 @@
     <constant name="constant1" type="matrix44">
       <parameter name="value" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
     </constant>
-    <transformvector name="transformvector1" type="vector4">
+    <transformmatrix name="transformvector1" type="vector4">
       <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0"/>
       <input name="mat" type="matrix44" nodename="dot1"/>
-    </transformvector>
+    </transformmatrix>
     <output name="out" type="vector4" nodename="transformvector1"/>
   </nodegraph>
 </materialx>
