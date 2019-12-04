@@ -154,7 +154,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise multiplication of a vector by a scalar.
-    V& operator*=(S s)
+    VectorN& operator*=(S s)
     {
         *this = *this * s;
         return *this;
@@ -170,7 +170,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise division of a vector by a scalar.
-    V& operator/=(S s)
+    VectorN& operator/=(S s)
     {
         *this = *this / s;
         return *this;
