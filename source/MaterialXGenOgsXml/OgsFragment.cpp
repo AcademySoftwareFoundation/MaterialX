@@ -24,7 +24,7 @@ class GlslGeneratorWrapperBase
     GlslGeneratorWrapperBase() = delete;
 
   protected:
-    GlslGeneratorWrapperBase(mx::ElementPtr element)
+    explicit GlslGeneratorWrapperBase(mx::ElementPtr element)
         : _element(element)
     {
         if (!_element)
