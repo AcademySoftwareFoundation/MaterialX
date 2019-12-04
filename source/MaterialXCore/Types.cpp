@@ -35,10 +35,10 @@ const Matrix44 Matrix44::IDENTITY(1, 0, 0, 0,
                                   0, 0, 1, 0,
                                   0, 0, 0, 1);
 
-
 //
 // Vector methods
 //
+
 template <> float VectorN<Vector2, float, 2>::getMagnitude() const
 {
     return std::sqrt(_arr[0]*_arr[0] + _arr[1]*_arr[1]);
