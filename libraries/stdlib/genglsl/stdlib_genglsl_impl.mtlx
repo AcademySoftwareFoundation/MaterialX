@@ -319,8 +319,6 @@
   <implementation name="IM_invert_vector3FA_genglsl" nodedef="ND_invert_vector3FA" file="stdlib/genglsl/mx_invert.inline" language="genglsl"/>
   <implementation name="IM_invert_vector4_genglsl" nodedef="ND_invert_vector4" file="stdlib/genglsl/mx_invert.inline" language="genglsl"/>
   <implementation name="IM_invert_vector4FA_genglsl" nodedef="ND_invert_vector4FA" file="stdlib/genglsl/mx_invert.inline" language="genglsl"/>
-  <implementation name="IM_invert_matrix33_genglsl" nodedef="ND_invert_matrix33" file="stdlib/genglsl/mx_invertM.inline" language="genglsl"/>
-  <implementation name="IM_invert_matrix44_genglsl" nodedef="ND_invert_matrix44" file="stdlib/genglsl/mx_invertM.inline" language="genglsl"/>
 
   <!-- <absval> -->
   <implementation name="IM_absval_float_genglsl" nodedef="ND_absval_float" file="stdlib/genglsl/mx_absval.inline" language="genglsl"/>
@@ -484,22 +482,19 @@
   <implementation name="IM_crossproduct_vector3_genglsl" nodedef="ND_crossproduct_vector3" file="stdlib/genglsl/mx_crossproduct.inline" language="genglsl"/>
 
   <!-- <transformpoint> -->
-  <implementation name="IM_transformpoint_vector2M3_genglsl" nodedef="ND_transformpoint_vector2M3" function="transformpoint2_matrix33" file="stdlib/genglsl/mx_transformpoint2_matrix33.glsl" language="genglsl"/>
   <implementation name="IM_transformpoint_vector3_genglsl" nodedef="ND_transformpoint_vector3" language="genglsl"/>
-  <implementation name="IM_transformpoint_vector3M_genglsl" nodedef="ND_transformpoint_vector3M"  file="stdlib/genglsl/mx_transformpointM.inline" language="genglsl"/>
-  <implementation name="IM_transformpoint_vector3M4_genglsl" nodedef="ND_transformpoint_vector3M4" function="transformpoint3_matrix44" file="stdlib/genglsl/mx_transformpoint3_matrix44.glsl" language="genglsl"/>
-
+  
   <!-- <transformvector> -->
-  <implementation name="IM_transformvector_vector2M3_genglsl" nodedef="ND_transformvector_vector2M3" function="transformvector2_matrix33" file="stdlib/genglsl/mx_transformvector2_matrix33.glsl" language="genglsl"/>
   <implementation name="IM_transformvector_vector3_genglsl" nodedef="ND_transformvector_vector3" language="genglsl"/>
-  <implementation name="IM_transformvector_vector3M_genglsl" nodedef="ND_transformvector_vector3M"  file="stdlib/genglsl/mx_transformvectorM.inline" language="genglsl"/>
-  <implementation name="IM_transformvector_vector3M4_genglsl" nodedef="ND_transformvector_vector3M4" function="transformvector3_matrix44" file="stdlib/genglsl/mx_transformvector3_matrix44.glsl" language="genglsl"/>
-  <implementation name="IM_transformvector_vector4M_genglsl" nodedef="ND_transformvector_vector4M"  file="stdlib/genglsl/mx_transformvectorM.inline" language="genglsl"/>
-
+ 
   <!-- <transformnormal> -->
   <implementation name="IM_transformnormal_vector3_genglsl" nodedef="ND_transformnormal_vector3" language="genglsl"/>
-  <implementation name="IM_transformnormal_vector3M_genglsl" nodedef="ND_transformnormal_vector3M"  file="stdlib/genglsl/mx_transformnormalM.inline" language="genglsl"/>
-  <implementation name="IM_transformnormal_vector3M4_genglsl" nodedef="ND_transformnormal_vector3M4" function="transformnormal3_matrix44" file="stdlib/genglsl/mx_transformnormal3_matrix44.glsl" language="genglsl"/>
+ 
+  <!-- <transformmatrix> -->
+  <implementation name="IM_transformmatrix_vector2M3_genglsl" nodedef="ND_transformmatrix_vector2M3" function="mx_transformmatrix_vector2M3" file="stdlib/genglsl/mx_transformmatrix_vector2M3.glsl" language="genglsl" />
+  <implementation name="IM_transformmatrix_vector3_genglsl" nodedef="ND_transformmatrix_vector3" file="stdlib/genglsl/mx_transformmatrix.inline" language="genglsl" />
+  <implementation name="IM_transformmatrix_vector3M4_genglsl" nodedef="ND_transformmatrix_vector3M4" function="mx_transformmatrix_vector3M4" file="stdlib/genglsl/mx_transformmatrix_vector3M4.glsl" language="genglsl" />
+  <implementation name="IM_transformmatrix_vector4_genglsl" nodedef="ND_transformmatrix_vector4" file="stdlib/genglsl/mx_transformmatrix.inline" language="genglsl" />
 
   <!-- <transpose> -->
   <implementation name="IM_transpose_matrix33_genglsl" nodedef="ND_transpose_matrix33" file="stdlib/genglsl/mx_transpose.inline" language="genglsl"/>
@@ -509,9 +504,15 @@
   <implementation name="IM_determinant_matrix33_genglsl" nodedef="ND_determinant_matrix33" file="stdlib/genglsl/mx_determinant.inline" language="genglsl"/>
   <implementation name="IM_determinant_matrix44_genglsl" nodedef="ND_determinant_matrix44" file="stdlib/genglsl/mx_determinant.inline" language="genglsl"/>
 
-  <!-- <rotate> -->
-  <implementation name="IM_rotate_vector2_genglsl" nodedef="ND_rotate_vector2" file="stdlib/genglsl/mx_rotate_vector2.glsl" function="mx_rotate_vector2" language="genglsl"/>
-  <implementation name="IM_rotate_vector3_genglsl" nodedef="ND_rotate_vector3" file="stdlib/genglsl/mx_rotate_vector3.glsl" function="mx_rotate_vector3" language="genglsl"/>
+  <!-- <invertmatrix> -->
+  <implementation name="IM_invertmatrix_matrix33_genglsl" nodedef="ND_invertmatrix_matrix33" file="stdlib/genglsl/mx_invertM.inline" language="genglsl"/>
+  <implementation name="IM_invertmatrix_matrix44_genglsl" nodedef="ND_invertmatrix_matrix44" file="stdlib/genglsl/mx_invertM.inline" language="genglsl"/>
+
+  <!-- <rotate2d> -->
+  <implementation name="IM_rotate2d_vector2_genglsl" nodedef="ND_rotate2d_vector2" file="stdlib/genglsl/mx_rotate_vector2.glsl" function="mx_rotate_vector2" language="genglsl"/>
+
+  <!-- <rotate3d> -->
+  <implementation name="IM_rotate3d_vector3_genglsl" nodedef="ND_rotate3d_vector3" file="stdlib/genglsl/mx_rotate_vector3.glsl" function="mx_rotate_vector3" language="genglsl"/>
 
 
   <!-- ======================================================================== -->
@@ -743,7 +744,7 @@
   <implementation name="IM_switch_vector2I_genglsl" nodedef="ND_switch_vector2I" language="genglsl"/>
   <implementation name="IM_switch_vector3I_genglsl" nodedef="ND_switch_vector3I" language="genglsl"/>
   <implementation name="IM_switch_vector4I_genglsl" nodedef="ND_switch_vector4I" language="genglsl"/>
-  
+
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
   <!-- ======================================================================== -->

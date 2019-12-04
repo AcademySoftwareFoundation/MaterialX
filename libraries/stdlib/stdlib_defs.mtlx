@@ -47,19 +47,19 @@
   <!-- Units and unit types                                                     -->
   <!-- ======================================================================== -->
 
-   <unittypedef name="distance"/>
-   <unitdef name="UD_stdlib_distance" unittype="distance">
-      <unit name="nanometer" scale="0.000000001" />
-      <unit name="micron" scale="0.000001"/>
-      <unit name="millimeter" scale="0.001"/>
-      <unit name="centimeter" scale="0.01"/>
-      <unit name="inch" scale="0.0254"/>
-      <unit name="foot" scale="0.3048"/>
-      <unit name="yard" scale="0.9144"/>
-      <unit name="meter" scale="1.0"/>
-      <unit name="kilometer" scale="1000.0"/>
-      <unit name="mile" scale="1609.344"/>
-   </unitdef>
+  <unittypedef name="distance"/>
+  <unitdef name="UD_stdlib_distance" unittype="distance">
+    <unit name="nanometer" scale="0.000000001" />
+    <unit name="micron" scale="0.000001"/>
+    <unit name="millimeter" scale="0.001"/>
+    <unit name="centimeter" scale="0.01"/>
+    <unit name="inch" scale="0.0254"/>
+    <unit name="foot" scale="0.3048"/>
+    <unit name="yard" scale="0.9144"/>
+    <unit name="meter" scale="1.0"/>
+    <unit name="kilometer" scale="1000.0"/>
+    <unit name="mile" scale="1609.344"/>
+  </unitdef>
 
   <unittypedef name="angle"/>
   <unitdef name="UD_stdlib_angle" unittype="angle">
@@ -1762,7 +1762,7 @@
   <!--
     Node: <invert>
     Subtract the incoming float/color/vector from "amount" in all channels,
-    outputting: amount - in.  Or, invert an incoming matrix.
+    outputting: amount - in.
   -->
   <nodedef name="ND_invert_float" node="invert" nodegroup="math">
     <input name="in" type="float" value="0.0"/>
@@ -1828,14 +1828,6 @@
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <parameter name="amount" type="float" value="1.0"/>
     <output name="out" type="vector4" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_invert_matrix33" node="invert" nodegroup="math" defaultinput="in">
-    <input name="in" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-    <output name="out" type="matrix33"/>
-  </nodedef>
-  <nodedef name="ND_invert_matrix44" node="invert" nodegroup="math" defaultinput="in">
-    <input name="in" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
-    <output name="out" type="matrix44"/>
   </nodedef>
 
   <!--
@@ -2487,81 +2479,60 @@
 
   <!--
     Node: <transformpoint>
-    Transform a vector coordinate from one named space to another, or by a specified
-    matrix.
+    Transform a vector3 coordinate from one named space to another.
   -->
-  <nodedef name="ND_transformpoint_vector2M3" node="transformpoint" nodegroup="math">
-    <input name="in" type="vector2" value="0.0, 0.0"/>
-    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-    <output name="out" type="vector2"  defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_transformpoint_vector3" node="transformpoint" nodegroup="math">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
     <parameter name="fromspace" type="string" value=""/>
     <parameter name="tospace" type="string" value=""/>
-    <output name="out" type="vector3"  defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_transformpoint_vector3M" node="transformpoint" nodegroup="math">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-    <output name="out" type="vector3"  defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_transformpoint_vector3M4" node="transformpoint" nodegroup="math">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
-    <output name="out" type="vector3"  defaultinput="in"/>
+    <output name="out" type="vector3" defaultinput="in"/>
   </nodedef>
 
   <!--
     Node: <transformvector>
-    Transform a vector from one named space to another, or by a specified matrix.
+    Transform a vector from one named space to another.
   -->
-  <nodedef name="ND_transformvector_vector2M3" node="transformvector" nodegroup="math">
-    <input name="in" type="vector2" value="0.0, 0.0"/>
-    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-    <output name="out" type="vector2"  defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_transformvector_vector3" node="transformvector" nodegroup="math">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
     <parameter name="fromspace" type="string" value=""/>
     <parameter name="tospace" type="string" value=""/>
-    <output name="out" type="vector3"  defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_transformvector_vector3M" node="transformvector" nodegroup="math">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-    <output name="out" type="vector3"  defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_transformvector_vector3M4" node="transformvector" nodegroup="math">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
-    <output name="out" type="vector3"  defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_transformvector_vector4M" node="transformvector" nodegroup="math">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
-    <output name="out" type="vector4"  defaultinput="in"/>
+    <output name="out" type="vector3" defaultinput="in"/>
   </nodedef>
 
   <!--
     Node: <transformnormal>
-    Transform a normal vector from one named space to another, or by a specified matrix.
+    Transform a normal vector from one named space to another.
   -->
   <nodedef name="ND_transformnormal_vector3" node="transformnormal" nodegroup="math">
     <input name="in" type="vector3" value="0.0, 0.0, 1.0"/>
     <parameter name="fromspace" type="string" value=""/>
     <parameter name="tospace" type="string" value=""/>
-    <output name="out" type="vector3"  defaultinput="in"/>
+    <output name="out" type="vector3" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_transformnormal_vector3M" node="transformnormal" nodegroup="math">
-    <input name="in" type="vector3" value="0.0, 0.0, 1.0"/>
+
+  <!--
+    Node: <transformmatrix>
+    Transform a vector by a matrix.
+  -->
+  <nodedef name="ND_transformmatrix_vector2M3" node="transformmatrix" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0"/>
     <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-    <output name="out" type="vector3"  defaultinput="in"/>
+    <output name="out" type="vector2" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_transformnormal_vector3M4" node="transformnormal" nodegroup="math">
-    <input name="in" type="vector3" value="0.0, 0.0, 1.0"/>
+  <nodedef name="ND_transformmatrix_vector3" node="transformmatrix" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
+    <output name="out" type="vector3" defaultinput="in"/>
+  </nodedef>
+  <nodedef name="ND_transformmatrix_vector3M4" node="transformmatrix" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
     <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
-    <output name="out" type="vector3"  defaultinput="in"/>
+    <output name="out" type="vector3" defaultinput="in"/>
+  </nodedef>
+  <nodedef name="ND_transformmatrix_vector4" node="transformmatrix" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
+    <output name="out" type="vector4" defaultinput="in"/>
   </nodedef>
 
   <!--
@@ -2604,15 +2575,33 @@
   </nodedef>
 
   <!--
-    Node: <rotate>
-    Rotates a vector value about the origin; for vector3 types, rotate about a specified axis
+    Node: <invertmatrix>
+    Invert an incoming matrix.
   -->
-  <nodedef name="ND_rotate_vector2" node="rotate" nodegroup="math">
+  <nodedef name="ND_invertmatrix_matrix33" node="invertmatrix" nodegroup="math">
+    <input name="in" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
+    <output name="out" type="matrix33" defaultinput="in"/>
+  </nodedef>
+  <nodedef name="ND_invertmatrix_matrix44" node="invertmatrix" nodegroup="math">
+    <input name="in" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
+    <output name="out" type="matrix44" defaultinput="in"/>
+  </nodedef>
+
+  <!--
+    Node: <rotate2d>
+    Rotate a vector2 value about the origin.
+  -->
+  <nodedef name="ND_rotate2d_vector2" node="rotate2d" nodegroup="math">
     <input name="in" type="vector2" value="0.0, 0.0"/>
     <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
     <output name="out" type="vector2" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_rotate_vector3" node="rotate" nodegroup="math">
+
+  <!--
+    Node: <rotate3d>
+    Rotate a vector3 value about a specified unit axis vector
+  -->
+  <nodedef name="ND_rotate3d_vector3" node="rotate3d" nodegroup="math">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
     <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
     <parameter name="axis" type="vector3" value="0.0, 1.0, 0.0"/>
