@@ -11,7 +11,6 @@
 namespace mx = MaterialX;
 namespace MaterialXMaya
 {
-
 /// @class OgsFragment
 /// Wraps an OGS fragment generated for a specific MaterialX element.
 /// The generated source is in an XML format specifying the fragment's inputs
@@ -24,8 +23,8 @@ class OgsFragment
     OgsFragment(mx::ElementPtr, const mx::FileSearchPath& librarySearchPath);
     OgsFragment(mx::ElementPtr, mx::GenContext&);
 
-    OgsFragment(const OgsFragment&) = delete;
-    OgsFragment(OgsFragment&&) = delete;
+    explicit OgsFragment(const OgsFragment&) = delete;
+    explicit OgsFragment(OgsFragment&&) = delete;
 
     ~OgsFragment();
 
@@ -72,6 +71,9 @@ class OgsFragment
     static std::string getMatrix4Name(const std::string& matrix3Name);
 
   private:
+    template <typename GLSL_GENERATOR_WRAPPER>
+    OgsFragment(mx::ElementPtr, GLSL_GENERATOR_WRAPPER&&);
+
     mx::ElementPtr _element;        ///< The MaterialX element.
     std::string _fragmentName;      ///< An automatically generated fragment name.
     std::string _fragmentSource;    ///< The generated fragment source.

@@ -15,65 +15,101 @@
 
 namespace MaterialXMaya
 {
-
 namespace
 {
-mx::GenContext createGlslGenerator(mx::ElementPtr element, const mx::FileSearchPath& librarySearchPath)
+class GlslGeneratorWrapperBase
 {
-    bool isSurface = false;
-    if (element->asA<mx::ShaderRef>())
+protected:
+    GlslGeneratorWrapperBase(mx::ElementPtr element)
+        : _element(element)
     {
-        isSurface = true;
-    }
-    else if (!element->asA<mx::Output>())
-    {
-        // Should never occur as we pre-filter renderables before creating the node + override
-        throw mx::Exception("Invalid element to create fragment for " + element->getName());
+        if (element->asA<mx::ShaderRef>())
+        {
+            _isSurface = true;
+        }
+        else if (!element->asA<mx::Output>())
+        {
+            throw mx::Exception("Invalid element to create fragment for " + element->getName());
+        }
     }
 
-    mx::ShaderGeneratorPtr generator = mx::GlslFragmentGenerator::create();
-    mx::GenContext genContext(generator);
-    mx::GenOptions& genOptions = genContext.getOptions();
+protected:
+    void setCommonOptions(mx::GenOptions& genOptions, const mx::ShaderGenerator& generator)
+    {
+        // Use FIS environment lookup for surface shader generation but
+        // disable for texture nodes to avoid additional unneeded XML parameter
+        // generation.    
+        genOptions.hwSpecularEnvironmentMethod =
+            _isSurface ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_NONE;
 
-    // Set up color management. We assume the target render space is linear
-    // if not found in the document. Currently the default system has no other color space targets.
-    //
-    if ( mx::DefaultColorManagementSystemPtr colorManagementSystem =
-        mx::DefaultColorManagementSystem::create(generator->getLanguage())
+        // Set to use no direct lighting
+        genOptions.hwMaxActiveLightSources = 0;
+
+        // Maya images require a texture coordinates to be flipped in V.
+        genOptions.fileTextureVerticalFlip = true;
+        genOptions.hwTransparency = mx::isTransparentSurface(_element, generator);
+
+        // Maya viewport uses texture atlas for tile image so enabled
+        // texture coordinate transform to go from original UDIM range to
+        // normalized 0..1 range.
+        genOptions.hwNormalizeUdimTexCoords = true;
+    }
+
+    mx::ElementPtr _element;
+
+private:
+    bool _isSurface = false;
+};
+
+class LocalGlslGeneratorWrapper
+    : public GlslGeneratorWrapperBase
+{
+public:
+    LocalGlslGeneratorWrapper(
+        mx::ElementPtr element,
+        const mx::FileSearchPath& librarySearchPath
     )
+        : GlslGeneratorWrapperBase(element)
+        , _librarySearchPath(librarySearchPath)
     {
-        generator->setColorManagementSystem(colorManagementSystem);
-
-        mx::DocumentPtr document = element->getDocument();
-        colorManagementSystem->loadLibrary(document);
-        const std::string& documentColorSpace = document->getAttribute(mx::Element::COLOR_SPACE_ATTRIBUTE);
-
-        static const std::string MATERIALX_LINEAR_WORKING_SPACE("lin_rec709");
-        genOptions.targetColorSpaceOverride =
-            documentColorSpace.empty() ? MATERIALX_LINEAR_WORKING_SPACE : documentColorSpace;
     }
 
-    // Use FIS environment lookup for surface shader generation but
-    // disable for texture nodes to avoid additional unneeded XML parameter
-    // generation.
-    genContext.registerSourceCodeSearchPath(librarySearchPath);
-    genOptions.hwSpecularEnvironmentMethod =
-        isSurface ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_NONE;
+    std::pair<mx::ShaderPtr, bool> operator()(const std::string& baseFragmentName)
+    {
+        mx::ShaderGeneratorPtr generator = mx::GlslFragmentGenerator::create();
+        mx::GenContext genContext(generator);
+        mx::GenOptions& genOptions = genContext.getOptions();
 
-    // Set to use no direct lighting
-    genOptions.hwMaxActiveLightSources = 0;
+        // Set up color management. We assume the target render space is linear
+        // if not found in the document. Currently the default system has no other color space targets.
+        //
+        if ( mx::DefaultColorManagementSystemPtr colorManagementSystem =
+            mx::DefaultColorManagementSystem::create(generator->getLanguage())
+        )
+        {
+            generator->setColorManagementSystem(colorManagementSystem);
 
-    // Maya images require a texture coordinates to be flipped in V.
-    genOptions.fileTextureVerticalFlip = true;
-    genOptions.hwTransparency = mx::isTransparentSurface(element, *generator);
+            mx::DocumentPtr document = _element->getDocument();
+            colorManagementSystem->loadLibrary(document);
+            const std::string& documentColorSpace = document->getAttribute(mx::Element::COLOR_SPACE_ATTRIBUTE);
 
-    // Maya viewport uses texture atlas for tile image so enabled
-    // texture coordinate transform to go from original UDIM range to
-    // normalized 0..1 range.
-    genOptions.hwNormalizeUdimTexCoords = true;
+            static const std::string MATERIALX_LINEAR_WORKING_SPACE("lin_rec709");
+            genOptions.targetColorSpaceOverride =
+                documentColorSpace.empty() ? MATERIALX_LINEAR_WORKING_SPACE : documentColorSpace;
+        }
 
-    return genContext;
-}
+        genContext.registerSourceCodeSearchPath(_librarySearchPath);
+        
+        setCommonOptions(genOptions, *generator);
+
+        return std::make_pair(
+            generator->generate(baseFragmentName, _element, genContext),
+            genOptions.hwTransparency
+        );
+    }
+
+    const mx::FileSearchPath& _librarySearchPath;
+};
 
 // @return The unique name of the fragment
 std::string
@@ -141,12 +177,22 @@ generateFragment(
 
     return fragmentName;
 }
-
-}
+} // anonymous namespace
 
 OgsFragment::OgsFragment(
     mx::ElementPtr element,
     const mx::FileSearchPath& librarySearchPath
+)
+    : OgsFragment(
+        element,
+        LocalGlslGeneratorWrapper(element, librarySearchPath)
+    )
+{}
+
+template <typename GLSL_GENERATOR_WRAPPER>
+OgsFragment::OgsFragment(
+    mx::ElementPtr element,
+    GLSL_GENERATOR_WRAPPER&& glslGeneratorWrapper
 )
     : _element(element)
 {
@@ -157,27 +203,20 @@ OgsFragment::OgsFragment(
     // Must match the name of the root function of the fragment.
     const std::string baseFragmentName = mx::createValidName(_element->getNamePath());
 
+    // Generate the GLSL version of the fragment.
+    //
+    std::tie(_glslShader, _isTransparent) = glslGeneratorWrapper(baseFragmentName);
+    if (!_glslShader)
     {
-        // Generate the GLSL version of the fragment.
-        //
-        mx::GenContext glslGenContext = createGlslGenerator(_element, librarySearchPath);
-        _glslShader = glslGenContext.getShaderGenerator().generate(
-            baseFragmentName, _element, glslGenContext
-        );
-        if (!_glslShader)
-        {
-            throw mx::Exception("Failed to generate shader");
-        }
-
-        _isTransparent = glslGenContext.getOptions().hwTransparency;
+        throw mx::Exception("Failed to generate GLSL fragment code");
     }
 
     _fragmentName = generateFragment(
         _fragmentSource, *_glslShader, baseFragmentName, _isTransparent
     );
 
-    // Extract out the input fragment parameter names along with their
-    // associated Element paths to allow for value binding.
+    // Extract the input fragment parameter names along with their
+    // associated element paths to allow for value binding.
     //
     const mx::ShaderStage& pixelShader = _glslShader->getStage(mx::Stage::PIXEL);
     for (const auto& uniformBlock : pixelShader.getUniformBlocks())
