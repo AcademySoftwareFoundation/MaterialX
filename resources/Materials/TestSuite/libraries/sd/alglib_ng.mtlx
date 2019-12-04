@@ -396,11 +396,11 @@
       <input name="in1" type="vector3" nodename="ND_bitangent_vector3_92" />
       <input name="in2" type="float" nodename="ND_constant_float_94" />
     </multiply>
-    <switch name="ND_switch_vector3B_96" type="vector3">
-      <input name="in1" type="vector3" nodename="ND_bitangent_vector3_92" />
-      <input name="in2" type="vector3" nodename="ND_multiply_vector3FA_95" />
-      <parameter name="which" type="boolean" interfacename="openGL" />
-    </switch>
+    <ifequal name="ND_switch_vector3B_96" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_multiply_vector3FA_95" />
+      <input name="in2" type="vector3" nodename="ND_bitangent_vector3_92" />
+      <value name="value1" type="boolean" interfacename="openGL" />
+    </ifequal>
     <multiply name="ND_multiply_vector3FA_97" type="vector3">
       <input name="in1" type="vector3" nodename="ND_tangent_vector3_91" />
       <input name="in2" type="float" nodename="ND_swizzle_vector3_float_88" />

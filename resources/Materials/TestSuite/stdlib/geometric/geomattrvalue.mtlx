@@ -15,11 +15,12 @@
   </geomattrvalue>
 
   <output name="geomattrvalue_boolean_out" type="color3" nodename="switch2" xpos="12.4886" ypos="11.0706" />
-  <switch name="switch2" type="color3" xpos="5.74483" ypos="4.58">
-    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="in2" type="color3" value="1.0000, 1.0000, 1.0000" />
-    <parameter name="which" type="boolean" nodename="geomattrvalue_boolean" />
-  </switch>
+  <ifequal name="switch2" type="color3" xpos="5.74483" ypos="4.58">
+    <input name="in1" type="color3" value="1.0000, 1.0000, 1.0000" />
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="value1" type="boolean" nodename="geomattrvalue_boolean" />
+    <input name="value2" type="boolean" value="true" />
+  </ifequal>
   <geomattrvalue name="geomattrvalue_boolean" type="boolean" xpos="9.15917" ypos="14.1093">
     <parameter name="attrname" type="string" value="geomattrvalue_bool" />
   </geomattrvalue>

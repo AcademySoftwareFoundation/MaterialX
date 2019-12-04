@@ -743,15 +743,7 @@
   <implementation name="IM_switch_vector2I_genglsl" nodedef="ND_switch_vector2I" language="genglsl"/>
   <implementation name="IM_switch_vector3I_genglsl" nodedef="ND_switch_vector3I" language="genglsl"/>
   <implementation name="IM_switch_vector4I_genglsl" nodedef="ND_switch_vector4I" language="genglsl"/>
-  <!-- 'which' type : boolean -->
-  <implementation name="IM_switch_floatB_genglsl" nodedef="ND_switch_floatB" language="genglsl"/>
-  <implementation name="IM_switch_color2B_genglsl" nodedef="ND_switch_color2B" language="genglsl"/>
-  <implementation name="IM_switch_color3B_genglsl" nodedef="ND_switch_color3B" language="genglsl"/>
-  <implementation name="IM_switch_color4B_genglsl" nodedef="ND_switch_color4B" language="genglsl"/>
-  <implementation name="IM_switch_vector2B_genglsl" nodedef="ND_switch_vector2B" language="genglsl"/>
-  <implementation name="IM_switch_vector3B_genglsl" nodedef="ND_switch_vector3B" language="genglsl"/>
-  <implementation name="IM_switch_vector4B_genglsl" nodedef="ND_switch_vector4B" language="genglsl"/>
-
+  
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
   <!-- ======================================================================== -->

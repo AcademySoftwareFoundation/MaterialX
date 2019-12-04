@@ -19,12 +19,6 @@
 
 namespace mx = MaterialX;
 
-namespace MHWRender
-{
-    class MPxShadingNodeOverride;
-    class MPxSurfaceShadingNodeOverride;
-};
-
 namespace MaterialXMaya
 {
 

@@ -148,14 +148,6 @@ Basic switch conditional function tests each test is in a separate graph for eac
     </switch>
     <output name="out" type="vector3" nodename="switch1" />
   </nodegraph>
-  <nodegraph name="switch_floatB" type="" xpos="8.32849" ypos="26.4552">
-    <switch name="switch1" type="float" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="float" value="0.0" />
-      <input name="in2" type="float" value="1.0000" />
-      <parameter name="which" type="boolean" value="false" />
-    </switch>
-    <output name="out" type="float" nodename="switch1" />
-  </nodegraph>
   <nodegraph name="switch_vector4I" type="" xpos="7.29338" ypos="26.4621">
     <switch name="switch1" type="vector4" xpos="5.74483" ypos="4.12">
       <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
@@ -164,54 +156,6 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in4" type="vector4" value="0.7000, 0.7000, 0.7000, 0.7000" />
       <input name="in5" type="vector4" value="1.0000, 1.0000, 1.0000, 1.0000" />
       <parameter name="which" type="integer" value="3" />
-    </switch>
-    <output name="out" type="vector4" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_color2B" type="" xpos="9.34222" ypos="26.4858">
-    <switch name="switch1" type="color2" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color2" value="0.0, 0.0" />
-      <input name="in2" type="color2" value="1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="false" />
-    </switch>
-    <output name="out" type="color2" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_color3B" type="" xpos="7.30568" ypos="27.7811">
-    <switch name="switch1" type="color3" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-      <input name="in2" type="color3" value="1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="true" />
-    </switch>
-    <output name="out" type="color3" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_color4B" type="" xpos="8.3301" ypos="27.7692">
-    <switch name="switch1" type="color4" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="in2" type="color4" value="1.0000, 1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="true" />
-    </switch>
-    <output name="out" type="color4" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_vector2B" type="" xpos="9.36681" ypos="27.7573">
-    <switch name="switch1" type="color2" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color2" value="0.0, 0.0" />
-      <input name="in2" type="color2" value="1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="false" />
-    </switch>
-    <output name="out" type="color2" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_vector3B" type="" xpos="7.30158" ypos="29.1477">
-    <switch name="switch1" type="vector3" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-      <input name="in2" type="vector3" value="1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="true" />
-    </switch>
-    <output name="out" type="vector3" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_vector4B" type="" xpos="8.33333" ypos="29.1335">
-    <switch name="switch1" type="vector4" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="in2" type="vector4" value="1.0000, 1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="true" />
     </switch>
     <output name="out" type="vector4" nodename="switch1" />
   </nodegraph>
