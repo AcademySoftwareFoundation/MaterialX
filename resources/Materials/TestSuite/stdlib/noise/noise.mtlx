@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 Basic noise tests:
 - cellnoise2d
@@ -6,7 +7,6 @@ Basic noise tests:
 - noise2d
 - noise3d
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
   <nodegraph name="cellnoise3d_object" type="" xpos="5.28754" ypos="14.9465">
     <cellnoise3d name="cellnoise3d1" type="float" xpos="6.48276" ypos="9.94">
