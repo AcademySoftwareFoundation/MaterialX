@@ -1,6 +1,4 @@
 language: cpp
-dist: xenial
-osx_image: xcode10
 
 addons:
   apt:
@@ -23,22 +21,29 @@ matrix:
   include:
     # Standard builds
     - os: linux
+      dist: xenial
       compiler: gcc
     - os: linux
+      dist: xenial
       compiler: clang
     - os: osx
+      osx_image: xcode10
       compiler: gcc
     - os: osx
+      osx_image: xcode10
       compiler: clang
 
     # Custom builds
     - os: linux
+      dist: xenial
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
+      dist: xenial
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9 && PY=3"
     - os: linux
+      dist: xenial
       compiler: clang
       env: MATRIX_EVAL="CC=clang-8 && CXX=clang++-8 && PY=3"
 
