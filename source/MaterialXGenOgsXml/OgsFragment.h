@@ -68,7 +68,7 @@ class OgsFragment
 
     /// Return whether the fragment represents a transparent surface, as
     /// determined by MaterialX at generation time.
-    bool isTransparent() const { return _isTransparent; }
+    bool isTransparent() const;
 
     /// Derive a matrix4 parameter name from a matrix3 parameter name.
     /// Required because OGS doesn't support matrix3 parameters.
@@ -84,7 +84,6 @@ class OgsFragment
     std::string _fragmentSource;    ///< The generated fragment source.
     mx::StringMap _pathInputMap;    ///< Maps MaterialX element paths to fragment input names.
     mx::ShaderPtr _glslShader;      ///< The MaterialX-generated GLSL shader.
-    bool _isTransparent = false;    ///< Whether the fragment represents a transparent surface.
 };
 
 } // namespace MaterialXMaya

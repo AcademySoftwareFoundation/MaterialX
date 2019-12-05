@@ -21,8 +21,7 @@ public:
     static string generate(
         const string& shaderName,
         const Shader& glslShader,
-        const std::string& hlslSource,
-        bool hwTransparency
+        const std::string& hlslSource
     );
 
     static bool isSamplerName(const string&);

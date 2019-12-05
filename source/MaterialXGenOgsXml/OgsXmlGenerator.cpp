@@ -271,8 +271,7 @@ string OgsXmlGenerator::samplerToTextureName(const string& samplerName)
 string OgsXmlGenerator::generate(
     const std::string& shaderName,
     const Shader& glslShader,
-    const std::string& hlslSource,
-    bool hwTransparency
+    const std::string& hlslSource
 )
 {
     // Create the interface using one of the shaders (interface should be the same)
@@ -296,6 +295,7 @@ string OgsXmlGenerator::generate(
     xmlAddProperties(xmlProperties, glslPixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS));
     xmlAddProperties(xmlProperties, glslPixelStage.getInputBlock(HW::VERTEX_DATA), OgsInputFlags::VARYING_INPUT_PARAM);
 
+    const bool hwTransparency = glslShader.hasAttribute(HW::ATTR_TRANSPARENT);
     if (hwTransparency)
     {
         // A dummy argument not used in the generated shader code but necessary to

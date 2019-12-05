@@ -87,7 +87,7 @@ public:
     ~LocalGlslGeneratorWrapper()
     {}
 
-    std::pair<mx::ShaderPtr, bool> operator()(const std::string& baseFragmentName)
+    mx::ShaderPtr operator()(const std::string& baseFragmentName)
     {
         mx::ShaderGeneratorPtr generator = mx::GlslFragmentGenerator::create();
         mx::GenContext genContext(generator);
@@ -115,10 +115,7 @@ public:
         
         setCommonOptions(genOptions, *generator);
 
-        return std::make_pair(
-            generator->generate(baseFragmentName, _element, genContext),
-            genOptions.hwTransparency
-        );
+        return generator->generate(baseFragmentName, _element, genContext);
     }
 
     const mx::FileSearchPath& _librarySearchPath;
@@ -140,17 +137,14 @@ public:
     ~ExternalGlslGeneratorWrapper()
     {}
 
-    std::pair<mx::ShaderPtr, bool> operator()(const std::string& baseFragmentName)
+    mx::ShaderPtr operator()(const std::string& baseFragmentName)
     {
         mx::ShaderGenerator& generator = _genContext.getShaderGenerator();
         mx::GenOptions& genOptions = _genContext.getOptions();
 
         setCommonOptions(genOptions, generator);
 
-        return std::make_pair(
-            generator.generate(baseFragmentName, _element, _genContext),
-            genOptions.hwTransparency
-        );
+        return generator.generate(baseFragmentName, _element, _genContext);
     }
 
 private:
@@ -163,8 +157,7 @@ std::string
 generateFragment(
     std::string& fragmentSource,
     const mx::Shader& glslShader,
-    const std::string& baseFragmentName,
-    bool isTransparent
+    const std::string& baseFragmentName
 )
 {
     static const std::string FRAGMENT_NAME_TOKEN = "$fragmentName";
@@ -193,7 +186,9 @@ generateFragment(
         // name later.
         //
         fragmentSource = mx::OgsXmlGenerator::generate(
-            FRAGMENT_NAME_TOKEN, glslShader, hlslSource, isTransparent
+            FRAGMENT_NAME_TOKEN,
+            glslShader,
+            hlslSource
         );
         if (fragmentSource.empty())
         {
@@ -261,14 +256,16 @@ OgsFragment::OgsFragment(
 
     // Generate the GLSL version of the fragment.
     //
-    std::tie(_glslShader, _isTransparent) = glslGeneratorWrapper(baseFragmentName);
+    _glslShader = glslGeneratorWrapper(baseFragmentName);
     if (!_glslShader)
     {
         throw mx::Exception("Failed to generate GLSL fragment code");
     }
 
+    // Generate the complete XML fragment source embedding both GLSL and HLSL
+    // code.
     _fragmentName = generateFragment(
-        _fragmentSource, *_glslShader, baseFragmentName, _isTransparent
+        _fragmentSource, *_glslShader, baseFragmentName
     );
 
     // Extract the input fragment parameter names along with their
@@ -329,6 +326,11 @@ const mx::StringMap& OgsFragment::getPathInputMap() const
 bool OgsFragment::isElementAShader() const
 {
     return _element && _element->isA<mx::ShaderRef>();
+}
+
+bool OgsFragment::isTransparent() const
+{
+    return _glslShader && _glslShader->hasAttribute(mx::HW::ATTR_TRANSPARENT);
 }
 
 mx::ImageSamplingProperties
