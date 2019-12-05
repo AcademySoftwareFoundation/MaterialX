@@ -59,7 +59,7 @@ public:
 
     void setObject(PvtDataHandle obj);
 
-    string getPathString()
+    string asString() const
     {
         string str;
         for (const RtToken& elem : _path)

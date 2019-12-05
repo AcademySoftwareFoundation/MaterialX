@@ -13,6 +13,7 @@
 #include <MaterialXRuntime/RtElement.h>
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/RtPath.h>
 
 namespace MaterialX
 {
@@ -33,7 +34,7 @@ public:
     static RtObject createNew(const RtToken& name);
 
     /// Add a reference to another stage.
-    void addReference(RtObject stage);
+    void addReference(const RtObject& stage);
 
     /// Remove a reference to another stage.
     void removeReference(const RtToken& name);
@@ -51,10 +52,15 @@ public:
     RtObject findReference(const RtToken& name) const;
 
     /// Add an element to the stage.
-    void addElement(RtObject elem);
+    void addElement(const RtObject& elem);
 
     /// Remove an element from the stage.
-    void removeElement(const RtToken& name);
+    void removeElement(const RtObject& elem);
+
+    /// Remove the element at the end of the given path.
+    /// Will throw exception if the given path is not
+    /// rooted in this stage.
+    void removeElementByPath(const RtPath& path);
 
     /// Return an element by name,
     /// or a null object if no such element exists.

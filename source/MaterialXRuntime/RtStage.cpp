@@ -25,7 +25,7 @@ RtObject RtStage::createNew(const RtToken& name)
     return PvtObject::object(PvtStage::createNew(name));
 }
 
-void RtStage::addReference(RtObject stage)
+void RtStage::addReference(const RtObject& stage)
 {
     data()->asA<PvtStage>()->addReference(PvtObject::data(stage));
 }
@@ -57,7 +57,7 @@ RtObject RtStage::findReference(const RtToken& name) const
     return PvtObject::object(ref);
 }
 
-void RtStage::addElement(RtObject elem)
+void RtStage::addElement(const RtObject& elem)
 {
     if (elem.hasApi(RtApiType::STAGE))
     {
@@ -66,9 +66,14 @@ void RtStage::addElement(RtObject elem)
     data()->asA<PvtStage>()->addChild(PvtObject::data(elem));
 }
 
-void RtStage::removeElement(const RtToken& name)
+void RtStage::removeElement(const RtObject& elem)
 {
-    data()->asA<PvtStage>()->removeChild(name);
+    data()->asA<PvtStage>()->removeChild(PvtObject::ptr<PvtElement>(elem)->getName());
+}
+
+void RtStage::removeElementByPath(const RtPath& path)
+{
+    data()->asA<PvtStage>()->removeChildByPath(*static_cast<const PvtPath*>(path._ptr));
 }
 
 RtObject RtStage::findElementByName(const RtToken& name) const

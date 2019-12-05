@@ -68,9 +68,9 @@ void RtPath::setObject(const RtObject& obj)
     static_cast<PvtPath*>(_ptr)->setObject(PvtObject::data(obj));
 }
 
-string RtPath::getPathString() const
+string RtPath::asString() const
 {
-    return static_cast<PvtPath*>(_ptr)->getPathString();
+    return static_cast<PvtPath*>(_ptr)->asString();
 }
 
 void RtPath::push(const RtToken& childName)

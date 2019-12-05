@@ -388,31 +388,31 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     // Test RtPath
     mx::RtPath path1(add1Obj);
     REQUIRE(path1.isValid());
-    REQUIRE(path1.getPathString() == "/add1");
+    REQUIRE(path1.asString() == "/add1");
     REQUIRE(path1.hasApi(mx::RtApiType::NODE));
     REQUIRE(path1.getObjType() == mx::RtObjType::NODE);
     mx::RtPath path2(addDefObj);
     REQUIRE(path2.isValid());
-    REQUIRE(path2.getPathString() == "/ND_add_float");
+    REQUIRE(path2.asString() == "/ND_add_float");
     REQUIRE(path2.hasApi(mx::RtApiType::NODEDEF));
     path2.push("in1");
     REQUIRE(path2.isValid());
-    REQUIRE(path2.getPathString() == "/ND_add_float/in1");
+    REQUIRE(path2.asString() == "/ND_add_float/in1");
     REQUIRE(path2.hasApi(mx::RtApiType::PORTDEF));
     path2.pop();
     REQUIRE(path2.isValid());
-    REQUIRE(path2.getPathString() == "/ND_add_float");
+    REQUIRE(path2.asString() == "/ND_add_float");
     path2.pop();
     REQUIRE(path2.isValid());
     REQUIRE(path2.isRoot());
     REQUIRE(path2.getObject() == stageObj);
-    REQUIRE(path2.getPathString() == "/");
+    REQUIRE(path2.asString() == "/");
 
     mx::RtPath stagePath(stageObj);
     REQUIRE(stagePath.isValid());
     REQUIRE(stagePath.isRoot());
     REQUIRE(stagePath.getObject() == stageObj);
-    REQUIRE(stagePath.getPathString() == "/");
+    REQUIRE(stagePath.asString() == "/");
     REQUIRE(stagePath == path2);
 
     mx::RtPath pathA, pathB;
@@ -447,7 +447,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     // Attach the nodegraph API to the object.
     mx::RtNodeGraph graph1(graphObj1);
 
-    // Create two add nodes in the graph.
+    // Create add nodes in the graph.
     mx::RtObject addObj1 = mx::RtNode::createNew(graphObj1, addFloatObj, "add1");
     mx::RtObject addObj2 = mx::RtNode::createNew(graphObj1, addFloatObj, "add2");
     REQUIRE(graph1.numNodes() == 2);
@@ -457,6 +457,14 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.numNodes() == 3);
     graph1.removeNode(addObj3);
     REQUIRE(graph1.numNodes() == 2);
+
+    // Test deleting a node by path.
+    mx::RtObject addObj4 = mx::RtNode::createNew(graphObj1, addFloatObj, "add4");
+    mx::RtPath addObj4Path(addObj4);
+    const std::string pathStr = addObj4Path.asString();
+    REQUIRE(stage.findElementByPath(pathStr));
+    stage.removeElementByPath(addObj4Path);
+    REQUIRE(!stage.findElementByPath(pathStr));
 
     // Add interface port definitions to the graph.
     mx::RtPortDef::createNew(graphObj1, "a", "float");
@@ -513,15 +521,15 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     // Test RtPath
     mx::RtPath path1(addObj1);
     REQUIRE(path1.isValid());
-    REQUIRE(path1.getPathString() == "/graph1/add1");
+    REQUIRE(path1.asString() == "/graph1/add1");
     REQUIRE(path1.getObject() == addObj1);
     path1.pop();
     REQUIRE(path1.isValid());
-    REQUIRE(path1.getPathString() == "/graph1");
+    REQUIRE(path1.asString() == "/graph1");
     REQUIRE(path1.getObject() == graphObj1);
     path1.push(add2.getName());
     REQUIRE(path1.isValid());
-    REQUIRE(path1.getPathString() == "/graph1/add2");
+    REQUIRE(path1.asString() == "/graph1/add2");
     REQUIRE(path1.getObject() == addObj2);
 
     // Test getting a port instance from node and portdef.
@@ -682,18 +690,18 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
 
     // Make sure removal of the non-referenced node works
     const mx::RtToken nodeName = node1.getName();
-    mainStage.removeElement(nodeName);
+    mainStage.removeElement(node1.getObject());
     node1 = mainStage.findElementByName(nodeName);
     REQUIRE(!node1.isValid());
 
     // Test RtPath on referenced contents
     mx::RtPath path1(nodedefObj);
     REQUIRE(path1.isValid());
-    REQUIRE(path1.getPathString() == "/ND_complex_ior");
+    REQUIRE(path1.asString() == "/ND_complex_ior");
     REQUIRE(path1.getObject() == nodedefObj);
     path1.push("reflectivity");
     REQUIRE(path1.isValid());
-    REQUIRE(path1.getPathString() == "/ND_complex_ior/reflectivity");
+    REQUIRE(path1.asString() == "/ND_complex_ior/reflectivity");
     REQUIRE(path1.getObject() == nodedef.findPort("reflectivity"));
 }
 

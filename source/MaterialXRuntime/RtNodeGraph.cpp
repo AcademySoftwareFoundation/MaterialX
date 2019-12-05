@@ -17,7 +17,7 @@ RtNodeGraph::RtNodeGraph(const RtObject& obj) :
 {
 }
 
-RtObject RtNodeGraph::createNew(RtObject parent, const RtToken& name)
+RtObject RtNodeGraph::createNew(const RtObject& parent, const RtToken& name)
 {
     if (!(parent.hasApi(RtApiType::STAGE) || parent.hasApi(RtApiType::NODEGRAPH)))
     {
@@ -32,12 +32,12 @@ RtApiType RtNodeGraph::getApiType() const
     return RtApiType::NODEGRAPH;
 }
 
-void RtNodeGraph::addNode(RtObject node)
+void RtNodeGraph::addNode(const RtObject& node)
 {
     return data()->asA<PvtNodeGraph>()->addNode(PvtObject::data(node));
 }
 
-void RtNodeGraph::removeNode(RtObject node)
+void RtNodeGraph::removeNode(const RtObject& node)
 {
     if (!node.hasApi(RtApiType::NODE))
     {
@@ -47,7 +47,7 @@ void RtNodeGraph::removeNode(RtObject node)
     return data()->asA<PvtNodeGraph>()->removeNode(n->getName());
 }
 
-void RtNodeGraph::removePort(RtObject portdef)
+void RtNodeGraph::removePort(const RtObject& portdef)
 {
     if (!portdef.hasApi(RtApiType::PORTDEF))
     {

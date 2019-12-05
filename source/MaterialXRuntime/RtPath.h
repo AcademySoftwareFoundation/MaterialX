@@ -63,7 +63,7 @@ public:
     void setObject(const RtObject& obj);
 
     /// Return a string representation of this path.
-    string getPathString() const;
+    string asString() const;
 
     /// Push a child element on the path and make it the
     /// top element pointed to by the path.
@@ -88,6 +88,7 @@ public:
 
 private:
     void* _ptr;
+    friend class RtStage;
 };
 
 }

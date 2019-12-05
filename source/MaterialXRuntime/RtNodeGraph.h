@@ -26,19 +26,19 @@ public:
 
     /// Create a new nodegraph in the given parent.
     /// The parent must be a stage or another nodegraph.
-    static RtObject createNew(RtObject parent, const RtToken& name = EMPTY_TOKEN);
+    static RtObject createNew(const RtObject& parent, const RtToken& name = EMPTY_TOKEN);
 
     /// Return the type for this API.
     RtApiType getApiType() const override;
 
     /// Add a node to the graph.
-    void addNode(RtObject node);
+    void addNode(const RtObject& node);
 
     /// Remove a node from the graph.
-    void removeNode(RtObject node);
+    void removeNode(const RtObject& node);
 
     /// Remove a port from the graph.
-    void removePort(RtObject portdef);
+    void removePort(const RtObject& portdef);
 
     /// Return the node count.
     size_t numNodes() const;

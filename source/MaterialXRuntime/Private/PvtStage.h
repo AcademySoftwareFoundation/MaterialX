@@ -8,6 +8,8 @@
 
 #include <MaterialXRuntime/Private/PvtElement.h>
 
+#include <MaterialXRuntime/Private/PvtPath.h>
+
 /// @file
 /// TODO: Docs
 
@@ -51,6 +53,8 @@ public:
     PvtDataHandle findChildByName(const RtToken& name) const override;
 
     PvtDataHandle findChildByPath(const string& path) const override;
+
+    void removeChildByPath(const PvtPath& path);
 
 protected:
     size_t _selfRefCount;

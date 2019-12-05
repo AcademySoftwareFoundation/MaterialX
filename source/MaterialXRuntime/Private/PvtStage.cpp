@@ -155,4 +155,19 @@ PvtDataHandle PvtStage::findChildByPath(const string& path) const
     return elem;
 }
 
+void PvtStage::removeChildByPath(const PvtPath& path)
+{
+    // Make sure the path is rooted in this stage.
+    PvtElement* elem = path.getObject()->asA<PvtElement>();
+    if (elem->getRoot() != this)
+    {
+        throw ExceptionRuntimeError("Given path '" + path.asString() + " is not rooted in this stage");
+    }
+    PvtElement* parent = elem->getParent();
+    if (parent)
+    {
+        parent->removeChild(elem->getName());
+    }
+}
+
 }
