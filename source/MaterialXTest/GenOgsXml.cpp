@@ -12,9 +12,14 @@
 
 #include <MaterialXGenOgsXml/GlslFragmentGenerator.h>
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
+#include <MaterialXGenOgsXml/OgsFragment.h>
 
 #include <MaterialXTest/GenShaderUtil.h>
 #include <MaterialXTest/GenGlsl.h>
+
+#ifdef MATERIALX_BUILD_CROSS
+#include <MaterialXCross/Cross.h>
+#endif
 
 namespace mx = MaterialX;
 
@@ -45,50 +50,37 @@ public:
 
     // Generate source code for a given element and check that code was produced.
     bool generateCode(
-        mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
-        std::ostream& log, mx::StringVec testStages, mx::StringVec&
+        mx::GenContext& context, const std::string& /*shaderName*/, mx::TypedElementPtr element,
+        std::ostream& log, mx::StringVec /*testStages*/, mx::StringVec& /*sourceCode*/
     ) override
     {
-        mx::ShaderPtr glslShader = nullptr;
+        std::unique_ptr<MaterialXMaya::OgsFragment> fragment;
         try
         {
-            glslShader = context.getShaderGenerator().generate(shaderName, element, context);
+            fragment.reset(new MaterialXMaya::OgsFragment(element, context));
         }
         catch (mx::Exception& e)
         {
-            log << ">> GLSL Code generation failure: " << e.what() << "\n";
-            glslShader = nullptr;
+            log << ">> Fragment Code generation failure: " << e.what() << "\n";
         }
-        CHECK(glslShader);
-        if (!glslShader)
+        CHECK(fragment);
+        if (!fragment)
         {
-            log << ">> Failed to generate GLSL shader for element: " << element->getNamePath() << std::endl;
+            log << ">> Failed to generate fragment for element: " << element->getNamePath() << std::endl;
             return false;
         }
 
-        std::string cleanShaderName = mx::createValidName(shaderName);
-        std::ostringstream sourceStream;
-
-        constexpr bool hwTransparency = false;
-        mx::OgsXmlGenerator::generate(cleanShaderName, *glslShader, "", hwTransparency, sourceStream);
-        std::string fragmentSource = sourceStream.str();
-        if (fragmentSource.empty())
-        {
-            log << ">> Failed to generate XML code." << std::endl;
-            return false;
-        }
-
-        mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
-        if (shaderRef)
+        if (mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>())
         {
             mx::MaterialPtr material = shaderRef->getParent()->asA<mx::Material>();
             if (material && dumpMaterials.count(material->getName()))
             {
                 std::ofstream file(material->getName() + ".xml");
-                file << fragmentSource;
+                file << fragment->getFragmentSource();
                 file.close();
             }
         }
+
         return true;
     }
 
@@ -108,15 +100,13 @@ protected:
 
 static void generateXmlCode()
 {
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
-    const mx::FilePath testRootPath4 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/Units");
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
-    testRootPaths.push_back(testRootPath4);
+    const mx::FilePathVec testRootPaths{
+        mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite"),
+        mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface"),
+        mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface"),
+        mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/Units")
+    };
+
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genogsxml_generate_test.txt");
@@ -124,8 +114,15 @@ static void generateXmlCode()
     OgsXmlShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath);
 
     const mx::GenOptions genOptions;
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
+    mx::FilePath optionsFilePath = testRootPaths.front() / mx::FilePath("_options.mtlx");
+
+#ifdef MATERIALX_BUILD_CROSS
+    mx::Cross::initialize();
+#endif
     tester.validate(genOptions, optionsFilePath);
+#ifdef MATERIALX_BUILD_CROSS
+    mx::Cross::finalize();
+#endif
 }
 
 TEST_CASE("GenShader: OGS XML Shader Generation", "[genogsxml]")

@@ -1,10 +1,10 @@
 #include "CreateMaterialXNodeCmd.h"
 #include "MaterialXNode.h"
-#include "OgsFragment.h"
 #include "MaterialXUtil.h"
 #include "MayaUtil.h"
 #include "Plugin.h"
 
+#include <MaterialXGenOgsXml/OgsFragment.h>
 #include <MaterialXFormat/XmlIo.h>
 
 #include <maya/MArgParser.h>
@@ -95,9 +95,7 @@ std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
                                                 const MString& envRadianceFileName,
                                                 const MString& envIrradianceFileName )
 {
-    std::unique_ptr<OgsFragment> ogsFragment{ new OgsFragment(document,
-                                                              renderableElement,
-                                                              searchPath) };
+    auto ogsFragment = std::make_unique<OgsFragment>(renderableElement, searchPath);
 
     MayaUtil::registerFragment(
         ogsFragment->getFragmentName(), ogsFragment->getFragmentSource()

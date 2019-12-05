@@ -18,12 +18,11 @@ class OgsXmlGenerator
 {
 public:
     /// Generate OSG XML for the given shader fragments, output to the given stream.
-    static void generate(
+    static string generate(
         const string& shaderName,
         const Shader& glslShader,
         const std::string& hlslSource,
-        bool hwTransparency,
-        std::ostream&
+        bool hwTransparency
     );
 
     static bool isSamplerName(const string&);

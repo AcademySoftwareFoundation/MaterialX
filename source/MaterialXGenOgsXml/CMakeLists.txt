@@ -36,6 +36,7 @@ target_link_libraries(
     MaterialXGenGlsl
     MaterialXGenShader
     MaterialXCore
+    $<$<BOOL:${MATERIALX_BUILD_CROSS}>:MaterialXCross>
     ${CMAKE_DL_LIBS})
 
 target_include_directories(MaterialXGenOgsXml

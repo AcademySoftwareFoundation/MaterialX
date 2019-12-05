@@ -9,10 +9,8 @@
 #include <MaterialXRender/ImageHandler.h>
 
 namespace mx = MaterialX;
-
 namespace MaterialXMaya
 {
-
 /// @class OgsFragment
 /// Wraps an OGS fragment generated for a specific MaterialX element.
 /// The generated source is in an XML format specifying the fragment's inputs
@@ -22,12 +20,15 @@ namespace MaterialXMaya
 class OgsFragment
 {
   public:
-    OgsFragment(mx::DocumentPtr document,
-                mx::ElementPtr element,
-                const mx::FileSearchPath& librarySearchPath);
+    /// Creates a local GLSL fragment generator
+    OgsFragment(mx::ElementPtr, const mx::FileSearchPath& librarySearchPath);
 
-    OgsFragment(const OgsFragment&) = delete;
-    OgsFragment(OgsFragment&&) = delete;
+    /// Reuses an externally-provided GLSL fragment generator. Used in the test
+    /// harness.
+    OgsFragment(mx::ElementPtr, mx::GenContext&);
+
+    explicit OgsFragment(const OgsFragment&) = delete;
+    explicit OgsFragment(OgsFragment&&) = delete;
 
     ~OgsFragment();
 
@@ -44,7 +45,7 @@ class OgsFragment
     /// Return the MaterialX document.
     mx::DocumentPtr getDocument() const
     {
-        return _document;
+        return _element ? _element->getDocument() : mx::DocumentPtr();
     }
 
     /// Return the source of the OGS fragment as a string.
@@ -74,23 +75,18 @@ class OgsFragment
     static std::string getMatrix4Name(const std::string& matrix3Name);
 
   private:
-    /// Generate the fragment.
-    void generateFragment(const mx::FileSearchPath& librarySearchPath);
-    
-    mx::DocumentPtr _document;  ///< The MaterialX document.
-    mx::ElementPtr _element;    ///< The MaterialX element.
-    
-    std::string _fragmentName;  ///< An automatically generated fragment name.
+    /// The constructor implementation that public constructors delegate to.
+    template <typename GLSL_GENERATOR_WRAPPER>
+    OgsFragment(mx::ElementPtr, GLSL_GENERATOR_WRAPPER&&);
 
-    std::string _fragmentSource;    ///< The ganerated fragment source.
-    
-    mx::StringMap _pathInputMap; ///< Maps MaterialX element paths to fragment input names.
-
+    mx::ElementPtr _element;        ///< The MaterialX element.
+    std::string _fragmentName;      ///< An automatically generated fragment name.
+    std::string _fragmentSource;    ///< The generated fragment source.
+    mx::StringMap _pathInputMap;    ///< Maps MaterialX element paths to fragment input names.
     mx::ShaderPtr _glslShader;      ///< The MaterialX-generated GLSL shader.
-
     bool _isTransparent = false;    ///< Whether the fragment represents a transparent surface.
 };
 
 } // namespace MaterialXMaya
 
-#endif // MATERIALX_DATA_H
+#endif

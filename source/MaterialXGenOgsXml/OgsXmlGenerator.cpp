@@ -268,12 +268,11 @@ string OgsXmlGenerator::samplerToTextureName(const string& samplerName)
         ? samplerName.substr(1, samplerName.size() - PREFIX_SUFFIX_LENGTH) : "";
 }
 
-void OgsXmlGenerator::generate(
+string OgsXmlGenerator::generate(
     const std::string& shaderName,
     const Shader& glslShader,
     const std::string& hlslSource,
-    bool hwTransparency,
-    std::ostream& stream
+    bool hwTransparency
 )
 {
     // Create the interface using one of the shaders (interface should be the same)
@@ -328,7 +327,9 @@ void OgsXmlGenerator::generate(
     xmlAddImplementation(xmlImpementations, "HLSL", "11.0", glslPixelStage.getFunctionName(), hlslSource);
     xmlAddImplementation(xmlImpementations, "Cg", "2.1", glslPixelStage.getFunctionName(), "// Cg");
 
+    std::ostringstream stream;
     xmlDocument.save(stream, INDENTATION);
+    return stream.str();
 }
 
 } // namespace MaterialX

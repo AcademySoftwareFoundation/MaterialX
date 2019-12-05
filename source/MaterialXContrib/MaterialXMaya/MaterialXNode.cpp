@@ -2,8 +2,8 @@
 #include "Plugin.h"
 #include "MaterialXUtil.h"
 #include "MayaUtil.h"
-#include "OgsFragment.h"
 
+#include <MaterialXGenOgsXml/OgsFragment.h>
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 
 #include <maya/MFnNumericAttribute.h>
@@ -161,11 +161,10 @@ void MaterialXNode::createAndRegisterFragment()
             return;
         }
 
-        _ogsFragment.reset(new OgsFragment(
-            _document,
+        _ogsFragment = std::make_unique<OgsFragment>(
             _document->getDescendant(_elementPath.asChar()),
             Plugin::instance().getLibrarySearchPath()
-        ));
+        );
 
         MayaUtil::registerFragment(
             _ogsFragment->getFragmentName(), _ogsFragment->getFragmentSource()
