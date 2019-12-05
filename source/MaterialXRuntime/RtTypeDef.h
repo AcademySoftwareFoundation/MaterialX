@@ -114,22 +114,11 @@ public:
     /// Return the semantic for the type.
     const RtToken& getSemantic() const;
 
-    /// Return the number of elements the type is composed of.
+    /// Return the number of components the type is composed of.
     /// Will return 1 for scalar types and a size greater than 1 for aggregate type.
     /// For array types 0 is returned since the number of elements is undefined
     /// until an array is instantiated.
     size_t getSize() const;
-
-    /// Set the channel index for the supplied channel name.
-    void setChannelIndex(char channel, int index);
-
-    /// Returns the channel index for the supplied channel name.
-    /// Will return -1 on failure to find a matching index.
-    int getChannelIndex(char channel) const;
-
-    /// Returns the channel name for the supplied channel index.
-    /// Will return -1 on failure to find a matching name.
-    char getChannelName(int index) const;
 
     /// Return true if the type is a scalar type.
     bool isScalar() const
@@ -148,6 +137,21 @@ public:
     {
         return getSize() == 0;
     }
+
+    /// Set named and basetype for a component of an aggregate type.
+    void setComponent(size_t index, const RtToken& name, const RtToken& basetype);
+
+    /// Returns the index for the given component name.
+    /// Will return INVALID_INDEX on failure to find a matching component.
+    size_t getComponentIndex(const RtToken& name) const;
+
+    /// Return the name of the aggregate component for the given index.
+    /// Will throw exception if the index is larger than the type size.
+    const RtToken& getComponentName(size_t index) const;
+
+    /// Return the basetype of the aggregate component for the given index.
+    /// Will throw exception if the index is larger than the type size.
+    const RtToken& getComponentBaseType(size_t index) const;
 
     /// Return a set of all types that this type can be connected to.
     /// The type itself is also included in this set.

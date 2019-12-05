@@ -15,11 +15,8 @@ namespace MaterialX
 class PvtTypeDef
 {
 public:
-    using ChannelMap = std::unordered_map<char, int>;
-
-public:
-    PvtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic,
-        size_t size, const ChannelMap& channelMap = ChannelMap());
+    PvtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, 
+               const RtToken& semantic, size_t size);
 
     const RtToken& getName() const
     {
@@ -46,9 +43,43 @@ public:
         return _funcs;
     }
 
-    ChannelMap& getChannelMap()
+    void setComponent(size_t index, const RtToken& name, const RtToken& basetype)
     {
-        return _channelMap;
+        if (index >= _size)
+        {
+            throw ExceptionRuntimeError("PvtTypeDef::setComponent: index is out of range for type '" + _name.str() + "'");
+        }
+        _components[index].name = name;
+        _components[index].basetype = basetype;
+        _componentIndices[name] = index;
+    }
+
+    size_t getComponentIndex(const RtToken& name) const
+    {
+        auto it = _componentIndices.find(name);
+        if (it == _componentIndices.end())
+        {
+            throw ExceptionRuntimeError("PvtTypeDef::getComponentIndex: no component named " + name.str() + " exists for type '" + _name.str() + "'");
+        }
+        return it->second;
+    }
+
+    const RtToken& getComponentName(size_t index) const
+    {
+        if (index >= _size)
+        {
+            throw ExceptionRuntimeError("PvtTypeDef::getComponentName: index is out of range for type '" + _name.str() + "'");
+        }
+        return _components[index].name;
+    }
+
+    const RtToken& getComponentBaseType(size_t index) const
+    {
+        if (index >= _size)
+        {
+            throw ExceptionRuntimeError("PvtTypeDef::getComponentBaseType: index is out of range for type '" + _name.str() + "'");
+        }
+        return _components[index].basetype;
     }
 
     const RtTokenSet& getValidConnectionTypes() const
@@ -57,12 +88,20 @@ public:
     }
 
 private:
+    struct AggregateComponent
+    {
+        AggregateComponent() : name(EMPTY_TOKEN), basetype(EMPTY_TOKEN) {}
+        RtToken name;
+        RtToken basetype;
+    };
+
     const RtToken _name;
     const RtToken _basetype;
     const RtValueFuncs _funcs;
     const RtToken _semantic;
     const size_t _size;
-    ChannelMap _channelMap;
+    vector<AggregateComponent> _components;
+    RtTokenMap<size_t> _componentIndices;
     RtTokenSet _connectionTypes;
 };
 
@@ -72,8 +111,7 @@ public:
     PvtTypeDefRegistry();
 
     RtTypeDef* newType(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs,
-        const RtToken& sematic = RtTypeDef::SEMANTIC_NONE, size_t size = 1,
-        const PvtTypeDef::ChannelMap& channelMap = PvtTypeDef::ChannelMap());
+        const RtToken& sematic = RtTypeDef::SEMANTIC_NONE, size_t size = 1);
 
     size_t numTypes()
     {

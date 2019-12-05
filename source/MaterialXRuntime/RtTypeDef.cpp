@@ -102,29 +102,24 @@ size_t RtTypeDef::getSize() const
     return static_cast<PvtTypeDef*>(_ptr)->getSize();
 }
 
-int RtTypeDef::getChannelIndex(char channel) const
+void RtTypeDef::setComponent(size_t index, const RtToken& name, const RtToken& basetype)
 {
-    PvtTypeDef* ptr = static_cast<PvtTypeDef*>(_ptr);
-    auto it = ptr->getChannelMap().find(channel);
-    return it != ptr->getChannelMap().end() ? it->second : -1;
+    static_cast<PvtTypeDef*>(_ptr)->setComponent(index, name, basetype);
 }
 
-char RtTypeDef::getChannelName(int index) const
+size_t RtTypeDef::getComponentIndex(const RtToken& name) const
 {
-    PvtTypeDef* ptr = static_cast<PvtTypeDef*>(_ptr);
-    for (auto it : ptr->getChannelMap())
-    {
-        if (it.second == index)
-        {
-            return it.first;
-        }
-    }
-    return -1;
+    return static_cast<PvtTypeDef*>(_ptr)->getComponentIndex(name);
 }
 
-void RtTypeDef::setChannelIndex(char channel, int index)
+const RtToken& RtTypeDef::getComponentName(size_t index) const
 {
-    static_cast<PvtTypeDef*>(_ptr)->getChannelMap()[channel] = index;
+    return static_cast<PvtTypeDef*>(_ptr)->getComponentName(index);
+}
+
+const RtToken& RtTypeDef::getComponentBaseType(size_t index) const
+{
+    return static_cast<PvtTypeDef*>(_ptr)->getComponentBaseType(index);
 }
 
 const RtTokenSet& RtTypeDef::getValidConnectionTypes() const
