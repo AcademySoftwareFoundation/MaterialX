@@ -10,9 +10,18 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_executable(MaterialXTest ${materialx_source} ${materialx_headers})
 
-add_test(NAME MaterialXTest
-	COMMAND MaterialXTest
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+# Discover all tests and allow them to be run in parallel (ctest -j20):
+foreach(src_file ${materialx_source})
+    file(STRINGS ${src_file} matched_lines REGEX "TEST_CASE")
+    foreach(matched_line ${matched_lines})
+        string(REGEX REPLACE "(TEST_CASE[( \"]+)" "" test_name ${matched_line})
+        string(REGEX REPLACE "(\".*)" "" test_name ${test_name})
+        string(REGEX REPLACE "[^A-Za-z0-9_]+" "_" test_safe_name ${test_name})
+        add_test(NAME "MaterialXTest_${test_safe_name}"
+            COMMAND MaterialXTest ${test_name}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endforeach()
+endforeach()
 
 if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
     add_custom_command(TARGET MaterialXTest POST_BUILD
