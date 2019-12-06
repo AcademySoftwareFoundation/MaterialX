@@ -28,6 +28,14 @@ set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
 set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source/PyMaterialX/PyBind11" CACHE PATH
     "Path to a folder containing the PyBind11 source. Defaults to the included PyBind11 source, which has been extended to support Python 2.6.")
 
+# Settings to define installation layout    
+set (MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING 
+    "Install header include path (e.g. 'inc', 'include').")
+set (MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING 
+    "Install lib path (e.g. 'libs', 'lib').")
+set (MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING 
+    "Install path for mtlx std libs (e.g. 'libraries').")    
+
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_PYTHON_LTO)
 mark_as_advanced(MATERIALX_INSTALL_PYTHON)

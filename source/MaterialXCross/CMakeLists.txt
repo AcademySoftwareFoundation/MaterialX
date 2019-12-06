@@ -66,7 +66,7 @@ target_link_libraries(
 target_include_directories(MaterialXCross
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
         ${glslang_SOURCE_DIR}
         ${MATERIALX_SPIRV_CROSS_DIR}
     PRIVATE
