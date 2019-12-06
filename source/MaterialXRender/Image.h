@@ -118,6 +118,10 @@ class Image
         return _resourceId;
     }
 
+    /// Set the texel color at the given coordinates.  If the coordinates
+    /// or image resource buffer are invalid, then an exception is thrown.
+    void setTexelColor(unsigned int x, unsigned int y, const Color4& color);
+
     /// Return the texel color at the given coordinates.  If the coordinates
     /// or image resource buffer are invalid, then an exception is thrown.
     Color4 getTexelColor(unsigned int x, unsigned int y) const;
