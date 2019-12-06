@@ -353,6 +353,34 @@ class Document : public GraphElement
     vector<NodeDefPtr> getMatchingNodeDefs(const string& nodeName) const;
 
     /// @}
+    /// @name Backdrop Elements
+    /// @{
+
+    /// Add a Backdrop to the document.
+    BackdropPtr addBackdrop(const string& name = EMPTY_STRING)
+    {
+        return addChild<Backdrop>(name);
+    }
+
+    /// Return the Backdrop, if any, with the given name.
+    BackdropPtr getBackdrop(const string& name) const
+    {
+        return getChildOfType<Backdrop>(name);
+    }
+
+    /// Return a vector of all Backdrop elements in the document.
+    vector<BackdropPtr> getBackdrops() const
+    {
+        return getChildrenOfType<Backdrop>();
+    }
+
+    /// Remove the Backdrop, if any, with the given name.
+    void removeBackdrop(const string& name)
+    {
+        removeChildOfType<Backdrop>(name);
+    }
+
+    /// @}
     /// @name PropertySet Elements
     /// @{
 

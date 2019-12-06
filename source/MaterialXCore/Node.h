@@ -19,6 +19,7 @@ namespace MaterialX
 class Node;
 class GraphElement;
 class NodeGraph;
+class Backdrop;
 
 /// A shared pointer to a Node
 using NodePtr = shared_ptr<Node>;
@@ -34,6 +35,11 @@ using ConstGraphElementPtr = shared_ptr<const GraphElement>;
 using NodeGraphPtr = shared_ptr<NodeGraph>;
 /// A shared pointer to a const NodeGraph
 using ConstNodeGraphPtr = shared_ptr<const NodeGraph>;
+
+/// A shared pointer to a Backdrop
+using BackdropPtr = shared_ptr<Backdrop>;
+/// A shared pointer to a const Backdrop
+using ConstBackdropPtr = shared_ptr<const Backdrop>;
 
 /// @class Node
 /// A node element within a NodeGraph or Document.
@@ -280,6 +286,51 @@ class NodeGraph : public GraphElement
 
   public:
     static const string CATEGORY;
+};
+
+/// @class Backdrop
+/// A layout element used to contain, group and document other nodes.
+class Backdrop : public InterfaceElement
+{
+  public:
+    Backdrop(ElementPtr parent, const string& name) :
+        InterfaceElement(parent, CATEGORY, name)
+    {
+    }
+    virtual ~Backdrop() { }
+
+    /// Return the text note associated with the backdrop. By default 
+    /// no text is associated.
+    string getNote() const;
+
+    /// Set the text note associated with the backdrop.
+    void setNote(const string& note);
+
+    /// Returns a comma-separated list of node names that the
+    /// backdrop "contains".  By default a backdrop contains no nodes.
+    string getContains() const;
+
+    /// Set the list of nodes that the backdrop "contains".
+    void setContains(const string& contains);
+
+    /// Get the width of the backdrop when drawn in a UI.
+    float getWidth() const;
+
+    /// Set the width of the backdrop when drawn in a UI.
+    void setWidth(float width);
+
+    /// Get the height of the backdrop when drawn in a UI.
+    float getHeight() const;
+
+    /// Set the height of the backdrop when drawn in a UI.
+    void setHeight(float height);
+
+  public:
+    static const string CATEGORY;
+    static const string NOTE_ATTRIBUTE;
+    static const string CONTAINS_ATTRIBUTE;
+    static const string WIDTH_ATTRIBUTE;
+    static const string HEIGHT_ATTRIBUTE;
 };
 
 } // namespace MaterialX

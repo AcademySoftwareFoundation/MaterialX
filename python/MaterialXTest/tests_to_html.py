@@ -61,7 +61,7 @@ def main(args=None):
         if len(glslFiles) != len(oslFiles):
             print ("Number of glsl files " + str(len(glslFiles)) + " does not match number of osl files " +  str(len(oslFiles)) + " in dir: " + subdir)
             print ("GLSL list: " + str(glslFiles))
-	        print ("OSL files: " + str(oslFiles))
+            print ("OSL files: " + str(oslFiles))
             continue
         elif len(glslFiles) > 0 and len(oslFiles) > 0:
             fh.write("<h2>" + subdir + ":</h2><br>\n")
