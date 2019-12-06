@@ -6,6 +6,7 @@
 #include <MaterialXRender/Image.h>
 
 #include <cmath>
+#include <cstring>
 
 namespace MaterialX
 {
@@ -71,6 +72,35 @@ ImagePtr Image::createConstantColor(unsigned int width, unsigned int height, con
         }
     }
     return image;
+}
+
+void Image::setTexelColor(unsigned int x, unsigned int y, const Color4& color)
+{
+    if (x >= _width || y >= _height)
+    {
+        throw Exception("Invalid coordinates in setTexelColor");
+    }
+    if (!_resourceBuffer)
+    {
+        throw Exception("Invalid resource buffer in setTexelColor");
+    }
+
+    if (_baseType == BaseType::FLOAT)
+    {
+        float* data = static_cast<float*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        if (_channelCount <= 4)
+        {
+            memcpy(data, color.data(), sizeof(float) * _channelCount);
+        }
+        else
+        {
+            throw Exception("Unsupported channel count in setTexelColor");
+        }
+    }
+    else
+    {
+        throw Exception("Unsupported base type in setTexelColor");
+    }
 }
 
 Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
