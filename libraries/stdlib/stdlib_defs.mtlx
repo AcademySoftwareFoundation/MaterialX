@@ -4868,17 +4868,4 @@
     <output name="out" type="lightshader" defaultinput="in"/>
   </nodedef>
 
-  <!--
-    Node: <backdrop>
-    A layout element used to contain, group and document other nodes.
-    Output type is marked as "none" to indicate there is no output.
-  -->
-  <nodedef name="ND_backdrop" node="backdrop" nodegroup="organization">
-    <parameter name="note" type="string" value=""/>
-    <parameter name="contains" type="stringarray" value=""/>
-    <parameter name="width" type="float" value="1.0"/>
-    <parameter name="height" type="float" value="1.0"/>
-    <output name="out" type="none"/>
-  </nodedef>
-
 </materialx>
