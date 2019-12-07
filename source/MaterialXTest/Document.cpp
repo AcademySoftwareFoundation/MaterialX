@@ -45,7 +45,7 @@ TEST_CASE("Document", "[document]")
     // Create a simple shader interface.
     mx::NodeDefPtr shader = doc->addNodeDef("", "surfaceshader", "simpleSrf");
     mx::InputPtr diffColor = shader->addInput("diffColor", "color3");
-    mx::InputPtr specColor = shader->addInput("specColor", "color3");
+    shader->addInput("specColor", "color3");
     mx::ParameterPtr roughness = shader->addParameter("roughness", "float");
 
     // Create a material that instantiates the shader.
@@ -91,7 +91,7 @@ TEST_CASE("Document", "[document]")
     mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("NG_custom");
     mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
     mx::ImplementationPtr customImpl = customLibrary->addImplementation("IM_custom");
-    mx::NodePtr customNode = customNodeGraph->addNodeInstance(customNodeDef, "custom1");
+    customNodeGraph->addNodeInstance(customNodeDef, "custom1");
     customImpl->setNodeDef(customNodeDef);
     REQUIRE(customLibrary->validate());
 

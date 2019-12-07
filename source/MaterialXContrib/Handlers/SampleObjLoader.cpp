@@ -80,7 +80,6 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
     float val1, val2, val3;
     unsigned int ipos[4], iuv[4], inorm[4];
     std::string line;
-    size_t faceCount = 0;
     while (std::getline(objfile, line))
     {
         if (line.substr(0, 2) == "v ")
@@ -223,7 +222,6 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
                 }
 
                 currentPartition->setFaceCount(currentPartition->getFaceCount() + facesAdded);
-                faceCount += facesAdded;
             }
         }
     }
