@@ -15,7 +15,7 @@ namespace MaterialX
 {
 
 /// Geometry index buffer
-using MeshIndexBuffer = vector<unsigned int>;
+using MeshIndexBuffer = vector<uint32_t>;
 /// Float geometry buffer
 using MeshFloatBuffer = vector<float>;
 
@@ -59,9 +59,9 @@ class MeshStream
     }
 
     /// Resize data to an given number of elements
-    void resize(unsigned int elementCount)
+    void resize(size_t elementCount)
     {
-        _data.resize((size_t) elementCount * (size_t) _stride);
+        _data.resize(elementCount * (size_t) _stride);
     }
 
     /// Get stream name
@@ -143,7 +143,7 @@ class MeshPartition
     }
 
     /// Resize data to the given number of indices
-    void resize(unsigned int indexCount)
+    void resize(size_t indexCount)
     {
         _indices.resize(indexCount);
     }

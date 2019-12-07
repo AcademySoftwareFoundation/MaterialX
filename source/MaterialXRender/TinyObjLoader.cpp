@@ -79,9 +79,9 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
     Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
     Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
 
-    int writeIndex0 = 0;
-    int writeIndex1 = 1;
-    int writeIndex2 = 2;
+    uint32_t writeIndex0 = 0;
+    uint32_t writeIndex1 = 1;
+    uint32_t writeIndex2 = 2;
 
     const size_t FACE_VERTEX_COUNT = 3;
     for (const tinyobj::shape_t& shape : shapes)

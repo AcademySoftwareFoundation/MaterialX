@@ -19,12 +19,6 @@ unsigned int GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID = 0;
 int GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION = -1;
 int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 
-/// Sampling constants
-static string UADDRESS_MODE_POST_FIX("_uaddressmode");
-static string VADDRESS_MODE_POST_FIX("_vaddressmode");
-static string FILTER_TYPE_POST_FIX("_filtertype");
-static string DEFAULT_COLOR_POST_FIX("_default");
-
 //
 // GlslProgram methods
 //
@@ -49,7 +43,7 @@ GlslProgram::~GlslProgram()
     deleteProgram();
 }
 
-void GlslProgram::setStages(const ShaderPtr shader)
+void GlslProgram::setStages(ShaderPtr shader)
 {
     if (!shader)
     {
@@ -376,12 +370,11 @@ void GlslProgram::bindPartition(MeshPartitionPtr partition)
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    size_t UINT_SIZE = sizeof(unsigned int);
     MeshIndexBuffer& indexData = partition->getIndices();
     _indexBufferSize = indexData.size();
     glGenBuffers(1, &_indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (unsigned int)(_indexBufferSize*UINT_SIZE), &indexData[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indexBufferSize * sizeof(uint32_t), &indexData[0], GL_STATIC_DRAW);
 }
 
 void GlslProgram::bindStreams(MeshPtr mesh)
@@ -525,22 +518,20 @@ void GlslProgram::unbindTextures(ImageHandlerPtr imageHandler)
     checkErrors();
 }
 
-bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
-                              ImageHandlerPtr imageHandler, bool generateMipMaps,
-                              const ImageSamplingProperties& samplingProperties, ImageDesc& desc)
+ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
+                                  ImageHandlerPtr imageHandler, bool generateMipMaps,
+                                  const ImageSamplingProperties& samplingProperties)
 {
-    bool textureBound = false;
-
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
         // Acquire the image.
-        if (imageHandler->acquireImage(filePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
+        ImagePtr image = imageHandler->acquireImage(filePath, generateMipMaps, &(samplingProperties.defaultColor));
+        if (image)
         {
-            textureBound = imageHandler->bindImage(desc, samplingProperties);
-            if (textureBound)
+            if (imageHandler->bindImage(image, samplingProperties))
             {
-                int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
+                int textureLocation = imageHandler->getBoundTextureLocation(image->getResourceId());
                 if (textureLocation >= 0)
                 {
                     glUniform1i(uniformLocation, textureLocation);
@@ -548,8 +539,10 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
             }
         }
         checkErrors();
+        return image;
     }
-    return textureBound;
+
+    return nullptr;
 }
 
 MaterialX::ValuePtr GlslProgram::findUniformValue(const std::string& uniformName, const GlslProgram::InputMap& uniformList)
@@ -584,7 +577,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 
     // Bind textures based on uniforms found in the program
     const GlslProgram::InputMap& uniformList = getUniformsList();
-    const std::string IMAGE_SEPARATOR("_");
+    VariableBlock& publicUniforms = _shader->getStage(Stage::PIXEL).getUniformBlock(HW::PUBLIC_UNIFORMS);
     for (const auto& uniform : uniformList)
     {
         GLenum uniformType = uniform.second->gltype;
@@ -600,40 +593,10 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 fileName != HW::ENV_RADIANCE &&
                 fileName != HW::ENV_IRRADIANCE)
             {
-                // Get the additional texture parameters based on image uniform name
-                // excluding the trailing "_file" postfix string
-                std::string root = uniform.first;
-                size_t pos = root.find_last_of(IMAGE_SEPARATOR);
-                if (pos != std::string::npos)
-                {
-                    root = root.substr(0, pos);
-                }
-
                 ImageSamplingProperties samplingProperties;
+                samplingProperties.setProperties(uniform.first, publicUniforms);
 
-                const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
-                const std::string uaddressModeStr = root + UADDRESS_MODE_POST_FIX;
-                ValuePtr intValue = findUniformValue(uaddressModeStr, uniformList);
-                samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-                const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
-                intValue = findUniformValue(vaddressmodeStr, uniformList);
-                samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-                const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
-                intValue = findUniformValue(filtertypeStr, uniformList);
-                samplingProperties.filterType = ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-                const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
-                ValuePtr colorValue = findUniformValue(defaultColorStr, uniformList);
-                Color4 defaultColor;
-                mapValueToColor(colorValue, defaultColor);
-                samplingProperties.defaultColor[0] = defaultColor[0];
-                samplingProperties.defaultColor[1] = defaultColor[1];
-                samplingProperties.defaultColor[2] = defaultColor[2];
-                samplingProperties.defaultColor[3] = defaultColor[3];
-                ImageDesc desc;
-                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties, desc);
+                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties);
             }
         }
     }
@@ -709,8 +672,8 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
                 fileName = ibl.second;
             }
 
-            ImageDesc desc;
-            if (bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, ImageSamplingProperties(), desc))
+            ImagePtr image = bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, ImageSamplingProperties());
+            if (image)
             {
                 if (iblUniform->first == HW::ENV_RADIANCE)
                 {
@@ -718,7 +681,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
                     auto mipsUniform = uniformList.find(HW::ENV_RADIANCE_MIPS);
                     if (mipsUniform != uniformList.end() && mipsUniform->second->location >= 0)
                     {
-                        glUniform1i(mipsUniform->second->location, desc.mipCount);
+                        glUniform1i(mipsUniform->second->location, image->getMaxMipCount());
                     }
                 }
             }
@@ -1292,7 +1255,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         // Throw an error if any type mismatches were found
         if (uniformTypeMismatchFound)
         {
-            ExceptionShaderRenderError(errorType, errors);
+            throw ExceptionShaderRenderError(errorType, errors);
         }
     }
 
@@ -1418,7 +1381,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
         // Throw an error if any type mismatches were found
         if (uniformTypeMismatchFound)
         {
-            ExceptionShaderRenderError(errorType, errors);
+            throw ExceptionShaderRenderError(errorType, errors);
         }
     }
 

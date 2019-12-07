@@ -9,10 +9,13 @@
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
 
+#include <cmath>
 #include <iostream>
 
 namespace MaterialX
 {
+
+const float PI = std::acos(-1.0f);
 
 // View information
 const float FOV_PERSP = 45.0f; // degrees
@@ -270,7 +273,7 @@ bool GlslRenderer::bindTarget(bool bind)
     return true;
 }
 
-void GlslRenderer::createProgram(const ShaderPtr shader)
+void GlslRenderer::createProgram(ShaderPtr shader)
 {
     StringVec errors;
     const string errorType("GLSL program creation error.");
@@ -404,7 +407,6 @@ void GlslRenderer::updateViewInformation(const Vector3& eye,
                                            float farDist,
                                            float objectScale)
 {
-    const float PI = std::acos(-1.0f);
     float fH = std::tan(viewAngle / 360.0f * PI) * nearDist;
     float fW = fH * 1.0f;
 
@@ -464,8 +466,7 @@ void GlslRenderer::render()
     try
     {
         // Bind program and input parameters
-        bool useFixed = false;
-        if (_program && !useFixed)
+        if (_program)
         {
             // Check if we have any attributes to bind. If not then
             // there is nothing to draw
@@ -521,19 +522,16 @@ void GlslRenderer::save(const FilePath& filePath, bool floatingPoint)
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    size_t bufferSize = _frameBufferWidth * _frameBufferHeight * 4;
-    float* buffer = new float[bufferSize];
-    if (!buffer)
-    {
-        errors.push_back("Failed to read color buffer back.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
+    // Create an image.
+    ImagePtr image = Image::create(_frameBufferWidth, _frameBufferHeight, 4);
+    image->createResourceBuffer();
 
     // Read back from the color texture.
     bindTarget(true);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glReadPixels(0, 0, _frameBufferWidth, _frameBufferHeight, GL_RGBA, floatingPoint ? GL_FLOAT : GL_UNSIGNED_BYTE, buffer);
+    glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGBA,
+                 floatingPoint ? GL_FLOAT : GL_UNSIGNED_BYTE, image->getResourceBuffer());
     bindTarget(false);
     try
     {
@@ -541,24 +539,13 @@ void GlslRenderer::save(const FilePath& filePath, bool floatingPoint)
     }
     catch (ExceptionShaderRenderError& e)
     {
-        delete[] buffer;
         errors.push_back("Failed to read color buffer back.");
         errors.insert(std::end(errors), std::begin(e.errorLog()), std::end(e.errorLog()));
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    // Save using the handler
-    ImageDesc desc;
-    desc.width = _frameBufferWidth;
-    desc.height = _frameBufferHeight;
-    desc.channelCount = 4;
-    desc.resourceBuffer = buffer;
-    bool saved = _imageHandler->saveImage(filePath, desc, true);
-
-    desc.resourceBuffer = nullptr;
-    delete[] buffer;
-
-    if (!saved)
+    // Save using the handler.
+    if (!_imageHandler->saveImage(filePath, image, true))
     {
         errors.push_back("Failed to save to file:" + filePath.asString());
         throw ExceptionShaderRenderError(errorType, errors);

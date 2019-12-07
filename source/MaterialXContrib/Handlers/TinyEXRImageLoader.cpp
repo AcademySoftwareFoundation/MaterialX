@@ -33,11 +33,12 @@
 namespace MaterialX
 {
 bool TinyEXRImageLoader::saveImage(const FilePath& filePath,
-                                   const ImageDesc& imageDesc,
+                                   ConstImagePtr image,
                                    bool /*verticalFlip*/)
 {
-    if (imageDesc.baseType != ImageDesc::BASETYPE_FLOAT &&
-        imageDesc.baseType != ImageDesc::BASETYPE_HALF)
+    Image::BaseType baseType = image->getBaseType();
+    if (baseType != Image::BaseType::FLOAT &&
+        baseType != Image::BaseType::HALF)
     {
         return false;
     }
@@ -50,55 +51,46 @@ bool TinyEXRImageLoader::saveImage(const FilePath& filePath,
     {
         // TODO: vertical flip is unsupported currently in loader
 
-        int saveAsHalf = (imageDesc.baseType == ImageDesc::BASETYPE_HALF) ? 1 : 0;
-        returnValue = SaveEXR(static_cast<float*>(imageDesc.resourceBuffer),
-                                static_cast<int>(imageDesc.width),
-                                static_cast<int>(imageDesc.height), imageDesc.channelCount,
+        int saveAsHalf = (baseType == Image::BaseType::HALF) ? 1 : 0;
+        returnValue = SaveEXR(static_cast<float*>(image->getResourceBuffer()),
+                                static_cast<int>(image->getWidth()),
+                                static_cast<int>(image->getHeight()), image->getChannelCount(),
                                 saveAsHalf, fileName.c_str());
     }
     return (returnValue == 0);
 }
 
-bool TinyEXRImageLoader::loadImage(const FilePath& filePath,
-                                   ImageDesc& imageDesc,
-                                   const ImageDescRestrictions* restrictions)
+ImagePtr TinyEXRImageLoader::loadImage(const FilePath& filePath)
 {
-    // Early out if returning float is unsupported
-    if (restrictions && restrictions->supportedBaseTypes.count(ImageDesc::BASETYPE_FLOAT) == 0)
-    {
-        return false;
-    }
-
-    int returnValue = -1;
-    imageDesc.width = imageDesc.height = imageDesc.channelCount = 0;
-    imageDesc.resourceBuffer = nullptr;
-
     // Fail with any type other than exr.
     const string& fileName = filePath.asString();
     std::string extension = (fileName.substr(fileName.find_last_of(".") + 1));
-    if (extension == EXR_EXTENSION)
+    if (extension != EXR_EXTENSION)
     {
-        const char* err = nullptr;
-        int iwidth = 0;
-        int iheight = 0;
-        float* buffer = nullptr;
-        imageDesc.channelCount = 4;
-        returnValue = LoadEXR(&buffer, &iwidth, &iheight, fileName.c_str(), &err);
-        if (returnValue == 0)
-        {
-            imageDesc.resourceBuffer = buffer;
-            imageDesc.resourceBufferDeallocator = [](void* buffer)
-            {
-                free(buffer);
-            };
-            imageDesc.width = iwidth;
-            imageDesc.height = iheight;
-            imageDesc.baseType = ImageDesc::BASETYPE_FLOAT;
-        }
+        return nullptr;
     }
-    imageDesc.computeMipCount();
 
-    return (returnValue == 0);
+    const char* err = nullptr;
+    int width = 0;
+    int height = 0;
+    unsigned int channelCount = 4;
+    Image::BaseType baseType = Image::BaseType::FLOAT;
+    float* buffer = nullptr;
+
+    int returnValue = LoadEXR(&buffer, &width, &height, fileName.c_str(), &err);
+    if (returnValue != 0)
+    {
+        return nullptr;
+    }
+
+    // Create the image object
+    ImagePtr image = Image::create(width, height, channelCount, baseType);
+    image->setResourceBuffer(buffer);
+    image->setResourceBufferDeallocator([](void* buffer)
+    {
+        free(buffer);
+    });
+    return image;
 }
 
 }

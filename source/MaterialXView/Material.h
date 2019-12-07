@@ -141,8 +141,8 @@ class Material
     void unbindImages(mx::ImageHandlerPtr imageHandler);
 
     /// Bind a single image.
-    bool bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-                   mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, mx::Color4* fallbackColor = nullptr);
+    mx::ImagePtr bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
+                           const mx::ImageSamplingProperties& samplingProperties, const mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
@@ -202,7 +202,7 @@ class Material
     bool _hasTransparency;
     mx::StringSet _uniformVariable;
 
-    std::vector<mx::ImageDesc> _boundImages;
+    std::vector<mx::ImagePtr> _boundImages;
 };
 
 #endif // MATERIALXVIEW_MATERIAL_H

@@ -30,10 +30,9 @@ public:
     virtual ~TinyEXRImageLoader() {}    
 
     bool saveImage(const FilePath& filePath,
-                    const ImageDesc &imageDesc,
-                    bool verticalFlip = false) override;
-    bool loadImage(const FilePath& filePath, ImageDesc &imageDesc,
-                      const ImageDescRestrictions* restrictions = nullptr) override;
+                   ConstImagePtr image,
+                   bool verticalFlip = false) override;
+    ImagePtr loadImage(const FilePath& filePath) override;
 };
 
 } // namespace MaterialX;

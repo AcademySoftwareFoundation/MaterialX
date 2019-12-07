@@ -9,88 +9,35 @@
 /// @file
 /// Image handler interfaces
 
+#include <MaterialXRender/Image.h>
+
 #include <MaterialXFormat/File.h>
 
 #include <MaterialXCore/Element.h>
-#include <MaterialXCore/Types.h>
 
-#include <cmath>
 #include <map>
 
 namespace MaterialX
 {
 
+extern const string IMAGE_PROPERTY_SEPARATOR;
+extern const string UADDRESS_MODE_SUFFIX;
+extern const string VADDRESS_MODE_SUFFIX;
+extern const string FILTER_TYPE_SUFFIX;
+extern const string DEFAULT_COLOR_SUFFIX;
+
+class ImageHandler;
+class ImageLoader;
 class VariableBlock;
 
-/// A function to perform image buffer deallocation
-using ImageBufferDeallocator = std::function<void(void*)>;
+/// Shared pointer to an ImageHandler
+using ImageHandlerPtr = std::shared_ptr<ImageHandler>;
 
-/// @class ImageDesc
-/// Interface to describe an image. Images are assumed to be float type.
-class ImageDesc
-{
-  public:
-    ~ImageDesc()
-    {
-        freeResourceBuffer();
-    }
+/// Shared pointer to an ImageLoader
+using ImageLoaderPtr = std::shared_ptr<ImageLoader>;
 
-    /// Image base type identifier
-    using BaseType = string;
-    /// Set of base type identifiers
-    using BaseTypeSet = std::set<BaseType>;
-
-    /// Preset base type identifiers
-    static BaseType BASETYPE_UINT8;
-    static BaseType BASETYPE_HALF;
-    static BaseType BASETYPE_FLOAT;
-
-    /// Image type identifier
-    using ImageType = string;
-
-    /// Preset image type identifiers
-    static ImageType IMAGETYPE_2D;
-
-    /// Deallocator to free resource buffer memory. If not defined then malloc() is
-    /// assumed to have been used to allocate the buffer and corresponding free() is
-    /// used to deallocate.
-    ImageBufferDeallocator resourceBufferDeallocator = [](void *buffer)
-    {
-        free(buffer);
-    };
-
-    /// Compute the number of mip map levels based on size of the image
-    void computeMipCount()
-    {
-        mipCount = (unsigned int) std::log2(std::max(width, height)) + 1;
-    }
-
-    /// Free any resource buffer memory
-    void freeResourceBuffer();
-
-  public:
-    unsigned int width = 0;
-    unsigned int height = 0;
-    unsigned int channelCount = 0;
-    unsigned int mipCount = 0;
-
-    BaseType baseType = BASETYPE_UINT8;
-    ImageType imageType = IMAGETYPE_2D;
-
-    // CPU buffer. May be empty.
-    void* resourceBuffer = nullptr;
-
-    // Hardware target dependent resource identifier. May be undefined.
-    unsigned int resourceId = 0;
-};
-
-/// Structure containing harware image description restrictions
-class ImageDescRestrictions
-{
-  public:
-    /// List of base types that can be supported
-    ImageDesc::BaseTypeSet supportedBaseTypes;
-};
+/// Map from strings to image loaders
+using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
 
 /// @class ImageSamplingProperties
 /// Interface to describe sampling properties for images.
@@ -138,12 +85,6 @@ class ImageSamplingProperties
     Color4 defaultColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 
-/// A map from strings to image descriptions.
-using ImageDescMap = std::unordered_map<string, ImageDesc>;
-
-/// Shared pointer to an ImageLoader
-using ImageLoaderPtr = std::shared_ptr<class ImageLoader>;
-
 /// @class ImageLoader
 /// Abstract base class for file-system image loaders
 class ImageLoader
@@ -154,22 +95,22 @@ class ImageLoader
     }
     virtual ~ImageLoader() { }
 
-    /// Stock extension names
-    static string BMP_EXTENSION;
-    static string EXR_EXTENSION;
-    static string GIF_EXTENSION;
-    static string HDR_EXTENSION;
-    static string JPG_EXTENSION;
-    static string JPEG_EXTENSION;
-    static string PIC_EXTENSION;
-    static string PNG_EXTENSION;
-    static string PSD_EXTENSION;
-    static string TGA_EXTENSION;
-    static string TIF_EXTENSION;
-    static string TIFF_EXTENSION;
-    static string TXT_EXTENSION;
-    static string TX_EXTENSION;
-    static string TXR_EXTENSION;
+    /// Standard image file extensions
+    static const string BMP_EXTENSION;
+    static const string EXR_EXTENSION;
+    static const string GIF_EXTENSION;
+    static const string HDR_EXTENSION;
+    static const string JPG_EXTENSION;
+    static const string JPEG_EXTENSION;
+    static const string PIC_EXTENSION;
+    static const string PNG_EXTENSION;
+    static const string PSD_EXTENSION;
+    static const string TGA_EXTENSION;
+    static const string TIF_EXTENSION;
+    static const string TIFF_EXTENSION;
+    static const string TXT_EXTENSION;
+    static const string TX_EXTENSION;
+    static const string TXR_EXTENSION;
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
@@ -178,33 +119,24 @@ class ImageLoader
         return _extensions;
     }
 
-    /// Save image to disk. This method must be implemented by derived classes.
-    /// @param filePath Path to save image to
-    /// @param imageDesc Description of image
+    /// Save an image to the file system. This method must be implemented by derived classes.
+    /// @param filePath File path to be written
+    /// @param image The image to be saved
     /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
-                           const ImageDesc &imageDesc,
+                           ConstImagePtr image,
                            bool verticalFlip = false) = 0;
 
-    /// Load an image from disk. This method must be implemented by derived classes.
-    /// @param filePath Path to load image from
-    /// @param imageDesc Description of image updated during load.
-    /// @param restrictions Hardware image description restrictions. Default value is nullptr, meaning no restrictions.
-    /// @return if load succeeded
-    virtual bool loadImage(const FilePath& filePath, ImageDesc &imageDesc,
-                           const ImageDescRestrictions* restrictions = nullptr) = 0;
+    /// Load an image from the file system. This method must be implemented by derived classes.
+    /// @param filePath The requested image file path.
+    /// @return On success, a shared pointer to the loaded image; otherwise an empty shared pointer.
+    virtual ImagePtr loadImage(const FilePath& filePath) = 0;
 
   protected:
-    /// List of supported string extensions
+    // List of supported string extensions
     StringSet _extensions;
 };
-
-/// Shared pointer to an ImageHandler
-using ImageHandlerPtr = std::shared_ptr<class ImageHandler>;
-
-/// Map of extensions to image loaders
-using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
 
 /// @class ImageHandler
 /// Base image handler class. Keeps track of images which are loaded from
@@ -218,7 +150,6 @@ class ImageHandler
     {
         return ImageHandlerPtr(new ImageHandler(imageLoader));
     }
-
     virtual ~ImageHandler()
     {
         clearImageCache();
@@ -233,50 +164,41 @@ class ImageHandler
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
-    /// @param filePath Name of file to save image to
-    /// @param imageDesc Description of image
+    /// @param filePath File path to be written
+    /// @param image The image to be saved
     /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
-                           const ImageDesc &imageDesc,
+                           ConstImagePtr image,
                            bool verticalFlip = false);
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
     /// @param filePath File path of the image.
-    /// @param imageDesc On success, this image descriptor will be filled out
-    ///    and assigned ownership of a resource buffer.
     /// @param generateMipMaps Generate mip maps if supported.
     /// @param fallbackColor Optional uniform color of a fallback texture
     ///    to create when the image cannot be loaded from the file system.
     ///    By default, no fallback texture is created.
-    /// @return True if the image was successfully found in the cache or
-    ///    file system.  Returns false if this call generated a fallback
-    ///    texture.
-    virtual bool acquireImage(const FilePath& filePath,
-                              ImageDesc& imageDesc,
-                              bool generateMipMaps,
-                              const Color4* fallbackColor = nullptr);
-
-    /// Utility to create a solid color color image
-    /// @param color Color to set
-    /// @param imageDesc Description of image updated during load.
-    /// @return if creation succeeded
-    virtual bool createColorImage(const Color4& color, ImageDesc& imageDesc);
+    /// @param message Optional pointer to a message string, where any warning
+    ///    or error messages from the acquire operation will be stored.
+    /// @return On success, a shared pointer to the acquired Image.
+    virtual ImagePtr acquireImage(const FilePath& filePath,
+                                  bool generateMipMaps,
+                                  const Color4* fallbackColor = nullptr,
+                                  string* message = nullptr);
 
     /// Bind an image. Derived classes should implement this method to handle logical binding of
     /// an image resource. The default implementation performs no action.
-    /// @param filePath File path of image description to bind.
+    /// @param desc The image to bind
     /// @param samplingProperties Sampling properties for the image
-    /// @return true if succeded to bind
-    virtual bool bindImage(const ImageDesc& desc, const ImageSamplingProperties& samplingProperties);
+    virtual bool bindImage(ConstImagePtr image, const ImageSamplingProperties& samplingProperties);
 
     /// Unbind an image. The default implementation performs no action.
-    /// @param filePath File path to image description to unbind
-    virtual bool unbindImage(const ImageDesc& desc);
+    /// @param desc The image to unbind
+    virtual bool unbindImage(ConstImagePtr image);
 
     /// Clear the contents of the image cache.
-    /// deleteImage() will be called for each cache description to
+    /// deleteImage() will be called for each cached image to
     /// allow derived classes to clean up any associated resources.
     void clearImageCache();
 
@@ -304,12 +226,6 @@ class ImageHandler
         return _resolver;
     }
 
-    /// Find the given file on the registered search path.
-    FilePath findFile(const FilePath& filePath)
-    {
-        return _searchPath.find(filePath);
-    }
-
     /// Return the bound texture location for a given resource.
     virtual int getBoundTextureLocation(unsigned int)
     {
@@ -320,25 +236,20 @@ class ImageHandler
     // Protected constructor.
     ImageHandler(ImageLoaderPtr imageLoader);
 
-    // Add an image description to the cache.
-    void cacheImage(const string& filePath, const ImageDesc& imageDesc);
+    // Add an image to the cache.
+    void cacheImage(const string& filePath, ImagePtr image);
 
-    // Return the cached image description, if found; otherwise
-    // return a null pointer.
-    const ImageDesc* getCachedImage(const FilePath& filePath);
+    // Return the cached image, if found; otherwise return an empty
+    // shared pointer.
+    ImagePtr getCachedImage(const FilePath& filePath);
 
     // Delete an image. Derived classes should override this method to clean
     // up any related resources when an image is deleted from the handler.
-    virtual void deleteImage(ImageDesc& imageDesc);
-
-    // Return image description restrictions. By default nullptr is
-    // returned meaning no restrictions. Derived classes can override
-    // this to add restrictions specific to that handler.
-    virtual const ImageDescRestrictions* getRestrictions() const { return nullptr; }
+    virtual void deleteImage(ImagePtr image);
 
   protected:
     ImageLoaderMap _imageLoaders;
-    ImageDescMap _imageCache;
+    ImageMap _imageCache;
     FileSearchPath _searchPath;
     StringResolverPtr _resolver;
 };
