@@ -39,7 +39,7 @@ double imageYToTheta(unsigned int y, unsigned int height)
 Vector3d sphericalToCartesian(double theta, double phi)
 {
     double r = std::sin(theta);
-    return Color3d(r * std::cos(phi), r * std::sin(phi), std::cos(theta));
+    return Vector3d(r * std::cos(phi), r * std::sin(phi), std::cos(theta));
 }
 
 double texelSolidAngle(unsigned int y, unsigned int width, unsigned int height)
@@ -49,9 +49,9 @@ double texelSolidAngle(unsigned int y, unsigned int width, unsigned int height)
     // Reference:
     //   https://en.wikipedia.org/wiki/Solid_angle#Latitude-longitude_rectangle
 
-    double dtheta = std::cos(y * PI / height) - std::cos((y + 1) * PI / height);
-    double dphi = 2.0 * PI / width;
-    return dtheta * dphi;
+    double dTheta = std::cos(y * PI / height) - std::cos((y + 1) * PI / height);
+    double dPhi = 2.0 * PI / width;
+    return dTheta * dPhi;
 }
 
 ShScalarCoeffs evalDirection(const Vector3d& dir)
