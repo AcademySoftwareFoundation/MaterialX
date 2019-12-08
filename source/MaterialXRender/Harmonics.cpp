@@ -42,6 +42,18 @@ Vector3d sphericalToCartesian(double theta, double phi)
     return Color3d(r * std::cos(phi), r * std::sin(phi), std::cos(theta));
 }
 
+double texelSolidAngle(unsigned int y, unsigned int width, unsigned int height)
+{
+    // Return the solid angle of a texel within a lat-long environment map.
+    //
+    // Reference:
+    //   https://en.wikipedia.org/wiki/Solid_angle#Latitude-longitude_rectangle
+
+    double dtheta = std::cos(y * PI / height) - std::cos((y + 1) * PI / height);
+    double dphi = 2.0 * PI / width;
+    return dtheta * dphi;
+}
+
 ShScalarCoeffs evalDirection(const Vector3d& dir)
 {
     // Evaluate the spherical harmonic basis functions for the given direction,
@@ -74,15 +86,11 @@ ShScalarCoeffs evalDirection(const Vector3d& dir)
 ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
 {
     ShColorCoeffs shCoeffs;
-    double pixelArea = (2.0 * PI / env->getWidth()) * (PI / env->getHeight());
 
     for (unsigned int y = 0; y < env->getHeight(); y++)
     {
         double theta = imageYToTheta(y, env->getHeight());
-
-        // Scale the pixel area by sin(theta) to account for the distortion
-        // introduced by a lat-long parameterization.
-        double weight = pixelArea * std::sin(theta);
+        double texelWeight = texelSolidAngle(y, env->getWidth(), env->getHeight());
 
         for (unsigned int x = 0; x < env->getWidth(); x++)
         {
@@ -99,7 +107,7 @@ ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
             // Update coefficients for the influence of this texel.
             for (size_t i = 0; i < shCoeffs.NUM_COEFFS; i++)
             {
-                shCoeffs[i] += Color3d(color[0], color[1], color[2]) * weight * shDir[i];
+                shCoeffs[i] += Color3d(color[0], color[1], color[2]) * texelWeight * shDir[i];
             }
         }
     }
