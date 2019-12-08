@@ -104,10 +104,15 @@ ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
             // Evaluate the given direction as SH coefficients.
             ShScalarCoeffs shDir = evalDirection(dir);
 
+            // Combine color with texel weight.
+            Color3d weightedColor(color[0] * texelWeight,
+                                  color[1] * texelWeight,
+                                  color[2] * texelWeight);
+
             // Update coefficients for the influence of this texel.
             for (size_t i = 0; i < shCoeffs.NUM_COEFFS; i++)
             {
-                shCoeffs[i] += Color3d(color[0], color[1], color[2]) * texelWeight * shDir[i];
+                shCoeffs[i] += weightedColor * shDir[i];
             }
         }
     }
