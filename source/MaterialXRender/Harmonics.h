@@ -67,23 +67,26 @@ template <class C, size_t B> class ShCoeffs
     std::array<C, NUM_COEFFS> _arr;
 };
 
-using ShScalarCoeffs = ShCoeffs<double, 3>;
-using ShColorCoeffs = ShCoeffs<Color3d, 3>;
+/// Double-precision scalar coefficients for third-order spherical harmonics.
+using Sh3ScalarCoeffs = ShCoeffs<double, 3>;
 
-/// Project an environment map to three bands of spherical harmonics, with
-/// an optional convolution to convert radiance to irradiance.
+/// Double-precision color coefficients for third-order spherical harmonics.
+using Sh3ColorCoeffs = ShCoeffs<Color3d, 3>;
+
+/// Project an environment map to third-order SH, with an optional convolution
+///    to convert radiance to irradiance.
 /// @param env An environment map in lat-long format.
 /// @param irradiance If true, then the returned signal will be convolved
 ///    by a clamped cosine kernel to generate irradiance.
-/// @return The projection of the environment in three bands of SH.
-ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance);
+/// @return The projection of the environment to third-order SH.
+Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance);
 
 /// Render the given spherical harmonic signal to an environment map.
-/// @param shEnv The color signal of the environment encoded as spherical harmonics.
+/// @param shEnv The color signal of the environment encoded as third-order SH.
 /// @param width The width of the output environment map.
 /// @param height The height of the output environment map.
 /// @return An environment map in the lat-long format.
-ImagePtr renderEnvironment(ShColorCoeffs shEnv, unsigned int width, unsigned int height);
+ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsigned int height);
 
 } // namespace MaterialX
 

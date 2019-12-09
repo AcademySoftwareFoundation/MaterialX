@@ -54,7 +54,7 @@ double texelSolidAngle(unsigned int y, unsigned int width, unsigned int height)
     return dTheta * dPhi;
 }
 
-ShScalarCoeffs evalDirection(const Vector3d& dir)
+Sh3ScalarCoeffs evalDirection(const Vector3d& dir)
 {
     // Evaluate the spherical harmonic basis functions for the given direction,
     // returning the first three bands of coefficients.
@@ -67,7 +67,7 @@ ShScalarCoeffs evalDirection(const Vector3d& dir)
     const double& y = dir[1];
     const double& z = dir[2];
 
-    return ShScalarCoeffs(
+    return Sh3ScalarCoeffs(
     {
         BASIS_CONSTANT_0,
         BASIS_CONSTANT_1 * y,
@@ -83,9 +83,9 @@ ShScalarCoeffs evalDirection(const Vector3d& dir)
 
 } // anonymous namespace
 
-ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
+Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
 {
-    ShColorCoeffs shEnv;
+    Sh3ColorCoeffs shEnv;
 
     for (unsigned int y = 0; y < env->getHeight(); y++)
     {
@@ -102,7 +102,7 @@ ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
             Vector3d dir = sphericalToCartesian(theta, phi);
 
             // Evaluate the given direction as SH coefficients.
-            ShScalarCoeffs shDir = evalDirection(dir);
+            Sh3ScalarCoeffs shDir = evalDirection(dir);
 
             // Combine color with texel weight.
             Color3d weightedColor(color[0] * texelWeight,
@@ -118,7 +118,7 @@ ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
     }
 
     // If irradiance is requested, then apply constant factors to convolve the
-    // signal by a clamped cosine lobe.
+    // signal by a clamped cosine kernel.
     if (irradiance)
     {
         shEnv[0] *= COSINE_CONSTANT_0;
@@ -135,7 +135,7 @@ ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
     return shEnv;
 }
 
-ImagePtr renderEnvironment(ShColorCoeffs shEnv, unsigned int width, unsigned int height)
+ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsigned int height)
 {
     ImagePtr env = Image::create(width, height, 3, Image::BaseType::FLOAT);
     env->createResourceBuffer();
@@ -150,7 +150,7 @@ ImagePtr renderEnvironment(ShColorCoeffs shEnv, unsigned int width, unsigned int
             Vector3d dir = sphericalToCartesian(theta, phi);
 
             // Evaluate the given direction as SH coefficients.
-            ShScalarCoeffs shDir = evalDirection(dir);
+            Sh3ScalarCoeffs shDir = evalDirection(dir);
 
             // Compute the signal color in this direction.
             Color3d signalColor;
