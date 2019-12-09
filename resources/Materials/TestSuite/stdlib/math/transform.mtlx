@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
 Basic transform function tests each test is in a separate graph for each variation in input type.
@@ -6,7 +7,6 @@ Basic transform function tests each test is in a separate graph for each variati
 - transformnormal
 
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
 
    <!-- point space transform -->

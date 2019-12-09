@@ -1,5 +1,5 @@
-<!-- geomattrvalue unit test -->
 <?xml version="1.0"?>
+<!-- geomattrvalue unit test -->
 <materialx version="1.36">
   <output name="geomattrvalue_integer_out" type="vector4" nodename="switch1" xpos="12.4207" ypos="4.42" />
   <switch name="switch1" type="vector4" xpos="5.74483" ypos="4.12">

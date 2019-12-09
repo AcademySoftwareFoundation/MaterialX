@@ -1,6 +1,3 @@
-//
-// Function to transform texture coordinates before texture sampling
-//
 vector2 mx_transform_uv(vector2 texcoord)
 {
     return vector2(texcoord.x, 1.0 - texcoord.y);

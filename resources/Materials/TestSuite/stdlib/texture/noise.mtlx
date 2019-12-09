@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
 Basic noise unit test :
@@ -9,7 +10,6 @@ Basic noise unit test :
 Texture coordinates are scaled up to be able to see the noise.
 
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
 
    <!-- Utility to scale 2d texture coordinates -->

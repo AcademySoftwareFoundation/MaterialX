@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
 Basic math function tests with one or more constants connected to each math node in a separate
@@ -15,7 +16,6 @@ graph per math function for each variation in input type.
 - max
 
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
    <nodegraph name="ln_nodegraph" type="" xpos="5.88123" ypos="14.6822">
       <ln name="ln1" type="float" xpos="5.74483" ypos="4.74">

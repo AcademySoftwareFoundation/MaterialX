@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
 Basic adjustment function tests each test is in a separate graph for each variation in input type.
@@ -13,8 +14,6 @@ Basic adjustment function tests each test is in a separate graph for each variat
 - saturate
 
 -->
-
-<?xml version="1.0"?>
 <materialx version="1.36">
    <nodegraph name="rgb_to_hsv_to_rgb_color3" type="" xpos="6.05808" ypos="15.2766">
       <hsvtorgb name="hsvtorgb1" type="color3" xpos="4.42069" ypos="7.5">
