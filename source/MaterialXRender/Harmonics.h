@@ -79,11 +79,11 @@ using ShColorCoeffs = ShCoeffs<Color3d, 3>;
 ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance);
 
 /// Render the given spherical harmonic signal to an environment map.
-/// @param coeffs A color signal encoded as spherical harmonics.
+/// @param shEnv The color signal of the environment encoded as spherical harmonics.
 /// @param width The width of the output environment map.
 /// @param height The height of the output environment map.
 /// @return An environment map in the lat-long format.
-ImagePtr renderEnvironment(ShColorCoeffs coeffs, unsigned int width, unsigned int height);
+ImagePtr renderEnvironment(ShColorCoeffs shEnv, unsigned int width, unsigned int height);
 
 } // namespace MaterialX
 

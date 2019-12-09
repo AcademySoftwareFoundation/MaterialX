@@ -85,7 +85,7 @@ ShScalarCoeffs evalDirection(const Vector3d& dir)
 
 ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
 {
-    ShColorCoeffs shCoeffs;
+    ShColorCoeffs shEnv;
 
     for (unsigned int y = 0; y < env->getHeight(); y++)
     {
@@ -110,9 +110,9 @@ ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
                                   color[2] * texelWeight);
 
             // Update coefficients for the influence of this texel.
-            for (size_t i = 0; i < shCoeffs.NUM_COEFFS; i++)
+            for (size_t i = 0; i < shEnv.NUM_COEFFS; i++)
             {
-                shCoeffs[i] += weightedColor * shDir[i];
+                shEnv[i] += weightedColor * shDir[i];
             }
         }
     }
@@ -121,21 +121,21 @@ ShColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
     // signal by a clamped cosine lobe.
     if (irradiance)
     {
-        shCoeffs[0] *= COSINE_CONSTANT_0;
-        shCoeffs[1] *= COSINE_CONSTANT_1;
-        shCoeffs[2] *= COSINE_CONSTANT_1;
-        shCoeffs[3] *= COSINE_CONSTANT_1;
-        shCoeffs[4] *= COSINE_CONSTANT_2;
-        shCoeffs[5] *= COSINE_CONSTANT_2;
-        shCoeffs[6] *= COSINE_CONSTANT_2;
-        shCoeffs[7] *= COSINE_CONSTANT_2;
-        shCoeffs[8] *= COSINE_CONSTANT_2;
+        shEnv[0] *= COSINE_CONSTANT_0;
+        shEnv[1] *= COSINE_CONSTANT_1;
+        shEnv[2] *= COSINE_CONSTANT_1;
+        shEnv[3] *= COSINE_CONSTANT_1;
+        shEnv[4] *= COSINE_CONSTANT_2;
+        shEnv[5] *= COSINE_CONSTANT_2;
+        shEnv[6] *= COSINE_CONSTANT_2;
+        shEnv[7] *= COSINE_CONSTANT_2;
+        shEnv[8] *= COSINE_CONSTANT_2;
     }
 
-    return shCoeffs;
+    return shEnv;
 }
 
-ImagePtr renderEnvironment(ShColorCoeffs coeffs, unsigned int width, unsigned int height)
+ImagePtr renderEnvironment(ShColorCoeffs shEnv, unsigned int width, unsigned int height)
 {
     ImagePtr env = Image::create(width, height, 3, Image::BaseType::FLOAT);
     env->createResourceBuffer();
@@ -153,14 +153,19 @@ ImagePtr renderEnvironment(ShColorCoeffs coeffs, unsigned int width, unsigned in
             ShScalarCoeffs shDir = evalDirection(dir);
 
             // Compute the signal color in this direction.
-            Color3d color;
-            for (size_t i = 0; i < coeffs.NUM_COEFFS; i++)
+            Color3d signalColor;
+            for (size_t i = 0; i < shEnv.NUM_COEFFS; i++)
             {
-                color += coeffs[i] * shDir[i];
+                signalColor += shEnv[i] * shDir[i];
             }
 
-            // Store the color as an environment texel.
-            env->setTexelColor(x, y, Color4((float) color[0], (float) color[1], (float) color[2], 1.0f));
+            // Clamp the color and store as an environment texel.
+            Color4 outputColor(
+                (float) std::max(signalColor[0], 0.0),
+                (float) std::max(signalColor[1], 0.0),
+                (float) std::max(signalColor[2], 0.0),
+                1.0f);
+            env->setTexelColor(x, y, outputColor);
         }
     }
 
