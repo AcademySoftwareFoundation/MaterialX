@@ -17,7 +17,7 @@ option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 
-set (MATERIALX_DEBUG_POSTFIX "d" CACHE STRING 
+set (MATERIALX_DEBUG_POSTFIX "" CACHE STRING 
     "Postfix to append to the target file name for debug configuration (e.g. 'd').")
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
