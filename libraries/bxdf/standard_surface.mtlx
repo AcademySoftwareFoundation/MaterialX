@@ -149,7 +149,7 @@
     <normalize name="coat_tangent_rotate_normalize" type="vector3">
       <input name="in" type="vector3" nodename="coat_tangent_rotate" />
     </normalize>
-     <ifgreater name="coat_tangent" type="vector3">
+    <ifgreater name="coat_tangent" type="vector3">
       <input name="value1" type="float" interfacename="coat_anisotropy" />
       <input name="value2" type="float" value="0.0" />
       <input name="in1" type="vector3" nodename="coat_tangent_rotate_normalize" />
