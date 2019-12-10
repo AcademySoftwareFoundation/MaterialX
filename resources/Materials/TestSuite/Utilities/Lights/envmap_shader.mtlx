@@ -11,7 +11,7 @@
       <combine2 name="combineUvs" type="vector2">
          <input name="in1" type="float" nodename="flipU" />
          <input name="in2" type="float" nodename="envUvs" channels="y"/>
-     </combine2>
+      </combine2>
       <image name="envImage" type="color3">
          <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
          <parameter name="layer" type="string" value="" />
