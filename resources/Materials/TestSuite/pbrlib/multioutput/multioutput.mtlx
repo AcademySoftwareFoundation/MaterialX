@@ -23,7 +23,7 @@
   <nodegraph name="multioutput_test3">
     <separate4 name="separate_color4" type="multioutput">
       <input name="in" type="color4" value="0.15, 0.42, 0.78, 1.0" />
-  </separate4>
+    </separate4>
     <multiply name="multiply1" type="float">
       <input name="in1" type="float" nodename="separate_color4" output="outr" />
       <input name="in2" type="float" nodename="separate_color4" output="outg" />
