@@ -38,6 +38,14 @@ if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
         add_compile_options(-Wno-undefined-var-template)
     endif()
 endif()
+
+# Postfix rules for Python modules are strict and depend on the presence of a
+# debug interpreter:
+if(PYTHON_IS_DEBUG)
+    set(MATERIALX_PYTHON_DEBUG_POSTFIX "_d")
+else()
+    set(MATERIALX_PYTHON_DEBUG_POSTFIX "")
+endif()
     
 add_subdirectory(PyMaterialXCore)
 add_subdirectory(PyMaterialXFormat)

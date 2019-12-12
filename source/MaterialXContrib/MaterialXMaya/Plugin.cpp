@@ -119,6 +119,7 @@ mx::FileSearchPath Plugin::getResourceSearchPath() const
     builder.append(_pluginLoadPath);
     builder.append(_pluginLoadPath / mx::FilePath("../../resources"));
     builder.append(_pluginLoadPath / mx::FilePath("../resources"));
+    builder.append(_pluginLoadPath / mx::FilePath(".."));
 
     builder.appendFromOptionVar("materialXResourceSearchPaths");
     return searchPath;
