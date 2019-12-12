@@ -301,9 +301,19 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
             }
             else
             {
-                if (!outputSocket->getType()->isFloat3())
+                if (context.getOptions().hwTransparency)
                 {
-                    toVec3(outputSocket->getType(), finalOutput);
+                    if (!outputSocket->getType()->isFloat4())
+                    {
+                        toVec4(outputSocket->getType(), finalOutput);
+                    }
+                }
+                else
+                {
+                    if (!outputSocket->getType()->isFloat3())
+                    {
+                        toVec3(outputSocket->getType(), finalOutput);
+                    }
                 }
                 emitLine("return " + finalOutput, pixelStage);
             }
