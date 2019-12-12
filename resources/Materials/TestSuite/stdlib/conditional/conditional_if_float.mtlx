@@ -1,10 +1,10 @@
+<?xml version="1.0"?>
 <!--
 
 Basic conditional if* function tests each test is in a separate graph for each variation in input type.
 Tests are for floating point comparisons.
 
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
   <nodegraph name="ifgreater_float" type="" xpos="6.23104" ypos="18.6971">
     <ifgreater name="ifgreater1" type="float" xpos="5.74483" ypos="4.42">

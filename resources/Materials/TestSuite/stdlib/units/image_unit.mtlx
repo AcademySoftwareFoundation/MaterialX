@@ -1,9 +1,9 @@
+<?xml version="1.0"?>
 <!--
 
 Image unit test with one image node for each variation in input type which can support distance units.
 
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
    <output name="image1_output" type="float" nodename="image1" />
    <image name="image1" type="float">
