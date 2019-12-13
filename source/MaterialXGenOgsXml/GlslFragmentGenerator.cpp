@@ -325,14 +325,14 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
                 toVec3(outputSocket->getType(), finalOutput);
                 emitLine("return " + finalOutput, pixelStage);
             }
-			else if (context.getOptions().hwTransparency && !outputSocket->getType()->isFloat4())
-			{
-				string finalOutput = outputSocket->getVariable() + "_tmp";
-				emitLine(_syntax->getTypeName(outputSocket->getType()) + " " + finalOutput + " = " + outputValue, pixelStage);
-				toVec4(outputSocket->getType(), finalOutput);
-				emitLine("return " + finalOutput, pixelStage);
-			}
-			else
+            else if (context.getOptions().hwTransparency && !outputSocket->getType()->isFloat4())
+            {
+                string finalOutput = outputSocket->getVariable() + "_tmp";
+                emitLine(_syntax->getTypeName(outputSocket->getType()) + " " + finalOutput + " = " + outputValue, pixelStage);
+                toVec4(outputSocket->getType(), finalOutput);
+                emitLine("return " + finalOutput, pixelStage);
+            }
+            else
             {
                 emitLine("return " + outputValue, pixelStage);
             }
