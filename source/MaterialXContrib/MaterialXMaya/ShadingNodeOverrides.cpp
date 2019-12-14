@@ -5,6 +5,7 @@
 #include "MayaUtil.h"
 
 #include <maya/MDGModifier.h>
+#include <maya/MGlobal.h>
 #include <maya/MShaderManager.h>
 #include <maya/MPxShadingNodeOverride.h>
 #include <maya/MPxSurfaceShadingNodeOverride.h>
@@ -121,13 +122,18 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance,
         }
         else
         {
-            std::cerr << "*Unable to find image file: " << fileName << " in search paths: "
-                << searchPath.asString() << std::endl;
+            MString message("*Unable to find image file: ");
+            message += fileName.c_str();
+            message += " in search paths: ";
+            message += searchPath.asString().c_str();
+            MGlobal::displayError(message);
         }
         status = shaderInstance.setParameter(parameterName.c_str(), textureAssignment);
         if (!status)
         {
-            std::cerr << "*Unable to bind image file: " << fileName << std::endl;
+            MString message("*Unable to bind image file: ");
+            message += fileName.c_str();
+            MGlobal::displayError(message);
         }
     }
 

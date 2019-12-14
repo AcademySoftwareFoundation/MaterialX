@@ -84,6 +84,14 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
         ${_headers}
     )
 
+    if (${APPLE})
+        set(MAYA_PLUGIN_EXT ".bundle")
+    elseif(MSVC)
+        set(MAYA_PLUGIN_EXT ".mll")
+    else()
+        set(MAYA_PLUGIN_EXT ".so")
+    endif()
+
     set_target_properties(
         ${PROJECT_NAME}
         PROPERTIES
@@ -93,7 +101,7 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
         VERSION ${MATERIALX_NODE_VERSION}
         SOVERSION ${MATERIALX_NODE_VERSION}
         PREFIX ""
-        SUFFIX ".mll"
+        SUFFIX ${MAYA_PLUGIN_EXT}
         DEBUG_POSTFIX ""
     )
 
@@ -120,6 +128,5 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
     install(FILES ${_scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/scripts)
     install(FILES ${_AEtemplate} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/AEtemplate)
     install(FILES ${_mods} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME})
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}")
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../resources DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}")
 endif()

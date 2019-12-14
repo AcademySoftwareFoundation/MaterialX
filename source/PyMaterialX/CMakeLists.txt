@@ -38,7 +38,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
         add_compile_options(-Wno-undefined-var-template)
     endif()
 endif()
-    
+
+# Add proper postfix for Python 2.7 on Windows when using a Debug interpreter:
+set(MATERIALX_PYTHON_DEBUG_POSTFIX "")
+if(MSVC AND PYTHON_IS_DEBUG AND (PYBIND11_PYTHON_VERSION VERSION_LESS 3.0))
+    set(MATERIALX_PYTHON_DEBUG_POSTFIX "_d")
+endif()
+
 add_subdirectory(PyMaterialXCore)
 add_subdirectory(PyMaterialXFormat)
 add_subdirectory(PyMaterialXGenShader)
