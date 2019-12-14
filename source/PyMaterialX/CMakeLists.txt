@@ -39,17 +39,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
-# Postfix rules for Python modules are strict on the Windows platform: we must
-# add a "_d" postfix when using a Debug interpreter.
-# Future work for Python3:
-# On Linux: implement the full postfix requirements from PEP 3149
-# On Windows: tag with the python version (_37.pyd and _37d.pyd for Python 3.7)
-if(MSVC)
-    if(PYTHON_IS_DEBUG)
-        set(MATERIALX_PYTHON_DEBUG_POSTFIX "_d")
-    else()
-        set(MATERIALX_PYTHON_DEBUG_POSTFIX "")
-    endif()
+# Add proper postfix for Python 2.7 on Windows when using a Debug interpreter:
+set(MATERIALX_PYTHON_DEBUG_POSTFIX "")
+if(MSVC AND PYTHON_IS_DEBUG AND (PYBIND11_PYTHON_VERSION VERSION_LESS 3.0))
+    set(MATERIALX_PYTHON_DEBUG_POSTFIX "_d")
 endif()
 
 add_subdirectory(PyMaterialXCore)
