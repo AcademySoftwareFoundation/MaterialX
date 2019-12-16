@@ -48,6 +48,13 @@ public:
         _testStages.push_back(mx::Stage::PIXEL);
     }
 
+    // Ignore light shaders in the document for GLSL fragments since MaterialX
+    // lights and not supported in OGS/VP2.
+    void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
+    {
+        lights.clear();
+    }
+
     // Generate source code for a given element and check that code was produced.
     bool generateCode(
         mx::GenContext& context, const std::string& /*shaderName*/, mx::TypedElementPtr element,
