@@ -39,12 +39,84 @@ ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
     }
 
     // Call the base acquire method.
-    ImagePtr image = ImageHandler::acquireImage(resolvedFilePath, generateMipMaps, fallbackColor, message);
-    if (!image)
+    return ImageHandler::acquireImage(resolvedFilePath, generateMipMaps, fallbackColor, message);
+}
+
+bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
+{
+    // Create renderer resources if needed.
+    if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        return nullptr;
+        if (!createRenderResources(image, true))
+        {
+            return false;
+        }
     }
 
+    // Bind a texture to the next available slot
+    if (_maxImageUnits < 0)
+    {
+        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxImageUnits);
+    }
+    if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID ||
+        image->getResourceId() == static_cast<unsigned int>(_maxImageUnits))
+    {
+        return false;
+    }
+
+    // Update bound location if not already bound
+    int textureUnit = getBoundTextureLocation(image->getResourceId());
+    if (textureUnit < 0)
+    {
+        textureUnit = getNextAvailableTextureLocation();
+    }
+    if (textureUnit < 0)
+    {
+        return false;
+    }      
+    _boundTextureLocations[textureUnit] = image->getResourceId();
+
+    glActiveTexture(GL_TEXTURE0 + textureUnit);
+    glBindTexture(GL_TEXTURE_2D, image->getResourceId());
+
+    // Set up texture properties
+    GLint minFilterType = mapFilterTypeToGL(samplingProperties.filterType);
+    GLint magFilterType = GL_LINEAR; // Magnification filters are more restrictive than minification
+    GLint uaddressMode = mapAddressModeToGL(samplingProperties.uaddressMode);
+    GLint vaddressMode = mapAddressModeToGL(samplingProperties.vaddressMode);
+    Color4 borderColor(samplingProperties.defaultColor);
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uaddressMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vaddressMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterType);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterType);
+
+    return true;
+}
+
+bool GLTextureHandler::unbindImage(ImagePtr image)
+{
+    if (!glActiveTexture)
+    {
+        glewInit();
+    }
+
+    if (image->getResourceId() != GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
+    {
+        int textureUnit = getBoundTextureLocation(image->getResourceId());
+        if (textureUnit >= 0)
+        {
+            glActiveTexture(GL_TEXTURE0 + textureUnit);
+            glBindTexture(GL_TEXTURE_2D, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
+            _boundTextureLocations[textureUnit] = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps)
+{
     // Initialize OpenGL setup if needed.
     if (!glActiveTexture)
     {
@@ -60,10 +132,10 @@ ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
             errors.push_back("No texture units available");
             throw ExceptionShaderRenderError("OpenGL context error.", errors);
         }
-        _boundTextureLocations.resize(maxTextureUnits, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
+        _boundTextureLocations.resize(maxTextureUnits, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
     }
 
-    unsigned int resourceId = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+    unsigned int resourceId = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glGenTextures(1, &resourceId);
     image->setResourceId(resourceId);
@@ -71,7 +143,7 @@ ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
     int textureUnit = getNextAvailableTextureLocation();
     if (textureUnit < 0)
     {
-        return nullptr;
+        return false;
     }
 
     glActiveTexture(GL_TEXTURE0 + textureUnit);
@@ -131,98 +203,27 @@ ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    return image;
-}
-
-bool GLTextureHandler::bindImage(ConstImagePtr image, const ImageSamplingProperties& samplingProperties)
-{
-    // Bind a texture to the next available slot
-    if (_maxImageUnits < 0)
-    {
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxImageUnits);
-    }
-    if (image->getResourceId() == MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID ||
-        image->getResourceId() == static_cast<unsigned int>(_maxImageUnits))
-    {
-        return false;
-    }
-
-    // Update bound location if not already bound
-    int textureUnit = getBoundTextureLocation(image->getResourceId());
-    if (textureUnit < 0)
-    {
-        textureUnit = getNextAvailableTextureLocation();
-    }
-    if (textureUnit < 0)
-    {
-        return false;
-    }      
-    _boundTextureLocations[textureUnit] = image->getResourceId();
-
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, image->getResourceId());
-
-    // Set up texture properties
-    GLint minFilterType = mapFilterTypeToGL(samplingProperties.filterType);
-    GLint magFilterType = GL_LINEAR; // Magnification filters are more restrictive than minification
-    GLint uaddressMode = mapAddressModeToGL(samplingProperties.uaddressMode);
-    GLint vaddressMode = mapAddressModeToGL(samplingProperties.vaddressMode);
-    Color4 borderColor(samplingProperties.defaultColor);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uaddressMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vaddressMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterType);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterType);
-
     return true;
 }
-
-bool GLTextureHandler::unbindImage(ConstImagePtr image)
+    
+void GLTextureHandler::releaseRenderResources(ImagePtr image)
 {
-    if (!glActiveTexture)
+    if (!image || image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        glewInit();
+        return;
     }
 
-    if (image->getResourceId() != MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
-    {
-        int textureUnit = getBoundTextureLocation(image->getResourceId());
-        if (textureUnit >= 0)
-        {
-            glActiveTexture(GL_TEXTURE0 + textureUnit);
-            glBindTexture(GL_TEXTURE_2D, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-            _boundTextureLocations[textureUnit] = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-            return true;
-        }
-    }
-    return false;
-}
-
-void GLTextureHandler::deleteImage(ImagePtr image)
-{
-    if (!glActiveTexture)
-    {
-        glewInit();
-    }
-
-    // Unbind a texture from image unit if bound and delete the texture
-    if (image->getResourceId() != MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
-    {
-        unbindImage(image);
-        unsigned int resourceId = image->getResourceId();
-        glDeleteTextures(1, &resourceId);
-        image->setResourceId(MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-    }
-
-    // Delete any CPU side memory
-    ImageHandler::deleteImage(image);
+    unbindImage(image);
+    unsigned int resourceId = image->getResourceId();
+    glDeleteTextures(1, &resourceId);
+    image->setResourceId(GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
 }
 
 int GLTextureHandler::getBoundTextureLocation(unsigned int resourceId)
 {
-    for(size_t i=0; i<_boundTextureLocations.size(); i++)
+    for (size_t i = 0; i < _boundTextureLocations.size(); i++)
     {
-        if(_boundTextureLocations[i] == resourceId)
+        if (_boundTextureLocations[i] == resourceId)
         {
             return static_cast<int>(i);
         }
@@ -232,9 +233,9 @@ int GLTextureHandler::getBoundTextureLocation(unsigned int resourceId)
 
 int GLTextureHandler::getNextAvailableTextureLocation()
 {
-    for(size_t i=0; i<_boundTextureLocations.size(); i++)
+    for (size_t i = 0; i < _boundTextureLocations.size(); i++)
     {
-        if(_boundTextureLocations[i] == MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
+        if (_boundTextureLocations[i] == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
         {
             return static_cast<int>(i);
         }

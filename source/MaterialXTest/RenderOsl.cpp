@@ -236,7 +236,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                         }
                     }
                     // Bind IBL image name overrides.
-                    std::string envmap_filename("string envmap_filename \"resources/Images/san_giuseppe_bridge.hdr\";\n");
+                    std::string envmap_filename("string envmap_filename \"resources/Images/Environments/san_giuseppe_bridge.hdr\";\n");
                     envOverrides.push_back(envmap_filename);
 
                     _renderer->setShaderParameterOverrides(overrides);
@@ -305,6 +305,13 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
 TEST_CASE("Render: OSL TestSuite", "[renderosl]")
 {
+    if (std::string(MATERIALX_OSLC_EXECUTABLE).empty() &&
+        std::string(MATERIALX_TESTRENDER_EXECUTABLE).empty())
+    {
+        WARN("Skipping the OSL test suite as its executable locations haven't been set.");
+        return;
+    }
+
     OslShaderRenderTester renderTester(mx::OslShaderGenerator::create());
 
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");

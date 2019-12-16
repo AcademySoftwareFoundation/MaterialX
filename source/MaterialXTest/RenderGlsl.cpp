@@ -85,10 +85,21 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
                                             mx::GenContext& context)
 {
     _lightHandler = mx::LightHandler::create();
-    RenderUtil::createLightRig(document, *_lightHandler, context,
-                               options.irradianceIBLPath, options.radianceIBLPath);
-}
 
+    // Scan for lights
+    std::vector<mx::NodePtr> lights;
+    _lightHandler->findLights(document, lights);
+    _lightHandler->registerLights(document, lights, context);
+
+    // Set the list of lights on the with the generator
+    _lightHandler->setLightSources(lights);
+
+    // Load environment lights.
+    mx::ImagePtr envRadiance = _renderer->getImageHandler()->acquireImage(options.radianceIBLPath, true);
+    mx::ImagePtr envIrradiance = _renderer->getImageHandler()->acquireImage(options.irradianceIBLPath, true);
+    _lightHandler->setEnvRadianceMap(envRadiance);
+    _lightHandler->setEnvIrradianceMap(envIrradiance);
+}
 
 //
 // Create a renderer with the apporpraite image, geometry and light handlers.

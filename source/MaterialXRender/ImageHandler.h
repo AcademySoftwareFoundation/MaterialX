@@ -150,10 +150,7 @@ class ImageHandler
     {
         return ImageHandlerPtr(new ImageHandler(imageLoader));
     }
-    virtual ~ImageHandler()
-    {
-        clearImageCache();
-    }
+    virtual ~ImageHandler() { }
 
     /// Add another image loader to the handler, which will be invoked if
     /// existing loaders cannot load a given image.
@@ -191,16 +188,15 @@ class ImageHandler
     /// an image resource. The default implementation performs no action.
     /// @param desc The image to bind
     /// @param samplingProperties Sampling properties for the image
-    virtual bool bindImage(ConstImagePtr image, const ImageSamplingProperties& samplingProperties);
+    virtual bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties);
 
     /// Unbind an image. The default implementation performs no action.
     /// @param desc The image to unbind
-    virtual bool unbindImage(ConstImagePtr image);
+    virtual bool unbindImage(ImagePtr image);
 
-    /// Clear the contents of the image cache.
-    /// deleteImage() will be called for each cached image to
-    /// allow derived classes to clean up any associated resources.
-    void clearImageCache();
+    /// Clear the contents of the image cache, and release render resources
+    /// for all cached images.
+    void unbindImages();
 
     /// Set the search path to be used for finding images on the file system.
     void setSearchPath(const FileSearchPath& path)
@@ -226,11 +222,11 @@ class ImageHandler
         return _resolver;
     }
 
-    /// Return the bound texture location for a given resource.
-    virtual int getBoundTextureLocation(unsigned int)
-    {
-        return -1;
-    }
+    /// Create rendering resources for the given image.
+    virtual bool createRenderResources(ImagePtr image, bool generateMipMaps);
+
+    // Release rendering resources for the given image.
+    virtual void releaseRenderResources(ImagePtr image);
 
   protected:
     // Protected constructor.
@@ -243,9 +239,9 @@ class ImageHandler
     // shared pointer.
     ImagePtr getCachedImage(const FilePath& filePath);
 
-    // Delete an image. Derived classes should override this method to clean
-    // up any related resources when an image is deleted from the handler.
-    virtual void deleteImage(ImagePtr image);
+    /// Clear the contents of the image cache, first releasing any
+    /// render resources associated with each image.
+    void clearImageCache();
 
   protected:
     ImageLoaderMap _imageLoaders;

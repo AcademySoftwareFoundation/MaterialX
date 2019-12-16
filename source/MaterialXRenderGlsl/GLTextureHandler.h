@@ -27,8 +27,6 @@ class GLTextureHandler : public ImageHandler
         return ImageHandlerPtr(new GLTextureHandler(imageLoader));
     }
 
-    virtual ~GLTextureHandler() { }
-
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
     ImagePtr acquireImage(const FilePath& filePath,
@@ -39,10 +37,19 @@ class GLTextureHandler : public ImageHandler
     /// Bind an image. This method will bind the texture to an active texture
     /// unit as defined by the corresponding image description. The method
     /// will fail if there are not enough available image units to bind to.
-    bool bindImage(ConstImagePtr image, const ImageSamplingProperties& samplingProperties) override;
+    bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties) override;
 
     /// Unbind an image. 
-    bool unbindImage(ConstImagePtr image) override;
+    bool unbindImage(ImagePtr image) override;
+
+    /// Create rendering resources for the given image.
+    bool createRenderResources(ImagePtr image, bool generateMipMaps) override;
+
+    // Release rendering resources for the given image.
+    void releaseRenderResources(ImagePtr image) override;
+
+    /// Return the bound texture location for a given resource
+    int getBoundTextureLocation(unsigned int resourceId);
 
     /// Utility to map an address mode enumeration to an OpenGL address mode
     static int mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum);
@@ -50,16 +57,9 @@ class GLTextureHandler : public ImageHandler
     /// Utility to map a filter type enumeration to an OpenGL filter type
     static int mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum);
 
-    /// Returns the bound texture location for a given resource
-    int getBoundTextureLocation(unsigned int resourceId) override;
-
   protected:
     // Protected constructor
     GLTextureHandler(ImageLoaderPtr imageLoader);
-
-    // Delete an image. Any OpenGL texture resource and as well as any CPU-side
-    // resource memory will be deleted.
-    void deleteImage(ImagePtr image) override;
 
     // Return the first free texture location that can be bound to.
     int getNextAvailableTextureLocation();

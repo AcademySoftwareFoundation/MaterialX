@@ -1,5 +1,7 @@
 #include <MaterialXView/Material.h>
 
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
+
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
@@ -383,7 +385,8 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
     // Bind the image and set its sampling properties.
     if (imageHandler->bindImage(image, samplingProperties))
     {
-        int textureLocation = imageHandler->getBoundTextureLocation(image->getResourceId());
+        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+        int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
         if (textureLocation >= 0)
         {
             _glShader->setUniform(uniformName, textureLocation, false);
@@ -448,8 +451,8 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
 }
 
 void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                          const mx::FileSearchPath& imagePath, bool directLighting,
-                          bool indirectLighting, mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
+                          bool directLighting, bool indirectLighting,
+                          mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
 {
     if (!_glShader)
     {
@@ -466,31 +469,41 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
             _glShader->setUniform(mx::HW::ENV_RADIANCE_SAMPLES, envSamples);
         }
     }
-    std::vector< std::pair<std::string, mx::FilePath> > lightTextures =
+    mx::ImageMap envLights =
     {
-        { mx::HW::ENV_RADIANCE, indirectLighting ? lightHandler->getLightEnvRadiancePath() : mx::FilePath() },
-        { mx::HW::ENV_IRRADIANCE, indirectLighting ? lightHandler->getLightEnvIrradiancePath() : mx::FilePath() }
+        { mx::HW::ENV_RADIANCE, indirectLighting ? lightHandler->getEnvRadianceMap() : mx::ImagePtr() },
+        { mx::HW::ENV_IRRADIANCE, indirectLighting ? lightHandler->getEnvIrradianceMap() : mx::ImagePtr() }
     };
-    for (const auto& pair : lightTextures)
+    for (const auto& env : envLights)
     {
-        if (_glShader->uniform(pair.first, false) != -1)
+        std::string uniform = env.first;
+        mx::ImagePtr image = env.second;
+        if (image && _glShader->uniform(env.first, false) != -1)
         {
-            mx::FilePath path = imagePath.find(pair.second);
-
             mx::ImageSamplingProperties samplingProperties;
             samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CUBIC;
+            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
 
-            mx::ImagePtr image = bindImage(path, pair.first, imageHandler, samplingProperties, &IMAGE_DEFAULT_COLOR);
-            if (image && specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+            // Bind the environment image.
+            if (imageHandler->bindImage(image, samplingProperties))
             {
-                // Bind any associated uniforms.
-                if (pair.first == mx::HW::ENV_RADIANCE)
+                mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+                int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
+                if (textureLocation >= 0)
                 {
-                    if (_glShader->uniform(mx::HW::ENV_RADIANCE_MIPS, false) != -1)
+                    _glShader->setUniform(uniform, textureLocation, false);
+                }
+
+                // Bind any associated uniforms.
+                if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+                {
+                    if (uniform == mx::HW::ENV_RADIANCE)
                     {
-                        _glShader->setUniform(mx::HW::ENV_RADIANCE_MIPS, image->getMaxMipCount());
+                        if (_glShader->uniform(mx::HW::ENV_RADIANCE_MIPS, false) != -1)
+                        {
+                            _glShader->setUniform(mx::HW::ENV_RADIANCE_MIPS, image->getMaxMipCount());
+                        }
                     }
                 }
             }

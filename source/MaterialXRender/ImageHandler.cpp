@@ -127,22 +127,36 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
     return nullptr;
 }
 
-bool ImageHandler::bindImage(ConstImagePtr, const ImageSamplingProperties&)
+bool ImageHandler::bindImage(ImagePtr, const ImageSamplingProperties&)
 {
     return false;
 }
 
-bool ImageHandler::unbindImage(ConstImagePtr)
+bool ImageHandler::unbindImage(ImagePtr)
 {
     return false;
+}
+
+void ImageHandler::unbindImages()
+{
+    for (auto iter : _imageCache)
+    {
+        unbindImage(iter.second);
+    }
+}
+
+bool ImageHandler::createRenderResources(ImagePtr, bool)
+{
+    return false;
+}
+
+void ImageHandler::releaseRenderResources(ImagePtr)
+{
 }
 
 void ImageHandler::cacheImage(const string& filePath, ImagePtr image)
 {
-    if (!_imageCache.count(filePath))
-    {
-        _imageCache[filePath] = image;
-    }
+    _imageCache[filePath] = image;
 }
 
 ImagePtr ImageHandler::getCachedImage(const FilePath& filePath)
@@ -165,16 +179,11 @@ ImagePtr ImageHandler::getCachedImage(const FilePath& filePath)
     return nullptr;
 }
 
-void ImageHandler::deleteImage(ImagePtr image)
-{
-    image->releaseResourceBuffer();
-}
-
 void ImageHandler::clearImageCache()
 {
     for (auto iter : _imageCache)
     {
-        deleteImage(iter.second);
+        releaseRenderResources(iter.second);
     }
     _imageCache.clear();
 }

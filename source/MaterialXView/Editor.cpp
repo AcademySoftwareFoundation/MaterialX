@@ -81,8 +81,8 @@ class EditorColorPicker : public ng::ColorPicker
 //
 
 PropertyEditor::PropertyEditor() :
+    _window(nullptr),
     _container(nullptr),
-    _formWindow(nullptr),
     _gridLayout2(nullptr),
     _gridLayout3(nullptr),
     _visible(false),
@@ -98,17 +98,17 @@ void PropertyEditor::create(Viewer& parent)
     // This is done by explicitly creating and owning the window
     // as opposed to having it being done by the form
     ng::Vector2i previousPosition(15, parentWindow->height() + 60);
-    if (_formWindow)
+    if (_window)
     {
-        for (int i = 0; i < _formWindow->childCount(); i++)
+        for (int i = 0; i < _window->childCount(); i++)
         {
-            _formWindow->removeChild(i);
+            _window->removeChild(i);
         }
         // We don't want the property editor to move when
         // we update it's contents so cache any previous position
         // to use when we create a new window.
-        previousPosition = _formWindow->position();
-        parent.removeChild(_formWindow);
+        previousPosition = _window->position();
+        parent.removeChild(_window);
     }
 
     if (previousPosition.x() < 0)
@@ -116,12 +116,12 @@ void PropertyEditor::create(Viewer& parent)
     if (previousPosition.y() < 0)
         previousPosition.y() = 0;
 
-    _formWindow = new ng::Window(&parent, "Property Editor");
-    _formWindow->setLayout(new ng::GroupLayout());
-    _formWindow->setPosition(previousPosition);
-    _formWindow->setVisible(_visible);
+    _window = new ng::Window(&parent, "Property Editor");
+    _window->setLayout(new ng::GroupLayout());
+    _window->setPosition(previousPosition);
+    _window->setVisible(_visible);
 
-    ng::VScrollPanel *scroll_panel = new ng::VScrollPanel(_formWindow);
+    ng::VScrollPanel *scroll_panel = new ng::VScrollPanel(_window);
     scroll_panel->setFixedHeight(200);
     _container = new ng::Widget(scroll_panel);
     _container->setLayout(new ng::GroupLayout(1, 1, 1, 1));
