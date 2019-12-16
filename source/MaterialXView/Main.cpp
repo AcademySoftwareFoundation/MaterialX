@@ -33,8 +33,7 @@ int main(int argc, char* const argv[])
     mx::FileSearchPath searchPath;
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
-    std::string envRadiancePath = "resources/Images/san_giuseppe_bridge.hdr";
-    std::string envIrradiancePath = "resources/Images/san_giuseppe_bridge_diffuse.hdr";
+    std::string envRadiancePath = "resources/Images/Environments/san_giuseppe_bridge.hdr";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
     int refresh = 50;
@@ -70,10 +69,6 @@ int main(int argc, char* const argv[])
         if (token == "--envRad" && !nextToken.empty())
         {
             envRadiancePath = nextToken;
-        }
-        if (token == "--envIrrad" && !nextToken.empty())
-        {
-            envIrradiancePath = nextToken;
         }
         if (token == "--msaa" && !nextToken.empty())
         {
@@ -143,7 +138,6 @@ int main(int argc, char* const argv[])
                                                 modifiers,
                                                 specularEnvironmentMethod,
                                                 envRadiancePath,
-                                                envIrradiancePath,
                                                 multiSampleCount);
             viewer->setVisible(true);
             ng::mainloop(refresh);

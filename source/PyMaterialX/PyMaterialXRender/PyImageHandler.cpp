@@ -75,7 +75,7 @@ class PyImageHandler : public mx::ImageHandler
         );
     }
 
-    bool bindImage(mx::ConstImagePtr image, const mx::ImageSamplingProperties& samplingProperties) override
+    bool bindImage(mx::ImagePtr image, const mx::ImageSamplingProperties& samplingProperties) override
     {
         PYBIND11_OVERLOAD(
             bool,
@@ -83,17 +83,6 @@ class PyImageHandler : public mx::ImageHandler
             bindImage,
             image,
             samplingProperties
-        );
-    }
-
-  protected:
-    void deleteImage(mx::ImagePtr image) override
-    {
-        PYBIND11_OVERLOAD(
-            void,
-            mx::ImageHandler,
-            deleteImage,
-            image
         );
     }
 };
@@ -132,7 +121,7 @@ void bindPyImageHandler(py::module& mod)
         .def("saveImage", &mx::ImageHandler::saveImage)
         .def("acquireImage", &mx::ImageHandler::acquireImage)
         .def("bindImage", &mx::ImageHandler::bindImage)
-        .def("clearImageCache", &mx::ImageHandler::clearImageCache)
+        .def("unbindImage", &mx::ImageHandler::unbindImage)
         .def("setSearchPath", &mx::ImageHandler::setSearchPath)
         .def("getSearchPath", &mx::ImageHandler::getSearchPath);
 }

@@ -3,30 +3,18 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/UnitConverter.h>
-#include <MaterialXGenShader/Util.h>
 #include <MaterialXTest/RenderUtil.h>
 #include <MaterialXTest/Catch/catch.hpp>
+
+#include <MaterialXRender/Image.h>
+
+#include <MaterialXGenShader/UnitConverter.h>
+#include <MaterialXGenShader/Util.h>
 
 namespace mx = MaterialX;
 
 namespace RenderUtil
 {
-// Utility to create a light rig for hardware render testing
-void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::GenContext& context,
-                    const mx::FilePath& envIrradiancePath, const mx::FilePath& envRadiancePath)
-{
-    // Scan for lights
-    std::vector<mx::NodePtr> lights;
-    lightHandler.findLights(doc, lights);
-    lightHandler.registerLights(doc, lights, context);
-
-    // Set the list of lights on the with the generator
-    lightHandler.setLightSources(lights);
-    // Set up IBL inputs
-    lightHandler.setLightEnvIrradiancePath(envIrradiancePath);
-    lightHandler.setLightEnvRadiancePath(envRadiancePath);
-}
 
 ShaderRenderTester::ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
     _shaderGenerator(shaderGenerator),
@@ -234,7 +222,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
         for (const std::string& file : files)
         {
-
             if (_skipFiles.count(file))
             {
                 continue;

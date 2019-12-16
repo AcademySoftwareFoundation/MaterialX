@@ -175,9 +175,6 @@ class GlslProgram
     /// Bind any input textures
     void bindTextures(ImageHandlerPtr imageHandler);
 
-    /// Unbind input textures
-    void unbindTextures(ImageHandlerPtr imageHandler);
-
     /// Bind lighting
     void bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imageHandler);
 

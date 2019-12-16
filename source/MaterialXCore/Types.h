@@ -92,7 +92,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise addition of two vectors.
     VectorN& operator+=(const V& rhs)
     {
-        *this = *this + rhs;
+        for (size_t i = 0; i < N; i++)
+            _arr[i] += rhs[i];
         return *this;
     }
 
@@ -108,7 +109,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise subtraction of two vectors.
     VectorN& operator-=(const V& rhs)
     {
-        *this = *this - rhs;
+        for (size_t i = 0; i < N; i++)
+            _arr[i] -= rhs[i];
         return *this;
     }
 
@@ -124,7 +126,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise multiplication of two vectors.
     VectorN& operator*=(const V& rhs)
     {
-        *this = *this * rhs;
+        for (size_t i = 0; i < N; i++)
+            _arr[i] *= rhs[i];
         return *this;
     }
 
@@ -140,7 +143,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise division of two vectors.
     VectorN& operator/=(const V& rhs)
     {
-        *this = *this / rhs;
+        for (size_t i = 0; i < N; i++)
+            _arr[i] /= rhs[i];
         return *this;
     }
 
@@ -156,7 +160,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise multiplication of a vector by a scalar.
     VectorN& operator*=(S s)
     {
-        *this = *this * s;
+        for (size_t i = 0; i < N; i++)
+            _arr[i] *= s;
         return *this;
     }
 
@@ -172,7 +177,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise division of a vector by a scalar.
     VectorN& operator/=(S s)
     {
-        *this = *this / s;
+        for (size_t i = 0; i < N; i++)
+            _arr[i] /= s;
         return *this;
     }
 

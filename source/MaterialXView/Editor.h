@@ -30,8 +30,13 @@ class PropertyEditor
         if (value != _visible)
         {
             _visible = value;
-            _formWindow->setVisible(_visible);
+            _window->setVisible(_visible);
         }
+    }
+
+    ng::Window* getWindow()
+    {
+        return _window;
     }
 
   protected:
@@ -41,8 +46,8 @@ class PropertyEditor
     ng::FloatBox<float>* makeFloatWidget(ng::Widget* container, const std::string& label, mx::ValuePtr value,
                        bool editable, mx::ValuePtr min, mx::ValuePtr max, Viewer* viewer, const std::string& path);
 
+    ng::Window* _window;
     ng::Widget* _container;
-    ng::Window* _formWindow;
     ng::GridLayout* _gridLayout2;
     ng::GridLayout* _gridLayout3;
     bool _visible;
