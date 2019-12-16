@@ -11,31 +11,10 @@
 
 #include <MaterialXRender/Image.h>
 
-#include <MaterialXCore/Types.h>
+#include <MaterialXRender/Types.h>
 
 namespace MaterialX
 {
-
-/// @class Vector3d
-/// A vector of three floating-point values (double precision)
-class Vector3d : public VectorN<Vector3d, double, 3>
-{
-  public:
-    using VectorN<Vector3d, double, 3>::VectorN;
-    Vector3d() { }
-    Vector3d(double x, double y, double z) : VectorN(Uninit{})
-    {
-        _arr = {x, y, z};
-    }
-};
-
-/// @class Color3d
-/// A three-component color value (double precision)
-class Color3d : public Vector3d
-{
-  public:
-    using Vector3d::Vector3d;
-};
 
 /// Class template for a vector of spherical harmonic coefficients.
 ///
@@ -87,6 +66,14 @@ Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance);
 /// @param height The height of the output environment map.
 /// @return An environment map in the lat-long format.
 ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsigned int height);
+
+/// Render a reference irradiance map from the given environment map,
+/// using brute-force computations for a slow but accurate result.
+/// @param env An environment map in lat-long format.
+/// @param width The width of the output irradiance map.
+/// @param height The height of the output irradiance map.
+/// @return An irradiance map in the lat-long format.
+ImagePtr renderReferenceIrradiance(ConstImagePtr env, unsigned int width, unsigned int height);
 
 } // namespace MaterialX
 

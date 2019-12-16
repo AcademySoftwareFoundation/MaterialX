@@ -6,6 +6,7 @@
 #include <MaterialXRender/Harmonics.h>
 
 #include <cmath>
+#include <iostream>
 
 namespace MaterialX
 {
@@ -26,8 +27,7 @@ const double COSINE_CONSTANT_2 = 1.0 / 4.0;
 
 double imageXToPhi(unsigned int x, unsigned int width)
 {
-    // Directions are measured from the center of the pixel, so add 0.5
-    // to convert from pixel indices to pixel coordinates.
+    // Align spherical coordinates with texel centers by adding 0.5.
     return 2.0 * PI * (x + 0.5) / width;
 }
 
@@ -170,6 +170,68 @@ ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsi
     }
 
     return env;
+}
+
+ImagePtr renderReferenceIrradiance(ConstImagePtr env, unsigned int width, unsigned int height)
+{
+    std::cout << "Rendering reference irradiance map..." << std::endl;
+    ImagePtr outImage = Image::create(width, height, 3, Image::BaseType::FLOAT);
+    outImage->createResourceBuffer();
+
+    // Iterate through output texels.
+    for (unsigned int outY = 0; outY < outImage->getHeight(); outY++)
+    {
+        std::cout << "Rendering irradiance map row " << outY << " of " << outImage->getHeight() << "..." << std::endl;
+        double outTheta = imageYToTheta(outY, outImage->getHeight());
+        for (unsigned int outX = 0; outX < outImage->getWidth(); outX++)
+        {
+            // Compute the output direction vector.
+            double outPhi = imageXToPhi(outX, outImage->getWidth());
+            Vector3d outDir = sphericalToCartesian(outTheta, outPhi);
+
+            // Initialize output texel color.
+            Color3d outColor;
+
+            // Iterate through input texels.
+            for (unsigned int inY = 0; inY < env->getHeight(); inY++)
+            {
+                double inTheta = imageYToTheta(inY, env->getHeight());
+                if (std::abs(inTheta - outTheta) >= PI / 2.0)
+                {
+                    continue;
+                }
+
+                double inTexelWeight = texelSolidAngle(inY, env->getWidth(), env->getHeight());
+                for (unsigned int inX = 0; inX < env->getWidth(); inX++)
+                {
+                    // Compute the input direction vector.
+                    double inPhi = imageXToPhi(inX, env->getWidth());
+                    Vector3d inDir = sphericalToCartesian(inTheta, inPhi);
+
+                    // Compute the cosine weight.
+                    double cosineWeight = inDir.dot(outDir);
+                    if (cosineWeight <= 0.0)
+                    {
+                        continue;
+                    }
+
+                    // Sample the input environment at these coordinates.
+                    Color4 envColor = env->getTexelColor(inX, inY);
+
+                    // Apply the influence of this input texel.
+                    outColor += Color3d(envColor[0], envColor[1], envColor[2]) * inTexelWeight * cosineWeight;
+                }
+            }
+
+            // Normalize and store the output texel.
+            outImage->setTexelColor(outX, outY, Color4((float) (outColor[0] / PI),
+                                                       (float) (outColor[1] / PI),
+                                                       (float) (outColor[2] / PI),
+                                                       1.0f));
+        }
+    }
+
+    return outImage;
 }
 
 } // namespace MaterialX
