@@ -130,7 +130,7 @@ const TBuiltInResource defaultTBuiltInResource = {
 /// See glslToHlsl() for parameter meanings.
 ///
 std::vector<uint32_t> glslToSpirv(
-    const std::string& glslPrivateUniforms,
+    const std::string& glslUniforms,
     const std::string& glslFragment
 )
 {
@@ -143,13 +143,13 @@ std::vector<uint32_t> glslToSpirv(
         "}\n\n";
 
     const char* shaderStrings[]{
-        glslPrivateUniforms.data(),
+        glslUniforms.data(),
         glslFragment.data(),
         dummyMain.data()
     };
 
     const int stringLengths[]{
-        static_cast<int>(glslPrivateUniforms.size()),
+        static_cast<int>(glslUniforms.size()),
         static_cast<int>(glslFragment.size()),
         static_cast<int>(dummyMain.size())
     };
@@ -275,12 +275,12 @@ void finalize()
 }
 
 std::string glslToHlsl(
-    const std::string& glslPrivateUniforms,
+    const std::string& glslUniforms,
     const std::string& glslFragment,
     const std::string& fragmentName
 )
 {
-    std::vector<uint32_t> spirv = glslToSpirv(glslPrivateUniforms, glslFragment);
+    std::vector<uint32_t> spirv = glslToSpirv(glslUniforms, glslFragment);
     return spirvToHlsl(std::move(spirv), fragmentName);
 }
 

@@ -14,7 +14,7 @@ namespace MaterialX
 
 namespace Stage
 {
-    const string PRIVATE_UNIFORMS = "private_uniforms";
+    const string UNIFORMS = "uniforms";
 }
 
 string GlslFragmentSyntax::getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const
@@ -64,7 +64,7 @@ ShaderGeneratorPtr GlslFragmentGenerator::create()
 ShaderPtr GlslFragmentGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = GlslShaderGenerator::createShader(name, element, context);
-    createStage(Stage::PRIVATE_UNIFORMS, *shader);
+    createStage(Stage::UNIFORMS, *shader);
     return shader;
 }
 
@@ -208,10 +208,10 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
         const VariableBlock& publicUniforms = pixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS);
         for (size_t i = 0; i < publicUniforms.size(); ++i)
         {
-            const ShaderPort* shaderPort = publicUniforms[i];
+            const ShaderPort* const shaderPort = publicUniforms[i];
 
             if (shaderPort->getType() == Type::MATRIX33)
-                convertMatrixStrings.push_back(publicUniforms[i]->getVariable());
+                convertMatrixStrings.push_back(shaderPort->getVariable());
 
             emitArgument(shaderPort);
         }
@@ -345,17 +345,22 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     // Replace all tokens with real identifier names
     replaceTokens(_tokenSubstitutions, pixelStage);
 
-    // Now emit private uniform definitions to a special stage which is only
+    // Now emit uniform definitions to a special stage which is only
     // consumed by the HLSL cross-compiler.
     //
-    const VariableBlock& privateUniforms = pixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS);
-    if (!privateUniforms.empty())
+    ShaderStage& uniformsStage = shader->getStage(Stage::UNIFORMS);
+
+    auto emitUniformBlock = [this, &uniformsStage, &context](
+        const VariableBlock& uniformBlock
+    ) -> void
     {
-        ShaderStage& privateUniformsStage = shader->getStage(Stage::PRIVATE_UNIFORMS);
-        for (size_t i = 0; i < privateUniforms.size(); ++i)
+        for (size_t i = 0; i < uniformBlock.size(); ++i)
         {
-            const std::string& originalName = privateUniforms[i]->getVariable();
-            const std::string textureName = OgsXmlGenerator::samplerToTextureName(originalName);
+            const ShaderPort* const shaderPort = uniformBlock[i];
+
+            const string& originalName = shaderPort->getVariable();
+            const string textureName =
+                OgsXmlGenerator::samplerToTextureName(originalName);
             if (!textureName.empty())
             {
                 // GLSL for OpenGL (which MaterialX generates) uses combined
@@ -372,22 +377,30 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
                 // texture naming convention which preserves the correct
                 // mapping.
 
-                emitLineBegin(privateUniformsStage);
-                emitString("#define ", privateUniformsStage);
-                emitString(originalName, privateUniformsStage);
-                emitString(" ", privateUniformsStage);
-                emitString(textureName, privateUniformsStage);
-                emitLineEnd(privateUniformsStage, false);
+                emitLineBegin(uniformsStage);
+                emitString("#define ", uniformsStage);
+                emitString(originalName, uniformsStage);
+                emitString(" ", uniformsStage);
+                emitString(textureName, uniformsStage);
+                emitLineEnd(uniformsStage, false);
             }
-        }
-        emitLineBreak(privateUniformsStage);
 
-        emitVariableDeclarations(
-            privateUniforms, _syntax->getUniformQualifier(), SEMICOLON, context, privateUniformsStage
-        );
-        emitLineBreak(privateUniformsStage);
-        replaceTokens(_tokenSubstitutions, privateUniformsStage);
-    }
+            emitLineBegin(uniformsStage);
+            emitVariableDeclaration(
+                shaderPort, _syntax->getUniformQualifier(), context, uniformsStage
+            );
+            emitString(SEMICOLON, uniformsStage);
+            emitLineEnd(uniformsStage, false);
+        }
+
+        if (!uniformBlock.empty())
+            emitLineBreak(uniformsStage);
+    };
+
+    emitUniformBlock(pixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS));
+    emitUniformBlock(pixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS));
+
+    replaceTokens(_tokenSubstitutions, uniformsStage);
 
     return shader;
 }

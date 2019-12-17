@@ -20,7 +20,7 @@ namespace Stage
     /// A special stage for private uniform definitions that are not included
     /// in the GLSL fragment but need to be known to the GLSL-to-HLSL
     /// cross-compiler.
-    extern const string PRIVATE_UNIFORMS;
+    extern const string UNIFORMS;
 }
 
 /// Syntax class for GLSL fragments.
