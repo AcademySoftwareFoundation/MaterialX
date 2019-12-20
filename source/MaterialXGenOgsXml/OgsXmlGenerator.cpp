@@ -78,26 +78,12 @@ namespace
         { "u_time", "Time" }
     };
 
-    namespace OgsInputFlags
+    namespace OgsParameterFlags
     {
         static const std::string
             VARYING_INPUT_PARAM = "varyingInputParam",
             IS_REQUIREMENT_ONLY = "isRequirementOnly";
     }
-
-
-    // Custom flags required by OGS XML
-    static const StringMap OGS_FLAGS_MAP = 
-    {
-        { "Pw", OgsInputFlags::VARYING_INPUT_PARAM },
-        { "Pm", OgsInputFlags::IS_REQUIREMENT_ONLY },
-        { "Nw", OgsInputFlags::VARYING_INPUT_PARAM },
-        { "Nm", OgsInputFlags::IS_REQUIREMENT_ONLY },
-        { "Tw", OgsInputFlags::VARYING_INPUT_PARAM },
-        { "Tm", OgsInputFlags::IS_REQUIREMENT_ONLY },
-        { "Bw", OgsInputFlags::IS_REQUIREMENT_ONLY },
-        { "Bm", OgsInputFlags::IS_REQUIREMENT_ONLY }
-    };
 
     // String constants
     const pugi::char_t* INDENTATION("  ");
@@ -142,7 +128,7 @@ namespace
         }
     }
 
-    void xmlSetProperty(pugi::xml_node& prop, const string& name, const string& variable, const string& defaultFlags = EMPTY_STRING)
+    void xmlSetProperty(pugi::xml_node& prop, const string& name, const string& variable, const string& parameterFlags = EMPTY_STRING)
     {
         prop.append_attribute(NAME) = variable.c_str();
         const auto semantic = OGS_SEMANTICS_MAP.find(name);
@@ -150,18 +136,13 @@ namespace
         {
             prop.append_attribute(SEMANTIC) = semantic->second;
         }
-        const auto flag = OGS_FLAGS_MAP.find(name);
-        if (flag != OGS_FLAGS_MAP.end())
+        if (!parameterFlags.empty())
         {
-            prop.append_attribute(FLAGS) = flag->second.c_str();
-        }
-        else if (!defaultFlags.empty())
-        {
-            prop.append_attribute(FLAGS) = defaultFlags.c_str();
+            prop.append_attribute(FLAGS) = parameterFlags.c_str();
         }
     }
 
-    void xmlAddProperties(pugi::xml_node& parent, const VariableBlock& block, const string& defaultFlags = EMPTY_STRING)
+    void xmlAddProperties(pugi::xml_node& parent, const VariableBlock& block, const string& parameterFlags = EMPTY_STRING)
     {
         for (size_t i = 0; i < block.size(); ++i)
         {
@@ -174,9 +155,9 @@ namespace
                 if (!textureName.empty())
                 {
                     pugi::xml_node texture = parent.append_child(TEXTURE2);
-                    xmlSetProperty(texture, shaderPort->getName(), textureName, defaultFlags);
+                    xmlSetProperty(texture, shaderPort->getName(), textureName, parameterFlags);
                     pugi::xml_node sampler = parent.append_child(SAMPLER);
-                    xmlSetProperty(sampler, shaderPort->getName(), samplerName, defaultFlags);
+                    xmlSetProperty(sampler, shaderPort->getName(), samplerName, parameterFlags);
                 }
             }
             else
@@ -188,11 +169,11 @@ namespace
                     if (shaderPort->getType() == Type::MATRIX33)
                     {
                         const string var = shaderPort->getVariable() + GlslFragmentGenerator::MATRIX3_TO_MATRIX4_POSTFIX;
-                        xmlSetProperty(prop, shaderPort->getName(), var, defaultFlags);
+                        xmlSetProperty(prop, shaderPort->getName(), var, parameterFlags);
                     }
                     else
                     {
-                        xmlSetProperty(prop, shaderPort->getName(), shaderPort->getVariable(), defaultFlags);
+                        xmlSetProperty(prop, shaderPort->getName(), shaderPort->getVariable(), parameterFlags);
                     }
                 }
             }
@@ -291,9 +272,9 @@ string OgsXmlGenerator::generate(
 
     // Add properties
     pugi::xml_node xmlProperties = xmlRoot.append_child(PROPERTIES);
-    xmlAddProperties(xmlProperties, glslPixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS), OgsInputFlags::IS_REQUIREMENT_ONLY);
+    xmlAddProperties(xmlProperties, glslPixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS), OgsParameterFlags::IS_REQUIREMENT_ONLY);
     xmlAddProperties(xmlProperties, glslPixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS));
-    xmlAddProperties(xmlProperties, glslPixelStage.getInputBlock(HW::VERTEX_DATA), OgsInputFlags::VARYING_INPUT_PARAM);
+    xmlAddProperties(xmlProperties, glslPixelStage.getInputBlock(HW::VERTEX_DATA), OgsParameterFlags::VARYING_INPUT_PARAM);
 
     const bool hwTransparency = glslShader.hasAttribute(HW::ATTR_TRANSPARENT);
     if (hwTransparency)
