@@ -362,18 +362,6 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add2_in1.getSourcePort() == add1_out);
     REQUIRE(add2_in2.getSourcePort() == add1_out);
 
-    // Test node renaming
-    add1.setName("foo");
-    REQUIRE(add1.getName() == "foo");
-    add2.setName("foo");
-    REQUIRE(add2.getName() == "foo1");
-    add1.setName("add1");
-    REQUIRE(add1.getName() == "add1");
-    add2.setName("foo");
-    REQUIRE(add2.getName() == "foo");
-    add2.setName("add2");
-    REQUIRE(add2.getName() == "add2");
-
     // Test node creation when name is not unique
     mx::RtNode add3 = mx::RtNode::createNew(stageObj, addDefObj, "add1");
     REQUIRE(add3.getName() == "add3");
@@ -657,6 +645,51 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         streamFileIO.read(stream1, &readOptions);
         streamFileIO.write(streamStage.getName().str() + "_export.mtlx", &writeOptions);
     }
+}
+
+TEST_CASE("Runtime: Rename", "[runtime]")
+{
+    // Load in stdlib as a referenced stage ("libs").
+    mx::RtObject libStageObj = mx::RtStage::createNew("libs");
+    mx::RtStage libStage(libStageObj);
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::RtFileIo libFileIo(libStageObj);
+    libFileIo.readLibraries({ "stdlib" }, searchPath);
+
+    // Create a main stage.
+    mx::RtObject mainStageObj = mx::RtStage::createNew("main");
+    mx::RtStage mainStage(mainStageObj);
+    mainStage.addReference(libStageObj);
+
+    // Create some nodes.
+    mx::RtObject nodedefObj = mainStage.findElementByName("ND_add_float");
+    mx::RtNodeDef nodedef(nodedefObj);
+    REQUIRE(nodedef.isValid());
+    mx::RtNode node1 = mx::RtNode::createNew(mainStage.getObject(), nodedefObj);
+    mx::RtNode node2 = mx::RtNode::createNew(mainStage.getObject(), nodedefObj);
+    REQUIRE(node1.isValid());
+    REQUIRE(node2.isValid());
+
+    REQUIRE(node1.getName() == "add1");
+    REQUIRE(node2.getName() == "add2");
+
+    // Test node renaming
+    node1.setName("foo");
+    REQUIRE(node1.getName() == "foo");
+    node2.setName("foo");
+    REQUIRE(node2.getName() == "foo1");
+    node1.setName("add1");
+    REQUIRE(node1.getName() == "add1");
+    node2.setName("foo");
+    REQUIRE(node2.getName() == "foo");
+    node2.setName("add2");
+    REQUIRE(node2.getName() == "add2");
+
+    // Test that a rename to existing "add1" results in the
+    // old name "add2" since that is still a unique name.
+    node2.setName("add1");
+    REQUIRE(node2.getName() == "add2");
 }
 
 TEST_CASE("Runtime: Stage References", "[runtime]")

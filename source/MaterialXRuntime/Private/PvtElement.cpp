@@ -27,7 +27,7 @@ void PvtElement::setName(const RtToken& name)
         RtToken uniqueName = name;
         if (_parent)
         {
-            uniqueName = _parent->makeUniqueChildName(name);
+            uniqueName = _parent->makeUniqueChildName(this, name);
             _parent->_childrenByName.erase(_name);
             _parent->_childrenByName[uniqueName] = shared_from_this();
         }
@@ -53,21 +53,21 @@ void PvtElement::addChild(const PvtDataHandle& elemH)
     }
 
     PvtElement* elem = elemH->asA<PvtElement>();
-    PvtElement* parent = elem->getParent();
-    if (parent)
+    PvtElement* oldParent = elem->getParent();
+    if (oldParent)
     {
-        if (parent == this)
+        if (oldParent == this)
         {
             // We are already a parent to this child.
             return;
         }
         // We must remove the element from the old parent
         // as elements can't have multiple parents.
-        parent->removeChild(elem->getName());
+        oldParent->removeChild(elem->getName());
     }
 
     // Make sure the element name is unique within the parent scope.
-    const RtToken uniqueName = makeUniqueChildName(elem->getName());
+    const RtToken uniqueName = makeUniqueChildName(elem, elem->getName());
     elem->setName(uniqueName);
 
     elem->setParent(this);
@@ -163,10 +163,13 @@ PvtAllocator& PvtElement::getAllocator()
     return _parent->getAllocator();
 }
 
-RtToken PvtElement::makeUniqueChildName(const RtToken& name) const
+RtToken PvtElement::makeUniqueChildName(const PvtElement* child, const RtToken& name) const
 {
     RtToken newName = name;
-    if (findChildByName(name))
+
+    // Check if there is another child with this name.
+    PvtDataHandle otherChildH = findChildByName(name);
+    if (otherChildH && otherChildH.get() != child)
     {
         // Find a number to append to the name, incrementing
         // the counter until a unique name is found.
@@ -179,9 +182,11 @@ RtToken PvtElement::makeUniqueChildName(const RtToken& name) const
             i = std::stoi(number) + 1;
             baseName = baseName.substr(0, n);
         }
+        // Iterate until there is no other child with the resulting name.
         do {
             newName = baseName + std::to_string(i++);
-        } while (findChildByName(newName));
+            otherChildH = findChildByName(newName);
+        } while (otherChildH && otherChildH.get() != child);
     }
     return newName;
 }

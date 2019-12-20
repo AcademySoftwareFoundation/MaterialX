@@ -155,8 +155,8 @@ public:
 protected:
     PvtElement(RtObjType objType, const RtToken& name);
 
-    // Make a unique name among the element's children.
-    RtToken makeUniqueChildName(const RtToken& name) const;
+    // Make a unique name among this element's children.
+    RtToken makeUniqueChildName(const PvtElement* child, const RtToken& name) const;
 
     PvtAttributePtr createAttribute(const RtToken& name, const RtToken& type, uint32_t flags);
 
