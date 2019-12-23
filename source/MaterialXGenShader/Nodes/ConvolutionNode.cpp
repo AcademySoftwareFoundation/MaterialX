@@ -204,22 +204,10 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
     // Build a set of samples with constant values
     if (sampleStrings.empty())
     {
-        if (inInput->getType()->isScalar())
+        const string inValueString = shadergen.getUpstreamResult(inInput, context);
+        for (unsigned int i = 0; i < sampleCount; i++)
         {
-            string scalarValueString = inInput->getValue() ? inInput->getValue()->getValueString() : "1";
-            for (unsigned int i = 0; i < sampleCount; i++)
-            {
-                sampleStrings.push_back(scalarValueString);
-            }
-        }
-        else
-        {
-            string typeString = shadergen.getSyntax().getTypeName(inInput->getType());
-            string inValueString = typeString + "(" + inInput->getValue()->getValueString() + ")";
-            for (unsigned int i = 0; i < sampleCount; i++)
-            {
-                sampleStrings.push_back(inValueString);
-            }
+            sampleStrings.push_back(inValueString);
         }
     }
 } 

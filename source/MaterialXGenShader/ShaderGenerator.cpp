@@ -24,6 +24,7 @@ namespace MaterialX
 
 const string ShaderGenerator::SEMICOLON = ";";
 const string ShaderGenerator::COMMA = ",";
+const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
 
 //
 // ShaderGenerator methods
@@ -225,28 +226,6 @@ string ShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& 
     }
 
     return variable;
-}
-
-void ShaderGenerator::resetIdentifiers(GenContext& context) const
-{
-    // Clear any previous identifiers.
-    context.clearIdentifiers();
-
-    // Add in the restricted names as taken names.
-    for (const auto& name : _syntax->getRestrictedNames())
-    {
-        context.addIdentifier(name);
-    }
-
-    // Add in the token substitution identifiers as taken names
-    for (const auto& it : _tokenSubstitutions)
-    {
-        // Do no add empty token substitutions as identifiers
-        if (!it.second.empty())
-        {
-            context.addIdentifier(it.second);
-        }
-    }
 }
 
 void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<ShaderNodeImpl> creator)

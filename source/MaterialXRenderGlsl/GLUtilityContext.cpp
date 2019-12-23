@@ -105,11 +105,10 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& windowWrapper,
     //
     // Get X required functions
     //
-    char *error;
     XVisualInfo * (*ChooseVisualFuncPtr)(Display *, int, int *);
     ChooseVisualFuncPtr = (XVisualInfo *(*)(Display *, int, int *))
         dlsym(libHandle, "glXChooseVisual");
-    if ((error = dlerror()) != 0)
+    if ((dlerror()) != 0)
     {
         return;
     }
@@ -117,7 +116,7 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& windowWrapper,
     GLXContext(*CreateContextFuncPtr)(Display *, XVisualInfo *, GLXContext, Bool);
     CreateContextFuncPtr = (GLXContext(*)(Display *, XVisualInfo *, GLXContext, Bool))
         dlsym(libHandle, "glXCreateContext");
-    if ((error = dlerror()) != 0)
+    if ((dlerror()) != 0)
     {
         return;
     }
@@ -125,21 +124,21 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& windowWrapper,
     Bool(*MakeCurrentFuncPtr)(Display *, GLXDrawable, GLXContext);
     MakeCurrentFuncPtr = (Bool(*)(Display *, GLXDrawable, GLXContext))
         dlsym(libHandle, "glXMakeCurrent");
-    if ((error = dlerror()) != 0)
+    if ((dlerror()) != 0)
     {
         return;
     }
 
     GLXDrawable(*GetDrawableFuncPtr)();
     GetDrawableFuncPtr = (GLXDrawable(*)())dlsym(libHandle, "glXGetCurrentDrawable");
-    if ((error = dlerror()) != 0)
+    if ((dlerror()) != 0)
     {
         return;
     }
 
     GLXContext(*GetContextFuncPtr)();
     GetContextFuncPtr = (GLXContext(*)())dlsym(libHandle, "glXGetCurrentContext");
-    if ((error = dlerror()) != 0)
+    if ((dlerror()) != 0)
     {
         return;
     }

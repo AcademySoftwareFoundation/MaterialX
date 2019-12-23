@@ -18,6 +18,7 @@ const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
+const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
 
 // Map from type strings to swizzle pattern character sets.
 const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =
@@ -321,7 +322,7 @@ vector<InputPtr> InterfaceElement::getActiveInputs() const
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<InputPtr> inputs = elem->asA<InterfaceElement>()->getInputs();
-        for (InputPtr input : inputs)
+        for (const InputPtr& input : inputs)
         {
             if (input && activeInputNamesSet.insert(input->getName()).second)
             {
@@ -353,7 +354,7 @@ vector<OutputPtr> InterfaceElement::getActiveOutputs() const
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<OutputPtr> outputs = elem->asA<InterfaceElement>()->getOutputs();
-        for (OutputPtr output : outputs)
+        for (const OutputPtr& output : outputs)
         {
             if (output && activeOutputNamesSet.insert(output->getName()).second)
             {
@@ -408,7 +409,7 @@ vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
     for (ConstElementPtr interface : traverseInheritance())
     {
         vector<ValueElementPtr> valueElems = interface->getChildrenOfType<ValueElement>();
-        for (ValueElementPtr valueElem : valueElems)
+        for (const ValueElementPtr& valueElem : valueElems)
         {
             if (valueElem && activeValueElemNamesSet.insert(valueElem->getName()).second)
             {

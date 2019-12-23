@@ -1,76 +1,10 @@
+<?xml version="1.0"?>
 <!--
 
-Basic conditional function tests each test is in a separate graph for each variation in input type.
-- compare
-- switch
+Basic switch conditional function tests each test is in a separate graph for each variation in input type.
 
 -->
-
-<?xml version="1.0"?>
 <materialx version="1.36">
-  <nodegraph name="compare_float" type="" xpos="6.23104" ypos="18.6971">
-    <compare name="compare1" type="float" xpos="5.74483" ypos="4.42">
-      <input name="intest" type="float" value="0.5000" />
-      <parameter name="cutoff" type="float" value="0.6000" />
-      <input name="in1" type="float" value="1.0000" />
-      <input name="in2" type="float" value="0.0" />
-    </compare>
-    <output name="out" type="float" nodename="compare1" />
-  </nodegraph>
-  <nodegraph name="compare_color2" type="" xpos="7.22691" ypos="18.6969">
-    <compare name="compare1" type="color2" xpos="5.74483" ypos="4.42">
-      <input name="intest" type="float" value="0.5000" />
-      <parameter name="cutoff" type="float" value="1.2000" />
-      <input name="in1" type="color2" value="1.0000, 1.0" />
-      <input name="in2" type="color2" value="0.0, 0.0000" />
-    </compare>
-    <output name="out" type="color2" nodename="compare1" />
-  </nodegraph>
-  <nodegraph name="compare_color3" type="" xpos="8.2183" ypos="18.688">
-    <compare name="compare1" type="color3" xpos="5.74483" ypos="4.42">
-      <input name="intest" type="float" value="0.5000" />
-      <parameter name="cutoff" type="float" value="-0.2000" />
-      <input name="in1" type="color3" value="1.0000, 1.0000, 1.0000" />
-      <input name="in2" type="color3" value="0.0, 0.0, 0.0" />
-    </compare>
-    <output name="out" type="color3" nodename="compare1" />
-  </nodegraph>
-  <nodegraph name="compare_color4" type="" xpos="9.22746" ypos="18.6895">
-    <compare name="compare1" type="color4" xpos="5.74483" ypos="4.42">
-      <input name="intest" type="float" value="0.5000" />
-      <parameter name="cutoff" type="float" value="0.4000" />
-      <input name="in1" type="color4" value="1.0000, 1.0000, 1.0000, 1.0" />
-      <input name="in2" type="color4" value="0.0, 0.0, 0.0, 1.0" />
-    </compare>
-    <output name="out" type="color4" nodename="compare1" />
-  </nodegraph>
-  <nodegraph name="compare_vector2" type="" xpos="7.22554" ypos="20.0111">
-    <compare name="compare1" type="vector2" xpos="5.74483" ypos="4.42">
-      <input name="intest" type="float" value="0.5000" />
-      <parameter name="cutoff" type="float" value="1.2000" />
-      <input name="in1" type="vector2" value="1.0000, 1.0000" />
-      <input name="in2" type="vector2" value="0.0, 0.0" />
-    </compare>
-    <output name="out" type="vector2" nodename="compare1" />
-  </nodegraph>
-  <nodegraph name="compare_vector3" type="" xpos="8.23554" ypos="20.0067">
-    <compare name="compare1" type="vector3" xpos="5.74483" ypos="4.42">
-      <input name="intest" type="float" value="0.5000" />
-      <parameter name="cutoff" type="float" value="-0.2000" />
-      <input name="in1" type="vector3" value="1.0000, 1.0000, 1.0000" />
-      <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
-    </compare>
-    <output name="out" type="vector3" nodename="compare1" />
-  </nodegraph>
-  <nodegraph name="compare_vector4" type="" xpos="9.2447" ypos="19.9853">
-    <compare name="compare1" type="vector4" xpos="5.74483" ypos="4.42">
-      <input name="intest" type="float" value="0.5000" />
-      <parameter name="cutoff" type="float" value="0.4000" />
-      <input name="in1" type="vector4" value="1.0000, 1.0000, 1.0000, 1.0" />
-      <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
-    </compare>
-    <output name="out" type="vector4" nodename="compare1" />
-  </nodegraph>
   <nodegraph name="switch_float" type="" xpos="6.26074" ypos="21.3283">
     <switch name="switch1" type="float" xpos="5.74483" ypos="4.12">
       <input name="in1" type="float" value="0.0000" />
@@ -214,14 +148,6 @@ Basic conditional function tests each test is in a separate graph for each varia
     </switch>
     <output name="out" type="vector3" nodename="switch1" />
   </nodegraph>
-  <nodegraph name="switch_floatB" type="" xpos="8.32849" ypos="26.4552">
-    <switch name="switch1" type="float" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="float" value="0.0" />
-      <input name="in2" type="float" value="1.0000" />
-      <parameter name="which" type="boolean" value="false" />
-    </switch>
-    <output name="out" type="float" nodename="switch1" />
-  </nodegraph>
   <nodegraph name="switch_vector4I" type="" xpos="7.29338" ypos="26.4621">
     <switch name="switch1" type="vector4" xpos="5.74483" ypos="4.12">
       <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
@@ -230,54 +156,6 @@ Basic conditional function tests each test is in a separate graph for each varia
       <input name="in4" type="vector4" value="0.7000, 0.7000, 0.7000, 0.7000" />
       <input name="in5" type="vector4" value="1.0000, 1.0000, 1.0000, 1.0000" />
       <parameter name="which" type="integer" value="3" />
-    </switch>
-    <output name="out" type="vector4" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_color2B" type="" xpos="9.34222" ypos="26.4858">
-    <switch name="switch1" type="color2" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color2" value="0.0, 0.0" />
-      <input name="in2" type="color2" value="1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="false" />
-    </switch>
-    <output name="out" type="color2" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_color3B" type="" xpos="7.30568" ypos="27.7811">
-    <switch name="switch1" type="color3" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
-      <input name="in2" type="color3" value="1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="true" />
-    </switch>
-    <output name="out" type="color3" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_color4B" type="" xpos="8.3301" ypos="27.7692">
-    <switch name="switch1" type="color4" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="in2" type="color4" value="1.0000, 1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="true" />
-    </switch>
-    <output name="out" type="color4" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_vector2B" type="" xpos="9.36681" ypos="27.7573">
-    <switch name="switch1" type="color2" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color2" value="0.0, 0.0" />
-      <input name="in2" type="color2" value="1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="false" />
-    </switch>
-    <output name="out" type="color2" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_vector3B" type="" xpos="7.30158" ypos="29.1477">
-    <switch name="switch1" type="vector3" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
-      <input name="in2" type="vector3" value="1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="true" />
-    </switch>
-    <output name="out" type="vector3" nodename="switch1" />
-  </nodegraph>
-  <nodegraph name="switch_vector4B" type="" xpos="8.33333" ypos="29.1335">
-    <switch name="switch1" type="vector4" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="in2" type="vector4" value="1.0000, 1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="boolean" value="true" />
     </switch>
     <output name="out" type="vector4" nodename="switch1" />
   </nodegraph>
@@ -291,11 +169,11 @@ Basic conditional function tests each test is in a separate graph for each varia
       <parameter name="center" type="float" value="0.5" />
       <input name="texcoord" type="vector2" nodename="texcoord1" />
     </splitlr>
-    <compare name="compare1" type="vector3">
-      <input name="intest" type="float" nodename="splitlr1" />
+    <ifgreater name="ifgreater1" type="vector3">
+      <input name="value1" type="float" nodename="splitlr1" />
       <input name="in1" type="vector3" nodename="tangent1" />
       <input name="in2" type="vector3" nodename="bitangent1" />
-    </compare>
-    <output name="out" type="vector3" nodename="compare1" />
+    </ifgreater>
+    <output name="out" type="vector3" nodename="ifgreater1" />
   </nodegraph>
 </materialx>

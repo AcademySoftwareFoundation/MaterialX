@@ -1,9 +1,9 @@
+<?xml version="1.0"?>
 <!--
 
 Basic triplanar mapping unit test.
 
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
    <output name="triplanarprojection_4_output" type="color4" nodename="triplanarprojection_4" />
    <triplanarprojection name="triplanarprojection_4" type="color4">

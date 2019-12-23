@@ -63,7 +63,7 @@ class OslRenderer : public ShaderRenderer
     /// If render validation is not required, then the same temporary name will be used for
     /// all shaders validated using this method.
     /// @param shader Input shader
-    void createProgram(ShaderPtr shader) override;
+    void createProgram(const ShaderPtr shader) override;
 
     /// Create OSL program based on shader stage source code.
     /// @param stages Map of name and source code for the shader stages.

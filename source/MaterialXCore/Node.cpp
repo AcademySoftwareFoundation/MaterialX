@@ -391,7 +391,7 @@ string GraphElement::asStringDot() const
             dot += "    \"" + nameMap[node->getName()] + "\" ";
             NodeDefPtr nodeDef = node->getNodeDef();
             const string& nodeGroup = nodeDef ? nodeDef->getNodeGroup() : EMPTY_STRING;
-            if (nodeGroup == CONDITIONAL_NODE_GROUP)
+            if (nodeGroup == NodeDef::CONDITIONAL_NODE_GROUP)
             {
                 dot += "[shape=diamond];\n";
             }
@@ -493,6 +493,86 @@ bool NodeGraph::validate(string* message) const
 ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
 {
     return getNodeDef();
+}
+
+
+// 
+// Backdrop Methods
+// 
+const string Backdrop::NOTE_ATTRIBUTE = "note";
+const string Backdrop::CONTAINS_ATTRIBUTE = "contains";
+const string Backdrop::WIDTH_ATTRIBUTE = "width";
+const string Backdrop::HEIGHT_ATTRIBUTE = "height";
+
+string Backdrop::getNote() const
+{
+    ValuePtr value = getParameterValue(NOTE_ATTRIBUTE);
+    return value ? value->asA<string>() : EMPTY_STRING;
+}
+
+void Backdrop::setNote(const string& note)
+{
+    ParameterPtr param = getParameter(NOTE_ATTRIBUTE);
+    if (!param)
+    {
+        param = addParameter(NOTE_ATTRIBUTE);
+    }
+    param->setValue(note);
+}
+
+/// Returns a comma-separated list of node names that the
+/// backdrop "contains".  By default a backdrop contains no nodes.
+string Backdrop::getContains() const
+{
+    ValuePtr value = getParameterValue(CONTAINS_ATTRIBUTE);
+    return value ? value->asA<string>() : EMPTY_STRING;
+}
+
+/// Set the list of nodes that the backdrop "contains".
+void Backdrop::setContains(const string& contains)
+{
+    ParameterPtr param = getParameter(CONTAINS_ATTRIBUTE);
+    if (!param)
+    {
+        param = addParameter(CONTAINS_ATTRIBUTE);
+    }
+    param->setValue(contains);
+}
+
+/// Get the width of the backdrop when drawn in a UI.
+float Backdrop::getWidth() const
+{
+    ValuePtr value = getParameterValue(WIDTH_ATTRIBUTE);
+    return value ? value->asA<float>() : 1.0f;
+}
+
+/// Set the width of the backdrop when drawn in a UI.
+void Backdrop::setWidth(float width)
+{
+    ParameterPtr param = getParameter(WIDTH_ATTRIBUTE);
+    if (!param)
+    {
+        param = addParameter(WIDTH_ATTRIBUTE);
+    }
+    param->setValue(width);
+}
+
+/// Get the width of the backdrop when drawn in a UI.
+float Backdrop::getHeight() const
+{
+    ValuePtr value = getParameterValue(HEIGHT_ATTRIBUTE);
+    return value ? value->asA<float>() : 1.0f;
+}
+
+/// Set the height of the backdrop when drawn in a UI.
+void Backdrop::setHeight(float height)
+{
+    ParameterPtr param = getParameter(HEIGHT_ATTRIBUTE);
+    if (!param)
+    {
+        param = addParameter(HEIGHT_ATTRIBUTE);
+    }
+    param->setValue(height);
 }
 
 } // namespace MaterialX

@@ -16,7 +16,7 @@ TEST_CASE("Material", "[material]")
 
     // Create a base shader nodedef.
     mx::NodeDefPtr simpleSrf = doc->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
-    mx::InputPtr diffColor = simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
+    simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     mx::InputPtr specColor = simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
     mx::ParameterPtr roughness = simpleSrf->setParameterValue("roughness", 0.25f);
     mx::TokenPtr texId = simpleSrf->setTokenValue("texId", "01");
@@ -28,7 +28,7 @@ TEST_CASE("Material", "[material]")
     // Create an inherited shader nodedef.
     mx::NodeDefPtr anisoSrf = doc->addNodeDef("ND_anisoSrf", "surfaceshader", "anisoSrf");
     anisoSrf->setInheritsFrom(simpleSrf);
-    mx::ParameterPtr anisotropy = anisoSrf->setParameterValue("anisotropy", 0.0f);
+    anisoSrf->setParameterValue("anisotropy", 0.0f);
     REQUIRE(anisoSrf->getInheritsFrom() == simpleSrf);
 
     // Create a material.
@@ -75,7 +75,7 @@ TEST_CASE("Material", "[material]")
     REQUIRE(resolver->resolve("diffColor_[texId].tif", mx::FILENAME_TYPE_STRING) == "diffColor_02.tif");
 
     // Add an invalid shader reference.
-    mx::ShaderRefPtr refInvalid = material->addShaderRef("SR_invalidSrf", "invalidSrf");
+    material->addShaderRef("SR_invalidSrf", "invalidSrf");
     REQUIRE(!doc->validate());
     material->removeShaderRef("SR_invalidSrf");
     REQUIRE(doc->validate());

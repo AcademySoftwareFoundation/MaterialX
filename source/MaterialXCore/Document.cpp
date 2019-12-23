@@ -601,19 +601,65 @@ void Document::upgradeVersion()
         minorVersion = 36;
     }
 
-    // Upgrade path for 1.37 (change types to child outputs)
-    for (NodeDefPtr nodeDef : getNodeDefs())
+    // Upgrade path for 1.37 
+    if (majorVersion == 1 && minorVersion == 36)
     {
-        InterfaceElementPtr interfaceElem = std::static_pointer_cast<InterfaceElement>(nodeDef);
-        if (interfaceElem && interfaceElem->hasType())
+        // Change types attribute to child outputs.
+        for (NodeDefPtr nodeDef : getNodeDefs())
         {
-            string type = interfaceElem->getAttribute(TypedElement::TYPE_ATTRIBUTE);
-            if (type != MULTI_OUTPUT_TYPE_STRING)
+            InterfaceElementPtr interfaceElem = std::static_pointer_cast<InterfaceElement>(nodeDef);
+            if (interfaceElem && interfaceElem->hasType())
             {
-                interfaceElem->addOutput("out", type);
+                string type = interfaceElem->getAttribute(TypedElement::TYPE_ATTRIBUTE);
+                OutputPtr outputPtr;
+                if (!type.empty() && type != MULTI_OUTPUT_TYPE_STRING)
+                {
+                    outputPtr = interfaceElem->getOutput("out");
+                    if (!outputPtr)
+                    {
+                        outputPtr = interfaceElem->addOutput("out", type);
+                    }
+                }
+                interfaceElem->removeAttribute(TypedElement::TYPE_ATTRIBUTE);
+
+                const string& defaultInput = interfaceElem->getAttribute(Output::DEFAULT_INPUT_ATTRIBUTE);
+                if (outputPtr && !defaultInput.empty())
+                {
+                    outputPtr->setAttribute(Output::DEFAULT_INPUT_ATTRIBUTE, defaultInput);
+                }
+                interfaceElem->removeAttribute(Output::DEFAULT_INPUT_ATTRIBUTE);
             }
-            interfaceElem->removeAttribute(TypedElement::TYPE_ATTRIBUTE);
         }
+
+        // Convert backdrop nodes to backdrop elements
+        const string ND_BACKDROP = "backdrop";
+        for (NodePtr node : getNodes())
+        {
+            NodeDefPtr nodeDef = node->getNodeDef();
+            if (nodeDef && nodeDef->getName() == ND_BACKDROP)
+            {
+                BackdropPtr backdrop = addBackdrop(node->getName());
+                for (const ParameterPtr param : node->getParameters())
+                {
+                    ValuePtr value = param ? param->getValue() : nullptr;
+                    if (value)
+                    {
+                        if (value->isA<string>())
+                        {
+                            backdrop->setParameterValue(param->getName(), value->asA<string>());
+                        }
+                        else if (value->isA<float>())
+                        {
+                            backdrop->setParameterValue(param->getName(), value->asA<float>());
+                        }
+                    }
+                }
+                removeNode(node->getName());
+            }
+        }
+        removeNodeDef(ND_BACKDROP);
+
+        minorVersion = 37;
     }
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&

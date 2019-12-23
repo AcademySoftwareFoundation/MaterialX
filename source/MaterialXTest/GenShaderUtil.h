@@ -145,7 +145,7 @@ class ShaderGeneratorTester
                             const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
                             const mx::FilePath& logFilePath) :
         _shaderGenerator(shaderGenerator),
-        _languageTargetString(shaderGenerator->getLanguage() + "_" + shaderGenerator->getTarget()),
+        _languageTargetString(shaderGenerator ? (shaderGenerator->getLanguage() + "_" + shaderGenerator->getTarget()) : "NULL"),
         _testRootPaths(testRootPaths),
         _libSearchPath(libSearchPath),
         _srcSearchPath(srcSearchPath),

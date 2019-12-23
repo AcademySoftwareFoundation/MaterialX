@@ -21,9 +21,9 @@
 
   <!-- Test multioutput node separate connected internally -->
   <nodegraph name="multioutput_test3">
-    <separate name="separate_color4" type="multioutput">
+    <separate4 name="separate_color4" type="multioutput">
       <input name="in" type="color4" value="0.15, 0.42, 0.78, 1.0" />
-    </separate>
+    </separate4>
     <multiply name="multiply1" type="float">
       <input name="in1" type="float" nodename="separate_color4" output="outr" />
       <input name="in2" type="float" nodename="separate_color4" output="outg" />
@@ -47,11 +47,11 @@
   </nodedef>
   <nodegraph name="IM_color4split" nodedef="ND_color4split">
     <swizzle name="swizz_color3" type="color3">
-      <input name="in" type="color4" interfacename="in"/> 
+      <input name="in" type="color4" interfacename="in"/>
       <parameter name="channels" type="string" value="rgb"/>
     </swizzle>
     <swizzle name="swizz_float" type="float">
-      <input name="in" type="color4" interfacename="in"/> 
+      <input name="in" type="color4" interfacename="in"/>
       <parameter name="channels" type="string" value="a"/>
     </swizzle>
     <output name="colour" type="color3" nodename="swizz_color3"/>

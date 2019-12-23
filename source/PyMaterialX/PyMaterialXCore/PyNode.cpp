@@ -43,4 +43,19 @@ void bindPyNode(py::module& mod)
         .def("setNodeDef", &mx::NodeGraph::setNodeDef)
         .def("getNodeDef", &mx::NodeGraph::getNodeDef)
         .def_readonly_static("CATEGORY", &mx::NodeGraph::CATEGORY);
+
+    py::class_<mx::Backdrop, mx::BackdropPtr, mx::InterfaceElement>(mod, "Backdrop")
+        .def("getNote", &mx::Backdrop::getNote)
+        .def("setNote", &mx::Backdrop::setNote)
+        .def("getContains", &mx::Backdrop::getContains)
+        .def("setContains", &mx::Backdrop::setContains)
+        .def("getWidth", &mx::Backdrop::getWidth)
+        .def("setWidth", &mx::Backdrop::setWidth)
+        .def("getHeight", &mx::Backdrop::getHeight)
+        .def("setHeight", &mx::Backdrop::setHeight)
+        .def_readonly_static("CATEGORY", &mx::Backdrop::CATEGORY)
+        .def_readonly_static("NOTE_ATTRIBUTE", &mx::Backdrop::NOTE_ATTRIBUTE)
+        .def_readonly_static("CONTAINS_ATTRIBUTE", &mx::Backdrop::CONTAINS_ATTRIBUTE)
+        .def_readonly_static("WIDTH_ATTRIBUTE", &mx::Backdrop::WIDTH_ATTRIBUTE)
+        .def_readonly_static("HEIGHT_ATTRIBUTE", &mx::Backdrop::HEIGHT_ATTRIBUTE);
 }

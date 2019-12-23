@@ -29,6 +29,10 @@ using ConstSyntaxPtr = shared_ptr<const Syntax>;
 /// Shared pointer to a TypeSyntax
 using TypeSyntaxPtr = shared_ptr<TypeSyntax>;
 
+/// Map holding identifier names and a counter for
+/// creating unique names from them.
+using IdentifierMap = std::unordered_map<string, size_t>;
+
 /// @class Syntax
 /// Base class for syntax objects used by shader generators
 /// to emit code with correct syntax for each language.
@@ -50,10 +54,10 @@ class Syntax
     /// Required to be set for all supported data types.
     void registerTypeSyntax(const TypeDesc* type, TypeSyntaxPtr syntax);
 
-    /// Register names that are restricted to use by a code generator when naming 
+    /// Register names that are reserved words not to be used by a code generator when naming
     /// variables and functions. Keywords, types, built-in functions etc. should be 
     /// added to this set. Multiple calls will add to the internal set of names.
-    void registerRestrictedNames(const StringSet& names);
+    void registerReservedWords(const StringSet& names);
 
     /// Register a set string replacements for disallowed tokens 
     /// for a code generator when naming variables and functions. 
@@ -93,8 +97,8 @@ class Syntax
     /// Get swizzled value
     ValuePtr getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
 
-    /// Returns a set of names that are restricted to use for this language syntax.
-    const StringSet& getRestrictedNames() const { return _restrictedNames; }
+    /// Returns a set of names that are reserved words for this language syntax.
+    const StringSet& getReservedWords() const { return _reservedWords; }
 
     /// Returns a mapping from disallowed tokens to replacement strings for this language syntax.
     const StringMap& getInvalidTokens() const { return _invalidTokens; }
@@ -146,15 +150,19 @@ class Syntax
     /// By default all types are assumed to be supported.
     virtual bool typeSupported(const TypeDesc* type) const;
 
+    /// Modify the given name string to remove any invalid characters or tokens.
+    virtual void makeValidName(string& name) const;
+
+    /// Make sure the given name is a unique identifier,
+    /// updating it if needed to make it unique.
+    virtual void makeIdentifier(string& name, IdentifierMap& identifiers) const;
+
     /// Create a unique identifier for the given variable name and type.
     /// The method is used for naming variables (inputs and outputs) in generated code.
     /// Derived classes can override this method to have a custom naming strategy.
     /// Default implementation adds a number suffix, or increases an existing number suffix, 
     /// on the name string if there is a name collision.
-    virtual string getVariableName(const string& name, const TypeDesc* type, GenContext& context) const;
-
-    /// Modify the given name string to remove any invalid characters or tokens.
-    virtual void makeValidName(string& name) const;
+    virtual string getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const;
 
   protected:
     /// Protected constructor
@@ -164,7 +172,7 @@ class Syntax
     vector<TypeSyntaxPtr> _typeSyntaxes;
     std::unordered_map<const TypeDesc*, size_t> _typeSyntaxByType;
 
-    StringSet _restrictedNames;
+    StringSet _reservedWords;
     StringMap _invalidTokens;
 
     static const string NEWLINE;

@@ -5,6 +5,7 @@
 
 #include <MaterialXGenShader/ShaderStage.h>
 
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
@@ -317,16 +318,19 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
 
 void ShaderStage::addInclude(const string& file, GenContext& context)
 {
-    const string path = context.resolveSourceFile(file);
+    string resolvedFile = file;
+    tokenSubstitution(context.getShaderGenerator().getTokenSubstitutions(), resolvedFile);
 
-    if (!_includes.count(path))
+    resolvedFile = context.resolveSourceFile(resolvedFile);
+
+    if (!_includes.count(resolvedFile))
     {
         string content;
-        if (!readFile(path, content))
+        if (!readFile(resolvedFile, content))
         {
             throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
         }
-        _includes.insert(path);
+        _includes.insert(resolvedFile);
         addBlock(content, context);
     }
 }

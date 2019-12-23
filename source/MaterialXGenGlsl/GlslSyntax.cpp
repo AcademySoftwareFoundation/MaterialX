@@ -111,8 +111,8 @@ const StringVec GlslSyntax::VEC4_MEMBERS = { ".x", ".y", ".z", ".w" };
 
 GlslSyntax::GlslSyntax()
 {
-    // Add in all restricted names and keywords in GLSL
-    registerRestrictedNames(
+    // Add in all reserved words and keywords in GLSL
+    registerReservedWords(
     {
         "centroid", "flat", "smooth", "noperspective", "patch", "sample",
         "break", "continue", "do", "for", "while", "switch", "case", "default",

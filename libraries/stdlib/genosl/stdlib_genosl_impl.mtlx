@@ -324,8 +324,6 @@
   <implementation name="IM_invert_vector3FA_genosl" nodedef="ND_invert_vector3FA" file="stdlib/genosl/mx_invert.inline" language="genosl"/>
   <implementation name="IM_invert_vector4_genosl" nodedef="ND_invert_vector4" file="stdlib/genosl/mx_invert.inline" language="genosl"/>
   <implementation name="IM_invert_vector4FA_genosl" nodedef="ND_invert_vector4FA" file="stdlib/genosl/mx_invert.inline" language="genosl"/>
-  <implementation name="IM_invert_matrix33_genosl" nodedef="ND_invert_matrix33" file="stdlib/genosl/mx_invertM.inline" language="genosl"/>
-  <implementation name="IM_invert_matrix44_genosl" nodedef="ND_invert_matrix44" file="stdlib/genosl/mx_invertM.inline" language="genosl"/>
 
   <!-- <absval> -->
   <implementation name="IM_absval_float_genosl" nodedef="ND_absval_float" file="stdlib/genosl/mx_absval.inline" language="genosl"/>
@@ -489,22 +487,19 @@
   <implementation name="IM_crossproduct_vector3_genosl" nodedef="ND_crossproduct_vector3" file="stdlib/genosl/mx_crossproduct.inline" language="genosl"/>
 
   <!-- <transformpoint> -->
-  <implementation name="IM_transformpoint_vector2M3_genosl" nodedef="ND_transformpoint_vector2M3" function="mx_transformpoint2_matrix33" file="stdlib/genosl/mx_transformpoint2_matrix33.osl" language="genosl"/>
   <implementation name="IM_transformpoint_vector3_genosl" nodedef="ND_transformpoint_vector3"  file="stdlib/genosl/mx_transformpoint.inline" language="genosl"/>
-  <implementation name="IM_transformpoint_vector3M_genosl" nodedef="ND_transformpoint_vector3M"  file="stdlib/genosl/mx_transformpointM.inline" language="genosl"/>
-  <implementation name="IM_transformpoint_vector3M4_genosl" nodedef="ND_transformpoint_vector3M4" file="stdlib/genosl/mx_transformpointM.inline" language="genosl"/>
 
   <!-- <transformvector> -->
-  <implementation name="IM_transformvector_vector2M3_genosl" nodedef="ND_transformvector_vector2M3" function="mx_transformvector2_matrix33" file="stdlib/genosl/mx_transformvector2_matrix33.osl" language="genosl"/>
   <implementation name="IM_transformvector_vector3_genosl" nodedef="ND_transformvector_vector3"  file="stdlib/genosl/mx_transformvector.inline" language="genosl"/>
-  <implementation name="IM_transformvector_vector3M_genosl" nodedef="ND_transformvector_vector3M"  file="stdlib/genosl/mx_transformvectorM.inline" language="genosl"/>
-  <implementation name="IM_transformvector_vector3M4_genosl" nodedef="ND_transformvector_vector3M4" file="stdlib/genosl/mx_transformvectorM.inline" language="genosl"/>
-  <implementation name="IM_transformvector_vector4M_genosl" nodedef="ND_transformvector_vector4M"  file="stdlib/genosl/mx_transformvectorM.inline" language="genosl"/>
 
   <!-- <transformnormal> -->
   <implementation name="IM_transformnormal_vector3_genosl" nodedef="ND_transformnormal_vector3"  file="stdlib/genosl/mx_transformnormal.inline" language="genosl"/>
-  <implementation name="IM_transformnormal_vector3M_genosl" nodedef="ND_transformnormal_vector3M"  file="stdlib/genosl/mx_transformnormal3M.inline" language="genosl"/>
-  <implementation name="IM_transformnormal_vector3M4_genosl" nodedef="ND_transformnormal_vector3M4"  file="stdlib/genosl/mx_transformnormal3M.inline" language="genosl"/>
+
+  <!-- <transformmatrix> -->
+  <implementation name="IM_transformmatrix_vector2M3_genosl" nodedef="ND_transformmatrix_vector2M3" function="mx_transformmatrix_vector2M3" file="stdlib/genosl/mx_transformmatrix_vector2M3.osl" language="genosl" />
+  <implementation name="IM_transformmatrix_vector3_genosl" nodedef="ND_transformmatrix_vector3" file="stdlib/genosl/mx_transformmatrix.inline" language="genosl" />
+  <implementation name="IM_transformmatrix_vector3M4_genosl" nodedef="ND_transformmatrix_vector3M4" file="stdlib/genosl/mx_transformmatrix.inline" language="genosl" />
+  <implementation name="IM_transformmatrix_vector4_genosl" nodedef="ND_transformmatrix_vector4" file="stdlib/genosl/mx_transformmatrix.inline" language="genosl" />
 
   <!-- <transpose> -->
   <implementation name="IM_transpose_matrix33_genosl" nodedef="ND_transpose_matrix33" file="stdlib/genosl/mx_transpose.inline" language="genosl"/>
@@ -514,9 +509,15 @@
   <implementation name="IM_determinant_matrix33_genosl" nodedef="ND_determinant_matrix33" file="stdlib/genosl/mx_determinant.inline" language="genosl"/>
   <implementation name="IM_determinant_matrix44_genosl" nodedef="ND_determinant_matrix44" file="stdlib/genosl/mx_determinant.inline" language="genosl"/>
 
-  <!-- <rotate> -->
-  <implementation name="IM_rotate_vector2_genosl" nodedef="ND_rotate_vector2" file="stdlib/genosl/mx_rotate_vector2.osl" function="mx_rotate_vector2" language="genosl"/>
-  <implementation name="IM_rotate_vector3_genosl" nodedef="ND_rotate_vector3" file="stdlib/genosl/mx_rotate_vector3.osl" function="mx_rotate_vector3" language="genosl"/>
+  <!-- <invertmatrix> -->
+  <implementation name="IM_invertmatrix_matrix33_genosl" nodedef="ND_invertmatrix_matrix33" file="stdlib/genosl/mx_invertM.inline" language="genosl"/>
+  <implementation name="IM_invertmatrix_matrix44_genosl" nodedef="ND_invertmatrix_matrix44" file="stdlib/genosl/mx_invertM.inline" language="genosl"/>
+
+  <!-- <rotate2d> -->
+  <implementation name="IM_rotate2d_vector2_genosl" nodedef="ND_rotate2d_vector2" file="stdlib/genosl/mx_rotate_vector2.osl" function="mx_rotate_vector2" language="genosl"/>
+
+  <!-- <rotate3d> -->
+  <implementation name="IM_rotate3d_vector3_genosl" nodedef="ND_rotate3d_vector3" file="stdlib/genosl/mx_rotate_vector3.osl" function="mx_rotate_vector3" language="genosl"/>
 
 
   <!-- ======================================================================== -->
@@ -688,16 +689,62 @@
   <!-- Conditional nodes                                                        -->
   <!-- ======================================================================== -->
 
-  <!-- <compare> -->
-  <implementation name="IM_compare_float_genosl" nodedef="ND_compare_float" language="genosl"/>
-  <implementation name="IM_compare_color2_genosl" nodedef="ND_compare_color2" language="genosl"/>
-  <implementation name="IM_compare_color3_genosl" nodedef="ND_compare_color3" language="genosl"/>
-  <implementation name="IM_compare_color4_genosl" nodedef="ND_compare_color4" language="genosl"/>
-  <implementation name="IM_compare_vector2_genosl" nodedef="ND_compare_vector2" language="genosl"/>
-  <implementation name="IM_compare_vector3_genosl" nodedef="ND_compare_vector3" language="genosl"/>
-  <implementation name="IM_compare_vector4_genosl" nodedef="ND_compare_vector4" language="genosl"/>
+  <!-- <ifgreater> -->
+  <implementation name="IM_ifgreater_float_genosl" nodedef="ND_ifgreater_float" language="genosl" />
+  <implementation name="IM_ifgreater_color2_genosl" nodedef="ND_ifgreater_color2" language="genosl" />
+  <implementation name="IM_ifgreater_color3_genosl" nodedef="ND_ifgreater_color3" language="genosl" />
+  <implementation name="IM_ifgreater_color4_genosl" nodedef="ND_ifgreater_color4" language="genosl" />
+  <implementation name="IM_ifgreater_vector2_genosl" nodedef="ND_ifgreater_vector2" language="genosl" />
+  <implementation name="IM_ifgreater_vector3_genosl" nodedef="ND_ifgreater_vector3" language="genosl" />
+  <implementation name="IM_ifgreater_vector4_genosl" nodedef="ND_ifgreater_vector4" language="genosl" />
+  <implementation name="IM_ifgreater_floatI_genosl" nodedef="ND_ifgreater_floatI" language="genosl" />
+  <implementation name="IM_ifgreater_color2I_genosl" nodedef="ND_ifgreater_color2I" language="genosl" />
+  <implementation name="IM_ifgreater_color3I_genosl" nodedef="ND_ifgreater_color3I" language="genosl" />
+  <implementation name="IM_ifgreater_color4I_genosl" nodedef="ND_ifgreater_color4I" language="genosl" />
+  <implementation name="IM_ifgreater_vector2I_genosl" nodedef="ND_ifgreater_vector2I" language="genosl" />
+  <implementation name="IM_ifgreater_vector3I_genosl" nodedef="ND_ifgreater_vector3I" language="genosl" />
+  <implementation name="IM_ifgreater_vector4I_genosl" nodedef="ND_ifgreater_vector4I" language="genosl" />
 
-  <!-- <switch> -->
+  <!-- <ifgreatereq> -->
+  <implementation name="IM_ifgreatereq_float_genosl" nodedef="ND_ifgreatereq_float" language="genosl" />
+  <implementation name="IM_ifgreatereq_color2_genosl" nodedef="ND_ifgreatereq_color2" language="genosl" />
+  <implementation name="IM_ifgreatereq_color3_genosl" nodedef="ND_ifgreatereq_color3" language="genosl" />
+  <implementation name="IM_ifgreatereq_color4_genosl" nodedef="ND_ifgreatereq_color4" language="genosl" />
+  <implementation name="IM_ifgreatereq_vector2_genosl" nodedef="ND_ifgreatereq_vector2" language="genosl" />
+  <implementation name="IM_ifgreatereq_vector3_genosl" nodedef="ND_ifgreatereq_vector3" language="genosl" />
+  <implementation name="IM_ifgreatereq_vector4_genosl" nodedef="ND_ifgreatereq_vector4" language="genosl" />
+  <implementation name="IM_ifgreatereq_floatI_genosl" nodedef="ND_ifgreatereq_floatI" language="genosl" />
+  <implementation name="IM_ifgreatereq_color2I_genosl" nodedef="ND_ifgreatereq_color2I" language="genosl" />
+  <implementation name="IM_ifgreatereq_color3I_genosl" nodedef="ND_ifgreatereq_color3I" language="genosl" />
+  <implementation name="IM_ifgreatereq_color4I_genosl" nodedef="ND_ifgreatereq_color4I" language="genosl" />
+  <implementation name="IM_ifgreatereq_vector2I_genosl" nodedef="ND_ifgreatereq_vector2I" language="genosl" />
+  <implementation name="IM_ifgreatereq_vector3I_genosl" nodedef="ND_ifgreatereq_vector3I" language="genosl" />
+  <implementation name="IM_ifgreatereq_vector4I_genosl" nodedef="ND_ifgreatereq_vector4I" language="genosl" />
+
+  <!-- <ifequal> -->
+  <implementation name="IM_ifequal_float_genosl" nodedef="ND_ifequal_float" language="genosl" />
+  <implementation name="IM_ifequal_color2_genosl" nodedef="ND_ifequal_color2" language="genosl" />
+  <implementation name="IM_ifequal_color3_genosl" nodedef="ND_ifequal_color3" language="genosl" />
+  <implementation name="IM_ifequal_color4_genosl" nodedef="ND_ifequal_color4" language="genosl" />
+  <implementation name="IM_ifequal_vector2_genosl" nodedef="ND_ifequal_vector2" language="genosl" />
+  <implementation name="IM_ifequal_vector3_genosl" nodedef="ND_ifequal_vector3" language="genosl" />
+  <implementation name="IM_ifequal_vector4_genosl" nodedef="ND_ifequal_vector4" language="genosl" />
+  <implementation name="IM_ifequal_floatI_genosl" nodedef="ND_ifequal_floatI" language="genosl" />
+  <implementation name="IM_ifequal_color2I_genosl" nodedef="ND_ifequal_color2I" language="genosl" />
+  <implementation name="IM_ifequal_color3I_genosl" nodedef="ND_ifequal_color3I" language="genosl" />
+  <implementation name="IM_ifequal_color4I_genosl" nodedef="ND_ifequal_color4I" language="genosl" />
+  <implementation name="IM_ifequal_vector2I_genosl" nodedef="ND_ifequal_vector2I" language="genosl" />
+  <implementation name="IM_ifequal_vector3I_genosl" nodedef="ND_ifequal_vector3I" language="genosl" />
+  <implementation name="IM_ifequal_vector4I_genosl" nodedef="ND_ifequal_vector4I" language="genosl" />
+  <implementation name="IM_ifequal_floatB_genosl" nodedef="ND_ifequal_floatB" language="genosl" />
+  <implementation name="IM_ifequal_color2B_genosl" nodedef="ND_ifequal_color2B" language="genosl" />
+  <implementation name="IM_ifequal_color3B_genosl" nodedef="ND_ifequal_color3B" language="genosl" />
+  <implementation name="IM_ifequal_color4B_genosl" nodedef="ND_ifequal_color4B" language="genosl" />
+  <implementation name="IM_ifequal_vector2B_genosl" nodedef="ND_ifequal_vector2B" language="genosl" />
+  <implementation name="IM_ifequal_vector3B_genosl" nodedef="ND_ifequal_vector3B" language="genosl" />
+  <implementation name="IM_ifequal_vector4B_genosl" nodedef="ND_ifequal_vector4B" language="genosl" />
+
+   <!-- <switch> -->
   <!-- 'which' type : float -->
   <implementation name="IM_switch_float_genosl" nodedef="ND_switch_float" language="genosl"/>
   <implementation name="IM_switch_color2_genosl" nodedef="ND_switch_color2" language="genosl"/>
@@ -714,15 +761,6 @@
   <implementation name="IM_switch_vector2I_genosl" nodedef="ND_switch_vector2I" language="genosl"/>
   <implementation name="IM_switch_vector3I_genosl" nodedef="ND_switch_vector3I" language="genosl"/>
   <implementation name="IM_switch_vector4I_genosl" nodedef="ND_switch_vector4I" language="genosl"/>
-  <!-- 'which' type : boolean -->
-  <implementation name="IM_switch_floatB_genosl" nodedef="ND_switch_floatB" language="genosl"/>
-  <implementation name="IM_switch_color2B_genosl" nodedef="ND_switch_color2B" language="genosl"/>
-  <implementation name="IM_switch_color3B_genosl" nodedef="ND_switch_color3B" language="genosl"/>
-  <implementation name="IM_switch_color4B_genosl" nodedef="ND_switch_color4B" language="genosl"/>
-  <implementation name="IM_switch_vector2B_genosl" nodedef="ND_switch_vector2B" language="genosl"/>
-  <implementation name="IM_switch_vector3B_genosl" nodedef="ND_switch_vector3B" language="genosl"/>
-  <implementation name="IM_switch_vector4B_genosl" nodedef="ND_switch_vector4B" language="genosl"/>
-
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
@@ -807,20 +845,21 @@
   <implementation name="IM_swizzle_vector4_vector3_genosl" nodedef="ND_swizzle_vector4_vector3" language="genosl"/>
   <implementation name="IM_swizzle_vector4_vector4_genosl" nodedef="ND_swizzle_vector4_vector4" language="genosl"/>
 
-  <!-- <combine> -->
-  <implementation name="IM_combine_color2_genosl" nodedef="ND_combine_color2" language="genosl"/>
-  <implementation name="IM_combine_vector2_genosl" nodedef="ND_combine_vector2" language="genosl"/>
-  <implementation name="IM_combine_color3_genosl" nodedef="ND_combine_color3" language="genosl"/>
-  <implementation name="IM_combine_vector3_genosl" nodedef="ND_combine_vector3" language="genosl"/>
-  <implementation name="IM_combine_color4_genosl" nodedef="ND_combine_color4" language="genosl"/>
-  <implementation name="IM_combine_vector4_genosl" nodedef="ND_combine_vector4" language="genosl"/>
-  <implementation name="IM_combine_color4CF_genosl" nodedef="ND_combine_color4CF" language="genosl"/>
-  <implementation name="IM_combine_vector4VF_genosl" nodedef="ND_combine_vector4VF" language="genosl"/>
-  <implementation name="IM_combine_color4CC_genosl" nodedef="ND_combine_color4CC" language="genosl"/>
-  <implementation name="IM_combine_vector4VV_genosl" nodedef="ND_combine_vector4VV" language="genosl"/>
+  <!-- <combine2> -->
+  <implementation name="IM_combine2_color2_genosl" nodedef="ND_combine2_color2" language="genosl"/>
+  <implementation name="IM_combine2_vector2_genosl" nodedef="ND_combine2_vector2" language="genosl"/>
+  <implementation name="IM_combine2_color4CF_genosl" nodedef="ND_combine2_color4CF" language="genosl"/>
+  <implementation name="IM_combine2_vector4VF_genosl" nodedef="ND_combine2_vector4VF" language="genosl"/>
+  <implementation name="IM_combine2_color4CC_genosl" nodedef="ND_combine2_color4CC" language="genosl"/>
+  <implementation name="IM_combine2_vector4VV_genosl" nodedef="ND_combine2_vector4VV" language="genosl"/>
+  <!-- <combine3> -->
+  <implementation name="IM_combine3_color3_genosl" nodedef="ND_combine3_color3" language="genosl"/>
+  <implementation name="IM_combine3_vector3_genosl" nodedef="ND_combine3_vector3" language="genosl"/>
+  <!-- <combine4> -->
+  <implementation name="IM_combine4_color4_genosl" nodedef="ND_combine4_color4" language="genosl"/>
+  <implementation name="IM_combine4_vector4_genosl" nodedef="ND_combine4_vector4" language="genosl"/>
 
-
-  <!-- ======================================================================== -->
+   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->
 

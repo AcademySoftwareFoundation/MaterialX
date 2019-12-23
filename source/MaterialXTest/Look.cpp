@@ -15,7 +15,7 @@ TEST_CASE("Look", "[look]")
 
     // Create a material and look.
     mx::MaterialPtr material = doc->addMaterial();
-    mx::ShaderRefPtr shaderRef = material->addShaderRef();
+    material->addShaderRef();
     mx::LookPtr look = doc->addLook();
     REQUIRE(doc->getMaterials().size() == 1);
     REQUIRE(doc->getLooks().size() == 1);
@@ -60,8 +60,8 @@ TEST_CASE("Look", "[look]")
     
     // Create a variant set.
     mx::VariantSetPtr variantSet = doc->addVariantSet("damageVars");
-    mx::VariantPtr original = variantSet->addVariant("original");
-    mx::VariantPtr damaged = variantSet->addVariant("damaged");
+    variantSet->addVariant("original");
+    variantSet->addVariant("damaged");
     REQUIRE(variantSet->getVariants().size() == 2);
 
     // Create a visibility element.
