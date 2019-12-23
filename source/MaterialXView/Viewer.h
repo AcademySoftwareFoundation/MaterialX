@@ -14,10 +14,10 @@ namespace ng = nanogui;
 class Viewer : public ng::Screen
 {
   public:
-    Viewer(const mx::FilePathVec& libraryFolders,
-           const mx::FileSearchPath& searchPath,
+    Viewer(const std::string& materialFilename,
            const std::string& meshFilename,
-           const std::string& materialFilename,
+           const mx::FilePathVec& libraryFolders,
+           const mx::FileSearchPath& searchPath,
            const DocumentModifiers& modifiers,
            mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
            const std::string& envRadiancePath,
