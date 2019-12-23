@@ -160,10 +160,10 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 // Viewer methods
 //
 
-Viewer::Viewer(const mx::FilePathVec& libraryFolders,
-               const mx::FileSearchPath& searchPath,
+Viewer::Viewer(const std::string& materialFilename,
                const std::string& meshFilename,
-               const std::string& materialFilename,
+               const mx::FilePathVec& libraryFolders,
+               const mx::FileSearchPath& searchPath,
                const DocumentModifiers& modifiers,
                mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
                const std::string& envRadiancePath,
@@ -756,7 +756,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     new ng::Label(advancedPopup, "Property Editor Options");
 
-    ng::CheckBox* showAdvancedProperties = new ng::CheckBox(advancedPopup, "Show advanced attributes");
+    ng::CheckBox* showAdvancedProperties = new ng::CheckBox(advancedPopup, "Show Advanced Properties");
     showAdvancedProperties->setChecked(_showAdvancedProperties);
     showAdvancedProperties->setCallback([this](bool enable)
     {

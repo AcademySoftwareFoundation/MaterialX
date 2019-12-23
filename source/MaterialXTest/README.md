@@ -1,4 +1,4 @@
-# Unit tests
+# MaterialX Unit Tests
 
 Unit tests can be run using the `MaterialXTest` executable. This can be performed using ctest or directly running the executable with the desired test tag(s). The default build options executes all tags except the ones using for shader compilation and rendering.
 
@@ -29,7 +29,7 @@ The names of the files reflect the Element type being tested for the following:
 
 ### 4.1 Test Inputs
 
-Refer to the [test suite documentation](../../resources/Materials/TestSuite/) for more information about the organization of the test suite data used for these tests.
+Refer to the [test suite documentation](../../resources/Materials/TestSuite/README.md) for more information about the organization of the test suite data used for these tests.
 
 ### 4.2 Shader Generation Tests
 

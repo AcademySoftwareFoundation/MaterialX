@@ -184,18 +184,16 @@ class ImageHandler
                                   const Color4* fallbackColor = nullptr,
                                   string* message = nullptr);
 
-    /// Bind an image. Derived classes should implement this method to handle logical binding of
-    /// an image resource. The default implementation performs no action.
-    /// @param desc The image to bind
-    /// @param samplingProperties Sampling properties for the image
+    /// Bind an image for rendering.
+    /// @param image The image to bind.
+    /// @param samplingProperties Sampling properties for the image.
     virtual bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties);
 
-    /// Unbind an image. The default implementation performs no action.
-    /// @param desc The image to unbind
+    /// Unbind an image, making it no longer active for rendering.
+    /// @param image The image to unbind.
     virtual bool unbindImage(ImagePtr image);
 
-    /// Clear the contents of the image cache, and release render resources
-    /// for all cached images.
+    /// Unbind all images that are currently stored in the cache.
     void unbindImages();
 
     /// Set the search path to be used for finding images on the file system.
@@ -204,7 +202,7 @@ class ImageHandler
         _searchPath = path;
     }
 
-    /// Return the image search path
+    /// Return the image search path.
     const FileSearchPath& getSearchPath() const
     {
         return _searchPath;

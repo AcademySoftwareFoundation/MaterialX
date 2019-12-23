@@ -27,11 +27,11 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 
 The MaterialX repository consists of the following folders:
 
-- [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
-- [python](python) - Support modules for MaterialX Python.
-- [documents](documents) - MaterialX documentation, including its specification and developer guides.
-- [libraries](libraries) - The standard data libraries for MaterialX, including the definitions of its pattern and shader nodes.
+- [documents](documents) - MaterialX documentation, including the specification and developer guide.
+- [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the standard and physically-based-shading nodes.
+- [python](python) - Support modules and example scripts for MaterialX Python.
 - [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
+- [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
 
 ### MaterialX Viewer
 
@@ -41,8 +41,10 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 <p><img src="/documents/Images/MaterialXView_StandardSurface_01.png" width="1024"></p>
 
 **Figure 2:** Standard Surface Shader with textured, color-space-managed materials
-<p><img src="/documents/Images/MaterialXView_StandardSurface_02.png" width="480"></p>
+<p><img src="/documents/Images/MaterialXView_StandardSurface_02.png" width="640"></p>
 
 ### Additional Resources
 
-- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains more detailed documentation and code examples in C++ and Python.
+- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
+- The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
+- Presentations at the [Autodesk Vision Series](https://area.autodesk.com/blogs/thebuzz/open-source-at-autodesk-materialx/) provide details on the roadmap for MaterialX development.

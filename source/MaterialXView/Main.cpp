@@ -6,13 +6,12 @@ NANOGUI_FORCE_DISCRETE_GPU();
 
 const std::string options = 
 " Options: \n"
-"    --library [FILEPATH]     Additional library folder location\n"
-"    --path [FILEPATH]        Additional file search path location\n"
-"    --mesh [FILENAME]        Mesh filename\n"
-"    --material [FILENAME]    Material filename\n"
+"    --material [FILENAME]    Specify the displayed material\n"
+"    --mesh [FILENAME]        Specify the displayed geometry\n"
+"    --library [FILEPATH]     Specify an additional library folder\n"
+"    --path [FILEPATH]        Specify an additional search-path folder\n"
 "    --envMethod [INTEGER]    Environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, Default is 0)\n"
 "    --envRad [FILENAME]      Specify the environment radiance HDR\n"
-"    --envIrrad [FILENAME]    Specify the environment irradiance HDR\n"
 "    --msaa [INTEGER]         Multisampling count for anti-aliasing (0 = disabled, Default is 0)\n"
 "    --refresh [INTEGER]      Refresh period for the viewer in milliseconds (-1 = disabled, Default is 50)\n"
 "    --remap [TOKEN1:TOKEN2]  Remap one token to another when MaterialX document is loaded\n"
@@ -31,8 +30,8 @@ int main(int argc, char* const argv[])
     mx::FilePathVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", 
                                        "libraries/bxdf", "libraries/lights", "libraries/lights/genglsl" };
     mx::FileSearchPath searchPath;
-    std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
+    std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string envRadiancePath = "resources/Images/Environments/san_giuseppe_bridge.hdr";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
@@ -43,6 +42,14 @@ int main(int argc, char* const argv[])
     {
         const std::string& token = tokens[i];
         const std::string& nextToken = i + 1 < tokens.size() ? tokens[i + 1] : mx::EMPTY_STRING;
+        if (token == "--material" && !nextToken.empty())
+        {
+            materialFilename = nextToken;
+        }
+        if (token == "--mesh" && !nextToken.empty())
+        {
+            meshFilename = nextToken;
+        }
         if (token == "--library" && !nextToken.empty())
         {
             libraryFolders.push_back(nextToken);
@@ -50,14 +57,6 @@ int main(int argc, char* const argv[])
         if (token == "--path" && !nextToken.empty())
         {
             searchPath.append(mx::FileSearchPath(nextToken));
-        }
-        if (token == "--mesh" && !nextToken.empty())
-        {
-            meshFilename = nextToken;
-        }
-        if (token == "--material" && !nextToken.empty())
-        {
-            materialFilename = nextToken;
         }
         if (token == "--envMethod" && !nextToken.empty())
         {
@@ -131,10 +130,10 @@ int main(int argc, char* const argv[])
     {
         ng::init();
         {
-            ng::ref<Viewer> viewer = new Viewer(libraryFolders,
-                                                searchPath,
+            ng::ref<Viewer> viewer = new Viewer(materialFilename,
                                                 meshFilename,
-                                                materialFilename,
+                                                libraryFolders,
+                                                searchPath,
                                                 modifiers,
                                                 specularEnvironmentMethod,
                                                 envRadiancePath,
