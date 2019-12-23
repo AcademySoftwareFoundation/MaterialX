@@ -296,8 +296,8 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 }
 
 
-void ShaderGeneratorTester::checkImplementationUsage(mx::StringSet& usedImpls,
-                                                     mx::GenContext& context,
+void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedImpls,
+                                                     const mx::GenContext& context,
                                                      std::ostream& stream)
 {
     // Get list of implementations a given langauge.

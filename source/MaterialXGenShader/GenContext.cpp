@@ -44,7 +44,7 @@ void GenContext::addNodeImplementation(const string& name, ShaderNodeImplPtr imp
     _nodeImpls[name] = impl;
 }
 
-ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name)
+ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name) const
 {
     auto it = _nodeImpls.find(name);
     return it != _nodeImpls.end() ? it->second : nullptr;

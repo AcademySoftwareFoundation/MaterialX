@@ -199,13 +199,13 @@ class ShaderGeneratorTester
     void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);
 
   protected:
-    // Check to see that all implemenations have been tested for a given
+    // Check to see that all implementations have been tested for a given
     // language.
-    void checkImplementationUsage(mx::StringSet& usedImpls,
-                                    mx::GenContext& context,
+    void checkImplementationUsage(const mx::StringSet& usedImpls,
+                                    const mx::GenContext& context,
                                     std::ostream& stream);
 
-    // Get implemenation "whitelist" for those implementations that have
+    // Get implementation "whitelist" for those implementations that have
     // been skipped for checking
     virtual void getImplementationWhiteList(mx::StringSet& whiteList) = 0;
 
