@@ -172,6 +172,9 @@ class ShaderGeneratorTester
     // Add nodedefs to not examine
     virtual void addSkipNodeDefs();
 
+    // Add files to be skipped while loading libraries
+    virtual void addSkipLibraryFiles();
+
     // Add color management
     virtual void addColorManagement();
 
@@ -225,6 +228,7 @@ class ShaderGeneratorTester
     const mx::FilePath _logFilePath;
 
     mx::StringSet _skipFiles;
+    mx::StringSet _skipLibraryFiles;
     std::vector<mx::DocumentPtr> _documents;
     mx::StringVec _documentPaths;
     std::ofstream _logFile;
