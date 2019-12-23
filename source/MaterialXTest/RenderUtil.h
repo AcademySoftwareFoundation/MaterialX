@@ -40,8 +40,6 @@ namespace mx = MaterialX;
 //
 namespace RenderUtil
 {
-void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::GenContext& context,
-    const mx::FilePath& envIrradiancePath, const mx::FilePath& envRadiancePath);
 
 // Scoped timer which adds a duration to a given externally reference timing duration
 //

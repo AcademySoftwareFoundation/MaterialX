@@ -1,10 +1,10 @@
-# Library Structure
+# MaterialX Data Libraries
 
 The following is the layout of the definitions and implementations provided as part of the core libraries.
 
-- `osl` denotes a reference implementation for OSL.
-- `genosl` denotes "generated" OSL code support. The language specifier is `genosl` and the target is `vanilla`.
-- `genglsl` denotes "generated" GLSL code  support. The language specifier is `genglsl` with no specific target specifier.
+- `genglsl` : Support for GLSL code generation
+- `genosl` : Support for OSL code generation
+- `osl` : Reference OSL implementations
 
 ## Standard Library
 - [stdlib](stdlib)
@@ -23,7 +23,7 @@ The following is the layout of the definitions and implementations provided as p
     - [osl](stdlib/osl): OSL reference implementation
         -  OSL implementation files.
 
-## PBR library
+## Physically-Based Shading Library
 - [pbrlib](pbrlib)
     - [pbrlib_defs.mtlx](pbrlib/pbrlib_defs.mtlx) : Single node definitions file.
     - [pbrlib_ng.mtlx](pbrlib/pbrlib_ng.mtlx) : Node graph definitions file.
