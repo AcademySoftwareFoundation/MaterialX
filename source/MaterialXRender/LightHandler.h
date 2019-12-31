@@ -28,8 +28,10 @@ using LightHandlerPtr = std::shared_ptr<class LightHandler>;
 class LightHandler
 {
   public:
-    LightHandler();
-    virtual ~LightHandler();
+    LightHandler()
+    {
+    }
+    virtual ~LightHandler() { }
 
     /// Create a new light handler
     static LightHandlerPtr create() { return std::make_shared<LightHandler>(); }
@@ -56,9 +58,9 @@ class LightHandler
     }
 
     /// Set the environment radiance map
-    void setEnvRadianceMap(ImagePtr envRadianceMap)
+    void setEnvRadianceMap(ImagePtr map)
     {
-        _envRadianceMap = envRadianceMap;
+        _envRadianceMap = map;
     }
 
     /// Return the environment radiance map
@@ -68,9 +70,9 @@ class LightHandler
     }
 
     /// Set the environment irradiance map
-    void setEnvIrradianceMap(ImagePtr envIrradianceMap)
+    void setEnvIrradianceMap(ImagePtr map)
     {
-        _envIrradianceMap = envIrradianceMap;
+        _envIrradianceMap = map;
     }
 
     /// Return the environment irradiance map

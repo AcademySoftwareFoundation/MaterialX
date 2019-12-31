@@ -10,14 +10,6 @@
 namespace MaterialX
 {
 
-LightHandler::LightHandler()
-{
-}
-
-LightHandler::~LightHandler()
-{
-}
-
 void LightHandler::addLightSource(NodePtr node)
 {
     _lightSources.push_back(node);
