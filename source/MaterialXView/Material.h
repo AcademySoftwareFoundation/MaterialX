@@ -110,12 +110,6 @@ class Material
                                    mx::DocumentPtr stdLib,
                                    const mx::FilePath& imagePath);
 
-    /// Generate an ambient occlusion shader
-    bool generateAmbOccShader(mx::GenContext& context,
-                              const mx::FilePath& filename,
-                              mx::DocumentPtr stdLib,
-                              const mx::FilePath& imagePath);
-
     /// Return the underlying OpenGL shader.
     GLShaderPtr getShader() const
     {
@@ -127,7 +121,7 @@ class Material
     {
         return _hasTransparency;
     }
-    
+
     /// Bind shader
     void bindShader();
 
@@ -147,6 +141,7 @@ class Material
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
                     bool directLighting, bool indirectLighting,
+                    mx::ImagePtr ambientOcclusionMap, float ambientOcclusionGain,
                     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples);
 
     /// Bind units.
