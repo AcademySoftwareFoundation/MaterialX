@@ -43,8 +43,6 @@ class PropertyEditor
     void create(Viewer& parent);
     void addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
                        ng::Widget* container, Viewer* viewer, bool editable);
-    ng::FloatBox<float>* makeFloatWidget(ng::Widget* container, const std::string& label, mx::ValuePtr value,
-                       bool editable, mx::ValuePtr min, mx::ValuePtr max, Viewer* viewer, const std::string& path);
 
     ng::Window* _window;
     ng::Widget* _container;
@@ -53,5 +51,8 @@ class PropertyEditor
     bool _visible;
     bool _fileDialogsForImages;
 };
+
+ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& label, float value,
+                                       std::function<void(float)> callback = nullptr);
 
 #endif // MATERIALXVIEW_EDITOR_H

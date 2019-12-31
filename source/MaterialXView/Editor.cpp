@@ -137,53 +137,6 @@ void PropertyEditor::create(Viewer& parent)
     _gridLayout3->setColAlignment({ ng::Alignment::Minimum, ng::Alignment::Maximum, ng::Alignment::Maximum });
 }
 
-ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, const std::string& label, mx::ValuePtr value,
-                                                     bool editable, mx::ValuePtr min, mx::ValuePtr max,
-                                                     Viewer* viewer, const std::string& path)
-{
-    new ng::Label(container, label);
-
-    float v = value->asA<float>();
-
-    ng::Slider *slider = new ng::Slider(container);
-    slider->setValue(v);
-
-    ng::FloatBox<float>* floatVar = new ng::FloatBox<float>(container, v);
-    floatVar->setFixedSize(ng::Vector2i(100, 20));
-    floatVar->setEditable(editable);
-    floatVar->setFontSize(15);
-    floatVar->setAlignment(ng::TextBox::Alignment::Right);
-    if (min)
-    {
-        floatVar->setMinValue(min->asA<float>());
-    }
-    if (max)
-    {
-        floatVar->setMinValue(min->asA<float>());
-    }
-
-    slider->setCallback([floatVar, path, viewer](float value) 
-    {
-        floatVar->setValue(value);
-        MaterialPtr material = viewer->getSelectedMaterial();
-        if (material)
-        {
-            material->setUniformFloat(path, value);            
-        }
-    });
-    floatVar->setCallback([slider, path, viewer](float value)
-    {
-        slider->setValue(value);
-        MaterialPtr material = viewer->getSelectedMaterial();
-        if (material)
-        {
-            material->setUniformFloat(path, value);
-        }
-    });
-
-    return floatVar;
-}
-
 void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
                                    ng::Widget* container, Viewer* viewer, bool editable)
 {
@@ -296,7 +249,17 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     {
         ng::Widget* threeColumns = new ng::Widget(container);
         threeColumns->setLayout(_gridLayout3);
-        makeFloatWidget(threeColumns, label, value, editable, min, max, viewer, path);
+        ng::FloatBox<float>* floatBox = createFloatWidget(threeColumns, label, value->asA<float>(), [viewer, path](float value)
+        {
+            MaterialPtr material = viewer->getSelectedMaterial();
+            if (material)
+            {
+                material->setUniformFloat(path, value);            
+            }
+        });
+        floatBox->setFixedSize(ng::Vector2i(100, 20));
+        floatBox->setEditable(editable);
+        floatBox->setMinMaxValues(min->asA<float>(), max->asA<float>());
     }
 
     // Boolean widget
@@ -791,4 +754,31 @@ void PropertyEditor::updateContents(Viewer* viewer)
     }
 
     viewer->performLayout();
+}
+
+ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& label, float value,
+                                       std::function<void(float)> callback)
+{
+    new ng::Label(parent, label);
+
+    ng::Slider *slider = new ng::Slider(parent);
+    slider->setValue(value);
+
+    ng::FloatBox<float>* box = new ng::FloatBox<float>(parent, value);
+    box->setFixedWidth(60);
+    box->setFontSize(15);
+    box->setAlignment(ng::TextBox::Alignment::Right);
+
+    slider->setCallback([box, callback](float value) 
+    {
+        box->setValue(value);
+        callback(value);
+    });
+    box->setCallback([slider, callback](float value)
+    {
+        slider->setValue(value);
+        callback(value);
+    });
+
+    return box;
 }

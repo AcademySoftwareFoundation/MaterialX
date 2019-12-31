@@ -121,10 +121,12 @@ namespace HW
     extern const string T_GEOMATTR;
     extern const string T_NUM_ACTIVE_LIGHT_SOURCES;
     extern const string T_ENV_MATRIX;
-    extern const string T_ENV_IRRADIANCE;
     extern const string T_ENV_RADIANCE;
     extern const string T_ENV_RADIANCE_MIPS;
     extern const string T_ENV_RADIANCE_SAMPLES;
+    extern const string T_ENV_IRRADIANCE;
+    extern const string T_AMB_OCC_MAP;
+    extern const string T_AMB_OCC_GAIN;
     extern const string T_VERTEX_DATA_INSTANCE;
     extern const string T_LIGHT_DATA_INSTANCE;
 
@@ -168,10 +170,12 @@ namespace HW
     extern const string GEOMATTR;
     extern const string NUM_ACTIVE_LIGHT_SOURCES;
     extern const string ENV_MATRIX;
-    extern const string ENV_IRRADIANCE;
     extern const string ENV_RADIANCE;
     extern const string ENV_RADIANCE_MIPS;
     extern const string ENV_RADIANCE_SAMPLES;
+    extern const string ENV_IRRADIANCE;
+    extern const string AMB_OCC_MAP;
+    extern const string AMB_OCC_GAIN;
     extern const string VERTEX_DATA_INSTANCE;
     extern const string LIGHT_DATA_INSTANCE;
 

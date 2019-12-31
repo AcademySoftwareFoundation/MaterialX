@@ -83,9 +83,21 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             normal->setEmitted();
             shadergen.emitLine(prefix + normal->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_NORMAL + ", 0)).xyz)", stage);
         }
+        if (context.getOptions().hwAmbientOcclusion)
+        {
+            ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
+            if (!texcoord->isEmitted())
+            {
+                texcoord->setEmitted();
+                shadergen.emitLine(prefix + texcoord->getVariable() + " = " + HW::T_IN_TEXCOORD + "_0", stage);
+            }
+        }
     END_SHADER_STAGE(stage, Stage::VERTEX)
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+
         // Declare the output variable
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, true, context, stage);
@@ -112,6 +124,23 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         const string outTransparency = output->getVariable() + ".transparency";
 
         //
+        // Compute shadowing and occlusion
+        //
+
+        shadergen.emitComment("Compute occlusion term", stage);
+        if (context.getOptions().hwAmbientOcclusion)
+        {
+            ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
+            shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
+            shadergen.emitLine("float occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+        }
+        else
+        {
+            shadergen.emitLine("float occlusion = 1.0", stage);
+        }
+        shadergen.emitLineBreak(stage);
+
+        //
         // Handle direct lighting
         //
 
@@ -134,7 +163,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Accumulate the light's contribution", stage);
-        shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf, stage);
+        shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf + " * occlusion", stage);
 
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
@@ -155,12 +184,14 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitScopeBegin(stage);
         shadergen.emitBsdfNodes(graph, node, _callIndirect, context, stage, bsdf);
         shadergen.emitLineBreak(stage);
-        shadergen.emitLine(outColor + " += " + bsdf, stage);
+        shadergen.emitLine(outColor + " += " + bsdf + " * occlusion", stage);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
 
+        //
         // Handle surface transparency
         //
+
         if (context.getOptions().hwTransparency)
         {
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
