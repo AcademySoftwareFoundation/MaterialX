@@ -27,12 +27,30 @@ class Vector3d : public VectorN<Vector3d, double, 3>
     }
 };
 
-/// @class Color3d
-/// A three-component color value (double-precision)
-class Color3d : public Vector3d
+/// @class Vector4d
+/// A vector of four floating-point values (double-precision)
+class Vector4d : public VectorN<Vector4d, double, 4>
 {
   public:
-    using Vector3d::Vector3d;
+    using VectorN<Vector4d, double, 4>::VectorN;
+    Vector4d() { }
+    Vector4d(double x, double y, double z, double w) : VectorN(Uninit{})
+    {
+        _arr = {x, y, z, w};
+    }
+};
+
+/// @class Color3d
+/// A three-component color value (double-precision)
+class Color3d : public VectorN<Color3d, double, 3>
+{
+  public:
+    using VectorN<Color3d, double, 3>::VectorN;
+    Color3d() { }
+    Color3d(double r, double g, double b) : VectorN(Uninit{})
+    {
+        _arr = {r, g, b};
+    }
 };
 
 /// @class Half

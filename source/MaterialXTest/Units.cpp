@@ -12,8 +12,6 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/UnitConverter.h>
 
-#include <cmath>
-
 namespace mx = MaterialX;
 
 const float EPSILON = 1e-4f;

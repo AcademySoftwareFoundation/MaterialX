@@ -12,6 +12,7 @@
 #include <MaterialXCore/Library.h>
 
 #include <array>
+#include <cmath>
 
 namespace MaterialX
 {
@@ -187,7 +188,13 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// @{
 
     /// Return the magnitude of the vector.
-    S getMagnitude() const;
+    S getMagnitude() const
+    {
+        S res{};
+        for (size_t i = 0; i < N; i++)
+            res += _arr[i] * _arr[i];
+        return std::sqrt(res);
+    }
 
     /// Return a normalized vector.
     V getNormalized() const
@@ -292,26 +299,41 @@ class Vector4 : public VectorN<Vector4, float, 4>
 
 /// @class Color2
 /// A two-component color value
-class Color2 : public Vector2
+class Color2 : public VectorN<Color2, float, 2>
 {
   public:
-    using Vector2::Vector2;
+    using VectorN<Color2, float, 2>::VectorN;
+    Color2() { }
+    Color2(float r, float a) : VectorN(Uninit{})
+    {
+        _arr = {r, a};
+    }
 };
 
 /// @class Color3
 /// A three-component color value
-class Color3 : public Vector3
+class Color3 : public VectorN<Color3, float, 3>
 {
   public:
-    using Vector3::Vector3;
+    using VectorN<Color3, float, 3>::VectorN;
+    Color3() { }
+    Color3(float r, float g, float b) : VectorN(Uninit{})
+    {
+        _arr = {r, g, b};
+    }
 };
 
 /// @class Color4
 /// A four-component color value
-class Color4 : public Vector4
+class Color4 : public VectorN<Color4, float, 4>
 {
   public:
-    using Vector4::Vector4;
+    using VectorN<Color4, float, 4>::VectorN;
+    Color4() { }
+    Color4(float r, float g, float b, float a) : VectorN(Uninit{})
+    {
+        _arr = {r, g, b, a};
+    }
 };
 
 /// The base class for square matrices of scalar values
