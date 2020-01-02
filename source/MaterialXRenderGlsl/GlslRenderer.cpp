@@ -9,7 +9,6 @@
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
 
-#include <cmath>
 #include <iostream>
 
 namespace MaterialX
