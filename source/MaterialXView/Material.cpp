@@ -40,50 +40,6 @@ bool Material::generateConstantShader(mx::GenContext& context,
     return _glShader->init(shaderName, vertexShader, pixelShader);
 }
 
-bool Material::generateAmbOccShader(mx::GenContext& context,
-                                    const mx::FilePath& filename,
-                                    mx::DocumentPtr stdLib,
-                                    const mx::FilePath& imagePath)
-{
-    // Read in the ambient occlusion nodegraph. 
-    mx::DocumentPtr doc = mx::createDocument();
-    doc->importLibrary(stdLib);
-    mx::DocumentPtr envDoc = mx::createDocument();
-    mx::readFromXmlFile(envDoc, filename);
-    doc->importLibrary(envDoc);
-
-    mx::NodeGraphPtr nodeGraph = doc->getNodeGraph("NG_ambientOcclusion");
-    if (!nodeGraph)
-    {
-        return false;
-    }
-    mx::NodePtr image = nodeGraph->getNode("image_ao");
-    if (!image)
-    {
-        return false;
-    }
-    image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
-    mx::OutputPtr output = nodeGraph->getOutput("out");
-    if (!output)
-    {
-        return false;
-    }
-
-    // Create the shader.
-    std::string shaderName = "__AO_SHADER__";
-    _hwShader = createShader(shaderName, context, output); 
-    if (!_hwShader)
-    {
-        return false;
-    }
-    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
-    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
-
-    // Compile and return.
-    _glShader = std::make_shared<ng::GLShader>();
-    return _glShader->init(shaderName, vertexShader, pixelShader);
-}
-
 bool Material::generateEnvironmentShader(mx::GenContext& context,
                                          const mx::FilePath& filename,
                                          mx::DocumentPtr stdLib,
@@ -189,10 +145,8 @@ bool Material::generateShader(mx::GenContext& context)
     {
         return false;
     }
-    if (!_hwShader)
-    {
-        _hwShader = createShader("Shader", context, _elem);
-    }
+
+    _hwShader = createShader("Shader", context, _elem);
     if (!_hwShader)
     {
         return false;
@@ -200,15 +154,14 @@ bool Material::generateShader(mx::GenContext& context)
 
     _hasTransparency = context.getOptions().hwTransparency;
 
-    if (!_glShader)
-    {
-        std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
-        std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
+    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
+    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
 
-        _glShader = std::make_shared<ng::GLShader>();
-        _glShader->init(_elem->getNamePath(), vertexShader, pixelShader);
-        updateUniformsList();
-    }
+    _glShader = std::make_shared<ng::GLShader>();
+    _glShader->init(_elem->getNamePath(), vertexShader, pixelShader);
+
+    updateUniformsList();
+
     return true;
 }
 
@@ -452,6 +405,7 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
 
 void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
                           bool directLighting, bool indirectLighting,
+                          mx::ImagePtr ambientOcclusionMap, float ambientOcclusionGain,
                           mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
 {
     if (!_glShader)
@@ -461,7 +415,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
 
     _glShader->bind();
 
-    // Bind environment light uniforms and images.
+    // Bind environment lighting properties.
     if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
     {
         if (_glShader->uniform(mx::HW::ENV_RADIANCE_SAMPLES, false) != -1)
@@ -510,65 +464,86 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
         }
     }
 
-    // Skip direct lights if unsupported by the shader.
-    if (_glShader->uniform(mx::HW::NUM_ACTIVE_LIGHT_SOURCES, false) == -1)
+    // Bind direct lighting properties.
+    if (_glShader->uniform(mx::HW::NUM_ACTIVE_LIGHT_SOURCES, false) != -1)
     {
-        return;
+        int lightCount = directLighting ? (int) lightHandler->getLightSources().size() : 0;
+        _glShader->setUniform(mx::HW::NUM_ACTIVE_LIGHT_SOURCES, lightCount);
+        std::unordered_map<std::string, unsigned int> ids;
+        lightHandler->mapNodeDefToIdentiers(lightHandler->getLightSources(), ids);
+        size_t index = 0;
+        for (mx::NodePtr light : lightHandler->getLightSources())
+        {
+            auto nodeDef = light->getNodeDef();
+            if (!nodeDef)
+            {
+                continue;
+            }
+
+            const std::string prefix = mx::HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(index) + "]";
+
+            // Set light type id
+            std::string lightType(prefix + ".type");
+            if (_glShader->uniform(lightType, false) != -1)
+            {
+                unsigned int lightTypeValue = ids[nodeDef->getName()];
+                _glShader->setUniform(lightType, lightTypeValue);
+            }
+
+            // Set all inputs
+            for (const auto& input : light->getInputs())
+            {
+                // Make sure we have a value to set
+                if (input->hasValue())
+                {
+                    std::string inputName(prefix + "." + input->getName());
+                    if (_glShader->uniform(inputName, false) != -1)
+                    {
+                        bindUniform(inputName, input->getValue());
+                    }
+                }
+            }
+
+            // Set all parameters. Note that upstream node connections are not currently supported.
+            for (mx::ParameterPtr param : light->getParameters())
+            {
+                // Make sure we have a value to set
+                if (param->hasValue())
+                {
+                    std::string paramName(prefix + "." + param->getName());
+                    if (_glShader->uniform(paramName, false) != -1)
+                    {
+                        bindUniform(paramName, param->getValue());
+                    }
+                }
+            }
+
+            ++index;
+        }
     }
 
-    // Bind direct light sources.
-    int lightCount = directLighting ? (int) lightHandler->getLightSources().size() : 0;
-    _glShader->setUniform(mx::HW::NUM_ACTIVE_LIGHT_SOURCES, lightCount);
-    std::unordered_map<std::string, unsigned int> ids;
-    lightHandler->mapNodeDefToIdentiers(lightHandler->getLightSources(), ids);
-    size_t index = 0;
-    for (mx::NodePtr light : lightHandler->getLightSources())
+    // Bind ambient occlusion properties.
+    if (ambientOcclusionMap && _glShader->uniform(mx::HW::AMB_OCC_MAP, false) != -1)
     {
-        auto nodeDef = light->getNodeDef();
-        if (!nodeDef)
-        {
-            continue;
-        }
+        mx::ImageSamplingProperties samplingProperties;
+        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
+        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
+        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
 
-        const std::string prefix = mx::HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(index) + "]";
-
-        // Set light type id
-        std::string lightType(prefix + ".type");
-        if (_glShader->uniform(lightType, false) != -1)
+        // Bind the ambient occlusion map.
+        if (imageHandler->bindImage(ambientOcclusionMap, samplingProperties))
         {
-            unsigned int lightTypeValue = ids[nodeDef->getName()];
-            _glShader->setUniform(lightType, lightTypeValue);
-        }
-
-        // Set all inputs
-        for (const auto& input : light->getInputs())
-        {
-            // Make sure we have a value to set
-            if (input->hasValue())
+            mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+            int textureLocation = textureHandler->getBoundTextureLocation(ambientOcclusionMap->getResourceId());
+            if (textureLocation >= 0)
             {
-                std::string inputName(prefix + "." + input->getName());
-                if (_glShader->uniform(inputName, false) != -1)
-                {
-                    bindUniform(inputName, input->getValue());
-                }
+                _glShader->setUniform(mx::HW::AMB_OCC_MAP, textureLocation, false);
             }
         }
-
-        // Set all parameters. Note that upstream node connections are not currently supported.
-        for (mx::ParameterPtr param : light->getParameters())
-        {
-            // Make sure we have a value to set
-            if (param->hasValue())
-            {
-                std::string paramName(prefix + "." + param->getName());
-                if (_glShader->uniform(paramName, false) != -1)
-                {
-                    bindUniform(paramName, param->getValue());
-                }
-            }
-        }
-
-        ++index;
+    }
+    if (_glShader->uniform(mx::HW::AMB_OCC_GAIN, false) != -1)
+    {
+        _glShader->setUniform(mx::HW::AMB_OCC_GAIN, ambientOcclusionGain);
     }
 }
 

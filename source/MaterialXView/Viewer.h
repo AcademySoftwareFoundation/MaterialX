@@ -119,6 +119,9 @@ class Viewer : public ng::Screen
                                             unsigned int index,
                                             const std::string& positionStreamName);
 
+    /// Return the ambient occlusion image, if any, associated with the given material.
+    mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
+    
   private:
     ng::Window* _window;
     ng::Arcball _arcball;
@@ -147,18 +150,18 @@ class Viewer : public ng::Screen
     mx::StringSet _xincludeFiles;
 
     // Lighting information
-    mx::FilePath _lightFileName;
+    mx::FilePath _lightFilename;
     mx::FilePath _envRadiancePath;
     bool _directLighting;
     bool _indirectLighting;
-    bool _ambientOcclusion;
+    float _ambientOcclusionGain;
 
     // Geometry selections
     mx::FilePath _meshFilename;
     std::vector<mx::MeshPartitionPtr> _geometryList;
     size_t _selectedGeom;
     ng::Label* _geomLabel;
-    ng::ComboBox* _geometryListBox;
+    ng::ComboBox* _geometrySelectionBox;
 
     // Material selections
     std::vector<MaterialPtr> _materials;
@@ -177,7 +180,6 @@ class Viewer : public ng::Screen
     mx::LightHandlerPtr _lightHandler;
 
     // Supporting materials and geometry.
-    MaterialPtr _ambOccMaterial;
     mx::GeometryHandlerPtr _envGeometryHandler;
     MaterialPtr _envMaterial;
 

@@ -68,6 +68,14 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(v2 - v1 == mx.Vector3(1, 2, 3))
         self.assertTrue(v2 * v1 == mx.Vector3(2, 8, 18))
         self.assertTrue(v2 / v1 == mx.Vector3(2, 2, 2))
+        v2 += v1
+        self.assertTrue(v2 == mx.Vector3(3, 6, 9))
+        v2 -= v1
+        self.assertTrue(v2 == mx.Vector3(2, 4, 6))
+        v2 *= v1
+        self.assertTrue(v2 == mx.Vector3(2, 8, 18))
+        v2 /= v1
+        self.assertTrue(v2 == mx.Vector3(2, 4, 6))
         self.assertTrue(v1 * 2 == v2)
         self.assertTrue(v2 / 2 == v1)
 

@@ -5,8 +5,6 @@
 
 #include <MaterialXCore/Types.h>
 
-#include <cmath>
-
 namespace MaterialX
 {
 
@@ -34,26 +32,6 @@ const Matrix44 Matrix44::IDENTITY(1, 0, 0, 0,
                                   0, 1, 0, 0,
                                   0, 0, 1, 0,
                                   0, 0, 0, 1);
-
-//
-// Vector methods
-//
-
-template <> float VectorN<Vector2, float, 2>::getMagnitude() const
-{
-    return std::sqrt(_arr[0]*_arr[0] + _arr[1]*_arr[1]);
-}
-
-template <> float VectorN<Vector3, float, 3>::getMagnitude() const
-{
-    return std::sqrt(_arr[0]*_arr[0] + _arr[1]*_arr[1] + _arr[2]*_arr[2]);
-}
-
-template <> float VectorN<Vector4, float, 4>::getMagnitude() const
-{
-    return std::sqrt(_arr[0]*_arr[0] + _arr[1]*_arr[1] +
-                     _arr[2]*_arr[2] + _arr[3]*_arr[3]);
-}
 
 //
 // Matrix33 methods

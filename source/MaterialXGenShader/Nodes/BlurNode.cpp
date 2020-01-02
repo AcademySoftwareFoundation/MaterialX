@@ -9,8 +9,6 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-#include <cmath>
-
 namespace MaterialX
 {
 

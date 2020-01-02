@@ -46,5 +46,5 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 ### Additional Resources
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
-- The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
+- The [Python Scripts](python/Scripts/README.md) folder contains standalone examples of MaterialX Python code.
 - Presentations at the [Autodesk Vision Series](https://area.autodesk.com/blogs/thebuzz/open-source-at-autodesk-materialx/) provide details on the roadmap for MaterialX development.
