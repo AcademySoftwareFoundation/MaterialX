@@ -7,8 +7,6 @@
 
 #include <MaterialXRender/Types.h>
 
-#include <cmath>
-
 namespace MaterialX
 {
 
