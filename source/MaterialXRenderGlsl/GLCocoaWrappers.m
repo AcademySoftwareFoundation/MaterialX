@@ -196,13 +196,6 @@ void NSOpenGLUpdate(void* pContext)
     [context update];
 }
 
-void* NSOpenGLCGLContextObj(void* pContext)
-{
-  NSOpenGLContext *context = (NSOpenGLContext*)pContext;
-    NSOpenGLContextAuxiliary* contextAuxiliary =  [context CGLContextObj];
-    return contextAuxiliary;
-}
-
 void* NSOpenGLGetWindow(void* pView)
 {
   NSView *view = (NSView*)pView;
