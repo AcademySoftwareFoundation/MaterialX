@@ -12,7 +12,7 @@ if(APPLE)
   set_source_files_properties(${materialx_source_oc} PROPERTIES
                               COMPILE_FLAGS "-x objective-c++")
   set(materialx_source ${materialx_source} ${materialx_source_oc})
-endif(APPLE)
+endif()
 
 assign_source_group("Source Files" ${materialx_source})
 assign_source_group("Header Files" ${materialx_headers})
@@ -38,7 +38,7 @@ elseif(UNIX)
         ${CMAKE_DL_LIBS}
         ${X11_LIBRARIES}
         ${X11_Xt_LIB})
-endif(MSVC)
+endif()
 
 set_target_properties(
     MaterialXRenderHw PROPERTIES

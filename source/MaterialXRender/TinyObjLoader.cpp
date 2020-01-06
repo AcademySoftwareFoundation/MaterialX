@@ -7,19 +7,23 @@
 #include <MaterialXCore/Util.h>
 
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
+
 #define TINYOBJLOADER_IMPLEMENTATION
+
 #include <MaterialXRender/External/TinyObjLoader/tiny_obj_loader.h>
+
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
+    #pragma GCC diagnostic pop
 #endif
 
 #include <iostream>
 
 namespace MaterialX
 {
+
 bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     tinyobj::attrib_t attrib;

@@ -43,7 +43,6 @@ add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
 target_link_libraries(
     MaterialXView
-    MaterialXFormat
     MaterialXGenGlsl
     MaterialXRenderGlsl
     nanogui
