@@ -3,27 +3,26 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#if defined(_WIN32)
+#include <MaterialXRender/StbImageLoader.h>
+
+#if defined(_MSC_VER)
     #pragma warning(push)
     #pragma warning(disable: 4100)
     #pragma warning(disable: 4505)
+    #pragma warning(disable: 4996)
 #endif
-
-// Make the functions static to avoid multiple definitions if other libraries
-// are also using stb
-#define STB_IMAGE_STATIC 1
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <MaterialXRender/External/StbImage/stb_image_write.h>
 
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC 1
 #include <MaterialXRender/External/StbImage/stb_image.h>
 
-#if defined(_WIN32)
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_STATIC 1
+#include <MaterialXRender/External/StbImage/stb_image_write.h>
+
+#if defined(_MSC_VER)
     #pragma warning(pop)
 #endif
-
-#include <MaterialXRender/StbImageLoader.h>
 
 namespace MaterialX
 {

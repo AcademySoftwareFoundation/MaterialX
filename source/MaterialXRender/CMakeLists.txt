@@ -18,35 +18,17 @@ endif()
 
 add_library(MaterialXRender STATIC ${materialx_source} ${materialx_headers})
 
-if(MSVC)
-    target_link_libraries(
-        MaterialXRender
-        MaterialXGenShader
-        MaterialXCore
-        Opengl32
-        ${CMAKE_DL_LIBS})
-elseif(APPLE)
-    target_link_libraries(
-        MaterialXRender
-        MaterialXGenShader
-        MaterialXCore
-        ${CMAKE_DL_LIBS})
-elseif(UNIX)
-    target_link_libraries(
-        MaterialXRender
-        MaterialXGenShader
-        MaterialXCore
-        ${CMAKE_DL_LIBS})
-endif(MSVC)
+target_link_libraries(
+    MaterialXRender
+    MaterialXGenShader
+    ${CMAKE_DL_LIBS})
 
 if(MATERIALX_BUILD_OIIO)
     set(OPENIMAGEIO_ROOT_DIR ${MATERIALX_OIIO_DIR})
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/External/OpenImageIO")
     find_package(OpenImageIO REQUIRED)
-    if(OPENIMAGEIO_FOUND)
-        include_directories(${OPENIMAGEIO_INCLUDE_DIR})
-        target_link_libraries(MaterialXRender ${OPENIMAGEIO_LIBRARIES})
-    endif()
+    include_directories(${OPENIMAGEIO_INCLUDE_DIR})
+    target_link_libraries(MaterialXRender ${OPENIMAGEIO_LIBRARIES})
 endif()
 
 set_target_properties(

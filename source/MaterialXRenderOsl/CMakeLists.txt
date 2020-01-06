@@ -10,23 +10,6 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXRenderOsl STATIC ${materialx_source} ${materialx_headers})
 
-if(MSVC)
-    target_link_libraries(
-    MaterialXRenderOsl
-    MaterialXRender
-    ${CMAKE_DL_LIBS})
-elseif(APPLE)
-    target_link_libraries(
-    MaterialXRenderOsl
-    MaterialXRender
-    ${CMAKE_DL_LIBS})
-elseif(UNIX)
-    target_link_libraries(
-    MaterialXRenderOsl
-    MaterialXRender
-    ${CMAKE_DL_LIBS})
-endif(MSVC)
-
 set_target_properties(
     MaterialXRenderOsl PROPERTIES
     OUTPUT_NAME MaterialXRenderOsl
@@ -34,6 +17,11 @@ set_target_properties(
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
+
+target_link_libraries(
+    MaterialXRenderOsl
+    MaterialXRender
+    ${CMAKE_DL_LIBS})
 
 install(TARGETS MaterialXRenderOsl
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
