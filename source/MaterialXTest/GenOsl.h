@@ -39,6 +39,11 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         ParentClass::addSkipNodeDefs();
     }
 
+    // Arnold specific files are ignored in vanilla osl target
+    void addSkipLibraryFiles() override
+    {
+        _skipLibraryFiles.insert( "pbrlib_genosl_arnold_impl.mtlx" );
+    }
     // Ignore light shaders in the document for OSL
     void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
     {

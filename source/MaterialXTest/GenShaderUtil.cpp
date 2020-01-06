@@ -296,8 +296,8 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 }
 
 
-void ShaderGeneratorTester::checkImplementationUsage(mx::StringSet& usedImpls,
-                                                     mx::GenContext& context,
+void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedImpls,
+                                                     const mx::GenContext& context,
                                                      std::ostream& stream)
 {
     // Get list of implementations a given langauge.
@@ -464,7 +464,8 @@ void ShaderGeneratorTester::setupDependentLibraries()
 
     // Load the standard libraries.
     const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
-    loadLibraries(libraries, _libSearchPath, _dependLib);
+
+    loadLibraries(libraries, _libSearchPath, _dependLib, &_skipLibraryFiles);
 
     // Load shader definitions used in the test suite.
     loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
@@ -480,6 +481,10 @@ void ShaderGeneratorTester::addSkipFiles()
 }
 
 void ShaderGeneratorTester::addSkipNodeDefs()
+{
+}
+
+void ShaderGeneratorTester::addSkipLibraryFiles()
 {
 }
 
