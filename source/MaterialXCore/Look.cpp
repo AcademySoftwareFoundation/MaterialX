@@ -7,9 +7,7 @@
 
 namespace MaterialX
 {
-const string LookGroup::LOOKS_ATTRIBUTE = "looks";
-const string LookGroup::ACTIVE_ATTRIBUTE = "active";
-
+	
 const string MaterialAssign::MATERIAL_ATTRIBUTE = "material";
 const string MaterialAssign::EXCLUSIVE_ATTRIBUTE = "exclusive";
 
@@ -17,6 +15,9 @@ const string Visibility::VIEWER_GEOM_ATTRIBUTE = "viewergeom";
 const string Visibility::VIEWER_COLLECTION_ATTRIBUTE = "viewercollection";
 const string Visibility::VISIBILITY_TYPE_ATTRIBUTE = "vistype";
 const string Visibility::VISIBLE_ATTRIBUTE = "visible";
+
+const string LookGroup::LOOKS_ATTRIBUTE = "looks";
+const string LookGroup::ACTIVE_ATTRIBUTE = "active";
 
 //
 // Look methods
