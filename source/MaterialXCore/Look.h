@@ -29,6 +29,11 @@ using LookPtr = shared_ptr<Look>;
 /// A shared pointer to a const Look
 using ConstLookPtr = shared_ptr<const Look>;
 
+/// A shared pointer to a LookGroup
+using LookGroupPtr = shared_ptr<LookGroup>;
+/// A shared pointer to a const LookGroup
+using ConstLookGroupPtr = shared_ptr<const LookGroup>;
+
 /// A shared pointer to a MaterialAssign
 using MaterialAssignPtr = shared_ptr<MaterialAssign>;
 /// A shared pointer to a const MaterialAssign
@@ -38,11 +43,6 @@ using ConstMaterialAssignPtr = shared_ptr<const MaterialAssign>;
 using VisibilityPtr = shared_ptr<Visibility>;
 /// A shared pointer to a const Visibility
 using ConstVisibilityPtr = shared_ptr<const Visibility>;
-
-/// A shared pointer to a LookGroup
-using LookGroupPtr = shared_ptr<LookGroup>;
-/// A shared pointer to a const LookGroup
-using ConstLookGroupPtr = shared_ptr<const LookGroup>;
 
 /// @class Look
 /// A look element within a Document.
