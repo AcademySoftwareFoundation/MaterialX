@@ -7,6 +7,8 @@
 
 namespace MaterialX
 {
+const string LookGroup::LOOKS_ATTRIBUTE = "looks";
+const string LookGroup::ACTIVE_ATTRIBUTE = "active";
 
 const string MaterialAssign::MATERIAL_ATTRIBUTE = "material";
 const string MaterialAssign::EXCLUSIVE_ATTRIBUTE = "exclusive";

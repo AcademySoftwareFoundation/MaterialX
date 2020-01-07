@@ -343,8 +343,8 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     /// Return true if the given vector differs from this one.
     bool operator!=(const M& rhs) const { return _arr != rhs._arr; }
 
-    /// Return true if the given matrix is equivalent to another
-    /// matrix within a given floating point tolerance
+    /// Return true if the given matrix is equivalent to this one
+    /// within a given floating point tolerance.
     bool isEquivalent(const M& rhs, S tolerance) const
     {
         for (size_t i = 0; i < N; i++)

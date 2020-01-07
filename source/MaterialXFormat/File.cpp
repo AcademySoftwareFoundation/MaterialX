@@ -211,7 +211,7 @@ FilePathVec FilePath::getSubDirectories() const
             string path = entry->d_name;
             if (path == "." || path == "..")
             {
-                 continue;
+                continue;
             }
 
             auto d_type = entry->d_type;
