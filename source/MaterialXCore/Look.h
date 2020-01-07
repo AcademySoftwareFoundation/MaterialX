@@ -18,7 +18,7 @@
 namespace MaterialX
 {
 
-class Look; 
+class Look;
 class LookGroup;
 class LookInherit;
 class MaterialAssign;
