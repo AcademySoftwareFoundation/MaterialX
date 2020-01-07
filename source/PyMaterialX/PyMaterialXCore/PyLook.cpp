@@ -15,6 +15,15 @@ namespace mx = MaterialX;
 
 void bindPyLook(py::module& mod)
 {
+    py::class_<mx::LookGroup, mx::LookGroupPtr, mx::Element>(mod, "LookGroup")
+        .def("getLooks", &mx::LookGroup::getLooks)
+        .def("setLooks", &mx::LookGroup::setLooks)
+        .def("getActiveLook", &mx::LookGroup::getActiveLook)
+        .def("setActiveLook", &mx::LookGroup::setActiveLook)
+        .def_readonly_static("CATEGORY", &mx::LookGroup::CATEGORY)
+        .def_readonly_static("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
+        .def_readonly_static("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE);
+
     py::class_<mx::Look, mx::LookPtr, mx::Element>(mod, "Look")
         .def("addMaterialAssign", &mx::Look::addMaterialAssign,
             py::arg("name") = mx::EMPTY_STRING, py::arg("material") = mx::EMPTY_STRING)
