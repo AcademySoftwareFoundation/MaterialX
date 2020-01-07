@@ -71,6 +71,8 @@ void bindPyElement(py::module& mod)
         .def("getVersionIntegers", &mx::Element::getVersionIntegers)
         .def("setDefaultVersion", &mx::Element::setDefaultVersion)
         .def("getDefaultVersion", &mx::Element::getDefaultVersion)
+        .def("setDocString", &mx::Element::setDocString)
+        .def("getDocString", &mx::Element::getDocString)
         .def("addChildOfCategory", &mx::Element::addChildOfCategory,
             py::arg("category"), py::arg("name") = mx::EMPTY_STRING, py::arg("registerChild") = true)
         .def("_getChild", &mx::Element::getChild)

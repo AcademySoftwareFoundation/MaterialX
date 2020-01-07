@@ -529,7 +529,7 @@ TEST_CASE("Organization", "[nodegraph]")
     backdrop->setContains("custom1");
     backdrop->setWidth(20.0f);
     backdrop->setHeight(30.0f);
-    backdrop->setNote("Backdrop for custom1.");
+    backdrop->setDocString("Backdrop for custom1.");
 
     // 2. Additional graph to test backdrops
     //   [image3] [image4]      
@@ -552,12 +552,12 @@ TEST_CASE("Organization", "[nodegraph]")
     backdrop2->setContains("add4,image3");
     backdrop2->setWidth(10.0f);
     backdrop2->setHeight(15.0f);
-    backdrop2->setNote("Backdrop for add and image3");
+    backdrop2->setDocString("Backdrop for add and image3");
     mx::BackdropPtr backdrop3 = doc->addBackdrop("custom2_backdrop_nodegraph");
     backdrop3->setContains("custom2_nodegraph,custom1");
     backdrop3->setWidth(45.0f);
     backdrop3->setHeight(50.0f);
-    backdrop3->setNote("Backdrop for: custom2_nodegraph, and custom1.");
+    backdrop3->setDocString("Backdrop for: custom2_nodegraph, and custom1.");
 
     doc->validate();
 
@@ -571,19 +571,19 @@ TEST_CASE("Organization", "[nodegraph]")
     CHECK(backdrop->getContains() == "custom1");
     CHECK(backdrop->getWidth() == 20.0f);
     CHECK(backdrop->getHeight() == 30.0f);
-    CHECK(backdrop->getNote() == "Backdrop for custom1.");
+    CHECK(backdrop->getDocString() == "Backdrop for custom1.");
 
     backdrop = doc->getBackdrop("custom2_backdrop_nodes");
     CHECK(backdrop->getContains() == "add4,image3");
     CHECK(backdrop->getWidth() == 10.0f);
     CHECK(backdrop->getHeight() == 15.0f);
-    CHECK(backdrop->getNote() == "Backdrop for add and image3");
+    CHECK(backdrop->getDocString() == "Backdrop for add and image3");
 
     backdrop = doc->getBackdrop("custom2_backdrop_nodegraph");
     CHECK(backdrop->getContains() == "custom2_nodegraph,custom1");
     CHECK(backdrop->getWidth() == 45.0f);
     CHECK(backdrop->getHeight() == 50.0f);
-    CHECK(backdrop->getNote() == "Backdrop for: custom2_nodegraph, and custom1.");
+    CHECK(backdrop->getDocString() == "Backdrop for: custom2_nodegraph, and custom1.");
 
     doc->removeBackdrop("custom1_backdrop");
     doc->removeBackdrop("custom2_backdrop_nodes");

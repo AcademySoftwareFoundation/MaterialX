@@ -757,11 +757,11 @@ void Document::upgradeVersion()
                     {
                         if (value->isA<string>())
                         {
-                            backdrop->setParameterValue(param->getName(), value->asA<string>());
+                            backdrop->setAttribute(param->getName(), value->asA<string>());
                         }
                         else if (value->isA<float>())
                         {
-                            backdrop->setParameterValue(param->getName(), value->asA<float>());
+                            backdrop->setTypedAttribute(param->getName(), value->asA<float>());
                         }
                     }
                 }
