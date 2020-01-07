@@ -259,10 +259,10 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(addDef.numAttributes() == 1);
 
     // Add ports to the nodedef
-    mx::RtPortDef::createNew(addDefObj, "in1", "float");
-    mx::RtPortDef::createNew(addDefObj, "in2", "float");
-    mx::RtPortDef::createNew(addDefObj, "in3", "float");
-    mx::RtPortDef::createNew(addDefObj, "out", "float", mx::RtPortFlag::OUTPUT);
+    addDef.addPort("in1", "float");
+    addDef.addPort("in2", "float");
+    addDef.addPort("in3", "float");
+    addDef.addPort("out", "float", mx::RtPortFlag::OUTPUT);
     REQUIRE(addDef.numPorts() == 4);
 
     // Delete a port
@@ -455,9 +455,9 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(!stage.findElementByPath(pathStr));
 
     // Add interface port definitions to the graph.
-    mx::RtPortDef::createNew(graphObj1, "a", "float");
-    mx::RtPortDef::createNew(graphObj1, "b", "float");
-    mx::RtPortDef::createNew(graphObj1, "out", "float", mx::RtPortFlag::OUTPUT);
+    graph1.addPort("a", "float");
+    graph1.addPort("b", "float");
+    graph1.addPort("out", "float", mx::RtPortFlag::OUTPUT);
     REQUIRE(graph1.numPorts() == 3);
     REQUIRE(graph1.findInputSocket("a").isValid());
     REQUIRE(graph1.findInputSocket("b").isValid());
@@ -467,7 +467,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.getOutputSocket(0).isInput());
 
     // Test deleting a port.
-    mx::RtPortDef::createNew(graphObj1, "c", "float");
+    graph1.addPort("c", "float");
     REQUIRE(graph1.numPorts() == 4);
     REQUIRE(graph1.findInputSocket("c").isValid());
     mx::RtObject cPort = mx::RtNodeDef(graph1.getNodeDef()).findPort("c");

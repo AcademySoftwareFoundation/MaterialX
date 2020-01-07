@@ -33,7 +33,10 @@ public:
     /// Return the node name.
     const RtToken& getNodeName() const;
 
-    /// Remove an port definition.
+    /// Add a port to the definition
+    void addPort(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    /// Remove a port from the definition.
     void removePort(RtObject portdef);
 
     /// Return the port count.

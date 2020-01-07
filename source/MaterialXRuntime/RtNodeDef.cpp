@@ -39,6 +39,11 @@ const RtToken& RtNodeDef::getNodeName() const
     return data()->asA<PvtNodeDef>()->getNodeName();
 }
 
+void RtNodeDef::addPort(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    RtPortDef::createNew(getObject(), name, type, flags);
+}
+
 void RtNodeDef::removePort(RtObject portdef)
 {
     if (!portdef.hasApi(RtApiType::PORTDEF))

@@ -42,7 +42,7 @@ public:
     RtPortDef(const RtObject& obj);
 
     /// Create a new portdef and add it to a parent if specified.
-    /// The parent must be a nodedefs or a nodegraph.
+    /// The parent must be a nodedef or a nodegraph.
     static RtObject createNew(RtObject parent, const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
     /// Return the type for this API.

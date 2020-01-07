@@ -37,6 +37,9 @@ public:
     /// Remove a node from the graph.
     void removeNode(const RtObject& node);
 
+    /// Add a port to the graph.
+    void addPort(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
     /// Remove a port from the graph.
     void removePort(const RtObject& portdef);
 

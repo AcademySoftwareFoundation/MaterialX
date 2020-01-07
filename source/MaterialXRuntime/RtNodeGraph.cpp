@@ -47,6 +47,11 @@ void RtNodeGraph::removeNode(const RtObject& node)
     return data()->asA<PvtNodeGraph>()->removeNode(n->getName());
 }
 
+void RtNodeGraph::addPort(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    RtPortDef::createNew(getObject(), name, type, flags);
+}
+
 void RtNodeGraph::removePort(const RtObject& portdef)
 {
     if (!portdef.hasApi(RtApiType::PORTDEF))
