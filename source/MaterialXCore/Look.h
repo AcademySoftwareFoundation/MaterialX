@@ -251,28 +251,28 @@ class LookGroup : public Element
     }
     virtual ~LookGroup() { }
 
-    /// Get comma separated list of looks
-    const string& getLooks() const
-    {
-        return getAttribute(LOOKS_ATTRIBUTE);
-    }
-
-    /// Set comma separated list of looks
+    /// Set comma-separated list of looks.
     void setLooks(const string& looks)
     {
         setAttribute(LOOKS_ATTRIBUTE, looks);
     }
 
-    /// Return the active look (if specified).
-    const string& getActiveLook() const
+    /// Get comma-separated list of looks.
+    const string& getLooks() const
     {
-        return getAttribute(ACTIVE_ATTRIBUTE);
+        return getAttribute(LOOKS_ATTRIBUTE);
     }
 
-    /// Set the active look
+    /// Set the active look.
     void setActiveLook(const string& look)
     {
         setAttribute(ACTIVE_ATTRIBUTE, look);
+    }
+
+    /// Return the active look, if any.
+    const string& getActiveLook() const
+    {
+        return getAttribute(ACTIVE_ATTRIBUTE);
     }
 
   public:
