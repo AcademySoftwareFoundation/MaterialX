@@ -81,8 +81,8 @@ class EditorColorPicker : public ng::ColorPicker
 //
 
 PropertyEditor::PropertyEditor() :
+    _window(nullptr),
     _container(nullptr),
-    _formWindow(nullptr),
     _gridLayout2(nullptr),
     _gridLayout3(nullptr),
     _visible(false),
@@ -98,17 +98,17 @@ void PropertyEditor::create(Viewer& parent)
     // This is done by explicitly creating and owning the window
     // as opposed to having it being done by the form
     ng::Vector2i previousPosition(15, parentWindow->height() + 60);
-    if (_formWindow)
+    if (_window)
     {
-        for (int i = 0; i < _formWindow->childCount(); i++)
+        for (int i = 0; i < _window->childCount(); i++)
         {
-            _formWindow->removeChild(i);
+            _window->removeChild(i);
         }
         // We don't want the property editor to move when
         // we update it's contents so cache any previous position
         // to use when we create a new window.
-        previousPosition = _formWindow->position();
-        parent.removeChild(_formWindow);
+        previousPosition = _window->position();
+        parent.removeChild(_window);
     }
 
     if (previousPosition.x() < 0)
@@ -116,12 +116,12 @@ void PropertyEditor::create(Viewer& parent)
     if (previousPosition.y() < 0)
         previousPosition.y() = 0;
 
-    _formWindow = new ng::Window(&parent, "Property Editor");
-    _formWindow->setLayout(new ng::GroupLayout());
-    _formWindow->setPosition(previousPosition);
-    _formWindow->setVisible(_visible);
+    _window = new ng::Window(&parent, "Property Editor");
+    _window->setLayout(new ng::GroupLayout());
+    _window->setPosition(previousPosition);
+    _window->setVisible(_visible);
 
-    ng::VScrollPanel *scroll_panel = new ng::VScrollPanel(_formWindow);
+    ng::VScrollPanel *scroll_panel = new ng::VScrollPanel(_window);
     scroll_panel->setFixedHeight(200);
     _container = new ng::Widget(scroll_panel);
     _container->setLayout(new ng::GroupLayout(1, 1, 1, 1));
@@ -135,75 +135,6 @@ void PropertyEditor::create(Viewer& parent)
     _gridLayout3 = new ng::GridLayout(ng::Orientation::Horizontal, 3,
         ng::Alignment::Minimum, 2, 2);
     _gridLayout3->setColAlignment({ ng::Alignment::Minimum, ng::Alignment::Maximum, ng::Alignment::Maximum });
-}
-
-ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, const std::string& label, mx::ValuePtr value,
-                                                     bool editable, const mx::UIProperties& ui,
-                                                     Viewer* viewer, const std::string& path)
-{
-    new ng::Label(container, label);
-
-    float v = value->asA<float>();
-
-    ng::Slider *slider = new ng::Slider(container);
-    slider->setValue(v);
-    auto range = std::pair<float, float>(0.0f, 0.0f);
-
-    ng::FloatBox<float>* floatVar = new ng::FloatBox<float>(container, v);
-    floatVar->setFixedSize(ng::Vector2i(100, 20));
-    floatVar->setEditable(editable);
-    floatVar->setFontSize(15);
-    floatVar->setAlignment(ng::TextBox::Alignment::Right);
-    if (ui.uiMin)
-    {
-        floatVar->setMinValue(ui.uiMin->asA<float>());
-        range.first = ui.uiMin->asA<float>();
-    }
-    if (ui.uiMax)
-    {
-        floatVar->setMaxValue(ui.uiMax->asA<float>());
-        range.second = ui.uiMax->asA<float>();
-    }
-    if (ui.uiSoftMin)
-    {
-        range.first = ui.uiSoftMin->asA<float>();
-    }
-    if (ui.uiSoftMax)
-    {
-        range.second = ui.uiSoftMax->asA<float>();
-    }
-    if (range.first != range.second)
-    {
-        slider->setRange(range);
-    }
-    if (ui.uiStep)
-    {
-        floatVar->setValueIncrement(ui.uiStep->asA<float>());
-        floatVar->setSpinnable(true);
-    }
-
-    slider->setCallback([floatVar, path, viewer](float value) 
-    {
-        floatVar->setValue(value);
-        MaterialPtr material = viewer->getSelectedMaterial();
-        if (material)
-        {
-            material->setUniformFloat(path, floatVar->value());
-        }
-    });
-    floatVar->setCallback([floatVar, slider, path, viewer](float /*unclamped*/)
-    {
-        // https://github.com/wjakob/nanogui/issues/205
-        float value = floatVar->value();
-        slider->setValue(value);
-        MaterialPtr material = viewer->getSelectedMaterial();
-        if (material)
-        {
-            material->setUniformFloat(path, value);
-        }
-    });
-
-    return floatVar;
 }
 
 void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
@@ -331,7 +262,16 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     {
         ng::Widget* threeColumns = new ng::Widget(container);
         threeColumns->setLayout(_gridLayout3);
-        makeFloatWidget(threeColumns, label, value, editable, ui, viewer, path);
+        ng::FloatBox<float>* floatBox = createFloatWidget(threeColumns, label, value->asA<float>(), &ui, [viewer, path](float value)
+        {
+            MaterialPtr material = viewer->getSelectedMaterial();
+            if (material)
+            {
+                material->setUniformFloat(path, value);            
+            }
+        });
+        floatBox->setFixedSize(ng::Vector2i(100, 20));
+        floatBox->setEditable(editable);
     }
 
     // Boolean widget
@@ -826,4 +766,63 @@ void PropertyEditor::updateContents(Viewer* viewer)
     }
 
     viewer->performLayout();
+}
+
+ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& label, float value,
+                                       const mx::UIProperties* ui, std::function<void(float)> callback)
+{
+    new ng::Label(parent, label);
+
+    ng::Slider *slider = new ng::Slider(parent);
+    slider->setValue(value);
+
+    ng::FloatBox<float>* box = new ng::FloatBox<float>(parent, value);
+    box->setFixedWidth(60);
+    box->setFontSize(15);
+    box->setAlignment(ng::TextBox::Alignment::Right);
+
+	if (ui)
+	{
+		std::pair<float, float> range(0.0f, 0.0f);
+		if (ui->uiMin)
+		{
+			box->setMinValue(ui->uiMin->asA<float>());
+			range.first = ui->uiMin->asA<float>();
+		}
+		if (ui->uiMax)
+		{
+			box->setMaxValue(ui->uiMax->asA<float>());
+			range.second = ui->uiMax->asA<float>();
+		}
+		if (ui->uiSoftMin)
+		{
+			range.first = ui->uiSoftMin->asA<float>();
+		}
+		if (ui->uiSoftMax)
+		{
+			range.second = ui->uiSoftMax->asA<float>();
+		}
+		if (range.first != range.second)
+		{
+			slider->setRange(range);
+		}
+		if (ui->uiStep)
+		{
+			box->setValueIncrement(ui->uiStep->asA<float>());
+			box->setSpinnable(true);
+		}
+	}
+
+    slider->setCallback([box, callback](float value) 
+    {
+        box->setValue(value);
+        callback(value);
+    });
+    box->setCallback([slider, callback](float value)
+    {
+        slider->setValue(value);
+        callback(value);
+    });
+
+    return box;
 }

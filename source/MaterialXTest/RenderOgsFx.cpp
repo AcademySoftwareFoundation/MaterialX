@@ -62,12 +62,18 @@ void OgsFxShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
 
 // Create a light handler and populate it based on lights found in a given document
 void OgsFxShaderRenderTester::registerLights(mx::DocumentPtr document,
-    const GenShaderUtil::TestSuiteOptions &options,
+    const GenShaderUtil::TestSuiteOptions &/*options*/,
     mx::GenContext& context)
 {
     _lightHandler = mx::LightHandler::create();
-    RenderUtil::createLightRig(document, *_lightHandler, context,
-        options.irradianceIBLPath, options.radianceIBLPath);
+
+    // Scan for lights
+    std::vector<mx::NodePtr> lights;
+    _lightHandler->findLights(document, lights);
+    _lightHandler->registerLights(document, lights, context);
+
+    // Set the list of lights on the with the generator
+    _lightHandler->setLightSources(lights);
 }
 
 void OgsFxShaderRenderTester::createRenderer(std::ostream& /*log*/)

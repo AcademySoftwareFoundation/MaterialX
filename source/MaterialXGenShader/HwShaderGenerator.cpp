@@ -55,10 +55,12 @@ namespace HW
     const string T_GEOMATTR                       = "$geomattr";
     const string T_NUM_ACTIVE_LIGHT_SOURCES       = "$numActiveLightSources";
     const string T_ENV_MATRIX                     = "$envMatrix";
-    const string T_ENV_IRRADIANCE                 = "$envIrradiance";
     const string T_ENV_RADIANCE                   = "$envRadiance";
     const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
     const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
+    const string T_ENV_IRRADIANCE                 = "$envIrradiance";
+    const string T_AMB_OCC_MAP                    = "$ambOccMap";
+    const string T_AMB_OCC_GAIN                   = "$ambOccGain";
     const string T_VERTEX_DATA_INSTANCE           = "$vd";
     const string T_LIGHT_DATA_INSTANCE            = "$lightData";
 
@@ -100,10 +102,12 @@ namespace HW
     const string GEOMATTR                         = "u_geomattr";
     const string NUM_ACTIVE_LIGHT_SOURCES         = "u_numActiveLightSources";
     const string ENV_MATRIX                       = "u_envMatrix";
-    const string ENV_IRRADIANCE                   = "u_envIrradiance";
     const string ENV_RADIANCE                     = "u_envRadiance";
     const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
     const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
+    const string ENV_IRRADIANCE                   = "u_envIrradiance";
+    const string AMB_OCC_MAP                      = "u_ambOccMap";
+    const string AMB_OCC_GAIN                     = "u_ambOccGain";
     const string VERTEX_DATA_INSTANCE             = "vd";
     const string LIGHT_DATA_INSTANCE              = "u_lightData";
 
@@ -173,10 +177,12 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_GEOMATTR] = HW::GEOMATTR;
     _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = HW::NUM_ACTIVE_LIGHT_SOURCES;
     _tokenSubstitutions[HW::T_ENV_MATRIX] = HW::ENV_MATRIX;
-    _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE;
     _tokenSubstitutions[HW::T_ENV_RADIANCE] = HW::ENV_RADIANCE;
     _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS] = HW::ENV_RADIANCE_MIPS;
     _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES] = HW::ENV_RADIANCE_SAMPLES;
+    _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE;
+    _tokenSubstitutions[HW::T_AMB_OCC_MAP] = HW::AMB_OCC_MAP;
+    _tokenSubstitutions[HW::T_AMB_OCC_GAIN] = HW::AMB_OCC_GAIN;
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
 
@@ -231,24 +237,26 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Add a block for data from vertex to pixel shader.
     addStageConnectorBlock(HW::VERTEX_DATA, HW::T_VERTEX_DATA_INSTANCE, *vs, *ps);
 
+    // Add inputs and uniforms for ambient occlusion if needed.
+    if (context.getOptions().hwAmbientOcclusion)
+    {
+        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR2, HW::T_IN_TEXCOORD + "_0", *vs);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR2, HW::T_TEXCOORD + "_0", *vs, *ps);
+        psPrivateUniforms->add(Type::FILENAME, HW::T_AMB_OCC_MAP);
+        psPrivateUniforms->add(Type::FLOAT, HW::T_AMB_OCC_GAIN, Value::createValue(1.0f));
+    }
+
     // Add uniforms for environment lighting if needed.
     bool lighting = graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
                     graph->hasClassification(ShaderNode::Classification::BSDF);
     if (lighting && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
     {
-        // Note: Generation of the rotation matrix using floating point math can result
-        // in values which when output can't be consumed by a h/w shader, so
-        // just setting explicit values here for now since the matrix is simple.
-        // In general the values will need to be "sanitized" for hardware.
-        const Matrix44 yRotationPI(-1, 0, 0, 0,
-                                    0, 1, 0, 0,
-                                    0, 0, -1, 0,
-                                    0, 0, 0, 1);
-        psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue<Matrix44>(yRotationPI));
-        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
+        const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
+        psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
     }
 
     // Create uniforms for the published graph interface

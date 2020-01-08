@@ -14,14 +14,13 @@ namespace ng = nanogui;
 class Viewer : public ng::Screen
 {
   public:
-    Viewer(const mx::FilePathVec& libraryFolders,
-           const mx::FileSearchPath& searchPath,
+    Viewer(const std::string& materialFilename,
            const std::string& meshFilename,
-           const std::string& materialFilename,
+           const mx::FilePathVec& libraryFolders,
+           const mx::FileSearchPath& searchPath,
            const DocumentModifiers& modifiers,
            mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
            const std::string& envRadiancePath,
-           const std::string& envIrradiancePath,
            int multiSampleCount);
     ~Viewer() { }
 
@@ -86,7 +85,8 @@ class Viewer : public ng::Screen
     void drawScene3D();
     void drawScene2D();
 
-    void setupLights(mx::DocumentPtr doc);
+    void loadEnvironmentLight();
+    void loadDirectLights(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
     void reloadShaders();
     void loadStandardLibraries();
@@ -109,6 +109,7 @@ class Viewer : public ng::Screen
 
     void createLoadMeshInterface(Widget* parent, const std::string& label);
     void createLoadMaterialsInterface(Widget* parent, const std::string& label);
+    void createLoadEnvironmentInterface(Widget* parent, const std::string& label);
     void createSaveMaterialsInterface(Widget* parent, const std::string& label);
     void createPropertyEditorInterface(Widget* parent, const std::string& label);
     void createAdvancedSettings(Widget* parent);
@@ -118,6 +119,9 @@ class Viewer : public ng::Screen
                                             unsigned int index,
                                             const std::string& positionStreamName);
 
+    /// Return the ambient occlusion image, if any, associated with the given material.
+    mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
+    
   private:
     ng::Window* _window;
     ng::Arcball _arcball;
@@ -146,19 +150,18 @@ class Viewer : public ng::Screen
     mx::StringSet _xincludeFiles;
 
     // Lighting information
-    std::string _lightFileName;
-    std::string _envRadiancePath;
-    std::string _envIrradiancePath;
+    mx::FilePath _lightFilename;
+    mx::FilePath _envRadiancePath;
     bool _directLighting;
     bool _indirectLighting;
-    bool _ambientOcclusion;
+    float _ambientOcclusionGain;
 
     // Geometry selections
-    std::string _meshFilename;
+    mx::FilePath _meshFilename;
     std::vector<mx::MeshPartitionPtr> _geometryList;
     size_t _selectedGeom;
     ng::Label* _geomLabel;
-    ng::ComboBox* _geometryListBox;
+    ng::ComboBox* _geometrySelectionBox;
 
     // Material selections
     std::vector<MaterialPtr> _materials;
@@ -177,7 +180,6 @@ class Viewer : public ng::Screen
     mx::LightHandlerPtr _lightHandler;
 
     // Supporting materials and geometry.
-    MaterialPtr _ambOccMaterial;
     mx::GeometryHandlerPtr _envGeometryHandler;
     MaterialPtr _envMaterial;
 

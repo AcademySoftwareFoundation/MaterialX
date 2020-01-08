@@ -18,6 +18,16 @@ The MaterialX codebase requires a compiler with support for C++11, and can be bu
 
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 2.7 and 3.x.
 
+### Building MaterialX C++
+
+The MaterialX C++ libraries are automatically included when building MaterialX through CMake.
+
+Additional options for the generation of MaterialX C++ include the following:
+
+- `MATERIALX_TEST_RENDER`: Requests that rendering functionality be included in the MaterialXTest unit-test suite.  When this option is enabled, GPU support will be required when MaterialXTest is run.
+- `MATERIALX_BUILD_OIIO`: Requests that MaterialXRender be built with OpenImageIO instead of stb_image, extending the set of supported image formats.
+- `MATERIALX_OIIO_DIR`: Path to the root folder of an OpenImageIO installation.  If the MATERIALX_BUILD_OIIO option has been enabled, then this path is required.
+
 ### Building MaterialX Python
 
 By default, the `MATERIALX_BUILD_PYTHON` option will use the active version of Python in the developer's path.  To select a specific version of Python, use one or more of the following advanced options:

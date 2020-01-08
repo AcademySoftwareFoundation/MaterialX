@@ -21,6 +21,7 @@ const string Element::VERSION_ATTRIBUTE = "version";
 const string Element::DEFAULT_VERSION_ATTRIBUTE = "isdefaultversion";
 const string Element::INHERIT_ATTRIBUTE = "inherit";
 const string Element::NAMESPACE_ATTRIBUTE = "namespace";
+const string Element::DOC_ATTRIBUTE = "doc";
 const string TypedElement::TYPE_ATTRIBUTE = "type";
 const string ValueElement::VALUE_ATTRIBUTE = "value";
 const string ValueElement::INTERFACE_NAME_ATTRIBUTE = "interfacename";
@@ -797,8 +798,8 @@ INSTANTIATE_CONCRETE_SUBCLASS(GeomInfo, "geominfo")
 INSTANTIATE_CONCRETE_SUBCLASS(GeomPropDef, "geompropdef")
 INSTANTIATE_CONCRETE_SUBCLASS(Implementation, "implementation")
 INSTANTIATE_CONCRETE_SUBCLASS(Input, "input")
-INSTANTIATE_CONCRETE_SUBCLASS(LookGroup, "lookgroup")
 INSTANTIATE_CONCRETE_SUBCLASS(Look, "look")
+INSTANTIATE_CONCRETE_SUBCLASS(LookGroup, "lookgroup")
 INSTANTIATE_CONCRETE_SUBCLASS(Material, "material")
 INSTANTIATE_CONCRETE_SUBCLASS(MaterialAssign, "materialassign")
 INSTANTIATE_CONCRETE_SUBCLASS(Member, "member")

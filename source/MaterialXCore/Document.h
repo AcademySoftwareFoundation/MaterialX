@@ -68,7 +68,6 @@ class Document : public GraphElement
     /// Get a list of source URI's referenced by the document
     StringSet getReferencedSourceUris() const;
 
-    /// @}
     /// @name NodeGraph Elements
     /// @{
 
@@ -209,38 +208,6 @@ class Document : public GraphElement
     }
 
     /// @}
-    /// @name LookGroup Elements
-    /// @{
-
-    /// Add a LookGroupto the document.
-    /// @param name The name of the new LookGroup.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new Look.
-    LookGroupPtr addLookGroup(const string& name = EMPTY_STRING)
-    {
-        return addChild<LookGroup>(name);
-    }
-
-    /// Return the LookGroup, if any, with the given name.
-    LookGroupPtr getLookGroup(const string& name) const
-    {
-        return getChildOfType<LookGroup>(name);
-    }
-
-    /// Return a vector of all LookGroup elements in the document.
-    vector<LookGroupPtr> getLookGroups() const
-    {
-        return getChildrenOfType<LookGroup>();
-    }
-
-    /// Remove the LookGroup, if any, with the given name.
-    void removeLookGroup(const string& name)
-    {
-        removeChildOfType<LookGroup>(name);
-    }
-
-    /// @}
     /// @name Look Elements
     /// @{
 
@@ -270,6 +237,38 @@ class Document : public GraphElement
     void removeLook(const string& name)
     {
         removeChildOfType<Look>(name);
+    }
+
+    /// @}
+    /// @name LookGroup Elements
+    /// @{
+
+    /// Add a LookGroup to the document.
+    /// @param name The name of the new LookGroup.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new LookGroup.
+    LookGroupPtr addLookGroup(const string& name = EMPTY_STRING)
+    {
+        return addChild<LookGroup>(name);
+    }
+
+    /// Return the LookGroup, if any, with the given name.
+    LookGroupPtr getLookGroup(const string& name) const
+    {
+        return getChildOfType<LookGroup>(name);
+    }
+
+    /// Return a vector of all LookGroup elements in the document.
+    vector<LookGroupPtr> getLookGroups() const
+    {
+        return getChildrenOfType<LookGroup>();
+    }
+
+    /// Remove the LookGroup, if any, with the given name.
+    void removeLookGroup(const string& name)
+    {
+        removeChildOfType<LookGroup>(name);
     }
 
     /// @}

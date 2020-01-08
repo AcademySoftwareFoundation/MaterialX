@@ -486,6 +486,12 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl";
     }
 
+    // Emit uv transform code globally if needed.
+    if (context.getOptions().hwAmbientOcclusion)
+    {
+        emitInclude(ShaderGenerator::T_FILE_TRANSFORM_UV, context, stage);
+    }
+
     // Add all functions for node implementations
     emitFunctionDefinitions(graph, context, stage);
 
@@ -656,35 +662,38 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
                                                   GenContext&, ShaderStage& stage,
                                                   bool assignValue) const
 {
+    // A file texture input needs special handling on GLSL
     if (variable->getType() == Type::FILENAME)
     {
-        // File paths are not supported as default values of uniforms and function arguments
-        assignValue = false;
+        // Samplers must always be uniforms
+        emitString("uniform sampler2D " + variable->getVariable(), stage);
     }
-
-    string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
-    str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
-
-    // If an array we need an array qualifier (suffix) for the variable name
-    if (variable->getType()->isArray() && variable->getValue())
+    else
     {
-        str += _syntax->getArraySuffix(variable->getType(), *variable->getValue());
-    }
+        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+        str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
 
-    if (!variable->getSemantic().empty())
-    {
-        str += " : " + variable->getSemantic();
-    }
+        // If an array we need an array qualifier (suffix) for the variable name
+        if (variable->getType()->isArray() && variable->getValue())
+        {
+            str += _syntax->getArraySuffix(variable->getType(), *variable->getValue());
+        }
 
-    if (assignValue)
-    {
-        const string valueStr = (variable->getValue() ?
-            _syntax->getValue(variable->getType(), *variable->getValue(), true) :
-            _syntax->getDefaultValue(variable->getType(), true));
-        str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
-    }
+        if (!variable->getSemantic().empty())
+        {
+            str += " : " + variable->getSemantic();
+        }
 
-    emitString(str, stage);
+        if (assignValue)
+        {
+            const string valueStr = (variable->getValue() ?
+                _syntax->getValue(variable->getType(), *variable->getValue(), true) :
+                _syntax->getDefaultValue(variable->getType(), true));
+            str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
+        }
+
+        emitString(str, stage);
+    }
 }
 
 ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(const NodeGraph& impl) const

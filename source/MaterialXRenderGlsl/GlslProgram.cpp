@@ -5,6 +5,7 @@
 
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
 
@@ -296,7 +297,7 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
 
 void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
 {
-    unbindTextures(imageHandler);
+    imageHandler->unbindImages();
     unbindGeometry();
 
     // Clean up raster state if transparency was set in bindInputs()
@@ -512,12 +513,6 @@ void GlslProgram::unbindGeometry()
     checkErrors();
 }
 
-void GlslProgram::unbindTextures(ImageHandlerPtr imageHandler)
-{
-    imageHandler->clearImageCache();
-    checkErrors();
-}
-
 ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
                                   ImageHandlerPtr imageHandler, bool generateMipMaps,
                                   const ImageSamplingProperties& samplingProperties)
@@ -531,7 +526,8 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
         {
             if (imageHandler->bindImage(image, samplingProperties))
             {
-                int textureLocation = imageHandler->getBoundTextureLocation(image->getResourceId());
+                GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
+                int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
                 if (textureLocation >= 0)
                 {
                     glUniform1i(uniformLocation, textureLocation);
@@ -646,42 +642,56 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     }
 
     if (lightCount == 0 &&
-        lightHandler->getLightEnvRadiancePath().isEmpty() &&
-        lightHandler->getLightEnvIrradiancePath().isEmpty())
+        !lightHandler->getEnvRadianceMap() &&
+        !lightHandler->getEnvIrradianceMap())
     {
         return;
     }
 
-    // Bind any IBL textures specified
-    StringMap iblList = {
-        { HW::ENV_RADIANCE, lightHandler->getLightEnvRadiancePath() },
-        { HW::ENV_IRRADIANCE, lightHandler->getLightEnvIrradiancePath() }
-    };
-
-    for (const auto& ibl : iblList)
+    // Bind environment lights.
+    ImageMap envLights =
     {
-        auto iblUniform = uniformList.find(ibl.first);
+        { HW::ENV_RADIANCE, lightHandler->getEnvRadianceMap() },
+        { HW::ENV_IRRADIANCE, lightHandler->getEnvIrradianceMap() }
+    };
+    for (const auto& env : envLights)
+    {
+        auto iblUniform = uniformList.find(env.first);
         GlslProgram::InputPtr inputPtr = iblUniform != uniformList.end() ? iblUniform->second : nullptr;
         if (inputPtr)
         {
-            GLenum uniformType = inputPtr->gltype;
-            GLint uniformLocation = inputPtr->location;
-            string fileName(inputPtr->value ? inputPtr->value->getValueString() : EMPTY_STRING);
-            if (fileName.empty())
+            ImagePtr image;
+            if (inputPtr->value)
             {
-                fileName = ibl.second;
+                string filename = inputPtr->value->getValueString();
+                if (!filename.empty())
+                {
+                    image = imageHandler->acquireImage(filename, true);
+                }
+            }
+            if (!image)
+            {
+                image = env.second;
             }
 
-            ImagePtr image = bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, ImageSamplingProperties());
             if (image)
             {
-                if (iblUniform->first == HW::ENV_RADIANCE)
+                if (imageHandler->bindImage(image, ImageSamplingProperties()))
                 {
-                    // This is our radiance texture so set the mip count.
-                    auto mipsUniform = uniformList.find(HW::ENV_RADIANCE_MIPS);
-                    if (mipsUniform != uniformList.end() && mipsUniform->second->location >= 0)
+                    GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
+                    int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
+                    if (textureLocation >= 0)
                     {
-                        glUniform1i(mipsUniform->second->location, image->getMaxMipCount());
+                        glUniform1i(inputPtr->location, textureLocation);
+                    }
+                    if (iblUniform->first == HW::ENV_RADIANCE)
+                    {
+                        // This is our radiance texture so set the mip count.
+                        auto mipsUniform = uniformList.find(HW::ENV_RADIANCE_MIPS);
+                        if (mipsUniform != uniformList.end() && mipsUniform->second->location >= 0)
+                        {
+                            glUniform1i(mipsUniform->second->location, image->getMaxMipCount());
+                        }
                     }
                 }
             }

@@ -53,7 +53,7 @@ class GlslShaderGenerator : public HwShaderGenerator
     bool remapEnumeration(const ValueElement& input, const string& value, std::pair<const TypeDesc*, ValuePtr>& result) const override;
 
   public:
-    /// Unique identifier for the GLSL language
+    /// Unique identifier for the glsl language
     static const string LANGUAGE;
 
     /// Unique identifier for this generator target

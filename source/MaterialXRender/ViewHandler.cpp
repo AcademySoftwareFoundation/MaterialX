@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXRender/ViewHandler.h>
-#include <cmath>
 
 namespace MaterialX
 { 

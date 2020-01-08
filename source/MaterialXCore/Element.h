@@ -395,6 +395,22 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// @}
+    /// @name Documentation String
+    /// @{
+
+    /// Set the documentation string of this element.
+    void setDocString(const string& doc)
+    {
+        setAttribute(DOC_ATTRIBUTE, doc);
+    }
+
+    /// Return the documentation string of this element
+    string getDocString() const
+    {
+        return getAttribute(DOC_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Subclass
     /// @{
 
@@ -839,6 +855,7 @@ class Element : public std::enable_shared_from_this<Element>
     static const string DEFAULT_VERSION_ATTRIBUTE;
     static const string INHERIT_ATTRIBUTE;
     static const string NAMESPACE_ATTRIBUTE;
+    static const string DOC_ATTRIBUTE;
 
   protected:
     virtual void registerChildElement(ElementPtr child);

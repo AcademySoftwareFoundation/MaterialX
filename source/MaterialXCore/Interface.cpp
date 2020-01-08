@@ -13,16 +13,6 @@
 namespace MaterialX
 {
 
-namespace
-{
-    auto ValueElementLess = [](ValueElementPtr lhs, ValueElementPtr rhs)
-    {
-        return lhs->getName() < rhs->getName();
-    };
-
-    using ValueElementSet = std::set<ValueElementPtr, decltype(ValueElementLess)>;
-}
-
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string PortElement::CHANNELS_ATTRIBUTE = "channels";
@@ -304,17 +294,10 @@ ParameterPtr InterfaceElement::getActiveParameter(const string& name) const
 vector<ParameterPtr> InterfaceElement::getActiveParameters() const
 {
     vector<ParameterPtr> activeParams;
-    ValueElementSet activeParamsSet(ValueElementLess);
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<ParameterPtr> params = elem->asA<InterfaceElement>()->getParameters();
-        for (const ParameterPtr& param : params)
-        {
-            if (activeParamsSet.insert(param).second)
-            {
-                activeParams.push_back(param);
-            }
-        }
+        activeParams.insert(activeParams.end(), params.begin(), params.end());
     }
     return activeParams;
 }
@@ -335,13 +318,13 @@ InputPtr InterfaceElement::getActiveInput(const string& name) const
 vector<InputPtr> InterfaceElement::getActiveInputs() const
 {
     vector<InputPtr> activeInputs;
-    ValueElementSet activeInputsSet(ValueElementLess);
+    StringSet activeInputNamesSet;
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<InputPtr> inputs = elem->asA<InterfaceElement>()->getInputs();
         for (const InputPtr& input : inputs)
         {
-            if (activeInputsSet.insert(input).second)
+            if (input && activeInputNamesSet.insert(input->getName()).second)
             {
                 activeInputs.push_back(input);
             }
@@ -367,13 +350,13 @@ OutputPtr InterfaceElement::getActiveOutput(const string& name) const
 vector<OutputPtr> InterfaceElement::getActiveOutputs() const
 {
     vector<OutputPtr> activeOutputs;
-    ValueElementSet activeOutputsSet(ValueElementLess);
+    StringSet activeOutputNamesSet;
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<OutputPtr> outputs = elem->asA<InterfaceElement>()->getOutputs();
         for (const OutputPtr& output : outputs)
         {
-            if (activeOutputsSet.insert(output).second)
+            if (output && activeOutputNamesSet.insert(output->getName()).second)
             {
                 activeOutputs.push_back(output);
             }
@@ -422,13 +405,13 @@ ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) cons
 vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
 {
     vector<ValueElementPtr> activeValueElems;
-    ValueElementSet activeValueElemsSet(ValueElementLess);
+    StringSet activeValueElemNamesSet;
     for (ConstElementPtr interface : traverseInheritance())
     {
         vector<ValueElementPtr> valueElems = interface->getChildrenOfType<ValueElement>();
         for (const ValueElementPtr& valueElem : valueElems)
         {
-            if (activeValueElemsSet.insert(valueElem).second)
+            if (valueElem && activeValueElemNamesSet.insert(valueElem->getName()).second)
             {
                 activeValueElems.push_back(valueElem);
             }

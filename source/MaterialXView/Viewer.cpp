@@ -3,6 +3,7 @@
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
+#include <MaterialXRender/Harmonics.h>
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
@@ -159,14 +160,13 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 // Viewer methods
 //
 
-Viewer::Viewer(const mx::FilePathVec& libraryFolders,
-               const mx::FileSearchPath& searchPath,
+Viewer::Viewer(const std::string& materialFilename,
                const std::string& meshFilename,
-               const std::string& materialFilename,
+               const mx::FilePathVec& libraryFolders,
+               const mx::FileSearchPath& searchPath,
                const DocumentModifiers& modifiers,
                mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
                const std::string& envRadiancePath,
-               const std::string& envIrradiancePath,
                int multiSampleCount) :
     ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
         true, false,
@@ -186,10 +186,9 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _materialFilename(materialFilename),
     _modifiers(modifiers),
     _envRadiancePath(envRadiancePath),
-    _envIrradiancePath(envIrradiancePath),
     _directLighting(false),
     _indirectLighting(true),
-    _ambientOcclusion(false),
+    _ambientOcclusionGain(0.85f),
     _meshFilename(meshFilename),
     _selectedGeom(0),
     _selectedMaterial(0),
@@ -216,20 +215,36 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
 
+    // Set default generator options.
+    _genContext.getOptions().hwTransparency = true;
+    _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
+    _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContext.getOptions().fileTextureVerticalFlip = true;
+
+    // Initialize image handler.
+#if MATERIALX_BUILD_OIIO
+    mx::ImageLoaderPtr imageLoader = mx::OiioImageLoader::create();
+#else
+    mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
+#endif
+    _imageHandler = mx::GLTextureHandler::create(imageLoader);
+
+    // Initialize light handler.
+    _lightHandler = mx::LightHandler::create();
+    _lightFilename = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
+
+    // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
     createLoadMaterialsInterface(_window, "Load Material");
-    createSaveMaterialsInterface(_window, "Save Material");
+    createLoadEnvironmentInterface(_window, "Load Environment");
     createPropertyEditorInterface(_window, "Property Editor");
-
-    // Set this before building UI as this flag is used
-    // for the UI building
-    _genContext.getOptions().hwTransparency = true;
     createAdvancedSettings(_window);
 
+    // Create geometry selection box.
     _geomLabel = new ng::Label(_window, "Select Geometry");
-    _geometryListBox = new ng::ComboBox(_window, { "None" });
-    _geometryListBox->setChevronIcon(-1);
-    _geometryListBox->setCallback([this](int choice)
+    _geometrySelectionBox = new ng::ComboBox(_window, { "None" });
+    _geometrySelectionBox->setChevronIcon(-1);
+    _geometrySelectionBox->setCallback([this](int choice)
     {
         size_t index = (size_t) choice;
         if (index < _geometryList.size())
@@ -244,6 +259,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
         }
     });
 
+    // Create material selection box.
     _materialLabel = new ng::Label(_window, "Assigned Material");
     _materialSelectionBox = new ng::ComboBox(_window, { "None" });
     _materialSelectionBox->setChevronIcon(-1);
@@ -260,13 +276,21 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
         }
     });
 
-    // Set default generator options.
-    _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
-    _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
-    _genContext.getOptions().fileTextureVerticalFlip = true;
+    // Create geometry handler.
+    mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
+    _geometryHandler = mx::GeometryHandler::create();
+    _geometryHandler->addLoader(loader);
+    _geometryHandler->loadGeometry(_searchPath.find(_meshFilename));
+    updateGeometrySelections();
 
-    // Set default light information before initialization
-    _lightFileName = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
+    // Create environment geometry handler.
+    _envGeometryHandler = mx::GeometryHandler::create();
+    _envGeometryHandler->addLoader(loader);
+    mx::FilePath envSphere("resources/Geometry/sphere.obj");
+    _envGeometryHandler->loadGeometry(_searchPath.find(envSphere));
+
+    // Initialize environment light.
+    loadEnvironmentLight();
 
     // Generate wireframe material.
     const std::string constantShaderName("__WIRE_SHADER_NAME__");
@@ -282,48 +306,6 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate wire shader", e.what());
     }
 
-    // Construct the appropriate image handler for this build.
-#if MATERIALX_BUILD_OIIO
-    mx::ImageLoaderPtr imageLoader = mx::OiioImageLoader::create();
-#else
-    mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
-#endif
-    _imageHandler = mx::GLTextureHandler::create(imageLoader);
-
-    mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
-    _geometryHandler = mx::GeometryHandler::create();
-    _geometryHandler->addLoader(loader);
-    _geometryHandler->loadGeometry(_searchPath.find(_meshFilename));
-    updateGeometrySelections();
-
-    _envGeometryHandler = mx::GeometryHandler::create();
-    _envGeometryHandler->addLoader(loader);
-    mx::FilePath envSphere("resources/Geometry/sphere.obj");
-    _envGeometryHandler->loadGeometry(_searchPath.find(envSphere));
-    const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
-    if (!meshes.empty())
-    {
-        // Set up world matrix for drawing
-        const float scaleFactor = 300.0f;
-        const float rotationRadians = PI / 2.0f; // 90 degree rotation 
-        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor)) * mx::Matrix44::createRotationY(rotationRadians);
-
-        // Create environment shader.
-        mx::FilePath envFilename = _searchPath.find(
-            mx::FilePath("resources/Materials/TestSuite/Utilities/Lights/envmap_shader.mtlx"));
-        _envMaterial = Material::create();
-        try
-        {
-            _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadiancePath);
-            _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
-        }
-        catch (std::exception& e)
-        {
-            _envMaterial = nullptr;
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate environment shader", e.what());
-        }
-    }
-
     // Initialize camera
     initCamera();
     setResizeCallback([this](ng::Vector2i size)
@@ -336,11 +318,68 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     performLayout();
 }
 
-void Viewer::setupLights(mx::DocumentPtr doc)
+void Viewer::loadEnvironmentLight()
 {
-    // Import lights
+    std::string message;
+
+    // Load the requested radiance map.
+    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_searchPath.find(_envRadiancePath), true, nullptr, &message);
+    if (!envRadianceMap)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light", message);
+        return;
+    }
+
+    try
+    {
+        // Look for an irradiance map using an expected filename convention.
+        const std::string IRRADIANCE_MAP_SUFFIX("_diffuse");
+        mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath();
+        std::string envIrradianceName = mx::removeExtension(_envRadiancePath.getBaseName()) +
+            IRRADIANCE_MAP_SUFFIX + "." + _envRadiancePath.getExtension();
+        envIrradiancePath = envIrradiancePath / envIrradianceName;
+        mx::ImagePtr envIrradianceMap = _imageHandler->acquireImage(_searchPath.find(envIrradiancePath), true, nullptr, &message);
+
+        // If not found, then generate an irradiance map via spherical harmonics.
+        if (!envIrradianceMap)
+        {
+            mx::Sh3ColorCoeffs shIrradiance = mx::projectEnvironment(envRadianceMap, true);
+            envIrradianceMap = mx::renderEnvironment(shIrradiance, 256, 128);
+        }
+
+        // Release any existing environment maps and store the new ones.
+        _imageHandler->releaseRenderResources(_lightHandler->getEnvRadianceMap());
+        _imageHandler->releaseRenderResources(_lightHandler->getEnvIrradianceMap());
+        _lightHandler->setEnvRadianceMap(envRadianceMap);
+        _lightHandler->setEnvIrradianceMap(envIrradianceMap);
+
+        const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
+        if (!meshes.empty())
+        {
+            // Set up world matrix for drawing
+            const float scaleFactor = 300.0f;
+            const float rotationRadians = PI / 2.0f; // 90 degree rotation 
+            _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor)) * mx::Matrix44::createRotationY(rotationRadians);
+
+            // Create environment shader.
+            mx::FilePath envFilename = _searchPath.find(
+                mx::FilePath("resources/Materials/TestSuite/Utilities/Lights/envmap_shader.mtlx"));
+            _envMaterial = Material::create();
+            _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadiancePath);
+            _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
+        }
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light", e.what());
+    }
+}
+
+void Viewer::loadDirectLights(mx::DocumentPtr doc)
+{
+    // Load light document.
     mx::DocumentPtr lightDoc = mx::createDocument();
-    mx::FilePath path = _searchPath.find(_lightFileName);
+    mx::FilePath path = _searchPath.find(_lightFilename);
     if (!path.isEmpty())
     {
         try
@@ -372,9 +411,6 @@ void Viewer::setupLights(mx::DocumentPtr doc)
         }
     }
 
-    // Create a new light handler
-    _lightHandler = mx::LightHandler::create();
-
     try 
     {
         // Set lights on the generator. Set to empty if no lights found
@@ -402,10 +438,6 @@ void Viewer::setupLights(mx::DocumentPtr doc)
             unsigned int lightSourceCount = static_cast<unsigned int>(_lightHandler->getLightSources().size());
             _genContext.getOptions().hwMaxActiveLightSources = lightSourceCount;
         }
-
-        // Set up IBL inputs
-        _lightHandler->setLightEnvRadiancePath(_searchPath.find(_envRadiancePath));
-        _lightHandler->setLightEnvIrradiancePath(_searchPath.find(_envIrradiancePath));
     }
     catch (std::exception& e)
     {
@@ -498,6 +530,30 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
             _materialFilename = filename;
             assignMaterial(getSelectedGeometry(), nullptr);
             loadDocument(_materialFilename, _stdLib);
+        }
+        mProcessEvents = true;
+    });
+}
+
+void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& label)
+{
+    ng::Button* envButton = new ng::Button(parent, label);
+    envButton->setIcon(ENTYPO_ICON_FOLDER);
+    envButton->setCallback([this]()
+    {
+        mProcessEvents = false;
+        mx::StringSet extensions;
+        _imageHandler->supportedExtensions(extensions);
+        std::vector<std::pair<std::string, std::string>> filetypes;
+        for (const auto& extension : extensions)
+        {
+            filetypes.push_back(std::make_pair(extension, extension));
+        }
+        std::string filename = ng::file_dialog(filetypes, false);
+        if (!filename.empty())
+        {
+            _envRadiancePath = filename;
+            loadEnvironmentLight();
         }
         mProcessEvents = true;
     });
@@ -634,14 +690,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     new ng::Label(advancedPopup, "Lighting Options");
 
-    ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct lighting");
+    ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
     directLightingBox->setChecked(_directLighting);
     directLightingBox->setCallback([this](bool enable)
     {
         _directLighting = enable;
     });
 
-    ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect lighting");
+    ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect Lighting");
     indirectLightingBox->setChecked(_indirectLighting);
     indirectLightingBox->setCallback([this](bool enable)
     {
@@ -649,11 +705,22 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
 
     ng::CheckBox* ambientOcclusionBox = new ng::CheckBox(advancedPopup, "Ambient Occlusion");
-    ambientOcclusionBox->setChecked(_ambientOcclusion);
+    ambientOcclusionBox->setChecked(_genContext.getOptions().hwAmbientOcclusion);
     ambientOcclusionBox->setCallback([this](bool enable)
     {
-        _ambientOcclusion = enable;
+        _genContext.getOptions().hwAmbientOcclusion = enable;
+        reloadShaders();
     });
+
+    ng::Widget* ambientOcclusionGainRow = new ng::Widget(advancedPopup);
+    ambientOcclusionGainRow->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ng::FloatBox<float>* ambientOcclusionGainBox = createFloatWidget(ambientOcclusionGainRow, "AO Gain:",
+        _ambientOcclusionGain, nullptr, [this](float value)
+    {
+        _ambientOcclusionGain = value;
+    });
+    ambientOcclusionGainBox->setEditable(true);
+    ambientOcclusionGainBox->setMinMaxValues(0.0f, 1.0f);
 
     new ng::Label(advancedPopup, "Render Options");
 
@@ -702,7 +769,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     new ng::Label(advancedPopup, "Property Editor Options");
 
-    ng::CheckBox* showAdvancedProperties = new ng::CheckBox(advancedPopup, "Show advanced attributes");
+    ng::CheckBox* showAdvancedProperties = new ng::CheckBox(advancedPopup, "Show Advanced Properties");
     showAdvancedProperties->setChecked(_showAdvancedProperties);
     showAdvancedProperties->setCallback([this](bool enable)
     {
@@ -742,36 +809,11 @@ void Viewer::updateGeometrySelections()
         }
         items.push_back(geomName);
     }
-    _geometryListBox->setItems(items);
+    _geometrySelectionBox->setItems(items);
 
     _geomLabel->setVisible(items.size() > 1);
-    _geometryListBox->setVisible(items.size() > 1);
+    _geometrySelectionBox->setVisible(items.size() > 1);
     _selectedGeom = 0;
-
-    // Create ambient occlusion material.
-    const mx::StringMap aoStringMap = { { ".obj", "_ao.png" } };
-    std::string aoImagePath = mx::replaceSubstrings(_meshFilename, aoStringMap);
-    aoImagePath = _searchPath.find(aoImagePath);
-    if (mx::FilePath(aoImagePath).exists())
-    {
-        try
-        {
-            mx::FilePath ambOccFilename = _searchPath.find(
-                mx::FilePath("resources/Materials/TestSuite/Utilities/Lights/ambient_occlusion.mtlx"));
-            _ambOccMaterial = Material::create();
-            _ambOccMaterial->generateAmbOccShader(_genContext, ambOccFilename, _stdLib, aoImagePath);
-            _ambOccMaterial->bindMesh(mesh);
-        }
-        catch (std::exception& e)
-        {
-            _ambOccMaterial = nullptr;
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate ambient occlusion shader", e.what());
-        }
-    }
-    else
-    {
-        _ambOccMaterial = nullptr;
-    }
 
     performLayout();
 }
@@ -866,8 +908,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         copyOptions.skipConflictingElements = true;
         doc->importLibrary(libraries, &copyOptions);
 
-        // Add lighting 
-        setupLights(doc);
+        // Load direct lights.
+        loadDirectLights(doc);
 
         // Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
@@ -1176,23 +1218,17 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    // Reload the current document from file.
+    // Reload the current document, and optionally the standard libraries, from
+    // the file system.
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
         MaterialPtr material = getSelectedMaterial();
         mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
         mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
-        loadDocument(filename, _stdLib);
-        return true;
-    }
-
-    // Reload all files from standard library
-    if (key == GLFW_KEY_R && modifiers == GLFW_MOD_SHIFT && action == GLFW_PRESS)
-    {
-        MaterialPtr material = getSelectedMaterial();
-        mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
-        mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
-        loadStandardLibraries();
+        if (modifiers == GLFW_MOD_SHIFT)
+        {
+            loadStandardLibraries();
+        }
         loadDocument(filename, _stdLib);
         return true;
     }
@@ -1289,6 +1325,7 @@ void Viewer::drawScene3D()
     glDisable(GL_CULL_FACE);
     glEnable(GL_FRAMEBUFFER_SRGB);
 
+    // Environment background
     if (_drawEnvironment && _envMaterial)
     {
         GLShaderPtr envShader = _envMaterial->getShader();
@@ -1317,11 +1354,12 @@ void Viewer::drawScene3D()
         {
             continue;
         }
-        mx::TypedElementPtr shader = material->getElement();
+
         material->bindShader();
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_lightHandler, _imageHandler, _searchPath,
+        material->bindLights(_lightHandler, _imageHandler,
                              _directLighting, _indirectLighting,
+                             getAmbientOcclusionImage(material), _ambientOcclusionGain,
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
@@ -1339,41 +1377,16 @@ void Viewer::drawScene3D()
         {
             continue;
         }
-        mx::TypedElementPtr shader = material->getElement();
+
         material->bindShader();
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_lightHandler, _imageHandler, _searchPath,
+        material->bindLights(_lightHandler, _imageHandler,
                              _directLighting, _indirectLighting,
+                             getAmbientOcclusionImage(material), _ambientOcclusionGain,
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
-    }
-    
-    // Ambient occlusion pass
-    if (_ambientOcclusion && _ambOccMaterial)
-    {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_DST_COLOR, GL_ZERO);
-        for (const auto& assignment : _materialAssignments)
-        {
-            mx::MeshPartitionPtr geom = assignment.first;
-            MaterialPtr material = assignment.second;
-            if (!material)
-            {
-                continue;
-            }
-
-            mx::TypedElementPtr shader = _ambOccMaterial->getElement();
-            _ambOccMaterial->bindShader();
-            _ambOccMaterial->bindViewInformation(world, view, proj);
-            _ambOccMaterial->bindLights(_lightHandler, _imageHandler, _searchPath,
-                                        _directLighting, _indirectLighting,
-                                        _specularEnvironmentMethod, _envSamples);
-            _ambOccMaterial->bindImages(_imageHandler, _searchPath);
-            _ambOccMaterial->drawPartition(geom);
-            _ambOccMaterial->unbindImages(_imageHandler);
-        }
     }
     
     glDisable(GL_BLEND);
@@ -1706,4 +1719,23 @@ void Viewer::computeCameraMatrices(mx::Matrix44& world,
 void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
+    createSaveMaterialsInterface(_propertyEditor.getWindow(), "Save Material");
+}
+
+mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
+{
+    const mx::string AO_FILENAME_SUFFIX = "_ao";
+    const mx::string AO_FILENAME_EXTENSION = "png";
+    const mx::Color4 AO_FALLBACK_COLOR(1.0f);
+
+    if (!material || !_genContext.getOptions().hwAmbientOcclusion)
+    {
+        return nullptr;
+    }
+
+    std::string aoSuffix = material->getUdim().empty() ? AO_FILENAME_SUFFIX : AO_FILENAME_SUFFIX + "_" + material->getUdim();
+    mx::FilePath aoFilePath = _meshFilename.getParentPath();
+    std::string aoFilename = mx::removeExtension(_meshFilename.getBaseName()) + aoSuffix + "." + AO_FILENAME_EXTENSION;
+
+    return _imageHandler->acquireImage(aoFilePath / aoFilename, true, &AO_FALLBACK_COLOR);
 }

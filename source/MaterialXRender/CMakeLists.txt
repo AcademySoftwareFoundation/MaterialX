@@ -1,3 +1,7 @@
+include_directories(
+    ${EXTERNAL_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../)
+
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
@@ -54,13 +58,6 @@ set_target_properties(
     SOVERSION "${MATERIALX_MAJOR_VERSION}"
     DEBUG_POSTFIX "${MATERIALX_DEBUG_POSTFIX}")
 
-target_include_directories(MaterialXRender
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-        $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
-    PRIVATE
-        ${EXTERNAL_INCLUDE_DIRS}
-)
 
 install(TARGETS MaterialXRender
     EXPORT MaterialX

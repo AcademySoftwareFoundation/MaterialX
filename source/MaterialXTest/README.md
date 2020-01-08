@@ -29,7 +29,7 @@ The names of the files reflect the Element type being tested for the following:
 
 ### 4.1 Test Inputs
 
-Refer to the [test suite documentation](../../resources/Materials/TestSuite/) for more information about the organization of the test suite data used for these tests.
+Refer to the [test suite documentation](../../resources/Materials/TestSuite/README.md) for more information about the organization of the test suite data used for these tests.
 
 ### 4.2 Shader Generation Tests
 

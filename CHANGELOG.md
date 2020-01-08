@@ -3,9 +3,11 @@
 ## [1.36.5] - Development
 
 ### Added
+- Added a Load Environment option to the viewer, allowing new latitude-longitude HDR environments to be loaded at run-time.
 - Added an initial TextureBaker class, supporting baking of graph outputs to textures.
 - Added initial support for units, including the MaterialX\:\:Unit, MaterialX\:\:UnitDef, and MaterialX\:\:UnitTypeDef classes.
 - Added support for unit conversion in shader code generation.
+- Added support for Visual Studio 2019.
 
 ### Changed
 - Updated subsurface interface and logic for Autodesk Standard Surface.

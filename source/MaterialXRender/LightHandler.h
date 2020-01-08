@@ -9,10 +9,13 @@
 /// @file
 /// Handler for hardware lights
 
+#include <MaterialXRender/Image.h>
+
 #include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
+
 class GenContext;
 
 /// Shared pointer to a LightHandler
@@ -25,8 +28,10 @@ using LightHandlerPtr = std::shared_ptr<class LightHandler>;
 class LightHandler
 {
   public:
-    LightHandler();
-    virtual ~LightHandler();
+    LightHandler()
+    {
+    }
+    virtual ~LightHandler() { }
 
     /// Create a new light handler
     static LightHandlerPtr create() { return std::make_shared<LightHandler>(); }
@@ -52,28 +57,28 @@ class LightHandler
         _lightSources = lights;
     }
 
-    /// Set path to irradiance IBL image
-    void setLightEnvIrradiancePath(const FilePath& filePath)
+    /// Set the environment radiance map
+    void setEnvRadianceMap(ImagePtr map)
     {
-        _lightEnvIrradiancePath = filePath;
+        _envRadianceMap = map;
     }
 
-    /// Get path to irradiance IBL image
-    const FilePath& getLightEnvIrradiancePath() const
+    /// Return the environment radiance map
+    ImagePtr getEnvRadianceMap() const
     {
-        return _lightEnvIrradiancePath;
+        return _envRadianceMap;
     }
 
-    /// Set path to radiance IBL image
-    void setLightEnvRadiancePath(const FilePath& filePath)
+    /// Set the environment irradiance map
+    void setEnvIrradianceMap(ImagePtr map)
     {
-        _lightEnvRadiancePath = filePath;
+        _envIrradianceMap = map;
     }
 
-    /// Get path to radiance IBL image
-    const FilePath& getLightEnvRadiancePath() const
+    /// Return the environment irradiance map
+    ImagePtr getEnvIrradianceMap() const
     {
-        return _lightEnvRadiancePath;
+        return _envIrradianceMap;
     }
 
     /// From a set of nodes, create a mapping of corresponding
@@ -95,8 +100,8 @@ class LightHandler
   private:
     vector<NodePtr> _lightSources;
     std::unordered_map<string, unsigned int> _lightIdentifierMap;
-    FilePath _lightEnvIrradiancePath;
-    FilePath _lightEnvRadiancePath;
+    ImagePtr _envRadianceMap;
+    ImagePtr _envIrradianceMap;
 };
 
 } // namespace MaterialX

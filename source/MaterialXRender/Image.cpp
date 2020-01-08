@@ -5,7 +5,7 @@
 
 #include <MaterialXRender/Image.h>
 
-#include <cmath>
+#include <MaterialXRender/Types.h>
 
 namespace MaterialX
 {
@@ -32,15 +32,19 @@ Image::~Image()
 
 unsigned int Image::getBaseStride() const
 {
-    if (_baseType == BaseType::HALF)
-    {
-        return 2;
-    }
     if (_baseType == BaseType::FLOAT)
     {
         return 4;
     }
-    return 1;
+    if (_baseType == BaseType::HALF)
+    {
+        return 2;
+    }
+    if (_baseType == BaseType::UINT8)
+    {
+        return 1;
+    }
+    throw Exception("Unsupported base type in getBaseStride");
 }
 
 unsigned int Image::getMaxMipCount() const
@@ -73,6 +77,40 @@ ImagePtr Image::createConstantColor(unsigned int width, unsigned int height, con
     return image;
 }
 
+void Image::setTexelColor(unsigned int x, unsigned int y, const Color4& color)
+{
+    if (x >= _width || y >= _height)
+    {
+        throw Exception("Invalid coordinates in setTexelColor");
+    }
+    if (!_resourceBuffer)
+    {
+        throw Exception("Invalid resource buffer in setTexelColor");
+    }
+
+    unsigned int writeChannels = std::min(_channelCount, (unsigned int) 4);
+    if (_baseType == BaseType::FLOAT)
+    {
+        float* data = static_cast<float*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        for (unsigned int c = 0; c < writeChannels; c++)
+        {
+            data[c] = color[c];
+        }
+    }
+    else if (_baseType == BaseType::HALF)
+    {
+        Half* data = static_cast<Half*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        for (unsigned int c = 0; c < writeChannels; c++)
+        {
+            data[c] = (Half) color[c];
+        }
+    }
+    else
+    {
+        throw Exception("Unsupported base type in setTexelColor");
+    }
+}
+
 Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
 {
     if (x >= _width || y >= _height)
@@ -87,6 +125,26 @@ Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
     if (_baseType == BaseType::FLOAT)
     {
         float* data = static_cast<float*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        if (_channelCount == 4)
+        {
+            return Color4(data[0], data[1], data[2], data[3]);
+        }
+        else if (_channelCount == 3)
+        {
+            return Color4(data[0], data[1], data[2], 1.0f);
+        }
+        else if (_channelCount == 1)
+        {
+            return Color4(data[0], data[0], data[0], 1.0f);
+        }
+        else
+        {
+            throw Exception("Unsupported channel count in getTexelColor");
+        }
+    }
+    else if (_baseType == BaseType::HALF)
+    {
+        Half* data = static_cast<Half*>(_resourceBuffer) + (y * _width + x) * _channelCount;
         if (_channelCount == 4)
         {
             return Color4(data[0], data[1], data[2], data[3]);
