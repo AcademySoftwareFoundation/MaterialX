@@ -65,6 +65,28 @@ void copyNoneValue(const RtValue&, RtValue&)
 }
 
 template<class T>
+bool compareValue(const RtValue& a, const RtValue& b)
+{
+    return a == b;
+}
+template <> bool compareValue<Matrix33>(const RtValue& a, const RtValue& b)
+{
+    return a.asMatrix33() == b.asMatrix33();
+}
+template <> bool compareValue<Matrix44>(const RtValue& a, const RtValue& b)
+{
+    return a.asMatrix44() == b.asMatrix44();
+}
+template <> bool compareValue<string>(const RtValue& a, const RtValue& b)
+{
+    return a.asString() == b.asString();
+}
+bool compareNoneValue(const RtValue&, const RtValue&)
+{
+    return false;
+}
+
+template<class T>
 void toStringValue(const RtValue&, string&)
 {
     // TODO: Fix this for gcc/clang
@@ -292,62 +314,62 @@ PvtTypeDefRegistry::PvtTypeDefRegistry()
 {
     // Register all default types.
 
-    RtValueFuncs boolFuncs = { createValue<bool>, copyValue<bool>, toStringValue<bool>, fromStringValue<bool>  };
+    RtValueFuncs boolFuncs = { createValue<bool>, copyValue<bool>, compareValue<bool>, toStringValue<bool>, fromStringValue<bool>  };
     newType("boolean", RtTypeDef::BASETYPE_BOOLEAN, boolFuncs);
 
-    RtValueFuncs intFuncs = { createValue<int>, copyValue<int>, toStringValue<int>, fromStringValue<int> };
+    RtValueFuncs intFuncs = { createValue<int>, copyValue<int>, compareValue<int>, toStringValue<int>, fromStringValue<int> };
     newType("integer", RtTypeDef::BASETYPE_INTEGER, intFuncs);
 
-    RtValueFuncs floatFuncs = { createValue<float>, copyValue<float>,  toStringValue<float>, fromStringValue<float> };
+    RtValueFuncs floatFuncs = { createValue<float>, copyValue<float>, compareValue<float>, toStringValue<float>, fromStringValue<float> };
     newType("float", RtTypeDef::BASETYPE_FLOAT, floatFuncs);
 
-    RtValueFuncs color2Funcs = { createValue<Color2>, copyValue<Color2>, toStringValue<Color2> , fromStringValue<Color2> };
+    RtValueFuncs color2Funcs = { createValue<Color2>, copyValue<Color2>, compareValue<Color2>, toStringValue<Color2> , fromStringValue<Color2> };
     RtTypeDef* color2 = newType("color2", RtTypeDef::BASETYPE_FLOAT, color2Funcs, RtTypeDef::SEMANTIC_NONE, 2);
     color2->setComponent(0, "r", RtTypeDef::BASETYPE_FLOAT);
     color2->setComponent(1, "a", RtTypeDef::BASETYPE_FLOAT);
 
-    RtValueFuncs color3Funcs = { createValue<Color3>, copyValue<Color3>, toStringValue<Color3> , fromStringValue<Color3> };
+    RtValueFuncs color3Funcs = { createValue<Color3>, copyValue<Color3>, compareValue<Color3>, toStringValue<Color3> , fromStringValue<Color3> };
     RtTypeDef* color3 = newType("color3", RtTypeDef::BASETYPE_FLOAT, color3Funcs, RtTypeDef::SEMANTIC_COLOR, 3);
     color3->setComponent(0, "r", RtTypeDef::BASETYPE_FLOAT);
     color3->setComponent(1, "g", RtTypeDef::BASETYPE_FLOAT);
     color3->setComponent(2, "b", RtTypeDef::BASETYPE_FLOAT);
 
-    RtValueFuncs color4Funcs = { createValue<Color4>, copyValue<Color4>, toStringValue<Color4> , fromStringValue<Color4> };
+    RtValueFuncs color4Funcs = { createValue<Color4>, copyValue<Color4>, compareValue<Color4>, toStringValue<Color4> , fromStringValue<Color4> };
     RtTypeDef* color4 = newType("color4", RtTypeDef::BASETYPE_FLOAT, color4Funcs, RtTypeDef::SEMANTIC_COLOR, 4);
     color4->setComponent(0, "r", RtTypeDef::BASETYPE_FLOAT);
     color4->setComponent(1, "g", RtTypeDef::BASETYPE_FLOAT);
     color4->setComponent(2, "b", RtTypeDef::BASETYPE_FLOAT);
     color4->setComponent(3, "a", RtTypeDef::BASETYPE_FLOAT);
 
-    RtValueFuncs vector2Funcs = { createValue<Vector2>, copyValue<Vector2>, toStringValue<Vector2> , fromStringValue<Vector2> };
+    RtValueFuncs vector2Funcs = { createValue<Vector2>, copyValue<Vector2>, compareValue<Vector2>, toStringValue<Vector2> , fromStringValue<Vector2> };
     RtTypeDef* vector2 = newType("vector2", RtTypeDef::BASETYPE_FLOAT, vector2Funcs, RtTypeDef::SEMANTIC_VECTOR, 2);
     vector2->setComponent(0, "x", RtTypeDef::BASETYPE_FLOAT);
     vector2->setComponent(1, "y", RtTypeDef::BASETYPE_FLOAT);
 
-    RtValueFuncs vector3Funcs = { createValue<Vector3>, copyValue<Vector3>, toStringValue<Vector3> , fromStringValue<Vector3> };
+    RtValueFuncs vector3Funcs = { createValue<Vector3>, copyValue<Vector3>, compareValue<Vector3>, toStringValue<Vector3> , fromStringValue<Vector3> };
     RtTypeDef* vector3 = newType("vector3", RtTypeDef::BASETYPE_FLOAT, vector3Funcs, RtTypeDef::SEMANTIC_VECTOR, 3);
     vector3->setComponent(0, "x", RtTypeDef::BASETYPE_FLOAT);
     vector3->setComponent(1, "y", RtTypeDef::BASETYPE_FLOAT);
     vector3->setComponent(2, "z", RtTypeDef::BASETYPE_FLOAT);
 
-    RtValueFuncs vector4Funcs = { createValue<Vector4>, copyValue<Vector4>, toStringValue<Vector4> , fromStringValue<Vector4> };
+    RtValueFuncs vector4Funcs = { createValue<Vector4>, copyValue<Vector4>, compareValue<Vector4>, toStringValue<Vector4> , fromStringValue<Vector4> };
     RtTypeDef* vector4 = newType("vector4", RtTypeDef::BASETYPE_FLOAT, vector4Funcs, RtTypeDef::SEMANTIC_VECTOR, 4);
     vector4->setComponent(0, "x", RtTypeDef::BASETYPE_FLOAT);
     vector4->setComponent(1, "y", RtTypeDef::BASETYPE_FLOAT);
     vector4->setComponent(2, "z", RtTypeDef::BASETYPE_FLOAT);
     vector4->setComponent(3, "w", RtTypeDef::BASETYPE_FLOAT);
 
-    RtValueFuncs matrix33Funcs = { createValue<Matrix33>, copyValue<Matrix33>, toStringValue<Matrix33> , fromStringValue<Matrix33> };
+    RtValueFuncs matrix33Funcs = { createValue<Matrix33>, copyValue<Matrix33>, compareValue<Matrix33>, toStringValue<Matrix33> , fromStringValue<Matrix33> };
     newType("matrix33", RtTypeDef::BASETYPE_FLOAT, matrix33Funcs, RtTypeDef::SEMANTIC_MATRIX, 9);
 
-    RtValueFuncs matrix44Funcs = { createValue<Matrix44>, copyValue<Matrix44>, toStringValue<Matrix44> , fromStringValue<Matrix44> };
+    RtValueFuncs matrix44Funcs = { createValue<Matrix44>, copyValue<Matrix44>, compareValue<Matrix44>, toStringValue<Matrix44> , fromStringValue<Matrix44> };
     newType("matrix44", RtTypeDef::BASETYPE_FLOAT, matrix44Funcs, RtTypeDef::SEMANTIC_MATRIX, 16);
 
-    RtValueFuncs stringFuncs = { createValue<string>, copyValue<string>, toStringValue<string> , fromStringValue<string> };
+    RtValueFuncs stringFuncs = { createValue<string>, copyValue<string>, compareValue<string>, toStringValue<string> , fromStringValue<string> };
     newType("string", RtTypeDef::BASETYPE_STRING, stringFuncs);
     newType("filename", RtTypeDef::BASETYPE_STRING, stringFuncs, RtTypeDef::SEMANTIC_FILENAME);
 
-    RtValueFuncs tokenFuncs = { createValue<RtToken>, copyValue<RtToken>, toStringValue<RtToken> , fromStringValue<RtToken> };
+    RtValueFuncs tokenFuncs = { createValue<RtToken>, copyValue<RtToken>, compareValue<RtToken>, toStringValue<RtToken> , fromStringValue<RtToken> };
     newType("token", RtTypeDef::BASETYPE_STRING, tokenFuncs);
 
     newType("integerarray", RtTypeDef::BASETYPE_INTEGER, intFuncs, RtTypeDef::SEMANTIC_NONE, 0);
@@ -360,7 +382,7 @@ PvtTypeDefRegistry::PvtTypeDefRegistry()
     newType("vector4array", RtTypeDef::BASETYPE_FLOAT, vector4Funcs, RtTypeDef::SEMANTIC_VECTOR, 0);
     newType("stringarray", RtTypeDef::BASETYPE_STRING, stringFuncs, RtTypeDef::SEMANTIC_NONE, 0);
 
-    RtValueFuncs noneFuncs = { createNoneValue, copyNoneValue, toStringNoneValue, fromStringNoneValue };
+    RtValueFuncs noneFuncs = { createNoneValue, copyNoneValue, compareNoneValue, toStringNoneValue, fromStringNoneValue };
     newType("BSDF", RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_CLOSURE);
     newType("EDF", RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_CLOSURE);
     newType("VDF", RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_CLOSURE);

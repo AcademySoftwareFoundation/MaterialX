@@ -72,8 +72,9 @@ void PvtNodeGraph::addPort(PvtDataHandle portdef)
     const PvtPortDef* pd = portdef->asA<PvtPortDef>();
     const uint32_t flags = pd->getFlags();
 
-    PvtNode::Port p;
-    p.value = pd->getValue();
+    PvtNode::PortData p;
+    p.value = RtValue::createNew(pd->getType(), this->getObject());
+    RtValue::copy(pd->getType(), pd->getValue(), p.value);
 
     // Add to external interface
     nodeDef()->addPort(portdef);

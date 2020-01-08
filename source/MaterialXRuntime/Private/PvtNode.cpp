@@ -21,16 +21,6 @@ PvtNode::PvtNode(const RtToken& name, const PvtDataHandle& nodedef) :
     PvtAllocatingElement(RtObjType::NODE, name),
     _nodedef(nodedef)
 {
-    const size_t numPorts = nodeDef()->numPorts();
-    _ports.resize(numPorts);
-    _portAttrs.resize(numPorts);
-
-    // Set indices and default values
-    for (size_t i = 0; i < numPorts; ++i)
-    {
-        PvtPortDef* p = nodeDef()->getPort(i);
-        _ports[i].value = p->getValue();
-    }
 }
 
 // Construction without an interface is only for nodegraphs.
@@ -38,6 +28,27 @@ PvtNode::PvtNode(const RtToken& name) :
     PvtAllocatingElement(RtObjType::NODEGRAPH, name),
     _nodedef(nullptr)
 {
+}
+
+void PvtNode::postConstructor()
+{
+    const PvtNodeDef* nodedef = nodeDef();
+    if (nodedef)
+    {
+        // Create all ports according to definition.
+        const size_t numPorts = nodedef->numPorts();
+        _ports.resize(numPorts);
+        _portAttrs.resize(numPorts);
+
+        // Allocate storage for port values and set their defaults.
+        for (size_t i = 0; i < numPorts; ++i)
+        {
+            const PvtPortDef* p = nodedef->getPort(i);
+            RtValue newValue = RtValue::createNew(p->getType(), this->getObject());
+            RtValue::copy(p->getType(), p->getValue(), newValue);
+            _ports[i].value = newValue;
+        }
+    }
 }
 
 PvtDataHandle PvtNode::createNew(PvtElement* parent, const PvtDataHandle& nodedef, const RtToken& name)
@@ -57,6 +68,8 @@ PvtDataHandle PvtNode::createNew(PvtElement* parent, const PvtDataHandle& nodede
     }
 
     PvtDataHandle node(new PvtNode(nodeName, nodedef));
+    node->asA<PvtNode>()->postConstructor();
+
     if (parent)
     {
         parent->addChild(node);

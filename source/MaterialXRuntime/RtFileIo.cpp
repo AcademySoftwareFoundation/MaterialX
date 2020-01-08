@@ -444,7 +444,8 @@ namespace
         {
             const PvtPortDef* inputDef = nodedef->getInput(i);
             RtPort input = const_cast<PvtNode*>(node)->findPort(inputDef->getName());
-            if (input.isConnected() || input.getValue() != inputDef->getValue())
+
+            if (input.isConnected() || !RtValue::compare(inputDef->getType(), inputDef->getValue(), input.getValue()))
             {
                 ValueElementPtr valueElem;
                 if (inputDef->isUniform())

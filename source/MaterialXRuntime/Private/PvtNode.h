@@ -132,13 +132,22 @@ protected:
     // Used for constructing nodegraphs.
     PvtNode(const RtToken& name);
 
-    PvtNodeDef* nodeDef() const
+    // Performs initialization that needs to be done after object construction.
+    // Will be called immediatelly after the main constructor.
+    void postConstructor();
+
+    const PvtNodeDef* nodeDef() const
+    {
+        return _nodedef->asA<const PvtNodeDef>();
+    }
+
+    PvtNodeDef* nodeDef()
     {
         return _nodedef->asA<PvtNodeDef>();
     }
 
 protected:
-    struct Port
+    struct PortData
     {
         RtValue value;
         RtPortVec connections;
@@ -147,7 +156,7 @@ protected:
     using PvtAttributeMapPtr = std::unique_ptr<PvtAttributeMap>;
 
     PvtDataHandle _nodedef;
-    vector<Port> _ports;
+    vector<PortData> _ports;
     vector<PvtAttributeMapPtr> _portAttrs;
 
     friend class RtPort;

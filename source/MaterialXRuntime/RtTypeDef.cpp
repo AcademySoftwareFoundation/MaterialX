@@ -72,6 +72,11 @@ void RtTypeDef::copyValue(const RtValue& src, RtValue& dest) const
     static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().copy(src, dest);
 }
 
+bool RtTypeDef::compareValue(const RtValue& a, const RtValue& b) const
+{
+    return static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().compare(a, b);
+}
+
 void RtTypeDef::toStringValue(const RtValue& src, string& dest) const
 {
     static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().toString(src, dest);

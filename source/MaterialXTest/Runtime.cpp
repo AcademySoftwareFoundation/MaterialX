@@ -176,15 +176,19 @@ TEST_CASE("Runtime: Types", "[runtime]")
     {
         dest = src;
     };
-    auto marshalFoo = [](const mx::RtValue&, std::string& dest)
+    auto compareFoo = [](const mx::RtValue& a, const mx::RtValue& b) -> bool
+    {
+        return a == b;
+    };
+    auto toStringFoo = [](const mx::RtValue&, std::string& dest)
     {
         dest = "42";
     };
-    auto unmarshalFoo = [](const std::string&, mx::RtValue& dest)
+    auto fromStringFoo = [](const std::string&, mx::RtValue& dest)
     {
         dest = mx::RtValue(42);
     };
-    mx::RtValueFuncs fooFuncs = { createFoo, copyFoo, marshalFoo, unmarshalFoo };
+    mx::RtValueFuncs fooFuncs = { createFoo, copyFoo, compareFoo, toStringFoo, fromStringFoo };
     const mx::RtTypeDef* fooType = mx::RtTypeDef::registerType("foo", mx::RtTypeDef::BASETYPE_FLOAT, fooFuncs, mx::RtTypeDef::SEMANTIC_COLOR, 5);
     REQUIRE(fooType != nullptr);
     const mx::RtTypeDef* fooType2 = mx::RtTypeDef::findType("foo");
@@ -615,11 +619,14 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         REQUIRE(tiledimage1);
         REQUIRE(texcoord1);
         mx::RtPort tiledimage1_texcoord = tiledimage1.findPort("texcoord");
+        mx::RtPort tiledimage1_file = tiledimage1.findPort("file");
         mx::RtPort texcoord1_index = texcoord1.findPort("index");
         mx::RtPort texcoord1_out = texcoord1.findPort("out");
         REQUIRE(tiledimage1_texcoord);
+        REQUIRE(tiledimage1_file);
         REQUIRE(texcoord1_index);
         REQUIRE(texcoord1_out);
+        tiledimage1_file.getValue().asString() = "myimagetexture.png";
         texcoord1_out.connectTo(tiledimage1_texcoord);
         texcoord1_index.getValue().asInt() = 2;
 

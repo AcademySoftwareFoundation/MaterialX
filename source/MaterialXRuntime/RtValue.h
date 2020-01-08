@@ -214,14 +214,14 @@ public:
         _data[0] = _data[1] = 0;
     }
 
-    bool operator==(const RtValue& other)
+    /// Equality operator.
+    /// NOTE: This operator will only compare the raw data stored.
+    /// For a semantic compare which considers the actual type being stored and
+    /// handles comparison for large types stored as pointers you should instead
+    /// use the method RtValue::compare().
+    bool operator==(const RtValue& other) const
     {
         return _data[0] == other._data[0] && _data[1] == other._data[1];
-    }
-
-    bool operator!=(const RtValue& other)
-    {
-        return !(*this==other);
     }
 
     /// Create a new value of given type.
@@ -232,6 +232,10 @@ public:
     /// Copy a value from one instance to another.
     /// Both RtValue instances must be initialized for the given type.
     static void copy(const RtToken& type, const RtValue& src, RtValue& dest);
+
+    /// Test if two values are equal.
+    /// Both RtValue instances must be initialized for the given type.
+    static bool compare(const RtToken& type, const RtValue& a, RtValue& b);
 
     /// Convert an RtValue of given type into a string representation.
     static void toString(const RtToken& type, const RtValue& src, string& dest);

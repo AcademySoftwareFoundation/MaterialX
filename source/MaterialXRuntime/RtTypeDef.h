@@ -54,6 +54,9 @@ using RtValueCreateFunc = std::function<RtValue(RtObject & owner)>;
 /// Function type for copying a value of a specific data type.
 using RtValueCopyFunc = std::function<void(const RtValue & src, RtValue & dest)>;
 
+/// Function type for comparing two values for equality.
+using RtValueCompareFunc = std::function<bool(const RtValue & a, const RtValue & b)>;
+
 /// Function type for converting a value of a specific data type.
 using RtValueToStringFunc = std::function<void(const RtValue & src, string & dest)>;
 
@@ -67,6 +70,7 @@ struct RtValueFuncs
 {
     RtValueCreateFunc create;
     RtValueCopyFunc copy;
+    RtValueCompareFunc compare;
     RtValueToStringFunc toString;
     RtValueFromStringFunc fromString;
 };
@@ -164,6 +168,9 @@ public:
 
     /// Copy data from one value to another.
     void copyValue(const RtValue& src, RtValue& dest) const;
+
+    /// Test if two values are equal.
+    bool compareValue(const RtValue& a, const RtValue& b) const;
 
     /// Convert an RtValue of this type into a string representation.
     void toStringValue(const RtValue& src, string& dest) const;

@@ -59,6 +59,26 @@ RtValue RtValue::createNew(const RtToken& type, RtObject owner)
     return typeDef->createValue(owner);
 }
 
+void RtValue::copy(const RtToken& type, const RtValue& src, RtValue& dest)
+{
+    const RtTypeDef* typeDef = RtTypeDef::findType(type);
+    if (!typeDef)
+    {
+        throw ExceptionRuntimeError("Type '" + type.str() + "' is not a registered type");
+    }
+    typeDef->copyValue(src, dest);
+}
+
+bool RtValue::compare(const RtToken& type, const RtValue& a, RtValue& b)
+{
+    const RtTypeDef* typeDef = RtTypeDef::findType(type);
+    if (!typeDef)
+    {
+        throw ExceptionRuntimeError("Type '" + type.str() + "' is not a registered type");
+    }
+    return typeDef->compareValue(a, b);
+}
+
 void RtValue::toString(const RtToken& type, const RtValue& src, string& dest)
 {
     const RtTypeDef* typeDef = RtTypeDef::findType(type);
@@ -77,16 +97,6 @@ void RtValue::fromString(const RtToken& type, const string& src, RtValue& dest)
         throw ExceptionRuntimeError("Type '" + type.str() + "' is not a registered type");
     }
     typeDef->fromStringValue(src, dest);
-}
-
-void RtValue::copy(const RtToken& type, const RtValue& src, RtValue& dest)
-{
-    const RtTypeDef* typeDef = RtTypeDef::findType(type);
-    if (!typeDef)
-    {
-        throw ExceptionRuntimeError("Type '" + type.str() + "' is not a registered type");
-    }
-    typeDef->copyValue(src, dest);
 }
 
 }

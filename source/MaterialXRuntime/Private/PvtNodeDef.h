@@ -79,7 +79,7 @@ public:
         return findChildByName(name)->asA<PvtPortDef>();
     }
 
-    size_t findPortIndex(const RtToken& name)
+    size_t findPortIndex(const RtToken& name) const
     {
         auto it = _portIndex.find(name);
         return it != _portIndex.end() ? it->second : INVALID_INDEX;
