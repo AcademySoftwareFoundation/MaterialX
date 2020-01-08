@@ -259,7 +259,14 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         });
         floatBox->setFixedSize(ng::Vector2i(100, 20));
         floatBox->setEditable(editable);
-        floatBox->setMinMaxValues(min->asA<float>(), max->asA<float>());
+        if (min)
+        {
+            floatBox->setMinValue(min->asA<float>());
+        }
+        if (max)
+        {
+            floatBox->setMaxValue(max->asA<float>());
+        }
     }
 
     // Boolean widget

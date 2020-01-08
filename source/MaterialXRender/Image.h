@@ -25,6 +25,9 @@ using ConstImagePtr = shared_ptr<const Image>;
 /// A map from strings to images.
 using ImageMap = std::unordered_map<string, ImagePtr>;
 
+/// A pair of images.
+using ImagePair = std::pair<ImagePtr, ImagePtr>;
+
 /// A function to perform image buffer deallocation
 using ImageBufferDeallocator = std::function<void(void*)>;
 
@@ -125,6 +128,10 @@ class Image
     /// Return the texel color at the given coordinates.  If the coordinates
     /// or image resource buffer are invalid, then an exception is thrown.
     Color4 getTexelColor(unsigned int x, unsigned int y) const;
+
+    /// Split this image by the given luminance threshold, returning the
+    /// resulting underflow and overflow images.
+    ImagePair splitByLuminance(float luminance);
 
     /// Allocate a resource buffer for this image that matches its properties.
     void createResourceBuffer();

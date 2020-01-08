@@ -5,7 +5,6 @@
 
 #include <MaterialXRender/Harmonics.h>
 
-#include <cmath>
 #include <iostream>
 
 namespace MaterialX
@@ -24,6 +23,8 @@ const double BASIS_CONSTANT_4 = std::sqrt(15.0 / (16.0 * PI));
 const double COSINE_CONSTANT_0 = 1.0;
 const double COSINE_CONSTANT_1 = 2.0 / 3.0;
 const double COSINE_CONSTANT_2 = 1.0 / 4.0;
+
+const Color3d LUMA_COEFFS_REC709(0.2126, 0.7152, 0.0722);
 
 double imageXToPhi(unsigned int x, unsigned int width)
 {
@@ -133,6 +134,41 @@ Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
     }
 
     return shEnv;
+}
+
+void computeDominantLight(ConstImagePtr env, Vector3& lightDir, Color3& lightColor)
+{
+    // Reference:
+    //   https://seblagarde.wordpress.com/2011/10/09/dive-in-sh-buffer-idea/
+
+    // Project the environment to spherical harmonics.
+    Sh3ColorCoeffs shEnv = projectEnvironment(env);
+
+    // Compute the dominant light direction.
+    Vector3d dir = Vector3d(shEnv[3].dot(LUMA_COEFFS_REC709),
+                            shEnv[1].dot(LUMA_COEFFS_REC709),
+                            shEnv[2].dot(LUMA_COEFFS_REC709)).getNormalized();
+
+    // Evaluate the dominant direction as spherical harmonics.
+    Sh3ScalarCoeffs shDir = evalDirection(dir);
+    Vector4d vDir(shDir[0], shDir[1], shDir[2], shDir[3]);
+
+    // Compute the dominant light color.
+    Vector4d vEnvR(shEnv[0][0], shEnv[1][0], shEnv[2][0], shEnv[3][0]);
+    Vector4d vEnvG(shEnv[0][1], shEnv[1][1], shEnv[2][1], shEnv[3][1]);
+    Vector4d vEnvB(shEnv[0][2], shEnv[1][2], shEnv[2][2], shEnv[3][2]);
+    Color3d color = Color3d(
+        std::max(vDir.dot(vEnvR), 0.0),
+        std::max(vDir.dot(vEnvG), 0.0),
+        std::max(vDir.dot(vEnvB), 0.0)) / vDir.dot(vDir);
+
+    // Convert to single-precision floats.
+    lightDir = Vector3((float) dir[0], (float) dir[1], (float) dir[2]);
+    lightColor = Color3((float) color[0], (float) color[1], (float) color[2]);
+
+    // Transform to match library conventions for latitude-longitude maps.
+    lightDir = Matrix44::createRotationY((float) PI / 2.0f).transformVector(lightDir);
+    lightDir = Matrix44::createScale(Vector3(1, 1, -1)).transformVector(lightDir);
 }
 
 ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsigned int height)
