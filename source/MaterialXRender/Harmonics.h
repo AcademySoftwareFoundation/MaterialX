@@ -10,7 +10,6 @@
 /// Spherical harmonics functionality
 
 #include <MaterialXRender/Image.h>
-
 #include <MaterialXRender/Types.h>
 
 namespace MaterialX
@@ -53,12 +52,18 @@ using Sh3ScalarCoeffs = ShCoeffs<double, 3>;
 using Sh3ColorCoeffs = ShCoeffs<Color3d, 3>;
 
 /// Project an environment map to third-order SH, with an optional convolution
-///    to convert radiance to irradiance.
+/// to convert radiance to irradiance.
 /// @param env An environment map in lat-long format.
 /// @param irradiance If true, then the returned signal will be convolved
 ///    by a clamped cosine kernel to generate irradiance.
 /// @return The projection of the environment to third-order SH.
-Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance);
+Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance = false);
+
+/// Compute the dominant light direction and color of an environment map.
+/// @param env An environment map in lat-long format.
+/// @param lightDir Returns the dominant light direction of the environment.
+/// @param lightColor Returns the color of the light from the dominant direction.
+void computeDominantLight(ConstImagePtr env, Vector3& lightDir, Color3& lightColor);
 
 /// Render the given spherical harmonic signal to an environment map.
 /// @param shEnv The color signal of the environment encoded as third-order SH.
