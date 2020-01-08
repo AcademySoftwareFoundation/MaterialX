@@ -486,6 +486,12 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl";
     }
 
+    // Emit uv transform code globally if needed.
+    if (context.getOptions().hwAmbientOcclusion)
+    {
+        emitInclude(ShaderGenerator::T_FILE_TRANSFORM_UV, context, stage);
+    }
+
     // Add all functions for node implementations
     emitFunctionDefinitions(graph, context, stage);
 

@@ -19,6 +19,7 @@ namespace MaterialX
 {
 
 class Look;
+class LookGroup;
 class LookInherit;
 class MaterialAssign;
 class Visibility;
@@ -27,6 +28,11 @@ class Visibility;
 using LookPtr = shared_ptr<Look>;
 /// A shared pointer to a const Look
 using ConstLookPtr = shared_ptr<const Look>;
+
+/// A shared pointer to a LookGroup
+using LookGroupPtr = shared_ptr<LookGroup>;
+/// A shared pointer to a const LookGroup
+using ConstLookGroupPtr = shared_ptr<const LookGroup>;
 
 /// A shared pointer to a MaterialAssign
 using MaterialAssignPtr = shared_ptr<MaterialAssign>;
@@ -232,6 +238,47 @@ class Look : public Element
 
   public:
     static const string CATEGORY;
+};
+
+/// @class LookGroup
+/// A look group element within a Document.
+class LookGroup : public Element
+{
+  public:
+    LookGroup(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~LookGroup() { }
+
+    /// Set comma-separated list of looks.
+    void setLooks(const string& looks)
+    {
+        setAttribute(LOOKS_ATTRIBUTE, looks);
+    }
+
+    /// Get comma-separated list of looks.
+    const string& getLooks() const
+    {
+        return getAttribute(LOOKS_ATTRIBUTE);
+    }
+
+    /// Set the active look.
+    void setActiveLook(const string& look)
+    {
+        setAttribute(ACTIVE_ATTRIBUTE, look);
+    }
+
+    /// Return the active look, if any.
+    const string& getActiveLook() const
+    {
+        return getAttribute(ACTIVE_ATTRIBUTE);
+    }
+
+  public:
+    static const string CATEGORY;
+    static const string LOOKS_ATTRIBUTE;
+    static const string ACTIVE_ATTRIBUTE;
 };
 
 /// @class MaterialAssign
