@@ -43,11 +43,11 @@ build_script:
 before_deploy:
     # Go to install directory and zip it up.  Currently marked as pre-release
     - cd C:\Projects\MaterialX\build\installed
-    - 7z a -r C:\Projects\MaterialX\materialx-v1.36.4_shaderx-%ARCH%-%GENERATOR_NAME%-%CONFIGURATION%.zip .
+    - 7z a -r C:\Projects\MaterialX\materialx-v1.37_shaderx-%ARCH%-%GENERATOR_NAME%-%CONFIGURATION%.zip .
 
 artifacts:
     # Set artifact to be created zip.  Currently marked as pre-release
-    - path: materialx-v1.36.4_shaderx-%ARCH%-%GENERATOR_NAME%-%CONFIGURATION%.zip
+    - path: materialx-v1.37_shaderx-%ARCH%-%GENERATOR_NAME%-%CONFIGURATION%.zip
       name: MaterialX_ADSK
 
 deploy:
