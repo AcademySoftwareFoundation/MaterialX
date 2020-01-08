@@ -15,9 +15,9 @@ void LightHandler::addLightSource(NodePtr node)
     _lightSources.push_back(node);
 }
 
-void LightHandler::mapNodeDefToIdentiers(const vector<NodePtr>& nodes,
-                                         std::unordered_map<string, unsigned int>& ids)
+LightIdMap LightHandler::computeLightIdMap(const vector<NodePtr>& nodes)
 {
+    std::unordered_map<string, unsigned int> idMap;
     unsigned int id = 1;
     for (const auto& node : nodes)
     {
@@ -25,12 +25,13 @@ void LightHandler::mapNodeDefToIdentiers(const vector<NodePtr>& nodes,
         if (nodedef)
         {
             const string& name = nodedef->getName();
-            if (!ids.count(name))
+            if (!idMap.count(name))
             {
-                ids[name] = id++;
+                idMap[name] = id++;
             }
         }
     }
+    return idMap;
 }
 
 void LightHandler::findLights(DocumentPtr doc, vector<NodePtr>& lights)
@@ -56,7 +57,7 @@ void LightHandler::registerLights(DocumentPtr doc, const vector<NodePtr>& lights
     if (!lights.empty())
     {
         // Create a list of unique nodedefs and ids for them
-        mapNodeDefToIdentiers(lights, _lightIdentifierMap);
+        _lightIdentifierMap = computeLightIdMap(lights);
         for (const auto& id : _lightIdentifierMap)
         {
             NodeDefPtr nodeDef = doc->getNodeDef(id.first);
