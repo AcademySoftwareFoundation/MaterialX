@@ -483,9 +483,9 @@ void ShaderGeneratorTester::addSkipNodeDefs()
 {
 }
 
-void ShaderGeneratorTester::mapNodeDefToIdentiers(const std::vector<mx::NodePtr>& nodes,
-                                                  std::unordered_map<std::string, unsigned int>& ids)
+LightIdMap ShaderGeneratorTester::computeLightIdMap(const std::vector<mx::NodePtr>& nodes)
 {
+    std::unordered_map<std::string, unsigned int> idMap;
     unsigned int id = 1;
     for (const auto& node : nodes)
     {
@@ -493,12 +493,13 @@ void ShaderGeneratorTester::mapNodeDefToIdentiers(const std::vector<mx::NodePtr>
         if (nodedef)
         {
             const std::string& name = nodedef->getName();
-            if (!ids.count(name))
+            if (!idMap.count(name))
             {
-                ids[name] = id++;
+                idMap[name] = id++;
             }
         }
     }
+    return idMap;
 }
 
 void ShaderGeneratorTester::findLights(mx::DocumentPtr doc, std::vector<mx::NodePtr>& lights)
@@ -525,7 +526,7 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
     if (!lights.empty())
     {
         // Create a list of unique nodedefs and ids for them
-        mapNodeDefToIdentiers(lights, _lightIdentifierMap);
+        _lightIdentifierMap = computeLightIdMap(lights);
         for (const auto& id : _lightIdentifierMap)
         {
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);

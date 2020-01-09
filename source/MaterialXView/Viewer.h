@@ -86,7 +86,7 @@ class Viewer : public ng::Screen
     void drawScene2D();
 
     void loadEnvironmentLight();
-    void loadDirectLights(mx::DocumentPtr doc);
+    void applyDirectLights(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
     void reloadShaders();
     void loadStandardLibraries();
@@ -152,6 +152,7 @@ class Viewer : public ng::Screen
     // Lighting information
     mx::FilePath _lightFilename;
     mx::FilePath _envRadiancePath;
+    mx::DocumentPtr _lightDoc;
     bool _directLighting;
     bool _indirectLighting;
     float _ambientOcclusionGain;

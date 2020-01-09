@@ -25,7 +25,7 @@ void bindPyLightHandler(py::module& mod)
         .def("getEnvRadianceMap", &mx::LightHandler::getEnvRadianceMap)
         .def("setEnvIrradianceMap", &mx::LightHandler::setEnvIrradianceMap)
         .def("getEnvIrradianceMap", &mx::LightHandler::getEnvIrradianceMap)
-        .def("mapNodeDefToIdentiers", &mx::LightHandler::mapNodeDefToIdentiers)
+        .def("computeLightIdMap", &mx::LightHandler::computeLightIdMap)
         .def("findLights", &mx::LightHandler::findLights)
         .def("registerLights", &mx::LightHandler::registerLights);
 }
