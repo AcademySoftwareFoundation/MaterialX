@@ -16,6 +16,7 @@
 #include <MaterialXRuntime/Private/PvtNodeDef.h>
 #include <MaterialXRuntime/Private/PvtNode.h>
 #include <MaterialXRuntime/Private/PvtNodeGraph.h>
+#include <MaterialXRuntime/Private/PvtTraversal.h>
 
 #include <MaterialXGenShader/Util.h>
 #include <sstream>
@@ -31,6 +32,46 @@ namespace
     static const RtTokenSet nodeAttrs       = { "name", "type", "node" };
     static const RtTokenSet nodegraphAttrs  = { "name", "nodedef" };
     static const RtTokenSet unknownAttrs    = { "name" };
+
+    PvtNode* findNodeOrThrow(const RtToken& name, PvtElement* parent)
+    {
+        PvtDataHandle nodeH = parent->findChildByName(name);
+        if (!nodeH)
+        {
+            throw ExceptionRuntimeError("Node '" + name.str() + "' is not a child of '" + parent->getName().str() + "'");
+        }
+        return nodeH->asA<PvtNode>();
+    }
+
+    RtPort findPortOrThrow(const RtToken& name, PvtNode* node)
+    {
+        RtPort port = node->findPort(name);
+        if (!port)
+        {
+            throw ExceptionRuntimeError("Node '" + node->getName().str() + "' has no port named '" + name.str() + "'");
+        }
+        return port;
+    }
+
+    void createNodeConnections(const vector<NodePtr>& nodeElements, PvtElement* parent)
+    {
+        for (const NodePtr& nodeElem : nodeElements)
+        {
+            PvtNode* node = findNodeOrThrow(RtToken(nodeElem->getName()), parent);
+            for (const InputPtr& elemInput : nodeElem->getInputs())
+            {
+                RtPort input = findPortOrThrow(RtToken(elemInput->getName()), node);
+                const string& connectedNodeName = elemInput->getNodeName();
+                if (!connectedNodeName.empty())
+                {
+                    PvtNode* connectedNode = findNodeOrThrow(RtToken(connectedNodeName), parent);
+                    const RtToken outputName(elemInput->getOutputString());
+                    RtPort output = findPortOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtPortDef::DEFAULT_OUTPUT_NAME, connectedNode);
+                    RtNode::connect(output, input);
+                }
+            }
+        }
+    }
 
     void readCustomAttributes(const ElementPtr src, PvtElement* dest, const RtTokenSet& knownAttrs)
     {
@@ -58,7 +99,7 @@ namespace
         }
     }
 
-    void readNodeDef(const NodeDefPtr& src, PvtStage* stage)
+    PvtDataHandle readNodeDef(const NodeDefPtr& src, PvtStage* stage)
     {
         const RtToken name(src->getName());
         const RtToken nodeName(src->getNodeString());
@@ -124,22 +165,77 @@ namespace
                 readCustomAttributes(elem, input, portdefAttrs);
             }
         }
+
+        return nodedefH;
     }
 
-    PvtNode* readNode(const NodePtr& src, PvtElement* parent, PvtStage* stage)
+    bool matchingSignature(const PvtNodeDef* nodedef, const RtToken nodeType, const vector<ValueElementPtr>& nodePorts)
     {
-        NodeDefPtr srcNodedef = src->getNodeDef();
-        if (!srcNodedef)
+        // Check output types for single output nodes.
+        if (nodedef->numOutputs() == 1 && nodedef->getOutput(0)->getType() != nodeType)
         {
-            throw ExceptionRuntimeError("No matching nodedef was found for node '" + src->getName() + "'");
+            return false;
+        }
+        // Check all other ports.
+        for (const ValueElementPtr& nodePort : nodePorts)
+        {
+            const PvtPortDef* nodedefPort = nodedef->findPort(RtToken(nodePort->getName()));
+            if (!nodedefPort || nodedefPort->getType().str() != nodePort->getType())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    PvtDataHandle resolveNodeDef(const NodePtr& node, PvtStage* stage)
+    {
+        PvtDataHandle nodedefH;
+
+        // First try resolving a nodedef from content in the current document.
+        NodeDefPtr srcNodedef = node->getNodeDef();
+        if (srcNodedef)
+        {
+            const RtToken nodedefName(srcNodedef->getName());
+            nodedefH = stage->findChildByName(nodedefName);
+            if (!nodedefH)
+            {
+                // NodeDef is not loaded yet so create it now.
+                nodedefH = readNodeDef(srcNodedef, stage);
+            }
         }
 
-        const RtToken nodedefName(srcNodedef->getName());
-        PvtDataHandle nodedefH = stage->findChildByName(nodedefName);
         if (!nodedefH)
         {
-            // NodeDef is not loaded yet so create it now.
-            readNodeDef(srcNodedef, stage);
+            // Try resolving among existing nodedefs in the stage
+            // by matching signatures.
+
+            const RtToken nodeName(node->getCategory());
+            const RtToken nodeType(node->getType());
+            const vector<ValueElementPtr> nodePorts = node->getActiveValueElements();
+
+            RtObjectFilter<RtObjType::NODEDEF> nodedefFilter;
+            PvtStageIterator it(stage->shared_from_this(), nodedefFilter);
+            for (; !it.isDone(); ++it)
+            {
+                const PvtNodeDef* nodedef = (*it)->asA<PvtNodeDef>();
+                if (nodedef->getNodeName() == nodeName && 
+                    matchingSignature(nodedef, nodeType, nodePorts))
+                {
+                    return *it;
+                }
+            }
+        }
+
+        return nodedefH;
+    }
+
+    PvtDataHandle readNode(const NodePtr& src, PvtElement* parent, PvtStage* stage)
+    {
+        PvtDataHandle nodedefH = resolveNodeDef(src, stage);
+        if (!nodedefH)
+        {
+            throw ExceptionRuntimeError("No matching nodedef was found for node '" + src->getName() + "'");
         }
 
         const RtToken nodeName(src->getName());
@@ -165,10 +261,10 @@ namespace
             }
         }
 
-        return node;
+        return nodeH;
     }
 
-    PvtNodeGraph* readNodeGraph(const NodeGraphPtr& src, PvtElement* parent, PvtStage* stage)
+    PvtDataHandle readNodeGraph(const NodeGraphPtr& src, PvtElement* parent, PvtStage* stage)
     {
         const RtToken nodegraphName(src->getName());
         PvtDataHandle nodegraphH = PvtNodeGraph::createNew(parent, nodegraphName);
@@ -225,7 +321,8 @@ namespace
             NodePtr srcNnode = child->asA<Node>();
             if (srcNnode)
             {
-                PvtNode* node = readNode(srcNnode, nodegraph, stage);
+                PvtDataHandle nodeH = readNode(srcNnode, nodegraph, stage);
+                PvtNode* node = nodeH->asA<PvtNode>();
 
                 // Check for connections to the graph interface
                 for (auto elem : srcNnode->getChildrenOfType<ValueElement>())
@@ -246,13 +343,16 @@ namespace
                                     nodegraph->getName().str() + "'");
                             }
                             const RtToken portType(elem->getType());
-                            PvtDataHandle socket = PvtPortDef::createNew(nodegraph, internalInputName, portType);
-                            
+                            PvtDataHandle portdefH = PvtPortDef::createNew(nodegraph, internalInputName, portType);
+                            PvtPortDef* portdef = portdefH->asA<PvtPortDef>();
+
                             const string& valueStr = elem->getValueString();
                             if (!valueStr.empty())
                             {
-                                RtValue::fromString(portType, valueStr, socket->asA<PvtPortDef>()->getValue());
+                                RtValue::fromString(portType, valueStr, portdef->getValue());
                             }
+
+                            inputSocket = nodegraph->findInputSocket(portdef->getName());
                         }
                         const RtToken inputName(elem->getName());
                         RtPort input = node->findPort(inputName);
@@ -262,58 +362,27 @@ namespace
             }
         }
 
-        // Create all connections.
-        std::set<Edge> processedEdges;
-        std::set<Element*> processedInterfaces;
-        for (auto elem : src->getOutputs())
+        // Create connections between all nodes.
+        createNodeConnections(src->getNodes(), nodegraph);
+
+        // Create connections between nodes and the graph outputs.
+        for (const OutputPtr& elem : src->getOutputs())
         {
-            for (Edge edge : elem->traverseGraph())
+            const string& connectedNodeName = elem->getNodeName();
+            if (!connectedNodeName.empty())
             {
-                if (processedEdges.count(edge))
-                {
-                    continue;
-                }
-
-                ElementPtr downstreamElem = edge.getDownstreamElement();
-                ElementPtr connectingElem = edge.getConnectingElement();
-                ElementPtr upstreamElem = edge.getUpstreamElement();
-
-                if (upstreamElem->isA<Node>() && !processedInterfaces.count(upstreamElem.get()))
-                {
-                    const RtToken upstreamNodeName(upstreamElem->getName());
-                    PvtNode* upstreamNode = nodegraph->findNode(upstreamNodeName);
-
-                    if (downstreamElem->isA<Output>())
-                    {
-                        RtPort output = upstreamNode->getPort(0); // TODO: Fixme!
-                        // Single outputs can have arbitrary names,
-                        // so access by index in that case.
-                        RtPort outputSocket = nodegraph->numOutputs() == 1 ?
-                            nodegraph->getOutputSocket(0) :
-                            nodegraph->findOutputSocket(RtToken(downstreamElem->getName()));
-                        PvtNode::connect(output, outputSocket);
-                    }
-                    else
-                    {
-                        const RtToken downstreamNodeName(downstreamElem->getName());
-                        const RtToken downstreamInputName(connectingElem->getName());
-                        PvtNode* downstreamNode = nodegraph->findNode(downstreamNodeName);
-                        RtPort input = downstreamNode->findPort(downstreamInputName);
-                        RtPort output = upstreamNode->getPort(0); // TODO: Fixme!
-                        PvtNode::connect(output, input);
-                    }
-
-                    processedInterfaces.insert(upstreamElem.get());
-                }
-
-                processedEdges.insert(edge);
+                RtPort outputSocket = nodegraph->findOutputSocket(RtToken(elem->getName()));
+                PvtNode* connectedNode = findNodeOrThrow(RtToken(connectedNodeName), nodegraph);
+                const RtToken outputName(elem->getOutputString());
+                RtPort output = findPortOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtPortDef::DEFAULT_OUTPUT_NAME, connectedNode);
+                RtNode::connect(output, outputSocket);
             }
         }
 
-        return nodegraph;
+        return nodegraphH;
     }
 
-    PvtUnknownElement* readUnknown(const ElementPtr& src, PvtElement* parent)
+    PvtDataHandle readUnknown(const ElementPtr& src, PvtElement* parent)
     {
         const RtToken name(src->getName());
         const RtToken category(src->getCategory());
@@ -328,7 +397,7 @@ namespace
             readUnknown(child, elem);
         }
 
-        return elem;
+        return elemH;
     }
 
     void readSourceUri(const DocumentPtr& doc, PvtStage* stage)
@@ -362,6 +431,7 @@ namespace
             }
         }
 
+        // Load all other elements.
         for (const ElementPtr& elem : doc->getChildren())
         {
             if (!filter || filter(elem))
@@ -386,6 +456,9 @@ namespace
                 }
             }
         }
+
+        // Create connections between all root level nodes.
+        createNodeConnections(doc->getNodes(), stage);
     }
 
     void writeNodeDef(const PvtNodeDef* nodedef, DocumentPtr dest)
@@ -481,7 +554,7 @@ namespace
                             PvtNode* sourceNode = sourcePort.data()->asA<PvtNode>();
                             InputPtr inputElem = valueElem->asA<Input>();
                             inputElem->setNodeName(sourceNode->getName());
-                            if (sourceNode->numOutputs() > 1)
+                            if (sourceNode->numOutputs() > 1 || sourceNode->hasApi(RtApiType::NODEGRAPH))
                             {
                                 inputElem->setOutputString(sourcePort.getName());
                             }
@@ -504,10 +577,16 @@ namespace
                 }
             }
         }
-        for (size_t i = 0; i < nodedef->numOutputs(); ++i)
+
+        // Write outputs.
+        // TODO: Decide if ALL outputs should be written explicitly for nodes (same as for nodegraphs).
+        if (nodedef->numOutputs() > 1)
         {
-            const PvtPortDef* output = nodedef->getOutput(i);
-            OutputPtr destOutput = destNode->addOutput(output->getName(), output->getType().str());
+            for (size_t i = 0; i < nodedef->numOutputs(); ++i)
+            {
+                const PvtPortDef* output = nodedef->getOutput(i);
+                OutputPtr destOutput = destNode->addOutput(output->getName(), output->getType().str());
+            }
         }
 
         writeAttributes(node, destNode);
@@ -518,9 +597,35 @@ namespace
         NodeGraphPtr destNodeGraph = dest->addNodeGraph(nodegraph->getName());
         writeAttributes(nodegraph, destNodeGraph);
 
+        // Write nodes.
         for (auto node : nodegraph->getChildren())
         {
             writeNode(node->asA<PvtNode>(), destNodeGraph);
+        }
+
+        // Write outputs.
+        for (size_t i=0; i<nodegraph->numOutputs(); ++i)
+        {
+            const RtPort nodegraphOutput = nodegraph->getOutputSocket(i);
+            OutputPtr output = destNodeGraph->addOutput(nodegraphOutput.getName(), nodegraphOutput.getType().str());
+
+            if (nodegraphOutput.isConnected())
+            {
+                const RtPort sourcePort = nodegraphOutput.getSourcePort();
+                if (sourcePort.isSocket())
+                {
+                    output->setInterfaceName(sourcePort.getName());
+                }
+                else
+                {
+                    const PvtNode* sourceNode = sourcePort.data()->asA<PvtNode>();
+                    output->setNodeName(sourceNode->getName());
+                    if (sourceNode->numOutputs() > 1)
+                    {
+                        output->setOutputString(sourcePort.getName());
+                    }
+                }
+            }
         }
     }
 

@@ -571,8 +571,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         // Move the image node into the graph.
         stageGraph.addNode(image1);
 
-        // Write the full stage to a new document
-        // and save it to file for inspection.
+        // Save the stage to file for inspection.
         stageIo.write(stage.getName().str() + "_export.mtlx", nullptr);
 
         // Write out the node using a given node definition
@@ -652,6 +651,72 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         streamFileIO.read(stream1, &readOptions);
         streamFileIO.write(streamStage.getName().str() + "_export.mtlx", &writeOptions);
     }
+}
+
+TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
+{
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+ 
+    // Load in stdlib to a stage.
+    mx::RtStage libStage = mx::RtStage::createNew("libs");
+    mx::RtFileIo libFileIo(libStage.getObject());
+    libFileIo.readLibraries({ "stdlib" }, searchPath);
+
+    // Create a main stage referencing the libs stage.
+    mx::RtStage mainStage = mx::RtStage::createNew("main");
+    mainStage.addReference(libStage.getObject());
+
+    // Create a nodegraph.
+    mx::RtNodeGraph graph = mx::RtNodeGraph::createNew(mainStage.getObject(), "testgraph");
+    graph.addPort("in", mx::RtType::FLOAT);
+    graph.addPort("out", mx::RtType::FLOAT, mx::RtPortFlag::OUTPUT);
+    mx::RtPort graphIn = graph.findPort("in");
+    mx::RtPort graphOut = graph.findPort("out");
+    mx::RtPort graphInSocket = graph.findInputSocket("in");
+    mx::RtPort graphOutSocket = graph.findOutputSocket("out");
+    REQUIRE(graphIn);
+    REQUIRE(graphOut);
+    REQUIRE(graphInSocket);
+    REQUIRE(graphOutSocket);
+
+    // Add nodes to the graph.
+    mx::RtNodeDef addNodeDef = mainStage.findElementByName("ND_add_float");
+    mx::RtNode add1 = mx::RtNode::createNew(graph.getObject(), addNodeDef.getObject());
+    mx::RtNode add2 = mx::RtNode::createNew(graph.getObject(), addNodeDef.getObject());
+    mx::RtNode::connect(graphInSocket, add1.findPort("in1"));
+    mx::RtNode::connect(add1.findPort("out"), add2.findPort("in1"));
+    mx::RtNode::connect(add2.findPort("out"), graphOutSocket);
+    // Add an unconnected node.
+    mx::RtNode::createNew(graph.getObject(), addNodeDef.getObject());
+
+    // Create a node on root level and connect it downstream after the graph.
+    mx::RtNode add4 = mx::RtNode::createNew(mainStage.getObject(), addNodeDef.getObject());
+    mx::RtNode::connect(graphOut, add4.findPort("in1"));
+
+    mx::RtWriteOptions options;
+    options.writeIncludes = false;
+
+    // Save the stage to file for inspection.
+    const mx::FilePath filename = graph.getName().str() + "_export.mtlx";
+    mx::RtFileIo fileIo(mainStage.getObject());
+    fileIo.write(filename, &options);
+
+    // Read the saved file to another stage.
+    mx::RtStage anotherStage = mx::RtStage::createNew("another");
+    anotherStage.addReference(libStage.getObject());
+    fileIo.setObject(anotherStage.getObject());
+    fileIo.read(filename, searchPath);
+
+    // Save the re-read stage to file for inspection.
+    const mx::FilePath filename2 = graph.getName().str() + "_another_export.mtlx";
+    fileIo.write(filename2, &options);
+
+    std::ifstream file1(filename.asString());
+    std::string str1((std::istreambuf_iterator<char>(file1)), std::istreambuf_iterator<char>());
+    std::ifstream file2(filename2.asString());
+    std::string str2((std::istreambuf_iterator<char>(file2)), std::istreambuf_iterator<char>());
+    REQUIRE(str1 == str2);
 }
 
 TEST_CASE("Runtime: Rename", "[runtime]")
