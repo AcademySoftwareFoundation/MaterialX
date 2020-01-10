@@ -18,7 +18,7 @@ namespace MaterialX
 using StbImageLoaderPtr = std::shared_ptr<class StbImageLoader>;
 
 /// @class StbImageLoader
-/// Image file loader using stb library
+/// Stb image file loader
 class StbImageLoader : public ImageLoader
 {
   public:
