@@ -10,7 +10,8 @@
 - Added support for Visual Studio 2019.
 
 ### Changed
-- Updated subsurface interface and logic for Autodesk Standard Surface.
+- Updated Autodesk Standard Surface to latest subsurface interface and graph.
+- Updated the PyBind11 library to version 2.4.3.
 
 ## [1.36.4] - 2019-09-26
 
