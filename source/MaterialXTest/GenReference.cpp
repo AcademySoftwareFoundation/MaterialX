@@ -202,7 +202,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
 
             oslRenderer->compileOSL(filepath);
 
-            mx::ImplementationPtr impl = implDoc->addImplementation("IM_" + nodeName + "_osl");
+            mx::ImplementationPtr impl = implDoc->addImplementation(node->getName());
+            impl->setAttribute("node", nodedef->getNodeString());
             impl->setNodeDef(nodedef);
             impl->setFile((outputPathRel / filename).asString(mx::FilePath::FormatPosix));
             impl->setFunction(node->getName());
