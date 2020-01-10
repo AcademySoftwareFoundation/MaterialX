@@ -266,7 +266,7 @@
     </surface>
 
     <!-- Output -->
-    <output name="surface" type="surfaceshader" nodename="surface_constructor" />
+    <output name="out" type="surfaceshader" nodename="surface_constructor" />
   </nodegraph>
 
   <!-- Node: UsdUVTexture -->
@@ -299,43 +299,43 @@
     <geomattrvalue name="primvar" type="integer">
       <parameter name="attrname" type="string" interfacename="varname"/>
     </geomattrvalue>
-    <output name="result" type="integer" nodename="primvar"/>
+    <output name="out" type="integer" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_boolean" nodedef="ND_UsdPrimvarReader_boolean">
     <geomattrvalue name="primvar" type="boolean">
       <parameter name="attrname" type="string" interfacename="varname"/>
     </geomattrvalue>
-    <output name="result" type="boolean" nodename="primvar"/>
+    <output name="out" type="boolean" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_string" nodedef="ND_UsdPrimvarReader_string">
     <geomattrvalue name="primvar" type="string">
       <parameter name="attrname" type="string" interfacename="varname"/>
     </geomattrvalue>
-    <output name="result" type="string" nodename="primvar"/>
+    <output name="out" type="string" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_float" nodedef="ND_UsdPrimvarReader_float">
     <geomattrvalue name="primvar" type="float">
       <parameter name="attrname" type="string" interfacename="varname"/>
     </geomattrvalue>
-    <output name="result" type="float" nodename="primvar"/>
+    <output name="out" type="float" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector2" nodedef="ND_UsdPrimvarReader_vector2">
     <geomattrvalue name="primvar" type="vector2">
       <parameter name="attrname" type="string" interfacename="varname"/>
     </geomattrvalue>
-    <output name="result" type="vector2" nodename="primvar"/>
+    <output name="out" type="vector2" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector3" nodedef="ND_UsdPrimvarReader_vector3">
     <geomattrvalue name="primvar" type="vector3">
       <parameter name="attrname" type="string" interfacename="varname"/>
     </geomattrvalue>
-    <output name="result" type="vector3" nodename="primvar"/>
+    <output name="out" type="vector3" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector4" nodedef="ND_UsdPrimvarReader_vector4">
     <geomattrvalue name="primvar" type="vector4">
       <parameter name="attrname" type="string" interfacename="varname"/>
     </geomattrvalue>
-    <output name="result" type="vector4" nodename="primvar"/>
+    <output name="out" type="vector4" nodename="primvar"/>
   </nodegraph>
 
   <!-- Node: UsdTransform2d -->
@@ -346,7 +346,7 @@
       <input name="rotate" type="float" interfacename="rotation"/>
       <input name="offset" type="vector2" interfacename="translation"/>
     </place2d>
-    <output name="result" type="vector2" nodename="placement"/>
+    <output name="out" type="vector2" nodename="placement"/>
   </nodegraph>
 
 </materialx>
