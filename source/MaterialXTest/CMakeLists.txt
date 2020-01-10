@@ -48,7 +48,6 @@ set_target_properties(
 set(LIBS
     MaterialXCore
     MaterialXFormat
-    MaterialXRuntime
     MaterialXGenShader
     MaterialXGenOsl
     MaterialXGenGlsl
@@ -72,6 +71,11 @@ endif()
 # Add contrib libraries
 if (MATERIALX_BUILD_CONTRIB)
     LIST(APPEND LIBS "MaterialXContrib")
+endif()
+
+# Add runtime library
+if (MATERIALX_BUILD_RUNTIME)
+    LIST(APPEND LIBS "MaterialXRuntime")
 endif()
 
 target_link_libraries(

@@ -12,6 +12,7 @@ enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." ON)
+option(MATERIALX_BUILD_RUNTIME "Build the MaterialX Runtime data model library." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
@@ -143,7 +144,6 @@ endfunction(assign_source_group)
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
-add_subdirectory(source/MaterialXRuntime)
 
 # Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
@@ -194,6 +194,12 @@ endif()
 # Add viewer subdirectory
 if(MATERIALX_BUILD_VIEWER)
     add_subdirectory(source/MaterialXView)
+endif()
+
+# Add runtime subdirectory
+if(MATERIALX_BUILD_RUNTIME)
+    add_definitions(-DMATERIALX_BUILD_RUNTIME)
+    add_subdirectory(source/MaterialXRuntime)
 endif()
 
 # Add test subdirectory

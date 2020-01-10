@@ -34,7 +34,7 @@ install:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%GENERATOR%" -A "%ARCH%" ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_RUNTIME=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%GENERATOR%" -A "%ARCH%" ..
   - cmake --build . --target install --config %CONFIGURATION%
   - ctest -VV --output-on-failure --build-config %CONFIGURATION% -j %NUMBER_OF_PROCESSORS%
   - cmake -E chdir ../python/MaterialXTest python main.py

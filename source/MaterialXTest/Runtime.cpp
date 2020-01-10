@@ -3,6 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#ifdef MATERIALX_BUILD_RUNTIME
+
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
@@ -973,3 +975,5 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     }
     REQUIRE(numEdges == 16);
 }
+
+#endif // MATERIALX_BUILD_RUNTIME
