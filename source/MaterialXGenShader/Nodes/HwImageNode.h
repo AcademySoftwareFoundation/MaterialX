@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Extending the HwSourceCodeNodewith requirements for image nodes.
+/// Extending the HwSourceCodeNode with requirements for image nodes.
 class HwImageNode : public HwSourceCodeNode
 {
 public:
