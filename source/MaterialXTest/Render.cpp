@@ -4,41 +4,55 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
-#include <MaterialXTest/GenShaderUtil.h>
-
-#include <MaterialXCore/Document.h>
-
-#include <MaterialXFormat/XmlIo.h>
-
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
-
-#include <MaterialXRender/ShaderRenderer.h>
-#include <MaterialXRender/Util.h>
 
 #include <MaterialXTest/RenderUtil.h>
 
-#ifdef MATERIALX_BUILD_CONTRIB
-#include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
-#endif
+#include <MaterialXRender/ShaderRenderer.h>
+#include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXRender/TinyObjLoader.h>
+#include <MaterialXRender/Types.h>
+
 #ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
-#include <MaterialXRender/StbImageLoader.h>
-
-#include <MaterialXRender/GeometryHandler.h>
-#include <MaterialXRender/TinyObjLoader.h>
+#ifdef MATERIALX_BUILD_CONTRIB
+#include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
+#endif
 
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <unordered_set>
-#include <chrono>
-#include <ctime>
 
 namespace mx = MaterialX;
 
-#define LOG_TO_FILE
+TEST_CASE("Render: Data Types", "[rendercore]")
+{
+    std::vector<float> testScalars =
+    {
+        +0.0f, +0.25f, +0.5f, +0.75f,
+        -0.0f, -0.25f, -0.5f, -0.75f,
+        +1.0f, +8.0f, +64.0f, +512.0f,
+        -1.0f, -8.0f, -64.0f, -512.0f,
+        std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity()
+    };
+
+    for (float f : testScalars)
+    {
+        mx::Half h(f);
+        REQUIRE(h == f);
+        REQUIRE(h + mx::Half(1.0f) == f + 1.0f);
+        REQUIRE(h - mx::Half(1.0f) == f - 1.0f);
+        REQUIRE(h * mx::Half(2.0f) == f * 2.0f);
+        REQUIRE(h / mx::Half(2.0f) == f / 2.0f);
+        REQUIRE((h += mx::Half(3.0f)) == (f += 3.0f));
+        REQUIRE((h -= mx::Half(3.0f)) == (f -= 3.0f));
+        REQUIRE((h *= mx::Half(4.0f)) == (f *= 4.0f));
+        REQUIRE((h /= mx::Half(4.0f)) == (f /= 4.0f));
+        REQUIRE(-h == -f);
+    }
+}
 
 struct GeomHandlerTestOptions
 {
