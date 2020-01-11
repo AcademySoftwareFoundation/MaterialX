@@ -51,7 +51,7 @@ class EditorColorPicker : public ng::ColorPicker
             _colorWidgets[i]->setFixedSize(ng::Vector2i(70, 20));
             _colorWidgets[i]->setFontSize(15);
             _colorWidgets[i]->setSpinnable(true);
-            _colorWidgets[i]->setCallback([&](float)
+            _colorWidgets[i]->setCallback([this](float)
             {
                 ng::Color value(_colorWidgets[0]->value(), _colorWidgets[1]->value(), _colorWidgets[2]->value(), _colorWidgets[3]->value());
                 mColorWheel->setColor(value);
@@ -62,7 +62,7 @@ class EditorColorPicker : public ng::ColorPicker
 
         // The color wheel does not handle alpha properly, so only
         // overwrite RGB in the callback.
-        mCallback = [&](const ng::Color &value) {
+        mCallback = [this](const ng::Color &value) {
             _colorWidgets[0]->setValue(value[0]);
             _colorWidgets[1]->setValue(value[1]);
             _colorWidgets[2]->setValue(value[2]);
