@@ -18,7 +18,7 @@ namespace MaterialX
 using OiioImageLoaderPtr = std::shared_ptr<class OiioImageLoader>;
 
 /// @class OiioImageLoader
-/// Image file loader using OpenImageIO library
+/// OpenImageIO image file loader
 class OiioImageLoader : public ImageLoader
 {
   public:

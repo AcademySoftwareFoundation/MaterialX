@@ -1,16 +1,17 @@
 # Change Log
 
-## [1.36.5] - Development
+## [1.36.5] - 2020-01-11
 
 ### Added
-- Added a Load Environment option to the viewer, allowing new latitude-longitude HDR environments to be loaded at run-time.
-- Added an initial TextureBaker class, supporting baking of graph outputs to textures.
+- Added a Load Environment option to the viewer, allowing arbitrary latitude-longitude HDR environments to be loaded at run-time.
+- Added an initial TextureBaker class, supporting baking of procedural content to textures.
 - Added initial support for units, including the MaterialX\:\:Unit, MaterialX\:\:UnitDef, and MaterialX\:\:UnitTypeDef classes.
 - Added support for unit conversion in shader code generation.
 - Added support for Visual Studio 2019.
 
 ### Changed
-- Updated subsurface interface and logic for Autodesk Standard Surface.
+- Updated Autodesk Standard Surface to the latest interface and graph.
+- Updated the PyBind11 library to version 2.4.3.
 
 ## [1.36.4] - 2019-09-26
 
