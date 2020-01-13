@@ -1,5 +1,17 @@
 # Change Log
 
+## [1.37.0] - Development
+
+Updated the MaterialX library to the v1.37 specification.
+
+### Added
+- Added support for LookGroup and Backdrop elements.
+- Added support for the 'uisoftmin', 'uisoftmax', and 'uistep' attributes.
+
+### Changed
+- Updated the set of standard nodes for v1.37, with earlier-versioned documents automatically upgraded at load-time.
+- All NodeDef elements now have an explicit set of child outputs, regardless of whether they declare single-output or multi-output nodes.
+
 ## [1.36.5] - 2020-01-11
 
 ### Added
