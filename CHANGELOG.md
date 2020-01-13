@@ -6,11 +6,12 @@ Updated the MaterialX library to the v1.37 specification.
 
 ### Added
 - Added support for LookGroup and Backdrop elements.
-- Added support for the 'uisoftmin', 'uisoftmax', and 'uistep' attributes.
+- Added support for the 'uisoftmin', 'uisoftmax', and 'uistep' attributes, updating Autodesk Standard Surface to leverage these features.
+- Added support for the 'doc' attribute.
 
 ### Changed
 - Updated the set of standard nodes for v1.37, with earlier-versioned documents automatically upgraded at load-time.
-- All NodeDef elements now have an explicit set of child outputs, regardless of whether they declare single-output or multi-output nodes.
+- Unified the rules for NodeDef outputs, with all NodeDefs defining their output set through Output children rather than 'type' attributes.
 
 ## [1.36.5] - 2020-01-11
 
