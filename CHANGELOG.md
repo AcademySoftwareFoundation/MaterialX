@@ -2,7 +2,7 @@
 
 ## [1.37.0] - Development
 
-Updated the MaterialX library to the v1.37 specification.  See the changelist at http://www.materialx.org/assets/MaterialX.v1.37REV2.Changelist.pdf for a complete list of updates in 1.37.  MaterialX documents from v1.36 and earlier are automatically upgraded at load-time.
+Updated the MaterialX library to the v1.37 specification.  See the changelist at http://www.materialx.org/Specification.html for a complete list of updates in 1.37.  MaterialX documents from v1.36 and earlier are automatically upgraded at load-time.
 
 ### Added
 - Added support for LookGroup elements.
