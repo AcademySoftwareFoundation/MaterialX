@@ -232,6 +232,8 @@ Viewer::Viewer(const std::string& materialFilename,
     // Initialize light handler.
     _lightHandler = mx::LightHandler::create();
     _lightFilename = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
+    _lightDoc = mx::createDocument();
+    mx::readFromXmlFile(_lightDoc, _lightFilename, _searchPath);
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -375,69 +377,24 @@ void Viewer::loadEnvironmentLight()
     }
 }
 
-void Viewer::loadDirectLights(mx::DocumentPtr doc)
+void Viewer::applyDirectLights(mx::DocumentPtr doc)
 {
-    // Load light document.
-    mx::DocumentPtr lightDoc = mx::createDocument();
-    mx::FilePath path = _searchPath.find(_lightFilename);
-    if (!path.isEmpty())
+    if (!_lightDoc)
     {
-        try
-        {
-            mx::XmlReadOptions readOptions;
-            readOptions.skipConflictingElements = true;
-            mx::readFromXmlFile(lightDoc, path, mx::FileSearchPath(), &readOptions);
-            lightDoc->setSourceUri(path);
-
-            mx::CopyOptions copyOptions;
-            copyOptions.skipConflictingElements = true;
-            doc->importLibrary(lightDoc, &copyOptions);
-            _xincludeFiles.insert(path);
-        }
-        catch (std::exception& e)
-        {
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot load light library file: " + path.asString(), e.what());
-        }
+        return;
     }
 
-    // Scan for lights
-    std::vector<mx::NodePtr> lights;
-    for (mx::NodePtr node : doc->getNodes())
-    {
-        const mx::TypeDesc* type = mx::TypeDesc::get(node->getType());
-        if (type == mx::Type::LIGHTSHADER)
-        {
-            lights.push_back(node);
-        }
-    }
+    mx::CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
+    doc->importLibrary(_lightDoc, &copyOptions);
+    _xincludeFiles.insert(_lightFilename);
 
     try 
     {
-        // Set lights on the generator. Set to empty if no lights found
+        std::vector<mx::NodePtr> lights;
+        _lightHandler->findLights(doc, lights);
+        _lightHandler->registerLights(doc, lights, _genContext);
         _lightHandler->setLightSources(lights);
-
-        if (!lights.empty())
-        {
-            // Create a list of unique nodedefs and ids for them
-            std::unordered_map<std::string, unsigned int> identifiers;
-            _lightHandler->mapNodeDefToIdentiers(lights, identifiers);
-            for (const auto& id : identifiers)
-            {
-                mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
-                if (nodeDef)
-                {
-                    mx::HwShaderGenerator::bindLightShader(*nodeDef, id.second, _genContext);
-                }
-                else
-                {
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Failed to light nodedef: ", id.first);
-                }
-            }
-
-            // Clamp the number of light sources to the number found
-            unsigned int lightSourceCount = static_cast<unsigned int>(_lightHandler->getLightSources().size());
-            _genContext.getOptions().hwMaxActiveLightSources = lightSourceCount;
-        }
     }
     catch (std::exception& e)
     {
@@ -908,8 +865,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         copyOptions.skipConflictingElements = true;
         doc->importLibrary(libraries, &copyOptions);
 
-        // Load direct lights.
-        loadDirectLights(doc);
+        // Apply direct lights.
+        applyDirectLights(doc);
 
         // Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
@@ -1737,5 +1694,6 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     mx::FilePath aoFilePath = _meshFilename.getParentPath();
     std::string aoFilename = mx::removeExtension(_meshFilename.getBaseName()) + aoSuffix + "." + AO_FILENAME_EXTENSION;
 
+    _imageHandler->setSearchPath(_searchPath);
     return _imageHandler->acquireImage(aoFilePath / aoFilename, true, &AO_FALLBACK_COLOR);
 }

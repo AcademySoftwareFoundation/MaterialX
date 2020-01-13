@@ -217,6 +217,34 @@ class GraphElement : public InterfaceElement
     }
 
     /// @}
+    /// @name Backdrop Elements
+    /// @{
+
+    /// Add a Backdrop to the graph.
+    BackdropPtr addBackdrop(const string& name = EMPTY_STRING)
+    {
+        return addChild<Backdrop>(name);
+    }
+
+    /// Return the Backdrop, if any, with the given name.
+    BackdropPtr getBackdrop(const string& name) const
+    {
+        return getChildOfType<Backdrop>(name);
+    }
+
+    /// Return a vector of all Backdrop elements in the graph.
+    vector<BackdropPtr> getBackdrops() const
+    {
+        return getChildrenOfType<Backdrop>();
+    }
+
+    /// Remove the Backdrop, if any, with the given name.
+    void removeBackdrop(const string& name)
+    {
+        removeChildOfType<Backdrop>(name);
+    }
+
+    /// @}
     /// @name Utility
     /// @{
 
@@ -288,7 +316,7 @@ class NodeGraph : public GraphElement
 };
 
 /// @class Backdrop
-/// A layout element used to contain, group and document other nodes.
+/// A layout element used to contain, group and document nodes within a graph.
 class Backdrop : public Element
 {
   public:

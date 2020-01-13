@@ -1,16 +1,31 @@
 # Change Log
 
-## [1.36.5] - Development
+## [1.37.0] - Development
+
+Updated the MaterialX library to the v1.37 specification.  See the [changelist](http://www.materialx.org/assets/MaterialX.v1.37REV2.Changelist.pdf) for a complete list of updates in v1.37.  MaterialX documents from v1.36 and earlier are automatically upgraded at load-time.
 
 ### Added
-- Added a Load Environment option to the viewer, allowing new latitude-longitude HDR environments to be loaded at run-time.
-- Added an initial TextureBaker class, supporting baking of graph outputs to textures.
+- Added support for LookGroup elements.
+- Added support for the 'uisoftmin', 'uisoftmax', and 'uistep' attributes, updating Autodesk Standard Surface to leverage these features.
+- Added support for the 'doc' attribute.
+
+### Changed
+- Updated the set of standard nodes for v1.37.
+- Unified the rules for NodeDef outputs, with all NodeDefs defining their output set through Output children rather than 'type' attributes.
+- Replaced backdrop nodes with Backdrop elements.
+
+## [1.36.5] - 2020-01-11
+
+### Added
+- Added a Load Environment option to the viewer, allowing arbitrary latitude-longitude HDR environments to be loaded at run-time.
+- Added an initial TextureBaker class, supporting baking of procedural content to textures.
 - Added initial support for units, including the MaterialX\:\:Unit, MaterialX\:\:UnitDef, and MaterialX\:\:UnitTypeDef classes.
 - Added support for unit conversion in shader code generation.
 - Added support for Visual Studio 2019.
 
 ### Changed
-- Updated subsurface interface and logic for Autodesk Standard Surface.
+- Updated Autodesk Standard Surface to the latest interface and graph.
+- Updated the PyBind11 library to version 2.4.3.
 
 ## [1.36.4] - 2019-09-26
 
