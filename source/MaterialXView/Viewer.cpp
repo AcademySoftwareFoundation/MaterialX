@@ -672,7 +672,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ng::Widget* ambientOcclusionGainRow = new ng::Widget(advancedPopup);
     ambientOcclusionGainRow->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
     ng::FloatBox<float>* ambientOcclusionGainBox = createFloatWidget(ambientOcclusionGainRow, "AO Gain:",
-        _ambientOcclusionGain, [this](float value)
+        _ambientOcclusionGain, nullptr, [this](float value)
     {
         _ambientOcclusionGain = value;
     });

@@ -1,10 +1,9 @@
+<?xml version="1.0"?>
 <!--
 
 Basic adjustment function tests each test is in a separate graph for each variation in input type.
 - smoothstep
 -->
-
-<?xml version="1.0"?>
 <materialx version="1.36">
   <nodegraph name="smoothstep_float_range_min" type="" xpos="6.07605" ypos="29.1097">
     <smoothstep name="smoothstep1" type="float" xpos="5.74483" ypos="4.74">

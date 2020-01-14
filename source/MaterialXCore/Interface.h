@@ -321,6 +321,7 @@ class Output : public PortElement
 
   public:
     static const string CATEGORY;
+    static const string DEFAULT_INPUT_ATTRIBUTE;
 };
 
 /// @class InterfaceElement
@@ -560,6 +561,12 @@ class InterfaceElement : public TypedElement
     /// @}
     /// @name Value Elements
     /// @{
+
+    /// Return the ValueElement, if any, with the given name.
+    ValueElementPtr getValueElement(const string& name) const
+    {
+        return getChildOfType<ValueElement>(name);
+    }
 
     /// Return the first value element with the given name that belongs to this
     /// interface, taking interface inheritance into account.

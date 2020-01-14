@@ -123,6 +123,39 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         }
     }
 
+    const string& uiSoftMinString = nodeDefElement->getAttribute(ValueElement::UI_SOFT_MIN_ATTRIBUTE);
+    if (!uiSoftMinString.empty())
+    {
+        ValuePtr value = Value::createValueFromStrings(uiSoftMinString, nodeDefElement->getType());
+        if (value)
+        {
+            uiProperties.uiSoftMin = value;
+            propertyCount++;
+        }
+    }
+
+    const string& uiSoftMaxString = nodeDefElement->getAttribute(ValueElement::UI_SOFT_MAX_ATTRIBUTE);
+    if (!uiSoftMaxString.empty())
+    {
+        ValuePtr value = Value::createValueFromStrings(uiSoftMaxString, nodeDefElement->getType());
+        if (value)
+        {
+            uiProperties.uiSoftMax = value;
+            propertyCount++;
+        }
+    }
+
+    const string& uiStepString = nodeDefElement->getAttribute(ValueElement::UI_STEP_ATTRIBUTE);
+    if (!uiStepString.empty())
+    {
+        ValuePtr value = Value::createValueFromStrings(uiStepString, nodeDefElement->getType());
+        if (value)
+        {
+            uiProperties.uiStep = value;
+            propertyCount++;
+        }
+    }
+
     const string& uiAdvancedString = nodeDefElement->getAttribute(ValueElement::UI_ADVANCED_ATTRIBUTE);
     uiProperties.uiAdvanced = (uiAdvancedString == "true");
     if (!uiAdvancedString.empty())

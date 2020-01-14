@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
    <!--- Test metal node definition -->
-   <nodedef name="ND_TestMetal" type="surfaceshader" node="testmetal">
+   <nodedef name="ND_TestMetal" node="testmetal">
       <input name="MetalF0" type="color3" value="1, 1, 1" uiname="Color" uifolder="Basic Parameters"/>
       <input name="SurfaceRoughness" type="float" value="0.1" uiname="Roughness" uifolder="Basic Parameters"/>
       <input name="SurfaceAlbedo" type="color3" value="1, 1, 1" uiname="Color" uifolder="Hilight Parameters"/>
@@ -9,6 +9,7 @@
       <input name="SurfaceNormal" type="vector3" value="1, 1, 1" uiname="Relief Pattern (Bump)" uifolder="Hilight Parameters"/>
       <input name="SurfaceRotation" type="float" value="0" uiname="Orientation" uifolder="Hilight Parameters"/>
       <input name="SurfaceCutout" type="color3" value="1, 1, 1" uiname="Image" uifolder="Cutout"/>
+      <output name="out" type="surfaceshader"/>
    </nodedef>
 
    <!-- Graph implementation -->

@@ -34,7 +34,7 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
                    StringVec& errors);
 
 /// Load a given MaterialX library into a document
-void loadLibrary(const FilePath& file, DocumentPtr doc);
+void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath = nullptr);
 
 /// Load all MaterialX files with given library names in given search paths.
 /// Note that all library files will have a URI set on them.

@@ -38,26 +38,35 @@ ShaderPtr createConstantShader(GenContext& context,
 /// Set of possible UI properties for an element
 struct UIProperties
 {
-    /// UI name
-    string uiName;
+	/// UI name
+	string uiName;
 
-    /// UI folder
-    string uiFolder;
+	/// UI folder
+	string uiFolder;
 
-    /// Enumeration
-    StringVec enumeration;
+	/// Enumeration
+	StringVec enumeration;
 
-    /// Enumeration Values
-    vector<ValuePtr> enumerationValues;
+	/// Enumeration Values
+	vector<ValuePtr> enumerationValues;
 
-    /// UI minimum value
-    ValuePtr uiMin;
+	/// UI minimum value
+	ValuePtr uiMin;
 
-    /// UI maximum value
-    ValuePtr uiMax;
+	/// UI maximum value
+	ValuePtr uiMax;
 
-    /// UI advanced element
-    bool uiAdvanced = false;
+	/// UI soft minimum value
+	ValuePtr uiSoftMin;
+
+	/// UI soft maximum value
+	ValuePtr uiSoftMax;
+
+	/// UI step value
+	ValuePtr uiStep;
+
+	/// UI advanced element
+	bool uiAdvanced = false;
 };
 
 /// Get the UI properties for a given nodedef element.

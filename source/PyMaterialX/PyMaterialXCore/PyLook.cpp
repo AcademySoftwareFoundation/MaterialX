@@ -48,6 +48,15 @@ void bindPyLook(py::module& mod)
         .def("removeVisibility", &mx::Look::removeVisibility)
         .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
 
+    py::class_<mx::LookGroup, mx::LookGroupPtr, mx::Element>(mod, "LookGroup")
+        .def("getLooks", &mx::LookGroup::getLooks)
+        .def("setLooks", &mx::LookGroup::setLooks)
+        .def("getActiveLook", &mx::LookGroup::getActiveLook)
+        .def("setActiveLook", &mx::LookGroup::setActiveLook)
+        .def_readonly_static("CATEGORY", &mx::LookGroup::CATEGORY)
+        .def_readonly_static("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
+        .def_readonly_static("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE);
+
     py::class_<mx::MaterialAssign, mx::MaterialAssignPtr, mx::GeomElement>(mod, "MaterialAssign")
         .def("setMaterial", &mx::MaterialAssign::setMaterial)
         .def("hasMaterial", &mx::MaterialAssign::hasMaterial)

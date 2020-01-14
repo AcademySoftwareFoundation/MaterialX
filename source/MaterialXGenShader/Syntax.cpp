@@ -55,12 +55,12 @@ void Syntax::registerTypeSyntax(const TypeDesc* type, TypeSyntaxPtr syntax)
     }
 
     // Make this type a restricted name
-    registerRestrictedNames({ syntax->getName() });
+    registerReservedWords({ syntax->getName() });
 }
 
-void Syntax::registerRestrictedNames(const StringSet& names)
+void Syntax::registerReservedWords(const StringSet& names)
 {
-    _restrictedNames.insert(names.begin(), names.end());
+    _reservedWords.insert(names.begin(), names.end());
 }
 
 void Syntax::registerInvalidTokens(const StringMap& tokens)
@@ -250,14 +250,6 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
     return Value::createValueFromStrings(ss.str(), getTypeName(dstType));
 }
 
-string Syntax::getVariableName(const string& name, const TypeDesc* /*type*/, GenContext& context) const
-{
-    string variable = name;
-    makeValidName(variable);
-    context.makeIdentifier(variable);
-    return variable;
-}
-
 bool Syntax::typeSupported(const TypeDesc*) const
 {
     return true;
@@ -293,6 +285,38 @@ void Syntax::makeValidName(string& name) const
     {
         name = replaceSubstrings(name, _invalidTokens);
     }
+}
+
+void Syntax::makeIdentifier(string& name, IdentifierMap& identifiers) const
+{
+    makeValidName(name);
+
+    auto it = identifiers.find(name);
+    if (it == identifiers.end())
+    {
+        // Name is unique so we can use it as is.
+        // Save it among the known identifiers.
+        identifiers[name] = 1;
+        return;
+    }
+
+    // Name is not unique so append the counter and keep
+    // increamanting until a unique name is found.
+    string name2;
+    do {
+        name2 = name + std::to_string(it->second++);
+    } while (identifiers.count(name2));
+
+    name = name2;
+}
+
+string Syntax::getVariableName(const string& name, const TypeDesc* /*type*/, IdentifierMap& identifiers) const
+{
+    // Default implementation just makes an identifier, but derived 
+    // classes can override this for custom variable naming.
+    string variable = name;
+    makeIdentifier(variable, identifiers);
+    return variable;
 }
 
 

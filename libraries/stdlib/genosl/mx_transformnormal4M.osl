@@ -1,6 +1,0 @@
-void mx_transformnormal4M(vector4 val, matrix mat, output vector4 out)
-{
-    normal _val = normal(val.x, val.y, val.z);
-    vector v = transform(mat, _val);
-    out = vector4(v[0], v[1], v[2], 1.000);
-}

@@ -18,6 +18,7 @@ const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
+const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
 
 // Map from type strings to swizzle pattern character sets.
 const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =
@@ -317,10 +318,17 @@ InputPtr InterfaceElement::getActiveInput(const string& name) const
 vector<InputPtr> InterfaceElement::getActiveInputs() const
 {
     vector<InputPtr> activeInputs;
+    StringSet activeInputNamesSet;
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<InputPtr> inputs = elem->asA<InterfaceElement>()->getInputs();
-        activeInputs.insert(activeInputs.end(), inputs.begin(), inputs.end());
+        for (const InputPtr& input : inputs)
+        {
+            if (input && activeInputNamesSet.insert(input->getName()).second)
+            {
+                activeInputs.push_back(input);
+            }
+        }
     }
     return activeInputs;
 }
@@ -338,13 +346,21 @@ OutputPtr InterfaceElement::getActiveOutput(const string& name) const
     return nullptr;
 }
 
+
 vector<OutputPtr> InterfaceElement::getActiveOutputs() const
 {
     vector<OutputPtr> activeOutputs;
+    StringSet activeOutputNamesSet;
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<OutputPtr> outputs = elem->asA<InterfaceElement>()->getOutputs();
-        activeOutputs.insert(activeOutputs.end(), outputs.begin(), outputs.end());
+        for (const OutputPtr& output : outputs)
+        {
+            if (output && activeOutputNamesSet.insert(output->getName()).second)
+            {
+                activeOutputs.push_back(output);
+            }
+        }
     }
     return activeOutputs;
 }
@@ -389,10 +405,17 @@ ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) cons
 vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
 {
     vector<ValueElementPtr> activeValueElems;
+    StringSet activeValueElemNamesSet;
     for (ConstElementPtr interface : traverseInheritance())
     {
         vector<ValueElementPtr> valueElems = interface->getChildrenOfType<ValueElement>();
-        activeValueElems.insert(activeValueElems.end(), valueElems.begin(), valueElems.end());
+        for (const ValueElementPtr& valueElem : valueElems)
+        {
+            if (valueElem && activeValueElemNamesSet.insert(valueElem->getName()).second)
+            {
+                activeValueElems.push_back(valueElem);
+            }
+        }
     }
     return activeValueElems;
 }

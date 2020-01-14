@@ -154,8 +154,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         label += std::string(" (") + unit + std::string(")");
     }
     const std::string& path = item.variable->getPath();
-    mx::ValuePtr min = ui.uiMin;
-    mx::ValuePtr max = ui.uiMax;
     const mx::StringVec& enumeration = ui.enumeration;
     const std::vector<mx::ValuePtr> enumValues = ui.enumerationValues;
 
@@ -232,15 +230,30 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             auto intVar = new ng::IntBox<int>(twoColumns);
             intVar->setFixedSize(ng::Vector2i(100, 20));
             intVar->setFontSize(15);
+            intVar->setEditable(editable);
             intVar->setSpinnable(editable);
-            intVar->setCallback([path, viewer](int v)
+            intVar->setCallback([intVar, path, viewer](int /*unclamped*/)
             {
                 MaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
-                    material->setUniformInt(path, v);
+                    // https://github.com/wjakob/nanogui/issues/205
+                    material->setUniformInt(path, intVar->value());
                 }
             });
+            if (ui.uiMin)
+            {
+                intVar->setMinValue(ui.uiMin->asA<int>());
+            }
+            if (ui.uiMax)
+            {
+                intVar->setMaxValue(ui.uiMax->asA<int>());
+            }
+            if (ui.uiStep)
+            {
+                intVar->setValueIncrement(ui.uiStep->asA<int>());
+            }
+            intVar->setValue(value->asA<int>());
         }
     }
 
@@ -249,7 +262,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     {
         ng::Widget* threeColumns = new ng::Widget(container);
         threeColumns->setLayout(_gridLayout3);
-        ng::FloatBox<float>* floatBox = createFloatWidget(threeColumns, label, value->asA<float>(), [viewer, path](float value)
+        ng::FloatBox<float>* floatBox = createFloatWidget(threeColumns, label, value->asA<float>(), &ui, [viewer, path](float value)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
             if (material)
@@ -259,14 +272,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         });
         floatBox->setFixedSize(ng::Vector2i(100, 20));
         floatBox->setEditable(editable);
-        if (min)
-        {
-            floatBox->setMinValue(min->asA<float>());
-        }
-        if (max)
-        {
-            floatBox->setMaxValue(max->asA<float>());
-        }
     }
 
     // Boolean widget
@@ -764,7 +769,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
 }
 
 ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& label, float value,
-                                       std::function<void(float)> callback)
+                                       const mx::UIProperties* ui, std::function<void(float)> callback)
 {
     new ng::Label(parent, label);
 
@@ -775,6 +780,38 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
     box->setFixedWidth(60);
     box->setFontSize(15);
     box->setAlignment(ng::TextBox::Alignment::Right);
+
+    if (ui)
+    {
+        std::pair<float, float> range(0.0f, 0.0f);
+        if (ui->uiMin)
+        {
+            box->setMinValue(ui->uiMin->asA<float>());
+            range.first = ui->uiMin->asA<float>();
+        }
+        if (ui->uiMax)
+        {
+            box->setMaxValue(ui->uiMax->asA<float>());
+            range.second = ui->uiMax->asA<float>();
+        }
+        if (ui->uiSoftMin)
+        {
+            range.first = ui->uiSoftMin->asA<float>();
+        }
+        if (ui->uiSoftMax)
+        {
+            range.second = ui->uiSoftMax->asA<float>();
+        }
+        if (range.first != range.second)
+        {
+            slider->setRange(range);
+        }
+        if (ui->uiStep)
+        {
+            box->setValueIncrement(ui->uiStep->asA<float>());
+            box->setSpinnable(true);
+        }
+    }
 
     slider->setCallback([box, callback](float value) 
     {

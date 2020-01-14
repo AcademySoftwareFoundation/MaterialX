@@ -125,7 +125,6 @@
     </luminance>
     <swizzle name="luminance1_x" type="float" xpos="13.869" ypos="12.42">
       <input name="in" type="color3" nodename="luminance1" />
-      <:anonymous name="1" />
       <parameter name="channels" type="string" value="r" />
     </swizzle>
     <surface name="Surface_Constructor" type="surfaceshader" xpos="15.4276" ypos="6.84">

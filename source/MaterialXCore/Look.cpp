@@ -16,6 +16,9 @@ const string Visibility::VIEWER_COLLECTION_ATTRIBUTE = "viewercollection";
 const string Visibility::VISIBILITY_TYPE_ATTRIBUTE = "vistype";
 const string Visibility::VISIBLE_ATTRIBUTE = "visible";
 
+const string LookGroup::LOOKS_ATTRIBUTE = "looks";
+const string LookGroup::ACTIVE_ATTRIBUTE = "active";
+
 //
 // Look methods
 //

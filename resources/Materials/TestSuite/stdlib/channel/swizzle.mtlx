@@ -1,8 +1,8 @@
+<?xml version="1.0"?>
 <!--
 Basic channel function tests each test is in a separate graph for each variation in input type.
 - swizzle
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
   <nodegraph name="swizzle_float_color2" type="" xpos="6.21568" ypos="25.2003">
     <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">

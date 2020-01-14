@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <materialx version="1.36" cms="ocio" colorspace="srgb_texture">
 
-  <nodedef name="ND_NodeA" type="surfaceshader" node="NodeA">
+  <nodedef name="ND_NodeA" node="NodeA">
     <input name="diffColor" type="color3" />
+    <output name="out" type="surfaceshader" />
   </nodedef>
-  <nodedef name="ND_NodeB" type="surfaceshader" node="NodeB" inherit="ND_NodeA">
+  <nodedef name="ND_NodeB" node="NodeB" inherit="ND_NodeA">
+    <output name="out" type="surfaceshader" />
   </nodedef>
 
   <nodegraph name="NG_NodeA" nodedef="ND_NodeA">
@@ -24,7 +26,7 @@
     <NodeA name="NodeA_instanceForNodeB" type="surfaceshader">
       <input name="diffColor" type="color3" nodename="TI_diffColorEffect"/>
     </NodeA>
-    <output name="NodeB_out" type="surfaceshader" nodename="NodeA_instanceForNodeB" />
+    <output name="out" type="surfaceshader" nodename="NodeA_instanceForNodeB" />
   </nodegraph>
 
   <material name="M_test">

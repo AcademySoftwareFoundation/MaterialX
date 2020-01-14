@@ -49,7 +49,7 @@ class TestGenShader(unittest.TestCase):
         nodeDef = doc.addNodeDef("ND_foo", "color3", "foo")
         fooInputA = nodeDef.addInput("a", "color3")
         fooInputB = nodeDef.addInput("b", "color3")
-        fooOutput = nodeDef.addOutput("o", "color3")
+        fooOutput = nodeDef.getOutput("out")
         fooInputA.setValue(mx.Color3(1.0, 1.0, 0.0))
         fooInputB.setValue(mx.Color3(0.8, 0.1, 0.1))
 

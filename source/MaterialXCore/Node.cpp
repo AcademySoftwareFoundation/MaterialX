@@ -13,6 +13,10 @@
 namespace MaterialX
 {
 
+const string Backdrop::CONTAINS_ATTRIBUTE = "contains";
+const string Backdrop::WIDTH_ATTRIBUTE = "width";
+const string Backdrop::HEIGHT_ATTRIBUTE = "height";
+
 //
 // Node methods
 //
@@ -391,7 +395,7 @@ string GraphElement::asStringDot() const
             dot += "    \"" + nameMap[node->getName()] + "\" ";
             NodeDefPtr nodeDef = node->getNodeDef();
             const string& nodeGroup = nodeDef ? nodeDef->getNodeGroup() : EMPTY_STRING;
-            if (nodeGroup == CONDITIONAL_NODE_GROUP)
+            if (nodeGroup == NodeDef::CONDITIONAL_NODE_GROUP)
             {
                 dot += "[shape=diamond];\n";
             }
@@ -484,14 +488,7 @@ bool NodeGraph::validate(string* message) const
         validateRequire(nodeDef != nullptr, res, message, "NodeGraph implementation refers to non-existent NodeDef");
         if (nodeDef)
         {
-            if (nodeDef->isMultiOutputType())
-            {
-                validateRequire(getOutputCount() == nodeDef->getOutputCount(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
-            }
-            else
-            {
-                validateRequire(getOutputCount() == 1, res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
-            }
+            validateRequire(getOutputCount() == nodeDef->getActiveOutputs().size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
         }
     }
     return GraphElement::validate(message) && res;

@@ -4,11 +4,12 @@
     Declare a custom bsdf node mixing diffuse reflection 
     and straight transmission.
   -->
-  <nodedef name="ND_mybsdf" node="mybsdf" type="BSDF">
+  <nodedef name="ND_mybsdf" node="mybsdf">
     <input name="diffuse" type="float" value="0.8" />
     <input name="diffuseColor" type="color3" value="0.0, 1.0, 0.0"/>
     <input name="specular" type="float" value="1.0"/>
     <input name="specularColor" type="color3" value="1.0, 1.0, 1.0"/>
+    <output name="out" type="BSDF"/>
   </nodedef>
   <nodegraph name="IMP_mybsdf" nodedef="ND_mybsdf">
     <diffuse_brdf name="diffuse_brdf1" type="BSDF">

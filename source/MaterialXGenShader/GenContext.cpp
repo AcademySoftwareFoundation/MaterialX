@@ -14,47 +14,29 @@ namespace MaterialX
 //
 
 GenContext::GenContext(ShaderGeneratorPtr sg) :
-    _sg(sg),
-    _identifierIndex(0)
+    _sg(sg)
 {
     if (!_sg)
     {
         throw ExceptionShaderGenError("GenContext must have a valid shader generator");
     }
-    _sg->resetIdentifiers(*this);
-}
 
-void GenContext::addIdentifier(const string& name)
-{
-    if (name.empty())
-    {
-        throw ExceptionShaderGenError("Cannot add empty string as identifier");
-    }
-    if (_identifiers.count(name))
-    {
-        throw ExceptionShaderGenError("Identifier '" + name + "' is already used.");
-    }
-    _identifiers.insert(name);
-    ++_identifierIndex;
-}
+    // Collect and cache reserved words from the shader generator
+    StringSet reservedWords;
 
-void GenContext::makeIdentifier(string& name)
-{
-    name = createValidName(name, '_');
-    string id = name;
-    while (_identifiers.count(id))
-    {
-        id = name + std::to_string(++_identifierIndex);
-    }
-    name = id;
-    _identifiers.insert(name);
-    ++_identifierIndex;
-}
+    // Add reserved words from the syntax
+    reservedWords = _sg->getSyntax().getReservedWords();
 
-void GenContext::clearIdentifiers()
-{
-    _identifiers.clear();
-    _identifierIndex = 0;
+    // Add token substitution identifiers
+    for (const auto& it : _sg->getTokenSubstitutions())
+    {
+        if (!it.second.empty())
+        {
+            reservedWords.insert(it.second);
+        }
+    }
+
+    addReservedWords(reservedWords);
 }
 
 void GenContext::addNodeImplementation(const string& name, ShaderNodeImplPtr impl)
