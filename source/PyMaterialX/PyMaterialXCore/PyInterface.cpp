@@ -38,7 +38,8 @@ void bindPyInterface(py::module& mod)
 
     py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output")
         .def("hasUpstreamCycle", &mx::Output::hasUpstreamCycle)
-        .def_readonly_static("CATEGORY", &mx::Output::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::Output::CATEGORY)
+        .def_readonly_static("DEFAULT_INPUT_ATTRIBUTE", &mx::Output::DEFAULT_INPUT_ATTRIBUTE);
 
     py::class_<mx::InterfaceElement, mx::InterfaceElementPtr, mx::TypedElement>(mod, "InterfaceElement")
         .def("setNodeDefString", &mx::InterfaceElement::setNodeDefString)

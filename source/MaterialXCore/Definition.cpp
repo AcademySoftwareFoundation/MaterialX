@@ -13,11 +13,12 @@ namespace MaterialX
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
 
-const string TEXTURE_NODE_GROUP = "texture";
-const string PROCEDURAL_NODE_GROUP = "procedural";
-const string GEOMETRIC_NODE_GROUP = "geometric";
-const string ADJUSTMENT_NODE_GROUP = "adjustment";
-const string CONDITIONAL_NODE_GROUP = "conditional";
+const string NodeDef::TEXTURE_NODE_GROUP = "texture";
+const string NodeDef::PROCEDURAL_NODE_GROUP = "procedural";
+const string NodeDef::GEOMETRIC_NODE_GROUP = "geometric";
+const string NodeDef::ADJUSTMENT_NODE_GROUP = "adjustment";
+const string NodeDef::CONDITIONAL_NODE_GROUP = "conditional";
+const string NodeDef::ORGANIZATION_NODE_GROUP = "organization";
 
 const string NodeDef::NODE_ATTRIBUTE = "node";
 const string NodeDef::NODE_GROUP_ATTRIBUTE = "nodegroup";
@@ -31,6 +32,25 @@ const string UnitDef::UNITTYPE_ATTRIBUTE = "unittype";
 //
 // NodeDef methods
 //
+
+const string& NodeDef::getType() const
+{
+    const vector<OutputPtr>& activeOutputs = getActiveOutputs();
+
+    size_t numActiveOutputs = activeOutputs.size();
+    if (numActiveOutputs > 1)
+    {
+        return MULTI_OUTPUT_TYPE_STRING;
+    }
+    else if (numActiveOutputs == 1)
+    {
+        return activeOutputs[0]->getType();
+    }
+    else
+    {
+        throw Exception("Nodedef: " + getName() + " has no outputs");
+    }
+}
 
 InterfaceElementPtr NodeDef::getImplementation(const string& target, const string& language) const
 {
@@ -50,7 +70,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
         {
             continue;
         }
-        if (!matchLanguage || 
+        if (!matchLanguage ||
             implement->getLanguage() == language)
         {
             return interface;
@@ -61,7 +81,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
     // There is no language check as node graphs are considered to be language independent.
     for (InterfaceElementPtr interface : interfaces)
     {
-        if (interface->isA<Implementation>() || 
+        if (interface->isA<Implementation>() ||
             !targetStringsMatch(interface->getTarget(), target) ||
             !isVersionCompatible(interface))
         {
@@ -92,15 +112,7 @@ vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
 bool NodeDef::validate(string* message) const
 {
     bool res = true;
-    validateRequire(hasType(), res, message, "Missing type");
-    if (isMultiOutputType())
-    {
-        validateRequire(getOutputCount() >= 2, res, message, "Multioutput nodedefs must have two or more output ports");
-    }
-    else
-    {
-        validateRequire(getOutputCount() == 0, res, message, "Only multioutput nodedefs support output ports");
-    }
+    validateRequire(!hasType(), res, message, "Nodedef should not have a type but an explicit output");
     return InterfaceElement::validate(message) && res;
 }
 

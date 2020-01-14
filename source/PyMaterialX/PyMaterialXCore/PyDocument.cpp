@@ -47,6 +47,11 @@ void bindPyDocument(py::module& mod)
         .def("getLook", &mx::Document::getLook)
         .def("getLooks", &mx::Document::getLooks)
         .def("removeLook", &mx::Document::removeLook)
+        .def("addLookGroup", &mx::Document::addLookGroup,
+            py::arg("name") = mx::EMPTY_STRING)
+        .def("getLookGroup", &mx::Document::getLookGroup)
+        .def("getLookGroups", &mx::Document::getLookGroups)
+        .def("removeLookGroup", &mx::Document::removeLookGroup)
         .def("addCollection", &mx::Document::addCollection,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getCollection", &mx::Document::getCollection)

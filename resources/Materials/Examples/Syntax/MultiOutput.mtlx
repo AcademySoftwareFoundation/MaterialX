@@ -2,7 +2,7 @@
 <materialx version="1.36">
 
   <!-- Declare a multi-output node with an external OSL implementation -->
-  <nodedef name="ND_doublecolor_c3c3" node="doublecolor" type="multioutput">
+  <nodedef name="ND_doublecolor_c3c3" node="doublecolor">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <parameter name="seed" type="float" value="1.0"/>
     <output name="c1" type="color3" default="1.0, 1.0, 1.0"/>

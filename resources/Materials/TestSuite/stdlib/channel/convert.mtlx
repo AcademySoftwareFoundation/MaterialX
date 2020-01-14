@@ -1,7 +1,7 @@
+<?xml version="1.0"?>
 <!--
 Basic convert test
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
   <nodegraph name="convert_boolean_float" type="">
     <constant name="constant1" type="boolean">

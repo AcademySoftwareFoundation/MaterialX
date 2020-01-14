@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
 Basic split node unit test :
@@ -6,7 +7,6 @@ Basic split node unit test :
 - Split (top-to-bottom)
 
 -->
-<?xml version="1.0"?>
 <materialx version="1.36">
    <!-- Left-to-right tests -->
    <output name="lr_split4_output" type="color4" nodename="lr_split4" />

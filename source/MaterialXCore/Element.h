@@ -395,6 +395,22 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// @}
+    /// @name Documentation String
+    /// @{
+
+    /// Set the documentation string of this element.
+    void setDocString(const string& doc)
+    {
+        setAttribute(DOC_ATTRIBUTE, doc);
+    }
+
+    /// Return the documentation string of this element
+    string getDocString() const
+    {
+        return getAttribute(DOC_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Subclass
     /// @{
 
@@ -541,7 +557,7 @@ class Element : public std::enable_shared_from_this<Element>
         setAttribute(attrib, toValueString(data));
     }
 
-    /// Return the the value of an implicitly typed attribute.  If the given
+    /// Return the value of an implicitly typed attribute. If the given
     /// attribute is not present, or cannot be converted to the given data
     /// type, then the zero value for the data type is returned.
     template<class T> T getTypedAttribute(const string& attrib) const
@@ -839,6 +855,7 @@ class Element : public std::enable_shared_from_this<Element>
     static const string DEFAULT_VERSION_ATTRIBUTE;
     static const string INHERIT_ATTRIBUTE;
     static const string NAMESPACE_ATTRIBUTE;
+    static const string DOC_ATTRIBUTE;
 
   protected:
     virtual void registerChildElement(ElementPtr child);
@@ -910,7 +927,7 @@ class TypedElement : public Element
     }
 
     /// Return the element's type string.
-    const string& getType() const
+    virtual const string& getType() const
     {
         return getAttribute(TYPE_ATTRIBUTE);
     }
@@ -1162,6 +1179,9 @@ class ValueElement : public TypedElement
     static const string UI_FOLDER_ATTRIBUTE;
     static const string UI_MIN_ATTRIBUTE;
     static const string UI_MAX_ATTRIBUTE;
+    static const string UI_SOFT_MIN_ATTRIBUTE;
+    static const string UI_SOFT_MAX_ATTRIBUTE;
+    static const string UI_STEP_ATTRIBUTE;
     static const string UI_ADVANCED_ATTRIBUTE;
     static const string UNIT_ATTRIBUTE;
     static const string UNITTYPE_ATTRIBUTE;

@@ -1,3 +1,5 @@
+#include "$fileTransformUv"
+
 void mx_image_float(string file, string layer, float default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output float out)
 {
     if (file == "" ||

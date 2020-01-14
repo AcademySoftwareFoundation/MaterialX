@@ -59,7 +59,9 @@ def main(args=None):
             if curFile.endswith("osl.png"):
                 oslFiles.append(curFile)
         if len(glslFiles) != len(oslFiles):
-            print ("Number of glsl files does not match number of osl files in dir: " + subdir)
+            print ("Number of glsl files " + str(len(glslFiles)) + " does not match number of osl files " +  str(len(oslFiles)) + " in dir: " + subdir)
+            print ("GLSL list: " + str(glslFiles))
+            print ("OSL files: " + str(oslFiles))
             continue
         elif len(glslFiles) > 0 and len(oslFiles) > 0:
             fh.write("<h2>" + subdir + ":</h2><br>\n")
@@ -74,11 +76,11 @@ def main(args=None):
                     diffPath = None
                 fh.write("    <tr>\n")
                 if glslFile:
-                    fh.write("        <td class='td_image'><img src='" + fullGlslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + fullGlslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
                 if oslFile:
-                    fh.write("        <td class='td_image'><img src='" + fullOslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + fullOslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
                 if diffPath:
-                    fh.write("        <td class='td_image'><img src='" + diffPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + diffPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
                 fh.write("    </tr>\n")
                 fh.write("    <tr>\n")
                 if glslFile:

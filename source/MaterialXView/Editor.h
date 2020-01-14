@@ -53,6 +53,6 @@ class PropertyEditor
 };
 
 ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& label, float value,
-                                       std::function<void(float)> callback = nullptr);
+                                       const mx::UIProperties*ui, std::function<void(float)> callback = nullptr);
 
 #endif // MATERIALXVIEW_EDITOR_H

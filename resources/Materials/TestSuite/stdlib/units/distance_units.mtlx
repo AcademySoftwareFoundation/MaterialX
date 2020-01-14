@@ -22,6 +22,12 @@
   </image>
   <output name="albedo_output" type="color3" nodename="albedo_color" />
 
+  <image name="displacement_vector" type="vector3">
+    <parameter name="file" type="filename" value="resources/Images/cloth.png" unittype="distance" unit="millimeter" />
+    <input name="texcoord" type="vector2" nodename="albedo_placement_transform" />
+  </image>
+  <output name="displacement_output" type="vector3" nodename="displacement_vector" />
+
   <constant name="constant_v3" type="vector3">
     <parameter name="value" type="vector3" value="0.25, 0.25, 0.25" unittype="distance" unit="inch" />
   </constant>

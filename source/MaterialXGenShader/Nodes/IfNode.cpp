@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/Nodes/CompareNode.h>
+#include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderStage.h>
@@ -12,14 +12,12 @@
 namespace MaterialX
 {
 
-const StringVec CompareNode::INPUT_NAMES = { "intest", "cutoff", "in1", "in2" };
+const StringVec IfNode::INPUT_NAMES = { "value1", "value2", "in1", "in2" };
+string IfGreaterEqNode::EQUALITY_STRING = " >= ";
+string IfGreaterNode::EQUALITY_STRING = " > ";
+string IfEqualNode::EQUALITY_STRING = " == ";
 
-ShaderNodeImplPtr CompareNode::create()
-{
-    return std::make_shared<CompareNode>();
-}
-
-void CompareNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void IfNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -31,8 +29,8 @@ void CompareNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         shadergen.emitOutput(node.getOutput(), true, true, context, stage);
         shadergen.emitLineEnd(stage);
 
-        const ShaderInput* intest = node.getInput(INPUT_NAMES[0]);
-        const ShaderInput* cutoff = node.getInput(INPUT_NAMES[1]);
+        const ShaderInput* value1 = node.getInput(INPUT_NAMES[0]);
+        const ShaderInput* value2 = node.getInput(INPUT_NAMES[1]);
 
         // Process the if and else branches of the conditional
         for (int branch = 2; branch <= 3; ++branch)
@@ -47,9 +45,9 @@ void CompareNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
             {
                 shadergen.emitLineBegin(stage);
                 shadergen.emitString("if (", stage);
-                shadergen.emitInput(intest, context, stage);
-                shadergen.emitString(" <= ", stage);
-                shadergen.emitInput(cutoff, context, stage);
+                shadergen.emitInput(value1, context, stage);
+                shadergen.emitString(equalityString(), stage);
+                shadergen.emitInput(value2, context, stage);
                 shadergen.emitString(")", stage);
                 shadergen.emitLineEnd(stage, false);
             }
@@ -77,5 +75,21 @@ void CompareNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         }
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
+
+ShaderNodeImplPtr IfGreaterNode::create()
+{
+    return std::make_shared<IfGreaterNode>();
+}
+
+ShaderNodeImplPtr IfGreaterEqNode::create()
+{
+    return std::make_shared<IfGreaterEqNode>();
+}
+
+ShaderNodeImplPtr IfEqualNode::create()
+{
+    return std::make_shared<IfEqualNode>();
+}
+
 
 } // namespace MaterialX

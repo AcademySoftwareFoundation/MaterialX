@@ -3,10 +3,11 @@
 
   <!-- Parameter interface for a simple custom node -->
   <!-- The "bg" input is required, while the "fg" input and "fgamt" parameter are optional. -->
-  <nodedef name="ND_blend_add_color3" node="blend_add" type="color3" defaultinput="bg">
+  <nodedef name="ND_blend_add_color3" node="blend_add" defaultinput="bg">
     <input name="fg" type="color3" value="0,0,0"/>
     <input name="bg" type="color3" value="0,0,0"/>
     <parameter name="fgamt" type="float" value="1.0"/>
+    <output name="out" type="color3"/>
   </nodedef>
 
   <!-- Define the functionality of the color3-type "blend_add" node using a nodegraph -->

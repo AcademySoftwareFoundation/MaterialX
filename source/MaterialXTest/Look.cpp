@@ -15,7 +15,7 @@ TEST_CASE("Look", "[look]")
 
     // Create a material and look.
     mx::MaterialPtr material = doc->addMaterial();
-    mx::ShaderRefPtr shaderRef = material->addShaderRef();
+    material->addShaderRef();
     mx::LookPtr look = doc->addLook();
     REQUIRE(doc->getMaterials().size() == 1);
     REQUIRE(doc->getLooks().size() == 1);
@@ -60,8 +60,8 @@ TEST_CASE("Look", "[look]")
     
     // Create a variant set.
     mx::VariantSetPtr variantSet = doc->addVariantSet("damageVars");
-    mx::VariantPtr original = variantSet->addVariant("original");
-    mx::VariantPtr damaged = variantSet->addVariant("damaged");
+    variantSet->addVariant("original");
+    variantSet->addVariant("damaged");
     REQUIRE(variantSet->getVariants().size() == 2);
 
     // Create a visibility element.
@@ -92,4 +92,34 @@ TEST_CASE("Look", "[look]")
     REQUIRE(look2->getActiveMaterialAssigns().empty());
     REQUIRE(look2->getActivePropertySetAssigns().empty());
     REQUIRE(look2->getActiveVisibilities().empty());
+}
+
+TEST_CASE("LookGroup", "[look]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    mx::LookGroupPtr lookGroup = doc->addLookGroup("lookgroup1");
+    std::vector<mx::LookGroupPtr> lookGroups = doc->getLookGroups();
+    REQUIRE(lookGroups.size() == 1);
+
+    const std::string looks = "look1,look2,look3,look4,look5";
+    mx::StringVec looksVec = mx::splitString(looks, ",");
+    for (const std::string& lookName : looksVec)
+    {
+        mx::LookPtr look = doc->addLook(lookName);
+        REQUIRE(look != nullptr);
+    }
+    lookGroup->setLooks(looks);
+
+    const std::string& looks2 = lookGroup->getLooks();
+    mx::StringVec looksVec2 = mx::splitString(looks2, ",");
+    REQUIRE(looksVec.size() == looksVec2.size());
+
+    REQUIRE(lookGroup->getActiveLook().empty());
+    lookGroup->setActiveLook("look1");
+    REQUIRE(lookGroup->getActiveLook() == "look1");
+
+    doc->removeLookGroup("lookgroup1");
+    lookGroups = doc->getLookGroups();
+    REQUIRE(lookGroups.size() == 0);
 }

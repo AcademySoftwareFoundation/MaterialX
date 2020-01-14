@@ -244,8 +244,8 @@ const StringVec OslSyntax::COLOR4_MEMBERS  = { ".rgb[0]", ".rgb[1]", ".rgb[2]", 
 
 OslSyntax::OslSyntax()
 {
-    // Add in all restricted names and keywords in OSL
-    registerRestrictedNames(
+    // Add in all reserved words and keywords in OSL
+    registerReservedWords(
     {
         "and", "break", "closure", "color", "continue", "do", "else", "emit", "float", "for", "if", "illuminance",
         "illuminate", "int", "matrix", "normal", "not", "or", "output", "point", "public", "return", "string",
@@ -255,7 +255,9 @@ OslSyntax::OslSyntax()
         "signed", "sizeof", "static", "switch", "template", "this", "throw", "true", "try", "typedef", "uniform",
         "union", "unsigned", "varying", "virtual", "volatile",
         "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet",
-        "reflection", "transparent", "debug", "holdout", "subsurface"
+        "reflection", "transparent", "debug", "holdout", "subsurface", 
+        // TODO: Add all OSL standard library functions names
+        "mix", "rotate"
     });
 
     //
