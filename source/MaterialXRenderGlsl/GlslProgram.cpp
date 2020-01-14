@@ -1195,8 +1195,16 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             for (size_t i = 0; i < uniforms.size(); ++i)
             {
                 const ShaderPort* v = uniforms[i];
+                int glType = mapTypeToOpenGLType(v->getType());
+
                 // There is no way to match with an unnamed variable
                 if (v->getVariable().empty())
+                {
+                    continue;
+                }
+
+                // Ignore types which are unsupported in GLSL.
+                if (glType == Input::INVALID_OPENGL_TYPE)
                 {
                     continue;
                 }
@@ -1207,7 +1215,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     Input* input = inputIt->second.get();
                     input->path = v->getPath();
                     input->value = v->getValue();
-                    if (input->gltype == mapTypeToOpenGLType(v->getType()))
+                    if (input->gltype == glType)
                     {
                         input->typeString = v->getType()->getName();
                     }
