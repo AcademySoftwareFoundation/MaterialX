@@ -168,9 +168,14 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     context.registerSourceCodeSearchPath(librariesPath);
     context.getOptions().fileTextureVerticalFlip = true;
 
-    mx::OslRendererPtr oslRenderer = mx::OslRenderer::create();
-    oslRenderer->setOslCompilerExecutable(MATERIALX_OSLC_EXECUTABLE);
-    oslRenderer->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
+    bool runCompileTest = !std::string(MATERIALX_OSLC_EXECUTABLE).empty();
+    mx::OslRendererPtr oslRenderer = nullptr;
+    if (runCompileTest)
+    {
+        oslRenderer = mx::OslRenderer::create();
+        oslRenderer->setOslCompilerExecutable(MATERIALX_OSLC_EXECUTABLE);
+        oslRenderer->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
+    }
 
     const mx::FilePath logPath("genosl_reference_generate_test.txt");
     std::ofstream logFile;
@@ -200,7 +205,10 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             file << shader->getSourceCode();
             file.close();
 
-            oslRenderer->compileOSL(filepath);
+            if (oslRenderer)
+            {
+                oslRenderer->compileOSL(filepath);
+            }
 
             mx::ImplementationPtr impl = implDoc->addImplementation("IM_" + nodeName + "_osl");
             impl->setNodeDef(nodedef);
