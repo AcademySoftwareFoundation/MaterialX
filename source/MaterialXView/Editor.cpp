@@ -781,37 +781,37 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
     box->setFontSize(15);
     box->setAlignment(ng::TextBox::Alignment::Right);
 
-	if (ui)
-	{
-		std::pair<float, float> range(0.0f, 0.0f);
-		if (ui->uiMin)
-		{
-			box->setMinValue(ui->uiMin->asA<float>());
-			range.first = ui->uiMin->asA<float>();
-		}
-		if (ui->uiMax)
-		{
-			box->setMaxValue(ui->uiMax->asA<float>());
-			range.second = ui->uiMax->asA<float>();
-		}
-		if (ui->uiSoftMin)
-		{
-			range.first = ui->uiSoftMin->asA<float>();
-		}
-		if (ui->uiSoftMax)
-		{
-			range.second = ui->uiSoftMax->asA<float>();
-		}
-		if (range.first != range.second)
-		{
-			slider->setRange(range);
-		}
-		if (ui->uiStep)
-		{
-			box->setValueIncrement(ui->uiStep->asA<float>());
-			box->setSpinnable(true);
-		}
-	}
+    if (ui)
+    {
+        std::pair<float, float> range(0.0f, 0.0f);
+        if (ui->uiMin)
+        {
+            box->setMinValue(ui->uiMin->asA<float>());
+            range.first = ui->uiMin->asA<float>();
+        }
+        if (ui->uiMax)
+        {
+            box->setMaxValue(ui->uiMax->asA<float>());
+            range.second = ui->uiMax->asA<float>();
+        }
+        if (ui->uiSoftMin)
+        {
+            range.first = ui->uiSoftMin->asA<float>();
+        }
+        if (ui->uiSoftMax)
+        {
+            range.second = ui->uiSoftMax->asA<float>();
+        }
+        if (range.first != range.second)
+        {
+            slider->setRange(range);
+        }
+        if (ui->uiStep)
+        {
+            box->setValueIncrement(ui->uiStep->asA<float>());
+            box->setSpinnable(true);
+        }
+    }
 
     slider->setCallback([box, callback](float value) 
     {
