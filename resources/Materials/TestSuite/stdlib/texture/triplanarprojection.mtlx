@@ -4,7 +4,7 @@
 Basic triplanar mapping unit test.
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <output name="triplanarprojection_4_output" type="color4" nodename="triplanarprojection_4" />
    <triplanarprojection name="triplanarprojection_4" type="color4">
       <parameter name="filex" type="filename" value="resources/Images/grid.png" />

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="add_edf_test">
     <diffuse_brdf name="brdf1" type="BSDF">
       <input name="color" type="color3" value="0.1, 0.1, 0.1" />

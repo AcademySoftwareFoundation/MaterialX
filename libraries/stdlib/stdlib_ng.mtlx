@@ -6,7 +6,7 @@
   Nodegraph implementations for Supplemental Nodes included in the MaterialX specification.
 -->
 
-<materialx version="1.36">
+<materialx version="1.37">
 
   <!-- ======================================================================== -->
   <!-- Supplemental Texture nodes                                               -->

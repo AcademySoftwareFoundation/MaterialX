@@ -10,7 +10,7 @@ Basic math operator function tests each test is in a separate graph for each var
 - power
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <nodegraph name="add_float" type="" xpos="5.02395" ypos="14.1393">
       <add name="add1" type="float" xpos="5.74483" ypos="4.58">
          <input name="in1" type="float" value="0.2000" />

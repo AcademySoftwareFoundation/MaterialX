@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <output name="image4_output_bmp" type="color4" nodename="image4_bmp" xpos="6.01379" ypos="-0.64" />
   <image name="image4_bmp" type="color4" xpos="6.57241" ypos="21.64">
     <parameter name="file" type="filename" value="resources/Images/cloth.bmp" />

@@ -11,7 +11,7 @@ Basic vector math function tests each test is in a separate graph for each varia
 - transpose
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <nodegraph name="normalize_vector2" type="" xpos="6.21379" ypos="18.74">
       <normalize name="normalize1" type="vector2" xpos="5.74483" ypos="4.74">
          <input name="in" type="vector2" value="1.0000, 0.5000" />
