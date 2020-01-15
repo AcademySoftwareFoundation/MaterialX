@@ -6,7 +6,7 @@
   Declarations for glsl implementations of standard nodes included in the MaterialX specification.
 -->
 
-<materialx version="1.36">
+<materialx version="1.37">
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->

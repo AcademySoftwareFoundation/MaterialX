@@ -13,7 +13,7 @@
       Space variations are not included currently. All streams are considered
       to be in world space
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <normal name="normal_world" type="vector3">
       <parameter name="space" type="string" value="world" />
    </normal>

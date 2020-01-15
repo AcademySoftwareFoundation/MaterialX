@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
+<materialx version="1.37" colorspace="lin_rec709">
   <nodedef name="ND_disney_bsdf_2015_surface" node="disney_bsdf_2015">
     <input name="baseColor" type="color3" value="0.16, 0.16, 0.16"/>
     <input name="metallic" type="float" value="0"/>

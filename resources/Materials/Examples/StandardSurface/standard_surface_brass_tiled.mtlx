@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36" cms="ocio">
+<materialx version="1.37">
   <nodegraph name="NG_brass1" colorspace="srgb_texture" fileprefix="resources/Images/">
     <tiledimage name="image_color" type="color3">
       <parameter name="file" type="filename" value="brass_color.jpg" />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.36">
+<materialx version="1.37">
 
   <!-- <diffuse_brdf> -->
   <implementation name="IM_diffuse_brdf_genglsl" nodedef="ND_diffuse_brdf" file="pbrlib/genglsl/mx_diffuse_brdf.glsl" function="mx_diffuse_brdf" language="genglsl"/>

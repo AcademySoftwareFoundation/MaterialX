@@ -7,7 +7,7 @@
   Declarations of standard data types and nodes included in the MaterialX specification.
 -->
 
-<materialx version="1.36">
+<materialx version="1.37">
   <!-- <glossiness_anisotropy> -->
   <nodegraph name="IMP_glossiness_anisotropy" nodedef="ND_glossiness_anisotropy">
     <invert name="invert1" type="float">

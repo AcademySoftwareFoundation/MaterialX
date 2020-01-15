@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="add_bsdf_test">
     <constant name="constant1" type="float">
       <parameter name="value" type="float" value="0.5" />

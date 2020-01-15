@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.37" cms="default_cms" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
+<materialx version="1.37" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
    <xi:include href="libraries/metal_definition.mtlx" />
 
    <!-- Example using existig "test metal" definition -->

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
+<materialx version="1.37" cms="ocio" colorspace="lin_rec709">
   <nodedef name="ND_simple_srf_surface" node="simple_srf">
     <input name="diffColor" type="color3" value="0.18, 0.18, 0.18"/>
     <input name="specColor" type="color3" value="0.05, 0.05, 0.05"/>

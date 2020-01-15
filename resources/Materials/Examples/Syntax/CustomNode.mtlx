@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.36">
+<materialx version="1.37">
 
   <!-- Parameter interface for a simple custom node -->
   <!-- The "bg" input is required, while the "fg" input and "fgamt" parameter are optional. -->

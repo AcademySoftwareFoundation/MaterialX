@@ -2,7 +2,7 @@
 <!--
 Basic convert test
 -->
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="convert_boolean_float" type="">
     <constant name="constant1" type="boolean">
       <parameter name="value" type="boolean" value="false" />
