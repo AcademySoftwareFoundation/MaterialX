@@ -11,7 +11,7 @@ graph per trig function.
 - atan2
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <nodegraph name="sin_nodegraph" type="" xpos="5.6201" ypos="14.0821">
       <sin name="sin1" type="float" xpos="4.03625" ypos="12.8689">
          <input name="in" type="float" value="0.0" nodename="constant1" />

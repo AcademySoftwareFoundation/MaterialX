@@ -4,7 +4,7 @@
 Basic test of heighttonormal node
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
 
   <!-- Unconnected input test -->
   <nodegraph name="hton_unconnected_graph" type="" xpos="6.82414" ypos="8.68">

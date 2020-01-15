@@ -7,7 +7,7 @@ Basic noise tests:
 - noise2d
 - noise3d
 -->
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="cellnoise3d_object" type="" xpos="5.28754" ypos="14.9465">
     <cellnoise3d name="cellnoise3d1" type="float" xpos="6.48276" ypos="9.94">
       <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />

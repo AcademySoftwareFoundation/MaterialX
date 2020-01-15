@@ -4,7 +4,7 @@
 Basic switch conditional function tests each test is in a separate graph for each variation in input type.
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="switch_float" type="" xpos="6.26074" ypos="21.3283">
     <switch name="switch1" type="float" xpos="5.74483" ypos="4.12">
       <input name="in1" type="float" value="0.0000" />

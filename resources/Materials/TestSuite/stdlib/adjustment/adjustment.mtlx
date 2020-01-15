@@ -14,7 +14,7 @@ Basic adjustment function tests each test is in a separate graph for each variat
 - saturate
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <nodegraph name="rgb_to_hsv_to_rgb_color3" type="" xpos="6.05808" ypos="15.2766">
       <hsvtorgb name="hsvtorgb1" type="color3" xpos="4.42069" ypos="7.5">
          <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="rgbtohsv1" />

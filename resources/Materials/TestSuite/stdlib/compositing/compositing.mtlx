@@ -22,7 +22,7 @@ Basic compositing function tests each test is in a separate graph for each varia
 - unpremult
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="plus_float" type="" xpos="6.21379" ypos="18.74">
     <plus name="plus1" type="float" xpos="5.4762" ypos="4.59668">
       <input name="fg" type="float" value="0.4000" />

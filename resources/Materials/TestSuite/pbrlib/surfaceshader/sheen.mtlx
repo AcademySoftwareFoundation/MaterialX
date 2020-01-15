@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36" require="">
+<materialx version="1.37">
   <nodedef name="ND_sheen_surface" node="sheen_surface" >
     <input name="diffuse" type="float" value="1" />
     <input name="diffuse_color" type="color3" value="1.0, 1.0, 1.0" />
