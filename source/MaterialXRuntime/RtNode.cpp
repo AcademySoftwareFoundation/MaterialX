@@ -53,10 +53,10 @@ void RtInput::clearConnections()
     return hnd()->asA<PvtAttribute>()->clearConnections();
 }
 
-RtObject RtInput::getConnection() const
+RtOutput RtInput::getConnection() const
 {
     PvtAttribute* attr = hnd()->asA<PvtAttribute>()->getConnection();
-    return attr ? attr->obj() : RtObject();
+    return attr ? RtOutput(attr->obj()) : RtObject();
 }
 
 
@@ -118,6 +118,18 @@ RtApiType RtNode::getApiType() const
 RtObject RtNode::getNodeDef() const
 {
     return hnd()->asA<PvtNode>()->getNodeDef()->obj();
+}
+
+RtInput RtNode::getInput(const RtToken& name) const
+{
+    PvtAttribute* attr = hnd()->asA<PvtNode>()->getInput(name);
+    return attr ? RtInput(attr->obj()) : RtObject();
+}
+
+RtOutput RtNode::getOutput(const RtToken& name) const
+{
+    PvtAttribute* attr = hnd()->asA<PvtNode>()->getOutput(name);
+    return attr ? RtOutput(attr->obj()) : RtObject();
 }
 
 void RtNode::connect(RtOutput& source, RtInput& dest)

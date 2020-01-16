@@ -35,17 +35,42 @@ PvtDataHandle PvtNodeGraph::createNew(const RtToken& name, PvtPrim* parent)
 
 PvtAttribute* PvtNodeGraph::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
 {
+    // Create for the public interface
+    // Graph ports should always be connectable.
+    flags |= RtAttrFlag::CONNECTABLE;
     PvtAttribute* attr = PvtPrim::createAttribute(name, type, flags);
 
+    // Create for the internal socket interface.
     // Toggle input vs output and set socket flag.
     flags ^= RtAttrFlag::OUTPUT;
     flags |= RtAttrFlag::SOCKET;
-
     PvtDataHandle sockH(new PvtAttribute(name, type, flags, this));
     _socketOrder.push_back(sockH);
     _socketMap[name] = sockH;
 
     return attr;
+}
+
+PvtAttribute* PvtNodeGraph::getInputSocket(const RtToken& name) const
+{
+    auto it = _socketMap.find(name);
+    if (it != _socketMap.end())
+    {
+        PvtAttribute* attr = it->second->asA<PvtAttribute>();
+        return attr->isOutput() && attr->isConnectable() ? attr : nullptr;
+    }
+    return nullptr;
+}
+
+PvtAttribute* PvtNodeGraph::getOutputSocket(const RtToken& name) const
+{
+    auto it = _socketMap.find(name);
+    if (it != _socketMap.end())
+    {
+        PvtAttribute* attr = it->second->asA<PvtAttribute>();
+        return attr->isInput() && attr->isConnectable() ? attr : nullptr;
+    }
+    return nullptr;
 }
 
 string PvtNodeGraph::asStringDot() const

@@ -15,6 +15,9 @@
 namespace MaterialX
 {
 
+class PvtPrim;
+class RtInput;
+
 /// Predicate used for filtering objects during traversal.
 using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
 
@@ -37,10 +40,6 @@ struct RtApiTypePredicate
         return obj.hasApi(T);
     }
 };
-
-class PvtAttribute;
-class PvtPrim;
-class PvtStage;
 
 /// @class RtAttrIterator
 /// Iterator for traversing over the attributes of a prim.
@@ -100,7 +99,8 @@ public:
     /// Force the iterator to terminate the traversal.
     void abort()
     {
-        _current = INVALID_INDEX;
+        _prim = nullptr;
+        _current = 0;
     }
 
     /// Interpret this object as an iteration range,
@@ -179,7 +179,8 @@ public:
     /// Force the iterator to terminate the traversal.
     void abort()
     {
-        _current = INVALID_INDEX;
+        _prim = nullptr;
+        _current = 0;
     }
 
     /// Interpret this object as an iteration range,
@@ -214,7 +215,7 @@ public:
 
     /// Constructor, setting the prim to iterate on,
     /// and an optional filter function.
-    RtConnectionIterator(const RtObject& attr, bool interfaceConnections = false);
+    RtConnectionIterator(const RtObject& attr);
 
     /// Copy constructor.
     RtConnectionIterator(const RtConnectionIterator& other) :
@@ -243,8 +244,8 @@ public:
         return !(*this == other);
     }
 
-    /// Dereference this iterator, returning the current attribute.
-    RtObject operator*() const;
+    /// Dereference this iterator, returning the current input.
+    RtInput operator*() const;
 
     /// Iterate to the next sibling.
     RtConnectionIterator& operator++();
@@ -255,7 +256,8 @@ public:
     /// Force the iterator to terminate the traversal.
     void abort()
     {
-        _current = INVALID_INDEX;
+        _ptr = nullptr;
+        _current = 0;
     }
 
     /// Interpret this object as an iteration range,

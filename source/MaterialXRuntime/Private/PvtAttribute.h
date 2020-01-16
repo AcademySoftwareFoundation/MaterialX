@@ -101,7 +101,7 @@ public:
         return (_flags & RtAttrFlag::CONNECTABLE) != 0;
     }
 
-    bool isConnectable(const PvtAttribute* source) const;
+    bool isConnectable(const PvtAttribute* other) const;
 
     bool isUniform() const
     {
@@ -116,26 +116,6 @@ public:
     static void connect(PvtAttribute* source, PvtAttribute* dest);
 
     static void disconnect(PvtAttribute* source, PvtAttribute* dest);
-
-    void connectToSource(PvtAttribute* source)
-    {
-        connect(source, this);
-    }
-
-    void disconnectSource(PvtAttribute* source)
-    {
-        disconnect(source, this);
-    }
-
-    void connectToDestination(PvtAttribute* dest)
-    {
-        connect(this, dest);
-    }
-
-    void disconnectDestination(PvtAttribute* dest)
-    {
-        disconnect(this, dest);
-    }
 
     void clearConnections();
 

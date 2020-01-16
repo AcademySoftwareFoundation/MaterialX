@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/RtNode.h>
 
 #include <MaterialXRuntime/Private/PvtTraversal.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
@@ -94,42 +95,30 @@ const RtPrimIterator& RtPrimIterator::end()
     return NULL_PRIM_ITERATOR;
 }
 
-static const RtToken INTERFACE_CONNECTION("_interfaceConnection");
-
-RtConnectionIterator::RtConnectionIterator(const RtObject& attrObj, bool interfaceConnections) :
+RtConnectionIterator::RtConnectionIterator(const RtObject& attrObj) :
     _ptr(nullptr),
     _current(0)
 {
     if (attrObj.hasApi(RtApiType::ATTRIBUTE))
     {
         PvtAttribute* attr = PvtObject::ptr<PvtAttribute>(attrObj);
-        if (attr->isInput())
-        {
-            if (interfaceConnections)
-            {
-                RtTypedValue* md = attr->getMetadata(INTERFACE_CONNECTION);
-                if (md)
-                {
-                    _ptr = md->getValue().asPtr();
-                }
-            }
-            else
-            {
-                _ptr = &attr->_connections;
-            }
-        }
+        _ptr = &attr->_connections;
     }
 }
 
-RtObject RtConnectionIterator::operator*() const
+RtInput RtConnectionIterator::operator*() const
 {
     PvtConnectionData& data = *static_cast<PvtConnectionData*>(_ptr);
-    return data[_current]->obj();
+    return RtInput(data[_current]->obj());
 }
 
 RtConnectionIterator& RtConnectionIterator::operator++()
 {
-   ++_current;
+    if (_ptr && ++_current < static_cast<PvtConnectionData*>(_ptr)->size())
+    {
+        return *this;
+    }
+    abort();
     return *this;
 }
 

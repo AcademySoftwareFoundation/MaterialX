@@ -251,6 +251,22 @@ TEST_CASE("Runtime: Paths", "[runtime]")
 
     mx::RtPath root("/");
     REQUIRE(stage.getPrimAtPath(root).isValid());
+
+    mx::RtObject graph = stage.createPrim(root, "graph", mx::RtNodeGraph::typeName());
+    mx::RtPath path1(graph);
+    mx::RtObject subgraph = stage.createPrim(path1, "subgraph", mx::RtNodeGraph::typeName());
+    mx::RtPath path2(subgraph);
+    mx::RtObject subsubgraph = stage.createPrim(path2, "subsubgraph", mx::RtNodeGraph::typeName());
+    mx::RtPath path3(subsubgraph);
+
+    REQUIRE(stage.getPrimAtPath(path1) == graph);
+    REQUIRE(stage.getPrimAtPath(path2) == subgraph);
+    REQUIRE(stage.getPrimAtPath(path3) == subsubgraph);
+    REQUIRE(path3.asString() == "/graph/subgraph/subsubgraph");
+
+    mx::RtPath path4 = path1;
+    REQUIRE(path4 == path1);
+    REQUIRE(path4 != path2);
 }
 
 TEST_CASE("Runtime: Prims", "[runtime]")
@@ -265,7 +281,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(!stage == false);
 
     // Test creating a prim of each type
-    mx::RtObject nodedefObj = stage.createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    mx::RtObject nodedefObj = stage.createPrim("ND_add_float", mx::RtNodeDef::typeName());
     REQUIRE(nodedefObj.isValid());
     REQUIRE(nodedefObj.getObjType() == mx::RtObjType::NODEDEF);
     REQUIRE(nodedefObj.getObjTypeName() == mx::RtNodeDef::typeName());
@@ -275,7 +291,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     nodeDef.setNodeTypeName("add");
     REQUIRE(nodeDef.getNodeTypeName() == "add");
 
-    mx::RtObject nodeObj = stage.createPrim("/add1", mx::RtNode::typeName(), nodedefObj);
+    mx::RtObject nodeObj = stage.createPrim("add1", mx::RtNode::typeName(), nodedefObj);
     REQUIRE(nodeObj.isValid());
     REQUIRE(nodeObj.getObjType() == mx::RtObjType::NODE);
     REQUIRE(nodeObj.getObjTypeName() == mx::RtNode::typeName());
@@ -284,14 +300,14 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     mx::RtNode node(nodeObj);
     REQUIRE(node.getPrimTypeName() == nodeDef.getNodeTypeName());
 
-    mx::RtObject graphObj = stage.createPrim("/graph1", mx::RtNodeGraph::typeName());
+    mx::RtObject graphObj = stage.createPrim("graph1", mx::RtNodeGraph::typeName());
     REQUIRE(graphObj.isValid());
     REQUIRE(graphObj.getObjType() == mx::RtObjType::NODEGRAPH);
     REQUIRE(graphObj.getObjTypeName() == mx::RtNodeGraph::typeName());
     REQUIRE(graphObj.hasApi(mx::RtApiType::NODEGRAPH));
     REQUIRE(graphObj.hasApi(mx::RtApiType::PRIM));
 
-    mx::RtObject fooObj = stage.createPrim("/graph1", "foo");
+    mx::RtObject fooObj = stage.createPrim("graph1", "foo");
     REQUIRE(fooObj.isValid());
     REQUIRE(fooObj.getObjType() == mx::RtObjType::PRIM);
     REQUIRE(fooObj.getObjTypeName() == mx::RtPrim::typeName());
@@ -303,7 +319,7 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtStage stage = mx::RtStage::createNew("root");
 
     // Create a new nodedef object for defining an add node
-    mx::RtNodeDef nodedef = stage.createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    mx::RtNodeDef nodedef = stage.createPrim("ND_add_float", mx::RtNodeDef::typeName());
     nodedef.setNodeTypeName("add");
 
     // Test adding metadata
@@ -341,11 +357,11 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(!in3);
 
     // Node creation without a nodedef should throw.
-    REQUIRE_THROWS(stage.createPrim("/add1", mx::RtNode::typeName()));
+    REQUIRE_THROWS(stage.createPrim("add1", mx::RtNode::typeName()));
 
     // Create two new node instances from the add nodedef
-    mx::RtObject add1Obj = stage.createPrim(mx::RtNode::typeName(), nodedef.getObject());
-    mx::RtObject add2Obj = stage.createPrim(mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtObject add1Obj = stage.createPrim("", mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtObject add2Obj = stage.createPrim("", mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(add1Obj.isValid());
     REQUIRE(add2Obj.isValid());
 
@@ -355,14 +371,13 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add1.getName() == "add1");
     REQUIRE(add2.getName() == "add2");
 
-/*
-    // Get the node instance ports
-    mx::RtPort add1_in1 = add1.findPort("in1");
-    mx::RtPort add1_in2 = add1.findPort("in2");
-    mx::RtPort add1_out = add1.findPort("out");
-    mx::RtPort add2_in1 = add2.findPort("in1");
-    mx::RtPort add2_in2 = add2.findPort("in2");
-    mx::RtPort add2_out = add2.findPort("out");
+    // Get the node inputs
+    mx::RtInput add1_in1 = add1.getInput("in1");
+    mx::RtInput add1_in2 = add1.getInput("in2");
+    mx::RtOutput add1_out = add1.getOutput("out");
+    mx::RtInput add2_in1 = add2.getInput("in1");
+    mx::RtInput add2_in2 = add2.getInput("in2");
+    mx::RtOutput add2_out = add2.getOutput("out");
     REQUIRE(add1_in1.isValid());
     REQUIRE(add1_in2.isValid());
     REQUIRE(add1_out.isValid());
@@ -370,7 +385,7 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add2_in2.isValid());
     REQUIRE(add2_out.isValid());
 
-    // Test setting port attributes
+    // Test setting input metadata
     const mx::RtToken meter("meter");
     const mx::RtToken srgb("srgb");
     add1_in1.setUnit(meter);
@@ -379,97 +394,55 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add1_in1.getColorSpace() == mx::EMPTY_TOKEN);
     REQUIRE(add1_in2.getUnit() == mx::EMPTY_TOKEN);
     REQUIRE(add1_in2.getColorSpace() == srgb);
-    mx::RtAttribute* fooAttr = add1_in1.addAttribute("foo", mx::RtType::FLOAT);
-    fooAttr->getValue().asFloat() = 7.0f;
-    REQUIRE(fooAttr == add1_in1.getAttribute("foo"));
-    add1_in1.removeAttribute("foo");
-    REQUIRE(nullptr == add1_in1.getAttribute("foo"));
+    mx::RtTypedValue* fooData = add1_in1.addMetadata("foo", mx::RtType::FLOAT);
+    fooData->getValue().asFloat() = 7.0f;
+    REQUIRE(fooData == add1_in1.getMetadata("foo"));
+    add1_in1.removeMetadata("foo");
+    REQUIRE(nullptr == add1_in1.getMetadata("foo"));
 
     // Test port connectability
-    REQUIRE(add1_out.canConnectTo(add2_in1));
-    REQUIRE(add2_in1.canConnectTo(add1_out));
-    REQUIRE(!add1_out.canConnectTo(add1_in1));
-    REQUIRE(!add1_out.canConnectTo(add2_out));
-    REQUIRE(!add2_in1.canConnectTo(add1_in1));
+    REQUIRE(add1_out.isConnectable(add2_in1));
+    REQUIRE(add2_in1.isConnectable(add1_out));
+    REQUIRE(!add1_out.isConnectable(add1_in1));
+    REQUIRE(!add1_out.isConnectable(add2_out));
+    REQUIRE(!add2_in1.isConnectable(add1_in1));
 
     // Make port connections
-    mx::RtNode::connect(add1_out, add2_in1);
+    add1_out.connect(add2_in1);
     REQUIRE(add1_out.isConnected());
     REQUIRE(add2_in1.isConnected());
 
     // Try connecting already connected ports
-    REQUIRE_THROWS(mx::RtNode::connect(add1_out, add2_in1));
+    REQUIRE_THROWS(add1_out.connect(add2_in1));
 
     // Break port connections
-    mx::RtNode::disconnect(add1_out, add2_in1);
+    add1_out.disconnect(add2_in1);
     REQUIRE(!add1_out.isConnected());
     REQUIRE(!add2_in1.isConnected());
 
     // Make more port connections, now testing
-    // the port connectTo method
-    add1_out.connectTo(add2_in1);
-    add1_out.connectTo(add2_in2);
-    size_t numDest = add1_out.numDestinationPorts();
-    REQUIRE(numDest == 2);
-    REQUIRE(add1_out.getDestinationPort(0) == add2_in1);
-    REQUIRE(add1_out.getDestinationPort(1) == add2_in2);
-    REQUIRE(add2_in1.getSourcePort() == add1_out);
-    REQUIRE(add2_in2.getSourcePort() == add1_out);
+    // the node connect method
+    mx::RtNode::connect(add1_out, add2_in1);
+    mx::RtNode::connect(add1_out, add2_in2);
+    size_t numConnections = 0;
+    
+    std::vector<mx::RtObject> dest = { add2_in1.getObject(), add2_in2.getObject() };
+    for (mx::RtInput input : add1_out.getConnections())
+    {
+        REQUIRE(input.getObject() == dest[numConnections++]);
+    }
+    REQUIRE(numConnections == 2);
+    REQUIRE(add2_in1.getConnection() == add1_out);
+    REQUIRE(add2_in2.getConnection() == add1_out);
 
     // Test node creation when name is not unique
-    mx::RtNode add3 = mx::RtNode::createNew(stageObj, addDefObj, "add1");
+    mx::RtNode add3 = stage.createPrim("add1", mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(add3.getName() == "add3");
 
     // Find object by path
-    mx::RtObject elem1 = stage.findElementByPath("/add1/in2");
-    REQUIRE(elem1.isValid());
-    REQUIRE(elem1.hasApi(mx::RtApiType::PORTDEF));
-    REQUIRE(mx::RtPortDef(elem1).getName() == "in2");
-    REQUIRE(mx::RtPortDef(elem1).isInput());
-
-    // Test RtPath
-    mx::RtPath path1(add1Obj);
-    REQUIRE(path1.isValid());
-    REQUIRE(path1.asString() == "/add1");
-    REQUIRE(path1.hasApi(mx::RtApiType::NODE));
-    REQUIRE(path1.getObjType() == mx::RtObjType::NODE);
-    mx::RtPath path2(addDefObj);
-    REQUIRE(path2.isValid());
-    REQUIRE(path2.asString() == "/ND_add_float");
-    REQUIRE(path2.hasApi(mx::RtApiType::NODEDEF));
-    path2.push("in1");
-    REQUIRE(path2.isValid());
-    REQUIRE(path2.asString() == "/ND_add_float/in1");
-    REQUIRE(path2.hasApi(mx::RtApiType::PORTDEF));
-    path2.pop();
-    REQUIRE(path2.isValid());
-    REQUIRE(path2.asString() == "/ND_add_float");
-    path2.pop();
-    REQUIRE(path2.isValid());
-    REQUIRE(path2.isRoot());
-    REQUIRE(path2.getObject() == stageObj);
-    REQUIRE(path2.asString() == "/");
-
-    mx::RtPath stagePath(stageObj);
-    REQUIRE(stagePath.isValid());
-    REQUIRE(stagePath.isRoot());
-    REQUIRE(stagePath.getObject() == stageObj);
-    REQUIRE(stagePath.asString() == "/");
-    REQUIRE(stagePath == path2);
-
-    mx::RtPath pathA, pathB;
-    REQUIRE(!pathA.isValid());
-    pathA.setObject(add1Obj);
-    REQUIRE(pathA.isValid());
-    pathB.setObject(add1Obj);
-    REQUIRE(pathA == pathB);
-    pathB.setObject(add2Obj);
-    REQUIRE(pathA != pathB);
-    pathB = pathA;
-    REQUIRE(pathA == pathB);
-    mx::RtPath pathC = pathB;
-    REQUIRE(pathC == pathB);
- */
+    mx::RtObject prim1 = stage.getPrimAtPath("/add3");
+    REQUIRE(prim1.isValid());
+    REQUIRE(prim1.hasApi(mx::RtApiType::NODE));
 }
 
 /*

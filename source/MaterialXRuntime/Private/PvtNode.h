@@ -43,6 +43,18 @@ public:
         return _nodedef;
     }
 
+    PvtAttribute* getInput(const RtToken& name)
+    {
+        PvtAttribute* attr = getAttribute(name);
+        return attr && attr->isInput() ? attr : nullptr;
+    }
+
+    PvtAttribute* getOutput(const RtToken& name)
+    {
+        PvtAttribute* attr = getAttribute(name);
+        return attr && attr->isOutput() ? attr : nullptr;
+    }
+
 private:
     static const RtObjType _typeId;
     static const RtToken _typeName;

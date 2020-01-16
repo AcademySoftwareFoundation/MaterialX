@@ -37,11 +37,9 @@ public:
 
     PvtAttribute* createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0) override;
 
-    PvtAttribute* getSocket(const RtToken& name) const
-    {
-        auto it = _socketMap.find(name);
-        return it != _socketMap.end() ? it->second->asA<PvtAttribute>() : nullptr;
-    }
+    PvtAttribute* getInputSocket(const RtToken& name) const;
+
+    PvtAttribute* getOutputSocket(const RtToken& name) const;
 
     string asStringDot() const;
 

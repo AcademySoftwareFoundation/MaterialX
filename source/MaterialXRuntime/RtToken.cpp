@@ -12,7 +12,7 @@
 namespace MaterialX
 {
 
-const RtToken EMPTY_TOKEN;
+const RtToken EMPTY_TOKEN("");
 
 struct RtTokenRegistry
 {

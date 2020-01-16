@@ -36,10 +36,7 @@ public:
     RtToken(const RtToken& other) : _entry(other._entry) {}
 
     /// Constructor creating a token from a raw string.
-    //
-    /// TODO: Make explicit
-    //
-    RtToken(const char* s);
+    explicit RtToken(const char* s);
 
     /// Constructor creating a token from an std::string.
     explicit RtToken(const string& s);

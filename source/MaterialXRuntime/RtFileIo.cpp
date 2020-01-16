@@ -134,10 +134,8 @@ namespace
 
     PvtNodeDef* readNodeDef(const NodeDefPtr& src, PvtStage* stage)
     {
-        PvtPath path(stage->getPath());
-        path.push(RtToken(src->getName()));
-
-        PvtPrim* prim = stage->createPrim(path, PvtNodeDef::typeName());
+        const RtToken name(src->getName());
+        PvtPrim* prim = stage->createPrim(stage->getPath(), name, PvtNodeDef::typeName());
 
         const RtToken nodeTypeName(src->getNodeString());
         PvtNodeDef* nodedef = prim->asA<PvtNodeDef>();
@@ -227,11 +225,7 @@ namespace
         }
 
         const RtToken nodeName(src->getName());
-
-        PvtPath path(parent->getPath());
-        path.push(nodeName);
-
-        PvtPrim* prim = stage->createPrim(path, PvtNode::typeName(), nodedef);
+        PvtPrim* prim = stage->createPrim(parent->getPath(), nodeName, PvtNode::typeName(), nodedef);
         PvtNode* node = prim->asA<PvtNode>();
 
         readCustomMetadata(src, node, nodeAttrs);
@@ -260,10 +254,7 @@ namespace
     {
         const RtToken nodegraphName(src->getName());
 
-        PvtPath path(parent->getPath());
-        path.push(nodegraphName);
-
-        PvtPrim* prim = stage->createPrim(path, PvtNodeGraph::typeName());
+        PvtPrim* prim = stage->createPrim(parent->getPath(), nodegraphName, PvtNodeGraph::typeName());
         PvtNodeGraph* nodegraph = prim->asA<PvtNodeGraph>();
 
         readCustomMetadata(src, nodegraph, nodegraphAttrs);
@@ -286,9 +277,11 @@ namespace
                     if (!interfaceName.empty())
                     {
                         const RtToken socketName(interfaceName);
-                        PvtAttribute* socket = nodegraph->getSocket(socketName);
+                        PvtAttribute* socket = nodegraph->getInputSocket(socketName);
                         if (!socket)
                         {
+                            PvtPath path(parent->getPath());
+                            path.push(nodegraphName);
                             throw ExceptionRuntimeError("Interface name '" + interfaceName + "' does not match an internal input socket on the nodegraph '" + path.asString() + "'");
                         }
 
@@ -310,7 +303,7 @@ namespace
             const string& connectedNodeName = elem->getNodeName();
             if (!connectedNodeName.empty())
             {
-                PvtAttribute* socket = nodegraph->getSocket(RtToken(elem->getName()));
+                PvtAttribute* socket = nodegraph->getOutputSocket(RtToken(elem->getName()));
                 PvtNode* connectedNode = findNodeOrThrow(RtToken(connectedNodeName), nodegraph);
 
                 const RtToken outputName(elem->getOutputString());
@@ -328,10 +321,7 @@ namespace
         const RtToken name(src->getName());
         const RtToken category(src->getCategory());
 
-        PvtPath path(parent->getPath());
-        path.push(name);
-
-        PvtPrim* prim = stage->createPrim(path, PvtPrim::typeName());
+        PvtPrim* prim = stage->createPrim(parent->getPath(), name, PvtPrim::typeName());
 
         readCustomMetadata(src, prim, unknownAttrs);
 
@@ -559,7 +549,7 @@ namespace
 
             if (attr->isOutput())
             {
-                const PvtAttribute* nodegraphOutput = nodegraph->getSocket(attr->getName());
+                const PvtAttribute* nodegraphOutput = nodegraph->getOutputSocket(attr->getName());
 
                 OutputPtr output = destNodeGraph->addOutput(nodegraphOutput->getName(), nodegraphOutput->getType().str());
 

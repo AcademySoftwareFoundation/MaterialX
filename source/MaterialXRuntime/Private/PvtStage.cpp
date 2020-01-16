@@ -31,29 +31,17 @@ PvtDataHandle PvtStage::createNew(const RtToken& name)
     return PvtDataHandle(new PvtStage(name));
 }
 
-PvtPrim* PvtStage::createPrim(const RtToken& typeName, PvtObject* def)
-{
-    return createPrim(PvtPath("/"), EMPTY_TOKEN, typeName, def);
-}
-
 PvtPrim* PvtStage::createPrim(const RtToken& name, const RtToken& typeName, PvtObject* def)
 {
     return createPrim(PvtPath("/"), name, typeName, def);
 }
 
-PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName, PvtObject* def)
+PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& name, const RtToken& typeName, PvtObject* def)
 {
-    PvtPath parentPath = path;
-    parentPath.pop();
-    return createPrim(parentPath, path.getName(), typeName, def);
-}
-
-PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName, PvtObject* def)
-{
-    PvtPrim* parent = getPrimAtPathLocal(parentPath);
+    PvtPrim* parent = getPrimAtPathLocal(path);
     if (!parent)
     {
-        throw ExceptionRuntimeError("Given parent '" + parentPath.asString() + "' does not point to a prim in this stage");
+        throw ExceptionRuntimeError("Given parent path '" + path.asString() + "' does not point to a prim in this stage");
     }
 
     // TODO: Consider using a prim factory instead.
@@ -63,7 +51,7 @@ PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, co
         if (!(def && def->hasApi(RtApiType::NODEDEF)))
         {
             throw ExceptionRuntimeError("No valid nodedef given for creating node '" + name.str() +
-                "' at path '" + parentPath.asString() + "'");
+                "' at path '" + path.asString() + "'");
         }
         hnd = PvtNode::createNew(name, def->hnd(), parent);
     }
@@ -158,7 +146,7 @@ PvtPrim* PvtStage::getPrimAtPathLocal(const PvtPath& path)
     // instead of looping over the hierarchy
     PvtPrim* parent = _root->asA<PvtPrim>();
     PvtPrim* prim = nullptr;
-    size_t i = 0;
+    size_t i = 1;
     while (parent)
     {
         prim = parent->getChild(path[i++]);

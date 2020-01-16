@@ -39,7 +39,7 @@ public:
     // Construct from a string path.
     PvtPath(const string& path)
     {
-        const StringVec elementNames = splitString(path, PvtPath::SEPARATOR);
+        const StringVec elementNames = splitString(path, SEPARATOR);
         _elements.resize(elementNames.size() + 1);
         _elements[0] = PvtPath::ROOT_NAME;
         for (size_t i = 0; i < elementNames.size(); ++i)
@@ -70,12 +70,16 @@ public:
 
     string asString() const
     {
-        string str;
-        for (const RtToken& elem : _elements)
+        if (_elements.size() == 1)
         {
-            str += SEPARATOR + elem.str();
+            return SEPARATOR;
         }
-        return str.empty() ? SEPARATOR : str;
+        string str;
+        for (size_t i=1; i<_elements.size(); ++i)
+        {
+            str += SEPARATOR + _elements[i].str();
+        }
+        return str;
     }
 
     void push(const RtToken& childName)

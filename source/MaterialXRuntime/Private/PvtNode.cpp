@@ -54,7 +54,8 @@ PvtDataHandle PvtNode::createNew(const RtToken& name, const PvtDataHandle& noded
     for (const PvtDataHandle& attrH : nodedef->getAllAttributes())
     {
         const PvtAttribute* attr = attrH->asA<PvtAttribute>();
-        PvtAttribute* nodeAttr = node->createAttribute(attr->getName(), attr->getType(), attr->getFlags());
+        const uint32_t flags = attr->getFlags() | RtAttrFlag::CONNECTABLE;
+        PvtAttribute* nodeAttr = node->createAttribute(attr->getName(), attr->getType(), flags);
         RtValue::copy(attr->getType(), attr->getValue(), nodeAttr->getValue());
     }
 

@@ -32,10 +32,10 @@ public:
     explicit RtPath(const RtObject& obj);
 
     /// Construct a path from a string.
-    explicit RtPath(const string& path);
+    RtPath(const string& path);
 
     /// Construct a path from a raw string.
-    explicit RtPath(const char* path);
+    RtPath(const char* path);
 
     /// Copy constructor.
     RtPath(const RtPath& path);

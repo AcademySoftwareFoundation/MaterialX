@@ -10,7 +10,7 @@ namespace MaterialX
 {
 
 const RtObjType PvtAttribute::typeId = RtObjType::ATTRIBUTE;
-const RtToken PvtAttribute::typeName = "attribute";
+const RtToken PvtAttribute::typeName = RtToken("attribute");
 
 const RtToken PvtAttribute::DEFAULT_OUTPUT_NAME("out");
 const RtToken PvtAttribute::COLOR_SPACE("colorspace");
@@ -23,11 +23,12 @@ PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t fl
 {
 }
 
-bool PvtAttribute::isConnectable(const PvtAttribute* source) const
+bool PvtAttribute::isConnectable(const PvtAttribute* other) const
 {
     // TODO: Check if the data types are compatible.
-    return isConnectable() && source->isConnectable() &&
-           isInput() && source->isOutput();
+    return isConnectable() && other->isConnectable() &&
+        isOutput() != other->isOutput() &&
+        _parent != other->_parent;
 }
 
 void PvtAttribute::connect(PvtAttribute* source, PvtAttribute* dest)

@@ -25,7 +25,7 @@ class RtInput : public RtAttribute
 {
 public:
     /// Constructor attaching an object to the API.
-    /// Object must be an input attribute on a node instance.
+    /// Object must be a connectable input attribute.
     RtInput(const RtObject& obj);
 
     /// Return the type for this API.
@@ -47,7 +47,7 @@ public:
     void clearConnections();
 
     /// Return the output connected to this input.
-    RtObject getConnection() const;
+    RtOutput getConnection() const;
 };
 
 /// @class RtOutput
@@ -56,7 +56,7 @@ class RtOutput : public RtAttribute
 {
 public:
     /// Constructor attaching an object to the API.
-    /// Object must be an input attribute on a node instance.
+    /// Object must be a connectable output attribute.
     RtOutput(const RtObject& obj);
 
     /// Return the type for this API.
@@ -96,6 +96,12 @@ public:
 
     /// Return the nodedef of this node.
     RtObject getNodeDef() const;
+
+    ///
+    RtInput getInput(const RtToken& name) const;
+
+    ///
+    RtOutput getOutput(const RtToken& name) const;
 
     /// Make a new connection between two attributes.
     static void connect(RtOutput& source, RtInput& dest);
