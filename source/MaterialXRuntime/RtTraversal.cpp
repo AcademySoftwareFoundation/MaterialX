@@ -28,6 +28,15 @@ RtStageIterator::RtStageIterator(const RtStageIterator& other) :
 {
 }
 
+RtStageIterator& RtStageIterator::operator=(const RtStageIterator& other) {
+    if (*this != other) {
+        RtApiBase::operator=(other);
+        delete static_cast<PvtStageIterator*>(_ptr);
+        _ptr = new PvtStageIterator(*static_cast<PvtStageIterator*>(other._ptr));
+    }
+    return *this;
+}
+
 RtStageIterator::~RtStageIterator()
 {
     PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
@@ -94,6 +103,15 @@ RtTreeIterator::RtTreeIterator(const RtTreeIterator& other) :
 {
 }
 
+RtTreeIterator& RtTreeIterator::operator=(const RtTreeIterator& other) {
+    if (*this != other) {
+        RtApiBase::operator=(other);
+        delete static_cast<PvtTreeIterator*>(_ptr);
+        _ptr = new PvtTreeIterator(*static_cast<PvtTreeIterator*>(other._ptr));
+    }
+    return *this;
+}
+
 RtTreeIterator::~RtTreeIterator()
 {
     PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
@@ -153,6 +171,15 @@ RtGraphIterator::RtGraphIterator(const RtGraphIterator& other) :
     RtApiBase(other),
     _ptr(new PvtGraphIterator(*static_cast<PvtGraphIterator*>(other._ptr)))
 {
+}
+
+RtGraphIterator& RtGraphIterator::operator=(const RtGraphIterator& other) {
+    if (*this != other) {
+        RtApiBase::operator=(other);
+        delete static_cast<PvtGraphIterator*>(_ptr);
+        _ptr = new PvtGraphIterator(*static_cast<PvtGraphIterator*>(other._ptr));
+    }
+    return *this;
 }
 
 RtGraphIterator::~RtGraphIterator()

@@ -57,6 +57,9 @@ public:
     /// Copy constructor.
     RtStageIterator(const RtStageIterator& other);
 
+    /// Assignment operator.
+    RtStageIterator& operator=(const RtStageIterator& other);
+
     /// Destructor.
     ~RtStageIterator();
 
@@ -105,6 +108,9 @@ public:
 
     /// Copy constructor.
     RtTreeIterator(const RtTreeIterator& other);
+
+    /// Assignment operator.
+    RtTreeIterator& operator=(const RtTreeIterator& other);
 
     /// Destructor.
     ~RtTreeIterator();
@@ -156,6 +162,9 @@ public:
 
     /// Copy constructor.
     RtGraphIterator(const RtGraphIterator& other);
+
+    /// Assignment operator.
+    RtGraphIterator& operator=(const RtGraphIterator& other);
 
     /// Destructor.
     ~RtGraphIterator();
