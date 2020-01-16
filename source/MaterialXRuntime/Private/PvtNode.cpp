@@ -16,7 +16,7 @@ namespace MaterialX
 {
 
 const RtObjType PvtNode::_typeId = RtObjType::NODE;
-const RtToken PvtNode::_typeName = "node";
+const RtToken PvtNode::_typeName = RtToken("node");
 
 // Construction with an interface is for nodes.
 PvtNode::PvtNode(const RtToken& name, const PvtDataHandle& nodedef, PvtPrim* parent) :
@@ -41,8 +41,10 @@ PvtDataHandle PvtNode::createNew(const RtToken& name, const PvtDataHandle& noded
     if (nodeName == EMPTY_TOKEN)
     {
         nodeName = RtToken(nodedef->getNodeTypeName().str() + "1");
-        nodeName = parent->makeUniqueName(nodeName);
     }
+
+    // Make the name unique.
+    nodeName = parent->makeUniqueName(nodeName);
 
     PvtDataHandle nodeH(new PvtNode(nodeName, nodedefH, parent));
     PvtNode* node = nodeH->asA<PvtNode>();

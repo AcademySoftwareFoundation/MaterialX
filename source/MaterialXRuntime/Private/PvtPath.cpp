@@ -9,8 +9,8 @@
 namespace MaterialX
 {
 
-const string PvtPath::SEPARATOR  = "/";
-const RtToken PvtPath::ROOT_NAME = "/";
+const string PvtPath::SEPARATOR("/");
+const RtToken PvtPath::ROOT_NAME("/");
 
 void PvtPath::setObject(const PvtPathItem* obj)
 {

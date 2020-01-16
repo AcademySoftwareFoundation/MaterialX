@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 const RtObjType PvtPrim::_typeId = RtObjType::PRIM;
-const RtToken PvtPrim::_typeName = "prim";
+const RtToken PvtPrim::_typeName = RtToken("prim");
 
 PvtPrim::PvtPrim(const RtToken& name, PvtPrim* parent) :
     PvtPathItem(name, parent)
@@ -21,7 +21,17 @@ PvtPrim::PvtPrim(const RtToken& name, PvtPrim* parent) :
 
 PvtDataHandle PvtPrim::createNew(const RtToken& name, PvtPrim* parent)
 {
-    return PvtDataHandle(new PvtPrim(name, parent));
+    // If a name is not given generate one.
+    RtToken primName = name;
+    if (primName == EMPTY_TOKEN)
+    {
+        primName = RtToken(_typeName.str() + "1");
+    }
+
+    // Make the name unique.
+    primName = parent->makeUniqueName(primName);
+
+    return PvtDataHandle(new PvtPrim(primName, parent));
 }
 
 const RtToken& PvtPrim::getPrimTypeName() const

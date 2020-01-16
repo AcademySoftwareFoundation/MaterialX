@@ -32,13 +32,12 @@ public:
     /// Create a new empty stage.
     static RtObject createNew(const RtToken& name);
 
-    /// Create a new prim at the root of this stage.
-    /// If the given name is empty a name will be generated.
-    RtObject createPrim(const RtToken& name, const RtToken& typeName, const RtObject def = RtObject());
+    /// Create a new prim at the given path.
+    RtObject createPrim(const RtPath& path, const RtToken& typeName, const RtObject def = RtObject());
 
-    /// Create a new prim at the given parent path. 
-    /// If and empty name is given a name will be generated.
-    RtObject createPrim(const RtPath& parentPath, const RtToken& name, 
+    /// Create a new prim inside the parent given by path.
+    /// If an empty name is given a name will be generated.
+    RtObject createPrim(const RtPath& parentPath, const RtToken& name,
                         const RtToken& typeName, const RtObject def = RtObject());
 
     /// Remove a prim from the stage.

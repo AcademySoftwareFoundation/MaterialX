@@ -24,14 +24,12 @@ namespace MaterialX
 
 namespace
 {
-    const PvtPath ROOT_PATH("/");
-
     // Lists of known attributes which are handled explicitly by import/export.
-    static const RtTokenSet nodedefAttrs    = { "name", "type", "node" };
-    static const RtTokenSet portdefAttrs    = { "name", "type", "value", "nodename", "output", "colorspace", "unit" };
-    static const RtTokenSet nodeAttrs       = { "name", "type", "node" };
-    static const RtTokenSet nodegraphAttrs  = { "name", "nodedef" };
-    static const RtTokenSet unknownAttrs    = { "name" };
+    static const RtTokenSet nodedefAttrs    = { RtToken("name"), RtToken("type"), RtToken("node") };
+    static const RtTokenSet portdefAttrs    = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("colorspace"), RtToken("unit") };
+    static const RtTokenSet nodeAttrs       = { RtToken("name"), RtToken("type"), RtToken("node") };
+    static const RtTokenSet nodegraphAttrs  = { RtToken("name"), RtToken("nodedef") };
+    static const RtTokenSet unknownAttrs    = { RtToken("name") };
     static const RtTokenSet stageAttrs      = {};
 
     PvtNode* findNodeOrThrow(const RtToken& name, PvtPrim* parent)

@@ -14,7 +14,7 @@ namespace MaterialX
 {
 
 const RtObjType PvtNodeGraph::_typeId = RtObjType::NODEGRAPH;
-const RtToken PvtNodeGraph::_typeName = "nodegraph";
+const RtToken PvtNodeGraph::_typeName = RtToken("nodegraph");
 
 PvtNodeGraph::PvtNodeGraph(const RtToken& name, PvtPrim* parent) :
     PvtNode(name, parent)
@@ -27,7 +27,15 @@ PvtDataHandle PvtNodeGraph::createNew(const RtToken& name, PvtPrim* parent)
     RtToken graphName = name;
     if (graphName == EMPTY_TOKEN)
     {
-        graphName = parent->makeUniqueName(RtToken(_typeName.str() + "1"));
+        graphName = RtToken(_typeName.str() + "1");
+    }
+
+    // Make the name unique.
+    // Check for nullptr as the stage root prim is
+    // a nodegraph without a parent.
+    if (parent)
+    {
+        graphName = parent->makeUniqueName(graphName);
     }
 
     return PvtDataHandle(new PvtNodeGraph(graphName, parent));

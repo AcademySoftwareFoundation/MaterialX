@@ -13,7 +13,7 @@ namespace MaterialX
 {
 
 const RtObjType PvtNodeDef::_typeId = RtObjType::NODEDEF;
-const RtToken PvtNodeDef::_typeName = "nodedef";
+const RtToken PvtNodeDef::_typeName = RtToken("nodedef");
 
 PvtNodeDef::PvtNodeDef(const RtToken& name, PvtPrim* parent) :
     PvtPrim(name, parent)
@@ -22,6 +22,10 @@ PvtNodeDef::PvtNodeDef(const RtToken& name, PvtPrim* parent) :
 
 PvtDataHandle PvtNodeDef::createNew(const RtToken& name, PvtPrim* parent)
 {
+    if (parent->getChild(name))
+    {
+        throw ExceptionRuntimeError("A child named '" + name.str() + "' already exists in prim '" + parent->getName().str() + "'");
+    }
     return PvtDataHandle(new PvtNodeDef(name, parent));
 }
 

@@ -26,6 +26,13 @@ const RtToken RtType::STRING("string");
 const RtToken RtType::FILENAME("filename");
 const RtToken RtType::INTEGERARRAY("integerarray");
 const RtToken RtType::FLOATARRAY("floatarray");
+const RtToken RtType::COLOR2ARRAY("color2array");
+const RtToken RtType::COLOR3ARRAY("color3array");
+const RtToken RtType::COLOR4ARRAY("color4array");
+const RtToken RtType::VECTOR2ARRAY("vector2array");
+const RtToken RtType::VECTOR3ARRAY("vector3array");
+const RtToken RtType::VECTOR4ARRAY("vector4array");
+const RtToken RtType::STRINGARRAY("stringarray");
 const RtToken RtType::BSDF("BSDF");
 const RtToken RtType::EDF("EDF");
 const RtToken RtType::VDF("VDF");
@@ -35,22 +42,23 @@ const RtToken RtType::DISPLACEMENTSHADER("displacementshader");
 const RtToken RtType::LIGHTSHADER("lightshader");
 const RtToken RtType::SURFACEMATERIAL("surfacematerial");
 const RtToken RtType::VOLUMEMATERIAL("volumematerial");
+const RtToken RtType::NONE("none");
 const RtToken RtType::AUTO("auto");
 
-const RtToken RtTypeDef::BASETYPE_NONE = "none";
-const RtToken RtTypeDef::BASETYPE_BOOLEAN = "boolean";
-const RtToken RtTypeDef::BASETYPE_FLOAT = "float";
-const RtToken RtTypeDef::BASETYPE_INTEGER = "integer";
-const RtToken RtTypeDef::BASETYPE_STRING = "string";
-const RtToken RtTypeDef::BASETYPE_STRUCT = "struct";
+const RtToken RtTypeDef::BASETYPE_NONE("none");
+const RtToken RtTypeDef::BASETYPE_BOOLEAN("boolean");
+const RtToken RtTypeDef::BASETYPE_FLOAT("float");
+const RtToken RtTypeDef::BASETYPE_INTEGER("integer");
+const RtToken RtTypeDef::BASETYPE_STRING("string");
+const RtToken RtTypeDef::BASETYPE_STRUCT("struct");
 
-const RtToken RtTypeDef::SEMANTIC_NONE = "none";
-const RtToken RtTypeDef::SEMANTIC_COLOR = "color";
-const RtToken RtTypeDef::SEMANTIC_VECTOR = "vector";
-const RtToken RtTypeDef::SEMANTIC_MATRIX = "matrix";
-const RtToken RtTypeDef::SEMANTIC_FILENAME = "filename";
-const RtToken RtTypeDef::SEMANTIC_CLOSURE = "closure";
-const RtToken RtTypeDef::SEMANTIC_SHADER = "shader";
+const RtToken RtTypeDef::SEMANTIC_NONE("none");
+const RtToken RtTypeDef::SEMANTIC_COLOR("color");
+const RtToken RtTypeDef::SEMANTIC_VECTOR("vector");
+const RtToken RtTypeDef::SEMANTIC_MATRIX("matrix");
+const RtToken RtTypeDef::SEMANTIC_FILENAME("filename");
+const RtToken RtTypeDef::SEMANTIC_CLOSURE("closure");
+const RtToken RtTypeDef::SEMANTIC_SHADER("shader");
 
 RtTypeDef::RtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic, size_t size) :
     _ptr(new PvtTypeDef(name, basetype, funcs, semantic, size))

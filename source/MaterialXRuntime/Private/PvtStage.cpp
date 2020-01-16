@@ -16,7 +16,7 @@ namespace MaterialX
 {
 
 const RtObjType PvtStage::_typeId = RtObjType::STAGE;
-const RtToken PvtStage::_typeName = "stage";
+const RtToken PvtStage::_typeName = RtToken("stage");
 
 PvtStage::PvtStage(const RtToken& name) :
     _name(name),
@@ -31,9 +31,11 @@ PvtDataHandle PvtStage::createNew(const RtToken& name)
     return PvtDataHandle(new PvtStage(name));
 }
 
-PvtPrim* PvtStage::createPrim(const RtToken& name, const RtToken& typeName, PvtObject* def)
+PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName, PvtObject* def)
 {
-    return createPrim(PvtPath("/"), name, typeName, def);
+    PvtPath parentPath(path);
+    parentPath.pop();
+    return createPrim(parentPath, path.getName(), typeName, def);
 }
 
 PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& name, const RtToken& typeName, PvtObject* def)

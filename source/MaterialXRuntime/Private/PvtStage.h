@@ -42,7 +42,7 @@ public:
         return _name;
     }
 
-    PvtPrim* createPrim(const RtToken& name, const RtToken& typeName, PvtObject* def = nullptr);
+    PvtPrim* createPrim(const PvtPath& path, const RtToken& typeName, PvtObject* def = nullptr);
 
     PvtPrim* createPrim(const PvtPath& path, const RtToken& name, const RtToken& typeName, PvtObject* def = nullptr);
 

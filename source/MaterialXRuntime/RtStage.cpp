@@ -25,20 +25,20 @@ RtObject RtStage::createNew(const RtToken& name)
     return PvtStage::createNew(name)->obj();
 }
 
-RtObject RtStage::createPrim(const RtToken& name, const RtToken& typeName, const RtObject def)
+RtObject RtStage::createPrim(const RtPath& path, const RtToken& typeName, const RtObject def)
 {
     PvtPrim* prim = hnd()->asA<PvtStage>()->createPrim(
-        name,
+        *static_cast<PvtPath*>(path._ptr),
         typeName,
         PvtObject::ptr<PvtObject>(def)
     );
     return prim->obj();
 }
 
-RtObject RtStage::createPrim(const RtPath& parent, const RtToken& name, const RtToken& typeName, const RtObject def)
+RtObject RtStage::createPrim(const RtPath& parentPath, const RtToken& name, const RtToken& typeName, const RtObject def)
 {
     PvtPrim* prim = hnd()->asA<PvtStage>()->createPrim(
-        *static_cast<PvtPath*>(parent._ptr),
+        *static_cast<PvtPath*>(parentPath._ptr),
         name,
         typeName,
         PvtObject::ptr<PvtObject>(def)
