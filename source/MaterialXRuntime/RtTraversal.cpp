@@ -6,199 +6,141 @@
 #include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXRuntime/Private/PvtTraversal.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-RtStageIterator::RtStageIterator() :
-    RtApiBase(),
-    _ptr(new PvtStageIterator())
+const RtAttrIterator NULL_ATTR_ITERATOR;
+const RtPrimIterator NULL_PRIM_ITERATOR;
+const RtConnectionIterator NULL_CONNECTION_ITERATOR;
+
+RtAttrIterator::RtAttrIterator(const RtObject& prim, RtObjectPredicate filter) :
+    _prim(nullptr),
+    _current(0),
+    _filter(filter)
 {
+    if (prim.hasApi(RtApiType::PRIM))
+    {
+        _prim = PvtObject::ptr<PvtPrim>(prim);
+    }
 }
 
-RtStageIterator::RtStageIterator(RtObject root, RtTraversalFilter filter) :
-    RtApiBase(root),
-    _ptr(new PvtStageIterator(PvtObject::data(root), filter))
+RtObject RtAttrIterator::operator*() const
 {
+    return _prim->getAllAttributes()[_current]->obj();
 }
 
-RtStageIterator::RtStageIterator(const RtStageIterator& other) :
-    RtApiBase(other),
-    _ptr(new PvtStageIterator(*static_cast<PvtStageIterator*>(other._ptr)))
+RtAttrIterator& RtAttrIterator::operator++()
 {
-}
-
-RtStageIterator::~RtStageIterator()
-{
-    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
-    delete it;
-}
-
-RtApiType RtStageIterator::getApiType() const
-{
-    return RtApiType::STAGE_ITERATOR;
-}
-
-bool RtStageIterator::operator==(const RtStageIterator& other) const
-{
-    PvtStageIterator* lhs = static_cast<PvtStageIterator*>(_ptr);
-    PvtStageIterator* rhs = static_cast<PvtStageIterator*>(other._ptr);
-    return lhs->operator==(*rhs);
-}
-bool RtStageIterator::operator!=(const RtStageIterator& other) const
-{
-    return !(*this == other);
-}
-
-RtObject RtStageIterator::operator*() const
-{
-    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
-    return PvtObject::object(it->operator*());
-}
-
-RtStageIterator& RtStageIterator::operator++()
-{
-    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
-    it->operator++();
+    while (_prim && ++_current < _prim->getAllAttributes().size())
+    {
+        if (!_filter || _filter(_prim->getAllAttributes()[_current]->obj()))
+        {
+            return *this;
+        }
+    }
+    abort();
     return *this;
 }
 
-bool RtStageIterator::isDone() const
+bool RtAttrIterator::isDone() const
 {
-    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
-    return it->isDone();
+    return !(_prim && _current < _prim->getAllAttributes().size());
 }
 
-void RtStageIterator::abort()
+const RtAttrIterator& RtAttrIterator::end()
 {
-    PvtStageIterator* it = static_cast<PvtStageIterator*>(_ptr);
-    return it->abort();
+    return NULL_ATTR_ITERATOR;
 }
 
 
-RtTreeIterator::RtTreeIterator() :
-    RtApiBase(),
-    _ptr(new PvtTreeIterator())
+RtPrimIterator::RtPrimIterator(const RtObject& prim, RtObjectPredicate filter) :
+    _prim(nullptr),
+    _current(0),
+    _filter(filter)
 {
+    if (prim.hasApi(RtApiType::PRIM))
+    {
+        _prim = PvtObject::ptr<PvtPrim>(prim);
+    }
 }
 
-RtTreeIterator::RtTreeIterator(RtObject root, RtTraversalFilter filter) :
-    RtApiBase(root),
-    _ptr(new PvtTreeIterator(PvtObject::data(root), filter))
+RtObject RtPrimIterator::operator*() const
 {
+    return _prim->getAllChildren()[_current]->obj();
 }
 
-RtTreeIterator::RtTreeIterator(const RtTreeIterator& other) :
-    RtApiBase(other),
-    _ptr(new PvtTreeIterator(*static_cast<PvtTreeIterator*>(other._ptr)))
+RtPrimIterator& RtPrimIterator::operator++()
 {
-}
-
-RtTreeIterator::~RtTreeIterator()
-{
-    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
-    delete it;
-}
-
-RtApiType RtTreeIterator::getApiType() const
-{
-    return RtApiType::TREE_ITERATOR;
-}
-
-bool RtTreeIterator::operator==(const RtTreeIterator& other) const
-{
-    PvtTreeIterator* lhs = static_cast<PvtTreeIterator*>(_ptr);
-    PvtTreeIterator* rhs = static_cast<PvtTreeIterator*>(other._ptr);
-    return lhs->operator==(*rhs);
-}
-bool RtTreeIterator::operator!=(const RtTreeIterator& other) const
-{
-    return !(*this==other);
-}
-
-RtObject RtTreeIterator::operator*() const
-{
-    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
-    return PvtObject::object(it->operator*());
-}
-
-RtTreeIterator& RtTreeIterator::operator++()
-{
-    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
-    it->operator++();
+    while (_prim && ++_current < _prim->getAllChildren().size())
+    {
+        if (!_filter || _filter(_prim->getAllChildren()[_current]->obj()))
+        {
+            return *this;
+        }
+    }
+    abort();
     return *this;
 }
 
-bool RtTreeIterator::isDone() const
+bool RtPrimIterator::isDone() const
 {
-    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
-    return it->isDone();
+    return !(_prim && _current < _prim->getAllChildren().size());
 }
 
-void RtTreeIterator::abort()
+const RtPrimIterator& RtPrimIterator::end()
 {
-    PvtTreeIterator* it = static_cast<PvtTreeIterator*>(_ptr);
-    return it->abort();
+    return NULL_PRIM_ITERATOR;
 }
 
+static const RtToken INTERFACE_CONNECTION("_interfaceConnection");
 
-
-RtGraphIterator::RtGraphIterator(RtPort root, RtTraversalFilter filter) :
-    RtApiBase(root.data()),
-    _ptr(new PvtGraphIterator(root, filter))
+RtConnectionIterator::RtConnectionIterator(const RtObject& attrObj, bool interfaceConnections) :
+    _ptr(nullptr),
+    _current(0)
 {
+    if (attrObj.hasApi(RtApiType::ATTRIBUTE))
+    {
+        PvtAttribute* attr = PvtObject::ptr<PvtAttribute>(attrObj);
+        if (attr->isInput())
+        {
+            if (interfaceConnections)
+            {
+                RtTypedValue* md = attr->getMetadata(INTERFACE_CONNECTION);
+                if (md)
+                {
+                    _ptr = md->getValue().asPtr();
+                }
+            }
+            else
+            {
+                _ptr = &attr->_connections;
+            }
+        }
+    }
 }
 
-RtGraphIterator::RtGraphIterator(const RtGraphIterator& other) :
-    RtApiBase(other),
-    _ptr(new PvtGraphIterator(*static_cast<PvtGraphIterator*>(other._ptr)))
+RtObject RtConnectionIterator::operator*() const
 {
+    PvtConnectionData& data = *static_cast<PvtConnectionData*>(_ptr);
+    return data[_current]->obj();
 }
 
-RtGraphIterator::~RtGraphIterator()
+RtConnectionIterator& RtConnectionIterator::operator++()
 {
-    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
-    delete it;
-}
-
-RtApiType RtGraphIterator::getApiType() const
-{
-    return RtApiType::GRAPH_ITERATOR;
-}
-
-bool RtGraphIterator::operator==(const RtGraphIterator& other) const
-{
-    PvtGraphIterator* lhs = static_cast<PvtGraphIterator*>(_ptr);
-    PvtGraphIterator* rhs = static_cast<PvtGraphIterator*>(other._ptr);
-    return lhs->operator==(*rhs);
-}
-bool RtGraphIterator::operator!=(const RtGraphIterator& other) const
-{
-    return !(*this == other);
-}
-
-RtEdge RtGraphIterator::operator*() const
-{
-    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
-    return it->operator*();
-}
-
-RtGraphIterator& RtGraphIterator::operator++()
-{
-    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
-    it->operator++();
+   ++_current;
     return *this;
 }
 
-bool RtGraphIterator::isDone() const
+bool RtConnectionIterator::isDone() const
 {
-    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
-    return it->isDone();
+    return !(_ptr && _current < static_cast<PvtConnectionData*>(_ptr)->size());
 }
 
-void RtGraphIterator::abort()
+const RtConnectionIterator& RtConnectionIterator::end()
 {
-    PvtGraphIterator* it = static_cast<PvtGraphIterator*>(_ptr);
-    return it->abort();
+    return NULL_CONNECTION_ITERATOR;
 }
+
 }

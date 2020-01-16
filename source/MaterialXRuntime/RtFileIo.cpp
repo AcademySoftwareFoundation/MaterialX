@@ -6,11 +6,9 @@
 #include <MaterialXRuntime/RtFileIo.h>
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtNodeDef.h>
-#include <MaterialXRuntime/RtPortDef.h>
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtTypeDef.h>
-#include <MaterialXRuntime/RtAttribute.h>
 
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtNodeDef.h>
@@ -26,161 +24,141 @@ namespace MaterialX
 
 namespace
 {
+    const PvtPath ROOT_PATH("/");
+
     // Lists of known attributes which are handled explicitly by import/export.
     static const RtTokenSet nodedefAttrs    = { "name", "type", "node" };
     static const RtTokenSet portdefAttrs    = { "name", "type", "value", "nodename", "output", "colorspace", "unit" };
     static const RtTokenSet nodeAttrs       = { "name", "type", "node" };
     static const RtTokenSet nodegraphAttrs  = { "name", "nodedef" };
     static const RtTokenSet unknownAttrs    = { "name" };
+    static const RtTokenSet stageAttrs      = {};
 
-    PvtNode* findNodeOrThrow(const RtToken& name, PvtElement* parent)
+    PvtNode* findNodeOrThrow(const RtToken& name, PvtPrim* parent)
     {
-        PvtDataHandle nodeH = parent->findChildByName(name);
-        if (!nodeH)
+        PvtPrim* node = parent->getChild(name);
+        if (!(node && node->hasApi(RtApiType::NODE)))
         {
-            throw ExceptionRuntimeError("Node '" + name.str() + "' is not a child of '" + parent->getName().str() + "'");
+            throw ExceptionRuntimeError("Prim '" + name.str() + "' is not a node in '" + parent->getName().str() + "'");
         }
-        return nodeH->asA<PvtNode>();
+        return node->asA<PvtNode>();
     }
 
-    RtPort findPortOrThrow(const RtToken& name, PvtNode* node)
+    PvtAttribute* findAttrOrThrow(const RtToken& name, PvtNode* node)
     {
-        RtPort port = node->findPort(name);
+        PvtAttribute* port = node->getAttribute(name);
         if (!port)
         {
-            throw ExceptionRuntimeError("Node '" + node->getName().str() + "' has no port named '" + name.str() + "'");
+            throw ExceptionRuntimeError("Node '" + node->getName().str() + "' has no attribute named '" + name.str() + "'");
         }
         return port;
     }
 
-    void createNodeConnections(const vector<NodePtr>& nodeElements, PvtElement* parent)
+    void readCustomMetadata(const ElementPtr src, PvtPathItem* dest, const RtTokenSet& knownAttrNames)
+    {
+        // Read in all custom metadata so we can export the element again
+        // without loosing data.
+        for (const string& name : src->getAttributeNames())
+        {
+            const RtToken mdName(name);
+            if (!knownAttrNames.count(mdName))
+            {
+                // Store all custom attributes as string tokens.
+                RtTypedValue* md = dest->addMetadata(mdName, RtType::TOKEN);
+                md->getValue().asToken() = src->getAttribute(name);
+            }
+        }
+    }
+
+    void createInterface(const ElementPtr src, PvtPrim* dest)
+    {
+        for (auto elem : src->getChildrenOfType<ValueElement>())
+        {
+            const RtToken attrName(elem->getName());
+            const RtToken attrType(elem->getType());
+            const uint32_t attrFlags =
+                (uint32_t(elem->isA<Output>()) & RtAttrFlag::OUTPUT) |
+                (uint32_t(elem->isA<Parameter>()) & RtAttrFlag::UNIFORM);
+
+            PvtAttribute* attr = dest->createAttribute(attrName, attrType, attrFlags);
+
+            const string& valueStr = elem->getValueString();
+            if (!valueStr.empty())
+            {
+                RtValue::fromString(attrType, valueStr, attr->getValue());
+            }
+            if (elem->hasColorSpace())
+            {
+                attr->setColorSpace(RtToken(elem->getColorSpace()));
+            }
+            // TODO: fix when units are implemented in core
+            // input->setUnit(RtToken(elem->getUnit()));
+
+            readCustomMetadata(elem, attr, portdefAttrs);
+        }
+    }
+
+    void createNodeConnections(const vector<NodePtr>& nodeElements, PvtPrim* parent)
     {
         for (const NodePtr& nodeElem : nodeElements)
         {
             PvtNode* node = findNodeOrThrow(RtToken(nodeElem->getName()), parent);
             for (const InputPtr& elemInput : nodeElem->getInputs())
             {
-                RtPort input = findPortOrThrow(RtToken(elemInput->getName()), node);
+                PvtAttribute* input = findAttrOrThrow(RtToken(elemInput->getName()), node);
                 const string& connectedNodeName = elemInput->getNodeName();
                 if (!connectedNodeName.empty())
                 {
                     PvtNode* connectedNode = findNodeOrThrow(RtToken(connectedNodeName), parent);
                     const RtToken outputName(elemInput->getOutputString());
-                    RtPort output = findPortOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtPortDef::DEFAULT_OUTPUT_NAME, connectedNode);
-                    RtNode::connect(output, input);
+                    PvtAttribute* output = findAttrOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtAttribute::DEFAULT_OUTPUT_NAME, connectedNode);
+                    PvtAttribute::connect(output, input);
                 }
             }
         }
     }
 
-    void readCustomAttributes(const ElementPtr src, PvtElement* dest, const RtTokenSet& knownAttrs)
+    void writeMetadata(const PvtPathItem* src, ElementPtr dest)
     {
-        // Read in all custom attributes so we can export the element again
-        // without loosing data.
-        for (const string& name : src->getAttributeNames())
+        for (const RtToken name : src->getMetadataOrder())
         {
-            if (!knownAttrs.count(RtToken(name)))
+            // Ignore metadata with "_" prefix as these are private.
+            if (name.str().size() > 0 && name.str().at(0) == '_')
             {
-                // Store all custom attributes as string tokens.
-                const RtToken attrName(name);
-                const RtToken attrValue(src->getAttribute(name));
-                RtAttribute* attr = dest->addAttribute(attrName, RtType::TOKEN, RtAttrFlag::CUSTOM);
-                attr->getValue().asToken() = attrValue;
+                continue;
             }
+            const RtTypedValue* md = src->getMetadata(name);
+            dest->setAttribute(name.str(), md->getValueString());
         }
     }
 
-    void writeAttributes(const PvtElement* elem, ElementPtr dest)
+    PvtNodeDef* readNodeDef(const NodeDefPtr& src, PvtStage* stage)
     {
-        for (size_t i = 0; i < elem->numAttributes(); ++i)
-        {
-            const RtAttribute* attr = elem->getAttribute(i);
-            dest->setAttribute(attr->getName(), attr->getValueString());
-        }
+        PvtPath path(stage->getPath());
+        path.push(RtToken(src->getName()));
+
+        PvtPrim* prim = stage->createPrim(path, PvtNodeDef::typeName());
+
+        const RtToken nodeTypeName(src->getNodeString());
+        PvtNodeDef* nodedef = prim->asA<PvtNodeDef>();
+        nodedef->setNodeTypeName(nodeTypeName);
+
+        readCustomMetadata(src, nodedef, nodedefAttrs);
+
+        // Create the interface.
+        createInterface(src, nodedef);
+
+        return nodedef;
     }
 
-    PvtDataHandle readNodeDef(const NodeDefPtr& src, PvtStage* stage)
+    bool matchingSignature(const PvtNodeDef* nodedef, const vector<ValueElementPtr>& nodePorts)
     {
-        const RtToken name(src->getName());
-        const RtToken nodeName(src->getNodeString());
-
-        PvtDataHandle nodedefH = PvtNodeDef::createNew(stage, name, nodeName);
-        PvtNodeDef* nodedef = nodedefH->asA<PvtNodeDef>();
-
-        readCustomAttributes(src, nodedef, nodedefAttrs);
-
-        // Add outputs
-        if (src->getOutputCount() > 0)
-        {
-            for (auto elem : src->getOutputs())
-            {
-                const RtToken portName(elem->getName());
-                const RtToken portType(elem->getType());
-                PvtDataHandle outputH = PvtPortDef::createNew(nodedef, portName, portType, RtPortFlag::OUTPUT);
-                PvtPortDef* output = outputH->asA<PvtPortDef>();
-                readCustomAttributes(elem, output, portdefAttrs);
-            }
-        }
-        else
-        {
-            const RtToken type(src->getType());
-            PvtPortDef::createNew(nodedef, PvtPortDef::DEFAULT_OUTPUT_NAME, type, RtPortFlag::OUTPUT);
-        }
-
-        // Add inputs
-        for (auto elem : src->getChildrenOfType<ValueElement>())
-        {
-            if (elem->isA<Input>())
-            {
-                const RtToken portName(elem->getName());
-                const RtToken portType(elem->getType());
-                const string& valueStr = elem->getValueString();
-
-                PvtDataHandle inputH = PvtPortDef::createNew(nodedef, portName, portType);
-                PvtPortDef* input = inputH->asA<PvtPortDef>();
-                if (!valueStr.empty())
-                {
-                    RtValue::fromString(portType, valueStr, input->getValue());
-                }
-                input->setColorSpace(RtToken(elem->getColorSpace()));
-                // TODO: fix when units are implemented in core
-                // input->setUnit(RtToken(elem->getUnit()));
-                readCustomAttributes(elem, input, portdefAttrs);
-            }
-            else if (elem->isA<Parameter>())
-            {
-                const RtToken portName(elem->getName());
-                const RtToken portType(elem->getType());
-                const string& valueStr = elem->getValueString();
-
-                PvtDataHandle inputH = PvtPortDef::createNew(nodedef, portName, portType, RtPortFlag::UNIFORM);
-                PvtPortDef* input = inputH->asA<PvtPortDef>();
-                if (!valueStr.empty())
-                {
-                    RtValue::fromString(portType, valueStr, input->getValue());
-                }
-                input->setColorSpace(RtToken(elem->getColorSpace()));
-                // TODO: fix when units are implemented in core
-                // input->setUnit(RtToken(elem->getUnit()));
-                readCustomAttributes(elem, input, portdefAttrs);
-            }
-        }
-
-        return nodedefH;
-    }
-
-    bool matchingSignature(const PvtNodeDef* nodedef, const RtToken nodeType, const vector<ValueElementPtr>& nodePorts)
-    {
-        // Check output types for single output nodes.
-        if (nodedef->numOutputs() == 1 && nodedef->getOutput(0)->getType() != nodeType)
-        {
-            return false;
-        }
-        // Check all other ports.
+        // Check all ports.
+        // TODO: Do we need to match port type as well (input/output/parameter)?
         for (const ValueElementPtr& nodePort : nodePorts)
         {
-            const PvtPortDef* nodedefPort = nodedef->findPort(RtToken(nodePort->getName()));
-            if (!nodedefPort || nodedefPort->getType().str() != nodePort->getType())
+            const PvtAttribute* attr = nodedef->getAttribute(RtToken(nodePort->getName()));
+            if (!attr || attr->getType().str() != nodePort->getType())
             {
                 return false;
             }
@@ -188,175 +166,136 @@ namespace
         return true;
     }
 
-    PvtDataHandle resolveNodeDef(const NodePtr& node, PvtStage* stage)
+    PvtNodeDef* resolveNodeDef(const NodePtr& node, PvtStage* stage)
     {
-        PvtDataHandle nodedefH;
+        PvtNodeDef* nodedef = 0;
 
         // First try resolving a nodedef from content in the current document.
         NodeDefPtr srcNodedef = node->getNodeDef();
         if (srcNodedef)
         {
             const RtToken nodedefName(srcNodedef->getName());
-            nodedefH = stage->findChildByName(nodedefName);
-            if (!nodedefH)
+
+            PvtPath path(stage->getPath());
+            path.push(nodedefName);
+
+            PvtPrim* prim = stage->getPrimAtPath(path);
+            if (prim)
+            {
+                if (!prim->hasApi(RtApiType::NODEDEF))
+                {
+                    throw ExceptionRuntimeError("Prim at path '" + path.asString() + "' is not a nodedef");
+                }
+                nodedef = prim->asA<PvtNodeDef>();
+            }
+            else
             {
                 // NodeDef is not loaded yet so create it now.
-                nodedefH = readNodeDef(srcNodedef, stage);
+                nodedef = readNodeDef(srcNodedef, stage);
             }
         }
 
-        if (!nodedefH)
+        if (!nodedef)
         {
             // Try resolving among existing nodedefs in the stage
             // by matching signatures.
 
-            const RtToken nodeName(node->getCategory());
-            const RtToken nodeType(node->getType());
+            const RtToken nodeTypeName(node->getCategory());
             const vector<ValueElementPtr> nodePorts = node->getActiveValueElements();
 
-            RtObjectFilter<RtObjType::NODEDEF> nodedefFilter;
-            PvtStageIterator it(stage->shared_from_this(), nodedefFilter);
-            for (; !it.isDone(); ++it)
+            RtObjTypePredicate<RtObjType::NODEDEF> nodedefFilter;
+            for (const RtObject candidateObj : stage->traverse(nodedefFilter))
             {
-                const PvtNodeDef* nodedef = (*it)->asA<PvtNodeDef>();
-                if (nodedef->getNodeName() == nodeName && 
-                    matchingSignature(nodedef, nodeType, nodePorts))
+                PvtNodeDef* candidate = PvtObject::ptr<PvtNodeDef>(candidateObj);
+                if (candidate->getNodeTypeName() == nodeTypeName &&
+                    matchingSignature(candidate, nodePorts))
                 {
-                    return *it;
+                    return candidate;
                 }
             }
         }
 
-        return nodedefH;
+        return nodedef;
     }
 
-    PvtDataHandle readNode(const NodePtr& src, PvtElement* parent, PvtStage* stage)
+    PvtNode* readNode(const NodePtr& src, PvtPrim* parent, PvtStage* stage)
     {
-        PvtDataHandle nodedefH = resolveNodeDef(src, stage);
-        if (!nodedefH)
+        PvtNodeDef* nodedef = resolveNodeDef(src, stage);
+        if (!nodedef)
         {
             throw ExceptionRuntimeError("No matching nodedef was found for node '" + src->getName() + "'");
         }
 
         const RtToken nodeName(src->getName());
-        PvtDataHandle nodeH = PvtNode::createNew(parent, nodedefH, nodeName);
-        PvtNode* node = nodeH->asA<PvtNode>();
 
-        readCustomAttributes(src, node, nodeAttrs);
+        PvtPath path(parent->getPath());
+        path.push(nodeName);
+
+        PvtPrim* prim = stage->createPrim(path, PvtNode::typeName(), nodedef);
+        PvtNode* node = prim->asA<PvtNode>();
+
+        readCustomMetadata(src, node, nodeAttrs);
 
         // Copy input values.
         for (auto elem : src->getChildrenOfType<ValueElement>())
         {
             const RtToken portName(elem->getName());
-            RtPort port = node->findPort(portName);
-            if (!port)
+            PvtAttribute* attr = node->getAttribute(portName);
+            if (!attr)
             {
-                throw ExceptionRuntimeError("No port named '" + elem->getName() + "' was found on runtime node '" + node->getName().str() + "'");
+                throw ExceptionRuntimeError("No attribute named '" + elem->getName() + "' was found on runtime node '" + node->getName().str() + "'");
             }
             const string& valueStr = elem->getValueString();
             if (!valueStr.empty())
             {
                 const RtToken portType(elem->getType());
-                RtValue::fromString(portType, valueStr, port.getValue());
+                RtValue::fromString(portType, valueStr, attr->getValue());
             }
         }
 
-        return nodeH;
+        return node;
     }
 
-    PvtDataHandle readNodeGraph(const NodeGraphPtr& src, PvtElement* parent, PvtStage* stage)
+    PvtNodeGraph* readNodeGraph(const NodeGraphPtr& src, PvtPrim* parent, PvtStage* stage)
     {
         const RtToken nodegraphName(src->getName());
-        PvtDataHandle nodegraphH = PvtNodeGraph::createNew(parent, nodegraphName);
-        PvtNodeGraph* nodegraph = nodegraphH->asA<PvtNodeGraph>();
 
-        readCustomAttributes(src, nodegraph, nodegraphAttrs);
+        PvtPath path(parent->getPath());
+        path.push(nodegraphName);
 
-        bool fixedInterface = false;
-        NodeDefPtr srcNodeDef = src->getNodeDef();
-        if (srcNodeDef)
-        {
-            fixedInterface = true;
+        PvtPrim* prim = stage->createPrim(path, PvtNodeGraph::typeName());
+        PvtNodeGraph* nodegraph = prim->asA<PvtNodeGraph>();
 
-            vector<ValueElementPtr> elements = srcNodeDef->getChildrenOfType<ValueElement>();
+        readCustomMetadata(src, nodegraph, nodegraphAttrs);
 
-            // Create outputs first
-            for (auto elem : elements)
-            {
-                if (elem->isA<Output>())
-                {
-                    const RtToken name(elem->getName());
-                    const RtToken type(elem->getType());
-                    PvtPortDef::createNew(nodegraph, name, type, RtPortFlag::OUTPUT);
-                }
-            }
-            // Create inputs second
-            for (auto elem : elements)
-            {
-                if (!elem->isA<Output>())
-                {
-                    const RtToken name(elem->getName());
-                    const RtToken type(elem->getType());
-                    const uint32_t flags = elem->isA<Parameter>() ? RtPortFlag::UNIFORM : 0;
-                    PvtPortDef::createNew(nodegraph, name, type, flags);
-                }
-            }
-        }
-        else
-        {
-            // No nodedef interface was set on the graph.
-            // Create all outputs here, inputs are created
-            // from internal interface connections below.
-            for (auto elem : src->getOutputs())
-            {
-                const RtToken name(elem->getName());
-                const RtToken type(elem->getType());
-                PvtPortDef::createNew(nodegraph, name, type, RtPortFlag::OUTPUT);
-            }
-        }
+        // Create the interface.
+        createInterface(src, nodegraph);
 
-        // Create all nodes.
+        // Create all nodes and connection between node intputs and internal graph sockets.
         for (auto child : src->getChildren())
         {
             NodePtr srcNnode = child->asA<Node>();
             if (srcNnode)
             {
-                PvtDataHandle nodeH = readNode(srcNnode, nodegraph, stage);
-                PvtNode* node = nodeH->asA<PvtNode>();
+                PvtNode* node = readNode(srcNnode, nodegraph, stage);
 
-                // Check for connections to the graph interface
+                // Check for connections to the internal graph sockets
                 for (auto elem : srcNnode->getChildrenOfType<ValueElement>())
                 {
                     const string& interfaceName = elem->getInterfaceName();
                     if (!interfaceName.empty())
                     {
-                        const RtToken internalInputName(interfaceName);
-                        RtPort inputSocket = nodegraph->findInputSocket(internalInputName);
-                        if (!inputSocket)
+                        const RtToken socketName(interfaceName);
+                        PvtAttribute* socket = nodegraph->getSocket(socketName);
+                        if (!socket)
                         {
-                            // Create the input on the graph
-                            if (fixedInterface)
-                            {
-                                // The input should have been created already.
-                                // This is an error so throw up.
-                                throw ExceptionRuntimeError("Interface name '" + interfaceName + "' does not match an input on the nodedef set for nodegraph '" +
-                                    nodegraph->getName().str() + "'");
-                            }
-                            const RtToken portType(elem->getType());
-                            PvtDataHandle portdefH = PvtPortDef::createNew(nodegraph, internalInputName, portType);
-                            PvtPortDef* portdef = portdefH->asA<PvtPortDef>();
-
-                            const string& valueStr = elem->getValueString();
-                            if (!valueStr.empty())
-                            {
-                                RtValue::fromString(portType, valueStr, portdef->getValue());
-                            }
-
-                            inputSocket = nodegraph->findInputSocket(portdef->getName());
+                            throw ExceptionRuntimeError("Interface name '" + interfaceName + "' does not match an internal input socket on the nodegraph '" + path.asString() + "'");
                         }
+
                         const RtToken inputName(elem->getName());
-                        RtPort input = node->findPort(inputName);
-                        PvtNode::connect(inputSocket, input);
+                        PvtAttribute* input = findAttrOrThrow(inputName, node);
+
+                        PvtAttribute::connect(socket, input);
                     }
                 }
             }
@@ -365,39 +304,43 @@ namespace
         // Create connections between all nodes.
         createNodeConnections(src->getNodes(), nodegraph);
 
-        // Create connections between nodes and the graph outputs.
+        // Create connections between node outputs and internal graph sockets.
         for (const OutputPtr& elem : src->getOutputs())
         {
             const string& connectedNodeName = elem->getNodeName();
             if (!connectedNodeName.empty())
             {
-                RtPort outputSocket = nodegraph->findOutputSocket(RtToken(elem->getName()));
+                PvtAttribute* socket = nodegraph->getSocket(RtToken(elem->getName()));
                 PvtNode* connectedNode = findNodeOrThrow(RtToken(connectedNodeName), nodegraph);
+
                 const RtToken outputName(elem->getOutputString());
-                RtPort output = findPortOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtPortDef::DEFAULT_OUTPUT_NAME, connectedNode);
-                RtNode::connect(output, outputSocket);
+                PvtAttribute* output = findAttrOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtAttribute::DEFAULT_OUTPUT_NAME, connectedNode);
+
+                PvtAttribute::connect(output, socket);
             }
         }
 
-        return nodegraphH;
+        return nodegraph;
     }
 
-    PvtDataHandle readUnknown(const ElementPtr& src, PvtElement* parent)
+    PvtPrim* readGenericPrim(const ElementPtr& src, PvtPrim* parent, PvtStage* stage)
     {
         const RtToken name(src->getName());
         const RtToken category(src->getCategory());
 
-        PvtDataHandle elemH = PvtUnknownElement::createNew(parent, name, category);
-        PvtUnknownElement* elem = elemH->asA<PvtUnknownElement>();
+        PvtPath path(parent->getPath());
+        path.push(name);
 
-        readCustomAttributes(src, elem, unknownAttrs);
+        PvtPrim* prim = stage->createPrim(path, PvtPrim::typeName());
+
+        readCustomMetadata(src, prim, unknownAttrs);
 
         for (auto child : src->getChildren())
         {
-            readUnknown(child, elem);
+            readGenericPrim(child, prim, stage);
         }
 
-        return elemH;
+        return prim;
     }
 
     void readSourceUri(const DocumentPtr& doc, PvtStage* stage)
@@ -414,7 +357,8 @@ namespace
         // Set the source location 
         const std::string& uri = doc->getSourceUri();
         stage->addSourceUri(RtToken(uri));
-        readCustomAttributes(doc, stage, {});
+
+        readCustomMetadata(doc, stage->getRootPrim(), stageAttrs);
 
         RtReadOptions::ReadFilter filter = readOptions ? readOptions->readFilter : nullptr;
 
@@ -424,7 +368,8 @@ namespace
         {
             if (!filter || filter(nodedef))
             {
-                if (!stage->findChildByName(RtToken(nodedef->getName())))
+                PvtPath path("/" + nodedef->getName());
+                if (!stage->getPrimAtPath(path))
                 {
                     readNodeDef(nodedef, stage);
                 }
@@ -437,71 +382,70 @@ namespace
             if (!filter || filter(elem))
             {
                 // Make sure the element has not been loaded already.
-                if (stage->findChildByName(RtToken(elem->getName())))
+                PvtPath path("/" + elem->getName());
+                if (stage->getPrimAtPath(path))
                 {
                     continue;
                 }
 
                 if (elem->isA<Node>())
                 {
-                    readNode(elem->asA<Node>(), stage, stage);
+                    readNode(elem->asA<Node>(), stage->getRootPrim(), stage);
                 }
                 else if (elem->isA<NodeGraph>())
                 {
-                    readNodeGraph(elem->asA<NodeGraph>(), stage, stage);
+                    readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage);
                 }
                 else
                 {
-                    readUnknown(elem, stage);
+                    readGenericPrim(elem, stage->getRootPrim(), stage);
                 }
             }
         }
 
         // Create connections between all root level nodes.
-        createNodeConnections(doc->getNodes(), stage);
+        createNodeConnections(doc->getNodes(), stage->getRootPrim());
     }
 
     void writeNodeDef(const PvtNodeDef* nodedef, DocumentPtr dest)
     {
-        const size_t numPorts = nodedef->numPorts();
-        const size_t numOutputs = nodedef->numOutputs();
+        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef->getName(), EMPTY_STRING, nodedef->getNodeTypeName());
+        writeMetadata(nodedef, destNodeDef);
 
-        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef->getName(), EMPTY_STRING, nodedef->getNodeName());
-        writeAttributes(nodedef, destNodeDef);
-
-        for (size_t i = numOutputs; i < numPorts; ++i)
+        for (const PvtDataHandle attrH : nodedef->getAllAttributes())
         {
-            const PvtPortDef* input = nodedef->getPort(i);
+            const PvtAttribute* attr = attrH->asA<PvtAttribute>();
 
-            ValueElementPtr destInput;
-            if (input->isUniform())
+            ValueElementPtr destPort;
+            if (attr->isInput())
             {
-                destInput = destNodeDef->addParameter(input->getName(), input->getType().str());
+                if (attr->isUniform())
+                {
+                    destPort = destNodeDef->addParameter(attr->getName(), attr->getType().str());
+                }
+                else
+                {
+                    destPort = destNodeDef->addInput(attr->getName(), attr->getType().str());
+                }
             }
             else
             {
-                destInput = destNodeDef->addInput(input->getName(), input->getType().str());
+                destPort = destNodeDef->addOutput(attr->getName(), attr->getType().str());
             }
 
-            destInput->setValueString(input->getValueString());
+            destPort->setValueString(attr->getValueString());
 
-            if (input->getColorSpace())
+            if (attr->getColorSpace())
             {
-                destInput->setColorSpace(input->getColorSpace().str());
+                destPort->setColorSpace(attr->getColorSpace().str());
             }
-            if (input->getUnit())
-            {
-                // TODO: fix when units are implemented in core.
-                // destInput->setUnit(input->getUnit().str());
-            }
+            // TODO: fix when units are implemented in core.
+            //if (attr->getUnit())
+            //{
+            //    destInput->setUnit(input->getUnit().str());
+            //}
 
-            writeAttributes(input, destInput);
-        }
-        for (size_t i = 0; i < numOutputs; ++i)
-        {
-            const PvtPortDef* output = nodedef->getPort(i);
-            OutputPtr destOutput = destNodeDef->addOutput(output->getName(), output->getType().str());
-            writeAttributes(output, destOutput);
+            writeMetadata(attr, destPort);
         }
     }
 
@@ -510,139 +454,147 @@ namespace
     {
         const PvtNodeDef* nodedef = node->getNodeDef()->asA<PvtNodeDef>();
 
-        const string type = nodedef->numOutputs() == 1 ? nodedef->getPort(0)->getType().str() : "multioutput";
-        NodePtr destNode = dest->addNode(nodedef->getNodeName(), node->getName().str(), type);
-
-        for (size_t i = 0; i < nodedef->numInputs(); ++i)
+        size_t numOutputs = 0;
+        string outputType;
+        for (const PvtDataHandle attrH : nodedef->getAllAttributes())
         {
-            const PvtPortDef* inputDef = nodedef->getInput(i);
-            RtPort input = const_cast<PvtNode*>(node)->findPort(inputDef->getName());
+            const PvtAttribute* attr = attrH->asA<PvtAttribute>();
+            if (attr->isOutput())
+            {
+                numOutputs++;
+                outputType = attr->getType();
+            }
+        }
 
-            if (input.isConnected() || !RtValue::compare(inputDef->getType(), inputDef->getValue(), input.getValue()))
+        NodePtr destNode = dest->addNode(nodedef->getNodeTypeName(), node->getName().str(), numOutputs > 1 ? "multioutput" : outputType);
+
+        for (const PvtDataHandle attrH : nodedef->getAllAttributes())
+        {
+            const PvtAttribute* attrDef = attrH->asA<PvtAttribute>();
+            const PvtAttribute* attr = node->getAttribute(attrDef->getName());
+
+            if (attr->isOutput() && numOutputs > 1)
+            {
+                destNode->addOutput(attr->getName(), attr->getType().str());
+            }
+            else if (attr->isConnected() || !RtValue::compare(attr->getType(), attr->getValue(), attrDef->getValue()))
             {
                 ValueElementPtr valueElem;
-                if (inputDef->isUniform())
+                if (attr->isUniform())
                 {
-                    valueElem = destNode->addParameter(input.getName().str(), input.getType().str());
-                    if (input.isConnected())
+                    valueElem = destNode->addParameter(attr->getName().str(), attr->getType().str());
+                    if (attr->isConnected())
                     {
-                        RtPort sourcePort = input.getSourcePort();
-                        if (sourcePort.isSocket())
+                        PvtAttribute* source = attr->getConnection();
+                        if (source->isSocket())
                         {
-                            // This is a connection to the internal node of a graph
-                            valueElem->setInterfaceName(sourcePort.getName());
+                            // This is a connection to the internal socket of a graph
+                            valueElem->setInterfaceName(source->getName());
                         }
                     }
                     else
                     {
-                        valueElem->setValueString(input.getValueString());
+                        valueElem->setValueString(attr->getValueString());
                     }
                 }
                 else
                 {
-                    valueElem = destNode->addInput(input.getName().str(), input.getType().str());
-                    if (input.isConnected())
+                    valueElem = destNode->addInput(attr->getName().str(), attr->getType().str());
+                    if (attr->isConnected())
                     {
-                        RtPort sourcePort = input.getSourcePort();
-                        if (sourcePort.isSocket())
+                        PvtAttribute* source = attr->getConnection();
+                        if (source->isSocket())
                         {
-                            // This is a connection to the internal node of a graph
-                            valueElem->setInterfaceName(sourcePort.getName());
+                            // This is a connection to the internal socket of a graph
+                            valueElem->setInterfaceName(source->getName());
                         }
                         else
                         {
-                            PvtNode* sourceNode = sourcePort.data()->asA<PvtNode>();
+                            const PvtPrim* sourceNode = source->getParent();
                             InputPtr inputElem = valueElem->asA<Input>();
                             inputElem->setNodeName(sourceNode->getName());
-                            if (sourceNode->numOutputs() > 1 || sourceNode->hasApi(RtApiType::NODEGRAPH))
-                            {
-                                inputElem->setOutputString(sourcePort.getName());
-                            }
+                            inputElem->setOutputString(source->getName());
                         }
                     }
                     else
                     {
-                        valueElem->setValueString(input.getValueString());
+                        valueElem->setValueString(attr->getValueString());
                     }
                 }
 
-                if (input.getColorSpace())
+                const RtToken colorspace = attr->getColorSpace();
+                if (colorspace != EMPTY_TOKEN)
                 {
-                    valueElem->setColorSpace(input.getColorSpace().str());
+                    valueElem->setColorSpace(colorspace.str());
                 }
-                if (input.getUnit())
-                {
-                    // TODO: fix when units are implemented in core.
-                    // valueElem->setUnit(input->getUnit().str());
-                }
+                //if (input.getUnit())
+                //{
+                //    TODO: fix when units are implemented in core.
+                //    valueElem->setUnit(input->getUnit().str());
+                //}
             }
         }
 
-        // Write outputs.
-        // TODO: Decide if ALL outputs should be written explicitly for nodes (same as for nodegraphs).
-        if (nodedef->numOutputs() > 1)
-        {
-            for (size_t i = 0; i < nodedef->numOutputs(); ++i)
-            {
-                const PvtPortDef* output = nodedef->getOutput(i);
-                OutputPtr destOutput = destNode->addOutput(output->getName(), output->getType().str());
-            }
-        }
-
-        writeAttributes(node, destNode);
+        writeMetadata(node, destNode);
     }
 
     void writeNodeGraph(const PvtNodeGraph* nodegraph, DocumentPtr dest)
     {
         NodeGraphPtr destNodeGraph = dest->addNodeGraph(nodegraph->getName());
-        writeAttributes(nodegraph, destNodeGraph);
+        writeMetadata(nodegraph, destNodeGraph);
 
         // Write nodes.
-        for (auto node : nodegraph->getChildren())
+        for (const RtObject child : nodegraph->getChildren())
         {
-            writeNode(node->asA<PvtNode>(), destNodeGraph);
+            if (child.hasApi(RtApiType::NODE))
+            {
+                writeNode(PvtObject::ptr<PvtNode>(child), destNodeGraph);
+            }
         }
 
         // Write outputs.
-        for (size_t i=0; i<nodegraph->numOutputs(); ++i)
+        for (const PvtDataHandle attrH : nodegraph->getAllAttributes())
         {
-            const RtPort nodegraphOutput = nodegraph->getOutputSocket(i);
-            OutputPtr output = destNodeGraph->addOutput(nodegraphOutput.getName(), nodegraphOutput.getType().str());
+            const PvtAttribute* attr = attrH->asA<PvtAttribute>();
 
-            if (nodegraphOutput.isConnected())
+            if (attr->isOutput())
             {
-                const RtPort sourcePort = nodegraphOutput.getSourcePort();
-                if (sourcePort.isSocket())
+                const PvtAttribute* nodegraphOutput = nodegraph->getSocket(attr->getName());
+
+                OutputPtr output = destNodeGraph->addOutput(nodegraphOutput->getName(), nodegraphOutput->getType().str());
+
+                if (nodegraphOutput->isConnected())
                 {
-                    output->setInterfaceName(sourcePort.getName());
-                }
-                else
-                {
-                    const PvtNode* sourceNode = sourcePort.data()->asA<PvtNode>();
-                    output->setNodeName(sourceNode->getName());
-                    if (sourceNode->numOutputs() > 1)
+                    const PvtAttribute* sourcePort = nodegraphOutput->getConnection();
+                    if (sourcePort->isSocket())
                     {
-                        output->setOutputString(sourcePort.getName());
+                        output->setInterfaceName(sourcePort->getName());
+                    }
+                    else
+                    {
+                        const PvtPrim* sourceNode = sourcePort->getParent();
+                        output->setNodeName(sourceNode->getName());
+                        output->setOutputString(sourcePort->getName());
                     }
                 }
             }
         }
     }
 
-    void writeUnknown(const PvtUnknownElement* unknown, ElementPtr dest)
+    void writeGenericPrim(const PvtPrim* prim, ElementPtr dest)
     {
-        ElementPtr unknownElem = dest->addChildOfCategory(unknown->getCategory(), unknown->getName());
-        writeAttributes(unknown, unknownElem);
+        ElementPtr unknownElem = dest->addChildOfCategory(prim->getPrimTypeName(), prim->getName());
+        writeMetadata(prim, unknownElem);
 
-        for (auto child : unknown->getChildren())
+        for (auto child : prim->getChildren())
         {
-            writeUnknown(child->asA<PvtUnknownElement>(), unknownElem);
+            writeGenericPrim(PvtObject::ptr<PvtPrim>(child), unknownElem);
         }
     }
 
     void writeSourceUris(const PvtStage* stage, DocumentPtr doc)
     {
-        const PvtDataHandleVec& refs = stage->getReferencedStages();
+        const PvtDataHandleVec& refs = stage->getAllReferences();
         for (size_t i = 0; i < refs.size(); i++)
         {
             const PvtStage* pStage = refs[i]->asA<PvtStage>();
@@ -663,7 +615,7 @@ namespace
 
     void writeDocument(DocumentPtr& doc, PvtStage* stage, const RtWriteOptions* writeOptions)
     {
-        writeAttributes(stage, doc);
+        writeMetadata(stage->getRootPrim(), doc);
 
         // Write out any dependent includes
         if (writeOptions && writeOptions->writeIncludes)
@@ -672,32 +624,25 @@ namespace
         }
 
         RtWriteOptions::WriteFilter filter = writeOptions ? writeOptions->writeFilter : nullptr;
-        for (size_t i = 0; i < stage->numChildren(); ++i)
+        for (auto prim : stage->getRootPrim()->getAllChildren())
         {
-            PvtDataHandle elem = stage->getChild(i);
-            if (!filter || filter(PvtObject::object(elem)))
+            if (!filter || filter(prim->obj()))
             {
-                if (elem->getObjType() == RtObjType::NODEDEF)
+                if (prim->getObjType() == PvtNodeDef::typeId())
                 {
-                    writeNodeDef(elem->asA<PvtNodeDef>(), doc);
+                    writeNodeDef(prim->asA<PvtNodeDef>(), doc);
                 }
-                else if (elem->getObjType() == RtObjType::NODE)
+                else if (prim->getObjType() == PvtNode::typeId())
                 {
-                    writeNode(elem->asA<PvtNode>(), doc);
+                    writeNode(prim->asA<PvtNode>(), doc);
                 }
-                else if (elem->getObjType() == RtObjType::NODEGRAPH)
+                else if (prim->getObjType() == PvtNodeGraph::typeId())
                 {
-                    writeNodeGraph(elem->asA<PvtNodeGraph>(), doc);
-                }
-                else if (elem->getObjType() == RtObjType::UNKNOWN)
-                {
-                    writeUnknown(elem->asA<PvtUnknownElement>(), doc->asA<Element>());
+                    writeNodeGraph(prim->asA<PvtNodeGraph>(), doc);
                 }
                 else
                 {
-                    std::stringstream str;
-                    str << "Exporting object type '" << size_t(elem->getObjType()) << "' is not supported";
-                    throw ExceptionRuntimeError(str.str());
+                    writeGenericPrim(prim->asA<PvtPrim>(), doc->asA<Element>());
                 }
             }
         }
@@ -712,9 +657,8 @@ RtFileIo::RtFileIo(RtObject stage) :
 
 RtApiType RtFileIo::getApiType() const
 {
-    return RtApiType::CORE_IO;
+    return RtApiType::FILE_IO;
 }
-
 
 void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPaths, const RtReadOptions* readOptions)
 {
@@ -729,7 +673,7 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
 
-        PvtStage* stage = data()->asA<PvtStage>();
+        PvtStage* stage = hnd()->asA<PvtStage>();
         readDocument(document, stage, readOptions);
     }
     catch (Exception& e)
@@ -750,7 +694,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         }
         readFromXmlStream(document, stream, &xmlReadOptions);
 
-        PvtStage* stage = data()->asA<PvtStage>();
+        PvtStage* stage = hnd()->asA<PvtStage>();
         readDocument(document, stage, readOptions);
     }
     catch (Exception& e)
@@ -761,7 +705,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
 
 void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath& searchPaths)
 {
-    PvtStage* stage = data()->asA<PvtStage>();
+    PvtStage* stage = hnd()->asA<PvtStage>();
 
     // Load all content into a document.
     DocumentPtr doc = createDocument();
@@ -772,7 +716,9 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
     // when node instances are loaded later.
     for (const NodeDefPtr& nodedef : doc->getNodeDefs())
     {
-        if (!stage->findChildByName(RtToken(nodedef->getName())))
+        PvtPath path(stage->getPath());
+        path.push(RtToken(nodedef->getName()));
+        if (!stage->getPrimAtPath(path))
         {
             readNodeDef(nodedef, stage);
         }
@@ -781,29 +727,32 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
     // Second, load all other elements.
     for (const ElementPtr& elem : doc->getChildren())
     {
-        if (elem->isA<NodeDef>() || stage->findChildByName(RtToken(elem->getName())))
+        PvtPath path(stage->getPath());
+        path.push(RtToken(elem->getName()));
+
+        if (elem->isA<NodeDef>() || stage->getPrimAtPath(path))
         {
             continue;
         }
 
         if (elem->isA<Node>())
         {
-            readNode(elem->asA<Node>(), stage, stage);
+            readNode(elem->asA<Node>(), stage->getRootPrim(), stage);
         }
         else if (elem->isA<NodeGraph>())
         {
-            readNodeGraph(elem->asA<NodeGraph>(), stage, stage);
+            readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage);
         }
         else
         {
-            readUnknown(elem, stage);
+            readGenericPrim(elem, stage->getRootPrim(), stage);
         }
     }
 }
 
 void RtFileIo::write(const FilePath& documentPath, const RtWriteOptions* options)
 {
-    PvtStage* stage = data()->asA<PvtStage>();
+    PvtStage* stage = hnd()->asA<PvtStage>();
 
     DocumentPtr document = createDocument(); 
     writeDocument(document, stage, options);
@@ -818,7 +767,7 @@ void RtFileIo::write(const FilePath& documentPath, const RtWriteOptions* options
 
 void RtFileIo::write(std::ostream& stream, const RtWriteOptions* options)
 {
-    PvtStage* stage = data()->asA<PvtStage>();
+    PvtStage* stage = hnd()->asA<PvtStage>();
 
     DocumentPtr document = createDocument();
     writeDocument(document, stage, options);

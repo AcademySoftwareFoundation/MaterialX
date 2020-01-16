@@ -14,246 +14,100 @@
 namespace MaterialX
 {
 
-namespace
+RtInput::RtInput(const RtObject& obj) :
+    RtAttribute(obj)
 {
-    static const RtPortVec EMPTY_PORT_VEC;
-}
-
-RtPort::RtPort() :
-    _data(nullptr),
-    _index(INVALID_INDEX)
-{
-}
-
-RtPort::RtPort(const RtObject& node, const RtObject& portdef) :
-    _data(nullptr),
-    _index(INVALID_INDEX)
-{
-    if (node.hasApi(RtApiType::NODE) && portdef.hasApi(RtApiType::PORTDEF))
+    if (isValid() && !(isInput() && isConnectable()))
     {
-        _data = PvtObject::data(node);
-        PvtNode* n = _data->asA<PvtNode>();
-        RtPortDef pd(portdef);
-        _index = n->nodeDef()->findPortIndex(pd.getName());
+        throw ExceptionRuntimeError("Given object is not a connectable input attribute");
     }
 }
 
-RtPort::RtPort(PvtDataHandle data, size_t index) :
-    _data(data),
-    _index(index)
+RtApiType RtInput::getApiType() const
 {
+    return RtApiType::INPUT;
 }
 
-bool RtPort::isValid() const
+bool RtInput::isUniform() const
 {
-    if (_data)
+    return hnd()->asA<PvtAttribute>()->isUniform();
+}
+
+bool RtInput::isConnected() const
+{
+    return hnd()->asA<PvtAttribute>()->isConnected();
+}
+
+void RtInput::connect(RtOutput& source)
+{
+    RtNode::connect(source, *this);
+}
+
+void RtInput::disconnect(RtOutput& source)
+{
+    RtNode::disconnect(source, *this);
+}
+
+void RtInput::clearConnections()
+{
+    return hnd()->asA<PvtAttribute>()->clearConnections();
+}
+
+RtObject RtInput::getConnection() const
+{
+    PvtAttribute* attr = hnd()->asA<PvtAttribute>()->getConnection();
+    return attr ? attr->obj() : RtObject();
+}
+
+
+RtOutput::RtOutput(const RtObject& obj) :
+    RtAttribute(obj)
+{
+    if (isValid() && !(isOutput() && isConnectable()))
     {
-        PvtNode* node = _data->asA<PvtNode>();
-        return node->nodeDef()->getPort(_index) != nullptr;
+        throw ExceptionRuntimeError("Given object is not a connectable output attribute");
     }
-    return false;
 }
 
-const RtToken& RtPort::getName() const
+RtApiType RtOutput::getApiType() const
 {
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->nodeDef()->getPort(_index)->getName();
+    return RtApiType::OUTPUT;
 }
 
-const RtToken& RtPort::getType() const
+bool RtOutput::isConnected() const
 {
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->nodeDef()->getPort(_index)->getType();
+    return hnd()->asA<PvtAttribute>()->isConnected();
 }
 
-RtObject RtPort::getNode() const
+void RtOutput::connect(RtInput& dest)
 {
-    return PvtObject::object(_data);
+    RtNode::connect(*this, dest);
 }
 
-int32_t RtPort::getFlags() const
+void RtOutput::disconnect(RtInput& dest)
 {
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->nodeDef()->getPort(_index)->getFlags();
+    RtNode::disconnect(*this, dest);
 }
 
-bool RtPort::isInput() const
+void RtOutput::clearConnections()
 {
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->nodeDef()->getPort(_index)->isInput();
+    return hnd()->asA<PvtAttribute>()->clearConnections();
 }
 
-bool RtPort::isOutput() const
+RtConnectionIterator RtOutput::getConnections() const
 {
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->nodeDef()->getPort(_index)->isOutput();
-}
-
-bool RtPort::isConnectable() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->nodeDef()->getPort(_index)->isConnectable();
-}
-
-bool RtPort::isSocket() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->getNodeName() == PvtNodeGraph::SOCKETS_NODE_NAME;
-}
-
-const RtValue& RtPort::getValue() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->_ports[_index].value;
-}
-
-RtValue& RtPort::getValue()
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->_ports[_index].value;
-}
-
-void RtPort::setValue(const RtValue& v)
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    node->_ports[_index].value = v;
-}
-
-string RtPort::getValueString() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    string dest;
-    RtValue::toString(getType(), node->_ports[_index].value, dest);
-    return dest;
-}
-
-void RtPort::setValueString(const string& v)
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    RtValue::fromString(getType(), v, node->_ports[_index].value);
-}
-
-RtAttribute* RtPort::addAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->addPortAttribute(_index, name, type, flags);
-}
-
-void RtPort::removeAttribute(const RtToken& name)
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->removePortAttribute(_index, name);
-}
-
-const RtAttribute* RtPort::getAttribute(const RtToken& name) const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->getPortAttribute(_index, name);
-}
-
-RtAttribute* RtPort::getAttribute(const RtToken& name)
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->getPortAttribute(_index, name);
-}
-
-const RtToken& RtPort::getColorSpace() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->getPortColorSpace(_index);
-}
-
-void RtPort::setColorSpace(const RtToken& colorspace)
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    node->setPortColorSpace(_index, colorspace);
-}
-
-const RtToken& RtPort::getUnit() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->getPortUnit(_index);
-}
-
-void RtPort::setUnit(const RtToken& unit)
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    node->setPortUnit(_index, unit);
-}
-
-bool RtPort::isConnected() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return !node->_ports[_index].connections.empty();
-}
-
-bool RtPort::canConnectTo(const RtPort& other) const
-{
-    const PvtNode* node = _data->asA<PvtNode>();
-    const PvtPortDef* port = node->nodeDef()->getPort(_index);
-
-    const PvtNode* otherNode = other.data()->asA<PvtNode>();
-    const PvtPortDef* otherPort = otherNode->nodeDef()->getPort(other._index);
-
-    return node != otherNode && port->canConnectTo(otherPort);
-}
-
-void RtPort::connectTo(const RtPort& dest)
-{
-    PvtNode::connect(*this, dest);
-}
-
-void RtPort::disconnectFrom(const RtPort& dest)
-{
-    PvtNode::disconnect(*this, dest);
-}
-
-RtPort RtPort::getSourcePort() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    const RtPortVec& connections = node->_ports[_index].connections;
-    return connections.size() ? connections[0] : RtPort();
-}
-
-size_t RtPort::numDestinationPorts() const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    return node->_ports[_index].connections.size();
-}
-
-RtPort RtPort::getDestinationPort(size_t index) const
-{
-    PvtNode* node = _data->asA<PvtNode>();
-    RtPortVec& connections = node->_ports[_index].connections;
-    return index < connections.size() ? connections[index] : RtPort();
-}
-
-RtGraphIterator RtPort::traverseUpstream(RtTraversalFilter filter) const
-{
-    return RtGraphIterator(*this, filter);
+    return hnd()->asA<PvtAttribute>()->getConnections();
 }
 
 
 RtNode::RtNode(const RtObject& obj) :
-    RtElement(obj)
+    RtPrim(obj)
 {
 }
 
-RtObject RtNode::createNew(RtObject parent, RtObject nodedef, const RtToken& name)
+const RtToken& RtNode::typeName()
 {
-    if (!(parent.hasApi(RtApiType::STAGE) || parent.hasApi(RtApiType::NODEGRAPH)))
-    {
-        throw ExceptionRuntimeError("Parent object must be a stage or a nodegraph");
-    }
-
-    if (!nodedef.hasApi(RtApiType::NODEDEF))
-    {
-        throw ExceptionRuntimeError("Given nodedef object is not a valid nodedef");
-    }
-
-    PvtElement* parentElem = PvtObject::ptr<PvtElement>(parent);
-    PvtDataHandle data = PvtNode::createNew(parentElem, PvtObject::data(nodedef), name);
-    return PvtObject::object(data);
+    return PvtNode::typeName();
 }
 
 RtApiType RtNode::getApiType() const
@@ -263,67 +117,21 @@ RtApiType RtNode::getApiType() const
 
 RtObject RtNode::getNodeDef() const
 {
-    return PvtObject::object(data()->asA<PvtNode>()->getNodeDef());
+    return hnd()->asA<PvtNode>()->getNodeDef()->obj();
 }
 
-const RtToken& RtNode::getNodeName() const
+void RtNode::connect(RtOutput& source, RtInput& dest)
 {
-    return data()->asA<PvtNode>()->getNodeName();
+    PvtAttribute* sourceAttr = PvtObject::ptr<PvtAttribute>(source.getObject());
+    PvtAttribute* destAttr = PvtObject::ptr<PvtAttribute>(dest.getObject());
+    PvtAttribute::connect(sourceAttr, destAttr);
 }
 
-size_t RtNode::numPorts() const
+void RtNode::disconnect(RtOutput& source, RtInput& dest)
 {
-    return data()->asA<PvtNode>()->numPorts();
-}
-
-size_t RtNode::numOutputs() const
-{
-    return data()->asA<PvtNode>()->numOutputs();
-}
-
-size_t RtNode::numInputs() const
-{
-    return numPorts() - numOutputs();
-}
-
-RtPort RtNode::getPort(size_t index) const
-{
-    return data()->asA<PvtNode>()->getPort(index);
-}
-
-size_t RtNode::getOutputsOffset() const
-{
-    return data()->asA<PvtNode>()->getOutputsOffset();
-}
-
-size_t RtNode::getInputsOffset() const
-{
-    return data()->asA<PvtNode>()->getInputsOffset();
-}
-
-RtPort RtNode::findPort(const RtToken& name) const
-{
-    return data()->asA<PvtNode>()->findPort(name);
-}
-
-RtPort RtNode::getPort(RtObject portdef) const
-{
-    if (portdef.hasApi(RtApiType::PORTDEF))
-    {
-        PvtPortDef* pd = PvtObject::ptr<PvtPortDef>(portdef);
-        return data()->asA<PvtNode>()->findPort(pd->getName());
-    }
-    return RtPort();
-}
-
-void RtNode::connect(const RtPort& source, const RtPort& dest)
-{
-    PvtNode::connect(source, dest);
-}
-
-void RtNode::disconnect(const RtPort& source, const RtPort& dest)
-{
-    PvtNode::disconnect(source, dest);
+    PvtAttribute* sourceAttr = PvtObject::ptr<PvtAttribute>(source.getObject());
+    PvtAttribute* destAttr = PvtObject::ptr<PvtAttribute>(dest.getObject());
+    PvtAttribute::disconnect(sourceAttr, destAttr);
 }
 
 }

@@ -26,29 +26,28 @@ using PvtDataHandle = std::shared_ptr<PvtObject>;
 /// Type identifiers for concrete runtime objects.
 enum class RtObjType
 {
-    INVALID,
-    PORTDEF,
+    NONE,
+    PRIM,
+    ATTRIBUTE,
     NODEDEF,
     NODE,
     NODEGRAPH,
     STAGE,
-    UNKNOWN,
     NUM_TYPES
 };
 
 /// Type identifiers for API's attachable to runtime objects.
 enum class RtApiType
 {
-    ELEMENT,
-    PORTDEF,
+    PRIM,
+    ATTRIBUTE,
+    INPUT,
+    OUTPUT,
     NODEDEF,
     NODE,
     NODEGRAPH,
     STAGE,
-    CORE_IO,
-    STAGE_ITERATOR,
-    TREE_ITERATOR,
-    GRAPH_ITERATOR,
+    FILE_IO,
     NUM_TYPES
 };
 
@@ -66,8 +65,11 @@ public:
     /// Destructor.
     ~RtObject();
 
-    /// Return the type for this object.
+    /// Return the type id for this object.
     RtObjType getObjType() const;
+
+    /// Return the type name for this object.
+    const RtToken& getObjTypeName() const;
 
     /// Query if the given API type is supported by this object.
     bool hasApi(RtApiType type) const;
@@ -91,29 +93,27 @@ public:
     /// Return true if the objects are equal.
     bool operator==(const RtObject& other) const
     {
-        return _data == other._data;
+        return _hnd == other._hnd;
     }
-
-    /// A null object.
-    static const RtObject NULL_OBJECT;
 
 private:
     /// Construct from a data handle.
     RtObject(PvtDataHandle data);
 
     /// Return the data handle.
-    const PvtDataHandle& data() const
+    const PvtDataHandle& hnd() const
     {
-        return _data;
+        return _hnd;
     }
 
-    /// Internal data.
-    PvtDataHandle _data;
+    /// Internal data handle.
+    PvtDataHandle _hnd;
+
     friend class PvtObject;
     friend class RtApiBase;
 };
 
-/// @class RtObject
+/// @class RtApiBase
 /// Base class for all API supported on objects.
 class RtApiBase
 {
@@ -138,7 +138,7 @@ public:
     void setObject(const RtObject& obj);
 
     /// Return the object attached to this API.
-    RtObject getObject();
+    RtObject getObject() const;
 
     /// Return true if the API object is valid.
     bool isValid() const;
@@ -159,13 +159,10 @@ public:
     /// Return true if the attached objects are equal.
     bool operator==(const RtApiBase& other) const
     {
-        return _data == other._data;
+        return _hnd == other._hnd;
     }
 
 protected:
-    /// Default constructor.
-    RtApiBase();
-
     /// Construct from a data handle.
     RtApiBase(PvtDataHandle data);
 
@@ -175,18 +172,18 @@ protected:
     /// Copy constructor.
     RtApiBase(const RtApiBase& other);
 
-    /// Set data for this API.
-    void setData(PvtDataHandle data);
+    /// Set data handle for this API.
+    void setHnd(PvtDataHandle hnd);
 
     /// Return data set for this API.
-    PvtDataHandle& data() { return _data; }
+    PvtDataHandle& hnd() { return _hnd; }
 
     /// Return data set for this API.
-    const PvtDataHandle& data() const { return _data; }
+    const PvtDataHandle& hnd() const { return _hnd; }
 
 private:
-    /// Internal data attached to the API.
-    PvtDataHandle _data;
+    /// Handle for object attached to the API.
+    PvtDataHandle _hnd;
 };
 
 }

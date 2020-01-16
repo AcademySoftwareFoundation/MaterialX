@@ -10,7 +10,7 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtElement.h>
+#include <MaterialXRuntime/RtPrim.h>
 
 namespace MaterialX
 {
@@ -18,62 +18,29 @@ namespace MaterialX
 /// @class RtNodeDef
 /// API for accessing a node definition. This API can only be
 /// attached to objects of type NODEDEF.
-class RtNodeDef : public RtElement
+class RtNodeDef : public RtPrim
 {
 public:
-    /// Constructor attaching and object to the API.
+    /// Constructor attaching an object to the API.
     RtNodeDef(const RtObject& obj);
 
-    /// Create a new nodedef in a stage.
-    static RtObject createNew(RtObject stage, const RtToken& name, const RtToken& nodeName);
+    /// Return the type name for nodedefs.
+    static const RtToken& typeName();
 
     /// Return the type for this API.
     RtApiType getApiType() const override;
 
-    /// Return the node name.
-    const RtToken& getNodeName() const;
+    /// Set the node type name.
+    void setNodeTypeName(const RtToken& nodeTypeName);
 
-    /// Add a port to the definition
-    void addPort(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+    /// Return the node type name.
+    const RtToken& getNodeTypeName() const;
 
-    /// Remove a port from the definition.
-    void removePort(RtObject portdef);
+    /// Add an attribute to the definition.
+    RtObject createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
-    /// Return the port count.
-    size_t numPorts() const;
-
-    /// Return the output count.
-    size_t numOutputs() const;
-
-    /// Return a port definition by index,
-    /// or a null object if no such port exists.
-    RtObject getPort(size_t index) const;
-
-    /// Get the index offset for outputs.
-    /// This index points to the first output.
-    size_t getOutputsOffset() const;
-
-    /// Get the index offset for inputs.
-    /// This index points to the first input.
-    size_t getInputsOffset() const;
-
-    /// Get the i:th output port definition,
-    /// or a null object if no such port exists.
-    RtObject getOutput(size_t index) const
-    {
-        return getPort(getOutputsOffset() + index);
-    }
-
-    /// Get the i:th input port definition,
-    /// or a null object if no such port exists.
-    RtObject getInput(size_t index) const
-    {
-        return getPort(getInputsOffset() + index);
-    }
-
-    /// Find a port definition by name.
-    /// Return a null object if no such port is found.
-    RtObject findPort(const RtToken& name) const;
+    /// Remove an attribute from the definition.
+    void removeAttribute(const RtToken& name);
 };
 
 }

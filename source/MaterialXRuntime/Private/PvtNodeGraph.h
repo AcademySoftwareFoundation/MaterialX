@@ -6,7 +6,6 @@
 #ifndef MATERIALX_PVTNODEGRAPH_H
 #define MATERIALX_PVTNODEGRAPH_H
 
-#include <MaterialXRuntime/Private/PvtElement.h>
 #include <MaterialXRuntime/Private/PvtNode.h>
 
 #include <MaterialXRuntime/RtObject.h>
@@ -20,77 +19,41 @@ namespace MaterialX
 class PvtNodeGraph : public PvtNode
 {
 public:
-    static PvtDataHandle createNew(PvtElement* parent, const RtToken& name);
+    static RtObjType typeId() { return _typeId; }
 
-    void addNode(PvtDataHandle node);
+    static const RtToken& typeName() { return _typeName; }
 
-    void removeNode(const RtToken& name)
+    static PvtDataHandle createNew(const RtToken& name, PvtPrim* parent);
+
+    RtObjType getObjType() const override
     {
-        removeChild(name);
+        return _typeId;
     }
 
-    void removePort(const RtToken& name);
-
-    RtPort getInputSocket(size_t index) const
+    const RtToken& getObjTypeName() const override
     {
-        const PvtPortDef* portdef = inputSocketsNodeDef()->getPort(index);
-        return portdef ? RtPort(_inputSockets, index) : RtPort();
+        return _typeName;
     }
 
-    RtPort getOutputSocket(size_t index) const
-    {
-        const PvtPortDef* portdef = outputSocketsNodeDef()->getPort(index);
-        return portdef ? RtPort(_outputSockets, index) : RtPort();
-    }
+    PvtAttribute* createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0) override;
 
-    RtPort findInputSocket(const RtToken& name) const
+    PvtAttribute* getSocket(const RtToken& name) const
     {
-        const size_t index = inputSocketsNodeDef()->findPortIndex(name);
-        return index != INVALID_INDEX ? RtPort(_inputSockets, index) : RtPort();
-    }
-
-    RtPort findOutputSocket(const RtToken& name) const
-    {
-        const size_t index = outputSocketsNodeDef()->findPortIndex(name);
-        return index != INVALID_INDEX ? RtPort(_outputSockets, index) : RtPort();
-    }
-
-    PvtNode* getNode(size_t index) const
-    {
-        return (PvtNode*)getChild(index).get();
-    }
-
-    PvtNode* findNode(const RtToken& name) const
-    {
-        return (PvtNode*)findChildByName(name).get();
+        auto it = _socketMap.find(name);
+        return it != _socketMap.end() ? it->second->asA<PvtAttribute>() : nullptr;
     }
 
     string asStringDot() const;
 
-    // Token constants.
-    static const RtToken UNPUBLISHED_NODEDEF;
-    static const RtToken INPUT_SOCKETS_NODEDEF;
-    static const RtToken OUTPUT_SOCKETS_NODEDEF;
-    static const RtToken INPUT_SOCKETS;
-    static const RtToken OUTPUT_SOCKETS;
-    static const RtToken SOCKETS_NODE_NAME;
+private:
+    static const RtObjType _typeId;
+    static const RtToken _typeName;
 
 protected:
-    PvtNodeGraph(const RtToken& name);
+    PvtNodeGraph(const RtToken& name, PvtPrim* parent);
 
-    void addPort(PvtDataHandle portdef);
-
-    PvtNodeDef* inputSocketsNodeDef() const { return (PvtNodeDef*)_inputSocketsNodeDef.get(); }
-    PvtNode* inputSockets() const { return (PvtNode*)_inputSockets.get(); }
-
-    PvtNodeDef* outputSocketsNodeDef() const { return (PvtNodeDef*)_outputSocketsNodeDef.get(); }
-    PvtNode* outputSockets() const { return (PvtNode*)_outputSockets.get(); }
-
-    PvtDataHandle _inputSocketsNodeDef;
-    PvtDataHandle _inputSockets;
-    PvtDataHandle _outputSocketsNodeDef;
-    PvtDataHandle _outputSockets;
-    friend class PvtPortDef;
+    PvtDataHandleMap _socketMap;
+    PvtDataHandleVec _socketOrder;
 };
 
 }

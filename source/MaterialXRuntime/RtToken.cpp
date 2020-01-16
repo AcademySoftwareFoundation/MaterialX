@@ -12,7 +12,7 @@
 namespace MaterialX
 {
 
-const RtToken EMPTY_TOKEN("");
+const RtToken EMPTY_TOKEN;
 
 struct RtTokenRegistry
 {
@@ -60,6 +60,8 @@ struct RtTokenRegistry
     std::unordered_map<size_t, const Entry*> _table;
     std::mutex _mutex;
 };
+
+const RtToken::Entry RtToken::NULL_ENTRY("", 0);
 
 RtToken::RtToken(const char* s) :
     _entry(RtTokenRegistry::get().getEntryRaw(s))

@@ -7,62 +7,71 @@
 #define MATERIALX_PVTPATH_H
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtToken.h>
 
-#include <MaterialXRuntime/Private/PvtElement.h>
+#include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
 
+class PvtPathItem;
+
+/// Class representing a unique path to an object in the stage.
+///
+/// TODO: Optimize this class. Use interning, where each element
+/// in a path is a unique internal node in a tree and the path
+/// class wraps an pointer to these nodes.
+///
 class PvtPath
 {
 public:
     // Empty constructor.
-    PvtPath() :
-        _root(nullptr)
+    PvtPath()
     {
     }
 
-    // Construct from a data handle.
-    PvtPath(PvtDataHandle obj) :
-        _root(nullptr)
+    // Construct from an item.
+    PvtPath(const PvtPathItem* obj)
     {
         setObject(obj);
     }
 
+    // Construct from a string path.
+    PvtPath(const string& path)
+    {
+        const StringVec elementNames = splitString(path, PvtPath::SEPARATOR);
+        _elements.resize(elementNames.size() + 1);
+        _elements[0] = PvtPath::ROOT_NAME;
+        for (size_t i = 0; i < elementNames.size(); ++i)
+        {
+            _elements[i+1] = RtToken(elementNames[i]);
+        }
+    }
+
     // Copy constructor.
     PvtPath(const PvtPath& other) :
-        _root(other._root),
-        _path(other._path)
+        _elements(other._elements)
     {
     }
 
     // Assignment operator.
     PvtPath& operator=(const PvtPath& other)
     {
-        _root = other._root;
-        _path = other._path;
+        _elements = other._elements;
         return *this;
     }
 
-    bool isValid() const
+    void setObject(const PvtPathItem* obj);
+
+    const RtToken& getName() const
     {
-        return getObject() != nullptr;
+        return _elements.size() ? _elements.back() : EMPTY_TOKEN;
     }
-
-    bool isRoot() const
-    {
-        return _path.empty();
-    }
-
-    PvtDataHandle getObject() const;
-
-    void setObject(PvtDataHandle obj);
 
     string asString() const
     {
         string str;
-        for (const RtToken& elem : _path)
+        for (const RtToken& elem : _elements)
         {
             str += SEPARATOR + elem.str();
         }
@@ -71,27 +80,44 @@ public:
 
     void push(const RtToken& childName)
     {
-        _path.push_back(childName);
+        _elements.push_back(childName);
     }
 
     void pop()
     {
-        if (!_path.empty())
+        if (!_elements.empty())
         {
-            _path.pop_back();
+            _elements.pop_back();
         }
+    }
+
+    size_t size() const
+    {
+        return _elements.size();
+    }
+
+    bool empty() const
+    {
+        return _elements.empty();
+    }
+
+    const RtToken& operator[](size_t index) const
+    {
+        return _elements[index];
     }
 
     bool operator==(const PvtPath& other) const
     {
-        return _root == other._root && _path == other._path;
+        return _elements == other._elements;
     }
 
     static const string SEPARATOR;
+    static const RtToken ROOT_NAME;
 
 private:
-    PvtDataHandle _root;
-    vector<RtToken> _path;
+    vector<RtToken> _elements;
+
+    class PvtStage;
 };
 
 }

@@ -13,17 +13,24 @@ namespace
 {
     static const std::set<RtObjType> API_TO_OBJ_RTTI[static_cast<int>(RtApiType::NUM_TYPES)] =
     {
-        // RtApiType::ELEMENT
+        // RtApiType::PRIM
         {
-            RtObjType::PORTDEF,
+            RtObjType::PRIM,
             RtObjType::NODEDEF,
             RtObjType::NODE,
-            RtObjType::NODEGRAPH,
-            RtObjType::STAGE
+            RtObjType::NODEGRAPH
         },
-        // RtApiType::PORTDEF
+        // RtApiType::ATTRIBUTE
         {
-            RtObjType::PORTDEF
+            RtObjType::ATTRIBUTE
+        },
+        // RtApiType::INPUT
+        {
+            RtObjType::ATTRIBUTE
+        },
+        // RtApiType::OUTPUT
+        {
+            RtObjType::ATTRIBUTE
         },
         // RtApiType::NODEDEF
         {
@@ -31,7 +38,8 @@ namespace
         },
         // RtApiType::NODE
         {
-            RtObjType::NODE
+            RtObjType::NODE,
+            RtObjType::NODEGRAPH
         },
         // RtApiType::NODEGRAPH
         {
@@ -41,42 +49,27 @@ namespace
         {
             RtObjType::STAGE
         },
-        // RtApiType::CORE_IO
+        // RtApiType::FILE_IO
         {
             RtObjType::STAGE
-        },
-        // RtApiType::STAGE_ITERATOR
-        {
-            RtObjType::STAGE
-        },
-        // RtApiType::TREE_ITERATOR
-        {
-            RtObjType::PORTDEF,
-            RtObjType::NODEDEF,
-            RtObjType::NODE,
-            RtObjType::NODEGRAPH,
-            RtObjType::STAGE
-        },
-        // RtApiType::GRAPH_ITERATOR
-        {
         }
     };
+
+    static RtToken NONE_TYPE_NAME("none");
 }
 
-const RtObject RtObject::NULL_OBJECT(nullptr);
-
 RtObject::RtObject() :
-    _data(PvtDataHandle())
+    _hnd(nullptr)
 {
 }
 
 RtObject::RtObject(const RtObject& other) :
-    _data(other._data)
+    _hnd(other._hnd)
 {
 }
 
 RtObject::RtObject(PvtDataHandle data) :
-    _data(data)
+    _hnd(data)
 {
 }
 
@@ -86,37 +79,37 @@ RtObject::~RtObject()
 
 bool RtObject::isValid() const
 {
-    return _data && _data->getObjType() != RtObjType::INVALID;
+    return _hnd != nullptr;
 }
 
 RtObjType RtObject::getObjType() const
 {
-    return _data ? _data->getObjType() : RtObjType::INVALID;
+    return _hnd ? _hnd->getObjType() : RtObjType::NONE;
+}
+
+const RtToken& RtObject::getObjTypeName() const
+{
+    return _hnd ? _hnd->getObjTypeName() : NONE_TYPE_NAME;
 }
 
 bool RtObject::hasApi(RtApiType type) const
 {
-    return _data && _data->hasApi(type);
+    return _hnd && _hnd->hasApi(type);
 }
 
-
-RtApiBase::RtApiBase() :
-    _data(PvtDataHandle())
-{
-}
 
 RtApiBase::RtApiBase(PvtDataHandle data) :
-    _data(data)
+    _hnd(data)
 {
 }
 
 RtApiBase::RtApiBase(const RtObject& obj) :
-    _data(obj.data())
+    _hnd(obj.hnd())
 {
 }
 
 RtApiBase::RtApiBase(const RtApiBase& other) :
-    _data(other.data())
+    _hnd(other.hnd())
 {
 }
 
@@ -127,26 +120,26 @@ bool RtApiBase::isSupported(RtObjType type) const
 
 void RtApiBase::setObject(const RtObject& obj)
 {
-    setData(obj.data());
+    setHnd(obj.hnd());
 }
 
-RtObject RtApiBase::getObject()
+RtObject RtApiBase::getObject() const
 {
-    return RtObject(_data);
+    return RtObject(_hnd);
 }
 
 bool RtApiBase::isValid() const
 {
-    return _data && isSupported(_data->getObjType());
+    return _hnd && isSupported(_hnd->getObjType());
 }
 
-void RtApiBase::setData(PvtDataHandle data)
+void RtApiBase::setHnd(PvtDataHandle hnd)
 {
-    if (data && !isSupported(data->getObjType()))
+    if (hnd && !isSupported(hnd->getObjType()))
     {
         throw ExceptionRuntimeError("Given object is not supported by this API");
     }
-    _data = data;
+    _hnd = hnd;
 }
 
 }

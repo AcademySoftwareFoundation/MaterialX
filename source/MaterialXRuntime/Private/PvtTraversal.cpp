@@ -4,18 +4,19 @@
 //
 
 #include <MaterialXRuntime/Private/PvtTraversal.h>
-#include <MaterialXRuntime/Private/PvtElement.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
+/*
 PvtStageIterator::PvtStageIterator() :
     _current(nullptr),
     _filter(nullptr)
 {
 }
 
-PvtStageIterator::PvtStageIterator(PvtDataHandle root, RtTraversalFilter filter) :
+PvtStageIterator::PvtStageIterator(PvtDataHandle root, RtObjectPredicate filter) :
     _current(nullptr),
     _filter(filter)
 {
@@ -84,113 +85,12 @@ PvtStageIterator& PvtStageIterator::operator++()
     }
 }
 
-
-PvtTreeIterator::PvtTreeIterator() :
-    _current(nullptr),
-    _filter(nullptr)
-{
-}
-
-PvtTreeIterator::PvtTreeIterator(PvtDataHandle root, RtTraversalFilter filter) :
-    _current(nullptr),
-    _filter(filter)
-{
-    if (root->hasApi(RtApiType::ELEMENT))
-    {
-        // Initialize the stack and start iteration to the first element.
-        PvtElement* elem = root->asA<PvtElement>();
-        _stack.push_back(std::make_tuple(elem, -1, -1));
-        ++*this;
-    }
-}
-
-PvtTreeIterator::PvtTreeIterator(const PvtTreeIterator& other) :
-    _current(other._current),
-    _stack(other._stack),
-    _filter(other._filter)
-{
-}
-
-PvtTreeIterator& PvtTreeIterator::operator++()
-{
-    while (true)
-    {
-        if (_stack.empty())
-        {
-            // Traversal is complete.
-            abort();
-            return *this;
-        }
-
-        if (_current && 
-            _current->hasApi(RtApiType::ELEMENT) &&
-            !_current->hasApi(RtApiType::STAGE))
-        {
-            PvtElement* elem = _current->asA<PvtElement>();
-            if (elem->numChildren())
-            {
-                _stack.push_back(std::make_tuple(elem, 0, -1));
-                _current = elem->getChild(0);
-                if (!_filter || _filter(PvtObject::object(_current)))
-                {
-                    return *this;
-                }
-            }
-        }
-
-        StackFrame& frame = _stack.back();
-        PvtElement* elem = std::get<0>(frame);
-        int& elemIndex = std::get<1>(frame);
-        int& stageIndex = std::get<2>(frame);
-
-        bool filterUsed = false;
-
-        if (elemIndex + 1 < int(elem->getChildren().size()))
-        {
-            _current = elem->getChildren()[++elemIndex];
-            if (!_filter || _filter(PvtObject::object(_current)))
-            {
-                return *this;
-            }
-            filterUsed = true;
-        }
-        else if (elem->hasApi(RtApiType::STAGE))
-        {
-            PvtStage* stage = elem->asA<PvtStage>();
-            if (stageIndex + 1 < int(stage->getReferencedStages().size()))
-            {
-                PvtStage* refStage = stage->getReferencedStages()[++stageIndex]->asA<PvtStage>();
-                if (refStage->numChildren())
-                {
-                    _stack.push_back(std::make_tuple(refStage, 0, stageIndex));
-                    _current = refStage->getChild(0);
-                    if (!_filter || _filter(PvtObject::object(_current)))
-                    {
-                        return *this;
-                    }
-                    filterUsed = true;
-                }
-            }
-        }
-
-        if (!filterUsed)
-        {
-            // We got here without the filter being used.
-            // So the current stack frame has been completed
-            // and we can unroll the stack to previous frame.
-            _stack.pop_back();
-        }
-    }
-}
-
-
-
 PvtGraphIterator::PvtGraphIterator() :
     _filter(nullptr)
 {
 }
 
-PvtGraphIterator::PvtGraphIterator(RtPort root, RtTraversalFilter filter) :
+PvtGraphIterator::PvtGraphIterator(RtPort root, RtObjectPredicate filter) :
     _filter(filter)
 {
     if (root.isOutput())
@@ -291,5 +191,6 @@ void PvtGraphIterator::returnPathDownstream(const RtPort& upstream)
     _current.first = RtPort();
     _current.second = RtPort();
 }
+*/
 
 }

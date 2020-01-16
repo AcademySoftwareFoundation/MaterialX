@@ -10,90 +10,84 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtValue.h>
+#include <MaterialXRuntime/RtPathItem.h>
 
 namespace MaterialX
 {
+
+class RtValue;
 
 /// @class RtAttrFlag
 /// Flags for tagging attributes.
 class RtAttrFlag
 {
 public:
-    /// Attribute is internal and hidden from UI or file output.
-    static const uint32_t INTERNAL = 0x00000001;
+    /// Attribute is an output.
+    static const uint32_t OUTPUT      = 0x00000001;
 
-    /// Attribute is not known or used by the runtime, but still
-    /// loaded in as it could be custom data used by clients.
-    /// Custom attributes are stored as interned strings (RtToken).
-    static const uint32_t CUSTOM = 0x00000002;
+    /// Attribute is connectable.
+    static const uint32_t CONNECTABLE = 0x00000002;
+
+    /// Attribute holds uniform values.
+    static const uint32_t UNIFORM     = 0x00000004;
+
+    /// Attribute is a nodegraph internal socket.
+    static const uint32_t SOCKET      = 0x00000008;
 };
 
 /// @class RtAttribute
-/// Class representing an attribute on an element. An attribute
-/// holds a name, a type and a value and is used to store data,
-/// or metadata, on an element. Any data that is not explicitly
-/// expressed by elements and sub-elements are stored as attributes.
-class RtAttribute
+/// API for accessing an attribute on a prim.
+class RtAttribute : public RtPathItem
 {
 public:
-    /// Get attribute name.
-    const RtToken& getName() const
-    {
-        return _name;
-    }
+    /// Constructor attaching an object to the API.
+    RtAttribute(const RtObject& obj);
 
-    /// Get attribute type.
-    const RtToken& getType() const
-    {
-        return _type;
-    }
+    /// Return the type for this API.
+    RtApiType getApiType() const override;
 
-    /// Get attribute value.
-    const RtValue& getValue() const
-    {
-        return _value;
-    }
+    /// Return the data type for this attribute.
+    const RtToken& getType() const;
 
-    /// Get attribute value.
-    RtValue& getValue()
-    {
-        return _value;
-    }
+    /// Return the default value for this attribute.
+    const RtValue& getValue() const;
 
-    /// Set attribute value.
-    void setValue(const RtValue& value)
-    {
-        _value = value;
-    }
+    /// Return the default value for this attribute.
+    RtValue& getValue();
+
+    /// Set a new default value on the attribute.
+    void setValue(const RtValue& v);
 
     /// Return a string representation for the value of this attribute.
     string getValueString() const;
 
-    /// Set attribute value from a string representation.
+    /// Set the attribute value from a string representation.
     void setValueString(const string& v);
 
-    /// Return the flags set for this attribute.
-    int32_t getFlags() const
-    {
-        return _flags;
-    }
+    /// Return the default color space for this attribute.
+    const RtToken& getColorSpace() const;
 
-    /// Return true if the given flag is set for this attribute.
-    bool hasFlag(uint32_t flag) const
-    {
-        return (_flags & flag) != 0;
-    }
+    /// Set the default color space for this attribute.
+    void setColorSpace(const RtToken& colorspace);
 
-private:
-    /// Private constructor.
-    RtAttribute(const RtToken& name, const RtToken& type, RtObject parent, uint32_t flags = 0);
+    /// Return the default unit for this attribute.
+    const RtToken& getUnit() const;
 
-    RtToken _name;
-    RtToken _type;
-    RtValue _value;
-    uint32_t _flags;
-    friend class PvtElement;
+    /// Set the default unit for this attribute.
+    void setUnit(const RtToken& unit);
+
+    /// Return true if this is an input attribute.
+    bool isInput() const;
+
+    /// Return true if this is an output attribute.
+    bool isOutput() const;
+
+    /// Return true if this attribute is connectable.
+    bool isConnectable() const;
+
+    /// Return true if this attribute is connectable
+    /// to the given other attribute.
+    bool isConnectable(const RtAttribute& other) const;
 };
 
 }

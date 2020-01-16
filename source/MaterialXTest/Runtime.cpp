@@ -15,7 +15,6 @@
 
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtStage.h>
-#include <MaterialXRuntime/RtPortDef.h>
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 #include <MaterialXRuntime/RtNode.h>
@@ -100,14 +99,15 @@ TEST_CASE("Runtime: Values", "[runtime]")
 
     // Test creating large values.
     // An stage is needed to take ownership of allocated data.
-    mx::RtObject stageObj = mx::RtStage::createNew("stage1");
+    mx::RtStage stage = mx::RtStage::createNew("stage1");
+    mx::RtObject rootPrim = stage.getRootPrim();
 
     const std::string teststring("MaterialX");
-    mx::RtValue str(teststring, stageObj);
+    mx::RtValue str(teststring, rootPrim);
     REQUIRE(str.asString() == teststring);
 
     const mx::Matrix33 testmatrix(mx::Matrix33::IDENTITY);
-    mx::RtValue mtx33(testmatrix, stageObj);
+    mx::RtValue mtx33(testmatrix, rootPrim);
     REQUIRE(mtx33.asMatrix33().isEquivalent(testmatrix, 1e-6f));
     mtx33.asMatrix33()[0][0] = 42.0f;
     REQUIRE(!mtx33.asMatrix33().isEquivalent(testmatrix, 1e-6f));
@@ -115,7 +115,7 @@ TEST_CASE("Runtime: Values", "[runtime]")
     // Test unmarshalling values from string representations.
     // For small values (<=16byts) the same value instance can be reused
     // For multiple value types.
-    mx::RtValue value = mx::RtValue::createNew(mx::RtType::BOOLEAN, stageObj);
+    mx::RtValue value = mx::RtValue::createNew(mx::RtType::BOOLEAN, rootPrim);
     mx::RtValue::fromString(mx::RtType::BOOLEAN, "true", value);
     REQUIRE(value.asBool());
     mx::RtValue::fromString(mx::RtType::BOOLEAN, "false", value);
@@ -133,13 +133,13 @@ TEST_CASE("Runtime: Values", "[runtime]")
     mx::RtValue::fromString(mx::RtType::TOKEN, "materialx", value);
     REQUIRE(value.asToken() == mx::RtToken("materialx"));
     // For large values (>16bytes) we need to allocate a new value instance per type
-    mx::RtValue matrix33Value = mx::RtValue::createNew(mx::RtType::MATRIX33, stageObj);
+    mx::RtValue matrix33Value = mx::RtValue::createNew(mx::RtType::MATRIX33, rootPrim);
     mx::RtValue::fromString(mx::RtType::MATRIX33, "1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0", matrix33Value);
     REQUIRE(matrix33Value.asMatrix33() == mx::Matrix33::IDENTITY);
-    mx::RtValue matrix44Value = mx::RtValue::createNew(mx::RtType::MATRIX44, stageObj);
+    mx::RtValue matrix44Value = mx::RtValue::createNew(mx::RtType::MATRIX44, rootPrim);
     mx::RtValue::fromString(mx::RtType::MATRIX44, "1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0", matrix44Value);
     REQUIRE(matrix44Value.asMatrix44() == mx::Matrix44::IDENTITY);
-    mx::RtValue stringValue = mx::RtValue::createNew(mx::RtType::STRING, stageObj);
+    mx::RtValue stringValue = mx::RtValue::createNew(mx::RtType::STRING, rootPrim);
     mx::RtValue::fromString(mx::RtType::STRING, "materialx", stringValue);
     REQUIRE(stringValue.asString() == "materialx");
     REQUIRE_THROWS(mx::RtValue::fromString(mx::RtType::INTEGER, "true", value));
@@ -198,21 +198,22 @@ TEST_CASE("Runtime: Types", "[runtime]")
 
     // Test create/parse/copy values
     // An stage is needed to hold allocated data.
-    mx::RtObject stageObj = mx::RtStage::createNew("stage1");
+    mx::RtStage stage = mx::RtStage::createNew("stage1");
+    mx::RtObject rootPrim = stage.getRootPrim();
 
-    mx::RtValue fooValue = fooType->createValue(stageObj);
+    mx::RtValue fooValue = fooType->createValue(rootPrim);
     REQUIRE(fooValue.asInt() == 7);
     fooType->fromStringValue("bar", fooValue);
     REQUIRE(fooValue.asInt() == 42);
 
     const mx::RtTypeDef* stringType = mx::RtTypeDef::findType("string");
-    mx::RtValue stringValue1 = stringType->createValue(stageObj);
-    mx::RtValue stringValue2 = stringType->createValue(stageObj);
+    mx::RtValue stringValue1 = stringType->createValue(rootPrim);
+    mx::RtValue stringValue2 = stringType->createValue(rootPrim);
     stringValue1.asString() = "foobar";
     stringType->copyValue(stringValue1, stringValue2);
     REQUIRE(stringValue2.asString() == "foobar");
 
-    mx::RtValue intValue = integerType->createValue(stageObj);
+    mx::RtValue intValue = integerType->createValue(rootPrim);
     integerType->fromStringValue("12345", intValue);
     REQUIRE(intValue.asInt() == 12345);
 
@@ -240,7 +241,19 @@ TEST_CASE("Runtime: Types", "[runtime]")
     REQUIRE_THROWS(color4Type->getComponentName(7));
 }
 
-TEST_CASE("Runtime: Nodes", "[runtime]")
+TEST_CASE("Runtime: Paths", "[runtime]")
+{
+    mx::RtObject stageObj = mx::RtStage::createNew("root");
+    mx::RtStage stage(stageObj);
+
+    mx::RtPath empty;
+    REQUIRE(!stage.getPrimAtPath(empty).isValid());
+
+    mx::RtPath root("/");
+    REQUIRE(stage.getPrimAtPath(root).isValid());
+}
+
+TEST_CASE("Runtime: Prims", "[runtime]")
 {
     mx::RtObject stageObj = mx::RtStage::createNew("root");
     mx::RtStage stage(stageObj);
@@ -251,54 +264,88 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(stage);
     REQUIRE(!stage == false);
 
+    // Test creating a prim of each type
+    mx::RtObject nodedefObj = stage.createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    REQUIRE(nodedefObj.isValid());
+    REQUIRE(nodedefObj.getObjType() == mx::RtObjType::NODEDEF);
+    REQUIRE(nodedefObj.getObjTypeName() == mx::RtNodeDef::typeName());
+    REQUIRE(nodedefObj.hasApi(mx::RtApiType::NODEDEF));
+    REQUIRE(nodedefObj.hasApi(mx::RtApiType::PRIM));
+    mx::RtNodeDef nodeDef(nodedefObj);
+    nodeDef.setNodeTypeName("add");
+    REQUIRE(nodeDef.getNodeTypeName() == "add");
+
+    mx::RtObject nodeObj = stage.createPrim("/add1", mx::RtNode::typeName(), nodedefObj);
+    REQUIRE(nodeObj.isValid());
+    REQUIRE(nodeObj.getObjType() == mx::RtObjType::NODE);
+    REQUIRE(nodeObj.getObjTypeName() == mx::RtNode::typeName());
+    REQUIRE(nodeObj.hasApi(mx::RtApiType::NODE));
+    REQUIRE(nodeObj.hasApi(mx::RtApiType::PRIM));
+    mx::RtNode node(nodeObj);
+    REQUIRE(node.getPrimTypeName() == nodeDef.getNodeTypeName());
+
+    mx::RtObject graphObj = stage.createPrim("/graph1", mx::RtNodeGraph::typeName());
+    REQUIRE(graphObj.isValid());
+    REQUIRE(graphObj.getObjType() == mx::RtObjType::NODEGRAPH);
+    REQUIRE(graphObj.getObjTypeName() == mx::RtNodeGraph::typeName());
+    REQUIRE(graphObj.hasApi(mx::RtApiType::NODEGRAPH));
+    REQUIRE(graphObj.hasApi(mx::RtApiType::PRIM));
+
+    mx::RtObject fooObj = stage.createPrim("/graph1", "foo");
+    REQUIRE(fooObj.isValid());
+    REQUIRE(fooObj.getObjType() == mx::RtObjType::PRIM);
+    REQUIRE(fooObj.getObjTypeName() == mx::RtPrim::typeName());
+    REQUIRE(fooObj.hasApi(mx::RtApiType::PRIM));
+}
+
+TEST_CASE("Runtime: Nodes", "[runtime]")
+{
+    mx::RtStage stage = mx::RtStage::createNew("root");
+
     // Create a new nodedef object for defining an add node
-    mx::RtObject addDefObj = mx::RtNodeDef::createNew(stageObj, "ND_add_float", "add");
-    REQUIRE(addDefObj.isValid());
-    REQUIRE(addDefObj.hasApi(mx::RtApiType::NODEDEF));
+    mx::RtNodeDef nodedef = stage.createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    nodedef.setNodeTypeName("add");
 
-    // Attach the nodedef API to this object
-    mx::RtNodeDef addDef(addDefObj);
+    // Test adding metadata
+    mx::RtTypedValue* version = nodedef.addMetadata("version", "float");
+    version->getValue().asFloat() = 1.0f;
+    REQUIRE(version->getValue().asFloat() == 1.0);
 
-    // Add an attribute to the nodedef
-    mx::RtAttribute* attr = addDef.addAttribute("version", "float");
-    attr->setValue(mx::RtValue(1.0f));
-    REQUIRE(addDef.numAttributes() == 1);
+    // Add attributes to the nodedef
+    nodedef.createAttribute("in1", "float");
+    nodedef.createAttribute("in2", "float");
+    nodedef.createAttribute("out", "float", mx::RtAttrFlag::OUTPUT);
 
-    // Add ports to the nodedef
-    addDef.addPort("in1", "float");
-    addDef.addPort("in2", "float");
-    addDef.addPort("in3", "float");
-    addDef.addPort("out", "float", mx::RtPortFlag::OUTPUT);
-    REQUIRE(addDef.numPorts() == 4);
-
-    // Delete a port
-    mx::RtObject in3Obj = addDef.findPort("in3");
-    addDef.removePort(in3Obj);
-    REQUIRE(addDef.numPorts() == 3);
-
-    // Test the new ports
-    mx::RtPortDef out = addDef.findPort("out");
+    // Test the new attributes
+    mx::RtAttribute out = nodedef.getAttribute("out");
     REQUIRE(out.isValid());
     REQUIRE(out.isOutput());
-    REQUIRE(out.isConnectable());
-    REQUIRE(!out.isUniform());
+    REQUIRE(!out.isConnectable());
     REQUIRE(out.getType() == "float");
     REQUIRE(out.getValue().asFloat() == 0.0f);
-    mx::RtPortDef foo = addDef.findPort("foo");
+    mx::RtAttribute foo = nodedef.getAttribute("foo");
     REQUIRE(!foo.isValid());
-    mx::RtPortDef in1 = addDef.findPort("in1");
+    mx::RtAttribute in1 = nodedef.getAttribute("in1");
     REQUIRE(in1.isValid());
     REQUIRE(in1.isInput());
-    REQUIRE(in1.isConnectable());
+    REQUIRE(!in1.isConnectable());
     in1.getValue().asFloat() = 7.0f;
     REQUIRE(in1.getValue().asFloat() == 7.0f);
 
-    // Try to create a node from an invalid nodedef object
-    REQUIRE_THROWS(mx::RtNode::createNew(stageObj, mx::RtObject()));
+    // Test deleting an attribute
+    nodedef.createAttribute("in3", "float");
+    mx::RtAttribute in3 = nodedef.getAttribute("in3");
+    REQUIRE(in3);
+    nodedef.removeAttribute(in3.getName());
+    in3 = nodedef.getAttribute("in3");
+    REQUIRE(!in3);
+
+    // Node creation without a nodedef should throw.
+    REQUIRE_THROWS(stage.createPrim("/add1", mx::RtNode::typeName()));
 
     // Create two new node instances from the add nodedef
-    mx::RtObject add1Obj = mx::RtNode::createNew(stageObj, addDefObj);
-    mx::RtObject add2Obj = mx::RtNode::createNew(stageObj, addDefObj);
+    mx::RtObject add1Obj = stage.createPrim(mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtObject add2Obj = stage.createPrim(mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(add1Obj.isValid());
     REQUIRE(add2Obj.isValid());
 
@@ -308,6 +355,7 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add1.getName() == "add1");
     REQUIRE(add2.getName() == "add2");
 
+/*
     // Get the node instance ports
     mx::RtPort add1_in1 = add1.findPort("in1");
     mx::RtPort add1_in2 = add1.findPort("in2");
@@ -421,8 +469,10 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(pathA == pathB);
     mx::RtPath pathC = pathB;
     REQUIRE(pathC == pathB);
+ */
 }
 
+/*
 TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 {
     mx::RtObject stageObj = mx::RtStage::createNew("root");
@@ -975,5 +1025,6 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     }
     REQUIRE(numEdges == 16);
 }
+*/
 
 #endif // MATERIALX_BUILD_RUNTIME

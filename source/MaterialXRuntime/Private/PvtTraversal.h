@@ -11,12 +11,10 @@
 
 #include <MaterialXRuntime/RtTraversal.h>
 
-#include <MaterialXRuntime/Private/PvtStage.h>
-#include <MaterialXRuntime/Private/PvtNode.h>
-
 namespace MaterialX
 {
 
+/*
 /// @class PvtStageIterator
 /// TODO: Docs
 class PvtStageIterator
@@ -28,7 +26,7 @@ public:
     /// Constructor, setting the stage to iterate on
     /// and optionally a filter function to restrict
     /// the set of returned objects.
-    PvtStageIterator(PvtDataHandle stage, RtTraversalFilter filter = nullptr);
+    PvtStageIterator(PvtDataHandle stage, RtObjectPredicate predicate = nullptr);
 
     /// Copy constructor.
     PvtStageIterator(const PvtStageIterator& other);
@@ -73,70 +71,12 @@ private:
 
     PvtDataHandle _current;
     vector<StackFrame> _stack;
-    RtTraversalFilter _filter;
+    RtObjectPredicate _predicate;
 };
+*/
 
 
-/// @class PvtTreeIterator
-/// TODO: Docs
-class PvtTreeIterator
-{
-public:
-    /// Empty constructor.
-    PvtTreeIterator();
-
-    /// Constructor, setting the root element to start
-    /// the iteration from, and an optional filter function.
-    PvtTreeIterator(PvtDataHandle root, RtTraversalFilter filter = nullptr);
-
-    /// Copy constructor.
-    PvtTreeIterator(const PvtTreeIterator& other);
-
-    /// Equality operator.
-    bool operator==(const PvtTreeIterator& other) const
-    {
-        return _current == other._current &&
-            _stack == other._stack;
-    }
-
-    /// Inequality operator.
-    bool operator!=(const PvtTreeIterator& other) const
-    {
-        return !(*this == other);
-    }
-
-    /// Dereference this iterator, returning the current element in the
-    /// traversal.
-    PvtDataHandle operator*() const
-    {
-        return _current;
-    }
-
-    /// Iterate to the next element in the traversal.
-    PvtTreeIterator& operator++();
-
-    /// Return true if there are no more elements in the iteration.
-    bool isDone() const
-    {
-        return _current == nullptr;
-    }
-
-    /// Force the iterator to terminate the traversal.
-    void abort()
-    {
-        _current = nullptr;
-    }
-
-private:
-    using StackFrame = std::tuple<PvtElement*, int, int>;
-
-    PvtDataHandle _current;
-    vector<StackFrame> _stack;
-    RtTraversalFilter _filter;
-};
-
-
-
+/*
 /// @class PvtGraphIterator
 /// TODO: Docs
 class PvtGraphIterator
@@ -147,7 +87,7 @@ public:
 
     /// Constructor, setting the root port to start
     /// the iteration on and an optional filter function.
-    PvtGraphIterator(RtPort root, RtTraversalFilter filter = nullptr);
+    PvtGraphIterator(RtPort root, RtObjectPredicate predicate = nullptr);
 
     /// Copy constructor.
     PvtGraphIterator(const PvtGraphIterator& other);
@@ -196,8 +136,9 @@ private:
     RtEdge _current;
     vector<StackFrame> _stack;
     std::set<RtPort> _path;
-    RtTraversalFilter _filter;
+    RtObjectPredicate _predicate;
 };
+*/
 
 }
 

@@ -13,20 +13,13 @@ namespace MaterialX
 {
 
 RtNodeDef::RtNodeDef(const RtObject& obj) :
-    RtElement(obj)
+    RtPrim(obj)
 {
 }
 
-RtObject RtNodeDef::createNew(RtObject stage, const RtToken& name, const RtToken& category)
+const RtToken& RtNodeDef::typeName()
 {
-    if (!stage.hasApi(RtApiType::STAGE))
-    {
-        throw ExceptionRuntimeError("Given object is not a valid stage");
-    }
-
-    PvtDataHandle nodedef = PvtNodeDef::createNew(PvtObject::ptr<PvtElement>(stage), name, category);
-
-    return PvtObject::object(nodedef);
+    return PvtNodeDef::typeName();
 }
 
 RtApiType RtNodeDef::getApiType() const
@@ -34,56 +27,24 @@ RtApiType RtNodeDef::getApiType() const
     return RtApiType::NODEDEF;
 }
 
-const RtToken& RtNodeDef::getNodeName() const
+void RtNodeDef::setNodeTypeName(const RtToken& nodeTypeName)
 {
-    return data()->asA<PvtNodeDef>()->getNodeName();
+    return hnd()->asA<PvtNodeDef>()->setNodeTypeName(nodeTypeName);
 }
 
-void RtNodeDef::addPort(const RtToken& name, const RtToken& type, uint32_t flags)
+const RtToken& RtNodeDef::getNodeTypeName() const
 {
-    RtPortDef::createNew(getObject(), name, type, flags);
+    return hnd()->asA<PvtNodeDef>()->getNodeTypeName();
 }
 
-void RtNodeDef::removePort(RtObject portdef)
+RtObject RtNodeDef::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    if (!portdef.hasApi(RtApiType::PORTDEF))
-    {
-        throw ExceptionRuntimeError("Given object is not a portdef");
-    }
-    PvtPortDef* p = PvtObject::ptr<PvtPortDef>(portdef);
-    return data()->asA<PvtNodeDef>()->removePort(p->getName());
+    return hnd()->asA<PvtNodeDef>()->createAttribute(name, type, flags)->obj();
 }
 
-size_t RtNodeDef::numPorts() const
+void RtNodeDef::removeAttribute(const RtToken& name)
 {
-    return data()->asA<PvtNodeDef>()->numChildren();
-}
-
-size_t RtNodeDef::numOutputs() const
-{
-    return data()->asA<PvtNodeDef>()->numOutputs();
-}
-
-size_t RtNodeDef::getOutputsOffset() const
-{
-    return data()->asA<PvtNodeDef>()->getOutputsOffset();
-}
-
-size_t RtNodeDef::getInputsOffset() const
-{
-    return data()->asA<PvtNodeDef>()->getInputsOffset();
-}
-
-RtObject RtNodeDef::getPort(size_t index) const
-{
-    PvtDataHandle portdef = data()->asA<PvtNodeDef>()->getChild(index);
-    return PvtObject::object(portdef);
-}
-
-RtObject RtNodeDef::findPort(const RtToken& name) const
-{
-    PvtDataHandle portdef = data()->asA<PvtNodeDef>()->findChildByName(name);
-    return PvtObject::object(portdef);
+    return hnd()->asA<PvtNodeDef>()->removeAttribute(name);
 }
 
 }

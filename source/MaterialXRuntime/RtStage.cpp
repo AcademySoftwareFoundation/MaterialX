@@ -11,7 +11,7 @@ namespace MaterialX
 {
 
 RtStage::RtStage(const RtObject& obj) :
-    RtElement(obj)
+    RtApiBase(obj)
 {
 }
 
@@ -22,75 +22,104 @@ RtApiType RtStage::getApiType() const
 
 RtObject RtStage::createNew(const RtToken& name)
 {
-    return PvtObject::object(PvtStage::createNew(name));
+    return PvtStage::createNew(name)->obj();
+}
+
+RtObject RtStage::createPrim(const RtToken& typeName, const RtObject def)
+{
+    PvtPrim* prim = hnd()->asA<PvtStage>()->createPrim(
+        typeName,
+        PvtObject::ptr<PvtObject>(def)
+    );
+    return prim->obj();
+}
+
+RtObject RtStage::createPrim(const RtToken& name, const RtToken& typeName, const RtObject def)
+{
+    PvtPrim* prim = hnd()->asA<PvtStage>()->createPrim(
+        name,
+        typeName,
+        PvtObject::ptr<PvtObject>(def)
+    );
+    return prim->obj();
+}
+
+RtObject RtStage::createPrim(const RtPath& path, const RtToken& typeName, const RtObject def)
+{
+    PvtPrim* prim = hnd()->asA<PvtStage>()->createPrim(
+        *static_cast<PvtPath*>(path._ptr),
+        typeName,
+        PvtObject::ptr<PvtObject>(def)
+    );
+    return prim->obj();
+}
+
+RtObject RtStage::createPrim(const RtPath& path, const RtToken& name, const RtToken& typeName, const RtObject def)
+{
+    PvtPrim* prim = hnd()->asA<PvtStage>()->createPrim(
+        *static_cast<PvtPath*>(path._ptr),
+        name,
+        typeName,
+        PvtObject::ptr<PvtObject>(def)
+    );
+    return prim->obj();
+}
+
+void RtStage::removePrim(const RtPath& path)
+{
+    hnd()->asA<PvtStage>()->removePrim(*static_cast<PvtPath*>(path._ptr));
+}
+
+RtToken RtStage::renamePrim(const RtPath& path, const RtToken& newName)
+{
+    return hnd()->asA<PvtStage>()->renamePrim(*static_cast<PvtPath*>(path._ptr), newName);
+}
+
+RtObject RtStage::getPrimAtPath(const RtPath& path)
+{
+    PvtPrim* prim = hnd()->asA<PvtStage>()->getPrimAtPath(*static_cast<PvtPath*>(path._ptr));
+    return prim ? prim->obj() : RtObject();
+}
+
+RtObject RtStage::getRootPrim()
+{
+    return hnd()->asA<PvtStage>()->getRootPrim()->obj();
+}
+
+RtPrimIterator RtStage::traverse(RtObjectPredicate predicate)
+{
+    return hnd()->asA<PvtStage>()->traverse(predicate);
 }
 
 void RtStage::addReference(const RtObject& stage)
 {
-    data()->asA<PvtStage>()->addReference(PvtObject::data(stage));
+    hnd()->asA<PvtStage>()->addReference(PvtObject::hnd(stage));
 }
 
 void RtStage::removeReference(const RtToken& name)
 {
-    data()->asA<PvtStage>()->removeReference(name);
+    hnd()->asA<PvtStage>()->removeReference(name);
 }
 
 void RtStage::removeReferences()
 {
-    data()->asA<PvtStage>()->removeReferences();
+    hnd()->asA<PvtStage>()->removeReferences();
 }
 
 size_t RtStage::numReferences() const
 {
-    return data()->asA<PvtStage>()->numReferences();
+    return hnd()->asA<PvtStage>()->numReferences();
 }
 
 RtObject RtStage::getReference(size_t index) const
 {
-    PvtDataHandle ref = data()->asA<PvtStage>()->getReference(index);
-    return PvtObject::object(ref);
+    return hnd()->asA<PvtStage>()->getReference(index)->obj();
 }
 
 RtObject RtStage::findReference(const RtToken& name) const
 {
-    PvtDataHandle ref = data()->asA<PvtStage>()->findReference(name);
-    return PvtObject::object(ref);
-}
-
-void RtStage::addElement(const RtObject& elem)
-{
-    if (elem.hasApi(RtApiType::STAGE))
-    {
-        throw ExceptionRuntimeError("A stage cannot be added as direct child of another stage. Use addReference() instead to reference the stage.");
-    }
-    data()->asA<PvtStage>()->addChild(PvtObject::data(elem));
-}
-
-void RtStage::removeElement(const RtObject& elem)
-{
-    data()->asA<PvtStage>()->removeChild(PvtObject::ptr<PvtElement>(elem)->getName());
-}
-
-void RtStage::removeElementByPath(const RtPath& path)
-{
-    data()->asA<PvtStage>()->removeChildByPath(*static_cast<const PvtPath*>(path._ptr));
-}
-
-RtObject RtStage::findElementByName(const RtToken& name) const
-{
-    PvtDataHandle elem = data()->asA<PvtStage>()->findChildByName(name);
-    return PvtObject::object(elem);
-}
-
-RtObject RtStage::findElementByPath(const string& path) const
-{
-    PvtDataHandle elem = data()->asA<PvtStage>()->findChildByPath(path);
-    return PvtObject::object(elem);
-}
-
-RtStageIterator RtStage::traverseStage(RtTraversalFilter filter)
-{
-    return RtStageIterator(getObject(), filter);
+    PvtStage* ref = hnd()->asA<PvtStage>()->findReference(name);
+    return ref ? ref->obj() : RtObject();
 }
 
 }
