@@ -24,6 +24,7 @@ RtAttrIterator::RtAttrIterator(const RtObject& prim, RtObjectPredicate filter) :
     if (prim.hasApi(RtApiType::PRIM))
     {
         _prim = PvtObject::ptr<PvtPrim>(prim);
+        _prim = _prim->getAllAttributes().empty() ? nullptr : _prim;
     }
 }
 
@@ -64,6 +65,7 @@ RtPrimIterator::RtPrimIterator(const RtObject& prim, RtObjectPredicate filter) :
     if (prim.hasApi(RtApiType::PRIM))
     {
         _prim = PvtObject::ptr<PvtPrim>(prim);
+        _prim = _prim->getAllChildren().empty() ? nullptr : _prim;
     }
 }
 
@@ -102,7 +104,7 @@ RtConnectionIterator::RtConnectionIterator(const RtObject& attrObj) :
     if (attrObj.hasApi(RtApiType::ATTRIBUTE))
     {
         PvtAttribute* attr = PvtObject::ptr<PvtAttribute>(attrObj);
-        _ptr = &attr->_connections;
+        _ptr = attr->_connections.empty() ? nullptr : &attr->_connections;
     }
 }
 

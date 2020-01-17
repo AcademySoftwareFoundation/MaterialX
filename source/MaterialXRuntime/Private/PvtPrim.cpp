@@ -11,6 +11,11 @@
 namespace MaterialX
 {
 
+namespace
+{
+    const RtToken _MD_PRIM("_prim");
+}
+
 const RtObjType PvtPrim::_typeId = RtObjType::PRIM;
 const RtToken PvtPrim::_typeName = RtToken("prim");
 
@@ -36,13 +41,13 @@ PvtDataHandle PvtPrim::createNew(const RtToken& name, PvtPrim* parent)
 
 const RtToken& PvtPrim::getPrimTypeName() const
 {
-    const RtTypedValue* md = getMetadata(_typeName);
+    const RtTypedValue* md = getMetadata(_MD_PRIM);
     return md ? md->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void PvtPrim::setPrimTypeName(const RtToken& primTypeName)
 {
-    RtTypedValue* md = addMetadata(_typeName, RtType::TOKEN);
+    RtTypedValue* md = addMetadata(_MD_PRIM, RtType::TOKEN);
     md->getValue().asToken() = primTypeName;
 }
 

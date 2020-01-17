@@ -28,8 +28,8 @@ namespace
     static const RtTokenSet nodedefAttrs    = { RtToken("name"), RtToken("type"), RtToken("node") };
     static const RtTokenSet portdefAttrs    = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("colorspace"), RtToken("unit") };
     static const RtTokenSet nodeAttrs       = { RtToken("name"), RtToken("type"), RtToken("node") };
-    static const RtTokenSet nodegraphAttrs  = { RtToken("name"), RtToken("nodedef") };
-    static const RtTokenSet unknownAttrs    = { RtToken("name") };
+    static const RtTokenSet nodegraphAttrs  = { RtToken("name") };
+    static const RtTokenSet genericAttrs    = { RtToken("name") };
     static const RtTokenSet stageAttrs      = {};
 
     PvtNode* findNodeOrThrow(const RtToken& name, PvtPrim* parent)
@@ -74,9 +74,15 @@ namespace
         {
             const RtToken attrName(elem->getName());
             const RtToken attrType(elem->getType());
-            const uint32_t attrFlags =
-                (uint32_t(elem->isA<Output>()) & RtAttrFlag::OUTPUT) |
-                (uint32_t(elem->isA<Parameter>()) & RtAttrFlag::UNIFORM);
+            uint32_t attrFlags = 0;
+            if (elem->isA<Output>())
+            {
+                attrFlags |= RtAttrFlag::OUTPUT;
+            }
+            else if (elem->isA<Parameter>())
+            {
+                attrFlags |= RtAttrFlag::UNIFORM;
+            }
 
             PvtAttribute* attr = dest->createAttribute(attrName, attrType, attrFlags);
 
@@ -257,8 +263,17 @@ namespace
 
         readCustomMetadata(src, nodegraph, nodegraphAttrs);
 
-        // Create the interface.
-        createInterface(src, nodegraph);
+        // Create the interface either from a nodedef if given
+        // otherwise from the graph itself.
+        const NodeDefPtr srcNodeDef = src->getNodeDef();
+        if (srcNodeDef)
+        {
+            createInterface(srcNodeDef, nodegraph);
+        }
+        else
+        {
+            createInterface(src, nodegraph);
+        }
 
         // Create all nodes and connection between node intputs and internal graph sockets.
         for (auto child : src->getChildren())
@@ -320,8 +335,9 @@ namespace
         const RtToken category(src->getCategory());
 
         PvtPrim* prim = stage->createPrim(parent->getPath(), name, PvtPrim::typeName());
+        prim->setPrimTypeName(category);
 
-        readCustomMetadata(src, prim, unknownAttrs);
+        readCustomMetadata(src, prim, genericAttrs);
 
         for (auto child : src->getChildren())
         {
@@ -461,9 +477,12 @@ namespace
             const PvtAttribute* attrDef = attrH->asA<PvtAttribute>();
             const PvtAttribute* attr = node->getAttribute(attrDef->getName());
 
-            if (attr->isOutput() && numOutputs > 1)
+            if (attr->isOutput())
             {
-                destNode->addOutput(attr->getName(), attr->getType().str());
+                if (numOutputs > 1)
+                {
+                    destNode->addOutput(attr->getName(), attr->getType().str());
+                }
             }
             else if (attr->isConnected() || !RtValue::compare(attr->getType(), attr->getValue(), attrDef->getValue()))
             {
@@ -571,12 +590,12 @@ namespace
 
     void writeGenericPrim(const PvtPrim* prim, ElementPtr dest)
     {
-        ElementPtr unknownElem = dest->addChildOfCategory(prim->getPrimTypeName(), prim->getName());
-        writeMetadata(prim, unknownElem);
+        ElementPtr elem = dest->addChildOfCategory(prim->getPrimTypeName(), prim->getName());
+        writeMetadata(prim, elem);
 
         for (auto child : prim->getChildren())
         {
-            writeGenericPrim(PvtObject::ptr<PvtPrim>(child), unknownElem);
+            writeGenericPrim(PvtObject::ptr<PvtPrim>(child), elem);
         }
     }
 

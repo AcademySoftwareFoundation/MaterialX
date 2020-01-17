@@ -101,15 +101,14 @@ string PvtNodeGraph::asStringDot() const
 {
     string dot = "digraph {\n";
 
-    // Add alla nodes.
+    // Add input/output interface boxes.
     dot += "    \"inputs\" ";
     dot += "[shape=box];\n";
     dot += "    \"outputs\" ";
     dot += "[shape=box];\n";
 
-    RtObjTypePredicate<RtObjType::NODE> nodeFilter;
-
     // Add all nodes.
+    RtObjTypePredicate<RtObjType::NODE> nodeFilter;
     for (const RtObject prim : getChildren(nodeFilter))
     {
         dot += "    \"" + PvtObject::ptr<PvtNode>(prim)->getName().str() + "\" ";
@@ -133,10 +132,38 @@ string PvtNodeGraph::asStringDot() const
         }
     };
 
-    // Add all connections.
+    // Add connections inbetween nodes
+    // and between nodes and input interface.
     for (const RtObject prim : getChildren(nodeFilter))
     {
-        writeConnections(PvtObject::ptr<PvtNode>(prim), dot);
+        const PvtNode* node = PvtObject::ptr<PvtNode>(prim);
+        const string dstName = node->getName().str();
+        for (const RtObject attrObj : node->getAttributes())
+        {
+            const PvtAttribute* attr = PvtObject::ptr<PvtAttribute>(attrObj);
+            if (attr->isInput() && attr->isConnected())
+            {
+                const PvtAttribute* src = attr->getConnection();
+                const string srcName = src->isSocket() ? "inputs" : src->getParent()->getName().str();
+                dot += "    \"" + srcName;
+                dot += "\" -> \"" + dstName;
+                dot += "\" [label=\"" + attr->getName().str() + "\"];\n";
+            }
+        }
+    }
+
+    // Add connections between nodes and output interface.
+    for (auto socketH : _socketOrder)
+    {
+        const PvtAttribute* socket = socketH->asA<PvtAttribute>();
+        if (socket->isInput() && socket->isConnected())
+        {
+            const PvtAttribute* src = socket->getConnection();
+            const string srcName = src->isSocket() ? "inputs" : src->getParent()->getName().str();
+            dot += "    \"" + srcName;
+            dot += "\" -> \"outputs";
+            dot += "\" [label=\"" + socket->getName().str() + "\"];\n";
+        }
     }
 
     dot += "}\n";

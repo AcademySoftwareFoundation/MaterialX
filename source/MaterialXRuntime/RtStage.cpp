@@ -20,9 +20,19 @@ RtApiType RtStage::getApiType() const
     return RtApiType::STAGE;
 }
 
+const RtToken& RtStage::getName() const
+{
+    return hnd()->asA<PvtStage>()->getName();
+}
+
 RtObject RtStage::createNew(const RtToken& name)
 {
     return PvtStage::createNew(name)->obj();
+}
+
+RtObject RtStage::createPrim(const RtToken& typeName, const RtObject def)
+{
+    return createPrim(RtPath("/"), EMPTY_TOKEN, typeName, def);
 }
 
 RtObject RtStage::createPrim(const RtPath& path, const RtToken& typeName, const RtObject def)

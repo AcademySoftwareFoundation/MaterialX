@@ -29,8 +29,14 @@ public:
     /// Return the type for this API.
     RtApiType getApiType() const override;
 
+    /// Return the name of the stage.
+    const RtToken& getName() const;
+
     /// Create a new empty stage.
     static RtObject createNew(const RtToken& name);
+
+    /// Create a new prim at the root of the stage.
+    RtObject createPrim(const RtToken& typeName, const RtObject def = RtObject());
 
     /// Create a new prim at the given path.
     RtObject createPrim(const RtPath& path, const RtToken& typeName, const RtObject def = RtObject());

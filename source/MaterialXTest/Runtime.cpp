@@ -34,7 +34,7 @@ namespace mx = MaterialX;
 
 namespace
 {
-    // Commonly used token globals.
+    // Commonly used tokens.
     const mx::RtToken X("x");
     const mx::RtToken Y("y");
     const mx::RtToken Z("z");
@@ -54,6 +54,7 @@ namespace
     const mx::RtToken ROOT("root");
     const mx::RtToken MAIN("main");
     const mx::RtToken LIB("lib");
+    const mx::RtToken NONAME("");
 }
 
 TEST_CASE("Runtime: Token", "[runtime]")
@@ -467,7 +468,7 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add3.getName() == "add3");
 
     // Test node creation with generated name
-    mx::RtNode add4 = stage.createPrim("/", mx::EMPTY_TOKEN, mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtNode add4 = stage.createPrim("/", NONAME, mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(add4.getName() == "add4");
 
     // Find object by path
@@ -547,7 +548,6 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.getParent() == stage.getRootPrim());
 }
 
-/*
 TEST_CASE("Runtime: FileIo", "[runtime]")
 {
     mx::FileSearchPath searchPath;
@@ -555,47 +555,54 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
     {
         // Load in stdlib
         // Create a stage and import the document data.
-        mx::RtObject stageObj = mx::RtStage::createNew("stdlib");
+        mx::RtObject stageObj = mx::RtStage::createNew(MAIN);
         mx::RtFileIo stageIo(stageObj);
         stageIo.readLibraries({ "stdlib" }, searchPath);
 
         // Get a nodegraph and write a dot file for inspection.
         mx::RtStage stage(stageObj);
-        mx::RtObject graphDef = stage.findElementByName("ND_tiledimage_float");
-        REQUIRE(graphDef);
-        mx::RtNodeGraph graph = stage.findElementByName("NG_tiledimage_float");
+        mx::RtNodeGraph graph = stage.getPrimAtPath("/NG_tiledimage_float");
         REQUIRE(graph);
         std::ofstream dotfile;
         dotfile.open(graph.getName().str() + ".dot");
         dotfile << graph.asStringDot();
         dotfile.close();
-        mx::RtObject image1 = mx::RtNode::createNew(stageObj, graphDef);
-        REQUIRE(image1.hasApi(mx::RtApiType::NODE));
 
-        // Get a nodedef and create two new instances of it.
-        mx::RtObject multiplyColor3Obj = stage.findElementByName("ND_multiply_color3");
-        REQUIRE(multiplyColor3Obj);
-        mx::RtNode mult1 = mx::RtNode::createNew(stageObj, multiplyColor3Obj);
-        mx::RtNode mult2 = mx::RtNode::createNew(stageObj, multiplyColor3Obj);
+        // Create a new graph
+        mx::RtNodeGraph graph1 = stage.createPrim(mx::RtNodeGraph::typeName());
+        REQUIRE(graph1);
+        REQUIRE(graph1.getPath() == "/nodegraph1");
+
+        // Get a nodedef and create two node instances in the graph.
+        mx::RtObject multiplyColor3 = stage.getPrimAtPath("/ND_multiply_color3");
+        REQUIRE(multiplyColor3);
+        mx::RtNode mult1 = stage.createPrim(graph1.getPath(), NONAME, mx::RtNode::typeName(), multiplyColor3);
+        mx::RtNode mult2 = stage.createPrim(graph1.getPath(), NONAME, mx::RtNode::typeName(), multiplyColor3);
         REQUIRE(mult1);
         REQUIRE(mult2);
-        mult2.findPort(IN1).getValue().asColor3() = mx::Color3(0.3f, 0.5f, 0.4f);
-        mult2.findPort(IN2).getValue().asColor3() = mx::Color3(0.6f, 0.3f, 0.5f);
-        mult2.findPort(IN2).setColorSpace("srgb_texture");
 
-        mx::RtNodeGraph stageGraph = mx::RtNodeGraph::createNew(stageObj);
-        REQUIRE(stageGraph);
-        REQUIRE(stageGraph.getName() == "nodegraph1");
+        // Get a nodedef and create an instance at stage root.
+        mx::RtObject tiledimageFloat = stage.getPrimAtPath("/ND_tiledimage_float");
+        REQUIRE(tiledimageFloat);
+        mx::RtNode tiledimage1 = stage.createPrim(mx::RtNode::typeName(), tiledimageFloat);
+        REQUIRE(tiledimage1);
 
-        // Move the image node into the graph.
-        stageGraph.addNode(image1);
+        // Move it into the graph.
+        stage.reparent(tiledimage1.getObject());
 
         // Save the stage to file for inspection.
         stageIo.write(stage.getName().str() + "_export.mtlx", nullptr);
 
-        // Write out the node using a given node definition
+        // Write out nodegraphs only.
         mx::RtWriteOptions writeOptions;
-        writeOptions.writeFilter = [graphDef](const mx::RtObject& obj) -> bool
+        writeOptions.writeFilter = [](const mx::RtObject& obj) -> bool
+        {
+            return (obj.hasApi(mx::RtApiType::NODEGRAPH));
+        };
+        stageIo.write(stage.getName().str() + "_nodegraph_export.mtlx", &writeOptions);
+
+        // Write out only tiledimage nodes.
+        writeOptions.writeFilter = [](const mx::RtObject& obj) -> bool
         {  
             if (obj.getObjType() == mx::RtObjType::NODE)
             {
@@ -606,16 +613,9 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
             return false;
         };
         writeOptions.writeIncludes = false;
-        stageIo.write(stage.getName().str() + "_nodedef_export.mtlx", &writeOptions);
-
-        // Write out a nodegraph only
-        writeOptions.writeFilter = [](const mx::RtObject& obj) -> bool
-        {
-            return (obj.hasApi(mx::RtApiType::NODEGRAPH));
-        };
-        stageIo.write(stage.getName().str() + "_nodegraph_export.mtlx", &writeOptions);
+        stageIo.write(stage.getName().str() + "_tiledimage_export.mtlx", &writeOptions);
     }
-
+/*
     {
         // Load stdlib into a stage
         mx::RtStage stdlibStage = mx::RtStage::createNew("stdlib");
@@ -670,8 +670,10 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         streamFileIO.read(stream1, &readOptions);
         streamFileIO.write(streamStage.getName().str() + "_export.mtlx", &writeOptions);
     }
+    */
 }
 
+/*
 TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 {
     mx::FileSearchPath searchPath;
