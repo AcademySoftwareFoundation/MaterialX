@@ -86,7 +86,7 @@ public:
 
     virtual PvtAttribute* createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
-    void removeAttribute(const RtToken& name);
+    virtual void removeAttribute(const RtToken& name);
 
     PvtAttribute* getAttribute(const RtToken& name)
     {

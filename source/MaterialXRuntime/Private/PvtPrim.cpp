@@ -68,7 +68,6 @@ void PvtPrim::removeAttribute(const RtToken& name)
         if (attr->getName() == name)
         {
             _attrOrder.erase(it);
-            attr->setParent(nullptr);
             break;
         }
     }

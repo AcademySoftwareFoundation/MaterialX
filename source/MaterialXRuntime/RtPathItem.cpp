@@ -7,6 +7,7 @@
 
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
+#include <MaterialXRuntime/Private/PvtStage.h>
 
 namespace MaterialX
 {
@@ -30,6 +31,17 @@ RtObject RtPathItem::getParent() const
 {
     PvtPrim* parent = hnd()->asA<PvtPathItem>()->getParent();
     return parent ? parent->obj() : RtObject();
+}
+
+RtObject RtPathItem::getRoot() const
+{
+    PvtPrim* root = hnd()->asA<PvtPathItem>()->getRoot();
+    return root ? root->obj() : RtObject();
+}
+
+RtObject RtPathItem::getStage() const
+{
+    return hnd()->asA<PvtPathItem>()->getStage()->obj();
 }
 
 RtTypedValue* RtPathItem::addMetadata(const RtToken& name, const RtToken& type)

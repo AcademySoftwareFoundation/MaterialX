@@ -38,12 +38,12 @@ bool RtInput::isConnected() const
     return hnd()->asA<PvtAttribute>()->isConnected();
 }
 
-void RtInput::connect(RtOutput& source)
+void RtInput::connect(RtOutput source)
 {
     RtNode::connect(source, *this);
 }
 
-void RtInput::disconnect(RtOutput& source)
+void RtInput::disconnect(RtOutput source)
 {
     RtNode::disconnect(source, *this);
 }
@@ -79,12 +79,12 @@ bool RtOutput::isConnected() const
     return hnd()->asA<PvtAttribute>()->isConnected();
 }
 
-void RtOutput::connect(RtInput& dest)
+void RtOutput::connect(RtInput dest)
 {
     RtNode::connect(*this, dest);
 }
 
-void RtOutput::disconnect(RtInput& dest)
+void RtOutput::disconnect(RtInput dest)
 {
     RtNode::disconnect(*this, dest);
 }
@@ -132,14 +132,14 @@ RtOutput RtNode::getOutput(const RtToken& name) const
     return attr ? RtOutput(attr->obj()) : RtObject();
 }
 
-void RtNode::connect(RtOutput& source, RtInput& dest)
+void RtNode::connect(RtOutput source, RtInput dest)
 {
     PvtAttribute* sourceAttr = PvtObject::ptr<PvtAttribute>(source.getObject());
     PvtAttribute* destAttr = PvtObject::ptr<PvtAttribute>(dest.getObject());
     PvtAttribute::connect(sourceAttr, destAttr);
 }
 
-void RtNode::disconnect(RtOutput& source, RtInput& dest)
+void RtNode::disconnect(RtOutput source, RtInput dest)
 {
     PvtAttribute* sourceAttr = PvtObject::ptr<PvtAttribute>(source.getObject());
     PvtAttribute* destAttr = PvtObject::ptr<PvtAttribute>(dest.getObject());

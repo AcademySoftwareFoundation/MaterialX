@@ -476,115 +476,78 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(prim1.hasApi(mx::RtApiType::NODE));
 }
 
-/*
 TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 {
-    mx::RtObject stageObj = mx::RtStage::createNew(ROOT);
-    mx::RtStage stage(stageObj);
+    mx::RtStage stage = mx::RtStage::createNew(ROOT);
 
     // Create a new nodedef for an add node.
-    mx::RtObject addFloatObj = mx::RtNodeDef::createNew(stageObj, "ND_add_float", "add");
-    mx::RtPortDef::createNew(addFloatObj, IN1, mx::RtType::FLOAT);
-    mx::RtPortDef::createNew(addFloatObj, IN2, mx::RtType::FLOAT);
-    mx::RtPortDef::createNew(addFloatObj, OUT, mx::RtType::FLOAT, mx::RtPortFlag::OUTPUT);
+    mx::RtNodeDef addFloat = stage.createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    addFloat.setNodeTypeName(ADD);
+    addFloat.createAttribute(IN1, mx::RtType::FLOAT);
+    addFloat.createAttribute(IN2, mx::RtType::FLOAT);
+    addFloat.createAttribute(OUT, mx::RtType::FLOAT, mx::RtAttrFlag::OUTPUT);
 
     // Create a nodegraph object.
-    mx::RtObject graphObj1 = mx::RtNodeGraph::createNew(stageObj, "graph1");
-    REQUIRE(graphObj1.isValid());
-
-    // Attach the nodegraph API to the object.
-    mx::RtNodeGraph graph1(graphObj1);
+    mx::RtNodeGraph graph1 = stage.createPrim("/graph1", mx::RtNodeGraph::typeName());
+    REQUIRE(graph1.isValid());
 
     // Create add nodes in the graph.
-    mx::RtObject addObj1 = mx::RtNode::createNew(graphObj1, addFloatObj, "add1");
-    mx::RtObject addObj2 = mx::RtNode::createNew(graphObj1, addFloatObj, "add2");
-    REQUIRE(graph1.numNodes() == 2);
+    mx::RtNode add1 = stage.createPrim("/graph1/add1", mx::RtNode::typeName(), addFloat.getObject());
+    mx::RtNode add2 = stage.createPrim("/graph1/add2", mx::RtNode::typeName(), addFloat.getObject());
+    REQUIRE(graph1.getChild(add1.getName()));
+    REQUIRE(graph1.getChild(add2.getName()));
 
     // Test deleting a node.
-    mx::RtObject addObj3 = mx::RtNode::createNew(graphObj1, addFloatObj, "add3");
-    REQUIRE(graph1.numNodes() == 3);
-    graph1.removeNode(addObj3);
-    REQUIRE(graph1.numNodes() == 2);
+    mx::RtNode add3 = stage.createPrim("/graph1/add3", mx::RtNode::typeName(), addFloat.getObject());
+    mx::RtPath add3Path = add3.getPath();
+    stage.removePrim(add3Path);
+    REQUIRE(!graph1.getChild(add3Path.getName()));
+    REQUIRE(!stage.getPrimAtPath(add3Path));
 
-    // Test deleting a node by path.
-    mx::RtObject addObj4 = mx::RtNode::createNew(graphObj1, addFloatObj, "add4");
-    mx::RtPath addObj4Path(addObj4);
-    const std::string pathStr = addObj4Path.asString();
-    REQUIRE(stage.findElementByPath(pathStr));
-    stage.removeElementByPath(addObj4Path);
-    REQUIRE(!stage.findElementByPath(pathStr));
+    // Add an interface to the graph.
+    graph1.createAttribute(A, mx::RtType::FLOAT);
+    graph1.createAttribute(B, mx::RtType::FLOAT);
+    graph1.createAttribute(OUT, mx::RtType::FLOAT, mx::RtAttrFlag::OUTPUT);
+    REQUIRE(graph1.getAttribute(A));
+    REQUIRE(graph1.getAttribute(B));
+    REQUIRE(graph1.getAttribute(OUT));
+    REQUIRE(graph1.getInput(A));
+    REQUIRE(graph1.getInput(B));
+    REQUIRE(graph1.getOutput(OUT));
+    REQUIRE(graph1.getInputSocket(A));
+    REQUIRE(graph1.getInputSocket(B));
+    REQUIRE(graph1.getOutputSocket(OUT));
+    REQUIRE(graph1.getInputSocket(A).isOutput());
+    REQUIRE(graph1.getInputSocket(B).isOutput());
+    REQUIRE(graph1.getOutputSocket(OUT).isInput());
 
-    // Add interface port definitions to the graph.
-    graph1.addPort("a", mx::RtType::FLOAT);
-    graph1.addPort("b", mx::RtType::FLOAT);
-    graph1.addPort(OUT, mx::RtType::FLOAT, mx::RtPortFlag::OUTPUT);
-    REQUIRE(graph1.numPorts() == 3);
-    REQUIRE(graph1.findInputSocket("a").isValid());
-    REQUIRE(graph1.findInputSocket("b").isValid());
-    REQUIRE(graph1.findOutputSocket(OUT).isValid());
-    REQUIRE(graph1.getInputSocket(0).isOutput());
-    REQUIRE(graph1.getInputSocket(1).isOutput());
-    REQUIRE(graph1.getOutputSocket(0).isInput());
-
-    // Test deleting a port.
-    graph1.addPort("c", mx::RtType::FLOAT);
-    REQUIRE(graph1.numPorts() == 4);
-    REQUIRE(graph1.findInputSocket("c").isValid());
-    mx::RtObject cPort = mx::RtNodeDef(graph1.getNodeDef()).findPort("c");
-    REQUIRE(cPort);
-    graph1.removePort(cPort);
-    REQUIRE(graph1.numPorts() == 3);
-    REQUIRE(!graph1.findInputSocket("c").isValid());
-
-    // Attach the node API for the two node objects.
-    mx::RtNode add1(addObj1);
-    mx::RtNode add2(addObj2);
+    // Test deleting an attribute.
+    graph1.createAttribute(X, mx::RtType::FLOAT);
+    REQUIRE(graph1.getInput(X));
+    REQUIRE(graph1.getInputSocket(X));
+    graph1.removeAttribute(X);
+    REQUIRE(!graph1.getInput(X));
+    REQUIRE(!graph1.getInputSocket(X));
 
     // Connect the graph nodes to each other and the interface.
-    mx::RtNode::connect(graph1.findInputSocket("a"), add1.findPort(IN1));
-    mx::RtNode::connect(graph1.findInputSocket("b"), add1.findPort(IN2));
-    mx::RtNode::connect(add1.findPort(OUT), add2.findPort(IN1));
-    mx::RtNode::connect(graph1.findInputSocket("a"), add2.findPort(IN2));
-    mx::RtNode::connect(add2.findPort(OUT), graph1.findOutputSocket(OUT));
-    REQUIRE(graph1.findInputSocket("a").numDestinationPorts() == 2);
-    REQUIRE(graph1.findInputSocket("b").numDestinationPorts() == 1);
-    REQUIRE(graph1.findOutputSocket(OUT).getSourcePort() == add2.findPort(OUT));
+    mx::RtNode::connect(graph1.getInputSocket(A), add1.getInput(IN1));
+    mx::RtNode::connect(graph1.getInputSocket(B), add1.getInput(IN2));
+    mx::RtNode::connect(add1.getOutput(OUT), add2.getInput(IN1));
+    mx::RtNode::connect(graph1.getInputSocket(A), add2.getInput(IN2));
+    mx::RtNode::connect(add2.getOutput(OUT), graph1.getOutputSocket(OUT));
 
-    // Test query of parent and root.
-    REQUIRE(add1.getParent() == graphObj1);
-    REQUIRE(add1.getRoot() == stageObj);
-    REQUIRE(graph1.getParent() == stageObj);
-    REQUIRE(graph1.getRoot() == stageObj);
-    REQUIRE(stage.getRoot() == stageObj);
-    REQUIRE(!stage.getParent().isValid());
+    REQUIRE(graph1.getInputSocket(A).isConnected());
+    REQUIRE(graph1.getInputSocket(B).isConnected());
+    REQUIRE(graph1.getOutputSocket(OUT).getConnection() == add2.getOutput(OUT));
 
-    // Test finding a port by path.
-    mx::RtObject node = stage.findElementByPath("/graph1/add2");
-    mx::RtObject portdef = stage.findElementByPath("/graph1/add2/out");
-    REQUIRE(node.isValid());
-    REQUIRE(portdef.isValid());
-    REQUIRE(node.hasApi(mx::RtApiType::NODE));
-    REQUIRE(portdef.hasApi(mx::RtApiType::PORTDEF));
-
-    // Test RtPath
-    mx::RtPath path1(addObj1);
-    REQUIRE(path1.isValid());
-    REQUIRE(path1.asString() == "/graph1/add1");
-    REQUIRE(path1.getObject() == addObj1);
-    path1.pop();
-    REQUIRE(path1.isValid());
-    REQUIRE(path1.asString() == "/graph1");
-    REQUIRE(path1.getObject() == graphObj1);
-    path1.push(add2.getName());
-    REQUIRE(path1.isValid());
-    REQUIRE(path1.asString() == "/graph1/add2");
-    REQUIRE(path1.getObject() == addObj2);
-
-    // Test getting a port instance from node and portdef.
-    mx::RtPort port1(node, portdef);
-    REQUIRE(port1 == add2.findPort(OUT));
+    // Test query of parent, root and stage.
+    REQUIRE(add1.getParent() == graph1.getObject());
+    REQUIRE(add1.getRoot() == stage.getRootPrim());
+    REQUIRE(add1.getStage() == stage.getObject());
+    REQUIRE(graph1.getParent() == stage.getRootPrim());
 }
 
+/*
 TEST_CASE("Runtime: FileIo", "[runtime]")
 {
     mx::FileSearchPath searchPath;

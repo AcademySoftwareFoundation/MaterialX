@@ -59,6 +59,22 @@ PvtAttribute* PvtNodeGraph::createAttribute(const RtToken& name, const RtToken& 
     return attr;
 }
 
+void PvtNodeGraph::removeAttribute(const RtToken& name)
+{
+    PvtPrim::removeAttribute(name);
+
+    for (auto it = _socketOrder.begin(); it != _socketOrder.end(); ++it)
+    {
+        PvtAttribute* attr = (*it)->asA<PvtAttribute>();
+        if (attr->getName() == name)
+        {
+            _socketOrder.erase(it);
+            break;
+        }
+    }
+    _socketMap.erase(name);
+}
+
 PvtAttribute* PvtNodeGraph::getInputSocket(const RtToken& name) const
 {
     auto it = _socketMap.find(name);

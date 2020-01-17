@@ -38,10 +38,10 @@ public:
     bool isConnected() const;
 
     /// Connect to a source output.
-    void connect(RtOutput& source);
+    void connect(RtOutput source);
 
     /// Disconnect from a source output.
-    void disconnect(RtOutput& source);
+    void disconnect(RtOutput source);
 
     /// Break any connections.
     void clearConnections();
@@ -66,10 +66,10 @@ public:
     bool isConnected() const;
 
     /// Connect to a destination input.
-    void connect(RtInput& dest);
+    void connect(RtInput dest);
 
     /// Disconnect from a destination input.
-    void disconnect(RtInput& dest);
+    void disconnect(RtInput dest);
 
     /// Break any connections.
     void clearConnections();
@@ -104,10 +104,10 @@ public:
     RtOutput getOutput(const RtToken& name) const;
 
     /// Make a new connection between two attributes.
-    static void connect(RtOutput& source, RtInput& dest);
+    static void connect(RtOutput source, RtInput dest);
 
     /// Break a connection between two attributes.
-    static void disconnect(RtOutput& source, RtInput& dest);
+    static void disconnect(RtOutput source, RtInput dest);
 };
 
 }

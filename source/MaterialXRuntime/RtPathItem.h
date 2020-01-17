@@ -32,6 +32,12 @@ public:
     /// Return the parent to this path item.
     RtObject getParent() const;
 
+    /// Return the root for this path item.
+    RtObject getRoot() const;
+
+    /// Return the stage that owns this path item.
+    RtObject getStage() const;
+
     /// Add new metadata to this item.
     RtTypedValue* addMetadata(const RtToken& name, const RtToken& type);
 

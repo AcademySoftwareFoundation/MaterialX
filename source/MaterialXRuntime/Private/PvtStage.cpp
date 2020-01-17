@@ -23,7 +23,7 @@ PvtStage::PvtStage(const RtToken& name) :
     _root(nullptr),
     _selfRefCount(0)
 {
-    _root = PvtNodeGraph::createNew(PvtPath::ROOT_NAME, nullptr);
+    _root = PvtDataHandle(new RootPrim(this));
 }
 
 PvtDataHandle PvtStage::createNew(const RtToken& name)
@@ -91,6 +91,7 @@ void PvtStage::removePrim(const PvtPath& path)
         if ((*it).get() == prim)
         {
             parent->_primOrder.erase(it);
+            break;
         }
     }
     parent->_primMap.erase(prim->getName());

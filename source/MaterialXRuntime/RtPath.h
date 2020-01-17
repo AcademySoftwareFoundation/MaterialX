@@ -46,6 +46,9 @@ public:
     /// Destructor.
     ~RtPath();
 
+    /// Return the name of the object at the end of this path.
+    const RtToken& getName() const;
+
     /// Return a string representation of this path.
     string asString() const;
 

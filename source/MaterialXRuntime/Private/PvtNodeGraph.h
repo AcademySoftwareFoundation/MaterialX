@@ -37,6 +37,8 @@ public:
 
     PvtAttribute* createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0) override;
 
+    void removeAttribute(const RtToken& name) override;
+
     PvtAttribute* getInputSocket(const RtToken& name) const;
 
     PvtAttribute* getOutputSocket(const RtToken& name) const;
