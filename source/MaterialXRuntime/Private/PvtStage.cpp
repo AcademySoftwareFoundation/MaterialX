@@ -38,12 +38,12 @@ PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName, PvtO
     return createPrim(parentPath, path.getName(), typeName, def);
 }
 
-PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& name, const RtToken& typeName, PvtObject* def)
+PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName, PvtObject* def)
 {
-    PvtPrim* parent = getPrimAtPathLocal(path);
+    PvtPrim* parent = getPrimAtPathLocal(parentPath);
     if (!parent)
     {
-        throw ExceptionRuntimeError("Given parent path '" + path.asString() + "' does not point to a prim in this stage");
+        throw ExceptionRuntimeError("Given parent path '" + parentPath.asString() + "' does not point to a prim in this stage");
     }
 
     // TODO: Consider using a prim factory instead.
@@ -53,7 +53,7 @@ PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& name, const Rt
         if (!(def && def->hasApi(RtApiType::NODEDEF)))
         {
             throw ExceptionRuntimeError("No valid nodedef given for creating node '" + name.str() +
-                "' at path '" + path.asString() + "'");
+                "' at path '" + parentPath.asString() + "'");
         }
         hnd = PvtNode::createNew(name, def->hnd(), parent);
     }
@@ -71,9 +71,10 @@ PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& name, const Rt
         hnd = PvtPrim::createNew(name, parent);
     }
 
-    parent->addChildPrim(hnd);
+    PvtPrim* prim = hnd->asA<PvtPrim>();
+    parent->addChildPrim(prim);
 
-    return hnd->asA<PvtPrim>();
+    return prim;
 }
 
 void PvtStage::removePrim(const PvtPath& path)
@@ -85,16 +86,7 @@ void PvtStage::removePrim(const PvtPath& path)
     }
 
     PvtPrim* parent = prim->getParent();
-
-    for (auto it = parent->_primOrder.begin(); it != parent->_primOrder.end(); ++it)
-    {
-        if ((*it).get() == prim)
-        {
-            parent->_primOrder.erase(it);
-            break;
-        }
-    }
-    parent->_primMap.erase(prim->getName());
+    parent->removeChildPrim(prim);
 }
 
 RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
@@ -110,6 +102,37 @@ RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
 
     parent->_primMap.erase(newName);
     parent->_primMap[prim->getName()] = prim->shared_from_this();
+
+    return prim->getName();
+}
+
+RtToken PvtStage::reparentPrim(const PvtPath& path, const PvtPath& newParentPath)
+{
+    PvtPrim* prim = getPrimAtPathLocal(path);
+    if (!(prim && prim->getParent()))
+    {
+        throw ExceptionRuntimeError("Given path '" + path.asString() + " does not point to a prim in this stage");
+    }
+
+    PvtPrim* newParent = getPrimAtPathLocal(newParentPath);
+    if (!newParent)
+    {
+        throw ExceptionRuntimeError("Given parent path '" + path.asString() + " does not point to a prim in this stage");
+    }
+
+    PvtPrim* oldParent = prim->getParent();
+    if (newParent != oldParent)
+    {
+        // Remove from old parent.
+        oldParent->removeChildPrim(prim);
+
+        // Make sure the name is unique in the new parent.
+        prim->setName(newParent->makeUniqueName(prim->getName()));
+
+        // Add to new parent.
+        newParent->addChildPrim(prim);
+        prim->setParent(newParent);
+    }
 
     return prim->getName();
 }

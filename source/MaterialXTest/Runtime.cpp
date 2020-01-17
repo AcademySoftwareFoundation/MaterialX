@@ -588,7 +588,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         REQUIRE(tiledimage1);
 
         // Move it into the graph.
-        stage.reparent(tiledimage1.getObject());
+        stage.reparentPrim(tiledimage1.getPath(), graph1.getPath());
 
         // Save the stage to file for inspection.
         stageIo.write(stage.getName().str() + "_export.mtlx", nullptr);

@@ -52,6 +52,9 @@ public:
     /// Rename a prim in the stage.
     RtToken renamePrim(const RtPath& path, const RtToken& newName);
 
+    /// Move a prim to a new parent.
+    RtToken reparentPrim(const RtPath& path, const RtPath& newParentPath);
+
     // Find the prim at the given path, Returns a null object
     // if no such prim is found.
     RtObject getPrimAtPath(const RtPath& path);

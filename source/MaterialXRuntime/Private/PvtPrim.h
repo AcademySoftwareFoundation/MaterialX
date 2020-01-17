@@ -144,11 +144,8 @@ private:
 protected:
     PvtPrim(const RtToken& name, PvtPrim* parent);
 
-    void addChildPrim(const PvtDataHandle& child)
-    {
-        _primOrder.push_back(child);
-        _primMap[child->asA<PvtPathItem>()->getName()] = child;
-    }
+    virtual void addChildPrim(const PvtPrim* prim);
+    virtual void removeChildPrim(const PvtPrim* prim);
 
     PvtDataHandleMap _attrMap;
     PvtDataHandleVec _attrOrder;

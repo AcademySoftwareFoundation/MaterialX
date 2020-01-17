@@ -107,4 +107,23 @@ RtToken PvtPrim::makeUniqueName(const RtToken& name, const PvtPrim* child) const
     return newName;
 }
 
+void PvtPrim::addChildPrim(const PvtPrim* prim)
+{
+    _primOrder.push_back(prim->hnd());
+    _primMap[prim->getName()] = prim->hnd();
+}
+
+void PvtPrim::removeChildPrim(const PvtPrim* prim)
+{
+    for (auto it = _primOrder.begin(); it != _primOrder.end(); ++it)
+    {
+        if ((*it).get() == prim)
+        {
+            _primOrder.erase(it);
+            break;
+        }
+    }
+    _primMap.erase(prim->getName());
+}
+
 }

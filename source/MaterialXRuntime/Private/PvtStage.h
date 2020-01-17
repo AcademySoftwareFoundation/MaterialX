@@ -44,11 +44,13 @@ public:
 
     PvtPrim* createPrim(const PvtPath& path, const RtToken& typeName, PvtObject* def = nullptr);
 
-    PvtPrim* createPrim(const PvtPath& path, const RtToken& name, const RtToken& typeName, PvtObject* def = nullptr);
+    PvtPrim* createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName, PvtObject* def = nullptr);
 
     void removePrim(const PvtPath& path);
 
     RtToken renamePrim(const PvtPath& path, const RtToken& newName);
+
+    RtToken reparentPrim(const PvtPath& path, const PvtPath& newParentPath);
 
     PvtPrim* getPrimAtPath(const PvtPath& path);
 

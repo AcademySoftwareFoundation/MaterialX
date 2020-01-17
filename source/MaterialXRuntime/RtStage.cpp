@@ -66,6 +66,14 @@ RtToken RtStage::renamePrim(const RtPath& path, const RtToken& newName)
     return hnd()->asA<PvtStage>()->renamePrim(*static_cast<PvtPath*>(path._ptr), newName);
 }
 
+RtToken RtStage::reparentPrim(const RtPath& path, const RtPath& newParentPath)
+{
+    return hnd()->asA<PvtStage>()->reparentPrim(
+        *static_cast<PvtPath*>(path._ptr),
+        *static_cast<PvtPath*>(newParentPath._ptr)
+    );
+}
+
 RtObject RtStage::getPrimAtPath(const RtPath& path)
 {
     PvtPrim* prim = hnd()->asA<PvtStage>()->getPrimAtPath(*static_cast<PvtPath*>(path._ptr));
