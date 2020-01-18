@@ -135,7 +135,7 @@ public:
         return _allocator;
     }
 
-    RtToken makeUniqueName(const RtToken& name, const PvtPrim* child = nullptr) const;
+    RtToken makeUniqueName(const RtToken& name) const;
 
 private:
     static const RtObjType _typeId;

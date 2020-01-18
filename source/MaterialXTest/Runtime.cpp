@@ -48,12 +48,13 @@ namespace
     const mx::RtToken IN2("in2");
     const mx::RtToken IN3("in3");
     const mx::RtToken OUT("out");
+    const mx::RtToken IN("in");
     const mx::RtToken FOO("foo");
     const mx::RtToken BAR("bar");
     const mx::RtToken VERSION("version");
     const mx::RtToken ROOT("root");
     const mx::RtToken MAIN("main");
-    const mx::RtToken LIB("lib");
+    const mx::RtToken LIBS("libs");
     const mx::RtToken NONAME("");
 }
 
@@ -615,37 +616,37 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         writeOptions.writeIncludes = false;
         stageIo.write(stage.getName().str() + "_tiledimage_export.mtlx", &writeOptions);
     }
-/*
+
     {
         // Load stdlib into a stage
-        mx::RtStage stdlibStage = mx::RtStage::createNew("stdlib");
-        mx::RtFileIo(stdlibStage.getObject()).readLibraries({ "stdlib" }, searchPath);
+        mx::RtObject libStageObj = mx::RtStage::createNew(LIBS);
+        mx::RtFileIo(libStageObj).readLibraries({ "stdlib" }, searchPath);
 
         // Create a new working space stage.
-        mx::RtStage stage = mx::RtStage::createNew("main_with_xincludes");
+        mx::RtStage stage = mx::RtStage::createNew(MAIN);
 
         // Add reference to stdlib
-        stage.addReference(stdlibStage.getObject());
+        stage.addReference(libStageObj);
 
         // Create a small node network.
-        mx::RtObject tiledimageDef = stage.findElementByName("ND_tiledimage_color3");
-        mx::RtObject texcoordDef = stage.findElementByName("ND_texcoord_vector2");
+        mx::RtObject tiledimageDef = stage.getPrimAtPath("/ND_tiledimage_color3");
+        mx::RtObject texcoordDef = stage.getPrimAtPath("/ND_texcoord_vector2");
         REQUIRE(tiledimageDef);
         REQUIRE(texcoordDef);
-        mx::RtNode tiledimage1 = mx::RtNode::createNew(stage.getObject(), tiledimageDef);
-        mx::RtNode texcoord1 = mx::RtNode::createNew(stage.getObject(), texcoordDef);
+        mx::RtNode tiledimage1 = stage.createPrim(mx::RtNode::typeName(), tiledimageDef);
+        mx::RtNode texcoord1 = stage.createPrim(mx::RtNode::typeName(), texcoordDef);
         REQUIRE(tiledimage1);
         REQUIRE(texcoord1);
-        mx::RtPort tiledimage1_texcoord = tiledimage1.findPort("texcoord");
-        mx::RtPort tiledimage1_file = tiledimage1.findPort("file");
-        mx::RtPort texcoord1_index = texcoord1.findPort("index");
-        mx::RtPort texcoord1_out = texcoord1.findPort(OUT);
+        mx::RtInput tiledimage1_texcoord = tiledimage1.getInput(mx::RtToken("texcoord"));
+        mx::RtInput tiledimage1_file = tiledimage1.getInput(mx::RtToken("file"));
+        mx::RtInput texcoord1_index = texcoord1.getInput(mx::RtToken("index"));
+        mx::RtOutput texcoord1_out = texcoord1.getOutput(OUT);
         REQUIRE(tiledimage1_texcoord);
         REQUIRE(tiledimage1_file);
         REQUIRE(texcoord1_index);
         REQUIRE(texcoord1_out);
         tiledimage1_file.getValue().asString() = "myimagetexture.png";
-        texcoord1_out.connectTo(tiledimage1_texcoord);
+        texcoord1_out.connect(tiledimage1_texcoord);
         texcoord1_index.getValue().asInt() = 2;
 
         // Test write and read-back with explicit xincludes
@@ -653,7 +654,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         writeOptions.writeIncludes = true;
 
         mx::RtFileIo fileIO(stage.getObject());
-        fileIO.write(stage.getName().str() + "_export.mtlx", &writeOptions);
+        fileIO.write("main_with_xincludes_export.mtlx", &writeOptions);
 
         // Test read and write to stream. Note that the steream includes
         // xincludes with content that overlaps whats in the stdlib stage,
@@ -662,69 +663,68 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         fileIO.write(stream1, &writeOptions);
         REQUIRE(!stream1.str().empty());
 
-        mx::RtStage streamStage = mx::RtStage::createNew("stream");
-        mx::RtFileIo streamFileIO(streamStage.getObject());
-        streamStage.addReference(stdlibStage.getObject());
+        mx::RtObject streamStageObj = mx::RtStage::createNew(MAIN);
+        mx::RtFileIo streamFileIO(streamStageObj);
+        mx::RtStage(streamStageObj).addReference(libStageObj);
         mx::RtReadOptions readOptions;
         readOptions.skipConflictingElements = true;
         streamFileIO.read(stream1, &readOptions);
-        streamFileIO.write(streamStage.getName().str() + "_export.mtlx", &writeOptions);
+        streamFileIO.write("stream_export.mtlx", &writeOptions);
     }
-    */
 }
 
-/*
 TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 {
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
  
     // Load in stdlib to a stage.
-    mx::RtStage libStage = mx::RtStage::createNew("libs");
+    mx::RtStage libStage = mx::RtStage::createNew(LIBS);
     mx::RtFileIo libFileIo(libStage.getObject());
     libFileIo.readLibraries({ "stdlib" }, searchPath);
 
     // Create a main stage referencing the libs stage.
-    mx::RtStage mainStage = mx::RtStage::createNew("main");
-    mainStage.addReference(libStage.getObject());
+    mx::RtStage stage = mx::RtStage::createNew(MAIN);
+    stage.addReference(libStage.getObject());
 
     // Create a nodegraph.
-    mx::RtNodeGraph graph = mx::RtNodeGraph::createNew(mainStage.getObject(), "testgraph");
-    graph.addPort("in", mx::RtType::FLOAT);
-    graph.addPort(OUT, mx::RtType::FLOAT, mx::RtPortFlag::OUTPUT);
-    mx::RtPort graphIn = graph.findPort("in");
-    mx::RtPort graphOut = graph.findPort(OUT);
-    mx::RtPort graphInSocket = graph.findInputSocket("in");
-    mx::RtPort graphOutSocket = graph.findOutputSocket(OUT);
+    mx::RtNodeGraph graph = stage.createPrim(mx::RtNodeGraph::typeName());
+    graph.createAttribute(IN, mx::RtType::FLOAT);
+    graph.createAttribute(OUT, mx::RtType::FLOAT, mx::RtAttrFlag::OUTPUT);
+    mx::RtInput graphIn = graph.getInput(IN);
+    mx::RtOutput graphOut = graph.getOutput(OUT);
+    mx::RtOutput graphInSocket = graph.getInputSocket(IN);
+    mx::RtInput graphOutSocket = graph.getOutputSocket(OUT);
     REQUIRE(graphIn);
     REQUIRE(graphOut);
     REQUIRE(graphInSocket);
     REQUIRE(graphOutSocket);
 
     // Add nodes to the graph.
-    mx::RtNodeDef addNodeDef = mainStage.findElementByName("ND_add_float");
-    mx::RtNode add1 = mx::RtNode::createNew(graph.getObject(), addNodeDef.getObject());
-    mx::RtNode add2 = mx::RtNode::createNew(graph.getObject(), addNodeDef.getObject());
-    mx::RtNode::connect(graphInSocket, add1.findPort(IN1));
-    mx::RtNode::connect(add1.findPort(OUT), add2.findPort(IN1));
-    mx::RtNode::connect(add2.findPort(OUT), graphOutSocket);
+    mx::RtNodeDef addNodeDef = stage.getPrimAtPath("/ND_add_float");
+    mx::RtNode add1 = stage.createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
+    mx::RtNode add2 = stage.createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
+    mx::RtNode::connect(graphInSocket, add1.getInput(IN1));
+    mx::RtNode::connect(add1.getOutput(OUT), add2.getInput(IN1));
+    mx::RtNode::connect(add2.getOutput(OUT), graphOutSocket);
+
     // Add an unconnected node.
-    mx::RtNode::createNew(graph.getObject(), addNodeDef.getObject());
+    stage.createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
 
     // Create a node on root level and connect it downstream after the graph.
-    mx::RtNode add4 = mx::RtNode::createNew(mainStage.getObject(), addNodeDef.getObject());
-    mx::RtNode::connect(graphOut, add4.findPort(IN1));
+    mx::RtNode add3 = stage.createPrim(mx::RtNode::typeName(), addNodeDef.getObject());
+    mx::RtNode::connect(graphOut, add3.getInput(IN1));
 
     mx::RtWriteOptions options;
     options.writeIncludes = false;
 
     // Save the stage to file for inspection.
     const mx::FilePath filename = graph.getName().str() + "_export.mtlx";
-    mx::RtFileIo fileIo(mainStage.getObject());
+    mx::RtFileIo fileIo(stage.getObject());
     fileIo.write(filename, &options);
 
     // Read the saved file to another stage.
-    mx::RtStage anotherStage = mx::RtStage::createNew("another");
+    mx::RtStage anotherStage = mx::RtStage::createNew(mx::RtToken("another"));
     anotherStage.addReference(libStage.getObject());
     fileIo.setObject(anotherStage.getObject());
     fileIo.read(filename, searchPath);
@@ -743,7 +743,7 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 TEST_CASE("Runtime: Rename", "[runtime]")
 {
     // Load in stdlib as a referenced stage ("libs").
-    mx::RtObject libStageObj = mx::RtStage::createNew("libs");
+    mx::RtObject libStageObj = mx::RtStage::createNew(LIBS);
     mx::RtStage libStage(libStageObj);
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
@@ -751,39 +751,43 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     libFileIo.readLibraries({ "stdlib" }, searchPath);
 
     // Create a main stage.
-    mx::RtObject mainStageObj = mx::RtStage::createNew("main");
-    mx::RtStage mainStage(mainStageObj);
-    mainStage.addReference(libStageObj);
+    mx::RtObject stageObj = mx::RtStage::createNew(MAIN);
+    mx::RtStage stage(stageObj);
+    stage.addReference(libStageObj);
 
     // Create some nodes.
-    mx::RtObject nodedefObj = mainStage.findElementByName("ND_add_float");
+    mx::RtObject nodedefObj = stage.getPrimAtPath("/ND_add_float");
     mx::RtNodeDef nodedef(nodedefObj);
     REQUIRE(nodedef.isValid());
-    mx::RtNode node1 = mx::RtNode::createNew(mainStage.getObject(), nodedefObj);
-    mx::RtNode node2 = mx::RtNode::createNew(mainStage.getObject(), nodedefObj);
-    REQUIRE(node1.isValid());
-    REQUIRE(node2.isValid());
-
+    mx::RtNode node1 = stage.createPrim(mx::RtNode::typeName(), nodedefObj);
+    mx::RtNode node2 = stage.createPrim(mx::RtNode::typeName(), nodedefObj);
+    REQUIRE(node1);
+    REQUIRE(node2);
     REQUIRE(node1.getName() == "add1");
     REQUIRE(node2.getName() == "add2");
 
     // Test node renaming
-    node1.setName("foo");
+    mx::RtPath path1 = stage.renamePrim(node1.getPath(), mx::RtToken("foo"));
+    mx::RtPath path2 = stage.renamePrim(node2.getPath(), mx::RtToken("foo"));
+    REQUIRE(path1 == "/foo");
+    REQUIRE(path2 == "/foo1");
     REQUIRE(node1.getName() == "foo");
-    node2.setName("foo");
     REQUIRE(node2.getName() == "foo1");
-    node1.setName("add1");
+
+    stage.renamePrim(node1.getPath(), mx::RtToken("add1"));
     REQUIRE(node1.getName() == "add1");
-    node2.setName("foo");
+    stage.renamePrim(node2.getPath(), mx::RtToken("foo"));
     REQUIRE(node2.getName() == "foo");
-    node2.setName("add2");
+    stage.renamePrim(node2.getPath(), mx::RtToken("add2"));
     REQUIRE(node2.getName() == "add2");
 
     // Test that a rename to existing "add1" results in the
     // old name "add2" since that is still a unique name.
-    node2.setName("add1");
+    stage.renamePrim(node2.getPath(), mx::RtToken("add1"));
     REQUIRE(node2.getName() == "add2");
 }
+
+/*
 
 TEST_CASE("Runtime: Stage References", "[runtime]")
 {

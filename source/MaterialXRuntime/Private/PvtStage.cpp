@@ -97,10 +97,12 @@ RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
         throw ExceptionRuntimeError("Given path '" + path.asString() + " does not point to a prim in this stage");
     }
 
+    // Remove the old name from the name map.
     PvtPrim* parent = prim->getParent();
-    prim->setName(parent->makeUniqueName(newName, prim));
+    parent->_primMap.erase(prim->getName());
 
-    parent->_primMap.erase(newName);
+    // Make sure the new name is unique and insert it to the name map.
+    prim->setName(parent->makeUniqueName(newName));
     parent->_primMap[prim->getName()] = prim->shared_from_this();
 
     return prim->getName();

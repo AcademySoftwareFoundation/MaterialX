@@ -14,7 +14,6 @@
 namespace MaterialX
 {
 
-/*
 /// @class PvtStageIterator
 /// TODO: Docs
 class PvtStageIterator
@@ -73,7 +72,6 @@ private:
     vector<StackFrame> _stack;
     RtObjectPredicate _predicate;
 };
-*/
 
 
 /*

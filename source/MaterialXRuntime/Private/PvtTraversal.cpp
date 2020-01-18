@@ -3,13 +3,13 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+/*
 #include <MaterialXRuntime/Private/PvtTraversal.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-/*
 PvtStageIterator::PvtStageIterator() :
     _current(nullptr),
     _filter(nullptr)
@@ -191,6 +191,6 @@ void PvtGraphIterator::returnPathDownstream(const RtPort& upstream)
     _current.first = RtPort();
     _current.second = RtPort();
 }
-*/
 
 }
+*/

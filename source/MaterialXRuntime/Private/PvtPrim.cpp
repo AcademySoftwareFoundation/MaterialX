@@ -79,13 +79,13 @@ void PvtPrim::removeAttribute(const RtToken& name)
     _attrMap.erase(name);
 }
 
-RtToken PvtPrim::makeUniqueName(const RtToken& name, const PvtPrim* child) const
+RtToken PvtPrim::makeUniqueName(const RtToken& name) const
 {
     RtToken newName = name;
 
     // Check if there is another child with this name.
     const PvtPrim* otherChild = getChild(name);
-    if (otherChild && otherChild != child)
+    if (otherChild)
     {
         // Find a number to append to the name, incrementing
         // the counter until a unique name is found.
@@ -102,7 +102,7 @@ RtToken PvtPrim::makeUniqueName(const RtToken& name, const PvtPrim* child) const
         do {
             newName = baseName + std::to_string(i++);
             otherChild = getChild(newName);
-        } while (otherChild && otherChild != child);
+        } while (otherChild);
     }
     return newName;
 }

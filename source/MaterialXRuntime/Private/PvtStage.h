@@ -69,9 +69,9 @@ public:
         return _root->asA<PvtPrim>()->getPath();
     }
 
-    RtPrimIterator traverse(RtObjectPredicate predicate)
+    RtStageIterator traverse(RtObjectPredicate predicate)
     {
-        return RtPrimIterator(_root->asA<PvtPrim>()->obj(), predicate);
+        return RtStageIterator(obj(), predicate);
     }
 
     const RtTokenList& getSourceUri() const
@@ -134,6 +134,7 @@ protected:
     RtTokenList _sourceUri;
 
     friend class PvtPathItem;
+    friend class RtStageIterator;
 };
 
 }

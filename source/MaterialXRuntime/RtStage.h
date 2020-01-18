@@ -62,11 +62,12 @@ public:
     // Return the prim representing the root of the stage's prim hierarchy.
     RtObject getRootPrim();
 
-    /// Return an iterator traversing all child prims (siblings).
+    /// Return an iterator traversing all child prims (siblings) in the stage,
+    /// including children from any referenced stages.
     /// Using a predicate this method can be used to find all child prims
     /// of a specific object type, or all child prims supporting a
     /// specific API, etc.
-    RtPrimIterator traverse(RtObjectPredicate predicate);
+    RtStageIterator traverse(RtObjectPredicate predicate);
 
     /// Add a reference to another stage.
     void addReference(const RtObject& stage);

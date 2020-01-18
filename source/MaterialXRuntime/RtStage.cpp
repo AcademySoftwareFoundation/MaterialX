@@ -85,7 +85,7 @@ RtObject RtStage::getRootPrim()
     return hnd()->asA<PvtStage>()->getRootPrim()->obj();
 }
 
-RtPrimIterator RtStage::traverse(RtObjectPredicate predicate)
+RtStageIterator RtStage::traverse(RtObjectPredicate predicate)
 {
     return hnd()->asA<PvtStage>()->traverse(predicate);
 }

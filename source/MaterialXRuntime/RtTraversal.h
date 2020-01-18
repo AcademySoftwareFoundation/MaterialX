@@ -21,7 +21,7 @@ class RtInput;
 /// Predicate used for filtering objects during traversal.
 using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
 
-/// Traversal filter for specific object types.
+/// Traversal predicate for specific object types.
 template<RtObjType T>
 struct RtObjTypePredicate
 {
@@ -31,7 +31,7 @@ struct RtObjTypePredicate
     }
 };
 
-/// Traversal filter for specific API support.
+/// Traversal predicate for specific API support.
 template<RtApiType T>
 struct RtApiTypePredicate
 {
@@ -43,7 +43,7 @@ struct RtApiTypePredicate
 
 /// @class RtAttrIterator
 /// Iterator for traversing over the attributes of a prim.
-/// Using a filter this iterator can be used to find all
+/// Using a predicate this iterator can be used to find all
 /// attributes of a specific kind or type, etc.
 class RtAttrIterator
 {
@@ -55,14 +55,14 @@ public:
     {}
 
     /// Constructor, setting the prim to iterate on,
-    /// and an optional filter function.
-    RtAttrIterator(const RtObject& prim, RtObjectPredicate filter = nullptr);
+    /// and an optional predicate function.
+    RtAttrIterator(const RtObject& prim, RtObjectPredicate predicate = nullptr);
 
     /// Copy constructor.
     RtAttrIterator(const RtAttrIterator& other) :
         _prim(other._prim),
         _current(other._current),
-        _filter(other._filter)
+        _predicate(other._predicate)
     {}
 
     /// Assignment operator.
@@ -70,7 +70,7 @@ public:
     {
         _prim = other._prim;
         _current = other._current;
-        _filter = other._filter;
+        _predicate = other._predicate;
         return *this;
     }
 
@@ -116,13 +116,13 @@ public:
 private:
     const PvtPrim* _prim;
     size_t _current;
-    RtObjectPredicate _filter;
+    RtObjectPredicate _predicate;
 };
 
 
 /// @class RtPrimIterator
 /// Iterator for traversing over the child prims (siblings) of a prim.
-/// Using a filter this iterator can be used to find all child prims
+/// Using a predicate this iterator can be used to find all child prims
 /// of a specific object type, or all child prims supporting a
 /// specific API, etc.
 class RtPrimIterator
@@ -135,14 +135,14 @@ public:
     {}
 
     /// Constructor, setting the prim to iterate on,
-    /// and an optional filter function.
-    RtPrimIterator(const RtObject& prim, RtObjectPredicate filter = nullptr);
+    /// and an optional predicate function.
+    RtPrimIterator(const RtObject& prim, RtObjectPredicate predicate = nullptr);
 
     /// Copy constructor.
     RtPrimIterator(const RtPrimIterator& other) :
         _prim(other._prim),
         _current(other._current),
-        _filter(other._filter)
+        _predicate(other._predicate)
     {}
 
     /// Assignment operator.
@@ -150,7 +150,7 @@ public:
     {
         _prim = other._prim;
         _current = other._current;
-        _filter = other._filter;
+        _predicate = other._predicate;
         return *this;
     }
 
@@ -196,7 +196,7 @@ public:
 private:
     const PvtPrim* _prim;
     size_t _current;
-    RtObjectPredicate _filter;
+    RtObjectPredicate _predicate;
 };
 
 
@@ -214,7 +214,7 @@ public:
     {}
 
     /// Constructor, setting the prim to iterate on,
-    /// and an optional filter function.
+    /// and an optional predicate function.
     RtConnectionIterator(const RtObject& attr);
 
     /// Copy constructor.
@@ -275,30 +275,26 @@ private:
     size_t _current;
 };
 
-/*
 /// @class RtStageIterator
-/// API for iterating over elements in a stage. Only root level
-/// elements are returned. Using a filter this iterator can be
-/// used to find all elements of a specific object type, or all
-/// objects supporting a specific API, etc.
-class RtStageIterator : public RtApiBase
+/// API for iterating over prims in a stage, including referenced stages.
+/// Only stage level prims are returned. Using a predicate this iterator can be
+/// used to find all prims of a specific object type, or all
+/// prims supporting a specific API, etc.
+class RtStageIterator
 {
 public:
     /// Empty constructor.
     RtStageIterator();
 
     /// Constructor, setting the stage to iterate on and optionally
-    /// a filter restricting the set of returned objects.
-    RtStageIterator(RtObject stage, RtObjectPredicate predicate = nullptr);
+    /// a predicate restricting the set of returned objects.
+    RtStageIterator(const RtObject& stage, RtObjectPredicate predicate = nullptr);
 
     /// Copy constructor.
     RtStageIterator(const RtStageIterator& other);
 
     /// Destructor.
     ~RtStageIterator();
-
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
 
     /// Equality operator.
     bool operator==(const RtStageIterator& other) const;
@@ -319,10 +315,21 @@ public:
     /// Force the iterator to terminate the traversal.
     void abort();
 
+    /// Interpret this object as an iteration range,
+    /// and return its begin iterator.
+    RtStageIterator& begin()
+    {
+        return *this;
+    }
+
+    /// Return the sentinel end iterator for this class.
+    static const RtStageIterator& end();
+
 private:
     void* _ptr;
 };
-*/
+
+/*
 
 /// An edge in a node network. First entry is the upstream source
 /// port and second entry is the downstream destination port.
@@ -333,10 +340,10 @@ using RtEdge = std::pair<RtPort, RtPort>;
 /// @class RtGraphIterator
 /// API for traversing port connections. Traversal starts at a given 
 /// port and moves upstream, visiting all edges the DAG formed by a
-/// node network. Using a filter the graph can be pruned, terminating
+/// node network. Using a predicate the graph can be pruned, terminating
 /// the traversal upstream from specific nodes visited.
 ///
-/// TODO: Implement support for the filter to prune edges in the graph.
+/// TODO: Implement support for the predicate to prune edges in the graph.
 ///
 class RtGraphIterator : public RtApiBase
 {

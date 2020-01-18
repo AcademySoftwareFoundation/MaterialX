@@ -275,7 +275,7 @@ namespace
             createInterface(src, nodegraph);
         }
 
-        // Create all nodes and connection between node intputs and internal graph sockets.
+        // Create all nodes and connection between node inputs and internal graph sockets.
         for (auto child : src->getChildren())
         {
             NodePtr srcNnode = child->asA<Node>();
@@ -289,18 +289,17 @@ namespace
                     const string& interfaceName = elem->getInterfaceName();
                     if (!interfaceName.empty())
                     {
+                        const RtToken inputName(elem->getName());
                         const RtToken socketName(interfaceName);
                         PvtAttribute* socket = nodegraph->getInputSocket(socketName);
                         if (!socket)
                         {
-                            PvtPath path(parent->getPath());
-                            path.push(nodegraphName);
-                            throw ExceptionRuntimeError("Interface name '" + interfaceName + "' does not match an internal input socket on the nodegraph '" + path.asString() + "'");
+                            const RtToken inputType(elem->getType());
+                            PvtAttribute* attr = nodegraph->createAttribute(socketName, inputType);
+                            socket = nodegraph->getInputSocket(attr->getName());
                         }
 
-                        const RtToken inputName(elem->getName());
                         PvtAttribute* input = findAttrOrThrow(inputName, node);
-
                         PvtAttribute::connect(socket, input);
                     }
                 }
@@ -317,6 +316,13 @@ namespace
             if (!connectedNodeName.empty())
             {
                 PvtAttribute* socket = nodegraph->getOutputSocket(RtToken(elem->getName()));
+                if (!socket)
+                {
+                    PvtPath path(parent->getPath());
+                    path.push(nodegraphName);
+                    throw ExceptionRuntimeError("Output '" + elem->getName() + "' does not match an internal output socket on the nodegraph '" + path.asString() + "'");
+                }
+
                 PvtNode* connectedNode = findNodeOrThrow(RtToken(connectedNodeName), nodegraph);
 
                 const RtToken outputName(elem->getOutputString());
