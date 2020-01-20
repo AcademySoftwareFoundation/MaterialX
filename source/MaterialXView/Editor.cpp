@@ -51,7 +51,7 @@ class EditorColorPicker : public ng::ColorPicker
             _colorWidgets[i]->setFixedSize(ng::Vector2i(70, 20));
             _colorWidgets[i]->setFontSize(15);
             _colorWidgets[i]->setSpinnable(true);
-            _colorWidgets[i]->setCallback([&](float)
+            _colorWidgets[i]->setCallback([this](float)
             {
                 ng::Color value(_colorWidgets[0]->value(), _colorWidgets[1]->value(), _colorWidgets[2]->value(), _colorWidgets[3]->value());
                 mColorWheel->setColor(value);
@@ -62,7 +62,7 @@ class EditorColorPicker : public ng::ColorPicker
 
         // The color wheel does not handle alpha properly, so only
         // overwrite RGB in the callback.
-        mCallback = [&](const ng::Color &value) {
+        mCallback = [this](const ng::Color &value) {
             _colorWidgets[0]->setValue(value[0]);
             _colorWidgets[1]->setValue(value[1]);
             _colorWidgets[2]->setValue(value[2]);
@@ -781,37 +781,37 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
     box->setFontSize(15);
     box->setAlignment(ng::TextBox::Alignment::Right);
 
-	if (ui)
-	{
-		std::pair<float, float> range(0.0f, 0.0f);
-		if (ui->uiMin)
-		{
-			box->setMinValue(ui->uiMin->asA<float>());
-			range.first = ui->uiMin->asA<float>();
-		}
-		if (ui->uiMax)
-		{
-			box->setMaxValue(ui->uiMax->asA<float>());
-			range.second = ui->uiMax->asA<float>();
-		}
-		if (ui->uiSoftMin)
-		{
-			range.first = ui->uiSoftMin->asA<float>();
-		}
-		if (ui->uiSoftMax)
-		{
-			range.second = ui->uiSoftMax->asA<float>();
-		}
-		if (range.first != range.second)
-		{
-			slider->setRange(range);
-		}
-		if (ui->uiStep)
-		{
-			box->setValueIncrement(ui->uiStep->asA<float>());
-			box->setSpinnable(true);
-		}
-	}
+    if (ui)
+    {
+        std::pair<float, float> range(0.0f, 0.0f);
+        if (ui->uiMin)
+        {
+            box->setMinValue(ui->uiMin->asA<float>());
+            range.first = ui->uiMin->asA<float>();
+        }
+        if (ui->uiMax)
+        {
+            box->setMaxValue(ui->uiMax->asA<float>());
+            range.second = ui->uiMax->asA<float>();
+        }
+        if (ui->uiSoftMin)
+        {
+            range.first = ui->uiSoftMin->asA<float>();
+        }
+        if (ui->uiSoftMax)
+        {
+            range.second = ui->uiSoftMax->asA<float>();
+        }
+        if (range.first != range.second)
+        {
+            slider->setRange(range);
+        }
+        if (ui->uiStep)
+        {
+            box->setValueIncrement(ui->uiStep->asA<float>());
+            box->setSpinnable(true);
+        }
+    }
 
     slider->setCallback([box, callback](float value) 
     {

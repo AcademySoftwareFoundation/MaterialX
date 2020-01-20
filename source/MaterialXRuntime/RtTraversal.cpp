@@ -176,10 +176,22 @@ RtStageIterator::RtStageIterator(const RtStageIterator& other) :
 {
     if (other._ptr)
     {
-        StageIteratorData* data = new StageIteratorData();
-        *data = *static_cast<StageIteratorData*>(other._ptr);
-        _ptr = data;
+        _ptr = new StageIteratorData();
+        *static_cast<StageIteratorData*>(_ptr) = *static_cast<StageIteratorData*>(other._ptr);
     }
+}
+
+RtStageIterator& RtStageIterator::operator=(const RtStageIterator& other)
+{
+    if (other._ptr)
+    {
+        if (!_ptr)
+        {
+            _ptr = new StageIteratorData();
+        }
+        *static_cast<StageIteratorData*>(_ptr) = *static_cast<StageIteratorData*>(other._ptr);
+    }
+    return *this;
 }
 
 RtStageIterator::~RtStageIterator()

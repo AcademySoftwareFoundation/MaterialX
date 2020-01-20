@@ -101,7 +101,7 @@ class Half
     static constexpr int32_t const nanN = (infC + 1) << shift; // minimum flt16 nan as a flt32
     static constexpr int32_t const maxC = maxN >> shift;
     static constexpr int32_t const minC = minN >> shift;
-    static constexpr int32_t const signC = signN >> shiftSign; // flt16 sign bit
+    static constexpr int32_t const signC = (int32_t) 0x00008000; // flt16 sign bit
 
     static constexpr int32_t const mulN = 0x52000000; // (1 << 23) / minN
     static constexpr int32_t const mulC = 0x33800000; // minN / (1 << (23 - shift))

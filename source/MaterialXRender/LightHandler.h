@@ -21,10 +21,12 @@ class GenContext;
 /// Shared pointer to a LightHandler
 using LightHandlerPtr = std::shared_ptr<class LightHandler>;
 
+/// An unordered map from light names to light indices.
+using LightIdMap = std::unordered_map<string, unsigned int>;
+
 /// @class LightHandler
 /// Utility light handler for creating and providing
 /// light data for shader binding.
-///
 class LightHandler
 {
   public:
@@ -83,8 +85,7 @@ class LightHandler
 
     /// From a set of nodes, create a mapping of corresponding
     /// nodedef identifiers to numbers
-    void mapNodeDefToIdentiers(const vector<NodePtr>& nodes,
-                               std::unordered_map<string, unsigned int>& ids);
+    LightIdMap computeLightIdMap(const vector<NodePtr>& nodes);
 
     /// Find lights to use based on an input document
     /// @param doc Document to scan for lights

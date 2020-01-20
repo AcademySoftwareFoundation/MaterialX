@@ -168,6 +168,34 @@ Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
     }
 }
 
+ImagePair Image::splitByLuminance(float luminance)
+{
+    ImagePtr underflowImage = Image::create(getWidth(), getHeight(), getChannelCount(), getBaseType());
+    ImagePtr overflowImage = Image::create(getWidth(), getHeight(), getChannelCount(), getBaseType());
+    underflowImage->createResourceBuffer();
+    overflowImage->createResourceBuffer();
+
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            Color4 envColor = getTexelColor(x, y);
+            Color4 underflowColor(
+                std::min(envColor[0], luminance),
+                std::min(envColor[1], luminance),
+                std::min(envColor[2], luminance), 1.0f);
+            Color4 overflowColor(
+                std::max(envColor[0] - underflowColor[0], 0.0f),
+                std::max(envColor[1] - underflowColor[1], 0.0f),
+                std::max(envColor[2] - underflowColor[2], 0.0f), 1.0f);
+            underflowImage->setTexelColor(x, y, underflowColor);
+            overflowImage->setTexelColor(x, y, overflowColor);
+        }
+    }
+
+    return std::make_pair(underflowImage, overflowImage);
+}
+
 void Image::createResourceBuffer()
 {
     releaseResourceBuffer();

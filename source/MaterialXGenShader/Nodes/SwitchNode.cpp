@@ -48,16 +48,13 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
             {
                 shadergen.emitString("else ", stage);
             }
-            if (branch < 5)
-            {
-                // 'which' can be float, integer or boolean, 
-                // so always convert to float to make sure the comparison is valid
-                shadergen.emitString("if (float(", stage); 
-                shadergen.emitInput(which, context, stage);
-                shadergen.emitString(") < ", stage);
-                shadergen.emitValue(float(branch + 1), stage);
-                shadergen.emitString(")", stage);
-            }
+            // Convert to float to insure a valid comparison, since the 'which'
+            // input may be float, integer or boolean.
+            shadergen.emitString("if (float(", stage); 
+            shadergen.emitInput(which, context, stage);
+            shadergen.emitString(") < ", stage);
+            shadergen.emitValue(float(branch + 1), stage);
+            shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage, false);
 
             shadergen.emitScopeBegin(stage);

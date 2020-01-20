@@ -290,6 +290,9 @@ public:
     /// Copy constructor.
     RtStageIterator(const RtStageIterator& other);
 
+    /// Assignment operator.
+    RtStageIterator& operator=(const RtStageIterator& other);
+
     /// Destructor.
     ~RtStageIterator();
 
