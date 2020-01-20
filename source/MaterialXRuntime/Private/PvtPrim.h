@@ -120,7 +120,7 @@ public:
         return const_cast<PvtPrim*>(this)->getChild(name);
     }
 
-    RtPrimIterator PvtPrim::getChildren(RtObjectPredicate predicate = nullptr) const
+    RtPrimIterator getChildren(RtObjectPredicate predicate = nullptr) const
     {
         return RtPrimIterator(this->obj(), predicate);
     }
@@ -144,8 +144,8 @@ private:
 protected:
     PvtPrim(const RtToken& name, PvtPrim* parent);
 
-    virtual void addChildPrim(const PvtPrim* prim);
-    virtual void removeChildPrim(const PvtPrim* prim);
+    void addChildPrim(const PvtPrim* prim);
+    void removeChildPrim(const PvtPrim* prim);
 
     PvtDataHandleMap _attrMap;
     PvtDataHandleVec _attrOrder;
