@@ -99,7 +99,7 @@ public:
         return const_cast<PvtPrim*>(this)->getAttribute(name);
     }
 
-    RtAttrIterator PvtPrim::getAttributes(RtObjectPredicate predicate = nullptr) const
+    RtAttrIterator getAttributes(RtObjectPredicate predicate = nullptr) const
     {
         return RtAttrIterator(this->obj(), predicate);
     }
