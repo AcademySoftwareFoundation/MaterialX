@@ -9,8 +9,9 @@
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
-#include <MaterialXRuntime/Private/PvtTraversal.h>
 #include <MaterialXRuntime/Private/PvtNodeGraph.h>
+
+#include <MaterialXRuntime/RtTraversal.h>
 
 /// @file
 /// TODO: Docs

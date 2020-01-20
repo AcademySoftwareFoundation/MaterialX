@@ -156,6 +156,7 @@ protected:
     PvtAllocator _allocator;
 
     friend class PvtStage;
+    friend class RtGraphIterator;
 };
 
 }

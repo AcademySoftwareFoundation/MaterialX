@@ -9,12 +9,12 @@
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtTypeDef.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtNodeDef.h>
 #include <MaterialXRuntime/Private/PvtNode.h>
 #include <MaterialXRuntime/Private/PvtNodeGraph.h>
-#include <MaterialXRuntime/Private/PvtTraversal.h>
 
 #include <MaterialXGenShader/Util.h>
 #include <sstream>

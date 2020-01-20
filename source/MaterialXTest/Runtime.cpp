@@ -49,6 +49,7 @@ namespace
     const mx::RtToken IN3("in3");
     const mx::RtToken OUT("out");
     const mx::RtToken IN("in");
+    const mx::RtToken REFLECTIVITY("reflectivity");
     const mx::RtToken FOO("foo");
     const mx::RtToken BAR("bar");
     const mx::RtToken VERSION("version");
@@ -787,12 +788,10 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     REQUIRE(node2.getName() == "add2");
 }
 
-/*
-
 TEST_CASE("Runtime: Stage References", "[runtime]")
 {
     // Load in stdlib as a referenced stage ("libs").
-    mx::RtObject libStageObj = mx::RtStage::createNew("libs");
+    mx::RtObject libStageObj = mx::RtStage::createNew(LIBS);
     mx::RtStage libStage(libStageObj);
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
@@ -800,39 +799,33 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     libFileIo.readLibraries({ "stdlib", "pbrlib" }, searchPath);
 
     // Create a main stage.
-    mx::RtObject mainStageObj = mx::RtStage::createNew("main");
-    mx::RtStage mainStage(mainStageObj);
-    mainStage.addReference(libStageObj);
+    mx::RtObject stageObj = mx::RtStage::createNew(MAIN);
+    mx::RtStage stage(stageObj);
+    stage.addReference(libStageObj);
 
     // Test access and usage of contents from the referenced library.
-    mx::RtObject nodedefObj = mainStage.findElementByName("ND_complex_ior");
+    mx::RtObject nodedefObj = stage.getPrimAtPath("/ND_complex_ior");
     mx::RtNodeDef nodedef(nodedefObj);
     REQUIRE(nodedef.isValid());
-    mx::RtNode node1 = mx::RtNode::createNew(mainStage.getObject(), nodedefObj);
+    mx::RtNode node1 = stage.createPrim(mx::RtNode::typeName(), nodedefObj);
     REQUIRE(node1.isValid());
 
     // Write the main stage to a new document,
     // writing only the non-referenced content.
     mx::RtWriteOptions options;
     options.writeIncludes = true;
-    mx::RtFileIo mainFileIO(mainStageObj);
-    mainFileIO.write(mainStage.getName().str() + ".mtlx", &options);
+    mx::RtFileIo mainFileIO(stageObj);
+    mainFileIO.write("refs_as_includes.mtlx", &options);
 
-    // Make sure removal of the non-referenced node works
-    const mx::RtToken nodeName = node1.getName();
-    mainStage.removeElement(node1.getObject());
-    node1 = mainStage.findElementByName(nodeName);
+    // Test removal of referenced content.
+    mx::RtPath path1 = nodedef.getPath();
+    REQUIRE_THROWS(stage.removePrim(path1));
+
+    // Test removal of non-referenced content.
+    mx::RtPath path2 = node1.getPath();
+    stage.removePrim(path2);
+    node1 = stage.getPrimAtPath(path2);
     REQUIRE(!node1.isValid());
-
-    // Test RtPath on referenced contents
-    mx::RtPath path1(nodedefObj);
-    REQUIRE(path1.isValid());
-    REQUIRE(path1.asString() == "/ND_complex_ior");
-    REQUIRE(path1.getObject() == nodedefObj);
-    path1.push("reflectivity");
-    REQUIRE(path1.isValid());
-    REQUIRE(path1.asString() == "/ND_complex_ior/reflectivity");
-    REQUIRE(path1.getObject() == nodedef.findPort("reflectivity"));
 }
 
 TEST_CASE("Runtime: Traversal", "[runtime]")
@@ -841,14 +834,14 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
     // Load standard libraries in a stage.
-    mx::RtObject libStageObj = mx::RtStage::createNew("libs");
+    mx::RtObject libStageObj = mx::RtStage::createNew(LIBS);
     mx::RtFileIo libStageIO(libStageObj);
     libStageIO.readLibraries({ "stdlib", "pbrlib" }, searchPath);
 
     // Count elements traversing the full stdlib stage
     mx::RtStage libStage(libStageObj);
     size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = libStage.traverseStage(); !it.isDone(); ++it)
+    for (auto it = libStage.traverse(); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -870,23 +863,26 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     // and tests the same element counts.
     mx::DocumentPtr doc = mx::createDocument();
     loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
-    REQUIRE(nodeCount == doc->getNodes().size());
-    REQUIRE(nodeDefCount == doc->getNodeDefs().size());
-    REQUIRE(nodeGraphCount == doc->getNodeGraphs().size());
+    const size_t libNodeCount = doc->getNodes().size();
+    const size_t libNodeDefCount = doc->getNodeDefs().size();
+    const size_t libNodeGraphCount = doc->getNodeGraphs().size();
+    REQUIRE(nodeCount == libNodeCount);
+    REQUIRE(nodeDefCount == libNodeDefCount);
+    REQUIRE(nodeGraphCount == libNodeGraphCount);
 
     // Create a main stage.
-    mx::RtStage mainStage = mx::RtStage::createNew("main");
-    mainStage.addReference(libStageObj);
+    mx::RtStage stage = mx::RtStage::createNew(MAIN);
+    stage.addReference(libStageObj);
 
-    mx::RtNodeDef nodedef = mainStage.findElementByName("ND_subtract_vector3");
+    mx::RtNodeDef nodedef = stage.getPrimAtPath("/ND_subtract_vector3");
     REQUIRE(nodedef);
-    mx::RtObject nodeObj = mx::RtNode::createNew(mainStage.getObject(), nodedef.getObject());
+    mx::RtObject nodeObj = stage.createPrim(mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(nodeObj);
 
     // Travers using a filter to return only node objects.
-    mx::RtObjectFilter<mx::RtObjType::NODE> nodeFilter;
+    mx::RtObjTypePredicate<mx::RtObjType::NODE> nodeFilter;
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = mainStage.traverseStage(nodeFilter); !it.isDone(); ++it)
+    for (auto it = stage.traverse(nodeFilter); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -908,9 +904,9 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     REQUIRE(nodeGraphCount == 0);
 
     // Travers using a filter to return only objects supporting the nodegraph API.
-    mx::RtApiFilter<mx::RtApiType::NODEGRAPH> apiFilter;
+    mx::RtApiTypePredicate<mx::RtApiType::NODEGRAPH> apiFilter;
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = mainStage.traverseStage(apiFilter); !it.isDone(); ++it)
+    for (auto it = stage.traverse(apiFilter); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -929,37 +925,29 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     }
     REQUIRE(nodeCount == 0);
     REQUIRE(nodeDefCount == 0);
-    REQUIRE(nodeGraphCount == 65);
+    REQUIRE(nodeGraphCount == libNodeGraphCount);
 
     // Traverse a nodegraph using tree traversal.
-    mx::RtNodeGraph nodegraph = mainStage.findElementByName("NG_tiledimage_float");
+    mx::RtNodeGraph nodegraph = stage.getPrimAtPath("/NG_tiledimage_float");
     REQUIRE(nodegraph);
     nodeCount = 0;
-    for (auto it = nodegraph.traverseTree(); !it.isDone(); ++it)
+    for (auto it = nodegraph.getChildren(nodeFilter); !it.isDone(); ++it)
     {
-        if ((*it).getObjType() == mx::RtObjType::NODE)
-        {
-            nodeCount++;
-        }
+        nodeCount++;
     }
     REQUIRE(nodeCount == 5);
 
-    // Filter for finding input ports.
+    // Filter for finding input attributes.
     auto inputFilter = [](const mx::RtObject& obj) -> bool
     {
-        if (obj.hasApi(mx::RtApiType::PORTDEF))
-        {
-            mx::RtPortDef portdef(obj);
-            return portdef.isInput();
-        }
-        return false;
+        return mx::RtAttribute(obj).isInput();
     };
 
     // Travers a nodedef finding all its inputs.
-    mx::RtNodeDef generalized_schlick_brdf = mainStage.findElementByName("ND_generalized_schlick_brdf");
+    mx::RtNodeDef generalized_schlick_brdf = stage.getPrimAtPath("/ND_generalized_schlick_brdf");
     REQUIRE(generalized_schlick_brdf);
     size_t inputCount = 0;
-    for (auto it = generalized_schlick_brdf.traverseTree(inputFilter); !it.isDone(); ++it)
+    for (auto it = generalized_schlick_brdf.getAttributes(inputFilter); !it.isDone(); ++it)
     {
         inputCount++;
     }
@@ -971,33 +959,27 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
         if (obj.hasApi(mx::RtApiType::NODEDEF))
         {
             mx::RtNodeDef nodedef(obj);
-            return nodedef.numOutputs() == 1 && mx::RtPortDef(nodedef.getPort(0)).getType() == mx::RtType::BSDF;
+            mx::RtAttribute out = nodedef.getAttribute(OUT);
+            return (out && out.getType() == mx::RtType::BSDF);
         }
         return false;
     };
 
     // Travers to find all nodedefs for BSDF nodes.
     size_t bsdfCount = 0;
-    for (auto it = mainStage.traverseStage(bsdfFilter); !it.isDone(); ++it)
+    for (auto it = stage.traverse(bsdfFilter); !it.isDone(); ++it)
     {
         bsdfCount++;
     }
-    REQUIRE(bsdfCount == 14);
-
-    // Find the output port on the nodegraph above,
-    // and test traversing the graph upstream from 
-    // this output.
-    mx::RtPort outSocket = nodegraph.getOutputSocket(0);
-    REQUIRE(outSocket.isInput());
-    REQUIRE(outSocket.isConnected());
-    REQUIRE(outSocket.getSourcePort());
-    size_t numEdges = 0;
-    for (auto it = outSocket.traverseUpstream(); !it.isDone(); ++it)
+    size_t libBsdfCount = 0;
+    for (auto it : doc->getNodeDefs())
     {
-        ++numEdges;
+        if (it->getOutputCount() == 1 && it->getOutput(OUT.str())->getType() == mx::RtType::BSDF.str())
+        {
+            libBsdfCount++;
+        }
     }
-    REQUIRE(numEdges == 16);
+    REQUIRE(bsdfCount == libBsdfCount);
 }
-*/
 
 #endif // MATERIALX_BUILD_RUNTIME

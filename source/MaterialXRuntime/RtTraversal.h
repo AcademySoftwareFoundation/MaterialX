@@ -16,7 +16,6 @@ namespace MaterialX
 {
 
 class PvtPrim;
-class RtInput;
 
 /// Predicate used for filtering objects during traversal.
 using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
@@ -200,8 +199,6 @@ private:
 };
 
 
-using RtEdge = std::pair<RtObject, RtObject>;
-
 /// @class RtConnectionIterator
 /// Iterator for traversing the inputs connected to an output attribute.
 class RtConnectionIterator
@@ -244,8 +241,8 @@ public:
         return !(*this == other);
     }
 
-    /// Dereference this iterator, returning the current input.
-    RtInput operator*() const;
+    /// Dereference this iterator, returning the current input object.
+    RtObject operator*() const;
 
     /// Iterate to the next sibling.
     RtConnectionIterator& operator++();
@@ -328,61 +325,6 @@ public:
 private:
     void* _ptr;
 };
-
-/*
-
-/// An edge in a node network. First entry is the upstream source
-/// port and second entry is the downstream destination port.
-/*
-class RtPort;
-using RtEdge = std::pair<RtPort, RtPort>;
-
-/// @class RtGraphIterator
-/// API for traversing port connections. Traversal starts at a given 
-/// port and moves upstream, visiting all edges the DAG formed by a
-/// node network. Using a predicate the graph can be pruned, terminating
-/// the traversal upstream from specific nodes visited.
-///
-/// TODO: Implement support for the predicate to prune edges in the graph.
-///
-class RtGraphIterator : public RtApiBase
-{
-public:
-    /// Constructor.
-    RtGraphIterator(RtPort root, RtObjectPredicate predicate = nullptr);
-
-    /// Copy constructor.
-    RtGraphIterator(const RtGraphIterator& other);
-
-    /// Destructor.
-    ~RtGraphIterator();
-
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
-
-    /// Equality operator.
-    bool operator==(const RtGraphIterator& other) const;
-
-    /// Inequality operator.
-    bool operator!=(const RtGraphIterator& other) const;
-
-    /// Iterate to the next edge in the traversal.
-    RtGraphIterator& operator++();
-
-    /// Dereference this iterator, returning the current edge in the
-    /// traversal.
-    RtEdge operator*() const;
-
-    /// Return true if there are no more edges in the interation.
-    bool isDone() const;
-
-    /// Force the iterator to terminate the traversal.
-    void abort();
-
-private:
-    void* _ptr;
-};
-*/
 
 }
 

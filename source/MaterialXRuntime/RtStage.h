@@ -67,7 +67,7 @@ public:
     /// Using a predicate this method can be used to find all child prims
     /// of a specific object type, or all child prims supporting a
     /// specific API, etc.
-    RtStageIterator traverse(RtObjectPredicate predicate);
+    RtStageIterator traverse(RtObjectPredicate predicate = nullptr);
 
     /// Add a reference to another stage.
     void addReference(const RtObject& stage);

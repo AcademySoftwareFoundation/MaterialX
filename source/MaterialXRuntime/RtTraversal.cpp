@@ -14,10 +14,20 @@ namespace MaterialX
 
 namespace
 {
-    static const RtAttrIterator NULL_ATTR_ITERATOR;
-    static const RtPrimIterator NULL_PRIM_ITERATOR;
-    static const RtConnectionIterator NULL_CONNECTION_ITERATOR;
-    static const RtStageIterator NULL_STAGE_ITERATOR;
+static const RtAttrIterator NULL_ATTR_ITERATOR;
+static const RtPrimIterator NULL_PRIM_ITERATOR;
+static const RtConnectionIterator NULL_CONNECTION_ITERATOR;
+static const RtStageIterator NULL_STAGE_ITERATOR;
+
+using StageIteratorStackFrame = std::tuple<PvtStage*, int, int>;
+
+struct StageIteratorData
+{
+    PvtDataHandle current;
+    RtObjectPredicate predicate;
+    vector<StageIteratorStackFrame> stack;
+};
+
 }
 
 RtAttrIterator::RtAttrIterator(const RtObject& prim, RtObjectPredicate predicate) :
@@ -111,10 +121,10 @@ RtConnectionIterator::RtConnectionIterator(const RtObject& attrObj) :
     }
 }
 
-RtInput RtConnectionIterator::operator*() const
+RtObject RtConnectionIterator::operator*() const
 {
     PvtConnectionData& data = *static_cast<PvtConnectionData*>(_ptr);
-    return RtInput(data[_current]->obj());
+    return data[_current]->obj();
 }
 
 RtConnectionIterator& RtConnectionIterator::operator++()
@@ -135,19 +145,6 @@ bool RtConnectionIterator::isDone() const
 const RtConnectionIterator& RtConnectionIterator::end()
 {
     return NULL_CONNECTION_ITERATOR;
-}
-
-
-namespace
-{
-    using StackFrame = std::tuple<PvtStage*, int, int>;
-
-    struct StageIteratorData
-    {
-        PvtDataHandle current;
-        RtObjectPredicate predicate;
-        vector<StackFrame> stack;
-    };
 }
 
 
@@ -233,7 +230,7 @@ RtStageIterator& RtStageIterator::operator++()
             return *this;
         }
 
-        StackFrame& frame = data->stack.back();
+        StageIteratorStackFrame& frame = data->stack.back();
         PvtStage* stage = std::get<0>(frame);
         int& primIndex = std::get<1>(frame);
         int& stageIndex = std::get<2>(frame);
