@@ -768,10 +768,10 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     REQUIRE(node2.getName() == "add2");
 
     // Test node renaming
-    mx::RtPath path1 = stage.renamePrim(node1.getPath(), mx::RtToken("foo"));
-    mx::RtPath path2 = stage.renamePrim(node2.getPath(), mx::RtToken("foo"));
-    REQUIRE(path1 == "/foo");
-    REQUIRE(path2 == "/foo1");
+    mx::RtToken newName1 = stage.renamePrim(node1.getPath(), mx::RtToken("foo"));
+    mx::RtToken newName2 = stage.renamePrim(node2.getPath(), mx::RtToken("foo"));
+    REQUIRE(node1.getName() == newName1);
+    REQUIRE(node2.getName() == newName2);
     REQUIRE(node1.getName() == "foo");
     REQUIRE(node2.getName() == "foo1");
 
