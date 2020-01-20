@@ -115,23 +115,6 @@ string PvtNodeGraph::asStringDot() const
         dot += "[shape=ellipse];\n";
     }
 
-    auto writeConnections = [](const PvtNode* node, string& dot)
-    {
-        string dstName = node->getName().str();
-        for (const RtObject attrObj : node->getAttributes())
-        {
-            const PvtAttribute* attr = PvtObject::ptr<PvtAttribute>(attrObj);
-            if (attr->isInput() && attr->isConnected())
-            {
-                const PvtAttribute* src = attr->getConnection();
-                string srcName = src->getParent()->getName().str();
-                dot += "    \"" + srcName;
-                dot += "\" -> \"" + dstName;
-                dot += "\" [label=\"" + attr->getName().str() + "\"];\n";
-            }
-        }
-    };
-
     // Add connections inbetween nodes
     // and between nodes and input interface.
     for (const RtObject prim : getChildren(nodeFilter))
