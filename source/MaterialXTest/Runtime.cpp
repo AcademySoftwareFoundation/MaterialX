@@ -15,6 +15,9 @@
 
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtStage.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtRelationship.h>
+#include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 #include <MaterialXRuntime/RtNode.h>
@@ -342,6 +345,23 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(fooObj.getObjType() == mx::RtObjType::PRIM);
     REQUIRE(fooObj.getObjTypeName() == mx::RtPrim::typeName());
     REQUIRE(fooObj.hasApi(mx::RtApiType::PRIM));
+
+    // Test relatioships
+    mx::RtPrim foo(fooObj);
+    mx::RtToken relatedPrims("relatedPrims");
+    mx::RtRelationship rel = foo.createRelationship(relatedPrims);
+    REQUIRE(rel);
+    rel.addTarget(nodeObj);
+    rel.addTarget(graphObj);
+
+    rel = foo.getRelationship(relatedPrims);
+    REQUIRE(rel);
+    std::vector<mx::RtObject> targets = { nodeObj, graphObj };
+    size_t targetIndex = 0;
+    for (const mx::RtObject trg : rel.getTargets())
+    {
+        REQUIRE(trg == targets[targetIndex++]);
+    }
 }
 
 TEST_CASE("Runtime: Nodes", "[runtime]")
@@ -408,12 +428,18 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtInput add2_in1 = add2.getInput(IN1);
     mx::RtInput add2_in2 = add2.getInput(IN2);
     mx::RtOutput add2_out = add2.getOutput(OUT);
-    REQUIRE(add1_in1.isValid());
-    REQUIRE(add1_in2.isValid());
-    REQUIRE(add1_out.isValid());
-    REQUIRE(add2_in1.isValid());
-    REQUIRE(add2_in2.isValid());
-    REQUIRE(add2_out.isValid());
+    REQUIRE(add1_in1);
+    REQUIRE(add1_in2);
+    REQUIRE(add1_out);
+    REQUIRE(add2_in1);
+    REQUIRE(add2_in2);
+    REQUIRE(add2_out);
+
+    // Test invalid input and output.
+    mx::RtInput invalid_in = add2.getInput(OUT);
+    mx::RtOutput invalid_out = add2.getOutput(IN1);
+    REQUIRE(!invalid_in);
+    REQUIRE(!invalid_out);
 
     // Test setting input metadata
     const mx::RtToken meter("meter");

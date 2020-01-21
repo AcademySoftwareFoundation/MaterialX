@@ -97,10 +97,10 @@ public:
     /// Return the nodedef of this node.
     RtObject getNodeDef() const;
 
-    ///
+    /// Return the input with given name.
     RtInput getInput(const RtToken& name) const;
 
-    ///
+    /// Return the output with given name.
     RtOutput getOutput(const RtToken& name) const;
 
     /// Make a new connection between two attributes.

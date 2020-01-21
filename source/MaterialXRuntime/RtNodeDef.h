@@ -35,12 +35,6 @@ public:
 
     /// Return the node type name.
     const RtToken& getNodeTypeName() const;
-
-    /// Add an attribute to the definition.
-    RtObject createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
-
-    /// Remove an attribute from the definition.
-    void removeAttribute(const RtToken& name);
 };
 
 }

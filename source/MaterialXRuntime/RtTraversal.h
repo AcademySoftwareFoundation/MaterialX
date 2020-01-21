@@ -200,7 +200,7 @@ private:
 
 
 /// @class RtConnectionIterator
-/// Iterator for traversing the inputs connected to an output attribute.
+/// Iterator for traversing the connections on an attribute or relationship.
 class RtConnectionIterator
 {
 public:
@@ -210,8 +210,7 @@ public:
         _current(0)
     {}
 
-    /// Constructor, setting the prim to iterate on,
-    /// and an optional predicate function.
+    /// Constructor, setting the attribute or relationship to iterate on.
     RtConnectionIterator(const RtObject& attr);
 
     /// Copy constructor.

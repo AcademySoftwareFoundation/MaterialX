@@ -6,7 +6,7 @@
 #include <MaterialXRuntime/RtPath.h>
 
 #include <MaterialXRuntime/Private/PvtPath.h>
-#include <MaterialXRuntime/Private/PvtObject.h>
+#include <MaterialXRuntime/Private/PvtPathItem.h>
 
 namespace MaterialX
 {

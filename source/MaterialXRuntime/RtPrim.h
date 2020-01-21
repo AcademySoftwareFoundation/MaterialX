@@ -34,6 +34,22 @@ public:
     /// Return the prim type name for this prim.
     const RtToken& getPrimTypeName() const;
 
+    /// Add a relationship to the prim.
+    RtObject createRelationship(const RtToken& name);
+
+    /// Remove a relationship from the prim.
+    void removeRelationship(const RtToken& name);
+
+    /// Return a relationship by name, or a null object
+    /// if no such relationship exists.
+    RtObject getRelationship(const RtToken& name) const;
+
+    /// Add an attribute to the nodegraph.
+    RtObject createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    /// Remove an attribute from the nodegraph.
+    void removeAttribute(const RtToken& name);
+
     /// Return an attribute by name, or a null object
     /// if no such attribute exists.
     RtObject getAttribute(const RtToken& name) const;

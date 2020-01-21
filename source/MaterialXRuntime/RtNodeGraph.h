@@ -30,16 +30,12 @@ public:
     /// Return the type for this API.
     RtApiType getApiType() const override;
 
-    /// Add an attribute to the nodegraph.
-    RtObject createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
-
-    /// Remove an attribute from the nodegraph.
-    void removeAttribute(const RtToken& name);
-
-    ///
+    /// Return the internal socket that corresponds
+    /// to the named input attribute.
     RtOutput getInputSocket(const RtToken& name) const;
 
-    ///
+    /// Return the internal socket that corresponds
+    /// to the named output attribute.
     RtInput getOutputSocket(const RtToken& name) const;
 
     /// Convert this graph to a string in the DOT language syntax. This can be

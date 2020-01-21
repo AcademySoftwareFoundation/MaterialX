@@ -13,12 +13,25 @@ namespace
 {
     static const std::set<RtObjType> API_TO_OBJ_RTTI[static_cast<int>(RtApiType::NUM_TYPES)] =
     {
+        // RtApiType::PATH_ITEM
+        {
+            RtObjType::RELATIONSHIP,
+            RtObjType::ATTRIBUTE,
+            RtObjType::PRIM,
+            RtObjType::NODEDEF,
+            RtObjType::NODE,
+            RtObjType::NODEGRAPH
+        },
         // RtApiType::PRIM
         {
             RtObjType::PRIM,
             RtObjType::NODEDEF,
             RtObjType::NODE,
             RtObjType::NODEGRAPH
+        },
+        // RtApiType::RELATIONSHIP
+        {
+            RtObjType::RELATIONSHIP
         },
         // RtApiType::ATTRIBUTE
         {

@@ -51,6 +51,34 @@ void PvtPrim::setPrimTypeName(const RtToken& primTypeName)
     md->getValue().asToken() = primTypeName;
 }
 
+PvtRelationship* PvtPrim::createRelationship(const RtToken& name)
+{
+    if (getRelationship(name))
+    {
+        throw ExceptionRuntimeError("A relationship named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
+    }
+
+    PvtDataHandle relH(new PvtRelationship(name, this));
+    _relOrder.push_back(relH);
+    _relMap[name] = relH;
+
+    return relH->asA<PvtRelationship>();
+}
+
+void PvtPrim::removeRelationship(const RtToken& name)
+{
+    for (auto it = _relOrder.begin(); it != _relOrder.end(); ++it)
+    {
+        PvtRelationship* rel = (*it)->asA<PvtRelationship>();
+        if (rel->getName() == name)
+        {
+            _relOrder.erase(it);
+            break;
+        }
+    }
+    _relMap.erase(name);
+}
+
 PvtAttribute* PvtPrim::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
 {
     if (getAttribute(name))

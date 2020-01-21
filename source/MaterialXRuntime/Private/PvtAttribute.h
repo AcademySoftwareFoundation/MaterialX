@@ -6,7 +6,7 @@
 #ifndef MATERIALX_PVTATTRIBUTE_H
 #define MATERIALX_PVTATTRIBUTE_H
 
-#include <MaterialXRuntime/Private/PvtObject.h>
+#include <MaterialXRuntime/Private/PvtPathItem.h>
 
 #include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtObject.h>
@@ -19,8 +19,6 @@
 
 namespace MaterialX
 {
-
-using PvtConnectionData = vector<PvtDataHandle>;
 
 class PvtAttribute : public PvtPathItem
 {
@@ -168,7 +166,7 @@ public:
 
 protected:
     RtTypedValue _value;
-    PvtConnectionData _connections;
+    PvtDataHandleVec _connections;
     uint32_t _flags;
 
     friend class RtConnectionIterator;

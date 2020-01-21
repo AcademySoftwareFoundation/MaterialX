@@ -27,16 +27,6 @@ RtApiType RtNodeGraph::getApiType() const
     return RtApiType::NODEGRAPH;
 }
 
-RtObject RtNodeGraph::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
-{
-    return hnd()->asA<PvtNodeGraph>()->createAttribute(name, type, flags)->obj();
-}
-
-void RtNodeGraph::removeAttribute(const RtToken& name)
-{
-    return hnd()->asA<PvtNodeGraph>()->removeAttribute(name);
-}
-
 RtOutput RtNodeGraph::getInputSocket(const RtToken& name) const
 {
     PvtAttribute* attr = hnd()->asA<PvtNodeGraph>()->getInputSocket(name);

@@ -8,6 +8,7 @@
 
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtAttribute.h>
+#include <MaterialXRuntime/Private/PvtRelationship.h>
 
 #include <MaterialXRuntime/RtTraversal.h>
 
@@ -84,6 +85,26 @@ public:
 
     void setPrimTypeName(const RtToken& primTypeName);
 
+    PvtRelationship* createRelationship(const RtToken& name);
+
+    void removeRelationship(const RtToken& name);
+
+    PvtRelationship* getRelationship(const RtToken& name)
+    {
+        auto it = _relMap.find(name);
+        return it != _relMap.end() ? it->second->asA<PvtRelationship>() : nullptr;
+    }
+
+    const PvtRelationship* getRelationship(const RtToken& name) const
+    {
+        return const_cast<PvtPrim*>(this)->getRelationship(name);
+    }
+
+    const PvtDataHandleVec& getAllRelationships() const
+    {
+        return _relOrder;
+    }
+
     virtual PvtAttribute* createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
     virtual void removeAttribute(const RtToken& name);
@@ -147,9 +168,15 @@ protected:
     void addChildPrim(const PvtPrim* prim);
     void removeChildPrim(const PvtPrim* prim);
 
+    // Relationships
+    PvtDataHandleMap _relMap;
+    PvtDataHandleVec _relOrder;
+
+    // Attributes
     PvtDataHandleMap _attrMap;
     PvtDataHandleVec _attrOrder;
 
+    // Child prims
     PvtDataHandleMap _primMap;
     PvtDataHandleVec _primOrder;
 

@@ -28,6 +28,7 @@ enum class RtObjType
 {
     NONE,
     PRIM,
+    RELATIONSHIP,
     ATTRIBUTE,
     NODEDEF,
     NODE,
@@ -39,7 +40,9 @@ enum class RtObjType
 /// Type identifiers for API's attachable to runtime objects.
 enum class RtApiType
 {
+    PATH_ITEM,
     PRIM,
+    RELATIONSHIP,
     ATTRIBUTE,
     INPUT,
     OUTPUT,

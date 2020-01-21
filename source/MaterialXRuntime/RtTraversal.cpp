@@ -6,6 +6,8 @@
 #include <MaterialXRuntime/RtTraversal.h>
 #include <MaterialXRuntime/RtNode.h>
 
+#include <MaterialXRuntime/Private/PvtAttribute.h>
+#include <MaterialXRuntime/Private/PvtRelationship.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 #include <MaterialXRuntime/Private/PvtStage.h>
 
@@ -110,26 +112,31 @@ const RtPrimIterator& RtPrimIterator::end()
     return NULL_PRIM_ITERATOR;
 }
 
-RtConnectionIterator::RtConnectionIterator(const RtObject& attrObj) :
+RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
     _ptr(nullptr),
     _current(0)
 {
-    if (attrObj.hasApi(RtApiType::ATTRIBUTE))
+    if (obj.hasApi(RtApiType::ATTRIBUTE))
     {
-        PvtAttribute* attr = PvtObject::ptr<PvtAttribute>(attrObj);
+        PvtAttribute* attr = PvtObject::ptr<PvtAttribute>(obj);
         _ptr = attr->_connections.empty() ? nullptr : &attr->_connections;
+    }
+    else if (obj.hasApi(RtApiType::RELATIONSHIP))
+    {
+        PvtRelationship* rel = PvtObject::ptr<PvtRelationship>(obj);
+        _ptr = rel->_targets.empty() ? nullptr : &rel->_targets;
     }
 }
 
 RtObject RtConnectionIterator::operator*() const
 {
-    PvtConnectionData& data = *static_cast<PvtConnectionData*>(_ptr);
+    PvtDataHandleVec& data = *static_cast<PvtDataHandleVec*>(_ptr);
     return data[_current]->obj();
 }
 
 RtConnectionIterator& RtConnectionIterator::operator++()
 {
-    if (_ptr && ++_current < static_cast<PvtConnectionData*>(_ptr)->size())
+    if (_ptr && ++_current < static_cast<PvtDataHandleVec*>(_ptr)->size())
     {
         return *this;
     }
@@ -139,7 +146,7 @@ RtConnectionIterator& RtConnectionIterator::operator++()
 
 bool RtConnectionIterator::isDone() const
 {
-    return !(_ptr && _current < static_cast<PvtConnectionData*>(_ptr)->size());
+    return !(_ptr && _current < static_cast<PvtDataHandleVec*>(_ptr)->size());
 }
 
 const RtConnectionIterator& RtConnectionIterator::end()

@@ -30,6 +30,32 @@ const RtToken& RtPrim::getPrimTypeName() const
     return hnd()->asA<PvtPrim>()->getPrimTypeName();
 }
 
+RtObject RtPrim::createRelationship(const RtToken& name)
+{
+    return hnd()->asA<PvtPrim>()->createRelationship(name)->obj();
+}
+
+void RtPrim::removeRelationship(const RtToken& name)
+{
+    return hnd()->asA<PvtPrim>()->removeRelationship(name);
+}
+
+RtObject RtPrim::getRelationship(const RtToken& name) const
+{
+    PvtRelationship* rel = hnd()->asA<PvtPrim>()->getRelationship(name);
+    return rel ? rel->obj() : RtObject();
+}
+
+RtObject RtPrim::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    return hnd()->asA<PvtPrim>()->createAttribute(name, type, flags)->obj();
+}
+
+void RtPrim::removeAttribute(const RtToken& name)
+{
+    return hnd()->asA<PvtPrim>()->removeAttribute(name);
+}
+
 RtObject RtPrim::getAttribute(const RtToken& name) const
 {
     PvtAttribute* attr = hnd()->asA<PvtPrim>()->getAttribute(name);

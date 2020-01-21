@@ -37,14 +37,4 @@ const RtToken& RtNodeDef::getNodeTypeName() const
     return hnd()->asA<PvtNodeDef>()->getNodeTypeName();
 }
 
-RtObject RtNodeDef::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
-{
-    return hnd()->asA<PvtNodeDef>()->createAttribute(name, type, flags)->obj();
-}
-
-void RtNodeDef::removeAttribute(const RtToken& name)
-{
-    return hnd()->asA<PvtNodeDef>()->removeAttribute(name);
-}
-
 }
