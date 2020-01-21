@@ -460,7 +460,7 @@ namespace
     }
 
     template<typename T>
-    void writeNode(const PvtNode* node, T dest)
+    NodePtr writeNode(const PvtNode* node, T dest)
     {
         const PvtNodeDef* nodedef = node->getNodeDef()->asA<PvtNodeDef>();
 
@@ -549,6 +549,50 @@ namespace
         }
 
         writeMetadata(node, destNode);
+
+        return destNode;
+    }
+
+    void writeMaterialElements(const PvtNode* node, NodePtr mxNode, const RtToken& nodeTypeName, DocumentPtr doc, const RtWriteOptions* writeOptions)
+    {
+        MaterialPtr material = doc->addMaterial(mxNode->getName() + "_Material");
+        ShaderRefPtr shaderRef = material->addShaderRef("sref", nodeTypeName.str());
+        for (InputPtr input : mxNode->getActiveInputs())
+        {
+            BindInputPtr bindInput = shaderRef->addBindInput(input->getName(), input->getType());
+            if (input->hasNodeName())
+            {
+                if (input->hasOutputString())
+                {
+                    bindInput->setNodeGraphString(input->getNodeName());
+                    bindInput->setOutputString(input->getOutputString());
+                }
+            }
+            else
+            {
+                bindInput->setValueString(input->getValueString());
+            }
+        }
+        for (ParameterPtr param : mxNode->getActiveParameters())
+        {
+            BindParamPtr bindParam = shaderRef->addBindParam(param->getName(), param->getType());
+            bindParam->setValueString(param->getValueString());
+        }
+        // Should we delete the surface shader?
+        if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::DELETE)
+        {
+            doc->removeChild(node->getName());
+        }
+        // Should we create a look for the material element?
+        if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::LOOK)
+        {
+            LookPtr look = doc->addLook();
+            MaterialAssignPtr materialAssign = look->addMaterialAssign();
+            materialAssign->setMaterial(material->getName());
+            CollectionPtr collection = doc->addCollection();
+            collection->setIncludeGeom("/*");
+            materialAssign->setCollection(collection);
+        }
     }
 
     void writeNodeGraph(const PvtNodeGraph* nodegraph, DocumentPtr dest)
@@ -647,7 +691,16 @@ namespace
                 }
                 else if (prim->getObjType() == PvtNode::typeId())
                 {
-                    writeNode(prim->asA<PvtNode>(), doc);
+                    PvtNode* node = prim->asA<PvtNode>();
+                    NodePtr mxNode = writeNode(node, doc);
+                    if (writeOptions && writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE)
+                    {
+                        const PvtAttribute* output = node->getAttribute(PvtAttribute::DEFAULT_OUTPUT_NAME);
+                        if (output && output->getType() == RtType::SURFACESHADER)
+                        {
+                            writeMaterialElements(node, mxNode, node->getPrimTypeName(), doc, writeOptions);
+                        }
+                    }
                 }
                 else if (prim->getObjType() == PvtNodeGraph::typeId())
                 {

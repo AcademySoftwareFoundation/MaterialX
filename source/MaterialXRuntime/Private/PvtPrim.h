@@ -81,7 +81,7 @@ public:
         return _typeName;
     }
 
-    const RtToken& getPrimTypeName() const;
+    virtual const RtToken& getPrimTypeName() const;
 
     void setPrimTypeName(const RtToken& primTypeName);
 

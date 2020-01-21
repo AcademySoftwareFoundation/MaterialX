@@ -38,6 +38,12 @@ public:
         return _typeName;
     }
 
+    const RtToken& getPrimTypeName() const override
+    {
+        // The node type name is the prim type for nodes.
+        return _nodedef->asA<PvtNodeDef>()->getNodeTypeName();
+    }
+
     PvtDataHandle getNodeDef() const
     {
         return _nodedef;

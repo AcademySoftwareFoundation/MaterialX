@@ -49,9 +49,6 @@ PvtDataHandle PvtNode::createNew(const RtToken& name, const PvtDataHandle& noded
     PvtDataHandle nodeH(new PvtNode(nodeName, nodedefH, parent));
     PvtNode* node = nodeH->asA<PvtNode>();
 
-    // The node type name is the prim type for nodes.
-    node->setPrimTypeName(nodedef->getNodeTypeName());
-
     // Create all attributes according to the definition.
     for (const PvtDataHandle& attrH : nodedef->getAllAttributes())
     {

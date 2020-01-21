@@ -296,7 +296,7 @@ float mx_cell_noise_float(vec3 p)
     return mx_bits_to_01(mx_hash_int(ix, iy, iz));
 }
 
-float mx_fractal_noice_float(vec3 p, int octaves, float lacunarity, float diminish)
+float mx_fractal_noise_float(vec3 p, int octaves, float lacunarity, float diminish)
 {
     float result = 0.0;
     float amplitude = 1.0;
@@ -309,7 +309,7 @@ float mx_fractal_noice_float(vec3 p, int octaves, float lacunarity, float dimini
     return result;
 }
 
-vec3 mx_fractal_noice_vec3(vec3 p, int octaves, float lacunarity, float diminish)
+vec3 mx_fractal_noise_vec3(vec3 p, int octaves, float lacunarity, float diminish)
 {
     vec3 result = vec3(0.0);
     float amplitude = 1.0;
