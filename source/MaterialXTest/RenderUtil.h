@@ -172,9 +172,9 @@ class ShaderRenderTester
     void addSkipFiles()
     {
         _skipFiles.insert("_options.mtlx");
-        _skipFiles.insert("light_rig.mtlx");
-        _skipFiles.insert("lightcompoundtest.mtlx");
-        _skipFiles.insert("default_viewer_lights.mtlx");
+        _skipFiles.insert("light_rig_test_1.mtlx");
+        _skipFiles.insert("light_rig_test_2.mtlx");
+        _skipFiles.insert("light_compound_test.mtlx");
     }
 
     // Load dependencies

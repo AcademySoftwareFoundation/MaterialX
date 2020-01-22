@@ -72,7 +72,7 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 void GlslShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
                                                      GenShaderUtil::TestSuiteOptions& options)
 {
-    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
+    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/lights");
     for (const auto& lightFile : options.lightFiles)
     {
         loadLibrary(lightDir / mx::FilePath(lightFile), document);

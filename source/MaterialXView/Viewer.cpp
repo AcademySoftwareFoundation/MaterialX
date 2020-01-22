@@ -186,8 +186,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _materialFilename(materialFilename),
     _modifiers(modifiers),
     _envRadiancePath(envRadiancePath),
-    _directLighting(false),
+    _directLighting(true),
     _indirectLighting(true),
+    _splitDirectLight(false),
     _ambientOcclusionGain(0.85f),
     _meshFilename(meshFilename),
     _selectedGeom(0),
@@ -231,9 +232,6 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Initialize light handler.
     _lightHandler = mx::LightHandler::create();
-    _lightFilename = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
-    _lightDoc = mx::createDocument();
-    mx::readFromXmlFile(_lightDoc, _lightFilename, _searchPath);
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -332,15 +330,25 @@ void Viewer::loadEnvironmentLight()
         return;
     }
 
+    // If requested, split the environment into indirect and direct components.
+    if (_splitDirectLight)
+    {
+        splitDirectLight(envRadianceMap, envRadianceMap, _lightRigDoc);
+    }
+
     try
     {
         // Look for an irradiance map using an expected filename convention.
-        const std::string IRRADIANCE_MAP_SUFFIX("_diffuse");
-        mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath();
-        std::string envIrradianceName = mx::removeExtension(_envRadiancePath.getBaseName()) +
-            IRRADIANCE_MAP_SUFFIX + "." + _envRadiancePath.getExtension();
-        envIrradiancePath = envIrradiancePath / envIrradianceName;
-        mx::ImagePtr envIrradianceMap = _imageHandler->acquireImage(_searchPath.find(envIrradiancePath), true, nullptr, &message);
+        mx::ImagePtr envIrradianceMap;
+        if (!_splitDirectLight)
+        {
+            const std::string IRRADIANCE_MAP_SUFFIX("_diffuse");
+            mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath();
+            std::string envIrradianceName = mx::removeExtension(_envRadiancePath.getBaseName()) +
+                IRRADIANCE_MAP_SUFFIX + "." + _envRadiancePath.getExtension();
+            envIrradiancePath = envIrradiancePath / envIrradianceName;
+            envIrradianceMap = _imageHandler->acquireImage(_searchPath.find(envIrradiancePath), true, nullptr, &message);
+        }
 
         // If not found, then generate an irradiance map via spherical harmonics.
         if (!envIrradianceMap)
@@ -355,6 +363,24 @@ void Viewer::loadEnvironmentLight()
         _lightHandler->setEnvRadianceMap(envRadianceMap);
         _lightHandler->setEnvIrradianceMap(envIrradianceMap);
 
+        // Look for a light rig using an expected filename convention.
+        if (!_splitDirectLight)
+        {
+            _lightRigFilename = _envRadiancePath.getParentPath();
+            std::string lightRigName = mx::removeExtension(_envRadiancePath.getBaseName()) +
+                "." + mx::MTLX_EXTENSION;
+            _lightRigFilename = _lightRigFilename / lightRigName;
+            if (_lightRigFilename.exists())
+            {
+                _lightRigDoc = mx::createDocument();
+                mx::readFromXmlFile(_lightRigDoc, _lightRigFilename, _searchPath);
+            }
+            else
+            {
+                _lightRigDoc = nullptr;
+            }
+        }
+
         const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
         if (!meshes.empty())
         {
@@ -365,7 +391,7 @@ void Viewer::loadEnvironmentLight()
 
             // Create environment shader.
             mx::FilePath envFilename = _searchPath.find(
-                mx::FilePath("resources/Materials/TestSuite/Utilities/Lights/envmap_shader.mtlx"));
+                mx::FilePath("resources/Materials/TestSuite/lights/envmap_shader.mtlx"));
             _envMaterial = Material::create();
             _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadiancePath);
             _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
@@ -379,15 +405,13 @@ void Viewer::loadEnvironmentLight()
 
 void Viewer::applyDirectLights(mx::DocumentPtr doc)
 {
-    if (!_lightDoc)
+    if (_lightRigDoc)
     {
-        return;
+        mx::CopyOptions copyOptions;
+        copyOptions.skipConflictingElements = true;
+        doc->importLibrary(_lightRigDoc, &copyOptions);
+        _xincludeFiles.insert(_lightRigFilename);
     }
-
-    mx::CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
-    doc->importLibrary(_lightDoc, &copyOptions);
-    _xincludeFiles.insert(_lightFilename);
 
     try 
     {
@@ -511,6 +535,7 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
         {
             _envRadiancePath = filename;
             loadEnvironmentLight();
+            loadDocument(_materialFilename, _stdLib);
         }
         mProcessEvents = true;
     });
@@ -659,6 +684,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
     indirectLightingBox->setCallback([this](bool enable)
     {
         _indirectLighting = enable;
+    });
+
+    ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
+    splitDirectLightBox->setChecked(_splitDirectLight);
+    splitDirectLightBox->setCallback([this](bool enable)
+    {
+        _splitDirectLight = enable;
     });
 
     ng::CheckBox* ambientOcclusionBox = new ng::CheckBox(advancedPopup, "Ambient Occlusion");
@@ -1696,4 +1728,30 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
 
     _imageHandler->setSearchPath(_searchPath);
     return _imageHandler->acquireImage(aoFilePath / aoFilename, true, &AO_FALLBACK_COLOR);
+}
+
+void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc)
+{
+    mx::Vector3 lightDir;
+    mx::Color3 lightColor;
+    mx::ImagePair imagePair = envRadianceMap->splitByLuminance(1.0f);
+    mx::computeDominantLight(imagePair.second, lightDir, lightColor);
+    dirLightDoc = mx::createDocument();
+    mx::NodePtr dirLightNode = dirLightDoc->addNode("directional_light", "dir_light", mx::LIGHT_SHADER_TYPE_STRING);
+    dirLightNode->setInputValue("direction", lightDir);
+    dirLightNode->setInputValue("color", lightColor);
+    dirLightNode->setInputValue("intensity", 1.0f);
+    indirectMap = imagePair.first;
+
+    bool writeFiles = false;
+    if (writeFiles)
+    {
+        const std::string SPLIT_MAP_SUFFIX("_split");
+        std::string indirectMapFilename = mx::removeExtension(_envRadiancePath.getBaseName()) +
+            SPLIT_MAP_SUFFIX + "." + _envRadiancePath.getExtension();
+        std::string dirLightDocFilename = mx::removeExtension(_envRadiancePath.getBaseName()) +
+            SPLIT_MAP_SUFFIX + "." + mx::MTLX_EXTENSION;
+        _imageHandler->saveImage(_envRadiancePath.getParentPath() / indirectMapFilename, indirectMap);
+        mx::writeToXmlFile(dirLightDoc, _envRadiancePath.getParentPath() / dirLightDocFilename);
+    }
 }

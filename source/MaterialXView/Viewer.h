@@ -122,6 +122,10 @@ class Viewer : public ng::Screen
     /// Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
     
+    /// Split the given radiance map into indirect and direct components,
+    /// returning a new indirect map and directional light document.
+    void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
+
   private:
     ng::Window* _window;
     ng::Arcball _arcball;
@@ -150,11 +154,12 @@ class Viewer : public ng::Screen
     mx::StringSet _xincludeFiles;
 
     // Lighting information
-    mx::FilePath _lightFilename;
     mx::FilePath _envRadiancePath;
-    mx::DocumentPtr _lightDoc;
+    mx::FilePath _lightRigFilename;
+    mx::DocumentPtr _lightRigDoc;
     bool _directLighting;
     bool _indirectLighting;
+    bool _splitDirectLight;
     float _ambientOcclusionGain;
 
     // Geometry selections

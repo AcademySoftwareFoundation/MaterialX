@@ -13,7 +13,7 @@
          <input name="in2" type="float" nodename="envUvs" channels="y"/>
       </combine2>
       <image name="envImage" type="color3">
-         <parameter name="file" type="filename" value="resources/Images/Environments/san_giuseppe_bridge.hdr" />
+         <parameter name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
          <parameter name="layer" type="string" value="" />
          <parameter name="default" type="color3" value="0.0, 0.0, 0.0" />
          <input name="texcoord" type="vector2" nodename="combineUvs" />
