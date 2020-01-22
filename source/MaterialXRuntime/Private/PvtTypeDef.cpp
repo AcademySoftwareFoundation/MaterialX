@@ -390,6 +390,7 @@ PvtTypeDefRegistry::PvtTypeDefRegistry()
     newType("volumeshader", RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_SHADER);
     newType("displacementshader", RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_SHADER);
     newType("lightshader", RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_SHADER);
+    newType("material", RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_MATERIAL);
 
     newType("none", RtTypeDef::BASETYPE_NONE, noneFuncs);
     newType("auto", RtTypeDef::BASETYPE_NONE, noneFuncs);

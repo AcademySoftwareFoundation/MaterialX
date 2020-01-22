@@ -99,6 +99,7 @@ namespace Type
     const TypeDesc* VOLUMESHADER       = TypeDesc::registerType("volumeshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1, false);
     const TypeDesc* DISPLACEMENTSHADER = TypeDesc::registerType("displacementshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1, false);
     const TypeDesc* LIGHTSHADER        = TypeDesc::registerType("lightshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1, false);
+    const TypeDesc* MATERIAL           = TypeDesc::registerType("material", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_MATERIAL, 1, false);
 }
 
 }

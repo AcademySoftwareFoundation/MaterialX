@@ -101,6 +101,7 @@ public:
     static const RtToken SEMANTIC_FILENAME;
     static const RtToken SEMANTIC_CLOSURE;
     static const RtToken SEMANTIC_SHADER;
+    static const RtToken SEMANTIC_MATERIAL;
 
 public:
     /// Constructor.

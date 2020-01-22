@@ -74,7 +74,9 @@ void checkImplementations(mx::GenContext& context,
         "thin_film_brdf",
         "worleynoise2d",
         "worleynoise3d",
-        "geompropvalue"
+        "geompropvalue",
+        "surfacematerial",
+        "volumematerial"
     };
     skipNodeTypes.insert(generatorSkipNodeTypes.begin(), generatorSkipNodeTypes.end());
 
@@ -92,7 +94,9 @@ void checkImplementations(mx::GenContext& context,
         "ND_multiply_vdfC",
         "ND_mix_displacementshader",
         "ND_mix_volumeshader",
-        "ND_mix_vdf"
+        "ND_mix_vdf",
+        "ND_surfacematerial",
+        "ND_volumematerial"
     };
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 

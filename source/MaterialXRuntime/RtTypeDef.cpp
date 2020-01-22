@@ -51,6 +51,7 @@ const RtToken RtTypeDef::SEMANTIC_MATRIX = "matrix";
 const RtToken RtTypeDef::SEMANTIC_FILENAME = "filename";
 const RtToken RtTypeDef::SEMANTIC_CLOSURE = "closure";
 const RtToken RtTypeDef::SEMANTIC_SHADER = "shader";
+const RtToken RtTypeDef::SEMANTIC_MATERIAL = "material";
 
 RtTypeDef::RtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic, size_t size) :
     _ptr(new PvtTypeDef(name, basetype, funcs, semantic, size))
