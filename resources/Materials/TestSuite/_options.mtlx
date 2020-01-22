@@ -16,7 +16,7 @@
       <parameter name="overrideFiles" type="string" value="" />
 
       <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
-      <parameter name="lightFiles" type="string" value="resources/Materials/TestSuite/lights/light_rig_test_2.mtlx" />
+      <parameter name="lightFiles" type="string" value="light_rig_test_2.mtlx" />
 
       <!-- Comma separated list of "language"_"target" specifiers to indicate which
            code generators to use.
