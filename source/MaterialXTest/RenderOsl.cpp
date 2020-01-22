@@ -236,7 +236,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                         }
                     }
                     // Bind IBL image name overrides.
-                    std::string envmap_filename("string envmap_filename \"resources/Images/Environments/san_giuseppe_bridge.hdr\";\n");
+                    std::string envmap_filename("string envmap_filename \"resources/Lights/san_giuseppe_bridge.hdr\";\n");
                     envOverrides.push_back(envmap_filename);
 
                     _renderer->setShaderParameterOverrides(overrides);
