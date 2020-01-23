@@ -18,6 +18,8 @@
 #include <MaterialXRuntime/Private/PvtNodeGraph.h>
 #include <MaterialXRuntime/Private/PvtTraversal.h>
 
+#include <MaterialXCore/Types.h>
+
 #include <MaterialXGenShader/Util.h>
 #include <sstream>
 
@@ -594,9 +596,37 @@ namespace
         return destNode;
     }
 
-    void writeMaterialElements(const PvtNode* node, NodePtr mxNode, const string& nodeName, DocumentPtr doc, const RtWriteOptions* writeOptions)
+    void createMaterialNode(PvtNode* node, NodePtr mxNode, DocumentPtr doc)
     {
-        MaterialPtr material = doc->addMaterial(mxNode->getName() + "_Material");
+        // Check to see if the surfaceshader node is already connected to a material node
+        size_t numOutputs = node->numOutputs();
+        bool isConnectedToMaterialNode = false;
+        for (size_t i=0; i<numOutputs; ++i)
+        {
+            RtPort outputPort = node->getPort(node->getOutputsOffset() + i);
+            size_t numDestinationPorts = outputPort.numDestinationPorts();
+            for (size_t j=0; j<numDestinationPorts; ++j)
+            {
+                RtNode connectedNode(outputPort.getDestinationPort(j).getNode());
+                if (connectedNode.numOutputs() > 0 &&
+                    connectedNode.getOutput(0).getType() == MATERIAL_TYPE_STRING )
+                {
+                    isConnectedToMaterialNode = true;
+                    break;
+                }
+            }
+        }
+        
+        if (!isConnectedToMaterialNode)
+        {
+            NodePtr materialNode = doc->addNode(SURFACE_MATERIAL_NODE_STRING, mxNode->getName() + "_SurfaceMaterial", MATERIAL_TYPE_STRING );
+            materialNode->setConnectedNode(SURFACE_SHADER_TYPE_STRING, mxNode);
+        }
+    }
+
+    void writeMaterialElementsHelper(PvtNode* node, NodePtr mxNode, const string& materialBaseName, const string& nodeName, DocumentPtr doc, const RtWriteOptions* writeOptions)
+    {
+        MaterialPtr material = doc->addMaterial(materialBaseName + "_Material");
         ShaderRefPtr shaderRef = material->addShaderRef("sref", nodeName);
         for (InputPtr input : mxNode->getActiveInputs())
         {
@@ -633,6 +663,32 @@ namespace
             CollectionPtr collection = doc->addCollection();
             collection->setIncludeGeom("/*");
             materialAssign->setCollection(collection);
+        }
+    }
+
+    void writeMaterialElements(PvtNode* node, NodePtr mxNode, const string& nodeName, DocumentPtr doc, const RtWriteOptions* writeOptions)
+    {
+        if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::ADD_MATERIAL_NODES_FOR_SHADERS)
+        {
+            // Get the connected material nodes and create material elements from them (using their names)
+            size_t numOutputs = node->numOutputs();
+            for (size_t i=0; i<numOutputs; ++i)
+            {
+                RtPort outputPort = node->getPort(node->getOutputsOffset() + i);
+                size_t numDestinationPorts = outputPort.numDestinationPorts();
+                for (size_t j = 0; j < numDestinationPorts; ++j)
+                {
+                    RtNode connectedNode(outputPort.getDestinationPort(j).getNode());
+                    if (connectedNode.numOutputs() > 0 && connectedNode.getOutput(0).getType() == MATERIAL_TYPE_STRING )
+                    {
+                        writeMaterialElementsHelper(node, mxNode, connectedNode.getName(), nodeName, doc, writeOptions);
+                    }
+                }
+            }
+        }
+        else
+        {
+            writeMaterialElementsHelper(node, mxNode, mxNode->getName(), nodeName, doc, writeOptions);
         }
     }
 
@@ -730,10 +786,17 @@ namespace
                     PvtNode* node = elem->asA<PvtNode>();
                     NodePtr mxNode = writeNode(node, doc);
                     const PvtNodeDef* nodedef = node->getNodeDef()->asA<PvtNodeDef>();
-                    if (writeOptions && writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE &&
-                        nodedef->numOutputs() == 1 && nodedef->getPort(0)->getType() == RtType::SURFACESHADER)
+                    if (writeOptions && writeOptions->materialWriteOp != RtWriteOptions::MaterialWriteOp::NONE &&
+                        nodedef->numOutputs() == 1 && nodedef->getPort(0)->getType() == SURFACE_SHADER_TYPE_STRING)
                     {
-                        writeMaterialElements(node, mxNode, nodedef->getNodeName().str(), doc, writeOptions);
+                        if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::ADD_MATERIAL_NODES_FOR_SHADERS)
+                        {
+                            createMaterialNode(node, mxNode, doc);
+                        }
+                        if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE_MATERIALS_AS_ELEMENTS)
+                        {
+                            writeMaterialElements(node, mxNode, nodedef->getNodeName(), doc, writeOptions);
+                        }
                     }
                 }
                 else if (elem->getObjType() == RtObjType::NODEGRAPH)
