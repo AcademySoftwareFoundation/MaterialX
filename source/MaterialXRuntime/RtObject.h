@@ -9,8 +9,6 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtToken.h>
 
-#include <memory>
-
 /// @file
 /// TODO: Docs
 
@@ -20,8 +18,7 @@ namespace MaterialX
 class PvtObject;
 
 // A handle to private data
-// TODO: implement a custom refcounted handle class
-using PvtDataHandle = std::shared_ptr<PvtObject>;
+using PvtDataHandle = RtRefPtr<PvtObject>;
 
 /// Type identifiers for concrete runtime objects.
 enum class RtObjType
@@ -33,7 +30,7 @@ enum class RtObjType
     NODEDEF,
     NODE,
     NODEGRAPH,
-    STAGE,
+    BACKDROP,
     NUM_TYPES
 };
 
@@ -49,8 +46,7 @@ enum class RtApiType
     NODEDEF,
     NODE,
     NODEGRAPH,
-    STAGE,
-    FILE_IO,
+    BACKDROP,
     NUM_TYPES
 };
 

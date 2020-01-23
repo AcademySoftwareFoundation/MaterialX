@@ -56,11 +56,12 @@ namespace
             RtApiType::NODE,
             RtApiType::NODEGRAPH
         },
-        // STAGE
+        // BACKDROP
         {
-            RtApiType::STAGE,
-            RtApiType::FILE_IO
-        },
+            RtApiType::PATH_ITEM,
+            RtApiType::PRIM,
+            RtApiType::BACKDROP
+        }
     };
 }
 

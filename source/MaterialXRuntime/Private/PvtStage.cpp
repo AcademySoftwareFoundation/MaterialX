@@ -15,20 +15,12 @@
 namespace MaterialX
 {
 
-const RtObjType PvtStage::_typeId = RtObjType::STAGE;
-const RtToken PvtStage::_typeName = RtToken("stage");
-
-PvtStage::PvtStage(const RtToken& name) :
+PvtStage::PvtStage(const RtToken& name, RtStageWeakPtr owner) :
     _name(name),
     _root(nullptr),
     _selfRefCount(0)
 {
-    _root = PvtDataHandle(new RootPrim(this));
-}
-
-PvtDataHandle PvtStage::createNew(const RtToken& name)
-{
-    return PvtDataHandle(new PvtStage(name));
+    _root = PvtDataHandle(new RootPrim(owner));
 }
 
 PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName, PvtObject* def)
@@ -146,9 +138,9 @@ PvtPrim* PvtStage::getPrimAtPath(const PvtPath& path)
     if (!prim)
     {
         // Then search any referenced stages as well.
-        for (auto it : _refStages)
+        for (const RtStagePtr& stage : _refStagesOrder)
         {
-            PvtStage* refStage = it->asA<PvtStage>();
+            PvtStage* refStage = PvtStage::ptr(stage);
             prim = refStage->getPrimAtPath(path);
             if (prim)
             {
@@ -184,64 +176,104 @@ PvtPrim* PvtStage::getPrimAtPathLocal(const PvtPath& path)
     return prim;
 }
 
-void PvtStage::addReference(PvtDataHandle stage)
+void PvtStage::addReference(RtStagePtr stage)
 {
-    if (!stage->hasApi(RtApiType::STAGE))
+    if (_refStagesMap.count(stage->getName()))
     {
-        throw ExceptionRuntimeError("Given object is not a valid stage");
-    }
-    if (_refStagesSet.count(stage))
-    {
-        throw ExceptionRuntimeError("Given object is not a valid stage");
+        throw ExceptionRuntimeError("A reference to this stage already exists");
     }
 
-    stage->asA<PvtStage>()->_selfRefCount++;
-    _refStages.push_back(stage);
+    PvtStage::ptr(stage)->_selfRefCount++;
+    _refStagesMap[stage->getName()] = stage;
+    _refStagesOrder.push_back(stage);
 }
 
 void PvtStage::removeReference(const RtToken& name)
 {
-    for (auto it = _refStages.begin(); it != _refStages.end(); ++it)
+    auto it = _refStagesMap.find(name);
+    if (it != _refStagesMap.end())
     {
-        PvtStage* stage = (*it)->asA<PvtStage>();
-        if (stage->getName() == name)
+        PvtStage::ptr(it->second)->_selfRefCount--;
+
+        _refStagesMap.erase(it);
+
+        for (auto it2 = _refStagesOrder.begin(); it2 != _refStagesOrder.end(); ++it2)
         {
-            stage->_selfRefCount--;
-            _refStagesSet.erase(*it);
-            _refStages.erase(it);
-            break;
+            if ((*it2)->getName() == name)
+            {
+                _refStagesOrder.erase(it2);
+            }
         }
     }
 }
 
 void PvtStage::removeReferences()
 {
-    _selfRefCount = 0;
-    _refStages.clear();
-    _refStagesSet.clear();
-}
-
-size_t PvtStage::numReferences() const
-{
-    return _refStages.size();
-}
-
-PvtStage* PvtStage::getReference(size_t index) const
-{
-    return index < _refStages.size() ? _refStages[index]->asA<PvtStage>() : nullptr;
+    // Decrease self ref count on all stages.
+    for (const RtStagePtr& stage : _refStagesOrder)
+    {
+        PvtStage::ptr(stage)->_selfRefCount--;
+    }
+    // Removed them.
+    _refStagesMap.clear();
+    _refStagesOrder.clear();
 }
 
 PvtStage* PvtStage::findReference(const RtToken& name) const
 {
-    for (auto it = _refStages.begin(); it != _refStages.end(); ++it)
+    auto it = _refStagesMap.find(name);
+    return it != _refStagesMap.end() ? PvtStage::ptr(it->second) : nullptr;
+}
+
+
+PvtStageIterator& PvtStageIterator::operator++()
+{
+    while (true)
     {
-        PvtStage* stage = (*it)->asA<PvtStage>();
-        if (stage->getName() == name)
+        if (_stack.empty())
         {
-            return (*it)->asA<PvtStage>();
+            // Traversal is complete.
+            abort();
+            return *this;
+        }
+
+        StackFrame& frame = _stack.back();
+        PvtStage* stage = std::get<0>(frame);
+        int& primIndex = std::get<1>(frame);
+        int& stageIndex = std::get<2>(frame);
+
+        bool pop = true;
+
+        if (primIndex + 1 < int(stage->getRootPrim()->getAllChildren().size()))
+        {
+            _current = stage->getRootPrim()->getAllChildren()[++primIndex];
+            if (!_predicate || _predicate(_current->obj()))
+            {
+                return *this;
+            }
+            pop = false;
+        }
+        else if (stageIndex + 1 < int(stage->getAllReferences().size()))
+        {
+            PvtStage* refStage = PvtStage::ptr(stage->getAllReferences()[++stageIndex]);
+            if (!refStage->getRootPrim()->getAllChildren().empty())
+            {
+                _stack.push_back(std::make_tuple(refStage, 0, stageIndex));
+                _current = refStage->getRootPrim()->getAllChildren()[0];
+                if (!_predicate || _predicate(_current->obj()))
+                {
+                    return *this;
+                }
+                pop = false;
+            }
+        }
+
+        if (pop)
+        {
+            _stack.pop_back();
         }
     }
-    return nullptr;
+    return *this;
 }
 
 }

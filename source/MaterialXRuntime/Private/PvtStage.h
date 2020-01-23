@@ -12,6 +12,7 @@
 #include <MaterialXRuntime/Private/PvtNodeGraph.h>
 
 #include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/RtStage.h>
 
 /// @file
 /// TODO: Docs
@@ -19,23 +20,81 @@
 namespace MaterialX
 {
 
-class PvtStage : public PvtObject
+class PvtStage;
+
+class PvtStageIterator
 {
 public:
-    static RtObjType typeId() { return _typeId; }
-
-    static const RtToken& typeName() { return _typeName; }
-
-    static PvtDataHandle createNew(const RtToken& name);
-
-    RtObjType getObjType() const override
+    PvtStageIterator() :
+        _current(nullptr)
     {
-        return _typeId;
     }
 
-    const RtToken& getObjTypeName() const override
+    PvtStageIterator(PvtStage* stage, RtObjectPredicate predicate = nullptr) :
+        _current(nullptr),
+        _predicate(predicate)
     {
-        return _typeName;
+        _stack.push_back(std::make_tuple(stage, -1, -1));
+        this->operator++();
+    }
+
+    bool operator==(const PvtStageIterator& other) const
+    {
+        return _current == other._current;
+    }
+
+    bool operator!=(const PvtStageIterator& other) const
+    {
+        return _current != other._current;
+    }
+
+    PvtStageIterator& operator++();
+
+    const PvtDataHandle& operator*() const
+    {
+        return _current;
+    }
+
+    bool isDone() const
+    {
+        return _current != nullptr;
+    }
+
+    void abort()
+    {
+        _current = nullptr;
+    }
+
+    PvtStageIterator& begin()
+    {
+        return *this;
+    }
+
+    static const PvtStageIterator& end()
+    {
+        static const PvtStageIterator NULL_STAGE_ITERATOR;
+        return NULL_STAGE_ITERATOR;
+    }
+
+private:
+    using StackFrame = std::tuple<PvtStage*, int, int>;
+    PvtDataHandle _current;
+    RtObjectPredicate _predicate;
+    vector<StackFrame> _stack;
+};
+
+
+using RtStageVec = vector<RtStagePtr>;
+using RtStageMap = RtTokenMap<RtStagePtr>;
+
+class PvtStage
+{
+public:
+    PvtStage(const RtToken& name, RtStageWeakPtr owner);
+
+    static inline PvtStage* ptr(const RtStagePtr& s)
+    {
+        return static_cast<PvtStage*>(s->_ptr);
     }
 
     const RtToken& getName() const
@@ -70,11 +129,6 @@ public:
         return _root->asA<PvtPrim>()->getPath();
     }
 
-    RtStageIterator traverse(RtObjectPredicate predicate)
-    {
-        return RtStageIterator(obj(), predicate);
-    }
-
     const RtTokenList& getSourceUri() const
     {
         return _sourceUri;
@@ -85,57 +139,51 @@ public:
         _sourceUri.push_back(uri);
     }
 
-    void addReference(PvtDataHandle stage);
+    void addReference(RtStagePtr stage);
 
     void removeReference(const RtToken& name);
 
     void removeReferences();
 
-    size_t numReferences() const;
-
-    PvtStage* getReference(size_t index) const;
-
     PvtStage* findReference(const RtToken& name) const;
 
-    const PvtDataHandleVec& getAllReferences() const
+    const RtStageVec& getAllReferences() const
     {
-        return _refStages;
+        return _refStagesOrder;
     }
 
-private:
-    static const RtObjType _typeId;
-    static const RtToken _typeName;
+    PvtStageIterator traverse(RtObjectPredicate predicate = nullptr)
+    {
+        return PvtStageIterator(this, predicate);
+    }
 
 protected:
-    PvtStage(const RtToken& name);
-
     PvtPrim* getPrimAtPathLocal(const PvtPath& path);
 
     class RootPrim : public PvtNodeGraph
     {
     public:
-        RootPrim(PvtStage* stage) :
+        RootPrim(RtStageWeakPtr stage) :
             PvtNodeGraph(PvtPath::ROOT_NAME, nullptr),
             _stage(stage)
         {}
 
-        PvtStage* getStage() const { return _stage; }
+        RtStageWeakPtr getStage() const { return _stage; }
 
     protected:
-        PvtStage* _stage;
+        RtStageWeakPtr _stage;
     };
 
     RtToken _name;
     PvtDataHandle _root;
 
     size_t _selfRefCount;
-    PvtDataHandleVec _refStages;
-    PvtDataHandleSet _refStagesSet;
+    RtStageMap _refStagesMap;
+    RtStageVec _refStagesOrder;
 
     RtTokenList _sourceUri;
 
     friend class PvtPathItem;
-    friend class RtStageIterator;
 };
 
 }

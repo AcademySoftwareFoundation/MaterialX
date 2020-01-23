@@ -28,8 +28,8 @@ using PvtDataHandleMap = RtTokenMap<PvtDataHandle>;
 using PvtDataHandleSet = std::set<PvtDataHandle>;
 
 /// Class representing an object in the scene hierarchy.
-/// This is the base class for prims and attributes.
-class PvtObject : public std::enable_shared_from_this<PvtObject>
+/// This is the base class for prims, attributes and relationships.
+class PvtObject : public RtRefBase<PvtObject>
 {
 public:
     virtual ~PvtObject() {}

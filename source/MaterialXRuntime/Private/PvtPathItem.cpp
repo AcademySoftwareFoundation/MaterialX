@@ -35,7 +35,7 @@ PvtPrim* PvtPathItem::getRoot() const
     return root;
 }
 
-PvtStage* PvtPathItem::getStage() const
+RtStageWeakPtr PvtPathItem::getStage() const
 {
     return getRoot()->asA<PvtStage::RootPrim>()->getStage();
 }

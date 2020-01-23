@@ -16,6 +16,7 @@ namespace MaterialX
 {
 
 class PvtPrim;
+class RtStage;
 
 /// Predicate used for filtering objects during traversal.
 using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
@@ -284,7 +285,7 @@ public:
 
     /// Constructor, setting the stage to iterate on and optionally
     /// a predicate restricting the set of returned objects.
-    RtStageIterator(const RtObject& stage, RtObjectPredicate predicate = nullptr);
+    RtStageIterator(const RtStagePtr& stage, RtObjectPredicate predicate = nullptr);
 
     /// Copy constructor.
     RtStageIterator(const RtStageIterator& other);

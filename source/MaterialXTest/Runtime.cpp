@@ -132,8 +132,8 @@ TEST_CASE("Runtime: Values", "[runtime]")
 
     // Test creating large values.
     // An stage is needed to take ownership of allocated data.
-    mx::RtStage stage = mx::RtStage::createNew(MAIN);
-    mx::RtObject rootPrim = stage.getRootPrim();
+    mx::RtStagePtr stage = mx::RtStage::createNew(MAIN);
+    mx::RtObject rootPrim = stage->getRootPrim();
 
     const std::string teststring("MaterialX");
     mx::RtValue str(teststring, rootPrim);
@@ -231,8 +231,8 @@ TEST_CASE("Runtime: Types", "[runtime]")
 
     // Test create/parse/copy values
     // An stage is needed to hold allocated data.
-    mx::RtStage stage = mx::RtStage::createNew(MAIN);
-    mx::RtObject rootPrim = stage.getRootPrim();
+    mx::RtStagePtr stage = mx::RtStage::createNew(MAIN);
+    mx::RtObject rootPrim = stage->getRootPrim();
 
     mx::RtValue fooValue = fooType->createValue(rootPrim);
     REQUIRE(fooValue.asInt() == 7);
@@ -275,26 +275,25 @@ TEST_CASE("Runtime: Types", "[runtime]")
 
 TEST_CASE("Runtime: Paths", "[runtime]")
 {
-    mx::RtObject stageObj = mx::RtStage::createNew(ROOT);
-    mx::RtStage stage(stageObj);
+    mx::RtStagePtr stage = mx::RtStage::createNew(ROOT);
 
     mx::RtPath empty;
-    REQUIRE(!stage.getPrimAtPath(empty).isValid());
+    REQUIRE(!stage->getPrimAtPath(empty).isValid());
 
     mx::RtPath root("/");
-    REQUIRE(stage.getPrimAtPath(root).isValid());
+    REQUIRE(stage->getPrimAtPath(root).isValid());
 
-    mx::RtObject graph = stage.createPrim("/graph", mx::RtNodeGraph::typeName());
-    mx::RtObject subgraph = stage.createPrim("/graph/subgraph", mx::RtNodeGraph::typeName());
-    mx::RtObject subsubgraph = stage.createPrim("/graph/subgraph/subsubgraph", mx::RtNodeGraph::typeName());
+    mx::RtObject graph = stage->createPrim("/graph", mx::RtNodeGraph::typeName());
+    mx::RtObject subgraph = stage->createPrim("/graph/subgraph", mx::RtNodeGraph::typeName());
+    mx::RtObject subsubgraph = stage->createPrim("/graph/subgraph/subsubgraph", mx::RtNodeGraph::typeName());
 
     mx::RtPath path1(graph);
     mx::RtPath path2(subgraph);
     mx::RtPath path3(subsubgraph);
 
-    REQUIRE(stage.getPrimAtPath(path1) == graph);
-    REQUIRE(stage.getPrimAtPath(path2) == subgraph);
-    REQUIRE(stage.getPrimAtPath(path3) == subsubgraph);
+    REQUIRE(stage->getPrimAtPath(path1) == graph);
+    REQUIRE(stage->getPrimAtPath(path2) == subgraph);
+    REQUIRE(stage->getPrimAtPath(path3) == subsubgraph);
     REQUIRE(path3.asString() == "/graph/subgraph/subsubgraph");
 
     mx::RtPath path4 = path1;
@@ -304,17 +303,11 @@ TEST_CASE("Runtime: Paths", "[runtime]")
 
 TEST_CASE("Runtime: Prims", "[runtime]")
 {
-    mx::RtObject stageObj = mx::RtStage::createNew(ROOT);
-    mx::RtStage stage(stageObj);
-
-    // Test validity/bool operators
-    REQUIRE(stageObj);
-    REQUIRE(!stageObj == false);
+    mx::RtStagePtr stage = mx::RtStage::createNew(ROOT);
     REQUIRE(stage);
-    REQUIRE(!stage == false);
 
     // Test creating a prim of each type
-    mx::RtObject nodedefObj = stage.createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    mx::RtObject nodedefObj = stage->createPrim("/ND_add_float", mx::RtNodeDef::typeName());
     REQUIRE(nodedefObj.isValid());
     REQUIRE(nodedefObj.getObjType() == mx::RtObjType::NODEDEF);
     REQUIRE(nodedefObj.getObjTypeName() == mx::RtNodeDef::typeName());
@@ -324,7 +317,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     nodeDef.setNodeTypeName(ADD);
     REQUIRE(nodeDef.getNodeTypeName() == ADD);
 
-    mx::RtObject nodeObj = stage.createPrim("/add1", mx::RtNode::typeName(), nodedefObj);
+    mx::RtObject nodeObj = stage->createPrim("/add1", mx::RtNode::typeName(), nodedefObj);
     REQUIRE(nodeObj.isValid());
     REQUIRE(nodeObj.getObjType() == mx::RtObjType::NODE);
     REQUIRE(nodeObj.getObjTypeName() == mx::RtNode::typeName());
@@ -333,14 +326,14 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     mx::RtNode node(nodeObj);
     REQUIRE(node.getPrimTypeName() == nodeDef.getNodeTypeName());
 
-    mx::RtObject graphObj = stage.createPrim("/graph1", mx::RtNodeGraph::typeName());
+    mx::RtObject graphObj = stage->createPrim("/graph1", mx::RtNodeGraph::typeName());
     REQUIRE(graphObj.isValid());
     REQUIRE(graphObj.getObjType() == mx::RtObjType::NODEGRAPH);
     REQUIRE(graphObj.getObjTypeName() == mx::RtNodeGraph::typeName());
     REQUIRE(graphObj.hasApi(mx::RtApiType::NODEGRAPH));
     REQUIRE(graphObj.hasApi(mx::RtApiType::PRIM));
 
-    mx::RtObject fooObj = stage.createPrim("/foo1", FOO);
+    mx::RtObject fooObj = stage->createPrim("/foo1", FOO);
     REQUIRE(fooObj.isValid());
     REQUIRE(fooObj.getObjType() == mx::RtObjType::PRIM);
     REQUIRE(fooObj.getObjTypeName() == mx::RtPrim::typeName());
@@ -366,10 +359,10 @@ TEST_CASE("Runtime: Prims", "[runtime]")
 
 TEST_CASE("Runtime: Nodes", "[runtime]")
 {
-    mx::RtStage stage = mx::RtStage::createNew(ROOT);
+    mx::RtStagePtr stage = mx::RtStage::createNew(ROOT);
 
     // Create a new nodedef object for defining an add node
-    mx::RtNodeDef nodedef = stage.createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    mx::RtNodeDef nodedef = stage->createPrim("/ND_add_float", mx::RtNodeDef::typeName());
     nodedef.setNodeTypeName(ADD);
 
     // Test adding metadata
@@ -407,11 +400,11 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(!in3);
 
     // Node creation without a nodedef should throw.
-    REQUIRE_THROWS(stage.createPrim("/add1", mx::RtNode::typeName()));
+    REQUIRE_THROWS(stage->createPrim("/add1", mx::RtNode::typeName()));
 
     // Create two new node instances from the add nodedef
-    mx::RtObject add1Obj = stage.createPrim("/add1", mx::RtNode::typeName(), nodedef.getObject());
-    mx::RtObject add2Obj = stage.createPrim("/add2", mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtObject add1Obj = stage->createPrim("/add1", mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtObject add2Obj = stage->createPrim("/add2", mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(add1Obj.isValid());
     REQUIRE(add2Obj.isValid());
 
@@ -492,46 +485,46 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add2_in2.getConnection() == add1_out);
 
     // Test node creation when name is not unique
-    mx::RtNode add3 = stage.createPrim("/add1", mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtNode add3 = stage->createPrim("/add1", mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(add3.getName() == "add3");
 
     // Test node creation with generated name
-    mx::RtNode add4 = stage.createPrim("/", NONAME, mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtNode add4 = stage->createPrim("/", NONAME, mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(add4.getName() == "add4");
 
     // Find object by path
-    mx::RtObject prim1 = stage.getPrimAtPath("/add3");
+    mx::RtObject prim1 = stage->getPrimAtPath("/add3");
     REQUIRE(prim1.isValid());
     REQUIRE(prim1.hasApi(mx::RtApiType::NODE));
 }
 
 TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 {
-    mx::RtStage stage = mx::RtStage::createNew(ROOT);
+    mx::RtStagePtr stage = mx::RtStage::createNew(ROOT);
 
     // Create a new nodedef for an add node.
-    mx::RtNodeDef addFloat = stage.createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    mx::RtNodeDef addFloat = stage->createPrim("/ND_add_float", mx::RtNodeDef::typeName());
     addFloat.setNodeTypeName(ADD);
     addFloat.createAttribute(IN1, mx::RtType::FLOAT);
     addFloat.createAttribute(IN2, mx::RtType::FLOAT);
     addFloat.createAttribute(OUT, mx::RtType::FLOAT, mx::RtAttrFlag::OUTPUT);
 
     // Create a nodegraph object.
-    mx::RtNodeGraph graph1 = stage.createPrim("/graph1", mx::RtNodeGraph::typeName());
+    mx::RtNodeGraph graph1 = stage->createPrim("/graph1", mx::RtNodeGraph::typeName());
     REQUIRE(graph1.isValid());
 
     // Create add nodes in the graph.
-    mx::RtNode add1 = stage.createPrim("/graph1/add1", mx::RtNode::typeName(), addFloat.getObject());
-    mx::RtNode add2 = stage.createPrim("/graph1/add2", mx::RtNode::typeName(), addFloat.getObject());
+    mx::RtNode add1 = stage->createPrim("/graph1/add1", mx::RtNode::typeName(), addFloat.getObject());
+    mx::RtNode add2 = stage->createPrim("/graph1/add2", mx::RtNode::typeName(), addFloat.getObject());
     REQUIRE(graph1.getChild(add1.getName()));
     REQUIRE(graph1.getChild(add2.getName()));
 
     // Test deleting a node.
-    mx::RtNode add3 = stage.createPrim("/graph1/add3", mx::RtNode::typeName(), addFloat.getObject());
+    mx::RtNode add3 = stage->createPrim("/graph1/add3", mx::RtNode::typeName(), addFloat.getObject());
     mx::RtPath add3Path = add3.getPath();
-    stage.removePrim(add3Path);
+    stage->removePrim(add3Path);
     REQUIRE(!graph1.getChild(add3Path.getName()));
-    REQUIRE(!stage.getPrimAtPath(add3Path));
+    REQUIRE(!stage->getPrimAtPath(add3Path));
 
     // Add an interface to the graph.
     graph1.createAttribute(A, mx::RtType::FLOAT);
@@ -569,11 +562,11 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.getInputSocket(B).isConnected());
     REQUIRE(graph1.getOutputSocket(OUT).getConnection() == add2.getOutput(OUT));
 
-    // Test query of parent, root and stage.
+    // Test query of parent, root and stage->
     REQUIRE(add1.getParent() == graph1.getObject());
-    REQUIRE(add1.getRoot() == stage.getRootPrim());
-    REQUIRE(add1.getStage() == stage.getObject());
-    REQUIRE(graph1.getParent() == stage.getRootPrim());
+    REQUIRE(add1.getRoot() == stage->getRootPrim());
+    REQUIRE(add1.getStage().lock() == stage);
+    REQUIRE(graph1.getParent() == stage->getRootPrim());
 }
 
 TEST_CASE("Runtime: FileIo", "[runtime]")
@@ -583,13 +576,12 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
     {
         // Load in stdlib
         // Create a stage and import the document data.
-        mx::RtObject stageObj = mx::RtStage::createNew(MAIN);
-        mx::RtFileIo stageIo(stageObj);
+        mx::RtStagePtr stage = mx::RtStage::createNew(MAIN);
+        mx::RtFileIo stageIo(stage);
         stageIo.readLibraries({ "stdlib" }, searchPath);
 
         // Get a nodegraph and write a dot file for inspection.
-        mx::RtStage stage(stageObj);
-        mx::RtNodeGraph graph = stage.getPrimAtPath("/NG_tiledimage_float");
+        mx::RtNodeGraph graph = stage->getPrimAtPath("/NG_tiledimage_float");
         REQUIRE(graph);
         std::ofstream dotfile;
         dotfile.open(graph.getName().str() + ".dot");
@@ -597,29 +589,29 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         dotfile.close();
 
         // Create a new graph
-        mx::RtNodeGraph graph1 = stage.createPrim(mx::RtNodeGraph::typeName());
+        mx::RtNodeGraph graph1 = stage->createPrim(mx::RtNodeGraph::typeName());
         REQUIRE(graph1);
         REQUIRE(graph1.getPath() == "/nodegraph1");
 
         // Get a nodedef and create two node instances in the graph.
-        mx::RtObject multiplyColor3 = stage.getPrimAtPath("/ND_multiply_color3");
+        mx::RtObject multiplyColor3 = stage->getPrimAtPath("/ND_multiply_color3");
         REQUIRE(multiplyColor3);
-        mx::RtNode mult1 = stage.createPrim(graph1.getPath(), NONAME, mx::RtNode::typeName(), multiplyColor3);
-        mx::RtNode mult2 = stage.createPrim(graph1.getPath(), NONAME, mx::RtNode::typeName(), multiplyColor3);
+        mx::RtNode mult1 = stage->createPrim(graph1.getPath(), NONAME, mx::RtNode::typeName(), multiplyColor3);
+        mx::RtNode mult2 = stage->createPrim(graph1.getPath(), NONAME, mx::RtNode::typeName(), multiplyColor3);
         REQUIRE(mult1);
         REQUIRE(mult2);
 
         // Get a nodedef and create an instance at stage root.
-        mx::RtObject tiledimageFloat = stage.getPrimAtPath("/ND_tiledimage_float");
+        mx::RtObject tiledimageFloat = stage->getPrimAtPath("/ND_tiledimage_float");
         REQUIRE(tiledimageFloat);
-        mx::RtNode tiledimage1 = stage.createPrim(mx::RtNode::typeName(), tiledimageFloat);
+        mx::RtNode tiledimage1 = stage->createPrim(mx::RtNode::typeName(), tiledimageFloat);
         REQUIRE(tiledimage1);
 
         // Move it into the graph.
-        stage.reparentPrim(tiledimage1.getPath(), graph1.getPath());
+        stage->reparentPrim(tiledimage1.getPath(), graph1.getPath());
 
         // Save the stage to file for inspection.
-        stageIo.write(stage.getName().str() + "_export.mtlx", nullptr);
+        stageIo.write(stage->getName().str() + "_export.mtlx", nullptr);
 
         // Write out nodegraphs only.
         mx::RtWriteOptions writeOptions;
@@ -627,7 +619,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         {
             return (obj.hasApi(mx::RtApiType::NODEGRAPH));
         };
-        stageIo.write(stage.getName().str() + "_nodegraph_export.mtlx", &writeOptions);
+        stageIo.write(stage->getName().str() + "_nodegraph_export.mtlx", &writeOptions);
 
         // Write out only tiledimage nodes.
         writeOptions.writeFilter = [](const mx::RtObject& obj) -> bool
@@ -641,27 +633,27 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
             return false;
         };
         writeOptions.writeIncludes = false;
-        stageIo.write(stage.getName().str() + "_tiledimage_export.mtlx", &writeOptions);
+        stageIo.write(stage->getName().str() + "_tiledimage_export.mtlx", &writeOptions);
     }
 
     {
         // Load stdlib into a stage
-        mx::RtObject libStageObj = mx::RtStage::createNew(LIBS);
-        mx::RtFileIo(libStageObj).readLibraries({ "stdlib" }, searchPath);
+        mx::RtStagePtr libStage = mx::RtStage::createNew(LIBS);
+        mx::RtFileIo(libStage).readLibraries({ "stdlib" }, searchPath);
 
-        // Create a new working space stage.
-        mx::RtStage stage = mx::RtStage::createNew(MAIN);
+        // Create a new working space stage->
+        mx::RtStagePtr stage = mx::RtStage::createNew(MAIN);
 
         // Add reference to stdlib
-        stage.addReference(libStageObj);
+        stage->addReference(libStage);
 
         // Create a small node network.
-        mx::RtObject tiledimageDef = stage.getPrimAtPath("/ND_tiledimage_color3");
-        mx::RtObject texcoordDef = stage.getPrimAtPath("/ND_texcoord_vector2");
+        mx::RtObject tiledimageDef = stage->getPrimAtPath("/ND_tiledimage_color3");
+        mx::RtObject texcoordDef = stage->getPrimAtPath("/ND_texcoord_vector2");
         REQUIRE(tiledimageDef);
         REQUIRE(texcoordDef);
-        mx::RtNode tiledimage1 = stage.createPrim(mx::RtNode::typeName(), tiledimageDef);
-        mx::RtNode texcoord1 = stage.createPrim(mx::RtNode::typeName(), texcoordDef);
+        mx::RtNode tiledimage1 = stage->createPrim(mx::RtNode::typeName(), tiledimageDef);
+        mx::RtNode texcoord1 = stage->createPrim(mx::RtNode::typeName(), texcoordDef);
         REQUIRE(tiledimage1);
         REQUIRE(texcoord1);
         mx::RtInput tiledimage1_texcoord = tiledimage1.getInput(mx::RtToken("texcoord"));
@@ -680,7 +672,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         mx::RtWriteOptions writeOptions;
         writeOptions.writeIncludes = true;
 
-        mx::RtFileIo fileIO(stage.getObject());
+        mx::RtFileIo fileIO(stage);
         fileIO.write("main_with_xincludes_export.mtlx", &writeOptions);
 
         // Test read and write to stream. Note that the steream includes
@@ -690,9 +682,9 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         fileIO.write(stream1, &writeOptions);
         REQUIRE(!stream1.str().empty());
 
-        mx::RtObject streamStageObj = mx::RtStage::createNew(MAIN);
-        mx::RtFileIo streamFileIO(streamStageObj);
-        mx::RtStage(streamStageObj).addReference(libStageObj);
+        mx::RtStagePtr streamStage = mx::RtStage::createNew(MAIN);
+        mx::RtFileIo streamFileIO(streamStage);
+        streamStage->addReference(libStage);
         mx::RtReadOptions readOptions;
         readOptions.skipConflictingElements = true;
         streamFileIO.read(stream1, &readOptions);
@@ -705,17 +697,17 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
  
-    // Load in stdlib to a stage.
-    mx::RtStage libStage = mx::RtStage::createNew(LIBS);
-    mx::RtFileIo libFileIo(libStage.getObject());
+    // Load in stdlib to a stage->
+    mx::RtStagePtr libStage = mx::RtStage::createNew(LIBS);
+    mx::RtFileIo libFileIo(libStage);
     libFileIo.readLibraries({ "stdlib" }, searchPath);
 
-    // Create a main stage referencing the libs stage.
-    mx::RtStage stage = mx::RtStage::createNew(MAIN);
-    stage.addReference(libStage.getObject());
+    // Create a main stage referencing the libs stage->
+    mx::RtStagePtr stage = mx::RtStage::createNew(MAIN);
+    stage->addReference(libStage);
 
     // Create a nodegraph.
-    mx::RtNodeGraph graph = stage.createPrim(mx::RtNodeGraph::typeName());
+    mx::RtNodeGraph graph = stage->createPrim(mx::RtNodeGraph::typeName());
     graph.createAttribute(IN, mx::RtType::FLOAT);
     graph.createAttribute(OUT, mx::RtType::FLOAT, mx::RtAttrFlag::OUTPUT);
     mx::RtInput graphIn = graph.getInput(IN);
@@ -728,18 +720,18 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     REQUIRE(graphOutSocket);
 
     // Add nodes to the graph.
-    mx::RtNodeDef addNodeDef = stage.getPrimAtPath("/ND_add_float");
-    mx::RtNode add1 = stage.createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
-    mx::RtNode add2 = stage.createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
+    mx::RtNodeDef addNodeDef = stage->getPrimAtPath("/ND_add_float");
+    mx::RtNode add1 = stage->createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
+    mx::RtNode add2 = stage->createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
     mx::RtNode::connect(graphInSocket, add1.getInput(IN1));
     mx::RtNode::connect(add1.getOutput(OUT), add2.getInput(IN1));
     mx::RtNode::connect(add2.getOutput(OUT), graphOutSocket);
 
     // Add an unconnected node.
-    stage.createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
+    stage->createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
 
     // Create a node on root level and connect it downstream after the graph.
-    mx::RtNode add3 = stage.createPrim(mx::RtNode::typeName(), addNodeDef.getObject());
+    mx::RtNode add3 = stage->createPrim(mx::RtNode::typeName(), addNodeDef.getObject());
     mx::RtNode::connect(graphOut, add3.getInput(IN1));
 
     mx::RtWriteOptions options;
@@ -747,13 +739,13 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 
     // Save the stage to file for inspection.
     const mx::FilePath filename = graph.getName().str() + "_export.mtlx";
-    mx::RtFileIo fileIo(stage.getObject());
+    mx::RtFileIo fileIo(stage);
     fileIo.write(filename, &options);
 
-    // Read the saved file to another stage.
-    mx::RtStage anotherStage = mx::RtStage::createNew(mx::RtToken("another"));
-    anotherStage.addReference(libStage.getObject());
-    fileIo.setObject(anotherStage.getObject());
+    // Read the saved file to another stage->
+    mx::RtStagePtr anotherStage = mx::RtStage::createNew(mx::RtToken("another"));
+    anotherStage->addReference(libStage);
+    fileIo.setStage(anotherStage);
     fileIo.read(filename, searchPath);
 
     // Save the re-read stage to file for inspection.
@@ -770,87 +762,83 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 TEST_CASE("Runtime: Rename", "[runtime]")
 {
     // Load in stdlib as a referenced stage ("libs").
-    mx::RtObject libStageObj = mx::RtStage::createNew(LIBS);
-    mx::RtStage libStage(libStageObj);
+    mx::RtStagePtr libStage = mx::RtStage::createNew(LIBS);
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    mx::RtFileIo libFileIo(libStageObj);
+    mx::RtFileIo libFileIo(libStage);
     libFileIo.readLibraries({ "stdlib" }, searchPath);
 
-    // Create a main stage.
-    mx::RtObject stageObj = mx::RtStage::createNew(MAIN);
-    mx::RtStage stage(stageObj);
-    stage.addReference(libStageObj);
+    // Create a main stage
+    mx::RtStagePtr stage = mx::RtStage::createNew(MAIN);
+    stage->addReference(libStage);
 
     // Create some nodes.
-    mx::RtObject nodedefObj = stage.getPrimAtPath("/ND_add_float");
+    mx::RtObject nodedefObj = stage->getPrimAtPath("/ND_add_float");
     mx::RtNodeDef nodedef(nodedefObj);
     REQUIRE(nodedef.isValid());
-    mx::RtNode node1 = stage.createPrim(mx::RtNode::typeName(), nodedefObj);
-    mx::RtNode node2 = stage.createPrim(mx::RtNode::typeName(), nodedefObj);
+    mx::RtNode node1 = stage->createPrim(mx::RtNode::typeName(), nodedefObj);
+    mx::RtNode node2 = stage->createPrim(mx::RtNode::typeName(), nodedefObj);
     REQUIRE(node1);
     REQUIRE(node2);
     REQUIRE(node1.getName() == "add1");
     REQUIRE(node2.getName() == "add2");
 
     // Test node renaming
-    mx::RtToken newName1 = stage.renamePrim(node1.getPath(), mx::RtToken("foo"));
-    mx::RtToken newName2 = stage.renamePrim(node2.getPath(), mx::RtToken("foo"));
+    mx::RtToken newName1 = stage->renamePrim(node1.getPath(), mx::RtToken("foo"));
+    mx::RtToken newName2 = stage->renamePrim(node2.getPath(), mx::RtToken("foo"));
     REQUIRE(node1.getName() == newName1);
     REQUIRE(node2.getName() == newName2);
     REQUIRE(node1.getName() == "foo");
     REQUIRE(node2.getName() == "foo1");
 
-    stage.renamePrim(node1.getPath(), mx::RtToken("add1"));
+    stage->renamePrim(node1.getPath(), mx::RtToken("add1"));
     REQUIRE(node1.getName() == "add1");
-    stage.renamePrim(node2.getPath(), mx::RtToken("foo"));
+    stage->renamePrim(node2.getPath(), mx::RtToken("foo"));
     REQUIRE(node2.getName() == "foo");
-    stage.renamePrim(node2.getPath(), mx::RtToken("add2"));
+    stage->renamePrim(node2.getPath(), mx::RtToken("add2"));
     REQUIRE(node2.getName() == "add2");
 
     // Test that a rename to existing "add1" results in the
     // old name "add2" since that is still a unique name.
-    stage.renamePrim(node2.getPath(), mx::RtToken("add1"));
+    stage->renamePrim(node2.getPath(), mx::RtToken("add1"));
     REQUIRE(node2.getName() == "add2");
 }
 
 TEST_CASE("Runtime: Stage References", "[runtime]")
 {
     // Load in stdlib as a referenced stage ("libs").
-    mx::RtObject libStageObj = mx::RtStage::createNew(LIBS);
-    mx::RtStage libStage(libStageObj);
+    mx::RtStagePtr libStage = mx::RtStage::createNew(LIBS);
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    mx::RtFileIo libFileIo(libStageObj);
+    mx::RtFileIo libFileIo(libStage);
     libFileIo.readLibraries({ "stdlib", "pbrlib" }, searchPath);
 
-    // Create a main stage.
-    mx::RtObject stageObj = mx::RtStage::createNew(MAIN);
-    mx::RtStage stage(stageObj);
-    stage.addReference(libStageObj);
+    // Create a main stage
+    mx::RtStagePtr stage = mx::RtStage::createNew(MAIN);
+    stage->addReference(libStage);
 
     // Test access and usage of contents from the referenced library.
-    mx::RtObject nodedefObj = stage.getPrimAtPath("/ND_complex_ior");
+    mx::RtObject nodedefObj = stage->getPrimAtPath("/ND_complex_ior");
     mx::RtNodeDef nodedef(nodedefObj);
     REQUIRE(nodedef.isValid());
-    mx::RtNode node1 = stage.createPrim(mx::RtNode::typeName(), nodedefObj);
+    mx::RtNode node1 = stage->createPrim(mx::RtNode::typeName(), nodedefObj);
     REQUIRE(node1.isValid());
 
     // Write the main stage to a new document,
     // writing only the non-referenced content.
     mx::RtWriteOptions options;
     options.writeIncludes = true;
-    mx::RtFileIo mainFileIO(stageObj);
+    mx::RtFileIo mainFileIO(stage);
     mainFileIO.write("refs_as_includes.mtlx", &options);
 
     // Test removal of referenced content.
     mx::RtPath path1 = nodedef.getPath();
-    REQUIRE_THROWS(stage.removePrim(path1));
+    REQUIRE_THROWS(stage->removePrim(path1));
 
     // Test removal of non-referenced content.
     mx::RtPath path2 = node1.getPath();
-    stage.removePrim(path2);
-    node1 = stage.getPrimAtPath(path2);
+    stage->removePrim(path2);
+    node1 = stage->getPrimAtPath(path2);
     REQUIRE(!node1.isValid());
 }
 
@@ -859,15 +847,14 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
-    // Load standard libraries in a stage.
-    mx::RtObject libStageObj = mx::RtStage::createNew(LIBS);
-    mx::RtFileIo libStageIO(libStageObj);
+    // Load standard libraries in a stage->
+    mx::RtStagePtr libStage = mx::RtStage::createNew(LIBS);
+    mx::RtFileIo libStageIO(libStage);
     libStageIO.readLibraries({ "stdlib", "pbrlib" }, searchPath);
 
     // Count elements traversing the full stdlib stage
-    mx::RtStage libStage(libStageObj);
     size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = libStage.traverse(); !it.isDone(); ++it)
+    for (auto it = libStage->traverse(); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -896,19 +883,19 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     REQUIRE(nodeDefCount == libNodeDefCount);
     REQUIRE(nodeGraphCount == libNodeGraphCount);
 
-    // Create a main stage.
-    mx::RtStage stage = mx::RtStage::createNew(MAIN);
-    stage.addReference(libStageObj);
+    // Create a main stage
+    mx::RtStagePtr stage = mx::RtStage::createNew(MAIN);
+    stage->addReference(libStage);
 
-    mx::RtNodeDef nodedef = stage.getPrimAtPath("/ND_subtract_vector3");
+    mx::RtNodeDef nodedef = stage->getPrimAtPath("/ND_subtract_vector3");
     REQUIRE(nodedef);
-    mx::RtObject nodeObj = stage.createPrim(mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtObject nodeObj = stage->createPrim(mx::RtNode::typeName(), nodedef.getObject());
     REQUIRE(nodeObj);
 
     // Travers using a filter to return only node objects.
     mx::RtObjTypePredicate<mx::RtObjType::NODE> nodeFilter;
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = stage.traverse(nodeFilter); !it.isDone(); ++it)
+    for (auto it = stage->traverse(nodeFilter); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -932,7 +919,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     // Travers using a filter to return only objects supporting the nodegraph API.
     mx::RtApiTypePredicate<mx::RtApiType::NODEGRAPH> apiFilter;
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = stage.traverse(apiFilter); !it.isDone(); ++it)
+    for (auto it = stage->traverse(apiFilter); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -954,7 +941,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     REQUIRE(nodeGraphCount == libNodeGraphCount);
 
     // Traverse a nodegraph using tree traversal.
-    mx::RtNodeGraph nodegraph = stage.getPrimAtPath("/NG_tiledimage_float");
+    mx::RtNodeGraph nodegraph = stage->getPrimAtPath("/NG_tiledimage_float");
     REQUIRE(nodegraph);
     nodeCount = 0;
     for (auto it = nodegraph.getChildren(nodeFilter); !it.isDone(); ++it)
@@ -970,7 +957,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     };
 
     // Travers a nodedef finding all its inputs.
-    mx::RtNodeDef generalized_schlick_brdf = stage.getPrimAtPath("/ND_generalized_schlick_brdf");
+    mx::RtNodeDef generalized_schlick_brdf = stage->getPrimAtPath("/ND_generalized_schlick_brdf");
     REQUIRE(generalized_schlick_brdf);
     size_t inputCount = 0;
     for (auto it = generalized_schlick_brdf.getAttributes(inputFilter); !it.isDone(); ++it)
@@ -993,7 +980,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
 
     // Travers to find all nodedefs for BSDF nodes.
     size_t bsdfCount = 0;
-    for (auto it = stage.traverse(bsdfFilter); !it.isDone(); ++it)
+    for (auto it = stage->traverse(bsdfFilter); !it.isDone(); ++it)
     {
         bsdfCount++;
     }

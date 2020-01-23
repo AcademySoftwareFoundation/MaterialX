@@ -20,14 +20,16 @@ namespace
             RtObjType::PRIM,
             RtObjType::NODEDEF,
             RtObjType::NODE,
-            RtObjType::NODEGRAPH
+            RtObjType::NODEGRAPH,
+            RtObjType::BACKDROP
         },
         // RtApiType::PRIM
         {
             RtObjType::PRIM,
             RtObjType::NODEDEF,
             RtObjType::NODE,
-            RtObjType::NODEGRAPH
+            RtObjType::NODEGRAPH,
+            RtObjType::BACKDROP
         },
         // RtApiType::RELATIONSHIP
         {
@@ -58,13 +60,9 @@ namespace
         {
             RtObjType::NODEGRAPH
         },
-        // RtApiType::STAGE
+        // RtApiType::BACKDROP
         {
-            RtObjType::STAGE
-        },
-        // RtApiType::FILE_IO
-        {
-            RtObjType::STAGE
+            RtObjType::BACKDROP
         }
     };
 

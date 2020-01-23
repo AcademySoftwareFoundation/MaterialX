@@ -5,6 +5,7 @@
 
 #include <MaterialXRuntime/RtTraversal.h>
 #include <MaterialXRuntime/RtNode.h>
+#include <MaterialXRuntime/RtStage.h>
 
 #include <MaterialXRuntime/Private/PvtAttribute.h>
 #include <MaterialXRuntime/Private/PvtRelationship.h>
@@ -160,22 +161,17 @@ RtStageIterator::RtStageIterator() :
 {
 }
 
-RtStageIterator::RtStageIterator(const RtObject& stage, RtObjectPredicate predicate) :
+RtStageIterator::RtStageIterator(const RtStagePtr& stage, RtObjectPredicate predicate) :
     _ptr(nullptr)
 {
-    if (stage.hasApi(RtApiType::STAGE))
-    {
-        PvtStage* s = PvtObject::ptr<PvtStage>(stage);
+    // Initialize the stack and start iteration to the first element.
+    StageIteratorData* data = new StageIteratorData();
+    data->current = nullptr;
+    data->predicate = predicate;
+    data->stack.push_back(std::make_tuple(PvtStage::ptr(stage), -1, -1));
 
-        // Initialize the stack and start iteration to the first element.
-        StageIteratorData* data = new StageIteratorData();
-        data->current = nullptr;
-        data->predicate = predicate;
-        data->stack.push_back(std::make_tuple(s, -1, -1));
-
-        _ptr = data;
-        ++*this;
-    }
+    _ptr = data;
+    ++*this;
 }
 
 RtStageIterator::RtStageIterator(const RtStageIterator& other) :
@@ -267,7 +263,7 @@ RtStageIterator& RtStageIterator::operator++()
         }
         else if (stageIndex + 1 < int(stage->getAllReferences().size()))
         {
-            PvtStage* refStage = stage->getAllReferences()[++stageIndex]->asA<PvtStage>();
+            PvtStage* refStage = PvtStage::ptr(stage->getAllReferences()[++stageIndex]);
             if (!refStage->getRootPrim()->getAllChildren().empty())
             {
                 data->stack.push_back(std::make_tuple(refStage, 0, stageIndex));

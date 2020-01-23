@@ -12,28 +12,27 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtTraversal.h>
-#include <MaterialXRuntime/RtPath.h>
 
 namespace MaterialX
 {
 
+class RtPath;
+
 /// @class RtStage
-/// API for accessing a stage. This API can only be
-/// attached to objects of type STAGE.
-class RtStage : public RtApiBase
+/// A stage is the root container of material description data.
+/// Creates and owns the primitives that builds up the material
+/// description graph hierarchy.
+class RtStage : public RtRefBase<RtStage>
 {
 public:
-    /// Constructor attaching a stage object to the API.
-    RtStage(const RtObject& obj);
+    /// Destructor
+    ~RtStage();
 
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
+    /// Create a new empty stage.
+    static RtStagePtr createNew(const RtToken& name);
 
     /// Return the name of the stage.
     const RtToken& getName() const;
-
-    /// Create a new empty stage.
-    static RtObject createNew(const RtToken& name);
 
     /// Create a new prim at the root of the stage.
     RtObject createPrim(const RtToken& typeName, const RtObject def = RtObject());
@@ -70,7 +69,7 @@ public:
     RtStageIterator traverse(RtObjectPredicate predicate = nullptr);
 
     /// Add a reference to another stage.
-    void addReference(const RtObject& stage);
+    void addReference(RtStagePtr stage);
 
     /// Remove a reference to another stage.
     void removeReference(const RtToken& name);
@@ -78,17 +77,11 @@ public:
     /// Remove all references to other stages
     void removeReferences();
 
-    /// Return the number of references
-    size_t numReferences() const;
+protected:
+    RtStage();
 
-    /// Get a reference by index.
-    RtObject getReference(size_t index) const;
-
-    /// Find a reference by name
-    RtObject findReference(const RtToken& name) const;
-
-  protected:
-    friend class RtFileIo;
+    void* _ptr;
+    friend class PvtStage;
 };
 
 }

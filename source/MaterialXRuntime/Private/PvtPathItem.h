@@ -33,7 +33,7 @@ public:
 
     PvtPrim* getRoot() const;
 
-    PvtStage* getStage() const;
+    RtStageWeakPtr getStage() const;
 
     RtTypedValue* addMetadata(const RtToken& name, const RtToken& type);
 

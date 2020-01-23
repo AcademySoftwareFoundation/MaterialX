@@ -39,9 +39,9 @@ RtObject RtPathItem::getRoot() const
     return root ? root->obj() : RtObject();
 }
 
-RtObject RtPathItem::getStage() const
+RtStageWeakPtr RtPathItem::getStage() const
 {
-    return hnd()->asA<PvtPathItem>()->getStage()->obj();
+    return hnd()->asA<PvtPathItem>()->getStage();
 }
 
 RtTypedValue* RtPathItem::addMetadata(const RtToken& name, const RtToken& type)

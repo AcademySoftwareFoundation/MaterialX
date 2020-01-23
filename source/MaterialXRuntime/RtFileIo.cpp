@@ -206,9 +206,9 @@ namespace
             const vector<ValueElementPtr> nodePorts = node->getActiveValueElements();
 
             RtObjTypePredicate<RtObjType::NODEDEF> nodedefFilter;
-            for (const RtObject candidateObj : stage->traverse(nodedefFilter))
+            for (const PvtDataHandle& hnd : stage->traverse(nodedefFilter))
             {
-                PvtNodeDef* candidate = PvtObject::ptr<PvtNodeDef>(candidateObj);
+                PvtNodeDef* candidate = hnd->asA<PvtNodeDef>();
                 if (candidate->getNodeTypeName() == nodeTypeName &&
                     matchingSignature(candidate, nodePorts))
                 {
@@ -225,6 +225,9 @@ namespace
         PvtNodeDef* nodedef = resolveNodeDef(src, stage);
         if (!nodedef)
         {
+
+            nodedef = resolveNodeDef(src, stage);
+
             throw ExceptionRuntimeError("No matching nodedef was found for node '" + src->getName() + "'");
         }
 
@@ -651,15 +654,14 @@ namespace
 
     void writeSourceUris(const PvtStage* stage, DocumentPtr doc)
     {
-        const PvtDataHandleVec& refs = stage->getAllReferences();
-        for (size_t i = 0; i < refs.size(); i++)
+        for (const RtStagePtr& refPtr : stage->getAllReferences())
         {
-            const PvtStage* pStage = refs[i]->asA<PvtStage>();
-            if (pStage->numReferences())
+            const PvtStage* ref = PvtStage::ptr(refPtr);
+            if (ref->getAllReferences().size() > 0)
             {
-                writeSourceUris(pStage, doc);
+                writeSourceUris(ref, doc);
             }
-            const RtTokenList& uris = pStage->getSourceUri();
+            const RtTokenList& uris = ref->getSourceUri();
             if (!uris.empty())
             {
                 for (const RtToken& uri : uris)
@@ -716,16 +718,6 @@ namespace
 
 } // end anonymous namespace
 
-RtFileIo::RtFileIo(RtObject stage) :
-    RtApiBase(stage)
-{
-}
-
-RtApiType RtFileIo::getApiType() const
-{
-    return RtApiType::FILE_IO;
-}
-
 void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPaths, const RtReadOptions* readOptions)
 {
     try
@@ -739,7 +731,7 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
 
-        PvtStage* stage = hnd()->asA<PvtStage>();
+        PvtStage* stage = PvtStage::ptr(_stage);
         readDocument(document, stage, readOptions);
     }
     catch (Exception& e)
@@ -760,7 +752,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         }
         readFromXmlStream(document, stream, &xmlReadOptions);
 
-        PvtStage* stage = hnd()->asA<PvtStage>();
+        PvtStage* stage = PvtStage::ptr(_stage);
         readDocument(document, stage, readOptions);
     }
     catch (Exception& e)
@@ -771,7 +763,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
 
 void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath& searchPaths)
 {
-    PvtStage* stage = hnd()->asA<PvtStage>();
+    PvtStage* stage = PvtStage::ptr(_stage);
 
     // Load all content into a document.
     DocumentPtr doc = createDocument();
@@ -818,7 +810,7 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
 
 void RtFileIo::write(const FilePath& documentPath, const RtWriteOptions* options)
 {
-    PvtStage* stage = hnd()->asA<PvtStage>();
+    PvtStage* stage = PvtStage::ptr(_stage);
 
     DocumentPtr document = createDocument(); 
     writeDocument(document, stage, options);
@@ -833,7 +825,7 @@ void RtFileIo::write(const FilePath& documentPath, const RtWriteOptions* options
 
 void RtFileIo::write(std::ostream& stream, const RtWriteOptions* options)
 {
-    PvtStage* stage = hnd()->asA<PvtStage>();
+    PvtStage* stage = PvtStage::ptr(_stage);
 
     DocumentPtr document = createDocument();
     writeDocument(document, stage, options);
