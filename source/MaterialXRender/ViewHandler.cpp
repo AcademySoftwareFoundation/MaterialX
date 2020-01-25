@@ -8,13 +8,6 @@
 namespace MaterialX
 { 
 
-const float PI = std::acos(-1.0f);
-
-float ViewHandler::degreesToRadians(float degrees) const
-{
-    return (degrees * PI / 180.0f);
-}
-
 Matrix44 ViewHandler::createViewMatrix(const Vector3& eye,
                                        const Vector3& target,
                                        const Vector3& up)
@@ -39,6 +32,17 @@ Matrix44 ViewHandler::createPerspectiveMatrix(float left, float right,
         0.0f, (2.0f * nearP) / (top - bottom), (top + bottom) / (top - bottom), 0.0f,
         0.0f, 0.0f, -(farP + nearP) / (farP - nearP), -(2.0f * farP * nearP) / (farP - nearP),
         0.0f, 0.0f, -1.0f, 0.0f);
+}
+
+Matrix44 ViewHandler::createOrthographicMatrix(float left, float right,
+                                               float bottom, float top,
+                                               float nearP, float farP)
+{
+    return Matrix44(
+        2.0f / (right - left), 0.0f, 0.0f, -(right + left) / (right - left),
+        0.0f, 2.0f / (top - bottom), 0.0f, -(top + bottom) / (top - bottom),
+        0.0f, 0.0f, -2.0f / (farP - nearP), -(farP + nearP) / (farP - nearP),
+        0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 } // namespace MaterialX

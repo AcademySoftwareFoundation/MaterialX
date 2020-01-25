@@ -16,12 +16,11 @@ void bindPyViewHandler(py::module& mod)
         .def_static("create", &mx::ViewHandler::create)
         .def_static("createViewMatrix", &mx::ViewHandler::createViewMatrix)
         .def_static("createPerspectiveMatrix", &mx::ViewHandler::createPerspectiveMatrix)
+        .def_static("createOrthographicMatrix", &mx::ViewHandler::createOrthographicMatrix)
         .def(py::init<>())
-        .def("setWorldMatrix", &mx::ViewHandler::setWorldMatrix)
-        .def("projectionMatrix", &mx::ViewHandler::projectionMatrix, py::return_value_policy::reference)
-        .def("viewMatrix", &mx::ViewHandler::viewMatrix, py::return_value_policy::reference)
-        .def("viewPosition", &mx::ViewHandler::viewPosition, py::return_value_policy::reference)
-        .def("viewDirection", &mx::ViewHandler::viewDirection, py::return_value_policy::reference)
-        .def("worldMatrix", &mx::ViewHandler::worldMatrix, py::return_value_policy::reference)
-        .def("degreesToRadians", &mx::ViewHandler::degreesToRadians);
+        .def_readwrite("worldMatrix", &mx::ViewHandler::worldMatrix)
+        .def_readwrite("viewMatrix", &mx::ViewHandler::viewMatrix)
+        .def_readwrite("viewPosition", &mx::ViewHandler::viewPosition)
+        .def_readwrite("viewDirection", &mx::ViewHandler::viewDirection)
+        .def_readwrite("projectionMatrix", &mx::ViewHandler::projectionMatrix);
 }
