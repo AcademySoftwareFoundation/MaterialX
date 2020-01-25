@@ -29,32 +29,6 @@ const int DEFAULT_ENV_SAMPLES = 16;
 
 namespace {
 
-mx::Matrix44 createViewMatrix(const mx::Vector3& eye,
-                              const mx::Vector3& target,
-                              const mx::Vector3& up)
-{
-    mx::Vector3 z = (target - eye).getNormalized();
-    mx::Vector3 x = z.cross(up).getNormalized();
-    mx::Vector3 y = x.cross(z);
-
-    return mx::Matrix44(
-         x[0],  x[1],  x[2], -x.dot(eye),
-         y[0],  y[1],  y[2], -y.dot(eye),
-        -z[0], -z[1], -z[2],  z.dot(eye),
-         0.0f,  0.0f,  0.0f,  1.0f);
-}
-
-mx::Matrix44 createPerspectiveMatrix(float left, float right,
-                                     float bottom, float top,
-                                     float nearP, float farP)
-{
-    return mx::Matrix44(
-        (2.0f * nearP) / (right - left), 0.0f, (right + left) / (right - left), 0.0f,
-        0.0f, (2.0f * nearP) / (top - bottom), (top + bottom) / (top - bottom), 0.0f,
-        0.0f, 0.0f, -(farP + nearP) / (farP - nearP), -(2.0f * farP * nearP) / (farP - nearP),
-        0.0f, 0.0f, -1.0f, 0.0f);
-}
-
 bool stringEndsWith(const std::string& str, std::string const& end)
 {
     if (str.length() >= end.length())
@@ -232,6 +206,9 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Initialize light handler.
     _lightHandler = mx::LightHandler::create();
+
+    // Initialize view handlers.
+    _sceneViewHandler = mx::ViewHandler::create();
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -1305,8 +1282,9 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
 
 void Viewer::drawScene3D()
 {
-    mx::Matrix44 world, view, proj;
-    computeCameraMatrices(world, view, proj);
+    mx::Matrix44& world = _sceneViewHandler->worldMatrix;
+    mx::Matrix44& view = _sceneViewHandler->viewMatrix;
+    mx::Matrix44& proj = _sceneViewHandler->projectionMatrix;
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -1520,15 +1498,9 @@ void Viewer::drawScene2D()
     shader->bind();
     shader->uploadAttrib("i_position", positions);
 
-    // Compute matrices
-    mx::Matrix44 world, view, proj;
-    float fH = std::tan(_viewAngle / 360.0f * PI) * _nearDist;
-    float fW = fH * (float)mSize.x() / (float)mSize.y();
-    view = createViewMatrix(_eye, _center, _up);
-    proj = createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
-    world = mx::Matrix44::createScale(_uvScale * _uvZoom);
-    world *= mx::Matrix44::createTranslation(_uvTranslation).getTranspose();
-
+    mx::Matrix44& world = _sceneViewHandler->worldMatrix;
+    mx::Matrix44& view = _sceneViewHandler->viewMatrix;
+    mx::Matrix44& proj = _sceneViewHandler->projectionMatrix;
     _wireMaterialUV->bindViewInformation(world, view, proj);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -1553,6 +1525,8 @@ void Viewer::drawContents()
     {
         return;
     }
+
+    updateViewHandlers();
     if (_drawUVGeometry)
     {
         drawScene2D();
@@ -1601,8 +1575,10 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
 
     if (_translationActive)
     {
-        mx::Matrix44 world, view, proj;
-        computeCameraMatrices(world, view, proj);
+        updateViewHandlers();
+        mx::Matrix44& world = _sceneViewHandler->worldMatrix;
+        mx::Matrix44& view = _sceneViewHandler->viewMatrix;
+        mx::Matrix44& proj = _sceneViewHandler->projectionMatrix;
         mx::Matrix44 worldView = view * world;
 
         mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
@@ -1689,9 +1665,7 @@ void Viewer::initCamera()
     _modelTranslation = sphereCenter * -1.0f;
 }
 
-void Viewer::computeCameraMatrices(mx::Matrix44& world,
-                                   mx::Matrix44& view,
-                                   mx::Matrix44& proj)
+void Viewer::updateViewHandlers()
 {
     float fH = std::tan(_viewAngle / 360.0f * PI) * _nearDist;
     float fW = fH * (float) mSize.x() / (float) mSize.y();
@@ -1699,10 +1673,10 @@ void Viewer::computeCameraMatrices(mx::Matrix44& world,
     ng::Matrix4f ngArcball = _arcball.matrix();
     mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size()).getTranspose();
 
-    view = createViewMatrix(_eye, _center, _up) * arcball;
-    proj = createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
-    world = mx::Matrix44::createScale(mx::Vector3(_zoom * _modelZoom));
-    world *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
+    _sceneViewHandler->worldMatrix = mx::Matrix44::createScale(mx::Vector3(_zoom * _modelZoom));
+    _sceneViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
+    _sceneViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(_eye, _center, _up) * arcball;
+    _sceneViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
 }
 
 void Viewer::updateDisplayedProperties()

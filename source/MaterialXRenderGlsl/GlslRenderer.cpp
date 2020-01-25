@@ -416,17 +416,17 @@ void GlslRenderer::updateViewInformation(const Vector3& eye,
     float meshFit = 2.0f / sphereRadius;
     Vector3 modelTranslation = sphereCenter * -1.0f;
 
-    Matrix44& world = _viewHandler->worldMatrix();
-    Matrix44& view = _viewHandler->viewMatrix();
-    Matrix44& proj = _viewHandler->projectionMatrix();
+    Matrix44& world = _viewHandler->worldMatrix;
+    Matrix44& view = _viewHandler->viewMatrix;
+    Matrix44& proj = _viewHandler->projectionMatrix;
     view = ViewHandler::createViewMatrix(eye, center, up);
     proj = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, nearDist, farDist);
     world = Matrix44::createScale(Vector3(objectScale * meshFit));
     world *= Matrix44::createTranslation(modelTranslation).getTranspose();
 
     Matrix44 invView = view.getInverse();
-    _viewHandler->viewDirection() = { invView[0][2], invView[1][2], invView[2][2] };
-    _viewHandler->viewPosition() = { invView[0][3], invView[1][3], invView[2][3] };
+    _viewHandler->viewDirection = { invView[0][2], invView[1][2], invView[2][2] };
+    _viewHandler->viewPosition = { invView[0][3], invView[1][3], invView[2][3] };
 }
 
 void GlslRenderer::render()
