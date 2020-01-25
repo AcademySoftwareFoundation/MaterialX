@@ -861,7 +861,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         location = Input->second->location;
         if (location >= 0)
         {
-            glUniform3fv(location, 1, viewHandler->viewPosition().data());
+            glUniform3fv(location, 1, viewHandler->viewPosition.data());
         }
     }
     Input = uniformList.find(HW::VIEW_DIRECTION);
@@ -870,14 +870,14 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         location = Input->second->location;
         if (location >= 0)
         {
-            glUniform3fv(location, 1, viewHandler->viewDirection().data());
+            glUniform3fv(location, 1, viewHandler->viewDirection.data());
         }
     }
 
     //
     // World matrix variants
     //
-    Matrix44& world = viewHandler->worldMatrix();
+    Matrix44& world = viewHandler->worldMatrix;
     Matrix44 invWorld = world.getInverse();
     Matrix44 invTransWorld = invWorld.getTranspose();
 
@@ -925,7 +925,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     //
     // Projection matrix variants
     //
-    Matrix44& proj = viewHandler->projectionMatrix();
+    Matrix44& proj = viewHandler->projectionMatrix;
     // Projection matrix 
     Input = uniformList.find(HW::PROJ_MATRIX);
     if (Input != uniformList.end())
@@ -972,7 +972,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     //
     // View matrix variants
     //
-    Matrix44& view = viewHandler->viewMatrix();
+    Matrix44& view = viewHandler->viewMatrix;
 
     // View matrix
     Input = uniformList.find(HW::VIEW_MATRIX);

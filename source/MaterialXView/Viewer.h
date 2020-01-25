@@ -5,6 +5,7 @@
 #include <MaterialXView/Material.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/ViewHandler.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/UnitConverter.h>
 
@@ -98,10 +99,7 @@ class Viewer : public ng::Screen
     /// existing assignment if the given material is nullptr.
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
     void initCamera();
-    void computeCameraMatrices(mx::Matrix44& world,
-                               mx::Matrix44& view,
-                               mx::Matrix44& proj);
-
+    void updateViewHandlers();
     void updateGeometrySelections();
     void updateMaterialSelections();
     void updateMaterialSelectionUI();
@@ -184,6 +182,9 @@ class Viewer : public ng::Screen
     mx::GeometryHandlerPtr _geometryHandler;
     mx::ImageHandlerPtr _imageHandler;
     mx::LightHandlerPtr _lightHandler;
+
+    // View handlers
+    mx::ViewHandlerPtr _sceneViewHandler;
 
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
