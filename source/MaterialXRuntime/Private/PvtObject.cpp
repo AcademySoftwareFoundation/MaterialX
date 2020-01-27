@@ -4,6 +4,8 @@
 //
 
 #include <MaterialXRuntime/Private/PvtObject.h>
+#include <MaterialXRuntime/Private/PvtPath.h>
+#include <MaterialXRuntime/Private/PvtStage.h>
 
 #include <set>
 
@@ -13,61 +15,58 @@
 namespace MaterialX
 {
 
-namespace
+PvtObject::PvtObject(RtObjType type, const RtToken& name, PvtPrim* parent) :
+    _type(type),
+    _name(name),
+    _parent(parent)
 {
-    static const std::set<RtApiType> OBJ_TO_API_RTTI[static_cast<int>(RtObjType::NUM_TYPES)] =
-    {
-        // NONE
-        {
-        },
-        // PRIM
-        {
-            RtApiType::PATH_ITEM,
-            RtApiType::PRIM
-        },
-        // RELATIONSHIP
-        {
-            RtApiType::PATH_ITEM,
-            RtApiType::RELATIONSHIP
-        },
-        // ATTRIBUTE
-        {
-            RtApiType::PATH_ITEM,
-            RtApiType::ATTRIBUTE,
-            RtApiType::INPUT,
-            RtApiType::OUTPUT
-        },
-        // NODEDEF
-        {
-            RtApiType::PATH_ITEM,
-            RtApiType::PRIM,
-            RtApiType::NODEDEF
-        },
-        // NODE
-        {
-            RtApiType::PATH_ITEM,
-            RtApiType::PRIM,
-            RtApiType::NODE
-        },
-        // NODEGRAPH
-        {
-            RtApiType::PATH_ITEM,
-            RtApiType::PRIM,
-            RtApiType::NODE,
-            RtApiType::NODEGRAPH
-        },
-        // BACKDROP
-        {
-            RtApiType::PATH_ITEM,
-            RtApiType::PRIM,
-            RtApiType::BACKDROP
-        }
-    };
 }
 
-bool PvtObject::hasApi(RtApiType type) const
+PvtPath PvtObject::getPath() const
 {
-    return OBJ_TO_API_RTTI[int(getObjType())].count(type) != 0;
+    return PvtPath(this);
+}
+
+PvtPrim* PvtObject::getRoot() const
+{
+    PvtPrim* root = getObjType() == RtObjType::PRIM ? const_cast<PvtPrim*>(asA<PvtPrim>()) : _parent;
+    while (root->_parent)
+    {
+        root = root->_parent;
+    }
+    return root;
+}
+
+RtStageWeakPtr PvtObject::getStage() const
+{
+    return getRoot()->asA<PvtStage::RootPrim>()->getStage();
+}
+
+RtTypedValue* PvtObject::addMetadata(const RtToken& name, const RtToken& type)
+{
+    auto it = _metadataMap.find(name);
+    if (it != _metadataMap.end())
+    {
+        return &it->second;
+    }
+
+    _metadataMap[name] = RtTypedValue(type, RtValue::createNew(type, obj()));
+    _metadataOrder.push_back(name);
+
+    return &_metadataMap[name];
+}
+
+void PvtObject::removeMetadata(const RtToken& name)
+{
+    for (auto it = _metadataOrder.begin(); it != _metadataOrder.end(); ++it)
+    {
+        if (*it == name)
+        {
+            _metadataOrder.erase(it);
+            break;
+        }
+    }
+    _metadataMap.erase(name);
 }
 
 }

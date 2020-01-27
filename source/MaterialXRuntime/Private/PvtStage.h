@@ -9,9 +9,8 @@
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
-#include <MaterialXRuntime/Private/PvtNodeGraph.h>
+#include <MaterialXRuntime/Private/PvtApi.h>
 
-#include <MaterialXRuntime/RtTraversal.h>
 #include <MaterialXRuntime/RtStage.h>
 
 /// @file
@@ -102,9 +101,9 @@ public:
         return _name;
     }
 
-    PvtPrim* createPrim(const PvtPath& path, const RtToken& typeName, PvtObject* def = nullptr);
+    PvtPrim* createPrim(const PvtPath& path, const RtToken& typeName);
 
-    PvtPrim* createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName, PvtObject* def = nullptr);
+    PvtPrim* createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName);
 
     void removePrim(const PvtPath& path);
 
@@ -114,10 +113,7 @@ public:
 
     PvtPrim* getPrimAtPath(const PvtPath& path);
 
-    RtPrimIterator getPrims(RtObjectPredicate predicate = nullptr)
-    {
-        return RtPrimIterator(_root->asA<PvtPrim>()->obj(), predicate);
-    }
+    RtPrimIterator getPrims(RtObjectPredicate predicate = nullptr);
 
     PvtPrim* getRootPrim()
     {
@@ -160,11 +156,11 @@ public:
 protected:
     PvtPrim* getPrimAtPathLocal(const PvtPath& path);
 
-    class RootPrim : public PvtNodeGraph
+    class RootPrim : public PvtPrim
     {
     public:
         RootPrim(RtStageWeakPtr stage) :
-            PvtNodeGraph(PvtPath::ROOT_NAME, nullptr),
+            PvtPrim(PvtPath::ROOT_NAME, nullptr),
             _stage(stage)
         {}
 
@@ -183,7 +179,7 @@ protected:
 
     RtTokenList _sourceUri;
 
-    friend class PvtPathItem;
+    friend class PvtObject;
 };
 
 }

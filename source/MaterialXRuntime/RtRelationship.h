@@ -10,22 +10,24 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtPathItem.h>
-#include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/RtObject.h>
 
 namespace MaterialX
 {
 
+class RtConnectionIterator;
+
 /// @class RtRelationship
-/// API for accessing a relationship on a prim.
-class RtRelationship : public RtPathItem
+/// Object holding a relationship on a prim.
+class RtRelationship : public RtObject
 {
 public:
-    /// Constructor attaching an object to the API.
-    RtRelationship(const RtObject& obj);
+    /// Empty constructor.
+    /// Creating an invalid object.
+    RtRelationship() {}
 
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
+    /// Construct from a data handle.
+    RtRelationship(PvtDataHandle hnd);
 
     /// Return the name of this relationship.
     const RtToken& getName() const;

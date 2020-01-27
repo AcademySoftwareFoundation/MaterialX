@@ -6,7 +6,7 @@
 #ifndef MATERIALX_PVTRELATIONSHIP_H
 #define MATERIALX_PVTRELATIONSHIP_H
 
-#include <MaterialXRuntime/Private/PvtPathItem.h>
+#include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtAttribute.h>
 
 #include <MaterialXRuntime/RtTraversal.h>
@@ -17,36 +17,22 @@
 namespace MaterialX
 {
 
-class PvtRelationship : public PvtPathItem
+class PvtRelationship : public PvtObject
 {
 public:
-    static const RtObjType typeId;
-    static const RtToken typeName;
-
-public:
     PvtRelationship(const RtToken& name, PvtPrim* parent);
-
-    RtObjType getObjType() const override
-    {
-        return typeId;
-    }
-
-    const RtToken& getObjTypeName() const override
-    {
-        return typeName;
-    }
 
     bool hasTargets() const
     {
         return !_targets.empty();
     }
 
-    void addTarget(const PvtPathItem* target)
+    void addTarget(const PvtObject* target)
     {
         _targets.push_back(target->hnd());
     }
 
-    void removeTarget(const PvtPathItem* target);
+    void removeTarget(const PvtObject* target);
 
     void clearTargets()
     {
@@ -58,9 +44,13 @@ public:
         return RtConnectionIterator(this->obj());
     }
 
+    const PvtDataHandleVec& getAllTargets() const
+    {
+        return _targets;
+    }
+
 protected:
     PvtDataHandleVec _targets;
- 
     friend class RtConnectionIterator;
 };
 

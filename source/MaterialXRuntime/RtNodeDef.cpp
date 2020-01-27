@@ -4,37 +4,62 @@
 //
 
 #include <MaterialXRuntime/RtNodeDef.h>
-#include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtApi.h>
 
-#include <MaterialXRuntime/Private/PvtNodeDef.h>
-#include <MaterialXRuntime/Private/PvtStage.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-RtNodeDef::RtNodeDef(const RtObject& obj) :
-    RtPrim(obj)
+namespace
 {
+    static const RtToken NODE("node");
 }
 
-const RtToken& RtNodeDef::typeName()
+DEFINE_TYPED_SCHEMA(RtNodeDef, "nodedef");
+
+RtPrim RtNodeDef::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    return PvtNodeDef::typeName();
+    if (typeName != _typeName)
+    {
+        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
+    }
+
+    PvtDataHandle primH = PvtPrim::createNew(name, PvtObject::ptr<PvtPrim>(parent));
+
+    PvtPrim* prim = primH->asA<PvtPrim>();
+    prim->setTypeName(_typeName);
+    prim->addMetadata(NODE, RtType::TOKEN);
+
+    return primH;
 }
 
-RtApiType RtNodeDef::getApiType() const
+const RtToken& RtNodeDef::getNode() const
 {
-    return RtApiType::NODEDEF;
+    RtTypedValue* v = prim()->getMetadata(NODE);
+    return v->getValue().asToken();
 }
 
-void RtNodeDef::setNodeTypeName(const RtToken& nodeTypeName)
+void RtNodeDef::setNode(const RtToken& node)
 {
-    return hnd()->asA<PvtNodeDef>()->setNodeTypeName(nodeTypeName);
+    RtTypedValue* v = prim()->getMetadata(NODE);
+    v->getValue().asToken() = node;
 }
 
-const RtToken& RtNodeDef::getNodeTypeName() const
+void RtNodeDef::registerMasterPrim() const
 {
-    return hnd()->asA<PvtNodeDef>()->getNodeTypeName();
+    RtApi::get().registerMasterPrim(prim()->hnd());
+}
+
+void RtNodeDef::unregisterMasterPrim() const
+{
+    RtApi::get().unregisterMasterPrim(prim()->getName());
+}
+
+bool RtNodeDef::isMasterPrim() const
+{
+    return RtApi::get().hasMasterPrim(prim()->getName());
 }
 
 }

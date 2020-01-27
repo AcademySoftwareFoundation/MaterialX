@@ -16,10 +16,8 @@ namespace MaterialX
 {
 
 class PvtPrim;
+class RtPrim;
 class RtStage;
-
-/// Predicate used for filtering objects during traversal.
-using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
 
 /// Traversal predicate for specific object types.
 template<RtObjType T>
@@ -31,15 +29,17 @@ struct RtObjTypePredicate
     }
 };
 
-/// Traversal predicate for specific API support.
-template<RtApiType T>
-struct RtApiTypePredicate
+/// Traversal predicate for specific schemas.
+template<class T>
+struct RtSchemaPredicate
 {
     bool operator()(const RtObject& obj)
     {
-        return obj.hasApi(T);
+        return obj.getObjType() == RtObjType::PRIM &&
+            T(static_cast<const RtPrim&>(obj)).isValid();
     }
 };
+
 
 /// @class RtAttrIterator
 /// Iterator for traversing over the attributes of a prim.
@@ -56,7 +56,7 @@ public:
 
     /// Constructor, setting the prim to iterate on,
     /// and an optional predicate function.
-    RtAttrIterator(const RtObject& prim, RtObjectPredicate predicate = nullptr);
+    RtAttrIterator(const RtPrim& prim, RtObjectPredicate predicate = nullptr);
 
     /// Copy constructor.
     RtAttrIterator(const RtAttrIterator& other) :
@@ -136,7 +136,7 @@ public:
 
     /// Constructor, setting the prim to iterate on,
     /// and an optional predicate function.
-    RtPrimIterator(const RtObject& prim, RtObjectPredicate predicate = nullptr);
+    RtPrimIterator(const RtPrim& prim, RtObjectPredicate predicate = nullptr);
 
     /// Copy constructor.
     RtPrimIterator(const RtPrimIterator& other) :
@@ -168,7 +168,7 @@ public:
     }
 
     /// Dereference this iterator, returning the current siblings.
-    RtObject operator*() const;
+    RtPrim operator*() const;
 
     /// Iterate to the next sibling.
     RtPrimIterator& operator++();
@@ -201,7 +201,7 @@ private:
 
 
 /// @class RtConnectionIterator
-/// Iterator for traversing the connections on an attribute or relationship.
+/// Iterator for traversing the connections on an output or relationship.
 class RtConnectionIterator
 {
 public:
@@ -211,8 +211,8 @@ public:
         _current(0)
     {}
 
-    /// Constructor, setting the attribute or relationship to iterate on.
-    RtConnectionIterator(const RtObject& attr);
+    /// Constructor, setting the output or relationship to iterate on.
+    RtConnectionIterator(const RtObject& obj);
 
     /// Copy constructor.
     RtConnectionIterator(const RtConnectionIterator& other) :
@@ -307,7 +307,7 @@ public:
 
     /// Dereference this iterator, returning the current object
     /// in the traversal.
-    RtObject operator*() const;
+    RtPrim operator*() const;
 
     /// Return true if there are no more objects in the traversal.
     bool isDone() const;

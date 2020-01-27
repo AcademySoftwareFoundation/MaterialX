@@ -4,70 +4,13 @@
 //
 
 #include <MaterialXRuntime/RtObject.h>
-#include <MaterialXRuntime/Private/PvtObject.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtPath.h>
+
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
-
-namespace
-{
-    static const std::set<RtObjType> API_TO_OBJ_RTTI[static_cast<int>(RtApiType::NUM_TYPES)] =
-    {
-        // RtApiType::PATH_ITEM
-        {
-            RtObjType::RELATIONSHIP,
-            RtObjType::ATTRIBUTE,
-            RtObjType::PRIM,
-            RtObjType::NODEDEF,
-            RtObjType::NODE,
-            RtObjType::NODEGRAPH,
-            RtObjType::BACKDROP
-        },
-        // RtApiType::PRIM
-        {
-            RtObjType::PRIM,
-            RtObjType::NODEDEF,
-            RtObjType::NODE,
-            RtObjType::NODEGRAPH,
-            RtObjType::BACKDROP
-        },
-        // RtApiType::RELATIONSHIP
-        {
-            RtObjType::RELATIONSHIP
-        },
-        // RtApiType::ATTRIBUTE
-        {
-            RtObjType::ATTRIBUTE
-        },
-        // RtApiType::INPUT
-        {
-            RtObjType::ATTRIBUTE
-        },
-        // RtApiType::OUTPUT
-        {
-            RtObjType::ATTRIBUTE
-        },
-        // RtApiType::NODEDEF
-        {
-            RtObjType::NODEDEF
-        },
-        // RtApiType::NODE
-        {
-            RtObjType::NODE,
-            RtObjType::NODEGRAPH
-        },
-        // RtApiType::NODEGRAPH
-        {
-            RtObjType::NODEGRAPH
-        },
-        // RtApiType::BACKDROP
-        {
-            RtObjType::BACKDROP
-        }
-    };
-
-    static RtToken NONE_TYPE_NAME("none");
-}
 
 RtObject::RtObject() :
     _hnd(nullptr)
@@ -88,69 +31,110 @@ RtObject::~RtObject()
 {
 }
 
-bool RtObject::isValid() const
-{
-    return _hnd != nullptr;
-}
-
 RtObjType RtObject::getObjType() const
 {
     return _hnd ? _hnd->getObjType() : RtObjType::NONE;
 }
 
-const RtToken& RtObject::getObjTypeName() const
+const RtToken& RtObject::getName() const
 {
-    return _hnd ? _hnd->getObjTypeName() : NONE_TYPE_NAME;
+    return hnd()->asA<PvtObject>()->getName();
 }
 
-bool RtObject::hasApi(RtApiType type) const
+RtPath RtObject::getPath() const
 {
-    return _hnd && _hnd->hasApi(type);
+    return RtPath(hnd()->obj());
+}
+
+RtPrim RtObject::getParent() const
+{
+    PvtPrim* parent = hnd()->asA<PvtObject>()->getParent();
+    return parent ? parent->hnd() : RtPrim();
+}
+
+RtPrim RtObject::getRoot() const
+{
+    PvtPrim* root = hnd()->asA<PvtObject>()->getRoot();
+    return root ? root->hnd() : RtPrim();
+}
+
+RtStageWeakPtr RtObject::getStage() const
+{
+    return hnd()->asA<PvtObject>()->getStage();
+}
+
+RtTypedValue* RtObject::addMetadata(const RtToken& name, const RtToken& type)
+{
+    return hnd()->asA<PvtObject>()->addMetadata(name, type);
+}
+
+void RtObject::removeMetadata(const RtToken& name)
+{
+    hnd()->asA<PvtObject>()->removeMetadata(name);
+}
+
+RtTypedValue* RtObject::getMetadata(const RtToken& name)
+{
+    return hnd()->asA<PvtObject>()->getMetadata(name);
 }
 
 
-RtApiBase::RtApiBase(PvtDataHandle data) :
-    _hnd(data)
+RtSchemaBase::RtSchemaBase(const RtPrim& prim) :
+    _hnd(prim.hnd())
 {
 }
 
-RtApiBase::RtApiBase(const RtObject& obj) :
-    _hnd(obj.hnd())
-{
-}
-
-RtApiBase::RtApiBase(const RtApiBase& other) :
+RtSchemaBase::RtSchemaBase(const RtSchemaBase& other) :
     _hnd(other.hnd())
 {
 }
 
-bool RtApiBase::isSupported(RtObjType type) const
+bool RtSchemaBase::isSupported(const RtPrim& prim) const
 {
-    return API_TO_OBJ_RTTI[(int)getApiType()].count(type) != 0;
+    return prim && isSupported(prim.hnd());
 }
 
-void RtApiBase::setObject(const RtObject& obj)
+bool RtSchemaBase::isSupported(const PvtDataHandle&) const
 {
-    setHnd(obj.hnd());
+    return true;
 }
 
-RtObject RtApiBase::getObject() const
+RtPrim RtSchemaBase::getPrim() const
 {
-    return RtObject(_hnd);
+    return hnd();
 }
 
-bool RtApiBase::isValid() const
+const RtToken& RtSchemaBase::getName() const
 {
-    return _hnd && isSupported(_hnd->getObjType());
+    return prim()->getName();
 }
 
-void RtApiBase::setHnd(PvtDataHandle hnd)
+PvtPrim* RtSchemaBase::prim() const
 {
-    if (hnd && !isSupported(hnd->getObjType()))
-    {
-        throw ExceptionRuntimeError("Given object is not supported by this API");
-    }
-    _hnd = hnd;
+    return hnd()->asA<PvtPrim>();
+}
+
+PvtAttribute* RtSchemaBase::attr(const RtToken& name) const
+{
+    return prim()->getAttribute(name);
+}
+
+PvtRelationship* RtSchemaBase::rel(const RtToken& name) const
+{
+    return prim()->getRelationship(name);
+}
+
+
+const string RtTypedSchema::TYPE_NAME_SEPARATOR(":");
+
+const RtToken& RtTypedSchema::getTypeName() const
+{
+    return EMPTY_TOKEN;
+}
+
+bool RtTypedSchema::isSupported(const PvtDataHandle& hnd) const
+{
+    return hnd->asA<PvtPrim>()->getTypeName() == getTypeName();
 }
 
 }

@@ -4,51 +4,27 @@
 //
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
+#include <MaterialXRuntime/Private/PvtApi.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
+
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
 
-namespace
-{
-    const RtToken _MD_PRIM("_prim");
-}
-
-const RtObjType PvtPrim::_typeId = RtObjType::PRIM;
-const RtToken PvtPrim::_typeName = RtToken("prim");
-
 PvtPrim::PvtPrim(const RtToken& name, PvtPrim* parent) :
-    PvtPathItem(name, parent)
+    PvtObject(RtObjType::PRIM, name, parent)
 {
 }
 
 PvtDataHandle PvtPrim::createNew(const RtToken& name, PvtPrim* parent)
 {
-    // If a name is not given generate one.
-    RtToken primName = name;
-    if (primName == EMPTY_TOKEN)
-    {
-        primName = RtToken(_typeName.str() + "1");
-    }
-
     // Make the name unique.
-    primName = parent->makeUniqueName(primName);
-
+    const RtToken primName = parent->makeUniqueName(name);
     return PvtDataHandle(new PvtPrim(primName, parent));
-}
-
-const RtToken& PvtPrim::getPrimTypeName() const
-{
-    const RtTypedValue* md = getMetadata(_MD_PRIM);
-    return md ? md->getValue().asToken() : EMPTY_TOKEN;
-}
-
-void PvtPrim::setPrimTypeName(const RtToken& primTypeName)
-{
-    RtTypedValue* md = addMetadata(_MD_PRIM, RtType::TOKEN);
-    md->getValue().asToken() = primTypeName;
 }
 
 PvtRelationship* PvtPrim::createRelationship(const RtToken& name)
@@ -93,6 +69,34 @@ PvtAttribute* PvtPrim::createAttribute(const RtToken& name, const RtToken& type,
     return attrH->asA<PvtAttribute>();
 }
 
+PvtInput* PvtPrim::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    if (getAttribute(name))
+    {
+        throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
+    }
+
+    PvtDataHandle attrH(new PvtInput(name, type, flags, this));
+    _attrOrder.push_back(attrH);
+    _attrMap[name] = attrH;
+
+    return attrH->asA<PvtInput>();
+}
+
+PvtOutput* PvtPrim::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    if (getAttribute(name))
+    {
+        throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
+    }
+
+    PvtDataHandle attrH(new PvtOutput(name, type, flags, this));
+    _attrOrder.push_back(attrH);
+    _attrMap[name] = attrH;
+
+    return attrH->asA<PvtOutput>();
+}
+
 void PvtPrim::removeAttribute(const RtToken& name)
 {
     for (auto it = _attrOrder.begin(); it != _attrOrder.end(); ++it)
@@ -105,6 +109,16 @@ void PvtPrim::removeAttribute(const RtToken& name)
         }
     }
     _attrMap.erase(name);
+}
+
+RtAttrIterator PvtPrim::getAttributes(RtObjectPredicate predicate) const
+{
+    return RtAttrIterator(hnd(), predicate);
+}
+
+RtPrimIterator PvtPrim::getChildren(RtObjectPredicate predicate) const
+{
+    return RtPrimIterator(hnd(), predicate);
 }
 
 RtToken PvtPrim::makeUniqueName(const RtToken& name) const

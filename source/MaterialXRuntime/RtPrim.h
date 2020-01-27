@@ -10,49 +10,62 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtPathItem.h>
-#include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtAttribute.h>
+#include <MaterialXRuntime/RtRelationship.h>
 
 namespace MaterialX
 {
 
+class RtAttrIterator;
+class RtPrimIterator;
+
 /// @class RtPrim
-/// API for accessing a prim object. This API can be
-/// attached to objects of all prim types.
-class RtPrim : public RtPathItem
+class RtPrim : public RtObject
 {
 public:
-    /// Constructor attaching an object to the API.
-    RtPrim(const RtObject& obj);
+    /// Empty constructor.
+    /// Creating an invalid object.
+    RtPrim() {}
 
-    /// Return the type name for nodes.
-    static const RtToken& typeName();
+    /// Construct from a data handle.
+    RtPrim(PvtDataHandle hnd);
 
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
-
-    /// Return the prim type name for this prim.
-    const RtToken& getPrimTypeName() const;
+    const RtToken getTypeName() const;
 
     /// Add a relationship to the prim.
-    RtObject createRelationship(const RtToken& name);
+    RtRelationship createRelationship(const RtToken& name);
 
     /// Remove a relationship from the prim.
     void removeRelationship(const RtToken& name);
 
     /// Return a relationship by name, or a null object
     /// if no such relationship exists.
-    RtObject getRelationship(const RtToken& name) const;
+    RtRelationship getRelationship(const RtToken& name) const;
 
-    /// Add an attribute to the nodegraph.
-    RtObject createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+    /// Add an attribute to the prim.
+    RtAttribute createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
-    /// Remove an attribute from the nodegraph.
+    /// Add an input attribute to the prim.
+    RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    /// Remove an attribute from the prim.
     void removeAttribute(const RtToken& name);
+
+    /// Add an output attribute to the prim.
+    RtOutput createOutput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
     /// Return an attribute by name, or a null object
     /// if no such attribute exists.
-    RtObject getAttribute(const RtToken& name) const;
+    RtAttribute getAttribute(const RtToken& name) const;
+
+    /// Return an input attribute by name, or a null object
+    /// if no such input attribute exists.
+    RtInput getInput(const RtToken& name) const;
+
+    /// Return an input attribute by name, or a null object
+    /// if no such input attribute exists.
+    RtOutput getOutput(const RtToken& name) const;
 
     /// Return an iterator traversing all attributes
     /// of this prim.
@@ -60,7 +73,7 @@ public:
 
     /// Return a child prim by name, or a null object
     /// if no such child prim exists.
-    RtObject getChild(const RtToken& name) const;
+    RtPrim getChild(const RtToken& name) const;
 
     /// Return an iterator traversing all child prims (siblings).
     /// Using a predicate this method can be used to find all child prims

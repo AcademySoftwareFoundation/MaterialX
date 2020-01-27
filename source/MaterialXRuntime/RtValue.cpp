@@ -24,9 +24,9 @@ namespace
 
 PvtAllocator& getPrimAllocator(RtObject& prim)
 {
-    if (!prim.hasApi(RtApiType::PRIM))
+    if (prim.getObjType() != RtObjType::PRIM)
     {
-        throw ExceptionRuntimeError("Value allocation failed. Object is not a prim: '" + PvtObject::ptr<PvtPathItem>(prim)->getName().str() + "'");
+        throw ExceptionRuntimeError("Value allocation failed. Object is not a prim: '" + prim.getName().str() + "'");
     }
     return PvtObject::ptr<PvtPrim>(prim)->getAllocator();
 }

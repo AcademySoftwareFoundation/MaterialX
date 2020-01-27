@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtTraversal.h>
-#include <MaterialXRuntime/RtNode.h>
+#include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtStage.h>
 
 #include <MaterialXRuntime/Private/PvtAttribute.h>
@@ -17,6 +17,7 @@ namespace MaterialX
 
 namespace
 {
+
 static const RtAttrIterator NULL_ATTR_ITERATOR;
 static const RtPrimIterator NULL_PRIM_ITERATOR;
 static const RtConnectionIterator NULL_CONNECTION_ITERATOR;
@@ -33,12 +34,12 @@ struct StageIteratorData
 
 }
 
-RtAttrIterator::RtAttrIterator(const RtObject& prim, RtObjectPredicate predicate) :
+RtAttrIterator::RtAttrIterator(const RtPrim& prim, RtObjectPredicate predicate) :
     _prim(nullptr),
     _current(0),
     _predicate(predicate)
 {
-    if (prim.hasApi(RtApiType::PRIM))
+    if (prim)
     {
         _prim = PvtObject::ptr<PvtPrim>(prim);
         _prim = _prim->getAllAttributes().empty() ? nullptr : _prim;
@@ -73,21 +74,21 @@ const RtAttrIterator& RtAttrIterator::end()
     return NULL_ATTR_ITERATOR;
 }
 
-RtPrimIterator::RtPrimIterator(const RtObject& prim, RtObjectPredicate predicate) :
+RtPrimIterator::RtPrimIterator(const RtPrim& prim, RtObjectPredicate predicate) :
     _prim(nullptr),
     _current(0),
     _predicate(predicate)
 {
-    if (prim.hasApi(RtApiType::PRIM))
+    if (prim)
     {
         _prim = PvtObject::ptr<PvtPrim>(prim);
         _prim = _prim->getAllChildren().empty() ? nullptr : _prim;
     }
 }
 
-RtObject RtPrimIterator::operator*() const
+RtPrim RtPrimIterator::operator*() const
 {
-    return _prim->getAllChildren()[_current]->obj();
+    return _prim->getAllChildren()[_current];
 }
 
 RtPrimIterator& RtPrimIterator::operator++()
@@ -117,12 +118,12 @@ RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
     _ptr(nullptr),
     _current(0)
 {
-    if (obj.hasApi(RtApiType::ATTRIBUTE))
+    if (obj.getObjType() == RtObjType::OUTPUT)
     {
-        PvtAttribute* attr = PvtObject::ptr<PvtAttribute>(obj);
-        _ptr = attr->_connections.empty() ? nullptr : &attr->_connections;
+        PvtOutput* out = PvtObject::ptr<PvtOutput>(obj);
+        _ptr = out->_connections.empty() ? nullptr : &out->_connections;
     }
-    else if (obj.hasApi(RtApiType::RELATIONSHIP))
+    else if (obj.getObjType() == RtObjType::RELATIONSHIP)
     {
         PvtRelationship* rel = PvtObject::ptr<PvtRelationship>(obj);
         _ptr = rel->_targets.empty() ? nullptr : &rel->_targets;
@@ -216,10 +217,9 @@ bool RtStageIterator::operator!=(const RtStageIterator& other) const
         _ptr != other._ptr;
 }
 
-RtObject RtStageIterator::operator*() const
+RtPrim RtStageIterator::operator*() const
 {
-    PvtDataHandle hnd = static_cast<StageIteratorData*>(_ptr)->current;
-    return hnd ? hnd->obj() : RtObject();
+    return static_cast<StageIteratorData*>(_ptr)->current;
 }
 
 bool RtStageIterator::isDone() const

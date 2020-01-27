@@ -42,7 +42,7 @@ const RtToken RtType::DISPLACEMENTSHADER("displacementshader");
 const RtToken RtType::LIGHTSHADER("lightshader");
 const RtToken RtType::SURFACEMATERIAL("surfacematerial");
 const RtToken RtType::VOLUMEMATERIAL("volumematerial");
-const RtToken RtType::NONE("none");
+const RtToken RtType::POINTER("pointer");
 const RtToken RtType::AUTO("auto");
 
 const RtToken RtTypeDef::BASETYPE_NONE("none");

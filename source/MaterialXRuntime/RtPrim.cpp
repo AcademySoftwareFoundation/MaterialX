@@ -4,35 +4,26 @@
 //
 
 #include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-RtPrim::RtPrim(const RtObject& obj) :
-    RtPathItem(obj)
+RtPrim::RtPrim(PvtDataHandle hnd) :
+    RtObject(hnd)
 {
 }
 
-const RtToken& RtPrim::typeName()
+const RtToken RtPrim::getTypeName() const
 {
-    return PvtPrim::typeName();
+    return hnd()->asA<PvtPrim>()->getTypeName();
 }
 
-RtApiType RtPrim::getApiType() const
+RtRelationship RtPrim::createRelationship(const RtToken& name)
 {
-    return RtApiType::PRIM;
-}
-
-const RtToken& RtPrim::getPrimTypeName() const
-{
-    return hnd()->asA<PvtPrim>()->getPrimTypeName();
-}
-
-RtObject RtPrim::createRelationship(const RtToken& name)
-{
-    return hnd()->asA<PvtPrim>()->createRelationship(name)->obj();
+    return hnd()->asA<PvtPrim>()->createRelationship(name)->hnd();
 }
 
 void RtPrim::removeRelationship(const RtToken& name)
@@ -40,15 +31,25 @@ void RtPrim::removeRelationship(const RtToken& name)
     return hnd()->asA<PvtPrim>()->removeRelationship(name);
 }
 
-RtObject RtPrim::getRelationship(const RtToken& name) const
+RtRelationship RtPrim::getRelationship(const RtToken& name) const
 {
     PvtRelationship* rel = hnd()->asA<PvtPrim>()->getRelationship(name);
-    return rel ? rel->obj() : RtObject();
+    return rel ? rel->hnd() : RtRelationship();
 }
 
-RtObject RtPrim::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
+RtAttribute RtPrim::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    return hnd()->asA<PvtPrim>()->createAttribute(name, type, flags)->obj();
+    return hnd()->asA<PvtPrim>()->createAttribute(name, type, flags)->hnd();
+}
+
+RtInput RtPrim::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    return hnd()->asA<PvtPrim>()->createInput(name, type, flags)->hnd();
+}
+
+RtOutput RtPrim::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    return hnd()->asA<PvtPrim>()->createOutput(name, type, flags)->hnd();
 }
 
 void RtPrim::removeAttribute(const RtToken& name)
@@ -56,26 +57,38 @@ void RtPrim::removeAttribute(const RtToken& name)
     return hnd()->asA<PvtPrim>()->removeAttribute(name);
 }
 
-RtObject RtPrim::getAttribute(const RtToken& name) const
+RtAttribute RtPrim::getAttribute(const RtToken& name) const
 {
     PvtAttribute* attr = hnd()->asA<PvtPrim>()->getAttribute(name);
-    return attr ? attr->obj() : RtObject();
+    return attr ? attr->hnd() : RtAttribute();
+}
+
+RtInput RtPrim::getInput(const RtToken& name) const
+{
+    PvtInput* input = hnd()->asA<PvtPrim>()->getInput(name);
+    return input ? input->hnd() : RtInput();
+}
+
+RtOutput RtPrim::getOutput(const RtToken& name) const
+{
+    PvtOutput* input = hnd()->asA<PvtPrim>()->getOutput(name);
+    return input ? input->hnd() : RtOutput();
 }
 
 RtAttrIterator RtPrim::getAttributes(RtObjectPredicate filter) const
 {
-    return RtAttrIterator(getObject(), filter);
+    return RtAttrIterator(*this, filter);
 }
 
-RtObject RtPrim::getChild(const RtToken& name) const
+RtPrim RtPrim::getChild(const RtToken& name) const
 {
     PvtPrim* child = hnd()->asA<PvtPrim>()->getChild(name);
-    return child ? child->obj() : RtObject();
+    return child ? child->hnd() : RtPrim();
 }
 
 RtPrimIterator RtPrim::getChildren(RtObjectPredicate predicate) const
 {
-    return RtPrimIterator(getObject(), predicate);
+    return RtPrimIterator(*this, predicate);
 }
 
 }

@@ -10,14 +10,9 @@
 namespace MaterialX
 {
 
-RtRelationship::RtRelationship(const RtObject& obj) : 
-    RtPathItem(obj)
+RtRelationship::RtRelationship(PvtDataHandle hnd) : 
+    RtObject(hnd)
 {
-}
-
-RtApiType RtRelationship::getApiType() const
-{
-    return RtApiType::RELATIONSHIP;
 }
 
 const RtToken& RtRelationship::getName() const
@@ -36,7 +31,7 @@ void RtRelationship::addTarget(const RtObject& target)
     {
         throw ExceptionRuntimeError("Given target object is not valid");
     }
-    return hnd()->asA<PvtRelationship>()->addTarget(PvtObject::ptr<PvtPathItem>(target));
+    return hnd()->asA<PvtRelationship>()->addTarget(PvtObject::ptr<PvtObject>(target));
 }
 
 void RtRelationship::removeTarget(const RtObject& target)
@@ -45,7 +40,7 @@ void RtRelationship::removeTarget(const RtObject& target)
     {
         throw ExceptionRuntimeError("Given target object is not valid");
     }
-    return hnd()->asA<PvtRelationship>()->removeTarget(PvtObject::ptr<PvtPathItem>(target));
+    return hnd()->asA<PvtRelationship>()->removeTarget(PvtObject::ptr<PvtObject>(target));
 }
 
 void RtRelationship::clearTargets()
@@ -55,7 +50,7 @@ void RtRelationship::clearTargets()
 
 RtConnectionIterator RtRelationship::getTargets() const
 {
-    return hnd()->asA<PvtRelationship>()->getTargets();
+    return RtConnectionIterator(*this);
 }
 
 }

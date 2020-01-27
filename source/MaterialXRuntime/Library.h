@@ -36,12 +36,27 @@ template<typename T>
 using RtWeakPtr = std::weak_ptr<T>; // Using STL pointers for now.
 
 // Forward delcarations
+class RtApi;
+class RtObject;
+class RtPath;
 class RtStage;
+class RtPrim;
+class RtAttribute;
+class RtInput;
+class RtOutput;
+class RtRelationship;
+
+/// Shared pointer to the API instance.
+using RtApiPtr = RtRefPtr<RtApi>;
 
 /// Shared pointer to a stage.
 using RtStagePtr = RtRefPtr<RtStage>;
+
 /// Weak pointer to a stage.
 using RtStageWeakPtr = RtWeakPtr<RtStage>;
+
+/// Predicate used for filtering objects during traversal.
+using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
 
 /// @class ExceptionRuntimeError
 /// An exception that is thrown when a runtime operation fails.

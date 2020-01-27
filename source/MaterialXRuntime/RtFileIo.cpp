@@ -8,19 +8,18 @@
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
+#include <MaterialXRuntime/RtBackdrop.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 #include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXRuntime/Private/PvtStage.h>
-#include <MaterialXRuntime/Private/PvtNodeDef.h>
-#include <MaterialXRuntime/Private/PvtNode.h>
-#include <MaterialXRuntime/Private/PvtNodeGraph.h>
 
 #include <MaterialXGenShader/Util.h>
 #include <sstream>
 
 namespace MaterialX
 {
+    /*
 
 namespace
 {
@@ -52,7 +51,7 @@ namespace
         return port;
     }
 
-    void readCustomMetadata(const ElementPtr src, PvtPathItem* dest, const RtTokenSet& knownAttrNames)
+    void readCustomMetadata(const ElementPtr src, PvtObject* dest, const RtTokenSet& knownAttrNames)
     {
         // Read in all custom metadata so we can export the element again
         // without loosing data.
@@ -122,7 +121,7 @@ namespace
         }
     }
 
-    void writeMetadata(const PvtPathItem* src, ElementPtr dest)
+    void writeMetadata(const PvtObject* src, ElementPtr dest)
     {
         for (const RtToken name : src->getMetadataOrder())
         {
@@ -837,5 +836,5 @@ void RtFileIo::write(std::ostream& stream, const RtWriteOptions* options)
     }
     writeToXmlStream(document, stream, &xmlWriteOptions);
 }
-
+*/
 }

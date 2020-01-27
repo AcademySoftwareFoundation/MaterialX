@@ -10,41 +10,38 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtPathItem.h>
+#include <MaterialXRuntime/RtObject.h>
 
 namespace MaterialX
 {
 
 class RtValue;
+class RtOutput;
+class RtConnectionIterator;
 
 /// @class RtAttrFlag
 /// Flags for tagging attributes.
 class RtAttrFlag
 {
 public:
-    /// Attribute is an output.
-    static const uint32_t OUTPUT      = 0x00000001;
-
-    /// Attribute is connectable.
-    static const uint32_t CONNECTABLE = 0x00000002;
-
     /// Attribute holds uniform values.
-    static const uint32_t UNIFORM     = 0x00000004;
+    static const uint32_t UNIFORM     = 0x00000001;
 
     /// Attribute is a nodegraph internal socket.
-    static const uint32_t SOCKET      = 0x00000008;
+    static const uint32_t SOCKET      = 0x00000002;
 };
 
 /// @class RtAttribute
-/// API for accessing an attribute on a prim.
-class RtAttribute : public RtPathItem
+/// Object holding an attribute on a prim.
+class RtAttribute : public RtObject
 {
 public:
-    /// Constructor attaching an object to the API.
-    RtAttribute(const RtObject& obj);
+    /// Empty constructor.
+    /// Creating an invalid object.
+    RtAttribute() {}
 
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
+    /// Construct from a data handle.
+    RtAttribute(PvtDataHandle hnd);
 
     /// Return the data type for this attribute.
     const RtToken& getType() const;
@@ -75,19 +72,80 @@ public:
 
     /// Set the default unit for this attribute.
     void setUnit(const RtToken& unit);
+};
 
-    /// Return true if this is an input attribute.
-    bool isInput() const;
 
-    /// Return true if this is an output attribute.
-    bool isOutput() const;
+/// @class RtInput
+/// Object holding an input attribute on a prim.
+class RtInput : public RtAttribute
+{
+public:
+    /// Empty constructor.
+    /// Creating an invalid object.
+    RtInput() {}
 
-    /// Return true if this attribute is connectable.
-    bool isConnectable() const;
+    /// Construct from a data handle.
+    RtInput(PvtDataHandle hnd);
 
-    /// Return true if this attribute is connectable
-    /// to the given other attribute.
-    bool isConnectable(const RtAttribute& other) const;
+    /// Return true if this input is uniform.
+    bool isUniform() const;
+
+    /// Return true if this input is connected.
+    bool isConnected() const;
+
+    /// Return true if this input is an internal nodegraph socket.
+    bool isSocket() const;
+
+    /// Return true if this input is connectable
+    /// to the given output.
+    bool isConnectable(const RtOutput& source) const;
+
+    /// Connect to a source output.
+    void connect(const RtOutput& source);
+
+    /// Disconnect from a source output.
+    void disconnect(const RtOutput& source);
+
+    /// Break any connections.
+    void clearConnection();
+
+    /// Return the output connected to this input.
+    RtOutput getConnection() const;
+};
+
+/// @class RtOutput
+/// Object holding an output attribute on a prim.
+class RtOutput : public RtAttribute
+{
+public:
+    /// Empty constructor.
+    /// Creating an invalid object.
+    RtOutput() {}
+
+    /// Construct from a data handle.
+    RtOutput(PvtDataHandle hnd);
+
+    /// Return true if this output is connected.
+    bool isConnected() const;
+
+    /// Return true if this output is an internal nodegraph socket.
+    bool isSocket() const;
+
+    /// Return true if this input is connectable
+    /// to the given output.
+    bool isConnectable(const RtInput& input) const;
+
+    /// Connect to a destination input.
+    void connect(const RtInput& input);
+
+    /// Disconnect from a destination input.
+    void disconnect(const RtInput& input);
+
+    /// Break any connections.
+    void clearConnections();
+
+    /// Return an iterator for the connections downstream from this output.
+    RtConnectionIterator getConnections() const;
 };
 
 }

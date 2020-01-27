@@ -8,6 +8,7 @@
 
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtToken.h>
+#include <MaterialXRuntime/RtValue.h>
 
 /// @file
 /// TODO: Docs
@@ -16,31 +17,31 @@ namespace MaterialX
 {
 
 class PvtObject;
+class PvtPrim;
+class PvtAttribute;
+class PvtRelationship;
 
 // A handle to private data
 using PvtDataHandle = RtRefPtr<PvtObject>;
 
-/// Type identifiers for concrete runtime objects.
+/// Identifiers for object types.
 enum class RtObjType
 {
     NONE,
     PRIM,
-    RELATIONSHIP,
     ATTRIBUTE,
-    NODEDEF,
-    NODE,
-    NODEGRAPH,
-    BACKDROP,
+    INPUT,
+    OUTPUT,
+    RELATIONSHIP,
     NUM_TYPES
 };
 
-/// Type identifiers for API's attachable to runtime objects.
+/// Type identifiers for API's attachable to objects.
 enum class RtApiType
 {
-    PATH_ITEM,
     PRIM,
-    RELATIONSHIP,
     ATTRIBUTE,
+    RELATIONSHIP,
     INPUT,
     OUTPUT,
     NODEDEF,
@@ -51,11 +52,12 @@ enum class RtApiType
 };
 
 /// @class RtObject
-/// Base class for all MaterialX runtime objects.
+/// Base class for all runtime objects.
 class RtObject
 {
 public:
-    /// Default constructor.
+    /// Empty constructor.
+    /// Creating an invalid object.
     RtObject();
 
     /// Copy constructor.
@@ -64,17 +66,14 @@ public:
     /// Destructor.
     ~RtObject();
 
-    /// Return the type id for this object.
+    /// Return the type of object contained.
     RtObjType getObjType() const;
 
-    /// Return the type name for this object.
-    const RtToken& getObjTypeName() const;
-
-    /// Query if the given API type is supported by this object.
-    bool hasApi(RtApiType type) const;
-
     /// Return true if the object is valid.
-    bool isValid() const;
+    bool isValid() const
+    {
+        return _hnd != nullptr;
+    }
 
     /// Returns true if the object is invalid.
     bool operator!() const
@@ -95,9 +94,33 @@ public:
         return _hnd == other._hnd;
     }
 
-private:
+    /// Return the name of the object.
+    const RtToken& getName() const;
+
+    /// Return the full path to the object.
+    RtPath getPath() const;
+
+    /// Return the parent to the object.
+    RtPrim getParent() const;
+
+    /// Return the root prim for the object.
+    RtPrim getRoot() const;
+
+    /// Return the stage that owns the object.
+    RtStageWeakPtr getStage() const;
+
+    /// Add new metadata to the object.
+    RtTypedValue* addMetadata(const RtToken& name, const RtToken& type);
+
+    /// Remove metadata from the object.
+    void removeMetadata(const RtToken& name);
+
+    /// Return metadata from the object.
+    RtTypedValue* getMetadata(const RtToken& name);
+
+protected:
     /// Construct from a data handle.
-    RtObject(PvtDataHandle data);
+    RtObject(PvtDataHandle hnd);
 
     /// Return the data handle.
     const PvtDataHandle& hnd() const
@@ -109,81 +132,119 @@ private:
     PvtDataHandle _hnd;
 
     friend class PvtObject;
-    friend class RtApiBase;
+    friend class PvtStage;
+    friend class RtSchemaBase;
+    friend class RtInput;
+    friend class RtOutput;
 };
 
-/// @class RtApiBase
-/// Base class for all API supported on objects.
-class RtApiBase
+
+/// @class RtSchemaBase
+/// Base class for all prim schemas.
+class RtSchemaBase
 {
 public:
     /// Destructor.
-    virtual ~RtApiBase() {};
+    virtual ~RtSchemaBase() {};
 
-    /// Return the type for this API.
-    virtual RtApiType getApiType() const = 0;
+    /// Return true if the given prim is supported by this API.
+    bool isSupported(const RtPrim& prim) const;
 
-    /// Query if the given object type is supported by this API.
-    /// Derived classes should override this.
-    bool isSupported(RtObjType type) const;
-
-    /// Query if the given object is supported by this API.
-    bool isSupported(const RtObject& obj) const
+    /// Return true if the attached prim is valid
+    /// and supported by this API.
+    bool isValid() const
     {
-        return isSupported(obj.getObjType());
+        return _hnd && isSupported(_hnd);
     }
 
-    /// Attach an object to this API.
-    void setObject(const RtObject& obj);
-
-    /// Return the object attached to this API.
-    RtObject getObject() const;
-
-    /// Return true if the API object is valid.
-    bool isValid() const;
-
-    /// Return true if the API object is invalid.
+    /// Return true if the attached prim is valid
+    /// and supported by this API.
     bool operator!() const
     {
         return !isValid();
     }
 
     /// Explicit bool conversion operator.
-    /// Return true if the API object is valid.
+    /// Return true if the attached prim is valid
+    /// and supported by this API.
     explicit operator bool() const
     {
         return isValid();
     }
 
-    /// Return true if the attached objects are equal.
-    bool operator==(const RtApiBase& other) const
+    /// Return true if the attached prims are equal.
+    bool operator==(const RtSchemaBase& other) const
     {
         return _hnd == other._hnd;
     }
 
-protected:
-    /// Construct from a data handle.
-    RtApiBase(PvtDataHandle data);
+    /// Return the prim attached to this API.
+    RtPrim getPrim() const;
 
-    /// Construct from an object.
-    RtApiBase(const RtObject& obj);
+    /// Return the name of the prim.
+    const RtToken& getName() const;
+
+    // Accessors.
+    PvtPrim* prim() const;
+    PvtAttribute* attr(const RtToken& name) const;
+    PvtRelationship* rel(const RtToken& name) const;
+
+protected:
+    /// Constructor attaching a prim to the API.
+    explicit RtSchemaBase(const RtPrim& prim);
 
     /// Copy constructor.
-    RtApiBase(const RtApiBase& other);
+    explicit RtSchemaBase(const RtSchemaBase& other);
 
-    /// Set data handle for this API.
-    void setHnd(PvtDataHandle hnd);
-
-    /// Return data set for this API.
+    /// Return the handle set for this API.
     PvtDataHandle& hnd() { return _hnd; }
 
-    /// Return data set for this API.
+    /// Return the handle set for this API.
     const PvtDataHandle& hnd() const { return _hnd; }
 
-private:
-    /// Handle for object attached to the API.
+    /// Return true if the given prim handle is supported by this API.
+    /// Derived classes should override this method.
+    virtual bool isSupported(const PvtDataHandle& hnd) const;
+
+
+protected:
+    // Handle for the prim attached to the API.
     PvtDataHandle _hnd;
 };
+
+/// @class RtTypedSchema
+/// Base class for all typed prim schemas.
+class RtTypedSchema : public RtSchemaBase
+{
+public:
+    /// Constructor attaching a prim to the API.
+    explicit RtTypedSchema(const RtPrim& prim) :
+        RtSchemaBase(prim)
+    {
+    }
+
+    virtual const RtToken& getTypeName() const;
+
+    static const string TYPE_NAME_SEPARATOR;
+
+protected:
+    /// Return true if the given prim handle is supported by this API.
+    bool isSupported(const PvtDataHandle& hnd) const override;
+};
+
+/// Macro declaring required methods and mambers on typed schemas.
+#define DECLARE_TYPED_SCHEMA(T)                                                             \
+private:                                                                                    \
+    static const RtToken _typeName;                                                         \
+public:                                                                                     \
+    explicit T(const RtPrim& prim) : RtTypedSchema(prim) {}                                 \
+    const RtToken& getTypeName() const override { return _typeName; }                       \
+    static const RtToken& typeName() { return _typeName; }                                  \
+    static RtPrim createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent);  \
+
+/// Macro defining required methods and mambers on typed schemas.
+#define DEFINE_TYPED_SCHEMA(T, typeNameStr)                                                 \
+const RtToken T::_typeName(typeNameStr);                                                    \
 
 }
 

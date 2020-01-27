@@ -6,7 +6,7 @@
 #ifndef MATERIALX_PVTATTRIBUTE_H
 #define MATERIALX_PVTATTRIBUTE_H
 
-#include <MaterialXRuntime/Private/PvtPathItem.h>
+#include <MaterialXRuntime/Private/PvtObject.h>
 
 #include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtObject.h>
@@ -20,24 +20,10 @@
 namespace MaterialX
 {
 
-class PvtAttribute : public PvtPathItem
+class PvtAttribute : public PvtObject
 {
 public:
-    static const RtObjType typeId;
-    static const RtToken typeName;
-
-public:
     PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
-
-    RtObjType getObjType() const override
-    {
-        return typeId;
-    }
-
-    const RtToken& getObjTypeName() const override
-    {
-        return typeName;
-    }
 
     const RtToken& getType() const
     {
@@ -79,52 +65,9 @@ public:
         return (_flags & flag) != 0;
     }
 
-    bool isInput() const
-    {
-        return !isOutput();
-    }
-
-    bool isOutput() const
-    {
-        return (_flags & RtAttrFlag::OUTPUT) != 0;
-    }
-
     bool isSocket() const
     {
         return (_flags & RtAttrFlag::SOCKET) != 0;
-    }
-
-    bool isConnectable() const
-    {
-        return (_flags & RtAttrFlag::CONNECTABLE) != 0;
-    }
-
-    bool isConnectable(const PvtAttribute* other) const;
-
-    bool isUniform() const
-    {
-        return (_flags & RtAttrFlag::UNIFORM) != 0;
-    }
-
-    bool isConnected() const
-    {
-        return !_connections.empty();
-    }
-
-    static void connect(PvtAttribute* source, PvtAttribute* dest);
-
-    static void disconnect(PvtAttribute* source, PvtAttribute* dest);
-
-    void clearConnections();
-
-    PvtAttribute* getConnection() const
-    {
-        return _connections.size() ? _connections[0]->asA<PvtAttribute>() : nullptr;
-    }
-
-    RtConnectionIterator getConnections() const
-    {
-        return RtConnectionIterator(this->obj());
     }
 
     const RtToken& getColorSpace() const
@@ -166,10 +109,83 @@ public:
 
 protected:
     RtTypedValue _value;
-    PvtDataHandleVec _connections;
     uint32_t _flags;
 
     friend class RtConnectionIterator;
+};
+
+class PvtInput;
+
+class PvtOutput : public PvtAttribute
+{
+public:
+    PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
+
+    bool isConnected() const
+    {
+        return !_connections.empty();
+    }
+
+    bool isConnectable(const PvtInput* input) const;
+
+    void connect(PvtInput* input);
+
+    void disconnect(PvtInput* input);
+
+    RtConnectionIterator getConnections() const
+    {
+        return RtConnectionIterator(this->obj());
+    }
+
+    void clearConnections();
+
+protected:
+    PvtDataHandleVec _connections;
+    friend class PvtInput;
+    friend class RtConnectionIterator;
+};
+
+
+class PvtInput : public PvtAttribute
+{
+public:
+    PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
+
+    bool isUniform() const
+    {
+        return (_flags & RtAttrFlag::UNIFORM) != 0;
+    }
+
+    bool isConnected() const
+    {
+        return _connection != nullptr;
+    }
+
+    bool isConnectable(const PvtOutput* output) const
+    {
+        return output->isConnectable(this);
+    }
+
+    void connect(PvtOutput* output)
+    {
+        return output->connect(this);
+    }
+
+    void disconnect(PvtOutput* output)
+    {
+        return output->disconnect(this);
+    }
+
+    PvtOutput* getConnection() const
+    {
+        return _connection ? _connection->asA<PvtOutput>() : nullptr;
+    }
+
+    void clearConnection();
+
+protected:
+    PvtDataHandle _connection;
+    friend class PvtOutput;
 };
 
 }

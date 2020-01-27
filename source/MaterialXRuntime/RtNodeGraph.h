@@ -10,25 +10,35 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtNode.h>
+#include <MaterialXRuntime/RtObject.h>
 
 namespace MaterialX
 {
 
-/// @class RtNodeGraph
-/// API for creating and editing nodegraphs. This API can only be
-/// attached to objects of type NODEGRAPH.
-class RtNodeGraph : public RtNode
+class RtPrimIterator;
+
+class RtNodeGraph : public RtTypedSchema
 {
+    DECLARE_TYPED_SCHEMA(RtNodeGraph)
+
 public:
-    /// Constructor attaching an object to the API.
-    RtNodeGraph(const RtObject& obj);
+    /// Add an input attribute to the graph.
+    RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
-    /// Return the type name for nodegraphs.
-    static const RtToken& typeName();
+    /// Remove an input attribute from the graph.
+    void removeInput(const RtToken& name);
 
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
+    /// Add an output attribute to the graph.
+    RtOutput createOutput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    /// Remove an output attribute from the graph.
+    void removeOutput(const RtToken& name);
+
+    /// Return the given input.
+    RtInput getInput(const RtToken& name) const;
+
+    /// Return the given output.
+    RtOutput getOutput(const RtToken& name) const;
 
     /// Return the internal socket that corresponds
     /// to the named input attribute.
@@ -37,6 +47,9 @@ public:
     /// Return the internal socket that corresponds
     /// to the named output attribute.
     RtInput getOutputSocket(const RtToken& name) const;
+
+    /// Return an iterator over the nodes in the graph.
+    RtPrimIterator getNodes() const;
 
     /// Convert this graph to a string in the DOT language syntax. This can be
     /// used to visualise the graph using GraphViz (http://www.graphviz.org).

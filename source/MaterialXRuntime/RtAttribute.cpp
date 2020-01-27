@@ -11,14 +11,9 @@
 namespace MaterialX
 {
 
-RtAttribute::RtAttribute(const RtObject& obj) : 
-    RtPathItem(obj)
+RtAttribute::RtAttribute(PvtDataHandle hnd) :
+    RtObject(hnd)
 {
-}
-
-RtApiType RtAttribute::getApiType() const
-{
-    return RtApiType::ATTRIBUTE;
 }
 
 const RtToken& RtAttribute::getType() const
@@ -71,24 +66,92 @@ void RtAttribute::setUnit(const RtToken& unit)
     return hnd()->asA<PvtAttribute>()->setUnit(unit);
 }
 
-bool RtAttribute::isInput() const
+
+RtInput::RtInput(PvtDataHandle hnd) :
+    RtAttribute(hnd)
 {
-    return hnd()->asA<PvtAttribute>()->isInput();
 }
 
-bool RtAttribute::isOutput() const
+bool RtInput::isUniform() const
 {
-    return hnd()->asA<PvtAttribute>()->isOutput();
+    return hnd()->asA<PvtInput>()->isUniform();
 }
 
-bool RtAttribute::isConnectable() const
+bool RtInput::isConnected() const
 {
-    return hnd()->asA<PvtAttribute>()->isConnectable();
+    return hnd()->asA<PvtInput>()->isConnected();
 }
 
-bool RtAttribute::isConnectable(const RtAttribute& other) const
+bool RtInput::isSocket() const
 {
-    return hnd()->asA<PvtAttribute>()->isConnectable(other.hnd()->asA<PvtAttribute>());
+    return hnd()->asA<PvtInput>()->isSocket();
+}
+
+bool RtInput::isConnectable(const RtOutput& output) const
+{
+    return output.hnd()->asA<PvtOutput>()->isConnectable(hnd()->asA<PvtInput>());
+}
+
+void RtInput::connect(const RtOutput& output)
+{
+    output.hnd()->asA<PvtOutput>()->connect(hnd()->asA<PvtInput>());
+}
+
+void RtInput::disconnect(const RtOutput& output)
+{
+    output.hnd()->asA<PvtOutput>()->disconnect(hnd()->asA<PvtInput>());
+}
+
+void RtInput::clearConnection()
+{
+    return hnd()->asA<PvtInput>()->clearConnection();
+}
+
+RtOutput RtInput::getConnection() const
+{
+    PvtOutput* output = hnd()->asA<PvtInput>()->getConnection();
+    return output ? RtOutput(output->hnd()) : RtOutput();
+}
+
+
+RtOutput::RtOutput(PvtDataHandle hnd) :
+    RtAttribute(hnd)
+{
+}
+
+bool RtOutput::isConnected() const
+{
+    return hnd()->asA<PvtOutput>()->isConnected();
+}
+
+bool RtOutput::isSocket() const
+{
+    return hnd()->asA<PvtOutput>()->isSocket();
+}
+
+bool RtOutput::isConnectable(const RtInput& input) const
+{
+    return hnd()->asA<PvtOutput>()->isConnectable(input.hnd()->asA<PvtInput>());
+}
+
+void RtOutput::connect(const RtInput& input)
+{
+    return hnd()->asA<PvtOutput>()->connect(input.hnd()->asA<PvtInput>());
+}
+
+void RtOutput::disconnect(const RtInput& input)
+{
+    return hnd()->asA<PvtOutput>()->disconnect(input.hnd()->asA<PvtInput>());
+}
+
+void RtOutput::clearConnections()
+{
+    return hnd()->asA<PvtOutput>()->clearConnections();
+}
+
+RtConnectionIterator RtOutput::getConnections() const
+{
+    return hnd()->asA<PvtOutput>()->getConnections();
 }
 
 }

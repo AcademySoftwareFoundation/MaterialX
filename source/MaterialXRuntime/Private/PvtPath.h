@@ -14,7 +14,7 @@
 namespace MaterialX
 {
 
-class PvtPathItem;
+class PvtObject;
 
 /// Class representing a unique path to an object in the stage.
 ///
@@ -31,7 +31,7 @@ public:
     }
 
     // Construct from an item.
-    PvtPath(const PvtPathItem* obj)
+    PvtPath(const PvtObject* obj)
     {
         setObject(obj);
     }
@@ -61,7 +61,7 @@ public:
         return *this;
     }
 
-    void setObject(const PvtPathItem* obj);
+    void setObject(const PvtObject* obj);
 
     const RtToken& getName() const
     {

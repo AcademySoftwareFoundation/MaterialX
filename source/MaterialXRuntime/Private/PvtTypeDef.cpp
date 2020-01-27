@@ -400,7 +400,7 @@ PvtTypeDefRegistry::PvtTypeDefRegistry()
     newType(RtType::DISPLACEMENTSHADER, RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_SHADER);
     newType(RtType::LIGHTSHADER, RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_SHADER);
 
-    newType(RtType::NONE, RtTypeDef::BASETYPE_NONE, noneFuncs);
+    newType(RtType::POINTER, RtTypeDef::BASETYPE_NONE, noneFuncs);
     newType(RtType::AUTO, RtTypeDef::BASETYPE_NONE, noneFuncs);
 }
 

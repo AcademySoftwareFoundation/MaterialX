@@ -8,15 +8,12 @@
 namespace MaterialX
 {
 
-const RtObjType PvtRelationship::typeId = RtObjType::RELATIONSHIP;
-const RtToken PvtRelationship::typeName = RtToken("relationship");
-
 PvtRelationship::PvtRelationship(const RtToken& name, PvtPrim* parent) :
-    PvtPathItem(name, parent)
+    PvtObject(RtObjType::RELATIONSHIP, name, parent)
 {
 }
 
-void PvtRelationship::removeTarget(const PvtPathItem* target)
+void PvtRelationship::removeTarget(const PvtObject* target)
 {
     for (auto it = _targets.begin(); it != _targets.end(); ++it)
     {

@@ -6,7 +6,7 @@
 #include <MaterialXRuntime/RtPath.h>
 
 #include <MaterialXRuntime/Private/PvtPath.h>
-#include <MaterialXRuntime/Private/PvtPathItem.h>
+#include <MaterialXRuntime/Private/PvtObject.h>
 
 namespace MaterialX
 {
@@ -17,7 +17,7 @@ RtPath::RtPath() :
 }
 
 RtPath::RtPath(const RtObject& obj) :
-    _ptr(new PvtPath(PvtObject::ptr<PvtPathItem>(obj)))
+    _ptr(new PvtPath(PvtObject::ptr<PvtObject>(obj)))
 {
 }
 
@@ -50,7 +50,7 @@ RtPath::~RtPath()
 
 void RtPath::setObject(const RtObject& obj)
 {
-    static_cast<PvtPath*>(_ptr)->setObject(PvtObject::ptr<PvtPathItem>(obj));
+    static_cast<PvtPath*>(_ptr)->setObject(PvtObject::ptr<PvtObject>(obj));
 }
 
 const RtToken& RtPath::getName() const

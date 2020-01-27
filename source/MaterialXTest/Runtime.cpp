@@ -13,6 +13,7 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/File.h>
 
+#include <MaterialXRuntime/RtApi.h>
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtStage.h>
 #include <MaterialXRuntime/RtPrim.h>
@@ -275,6 +276,9 @@ TEST_CASE("Runtime: Types", "[runtime]")
 
 TEST_CASE("Runtime: Paths", "[runtime]")
 {
+    mx::RtApi& api = mx::RtApi::get();
+    api.initialize();
+
     mx::RtStagePtr stage = mx::RtStage::createNew(ROOT);
 
     mx::RtPath empty;
@@ -299,25 +303,37 @@ TEST_CASE("Runtime: Paths", "[runtime]")
     mx::RtPath path4 = path1;
     REQUIRE(path4 == path1);
     REQUIRE(path4 != path2);
+
+    api.shutdown();
 }
 
 TEST_CASE("Runtime: Prims", "[runtime]")
 {
+    mx::RtApi& api = mx::RtApi::get();
+    api.initialize();
+
     mx::RtStagePtr stage = mx::RtStage::createNew(ROOT);
     REQUIRE(stage);
 
     // Test creating a prim of each type
-    mx::RtObject nodedefObj = stage->createPrim("/ND_add_float", mx::RtNodeDef::typeName());
-    REQUIRE(nodedefObj.isValid());
-    REQUIRE(nodedefObj.getObjType() == mx::RtObjType::NODEDEF);
-    REQUIRE(nodedefObj.getObjTypeName() == mx::RtNodeDef::typeName());
-    REQUIRE(nodedefObj.hasApi(mx::RtApiType::NODEDEF));
-    REQUIRE(nodedefObj.hasApi(mx::RtApiType::PRIM));
-    mx::RtNodeDef nodeDef(nodedefObj);
-    nodeDef.setNodeTypeName(ADD);
-    REQUIRE(nodeDef.getNodeTypeName() == ADD);
 
-    mx::RtObject nodeObj = stage->createPrim("/add1", mx::RtNode::typeName(), nodedefObj);
+    mx::RtPrim nodedefPrim = stage->createPrim("/ND_foo_float", mx::RtNodeDef::typeName());
+    REQUIRE(nodedefPrim.isValid());
+    REQUIRE(nodedefPrim);
+    REQUIRE(nodedefPrim.getObjType() == mx::RtObjType::PRIM);
+    REQUIRE(nodedefPrim.getTypeName() == mx::RtNodeDef::typeName());
+
+    mx::RtNodeDef nodedef(nodedefPrim);
+    REQUIRE(nodedef.isValid());
+    REQUIRE(nodedef);
+    REQUIRE(nodedef.getTypeName() == mx::RtNodeDef::typeName());
+    nodedef.setNode(FOO);
+    REQUIRE(nodedef.getNode() == FOO);
+    REQUIRE_THROWS(stage->createPrim(nodedef.getName()));
+    nodedef.registerMasterPrim();
+    REQUIRE(stage->createPrim(nodedef.getName()));
+/*
+    mx::RtPrim nodePrim = stage->createPrim("/add1", nodedefPrim.getName());
     REQUIRE(nodeObj.isValid());
     REQUIRE(nodeObj.getObjType() == mx::RtObjType::NODE);
     REQUIRE(nodeObj.getObjTypeName() == mx::RtNode::typeName());
@@ -355,8 +371,11 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     {
         REQUIRE(trg == targets[targetIndex++]);
     }
+    */
+    api.shutdown();
 }
 
+/*
 TEST_CASE("Runtime: Nodes", "[runtime]")
 {
     mx::RtStagePtr stage = mx::RtStage::createNew(ROOT);
@@ -994,5 +1013,5 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     }
     REQUIRE(bsdfCount == libBsdfCount);
 }
-
+*/
 #endif // MATERIALX_BUILD_RUNTIME

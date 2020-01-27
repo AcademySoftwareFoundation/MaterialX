@@ -4,6 +4,8 @@
 //
 
 #include <MaterialXRuntime/RtStage.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtPath.h>
 
 #include <MaterialXRuntime/Private/PvtStage.h>
 
@@ -31,7 +33,7 @@ RtStage::~RtStage()
 
 RtStagePtr RtStage::createNew(const RtToken& name)
 {
-    // Create the shared wrapper stage object.
+    // Create the shared stage object.
     RtStagePtr stage(new RtStage());
 
     // Create the private stage implementation.
@@ -46,30 +48,21 @@ const RtToken& RtStage::getName() const
     return _cast(_ptr)->getName();
 }
 
-RtObject RtStage::createPrim(const RtToken& typeName, const RtObject def)
+RtPrim RtStage::createPrim(const RtToken& typeName)
 {
-    return createPrim(RtPath("/"), EMPTY_TOKEN, typeName, def);
+    return createPrim(RtPath("/"), EMPTY_TOKEN, typeName);
 }
 
-RtObject RtStage::createPrim(const RtPath& path, const RtToken& typeName, const RtObject def)
+RtPrim RtStage::createPrim(const RtPath& path, const RtToken& typeName)
 {
-    PvtPrim* prim = _cast(_ptr)->createPrim(
-        *static_cast<PvtPath*>(path._ptr),
-        typeName,
-        PvtObject::ptr<PvtObject>(def)
-    );
-    return prim->obj();
+    PvtPrim* prim = _cast(_ptr)->createPrim(*static_cast<PvtPath*>(path._ptr), typeName);
+    return prim->hnd();
 }
 
-RtObject RtStage::createPrim(const RtPath& parentPath, const RtToken& name, const RtToken& typeName, const RtObject def)
+RtPrim RtStage::createPrim(const RtPath& parentPath, const RtToken& name, const RtToken& typeName)
 {
-    PvtPrim* prim = _cast(_ptr)->createPrim(
-        *static_cast<PvtPath*>(parentPath._ptr),
-        name,
-        typeName,
-        PvtObject::ptr<PvtObject>(def)
-    );
-    return prim->obj();
+    PvtPrim* prim = _cast(_ptr)->createPrim(*static_cast<PvtPath*>(parentPath._ptr), name, typeName);
+    return prim->hnd();
 }
 
 void RtStage::removePrim(const RtPath& path)
@@ -90,15 +83,15 @@ RtToken RtStage::reparentPrim(const RtPath& path, const RtPath& newParentPath)
     );
 }
 
-RtObject RtStage::getPrimAtPath(const RtPath& path)
+RtPrim RtStage::getPrimAtPath(const RtPath& path)
 {
     PvtPrim* prim = _cast(_ptr)->getPrimAtPath(*static_cast<PvtPath*>(path._ptr));
-    return prim ? prim->obj() : RtObject();
+    return prim ? prim->hnd() : RtPrim();
 }
 
-RtObject RtStage::getRootPrim()
+RtPrim RtStage::getRootPrim()
 {
-    return _cast(_ptr)->getRootPrim()->obj();
+    return _cast(_ptr)->getRootPrim()->hnd();
 }
 
 RtStageIterator RtStage::traverse(RtObjectPredicate predicate)

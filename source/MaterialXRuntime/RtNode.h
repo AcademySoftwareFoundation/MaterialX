@@ -10,104 +10,22 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtPrim.h>
-#include <MaterialXRuntime/RtAttribute.h>
+#include <MaterialXRuntime/RtObject.h>
 
 namespace MaterialX
 {
 
-class RtInput;
-class RtOutput;
-
-/// @class RtInput
-/// API for accessing connections on an input attribute.
-class RtInput : public RtAttribute
-{
-public:
-    /// Constructor attaching an object to the API.
-    /// Object must be a connectable input attribute.
-    RtInput(const RtObject& obj);
-
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
-
-    /// Return true if this input is uniform.
-    bool isUniform() const;
-
-    /// Return true if this input is connected.
-    bool isConnected() const;
-
-    /// Connect to a source output.
-    void connect(RtOutput source);
-
-    /// Disconnect from a source output.
-    void disconnect(RtOutput source);
-
-    /// Break any connections.
-    void clearConnections();
-
-    /// Return the output connected to this input.
-    RtOutput getConnection() const;
-};
-
-/// @class RtOutput
-/// API for accessing connections on an output attribute.
-class RtOutput : public RtAttribute
-{
-public:
-    /// Constructor attaching an object to the API.
-    /// Object must be a connectable output attribute.
-    RtOutput(const RtObject& obj);
-
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
-
-    /// Return true if this output is connected.
-    bool isConnected() const;
-
-    /// Connect to a destination input.
-    void connect(RtInput dest);
-
-    /// Disconnect from a destination input.
-    void disconnect(RtInput dest);
-
-    /// Break any connections.
-    void clearConnections();
-
-    /// Return an iterator for the connections downstream from this output.
-    RtConnectionIterator getConnections() const;
-};
-
-
 /// @class RtNode
-/// API for accessing a node instance. This API can be
-/// attached to objects of type NODE and NODEGRAPH.
-class RtNode : public RtPrim
+class RtNode : public RtTypedSchema
 {
+    DECLARE_TYPED_SCHEMA(RtNode)
+
 public:
-    /// Constructor attaching an object to the API.
-    RtNode(const RtObject& obj);
+    RtPrim getNodeDef() const;
 
-    /// Return the type name for nodes.
-    static const RtToken& typeName();
-
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
-
-    /// Return the nodedef of this node.
-    RtObject getNodeDef() const;
-
-    /// Return the input with given name.
     RtInput getInput(const RtToken& name) const;
 
-    /// Return the output with given name.
     RtOutput getOutput(const RtToken& name) const;
-
-    /// Make a new connection between two attributes.
-    static void connect(RtOutput source, RtInput dest);
-
-    /// Break a connection between two attributes.
-    static void disconnect(RtOutput source, RtInput dest);
 };
 
 }

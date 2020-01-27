@@ -35,15 +35,14 @@ public:
     const RtToken& getName() const;
 
     /// Create a new prim at the root of the stage.
-    RtObject createPrim(const RtToken& typeName, const RtObject def = RtObject());
+    RtPrim createPrim(const RtToken& typeName);
 
     /// Create a new prim at the given path.
-    RtObject createPrim(const RtPath& path, const RtToken& typeName, const RtObject def = RtObject());
+    RtPrim createPrim(const RtPath& path, const RtToken& typeName);
 
     /// Create a new prim inside the parent given by path.
     /// If an empty name is given a name will be generated.
-    RtObject createPrim(const RtPath& parentPath, const RtToken& name,
-                        const RtToken& typeName, const RtObject def = RtObject());
+    RtPrim createPrim(const RtPath& parentPath, const RtToken& name, const RtToken& typeName);
 
     /// Remove a prim from the stage.
     void removePrim(const RtPath& path);
@@ -56,10 +55,10 @@ public:
 
     // Find the prim at the given path, Returns a null object
     // if no such prim is found.
-    RtObject getPrimAtPath(const RtPath& path);
+    RtPrim getPrimAtPath(const RtPath& path);
 
     // Return the prim representing the root of the stage's prim hierarchy.
-    RtObject getRootPrim();
+    RtPrim getRootPrim();
 
     /// Return an iterator traversing all child prims (siblings) in the stage,
     /// including children from any referenced stages.

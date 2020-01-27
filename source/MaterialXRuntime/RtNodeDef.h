@@ -9,32 +9,32 @@
 /// @file
 /// TODO: Docs
 
-#include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtObject.h>
 
 namespace MaterialX
 {
 
 /// @class RtNodeDef
-/// API for accessing a node definition. This API can only be
-/// attached to objects of type NODEDEF.
-class RtNodeDef : public RtPrim
+class RtNodeDef : public RtTypedSchema
 {
+    DECLARE_TYPED_SCHEMA(RtNodeDef)
+
 public:
-    /// Constructor attaching an object to the API.
-    RtNodeDef(const RtObject& obj);
+    /// Return the node for this nodedef.
+    const RtToken& getNode() const;
 
-    /// Return the type name for nodedefs.
-    static const RtToken& typeName();
+    /// Set the node for this nodedef.
+    void setNode(const RtToken& node);
 
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
+    /// Register this nodedef as a master prim
+    /// to make it instantiable for node creation.
+    void registerMasterPrim() const;
 
-    /// Set the node type name.
-    void setNodeTypeName(const RtToken& nodeTypeName);
+    /// Unregister this nodedef as a master prim.
+    void unregisterMasterPrim() const;
 
-    /// Return the node type name.
-    const RtToken& getNodeTypeName() const;
+    /// Return true if this nodedef is registerd as a master prim.
+    bool isMasterPrim() const;
 };
 
 }

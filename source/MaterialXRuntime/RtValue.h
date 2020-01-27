@@ -10,7 +10,6 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtToken.h>
 
 #include <MaterialXCore/Types.h>

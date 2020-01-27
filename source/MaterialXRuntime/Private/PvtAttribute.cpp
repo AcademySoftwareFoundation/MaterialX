@@ -9,78 +9,82 @@
 namespace MaterialX
 {
 
-const RtObjType PvtAttribute::typeId = RtObjType::ATTRIBUTE;
-const RtToken PvtAttribute::typeName = RtToken("attribute");
-
 const RtToken PvtAttribute::DEFAULT_OUTPUT_NAME("out");
 const RtToken PvtAttribute::COLOR_SPACE("colorspace");
 const RtToken PvtAttribute::UNIT("unit");
 
 PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
-    PvtPathItem(name, parent),
+    PvtObject(RtObjType::ATTRIBUTE, name, parent),
     _value(type, RtValue::createNew(type, parent->obj())),
     _flags(flags)
 {
 }
 
-bool PvtAttribute::isConnectable(const PvtAttribute* other) const
+
+PvtOutput::PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
+    PvtAttribute(name, type, flags, parent)
+{
+}
+
+bool PvtOutput::isConnectable(const PvtInput* other) const
 {
     // TODO: Check if the data types are compatible.
-    return isConnectable() && other->isConnectable() &&
-        isOutput() != other->isOutput() &&
-        _parent != other->_parent;
+    return _parent != other->_parent;
 }
 
-void PvtAttribute::connect(PvtAttribute* source, PvtAttribute* dest)
+void PvtOutput::connect(PvtInput* input)
 {
-    if (dest->isConnected())
+    if (input->isConnected())
     {
-        throw ExceptionRuntimeError("Destination is already connected");
+        throw ExceptionRuntimeError("Input is already connected");
     }
-    if (!(source->isOutput() && source->isConnectable()))
+    if (isConnectable(input))
     {
-        throw ExceptionRuntimeError("Source is not a connectable output");
+        throw ExceptionRuntimeError("Output is not connectable to this input");
     }
-    if (!(dest->isInput() && dest->isConnectable()))
-    {
-        throw ExceptionRuntimeError("Destination is not a connectable input");
-    }
-    source->_connections.push_back(dest->hnd());
-    dest->_connections.push_back(source->hnd());
+    _connections.push_back(input->hnd());
+    input->_connection = hnd();
 }
 
-void PvtAttribute::disconnect(PvtAttribute* source, PvtAttribute* dest)
+void PvtOutput::disconnect(PvtInput* input)
 {
-    if (dest->_connections.size() != 1 || dest->_connections.front().get() != source)
+    if (!input->_connection || input->_connection.get() != this)
     {
         throw ExceptionRuntimeError("Given source and destination is not connected");
     }
 
-    dest->_connections.clear();
-    for (auto it = source->_connections.begin(); it != source->_connections.end(); ++it)
+    input->_connection = nullptr;
+    for (auto it = _connections.begin(); it != _connections.end(); ++it)
     {
-        if (it->get() == dest)
+        if (it->get() == input)
         {
-            source->_connections.erase(it);
+            _connections.erase(it);
             break;
         }
     }
 }
 
-void PvtAttribute::clearConnections()
+void PvtOutput::clearConnections()
 {
-    if (isOutput())
+    // Break connections to all destination inputs.
+    for (PvtDataHandle destH : _connections)
     {
-        // Break connections to all destination inputs.
-        for (PvtDataHandle destH : _connections)
-        {
-            destH->asA<PvtAttribute>()->_connections.clear();
-        }
+        destH->asA<PvtInput>()->_connection = nullptr;
     }
-    else if (isConnected())
+    _connections.clear();
+}
+
+PvtInput::PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
+    PvtAttribute(name, type, flags, parent)
+{
+}
+
+void PvtInput::clearConnection()
+{
+    if (_connection)
     {
         // Break connection to our single source output.
-        PvtAttribute* source = _connections.front()->asA<PvtAttribute>();
+        PvtOutput* source = _connection->asA<PvtOutput>();
         for (auto it = source->_connections.begin(); it != source->_connections.end(); ++it)
         {
             if (it->get() == this)
@@ -89,8 +93,8 @@ void PvtAttribute::clearConnections()
                 break;
             }
         }
+        _connection = nullptr;
     }
-    _connections.clear();
 }
 
 }

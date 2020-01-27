@@ -6,11 +6,8 @@
 #ifndef MATERIALX_PVTPRIM_H
 #define MATERIALX_PVTPRIM_H
 
-#include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtAttribute.h>
 #include <MaterialXRuntime/Private/PvtRelationship.h>
-
-#include <MaterialXRuntime/RtTraversal.h>
 
 /// @file
 /// TODO: Docs
@@ -62,28 +59,34 @@ private:
     vector<uint8_t*> _storage;
 };
 
-class PvtPrim : public PvtPathItem
+class PvtPrimDef;
+class RtAttrIterator;
+class RtPrimIterator;
+
+class PvtPrim : public PvtObject
 {
 public:
-    static RtObjType typeId() { return _typeId; }
-
-    static const RtToken& typeName() { return _typeName; }
-
     static PvtDataHandle createNew(const RtToken& name, PvtPrim* parent);
 
-    RtObjType getObjType() const override
-    {
-        return _typeId;
-    }
-
-    const RtToken& getObjTypeName() const override
+    const RtToken& getTypeName() const
     {
         return _typeName;
     }
 
-    virtual const RtToken& getPrimTypeName() const;
+    void setTypeName(const RtToken& typeName)
+    {
+        _typeName = typeName;
+    }
 
-    void setPrimTypeName(const RtToken& primTypeName);
+    const RtToken& getSubTypeName() const
+    {
+        return _subTypeName;
+    }
+
+    void setSubTypeName(const RtToken& subTypeName)
+    {
+        _subTypeName = subTypeName;
+    }
 
     PvtRelationship* createRelationship(const RtToken& name);
 
@@ -95,19 +98,18 @@ public:
         return it != _relMap.end() ? it->second->asA<PvtRelationship>() : nullptr;
     }
 
-    const PvtRelationship* getRelationship(const RtToken& name) const
-    {
-        return const_cast<PvtPrim*>(this)->getRelationship(name);
-    }
-
     const PvtDataHandleVec& getAllRelationships() const
     {
         return _relOrder;
     }
 
-    virtual PvtAttribute* createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+    PvtAttribute* createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
-    virtual void removeAttribute(const RtToken& name);
+    PvtInput* createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    PvtOutput* createOutput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    void removeAttribute(const RtToken& name);
 
     PvtAttribute* getAttribute(const RtToken& name)
     {
@@ -115,15 +117,23 @@ public:
         return it != _attrMap.end() ? it->second->asA<PvtAttribute>() : nullptr;
     }
 
-    const PvtAttribute* getAttribute(const RtToken& name) const
+    PvtInput* getInput(const RtToken& name)
     {
-        return const_cast<PvtPrim*>(this)->getAttribute(name);
+        // TODO: Improve type check and type conversion for RtObject subclasses.
+        auto it = _attrMap.find(name);
+        return it != _attrMap.end() && it->second->getObjType() == RtObjType::INPUT ?
+            it->second->asA<PvtInput>() : nullptr;
     }
 
-    RtAttrIterator getAttributes(RtObjectPredicate predicate = nullptr) const
+    PvtOutput* getOutput(const RtToken& name)
     {
-        return RtAttrIterator(this->obj(), predicate);
+        // TODO: Improve type check and type conversion for RtObject subclasses.
+        auto it = _attrMap.find(name);
+        return it != _attrMap.end() && it->second->getObjType() == RtObjType::OUTPUT ?
+            it->second->asA<PvtOutput>() : nullptr;
     }
+
+    RtAttrIterator getAttributes(RtObjectPredicate predicate = nullptr) const;
 
     const PvtDataHandleVec& getAllAttributes() const
     {
@@ -141,10 +151,7 @@ public:
         return const_cast<PvtPrim*>(this)->getChild(name);
     }
 
-    RtPrimIterator getChildren(RtObjectPredicate predicate = nullptr) const
-    {
-        return RtPrimIterator(this->obj(), predicate);
-    }
+    RtPrimIterator getChildren(RtObjectPredicate predicate = nullptr) const;
 
     const PvtDataHandleVec& getAllChildren() const
     {
@@ -158,15 +165,14 @@ public:
 
     RtToken makeUniqueName(const RtToken& name) const;
 
-private:
-    static const RtObjType _typeId;
-    static const RtToken _typeName;
-
 protected:
     PvtPrim(const RtToken& name, PvtPrim* parent);
 
     void addChildPrim(const PvtPrim* prim);
     void removeChildPrim(const PvtPrim* prim);
+
+    RtToken _typeName;
+    RtToken _subTypeName;
 
     // Relationships
     PvtDataHandleMap _relMap;
@@ -183,7 +189,7 @@ protected:
     PvtAllocator _allocator;
 
     friend class PvtStage;
-    friend class RtGraphIterator;
+    friend class RtNodeGraph;
 };
 
 }

@@ -6,8 +6,12 @@
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
-#include <MaterialXRuntime/Private/PvtNode.h>
-#include <MaterialXRuntime/Private/PvtNodeGraph.h>
+
+#include <MaterialXRuntime/RtApi.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtNode.h>
+#include <MaterialXRuntime/RtNodeDef.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 /// @file
 /// TODO: Docs
@@ -23,14 +27,14 @@ PvtStage::PvtStage(const RtToken& name, RtStageWeakPtr owner) :
     _root = PvtDataHandle(new RootPrim(owner));
 }
 
-PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName, PvtObject* def)
+PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName)
 {
     PvtPath parentPath(path);
     parentPath.pop();
-    return createPrim(parentPath, path.getName(), typeName, def);
+    return createPrim(parentPath, path.getName(), typeName);
 }
 
-PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName, PvtObject* def)
+PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName)
 {
     PvtPrim* parent = getPrimAtPathLocal(parentPath);
     if (!parent)
@@ -38,32 +42,31 @@ PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, co
         throw ExceptionRuntimeError("Given parent path '" + parentPath.asString() + "' does not point to a prim in this stage");
     }
 
-    // TODO: Consider using a prim factory instead.
-    PvtDataHandle hnd;
-    if (typeName == PvtNode::typeName())
+    PvtDataHandle primH;
+
+    // First, try finding a registered creator function for this typename.
+    RtPrimCreateFunc creator = RtApi::get().getCreateFunction(typeName);
+    if (creator)
     {
-        if (!(def && def->hasApi(RtApiType::NODEDEF)))
-        {
-            throw ExceptionRuntimeError("No valid nodedef given for creating node '" + name.str() +
-                "' at path '" + parentPath.asString() + "'");
-        }
-        hnd = PvtNode::createNew(name, def->hnd(), parent);
-    }
-    else if (typeName == PvtNodeGraph::typeName())
-    {
-        hnd = PvtNodeGraph::createNew(name, parent);
-    }
-    else if (typeName == PvtNodeDef::typeName())
-    {
-        hnd = PvtNodeDef::createNew(name, parent);
+        primH = PvtObject::hnd(creator(typeName, name, parent->hnd()));
     }
     else
     {
-        // Create a generic prim.
-        hnd = PvtPrim::createNew(name, parent);
+        // Second, try finding a registered master prim.
+        const RtPrim master = RtApi::get().getMasterPrim(typeName);
+        if (master && master.getTypeName() == RtNodeDef::typeName())
+        {
+            // This is a nodedef, so create a node instance from it.
+            RtPrimCreateFunc nodeCreator = RtApi::get().getCreateFunction(RtNode::typeName());
+            primH = PvtObject::hnd(nodeCreator(typeName, name, parent->hnd()));
+        }
+        else
+        {
+            throw ExceptionRuntimeError("Don't know how to create a prim with typename '" + typeName.str() + "'");
+        }
     }
 
-    PvtPrim* prim = hnd->asA<PvtPrim>();
+    PvtPrim* prim = primH->asA<PvtPrim>();
     parent->addChildPrim(prim);
 
     return prim;
@@ -174,6 +177,11 @@ PvtPrim* PvtStage::getPrimAtPathLocal(const PvtPath& path)
     }
 
     return prim;
+}
+
+RtPrimIterator PvtStage::getPrims(RtObjectPredicate predicate)
+{
+    return RtPrimIterator(_root, predicate);
 }
 
 void PvtStage::addReference(RtStagePtr stage)
