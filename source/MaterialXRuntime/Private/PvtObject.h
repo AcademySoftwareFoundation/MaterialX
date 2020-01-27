@@ -36,7 +36,7 @@ public:
     // Return the type id for this object.
     RtObjType getObjType() const
     {
-        return _type;
+        return _objType;
     }
 
     // Casting the object to a given type.
@@ -121,7 +121,7 @@ public:
     }
 
 protected:
-    PvtObject(RtObjType type, const RtToken& name, PvtPrim* parent);
+    PvtObject(RtObjType objType, const RtToken& name, PvtPrim* parent);
 
     // Protected as arbitrary renaming is not supported.
     // Must be done from the owning stage.
@@ -137,7 +137,7 @@ protected:
         _parent = parent;
     }
 
-    const RtObjType _type;
+    const RtObjType _objType;
     RtToken _name; // TODO: Store a path instead of name token
     PvtPrim* _parent;
     RtTokenMap<RtTypedValue> _metadataMap;

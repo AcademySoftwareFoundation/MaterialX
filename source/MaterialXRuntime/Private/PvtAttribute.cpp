@@ -13,8 +13,8 @@ const RtToken PvtAttribute::DEFAULT_OUTPUT_NAME("out");
 const RtToken PvtAttribute::COLOR_SPACE("colorspace");
 const RtToken PvtAttribute::UNIT("unit");
 
-PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
-    PvtObject(RtObjType::ATTRIBUTE, name, parent),
+PvtAttribute::PvtAttribute(RtObjType objType, const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
+    PvtObject(objType, name, parent),
     _value(type, RtValue::createNew(type, parent->obj())),
     _flags(flags)
 {
@@ -22,7 +22,7 @@ PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t fl
 
 
 PvtOutput::PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
-    PvtAttribute(name, type, flags, parent)
+    PvtAttribute(RtObjType::OUTPUT, name, type, flags, parent)
 {
 }
 
@@ -38,7 +38,7 @@ void PvtOutput::connect(PvtInput* input)
     {
         throw ExceptionRuntimeError("Input is already connected");
     }
-    if (isConnectable(input))
+    if (!isConnectable(input))
     {
         throw ExceptionRuntimeError("Output is not connectable to this input");
     }
@@ -75,7 +75,7 @@ void PvtOutput::clearConnections()
 }
 
 PvtInput::PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
-    PvtAttribute(name, type, flags, parent)
+    PvtAttribute(RtObjType::INPUT, name, type, flags, parent)
 {
 }
 

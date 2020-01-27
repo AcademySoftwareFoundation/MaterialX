@@ -15,8 +15,8 @@
 namespace MaterialX
 {
 
-PvtObject::PvtObject(RtObjType type, const RtToken& name, PvtPrim* parent) :
-    _type(type),
+PvtObject::PvtObject(RtObjType objType, const RtToken& name, PvtPrim* parent) :
+    _objType(objType),
     _name(name),
     _parent(parent)
 {

@@ -29,6 +29,12 @@ public:
     /// Construct from a data handle.
     RtRelationship(PvtDataHandle hnd);
 
+    /// Return the type of this object class.
+    static RtObjType objType()
+    {
+        return RtObjType::RELATIONSHIP;
+    }
+
     /// Return the name of this relationship.
     const RtToken& getName() const;
 

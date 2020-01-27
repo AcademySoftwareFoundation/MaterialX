@@ -66,8 +66,29 @@ public:
     /// Destructor.
     ~RtObject();
 
-    /// Return the type of object contained.
+    /// Return the type of this object instance.
     RtObjType getObjType() const;
+
+    /// Return the type of this object class.
+    static RtObjType objType() 
+    {
+        return RtObjType::NONE;
+    }
+
+    /// Return true if this object is of the templated type.
+    template<class T>
+    bool isA() const
+    {
+        return getObjType() == T::objType();
+    }
+
+    /// Cast the object to the templated type. Returns and invald object if
+    /// the types are not compatible.
+    template<class T>
+    T asA() const
+    {
+        return isA<T>() ? static_cast<const T&>(*this) : T();
+    }
 
     /// Return true if the object is valid.
     bool isValid() const
@@ -134,117 +155,7 @@ protected:
     friend class PvtObject;
     friend class PvtStage;
     friend class RtSchemaBase;
-    friend class RtInput;
-    friend class RtOutput;
 };
-
-
-/// @class RtSchemaBase
-/// Base class for all prim schemas.
-class RtSchemaBase
-{
-public:
-    /// Destructor.
-    virtual ~RtSchemaBase() {};
-
-    /// Return true if the given prim is supported by this API.
-    bool isSupported(const RtPrim& prim) const;
-
-    /// Return true if the attached prim is valid
-    /// and supported by this API.
-    bool isValid() const
-    {
-        return _hnd && isSupported(_hnd);
-    }
-
-    /// Return true if the attached prim is valid
-    /// and supported by this API.
-    bool operator!() const
-    {
-        return !isValid();
-    }
-
-    /// Explicit bool conversion operator.
-    /// Return true if the attached prim is valid
-    /// and supported by this API.
-    explicit operator bool() const
-    {
-        return isValid();
-    }
-
-    /// Return true if the attached prims are equal.
-    bool operator==(const RtSchemaBase& other) const
-    {
-        return _hnd == other._hnd;
-    }
-
-    /// Return the prim attached to this API.
-    RtPrim getPrim() const;
-
-    /// Return the name of the prim.
-    const RtToken& getName() const;
-
-    // Accessors.
-    PvtPrim* prim() const;
-    PvtAttribute* attr(const RtToken& name) const;
-    PvtRelationship* rel(const RtToken& name) const;
-
-protected:
-    /// Constructor attaching a prim to the API.
-    explicit RtSchemaBase(const RtPrim& prim);
-
-    /// Copy constructor.
-    explicit RtSchemaBase(const RtSchemaBase& other);
-
-    /// Return the handle set for this API.
-    PvtDataHandle& hnd() { return _hnd; }
-
-    /// Return the handle set for this API.
-    const PvtDataHandle& hnd() const { return _hnd; }
-
-    /// Return true if the given prim handle is supported by this API.
-    /// Derived classes should override this method.
-    virtual bool isSupported(const PvtDataHandle& hnd) const;
-
-
-protected:
-    // Handle for the prim attached to the API.
-    PvtDataHandle _hnd;
-};
-
-/// @class RtTypedSchema
-/// Base class for all typed prim schemas.
-class RtTypedSchema : public RtSchemaBase
-{
-public:
-    /// Constructor attaching a prim to the API.
-    explicit RtTypedSchema(const RtPrim& prim) :
-        RtSchemaBase(prim)
-    {
-    }
-
-    virtual const RtToken& getTypeName() const;
-
-    static const string TYPE_NAME_SEPARATOR;
-
-protected:
-    /// Return true if the given prim handle is supported by this API.
-    bool isSupported(const PvtDataHandle& hnd) const override;
-};
-
-/// Macro declaring required methods and mambers on typed schemas.
-#define DECLARE_TYPED_SCHEMA(T)                                                             \
-private:                                                                                    \
-    static const RtToken _typeName;                                                         \
-public:                                                                                     \
-    explicit T(const RtPrim& prim) : RtTypedSchema(prim) {}                                 \
-    const RtToken& getTypeName() const override { return _typeName; }                       \
-    static const RtToken& typeName() { return _typeName; }                                  \
-    static RtPrim createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent);  \
-
-/// Macro defining required methods and mambers on typed schemas.
-#define DEFINE_TYPED_SCHEMA(T, typeNameStr)                                                 \
-const RtToken T::_typeName(typeNameStr);                                                    \
 
 }
 

@@ -43,6 +43,12 @@ public:
     /// Construct from a data handle.
     RtAttribute(PvtDataHandle hnd);
 
+    /// Return the type of this object class.
+    static RtObjType objType()
+    {
+        return RtObjType::ATTRIBUTE;
+    }
+
     /// Return the data type for this attribute.
     const RtToken& getType() const;
 
@@ -87,6 +93,12 @@ public:
     /// Construct from a data handle.
     RtInput(PvtDataHandle hnd);
 
+    /// Return the type of this object class.
+    static RtObjType objType()
+    {
+        return RtObjType::INPUT;
+    }
+
     /// Return true if this input is uniform.
     bool isUniform() const;
 
@@ -111,6 +123,8 @@ public:
 
     /// Return the output connected to this input.
     RtOutput getConnection() const;
+
+    friend class RtOutput;
 };
 
 /// @class RtOutput
@@ -124,6 +138,12 @@ public:
 
     /// Construct from a data handle.
     RtOutput(PvtDataHandle hnd);
+
+    /// Return the type of this object class.
+    static RtObjType objType()
+    {
+        return RtObjType::OUTPUT;
+    }
 
     /// Return true if this output is connected.
     bool isConnected() const;
@@ -146,6 +166,8 @@ public:
 
     /// Return an iterator for the connections downstream from this output.
     RtConnectionIterator getConnections() const;
+
+    friend class RtInput;
 };
 
 }

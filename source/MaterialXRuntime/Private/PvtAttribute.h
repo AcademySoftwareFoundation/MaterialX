@@ -23,7 +23,7 @@ namespace MaterialX
 class PvtAttribute : public PvtObject
 {
 public:
-    PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
+    PvtAttribute(RtObjType objType, const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
 
     const RtToken& getType() const
     {

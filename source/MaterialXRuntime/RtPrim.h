@@ -31,6 +31,12 @@ public:
     /// Construct from a data handle.
     RtPrim(PvtDataHandle hnd);
 
+    /// Return the type of this object class.
+    static RtObjType objType()
+    {
+        return RtObjType::PRIM;
+    }
+
     const RtToken getTypeName() const;
 
     /// Add a relationship to the prim.

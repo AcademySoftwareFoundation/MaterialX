@@ -9,8 +9,7 @@
 /// @file
 /// TODO: Docs
 
-#include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtSchema.h>
 
 namespace MaterialX
 {

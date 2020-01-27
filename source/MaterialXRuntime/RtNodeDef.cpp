@@ -47,6 +47,48 @@ void RtNodeDef::setNode(const RtToken& node)
     v->getValue().asToken() = node;
 }
 
+RtInput RtNodeDef::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    return prim()->createInput(name, type, flags)->hnd();
+}
+
+void RtNodeDef::removeInput(const RtToken& name)
+{
+    PvtInput* input = prim()->getInput(name);
+    if (!input || input->getObjType() != RtObjType::INPUT)
+    {
+        throw ExceptionRuntimeError("No input found with name '" + name.str() + "'");
+    }
+    prim()->removeAttribute(name);
+}
+
+RtOutput RtNodeDef::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
+{
+    return prim()->createOutput(name, type, flags)->hnd();
+}
+
+void RtNodeDef::removeOutput(const RtToken& name)
+{
+    PvtOutput* output = prim()->getOutput(name);
+    if (!output || output->getObjType() != RtObjType::OUTPUT)
+    {
+        throw ExceptionRuntimeError("No output found with name '" + name.str() + "'");
+    }
+    prim()->removeAttribute(name);
+}
+
+RtInput RtNodeDef::getInput(const RtToken& name) const
+{
+    PvtInput* input = prim()->getInput(name);
+    return input ? input->hnd() : RtInput();
+}
+
+RtOutput RtNodeDef::getOutput(const RtToken& name) const
+{
+    PvtOutput* output = prim()->getOutput(name);
+    return output ? output->hnd() : RtOutput();
+}
+
 void RtNodeDef::registerMasterPrim() const
 {
     RtApi::get().registerMasterPrim(prim()->hnd());

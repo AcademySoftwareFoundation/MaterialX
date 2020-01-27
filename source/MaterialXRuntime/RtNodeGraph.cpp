@@ -15,6 +15,7 @@ namespace MaterialX
 namespace
 {
     static const RtToken SOCKET("socket");
+    static const RtToken NODEGRAPH1("nodegraph1");
 }
 
 DEFINE_TYPED_SCHEMA(RtNodeGraph, "nodegraph");
@@ -26,7 +27,8 @@ RtPrim RtNodeGraph::createPrim(const RtToken& typeName, const RtToken& name, RtP
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
 
-    PvtDataHandle primH = PvtPrim::createNew(name, PvtObject::ptr<PvtPrim>(parent));
+    const RtToken primName = name == EMPTY_TOKEN ? NODEGRAPH1 : name;
+    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->setTypeName(_typeName);
@@ -102,6 +104,12 @@ RtInput RtNodeGraph::getOutputSocket(const RtToken& name) const
     // Output socket is an input in practice.
     PvtInput* input = socket->getInput(name);
     return input ? input->hnd() : RtInput();
+}
+
+RtPrim RtNodeGraph::getNode(const RtToken& name) const
+{
+    PvtPrim* p = prim()->getChild(name);
+    return p && p->getTypeName() == RtNode::typeName() ? p->hnd() : RtPrim();
 }
 
 RtPrimIterator RtNodeGraph::getNodes() const

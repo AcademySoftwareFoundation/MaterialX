@@ -28,9 +28,6 @@ public:
     /// Destructor
     ~RtStage();
 
-    /// Create a new empty stage.
-    static RtStagePtr createNew(const RtToken& name);
-
     /// Return the name of the stage.
     const RtToken& getName() const;
 
@@ -79,8 +76,11 @@ public:
 protected:
     RtStage();
 
+    static RtStagePtr createNew(const RtToken& name);
+
     void* _ptr;
     friend class PvtStage;
+    friend class PvtApi;
 };
 
 }

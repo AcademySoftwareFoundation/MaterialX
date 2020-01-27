@@ -9,8 +9,7 @@
 /// @file
 /// TODO: Docs
 
-#include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtSchema.h>
 
 namespace MaterialX
 {
@@ -47,6 +46,9 @@ public:
     /// Return the internal socket that corresponds
     /// to the named output attribute.
     RtInput getOutputSocket(const RtToken& name) const;
+
+    /// Return a node by name.
+    RtPrim getNode(const RtToken& name) const;
 
     /// Return an iterator over the nodes in the graph.
     RtPrimIterator getNodes() const;

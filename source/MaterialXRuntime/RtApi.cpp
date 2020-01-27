@@ -9,13 +9,11 @@
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtBackdrop.h>
+#include <MaterialXRuntime/RtStage.h>
 
 #include <MaterialXRuntime/Private/PvtObject.h>
 
 namespace MaterialX
-{
-
-namespace
 {
 
 class PvtApi
@@ -71,24 +69,49 @@ public:
         return it != _masterPrims.end() ? it->second : RtPrim();
     }
 
+    RtStagePtr createStage(const RtToken& name)
+    {
+        if (getStage(name))
+        {
+            throw ExceptionRuntimeError("A stage with name '" + name.str() + "' already exists");
+        }
+        RtStagePtr stage = RtStage::createNew(name);
+        _stages[name] = stage;
+        return stage;
+    }
+
+    void deleteStage(const RtToken& name)
+    {
+        _stages.erase(name);
+    }
+
+    RtStagePtr getStage(const RtToken& name) const
+    {
+        auto it = _stages.find(name);
+        return it != _stages.end() ? it->second : RtStagePtr();
+    }
+
     void clear()
     {
         _createFunctions.clear();
         _masterPrims.clear();
+        _stages.clear();
     }
 
 private:
     RtTokenMap<RtPrimCreateFunc> _createFunctions;
     RtTokenMap<PvtDataHandle> _masterPrims;
+    RtTokenMap<RtStagePtr> _stages;
 };
 
 
-// Syntactic sugar
-inline PvtApi* _cast(void* ptr)
+namespace 
 {
-    return static_cast<PvtApi*>(ptr);
-}
-
+    // Syntactic sugar
+    inline PvtApi* _cast(void* ptr)
+    {
+        return static_cast<PvtApi*>(ptr);
+    }
 }
 
 RtApi::RtApi() :
@@ -106,6 +129,7 @@ void RtApi::initialize()
     _cast(_ptr)->clear();
 
     // Register built in schemas
+    registerTypedSchema<RtGeneric>();
     registerTypedSchema<RtNode>();
     registerTypedSchema<RtNodeDef>();
     registerTypedSchema<RtNodeGraph>();
@@ -157,6 +181,22 @@ RtPrim RtApi::getMasterPrim(const RtToken& name)
 {
     return _cast(_ptr)->getMasterPrim(name);
 }
+
+RtStagePtr RtApi::createStage(const RtToken& name)
+{
+    return _cast(_ptr)->createStage(name);
+}
+
+void RtApi::deleteStage(const RtToken& name)
+{
+    _cast(_ptr)->deleteStage(name);
+}
+
+RtStagePtr RtApi::getStage(const RtToken& name) const
+{
+    return _cast(_ptr)->getStage(name);
+}
+
 
 RtApi& RtApi::get()
 {

@@ -241,7 +241,7 @@ public:
         return !(*this == other);
     }
 
-    /// Dereference this iterator, returning the current input object.
+    /// Dereference this iterator, returning the current object.
     RtObject operator*() const;
 
     /// Iterate to the next sibling.

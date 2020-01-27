@@ -19,7 +19,6 @@ namespace
     static const RtToken KIND("kind");
     static const RtToken BACKDROP1("backdrop1");
     static const RtToken GENERIC1("generic1");
-
 }
 
 DEFINE_TYPED_SCHEMA(RtBackdrop, "backdrop");

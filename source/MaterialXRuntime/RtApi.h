@@ -55,6 +55,16 @@ public:
         unregisterCreateFunction(T::typeName());
     }
 
+    /// Create a new empty stage.
+    RtStagePtr createStage(const RtToken& name);
+
+    /// Delete a stage.
+    void deleteStage(const RtToken& name);
+
+    /// Return a stage by name.
+    RtStagePtr getStage(const RtToken& name) const;
+
+    /// Get the singleton API instance.
     static RtApi& get();
 
     RtApi(const RtApi&) = delete;

@@ -9,7 +9,7 @@
 /// @file
 /// TODO: Docs
 
-#include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtSchema.h>
 
 namespace MaterialX
 {
@@ -25,6 +25,24 @@ public:
 
     /// Set the node for this nodedef.
     void setNode(const RtToken& node);
+
+    /// Add an input attribute to the interface.
+    RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    /// Remove an input attribute from the interface.
+    void removeInput(const RtToken& name);
+
+    /// Add an output attribute to the interface.
+    RtOutput createOutput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+
+    /// Remove an output attribute from the interface.
+    void removeOutput(const RtToken& name);
+
+    /// Return the given input.
+    RtInput getInput(const RtToken& name) const;
+
+    /// Return the given output.
+    RtOutput getOutput(const RtToken& name) const;
 
     /// Register this nodedef as a master prim
     /// to make it instantiable for node creation.
