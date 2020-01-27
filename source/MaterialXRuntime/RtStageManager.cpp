@@ -22,6 +22,10 @@ RtStageManager::RtStageManager()
 {
 }
 
+RtStageManager::~RtStageManager()
+{
+}
+
 RtObject RtStageManager::createStage(const string& stageName)
 {
     return _stageManager->createStage(stageName);
