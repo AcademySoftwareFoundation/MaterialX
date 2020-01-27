@@ -23,6 +23,7 @@
 #include <MaterialXRuntime/RtPath.h>
 #include <MaterialXRuntime/RtFileIo.h>
 #include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/RtStageManager.h>
 
 #include <MaterialXGenShader/Util.h>
 
@@ -974,6 +975,21 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
         ++numEdges;
     }
     REQUIRE(numEdges == 16);
+}
+
+TEST_CASE("Runtime: StageManager", "[runtime]")
+{
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::RtStageManagerPtr stageManager = mx::RtStageManager::createNew();
+    REQUIRE(stageManager);
+    std::string stageName = "test_stage";
+    mx::RtObject testStageObject = stageManager->createStage(stageName);
+    REQUIRE(testStageObject);
+    REQUIRE(testStageObject == stageManager->getStageObject(stageName));
+    REQUIRE(stageManager->hasStage(stageName));
+    stageManager->deleteStage(stageName);
+    REQUIRE(!stageManager->hasStage(stageName));
 }
 
 #endif // MATERIALX_BUILD_RUNTIME
