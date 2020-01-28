@@ -33,10 +33,10 @@ public:
     virtual ~RtStageManager();
 
     /// Creates a stage
-    RtObject createStage(const string& stageName);
+    virtual RtObject createStage(const string& stageName);
     
     /// Deletes a stage known to the stage manager
-    void deleteStage(const string& stageName);
+    virtual void deleteStage(const string& stageName);
 
     /// Whether the stage manager contains a stage with the given name
     bool hasStage(const string& stageName) const;
