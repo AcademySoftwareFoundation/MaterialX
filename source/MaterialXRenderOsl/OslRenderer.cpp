@@ -5,6 +5,8 @@
 
 #include <MaterialXRenderOsl/OslRenderer.h>
 
+#include <MaterialXFormat/File.h>
+
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
@@ -153,7 +155,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
 
     // Set oso file paths
     string osoPaths(_oslUtilityOSOPath);
-    osoPaths += ";" + dirPath.asString();
+    osoPaths += PATH_LIST_SEPARATOR + dirPath.asString();
 
     // Build and run render command
     //
