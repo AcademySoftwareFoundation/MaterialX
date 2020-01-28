@@ -43,6 +43,8 @@ public:
 
     RtPrim getMasterPrim(const RtToken& name);
 
+    RtPrimIterator getMasterPrims(RtObjectPredicate predicate = nullptr);
+
     template<class T>
     void registerTypedSchema()
     {

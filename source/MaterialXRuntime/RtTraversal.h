@@ -88,7 +88,7 @@ public:
     }
 
     /// Dereference this iterator, returning the current attribute.
-    RtObject operator*() const;
+    RtAttribute operator*() const;
 
     /// Iterate to the next sibling.
     RtAttrIterator& operator++();

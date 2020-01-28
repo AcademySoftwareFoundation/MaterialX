@@ -46,16 +46,16 @@ RtAttrIterator::RtAttrIterator(const RtPrim& prim, RtObjectPredicate predicate) 
     }
 }
 
-RtObject RtAttrIterator::operator*() const
+RtAttribute RtAttrIterator::operator*() const
 {
-    return _prim->getAllAttributes()[_current]->obj();
+    return _prim->getAllAttributes()[_current];
 }
 
 RtAttrIterator& RtAttrIterator::operator++()
 {
     while (_prim && ++_current < _prim->getAllAttributes().size())
     {
-        if (!_predicate || _predicate(_prim->getAllAttributes()[_current]->obj()))
+        if (!_predicate || _predicate(_prim->getAllAttributes()[_current]))
         {
             return *this;
         }

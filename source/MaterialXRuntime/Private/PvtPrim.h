@@ -68,6 +68,11 @@ class PvtPrim : public PvtObject
 public:
     static PvtDataHandle createNew(const RtToken& name, PvtPrim* parent);
 
+    static RtObjType objType()
+    {
+        return RtObjType::PRIM;
+    }
+
     const RtToken& getTypeName() const
     {
         return _typeName;
@@ -111,13 +116,13 @@ public:
 
     void removeAttribute(const RtToken& name);
 
-    PvtAttribute* getAttribute(const RtToken& name)
+    PvtAttribute* getAttribute(const RtToken& name) const
     {
         auto it = _attrMap.find(name);
         return it != _attrMap.end() ? it->second->asA<PvtAttribute>() : nullptr;
     }
 
-    PvtInput* getInput(const RtToken& name)
+    PvtInput* getInput(const RtToken& name) const
     {
         // TODO: Improve type check and type conversion for RtObject subclasses.
         auto it = _attrMap.find(name);
@@ -125,7 +130,7 @@ public:
             it->second->asA<PvtInput>() : nullptr;
     }
 
-    PvtOutput* getOutput(const RtToken& name)
+    PvtOutput* getOutput(const RtToken& name) const
     {
         // TODO: Improve type check and type conversion for RtObject subclasses.
         auto it = _attrMap.find(name);
@@ -188,6 +193,7 @@ protected:
 
     PvtAllocator _allocator;
 
+    friend class PvtApi;
     friend class PvtStage;
     friend class RtNodeGraph;
 };

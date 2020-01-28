@@ -60,6 +60,9 @@ public:
     /// Creating an invalid object.
     RtObject();
 
+    /// Construct from a data handle.
+    RtObject(PvtDataHandle hnd);
+
     /// Copy constructor.
     RtObject(const RtObject& other);
 
@@ -140,9 +143,6 @@ public:
     RtTypedValue* getMetadata(const RtToken& name);
 
 protected:
-    /// Construct from a data handle.
-    RtObject(PvtDataHandle hnd);
-
     /// Return the data handle.
     const PvtDataHandle& hnd() const
     {

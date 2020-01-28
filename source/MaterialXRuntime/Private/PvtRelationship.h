@@ -22,6 +22,11 @@ class PvtRelationship : public PvtObject
 public:
     PvtRelationship(const RtToken& name, PvtPrim* parent);
 
+    static RtObjType objType()
+    {
+        return RtObjType::RELATIONSHIP;
+    }
+
     bool hasTargets() const
     {
         return !_targets.empty();

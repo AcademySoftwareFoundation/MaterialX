@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
-#include <MaterialXRuntime/Private/PvtApi.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
 
 #include <MaterialXRuntime/RtPrim.h>

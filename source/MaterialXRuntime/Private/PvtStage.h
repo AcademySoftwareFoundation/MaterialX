@@ -9,7 +9,6 @@
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
-#include <MaterialXRuntime/Private/PvtApi.h>
 
 #include <MaterialXRuntime/RtStage.h>
 

@@ -39,6 +39,19 @@ public:
         return _objType;
     }
 
+    /// Return the type of this object class.
+    static RtObjType objType()
+    {
+        return RtObjType::NONE;
+    }
+
+    /// Return true if this object is of the templated type.
+    template<class T>
+    bool isA() const
+    {
+        return _objType == T::objType();
+    }
+
     // Casting the object to a given type.
     // NOTE: No type check if performed so the templated type 
     // must be a type supported by the object.

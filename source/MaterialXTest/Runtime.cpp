@@ -603,11 +603,12 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 TEST_CASE("Runtime: FileIo", "[runtime]")
 {
     mx::RtApi& api = mx::RtApi::get();
-    api.initialize();
 
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     {
+        api.initialize();
+
         // Load in stdlib
         // Create a stage and import the document data.
         mx::RtStagePtr stage = api.createStage(MAIN);
@@ -667,9 +668,13 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         };
         writeOptions.writeIncludes = false;
         stageIo.write(stage->getName().str() + "_tiledimage_export.mtlx", &writeOptions);
+
+        api.shutdown();
     }
 
     {
+        api.initialize();
+
         // Load stdlib into a stage
         mx::RtStagePtr libStage = api.createStage(LIBS);
         mx::RtFileIo(libStage).readLibraries({ "stdlib" }, searchPath);
@@ -722,9 +727,9 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         readOptions.skipConflictingElements = true;
         streamFileIO.read(stream1, &readOptions);
         streamFileIO.write("stream_export.mtlx", &writeOptions);
-    }
 
-    api.shutdown(); 
+        api.shutdown();
+    }
 }
 
 /*

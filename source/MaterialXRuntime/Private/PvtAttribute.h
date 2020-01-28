@@ -25,6 +25,11 @@ class PvtAttribute : public PvtObject
 public:
     PvtAttribute(RtObjType objType, const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
 
+    static RtObjType objType()
+    {
+        return RtObjType::ATTRIBUTE;
+    }
+
     const RtToken& getType() const
     {
         return _value.getType();
@@ -121,6 +126,11 @@ class PvtOutput : public PvtAttribute
 public:
     PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
 
+    static RtObjType objType()
+    {
+        return RtObjType::OUTPUT;
+    }
+
     bool isConnected() const
     {
         return !_connections.empty();
@@ -150,6 +160,11 @@ class PvtInput : public PvtAttribute
 {
 public:
     PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
+
+    static RtObjType objType()
+    {
+        return RtObjType::INPUT;
+    }
 
     bool isUniform() const
     {

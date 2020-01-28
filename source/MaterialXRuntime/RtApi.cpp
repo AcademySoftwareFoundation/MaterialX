@@ -11,7 +11,7 @@
 #include <MaterialXRuntime/RtBackdrop.h>
 #include <MaterialXRuntime/RtStage.h>
 
-#include <MaterialXRuntime/Private/PvtObject.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
@@ -19,6 +19,11 @@ namespace MaterialX
 class PvtApi
 {
 public:
+    PvtApi()
+    {
+        reset();
+    }
+
     void registerCreateFunction(const RtToken& typeName, RtPrimCreateFunc creator)
     {
         if (getCreateFunction(typeName))
@@ -50,23 +55,33 @@ public:
         {
             throw ExceptionRuntimeError("A master prim with name '" + prim.getName().str() + "' is already registered");
         }
-        _masterPrims[prim.getName()] = PvtObject::hnd(prim);
+        _masterPrimRoot->asA<PvtPrim>()->addChildPrim(PvtObject::ptr<PvtPrim>(prim));
     }
 
     void unregisterMasterPrim(const RtToken& name)
     {
-        _masterPrims.erase(name);
+        PvtPrim* prim = _masterPrimRoot->asA<PvtPrim>()->getChild(name);
+        if (prim)
+        {
+            _masterPrimRoot->asA<PvtPrim>()->removeChildPrim(prim);
+        }
     }
 
-    bool hasMasterPrim(const RtToken& typeName)
+    bool hasMasterPrim(const RtToken& name)
     {
-        return _masterPrims.count(typeName) > 0;
+        PvtPrim* prim = _masterPrimRoot->asA<PvtPrim>()->getChild(name);
+        return prim != nullptr;
     }
 
     RtPrim getMasterPrim(const RtToken& name)
     {
-        auto it = _masterPrims.find(name);
-        return it != _masterPrims.end() ? it->second : RtPrim();
+        PvtPrim* prim = _masterPrimRoot->asA<PvtPrim>()->getChild(name);
+        return prim ? prim->hnd() : RtPrim();
+    }
+
+    RtPrimIterator getMasterPrims(RtObjectPredicate predicate = nullptr)
+    {
+        return RtPrimIterator(_masterPrimRoot, predicate);
     }
 
     RtStagePtr createStage(const RtToken& name)
@@ -91,16 +106,16 @@ public:
         return it != _stages.end() ? it->second : RtStagePtr();
     }
 
-    void clear()
+    void reset()
     {
+        static const RtToken primRootName("apiroot");
+        _masterPrimRoot.reset(new PvtPrim(primRootName, nullptr));
         _createFunctions.clear();
-        _masterPrims.clear();
         _stages.clear();
     }
 
-private:
+    PvtDataHandle _masterPrimRoot;
     RtTokenMap<RtPrimCreateFunc> _createFunctions;
-    RtTokenMap<PvtDataHandle> _masterPrims;
     RtTokenMap<RtStagePtr> _stages;
 };
 
@@ -126,7 +141,7 @@ RtApi::~RtApi()
 
 void RtApi::initialize()
 {
-    _cast(_ptr)->clear();
+    _cast(_ptr)->reset();
 
     // Register built in schemas
     registerTypedSchema<RtGeneric>();
@@ -138,7 +153,7 @@ void RtApi::initialize()
 
 void RtApi::shutdown()
 {
-    _cast(_ptr)->clear();
+    _cast(_ptr)->reset();
 }
 
 
@@ -180,6 +195,11 @@ bool RtApi::hasMasterPrim(const RtToken& name)
 RtPrim RtApi::getMasterPrim(const RtToken& name)
 {
     return _cast(_ptr)->getMasterPrim(name);
+}
+
+RtPrimIterator RtApi::getMasterPrims(RtObjectPredicate predicate)
+{
+    return RtPrimIterator(_cast(_ptr)->_masterPrimRoot, predicate);
 }
 
 RtStagePtr RtApi::createStage(const RtToken& name)
