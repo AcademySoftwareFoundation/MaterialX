@@ -181,13 +181,7 @@ class GraphElement : public InterfaceElement
     /// @return A shared pointer to the new Node.
     NodePtr addNode(const string& category,
                     const string& name = EMPTY_STRING,
-                    const string& type = DEFAULT_TYPE_STRING)
-    {
-        NodePtr node = addChild<Node>(name);
-        node->setCategory(category);
-        node->setType(type);
-        return node;
-    }
+                    const string& type = DEFAULT_TYPE_STRING);
 
     /// Add a Node that is an instance of the given NodeDef.
     NodePtr addNodeInstance(ConstNodeDefPtr nodeDef, const string& name = EMPTY_STRING)
@@ -208,6 +202,20 @@ class GraphElement : public InterfaceElement
     vector<NodePtr> getNodes(const string& category = EMPTY_STRING) const
     {
         return getChildrenOfType<Node>(category);
+    }
+
+    /// Return a vector of nodes in the graph which have a given type
+    vector<NodePtr> getNodesOfType(const string& nodeType) const
+    {
+        vector<NodePtr> nodes;
+        for (auto node : getNodes())
+        {
+            if (node->getType() == nodeType)
+            {
+                nodes.push_back(node);
+            }
+        }
+        return nodes;
     }
 
     /// Remove the Node, if any, with the given name.

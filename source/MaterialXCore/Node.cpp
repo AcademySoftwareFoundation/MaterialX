@@ -20,6 +20,23 @@ const string Backdrop::HEIGHT_ATTRIBUTE = "height";
 //
 // Node methods
 //
+NodePtr GraphElement::addNode(const string& category,
+                              const string& name,
+                              const string& type)
+{
+    if (category.empty())
+    {
+        throw Exception("No category specified: type: " + type + ". name: " + name + ". category: " + category);
+    }
+    if (type.empty())
+    {
+        throw Exception("No type specified: type: " + type + ". name: " + name + ". category: " + category);
+    }
+    NodePtr node = addChild<Node>(name);
+    node->setCategory(category);
+    node->setType(type);
+    return node;
+}
 
 InputPtr Node::setConnectedNode(const string& inputName, NodePtr node)
 {

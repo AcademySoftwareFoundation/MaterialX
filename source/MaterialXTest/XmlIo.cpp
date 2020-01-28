@@ -125,9 +125,9 @@ TEST_CASE("Load content", "[xmlio]")
             mx::NodePtr node = elem->asA<mx::Node>();
             if (node)
             {
-                if (!node->getNodeDef())
+                if (!node->getNodeDefString().empty() && !node->getNodeDef())
                 {
-                    WARN("[" + node->getActiveSourceUri() + "] Node " + node->getName() + " has no matching NodeDef");
+                    WARN("[" + node->getActiveSourceUri() + "] Node " + node->getName() + " has no matching NodeDef for " + node->getNodeDefString());
                     referencesValid = false;
                 }
             }
@@ -140,16 +140,20 @@ TEST_CASE("Load content", "[xmlio]")
     mx::DocumentPtr doc = mx::createDocument();
     std::string filename = "PostShaderComposite.mtlx";
     mx::readFromXmlFile(doc, filename, searchPath);
-    mx::readFromXmlFile(doc, filename, searchPath);
+    mx::XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
+    mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
     REQUIRE(doc->validate());
 
     // Import libraries twice and verify that duplicate elements are
     // skipped.
     mx::DocumentPtr libDoc = doc->copy();
+    mx::CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
     for (mx::DocumentPtr lib : libs)
     {
-        libDoc->importLibrary(lib);
-        libDoc->importLibrary(lib);
+        libDoc->importLibrary(lib, &copyOptions);
+        libDoc->importLibrary(lib, &copyOptions);
     }
     REQUIRE(libDoc->validate());
 
@@ -163,8 +167,6 @@ TEST_CASE("Load content", "[xmlio]")
         }
     }
     REQUIRE_THROWS_AS(mx::readFromXmlFile(conflictDoc, filename, searchPath), mx::Exception&);
-    mx::XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
     mx::readFromXmlFile(conflictDoc, filename, searchPath, &readOptions);
     REQUIRE(conflictDoc->validate());
 
