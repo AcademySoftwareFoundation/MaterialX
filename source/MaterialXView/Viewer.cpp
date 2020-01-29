@@ -27,6 +27,8 @@ const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
 const int DEFAULT_ENV_SAMPLES = 16;
 
+const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
+
 namespace {
 
 bool stringEndsWith(const std::string& str, std::string const& end)
@@ -177,11 +179,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
     _showAdvancedProperties(false),
-    _captureFrame(false),
-    _drawUVGeometry(false),
-    _uvScale(2.0f, 2.0f, 1.0f),
-    _uvTranslation(-0.5f, 0.5f, 0.0f),
-    _uvZoom(1.0f)
+    _captureFrame(false)
 {
     _window = new ng::Window(this, "Viewer Options");
     _window->setPosition(ng::Vector2i(15, 15));
@@ -208,7 +206,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _lightHandler = mx::LightHandler::create();
 
     // Initialize view handlers.
-    _sceneViewHandler = mx::ViewHandler::create();
+    _cameraViewHandler = mx::ViewHandler::create();
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -258,7 +256,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _geometryHandler = mx::GeometryHandler::create();
     _geometryHandler->addLoader(loader);
     _geometryHandler->loadGeometry(_searchPath.find(_meshFilename));
-    updateGeometrySelections();
 
     // Create environment geometry handler.
     _envGeometryHandler = mx::GeometryHandler::create();
@@ -270,12 +267,11 @@ Viewer::Viewer(const std::string& materialFilename,
     loadEnvironmentLight();
 
     // Generate wireframe material.
-    const std::string constantShaderName("__WIRE_SHADER_NAME__");
-    const mx::Color3 color(1.0f);
+    const std::string wireShaderName("__WIRE_SHADER_NAME__");
     _wireMaterial = Material::create();
     try
     {
-        _wireMaterial->generateConstantShader(_genContext, _stdLib, constantShaderName, color);
+        _wireMaterial->generateConstantShader(_genContext, _stdLib, wireShaderName, mx::Color3(1.0f));
     }
     catch (std::exception& e)
     {
@@ -290,7 +286,13 @@ Viewer::Viewer(const std::string& materialFilename,
         _arcball.setSize(size);
     });
 
+    // Update geometry selections.
+    updateGeometrySelections();
+
+    // Load the requested material document.
     loadDocument(_materialFilename, _stdLib);
+
+    // Finalize the UI.
     _propertyEditor.setVisible(false);
     performLayout();
 }
@@ -669,6 +671,8 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _splitDirectLight = enable;
     });
+
+    new ng::Label(advancedPopup, "Shadowing Options");
 
     ng::CheckBox* ambientOcclusionBox = new ng::CheckBox(advancedPopup, "Ambient Occlusion");
     ambientOcclusionBox->setChecked(_genContext.getOptions().hwAmbientOcclusion);
@@ -1271,20 +1275,27 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    if ((key == GLFW_KEY_U) && (action == GLFW_PRESS))
-    {
-        _drawUVGeometry = !_drawUVGeometry;
-        return true;
-    }
-
     return false;
 }
 
-void Viewer::drawScene3D()
+void Viewer::drawContents()
 {
-    mx::Matrix44& world = _sceneViewHandler->worldMatrix;
-    mx::Matrix44& view = _sceneViewHandler->viewMatrix;
-    mx::Matrix44& proj = _sceneViewHandler->projectionMatrix;
+    if (_geometryList.empty() || _materials.empty())
+    {
+        return;
+    }
+
+    updateViewHandlers();
+
+    glDisable(GL_BLEND);
+
+    // Initialize shadow state
+    ShadowState shadowState;
+    shadowState.ambientOcclusionGain = _ambientOcclusionGain;
+
+    const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
+    const mx::Matrix44& view = _cameraViewHandler->viewMatrix;
+    const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -1312,11 +1323,11 @@ void Viewer::drawScene3D()
     }
 
     // Opaque pass
-    glDisable(GL_BLEND);
     for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
+        shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
         if (!material || material->hasTransparency())
         {
             continue;
@@ -1325,8 +1336,7 @@ void Viewer::drawScene3D()
         material->bindShader();
         material->bindViewInformation(world, view, proj);
         material->bindLights(_lightHandler, _imageHandler,
-                             _directLighting, _indirectLighting,
-                             getAmbientOcclusionImage(material), _ambientOcclusionGain,
+                             _directLighting, _indirectLighting, shadowState,
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
@@ -1340,6 +1350,7 @@ void Viewer::drawScene3D()
     {
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
+        shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
         if (!material || !material->hasTransparency())
         {
             continue;
@@ -1348,8 +1359,7 @@ void Viewer::drawScene3D()
         material->bindShader();
         material->bindViewInformation(world, view, proj);
         material->bindLights(_lightHandler, _imageHandler,
-                             _directLighting, _indirectLighting,
-                             getAmbientOcclusionImage(material), _ambientOcclusionGain,
+                             _directLighting, _indirectLighting, shadowState,
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
@@ -1362,16 +1372,11 @@ void Viewer::drawScene3D()
     // Wireframe pass
     if (_outlineSelection)
     {
-        GLShaderPtr shader = _wireMaterial->getShader();
-        if (shader && (_selectedGeom < _geometryList.size()))
-        {
-            auto activeGeom = _geometryList[_selectedGeom];
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            shader->bind();
-            _wireMaterial->bindViewInformation(world, view, proj);
-            _wireMaterial->drawPartition(activeGeom);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        _wireMaterial->bindShader();
+        _wireMaterial->bindViewInformation(world, view, proj);
+        _wireMaterial->drawPartition(getSelectedGeometry());
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     if (_captureFrame)
@@ -1400,155 +1405,11 @@ void Viewer::drawScene3D()
     }
 }
 
-mx::MeshStreamPtr Viewer::createUvPositionStream(mx::MeshPtr mesh, 
-                                                 const std::string& uvStreamName, 
-                                                 unsigned int index,
-                                                 const std::string& positionStreamName)
-{
-    // If there are no uvs to display then just return an empty 3d stream
-    mx::MeshStreamPtr uvStream2D = mesh->getStream(uvStreamName, index);
-    if (!uvStream2D)
-    {
-        return nullptr;
-    }
-
-    mx::MeshStreamPtr uvStream3D = mesh->getStream(positionStreamName);
-    if (!uvStream3D)
-    {
-        uvStream3D = mx::MeshStream::create(positionStreamName, mx::MeshStream::POSITION_ATTRIBUTE, 0);
-        mesh->addStream(uvStream3D);
-
-        mx::MeshFloatBuffer &uvPos2D = uvStream2D->getData();
-        mx::MeshFloatBuffer &uvPos3D = uvStream3D->getData();
-        size_t uvCount = uvPos2D.size() / 2;
-        uvPos3D.resize(uvCount * 3);
-        const float MAX_FLOAT = std::numeric_limits<float>::max();
-        mx::Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, 0.0f };
-        mx::Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, 0.0f };
-        for (size_t i = 0; i < uvCount; i++)
-        {
-            float u = uvPos2D[i * 2];
-            uvPos3D[i * 3] = u;
-            float v = uvPos2D[i * 2 + 1];
-            uvPos3D[i * 3 + 1] = v;
-            uvPos3D[i * 3 + 2] = 0.0f;
-
-            boxMin[0] = std::min(u, boxMin[0]);
-            boxMin[1] = std::min(v, boxMin[1]);
-            boxMax[0] = std::max(u, boxMax[0]);
-            boxMax[1] = std::max(v, boxMax[1]);
-        }
-
-        mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
-        float sphereRadius = (sphereCenter - boxMin).getMagnitude();
-        _uvScale[0] = 2.0f / sphereRadius;
-        _uvScale[1] = 2.0f / sphereRadius;
-        _uvScale[2] = 1.0f;
-        _uvTranslation[0] = -sphereCenter[0];
-        _uvTranslation[1] = -sphereCenter[1];
-        _uvTranslation[2] = 0.0f;
-    }
-
-    return uvStream3D;
-}
-
-void Viewer::drawScene2D()
-{
-    // Create uv shader if it does not exist
-    if (!_wireMaterialUV)
-    {
-        const std::string shaderName("__UV_WIRE_SHADER_NAME__");
-        const mx::Color3 color(1.0f);
-        _wireMaterialUV = Material::create();
-        try
-        {
-            _wireMaterialUV->generateConstantShader(_genContext, _stdLib, shaderName, color);
-        }
-        catch (std::exception& e)
-        {
-            _wireMaterialUV = nullptr;
-            std::cerr << "Failed to generate uv wire shader: " << e.what();
-            return;
-        }
-    }
-
-    GLShaderPtr shader = _wireMaterialUV->getShader();
-    if (!shader || _geometryList.empty())
-    {
-        return;
-    }
-    if (shader->attrib("i_position") == -1)
-    {
-        return;
-    }
-
-    // Create and bind uvs as input positions
-    mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-    const std::string uvStream3DName(mx::MeshStream::TEXCOORD_ATTRIBUTE + "_3D");
-    mx::MeshStreamPtr uvStream3D = createUvPositionStream(mesh, 
-                                                          mx::MeshStream::TEXCOORD_ATTRIBUTE, 0,
-                                                          uvStream3DName);
-    if (!uvStream3D)
-    {
-        return;
-    }
-    mx::MeshFloatBuffer &buffer = uvStream3D->getData();
-    Eigen::Map<const ng::MatrixXf> positions(&buffer[0], uvStream3D->getStride(), buffer.size() / uvStream3D->getStride());
-
-    shader->bind();
-    shader->uploadAttrib("i_position", positions);
-
-    mx::Matrix44& world = _sceneViewHandler->worldMatrix;
-    mx::Matrix44& view = _sceneViewHandler->viewMatrix;
-    mx::Matrix44& proj = _sceneViewHandler->projectionMatrix;
-    _wireMaterialUV->bindViewInformation(world, view, proj);
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    if (_outlineSelection && (_selectedGeom < _geometryList.size()))
-    {
-        mx::MeshPartitionPtr activeGeom = _geometryList[_selectedGeom];
-        _wireMaterialUV->drawPartition(activeGeom);
-    }
-    else
-    {
-        for (mx::MeshPartitionPtr geom : _geometryList)
-        {
-            _wireMaterialUV->drawPartition(geom);
-        }
-    }
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-void Viewer::drawContents()
-{
-    if (_geometryList.empty() || _materials.empty())
-    {
-        return;
-    }
-
-    updateViewHandlers();
-    if (_drawUVGeometry)
-    {
-        drawScene2D();
-    }
-    else
-    {
-        drawScene3D();
-    }
-}
-
 bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
 {
     if (!Screen::scrollEvent(p, rel))
     {
-        if (_drawUVGeometry)
-        {
-            _uvZoom = std::max(0.1f, _uvZoom * ((rel.y() > 0) ? 1.1f : 0.9f));
-        }
-        else
-        {
-            _zoom = std::max(0.1f, _zoom * ((rel.y() > 0) ? 1.1f : 0.9f));;
-        }
+        _zoom = std::max(0.1f, _zoom * ((rel.y() > 0) ? 1.1f : 0.9f));;
     }
     return true;
 }
@@ -1563,11 +1424,6 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         return true;
     }
 
-    if (_drawUVGeometry)
-    {
-        return true;
-    }
-
     if (_arcball.motion(p))
     {
         return true;
@@ -1576,9 +1432,9 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
     if (_translationActive)
     {
         updateViewHandlers();
-        mx::Matrix44& world = _sceneViewHandler->worldMatrix;
-        mx::Matrix44& view = _sceneViewHandler->viewMatrix;
-        mx::Matrix44& proj = _sceneViewHandler->projectionMatrix;
+        const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
+        const mx::Matrix44& view = _cameraViewHandler->viewMatrix;
+        const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
         mx::Matrix44 worldView = view * world;
 
         mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
@@ -1615,11 +1471,6 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
 bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int modifiers)
 {
     if (Screen::mouseButtonEvent(p, button, down, modifiers))
-    {
-        return true;
-    }
-
-    if (_drawUVGeometry)
     {
         return true;
     }
@@ -1673,10 +1524,10 @@ void Viewer::updateViewHandlers()
     ng::Matrix4f ngArcball = _arcball.matrix();
     mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size()).getTranspose();
 
-    _sceneViewHandler->worldMatrix = mx::Matrix44::createScale(mx::Vector3(_zoom * _modelZoom));
-    _sceneViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
-    _sceneViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(_eye, _center, _up) * arcball;
-    _sceneViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
+    _cameraViewHandler->worldMatrix = mx::Matrix44::createScale(mx::Vector3(_zoom * _modelZoom));
+    _cameraViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
+    _cameraViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(_eye, _center, _up) * arcball;
+    _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
 }
 
 void Viewer::updateDisplayedProperties()
@@ -1711,7 +1562,7 @@ void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirec
     mx::ImagePair imagePair = envRadianceMap->splitByLuminance(1.0f);
     mx::computeDominantLight(imagePair.second, lightDir, lightColor);
     dirLightDoc = mx::createDocument();
-    mx::NodePtr dirLightNode = dirLightDoc->addNode("directional_light", "dir_light", mx::LIGHT_SHADER_TYPE_STRING);
+    mx::NodePtr dirLightNode = dirLightDoc->addNode(DIR_LIGHT_NODE_CATEGORY, "dir_light", mx::LIGHT_SHADER_TYPE_STRING);
     dirLightNode->setInputValue("direction", lightDir);
     dirLightNode->setInputValue("color", lightColor);
     dirLightNode->setInputValue("intensity", 1.0f);

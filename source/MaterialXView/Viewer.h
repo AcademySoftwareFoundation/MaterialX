@@ -83,9 +83,6 @@ class Viewer : public ng::Screen
     }
 
   private:
-    void drawScene3D();
-    void drawScene2D();
-
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
@@ -98,6 +95,7 @@ class Viewer : public ng::Screen
     /// Assign the given material to the given geometry, or remove any
     /// existing assignment if the given material is nullptr.
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
+
     void initCamera();
     void updateViewHandlers();
     void updateGeometrySelections();
@@ -111,11 +109,6 @@ class Viewer : public ng::Screen
     void createSaveMaterialsInterface(Widget* parent, const std::string& label);
     void createPropertyEditorInterface(Widget* parent, const std::string& label);
     void createAdvancedSettings(Widget* parent);
-
-    mx::MeshStreamPtr createUvPositionStream(mx::MeshPtr mesh, 
-                                            const std::string& uvStreamName,
-                                            unsigned int index,
-                                            const std::string& positionStreamName);
 
     /// Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
@@ -158,6 +151,8 @@ class Viewer : public ng::Screen
     bool _directLighting;
     bool _indirectLighting;
     bool _splitDirectLight;
+
+    // Ambient occlusion
     float _ambientOcclusionGain;
 
     // Geometry selections
@@ -184,7 +179,7 @@ class Viewer : public ng::Screen
     mx::LightHandlerPtr _lightHandler;
 
     // View handlers
-    mx::ViewHandlerPtr _sceneViewHandler;
+    mx::ViewHandlerPtr _cameraViewHandler;
 
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
@@ -221,13 +216,6 @@ class Viewer : public ng::Screen
     // Image save
     bool _captureFrame;
     mx::FilePath _captureFrameFileName;
-
-    // UV wireframe drawing
-    bool _drawUVGeometry;
-    MaterialPtr _wireMaterialUV;
-    mx::Vector3 _uvScale;
-    mx::Vector3 _uvTranslation;
-    float _uvZoom;
 };
 
 #endif // MATERIALXVIEW_VIEWER_H

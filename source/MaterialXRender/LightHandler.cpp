@@ -3,9 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#include <MaterialXRender/LightHandler.h>
+
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXRender/LightHandler.h>
 
 namespace MaterialX
 {
