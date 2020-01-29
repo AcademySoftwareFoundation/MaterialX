@@ -16,9 +16,7 @@ namespace
     static const RtToken WIDTH("width");
     static const RtToken HEIGHT("height");
     static const RtToken NOTE("note");
-    static const RtToken KIND("kind");
     static const RtToken BACKDROP1("backdrop1");
-    static const RtToken GENERIC1("generic1");
 }
 
 DEFINE_TYPED_SCHEMA(RtBackdrop, "backdrop");
@@ -61,39 +59,6 @@ RtAttribute RtBackdrop::width() const
 RtAttribute RtBackdrop::height() const
 {
     return prim()->getAttribute(HEIGHT)->hnd();
-}
-
-
-
-DEFINE_TYPED_SCHEMA(RtGeneric, "generic");
-
-RtPrim RtGeneric::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
-{
-    if (typeName != _typeName)
-    {
-        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
-    }
-
-    const RtToken primName = name == EMPTY_TOKEN ? GENERIC1 : name;
-    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
-
-    PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->setTypeName(_typeName);
-    prim->addMetadata(KIND, RtType::TOKEN);
-
-    return primH;
-}
-
-const RtToken& RtGeneric::getKind() const
-{
-    RtTypedValue* v = prim()->getMetadata(KIND);
-    return v->getValue().asToken();
-}
-
-void RtGeneric::setKind(const RtToken& kind) const
-{
-    RtTypedValue* v = prim()->getMetadata(KIND);
-    v->getValue().asToken() = kind;
 }
 
 }

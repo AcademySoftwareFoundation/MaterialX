@@ -20,10 +20,13 @@ class RtNode : public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtNode)
 
 public:
+    /// Return the nodedef for this node.
     RtPrim getNodeDef() const;
 
+    /// Return the named input.
     RtInput getInput(const RtToken& name) const;
 
+    /// Return the named output.
     RtOutput getOutput(const RtToken& name) const;
 };
 

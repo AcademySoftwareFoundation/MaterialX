@@ -9,6 +9,7 @@
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtBackdrop.h>
+#include <MaterialXRuntime/RtGeneric.h>
 #include <MaterialXRuntime/RtStage.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>

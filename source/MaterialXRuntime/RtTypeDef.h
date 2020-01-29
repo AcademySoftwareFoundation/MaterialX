@@ -52,7 +52,6 @@ public:
     static const RtToken LIGHTSHADER;
     static const RtToken SURFACEMATERIAL;
     static const RtToken VOLUMEMATERIAL;
-    static const RtToken POINTER;
     static const RtToken AUTO;
 };
 

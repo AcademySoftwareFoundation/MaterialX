@@ -33,10 +33,10 @@ public:
     /// Remove an output attribute from the graph.
     void removeOutput(const RtToken& name);
 
-    /// Return the given input.
+    /// Return the named input.
     RtInput getInput(const RtToken& name) const;
 
-    /// Return the given output.
+    /// Return the named output.
     RtOutput getOutput(const RtToken& name) const;
 
     /// Return the internal socket that corresponds

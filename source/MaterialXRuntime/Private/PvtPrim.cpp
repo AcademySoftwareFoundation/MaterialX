@@ -72,7 +72,7 @@ PvtInput* PvtPrim::createInput(const RtToken& name, const RtToken& type, uint32_
 {
     if (getAttribute(name))
     {
-        throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
+        throw ExceptionRuntimeError("An input named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
     }
 
     PvtDataHandle attrH(new PvtInput(name, type, flags, this));
@@ -86,7 +86,7 @@ PvtOutput* PvtPrim::createOutput(const RtToken& name, const RtToken& type, uint3
 {
     if (getAttribute(name))
     {
-        throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
+        throw ExceptionRuntimeError("An output named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
     }
 
     PvtDataHandle attrH(new PvtOutput(name, type, flags, this));

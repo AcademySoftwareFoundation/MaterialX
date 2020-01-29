@@ -42,7 +42,7 @@ public:
     /// Return the type of this object class.
     static RtObjType objType()
     {
-        return RtObjType::NONE;
+        return RtObjType::OBJECT;
     }
 
     /// Return true if this object is of the templated type.

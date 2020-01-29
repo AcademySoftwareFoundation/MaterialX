@@ -9,6 +9,7 @@
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtBackdrop.h>
+#include <MaterialXRuntime/RtGeneric.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 #include <MaterialXRuntime/RtTraversal.h>
 #include <MaterialXRuntime/RtApi.h>
@@ -77,40 +78,41 @@ namespace
         }
     }
 
-    void createInterface(const ElementPtr src, PvtPrim* dest)
+    template<class T>
+    void createInterface(const ElementPtr src, T schema)
     {
         for (auto elem : src->getChildrenOfType<ValueElement>())
         {
             const RtToken attrName(elem->getName());
             const RtToken attrType(elem->getType());
 
-            PvtAttribute* attr;
+            RtAttribute attr;
             if (elem->isA<Output>())
             {
-                attr = dest->createOutput(attrName, attrType);
+                attr = schema.createOutput(attrName, attrType);
             }
             else if (elem->isA<Input>())
             {
-                attr = dest->createInput(attrName, attrType);
+                attr = schema.createInput(attrName, attrType);
             }
             else
             {
-                attr = dest->createInput(attrName, attrType, RtAttrFlag::UNIFORM);
+                attr = schema.createInput(attrName, attrType, RtAttrFlag::UNIFORM);
             }
 
             const string& valueStr = elem->getValueString();
             if (!valueStr.empty())
             {
-                RtValue::fromString(attrType, valueStr, attr->getValue());
+                RtValue::fromString(attrType, valueStr, attr.getValue());
             }
             if (elem->hasColorSpace())
             {
-                attr->setColorSpace(RtToken(elem->getColorSpace()));
+                attr.setColorSpace(RtToken(elem->getColorSpace()));
             }
             // TODO: fix when units are implemented in core
             // input->setUnit(RtToken(elem->getUnit()));
 
-            readCustomMetadata(elem, attr, portdefAttrs);
+            readCustomMetadata(elem, PvtObject::ptr<PvtObject>(attr), portdefAttrs);
         }
     }
 
@@ -160,7 +162,7 @@ namespace
         readCustomMetadata(src, prim, nodedefAttrs);
 
         // Create the interface.
-        createInterface(src, prim);
+        createInterface(src, nodedef);
 
         return prim;
     }
@@ -252,6 +254,7 @@ namespace
         const RtToken nodegraphName(src->getName());
 
         PvtPrim* nodegraph = stage->createPrim(parent->getPath(), nodegraphName, RtNodeGraph::typeName());
+        RtNodeGraph schema(nodegraph->hnd());
 
         readCustomMetadata(src, nodegraph, nodegraphAttrs);
 
@@ -260,14 +263,12 @@ namespace
         const NodeDefPtr srcNodeDef = src->getNodeDef();
         if (srcNodeDef)
         {
-            createInterface(srcNodeDef, nodegraph);
+            createInterface(srcNodeDef, schema);
         }
         else
         {
-            createInterface(src, nodegraph);
+            createInterface(src, schema);
         }
-
-        RtNodeGraph schema(nodegraph->hnd());
 
         // Create all nodes and connection between node inputs and internal graph sockets.
         for (auto child : src->getChildren())

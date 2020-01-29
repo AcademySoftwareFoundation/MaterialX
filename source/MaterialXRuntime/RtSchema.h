@@ -116,7 +116,6 @@ protected:
     /// Derived classes should override this method.
     virtual bool isSupported(const PvtDataHandle& hnd) const;
 
-
 protected:
     // Handle for the prim attached to the API.
     PvtDataHandle _hnd;

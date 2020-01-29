@@ -27,27 +27,12 @@ using PvtDataHandle = RtRefPtr<PvtObject>;
 /// Identifiers for object types.
 enum class RtObjType
 {
-    NONE,
+    OBJECT,
     PRIM,
     ATTRIBUTE,
     INPUT,
     OUTPUT,
     RELATIONSHIP,
-    NUM_TYPES
-};
-
-/// Type identifiers for API's attachable to objects.
-enum class RtApiType
-{
-    PRIM,
-    ATTRIBUTE,
-    RELATIONSHIP,
-    INPUT,
-    OUTPUT,
-    NODEDEF,
-    NODE,
-    NODEGRAPH,
-    BACKDROP,
     NUM_TYPES
 };
 
@@ -75,7 +60,7 @@ public:
     /// Return the type of this object class.
     static RtObjType objType() 
     {
-        return RtObjType::NONE;
+        return RtObjType::OBJECT;
     }
 
     /// Return true if this object is of the templated type.

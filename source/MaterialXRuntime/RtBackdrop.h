@@ -21,24 +21,18 @@ class RtBackdrop : public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtBackdrop)
 
 public:
+    /// Return the contains relationship.
     RtRelationship contains() const;
+
+    /// Returns the note attribute.
     RtAttribute note() const;
+
+    /// Returns the weight attribute.
     RtAttribute width() const;
+
+    /// Returns the height attribute.
     RtAttribute height() const;
 };
-
-
-/// @class RtGeneric
-/// Schema for generic prims.
-class RtGeneric : public RtTypedSchema
-{
-    DECLARE_TYPED_SCHEMA(RtGeneric)
-
-public:
-    const RtToken& getKind() const;
-    void setKind(const RtToken& kind) const;
-};
-
 
 }
 

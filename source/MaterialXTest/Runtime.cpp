@@ -24,6 +24,7 @@
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtBackdrop.h>
+#include <MaterialXRuntime/RtGeneric.h>
 #include <MaterialXRuntime/RtPath.h>
 #include <MaterialXRuntime/RtFileIo.h>
 #include <MaterialXRuntime/RtTraversal.h>

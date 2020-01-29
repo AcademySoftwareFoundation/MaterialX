@@ -399,8 +399,6 @@ PvtTypeDefRegistry::PvtTypeDefRegistry()
     newType(RtType::VOLUMESHADER, RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_SHADER);
     newType(RtType::DISPLACEMENTSHADER, RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_SHADER);
     newType(RtType::LIGHTSHADER, RtTypeDef::BASETYPE_NONE, noneFuncs, RtTypeDef::SEMANTIC_SHADER);
-
-    newType(RtType::POINTER, RtTypeDef::BASETYPE_NONE, noneFuncs);
     newType(RtType::AUTO, RtTypeDef::BASETYPE_NONE, noneFuncs);
 }
 

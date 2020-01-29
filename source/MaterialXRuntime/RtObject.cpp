@@ -33,7 +33,7 @@ RtObject::~RtObject()
 
 RtObjType RtObject::getObjType() const
 {
-    return _hnd ? _hnd->getObjType() : RtObjType::NONE;
+    return _hnd ? _hnd->getObjType() : RtObjType::OBJECT;
 }
 
 const RtToken& RtObject::getName() const

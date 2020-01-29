@@ -46,16 +46,13 @@ class RtInput;
 class RtOutput;
 class RtRelationship;
 
-/// Shared pointer to the API instance.
-using RtApiPtr = RtRefPtr<RtApi>;
-
 /// Shared pointer to a stage.
 using RtStagePtr = RtRefPtr<RtStage>;
 
 /// Weak pointer to a stage.
 using RtStageWeakPtr = RtWeakPtr<RtStage>;
 
-/// Predicate used for filtering objects during traversal.
+/// Predicate for filtering objects during traversal.
 using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
 
 /// @class ExceptionRuntimeError
