@@ -32,6 +32,13 @@ class DocumentModifiers
     std::string filePrefixTerminator;
 };
 
+class ShadowState
+{
+  public:
+    mx::ImagePtr ambientOcclusionMap;
+    float ambientOcclusionGain = 0.0f;
+};
+
 class Material
 {
   public:
@@ -140,8 +147,7 @@ class Material
 
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                    bool directLighting, bool indirectLighting,
-                    mx::ImagePtr ambientOcclusionMap, float ambientOcclusionGain,
+                    bool directLighting, bool indirectLighting, const ShadowState& shadowState,
                     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples);
 
     /// Bind units.
