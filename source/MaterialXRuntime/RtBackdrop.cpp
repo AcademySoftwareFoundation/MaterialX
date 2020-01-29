@@ -41,22 +41,22 @@ RtPrim RtBackdrop::createPrim(const RtToken& typeName, const RtToken& name, RtPr
     return primH;
 }
 
-RtRelationship RtBackdrop::contains() const
+RtRelationship RtBackdrop::getContains() const
 {
     return prim()->getRelationship(CONTAINS)->hnd();
 }
 
-RtAttribute RtBackdrop::note() const
+RtAttribute RtBackdrop::getNote() const
 {
     return prim()->getAttribute(NOTE)->hnd();
 }
 
-RtAttribute RtBackdrop::width() const
+RtAttribute RtBackdrop::getWidth() const
 {
     return prim()->getAttribute(WIDTH)->hnd();
 }
 
-RtAttribute RtBackdrop::height() const
+RtAttribute RtBackdrop::getHeight() const
 {
     return prim()->getAttribute(HEIGHT)->hnd();
 }

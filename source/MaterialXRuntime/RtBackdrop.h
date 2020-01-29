@@ -22,16 +22,16 @@ class RtBackdrop : public RtTypedSchema
 
 public:
     /// Return the contains relationship.
-    RtRelationship contains() const;
+    RtRelationship getContains() const;
 
     /// Returns the note attribute.
-    RtAttribute note() const;
+    RtAttribute getNote() const;
 
     /// Returns the weight attribute.
-    RtAttribute width() const;
+    RtAttribute getWidth() const;
 
     /// Returns the height attribute.
-    RtAttribute height() const;
+    RtAttribute getHeight() const;
 };
 
 }

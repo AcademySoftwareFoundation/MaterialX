@@ -15,6 +15,7 @@ namespace MaterialX
 {
 
 /// @class RtNode
+/// Schema for node prims.
 class RtNode : public RtTypedSchema
 {
     DECLARE_TYPED_SCHEMA(RtNode)

@@ -24,25 +24,17 @@ public:
     ~RtApi();
 
     void initialize();
-
     void shutdown();
 
     void registerCreateFunction(const RtToken& typeName, RtPrimCreateFunc func);
-
     void unregisterCreateFunction(const RtToken& typeName);
-
     bool hasCreateFunction(const RtToken& typeName);
-
     RtPrimCreateFunc getCreateFunction(const RtToken& typeName);
 
     void registerMasterPrim(const RtPrim& prim);
-
     void unregisterMasterPrim(const RtToken& name);
-
     bool hasMasterPrim(const RtToken& name);
-
     RtPrim getMasterPrim(const RtToken& name);
-
     RtPrimIterator getMasterPrims(RtObjectPredicate predicate = nullptr);
 
     template<class T>

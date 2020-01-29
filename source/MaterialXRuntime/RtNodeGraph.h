@@ -16,6 +16,8 @@ namespace MaterialX
 
 class RtPrimIterator;
 
+/// @class RtNodeGraph
+/// Schema for nodegraph prims.
 class RtNodeGraph : public RtTypedSchema
 {
     DECLARE_TYPED_SCHEMA(RtNodeGraph)
