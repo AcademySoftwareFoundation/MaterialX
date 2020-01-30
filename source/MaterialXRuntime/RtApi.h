@@ -69,6 +69,26 @@ protected:
     void* _ptr;
 };
 
+
+class RtScopedApiHandle
+{
+public:
+    RtScopedApiHandle()
+    {
+        RtApi::get().initialize();
+    }
+
+    ~RtScopedApiHandle()
+    {
+        RtApi::get().shutdown();
+    }
+
+    RtApi* operator->()
+    {
+        return &RtApi::get();
+    }
+};
+
 }
 
 #endif

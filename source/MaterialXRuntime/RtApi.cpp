@@ -87,12 +87,33 @@ public:
 
     RtStagePtr createStage(const RtToken& name)
     {
-        if (getStage(name))
+        RtToken newName = name;
+
+        // Check if there is another stage with this name.
+        RtStagePtr otherStage = getStage(name);
+        if (otherStage)
         {
-            throw ExceptionRuntimeError("A stage with name '" + name.str() + "' already exists");
+            // Find a number to append to the name, incrementing
+            // the counter until a unique name is found.
+            string baseName = name.str();
+            int i = 1;
+            const size_t n = name.str().find_last_not_of("0123456789") + 1;
+            if (n < name.str().size())
+            {
+                const string number = name.str().substr(n);
+                i = std::stoi(number) + 1;
+                baseName = baseName.substr(0, n);
+            }
+            // Iterate until there is no other stage with the resulting name.
+            do {
+                newName = baseName + std::to_string(i++);
+                otherStage = getStage(newName);
+            } while (otherStage);
         }
-        RtStagePtr stage = RtStage::createNew(name);
-        _stages[name] = stage;
+
+        RtStagePtr stage = RtStage::createNew(newName);
+        _stages[newName] = stage;
+
         return stage;
     }
 

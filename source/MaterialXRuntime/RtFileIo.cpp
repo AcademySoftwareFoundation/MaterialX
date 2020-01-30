@@ -24,13 +24,13 @@ namespace MaterialX
 
 namespace
 {
-    // Lists of known attributes which are handled explicitly by import/export.
-    static const RtTokenSet nodedefAttrs    = { RtToken("name"), RtToken("type"), RtToken("node") };
-    static const RtTokenSet portdefAttrs    = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("colorspace"), RtToken("unit") };
-    static const RtTokenSet nodeAttrs       = { RtToken("name"), RtToken("type"), RtToken("node") };
-    static const RtTokenSet nodegraphAttrs  = { RtToken("name") };
-    static const RtTokenSet genericAttrs    = { RtToken("name") };
-    static const RtTokenSet stageAttrs      = {};
+    // Lists of known metadata which are handled explicitly by import/export.
+    static const RtTokenSet nodedefMetadata     = { RtToken("name"), RtToken("type"), RtToken("node") };
+    static const RtTokenSet attrMetadata        = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("colorspace"), RtToken("unit") };
+    static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node") };
+    static const RtTokenSet nodegraphMetadata   = { RtToken("name") };
+    static const RtTokenSet genericMetadata     = { RtToken("name"), RtToken("kind") };
+    static const RtTokenSet stageMetadata       = {};
 
     PvtPrim* findNodeOrThrow(const RtToken& name, PvtPrim* parent)
     {
@@ -62,19 +62,33 @@ namespace
         return output;
     }
 
-    void readCustomMetadata(const ElementPtr src, PvtObject* dest, const RtTokenSet& knownAttrNames)
+    void readMetadata(const ElementPtr src, PvtObject* dest, const RtTokenSet& ignoreList)
     {
-        // Read in all custom metadata so we can export the element again
+        // Read in all metadata so we can export the element again
         // without loosing data.
         for (const string& name : src->getAttributeNames())
         {
             const RtToken mdName(name);
-            if (!knownAttrNames.count(mdName))
+            if (!ignoreList.count(mdName))
             {
                 // Store all custom attributes as string tokens.
                 RtTypedValue* md = dest->addMetadata(mdName, RtType::TOKEN);
                 md->getValue().asToken() = src->getAttribute(name);
             }
+        }
+    }
+
+    void writeMetadata(const PvtObject* src, ElementPtr dest, const RtTokenSet& ignoreList)
+    {
+        for (const RtToken name : src->getMetadataOrder())
+        {
+            if (ignoreList.count(name) || 
+                name.str().size() > 0 && name.str().at(0) == '_') // Metadata with "_" prefix are private
+            {
+                continue;
+            }
+            const RtTypedValue* md = src->getMetadata(name);
+            dest->setAttribute(name.str(), md->getValueString());
         }
     }
 
@@ -112,7 +126,7 @@ namespace
             // TODO: fix when units are implemented in core
             // input->setUnit(RtToken(elem->getUnit()));
 
-            readCustomMetadata(elem, PvtObject::ptr<PvtObject>(attr), portdefAttrs);
+            readMetadata(elem, PvtObject::ptr<PvtObject>(attr), attrMetadata);
         }
     }
 
@@ -136,20 +150,6 @@ namespace
         }
     }
 
-    void writeMetadata(const PvtObject* src, ElementPtr dest)
-    {
-        for (const RtToken name : src->getMetadataOrder())
-        {
-            // Ignore metadata with "_" prefix as these are private.
-            if (name.str().size() > 0 && name.str().at(0) == '_')
-            {
-                continue;
-            }
-            const RtTypedValue* md = src->getMetadata(name);
-            dest->setAttribute(name.str(), md->getValueString());
-        }
-    }
-
     PvtPrim* readNodeDef(const NodeDefPtr& src, PvtStage* stage)
     {
         const RtToken name(src->getName());
@@ -159,7 +159,7 @@ namespace
         RtNodeDef nodedef(prim->hnd());
         nodedef.setNode(nodeName);
 
-        readCustomMetadata(src, prim, nodedefAttrs);
+        readMetadata(src, prim, nodedefMetadata);
 
         // Create the interface.
         createInterface(src, nodedef);
@@ -227,7 +227,7 @@ namespace
         const RtToken nodeName(src->getName());
         PvtPrim* node = stage->createPrim(parent->getPath(), nodeName, nodedefName);
 
-        readCustomMetadata(src, node, nodeAttrs);
+        readMetadata(src, node, attrMetadata);
 
         // Copy input values.
         for (auto elem : src->getChildrenOfType<ValueElement>())
@@ -256,7 +256,7 @@ namespace
         PvtPrim* nodegraph = stage->createPrim(parent->getPath(), nodegraphName, RtNodeGraph::typeName());
         RtNodeGraph schema(nodegraph->hnd());
 
-        readCustomMetadata(src, nodegraph, nodegraphAttrs);
+        readMetadata(src, nodegraph, nodegraphMetadata);
 
         // Create the interface either from a nodedef if given
         // otherwise from the graph itself.
@@ -338,7 +338,7 @@ namespace
         RtGeneric generic(prim->hnd());
         generic.setKind(category);
 
-        readCustomMetadata(src, prim, genericAttrs);
+        readMetadata(src, prim, genericMetadata);
 
         for (auto child : src->getChildren())
         {
@@ -363,7 +363,7 @@ namespace
         const std::string& uri = doc->getSourceUri();
         stage->addSourceUri(RtToken(uri));
 
-        readCustomMetadata(doc, stage->getRootPrim(), stageAttrs);
+        readMetadata(doc, stage->getRootPrim(), stageMetadata);
 
         RtReadOptions::ReadFilter filter = readOptions ? readOptions->readFilter : nullptr;
 
@@ -418,7 +418,7 @@ namespace
         RtNodeDef nodedef(src->hnd());
 
         NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName(), EMPTY_STRING, nodedef.getNode());
-        writeMetadata(src, destNodeDef);
+        writeMetadata(src, destNodeDef, nodedefMetadata);
 
         for (const PvtDataHandle attrH : src->getAllAttributes())
         {
@@ -454,7 +454,7 @@ namespace
             //    destInput->setUnit(input->getUnit().str());
             //}
 
-            writeMetadata(attr, destPort);
+            writeMetadata(attr, destPort, attrMetadata);
         }
     }
 
@@ -545,7 +545,7 @@ namespace
             }
         }
 
-        writeMetadata(src, destNode);
+        writeMetadata(src, destNode, nodeMetadata);
 
         return destNode;
     }
@@ -598,7 +598,7 @@ namespace
     void writeNodeGraph(const PvtPrim* src, DocumentPtr dest)
     {
         NodeGraphPtr destNodeGraph = dest->addNodeGraph(src->getName());
-        writeMetadata(src, destNodeGraph);
+        writeMetadata(src, destNodeGraph, nodegraphMetadata);
 
         RtNodeGraph nodegraph(src->hnd());
 
@@ -636,7 +636,7 @@ namespace
         RtGeneric generic(src->hnd());
 
         ElementPtr elem = dest->addChildOfCategory(generic.getKind(), generic.getName());
-        writeMetadata(src, elem);
+        writeMetadata(src, elem, genericMetadata);
 
         for (auto child : src->getChildren())
         {
@@ -666,7 +666,7 @@ namespace
 
     void writeDocument(DocumentPtr& doc, PvtStage* stage, const RtWriteOptions* writeOptions)
     {
-        writeMetadata(stage->getRootPrim(), doc);
+        writeMetadata(stage->getRootPrim(), doc, RtTokenSet());
 
         // Write out any dependent includes
         if (writeOptions && writeOptions->writeIncludes)
