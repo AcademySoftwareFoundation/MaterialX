@@ -36,13 +36,13 @@ struct StageIteratorData
 
 RtAttrIterator::RtAttrIterator(const RtPrim& prim, RtObjectPredicate predicate) :
     _prim(nullptr),
-    _current(0),
+    _current(-1),
     _predicate(predicate)
 {
     if (prim)
     {
         _prim = PvtObject::ptr<PvtPrim>(prim);
-        _prim = _prim->getAllAttributes().empty() ? nullptr : _prim;
+        ++*this;
     }
 }
 
@@ -76,13 +76,13 @@ const RtAttrIterator& RtAttrIterator::end()
 
 RtPrimIterator::RtPrimIterator(const RtPrim& prim, RtObjectPredicate predicate) :
     _prim(nullptr),
-    _current(0),
+    _current(-1),
     _predicate(predicate)
 {
     if (prim)
     {
         _prim = PvtObject::ptr<PvtPrim>(prim);
-        _prim = _prim->getAllChildren().empty() ? nullptr : _prim;
+        ++*this;
     }
 }
 
@@ -116,7 +116,7 @@ const RtPrimIterator& RtPrimIterator::end()
 
 RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
     _ptr(nullptr),
-    _current(0)
+    _current(-1)
 {
     if (obj.getObjType() == RtObjType::OUTPUT)
     {
@@ -128,6 +128,7 @@ RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
         PvtRelationship* rel = PvtObject::ptr<PvtRelationship>(obj);
         _ptr = rel->_targets.empty() ? nullptr : &rel->_targets;
     }
+    ++*this;
 }
 
 RtObject RtConnectionIterator::operator*() const

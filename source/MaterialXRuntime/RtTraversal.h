@@ -51,7 +51,7 @@ public:
     /// Empty constructor.
     RtAttrIterator() :
         _prim(nullptr),
-        _current(0)
+        _current(-1)
     {}
 
     /// Constructor, setting the prim to iterate on,
@@ -99,8 +99,7 @@ public:
     /// Force the iterator to terminate the traversal.
     void abort()
     {
-        _prim = nullptr;
-        _current = 0;
+        *this = end();
     }
 
     /// Interpret this object as an iteration range,
@@ -115,7 +114,7 @@ public:
 
 private:
     const PvtPrim* _prim;
-    size_t _current;
+    int _current;
     RtObjectPredicate _predicate;
 };
 
@@ -131,7 +130,7 @@ public:
     /// Empty constructor.
     RtPrimIterator() :
         _prim(nullptr),
-        _current(0)
+        _current(-1)
     {}
 
     /// Constructor, setting the prim to iterate on,
@@ -179,8 +178,7 @@ public:
     /// Force the iterator to terminate the traversal.
     void abort()
     {
-        _prim = nullptr;
-        _current = 0;
+        *this = end();
     }
 
     /// Interpret this object as an iteration range,
@@ -195,7 +193,7 @@ public:
 
 private:
     const PvtPrim* _prim;
-    size_t _current;
+    int _current;
     RtObjectPredicate _predicate;
 };
 
@@ -208,7 +206,7 @@ public:
     /// Empty constructor.
     RtConnectionIterator() :
         _ptr(nullptr),
-        _current(0)
+        _current(-1)
     {}
 
     /// Constructor, setting the output or relationship to iterate on.
@@ -253,8 +251,7 @@ public:
     /// Force the iterator to terminate the traversal.
     void abort()
     {
-        _ptr = nullptr;
-        _current = 0;
+        *this = end();
     }
 
     /// Interpret this object as an iteration range,
@@ -269,7 +266,7 @@ public:
 
 private:
     void* _ptr;
-    size_t _current;
+    int _current;
 };
 
 /// @class RtStageIterator
