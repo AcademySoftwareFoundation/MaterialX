@@ -694,9 +694,10 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
     }
 }
 
-/*
 TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 {
+    mx::RtScopedApiHandle api;
+
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
  
@@ -711,8 +712,8 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 
     // Create a nodegraph.
     mx::RtNodeGraph graph = stage->createPrim(mx::RtNodeGraph::typeName());
-    graph.createAttribute(IN, mx::RtType::FLOAT);
-    graph.createAttribute(OUT, mx::RtType::FLOAT, mx::RtAttrFlag::OUTPUT);
+    graph.createInput(IN, mx::RtType::FLOAT);
+    graph.createOutput(OUT, mx::RtType::FLOAT);
     mx::RtInput graphIn = graph.getInput(IN);
     mx::RtOutput graphOut = graph.getOutput(OUT);
     mx::RtOutput graphInSocket = graph.getInputSocket(IN);
@@ -724,18 +725,18 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 
     // Add nodes to the graph.
     mx::RtNodeDef addNodeDef = stage->getPrimAtPath("/ND_add_float");
-    mx::RtNode add1 = stage->createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
-    mx::RtNode add2 = stage->createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
-    mx::RtNode::connect(graphInSocket, add1.getInput(IN1));
-    mx::RtNode::connect(add1.getOutput(OUT), add2.getInput(IN1));
-    mx::RtNode::connect(add2.getOutput(OUT), graphOutSocket);
+    mx::RtNode add1 = stage->createPrim(graph.getPath(), NONAME, addNodeDef.getName());
+    mx::RtNode add2 = stage->createPrim(graph.getPath(), NONAME, addNodeDef.getName());
+    graphInSocket.connect(add1.getInput(IN1));
+    add1.getOutput(OUT).connect(add2.getInput(IN1));
+    add2.getOutput(OUT).connect(graphOutSocket);
 
     // Add an unconnected node.
-    stage->createPrim(graph.getPath(), NONAME, mx::RtNode::typeName(), addNodeDef.getObject());
+    stage->createPrim(graph.getPath(), NONAME, addNodeDef.getName());
 
     // Create a node on root level and connect it downstream after the graph.
-    mx::RtNode add3 = stage->createPrim(mx::RtNode::typeName(), addNodeDef.getObject());
-    mx::RtNode::connect(graphOut, add3.getInput(IN1));
+    mx::RtNode add3 = stage->createPrim(addNodeDef.getName());
+    graphOut.connect(add3.getInput(IN1));
 
     mx::RtWriteOptions options;
     options.writeIncludes = false;
@@ -764,6 +765,8 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 
 TEST_CASE("Runtime: Rename", "[runtime]")
 {
+    mx::RtScopedApiHandle api;
+
     // Load in stdlib as a referenced stage ("libs").
     mx::RtStagePtr libStage = api->createStage(LIBS);
     mx::FileSearchPath searchPath;
@@ -776,11 +779,10 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     stage->addReference(libStage);
 
     // Create some nodes.
-    mx::RtObject nodedefObj = stage->getPrimAtPath("/ND_add_float");
-    mx::RtNodeDef nodedef(nodedefObj);
-    REQUIRE(nodedef.isValid());
-    mx::RtNode node1 = stage->createPrim(mx::RtNode::typeName(), nodedefObj);
-    mx::RtNode node2 = stage->createPrim(mx::RtNode::typeName(), nodedefObj);
+    mx::RtPrim nodedefPrim = stage->getPrimAtPath("/ND_add_float");
+    REQUIRE(nodedefPrim.isValid());
+    mx::RtNode node1 = stage->createPrim(nodedefPrim.getName());
+    mx::RtNode node2 = stage->createPrim(nodedefPrim.getName());
     REQUIRE(node1);
     REQUIRE(node2);
     REQUIRE(node1.getName() == "add1");
@@ -809,6 +811,8 @@ TEST_CASE("Runtime: Rename", "[runtime]")
 
 TEST_CASE("Runtime: Stage References", "[runtime]")
 {
+    mx::RtScopedApiHandle api;
+
     // Load in stdlib as a referenced stage ("libs").
     mx::RtStagePtr libStage = api->createStage(LIBS);
     mx::FileSearchPath searchPath;
@@ -821,10 +825,9 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     stage->addReference(libStage);
 
     // Test access and usage of contents from the referenced library.
-    mx::RtObject nodedefObj = stage->getPrimAtPath("/ND_complex_ior");
-    mx::RtNodeDef nodedef(nodedefObj);
+    mx::RtPrim nodedef = stage->getPrimAtPath("/ND_complex_ior");
     REQUIRE(nodedef.isValid());
-    mx::RtNode node1 = stage->createPrim(mx::RtNode::typeName(), nodedefObj);
+    mx::RtNode node1 = stage->createPrim(nodedef.getName());
     REQUIRE(node1.isValid());
 
     // Write the main stage to a new document,
@@ -847,6 +850,8 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
 
 TEST_CASE("Runtime: Traversal", "[runtime]")
 {
+    mx::RtScopedApiHandle api;
+
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
@@ -859,19 +864,18 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
     for (auto it = libStage->traverse(); !it.isDone(); ++it)
     {
-        switch ((*it).getObjType())
+        const mx::RtToken& typeName = (*it).getTypeName();
+        if (typeName == mx::RtNode::typeName())
         {
-        case mx::RtObjType::NODE:
             nodeCount++;
-            break;
-        case mx::RtObjType::NODEDEF:
+        }
+        else if (typeName == mx::RtNodeDef::typeName())
+        {
             nodeDefCount++;
-            break;
-        case mx::RtObjType::NODEGRAPH:
+        }
+        else if (typeName == mx::RtNodeGraph::typeName())
+        {
             nodeGraphCount++;
-            break;
-        default:
-            break;
         }
     }
 
@@ -890,80 +894,51 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     mx::RtStagePtr stage = api->createStage(MAIN);
     stage->addReference(libStage);
 
-    mx::RtNodeDef nodedef = stage->getPrimAtPath("/ND_subtract_vector3");
-    REQUIRE(nodedef);
-    mx::RtObject nodeObj = stage->createPrim(mx::RtNode::typeName(), nodedef.getObject());
+    mx::RtPrim nodedef = stage->getPrimAtPath("/ND_subtract_vector3");
+    mx::RtObject nodeObj = stage->createPrim(nodedef.getName());
     REQUIRE(nodeObj);
 
     // Travers using a filter to return only node objects.
-    mx::RtObjTypePredicate<mx::RtObjType::NODE> nodeFilter;
+    mx::RtSchemaPredicate<mx::RtNode> nodeFilter;
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
     for (auto it = stage->traverse(nodeFilter); !it.isDone(); ++it)
     {
-        switch ((*it).getObjType())
+        const mx::RtToken& typeName = (*it).getTypeName();
+        if (typeName == mx::RtNode::typeName())
         {
-        case mx::RtObjType::NODE:
             nodeCount++;
-            break;
-        case mx::RtObjType::NODEDEF:
+        }
+        else if (typeName == mx::RtNodeDef::typeName())
+        {
             nodeDefCount++;
-            break;
-        case mx::RtObjType::NODEGRAPH:
+        }
+        else if (typeName == mx::RtNodeGraph::typeName())
+        {
             nodeGraphCount++;
-            break;
-        default:
-            break;
         }
     }
     REQUIRE(nodeCount == 1);
     REQUIRE(nodeDefCount == 0);
     REQUIRE(nodeGraphCount == 0);
 
-    // Travers using a filter to return only objects supporting the nodegraph API.
-    mx::RtApiTypePredicate<mx::RtApiType::NODEGRAPH> apiFilter;
-    nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = stage->traverse(apiFilter); !it.isDone(); ++it)
-    {
-        switch ((*it).getObjType())
-        {
-        case mx::RtObjType::NODE:
-            nodeCount++;
-            break;
-        case mx::RtObjType::NODEDEF:
-            nodeDefCount++;
-            break;
-        case mx::RtObjType::NODEGRAPH:
-            nodeGraphCount++;
-            break;
-        default:
-            break;
-        }
-    }
-    REQUIRE(nodeCount == 0);
-    REQUIRE(nodeDefCount == 0);
-    REQUIRE(nodeGraphCount == libNodeGraphCount);
-
-    // Traverse a nodegraph using tree traversal.
+    // Traverse nodes on a nodegraph
     mx::RtNodeGraph nodegraph = stage->getPrimAtPath("/NG_tiledimage_float");
     REQUIRE(nodegraph);
     nodeCount = 0;
-    for (auto it = nodegraph.getChildren(nodeFilter); !it.isDone(); ++it)
+    for (auto it = nodegraph.getNodes(); !it.isDone(); ++it)
     {
         nodeCount++;
     }
     REQUIRE(nodeCount == 5);
 
     // Filter for finding input attributes.
-    auto inputFilter = [](const mx::RtObject& obj) -> bool
-    {
-        return mx::RtAttribute(obj).isInput();
-    };
+    mx::RtObjTypePredicate<mx::RtObjType::INPUT> inputFilter;
 
     // Travers a nodedef finding all its inputs.
     mx::RtNodeDef generalized_schlick_brdf = stage->getPrimAtPath("/ND_generalized_schlick_brdf");
     REQUIRE(generalized_schlick_brdf);
     size_t inputCount = 0;
-    for (auto it = generalized_schlick_brdf.getAttributes(inputFilter); !it.isDone(); ++it)
+    for (auto it = generalized_schlick_brdf.getPrim().getAttributes(inputFilter); !it.isDone(); ++it)
     {
         inputCount++;
     }
@@ -972,10 +947,10 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     // Filter for finding nodedefs of BSDF nodes.
     auto bsdfFilter = [](const mx::RtObject& obj) -> bool
     {
-        if (obj.hasApi(mx::RtApiType::NODEDEF))
+        mx::RtNodeDef nodedef(obj.asA<mx::RtPrim>());
+        if (nodedef.isValid())
         {
-            mx::RtNodeDef nodedef(obj);
-            mx::RtAttribute out = nodedef.getAttribute(OUT);
+            mx::RtOutput out = nodedef.getOutput(OUT);
             return (out && out.getType() == mx::RtType::BSDF);
         }
         return false;
@@ -997,5 +972,5 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     }
     REQUIRE(bsdfCount == libBsdfCount);
 }
-*/
+
 #endif // MATERIALX_BUILD_RUNTIME

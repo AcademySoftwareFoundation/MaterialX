@@ -32,10 +32,10 @@ namespace
     static const RtTokenSet genericMetadata     = { RtToken("name"), RtToken("kind") };
     static const RtTokenSet stageMetadata       = {};
 
-    PvtPrim* findNodeOrThrow(const RtToken& name, PvtPrim* parent)
+    PvtPrim* findPrimOrThrow(const RtToken& name, PvtPrim* parent)
     {
         PvtPrim* prim = parent->getChild(name);
-        if (!(prim && prim->getTypeName() == RtNode::typeName()))
+        if (!prim)
         {
             throw ExceptionRuntimeError("Can't find node '" + name.str() + "' in '" + parent->getName().str() + "'");
         }
@@ -134,14 +134,14 @@ namespace
     {
         for (const NodePtr& nodeElem : nodeElements)
         {
-            PvtPrim* node = findNodeOrThrow(RtToken(nodeElem->getName()), parent);
+            PvtPrim* node = findPrimOrThrow(RtToken(nodeElem->getName()), parent);
             for (const InputPtr& elemInput : nodeElem->getInputs())
             {
                 PvtInput* input = findInputOrThrow(RtToken(elemInput->getName()), node);
                 const string& connectedNodeName = elemInput->getNodeName();
                 if (!connectedNodeName.empty())
                 {
-                    PvtPrim* connectedNode = findNodeOrThrow(RtToken(connectedNodeName), parent);
+                    PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), parent);
                     const RtToken outputName(elemInput->getOutputString());
                     PvtOutput* output = findOutputOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtAttribute::DEFAULT_OUTPUT_NAME, connectedNode);
                     output->connect(input);
@@ -318,7 +318,7 @@ namespace
                     throw ExceptionRuntimeError("Output '" + elem->getName() + "' does not match an internal output socket on the nodegraph '" + path.asString() + "'");
                 }
 
-                PvtPrim* connectedNode = findNodeOrThrow(RtToken(connectedNodeName), nodegraph);
+                PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), nodegraph);
 
                 const RtToken outputName(elem->getOutputString());
                 RtOutput output(findOutputOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtAttribute::DEFAULT_OUTPUT_NAME, connectedNode)->hnd());
