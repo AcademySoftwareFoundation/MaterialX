@@ -36,6 +36,11 @@ void RtStageManager::deleteStage(const string& stageName)
     _stageManager->deleteStage(stageName);
 }
 
+void RtStageManager::renameStage(const string& oldName, const string& newName)
+{
+    _stageManager->renameStage(oldName, newName);
+}
+
 bool RtStageManager::hasStage(const string& stageName) const
 {
     return _stageManager->hasStage(stageName);
@@ -44,6 +49,11 @@ bool RtStageManager::hasStage(const string& stageName) const
 RtObject RtStageManager::getStageObject(const string& stageName) const
 {
     return _stageManager->getStageObject(stageName);
+}
+
+const std::unordered_map<string, RtObject>& RtStageManager::getStageObjects() const
+{
+    return _stageManager->getStageObjects();
 }
 
 }

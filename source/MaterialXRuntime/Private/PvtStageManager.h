@@ -25,11 +25,17 @@ class PvtStageManager
     /// Deletes a stage known to the stage manager
     void deleteStage(const string& stageName);
 
+    /// Renames a stage known to the stage manager
+    void renameStage(const string& oldName, const string& newName);
+
     /// Whether the stage manager contains a stage with the given name
     bool hasStage(const string& stageName) const;
 
     /// Retrieves a stage from the stage manager
     RtObject getStageObject(const string& stageName) const;
+
+    /// Retrieve the stage objects from the stage manager
+    const std::unordered_map<string, RtObject>& getStageObjects() const;
 
   private:
     std::unordered_map<string, RtObject> _stages;
