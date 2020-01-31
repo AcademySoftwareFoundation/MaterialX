@@ -295,7 +295,6 @@ TEST_CASE("Runtime: Paths", "[runtime]")
     mx::RtObject graph = stage->createPrim("/graph", mx::RtNodeGraph::typeName());
     mx::RtObject subgraph = stage->createPrim("/graph/subgraph", mx::RtNodeGraph::typeName());
     mx::RtObject subsubgraph = stage->createPrim("/graph/subgraph/subsubgraph", mx::RtNodeGraph::typeName());
-    REQUIRE(graph.isA<mx::RtPrim>());
 
     mx::RtPath path1(graph);
     mx::RtPath path2(subgraph);
@@ -324,6 +323,8 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(nodedefPrim);
     REQUIRE(nodedefPrim.isValid());
     REQUIRE(nodedefPrim.getTypeName() == mx::RtNodeDef::typeName());
+    REQUIRE(nodedefPrim.hasApi<mx::RtNodeDef>());
+
     mx::RtNodeDef nodedef(nodedefPrim);
     REQUIRE(nodedef);
     REQUIRE(nodedef.isValid());
@@ -337,6 +338,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
 
     mx::RtPrim nodePrim = stage->createPrim(nodedefPrim.getName());
     REQUIRE(nodePrim);
+    REQUIRE(nodePrim.hasApi<mx::RtNode>());
     mx::RtNode node(nodePrim);
     REQUIRE(node);
     REQUIRE(node.getTypeName() == mx::RtNode::typeName());
@@ -345,6 +347,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
 
     mx::RtPrim graphPrim = stage->createPrim(mx::RtNodeGraph::typeName());
     REQUIRE(graphPrim);
+    REQUIRE(graphPrim.hasApi<mx::RtNodeGraph>());
     mx::RtNodeGraph graph(graphPrim);
     REQUIRE(graph);
     REQUIRE(graph.getTypeName() == mx::RtNodeGraph::typeName());
@@ -352,6 +355,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
 
     mx::RtPrim backdropPrim = stage->createPrim(mx::RtBackdrop::typeName());
     REQUIRE(backdropPrim);
+    REQUIRE(backdropPrim.hasApi<mx::RtBackdrop>());
     mx::RtBackdrop backdrop(backdropPrim);
     REQUIRE(backdrop);
     REQUIRE(backdrop.getTypeName() == mx::RtBackdrop::typeName());
@@ -360,17 +364,32 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(backdrop.getContains().hasTargets());
     backdrop.getContains().clearTargets();
     REQUIRE(!backdrop.getContains().hasTargets());
-    backdrop.getNote().getValue().asString() = "These are my favourite nodes";
-    REQUIRE(backdrop.getNote().getValue().asString() == "These are my favourite nodes");
+    backdrop.getNote().getValue().asString() = "These aren't the Droids you're looking for";
+    REQUIRE(backdrop.getNote().getValue().asString() == "These aren't the Droids you're looking for");
 
     mx::RtPrim genericPrim = stage->createPrim("/generic1", mx::RtGeneric::typeName());
     REQUIRE(genericPrim);
+    REQUIRE(genericPrim.hasApi<mx::RtGeneric>());
     mx::RtGeneric generic(genericPrim);
     REQUIRE(generic);
     REQUIRE(generic.getTypeName() == mx::RtGeneric::typeName());
     mx::RtToken kind("mykindofprim");
     generic.setKind(kind);
     REQUIRE(generic.getKind() == kind);
+
+    // Test object casting
+    REQUIRE(backdropPrim.isA<mx::RtObject>());
+    REQUIRE(backdropPrim.isA<mx::RtPrim>());
+    mx::RtObject obj1 = backdrop.getNote();
+    mx::RtObject obj2 = backdrop.getContains();
+    REQUIRE(obj1.isA<mx::RtAttribute>());
+    REQUIRE(!obj1.isA<mx::RtRelationship>());
+    REQUIRE(obj2.isA<mx::RtRelationship>());
+    REQUIRE(!obj2.isA<mx::RtAttribute>());
+    mx::RtAttribute attr1 = obj1.asA<mx::RtAttribute>();
+    mx::RtAttribute attr2 = obj2.asA<mx::RtAttribute>();
+    REQUIRE(attr1);
+    REQUIRE(!attr2);
 }
 
 TEST_CASE("Runtime: Nodes", "[runtime]")

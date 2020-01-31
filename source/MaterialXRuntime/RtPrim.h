@@ -37,6 +37,15 @@ public:
         return RtObjType::PRIM;
     }
 
+    /// Return true if this prim supports the templated schema class.
+    template<class T>
+    bool hasApi() const
+    {
+        static_assert(std::is_base_of<RtSchemaBase, T>::value,
+            "Templated type must be a concrete subclass of RtSchemaBase");
+        return T(*this).isValid();
+    }
+
     const RtToken getTypeName() const;
 
     /// Add a relationship to the prim.

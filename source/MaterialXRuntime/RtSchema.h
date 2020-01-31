@@ -25,7 +25,7 @@ public:
     /// Destructor.
     virtual ~RtSchemaBase() {};
 
-    /// Return true if the given prim is supported by this API.
+    /// Return true if the given prim is supported by this schema.
     bool isSupported(const RtPrim& prim) const;
 
     /// Return true if the attached prim is valid

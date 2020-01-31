@@ -58,6 +58,8 @@ const RtToken& RtTypedSchema::getTypeName() const
 
 bool RtTypedSchema::isSupported(const PvtDataHandle& hnd) const
 {
+    // TODO: Implement proper type information and checking
+    // to handle class inheritance.
     return hnd->asA<PvtPrim>()->getTypeName() == getTypeName();
 }
 
