@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
+<materialx version="1.37" cms="ocio" colorspace="lin_rec709">
 
   <!-- Define a basic surface shaders with two implementations; first might be
        applicable to several renderers, second is specific to rmanris and has

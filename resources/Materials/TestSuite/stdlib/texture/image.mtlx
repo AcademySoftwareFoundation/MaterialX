@@ -4,7 +4,7 @@
 Basic image unit test with one image node for each variation in input type.
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <output name="image4_output" type="color4" nodename="image4" />
    <image name="image4" type="color4">
       <parameter name="file" type="filename" value="resources/Images/grid.png" />

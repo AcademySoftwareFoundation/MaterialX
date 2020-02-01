@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="dot_float" type="" xpos="4.58053" ypos="13.8678">
     <dot name="dot1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.5000" nodename="constant1" />

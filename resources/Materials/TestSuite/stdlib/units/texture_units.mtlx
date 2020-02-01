@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <material name="Unit_test">
     <shaderref name="ut_shader" node="standard_surface">
       <bindinput name="base_color" type="color3" output="base_color_output" nodegraph="Unit_test_inputGraph" />

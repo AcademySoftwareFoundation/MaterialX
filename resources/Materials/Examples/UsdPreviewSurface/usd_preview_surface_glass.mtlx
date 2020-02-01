@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <material name="USD_Glass">
     <shaderref name="SR_glass" node="UsdPreviewSurface">
       <bindinput name="diffuseColor" type="color3" value="0.0, 0.0, 0.0" />

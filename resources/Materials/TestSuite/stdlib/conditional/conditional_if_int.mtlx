@@ -5,7 +5,7 @@ Basic conditional if* function tests each test is in a separate graph for each v
 Tests are for integer and boolean comparisons.
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <!-- greater int condition -->
   <nodegraph name="ifgreater_float" type="" xpos="6.23104" ypos="18.6971">
     <ifgreater name="ifgreater1" type="float" xpos="8.74483" ypos="4.42">

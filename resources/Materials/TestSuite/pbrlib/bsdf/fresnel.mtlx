@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="fresnel_test">
     <fresnel name="fresnel1" type="float">
       <input name="ior" type="float" value="1.52" />

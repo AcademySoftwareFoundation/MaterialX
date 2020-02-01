@@ -1,6 +1,13 @@
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
+assign_source_group("Source Files" ${materialx_source})
+assign_source_group("Header Files" ${materialx_headers})
+
+if(POLICY CMP0072)
+    cmake_policy(SET CMP0072 OLD)
+endif()
+
 if(APPLE)
     find_library(COCOA_FRAMEWORK Cocoa)
     find_package(OpenGL REQUIRED)
@@ -25,9 +32,6 @@ elseif(UNIX)
     endif(NOT OPENGL_FOUND)
     include_directories(${X11_INCLUDE_DIR})
 endif()
-
-assign_source_group("Source Files" ${materialx_source})
-assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXRenderGlsl STATIC ${materialx_source} ${materialx_headers})
 

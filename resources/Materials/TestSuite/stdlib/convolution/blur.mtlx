@@ -2,7 +2,7 @@
 <!---
    Blur unit test
 -->
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="blur_float" type="" xpos="8.42368" ypos="11.8375">
     <image name="image1" type="float" xpos="4.26897" ypos="10.02">
       <parameter name="file" type="filename" value="resources/Images/marble.png" />

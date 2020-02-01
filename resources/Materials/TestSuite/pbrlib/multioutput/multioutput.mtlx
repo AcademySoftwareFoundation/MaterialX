@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
 
   <!-- Test multioutput node complex_ior connected directly to output -->
   <nodegraph name="multioutput_test1">

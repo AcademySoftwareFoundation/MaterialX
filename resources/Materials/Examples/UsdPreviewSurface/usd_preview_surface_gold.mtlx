@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <material name="USD_Gold">
     <shaderref name="SR_gold" node="UsdPreviewSurface">
       <bindinput name="diffuseColor" type="color3" value="0.944, 0.776, 0.373" />

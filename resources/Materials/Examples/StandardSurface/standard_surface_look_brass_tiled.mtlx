@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36" xmlns:xi="http://www.w3.org/2001/XInclude">
+<materialx version="1.37" xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="standard_surface_brass_tiled.mtlx"/>
   <xi:include href="standard_surface_greysphere_calibration.mtlx"/>
   <look name="Brass_Look">

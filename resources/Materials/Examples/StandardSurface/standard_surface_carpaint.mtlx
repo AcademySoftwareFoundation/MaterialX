@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <material name="Car_Paint">
     <shaderref name="SR_carpaint" node="standard_surface">
       <bindinput name="base" type="float" value="0.5" />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <collection name="col1" includegeom="/root/world/geo/g[123]"/>
   <collection name="col2" includegeom="/root/world/geo/g[4567]"/>
   <collection name="col3" includegeom="/root/world/geo/g[89]"/>

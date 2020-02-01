@@ -16,7 +16,7 @@ graph per math function for each variation in input type.
 - max
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <nodegraph name="ln_nodegraph" type="" xpos="5.88123" ypos="14.6822">
       <ln name="ln1" type="float" xpos="5.74483" ypos="4.74">
          <input name="in" type="float" value="0.0" nodename="constant1" />

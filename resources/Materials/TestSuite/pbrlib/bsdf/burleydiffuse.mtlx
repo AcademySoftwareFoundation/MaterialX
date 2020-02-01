@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36" require="">
+<materialx version="1.37">
   <nodegraph name="test_burleybsdf">
     <burley_diffuse_brdf name="burleybsdf1" type="BSDF">
       <input name="color" type="color3" value="0.3, 0.3, 1.0" />

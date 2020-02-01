@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <nodedef name="ND_mysurface" node="mysurface">
     <input name="diffuse" type="float" value="1.0"/>
     <input name="diffuseColor" type="color3" value="0.8, 0.8, 0.8"/>
