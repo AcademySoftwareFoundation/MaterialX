@@ -22,7 +22,7 @@ class RtPath;
 /// A stage is the root container of material description data.
 /// Creates and owns the primitives that builds up the material
 /// description graph hierarchy.
-class RtStage : public RtRefBase<RtStage>
+class RtStage : public RtSharedBase<RtStage>
 {
 public:
     /// Destructor

@@ -12,7 +12,7 @@
 
 #include <unordered_map>
 #include <set>
-#include <memory>
+#include <atomic>
 
 /// @file
 /// TODO: Docs
@@ -30,8 +30,10 @@ using PvtDataHandleSet = std::set<PvtDataHandle>;
 
 // Class representing an object in the scene hierarchy.
 // This is the base class for prims, attributes and relationships.
-class PvtObject : public RtRefBase<PvtObject>
+class PvtObject
 {
+    DECLARE_REF_COUNTED_CLASS(PvtObject)
+
 public:
     // Return the type id for this object.
     RtObjType getObjType() const
@@ -71,7 +73,7 @@ public:
     // Return a handle for the object.
     PvtDataHandle hnd() const
     {
-        return const_cast<PvtObject*>(this)->shared_from_this();
+        return PvtDataHandle(const_cast<PvtObject*>(this));
     }
 
     // Return a handle for the given object.

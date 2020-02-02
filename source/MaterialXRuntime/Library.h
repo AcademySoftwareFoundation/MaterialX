@@ -14,26 +14,12 @@
 
 #include <unordered_set>
 #include <limits>
-#include <memory>
 
 namespace MaterialX
 {
 
 /// Number to match if an index is valid.
 const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
-
-/// Reference counted shared pointer class.
-/// Objects uing this class should derive from RtRefBase.
-template<typename T>
-using RtRefPtr = std::shared_ptr<T>; // Using STL pointers for now.
-
-/// Base class for reference counted objects.
-template<typename T>
-using RtRefBase = std::enable_shared_from_this<T>; // Using STL pointers for now.
-
-/// Weak reference pointer class.
-template<typename T>
-using RtWeakPtr = std::weak_ptr<T>; // Using STL pointers for now.
 
 // Forward delcarations
 class RtApi;
@@ -45,12 +31,6 @@ class RtAttribute;
 class RtInput;
 class RtOutput;
 class RtRelationship;
-
-/// Shared pointer to a stage.
-using RtStagePtr = RtRefPtr<RtStage>;
-
-/// Weak pointer to a stage.
-using RtStageWeakPtr = RtWeakPtr<RtStage>;
 
 /// Predicate for filtering objects during traversal.
 using RtObjectPredicate = std::function<bool(const RtObject& obj)>;

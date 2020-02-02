@@ -98,7 +98,7 @@ RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
 
     // Make sure the new name is unique and insert it to the name map.
     prim->setName(parent->makeUniqueName(newName));
-    parent->_primMap[prim->getName()] = prim->shared_from_this();
+    parent->_primMap[prim->getName()] = prim->hnd();
 
     return prim->getName();
 }

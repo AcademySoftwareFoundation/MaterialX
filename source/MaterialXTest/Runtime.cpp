@@ -280,6 +280,81 @@ TEST_CASE("Runtime: Types", "[runtime]")
     REQUIRE_THROWS(color4Type->getComponentName(7));
 }
 
+namespace MaterialX
+{
+
+// Test adding reference count to a class
+class Foo {
+    DECLARE_REF_COUNTED_CLASS(Foo)
+public:
+    Foo() : v(0)
+    {
+        construct++;
+    }
+    ~Foo()
+    {
+        deconstruct++;
+    }
+    int v;
+    static int construct;
+    static int deconstruct;
+};
+int Foo::construct = 0;
+int Foo::deconstruct = 0;
+
+DEFINE_REF_COUNTED_CLASS(Foo)
+DECLARE_REF_PTR_TYPE(Foo, FooPtr)
+
+}
+
+TEST_CASE("Runtime: RefCount", "[runtime]")
+{
+    mx::FooPtr foo1 = mx::FooPtr(new mx::Foo());
+    mx::FooPtr foo2 = mx::FooPtr(new mx::Foo());
+    REQUIRE(mx::Foo::construct == 2);
+    REQUIRE(mx::Foo::deconstruct == 0);
+    foo1->v = 1;
+    foo2->v = 2;
+    REQUIRE(foo1->refCount() == 1);
+    REQUIRE(foo2->refCount() == 1);
+    mx::FooPtr foo3 = foo1;
+    REQUIRE(foo3 == foo1);
+    REQUIRE(foo3->v == 1);
+    REQUIRE(foo1->refCount() == 2);
+
+    foo3.reset(foo2.get());
+    REQUIRE(foo1->refCount() == 1);
+    REQUIRE(foo2->refCount() == 2);
+    foo3.reset();
+    REQUIRE(foo1->refCount() == 1);
+    REQUIRE(foo2->refCount() == 1);
+
+    {
+        mx::FooPtr foo4 = foo2;
+        REQUIRE(foo4 == foo2);
+        REQUIRE(foo4->v == 2);
+        REQUIRE(foo2->refCount() == 2);
+
+        mx::FooPtr foo5 = mx::FooPtr(new mx::Foo());
+        foo5->v = 7;
+        foo1.reset(foo5.get());
+        REQUIRE(mx::Foo::construct == 3);
+        REQUIRE(mx::Foo::deconstruct == 1);
+    }
+    REQUIRE(mx::Foo::construct == 3);
+    REQUIRE(mx::Foo::deconstruct == 1);
+
+    REQUIRE(foo1->refCount() == 1);
+    REQUIRE(foo2->refCount() == 1);
+    REQUIRE(foo1->v == 7);
+    REQUIRE(foo2->v == 2);
+
+    foo1.reset();
+    foo2.reset();
+    REQUIRE(mx::Foo::construct == 3);
+    REQUIRE(mx::Foo::deconstruct == 3);
+}
+
 TEST_CASE("Runtime: Paths", "[runtime]")
 {
     mx::RtScopedApiHandle api;

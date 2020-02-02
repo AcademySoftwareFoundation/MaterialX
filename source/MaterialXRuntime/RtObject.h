@@ -9,6 +9,7 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtToken.h>
 #include <MaterialXRuntime/RtValue.h>
+#include <MaterialXRuntime/RtPointer.h>
 
 /// @file
 /// TODO: Docs
@@ -16,13 +17,20 @@
 namespace MaterialX
 {
 
-class PvtObject;
 class PvtPrim;
 class PvtAttribute;
 class PvtRelationship;
+class RtStage;
 
-// A handle to private data
-using PvtDataHandle = RtRefPtr<PvtObject>;
+// A handle to private object data
+class PvtObject;
+DECLARE_REF_PTR_TYPE(PvtObject, PvtDataHandle)
+
+/// Shared pointer to a stage.
+using RtStagePtr = RtSharedPtr<RtStage>;
+
+/// Weak pointer to a stage.
+using RtStageWeakPtr = RtWeakPtr<RtStage>;
 
 /// Identifiers for object types.
 enum class RtObjType
