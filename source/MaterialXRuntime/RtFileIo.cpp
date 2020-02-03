@@ -84,8 +84,8 @@ namespace
     {
         for (const RtToken name : src->getMetadataOrder())
         {
-            if (ignoreList.count(name) || 
-                name.str().size() > 0 && name.str().at(0) == '_') // Metadata with "_" prefix are private
+            if (ignoreList.count(name) ||
+                (name.str().size() > 0 && name.str().at(0) == '_')) // Metadata with "_" prefix are private
             {
                 continue;
             }
