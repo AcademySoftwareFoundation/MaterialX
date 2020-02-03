@@ -408,7 +408,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
                           mx::ImagePtr ambientOcclusionMap, float ambientOcclusionGain,
                           mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
 {
-    if (!_glShader)
+    if (!_glShader || !lightHandler)
     {
         return;
     }

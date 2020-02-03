@@ -56,10 +56,10 @@ TEST_CASE("Observer", "[observer]")
 
         void verifyCountsPreWrite()
         {
-            REQUIRE(_beginUpdateCount == 23);
-            REQUIRE(_endUpdateCount == 23);
-            REQUIRE(_addElementCount == 11);
-            REQUIRE(_setAttributeCount == 12);
+            REQUIRE(_beginUpdateCount == 27);
+            REQUIRE(_endUpdateCount == 27);
+            REQUIRE(_addElementCount == 12);
+            REQUIRE(_setAttributeCount == 15);
             REQUIRE(_removeElementCount == 0);
             REQUIRE(_removeAttributeCount == 0);
             REQUIRE(_copyContentCount == 0);
@@ -72,9 +72,9 @@ TEST_CASE("Observer", "[observer]")
         {
             REQUIRE(_beginUpdateCount == 4);
             REQUIRE(_endUpdateCount == 4);
-            REQUIRE(_addElementCount == 11);
-            REQUIRE(_setAttributeCount == 13);
-            REQUIRE(_removeElementCount == 3);
+            REQUIRE(_addElementCount == 12);
+            REQUIRE(_setAttributeCount == 16);
+            REQUIRE(_removeElementCount == 4);
             REQUIRE(_removeAttributeCount == 0);
             REQUIRE(_copyContentCount == 0);
             REQUIRE(_clearContentCount == 1);
@@ -130,10 +130,11 @@ TEST_CASE("Observer", "[observer]")
     shader->addInput("specColor", "color3");
     shader->addParameter("roughness", "float");
 
-    // Create a material that instantiates the shader.
-    mx::MaterialPtr material = doc->addMaterial();
-    material->addShaderRef("", "simpleSrf");
-    REQUIRE(material->getShaderRefs().size() == 1);
+    // Create a material that uses a shader instance.
+    mx::NodePtr materialNode = doc->addNode("surfacematerial");
+    doc->addNode("simpleSrf", "mySimpleSrf", "surfaceshader");
+    mx::InputPtr shaderInput = materialNode->addInput(mx::SURFACE_SHADER_TYPE_STRING, mx::SURFACE_SHADER_TYPE_STRING);
+    shaderInput->setAttribute("nodename", "mySimpleSrf");
 
     // Check that observer tracked the correct number of changes of each type
     testObserver->verifyCountsPreWrite();

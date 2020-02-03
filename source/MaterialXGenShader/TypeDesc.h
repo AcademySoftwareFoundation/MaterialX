@@ -48,6 +48,7 @@ class TypeDesc
         SEMANTIC_FILENAME,
         SEMANTIC_CLOSURE,
         SEMANTIC_SHADER,
+        SEMANTIC_MATERIAL,
         SEMANTIC_LAST
     };
 

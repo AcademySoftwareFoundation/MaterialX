@@ -14,6 +14,7 @@ namespace MaterialX
 {
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
+const string PortElement::NODE_GRAPH_ATTRIBUTE = "nodegraph";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
@@ -73,7 +74,14 @@ bool PortElement::validate(string* message) const
     NodePtr connectedNode = getConnectedNode();
     if (hasNodeName())
     {
-        validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
+        if (!connectedNode)
+        {
+            NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeName());
+            if (!nodeGraph)
+            {
+                validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
+            }
+        }
     }
     if (connectedNode)
     {
@@ -180,6 +188,26 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 //
 // Input methods
 //
+
+OutputPtr Input::getConnectedOutput() const
+{
+    if (hasNodeGraphName())
+    {
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphName());
+        return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
+    }
+    return getDocument()->getOutput(getOutputString());
+}
+
+NodePtr Input::getConnectedNode() const
+{
+    OutputPtr output = getConnectedOutput();
+    if (output)
+    {
+        return output->getConnectedNode();
+    }
+    return PortElement::getConnectedNode();
+}
 
 Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {

@@ -50,8 +50,7 @@ public:
     static const RtToken VOLUMESHADER;
     static const RtToken DISPLACEMENTSHADER;
     static const RtToken LIGHTSHADER;
-    static const RtToken SURFACEMATERIAL;
-    static const RtToken VOLUMEMATERIAL;
+    static const RtToken MATERIAL;
     static const RtToken AUTO;
 };
 
@@ -108,6 +107,7 @@ public:
     static const RtToken SEMANTIC_FILENAME;
     static const RtToken SEMANTIC_CLOSURE;
     static const RtToken SEMANTIC_SHADER;
+    static const RtToken SEMANTIC_MATERIAL;
 
 public:
     /// Constructor.

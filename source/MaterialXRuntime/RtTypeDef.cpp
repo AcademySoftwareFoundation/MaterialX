@@ -40,8 +40,7 @@ const RtToken RtType::SURFACESHADER("surfaceshader");
 const RtToken RtType::VOLUMESHADER("volumeshader");
 const RtToken RtType::DISPLACEMENTSHADER("displacementshader");
 const RtToken RtType::LIGHTSHADER("lightshader");
-const RtToken RtType::SURFACEMATERIAL("surfacematerial");
-const RtToken RtType::VOLUMEMATERIAL("volumematerial");
+const RtToken RtType::MATERIAL("material");
 const RtToken RtType::AUTO("auto");
 
 const RtToken RtTypeDef::BASETYPE_NONE("none");
@@ -58,6 +57,7 @@ const RtToken RtTypeDef::SEMANTIC_MATRIX("matrix");
 const RtToken RtTypeDef::SEMANTIC_FILENAME("filename");
 const RtToken RtTypeDef::SEMANTIC_CLOSURE("closure");
 const RtToken RtTypeDef::SEMANTIC_SHADER("shader");
+const RtToken RtTypeDef::SEMANTIC_MATERIAL("material");
 
 RtTypeDef::RtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic, size_t size) :
     _ptr(new PvtTypeDef(name, basetype, funcs, semantic, size))

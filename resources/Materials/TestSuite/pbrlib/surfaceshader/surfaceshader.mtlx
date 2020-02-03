@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36" require="">
+<materialx version="1.37">
   <material name="example1">
     <shaderref name="example1_surface" node="standard_surface">
       <bindinput name="normal" type="vector3" output="outNormal" />

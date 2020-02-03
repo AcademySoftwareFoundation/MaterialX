@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36" cms="ocio" colorspace="srgb_texture">
+<materialx version="1.37" colorspace="srgb_texture">
 
   <nodedef name="ND_NodeA" node="NodeA">
     <input name="diffColor" type="color3" />

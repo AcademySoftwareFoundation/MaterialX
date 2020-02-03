@@ -7,7 +7,7 @@ Basic transform function tests each test is in a separate graph for each variati
 - transformnormal
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
 
    <!-- point space transform -->
   <nodegraph name="tf_point_vector3">

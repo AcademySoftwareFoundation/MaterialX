@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36" colorspace="lin_rec709">
+<materialx version="1.37" colorspace="lin_rec709">
   <material name="Greysphere">
     <shaderref name="SR_greysphere" node="standard_surface">
       <bindinput name="base" type="float" value="1.0"/>

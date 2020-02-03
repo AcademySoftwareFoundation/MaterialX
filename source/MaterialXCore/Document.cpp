@@ -150,6 +150,10 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
+        if (child->getCategory().empty())
+        {
+            throw Exception("Trying to import child without a category: " + child->getName());
+        }
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);

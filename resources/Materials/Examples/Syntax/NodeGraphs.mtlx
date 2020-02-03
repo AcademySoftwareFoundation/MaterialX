@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <!-- "nodegraph1" example from Spec doc -->
   <nodegraph name="NG_example1">
     <image name="img1" type="color3">

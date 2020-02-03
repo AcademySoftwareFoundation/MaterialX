@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.36">
+<materialx version="1.37">
 
   <!-- <point_light> -->
   <implementation name="IM_point_light_genglsl" nodedef="ND_point_light" file="lights/genglsl/mx_point_light.glsl" function="mx_point_light" language="genglsl"/>

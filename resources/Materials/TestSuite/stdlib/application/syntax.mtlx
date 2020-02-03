@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36">
+<materialx version="1.37">
   <nodegraph name="syntaxGraph" type="" xpos="6.21379" ypos="15.54">
     <constant name="gl_consttant" type="float" xpos="3.93793" ypos="5.52012">
       <parameter name="value" type="float" value="0.0" />

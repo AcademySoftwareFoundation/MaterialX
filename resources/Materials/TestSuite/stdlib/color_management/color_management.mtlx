@@ -4,7 +4,7 @@
 Basic image unit test with one image node for each variation in input type.
 
 -->
-<materialx version="1.36" cms="default_cms" colorspace="lin_rec709">
+<materialx version="1.37" colorspace="lin_rec709">
    <nodegraph name="ng1">
         <output name="image_lin_rec709_output" type="surfaceshader" nodename="image_lin_rec709_standard_surface" />
         <standard_surface name="image_lin_rec709_standard_surface" type="surfaceshader" xpos="6.29441" ypos="2.18094">

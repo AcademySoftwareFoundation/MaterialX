@@ -2,10 +2,7 @@ language: cpp
 
 addons:
   apt:
-    sources:
-      - llvm-toolchain-xenial-8
-      - ubuntu-toolchain-r-test
-    packages:
+    packages: &packages_base
       - libglu1-mesa-dev
       - libxxf86vm-dev
       - libxrandr-dev
@@ -13,9 +10,7 @@ addons:
       - libxcursor-dev
       - libxi-dev
       - libx11-dev
-      - g++-6
-      - g++-9
-      - clang-8
+    packages: *packages_base
 
 matrix:
   include:
@@ -52,14 +47,25 @@ matrix:
       dist: xenial
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+      addons:
+        apt:
+          sources: ubuntu-toolchain-r-test
+          packages: [*packages_base, g++-6]
     - os: linux
       dist: xenial
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9 && PY=3"
+      addons:
+        apt:
+          sources: ubuntu-toolchain-r-test
+          packages: [*packages_base, g++-9]
     - os: linux
-      dist: xenial
+      dist: bionic
       compiler: clang
-      env: MATRIX_EVAL="CC=clang-8 && CXX=clang++-8 && PY=3"
+      env: MATRIX_EVAL="CC=clang-9 && CXX=clang++-9 && PY=3"
+      addons:
+        apt:
+          packages: [*packages_base, clang-9]
 
 before_install:
   - export PY=2

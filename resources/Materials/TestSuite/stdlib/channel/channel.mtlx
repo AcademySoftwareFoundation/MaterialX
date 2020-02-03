@@ -7,7 +7,7 @@ Basic channel function tests each test is in a separate graph for each variation
 - separate
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <nodegraph name="combine_color2" type="" xpos="6.25517" ypos="49.37">
       <combine2 name="combine1" type="color2" xpos="5.74483" ypos="4.58">
          <input name="in1" type="float" value="0.5000" />

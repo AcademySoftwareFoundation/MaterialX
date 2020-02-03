@@ -127,6 +127,29 @@ class PortElement : public ValueElement
         return getAttribute(NODE_NAME_ATTRIBUTE);
     }
 
+    /// @name Node Graph
+    /// @{
+
+    /// Set the node name string of this element, creating a connection to
+    /// the Node with the given name within the same NodeGraph.
+    void setNodeGraphName(const string& node)
+    {
+        setAttribute(NODE_GRAPH_ATTRIBUTE, node);
+    }
+
+    /// Return true if this element has a node graph name string.
+    bool hasNodeGraphName() const
+    {
+        return hasAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+
+    /// Return the node graph name string of this element.
+    const string& getNodeGraphName() const
+    {
+        return getAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+
+
     /// @}
     /// @name Output
     /// @{
@@ -189,7 +212,7 @@ class PortElement : public ValueElement
     void setConnectedNode(NodePtr node);
 
     /// Return the node, if any, to which this element is connected.
-    NodePtr getConnectedNode() const;
+    virtual NodePtr getConnectedNode() const;
 
     /// @}
     /// @name Validation
@@ -203,6 +226,7 @@ class PortElement : public ValueElement
 
   public:
     static const string NODE_NAME_ATTRIBUTE;
+    static const string NODE_GRAPH_ATTRIBUTE;
     static const string OUTPUT_ATTRIBUTE;
     static const string CHANNELS_ATTRIBUTE;
 
@@ -239,6 +263,12 @@ class Input : public PortElement
     {
         return 1;
     }
+
+    /// Return the output, if any, to which this element is connected.
+    OutputPtr getConnectedOutput() const;
+
+    /// Return the node, if any, to which this element is connected.
+    NodePtr getConnectedNode() const override;
 
     /// @}
     /// @name Default Geometric Property

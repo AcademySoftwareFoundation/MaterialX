@@ -10,7 +10,7 @@ Basic noise unit test :
 Texture coordinates are scaled up to be able to see the noise.
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
 
    <!-- Utility to scale 2d texture coordinates -->
    <texcoord name="texcoord1" type="vector2">

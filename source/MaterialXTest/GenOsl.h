@@ -61,7 +61,7 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         whiteList =
         {
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_angle"
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_angle", "material", "ND_material"
         };
     }
 };

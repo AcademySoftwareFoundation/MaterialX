@@ -6,7 +6,7 @@ A scale and offset of 2,2 and 0.5,0.5 is applied to the texture coordinates
 used to lookup each image
 
 -->
-<materialx version="1.36">
+<materialx version="1.37">
    <output name="tiled_unit_image4_output" type="color4" nodename="tiled_unit_image4" />
    <tiledimage name="tiled_unit_image4" type="color4">
       <parameter name="file" type="filename" value="resources/Images/grid.png" />
