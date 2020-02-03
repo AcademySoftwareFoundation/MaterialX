@@ -466,7 +466,7 @@ namespace
         // Count output and get output type
         size_t numOutputs = 0;
         string outputType;
-        RtObjTypePredicate<RtObjType::OUTPUT> outputFilter;
+        RtObjTypePredicate<RtOutput> outputFilter;
         for (RtAttribute attr : nodedef.getPrim().getAttributes(outputFilter))
         {
             numOutputs++;
@@ -609,7 +609,7 @@ namespace
         }
 
         // Write outputs.
-        RtObjTypePredicate<RtObjType::OUTPUT> outputsFilter;
+        RtObjTypePredicate<RtOutput> outputsFilter;
         for (RtAttribute attr : src->getAttributes(outputsFilter))
         {
             RtInput nodegraphOutput = nodegraph.getOutputSocket(attr.getName());

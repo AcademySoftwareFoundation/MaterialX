@@ -15,8 +15,9 @@ namespace MaterialX
 {
 
 PvtPrim::PvtPrim(const RtToken& name, PvtPrim* parent) :
-    PvtObject(RtObjType::PRIM, name, parent)
+    PvtObject(name, parent)
 {
+    setTypeBit<PvtPrim>();
 }
 
 PvtDataHandle PvtPrim::createNew(const RtToken& name, PvtPrim* parent)
@@ -61,7 +62,7 @@ PvtAttribute* PvtPrim::createAttribute(const RtToken& name, const RtToken& type,
         throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
     }
 
-    PvtDataHandle attrH(new PvtAttribute(RtObjType::ATTRIBUTE, name, type, flags, this));
+    PvtDataHandle attrH(new PvtAttribute(name, type, flags, this));
     _attrOrder.push_back(attrH);
     _attrMap[name] = attrH;
 

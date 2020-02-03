@@ -5,6 +5,7 @@
 
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtTypeDef.h>
+#include <MaterialXRuntime/RtPrim.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
@@ -24,7 +25,7 @@ namespace
 
 PvtAllocator& getPrimAllocator(RtObject& prim)
 {
-    if (prim.getObjType() != RtObjType::PRIM)
+    if (!prim.isA<RtPrim>())
     {
         throw ExceptionRuntimeError("Value allocation failed. Object is not a prim: '" + prim.getName().str() + "'");
     }

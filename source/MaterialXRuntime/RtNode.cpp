@@ -52,12 +52,12 @@ RtPrim RtNode::createPrim(const RtToken& typeName, const RtToken& name, RtPrim p
     for (const PvtDataHandle& attrH : nodedef->getAllAttributes())
     {
         const PvtAttribute* attr = attrH->asA<PvtAttribute>();
-        if (attr->getObjType() == RtObjType::INPUT)
+        if (attr->isA<PvtInput>())
         {
             PvtInput* input = node->createInput(attr->getName(), attr->getType(), attr->getFlags());
             RtValue::copy(attr->getType(), attr->getValue(), input->getValue());
         }
-        else if (attr->getObjType() == RtObjType::OUTPUT)
+        else if (attr->isA<PvtObject>())
         {
             PvtOutput* output = node->createOutput(attr->getName(), attr->getType(), attr->getFlags());
             RtValue::copy(attr->getType(), attr->getValue(), output->getValue());

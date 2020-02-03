@@ -396,6 +396,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
 
     mx::RtPrim nodedefPrim = stage->createPrim("/ND_foo_float", mx::RtNodeDef::typeName());
     REQUIRE(nodedefPrim);
+    REQUIRE(nodedefPrim.isA<mx::RtPrim>());
     REQUIRE(nodedefPrim.isValid());
     REQUIRE(nodedefPrim.getTypeName() == mx::RtNodeDef::typeName());
     REQUIRE(nodedefPrim.hasApi<mx::RtNodeDef>());
@@ -1026,7 +1027,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     REQUIRE(nodeCount == 5);
 
     // Filter for finding input attributes.
-    mx::RtObjTypePredicate<mx::RtObjType::INPUT> inputFilter;
+    mx::RtObjTypePredicate<mx::RtInput> inputFilter;
 
     // Travers a nodedef finding all its inputs.
     mx::RtNodeDef generalized_schlick_brdf = stage->getPrimAtPath("/ND_generalized_schlick_brdf");

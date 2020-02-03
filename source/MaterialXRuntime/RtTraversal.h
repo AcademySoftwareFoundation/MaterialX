@@ -20,26 +20,14 @@ class RtPrim;
 class RtStage;
 
 /// Traversal predicate for specific object types.
-template<RtObjType T>
+template<typename T>
 struct RtObjTypePredicate
 {
     bool operator()(const RtObject& obj)
     {
-        return obj.getObjType() == T;
+        return obj.isA<T>();
     }
 };
-
-/// Traversal predicate for specific schemas.
-template<class T>
-struct RtSchemaPredicate
-{
-    bool operator()(const RtObject& obj)
-    {
-        return obj.getObjType() == RtObjType::PRIM &&
-            T(static_cast<const RtPrim&>(obj)).isValid();
-    }
-};
-
 
 /// @class RtAttrIterator
 /// Iterator for traversing over the attributes of a prim.

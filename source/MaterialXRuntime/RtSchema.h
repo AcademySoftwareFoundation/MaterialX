@@ -17,6 +17,16 @@
 namespace MaterialX
 {
 
+/// Traversal predicate for schemas.
+template<class T>
+struct RtSchemaPredicate
+{
+    bool operator()(const RtObject& obj)
+    {
+        return obj.isA<RtPrim>() && T(static_cast<const RtPrim&>(obj)).isValid();
+    }
+};
+
 /// @class RtSchemaBase
 /// Base class for all prim schemas.
 class RtSchemaBase

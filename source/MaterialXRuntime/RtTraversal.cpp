@@ -118,12 +118,12 @@ RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
     _ptr(nullptr),
     _current(-1)
 {
-    if (obj.getObjType() == RtObjType::OUTPUT)
+    if (obj.isA<RtOutput>())
     {
         PvtOutput* out = PvtObject::ptr<PvtOutput>(obj);
         _ptr = out->_connections.empty() ? nullptr : &out->_connections;
     }
-    else if (obj.getObjType() == RtObjType::RELATIONSHIP)
+    else if (obj.isA<RtRelationship>())
     {
         PvtRelationship* rel = PvtObject::ptr<PvtRelationship>(obj);
         _ptr = rel->_targets.empty() ? nullptr : &rel->_targets;

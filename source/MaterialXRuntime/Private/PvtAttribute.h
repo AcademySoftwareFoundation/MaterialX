@@ -22,13 +22,10 @@ namespace MaterialX
 
 class PvtAttribute : public PvtObject
 {
-public:
-    PvtAttribute(RtObjType objType, const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::ATTRIBUTE)
 
-    static RtObjType objType()
-    {
-        return RtObjType::ATTRIBUTE;
-    }
+public:
+    PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
 
     const RtToken& getType() const
     {
@@ -123,13 +120,10 @@ class PvtInput;
 
 class PvtOutput : public PvtAttribute
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::OUTPUT)
+
 public:
     PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
-
-    static RtObjType objType()
-    {
-        return RtObjType::OUTPUT;
-    }
 
     bool isConnected() const
     {
@@ -158,13 +152,10 @@ protected:
 
 class PvtInput : public PvtAttribute
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::INPUT)
+
 public:
     PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
-
-    static RtObjType objType()
-    {
-        return RtObjType::INPUT;
-    }
 
     bool isUniform() const
     {

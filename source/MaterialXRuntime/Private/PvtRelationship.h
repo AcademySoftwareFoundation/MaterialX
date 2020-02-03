@@ -19,13 +19,10 @@ namespace MaterialX
 
 class PvtRelationship : public PvtObject
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::RELATIONSHIP)
+
 public:
     PvtRelationship(const RtToken& name, PvtPrim* parent);
-
-    static RtObjType objType()
-    {
-        return RtObjType::RELATIONSHIP;
-    }
 
     bool hasTargets() const
     {

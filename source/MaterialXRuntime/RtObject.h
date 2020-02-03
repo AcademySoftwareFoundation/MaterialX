@@ -35,21 +35,25 @@ using RtStageWeakPtr = RtWeakPtr<RtStage>;
 /// Identifiers for object types.
 enum class RtObjType
 {
-    // NOTE: If this enum is changed in any way
-    // make sure to update RtObject::_canCast()
-    OBJECT,
-    PRIM,
-    ATTRIBUTE,
-    INPUT,
-    OUTPUT,
-    RELATIONSHIP,
-    NUM_TYPES
+    OBJECT          = 1<<0,
+    PRIM            = 1<<1,
+    ATTRIBUTE       = 1<<2,
+    INPUT           = 1<<3,
+    OUTPUT          = 1<<4,
+    RELATIONSHIP    = 1<<5,
+    DISPOSED        = 1<<6
 };
+
+#define DECLARE_CLASS_OBJ_TYPE(type)                 \
+public:                                              \
+    static RtObjType classObjType() { return type; } \
 
 /// @class RtObject
 /// Base class for all runtime objects.
 class RtObject
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::OBJECT)
+
 public:
     /// Empty constructor.
     /// Creating an invalid object.
@@ -64,22 +68,13 @@ public:
     /// Destructor.
     ~RtObject();
 
-    /// Return the type of this object instance.
-    RtObjType getObjType() const;
-
-    /// Return the type of this object class.
-    static RtObjType objType()
-    {
-        return RtObjType::OBJECT;
-    }
-
     /// Return true if this object can be cast to the templated object class.
     template<class T>
     bool isA() const
     {
         static_assert(std::is_base_of<RtObject, T>::value,
             "Templated type must be an RtObject or a subclass of RtObject");
-        return _canCast(getObjType(), T::objType());
+        return _isCompatible(T::classObjType());
     }
 
     /// Cast to the templated object class. Returns and invalid object if
@@ -89,7 +84,7 @@ public:
     {
         static_assert(std::is_base_of<RtObject, T>::value,
             "Templated type must be an RtObject or a subclass of RtObject");
-        return _canCast(getObjType(), T::objType()) ? T(_hnd) : T();
+        return _isCompatible(T::classObjType()) ? T(_hnd) : T();
     }
 
     /// Return true if the object is valid.
@@ -148,8 +143,9 @@ protected:
         return _hnd;
     }
 
-    /// Return true if given type casting can be done.
-    static bool _canCast(RtObjType fromType, RtObjType toType);
+    /// Return true if this obect is compatible 
+    /// with an object of the given type id.
+    bool _isCompatible(RtObjType typeId) const;
 
     /// Internal data handle.
     PvtDataHandle _hnd;

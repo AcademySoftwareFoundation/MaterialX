@@ -68,7 +68,7 @@ class PvtPrim : public PvtObject
 public:
     static PvtDataHandle createNew(const RtToken& name, PvtPrim* parent);
 
-    static RtObjType objType()
+    static RtObjType classObjType()
     {
         return RtObjType::PRIM;
     }
@@ -126,7 +126,7 @@ public:
     {
         // TODO: Improve type check and type conversion for RtObject subclasses.
         auto it = _attrMap.find(name);
-        return it != _attrMap.end() && it->second->getObjType() == RtObjType::INPUT ?
+        return it != _attrMap.end() && it->second->isA<PvtInput>() ?
             it->second->asA<PvtInput>() : nullptr;
     }
 
@@ -134,7 +134,7 @@ public:
     {
         // TODO: Improve type check and type conversion for RtObject subclasses.
         auto it = _attrMap.find(name);
-        return it != _attrMap.end() && it->second->getObjType() == RtObjType::OUTPUT ?
+        return it != _attrMap.end() && it->second->isA<PvtOutput>() ?
             it->second->asA<PvtOutput>() : nullptr;
     }
 

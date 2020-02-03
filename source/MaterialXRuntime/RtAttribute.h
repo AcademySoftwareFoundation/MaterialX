@@ -35,6 +35,8 @@ public:
 /// Object holding an attribute on a prim.
 class RtAttribute : public RtObject
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::ATTRIBUTE)
+
 public:
     /// Empty constructor.
     /// Creating an invalid object.
@@ -42,12 +44,6 @@ public:
 
     /// Construct from a data handle.
     RtAttribute(PvtDataHandle hnd);
-
-    /// Return the type of this object class.
-    static RtObjType objType()
-    {
-        return RtObjType::ATTRIBUTE;
-    }
 
     /// Return the data type for this attribute.
     const RtToken& getType() const;
@@ -85,6 +81,8 @@ public:
 /// Object holding an input attribute on a prim.
 class RtInput : public RtAttribute
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::INPUT)
+
 public:
     /// Empty constructor.
     /// Creating an invalid object.
@@ -92,12 +90,6 @@ public:
 
     /// Construct from a data handle.
     RtInput(PvtDataHandle hnd);
-
-    /// Return the type of this object class.
-    static RtObjType objType()
-    {
-        return RtObjType::INPUT;
-    }
 
     /// Return true if this input is uniform.
     bool isUniform() const;
@@ -131,6 +123,8 @@ public:
 /// Object holding an output attribute on a prim.
 class RtOutput : public RtAttribute
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::OUTPUT)
+
 public:
     /// Empty constructor.
     /// Creating an invalid object.
@@ -138,12 +132,6 @@ public:
 
     /// Construct from a data handle.
     RtOutput(PvtDataHandle hnd);
-
-    /// Return the type of this object class.
-    static RtObjType objType()
-    {
-        return RtObjType::OUTPUT;
-    }
 
     /// Return true if this output is connected.
     bool isConnected() const;

@@ -13,17 +13,19 @@ const RtToken PvtAttribute::DEFAULT_OUTPUT_NAME("out");
 const RtToken PvtAttribute::COLOR_SPACE("colorspace");
 const RtToken PvtAttribute::UNIT("unit");
 
-PvtAttribute::PvtAttribute(RtObjType objType, const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
-    PvtObject(objType, name, parent),
+PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
+    PvtObject(name, parent),
     _value(type, RtValue::createNew(type, parent->obj())),
     _flags(flags)
 {
+    setTypeBit<PvtAttribute>();
 }
 
 
 PvtOutput::PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
-    PvtAttribute(RtObjType::OUTPUT, name, type, flags, parent)
+    PvtAttribute(name, type, flags, parent)
 {
+    setTypeBit<PvtOutput>();
 }
 
 bool PvtOutput::isConnectable(const PvtInput* other) const
@@ -75,8 +77,9 @@ void PvtOutput::clearConnections()
 }
 
 PvtInput::PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
-    PvtAttribute(RtObjType::INPUT, name, type, flags, parent)
+    PvtAttribute(name, type, flags, parent)
 {
+    setTypeBit<PvtInput>();
 }
 
 void PvtInput::clearConnection()

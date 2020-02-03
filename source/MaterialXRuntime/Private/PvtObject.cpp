@@ -17,11 +17,12 @@ namespace MaterialX
 
 DEFINE_REF_COUNTED_CLASS(PvtObject)
 
-PvtObject::PvtObject(RtObjType objType, const RtToken& name, PvtPrim* parent) :
-    _objType(objType),
+PvtObject::PvtObject(const RtToken& name, PvtPrim* parent) :
+    _typeBits(0),
     _name(name),
     _parent(parent)
 {
+    setTypeBit<PvtObject>();
 }
 
 PvtPath PvtObject::getPath() const
@@ -31,7 +32,7 @@ PvtPath PvtObject::getPath() const
 
 PvtPrim* PvtObject::getRoot() const
 {
-    PvtPrim* root = getObjType() == RtObjType::PRIM ? const_cast<PvtPrim*>(asA<PvtPrim>()) : _parent;
+    PvtPrim* root = isA<PvtPrim>() ? const_cast<PvtPrim*>(asA<PvtPrim>()) : _parent;
     while (root->_parent)
     {
         root = root->_parent;

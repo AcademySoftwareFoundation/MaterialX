@@ -33,32 +33,53 @@ using PvtDataHandleSet = std::set<PvtDataHandle>;
 class PvtObject
 {
     DECLARE_REF_COUNTED_CLASS(PvtObject)
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::OBJECT)
 
 public:
-    // Return the type id for this object.
-    RtObjType getObjType() const
+    using TypeBits = uint8_t;
+
+    bool isDisposed() const
     {
-        return _objType;
+        return (_typeBits & TypeBits(RtObjType::DISPOSED)) != 0;
     }
 
-    /// Return the type of this object class.
-    static RtObjType objType()
+    void setDisposed()
     {
-        return RtObjType::OBJECT;
+        _typeBits |= TypeBits(RtObjType::DISPOSED);
+    }
+
+    bool isCompatible(RtObjType objType) const
+    {
+        return ((_typeBits & TypeBits(objType)) &
+            ~TypeBits(RtObjType::DISPOSED)) != 0;
     }
 
     /// Return true if this object is of the templated type.
     template<class T>
     bool isA() const
     {
-        return _objType == T::objType();
+        static_assert(std::is_base_of<PvtObject, T>::value,
+            "Templated type must be an PvtObject or a subclass of PvtObject");
+        return isCompatible(T::classObjType());
     }
 
     // Casting the object to a given type.
     // NOTE: No type check if performed so the templated type 
-    // must be a type supported by the object.
+    // must be of a type compatible with this object.
     template<class T> T* asA()
     {
+        static_assert(std::is_base_of<PvtObject, T>::value,
+            "Templated type must be an PvtObject or a subclass of PvtObject");
+#ifndef NDEBUG
+        if (isDisposed())
+        {
+            throw ExceptionRuntimeError("Trying to access a disposed object '" + getName().str() + "'");
+        }
+        if (!isCompatible(T::classObjType()))
+        {
+            throw ExceptionRuntimeError("Types are incompatible for type cast");
+        }
+#endif
         return static_cast<T*>(this);
     }
 
@@ -67,7 +88,7 @@ public:
     // must be a type supported by the object.
     template<class T> const T* asA() const
     {
-        return static_cast<const T*>(this);
+        return const_cast<PvtObject*>(this)->asA<T>();
     }
 
     // Return a handle for the object.
@@ -136,7 +157,13 @@ public:
     }
 
 protected:
-    PvtObject(RtObjType objType, const RtToken& name, PvtPrim* parent);
+    PvtObject(const RtToken& name, PvtPrim* parent);
+
+    template<typename T>
+    void setTypeBit()
+    {
+        _typeBits |= TypeBits(T::classObjType());
+    }
 
     // Protected as arbitrary renaming is not supported.
     // Must be done from the owning stage.
@@ -152,7 +179,7 @@ protected:
         _parent = parent;
     }
 
-    const RtObjType _objType;
+    TypeBits _typeBits;
     RtToken _name; // TODO: Store a path instead of name token
     PvtPrim* _parent;
     RtTokenMap<RtTypedValue> _metadataMap;

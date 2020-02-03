@@ -31,11 +31,6 @@ RtObject::~RtObject()
 {
 }
 
-RtObjType RtObject::getObjType() const
-{
-    return _hnd ? _hnd->getObjType() : RtObjType::OBJECT;
-}
-
 const RtToken& RtObject::getName() const
 {
     return hnd()->asA<PvtObject>()->getName();
@@ -78,21 +73,9 @@ RtTypedValue* RtObject::getMetadata(const RtToken& name)
     return hnd()->asA<PvtObject>()->getMetadata(name);
 }
 
-bool RtObject::_canCast(RtObjType fromType, RtObjType toType)
+bool RtObject::_isCompatible(RtObjType typeId) const
 {
-    // Hard coded registery as the RtObject class hierarchy
-    // will not change, or change very rarely.
-    static const std::set<RtObjType> s_objTypeRegistry[size_t(RtObjType::NUM_TYPES)] =
-    {
-        {RtObjType::OBJECT                                          },
-        {RtObjType::OBJECT, RtObjType::PRIM                         },
-        {RtObjType::OBJECT, RtObjType::ATTRIBUTE                    },
-        {RtObjType::OBJECT, RtObjType::ATTRIBUTE, RtObjType::INPUT  },
-        {RtObjType::OBJECT, RtObjType::ATTRIBUTE, RtObjType::OUTPUT },
-        {RtObjType::OBJECT, RtObjType::RELATIONSHIP                 }
-    };
-
-    return s_objTypeRegistry[size_t(fromType)].count(toType);
+    return hnd()->asA<PvtObject>()->isCompatible(typeId);
 }
 
 }

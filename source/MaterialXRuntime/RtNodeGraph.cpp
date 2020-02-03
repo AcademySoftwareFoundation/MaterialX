@@ -50,7 +50,7 @@ RtInput RtNodeGraph::createInput(const RtToken& name, const RtToken& type, uint3
 void RtNodeGraph::removeInput(const RtToken& name)
 {
     PvtInput* input = prim()->getInput(name);
-    if (!input || input->getObjType() != RtObjType::INPUT)
+    if (!(input && input->isA<PvtInput>()))
     {
         throw ExceptionRuntimeError("No input found with name '" + name.str() + "'");
     }
@@ -69,7 +69,7 @@ RtOutput RtNodeGraph::createOutput(const RtToken& name, const RtToken& type, uin
 void RtNodeGraph::removeOutput(const RtToken& name)
 {
     PvtOutput* output = prim()->getOutput(name);
-    if (!output || output->getObjType() != RtObjType::OUTPUT)
+    if (!(output && output->isA<PvtOutput>()))
     {
         throw ExceptionRuntimeError("No output found with name '" + name.str() + "'");
     }
@@ -129,7 +129,7 @@ string RtNodeGraph::asStringDot() const
     dot += "[shape=box];\n";
 
 
-    RtObjTypePredicate<RtObjType::INPUT> inputFilter;
+    RtObjTypePredicate<RtInput> inputFilter;
 
     // Add all nodes.
     for (const RtPrim prim : getNodes())

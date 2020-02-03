@@ -23,6 +23,8 @@ class RtPrimIterator;
 /// @class RtPrim
 class RtPrim : public RtObject
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::PRIM)
+
 public:
     /// Empty constructor.
     /// Creating an invalid object.
@@ -30,12 +32,6 @@ public:
 
     /// Construct from a data handle.
     RtPrim(PvtDataHandle hnd);
-
-    /// Return the type of this object class.
-    static RtObjType objType()
-    {
-        return RtObjType::PRIM;
-    }
 
     /// Return true if this prim supports the templated schema class.
     template<class T>

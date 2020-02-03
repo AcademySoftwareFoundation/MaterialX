@@ -9,8 +9,9 @@ namespace MaterialX
 {
 
 PvtRelationship::PvtRelationship(const RtToken& name, PvtPrim* parent) :
-    PvtObject(RtObjType::RELATIONSHIP, name, parent)
+    PvtObject(name, parent)
 {
+    setTypeBit<PvtRelationship>();
 }
 
 void PvtRelationship::removeTarget(const PvtObject* target)

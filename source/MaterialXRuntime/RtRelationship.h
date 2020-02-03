@@ -21,6 +21,8 @@ class RtConnectionIterator;
 /// Object holding a relationship on a prim.
 class RtRelationship : public RtObject
 {
+    DECLARE_CLASS_OBJ_TYPE(RtObjType::RELATIONSHIP)
+
 public:
     /// Empty constructor.
     /// Creating an invalid object.
@@ -28,12 +30,6 @@ public:
 
     /// Construct from a data handle.
     RtRelationship(PvtDataHandle hnd);
-
-    /// Return the type of this object class.
-    static RtObjType objType()
-    {
-        return RtObjType::RELATIONSHIP;
-    }
 
     /// Return the name of this relationship.
     const RtToken& getName() const;
