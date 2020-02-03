@@ -29,36 +29,64 @@ using RtSharedPtr = std::shared_ptr<T>;
 template<typename T>
 using RtWeakPtr = std::weak_ptr<T>;
 
+
 /// Class for pointer to reference counted objects.
-/// The object pointed to owns the reference counter and must implemented 
-/// the functionts to add references and release the object.
-/// Use macros below for a default implementations of this.
 template<typename T>
 using RtRefPtr = boost::intrusive_ptr<T>;
 
-// Macro for declaring ref pointer type for a class.
+/// Base class for reference counted objects.
+template<typename T>
+class RtRefCounted
+{
+public:
+    /// Constructor.
+    RtRefCounted() :
+        _refCount(0)
+    {}
+
+    /// Copy constructor.
+    RtRefCounted(const RtRefCounted&) :
+        _refCount(0)
+    {}
+
+    /// Assignment operator.
+    RtRefCounted& operator=(const RtRefCounted&)
+    {
+        return *this;
+    }
+
+    /// Return the reference count for the object.
+    int64_t refCount() const
+    {
+        return _refCount;
+    }
+
+protected:
+    ~RtRefCounted() = default;
+
+    mutable std::atomic<int64_t> _refCount;
+
+    // Functions called by RtRefPtr to update the reference count.
+    // These functions must be implemented for the derived class.
+    // Macros below can be used to add in default implementations.
+    friend void intrusive_ptr_add_ref(T* obj);
+    friend void intrusive_ptr_release(T* obj);
+};
+
+// Macro for declaring a ref pointer type and the accompanying
+// reference counting functions.
 #define RT_DECLARE_REF_PTR_TYPE(T, name)                            \
 using name = RtRefPtr<T>;                                           \
-void intrusive_ptr_add_ref(const T* obj);                           \
-void intrusive_ptr_release(const T* obj);                           \
+void intrusive_ptr_add_ref(T* obj);                                 \
+void intrusive_ptr_release(T* obj);                                 \
 
-// Macro for adding reference counter for a class and declaring
-// functions to support the intrusive ref pointer type.
-#define RT_DECLARE_REF_COUNTED_CLASS(T)                             \
-public:                                                             \
-    int64_t refCount() const { return _refCount; }                  \
-private:                                                            \
-    mutable std::atomic<int64_t> _refCount = 0;                     \
-    friend void intrusive_ptr_add_ref(const T* obj);                \
-    friend void intrusive_ptr_release(const T* obj);                \
-
-// Macro for defining the reference counting functions for a class
-#define RT_DEFINE_REF_COUNTED_CLASS(T)                              \
-void intrusive_ptr_add_ref(const T* p)                              \
+// Macro for defining the reference counting functions for a type.
+#define RT_DEFINE_REF_PTR_FUNCTIONS(T)                              \
+void intrusive_ptr_add_ref(T* p)                                    \
 {                                                                   \
     p->_refCount.fetch_add(1, std::memory_order_relaxed);           \
 }                                                                   \
-void intrusive_ptr_release(const T* p)                              \
+void intrusive_ptr_release(T* p)                                    \
 {                                                                   \
     if (p->_refCount.fetch_sub(1, std::memory_order_release) == 1)  \
     {                                                               \

@@ -53,7 +53,7 @@ RtAttribute RtAttrIterator::operator*() const
 
 RtAttrIterator& RtAttrIterator::operator++()
 {
-    while (_prim && ++_current < _prim->getAllAttributes().size())
+    while (_prim && ++_current < int(_prim->getAllAttributes().size()))
     {
         if (!_predicate || _predicate(_prim->getAllAttributes()[_current]))
         {
@@ -66,7 +66,7 @@ RtAttrIterator& RtAttrIterator::operator++()
 
 bool RtAttrIterator::isDone() const
 {
-    return !(_prim && _current < _prim->getAllAttributes().size());
+    return !(_prim && _current < int(_prim->getAllAttributes().size()));
 }
 
 const RtAttrIterator& RtAttrIterator::end()
@@ -93,7 +93,7 @@ RtPrim RtPrimIterator::operator*() const
 
 RtPrimIterator& RtPrimIterator::operator++()
 {
-    while (_prim && ++_current < _prim->getAllChildren().size())
+    while (_prim && ++_current < int(_prim->getAllChildren().size()))
     {
         if (!_predicate || _predicate(_prim->getAllChildren()[_current]->obj()))
         {
@@ -106,7 +106,7 @@ RtPrimIterator& RtPrimIterator::operator++()
 
 bool RtPrimIterator::isDone() const
 {
-    return !(_prim && _current < _prim->getAllChildren().size());
+    return !(_prim && _current < int(_prim->getAllChildren().size()));
 }
 
 const RtPrimIterator& RtPrimIterator::end()
@@ -139,7 +139,7 @@ RtObject RtConnectionIterator::operator*() const
 
 RtConnectionIterator& RtConnectionIterator::operator++()
 {
-    if (_ptr && ++_current < static_cast<PvtDataHandleVec*>(_ptr)->size())
+    if (_ptr && ++_current < int(static_cast<PvtDataHandleVec*>(_ptr)->size()))
     {
         return *this;
     }
@@ -149,7 +149,7 @@ RtConnectionIterator& RtConnectionIterator::operator++()
 
 bool RtConnectionIterator::isDone() const
 {
-    return !(_ptr && _current < static_cast<PvtDataHandleVec*>(_ptr)->size());
+    return !(_ptr && _current < int(static_cast<PvtDataHandleVec*>(_ptr)->size()));
 }
 
 const RtConnectionIterator& RtConnectionIterator::end()

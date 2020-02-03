@@ -30,10 +30,9 @@ using PvtDataHandleSet = std::set<PvtDataHandle>;
 
 // Class representing an object in the scene hierarchy.
 // This is the base class for prims, attributes and relationships.
-class PvtObject
+class PvtObject : public RtRefCounted<PvtObject>
 {
     RT_DECLARE_RUNTIME_OBJECT(PvtObject)
-    RT_DECLARE_REF_COUNTED_CLASS(PvtObject)
 
 public:
     using TypeBits = uint8_t;

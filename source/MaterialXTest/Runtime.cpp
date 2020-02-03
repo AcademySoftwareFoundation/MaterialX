@@ -284,8 +284,8 @@ namespace MaterialX
 {
 
 // Test adding reference count to a class
-class Foo {
-    RT_DECLARE_REF_COUNTED_CLASS(Foo)
+class Foo : public mx::RtRefCounted<Foo>
+{
 public:
     Foo() : v(0)
     {
@@ -302,8 +302,8 @@ public:
 int Foo::construct = 0;
 int Foo::deconstruct = 0;
 
-RT_DEFINE_REF_COUNTED_CLASS(Foo)
 RT_DECLARE_REF_PTR_TYPE(Foo, FooPtr)
+RT_DEFINE_REF_PTR_FUNCTIONS(Foo)
 
 } // namespace MaterialX
 

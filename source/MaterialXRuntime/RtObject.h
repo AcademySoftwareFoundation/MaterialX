@@ -17,13 +17,13 @@
 namespace MaterialX
 {
 
+class PvtObject;
 class PvtPrim;
 class PvtAttribute;
 class PvtRelationship;
 class RtStage;
 
 // A handle to private object data
-class PvtObject;
 RT_DECLARE_REF_PTR_TYPE(PvtObject, PvtDataHandle)
 
 /// Shared pointer to a stage.
