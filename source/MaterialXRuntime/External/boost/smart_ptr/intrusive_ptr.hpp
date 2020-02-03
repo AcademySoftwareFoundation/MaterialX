@@ -56,7 +56,7 @@ public:
     {
     }
 
-    intrusive_ptr( T * p, bool add_ref = true ): px( p )
+    explicit intrusive_ptr( T * p, bool add_ref = true ): px( p )
     {
         if( px != 0 && add_ref ) intrusive_ptr_add_ref( px );
     }
