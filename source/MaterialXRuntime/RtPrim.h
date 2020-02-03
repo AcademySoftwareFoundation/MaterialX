@@ -23,7 +23,7 @@ class RtPrimIterator;
 /// @class RtPrim
 class RtPrim : public RtObject
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::PRIM)
+    RT_DECLARE_RUNTIME_OBJECT(RtPrim)
 
 public:
     /// Empty constructor.

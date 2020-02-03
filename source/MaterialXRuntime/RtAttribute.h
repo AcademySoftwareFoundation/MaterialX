@@ -35,7 +35,7 @@ public:
 /// Object holding an attribute on a prim.
 class RtAttribute : public RtObject
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::ATTRIBUTE)
+    RT_DECLARE_RUNTIME_OBJECT(RtAttribute)
 
 public:
     /// Empty constructor.
@@ -81,7 +81,7 @@ public:
 /// Object holding an input attribute on a prim.
 class RtInput : public RtAttribute
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::INPUT)
+    RT_DECLARE_RUNTIME_OBJECT(RtInput)
 
 public:
     /// Empty constructor.
@@ -123,7 +123,7 @@ public:
 /// Object holding an output attribute on a prim.
 class RtOutput : public RtAttribute
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::OUTPUT)
+    RT_DECLARE_RUNTIME_OBJECT(RtOutput)
 
 public:
     /// Empty constructor.

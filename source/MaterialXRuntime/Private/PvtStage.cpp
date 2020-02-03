@@ -80,6 +80,10 @@ void PvtStage::removePrim(const PvtPath& path)
         throw ExceptionRuntimeError("Given path '" + path.asString() + " does not point to a prim in this stage");
     }
 
+    // Dispose this prim and all its children.
+    prim->dispose();
+
+    // Remove from its parent.
     PvtPrim* parent = prim->getParent();
     parent->removeChildPrim(prim);
 }

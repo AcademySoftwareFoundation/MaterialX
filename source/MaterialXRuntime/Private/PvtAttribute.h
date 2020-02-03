@@ -22,7 +22,7 @@ namespace MaterialX
 
 class PvtAttribute : public PvtObject
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::ATTRIBUTE)
+    RT_DECLARE_RUNTIME_OBJECT(PvtAttribute)
 
 public:
     PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
@@ -120,7 +120,7 @@ class PvtInput;
 
 class PvtOutput : public PvtAttribute
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::OUTPUT)
+    RT_DECLARE_RUNTIME_OBJECT(PvtOutput)
 
 public:
     PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
@@ -152,7 +152,7 @@ protected:
 
 class PvtInput : public PvtAttribute
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::INPUT)
+    RT_DECLARE_RUNTIME_OBJECT(PvtInput)
 
 public:
     PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);

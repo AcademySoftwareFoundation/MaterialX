@@ -65,13 +65,12 @@ class RtPrimIterator;
 
 class PvtPrim : public PvtObject
 {
+    RT_DECLARE_RUNTIME_OBJECT(PvtPrim)
+
 public:
     static PvtDataHandle createNew(const RtToken& name, PvtPrim* parent);
 
-    static RtObjType classObjType()
-    {
-        return RtObjType::PRIM;
-    }
+    void dispose();
 
     const RtToken& getTypeName() const
     {

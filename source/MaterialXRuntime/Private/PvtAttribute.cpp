@@ -13,6 +13,8 @@ const RtToken PvtAttribute::DEFAULT_OUTPUT_NAME("out");
 const RtToken PvtAttribute::COLOR_SPACE("colorspace");
 const RtToken PvtAttribute::UNIT("unit");
 
+RT_DEFINE_RUNTIME_OBJECT(PvtAttribute, RtObjType::ATTRIBUTE, "PvtAttribute")
+
 PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
     PvtObject(name, parent),
     _value(type, RtValue::createNew(type, parent->obj())),
@@ -21,6 +23,8 @@ PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t fl
     setTypeBit<PvtAttribute>();
 }
 
+
+RT_DEFINE_RUNTIME_OBJECT(PvtOutput, RtObjType::OUTPUT, "PvtOutput")
 
 PvtOutput::PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
     PvtAttribute(name, type, flags, parent)
@@ -75,6 +79,9 @@ void PvtOutput::clearConnections()
     }
     _connections.clear();
 }
+
+
+RT_DEFINE_RUNTIME_OBJECT(PvtInput, RtObjType::INPUT, "PvtInput")
 
 PvtInput::PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
     PvtAttribute(name, type, flags, parent)

@@ -11,12 +11,12 @@ namespace MaterialX
 {
 
 RtSchemaBase::RtSchemaBase(const RtPrim& prim) :
-    _hnd(prim.hnd())
+    _hnd(prim._hnd)
 {
 }
 
 RtSchemaBase::RtSchemaBase(const RtSchemaBase& other) :
-    _hnd(other.hnd())
+    _hnd(other._hnd)
 {
 }
 
@@ -32,7 +32,7 @@ bool RtSchemaBase::isSupported(const PvtDataHandle&) const
 
 RtPrim RtSchemaBase::getPrim() const
 {
-    return hnd();
+    return RtPrim(_hnd);
 }
 
 PvtPrim* RtSchemaBase::prim() const
@@ -59,8 +59,8 @@ const RtToken& RtTypedSchema::getTypeName() const
 bool RtTypedSchema::isSupported(const PvtDataHandle& hnd) const
 {
     // TODO: Implement proper type information and checking
-    // to handle class inheritance.
-    return hnd->asA<PvtPrim>()->getTypeName() == getTypeName();
+    // to handle schema class inheritance.
+    return !hnd->isDisposed() && hnd->asA<PvtPrim>()->getTypeName() == getTypeName();
 }
 
 }

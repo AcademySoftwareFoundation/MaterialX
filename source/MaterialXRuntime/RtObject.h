@@ -24,7 +24,7 @@ class RtStage;
 
 // A handle to private object data
 class PvtObject;
-DECLARE_REF_PTR_TYPE(PvtObject, PvtDataHandle)
+RT_DECLARE_REF_PTR_TYPE(PvtObject, PvtDataHandle)
 
 /// Shared pointer to a stage.
 using RtStagePtr = RtSharedPtr<RtStage>;
@@ -44,15 +44,23 @@ enum class RtObjType
     DISPOSED        = 1<<6
 };
 
-#define DECLARE_CLASS_OBJ_TYPE(type)                 \
-public:                                              \
-    static RtObjType classObjType() { return type; } \
+#define RT_DECLARE_RUNTIME_OBJECT(T)                         \
+private:                                                     \
+    static const RtObjType _classType;                       \
+    static const RtToken _className;                         \
+public:                                                      \
+    static RtObjType classType() { return _classType; }      \
+    static const RtToken& className() { return _className; } \
+
+#define RT_DEFINE_RUNTIME_OBJECT(T, type, name)              \
+const RtObjType T::_classType(type);                         \
+const RtToken T::_className(name);                           \
 
 /// @class RtObject
 /// Base class for all runtime objects.
 class RtObject
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::OBJECT)
+    RT_DECLARE_RUNTIME_OBJECT(RtObject)
 
 public:
     /// Empty constructor.
@@ -74,7 +82,7 @@ public:
     {
         static_assert(std::is_base_of<RtObject, T>::value,
             "Templated type must be an RtObject or a subclass of RtObject");
-        return _isCompatible(T::classObjType());
+        return isCompatible(T::classType());
     }
 
     /// Cast to the templated object class. Returns and invalid object if
@@ -84,14 +92,11 @@ public:
     {
         static_assert(std::is_base_of<RtObject, T>::value,
             "Templated type must be an RtObject or a subclass of RtObject");
-        return _isCompatible(T::classObjType()) ? T(_hnd) : T();
+        return isCompatible(T::classType()) ? T(_hnd) : T();
     }
 
     /// Return true if the object is valid.
-    bool isValid() const
-    {
-        return _hnd != nullptr;
-    }
+    bool isValid() const;
 
     /// Returns true if the object is invalid.
     bool operator!() const
@@ -137,15 +142,20 @@ public:
     RtTypedValue* getMetadata(const RtToken& name);
 
 protected:
+#ifdef NDEBUG
     /// Return the data handle.
     const PvtDataHandle& hnd() const
     {
         return _hnd;
     }
+#else
+    /// Return the data handle.
+    const PvtDataHandle& hnd() const;
+#endif
 
     /// Return true if this obect is compatible 
     /// with an object of the given type id.
-    bool _isCompatible(RtObjType typeId) const;
+    bool isCompatible(RtObjType typeId) const;
 
     /// Internal data handle.
     PvtDataHandle _hnd;

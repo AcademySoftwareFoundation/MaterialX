@@ -32,8 +32,8 @@ using PvtDataHandleSet = std::set<PvtDataHandle>;
 // This is the base class for prims, attributes and relationships.
 class PvtObject
 {
-    DECLARE_REF_COUNTED_CLASS(PvtObject)
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::OBJECT)
+    RT_DECLARE_RUNTIME_OBJECT(PvtObject)
+    RT_DECLARE_REF_COUNTED_CLASS(PvtObject)
 
 public:
     using TypeBits = uint8_t;
@@ -60,24 +60,26 @@ public:
     {
         static_assert(std::is_base_of<PvtObject, T>::value,
             "Templated type must be an PvtObject or a subclass of PvtObject");
-        return isCompatible(T::classObjType());
+        return isCompatible(T::classType());
     }
 
     // Casting the object to a given type.
-    // NOTE: No type check if performed so the templated type 
+    // NOTE: In release builds no type check if performed so the templated type 
     // must be of a type compatible with this object.
     template<class T> T* asA()
     {
         static_assert(std::is_base_of<PvtObject, T>::value,
             "Templated type must be an PvtObject or a subclass of PvtObject");
 #ifndef NDEBUG
+        // In debug mode we do safety checks on object validity
+        // and type cast compatibility.
         if (isDisposed())
         {
             throw ExceptionRuntimeError("Trying to access a disposed object '" + getName().str() + "'");
         }
-        if (!isCompatible(T::classObjType()))
+        if (!isCompatible(T::classType()))
         {
-            throw ExceptionRuntimeError("Types are incompatible for type cast");
+            throw ExceptionRuntimeError("Types are incompatible for type cast, '" + getName().str() + "' is not a '" + T::className().str() + "'");
         }
 #endif
         return static_cast<T*>(this);
@@ -162,7 +164,7 @@ protected:
     template<typename T>
     void setTypeBit()
     {
-        _typeBits |= TypeBits(T::classObjType());
+        _typeBits |= TypeBits(T::classType());
     }
 
     // Protected as arbitrary renaming is not supported.

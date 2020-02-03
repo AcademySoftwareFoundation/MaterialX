@@ -12,6 +12,8 @@
 namespace MaterialX
 {
 
+RT_DEFINE_RUNTIME_OBJECT(RtObject, RtObjType::OBJECT, "object")
+
 RtObject::RtObject() :
     _hnd(nullptr)
 {
@@ -29,6 +31,11 @@ RtObject::RtObject(PvtDataHandle data) :
 
 RtObject::~RtObject()
 {
+}
+
+bool RtObject::isValid() const
+{
+    return _hnd && !_hnd->isDisposed();
 }
 
 const RtToken& RtObject::getName() const
@@ -73,9 +80,22 @@ RtTypedValue* RtObject::getMetadata(const RtToken& name)
     return hnd()->asA<PvtObject>()->getMetadata(name);
 }
 
-bool RtObject::_isCompatible(RtObjType typeId) const
+bool RtObject::isCompatible(RtObjType typeId) const
 {
     return hnd()->asA<PvtObject>()->isCompatible(typeId);
 }
+
+#ifndef NDEBUG
+const PvtDataHandle& RtObject::hnd() const
+{
+    // In debug mode we check for object validity
+    // to report any invalid access.
+    if (!isValid())
+    {
+        throw ExceptionRuntimeError("Trying to access an invalid or disposed object");
+    }
+    return _hnd;
+}
+#endif
 
 }

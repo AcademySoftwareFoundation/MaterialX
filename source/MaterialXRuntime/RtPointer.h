@@ -37,14 +37,14 @@ template<typename T>
 using RtRefPtr = boost::intrusive_ptr<T>;
 
 // Macro for declaring ref pointer type for a class.
-#define DECLARE_REF_PTR_TYPE(T, name)                               \
+#define RT_DECLARE_REF_PTR_TYPE(T, name)                            \
 using name = RtRefPtr<T>;                                           \
 void intrusive_ptr_add_ref(const T* obj);                           \
 void intrusive_ptr_release(const T* obj);                           \
 
 // Macro for adding reference counter for a class and declaring
 // functions to support the intrusive ref pointer type.
-#define DECLARE_REF_COUNTED_CLASS(T)                                \
+#define RT_DECLARE_REF_COUNTED_CLASS(T)                             \
 public:                                                             \
     int64_t refCount() const { return _refCount; }                  \
 private:                                                            \
@@ -53,7 +53,7 @@ private:                                                            \
     friend void intrusive_ptr_release(const T* obj);                \
 
 // Macro for defining the reference counting functions for a class
-#define DEFINE_REF_COUNTED_CLASS(T)                                 \
+#define RT_DEFINE_REF_COUNTED_CLASS(T)                              \
 void intrusive_ptr_add_ref(const T* p)                              \
 {                                                                   \
     p->_refCount.fetch_add(1, std::memory_order_relaxed);           \

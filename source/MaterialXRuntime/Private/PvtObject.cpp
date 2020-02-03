@@ -15,7 +15,8 @@
 namespace MaterialX
 {
 
-DEFINE_REF_COUNTED_CLASS(PvtObject)
+RT_DEFINE_RUNTIME_OBJECT(PvtObject, RtObjType::OBJECT, "PvtObject")
+RT_DEFINE_REF_COUNTED_CLASS(PvtObject)
 
 PvtObject::PvtObject(const RtToken& name, PvtPrim* parent) :
     _typeBits(0),

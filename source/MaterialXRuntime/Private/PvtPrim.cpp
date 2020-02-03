@@ -14,6 +14,8 @@
 namespace MaterialX
 {
 
+RT_DEFINE_RUNTIME_OBJECT(PvtPrim, RtObjType::PRIM, "PvtPrim")
+
 PvtPrim::PvtPrim(const RtToken& name, PvtPrim* parent) :
     PvtObject(name, parent)
 {
@@ -25,6 +27,36 @@ PvtDataHandle PvtPrim::createNew(const RtToken& name, PvtPrim* parent)
     // Make the name unique.
     const RtToken primName = parent->makeUniqueName(name);
     return PvtDataHandle(new PvtPrim(primName, parent));
+}
+
+void PvtPrim::dispose()
+{
+    // Dispose all relationships.
+    for (const PvtDataHandle& hnd : _relOrder)
+    {
+        hnd->setDisposed();
+    }
+    _relOrder.clear();
+    _relMap.clear();
+
+    // Dispose all attributes.
+    for (const PvtDataHandle& hnd : _attrOrder)
+    {
+        hnd->setDisposed();
+    }
+    _attrOrder.clear();
+    _attrMap.clear();
+
+    // Dispose all child prims reqursively.
+    for (const PvtDataHandle& hnd : _primOrder)
+    {
+        hnd->asA<PvtPrim>()->dispose();
+    }
+    _primOrder.clear();
+    _primMap.clear();
+
+    // Tag as disposed
+    setDisposed();
 }
 
 PvtRelationship* PvtPrim::createRelationship(const RtToken& name)
@@ -43,16 +75,21 @@ PvtRelationship* PvtPrim::createRelationship(const RtToken& name)
 
 void PvtPrim::removeRelationship(const RtToken& name)
 {
-    for (auto it = _relOrder.begin(); it != _relOrder.end(); ++it)
+    PvtRelationship* rel = getRelationship(name);
+    if (rel)
     {
-        PvtRelationship* rel = (*it)->asA<PvtRelationship>();
-        if (rel->getName() == name)
+        for (auto it = _relOrder.begin(); it != _relOrder.end(); ++it)
         {
-            _relOrder.erase(it);
-            break;
+            PvtRelationship* r = (*it)->asA<PvtRelationship>();
+            if (r == rel)
+            {
+                _relOrder.erase(it);
+                break;
+            }
         }
+        rel->setDisposed();
+        _relMap.erase(name);
     }
-    _relMap.erase(name);
 }
 
 PvtAttribute* PvtPrim::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
@@ -99,16 +136,21 @@ PvtOutput* PvtPrim::createOutput(const RtToken& name, const RtToken& type, uint3
 
 void PvtPrim::removeAttribute(const RtToken& name)
 {
-    for (auto it = _attrOrder.begin(); it != _attrOrder.end(); ++it)
+    PvtAttribute* attr = getAttribute(name);
+    if (attr)
     {
-        PvtAttribute* attr = (*it)->asA<PvtAttribute>();
-        if (attr->getName() == name)
+        for (auto it = _attrOrder.begin(); it != _attrOrder.end(); ++it)
         {
-            _attrOrder.erase(it);
-            break;
+            PvtAttribute* a = (*it)->asA<PvtAttribute>();
+            if (a == attr)
+            {
+                _attrOrder.erase(it);
+                break;
+            }
         }
+        attr->setDisposed();
+        _attrMap.erase(name);
     }
-    _attrMap.erase(name);
 }
 
 RtAttrIterator PvtPrim::getAttributes(RtObjectPredicate predicate) const

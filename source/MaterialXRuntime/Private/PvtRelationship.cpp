@@ -8,6 +8,8 @@
 namespace MaterialX
 {
 
+RT_DEFINE_RUNTIME_OBJECT(PvtRelationship, RtObjType::RELATIONSHIP, "PvtRelationship")
+
 PvtRelationship::PvtRelationship(const RtToken& name, PvtPrim* parent) :
     PvtObject(name, parent)
 {

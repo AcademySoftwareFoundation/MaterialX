@@ -11,6 +11,8 @@
 namespace MaterialX
 {
 
+RT_DEFINE_RUNTIME_OBJECT(RtAttribute, RtObjType::ATTRIBUTE, "RtAttribute")
+
 RtAttribute::RtAttribute(PvtDataHandle hnd) :
     RtObject(hnd)
 {
@@ -67,6 +69,8 @@ void RtAttribute::setUnit(const RtToken& unit)
 }
 
 
+RT_DEFINE_RUNTIME_OBJECT(RtInput, RtObjType::INPUT, "RtInput")
+
 RtInput::RtInput(PvtDataHandle hnd) :
     RtAttribute(hnd)
 {
@@ -113,6 +117,8 @@ RtOutput RtInput::getConnection() const
     return output ? RtOutput(output->hnd()) : RtOutput();
 }
 
+
+RT_DEFINE_RUNTIME_OBJECT(RtOutput, RtObjType::OUTPUT, "RtOutput")
 
 RtOutput::RtOutput(PvtDataHandle hnd) :
     RtAttribute(hnd)

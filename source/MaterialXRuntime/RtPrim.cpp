@@ -11,6 +11,8 @@
 namespace MaterialX
 {
 
+RT_DEFINE_RUNTIME_OBJECT(RtPrim, RtObjType::PRIM, "RtPrim")
+
 RtPrim::RtPrim(PvtDataHandle hnd) :
     RtObject(hnd)
 {

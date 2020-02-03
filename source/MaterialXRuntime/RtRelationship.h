@@ -21,7 +21,7 @@ class RtConnectionIterator;
 /// Object holding a relationship on a prim.
 class RtRelationship : public RtObject
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::RELATIONSHIP)
+    RT_DECLARE_RUNTIME_OBJECT(RtRelationship)
 
 public:
     /// Empty constructor.

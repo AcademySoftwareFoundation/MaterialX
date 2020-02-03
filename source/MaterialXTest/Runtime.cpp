@@ -285,7 +285,7 @@ namespace MaterialX
 
 // Test adding reference count to a class
 class Foo {
-    DECLARE_REF_COUNTED_CLASS(Foo)
+    RT_DECLARE_REF_COUNTED_CLASS(Foo)
 public:
     Foo() : v(0)
     {
@@ -302,10 +302,10 @@ public:
 int Foo::construct = 0;
 int Foo::deconstruct = 0;
 
-DEFINE_REF_COUNTED_CLASS(Foo)
-DECLARE_REF_PTR_TYPE(Foo, FooPtr)
+RT_DEFINE_REF_COUNTED_CLASS(Foo)
+RT_DECLARE_REF_PTR_TYPE(Foo, FooPtr)
 
-}
+} // namespace MaterialX
 
 TEST_CASE("Runtime: RefCount", "[runtime]")
 {
@@ -466,6 +466,27 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     mx::RtAttribute attr2 = obj2.asA<mx::RtAttribute>();
     REQUIRE(attr1);
     REQUIRE(!attr2);
+
+    // Test object life-time management
+    mx::RtInput graph_in = graph.createInput(IN, mx::RtType::FLOAT);
+    mx::RtOutput graph_out = graph.createOutput(OUT, mx::RtType::FLOAT);
+    mx::RtPrim node1 = stage->createPrim(graph.getPath(), mx::RtToken("node1"), nodedefPrim.getName());
+    mx::RtPrim node2 = stage->createPrim(graph.getPath(), mx::RtToken("node1"), nodedefPrim.getName());
+    REQUIRE(node1.isValid());
+    stage->removePrim(node1.getPath());
+    REQUIRE(!node1.isValid());
+    REQUIRE(graph_in.isValid());
+    graph.removeInput(graph_in.getName());
+    REQUIRE(!graph_in.isValid());
+    stage->removePrim(graph.getPath());
+    REQUIRE(!graph_out.isValid());
+    REQUIRE(!node2.isValid());
+    REQUIRE(!graph.isValid());
+#ifndef NDEBUG
+    // In debug builds accessing a disposed object should throw
+    REQUIRE_THROWS(graph.getName() != NONAME);
+    REQUIRE_THROWS(graph_out.isConnected());
+#endif
 }
 
 TEST_CASE("Runtime: Nodes", "[runtime]")

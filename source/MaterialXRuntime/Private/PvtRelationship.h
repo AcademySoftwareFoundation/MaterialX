@@ -19,7 +19,7 @@ namespace MaterialX
 
 class PvtRelationship : public PvtObject
 {
-    DECLARE_CLASS_OBJ_TYPE(RtObjType::RELATIONSHIP)
+    RT_DECLARE_RUNTIME_OBJECT(PvtRelationship)
 
 public:
     PvtRelationship(const RtToken& name, PvtPrim* parent);
