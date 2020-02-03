@@ -23,26 +23,52 @@ class RtApi
 public:
     ~RtApi();
 
+    /// Initialize the API session.
     void initialize();
+
+    /// Shutdown the API session.
     void shutdown();
 
+    /// Register a create function for a typename.
     void registerCreateFunction(const RtToken& typeName, RtPrimCreateFunc func);
+
+    /// Unregister a create function.
     void unregisterCreateFunction(const RtToken& typeName);
+
+    /// Return true if the given typename has a create function registered.
     bool hasCreateFunction(const RtToken& typeName);
+
+    /// Return the create function for given typename.
+    /// Or nullptr if no such create function has been registered.
     RtPrimCreateFunc getCreateFunction(const RtToken& typeName);
 
+    /// Register a master prim to be used for creating instances from.
+    /// A typical usecase is for registering a nodedef prim to be used for
+    /// creating node instances.
     void registerMasterPrim(const RtPrim& prim);
+
+    /// Unregister a master prim.
     void unregisterMasterPrim(const RtToken& name);
+
+    /// Return true if a master prim with the given name has been registered.
     bool hasMasterPrim(const RtToken& name);
+
+    /// Return the master prim with given name.
+    /// Or a null object if no such prim has been registered.
     RtPrim getMasterPrim(const RtToken& name);
+
+    /// Return and iterator over all registered master prims,
+    /// optionally filtered using a predicate.
     RtPrimIterator getMasterPrims(RtObjectPredicate predicate = nullptr);
 
+    /// Register a typed prim schema.
     template<class T>
     void registerTypedSchema()
     {
         registerCreateFunction(T::typeName(), T::createPrim);
     }
 
+    /// Unregister a typed prim schema.
     template<class T>
     void unregisterTypedSchema()
     {

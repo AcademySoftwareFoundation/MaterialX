@@ -239,7 +239,6 @@ RtStagePtr RtApi::getStage(const RtToken& name) const
     return _cast(_ptr)->getStage(name);
 }
 
-
 RtApi& RtApi::get()
 {
     static RtApi _instance;
