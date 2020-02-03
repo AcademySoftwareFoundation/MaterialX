@@ -65,12 +65,6 @@ protected:
     ~RtRefCounted() = default;
 
     mutable std::atomic<int64_t> _refCount;
-
-    // Functions called by RtRefPtr to update the reference count.
-    // These functions must be implemented for the derived class.
-    // Macros below can be used to add in default implementations.
-    friend void intrusive_ptr_add_ref(T* obj);
-    friend void intrusive_ptr_release(T* obj);
 };
 
 // Macro for declaring a ref pointer type and the accompanying
@@ -93,6 +87,11 @@ void intrusive_ptr_release(T* p)                                    \
         delete p;                                                   \
     }                                                               \
 }                                                                   \
+
+// Macro for friending the reference counting functions for a class.
+#define RT_FRIEND_REF_PTR_FUNCTIONS(T)                              \
+friend void intrusive_ptr_add_ref(T* obj);                          \
+friend void intrusive_ptr_release(T* obj);                          \
 
 } // namespace MaterialX
 

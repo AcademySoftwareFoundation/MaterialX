@@ -190,6 +190,7 @@ protected:
     friend class PvtAttribute;
     friend class PvtInput;
     friend class PvtOutput;
+    RT_FRIEND_REF_PTR_FUNCTIONS(PvtObject)
 };
 
 }

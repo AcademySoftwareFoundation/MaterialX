@@ -298,10 +298,10 @@ public:
     int v;
     static int construct;
     static int deconstruct;
+    RT_FRIEND_REF_PTR_FUNCTIONS(Foo)
 };
 int Foo::construct = 0;
 int Foo::deconstruct = 0;
-
 RT_DECLARE_REF_PTR_TYPE(Foo, FooPtr)
 RT_DEFINE_REF_PTR_FUNCTIONS(Foo)
 

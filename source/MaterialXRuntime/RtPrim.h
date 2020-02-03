@@ -19,6 +19,7 @@ namespace MaterialX
 
 class RtAttrIterator;
 class RtPrimIterator;
+class RtSchemaBase;
 
 /// @class RtPrim
 class RtPrim : public RtObject
