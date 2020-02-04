@@ -776,42 +776,40 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         const mx::RtToken tiledimageDef("ND_tiledimage_color3");
         const mx::RtToken texcoordDef("ND_texcoord_vector2");
         mx::RtNode tiledimage1 = stage->createPrim(tiledimageDef);
-//        mx::RtNode texcoord1 = stage->createPrim(texcoordDef);
+        mx::RtNode texcoord1 = stage->createPrim(texcoordDef);
         REQUIRE(tiledimage1);
-//        REQUIRE(texcoord1);
+        REQUIRE(texcoord1);
         mx::RtInput tiledimage1_texcoord = tiledimage1.getInput(mx::RtToken("texcoord"));
         mx::RtInput tiledimage1_file = tiledimage1.getInput(mx::RtToken("file"));
-//        mx::RtInput texcoord1_index = texcoord1.getInput(mx::RtToken("index"));
-//        mx::RtOutput texcoord1_out = texcoord1.getOutput(OUT);
+        mx::RtInput texcoord1_index = texcoord1.getInput(mx::RtToken("index"));
+        mx::RtOutput texcoord1_out = texcoord1.getOutput(OUT);
         REQUIRE(tiledimage1_texcoord);
         REQUIRE(tiledimage1_file);
-//        REQUIRE(texcoord1_index);
-  //      REQUIRE(texcoord1_out);
+        REQUIRE(texcoord1_index);
+        REQUIRE(texcoord1_out);
         tiledimage1_file.getValue().asString() = "myimagetexture.png";
-   //     texcoord1_out.connect(tiledimage1_texcoord);
-     //   texcoord1_index.getValue().asInt() = 2;
+        texcoord1_out.connect(tiledimage1_texcoord);
+        texcoord1_index.getValue().asInt() = 2;
+
+        const mx::FilePath fileExport("file_export.mtlx");
+        const mx::FilePath streamExport("stream_export.mtlx");
 
         mx::RtFileIo fileIO(stage);
-        fileIO.write("file_export.mtlx");
+        fileIO.write(fileExport);
 
         // Test write to stream.
         std::stringstream stream1;
         fileIO.write(stream1);
         REQUIRE(!stream1.str().empty());
 
-        std::ofstream file1("file_export2.mtlx");
-        file1 << stream1.str();
-        file1.close();
-
         // Test read from stream.
         mx::RtStagePtr streamStage = api->createStage(MAIN);
         mx::RtFileIo streamFileIO(streamStage);
-//        streamFileIO.read(stream1);
-        streamFileIO.read("file_export.mtlx", searchPath);
-        streamFileIO.write("stream_export.mtlx");
+        streamFileIO.read(stream1);
+        streamFileIO.write(streamExport);
 
         // Compare file contents.
-        REQUIRE(compareFiles("file_export.mtlx", "stream_export.mtlx"));
+        REQUIRE(compareFiles(fileExport, streamExport));
     }
 }
 
