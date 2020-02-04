@@ -82,16 +82,6 @@ public:
         _typeName = typeName;
     }
 
-    const RtToken& getSubTypeName() const
-    {
-        return _subTypeName;
-    }
-
-    void setSubTypeName(const RtToken& subTypeName)
-    {
-        _subTypeName = subTypeName;
-    }
-
     PvtRelationship* createRelationship(const RtToken& name);
 
     void removeRelationship(const RtToken& name);
@@ -176,7 +166,6 @@ protected:
     void removeChildPrim(const PvtPrim* prim);
 
     RtToken _typeName;
-    RtToken _subTypeName;
 
     // Relationships
     PvtDataHandleMap _relMap;

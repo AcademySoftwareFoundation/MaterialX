@@ -11,6 +11,7 @@
 #include <MaterialXRuntime/RtBackdrop.h>
 #include <MaterialXRuntime/RtGeneric.h>
 #include <MaterialXRuntime/RtStage.h>
+#include <MaterialXRuntime/RtFileIo.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
@@ -85,6 +86,67 @@ public:
         return RtPrimIterator(_masterPrimRoot, predicate);
     }
 
+    void setSearchPath(const FileSearchPath& searchPath)
+    {
+        _searchPaths.append(searchPath);
+    }
+
+    void loadLibrary(const RtToken& name)
+    {
+        // If already loaded unload the old first,
+        // to support reloading of updated libraries.
+        if (getLibrary(name))
+        {
+            unloadLibrary(name);
+        }
+
+        RtStagePtr lib = RtStage::createNew(name);
+        _libraries[name] = lib;
+
+        RtFileIo file(lib);
+        file.readLibraries({ name }, _searchPaths);
+
+        _libraryRoot->addReference(lib);
+    }
+
+    void unloadLibrary(const RtToken& name)
+    {
+        RtStagePtr lib = getLibrary(name);
+        if (lib)
+        {
+            // Unregister any nodedefs from this library.
+            RtSchemaPredicate<RtNodeDef> nodedefFilter;
+            for (RtPrim nodedef : lib->getRootPrim().getChildren(nodedefFilter))
+            {
+                unregisterMasterPrim(nodedef.getName());
+            }
+
+            // Delete the library.
+            _libraries.erase(name);
+        }
+    }
+
+    RtStagePtr getLibrary(const RtToken& name)
+    {
+        auto it = _libraries.find(name);
+        return it != _libraries.end() ? it->second : nullptr;
+    }
+
+    RtStagePtr getLibraryRoot()
+    {
+        return _libraryRoot;
+    }
+
+    RtTokenList getLibraryNames() const
+    {
+        RtTokenList names;
+        for (auto it : _libraries)
+        {
+            names.push_back(it.first);
+        }
+        return names;
+    }
+
     RtStagePtr createStage(const RtToken& name)
     {
         RtToken newName = name;
@@ -128,13 +190,33 @@ public:
         return it != _stages.end() ? it->second : RtStagePtr();
     }
 
+    RtTokenList getStageNames() const
+    {
+        RtTokenList names;
+        for (auto it : _stages)
+        {
+            names.push_back(it.first);
+        }
+        return names;
+    }
+
     void reset()
     {
         static const RtToken primRootName("apiroot");
+        static const RtToken libRootName("libroot");
+
         _masterPrimRoot.reset(new PvtPrim(primRootName, nullptr));
         _createFunctions.clear();
         _stages.clear();
+
+        _libraryRoot.reset();
+        _libraries.clear();
+        _libraryRoot = RtStage::createNew(libRootName);
     }
+
+    FileSearchPath _searchPaths;
+    RtStagePtr _libraryRoot;
+    RtTokenMap<RtStagePtr> _libraries;
 
     PvtDataHandle _masterPrimRoot;
     RtTokenMap<RtPrimCreateFunc> _createFunctions;
@@ -224,6 +306,31 @@ RtPrimIterator RtApi::getMasterPrims(RtObjectPredicate predicate)
     return RtPrimIterator(_cast(_ptr)->_masterPrimRoot, predicate);
 }
 
+void RtApi::setSearchPath(const FileSearchPath& searchPath)
+{
+    _cast(_ptr)->setSearchPath(searchPath);
+}
+
+void RtApi::loadLibrary(const RtToken& name)
+{
+    _cast(_ptr)->loadLibrary(name);
+}
+
+void RtApi::unloadLibrary(const RtToken& name)
+{
+    _cast(_ptr)->unloadLibrary(name);
+}
+
+RtTokenList RtApi::getLibraryNames() const
+{
+    return _cast(_ptr)->getLibraryNames();
+}
+
+RtStagePtr RtApi::getLibrary()
+{
+    return _cast(_ptr)->getLibraryRoot();
+}
+
 RtStagePtr RtApi::createStage(const RtToken& name)
 {
     return _cast(_ptr)->createStage(name);
@@ -237,6 +344,11 @@ void RtApi::deleteStage(const RtToken& name)
 RtStagePtr RtApi::getStage(const RtToken& name) const
 {
     return _cast(_ptr)->getStage(name);
+}
+
+RtTokenList RtApi::getStageNames() const
+{
+    return _cast(_ptr)->getStageNames();
 }
 
 RtApi& RtApi::get()

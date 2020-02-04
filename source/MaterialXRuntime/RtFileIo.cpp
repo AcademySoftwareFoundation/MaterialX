@@ -34,6 +34,8 @@ namespace
     static const RtTokenSet genericMetadata     = { RtToken("name"), RtToken("kind") };
     static const RtTokenSet stageMetadata       = {};
 
+    static const RtToken MULTIOUTPUT("multioutput");
+
     PvtPrim* findPrimOrThrow(const RtToken& name, PvtPrim* parent)
     {
         PvtPrim* prim = parent->getChild(name);
@@ -169,8 +171,18 @@ namespace
         return prim;
     }
 
-    bool matchingSignature(const PvtPrim* prim, const vector<ValueElementPtr>& nodePorts)
+    bool matchingSignature(const PvtPrim* prim, const RtToken& nodeType, const vector<ValueElementPtr>& nodePorts)
     {
+        if (nodeType != MULTIOUTPUT)
+        {
+            // For single output nodes we can match the output directly.
+            PvtOutput* out = prim->getOutput(PvtAttribute::DEFAULT_OUTPUT_NAME);
+            if (!out || out->getType() != nodeType)
+            {
+                return false;
+            }
+        }
+
         // Check all ports.
         // TODO: Do we need to match port type as well (input/output/parameter)?
         for (const ValueElementPtr& nodePort : nodePorts)
@@ -203,13 +215,14 @@ namespace
 
         // Third, try resolving among existing registered master prim nodedefs.
         const RtToken nodeName(node->getCategory());
+        const RtToken nodeType(node->getType());
         const vector<ValueElementPtr> nodePorts = node->getActiveValueElements();
         RtSchemaPredicate<RtNodeDef> nodedefFilter;
         for (RtPrim masterPrim : RtApi::get().getMasterPrims(nodedefFilter))
         {
             RtNodeDef candidate(masterPrim);
             if (candidate.getNode() == nodeName &&
-                matchingSignature(PvtObject::ptr<PvtPrim>(masterPrim), nodePorts))
+                matchingSignature(PvtObject::ptr<PvtPrim>(masterPrim), nodeType, nodePorts))
             {
                 return candidate.getName();
             }
@@ -348,15 +361,6 @@ namespace
         }
 
         return prim;
-    }
-
-    void readSourceUri(const DocumentPtr& doc, PvtStage* stage)
-    {
-        StringSet uris = doc->getReferencedSourceUris();
-        for (const string& uri : uris)
-        {
-            stage->addSourceUri(RtToken(uri));
-        }
     }
 
     void readDocument(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions)
@@ -816,7 +820,12 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
     // Load all content into a document.
     DocumentPtr doc = createDocument();
     MaterialX::loadLibraries(libraryPaths, searchPaths, doc);
-    readSourceUri(doc, stage);
+
+    StringSet uris = doc->getReferencedSourceUris();
+    for (const string& uri : uris)
+    {
+        stage->addSourceUri(RtToken(uri));
+    }
 
     // First, load all nodedefs. Having these available is needed
     // when node instances are loaded later.
@@ -861,9 +870,9 @@ void RtFileIo::write(const FilePath& documentPath, const RtWriteOptions* options
 {
     PvtStage* stage = PvtStage::ptr(_stage);
 
-    DocumentPtr document = createDocument(); 
+    DocumentPtr document = createDocument();
     writeDocument(document, stage, options);
-    
+
     XmlWriteOptions xmlWriteOptions;
     if (options)
     {

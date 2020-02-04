@@ -12,6 +12,8 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtPrim.h>
 
+#include <MaterialXFormat/File.h>
+
 namespace MaterialX
 {
 
@@ -75,6 +77,22 @@ public:
         unregisterCreateFunction(T::typeName());
     }
 
+    /// Set search path for libraries. Can be called multiple times
+    /// to append to the current search path.
+    void setSearchPath(const FileSearchPath& searchPath);
+
+    /// Load a library.
+    void loadLibrary(const RtToken& name);
+
+    /// Unload a library.
+    void unloadLibrary(const RtToken& name);
+
+    /// Return a list of all loaded libraries.
+    RtTokenList getLibraryNames() const;
+
+    /// Return the library stage containing all loaded libraries.
+    RtStagePtr getLibrary();
+
     /// Create a new empty stage.
     RtStagePtr createStage(const RtToken& name);
 
@@ -83,6 +101,9 @@ public:
 
     /// Return a stage by name.
     RtStagePtr getStage(const RtToken& name) const;
+
+    /// Return a list of all stages created.
+    RtTokenList getStageNames() const;
 
     /// Get the singleton API instance.
     static RtApi& get();
@@ -96,19 +117,24 @@ protected:
 };
 
 
+/// RAII class for scoped initialization and shutdown
+/// of the API instance.
 class RtScopedApiHandle
 {
 public:
+    /// Constructor.
     RtScopedApiHandle()
     {
         RtApi::get().initialize();
     }
 
+    /// Destructor.
     ~RtScopedApiHandle()
     {
         RtApi::get().shutdown();
     }
 
+    /// Access a pointer to the api instance.
     RtApi* operator->()
     {
         return &RtApi::get();

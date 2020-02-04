@@ -129,9 +129,11 @@ public:
     /// will be written to the document.
     void write(const FilePath& documentPath, const RtWriteOptions* writeOptions = nullptr);
 
+protected:
     /// Read all contents from one or more libraries.
     /// All MaterialX files found inside the given libraries will be read.
     void readLibraries(const StringVec& libraryPaths, const FileSearchPath& searchPaths);
+    friend class PvtApi;
 
 private:
     RtStagePtr _stage;
