@@ -15,7 +15,6 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <unordered_set>
 
 namespace MaterialX
 {
@@ -47,7 +46,7 @@ bool readFile(const string& filename, string& contents)
 
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
                    const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
-                   StringVec& errors)
+                   const XmlReadOptions& readOptions, StringVec& errors)
 {
     for (const FilePath& dir : rootPath.getSubDirectories())
     {
@@ -62,7 +61,7 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
                 {
                     FileSearchPath readSearchPath(searchPath);
                     readSearchPath.append(dir);
-                    readFromXmlFile(doc, filePath, readSearchPath);
+                    readFromXmlFile(doc, filePath, readSearchPath, &readOptions);
                     documents.push_back(doc);
                     documentsPaths.push_back(filePath.asString());
                 }

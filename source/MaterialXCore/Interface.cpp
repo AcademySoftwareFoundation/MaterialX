@@ -85,25 +85,50 @@ bool PortElement::validate(string* message) const
     }
     if (connectedNode)
     {
-        if (hasOutputString())
+        const string& outputString = getOutputString();
+        if (!outputString.empty())
         {
-            validateRequire(connectedNode->getType() == MULTI_OUTPUT_TYPE_STRING, res, message, "Multi-output type expected in port connection");
-            NodeDefPtr connectedNodeDef = connectedNode->getNodeDef();
-            if (connectedNodeDef)
+            OutputPtr output = OutputPtr();
+            if (hasNodeName())
             {
-                OutputPtr output = connectedNodeDef->getOutput(getOutputString());
-                validateRequire(output != nullptr, res, message, "Invalid output in port connection");
+                NodeDefPtr nodeDef = connectedNode->getNodeDef();
+                output = nodeDef ? nodeDef->getOutput(outputString) : OutputPtr();
                 if (output)
                 {
-                    if (hasChannels())
+                    validateRequire(connectedNode->getType() == MULTI_OUTPUT_TYPE_STRING, res, message,
+                        "Multi-output type expected in port connection");
+                }
+            }
+            else if (hasNodeGraphName())
+            {
+                NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphName());
+                if (nodeGraph)
+                {
+                    output = nodeGraph->getOutput(outputString);
+                    if (nodeGraph->getNodeDef())
                     {
-                        bool valid = validChannelsString(getChannels(), output->getType(), getType());
-                        validateRequire(valid, res, message, "Invalid channels string in port connection");
+                        validateRequire(nodeGraph->getOutputCount() > 1, res, message,
+                            "Multi-output type expected in port connection");
                     }
-                    else
-                    {
-                        validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection");
-                    }
+                }
+            }
+            else
+            {
+                // Document has no concept of a multioutput type
+                output = getDocument()->getOutput(outputString);
+            }
+            validateRequire(output != nullptr, res, message, "No output found for port connection");
+
+            if (output)
+            {
+                if (hasChannels())
+                {
+                    bool valid = validChannelsString(getChannels(), output->getType(), getType());
+                    validateRequire(valid, res, message, "Invalid channels string in port connection");
+                }
+                else
+                {
+                    validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection");
                 }
             }
         }
@@ -185,18 +210,97 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
     return NULL_EDGE;
 }
 
+OutputPtr Parameter::getConnectedOutput() const
+{
+    OutputPtr output = OutputPtr();
+
+    const string& outputString = getAttribute(PortElement::OUTPUT_ATTRIBUTE);
+    if (!outputString.empty())
+    {
+        const string connectedGraph = getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
+        const string connectedNode = getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+
+        // Look for an output in a nodegraph
+        if (!connectedGraph.empty())
+        {
+            NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(connectedGraph);
+            if (nodeGraph)
+            {
+                output = nodeGraph->getOutput(outputString);
+            }
+        }
+        // Look for output on a node within a nodegraph
+        else if (!connectedNode.empty())
+        {
+            ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+            NodePtr node = graph ? graph->getNode(connectedNode) : nullptr;
+            if (node)
+            {
+                output = node->getOutput(outputString);
+            }
+        }
+        // Look for a document level output
+        else
+        {
+            output = getDocument()->getOutput(outputString);
+        }
+    }
+    return output;
+}
+
+NodePtr Parameter::getConnectedNode() const
+{
+    OutputPtr output = getConnectedOutput();
+    if (output)
+    {
+        return output->getConnectedNode();
+    }
+    const string connectedNode = getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+    if (!connectedNode.empty())
+    {
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+        NodePtr node = graph ? graph->getNode(connectedNode) : nullptr;
+        if (node)
+        {
+            return node;
+        }
+    }
+    return nullptr;
+}
+
 //
 // Input methods
 //
 
 OutputPtr Input::getConnectedOutput() const
 {
+    const string& outputString = getOutputString();
+    if (outputString.empty())
+    {
+        return OutputPtr();
+    }
+
+    // Look for an output in a nodegraph
     if (hasNodeGraphName())
     {
         NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphName());
-        return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
+        if (nodeGraph)
+        {
+            return nodeGraph->getOutput(outputString);
+        }
     }
-    return getDocument()->getOutput(getOutputString());
+    // Look for output on a node
+    else if (hasNodeName())
+    {
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+        NodePtr node = graph ? graph->getNode(getNodeName()) : nullptr;
+        if (node)
+        {
+            return node->getOutput(outputString);
+        }
+    }
+    // Look for output in the document
+    return getDocument()->getOutput(outputString);
 }
 
 NodePtr Input::getConnectedNode() const
@@ -204,7 +308,18 @@ NodePtr Input::getConnectedNode() const
     OutputPtr output = getConnectedOutput();
     if (output)
     {
-        return output->getConnectedNode();
+        NodePtr node = output->getConnectedNode();
+        if (node)
+            return node;
+    }
+    if (hasNodeName())
+    {
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+        NodePtr node = graph ? graph->getNode(getNodeName()) : nullptr;
+        if (node)
+        {
+            return node;
+        }
     }
     return PortElement::getConnectedNode();
 }

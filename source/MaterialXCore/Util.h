@@ -28,6 +28,9 @@ string getVersionString();
 /// as an integer tuple.
 std::tuple<int, int, int> getVersionIntegers();
 
+/// Make a version string from integers. 
+string makeVersionString(int majorVersion, int minorVersion);
+
 /// Create a valid MaterialX name from the given string.
 string createValidName(string name, char replaceChar = '_');
 

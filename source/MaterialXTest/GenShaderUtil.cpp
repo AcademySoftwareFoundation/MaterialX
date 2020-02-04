@@ -5,6 +5,8 @@
 
 #include <MaterialXTest/Catch/catch.hpp>
 
+#include <MaterialXCore/Util.h>
+
 #include <MaterialXTest/GenShaderUtil.h>
 
 #include <MaterialXGenShader/Shader.h>
@@ -552,19 +554,25 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
 
 void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath)
 {
-    // Test has been turned off so just do nothing.
+    // Start logging
+    _logFile.open(_logFilePath);
+
     // Check for an option file
     TestSuiteOptions options;
     if (!options.readOptions(optionsFilePath))
     {
-        std::cout << "Can't find options file. Skip test." << std::endl;
+        _logFile << "Can't find options file. Skip test." << std::endl;
+        _logFile.close();
         return;
     }
+    // Test has been turned off so just do nothing.
     if (!runTest(options))
     {
-        std::cout << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
+        _logFile << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
+        _logFile.close();
         return;
     }
+    options.print(_logFile);
 
     // Add files to override the files in the test suite to be examined.
     mx::StringSet overrideFiles;
@@ -572,9 +580,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     {
         overrideFiles.insert(filterFile);
     }
-
-    // Start logging
-    _logFile.open(_logFilePath);
 
     // Dependent library setup
     setupDependentLibraries();
@@ -590,9 +595,13 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Load in all documents to test
     mx::StringVec errorLog;
     mx::FileSearchPath searchPath(_libSearchPath);
+    mx::XmlReadOptions readOptions;
+    readOptions.desiredMajorVersion = options.desiredMajorVersion;
+    readOptions.desiredMinorVersion = options.desiredMinorVersion;
     for (const auto& testRoot : _testRootPaths)
     {
-        mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, errorLog);
+        mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
+                          readOptions, errorLog);
     }
     CHECK(errorLog.empty());
     for (const auto& error : errorLog)
@@ -758,6 +767,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 void TestSuiteOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
+    output << "\tVersion Target: " << std::to_string(desiredMajorVersion) + "." +
+        std::to_string(desiredMinorVersion) << std::endl;
     output << "\tOverride Files: { ";
     for (const auto& overrideFile : overrideFiles) { output << overrideFile << " "; }
     output << "} " << std::endl;
@@ -823,6 +834,8 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
+    const std::string DESIRED_MAJOR_VERSION("desiredMajorVersion");
+    const std::string DESIRED_MINOR_VERSION("desiredMinorVersion");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -832,10 +845,15 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableDirectLighting = true;
     enableIndirectLighting = true;
     specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
+    std::tuple<int, int, int> versionIntegers = mx::getVersionIntegers();
+    desiredMajorVersion = std::get<0>(versionIntegers);
+    desiredMinorVersion = std::get<1>(versionIntegers);
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
-        MaterialX::readFromXmlFile(doc, optionFile);
+        mx::XmlReadOptions readOptions;
+        MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath(), &readOptions);
+        //logFile << "Read file: " << doc->getSourceUri() << std::endl;
 
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
@@ -945,6 +963,14 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                         {
                             externalTestPaths.append(mx::FilePath(l));
                         }
+                    }
+                    else if (name == DESIRED_MAJOR_VERSION)
+                    {
+                        desiredMajorVersion = p->getValue()->asA<int>();
+                    }
+                    else if (name == DESIRED_MINOR_VERSION)
+                    {
+                        desiredMinorVersion = p->getValue()->asA<int>();
                     }
                 }
             }

@@ -93,25 +93,6 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 
 bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
 {
-    // Test has been turned off so just do nothing.
-    // Check for an option file
-    GenShaderUtil::TestSuiteOptions options;
-    if (!options.readOptions(optionsFilePath))
-    {
-        std::cout << "Can't find options file. Skip test." << std::endl;
-        return false;
-    }
-    if (!runTest(options))
-    {
-        std::cout << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
-        return false;
-    }
-
-    // Profiling times
-    RenderUtil::RenderProfileTimes profileTimes;
-    // Global setup timer
-    RenderUtil::AdditiveScopedTimer totalTime(profileTimes.totalTime, "Global total time");
-
 #ifdef LOG_TO_FILE
     std::ofstream logfile(_languageTargetString + "_render_log.txt");
     std::ostream& log(logfile);
@@ -126,6 +107,25 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     std::ostream& docValidLog(std::cout);
     std::ostream& profilingLog(std::cout);
 #endif
+
+    // Test has been turned off so just do nothing.
+    // Check for an option file
+    GenShaderUtil::TestSuiteOptions options;
+    if (!options.readOptions(optionsFilePath))
+    {
+        log << "Can't find options file. Skip test." << std::endl;
+        return false;
+    }
+    if (!runTest(options))
+    {
+        log << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
+        return false;
+    }
+
+    // Profiling times
+    RenderUtil::RenderProfileTimes profileTimes;
+    // Global setup timer
+    RenderUtil::AdditiveScopedTimer totalTime(profileTimes.totalTime, "Global total time");
 
     // Add files to override the files in the test suite to be tested.
     mx::StringSet testfileOverride;
@@ -242,7 +242,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             {
                 mx::FileSearchPath readSearchPath(searchPath);
                 readSearchPath.append(dir);
-                mx::readFromXmlFile(doc, filename, readSearchPath);
+                mx::XmlReadOptions readOptions;
+                readOptions.desiredMajorVersion = options.desiredMajorVersion;
+                readOptions.desiredMinorVersion = options.desiredMinorVersion;
+                mx::readFromXmlFile(doc, filename, readSearchPath, &readOptions);
             }
             catch (mx::Exception& e)
             {

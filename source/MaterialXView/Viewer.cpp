@@ -233,7 +233,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _lightHandler = mx::LightHandler::create();
     _lightFilename = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
     _lightDoc = mx::createDocument();
-    mx::readFromXmlFile(_lightDoc, _lightFilename, _searchPath);
+    mx::XmlReadOptions options;
+    mx::readFromXmlFile(_lightDoc, _lightFilename, _searchPath, &options);
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");

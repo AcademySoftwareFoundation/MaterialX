@@ -16,6 +16,9 @@
 #include <MaterialXCore/Interface.h>
 
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/XmlIo.h>
+
+#include <unordered_set>
 
 namespace MaterialX
 {
@@ -31,7 +34,7 @@ bool readFile(const string& filename, string& content);
 /// Scans for all documents under a root path and returns documents which can be loaded
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
                    const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
-                   StringVec& errors);
+                   const XmlReadOptions& readOptions, StringVec& errors);
 
 /// Load a given MaterialX library into a document
 void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath = nullptr);

@@ -134,6 +134,21 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         // port. If no explicit output is specified this will
         // return an empty string which is handled below.
         outputName = &port->getOutputString();
+
+        // Handle case where it's an input to a top level output
+        InputPtr connectedInput = connectingElement->asA<Input>();
+        OutputPtr output = OutputPtr();
+        if (connectedInput)
+        {
+            output = connectedInput->getConnectedOutput();
+        }
+        if (output)
+        {
+            if (output->getParent() == output->getDocument())
+            {
+                outputName = &output->getOutputString();
+            }
+        }
     }
     else
     {
