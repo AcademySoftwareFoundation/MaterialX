@@ -40,6 +40,23 @@ bool Material::generateConstantShader(mx::GenContext& context,
     return _glShader->init(shaderName, vertexShader, pixelShader);
 }
 
+bool Material::generateDepthShader(mx::GenContext& context,
+                                   mx::DocumentPtr stdLib,
+                                   const std::string& shaderName)
+{
+    _hwShader = createDepthShader(context, stdLib, shaderName);
+    if (!_hwShader)
+    {
+        return false;
+    }
+    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
+    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
+
+    // Compile and return.
+    _glShader = std::make_shared<ng::GLShader>();
+    return _glShader->init(shaderName, vertexShader, pixelShader);
+}
+
 bool Material::generateEnvironmentShader(mx::GenContext& context,
                                          const mx::FilePath& filename,
                                          mx::DocumentPtr stdLib,
@@ -413,8 +430,8 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
     }
     mx::ImageMap envLights =
     {
-        { mx::HW::ENV_RADIANCE, indirectLighting ? lightHandler->getEnvRadianceMap() : mx::ImagePtr() },
-        { mx::HW::ENV_IRRADIANCE, indirectLighting ? lightHandler->getEnvIrradianceMap() : mx::ImagePtr() }
+        { mx::HW::ENV_RADIANCE, indirectLighting ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
+        { mx::HW::ENV_IRRADIANCE, indirectLighting ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
     };
     for (const auto& env : envLights)
     {
@@ -507,6 +524,27 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
 
             ++index;
         }
+    }
+
+    // Bind shadow map properties
+    if (shadowState.shadowMap && _glShader->uniform(mx::HW::SHADOW_MAP, false) != -1)
+    {
+        mx::ImageSamplingProperties samplingProperties;
+        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+
+        // Bind the shadow map.
+        if (imageHandler->bindImage(shadowState.shadowMap, samplingProperties))
+        {
+            mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+            int textureLocation = textureHandler->getBoundTextureLocation(shadowState.shadowMap->getResourceId());
+            if (textureLocation >= 0)
+            {
+                _glShader->setUniform(mx::HW::SHADOW_MAP, textureLocation);
+            }
+        }
+        _glShader->setUniform(mx::HW::SHADOW_MATRIX, ng::Matrix4f(shadowState.shadowMatrix.getTranspose().data()), false);
     }
 
     // Bind ambient occlusion properties.

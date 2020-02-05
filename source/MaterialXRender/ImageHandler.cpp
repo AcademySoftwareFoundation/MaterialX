@@ -40,6 +40,7 @@ const string ImageLoader::TXR_EXTENSION = "txr";
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
     addLoader(imageLoader);
+    _zeroImage = Image::createConstantColor(1, 1, Color4(0.0f));
 }
 
 void ImageHandler::addLoader(ImageLoaderPtr loader)

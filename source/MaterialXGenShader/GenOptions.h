@@ -56,6 +56,8 @@ class GenOptions
         fileTextureVerticalFlip(false),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
+        hwWriteDepthMoments(false),
+        hwShadowMap(false),
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false)
@@ -96,6 +98,14 @@ class GenOptions
     /// Sets the method to use for specular environment 
     /// lighting for HW shader targets.
     int hwSpecularEnvironmentMethod;
+
+    /// Enables the writing of depth moments for HW shader targets.
+    /// Defaults to false.
+    bool hwWriteDepthMoments;
+
+    /// Enables shadow mapping for HW shader targets.
+    /// Defaults to false.
+    bool hwShadowMap;
 
     /// Enables ambient occlusion rendering for HW shader targets.
     /// Defaults to false.

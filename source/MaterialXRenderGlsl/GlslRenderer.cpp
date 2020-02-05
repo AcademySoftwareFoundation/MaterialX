@@ -31,14 +31,8 @@ GlslRendererPtr GlslRenderer::create(unsigned int res)
 }
 
 GlslRenderer::GlslRenderer(unsigned int res) :
-    _colorTarget(0),
-    _depthTarget(0),
-    _frameBuffer(0),
-    _frameBufferWidth(res),
-    _frameBufferHeight(res),
-    _initialized(false),
-    _window(nullptr),
-    _context(nullptr)
+    _res(res),
+    _initialized(false)
 {
     _program = GlslProgram::create();
 
@@ -54,8 +48,8 @@ GlslRenderer::~GlslRenderer()
     // Clean up the program
     _program = nullptr;
 
-    // Clean up offscreen target
-    deleteTarget();
+    // Clean up frame buffer
+    _frameBuffer = nullptr;
 
     // Clean up the context
     _context = nullptr;
@@ -75,201 +69,39 @@ void GlslRenderer::initialize()
         _window = SimpleWindow::create();
 
         const char* windowName = "Renderer Window";
-        bool created = _window->initialize(const_cast<char *>(windowName),
-                                          _frameBufferWidth, _frameBufferHeight,
-                                          nullptr);
-        if (!created)
+        if (!_window->initialize(const_cast<char *>(windowName), _res, _res, nullptr))
         {
             errors.push_back("Failed to create window for testing.");
             throw ExceptionShaderRenderError(errorType, errors);
         }
-        else
+
+        // Create offscreen context
+        _context = GLUtilityContext::create(_window->windowWrapper(), nullptr);
+        if (!_context)
         {
-            // Create offscreen context
-            _context = GLUtilityContext::create(_window->windowWrapper(), nullptr);
-            if (!_context)
+            errors.push_back("Failed to create OpenGL context for testing.");
+            throw ExceptionShaderRenderError(errorType, errors);
+        }
+
+        if (_context->makeCurrent())
+        {
+            // Initialize glew
+            glewInit();
+#if !defined(__APPLE__)
+            if (!glewIsSupported("GL_VERSION_4_0"))
             {
-                errors.push_back("Failed to create OpenGL context for testing.");
+                errors.push_back("OpenGL version 4.0 not supported");
                 throw ExceptionShaderRenderError(errorType, errors);
             }
-            else
-            {
-                if (_context->makeCurrent())
-                {
-                    // Initialize glew
-                    glewInit();
-#if !defined(__APPLE__)
-                    if (!glewIsSupported("GL_VERSION_4_0"))
-                    {
-                        errors.push_back("OpenGL version 4.0 not supported");
-                        throw ExceptionShaderRenderError(errorType, errors);
-                    }
 #endif
-                    glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
-                    glClearStencil(0);
+            glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+            glClearStencil(0);
 
-                    _initialized = true;
-                }
-            }
+            _frameBuffer = GLFramebuffer::create(_res, _res, 4, Image::BaseType::UINT8);
+
+            _initialized = true;
         }
     }
-}
-
-void GlslRenderer::deleteTarget()
-{
-    if (_frameBuffer)
-    {
-        if (_context && _context->makeCurrent())
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-            glDeleteTextures(1, &_colorTarget);
-            glDeleteTextures(1, &_depthTarget);
-            glDeleteFramebuffers(1, &_frameBuffer);
-        }
-    }
-}
-
-bool GlslRenderer::createTarget()
-{
-    StringVec errors;
-    const string errorType("OpenGL target creation failure.");
-
-    if (!_context)
-    {
-        errors.push_back("No valid OpenGL context to create target with.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to create target with.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-
-    // Only frame buffer only once
-    if (_frameBuffer > 0)
-    {
-        return true;
-    }
-
-    // Set up frame buffer
-    glGenFramebuffers(1, &_frameBuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
-
-    // Create an offscreen sRGB color target and attach to the framebuffer
-    _colorTarget = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-    glGenTextures(1, &_colorTarget);
-    glBindTexture(GL_TEXTURE_2D, _colorTarget);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, _frameBufferWidth, _frameBufferHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _colorTarget, 0);
-
-    // Create floating point offscreen depth target
-    _depthTarget = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-    glGenTextures(1, &_depthTarget);
-    glBindTexture(GL_TEXTURE_2D, _depthTarget);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _frameBufferWidth, _frameBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTarget, 0);
-
-    glBindTexture(GL_TEXTURE_2D, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-    glDrawBuffer(GL_NONE);
-
-    // Validate the framebuffer. Default to fixed point if we cannot get
-    // a floating point buffer.
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        glDeleteTextures(1, &_colorTarget);
-        glGenTextures(1, &_colorTarget);
-        glBindTexture(GL_TEXTURE_2D, _colorTarget);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _frameBufferWidth, _frameBufferHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
-        glBindTexture(GL_TEXTURE_2D, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _colorTarget, 0);
-        // Re-check status again.
-        status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    }
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        glDeleteFramebuffers(1, &_frameBuffer);
-        _frameBuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-
-        string errorMessage("Frame buffer object setup failed: ");
-        switch (status) {
-        case GL_FRAMEBUFFER_COMPLETE:
-            errorMessage += "GL_FRAMEBUFFER_COMPLETE";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
-            break;
-        case GL_FRAMEBUFFER_UNSUPPORTED:
-            errorMessage += "GL_FRAMEBUFFER_UNSUPPORTED";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
-            break;
-        case GL_FRAMEBUFFER_UNDEFINED:
-            errorMessage += "GL_FRAMEBUFFER_UNDEFINED";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
-            break;
-        default:
-            errorMessage += std::to_string(status);
-            break;
-        }
-
-        errors.push_back(errorMessage);
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-
-    // Unbind on cleanup
-    glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-
-    return true;
-}
-
-bool GlslRenderer::bindTarget(bool bind)
-{
-    // Make sure we have a target to bind first
-    createTarget();
-
-    // Bind the frame buffer and route to color texture target
-    if (bind)
-    {
-        if (!_frameBuffer)
-        {
-            StringVec errors;
-            errors.push_back("No framebuffer exists to bind.");
-            throw ExceptionShaderRenderError("OpenGL target bind failure.", errors);
-        }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
-        GLenum colorList[1] = { GL_COLOR_ATTACHMENT0 };
-        glDrawBuffers(1, colorList);
-    }
-    // Unbind frame buffer and route nowhere.
-    else
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        glDrawBuffer(GL_NONE);
-    }
-    return true;
 }
 
 void GlslRenderer::createProgram(ShaderPtr shader)
@@ -319,7 +151,7 @@ void GlslRenderer::createProgram(const StageMap& stages)
 
 void GlslRenderer::renderTextureSpace(bool encodeSrgb)
 {
-    bindTarget(true);
+    _frameBuffer->bind();
     if (encodeSrgb)
     {
         glEnable(GL_FRAMEBUFFER_SRGB);
@@ -328,7 +160,7 @@ void GlslRenderer::renderTextureSpace(bool encodeSrgb)
     {
         glDisable(GL_FRAMEBUFFER_SRGB);
     }
-    glViewport(0, 0, _frameBufferWidth, _frameBufferHeight);
+    glViewport(0, 0, _res, _res);
 
     _program->bind();
 
@@ -370,7 +202,7 @@ void GlslRenderer::renderTextureSpace(bool encodeSrgb)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    bindTarget(false);
+    _frameBuffer->unbind();
     checkErrors();
 
     _program->unbind();
@@ -446,14 +278,14 @@ void GlslRenderer::render()
     }
 
     // Set up target
-    bindTarget(true);
+    _frameBuffer->bind();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glViewport(0, 0, _frameBufferWidth, _frameBufferHeight);
+    glViewport(0, 0, _res, _res);
 
     // Update viewing information
     const Vector3 eye(0.0f, 0.0f, 4.0f);
@@ -502,15 +334,15 @@ void GlslRenderer::render()
     }
     catch (ExceptionShaderRenderError& /*e*/)
     {
-        bindTarget(false);
+        _frameBuffer->unbind();
         throw;
     }
 
     // Unset target
-    bindTarget(false);
+    _frameBuffer->unbind();
 }
 
-void GlslRenderer::save(const FilePath& filePath, bool floatingPoint)
+void GlslRenderer::save(const FilePath& filePath)
 {
     StringVec errors;
     const string errorType("GLSL image save error.");
@@ -521,17 +353,8 @@ void GlslRenderer::save(const FilePath& filePath, bool floatingPoint)
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    // Create an image.
-    ImagePtr image = Image::create(_frameBufferWidth, _frameBufferHeight, 4);
-    image->createResourceBuffer();
+    ImagePtr image = _frameBuffer->createColorImage();
 
-    // Read back from the color texture.
-    bindTarget(true);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGBA,
-                 floatingPoint ? GL_FLOAT : GL_UNSIGNED_BYTE, image->getResourceBuffer());
-    bindTarget(false);
     try
     {
         checkErrors();
