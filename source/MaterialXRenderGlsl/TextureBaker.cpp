@@ -52,7 +52,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     //       Currently, the only supported geometric node is texcoord.
 
     FilePath filename = outputFolder / generateTextureFilename(output);
-    save(filename, false);
+    save(filename);
 }
 
 void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename)

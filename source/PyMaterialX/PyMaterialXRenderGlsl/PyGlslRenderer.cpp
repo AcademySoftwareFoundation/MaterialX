@@ -21,5 +21,5 @@ void bindPyGlslRenderer(py::module& mod)
         .def("render", &mx::GlslRenderer::render)
         .def("renderTextureSpace", &mx::GlslRenderer::renderTextureSpace)
         .def("save", &mx::GlslRenderer::save)
-        .def("program", &mx::GlslRenderer::program);
+        .def("getProgram", &mx::GlslRenderer::getProgram);
 }

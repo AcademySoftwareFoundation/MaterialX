@@ -96,11 +96,6 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
 
 bool GLTextureHandler::unbindImage(ImagePtr image)
 {
-    if (!glActiveTexture)
-    {
-        glewInit();
-    }
-
     if (image->getResourceId() != GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
         int textureUnit = getBoundTextureLocation(image->getResourceId());
@@ -243,7 +238,6 @@ int GLTextureHandler::getNextAvailableTextureLocation()
     return -1;
 }
 
-
 int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum)
 {
     const vector<int> addressModes
@@ -280,4 +274,4 @@ int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filt
     return filterType;
 }
 
-}
+} // namespace MaterialX
