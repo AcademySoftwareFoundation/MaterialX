@@ -461,10 +461,18 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
-    // Emit lighting functions
+    // Emit lighting and shadowing functions
     if (lighting)
     {
         emitSpecularEnvironment(context, stage);
+        if (context.getOptions().hwShadowMap)
+        {
+            emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_shadow.glsl", context, stage);
+        }
+    }
+    if (context.getOptions().hwWriteDepthMoments)
+    {
+        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_shadow.glsl", context, stage);
     }
 
     // Emit sampling code if needed
@@ -508,6 +516,10 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         // We don't support rendering closures without attaching 
         // to a surface shader, so just output black.
         emitLine(outputSocket->getVariable() + " = vec4(0.0, 0.0, 0.0, 1.0)", stage);
+    }
+    else if (context.getOptions().hwWriteDepthMoments)
+    {
+        emitLine(outputSocket->getVariable() + " = vec4(mx_compute_depth_moments(), 0.0, 1.0)", stage);
     }
     else
     {

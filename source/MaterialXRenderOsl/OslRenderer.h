@@ -90,8 +90,7 @@ class OslRenderer : public ShaderRenderer
     /// does not perform any action as render() produces images as part if it's
     /// execution.
     /// @param filePath Name of file to save rendered image to.
-    /// @param floatingPoint Format of output image is floating point.
-    void save(const FilePath& filePath, bool floatingPoint) override;
+    void save(const FilePath& filePath) override;
 
     /// @}
     /// @name Compilation settings

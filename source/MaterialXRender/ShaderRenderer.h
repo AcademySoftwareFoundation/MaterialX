@@ -112,8 +112,7 @@ class ShaderRenderer
 
     /// Save the current contents the offscreen hardware buffer to disk.
     /// @param filePath Path to file to save rendered image to.
-    /// @param floatingPoint Format of output image is floating point.
-    virtual void save(const FilePath& filePath, bool floatingPoint) = 0;
+    virtual void save(const FilePath& filePath) = 0;
     
     /// @}
 

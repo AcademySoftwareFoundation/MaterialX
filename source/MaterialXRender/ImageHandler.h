@@ -223,8 +223,14 @@ class ImageHandler
     /// Create rendering resources for the given image.
     virtual bool createRenderResources(ImagePtr image, bool generateMipMaps);
 
-    // Release rendering resources for the given image.
+    /// Release rendering resources for the given image.
     virtual void releaseRenderResources(ImagePtr image);
+
+    /// Return a fallback image with zeroes in all channels.
+    ImagePtr getZeroImage()
+    {
+        return _zeroImage;
+    }
 
   protected:
     // Protected constructor.
@@ -246,6 +252,7 @@ class ImageHandler
     ImageMap _imageCache;
     FileSearchPath _searchPath;
     StringResolverPtr _resolver;
+    ImagePtr _zeroImage;
 };
 
 } // namespace MaterialX

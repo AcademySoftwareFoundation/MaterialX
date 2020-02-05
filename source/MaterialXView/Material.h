@@ -35,6 +35,8 @@ class DocumentModifiers
 class ShadowState
 {
   public:
+    mx::ImagePtr shadowMap;
+    mx::Matrix44 shadowMatrix;
     mx::ImagePtr ambientOcclusionMap;
     float ambientOcclusionGain = 0.0f;
 };
@@ -110,6 +112,11 @@ class Material
                                 mx::DocumentPtr stdLib,
                                 const std::string& shaderName,
                                 const mx::Color3& color);
+
+    /// Generate a depth shader.
+    bool generateDepthShader(mx::GenContext& context,
+                             mx::DocumentPtr stdLib,
+                             const std::string& shaderName);
 
     /// Generate an environment background shader
     bool generateEnvironmentShader(mx::GenContext& context,
