@@ -1,5 +1,5 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -49,6 +49,18 @@ RtAttribute RtCollection::getIncludeGeom() const
 RtAttribute RtCollection::getExcludeGeom() const
 {
     return prim()->getAttribute(EXCLUDE_GEOM)->hnd();
+}
+
+void RtCollection::addCollection(const RtObject& collection)
+{
+    RtRelationship rel = getIncludeCollection();
+    rel.addTarget(collection);
+}
+
+void RtCollection::removeCollection(const RtObject& collection)
+{
+    RtRelationship rel = getIncludeCollection();
+    rel.removeTarget(collection);
 }
 
 RtRelationship RtCollection::getIncludeCollection() const

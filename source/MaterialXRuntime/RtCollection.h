@@ -1,5 +1,5 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -26,6 +26,12 @@ public:
 
     /// Return excluded geometry identifiers
     RtAttribute getExcludeGeom() const;
+
+    /// Add a collection
+    void addCollection(const RtObject& collection);
+
+    /// Remove a collection
+    void removeCollection(const RtObject& collection);
 
     /// Return the referenced collections
     RtRelationship getIncludeCollection() const;

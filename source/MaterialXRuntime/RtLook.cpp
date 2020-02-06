@@ -1,5 +1,5 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -16,6 +16,7 @@ namespace
     static const RtToken MATERIAL("material");
     static const RtToken COLLECTION("collection");
     static const RtToken EXCLUSIVE("exclusive");
+    static const RtToken MATERIAL_ASSIGN("materialassign");
     static const RtToken ACTIVELOOK("active");
     static const RtToken LOOKS("looks");
 
@@ -53,13 +54,13 @@ RtAttribute RtLookGroup::getActiveLook() const
 void RtLookGroup::addLook(const RtObject& look)
 {
     RtRelationship rel = getLooks();
-    rel.removeTarget(look);
+    rel.addTarget(look);
 }
 
 void RtLookGroup::removeLook(const RtObject& look)
 {
     RtRelationship rel = getLooks();
-    rel.addTarget(look);
+    rel.removeTarget(look);
 }
 
 RtRelationship RtLookGroup::getLooks() const
@@ -83,6 +84,7 @@ RtPrim RtLook::createPrim(const RtToken& typeName, const RtToken& name, RtPrim p
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->setTypeName(_typeName);
     prim->createRelationship(INHERIT);
+    prim->createRelationship(MATERIAL_ASSIGN);
 
     return primH;
 }
@@ -92,10 +94,21 @@ RtRelationship RtLook::getInherit() const
     return prim()->getRelationship(INHERIT)->hnd();
 }
 
-RtPrimIterator RtLook::getMaterialAssigns() const
+void RtLook::addMaterialAssign(const RtObject& assignment)
 {
-    RtSchemaPredicate<RtMaterialAssign> filter;
-    return RtPrimIterator(hnd(), filter);
+    RtRelationship assignments = getMaterialAssigns();
+    assignments.addTarget(assignment);
+}
+
+void RtLook::removeMaterialAssign(const RtObject& assignment)
+{
+    RtRelationship assignments = getMaterialAssigns();
+    assignments.removeTarget(assignment);
+}
+
+RtRelationship RtLook::getMaterialAssigns() const
+{
+    return prim()->getRelationship(MATERIAL_ASSIGN)->hnd();
 }
 
 
