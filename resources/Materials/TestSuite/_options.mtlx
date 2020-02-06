@@ -91,12 +91,12 @@
 
       <!-- External testing: extra comma separated list of test root paths -->
       <parameter name="externalTestPaths" type="string" value="" />
-
+      
       <!-- Desired major version to upgrade to if possible -->
       <parameter name="desiredMajorVersion" type="integer" value="1" />
 
       <!-- Desired minor version to upgrade to if possible -->
-      <parameter name="desiredMinorVersion" type="integer" value="37" />
+      <parameter name="desiredMinorVersion" type="integer" value="38" />
 
    </nodedef>
 </materialx>

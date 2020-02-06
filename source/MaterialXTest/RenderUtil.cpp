@@ -288,20 +288,39 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             mx::FileSearchPath imageSearchPath(dir);
             for (const auto& element : elements)
             {
-                mx::OutputPtr output = element->asA<mx::Output>();
-                mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
+                mx::TypedElementPtr targetElement = element;
+                mx::OutputPtr output = targetElement->asA<mx::Output>();
+                mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
+                mx::NodePtr outputNode = targetElement->asA<mx::Node>();
                 mx::NodeDefPtr nodeDef = nullptr;
                 if (output)
                 {
-                    nodeDef = output->getConnectedNode()->getNodeDef();
+                    outputNode = output->getConnectedNode();
+                    // Handle connected upstream material nodes later on.
+                    if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
+                    {
+                        nodeDef = outputNode->getNodeDef();
+                    }
                 }
                 else if (shaderRef)
                 {
                     nodeDef = shaderRef->getNodeDef();
                 }
+
+                // Handle material node checking. For now only check first surface shader if any
+                if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
+                {
+                    std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                    if (!shaderNodes.empty())
+                    {
+                        nodeDef = shaderNodes[0]->getNodeDef();
+                        targetElement = shaderNodes[0];
+                    }
+                }
+
                 if (nodeDef)
                 {
-                    mx::string elementName = mx::replaceSubstrings(element->getNamePath(), pathMap);
+                    mx::string elementName = mx::replaceSubstrings(targetElement->getNamePath(), pathMap);
                     elementName = mx::createValidName(elementName);
                     {
                         renderableSearchTimer.startTimer();
@@ -315,7 +334,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runRenderer(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath);
+                            runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath);
                         }
                     }
                 }

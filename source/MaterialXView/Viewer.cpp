@@ -152,6 +152,24 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
             }
         }
     }
+    for (mx::NodePtr materialNode : doc->getMaterialNodes())
+    {
+        for (mx::NodePtr shader : getShaderNodes(materialNode))
+        {
+            mx::NodeDefPtr nodeDef = shader->getNodeDef();
+            if (nodeDef && !nodeDef->getImplementation())
+            {
+                std::vector<mx::NodeDefPtr> altNodeDefs = doc->getMatchingNodeDefs(nodeDef->getNodeString());
+                for (mx::NodeDefPtr altNodeDef : altNodeDefs)
+                {
+                    if (altNodeDef->getImplementation())
+                    {
+                        shader->setNodeDefString(altNodeDef->getName());
+                    }
+                }
+            }
+        }
+    }
 }
 
 } // anonymous namespace
@@ -536,9 +554,9 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 filename = mx::FilePath(filename.asString() + "." + mx::MTLX_EXTENSION);
             }
 
-            mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
-            if (_bakeTextures && shaderRef)
+            if (_bakeTextures && material->getMaterialElement())
             {
+
                 mx::FileSearchPath searchPath = _searchPath;
                 if (material->getDocument())
                 {
@@ -557,8 +575,19 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
 
                 mx::TextureBakerPtr baker = mx::TextureBaker::create();
                 baker->setImageHandler(imageHandler);
-                baker->bakeShaderInputs(shaderRef, _genContext, filename.getParentPath());
-                baker->writeBakedDocument(shaderRef, filename);
+
+                mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
+                if (shaderRef)
+                {
+                    baker->bakeShaderInputs(shaderRef, _genContext, filename.getParentPath());
+                    baker->writeBakedDocument(shaderRef, filename);
+                }
+                mx::NodePtr shader = material->getElement()->asA<mx::Node>();
+                if (shader)
+                {
+                    baker->bakeShaderInputs(shader, _genContext, filename.getParentPath());
+                    baker->writeBakedDocument(shader, filename);
+                }
             }
             else
             {
@@ -781,11 +810,9 @@ void Viewer::updateMaterialSelections()
     std::vector<std::string> items;
     for (const auto& material : _materials)
     {
-        mx::ElementPtr displayElem = material->getElement();
-        if (displayElem->isA<mx::ShaderRef>())
-        {
-            displayElem = displayElem->getParent();
-        }
+        mx::ElementPtr displayElem = material->getMaterialElement();
+        if (!displayElem)
+            displayElem = material->getElement();
         std::string displayName = displayElem->getNamePath();
         if (!material->getUdim().empty())
         {
@@ -823,6 +850,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
+    readOptions.desiredMajorVersion = 1;
+    readOptions.desiredMinorVersion = 38;
     readOptions.skipConflictingElements = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
@@ -883,10 +912,28 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         // Find new renderable elements.
         mx::StringVec renderablePaths;
         std::vector<mx::TypedElementPtr> elems;
+        std::vector<mx::TypedElementPtr> materials;
         mx::findRenderableElements(doc, elems);
         for (mx::TypedElementPtr elem : elems)
         {
-            renderablePaths.push_back(elem->getNamePath());
+            mx::TypedElementPtr renderableElem = elem;
+            mx::NodePtr node = elem->asA<mx::Node>();
+            if (node && node->getType() == mx::MATERIAL_TYPE_STRING)
+            {
+                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(node, mx::SURFACE_SHADER_TYPE_STRING);
+                if (!shaderNodes.empty())
+                {
+                    renderableElem = shaderNodes[0];
+                }
+                materials.push_back(node);
+            }
+            else
+            {
+                mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
+                mx::TypedElementPtr materialRef = (shaderRef ? shaderRef->getParent()->asA<mx::TypedElement>() : nullptr);
+                materials.push_back(materialRef);
+            }
+            renderablePaths.push_back(renderableElem->getNamePath());
         }
 
         // Check for any udim set.
@@ -894,8 +941,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         // Create new materials.
         mx::TypedElementPtr udimElement;
-        for (const auto& renderablePath : renderablePaths)
+        for (size_t i=0; i<renderablePaths.size(); i++)
         {
+            const auto& renderablePath = renderablePaths[i];
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             if (!typedElem)
@@ -909,6 +957,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     MaterialPtr mat = Material::create();
                     mat->setDocument(doc);
                     mat->setElement(typedElem);
+                    mat->setMaterialElement(materials[i]);
                     mat->setUdim(udim);
                     newMaterials.push_back(mat);
                     
@@ -920,6 +969,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 MaterialPtr mat = Material::create();
                 mat->setDocument(doc);
                 mat->setElement(typedElem);
+                mat->setMaterialElement(materials[i]);
                 newMaterials.push_back(mat);
             }
         }
@@ -977,6 +1027,21 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                         if (!materialRef->getGeometryBindings(partGeomName).empty())
                         {
                             assignMaterial(part, mat);
+                        }
+                    }
+                }
+                else
+                {
+                    mx::NodePtr materialNode = mat->getMaterialElement()->asA<mx::Node>();
+                    if (materialNode)
+                    {
+                        for (mx::MeshPartitionPtr part : _geometryList)
+                        {
+                            std::string partGeomName = part->getIdentifier();
+                            if (!getGeometryBindings(materialNode, partGeomName).empty())
+                            {
+                                assignMaterial(part, mat);
+                            }
                         }
                     }
                 }
@@ -1121,6 +1186,34 @@ void Viewer::saveDotFiles()
                     std::string dot = nodeGraph->asStringDot();
                     std::string baseName = _searchPath[0] / nodeDef->getName();
                     writeTextFile(dot, baseName + ".dot");
+                }
+            }
+            else
+            {
+                mx::NodePtr shaderNode = elem->asA<mx::Node>();
+                if (shaderNode && material->getMaterialElement())
+                {
+                    for (mx::InputPtr input : shaderNode->getInputs())
+                    {
+                        mx::OutputPtr output = input->getConnectedOutput();
+                        mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
+                        if (nodeGraph)
+                        {
+                            std::string dot = nodeGraph->asStringDot();
+                            std::string baseName = _searchPath[0] / nodeGraph->getName();
+                            writeTextFile(dot, baseName + ".dot");
+                        }
+                    }
+
+                    mx::NodeDefPtr nodeDef = shaderNode->getNodeDef();
+                    mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
+                    mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
+                    if (nodeGraph)
+                    {
+                        std::string dot = nodeGraph->asStringDot();
+                        std::string baseName = _searchPath[0] / nodeDef->getName();
+                        writeTextFile(dot, baseName + ".dot");
+                    }
                 }
             }
         }

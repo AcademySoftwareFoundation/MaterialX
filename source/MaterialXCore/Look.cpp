@@ -97,6 +97,11 @@ MaterialPtr MaterialAssign::getReferencedMaterial() const
     return resolveRootNameReference<Material>(getMaterial());   
 }
 
+NodePtr MaterialAssign::getReferencedMaterialNode() const
+{
+    return resolveRootNameReference<Node>(getMaterial());
+}
+
 vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const
 {
     vector<VariantAssignPtr> activeAssigns;

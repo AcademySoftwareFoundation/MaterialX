@@ -34,6 +34,20 @@ class GlslGeneratorWrapperBase
         {
             _isSurface = true;
         }
+        else if (element->isA<mx::Node>())
+        {
+            mx::NodePtr outputNode = element->asA<mx::Node>();
+            if (outputNode->getType() == mx::MATERIAL_TYPE_STRING)
+            {
+                std::vector<mx::NodePtr> shaderNodes = 
+                    mx::getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                if (!shaderNodes.empty())
+                {
+                    _element = shaderNodes[0];
+                    _isSurface = true;
+                }
+            }
+        }
         else if (!element->asA<mx::Output>())
         {
             throw mx::Exception("Invalid element to create fragment for " + element->getName());

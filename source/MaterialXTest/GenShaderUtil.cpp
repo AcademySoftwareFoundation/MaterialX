@@ -596,8 +596,17 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     mx::StringVec errorLog;
     mx::FileSearchPath searchPath(_libSearchPath);
     mx::XmlReadOptions readOptions;
-    readOptions.desiredMajorVersion = options.desiredMajorVersion;
-    readOptions.desiredMinorVersion = options.desiredMinorVersion;
+    bool fileUpgraded = false;
+    if (options.desiredMajorVersion > readOptions.desiredMajorVersion)
+    {
+        fileUpgraded = true;
+        readOptions.desiredMajorVersion = options.desiredMajorVersion;
+    }
+    if (options.desiredMinorVersion > readOptions.desiredMinorVersion)
+    {
+        fileUpgraded = true;
+        readOptions.desiredMinorVersion = options.desiredMinorVersion;
+    }
     for (const auto& testRoot : _testRootPaths)
     {
         mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
@@ -650,6 +659,27 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             continue;
         }
 
+        if (fileUpgraded && 
+            (!doc->getNodes(mx::SURFACE_MATERIAL_NODE_STRING).empty() ||
+             !doc->getNodes(mx::VOLUME_MATERIAL_NODE_STRING).empty()))
+        {
+            _logFile << "Updated version document written to: " << doc->getSourceUri() + "modified.mtlxx" << std::endl;
+
+            mx::StringSet xincludeFiles = doc->getReferencedSourceUris();
+            auto skipXincludes = [xincludeFiles](mx::ConstElementPtr elem)
+            {
+                if (elem->hasSourceUri())
+                {
+                    return (xincludeFiles.count(elem->getSourceUri()) == 0);
+                }
+                return true;
+            };
+            mx::XmlWriteOptions writeOptions;
+            writeOptions.writeXIncludeEnable = true;
+            writeOptions.elementPredicate = skipXincludes;
+            mx::writeToXmlFile(doc, doc->getSourceUri() + "_modified.mtlxx", &writeOptions);
+        }
+
         // Find and register lights
         findLights(doc, _lights);
         registerLights(doc, _lights, context);
@@ -687,16 +717,34 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         int codeGenerationFailures = 0;
         for (const auto& element : elements)
         {
-            mx::OutputPtr output = element->asA<mx::Output>();
-            mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
+            mx::TypedElementPtr targetElement = element;
+            mx::OutputPtr output = targetElement->asA<mx::Output>();
+            mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
+            mx::NodePtr outputNode = targetElement->asA<mx::Node>();
             mx::NodeDefPtr nodeDef = nullptr;
             if (output)
             {
-                nodeDef = output->getConnectedNode()->getNodeDef();
+                outputNode = output->getConnectedNode();
+                // Handle connected upstream material nodes later on.
+                if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
+                {
+                    nodeDef = outputNode->getNodeDef();
+                }
             }
             else if (shaderRef)
             {
                 nodeDef = shaderRef->getNodeDef();
+            }
+
+            // Handle material node checking. For now only check first surface shader if any
+            if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
+            {
+                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                if (!shaderNodes.empty())
+                {
+                    nodeDef = shaderNodes[0]->getNodeDef();
+                    targetElement = shaderNodes[0];
+                }
             }
 
             // Allow to skip nodedefs to test if specified
@@ -707,7 +755,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                 continue;
             }
 
-            const std::string namePath(element->getNamePath());
+            const std::string namePath(targetElement->getNamePath());
             if (nodeDef)
             {
                 mx::string elementName = mx::replaceSubstrings(namePath, pathMap);
@@ -726,7 +774,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
                     _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
                     mx::StringVec sourceCode;
-                    bool generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
+                    bool generatedCode = generateCode(context, elementName, targetElement, _logFile, _testStages, sourceCode);
                     if (!generatedCode)
                     {
                         _logFile << ">> Failed to generate code for nodedef: " << nodeDefName << std::endl;
@@ -853,7 +901,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     try {
         mx::XmlReadOptions readOptions;
         MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath(), &readOptions);
-        //logFile << "Read file: " << doc->getSourceUri() << std::endl;
 
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
