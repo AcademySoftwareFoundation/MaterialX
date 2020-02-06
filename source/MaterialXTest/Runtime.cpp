@@ -966,9 +966,9 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
 
     // Count elements traversing the loaded libraries.
     size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = api->getLibrary()->traverse(); !it.isDone(); ++it)
+    for (mx::RtPrim prim : api->getLibrary()->traverse())
     {
-        const mx::RtToken& typeName = (*it).getTypeName();
+        const mx::RtToken& typeName = prim.getTypeName();
         if (typeName == mx::RtNode::typeName())
         {
             nodeCount++;

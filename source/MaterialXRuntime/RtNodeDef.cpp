@@ -83,10 +83,22 @@ RtInput RtNodeDef::getInput(const RtToken& name) const
     return input ? input->hnd() : RtInput();
 }
 
+RtAttrIterator RtNodeDef::getInputs() const
+{
+    RtObjTypePredicate<RtInput> filter;
+    return RtAttrIterator(getPrim(), filter);
+}
+
 RtOutput RtNodeDef::getOutput(const RtToken& name) const
 {
     PvtOutput* output = prim()->getOutput(name);
     return output ? output->hnd() : RtOutput();
+}
+
+RtAttrIterator RtNodeDef::getOutputs() const
+{
+    RtObjTypePredicate<RtOutput> filter;
+    return RtAttrIterator(getPrim(), filter);
 }
 
 void RtNodeDef::registerMasterPrim() const

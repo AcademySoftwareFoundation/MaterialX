@@ -79,10 +79,22 @@ RtInput RtNode::getInput(const RtToken& name) const
     return input ? input->hnd() : RtInput();
 }
 
+RtAttrIterator RtNode::getInputs() const
+{
+    RtObjTypePredicate<RtInput> filter;
+    return RtAttrIterator(getPrim(), filter);
+}
+
 RtOutput RtNode::getOutput(const RtToken& name) const
 {
     PvtOutput* output = prim()->getOutput(name);
     return output ? output->hnd() : RtOutput();
+}
+
+RtAttrIterator RtNode::getOutputs() const
+{
+    RtObjTypePredicate<RtOutput> filter;
+    return RtAttrIterator(getPrim(), filter);
 }
 
 }

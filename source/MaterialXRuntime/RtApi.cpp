@@ -147,7 +147,7 @@ public:
         return names;
     }
 
-    RtStagePtr createStage(const RtToken& name)
+    RtToken makeUniqueName(const RtToken& name) const
     {
         RtToken newName = name;
 
@@ -173,9 +173,14 @@ public:
             } while (otherStage);
         }
 
+        return newName;
+    }
+
+    RtStagePtr createStage(const RtToken& name)
+    {
+        const RtToken newName = makeUniqueName(name);
         RtStagePtr stage = RtStage::createNew(newName);
         _stages[newName] = stage;
-
         return stage;
     }
 
@@ -188,6 +193,19 @@ public:
     {
         auto it = _stages.find(name);
         return it != _stages.end() ? it->second : RtStagePtr();
+    }
+
+    RtToken renameStage(const RtToken& name, const RtToken& newName)
+    {
+        RtStagePtr stage = getStage(name);
+        if (!stage)
+        {
+            throw ExceptionRuntimeError("Can't find a stage named '" + name.str() + "' to rename");
+        }
+        const RtToken uniqueName = makeUniqueName(newName);
+        _stages[uniqueName] = stage;
+        _stages.erase(name);
+        return uniqueName;
     }
 
     RtTokenList getStageNames() const
@@ -344,6 +362,11 @@ void RtApi::deleteStage(const RtToken& name)
 RtStagePtr RtApi::getStage(const RtToken& name) const
 {
     return _cast(_ptr)->getStage(name);
+}
+
+RtToken RtApi::renameStage(const RtToken& name, const RtToken& newName)
+{
+    return _cast(_ptr)->renameStage(name, newName);
 }
 
 RtTokenList RtApi::getStageNames() const

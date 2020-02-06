@@ -38,8 +38,16 @@ public:
     /// Return the named input.
     RtInput getInput(const RtToken& name) const;
 
+    /// Return an iterator traversing all input attributes
+    /// on this graph.
+    RtAttrIterator getInputs() const;
+
     /// Return the named output.
     RtOutput getOutput(const RtToken& name) const;
+
+    /// Return an iterator traversing all output attributes
+    /// on this graph.
+    RtAttrIterator getOutputs() const;
 
     /// Return the internal socket that corresponds
     /// to the named input attribute.

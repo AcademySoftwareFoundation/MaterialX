@@ -42,8 +42,14 @@ public:
     /// Return the named input.
     RtInput getInput(const RtToken& name) const;
 
+    /// Return an iterator traversing all input attributes.
+    RtAttrIterator getInputs() const;
+
     /// Return the named output.
     RtOutput getOutput(const RtToken& name) const;
+
+    /// Return an iterator traversing all output attributes.
+    RtAttrIterator getOutputs() const;
 
     /// Register this nodedef as a master prim
     /// to make it instantiable for node creation.

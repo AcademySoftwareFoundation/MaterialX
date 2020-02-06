@@ -102,6 +102,9 @@ public:
     /// Return a stage by name.
     RtStagePtr getStage(const RtToken& name) const;
 
+    /// Rename a stage.
+    RtToken renameStage(const RtToken& name, const RtToken& newName);
+
     /// Return a list of all stages created.
     RtTokenList getStageNames() const;
 
