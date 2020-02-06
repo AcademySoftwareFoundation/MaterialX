@@ -1,0 +1,36 @@
+//
+// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#ifndef MATERIALX_RTCOLLECTION_H
+#define MATERIALX_RTCOLLECTION_H
+
+/// @file
+/// Classes related to collections of geometry identifiers
+
+#include <MaterialXRuntime/RtSchema.h>
+
+namespace MaterialX
+{
+
+/// @class RtCollection
+/// Schema for collection prims.
+class RtCollection: public RtTypedSchema
+{
+    DECLARE_TYPED_SCHEMA(RtCollection)
+
+public:
+    /// Return included geometry identifiers
+    RtAttribute getIncludeGeom() const;
+
+    /// Return excluded geometry identifiers
+    RtAttribute getExcludeGeom() const;
+
+    /// Return the referenced collections
+    RtRelationship getIncludeCollection() const;
+};
+
+}
+
+#endif

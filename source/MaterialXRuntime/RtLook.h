@@ -14,6 +14,25 @@
 namespace MaterialX
 {
 
+/// @class RtLookGroup
+/// Schema for lookgroup prims.
+class RtLookGroup : public RtTypedSchema
+{
+    DECLARE_TYPED_SCHEMA(RtLookGroup)
+
+public:
+    /// Return the active look.
+    RtAttribute getActiveLook() const;
+
+    void addLook(const RtObject& look);
+
+    void removeLook(const RtObject& look);
+
+    /// Return the referenced looks.
+    RtRelationship getLooks() const;
+};
+
+
 /// @class RtLook
 /// Schema for look prims.
 class RtLook : public RtTypedSchema

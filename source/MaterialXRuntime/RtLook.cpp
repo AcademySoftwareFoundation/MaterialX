@@ -16,10 +16,57 @@ namespace
     static const RtToken MATERIAL("material");
     static const RtToken COLLECTION("collection");
     static const RtToken EXCLUSIVE("exclusive");
+    static const RtToken ACTIVELOOK("active");
+    static const RtToken LOOKS("looks");
 
+    static const RtToken LOOKGROUP1("lookgroup1");
     static const RtToken LOOK1("look1");
     static const RtToken MATERIALASSIGN1("materialassign1");
 }
+
+DEFINE_TYPED_SCHEMA(RtLookGroup, "lookgroup");
+
+RtPrim RtLookGroup::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
+{
+    if (typeName != _typeName)
+    {
+        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
+    }
+
+    const RtToken primName = name == EMPTY_TOKEN ? LOOK1 : name;
+    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
+
+    PvtPrim* prim = primH->asA<PvtPrim>();
+    prim->setTypeName(_typeName);
+
+    prim->createAttribute(ACTIVELOOK, RtType::STRING);
+    prim->createRelationship(LOOKS);
+
+    return primH;
+}
+
+RtAttribute RtLookGroup::getActiveLook() const
+{
+    return prim()->getAttribute(ACTIVELOOK)->hnd();
+}
+
+void RtLookGroup::addLook(const RtObject& look)
+{
+    RtRelationship rel = getLooks();
+    rel.removeTarget(look);
+}
+
+void RtLookGroup::removeLook(const RtObject& look)
+{
+    RtRelationship rel = getLooks();
+    rel.addTarget(look);
+}
+
+RtRelationship RtLookGroup::getLooks() const
+{
+    return prim()->getRelationship(LOOKS)->hnd();
+}
+
 
 DEFINE_TYPED_SCHEMA(RtLook, "look");
 
