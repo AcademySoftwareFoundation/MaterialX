@@ -1,18 +1,43 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
 #ifndef MATERIALX_RTLOOK_H
 #define MATERIALX_RTLOOK_H
 
-/// @file
-/// TODO: Docs
+/// @file RtLook.h
+/// Specifications for a set of classes related to material assignment. 
+/// This includes:
+///     1. Material Assignments: which associate collections of geometry with materials
+///     2. Looks: which contain one or more material assignments.
+///     3. Look Groups: which reference a collection of looks with one look being active.
 
 #include <MaterialXRuntime/RtSchema.h>
 
 namespace MaterialX
 {
+
+/// @class RtLookGroup
+/// Schema for lookgroup prims.
+class RtLookGroup : public RtTypedSchema
+{
+    DECLARE_TYPED_SCHEMA(RtLookGroup)
+
+public:
+    /// Return the active look.
+    RtAttribute getActiveLook() const;
+
+    /// Add a look
+    void addLook(const RtObject& look);
+
+    /// Remove a look
+    void removeLook(const RtObject& look);
+
+    /// Return the referenced looks.
+    RtRelationship getLooks() const;
+};
+
 
 /// @class RtLook
 /// Schema for look prims.
@@ -24,8 +49,14 @@ public:
     /// Return the inherit relationship.
     RtRelationship getInherit() const;
 
-    /// Return an iterator over the material assigns in the look.
-    RtPrimIterator getMaterialAssigns() const;
+    /// Add a material assignment
+    void addMaterialAssign(const RtObject& assignment);
+
+    /// Remove a material assignment
+    void removeMaterialAssign(const RtObject& assignment);
+
+    /// Return an material assignment relationship.
+    RtRelationship getMaterialAssigns() const;
 };
 
 /// @class RtMaterialAssign

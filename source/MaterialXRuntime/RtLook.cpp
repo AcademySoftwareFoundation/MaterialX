@@ -1,5 +1,5 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -16,10 +16,56 @@ namespace
     static const RtToken MATERIAL("material");
     static const RtToken COLLECTION("collection");
     static const RtToken EXCLUSIVE("exclusive");
+    static const RtToken MATERIAL_ASSIGN("materialassign");
+    static const RtToken ACTIVELOOK("active");
+    static const RtToken LOOKS("looks");
 
+    static const RtToken LOOKGROUP1("lookgroup1");
     static const RtToken LOOK1("look1");
     static const RtToken MATERIALASSIGN1("materialassign1");
 }
+
+DEFINE_TYPED_SCHEMA(RtLookGroup, "lookgroup");
+
+RtPrim RtLookGroup::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
+{
+    if (typeName != _typeName)
+    {
+        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
+    }
+
+    const RtToken primName = name == EMPTY_TOKEN ? LOOKGROUP1 : name;
+    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
+
+    PvtPrim* prim = primH->asA<PvtPrim>();
+    prim->setTypeName(_typeName);
+
+    prim->createAttribute(ACTIVELOOK, RtType::STRING);
+    prim->createRelationship(LOOKS);
+
+    return primH;
+}
+
+RtAttribute RtLookGroup::getActiveLook() const
+{
+    return prim()->getAttribute(ACTIVELOOK)->hnd();
+}
+
+void RtLookGroup::addLook(const RtObject& look)
+{
+    getLooks().addTarget(look);
+}
+
+void RtLookGroup::removeLook(const RtObject& look)
+{
+    getLooks().removeTarget(look);
+}
+
+RtRelationship RtLookGroup::getLooks() const
+{
+    return prim()->getRelationship(LOOKS)->hnd();
+}
+
 
 DEFINE_TYPED_SCHEMA(RtLook, "look");
 
@@ -36,6 +82,7 @@ RtPrim RtLook::createPrim(const RtToken& typeName, const RtToken& name, RtPrim p
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->setTypeName(_typeName);
     prim->createRelationship(INHERIT);
+    prim->createRelationship(MATERIAL_ASSIGN);
 
     return primH;
 }
@@ -45,10 +92,19 @@ RtRelationship RtLook::getInherit() const
     return prim()->getRelationship(INHERIT)->hnd();
 }
 
-RtPrimIterator RtLook::getMaterialAssigns() const
+void RtLook::addMaterialAssign(const RtObject& assignment)
 {
-    RtSchemaPredicate<RtMaterialAssign> filter;
-    return RtPrimIterator(hnd(), filter);
+    getMaterialAssigns().addTarget(assignment);
+}
+
+void RtLook::removeMaterialAssign(const RtObject& assignment)
+{
+    getMaterialAssigns().removeTarget(assignment);
+}
+
+RtRelationship RtLook::getMaterialAssigns() const
+{
+    return prim()->getRelationship(MATERIAL_ASSIGN)->hnd();
 }
 
 

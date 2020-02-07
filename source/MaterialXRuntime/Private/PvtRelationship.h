@@ -29,6 +29,11 @@ public:
         return !_targets.empty();
     }
 
+    size_t targetCount() const
+    {
+        return _targets.size();
+    }
+
     void addTarget(const PvtObject* target)
     {
         _targets.push_back(target->hnd());

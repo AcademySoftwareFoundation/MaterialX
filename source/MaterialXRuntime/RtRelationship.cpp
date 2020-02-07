@@ -27,6 +27,11 @@ bool RtRelationship::hasTargets() const
     return hnd()->asA<PvtRelationship>()->hasTargets();
 }
 
+size_t RtRelationship::targetCount()  const
+{
+    return hnd()->asA<PvtRelationship>()->targetCount();
+}
+
 void RtRelationship::addTarget(const RtObject& target)
 {
     if (!target)

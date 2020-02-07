@@ -28,6 +28,8 @@
 #include <MaterialXRuntime/RtPath.h>
 #include <MaterialXRuntime/RtFileIo.h>
 #include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/RtLook.h>
+#include <MaterialXRuntime/RtCollection.h>
 
 #include <MaterialXGenShader/Util.h>
 
@@ -1074,6 +1076,100 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
         }
     }
     REQUIRE(bsdfCount == libBsdfCount);
+}
+
+TEST_CASE("Runtime: Looks", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+
+    mx::RtStagePtr stage = api->createStage(ROOT);
+
+    //
+    // Test collections
+    //
+    mx::RtPrim p1 = stage->createPrim("collection1", mx::RtCollection::typeName());
+    mx::RtCollection col1(p1);
+    mx::RtAttribute igeom = col1.getIncludeGeom();
+    igeom.setValueString("foo");
+    mx::RtAttribute egeom = col1.getExcludeGeom();
+    egeom.setValueString("bar");
+    REQUIRE(igeom.getValueString() == "foo");
+    REQUIRE(egeom.getValueString() == "bar");
+
+    mx::RtPrim p2 = stage->createPrim("child1", mx::RtCollection::typeName());
+    mx::RtPrim p3= stage->createPrim("child2", mx::RtCollection::typeName());
+    col1.addCollection(p2);
+    col1.addCollection(p3);
+    mx::RtRelationship rel = col1.getIncludeCollection();
+    REQUIRE(rel.targetCount() == 2); 
+    col1.removeCollection(p2);
+    REQUIRE(rel.targetCount() == 1);
+
+    //
+    // Test materialassign
+    //
+    mx::RtPrim pa = stage->createPrim("matassign1", mx::RtMaterialAssign::typeName());
+    mx::RtMaterialAssign assign1(pa);
+    assign1.getCollection().addTarget(p1);
+    mx::RtConnectionIterator iter = assign1.getCollection().getTargets();
+    while (iter.isDone())
+    {
+        REQUIRE((*iter).getName() == "collection1");
+        break;
+    }
+
+    // Load in library so we can create a material
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    api->setSearchPath(searchPath);
+    api->loadLibrary(STDLIB);
+    api->loadLibrary(PBRLIB);
+    const mx::RtToken matDef("ND_surfacematerial");
+    mx::RtPrim sm1 = stage->createPrim(mx::RtPath("/surfacematerial1"), matDef);
+    assign1.getMaterial().addTarget(sm1);
+    mx::RtConnectionIterator iter2 = assign1.getMaterial().getTargets();
+    while (!iter2.isDone())
+    {
+        REQUIRE((*iter2).getName() == "surfacematerial1");
+        break;
+    }
+
+    assign1.getExclusive().setValue(mx::RtValue(true));
+    REQUIRE(assign1.getExclusive().getValue().asBool() == true);
+
+    //
+    // Test look
+    //
+    mx::RtPrim lo1 = stage->createPrim("look1", mx::RtLook::typeName());
+    mx::RtLook look1(lo1);
+    look1.addMaterialAssign(pa);
+    mx::RtConnectionIterator iter3 = look1.getMaterialAssigns().getTargets();
+    REQUIRE(look1.getMaterialAssigns().targetCount() == 1);
+    while (!iter3.isDone())
+    {
+        REQUIRE((*iter3).getName() == "matassign1");
+        break;
+    }
+    look1.removeMaterialAssign(pa);
+    REQUIRE(look1.getMaterialAssigns().targetCount() == 0);
+
+    mx::RtPrim lo2 = stage->createPrim("look2", mx::RtLook::typeName());
+    mx::RtLook look2(lo2);
+    look2.getInherit().addTarget(lo1);
+    REQUIRE(look2.getInherit().targetCount() == 1);
+
+    //
+    // Test lookgroup
+    //
+    mx::RtPrim lg1 = stage->createPrim("lookgroup1", mx::RtLookGroup::typeName());
+    mx::RtLookGroup lookgroup1(lg1);
+    lookgroup1.addLook(lo1);
+    lookgroup1.addLook(lo2);
+    REQUIRE(lookgroup1.getLooks().targetCount() == 2);
+    lookgroup1.removeLook(lo1);
+    REQUIRE(lookgroup1.getLooks().targetCount() == 1);
+
+    lookgroup1.getActiveLook().setValueString("look1");
+    REQUIRE(lookgroup1.getActiveLook().getValueString() == "look1");
 }
 
 #endif // MATERIALX_BUILD_RUNTIME

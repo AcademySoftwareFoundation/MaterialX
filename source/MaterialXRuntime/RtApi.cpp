@@ -12,6 +12,8 @@
 #include <MaterialXRuntime/RtGeneric.h>
 #include <MaterialXRuntime/RtStage.h>
 #include <MaterialXRuntime/RtFileIo.h>
+#include <MaterialXRuntime/RtLook.h>
+#include <MaterialXRuntime/RtCollection.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
@@ -271,6 +273,10 @@ void RtApi::initialize()
     registerTypedSchema<RtNodeDef>();
     registerTypedSchema<RtNodeGraph>();
     registerTypedSchema<RtBackdrop>();
+    registerTypedSchema<RtLookGroup>();
+    registerTypedSchema<RtLook>();
+    registerTypedSchema<RtMaterialAssign>();
+    registerTypedSchema<RtCollection>();
 }
 
 void RtApi::shutdown()

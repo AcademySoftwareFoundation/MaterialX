@@ -37,6 +37,9 @@ public:
     /// Return true if this relationship has any targets.
     bool hasTargets() const;
 
+    /// Return the number of targets
+    size_t targetCount() const;
+
     /// Add a target to this relationship.
     void addTarget(const RtObject& target);
 
