@@ -92,20 +92,22 @@ class RtWriteOptions
     int materialWriteOp;
 };
 
-/// API for read and write of data from MaterialXCore documents
-/// to MaterialXRuntime stages.
-class RtFileIo : public RtApiBase
+/// API for read and write of data from MaterialX files
+/// to runtime stages.
+class RtFileIo
 {
 public:
- 
-
-
-public:
     /// Constructor attaching this API to a stage.
-    RtFileIo(RtObject stage);
+    RtFileIo(RtStagePtr stage) :
+        _stage(stage)
+    {
+    }
 
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
+    /// Attach this API instance to a new stage.
+    void setStage(RtStagePtr stage)
+    {
+        _stage = stage;
+    }
 
     /// Read contents from a stream
     /// If a filter is used only elements accepted by the filter
@@ -127,9 +129,14 @@ public:
     /// will be written to the document.
     void write(const FilePath& documentPath, const RtWriteOptions* writeOptions = nullptr);
 
+protected:
     /// Read all contents from one or more libraries.
     /// All MaterialX files found inside the given libraries will be read.
     void readLibraries(const StringVec& libraryPaths, const FileSearchPath& searchPaths);
+    friend class PvtApi;
+
+private:
+    RtStagePtr _stage;
 };
 
 }

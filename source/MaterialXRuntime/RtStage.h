@@ -10,31 +10,62 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtElement.h>
-#include <MaterialXRuntime/RtNodeDef.h>
+#include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtTraversal.h>
-#include <MaterialXRuntime/RtPath.h>
 
 namespace MaterialX
 {
 
+class RtPath;
+
 /// @class RtStage
-/// API for accessing a stage. This API can only be
-/// attached to objects of type STAGE.
-class RtStage : public RtElement
+/// A stage is the root container of material description data.
+/// Creates and owns the primitives that builds up the material
+/// description graph hierarchy.
+class RtStage : public RtSharedBase<RtStage>
 {
 public:
-    /// Constructor attaching a stage object to the API.
-    RtStage(const RtObject& obj);
+    /// Destructor
+    ~RtStage();
 
-    /// Return the type for this API.
-    RtApiType getApiType() const override;
+    /// Return the name of the stage.
+    const RtToken& getName() const;
 
-    /// Create a new empty stage.
-    static RtObject createNew(const RtToken& name);
+    /// Create a new prim at the root of the stage.
+    RtPrim createPrim(const RtToken& typeName);
+
+    /// Create a new prim at the given path.
+    RtPrim createPrim(const RtPath& path, const RtToken& typeName);
+
+    /// Create a new prim inside the parent given by path.
+    /// If an empty name is given a name will be generated.
+    RtPrim createPrim(const RtPath& parentPath, const RtToken& name, const RtToken& typeName);
+
+    /// Remove a prim from the stage.
+    void removePrim(const RtPath& path);
+
+    /// Rename a prim in the stage.
+    RtToken renamePrim(const RtPath& path, const RtToken& newName);
+
+    /// Move a prim to a new parent.
+    RtToken reparentPrim(const RtPath& path, const RtPath& newParentPath);
+
+    // Find the prim at the given path, Returns a null object
+    // if no such prim is found.
+    RtPrim getPrimAtPath(const RtPath& path);
+
+    // Return the prim representing the root of the stage's prim hierarchy.
+    RtPrim getRootPrim();
+
+    /// Return an iterator traversing all child prims (siblings) in the stage,
+    /// including children from any referenced stages.
+    /// Using a predicate this method can be used to find all child prims
+    /// of a specific object type, or all child prims supporting a
+    /// specific API, etc.
+    RtStageIterator traverse(RtObjectPredicate predicate = nullptr);
 
     /// Add a reference to another stage.
-    void addReference(const RtObject& stage);
+    void addReference(RtStagePtr stage);
 
     /// Remove a reference to another stage.
     void removeReference(const RtToken& name);
@@ -42,51 +73,14 @@ public:
     /// Remove all references to other stages
     void removeReferences();
 
-    /// Return the number of references
-    size_t numReferences() const;
+protected:
+    RtStage();
 
-    /// Get a reference by index.
-    RtObject getReference(size_t index) const;
+    static RtStagePtr createNew(const RtToken& name);
 
-    /// Find a reference by name
-    RtObject findReference(const RtToken& name) const;
-
-    /// Add an element to the stage.
-    void addElement(const RtObject& elem);
-
-    /// Remove an element from the stage.
-    void removeElement(const RtObject& elem);
-
-    /// Remove the element at the end of the given path.
-    /// Will throw exception if the given path is not
-    /// rooted in this stage.
-    void removeElementByPath(const RtPath& path);
-
-    /// Return an element by name,
-    /// or a null object if no such element exists.
-    RtObject findElementByName(const RtToken& name) const;
-
-    /// Find an element by string path.
-    /// Paths are element names expressed hierarchicaly and seperated by '/'.
-    ///
-    /// Exanples:
-    ///     "/nodegraph1/add1"
-    ///     "/nodegraph2/multiply4/in1"
-    ///     "/ND_foo/out"
-    ///
-    /// When finding ports on node instances an object for the portdef will
-    /// be returned. In order to get to the port from the portdef use the
-    /// port constructor method: RtPort(RtObject node, RtObject portdef)
-    ///
-    RtObject findElementByPath(const string& path) const;
-
-    /// Return an iterator traversing the stage, including any referenced
-    /// stages. If a filter is set it will be called to control which
-    /// objects to return.
-    RtStageIterator traverseStage(RtTraversalFilter filter = nullptr);
-
-  protected:
-    friend class RtFileIo;
+    void* _ptr;
+    friend class PvtStage;
+    friend class PvtApi;
 };
 
 }

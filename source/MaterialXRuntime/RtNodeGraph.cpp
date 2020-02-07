@@ -4,104 +4,190 @@
 //
 
 #include <MaterialXRuntime/RtNodeGraph.h>
-#include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtNode.h>
 
-#include <MaterialXRuntime/Private/PvtNodeGraph.h>
-#include <MaterialXRuntime/Private/PvtStage.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-RtNodeGraph::RtNodeGraph(const RtObject& obj) :
-    RtNode(obj)
+namespace
 {
+    static const RtToken SOCKET("socket");
+    static const RtToken NODEGRAPH1("nodegraph1");
 }
 
-RtObject RtNodeGraph::createNew(const RtObject& parent, const RtToken& name)
+DEFINE_TYPED_SCHEMA(RtNodeGraph, "nodegraph");
+
+RtPrim RtNodeGraph::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (!(parent.hasApi(RtApiType::STAGE) || parent.hasApi(RtApiType::NODEGRAPH)))
+    if (typeName != _typeName)
     {
-        throw ExceptionRuntimeError("Parent object must be a stage or a nodegraph");
+        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
-    PvtDataHandle data = PvtNodeGraph::createNew(PvtObject::ptr<PvtElement>(parent), name);
-    return PvtObject::object(data);
+
+    const RtToken primName = name == EMPTY_TOKEN ? NODEGRAPH1 : name;
+    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
+
+    PvtPrim* prim = primH->asA<PvtPrim>();
+    prim->setTypeName(_typeName);
+
+    // Add a child prim to hold the internal sockets.
+    PvtDataHandle socketH = PvtPrim::createNew(SOCKET, prim);
+    prim->addChildPrim(socketH->asA<PvtPrim>());
+
+    return primH;
 }
 
-RtApiType RtNodeGraph::getApiType() const
+RtInput RtNodeGraph::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    return RtApiType::NODEGRAPH;
+    PvtPrim* socket = prim()->getChild(SOCKET);
+    socket->createOutput(name, type, flags | RtAttrFlag::SOCKET);
+    return prim()->createInput(name, type, flags)->hnd();
 }
 
-void RtNodeGraph::addNode(const RtObject& node)
+void RtNodeGraph::removeInput(const RtToken& name)
 {
-    return data()->asA<PvtNodeGraph>()->addNode(PvtObject::data(node));
-}
-
-void RtNodeGraph::removeNode(const RtObject& node)
-{
-    if (!node.hasApi(RtApiType::NODE))
+    PvtInput* input = prim()->getInput(name);
+    if (!(input && input->isA<PvtInput>()))
     {
-        throw ExceptionRuntimeError("Given object is not a node");
+        throw ExceptionRuntimeError("No input found with name '" + name.str() + "'");
     }
-    PvtNode* n = PvtObject::ptr<PvtNode>(node);
-    return data()->asA<PvtNodeGraph>()->removeNode(n->getName());
+    PvtPrim* socket = prim()->getChild(SOCKET);
+    socket->removeAttribute(name);
+    prim()->removeAttribute(name);
 }
 
-void RtNodeGraph::addPort(const RtToken& name, const RtToken& type, uint32_t flags)
+RtOutput RtNodeGraph::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    RtPortDef::createNew(getObject(), name, type, flags);
+    PvtPrim* socket = prim()->getChild(SOCKET);
+    socket->createInput(name, type, flags | RtAttrFlag::SOCKET);
+    return prim()->createOutput(name, type, flags)->hnd();
 }
 
-void RtNodeGraph::removePort(const RtObject& portdef)
+void RtNodeGraph::removeOutput(const RtToken& name)
 {
-    if (!portdef.hasApi(RtApiType::PORTDEF))
+    PvtOutput* output = prim()->getOutput(name);
+    if (!(output && output->isA<PvtOutput>()))
     {
-        throw ExceptionRuntimeError("Given object is not a portdef");
+        throw ExceptionRuntimeError("No output found with name '" + name.str() + "'");
     }
-    PvtPortDef* p = PvtObject::ptr<PvtPortDef>(portdef);
-    return data()->asA<PvtNodeGraph>()->removePort(p->getName());
+    PvtPrim* socket = prim()->getChild(SOCKET);
+    socket->removeAttribute(name);
+    prim()->removeAttribute(name);
 }
 
-size_t RtNodeGraph::numNodes() const
+RtInput RtNodeGraph::getInput(const RtToken& name) const
 {
-    return data()->asA<PvtNodeGraph>()->numChildren();
+    PvtInput* input = prim()->getInput(name);
+    return input ? input->hnd() : RtInput();
 }
 
-RtObject RtNodeGraph::getNode(size_t index) const
+RtAttrIterator RtNodeGraph::getInputs() const
 {
-    PvtDataHandle node = data()->asA<PvtNodeGraph>()->getChild(index);
-    return PvtObject::object(node);
+    RtObjTypePredicate<RtInput> filter;
+    return RtAttrIterator(getPrim(), filter);
 }
 
-RtObject RtNodeGraph::findNode(const RtToken& name) const
+RtOutput RtNodeGraph::getOutput(const RtToken& name) const
 {
-    PvtDataHandle node = data()->asA<PvtNodeGraph>()->findChildByName(name);
-    return PvtObject::object(node);
+    PvtOutput* output = prim()->getOutput(name);
+    return output ? output->hnd() : RtOutput();
 }
 
-RtPort RtNodeGraph::getOutputSocket(size_t index) const
+RtAttrIterator RtNodeGraph::getOutputs() const
 {
-    return data()->asA<PvtNodeGraph>()->getOutputSocket(index);
+    RtObjTypePredicate<RtOutput> filter;
+    return RtAttrIterator(getPrim(), filter);
 }
 
-RtPort RtNodeGraph::getInputSocket(size_t index) const
+RtOutput RtNodeGraph::getInputSocket(const RtToken& name) const
 {
-    return data()->asA<PvtNodeGraph>()->getInputSocket(index);
+    PvtPrim* socket = prim()->getChild(SOCKET);
+    // Input socket is an output in practice.
+    PvtOutput* output = socket->getOutput(name);
+    return output ? output->hnd() : RtOutput();
 }
 
-RtPort RtNodeGraph::findOutputSocket(const RtToken& name) const
+RtInput RtNodeGraph::getOutputSocket(const RtToken& name) const
 {
-    return data()->asA<PvtNodeGraph>()->findOutputSocket(name);
+    PvtPrim* socket = prim()->getChild(SOCKET);
+    // Output socket is an input in practice.
+    PvtInput* input = socket->getInput(name);
+    return input ? input->hnd() : RtInput();
 }
 
-RtPort RtNodeGraph::findInputSocket(const RtToken& name) const
+RtPrim RtNodeGraph::getNode(const RtToken& name) const
 {
-    return data()->asA<PvtNodeGraph>()->findInputSocket(name);
+    PvtPrim* p = prim()->getChild(name);
+    return p && p->getTypeName() == RtNode::typeName() ? p->hnd() : RtPrim();
+}
+
+RtPrimIterator RtNodeGraph::getNodes() const
+{
+    RtSchemaPredicate<RtNode> predicate;
+    return RtPrimIterator(hnd(), predicate);
 }
 
 string RtNodeGraph::asStringDot() const
 {
-    return data()->asA<PvtNodeGraph>()->asStringDot();
+    string dot = "digraph {\n";
+
+    // Add input/output interface boxes.
+    dot += "    \"inputs\" ";
+    dot += "[shape=box];\n";
+    dot += "    \"outputs\" ";
+    dot += "[shape=box];\n";
+
+
+    RtObjTypePredicate<RtInput> inputFilter;
+
+    // Add all nodes.
+    for (const RtPrim prim : getNodes())
+    {
+        dot += "    \"" + prim.getName().str() + "\" ";
+        dot += "[shape=ellipse];\n";
+    }
+
+    // Add connections inbetween nodes
+    // and between nodes and input interface.
+    for (const RtPrim node : getNodes())
+    {
+        const string dstName = node.getName().str();
+        for (const RtObject inputObj : node.getAttributes(inputFilter))
+        {
+            const RtInput& input = static_cast<const RtInput&>(inputObj);
+            if (input.isConnected())
+            {
+                const RtOutput src = input.getConnection();
+                const string srcName = src.isSocket() ? "inputs" : src.getParent().getName().str();
+                dot += "    \"" + srcName;
+                dot += "\" -> \"" + dstName;
+                dot += "\" [label=\"" + input.getName().str() + "\"];\n";
+            }
+        }
+    }
+
+    PvtPrim* sockets = prim()->getChild(SOCKET);
+
+    // Add connections between nodes and output sockets.
+    for (RtObject socketObj : sockets->getAttributes(inputFilter))
+    {
+        const RtInput& socket = static_cast<const RtInput&>(socketObj);
+        if (socket.isConnected())
+        {
+            const RtOutput src = socket.getConnection();
+            const string srcName = src.isSocket() ? "inputs" : src.getParent().getName().str();
+            dot += "    \"" + srcName;
+            dot += "\" -> \"outputs";
+            dot += "\" [label=\"" + socket.getName().str() + "\"];\n";
+        }
+    }
+
+    dot += "}\n";
+
+    return dot;
 }
 
 }

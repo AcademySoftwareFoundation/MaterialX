@@ -10,7 +10,6 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtToken.h>
 
 #include <MaterialXCore/Types.h>
@@ -28,8 +27,7 @@ namespace MaterialX
 /// Generic value class for storing values of all the data types
 /// supported by the API. Values that fit into 16 bytes of data
 /// are stored directly. Values larger than 16 bytes are stored
-/// as pointers. The large values are allocated and managed by an
-/// instance of the RtValueStore class.
+/// as pointers and lifetime managed by the prim they belong to.
 class RtValue
 {
 public:
@@ -49,10 +47,11 @@ public:
     explicit RtValue(const RtToken& v) { asToken() = v; }
     explicit RtValue(void* v) { asPtr() = v; }
 
-    /// Explicit value constructor for large values
-    explicit RtValue(const Matrix33& v, RtObject& owner);
-    explicit RtValue(const Matrix44& v, RtObject& owner);
-    explicit RtValue(const string& v, RtObject& owner);
+    /// Explicit value constructor for large values.
+    /// Allocated data is managed by the given prim.
+    explicit RtValue(const Matrix33& v, RtObject& prim);
+    explicit RtValue(const Matrix44& v, RtObject& prim);
+    explicit RtValue(const string& v, RtObject& prim);
 
     /// Return bool value.
     const bool& asBool() const
@@ -235,7 +234,7 @@ public:
 
     /// Test if two values are equal.
     /// Both RtValue instances must be initialized for the given type.
-    static bool compare(const RtToken& type, const RtValue& a, RtValue& b);
+    static bool compare(const RtToken& type, const RtValue& a, const RtValue& b);
 
     /// Convert an RtValue of given type into a string representation.
     static void toString(const RtToken& type, const RtValue& src, string& dest);
@@ -251,6 +250,52 @@ private:
     // Storage is aligned to 64-bit to hold pointers for
     // heap allocated data types as well as other pointers.
     uint64_t _data[2];
+};
+
+class RtTypedValue
+{
+public:
+    RtTypedValue() :
+        _type(EMPTY_TOKEN)
+    {}
+
+    RtTypedValue(const RtToken& t, const RtValue& v) :
+        _type(t),
+        _value(v)
+    {}
+
+    const RtToken& getType() const
+    {
+        return _type;
+    }
+
+    const RtValue& getValue() const
+    {
+        return _value;
+    }
+
+    RtValue& getValue()
+    {
+        return _value;
+    }
+
+    /// Return a string representation for the value of this attribute.
+    string getValueString() const
+    {
+        string dest;
+        RtValue::toString(_type, _value, dest);
+        return dest;
+    }
+
+    /// Set attribute value from a string representation.
+    void setValueString(const string& v)
+    {
+        RtValue::fromString(_type, v, _value);
+    }
+
+private:
+    RtToken _type;
+    RtValue _value;
 };
 
 }

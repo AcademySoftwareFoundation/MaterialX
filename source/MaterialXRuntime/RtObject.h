@@ -8,8 +8,8 @@
 
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtToken.h>
-
-#include <memory>
+#include <MaterialXRuntime/RtValue.h>
+#include <MaterialXRuntime/RtPointer.h>
 
 /// @file
 /// TODO: Docs
@@ -18,47 +18,57 @@ namespace MaterialX
 {
 
 class PvtObject;
+class PvtPrim;
+class PvtAttribute;
+class PvtRelationship;
+class RtStage;
 
-// A handle to private data
-// TODO: implement a custom refcounted handle class
-using PvtDataHandle = std::shared_ptr<PvtObject>;
+// A handle to private object data
+RT_DECLARE_REF_PTR_TYPE(PvtObject, PvtDataHandle)
 
-/// Type identifiers for concrete runtime objects.
+/// Shared pointer to a stage.
+using RtStagePtr = RtSharedPtr<RtStage>;
+
+/// Weak pointer to a stage.
+using RtStageWeakPtr = RtWeakPtr<RtStage>;
+
+/// Identifiers for object types.
 enum class RtObjType
 {
-    INVALID,
-    PORTDEF,
-    NODEDEF,
-    NODE,
-    NODEGRAPH,
-    STAGE,
-    UNKNOWN,
-    NUM_TYPES
+    OBJECT          = 1<<0,
+    PRIM            = 1<<1,
+    ATTRIBUTE       = 1<<2,
+    INPUT           = 1<<3,
+    OUTPUT          = 1<<4,
+    RELATIONSHIP    = 1<<5,
+    DISPOSED        = 1<<6
 };
 
-/// Type identifiers for API's attachable to runtime objects.
-enum class RtApiType
-{
-    ELEMENT,
-    PORTDEF,
-    NODEDEF,
-    NODE,
-    NODEGRAPH,
-    STAGE,
-    CORE_IO,
-    STAGE_ITERATOR,
-    TREE_ITERATOR,
-    GRAPH_ITERATOR,
-    NUM_TYPES
-};
+#define RT_DECLARE_RUNTIME_OBJECT(T)                         \
+private:                                                     \
+    static const RtObjType _classType;                       \
+    static const RtToken _className;                         \
+public:                                                      \
+    static RtObjType classType() { return _classType; }      \
+    static const RtToken& className() { return _className; } \
+
+#define RT_DEFINE_RUNTIME_OBJECT(T, type, name)              \
+const RtObjType T::_classType(type);                         \
+const RtToken T::_className(name);                           \
 
 /// @class RtObject
-/// Base class for all MaterialX runtime objects.
+/// Base class for all runtime objects.
 class RtObject
 {
+    RT_DECLARE_RUNTIME_OBJECT(RtObject)
+
 public:
-    /// Default constructor.
+    /// Empty constructor.
+    /// Creating an invalid object.
     RtObject();
+
+    /// Construct from a data handle.
+    RtObject(PvtDataHandle hnd);
 
     /// Copy constructor.
     RtObject(const RtObject& other);
@@ -66,11 +76,24 @@ public:
     /// Destructor.
     ~RtObject();
 
-    /// Return the type for this object.
-    RtObjType getObjType() const;
+    /// Return true if this object can be cast to the templated object class.
+    template<class T>
+    bool isA() const
+    {
+        static_assert(std::is_base_of<RtObject, T>::value,
+            "Templated type must be an RtObject or a subclass of RtObject");
+        return isCompatible(T::classType());
+    }
 
-    /// Query if the given API type is supported by this object.
-    bool hasApi(RtApiType type) const;
+    /// Cast to the templated object class. Returns and invalid object if
+    /// the classes are not compatible.
+    template<class T>
+    T asA() const
+    {
+        static_assert(std::is_base_of<RtObject, T>::value,
+            "Templated type must be an RtObject or a subclass of RtObject");
+        return isCompatible(T::classType()) ? T(_hnd) : T();
+    }
 
     /// Return true if the object is valid.
     bool isValid() const;
@@ -91,102 +114,55 @@ public:
     /// Return true if the objects are equal.
     bool operator==(const RtObject& other) const
     {
-        return _data == other._data;
+        return _hnd == other._hnd;
     }
 
-    /// A null object.
-    static const RtObject NULL_OBJECT;
+    /// Return the name of the object.
+    const RtToken& getName() const;
 
-private:
-    /// Construct from a data handle.
-    RtObject(PvtDataHandle data);
+    /// Return the full path to the object.
+    RtPath getPath() const;
 
-    /// Return the data handle.
-    const PvtDataHandle& data() const
-    {
-        return _data;
-    }
+    /// Return the parent to the object.
+    RtPrim getParent() const;
 
-    /// Internal data.
-    PvtDataHandle _data;
-    friend class PvtObject;
-    friend class RtApiBase;
-};
+    /// Return the root prim for the object.
+    RtPrim getRoot() const;
 
-/// @class RtObject
-/// Base class for all API supported on objects.
-class RtApiBase
-{
-public:
-    /// Destructor.
-    virtual ~RtApiBase() {};
+    /// Return the stage that owns the object.
+    RtStageWeakPtr getStage() const;
 
-    /// Return the type for this API.
-    virtual RtApiType getApiType() const = 0;
+    /// Add new metadata to the object.
+    RtTypedValue* addMetadata(const RtToken& name, const RtToken& type);
 
-    /// Query if the given object type is supported by this API.
-    /// Derived classes should override this.
-    bool isSupported(RtObjType type) const;
+    /// Remove metadata from the object.
+    void removeMetadata(const RtToken& name);
 
-    /// Query if the given object is supported by this API.
-    bool isSupported(const RtObject& obj) const
-    {
-        return isSupported(obj.getObjType());
-    }
-
-    /// Attach an object to this API.
-    void setObject(const RtObject& obj);
-
-    /// Return the object attached to this API.
-    RtObject getObject();
-
-    /// Return true if the API object is valid.
-    bool isValid() const;
-
-    /// Return true if the API object is invalid.
-    bool operator!() const
-    {
-        return !isValid();
-    }
-
-    /// Explicit bool conversion operator.
-    /// Return true if the API object is valid.
-    explicit operator bool() const
-    {
-        return isValid();
-    }
-
-    /// Return true if the attached objects are equal.
-    bool operator==(const RtApiBase& other) const
-    {
-        return _data == other._data;
-    }
+    /// Return metadata from the object.
+    RtTypedValue* getMetadata(const RtToken& name);
 
 protected:
-    /// Default constructor.
-    RtApiBase();
+#ifdef NDEBUG
+    /// Return the data handle.
+    const PvtDataHandle& hnd() const
+    {
+        return _hnd;
+    }
+#else
+    /// Return the data handle.
+    const PvtDataHandle& hnd() const;
+#endif
 
-    /// Construct from a data handle.
-    RtApiBase(PvtDataHandle data);
+    /// Return true if this obect is compatible 
+    /// with an object of the given type id.
+    bool isCompatible(RtObjType typeId) const;
 
-    /// Construct from an object.
-    RtApiBase(const RtObject& obj);
+    /// Internal data handle.
+    PvtDataHandle _hnd;
 
-    /// Copy constructor.
-    RtApiBase(const RtApiBase& other);
-
-    /// Set data for this API.
-    void setData(PvtDataHandle data);
-
-    /// Return data set for this API.
-    PvtDataHandle& data() { return _data; }
-
-    /// Return data set for this API.
-    const PvtDataHandle& data() const { return _data; }
-
-private:
-    /// Internal data attached to the API.
-    PvtDataHandle _data;
+    friend class PvtObject;
+    friend class PvtStage;
+    friend class RtSchemaBase;
 };
 
 }

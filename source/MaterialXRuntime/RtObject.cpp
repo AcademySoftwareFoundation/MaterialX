@@ -4,79 +4,28 @@
 //
 
 #include <MaterialXRuntime/RtObject.h>
-#include <MaterialXRuntime/Private/PvtObject.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtPath.h>
+
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-namespace
-{
-    static const std::set<RtObjType> API_TO_OBJ_RTTI[static_cast<int>(RtApiType::NUM_TYPES)] =
-    {
-        // RtApiType::ELEMENT
-        {
-            RtObjType::PORTDEF,
-            RtObjType::NODEDEF,
-            RtObjType::NODE,
-            RtObjType::NODEGRAPH,
-            RtObjType::STAGE
-        },
-        // RtApiType::PORTDEF
-        {
-            RtObjType::PORTDEF
-        },
-        // RtApiType::NODEDEF
-        {
-            RtObjType::NODEDEF
-        },
-        // RtApiType::NODE
-        {
-            RtObjType::NODE
-        },
-        // RtApiType::NODEGRAPH
-        {
-            RtObjType::NODEGRAPH
-        },
-        // RtApiType::STAGE
-        {
-            RtObjType::STAGE
-        },
-        // RtApiType::CORE_IO
-        {
-            RtObjType::STAGE
-        },
-        // RtApiType::STAGE_ITERATOR
-        {
-            RtObjType::STAGE
-        },
-        // RtApiType::TREE_ITERATOR
-        {
-            RtObjType::PORTDEF,
-            RtObjType::NODEDEF,
-            RtObjType::NODE,
-            RtObjType::NODEGRAPH,
-            RtObjType::STAGE
-        },
-        // RtApiType::GRAPH_ITERATOR
-        {
-        }
-    };
-}
-
-const RtObject RtObject::NULL_OBJECT(nullptr);
+RT_DEFINE_RUNTIME_OBJECT(RtObject, RtObjType::OBJECT, "object")
 
 RtObject::RtObject() :
-    _data(PvtDataHandle())
+    _hnd(nullptr)
 {
 }
 
 RtObject::RtObject(const RtObject& other) :
-    _data(other._data)
+    _hnd(other._hnd)
 {
 }
 
 RtObject::RtObject(PvtDataHandle data) :
-    _data(data)
+    _hnd(data)
 {
 }
 
@@ -86,67 +35,67 @@ RtObject::~RtObject()
 
 bool RtObject::isValid() const
 {
-    return _data && _data->getObjType() != RtObjType::INVALID;
+    return _hnd && !_hnd->isDisposed();
 }
 
-RtObjType RtObject::getObjType() const
+const RtToken& RtObject::getName() const
 {
-    return _data ? _data->getObjType() : RtObjType::INVALID;
+    return hnd()->asA<PvtObject>()->getName();
 }
 
-bool RtObject::hasApi(RtApiType type) const
+RtPath RtObject::getPath() const
 {
-    return _data && _data->hasApi(type);
+    return RtPath(hnd()->obj());
 }
 
-
-RtApiBase::RtApiBase() :
-    _data(PvtDataHandle())
+RtPrim RtObject::getParent() const
 {
+    PvtPrim* parent = hnd()->asA<PvtObject>()->getParent();
+    return parent ? parent->hnd() : RtPrim();
 }
 
-RtApiBase::RtApiBase(PvtDataHandle data) :
-    _data(data)
+RtPrim RtObject::getRoot() const
 {
+    PvtPrim* root = hnd()->asA<PvtObject>()->getRoot();
+    return root ? root->hnd() : RtPrim();
 }
 
-RtApiBase::RtApiBase(const RtObject& obj) :
-    _data(obj.data())
+RtStageWeakPtr RtObject::getStage() const
 {
+    return hnd()->asA<PvtObject>()->getStage();
 }
 
-RtApiBase::RtApiBase(const RtApiBase& other) :
-    _data(other.data())
+RtTypedValue* RtObject::addMetadata(const RtToken& name, const RtToken& type)
 {
+    return hnd()->asA<PvtObject>()->addMetadata(name, type);
 }
 
-bool RtApiBase::isSupported(RtObjType type) const
+void RtObject::removeMetadata(const RtToken& name)
 {
-    return API_TO_OBJ_RTTI[(int)getApiType()].count(type) != 0;
+    hnd()->asA<PvtObject>()->removeMetadata(name);
 }
 
-void RtApiBase::setObject(const RtObject& obj)
+RtTypedValue* RtObject::getMetadata(const RtToken& name)
 {
-    setData(obj.data());
+    return hnd()->asA<PvtObject>()->getMetadata(name);
 }
 
-RtObject RtApiBase::getObject()
+bool RtObject::isCompatible(RtObjType typeId) const
 {
-    return RtObject(_data);
+    return hnd()->asA<PvtObject>()->isCompatible(typeId);
 }
 
-bool RtApiBase::isValid() const
+#ifndef NDEBUG
+const PvtDataHandle& RtObject::hnd() const
 {
-    return _data && isSupported(_data->getObjType());
-}
-
-void RtApiBase::setData(PvtDataHandle data)
-{
-    if (data && !isSupported(data->getObjType()))
+    // In debug mode we check for object validity
+    // to report any invalid access.
+    if (!isValid())
     {
-        throw ExceptionRuntimeError("Given object is not supported by this API");
+        throw ExceptionRuntimeError("Trying to access an invalid or disposed object");
     }
-    _data = data;
+    return _hnd;
 }
+#endif
 
 }

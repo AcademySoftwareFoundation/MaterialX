@@ -36,6 +36,13 @@ public:
     static const RtToken FILENAME;
     static const RtToken INTEGERARRAY;
     static const RtToken FLOATARRAY;
+    static const RtToken COLOR2ARRAY;
+    static const RtToken COLOR3ARRAY;
+    static const RtToken COLOR4ARRAY;
+    static const RtToken VECTOR2ARRAY;
+    static const RtToken VECTOR3ARRAY;
+    static const RtToken VECTOR4ARRAY;
+    static const RtToken STRINGARRAY;
     static const RtToken BSDF;
     static const RtToken EDF;
     static const RtToken VDF;
@@ -43,8 +50,7 @@ public:
     static const RtToken VOLUMESHADER;
     static const RtToken DISPLACEMENTSHADER;
     static const RtToken LIGHTSHADER;
-    static const RtToken SURFACEMATERIAL;
-    static const RtToken VOLUMEMATERIAL;
+    static const RtToken MATERIAL;
     static const RtToken AUTO;
 };
 

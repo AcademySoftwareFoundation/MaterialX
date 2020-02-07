@@ -4,6 +4,8 @@
 //
 
 #include <MaterialXRuntime/Private/PvtObject.h>
+#include <MaterialXRuntime/Private/PvtPath.h>
+#include <MaterialXRuntime/Private/PvtStage.h>
 
 #include <set>
 
@@ -13,67 +15,62 @@
 namespace MaterialX
 {
 
-namespace
+RT_DEFINE_RUNTIME_OBJECT(PvtObject, RtObjType::OBJECT, "PvtObject")
+RT_DEFINE_REF_PTR_FUNCTIONS(PvtObject)
+
+PvtObject::PvtObject(const RtToken& name, PvtPrim* parent) :
+    _typeBits(0),
+    _name(name),
+    _parent(parent)
 {
-    static const std::set<RtApiType> OBJ_TO_API_RTTI[static_cast<int>(RtObjType::NUM_TYPES)] =
+    setTypeBit<PvtObject>();
+}
+
+PvtPath PvtObject::getPath() const
+{
+    return PvtPath(this);
+}
+
+PvtPrim* PvtObject::getRoot() const
+{
+    PvtPrim* root = isA<PvtPrim>() ? const_cast<PvtPrim*>(asA<PvtPrim>()) : _parent;
+    while (root->_parent)
     {
-        // INVALID
-        {
-        },
-        // PORTDEF
-        {
-            RtApiType::ELEMENT,
-            RtApiType::PORTDEF,
-            RtApiType::TREE_ITERATOR
-        },
-        // NODEDEF
-        {
-            RtApiType::ELEMENT,
-            RtApiType::NODEDEF,
-            RtApiType::TREE_ITERATOR
-        },
-        // NODE
-        {
-            RtApiType::ELEMENT,
-            RtApiType::NODE,
-            RtApiType::TREE_ITERATOR
-        },
-        // NODEGRAPH
-        {
-            RtApiType::ELEMENT,
-            RtApiType::NODE,
-            RtApiType::NODEGRAPH,
-            RtApiType::TREE_ITERATOR
-        },
-        // STAGE
-        {
-            RtApiType::ELEMENT,
-            RtApiType::STAGE,
-            RtApiType::CORE_IO,
-            RtApiType::TREE_ITERATOR,
-            RtApiType::STAGE_ITERATOR
-        },
-        // UNKNOWN
-        {
-            RtApiType::ELEMENT
-        },
-    };
+        root = root->_parent;
+    }
+    return root;
 }
 
-const PvtDataHandle PvtObject::NULL_DATA_HANDLE(nullptr);
-
-PvtObject::PvtObject(RtObjType type) :
-    _objType(type)
+RtStageWeakPtr PvtObject::getStage() const
 {
+    return getRoot()->asA<PvtStage::RootPrim>()->getStage();
 }
 
-PvtObject::~PvtObject()
+RtTypedValue* PvtObject::addMetadata(const RtToken& name, const RtToken& type)
 {
+    auto it = _metadataMap.find(name);
+    if (it != _metadataMap.end())
+    {
+        return &it->second;
+    }
+
+    _metadataMap[name] = RtTypedValue(type, RtValue::createNew(type, obj()));
+    _metadataOrder.push_back(name);
+
+    return &_metadataMap[name];
 }
 
-bool PvtObject::hasApi(RtApiType type) const
+void PvtObject::removeMetadata(const RtToken& name)
 {
-    return OBJ_TO_API_RTTI[int(_objType)].count(type) != 0;
+    for (auto it = _metadataOrder.begin(); it != _metadataOrder.end(); ++it)
+    {
+        if (*it == name)
+        {
+            _metadataOrder.erase(it);
+            break;
+        }
+    }
+    _metadataMap.erase(name);
 }
 
 }

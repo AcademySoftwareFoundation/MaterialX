@@ -10,90 +10,152 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtValue.h>
+#include <MaterialXRuntime/RtObject.h>
 
 namespace MaterialX
 {
+
+class RtValue;
+class RtOutput;
+class RtConnectionIterator;
 
 /// @class RtAttrFlag
 /// Flags for tagging attributes.
 class RtAttrFlag
 {
 public:
-    /// Attribute is internal and hidden from UI or file output.
-    static const uint32_t INTERNAL = 0x00000001;
+    /// Attribute holds uniform values.
+    static const uint32_t UNIFORM     = 0x00000001;
 
-    /// Attribute is not known or used by the runtime, but still
-    /// loaded in as it could be custom data used by clients.
-    /// Custom attributes are stored as interned strings (RtToken).
-    static const uint32_t CUSTOM = 0x00000002;
+    /// Attribute is a nodegraph internal socket.
+    static const uint32_t SOCKET      = 0x00000002;
 };
 
 /// @class RtAttribute
-/// Class representing an attribute on an element. An attribute
-/// holds a name, a type and a value and is used to store data,
-/// or metadata, on an element. Any data that is not explicitly
-/// expressed by elements and sub-elements are stored as attributes.
-class RtAttribute
+/// Object holding an attribute on a prim.
+class RtAttribute : public RtObject
 {
+    RT_DECLARE_RUNTIME_OBJECT(RtAttribute)
+
 public:
-    /// Get attribute name.
-    const RtToken& getName() const
-    {
-        return _name;
-    }
+    /// Empty constructor.
+    /// Creating an invalid object.
+    RtAttribute() {}
 
-    /// Get attribute type.
-    const RtToken& getType() const
-    {
-        return _type;
-    }
+    /// Construct from a data handle.
+    RtAttribute(PvtDataHandle hnd);
 
-    /// Get attribute value.
-    const RtValue& getValue() const
-    {
-        return _value;
-    }
+    /// Return the data type for this attribute.
+    const RtToken& getType() const;
 
-    /// Get attribute value.
-    RtValue& getValue()
-    {
-        return _value;
-    }
+    /// Return the default value for this attribute.
+    const RtValue& getValue() const;
 
-    /// Set attribute value.
-    void setValue(const RtValue& value)
-    {
-        _value = value;
-    }
+    /// Return the default value for this attribute.
+    RtValue& getValue();
+
+    /// Set a new default value on the attribute.
+    void setValue(const RtValue& v);
 
     /// Return a string representation for the value of this attribute.
     string getValueString() const;
 
-    /// Set attribute value from a string representation.
+    /// Set the attribute value from a string representation.
     void setValueString(const string& v);
 
-    /// Return the flags set for this attribute.
-    int32_t getFlags() const
-    {
-        return _flags;
-    }
+    /// Return the default color space for this attribute.
+    const RtToken& getColorSpace() const;
 
-    /// Return true if the given flag is set for this attribute.
-    bool hasFlag(uint32_t flag) const
-    {
-        return (_flags & flag) != 0;
-    }
+    /// Set the default color space for this attribute.
+    void setColorSpace(const RtToken& colorspace);
 
-private:
-    /// Private constructor.
-    RtAttribute(const RtToken& name, const RtToken& type, RtObject parent, uint32_t flags = 0);
+    /// Return the default unit for this attribute.
+    const RtToken& getUnit() const;
 
-    RtToken _name;
-    RtToken _type;
-    RtValue _value;
-    uint32_t _flags;
-    friend class PvtElement;
+    /// Set the default unit for this attribute.
+    void setUnit(const RtToken& unit);
+};
+
+
+/// @class RtInput
+/// Object holding an input attribute on a prim.
+class RtInput : public RtAttribute
+{
+    RT_DECLARE_RUNTIME_OBJECT(RtInput)
+
+public:
+    /// Empty constructor.
+    /// Creating an invalid object.
+    RtInput() {}
+
+    /// Construct from a data handle.
+    RtInput(PvtDataHandle hnd);
+
+    /// Return true if this input is uniform.
+    bool isUniform() const;
+
+    /// Return true if this input is connected.
+    bool isConnected() const;
+
+    /// Return true if this input is an internal nodegraph socket.
+    bool isSocket() const;
+
+    /// Return true if this input is connectable
+    /// to the given output.
+    bool isConnectable(const RtOutput& source) const;
+
+    /// Connect to a source output.
+    void connect(const RtOutput& source);
+
+    /// Disconnect from a source output.
+    void disconnect(const RtOutput& source);
+
+    /// Break any connections.
+    void clearConnection();
+
+    /// Return the output connected to this input.
+    RtOutput getConnection() const;
+
+    friend class RtOutput;
+};
+
+/// @class RtOutput
+/// Object holding an output attribute on a prim.
+class RtOutput : public RtAttribute
+{
+    RT_DECLARE_RUNTIME_OBJECT(RtOutput)
+
+public:
+    /// Empty constructor.
+    /// Creating an invalid object.
+    RtOutput() {}
+
+    /// Construct from a data handle.
+    RtOutput(PvtDataHandle hnd);
+
+    /// Return true if this output is connected.
+    bool isConnected() const;
+
+    /// Return true if this output is an internal nodegraph socket.
+    bool isSocket() const;
+
+    /// Return true if this input is connectable
+    /// to the given output.
+    bool isConnectable(const RtInput& input) const;
+
+    /// Connect to a destination input.
+    void connect(const RtInput& input);
+
+    /// Disconnect from a destination input.
+    void disconnect(const RtInput& input);
+
+    /// Break any connections.
+    void clearConnections();
+
+    /// Return an iterator for the connections downstream from this output.
+    RtConnectionIterator getConnections() const;
+
+    friend class RtInput;
 };
 
 }

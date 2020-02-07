@@ -61,6 +61,8 @@ struct RtTokenRegistry
     std::mutex _mutex;
 };
 
+const RtToken::Entry RtToken::NULL_ENTRY("", 0);
+
 RtToken::RtToken(const char* s) :
     _entry(RtTokenRegistry::get().getEntryRaw(s))
 {

@@ -29,10 +29,16 @@ public:
     RtPath();
 
     /// Construct a path from an object.
-    RtPath(const RtObject& obj);
+    explicit RtPath(const RtObject& obj);
+
+    /// Construct a path from a string.
+    RtPath(const string& path);
+
+    /// Construct a path from a raw string.
+    RtPath(const char* path);
 
     /// Copy constructor.
-    RtPath(const RtPath& obj);
+    RtPath(const RtPath& path);
 
     /// Assignment operator.
     RtPath& operator=(const RtPath& other);
@@ -40,27 +46,8 @@ public:
     /// Destructor.
     ~RtPath();
 
-    /// Return true if the path points to a valid object.
-    bool isValid() const;
-
-    /// Return true if the object at the end of the path
-    /// is a root object. An object with no parent.
-    bool isRoot() const;
-
-    /// Return the type for the object at the end of the path.
-    RtObjType getObjType() const;
-
-    /// Query if the given API type is supported by the object
-    /// at the end of this path.
-    bool hasApi(RtApiType type) const;
-
-    /// Return the object at the end of the path.
-    /// A null object is returned if the path is no
-    /// longer valid.
-    RtObject getObject() const;
-
-    /// Reset the path to point to a new object.
-    void setObject(const RtObject& obj);
+    /// Return the name of the object at the end of this path.
+    const RtToken& getName() const;
 
     /// Return a string representation of this path.
     string asString() const;
@@ -76,6 +63,9 @@ public:
     /// After this operation the path will point to
     /// the parent of the currently top most object.
     void pop();
+
+    /// Set a new object for this path.
+    void setObject(const RtObject& obj);
 
     /// Equality operator.
     bool operator==(const RtPath& other) const;

@@ -21,6 +21,20 @@ namespace MaterialX
 /// Number to match if an index is valid.
 const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
 
+// Forward delcarations
+class RtApi;
+class RtObject;
+class RtPath;
+class RtStage;
+class RtPrim;
+class RtAttribute;
+class RtInput;
+class RtOutput;
+class RtRelationship;
+
+/// Predicate for filtering objects during traversal.
+using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
+
 /// @class ExceptionRuntimeError
 /// An exception that is thrown when a runtime operation fails.
 class ExceptionRuntimeError : public Exception

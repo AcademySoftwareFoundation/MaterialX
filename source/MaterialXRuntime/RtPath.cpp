@@ -6,6 +6,7 @@
 #include <MaterialXRuntime/RtPath.h>
 
 #include <MaterialXRuntime/Private/PvtPath.h>
+#include <MaterialXRuntime/Private/PvtObject.h>
 
 namespace MaterialX
 {
@@ -16,9 +17,18 @@ RtPath::RtPath() :
 }
 
 RtPath::RtPath(const RtObject& obj) :
-    _ptr(new PvtPath())
+    _ptr(new PvtPath(PvtObject::ptr<PvtObject>(obj)))
 {
-    setObject(obj);
+}
+
+RtPath::RtPath(const string& path) :
+    _ptr(new PvtPath(path))
+{
+}
+
+RtPath::RtPath(const char* path) :
+    _ptr(new PvtPath(string(path)))
+{
 }
 
 RtPath::RtPath(const RtPath& other) :
@@ -38,34 +48,14 @@ RtPath::~RtPath()
     delete static_cast<PvtPath*>(_ptr);
 }
 
-bool RtPath::isValid() const
-{
-    return static_cast<PvtPath*>(_ptr)->isValid();
-}
-
-bool RtPath::isRoot() const
-{
-    return static_cast<PvtPath*>(_ptr)->isRoot();
-}
-
-RtObjType RtPath::getObjType() const
-{
-    return static_cast<PvtPath*>(_ptr)->getObject()->getObjType();
-}
-
-bool RtPath::hasApi(RtApiType type) const
-{
-    return static_cast<PvtPath*>(_ptr)->getObject()->hasApi(type);
-}
-
-RtObject RtPath::getObject() const
-{
-    return PvtObject::object(static_cast<PvtPath*>(_ptr)->getObject());
-}
-
 void RtPath::setObject(const RtObject& obj)
 {
-    static_cast<PvtPath*>(_ptr)->setObject(PvtObject::data(obj));
+    static_cast<PvtPath*>(_ptr)->setObject(PvtObject::ptr<PvtObject>(obj));
+}
+
+const RtToken& RtPath::getName() const
+{
+    return static_cast<PvtPath*>(_ptr)->getName();
 }
 
 string RtPath::asString() const

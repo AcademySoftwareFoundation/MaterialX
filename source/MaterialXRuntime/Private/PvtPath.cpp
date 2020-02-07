@@ -4,62 +4,34 @@
 //
 
 #include <MaterialXRuntime/Private/PvtPath.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-const string PvtPath::SEPARATOR = "/";
+const string PvtPath::SEPARATOR("/");
+const RtToken PvtPath::ROOT_NAME("/");
 
-PvtDataHandle PvtPath::getObject() const
+void PvtPath::setObject(const PvtObject* obj)
 {
-    if (!_root)
-    {
-        return nullptr;
-    }
-    if (_path.empty())
-    {
-        return _root;
-    }
+    _elements.clear();
 
-    PvtElement* parent = _root->asA<PvtElement>();
-    PvtDataHandle elem = nullptr;
-    size_t i = 0;
-    while (parent)
-    {
-        elem = parent->findChildByName(_path[i++]);
-        parent = elem && (i < _path.size()) ? elem->asA<PvtElement>() : nullptr;
-    }
-
-    return elem;
-}
-
-void PvtPath::setObject(PvtDataHandle obj)
-{
-    if (!(obj && obj->hasApi(RtApiType::ELEMENT)))
-    {
-        throw ExceptionRuntimeError("Cannot construct path, given object is not a valid element");
-    }
-
-    PvtElement* elem = obj->asA<PvtElement>();
-    PvtElement* root = elem->getRoot();
-    _root = root ? root->shared_from_this() : nullptr;
-
-    PvtElement* parent = elem->getParent();
+    PvtPrim* parent = obj->getParent();
     if (parent)
     {
-        // Get the path from child down to parent and then reverse it
-        _path.push_back(elem->getName());
+        // Get the path from this child down to the root.
+        _elements.push_back(obj->getName());
         while (parent)
         {
-            if (parent == root)
-            {
-                // Stop when reaching the root.
-                break;
-            }
-            _path.push_back(parent->getName());
+            _elements.push_back(parent->getName());
             parent = parent->getParent();
         }
-        std::reverse(_path.begin(), _path.end());
+        // Reverse it to go from root and up.
+        std::reverse(_elements.begin(), _elements.end());
+    }
+    else
+    {
+        _elements.push_back(ROOT_NAME);
     }
 }
 

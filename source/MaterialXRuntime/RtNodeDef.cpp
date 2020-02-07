@@ -4,86 +4,116 @@
 //
 
 #include <MaterialXRuntime/RtNodeDef.h>
-#include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtApi.h>
 
-#include <MaterialXRuntime/Private/PvtNodeDef.h>
-#include <MaterialXRuntime/Private/PvtStage.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-RtNodeDef::RtNodeDef(const RtObject& obj) :
-    RtElement(obj)
+namespace
 {
+    static const RtToken NODE("node");
 }
 
-RtObject RtNodeDef::createNew(RtObject stage, const RtToken& name, const RtToken& category)
+DEFINE_TYPED_SCHEMA(RtNodeDef, "nodedef");
+
+RtPrim RtNodeDef::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (!stage.hasApi(RtApiType::STAGE))
+    if (typeName != _typeName)
     {
-        throw ExceptionRuntimeError("Given object is not a valid stage");
+        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
 
-    PvtDataHandle nodedef = PvtNodeDef::createNew(PvtObject::ptr<PvtElement>(stage), name, category);
+    PvtDataHandle primH = PvtPrim::createNew(name, PvtObject::ptr<PvtPrim>(parent));
 
-    return PvtObject::object(nodedef);
+    PvtPrim* prim = primH->asA<PvtPrim>();
+    prim->setTypeName(_typeName);
+    prim->addMetadata(NODE, RtType::TOKEN);
+
+    return primH;
 }
 
-RtApiType RtNodeDef::getApiType() const
+const RtToken& RtNodeDef::getNode() const
 {
-    return RtApiType::NODEDEF;
+    RtTypedValue* v = prim()->getMetadata(NODE);
+    return v->getValue().asToken();
 }
 
-const RtToken& RtNodeDef::getNodeName() const
+void RtNodeDef::setNode(const RtToken& node)
 {
-    return data()->asA<PvtNodeDef>()->getNodeName();
+    RtTypedValue* v = prim()->getMetadata(NODE);
+    v->getValue().asToken() = node;
 }
 
-void RtNodeDef::addPort(const RtToken& name, const RtToken& type, uint32_t flags)
+RtInput RtNodeDef::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    RtPortDef::createNew(getObject(), name, type, flags);
+    return prim()->createInput(name, type, flags)->hnd();
 }
 
-void RtNodeDef::removePort(RtObject portdef)
+void RtNodeDef::removeInput(const RtToken& name)
 {
-    if (!portdef.hasApi(RtApiType::PORTDEF))
+    PvtInput* input = prim()->getInput(name);
+    if (!(input && input->isA<PvtInput>()))
     {
-        throw ExceptionRuntimeError("Given object is not a portdef");
+        throw ExceptionRuntimeError("No input found with name '" + name.str() + "'");
     }
-    PvtPortDef* p = PvtObject::ptr<PvtPortDef>(portdef);
-    return data()->asA<PvtNodeDef>()->removePort(p->getName());
+    prim()->removeAttribute(name);
 }
 
-size_t RtNodeDef::numPorts() const
+RtOutput RtNodeDef::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    return data()->asA<PvtNodeDef>()->numChildren();
+    return prim()->createOutput(name, type, flags)->hnd();
 }
 
-size_t RtNodeDef::numOutputs() const
+void RtNodeDef::removeOutput(const RtToken& name)
 {
-    return data()->asA<PvtNodeDef>()->numOutputs();
+    PvtOutput* output = prim()->getOutput(name);
+    if (!(output && output->isA<PvtOutput>()))
+    {
+        throw ExceptionRuntimeError("No output found with name '" + name.str() + "'");
+    }
+    prim()->removeAttribute(name);
 }
 
-size_t RtNodeDef::getOutputsOffset() const
+RtInput RtNodeDef::getInput(const RtToken& name) const
 {
-    return data()->asA<PvtNodeDef>()->getOutputsOffset();
+    PvtInput* input = prim()->getInput(name);
+    return input ? input->hnd() : RtInput();
 }
 
-size_t RtNodeDef::getInputsOffset() const
+RtAttrIterator RtNodeDef::getInputs() const
 {
-    return data()->asA<PvtNodeDef>()->getInputsOffset();
+    RtObjTypePredicate<RtInput> filter;
+    return RtAttrIterator(getPrim(), filter);
 }
 
-RtObject RtNodeDef::getPort(size_t index) const
+RtOutput RtNodeDef::getOutput(const RtToken& name) const
 {
-    PvtDataHandle portdef = data()->asA<PvtNodeDef>()->getChild(index);
-    return PvtObject::object(portdef);
+    PvtOutput* output = prim()->getOutput(name);
+    return output ? output->hnd() : RtOutput();
 }
 
-RtObject RtNodeDef::findPort(const RtToken& name) const
+RtAttrIterator RtNodeDef::getOutputs() const
 {
-    PvtDataHandle portdef = data()->asA<PvtNodeDef>()->findChildByName(name);
-    return PvtObject::object(portdef);
+    RtObjTypePredicate<RtOutput> filter;
+    return RtAttrIterator(getPrim(), filter);
+}
+
+void RtNodeDef::registerMasterPrim() const
+{
+    RtApi::get().registerMasterPrim(prim()->hnd());
+}
+
+void RtNodeDef::unregisterMasterPrim() const
+{
+    RtApi::get().unregisterMasterPrim(prim()->getName());
+}
+
+bool RtNodeDef::isMasterPrim() const
+{
+    return RtApi::get().hasMasterPrim(prim()->getName());
 }
 
 }
