@@ -4,8 +4,10 @@
 //
 
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
+
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRenderGlsl/GlslRenderer.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 
@@ -38,36 +40,13 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
         glewInit();
     }
 
-    // Set up frame buffer
+    // Convert texture format to OpenGL.
+    int glType, glFormat, glInternalFormat;
+    GLTextureHandler::mapTextureFormatToGL(baseType, channelCount, true, glType, glFormat, glInternalFormat);
+
+    // Create and bind framebuffer.
     glGenFramebuffers(1, &_frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
-
-    // Compute texture formats.
-    GLenum format = GL_RGBA;
-    GLenum internalFormat = GL_SRGB8_ALPHA8;
-    GLenum type = GL_UNSIGNED_BYTE;
-    if (channelCount == 3)
-    {
-        format = GL_RGB;
-    }
-    else if (channelCount == 2)
-    {
-        format = GL_RG;
-    }
-    else if (channelCount == 1)
-    {
-        format = GL_RED;
-    }
-    if (baseType == Image::BaseType::FLOAT)
-    {
-        internalFormat = GL_RGBA32F;
-        type = GL_FLOAT;
-    }
-    else if (baseType == Image::BaseType::HALF)
-    {
-        internalFormat = GL_RGB16F;
-        type = GL_HALF_FLOAT;
-    }
 
     // Create the offscreen color target and attach to the framebuffer.
     _colorTexture = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
@@ -77,7 +56,7 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, format, type, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, _width, _height, 0, glFormat, glType, nullptr);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _colorTexture, 0);
 
     // Create the offscreen depth target and attach to the framebuffer.
@@ -174,33 +153,13 @@ ImagePtr GLFramebuffer::createColorImage()
     ImagePtr image = Image::create(_width, _height, _channelCount, _baseType);
     image->createResourceBuffer();
 
-    GLenum format = GL_RGBA;
-    GLenum type = GL_UNSIGNED_BYTE;
-    if (_channelCount == 3)
-    {
-        format = GL_RGB;
-    }
-    else if (_channelCount == 2)
-    {
-        format = GL_RG;
-    }
-    else if (_channelCount == 1)
-    {
-        format = GL_RED;
-    }
-    if (_baseType == Image::BaseType::FLOAT)
-    {
-        type = GL_FLOAT;
-    }
-    else if (_baseType == Image::BaseType::HALF)
-    {
-        type = GL_HALF_FLOAT;
-    }
+    int glType, glFormat, glInternalFormat;
+    GLTextureHandler::mapTextureFormatToGL(_baseType, _channelCount, false, glType, glFormat, glInternalFormat);
 
     bind();
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glReadPixels(0, 0, image->getWidth(), image->getHeight(), format, type, image->getResourceBuffer());
+    glReadPixels(0, 0, image->getWidth(), image->getHeight(), glFormat, glType, image->getResourceBuffer());
     unbind();
 
     return image;

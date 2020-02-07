@@ -274,4 +274,58 @@ int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filt
     return filterType;
 }
 
+void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned int channelCount, bool srgb,
+                                            int& glType, int& glFormat, int& glInternalFormat)
+{
+    switch (channelCount)
+    {
+        case 4: glFormat = GL_RGBA; break;
+        case 3: glFormat = GL_RGB; break;
+        case 2: glFormat = GL_RG; break;
+        case 1: glFormat = GL_RED; break;
+        default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
+    }
+
+    if (baseType == Image::BaseType::UINT8)
+    {
+        glType = GL_UNSIGNED_BYTE;
+        switch (channelCount)
+        {
+            case 4: glInternalFormat = srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8; break;
+            case 3: glInternalFormat = srgb ? GL_SRGB8 : GL_RGB8; break;
+            case 2: glInternalFormat = GL_RG8; break;
+            case 1: glInternalFormat = GL_R8; break;
+            default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
+        }
+    }
+    else if (baseType == Image::BaseType::HALF)
+    {
+        glType = GL_HALF_FLOAT;
+        switch (channelCount)
+        {
+            case 4: glInternalFormat = GL_RGBA16F; break;
+            case 3: glInternalFormat = GL_RGB16F; break;
+            case 2: glInternalFormat = GL_RG16F; break;
+            case 1: glInternalFormat = GL_R16F; break;
+            default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
+        }
+    }
+    else if (baseType == Image::BaseType::FLOAT)
+    {
+        glType = GL_FLOAT;
+        switch (channelCount)
+        {
+            case 4: glInternalFormat = GL_RGBA32F; break;
+            case 3: glInternalFormat = GL_RGB32F; break;
+            case 2: glInternalFormat = GL_RG32F; break;
+            case 1: glInternalFormat = GL_R32F; break;
+            default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
+        }
+    }
+    else
+    {
+        throw Exception("Unsupported base type in mapTextureFormatToGL");
+    }
+}
+
 } // namespace MaterialX

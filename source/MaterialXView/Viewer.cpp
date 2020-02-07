@@ -30,6 +30,8 @@ const int DEFAULT_ENV_SAMPLES = 16;
 const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const int SHADOW_MAP_SIZE = 2048;
 
+const float MODEL_SPHERE_RADIUS = 2.0f;
+
 namespace {
 
 bool stringEndsWith(const std::string& str, std::string const& end)
@@ -193,7 +195,7 @@ Viewer::Viewer(const std::string& materialFilename,
     // Set default generator options.
     _genContext.getOptions().hwTransparency = true;
     _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
-    _genContext.getOptions().hwShadowMap = true;
+    _genContext.getOptions().hwShadowMap = false;
     _genContext.getOptions().hwAmbientOcclusion = false;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
@@ -270,9 +272,6 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Initialize environment light.
     loadEnvironmentLight();
-
-    // Initialize shadow framebuffer.
-    _shadowFramebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
 
     // Generate wireframe material.
     const std::string wireShaderName("__WIRE_SHADER_NAME__");
@@ -1515,7 +1514,7 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
         mx::Vector3 boxMin = mesh->getMinimumBounds();
         mx::Vector3 boxMax = mesh->getMaximumBounds();
-        mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
+        mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
 
         float zval = ng::project(ng::Vector3f(sphereCenter.data()),
                                  ng::Matrix4f(worldView.getTranspose().data()),
@@ -1585,9 +1584,9 @@ void Viewer::initCamera()
 
     mx::Vector3 boxMin = mesh->getMinimumBounds();
     mx::Vector3 boxMax = mesh->getMaximumBounds();
-    mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
+    mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
     float sphereRadius = (sphereCenter - boxMin).getMagnitude();
-    _modelZoom = 2.0f / sphereRadius;
+    _modelZoom = MODEL_SPHERE_RADIUS / sphereRadius;
     _modelTranslation = sphereCenter * -1.0f;
 }
 
@@ -1607,7 +1606,7 @@ void Viewer::updateViewHandlers()
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
-        const float r = 2.0f;
+        const float r = MODEL_SPHERE_RADIUS;
         _shadowViewHandler->worldMatrix = mx::Matrix44::createScale(mx::Vector3(_modelZoom));
         _shadowViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
@@ -1676,6 +1675,11 @@ void Viewer::updateShadowMap()
     if (_shadowMap || !_shadowMaterial)
     {
         return;
+    }
+
+    if (!_shadowFramebuffer)
+    {
+        _shadowFramebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
     }
 
     _shadowFramebuffer->bind();
