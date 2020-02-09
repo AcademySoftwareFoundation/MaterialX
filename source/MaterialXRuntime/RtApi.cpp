@@ -139,9 +139,9 @@ public:
         return _libraryRoot;
     }
 
-    RtTokenList getLibraryNames() const
+    RtTokenVec getLibraryNames() const
     {
-        RtTokenList names;
+        RtTokenVec names;
         for (auto it : _libraries)
         {
             names.push_back(it.first);
@@ -210,9 +210,9 @@ public:
         return uniqueName;
     }
 
-    RtTokenList getStageNames() const
+    RtTokenVec getStageNames() const
     {
-        RtTokenList names;
+        RtTokenVec names;
         for (auto it : _stages)
         {
             names.push_back(it.first);
@@ -222,10 +222,10 @@ public:
 
     void reset()
     {
-        static const RtToken primRootName("apiroot");
-        static const RtToken libRootName("libroot");
+        static const RtTypeInfo masterPrimRootType("api_masterprimroot");
+        static const RtToken libRootName("api_libroot");
 
-        _masterPrimRoot.reset(new PvtPrim(primRootName, nullptr));
+        _masterPrimRoot.reset(new PvtPrim(&masterPrimRootType, masterPrimRootType.getShortTypeName(), nullptr));
         _createFunctions.clear();
         _stages.clear();
 
@@ -345,7 +345,7 @@ void RtApi::unloadLibrary(const RtToken& name)
     _cast(_ptr)->unloadLibrary(name);
 }
 
-RtTokenList RtApi::getLibraryNames() const
+RtTokenVec RtApi::getLibraryNames() const
 {
     return _cast(_ptr)->getLibraryNames();
 }
@@ -375,7 +375,7 @@ RtToken RtApi::renameStage(const RtToken& name, const RtToken& newName)
     return _cast(_ptr)->renameStage(name, newName);
 }
 
-RtTokenList RtApi::getStageNames() const
+RtTokenVec RtApi::getStageNames() const
 {
     return _cast(_ptr)->getStageNames();
 }

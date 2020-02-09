@@ -20,16 +20,15 @@ DEFINE_TYPED_SCHEMA(RtGeneric, "generic");
 
 RtPrim RtGeneric::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeName)
+    if (typeName != _typeInfo.getShortTypeName())
     {
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
 
     const RtToken primName = name == EMPTY_TOKEN ? GENERIC1 : name;
-    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->setTypeName(_typeName);
     prim->addMetadata(KIND, RtType::TOKEN);
 
     return primH;

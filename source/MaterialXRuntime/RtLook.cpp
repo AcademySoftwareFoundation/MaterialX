@@ -29,17 +29,15 @@ DEFINE_TYPED_SCHEMA(RtLookGroup, "lookgroup");
 
 RtPrim RtLookGroup::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeName)
+    if (typeName != _typeInfo.getShortTypeName())
     {
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
 
     const RtToken primName = name == EMPTY_TOKEN ? LOOKGROUP1 : name;
-    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->setTypeName(_typeName);
-
     prim->createAttribute(ACTIVELOOK, RtType::STRING);
     prim->createRelationship(LOOKS);
 
@@ -71,16 +69,15 @@ DEFINE_TYPED_SCHEMA(RtLook, "look");
 
 RtPrim RtLook::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeName)
+    if (typeName != _typeInfo.getShortTypeName())
     {
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
 
     const RtToken primName = name == EMPTY_TOKEN ? LOOK1 : name;
-    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->setTypeName(_typeName);
     prim->createRelationship(INHERIT);
     prim->createRelationship(MATERIAL_ASSIGN);
 
@@ -112,16 +109,15 @@ DEFINE_TYPED_SCHEMA(RtMaterialAssign, "materialassign");
 
 RtPrim RtMaterialAssign::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeName)
+    if (typeName != _typeInfo.getShortTypeName())
     {
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
 
     const RtToken primName = name == EMPTY_TOKEN ? MATERIALASSIGN1 : name;
-    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->setTypeName(_typeName);
     prim->createRelationship(MATERIAL);
     prim->createRelationship(COLLECTION);
     PvtAttribute* exclusive = prim->createAttribute(EXCLUSIVE, RtType::BOOLEAN);

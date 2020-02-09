@@ -6,7 +6,6 @@
 #include <MaterialXRuntime/Private/PvtPrim.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
 
-#include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXCore/Util.h>
@@ -16,17 +15,18 @@ namespace MaterialX
 
 RT_DEFINE_RUNTIME_OBJECT(PvtPrim, RtObjType::PRIM, "PvtPrim")
 
-PvtPrim::PvtPrim(const RtToken& name, PvtPrim* parent) :
-    PvtObject(name, parent)
+PvtPrim::PvtPrim(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* parent) :
+    PvtObject(name, parent),
+    _typeInfo(typeInfo)
 {
     setTypeBit<PvtPrim>();
 }
 
-PvtDataHandle PvtPrim::createNew(const RtToken& name, PvtPrim* parent)
+PvtDataHandle PvtPrim::createNew(const RtTypeInfo* type, const RtToken& name, PvtPrim* parent)
 {
     // Make the name unique.
     const RtToken primName = parent->makeUniqueName(name);
-    return PvtDataHandle(new PvtPrim(primName, parent));
+    return PvtDataHandle(new PvtPrim(type, primName, parent));
 }
 
 void PvtPrim::dispose()

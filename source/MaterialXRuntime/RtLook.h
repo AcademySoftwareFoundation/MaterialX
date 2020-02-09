@@ -25,6 +25,9 @@ class RtLookGroup : public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtLookGroup)
 
 public:
+    /// Constructor.
+    RtLookGroup(const RtPrim& prim) : RtTypedSchema(prim) {}
+
     /// Return the active look.
     RtAttribute getActiveLook() const;
 
@@ -46,6 +49,9 @@ class RtLook : public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtLook)
 
 public:
+    /// Constructor.
+    RtLook(const RtPrim& prim) : RtTypedSchema(prim) {}
+
     /// Return the inherit relationship.
     RtRelationship getInherit() const;
 
@@ -66,6 +72,9 @@ class RtMaterialAssign : public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtMaterialAssign)
 
 public:
+    /// Constructor.
+    RtMaterialAssign(const RtPrim& prim) : RtTypedSchema(prim) {}
+
     /// Return the material relationship.
     RtRelationship getMaterial() const;
 

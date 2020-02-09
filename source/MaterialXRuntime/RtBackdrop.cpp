@@ -23,16 +23,15 @@ DEFINE_TYPED_SCHEMA(RtBackdrop, "backdrop");
 
 RtPrim RtBackdrop::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeName)
+    if (typeName != _typeInfo.getShortTypeName())
     {
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
 
     const RtToken primName = name == EMPTY_TOKEN ? BACKDROP1 : name;
-    PvtDataHandle primH = PvtPrim::createNew(primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->setTypeName(_typeName);
     prim->createRelationship(CONTAINS);
     prim->createAttribute(WIDTH, RtType::FLOAT);
     prim->createAttribute(HEIGHT, RtType::FLOAT);

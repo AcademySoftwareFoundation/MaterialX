@@ -124,7 +124,7 @@ public:
         return _root->asA<PvtPrim>()->getPath();
     }
 
-    const RtTokenList& getSourceUri() const
+    const RtTokenVec& getSourceUri() const
     {
         return _sourceUri;
     }
@@ -158,15 +158,13 @@ protected:
     class RootPrim : public PvtPrim
     {
     public:
-        RootPrim(RtStageWeakPtr stage) :
-            PvtPrim(PvtPath::ROOT_NAME, nullptr),
-            _stage(stage)
-        {}
+        RootPrim(RtStageWeakPtr stage);
 
         RtStageWeakPtr getStage() const { return _stage; }
 
     protected:
         RtStageWeakPtr _stage;
+        static const RtTypeInfo _typeInfo;
     };
 
     RtToken _name;
@@ -176,7 +174,7 @@ protected:
     RtStageMap _refStagesMap;
     RtStageVec _refStagesOrder;
 
-    RtTokenList _sourceUri;
+    RtTokenVec _sourceUri;
 
     friend class PvtObject;
 };

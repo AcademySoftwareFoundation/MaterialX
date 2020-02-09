@@ -21,6 +21,9 @@ class RtCollection: public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtCollection)
 
 public:
+    /// Constructor.
+    RtCollection(const RtPrim& prim) : RtTypedSchema(prim) {}
+
     /// Return included geometry identifiers
     RtAttribute getIncludeGeom() const;
 

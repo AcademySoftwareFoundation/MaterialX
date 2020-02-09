@@ -88,7 +88,7 @@ public:
     void unloadLibrary(const RtToken& name);
 
     /// Return a list of all loaded libraries.
-    RtTokenList getLibraryNames() const;
+    RtTokenVec getLibraryNames() const;
 
     /// Return the library stage containing all loaded libraries.
     RtStagePtr getLibrary();
@@ -106,7 +106,7 @@ public:
     RtToken renameStage(const RtToken& name, const RtToken& newName);
 
     /// Return a list of all stages created.
-    RtTokenList getStageNames() const;
+    RtTokenVec getStageNames() const;
 
     /// Get the singleton API instance.
     static RtApi& get();

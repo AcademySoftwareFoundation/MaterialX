@@ -153,7 +153,7 @@ protected:
     const PvtDataHandle& hnd() const;
 #endif
 
-    /// Return true if this obect is compatible 
+    /// Return true if this object is compatible
     /// with an object of the given type id.
     bool isCompatible(RtObjType typeId) const;
 

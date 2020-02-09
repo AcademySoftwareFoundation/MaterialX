@@ -9,6 +9,8 @@
 #include <MaterialXRuntime/Private/PvtAttribute.h>
 #include <MaterialXRuntime/Private/PvtRelationship.h>
 
+#include <MaterialXRuntime/RtPrim.h>
+
 /// @file
 /// TODO: Docs
 
@@ -68,18 +70,21 @@ class PvtPrim : public PvtObject
     RT_DECLARE_RUNTIME_OBJECT(PvtPrim)
 
 public:
-    static PvtDataHandle createNew(const RtToken& name, PvtPrim* parent);
+    static PvtDataHandle createNew(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* parent);
 
     void dispose();
 
-    const RtToken& getTypeName() const
+    const RtTypeInfo* getTypeInfo() const
     {
-        return _typeName;
+        return _typeInfo;
     }
 
-    void setTypeName(const RtToken& typeName)
+    template<class T>
+    bool hasApi() const
     {
-        _typeName = typeName;
+        static_assert(std::is_base_of<RtSchemaBase, T>::value,
+            "Templated type must be a concrete subclass of RtSchemaBase");
+        return _typeInfo->isCompatible(T::typeName());
     }
 
     PvtRelationship* createRelationship(const RtToken& name);
@@ -160,12 +165,12 @@ public:
     RtToken makeUniqueName(const RtToken& name) const;
 
 protected:
-    PvtPrim(const RtToken& name, PvtPrim* parent);
+    PvtPrim(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* parent);
 
     void addChildPrim(const PvtPrim* prim);
     void removeChildPrim(const PvtPrim* prim);
 
-    RtToken _typeName;
+    const RtTypeInfo* _typeInfo;
 
     // Relationships
     PvtDataHandleMap _relMap;

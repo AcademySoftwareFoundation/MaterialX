@@ -11,6 +11,7 @@
 
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtTypeInfo.h>
 #include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtRelationship.h>
 
@@ -34,16 +35,23 @@ public:
     /// Construct from a data handle.
     RtPrim(PvtDataHandle hnd);
 
+    /// Return the typeinfo for this prim.
+    const RtTypeInfo* getTypeInfo() const;
+
     /// Return true if this prim supports the templated schema class.
     template<class T>
     bool hasApi() const
     {
         static_assert(std::is_base_of<RtSchemaBase, T>::value,
             "Templated type must be a concrete subclass of RtSchemaBase");
-        return T(*this).isValid();
+        return getTypeInfo()->isCompatible(T::typeName());
     }
 
-    const RtToken getTypeName() const;
+    /// Return the typename for this prim.
+    const RtToken& getTypeName() const
+    {
+        return getTypeInfo()->getShortTypeName();
+    }
 
     /// Add a relationship to the prim.
     RtRelationship createRelationship(const RtToken& name);

@@ -9,7 +9,7 @@
 /// @file
 /// TODO: Docs
 
-#include <MaterialXRuntime/RtSchema.h>
+#include <MaterialXRuntime/RtNode.h>
 
 namespace MaterialX
 {
@@ -18,11 +18,13 @@ class RtPrimIterator;
 
 /// @class RtNodeGraph
 /// Schema for nodegraph prims.
-class RtNodeGraph : public RtTypedSchema
+class RtNodeGraph : public RtNode
 {
     DECLARE_TYPED_SCHEMA(RtNodeGraph)
 
 public:
+    RtNodeGraph(const RtPrim& prim) : RtNode(prim) {}
+
     /// Add an input attribute to the graph.
     RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
@@ -34,20 +36,6 @@ public:
 
     /// Remove an output attribute from the graph.
     void removeOutput(const RtToken& name);
-
-    /// Return the named input.
-    RtInput getInput(const RtToken& name) const;
-
-    /// Return an iterator traversing all input attributes
-    /// on this graph.
-    RtAttrIterator getInputs() const;
-
-    /// Return the named output.
-    RtOutput getOutput(const RtToken& name) const;
-
-    /// Return an iterator traversing all output attributes
-    /// on this graph.
-    RtAttrIterator getOutputs() const;
 
     /// Return the internal socket that corresponds
     /// to the named input attribute.

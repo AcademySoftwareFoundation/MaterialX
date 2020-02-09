@@ -20,16 +20,6 @@ RtSchemaBase::RtSchemaBase(const RtSchemaBase& other) :
 {
 }
 
-bool RtSchemaBase::isSupported(const RtPrim& prim) const
-{
-    return prim && isSupported(prim.hnd());
-}
-
-bool RtSchemaBase::isSupported(const PvtDataHandle&) const
-{
-    return true;
-}
-
 RtPrim RtSchemaBase::getPrim() const
 {
     return RtPrim(_hnd);
@@ -51,16 +41,9 @@ PvtRelationship* RtSchemaBase::rel(const RtToken& name) const
 }
 
 
-const RtToken& RtTypedSchema::getTypeName() const
+bool RtTypedSchema::isCompatible(const RtPrim& prim) const
 {
-    return EMPTY_TOKEN;
-}
-
-bool RtTypedSchema::isSupported(const PvtDataHandle& hnd) const
-{
-    // TODO: Implement proper type information and checking
-    // to handle schema class inheritance.
-    return !hnd->isDisposed() && hnd->asA<PvtPrim>()->getTypeName() == getTypeName();
+    return prim && prim.getTypeInfo()->isCompatible(getTypeInfo().getShortTypeName());
 }
 
 }

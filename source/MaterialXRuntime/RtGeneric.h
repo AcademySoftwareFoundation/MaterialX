@@ -21,6 +21,9 @@ class RtGeneric : public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtGeneric)
 
 public:
+    /// Constructor.
+    RtGeneric(const RtPrim& prim) : RtTypedSchema(prim) {}
+
     /// Get the kind for this generic prim,
     /// which gives its custom typename.
     const RtToken& getKind() const;

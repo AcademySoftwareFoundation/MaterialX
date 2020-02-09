@@ -21,6 +21,9 @@ class RtNode : public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtNode)
 
 public:
+    /// Constructor.
+    RtNode(const RtPrim& prim) : RtTypedSchema(prim) {}
+
     /// Return the nodedef for this node.
     RtPrim getNodeDef() const;
 

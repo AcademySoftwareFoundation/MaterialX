@@ -19,6 +19,14 @@
 namespace MaterialX
 {
 
+const RtTypeInfo PvtStage::RootPrim::_typeInfo("stagerootprim");
+
+PvtStage::RootPrim::RootPrim(RtStageWeakPtr stage) :
+    PvtPrim(&_typeInfo, PvtPath::ROOT_NAME, nullptr),
+    _stage(stage)
+{
+}
+
 PvtStage::PvtStage(const RtToken& name, RtStageWeakPtr owner) :
     _name(name),
     _root(nullptr),
@@ -54,7 +62,7 @@ PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, co
     {
         // Second, try finding a registered master prim.
         const RtPrim master = RtApi::get().getMasterPrim(typeName);
-        if (master && master.getTypeName() == RtNodeDef::typeName())
+        if (master && master.getTypeInfo()->getShortTypeName() == RtNodeDef::typeName())
         {
             // This is a nodedef, so create a node instance from it.
             RtPrimCreateFunc nodeCreator = RtApi::get().getCreateFunction(RtNode::typeName());

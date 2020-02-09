@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtSchema.h>
 #include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
@@ -18,9 +19,9 @@ RtPrim::RtPrim(PvtDataHandle hnd) :
 {
 }
 
-const RtToken RtPrim::getTypeName() const
+const RtTypeInfo* RtPrim::getTypeInfo() const
 {
-    return hnd()->asA<PvtPrim>()->getTypeName();
+    return hnd()->asA<PvtPrim>()->getTypeInfo();
 }
 
 RtRelationship RtPrim::createRelationship(const RtToken& name)

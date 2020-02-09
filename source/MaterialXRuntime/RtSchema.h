@@ -8,6 +8,7 @@
 
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtTypeInfo.h>
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtPath.h>
 
@@ -23,7 +24,7 @@ struct RtSchemaPredicate
 {
     bool operator()(const RtObject& obj)
     {
-        return obj.isA<RtPrim>() && T(static_cast<const RtPrim&>(obj)).isValid();
+        return obj.isA<RtPrim>() && obj.asA<RtPrim>().hasApi<T>();
     }
 };
 
@@ -35,14 +36,14 @@ public:
     /// Destructor.
     virtual ~RtSchemaBase() {};
 
-    /// Return true if the given prim is supported by this schema.
-    bool isSupported(const RtPrim& prim) const;
+    /// Return true if the given prim is compatible with this schema.
+    virtual bool isCompatible(const RtPrim& prim) const = 0;
 
     /// Return true if the attached prim is valid
-    /// and supported by this API.
+    /// and compatible with this schema.
     bool isValid() const
     {
-        return _hnd && isSupported(_hnd);
+        return _hnd && isCompatible(_hnd);
     }
 
     /// Return true if the attached prim is valid
@@ -122,22 +123,22 @@ protected:
     /// Return the handle set for this API.
     const PvtDataHandle& hnd() const { return _hnd; }
 
-    /// Return true if the given prim handle is supported by this API.
-    /// Derived classes should override this method.
-    virtual bool isSupported(const PvtDataHandle& hnd) const;
-
 protected:
     // Handle for the prim attached to the API.
     PvtDataHandle _hnd;
 };
+
 
 /// @class RtTypedSchema
 /// Base class for all typed prim schemas.
 class RtTypedSchema : public RtSchemaBase
 {
 public:
-    /// Return the typename for the prim defined by this schema.
-    virtual const RtToken& getTypeName() const;
+    /// Return the type info for the prim defined by this schema.
+    virtual const RtTypeInfo& getTypeInfo() const = 0;
+
+    /// Return true if the given prim is compatible with this schema.
+    bool isCompatible(const RtPrim& prim) const override;
 
 protected:
     /// Constructor attaching a prim to the API.
@@ -145,24 +146,22 @@ protected:
         RtSchemaBase(prim)
     {
     }
-
-    /// Return true if the given prim handle is supported by this API.
-    bool isSupported(const PvtDataHandle& hnd) const override;
 };
+
 
 /// Macro declaring required methods and mambers on typed schemas.
 #define DECLARE_TYPED_SCHEMA(T)                                                             \
 private:                                                                                    \
-    static const RtToken _typeName;                                                         \
+    static const RtTypeInfo _typeInfo;                                                      \
 public:                                                                                     \
-    T(const RtPrim& prim) : RtTypedSchema(prim) {}                                          \
-    const RtToken& getTypeName() const override { return _typeName; }                       \
-    static const RtToken& typeName() { return _typeName; }                                  \
+    const RtTypeInfo& getTypeInfo() const override { return _typeInfo; }                    \
+    static const RtToken& typeName() { return _typeInfo.getShortTypeName(); }               \
+    static const RtTypeInfo& typeInfo() { return _typeInfo; }                               \
     static RtPrim createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent);  \
 
 /// Macro defining required methods and mambers on typed schemas.
-#define DEFINE_TYPED_SCHEMA(T, typeNameStr)                                                 \
-const RtToken T::_typeName(typeNameStr);                                                    \
+#define DEFINE_TYPED_SCHEMA(T, typeNameHierachy)                                            \
+const RtTypeInfo T::_typeInfo(typeNameHierachy);                                            \
 
 }
 

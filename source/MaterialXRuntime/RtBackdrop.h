@@ -21,6 +21,9 @@ class RtBackdrop : public RtTypedSchema
     DECLARE_TYPED_SCHEMA(RtBackdrop)
 
 public:
+    /// Constructor.
+    RtBackdrop(const RtPrim& prim) : RtTypedSchema(prim) {}
+
     /// Return the contains relationship.
     RtRelationship getContains() const;
 
