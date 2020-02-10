@@ -49,7 +49,6 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
 
     // Create the offscreen color target and attach to the framebuffer.
-    _colorTexture = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
     glGenTextures(1, &_colorTexture);
     glBindTexture(GL_TEXTURE_2D, _colorTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -60,7 +59,6 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _colorTexture, 0);
 
     // Create the offscreen depth target and attach to the framebuffer.
-    _depthTexture = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
     glGenTextures(1, &_depthTexture);
     glBindTexture(GL_TEXTURE_2D, _depthTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
