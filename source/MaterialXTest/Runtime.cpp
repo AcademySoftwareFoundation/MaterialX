@@ -21,6 +21,7 @@
 #include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtTypeDef.h>
+#include <MaterialXRuntime/RtNameResolver.h>
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtBackdrop.h>
@@ -1177,6 +1178,59 @@ TEST_CASE("Runtime: Looks", "[runtime]")
 
     lookgroup1.getActiveLook().setValueString("look1");
     REQUIRE(lookgroup1.getActiveLook().getValueString() == "look1");
+}
+
+mx::RtToken toTestResolver(const mx::RtToken& str, const mx::RtToken& type)
+{
+    mx::StringResolverPtr resolver = mx::StringResolver::create();
+    mx::RtToken resolvedName = mx::RtToken(resolver->resolve(str, type).c_str());
+    resolvedName = resolvedName.str() + "_toTestResolver";
+    return resolvedName;
+}
+
+mx::RtToken fromTestResolver(const mx::RtToken& str, const mx::RtToken& type)
+{
+    mx::StringResolverPtr resolver = mx::StringResolver::create();
+    mx::RtToken resolvedName = mx::RtToken(resolver->resolve(str, type).c_str());
+    resolvedName = resolvedName.str() + "_fromTestResolver";
+    return resolvedName;
+}
+
+TEST_CASE("Runtime: NameResolvers", "[runtime]")
+{
+    mx::RtNameResolverRegistryPtr registry = mx::RtNameResolverRegistry::createNew();
+    REQUIRE(registry);
+
+    mx::RtNameResolverInfo geomInfo;
+    geomInfo.identifier = mx::RtToken("geom_resolver");
+    geomInfo.elementType = mx::RtNameResolverInfo::GEOMNAME_TYPE;
+    geomInfo.toFunction = nullptr;
+    geomInfo.fromFunction = nullptr;
+    mx::RtToken pipe("|");
+    mx::RtToken slash("/");
+    geomInfo.toSubstitutions.emplace(pipe, slash);
+    geomInfo.fromSubstitutions.emplace(slash, pipe);
+    registry->registerNameResolvers(geomInfo);
+
+    mx::RtNameResolverInfo imageInfo;
+    imageInfo.identifier = mx::RtToken("image_resolver");
+    imageInfo.elementType = mx::RtNameResolverInfo::FILENAME_TYPE;
+    imageInfo.toFunction = toTestResolver;
+    imageInfo.fromFunction = fromTestResolver;
+    registry->registerNameResolvers(imageInfo);
+    
+    mx::RtToken mayaPathToGeom("|path|to|geom");
+    mx::RtToken mxPathToGeom("/path/to/geom");
+    mx::RtToken result1 = registry->resolveIdentifier(mayaPathToGeom, mx::RtNameResolverInfo::GEOMNAME_TYPE, true);
+    REQUIRE(result1.str() == mxPathToGeom.str());
+    mx::RtToken result2 = registry->resolveIdentifier(result1, mx::RtNameResolverInfo::GEOMNAME_TYPE, false);
+    REQUIRE(result2.str() == mayaPathToGeom.str());
+    
+    mx::RtToken pathToGeom("test");
+    mx::RtToken result3 = registry->resolveIdentifier(pathToGeom, mx::RtNameResolverInfo::FILENAME_TYPE, true);
+    REQUIRE(result3.str() == "test_toTestResolver");
+    mx::RtToken result4 = registry->resolveIdentifier(pathToGeom, mx::RtNameResolverInfo::FILENAME_TYPE, false);
+    REQUIRE(result4.str() == "test_fromTestResolver");
 }
 
 #endif // MATERIALX_BUILD_RUNTIME
