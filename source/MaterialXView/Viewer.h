@@ -162,7 +162,11 @@ class Viewer : public ng::Screen
     mx::DocumentPtr _lightRigDoc;
     bool _directLighting;
     bool _indirectLighting;
+
+    // Light processing options
     bool _splitDirectLight;
+    bool _generateReferenceIrradiance;
+    bool _saveGeneratedLights;
 
     // Shadow mapping
     MaterialPtr _shadowMaterial;

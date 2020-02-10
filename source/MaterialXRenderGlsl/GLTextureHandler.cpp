@@ -17,6 +17,14 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
     ImageHandler(imageLoader),
     _maxImageUnits(-1)
 {
+    if (!glActiveTexture)
+    {
+        glewInit();
+    }
+
+    int maxTextureUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+    _boundTextureLocations.resize(maxTextureUnits, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
 }
 
 ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
@@ -112,28 +120,13 @@ bool GLTextureHandler::unbindImage(ImagePtr image)
 
 bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps)
 {
-    // Initialize OpenGL setup if needed.
-    if (!glActiveTexture)
+    if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        glewInit();
+        unsigned int resourceId;
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glGenTextures(1, &resourceId);
+        image->setResourceId(resourceId);
     }
-    if (_boundTextureLocations.empty())
-    {
-        int maxTextureUnits;
-        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-        if (maxTextureUnits <= 0)
-        {
-            StringVec errors;
-            errors.push_back("No texture units available");
-            throw ExceptionShaderRenderError("OpenGL context error.", errors);
-        }
-        _boundTextureLocations.resize(maxTextureUnits, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-    }
-
-    unsigned int resourceId = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glGenTextures(1, &resourceId);
-    image->setResourceId(resourceId);
 
     int textureUnit = getNextAvailableTextureLocation();
     if (textureUnit < 0)
@@ -144,26 +137,14 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, image->getResourceId());
 
-    GLint internalFormat = GL_RGBA;
-    GLenum type = GL_UNSIGNED_BYTE;
+    int glType, glFormat, glInternalFormat;
+    mapTextureFormatToGL(image->getBaseType(), image->getChannelCount(), false,
+        glType, glFormat, glInternalFormat);
 
-    if (image->getBaseType() == Image::BaseType::FLOAT)
-    {
-        internalFormat = GL_RGBA32F;
-        type = GL_FLOAT;
-    }
-    else if (image->getBaseType() == Image::BaseType::HALF)
-    {
-        internalFormat = GL_RGBA16F;
-        type = GL_HALF_FLOAT;
-    }
-
-    GLint format = GL_RGBA;
     switch (image->getChannelCount())
     {
     case 3:
     {
-        format = GL_RGB;
         // Map {RGB} to {RGB, 1} at shader access time
         GLint swizzleMaskRGB[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ONE };
         glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMaskRGB);
@@ -171,7 +152,6 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     }
     case 2:
     {
-        format = GL_RG;
         // Map {red, green} to {red, alpha} at shader access time
         GLint swizzleMaskRG[] = { GL_RED, GL_RED, GL_RED, GL_GREEN };
         glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMaskRG);
@@ -179,7 +159,6 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     }
     case 1:
     {
-        format = GL_RED;
         // Map { red } to {red, green, blue, 1} at shader access time
         GLint swizzleMaskR[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
         glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMaskR);
@@ -189,8 +168,8 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
         break;
     }
 
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image->getWidth(), image->getHeight(),
-        0, format, type, image->getResourceBuffer());
+    glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
+        0, glFormat, glType, image->getResourceBuffer());
 
     if (generateMipMaps)
     {
