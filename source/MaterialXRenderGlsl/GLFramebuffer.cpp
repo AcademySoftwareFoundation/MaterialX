@@ -28,6 +28,7 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     _height(height),
     _channelCount(channelCount),
     _baseType(baseType),
+    _encodeSrgb(false),
     _frameBuffer(0),
     _colorTexture(0),
     _depthTexture(0)
@@ -138,6 +139,17 @@ void GLFramebuffer::bind()
     glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
     GLenum colorList[1] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, colorList);
+
+    if (_encodeSrgb)
+    {
+        glEnable(GL_FRAMEBUFFER_SRGB);
+    }
+    else
+    {
+        glDisable(GL_FRAMEBUFFER_SRGB);
+    }
+
+    glViewport(0, 0, _width, _height);
 }
 
 void GLFramebuffer::unbind()
