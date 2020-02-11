@@ -30,7 +30,20 @@ class GLFramebuffer
     /// Destructor
     virtual ~GLFramebuffer();
 
-    /// Bind the frame buffer for rendering.
+    /// Set the encode sRGB flag, which controls whether values written
+    /// to the framebuffer are encoded to the sRGB color space.
+    void setEncodeSrgb(bool encode)
+    {
+        _encodeSrgb = encode;
+    }
+
+    /// Return the encode sRGB flag.
+    bool getEncodeSrgb()
+    {
+        return _encodeSrgb;
+    }
+
+    /// Bind the framebuffer for rendering.
     void bind();
 
     /// Unbind the frame buffer after rendering.
@@ -51,7 +64,7 @@ class GLFramebuffer
     /// Create an image from our color texture.
     ImagePtr createColorImage();
 
-    /// Blit our color image to the back buffer.
+    /// Blit our color texture to the back buffer.
     void blit();
 
   protected:
@@ -62,6 +75,7 @@ class GLFramebuffer
     unsigned int _height;
     unsigned int _channelCount;
     Image::BaseType _baseType;
+    bool _encodeSrgb;
 
     unsigned int _frameBuffer;
     unsigned int _colorTexture;

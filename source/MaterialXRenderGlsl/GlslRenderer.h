@@ -74,9 +74,7 @@ class GlslRenderer : public ShaderRenderer
     void render() override;
 
     /// Render the current program in texture space to an off-screen buffer.
-    /// @param encodeSrgb If true, then the off-screen buffer will be encoded
-    ///    as sRGB; otherwise, no encoding is performed.
-    void renderTextureSpace(bool encodeSrgb);
+    void renderTextureSpace();
 
     /// @}
     /// @name Utilities
@@ -97,6 +95,9 @@ class GlslRenderer : public ShaderRenderer
     {
         return _program;
     }
+
+    /// Submit geometry for a screen-space quad.
+    static void drawScreenSpaceQuad();
 
     /// @}
 
