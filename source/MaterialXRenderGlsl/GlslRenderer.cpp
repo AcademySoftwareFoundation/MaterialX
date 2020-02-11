@@ -149,64 +149,16 @@ void GlslRenderer::createProgram(const StageMap& stages)
     _program->build();
 }
 
-void GlslRenderer::renderTextureSpace(bool encodeSrgb)
+void GlslRenderer::renderTextureSpace()
 {
-    _frameBuffer->bind();
-    if (encodeSrgb)
-    {
-        glEnable(GL_FRAMEBUFFER_SRGB);
-    }
-    else
-    {
-        glDisable(GL_FRAMEBUFFER_SRGB);
-    }
-    glViewport(0, 0, _res, _res);
-
     _program->bind();
-
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
     _program->bindTextures(_imageHandler);
 
-    glBindVertexArray(vao);
-    float vertices[] =
-    {
-         // positions       // texcoords
-         1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
-    };
-    unsigned int indices[] =
-    {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
-    
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) 0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
-
-    GLuint ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    _frameBuffer->bind();
+    drawScreenSpaceQuad();
     _frameBuffer->unbind();
-    checkErrors();
 
     _program->unbind();
-    _program->unbindInputs(_imageHandler);
 }
 
 void GlslRenderer::validateInputs()
@@ -284,8 +236,6 @@ void GlslRenderer::render()
     glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glViewport(0, 0, _res, _res);
 
     // Update viewing information
     const Vector3 eye(0.0f, 0.0f, 4.0f);
@@ -387,6 +337,40 @@ void GlslRenderer::checkErrors()
     {
         throw ExceptionShaderRenderError("OpenGL context error.", errors);
     }
+}
+
+void GlslRenderer::drawScreenSpaceQuad()
+{
+    const float QUAD_VERTICES[] =
+    {
+         1.0f,  1.0f, 0.0f, 1.0f, 1.0f, // position, texcoord
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+    };
+    const unsigned int QUAD_INDICES[] =
+    {
+        0, 1, 3,
+        1, 2, 3
+    };
+    
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(QUAD_VERTICES), QUAD_VERTICES, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) 0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
+
+    GLuint ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(QUAD_INDICES), QUAD_INDICES, GL_STATIC_DRAW);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 } // namespace MaterialX
