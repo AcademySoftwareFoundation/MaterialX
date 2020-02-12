@@ -81,6 +81,9 @@ public:
     /// Return the collection relationship.
     RtRelationship getCollection() const;
 
+    /// Return the geometry attribute.
+    RtAttribute getGeom() const;
+
     /// Return the exclusive flag attribute.
     RtAttribute getExclusive() const;
 };

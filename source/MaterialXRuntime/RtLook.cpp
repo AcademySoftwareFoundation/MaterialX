@@ -3,6 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#include <MaterialXCore/Util.h>
 #include <MaterialXRuntime/RtLook.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
@@ -15,6 +16,7 @@ namespace
     static const RtToken INHERIT("inherit");
     static const RtToken MATERIAL("material");
     static const RtToken COLLECTION("collection");
+    static const RtToken GEOM("geom");
     static const RtToken EXCLUSIVE("exclusive");
     static const RtToken MATERIAL_ASSIGN("materialassign");
     static const RtToken ACTIVELOOK("active");
@@ -122,6 +124,8 @@ RtPrim RtMaterialAssign::createPrim(const RtToken& typeName, const RtToken& name
     prim->createRelationship(COLLECTION);
     PvtAttribute* exclusive = prim->createAttribute(EXCLUSIVE, RtType::BOOLEAN);
     exclusive->getValue().asBool() = true;
+    PvtAttribute* geom = prim->createAttribute(GEOM, RtType::STRING);
+    geom->getValue().asString() = EMPTY_STRING;
 
     return primH;
 }
@@ -134,6 +138,11 @@ RtRelationship RtMaterialAssign::getMaterial() const
 RtRelationship RtMaterialAssign::getCollection() const
 {
     return prim()->getRelationship(COLLECTION)->hnd();
+}
+
+RtAttribute RtMaterialAssign::getGeom() const
+{
+    return prim()->getAttribute(GEOM)->hnd();
 }
 
 RtAttribute RtMaterialAssign::getExclusive() const

@@ -9,6 +9,8 @@
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtBackdrop.h>
+#include <MaterialXRuntime/RtLook.h>
+#include <MaterialXRuntime/RtCollection.h>
 #include <MaterialXRuntime/RtGeneric.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 #include <MaterialXRuntime/RtTraversal.h>
@@ -371,8 +373,173 @@ namespace
         return prim;
     }
 
+    // Note that this function reads in a single collection. After all required collections
+    // have been read in, the createCollectionConnections() function can be called
+    // to create collection inclusion connections.
+    PvtPrim* readCollection(const CollectionPtr& src, PvtPrim* parent, PvtStage* stage)
+    {
+        const RtToken name(src->getName());
+
+        PvtPrim* collectionPrim = stage->createPrim(parent->getPath(), name, RtCollection::typeName());
+        RtCollection collection(collectionPrim->hnd());
+        collection.getIncludeGeom().setValueString(src->getIncludeGeom());
+        collection.getExcludeGeom().setValueString(src->getExcludeGeom());
+
+        return collectionPrim;
+    }
+
+    // Create collection include connections assuming that all referenced
+    // looks exist.
+    void makeCollectionIncludeConnections(const vector<CollectionPtr>& collectionElements, PvtPrim* parent)
+    {
+        for (const CollectionPtr& colElement : collectionElements)
+        {
+            PvtPrim* parentCollection = findPrimOrThrow(RtToken(colElement->getName()), parent);
+            for (const CollectionPtr& includeCollection : colElement->getIncludeCollections())
+            {
+                PvtPrim* childCollection = findPrimOrThrow(RtToken(includeCollection->getName()), parent);
+                RtCollection rtCollection(parentCollection->hnd());
+                rtCollection.addCollection(childCollection->hnd());
+            }
+        }
+    }
+
+    // Note that this function reads in a single look. After all required looks have been
+    // read in then createLookConnections() can be called to create look inheritance
+    // connections.
+    PvtPrim* readLook(const LookPtr& src, PvtPrim* parent, PvtStage* stage)
+    {
+        const RtToken name(src->getName());
+
+        PvtPrim* lookPrim = stage->createPrim(parent->getPath(), name, RtLook::typeName());
+        RtLook look(lookPrim->hnd());
+
+        // Create material assignments
+        for (const MaterialAssignPtr matAssign : src->getMaterialAssigns())
+        {
+            PvtPrim* assignPrim = stage->createPrim(parent->getPath(), RtToken(matAssign->getName()), RtMaterialAssign::typeName());
+            RtMaterialAssign rtMatAssign(assignPrim->hnd());
+            
+            PvtPrim* collection = findPrimOrThrow(RtToken(matAssign->getCollectionString()), parent);
+            rtMatAssign.getCollection().addTarget(collection->hnd());
+
+            PvtPrim* material = findPrimOrThrow(RtToken(matAssign->getMaterial()), parent);
+            rtMatAssign.getMaterial().addTarget(material->hnd());
+
+            rtMatAssign.getExclusive().getValue().asBool() = matAssign->getExclusive();
+            rtMatAssign.getGeom().getValue().asString() = matAssign->getActiveGeom();
+        }
+        return lookPrim;
+    }
+
+    // Create look inheritance connections assuming that all referenced
+    // looks exist.
+    void makeLookInheritConnections(const vector<LookPtr>& lookElements, PvtPrim* parent)
+    {
+        for (const LookPtr& lookElem : lookElements)
+        {
+            PvtPrim* childLook = findPrimOrThrow(RtToken(lookElem->getName()), parent);
+            const string& inheritString = lookElem->getInheritString();
+            if (!inheritString.empty())
+            {
+                PvtPrim* parentLook = findPrimOrThrow(RtToken(inheritString), parent);
+                RtLook rtLook(childLook->hnd());
+                rtLook.getInherit().addTarget(parentLook->hnd());
+            }
+        }
+    }
+
+    // Read in a look group. This assumes that all referenced looks have
+    // already been created.
+    PvtPrim* readLookGroup(const LookGroupPtr& src, PvtPrim* parent, PvtStage* stage)
+    {
+        const string LIST_SEPARATOR(",");
+
+        const RtToken name(src->getName());
+        PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtLookGroup::typeName());
+        RtLookGroup lookGroup(prim->hnd());
+
+        // Link to looks
+        const string& lookNamesString = src->getLooks();
+        StringVec lookNamesList  = splitString(lookNamesString, LIST_SEPARATOR);
+        for (auto lookName : lookNamesList)
+        {
+            if (!lookName.empty())
+            {
+                PvtPrim* lookPrim = findPrimOrThrow(RtToken(lookName), parent);
+                lookGroup.addLook(lookPrim->hnd());
+            }
+        }
+        const string& activeLook = src->getActiveLook();
+        lookGroup.getActiveLook().setValueString(activeLook);
+
+        return prim;
+    }
+
+    // Read in all look information from a document. Collections, looks and
+    // look groups are read in first. Then relationship linkages are made.
+    void readLookInformation(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions)
+    {
+        const string ROOT_PATH(PvtPath::ROOT_NAME);
+
+        RtReadOptions::ReadFilter filter = readOptions ? readOptions->readFilter : nullptr;
+
+        PvtPrim* rootPrim = stage->getRootPrim();
+
+        // Read collections
+        for (const ElementPtr& elem : doc->getCollections())
+        {
+            if (!filter || filter(elem))
+            {
+                // Make sure the element has not been loaded already.
+                PvtPath path(ROOT_PATH + elem->getName());
+                if (stage->getPrimAtPath(path))
+                {
+                    continue;
+                }
+                readCollection(elem->asA<Collection>(), rootPrim, stage);
+            }
+        }
+
+        // Read looks
+        for (const LookPtr& elem : doc->getLooks())
+        {
+            if (!filter || filter(elem))
+            {
+                // Make sure the element has not been loaded already.
+                PvtPath path(ROOT_PATH + elem->getName());
+                if (stage->getPrimAtPath(path))
+                {
+                    continue;
+                }
+                readLook(elem, rootPrim, stage);
+            }
+        }
+
+        // Read look groups
+        for (const LookGroupPtr& elem : doc->getLookGroups())
+        {
+            if (!filter || filter(elem))
+            {
+                // Make sure the element has not been loaded already.
+                PvtPath path(ROOT_PATH + elem->getName());
+                if (stage->getPrimAtPath(path))
+                {
+                    continue;
+                }
+                readLookGroup(elem, rootPrim, stage);
+            }
+        }
+
+        // Create additional connections
+        makeCollectionIncludeConnections(doc->getCollections(), rootPrim);
+        makeLookInheritConnections(doc->getLooks(), rootPrim);
+    }
+
     void readDocument(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions)
     {
+        const string ROOT_PATH(PvtPath::ROOT_NAME);
+
         // Set the source location 
         const std::string& uri = doc->getSourceUri();
         stage->addSourceUri(RtToken(uri));
@@ -387,7 +554,7 @@ namespace
         {
             if (!filter || filter(nodedef))
             {
-                PvtPath path("/" + nodedef->getName());
+                PvtPath path(ROOT_PATH + nodedef->getName());
                 if (!stage->getPrimAtPath(path))
                 {
                     PvtPrim* prim = readNodeDef(nodedef, stage);
@@ -402,7 +569,7 @@ namespace
             if (!filter || filter(elem))
             {
                 // Make sure the element has not been loaded already.
-                PvtPath path("/" + elem->getName());
+                PvtPath path(ROOT_PATH + elem->getName());
                 if (stage->getPrimAtPath(path))
                 {
                     continue;
@@ -425,6 +592,12 @@ namespace
 
         // Create connections between all root level nodes.
         createNodeConnections(doc->getNodes(), stage->getRootPrim());
+
+        // Read look information
+        if (readOptions && readOptions->readLookInformation)
+        {
+            readLookInformation(doc, stage, readOptions);
+        }
     }
 
     void writeNodeDef(const PvtPrim* src, DocumentPtr dest)
@@ -700,6 +873,108 @@ namespace
         }
     }
 
+    void writeCollections(PvtStage* stage, Document& dest, RtWriteOptions::WriteFilter filter)
+    {
+        for (RtPrim child : stage->getRootPrim()->getChildren(filter))
+        {
+            const PvtPrim* prim = PvtObject::ptr<PvtPrim>(child);
+            const RtToken typeName = child.getTypeInfo()->getShortTypeName();
+            if (typeName == RtCollection::typeName())
+            {
+                RtCollection rtCollection(prim->hnd());
+                const string name(prim->getName());
+
+                if (dest.getCollection(name))
+                {
+                    continue;
+                }
+                CollectionPtr collection = dest.addCollection(name);
+                collection->setExcludeGeom(rtCollection.getExcludeGeom().getValueString());
+                collection->setIncludeGeom(rtCollection.getIncludeGeom().getValueString());
+
+                RtRelationship rtIncludeCollection = rtCollection.getIncludeCollection();
+                string includeList = rtIncludeCollection.getTargetsAsString();                
+                collection->setIncludeCollectionString(includeList);
+            }
+        }
+    }
+
+    void writeLooks(PvtStage* stage, Document& dest, RtWriteOptions::WriteFilter filter)
+    {
+        for (RtPrim child : stage->getRootPrim()->getChildren(filter))
+        {
+            const PvtPrim* prim = PvtObject::ptr<PvtPrim>(child);
+            const RtToken typeName = child.getTypeInfo()->getShortTypeName();
+            if (typeName == RtLook::typeName())
+            {
+                RtLook rtLook(prim->hnd());
+                const string name(prim->getName());
+
+                if (dest.getCollection(name))
+                {
+                    continue;
+                }
+                LookPtr look = dest.addLook(name);
+
+                // Add inherit
+                look->setInheritString(rtLook.getInherit().getTargetsAsString());
+
+                // Add in material assignments
+                for (const RtObject& obj : rtLook.getMaterialAssigns().getTargets())
+                {
+                    PvtPrim* pprim = PvtObject::ptr<PvtPrim>(obj);
+                    RtMaterialAssign rtMatAssign(pprim->hnd());
+
+                    const string& assignName = rtMatAssign.getName();
+                    if (look->getMaterialAssign(assignName))
+                    {
+                        continue;
+                    }
+
+                    MaterialAssignPtr massign = look->addMaterialAssign(assignName);
+                    if (massign)
+                    {
+                        massign->setExclusive(rtMatAssign.getExclusive().getValue().asBool());
+                        for (const RtObject& collectionObj : rtMatAssign.getCollection().getTargets())
+                        {
+                            massign->setCollectionString(collectionObj.getName());
+                            break;
+                        }
+                        for (const RtObject& materialObj : rtMatAssign.getMaterial().getTargets())
+                        {
+                            massign->setMaterial(materialObj.getName());
+                            break;
+                        }
+                        massign->setGeom(rtMatAssign.getGeom().getValueString());
+                    }
+                }
+            }
+        }
+    }
+
+    void writeLookGroups(PvtStage* stage, Document& dest, RtWriteOptions::WriteFilter filter)
+    {
+        for (RtPrim child : stage->getRootPrim()->getChildren(filter))
+        {
+            const PvtPrim* prim = PvtObject::ptr<PvtPrim>(child);
+            const RtToken typeName = child.getTypeInfo()->getShortTypeName();
+            if (typeName == RtLookGroup::typeName())
+            {
+                RtLookGroup rtLookGroup(prim->hnd());
+                const string name(rtLookGroup.getName());
+
+                if (dest.getLookGroup(name))
+                {
+                    continue;
+                }
+                LookGroupPtr lookGroup = dest.addLookGroup(name);
+                string lookList = rtLookGroup.getLooks().getTargetsAsString();
+                lookGroup->setLooks(lookList);
+                lookGroup->setActiveLook(rtLookGroup.getActiveLook().getValueString());
+            }
+        }
+    }
+
     void writeGenericPrim(const PvtPrim* src, ElementPtr dest)
     {
         RtGeneric generic(src->hnd());
@@ -773,10 +1048,21 @@ namespace
             {
                 writeNodeGraph(prim, doc);
             }
-            else
+            else if (typeName != RtLook::typeName() && 
+                     typeName != RtLookGroup::typeName() &&
+                     typeName != RtMaterialAssign::typeName() &&
+                     typeName != RtCollection::typeName())
             {
                 writeGenericPrim(prim, doc->asA<Element>());
             }
+        }
+
+        // Write the existing look information
+        if (!writeOptions || !(writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::LOOK))
+        {
+            writeCollections(stage, *doc, filter);
+            writeLooks(stage, *doc, filter);
+            writeLookGroups(stage, *doc, filter);
         }
     }
 
@@ -792,6 +1078,8 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         if (readOptions)
         {
             xmlReadOptions.skipConflictingElements = readOptions->skipConflictingElements;
+            xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
+            xmlReadOptions.desiredMajorVersion = readOptions->desiredMinorVersion;
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
 
@@ -813,6 +1101,8 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         if (readOptions)
         {
             xmlReadOptions.skipConflictingElements = readOptions->skipConflictingElements;
+            xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
+            xmlReadOptions.desiredMajorVersion = readOptions->desiredMinorVersion;
         }
         readFromXmlStream(document, stream, &xmlReadOptions);
 

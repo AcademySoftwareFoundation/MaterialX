@@ -51,6 +51,9 @@ public:
 
     /// Return an iterator over all targets for this relationship.
     RtConnectionIterator getTargets() const;
+
+    /// Return targets as a string
+    string getTargetsAsString(const string& sep = ",") const;
 };
 
 }

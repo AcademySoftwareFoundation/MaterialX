@@ -29,7 +29,10 @@ class RtReadOptions
   public:
     RtReadOptions() :
         skipConflictingElements(true),
-        readFilter(nullptr)
+        readFilter(nullptr),
+        readLookInformation(false),
+        desiredMajorVersion(1),
+        desiredMinorVersion(38)
     {
     }
     ~RtReadOptions() { }
@@ -41,6 +44,14 @@ class RtReadOptions
     /// Filter function type used for filtering elements during read.
     /// If the filter returns false the element will not be read.
     ReadFilter readFilter;
+
+    /// Read look information
+    bool readLookInformation;
+
+    ///
+    unsigned int desiredMajorVersion;
+
+    unsigned int desiredMinorVersion;
 };
     
 /// @class RtWriteOptions

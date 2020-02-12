@@ -60,4 +60,20 @@ RtConnectionIterator RtRelationship::getTargets() const
     return RtConnectionIterator(*this);
 }
 
+string RtRelationship::getTargetsAsString(const string& sep) const
+{
+    RtConnectionIterator iter = getTargets();
+    string str;
+    while (!iter.isDone())
+    {
+        str += (*iter).getName();
+        iter.operator++();
+        if (!iter.isDone())
+        {
+            str += sep;
+        }
+    }
+    return str;
+}
+
 }
