@@ -771,7 +771,8 @@ namespace
     void writeMaterialElementsHelper(const PvtPrim* prim, NodePtr mxNode, const string& materialBaseName, DocumentPtr doc, const RtWriteOptions* writeOptions)
     {
         MaterialPtr material = doc->addMaterial(materialBaseName + "_Material");
-        ShaderRefPtr shaderRef = material->addShaderRef("sref", mxNode->getName());
+        ShaderRefPtr shaderRef =
+            material->addShaderRef("sref", mxNode->getCategory());
 
         for (InputPtr input : mxNode->getActiveInputs())
         {
