@@ -67,6 +67,9 @@ public:
     /// Add a reference to another stage.
     void addReference(RtStagePtr stage);
 
+    /// Return a referenced stage by name.
+    RtStagePtr getReference(const RtToken& name) const;
+
     /// Remove a reference to another stage.
     void removeReference(const RtToken& name);
 
@@ -77,6 +80,8 @@ protected:
     RtStage();
 
     static RtStagePtr createNew(const RtToken& name);
+
+    void setName(const RtToken& name);
 
     void* _ptr;
     friend class PvtStage;

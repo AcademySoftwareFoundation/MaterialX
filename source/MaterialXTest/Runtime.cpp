@@ -961,6 +961,15 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     // Test removal of non-referenced content.
     stage->removePrim(node1.getPath());
     REQUIRE(!node1.isValid());
+
+    // Test renaming of referenced stage.
+    mx::RtStagePtr fooStage = api->createStage(FOO);
+    stage->addReference(fooStage);
+    REQUIRE(stage->getReference(FOO) == fooStage);
+    REQUIRE(fooStage->getName() == FOO);
+    api->renameStage(FOO, BAR);
+    REQUIRE(fooStage->getName() == BAR);
+    REQUIRE(stage->getReference(BAR) == fooStage);
 }
 
 TEST_CASE("Runtime: Traversal", "[runtime]")

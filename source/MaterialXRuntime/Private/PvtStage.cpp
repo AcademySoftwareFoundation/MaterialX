@@ -153,7 +153,7 @@ PvtPrim* PvtStage::getPrimAtPath(const PvtPath& path)
     if (!prim)
     {
         // Then search any referenced stages as well.
-        for (const RtStagePtr& stage : _refStagesOrder)
+        for (const RtStagePtr& stage : _refStages)
         {
             PvtStage* refStage = PvtStage::ptr(stage);
             prim = refStage->getPrimAtPath(path);
@@ -198,31 +198,28 @@ RtPrimIterator PvtStage::getPrims(RtObjectPredicate predicate)
 
 void PvtStage::addReference(RtStagePtr stage)
 {
-    if (_refStagesMap.count(stage->getName()))
+    const RtStage* s = stage.get();
+    if (_refStagesSet.count(s))
     {
         throw ExceptionRuntimeError("A reference to this stage already exists");
     }
 
     PvtStage::ptr(stage)->_selfRefCount++;
-    _refStagesMap[stage->getName()] = stage;
-    _refStagesOrder.push_back(stage);
+    _refStages.push_back(stage);
+    _refStagesSet.insert(s);
 }
 
 void PvtStage::removeReference(const RtToken& name)
 {
-    auto it = _refStagesMap.find(name);
-    if (it != _refStagesMap.end())
+    for (auto it = _refStages.begin(); it != _refStages.end(); ++it)
     {
-        PvtStage::ptr(it->second)->_selfRefCount--;
-
-        _refStagesMap.erase(it);
-
-        for (auto it2 = _refStagesOrder.begin(); it2 != _refStagesOrder.end(); ++it2)
+        const RtStagePtr& s = *it;
+        if (s->getName() == name)
         {
-            if ((*it2)->getName() == name)
-            {
-                _refStagesOrder.erase(it2);
-            }
+            PvtStage::ptr(s)->_selfRefCount--;
+            _refStages.erase(it);
+            _refStagesSet.erase(s.get());
+            break;
         }
     }
 }
@@ -230,19 +227,25 @@ void PvtStage::removeReference(const RtToken& name)
 void PvtStage::removeReferences()
 {
     // Decrease self ref count on all stages.
-    for (const RtStagePtr& stage : _refStagesOrder)
+    for (const RtStagePtr& stage : _refStages)
     {
         PvtStage::ptr(stage)->_selfRefCount--;
     }
     // Removed them.
-    _refStagesMap.clear();
-    _refStagesOrder.clear();
+    _refStages.clear();
+    _refStagesSet.clear();
 }
 
-PvtStage* PvtStage::findReference(const RtToken& name) const
+RtStagePtr PvtStage::getReference(const RtToken& name) const
 {
-    auto it = _refStagesMap.find(name);
-    return it != _refStagesMap.end() ? PvtStage::ptr(it->second) : nullptr;
+    for (const RtStagePtr& stage : _refStages)
+    {
+        if (stage->getName() == name)
+        {
+            return stage;
+        }
+    }
+    return nullptr;
 }
 
 

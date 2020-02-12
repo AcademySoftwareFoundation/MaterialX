@@ -83,7 +83,7 @@ private:
 
 
 using RtStageVec = vector<RtStagePtr>;
-using RtStageMap = RtTokenMap<RtStagePtr>;
+using RtStageSet = std::set<const RtStage*>;
 
 class PvtStage
 {
@@ -140,11 +140,11 @@ public:
 
     void removeReferences();
 
-    PvtStage* findReference(const RtToken& name) const;
+    RtStagePtr getReference(const RtToken& name) const;
 
     const RtStageVec& getAllReferences() const
     {
-        return _refStagesOrder;
+        return _refStages;
     }
 
     PvtStageIterator traverse(RtObjectPredicate predicate = nullptr)
@@ -154,6 +154,11 @@ public:
 
 protected:
     PvtPrim* getPrimAtPathLocal(const PvtPath& path);
+
+    void setName(const RtToken& name)
+    {
+        _name = name;
+    }
 
     class RootPrim : public PvtPrim
     {
@@ -171,11 +176,12 @@ protected:
     PvtDataHandle _root;
 
     size_t _selfRefCount;
-    RtStageMap _refStagesMap;
-    RtStageVec _refStagesOrder;
+    RtStageVec _refStages;
+    RtStageSet _refStagesSet;
 
     RtTokenVec _sourceUri;
 
+    friend class RtStage;
     friend class PvtObject;
 };
 

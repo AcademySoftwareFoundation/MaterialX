@@ -104,6 +104,11 @@ void RtStage::addReference(RtStagePtr stage)
     _cast(_ptr)->addReference(stage);
 }
 
+RtStagePtr RtStage::getReference(const RtToken& name) const
+{
+    return _cast(_ptr)->getReference(name);
+}
+
 void RtStage::removeReference(const RtToken& name)
 {
     _cast(_ptr)->removeReference(name);
@@ -112,6 +117,11 @@ void RtStage::removeReference(const RtToken& name)
 void RtStage::removeReferences()
 {
     _cast(_ptr)->removeReferences();
+}
+
+void RtStage::setName(const RtToken& name)
+{
+    _cast(_ptr)->setName(name);
 }
 
 }

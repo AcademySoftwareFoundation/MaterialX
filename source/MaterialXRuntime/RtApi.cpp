@@ -205,6 +205,7 @@ public:
             throw ExceptionRuntimeError("Can't find a stage named '" + name.str() + "' to rename");
         }
         const RtToken uniqueName = makeUniqueName(newName);
+        stage->setName(uniqueName);
         _stages[uniqueName] = stage;
         _stages.erase(name);
         return uniqueName;
