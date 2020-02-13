@@ -657,8 +657,14 @@ void Document::upgradeVersion()
         const string TWO_STRING = "2";
         const string THREE_STRING = "3";
         const string FOUR_STRING = "4";
-        for (NodePtr node : getNodes())
+        for (ElementPtr elem : traverseTree())
         {
+            if (!elem->isA<Node>())
+            {
+                continue;
+            }
+
+            NodePtr node = elem->asA<Node>();
             const string& nodeCategory = node->getCategory();
 
             // Change category from "invert to "invertmatrix" for matrix invert nodes
