@@ -1032,16 +1032,19 @@ namespace
             {
                 NodePtr mxNode = writeNode(prim, doc);
 
-                const PvtOutput* output = prim->getOutput(PvtAttribute::DEFAULT_OUTPUT_NAME);
-                if (output && output->getType() == RtType::SURFACESHADER)
+                if (writeOptions)
                 {
-                    if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::ADD_MATERIAL_NODES_FOR_SHADERS)
+                    const PvtOutput* output = prim->getOutput(PvtAttribute::DEFAULT_OUTPUT_NAME);
+                    if (output && output->getType() == RtType::SURFACESHADER)
                     {
-                        createMaterialNode(prim, mxNode, doc);
-                    }
-                    if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE_MATERIALS_AS_ELEMENTS)
-                    {
-                        writeMaterialElements(prim, mxNode, doc, writeOptions);
+                        if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::ADD_MATERIAL_NODES_FOR_SHADERS)
+                        {
+                            createMaterialNode(prim, mxNode, doc);
+                        }
+                        if (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE_MATERIALS_AS_ELEMENTS)
+                        {
+                            writeMaterialElements(prim, mxNode, doc, writeOptions);
+                        }
                     }
                 }
             }
