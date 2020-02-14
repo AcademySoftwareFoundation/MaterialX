@@ -7,7 +7,7 @@
 
 #include <MaterialXRender/Types.h>
 
-#include <array>
+#include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
 namespace MaterialX
 {
@@ -207,11 +207,6 @@ ImagePtr Image::applyBoxBlur()
 
 ImagePtr Image::applyGaussianBlur()
 {
-    std::array<float, 7> gaussianWeights =
-    {
-        0.015625, 0.09375, 0.234375, 0.3125, 0.234375, 0.09375, 0.015625
-    };
-
     ImagePtr blurImage1 = Image::create(getWidth(), getHeight(), getChannelCount(), getBaseType());
     ImagePtr blurImage2 = Image::create(getWidth(), getHeight(), getChannelCount(), getBaseType());
     blurImage1->createResourceBuffer();
@@ -226,7 +221,7 @@ ImagePtr Image::applyGaussianBlur()
             for (int dy = -3; dy <= 3; dy++, weightIndex++)
             {
                 int sy = std::min(std::max(y + dy, 0), (int) getHeight() - 1);
-                blurColor += getTexelColor(x, sy) * gaussianWeights[weightIndex];
+                blurColor += getTexelColor(x, sy) * GAUSSIAN_KERNEL_7[weightIndex];
             }
             blurImage1->setTexelColor(x, y, blurColor);
         }
@@ -241,7 +236,7 @@ ImagePtr Image::applyGaussianBlur()
             for (int dx = -3; dx <= 3; dx++, weightIndex++)
             {
                 int sx = std::min(std::max(x + dx, 0), (int) getWidth() - 1);
-                blurColor += blurImage1->getTexelColor(sx, y) * gaussianWeights[weightIndex];
+                blurColor += blurImage1->getTexelColor(sx, y) * GAUSSIAN_KERNEL_7[weightIndex];
             }
             blurImage2->setTexelColor(x, y, blurColor);
         }

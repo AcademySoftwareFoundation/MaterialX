@@ -1,12 +1,14 @@
 // https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-8-summed-area-variance-shadow-maps
-float mx_variance_shadow_occlusion(vec2 moments, float fragmentDepth, float minVariance = 0.00001)
+float mx_variance_shadow_occlusion(vec2 moments, float fragmentDepth)
 {
+    const float MIN_VARIANCE = 0.00001;
+
     // One-tailed inequality valid if fragmentDepth > moments.x.
     float p = (fragmentDepth <= moments.x) ? 1.0 : 0.0;
 
     // Compute variance.
     float variance = moments.y - mx_square(moments.x);
-    variance = max(variance, minVariance);
+    variance = max(variance, MIN_VARIANCE);
 
     // Compute probabilistic upper bound.
     float d = fragmentDepth - moments.x;
