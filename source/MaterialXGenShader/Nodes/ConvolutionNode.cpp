@@ -10,34 +10,21 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 
-namespace
-{
-    const std::vector<float> GAUSSIAN_WEIGHT_ARRAY = {
-        // 1x1
-        1.0,
-        // 3x3
-        0.077847f,	0.123317f,	0.077847f,
-        0.123317f,	0.195346f,	0.123317f,
-        0.077847f,	0.123317f,	0.077847f,
-        // 5x5
-        0.003765f,	0.015019f,	0.023792f,	0.015019f,	0.003765f,
-        0.015019f,	0.059912f,	0.094907f,	0.059912f,	0.015019f,
-        0.023792f,	0.094907f,	0.150342f,	0.094907f,	0.023792f,
-        0.015019f,	0.059912f,	0.094907f,	0.059912f,	0.015019f,
-        0.003765f,	0.015019f,	0.023792f,	0.015019f,	0.003765f,
-        // 7x7
-        0.000036f,	0.000363f,	0.001446f,	0.002291f,	0.001446f,	0.000363f,	0.000036f,
-        0.000363f,	0.003676f,	0.014662f,	0.023226f,	0.014662f,	0.003676f,	0.000363f,
-        0.001446f,	0.014662f,	0.058488f,	0.092651f,	0.058488f,	0.014662f,	0.001446f,
-        0.002291f,	0.023226f,	0.092651f,	0.146768f,	0.092651f,	0.023226f,	0.002291f,
-        0.001446f,	0.014662f,	0.058488f,	0.092651f,	0.058488f,	0.014662f,	0.001446f,
-        0.000363f,	0.003676f,	0.014662f,	0.023226f,	0.014662f,	0.003676f,	0.000363f,
-        0.000036f,	0.000363f,	0.001446f,	0.002291f,	0.001446f,	0.000363f,	0.000036f
-    };
-}
-
 namespace MaterialX
 {
+
+const std::array<float, 3> GAUSSIAN_KERNEL_3 =
+{
+    0.27901f, 0.44198f, 0.27901f // Sigma 1
+};
+const std::array<float, 5> GAUSSIAN_KERNEL_5 =
+{
+    0.06136f, 0.24477f, 0.38774f, 0.24477f, 0.06136f // Sigma 1
+};
+const std::array<float, 7> GAUSSIAN_KERNEL_7 =
+{
+    0.00598f, 0.060626f, 0.241843f, 0.383103f, 0.241843f, 0.060626f, 0.00598f // Sigma 1
+};
 
 const string ConvolutionNode::SAMPLE2D_INPUT = "texcoord";
 const string ConvolutionNode::SAMPLE3D_INPUT = "position";
@@ -72,7 +59,30 @@ void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& sh
     constants.add(Type::FLOATARRAY, "c_box_filter_weights", Value::createValue<vector<float>>(boxWeightArray));
 
     // Create constant for Gaussian weights
-    constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", Value::createValue<vector<float>>(GAUSSIAN_WEIGHT_ARRAY));
+    vector<float> gaussianWeightArray;
+    gaussianWeightArray.push_back(1.0f);
+    for (unsigned int y = 0; y < 3; y++)
+    {
+        for (unsigned int x = 0; x < 3; x++)
+        {
+            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_3[y] * GAUSSIAN_KERNEL_3[x]);
+        }
+    }
+    for (unsigned int y = 0; y < 5; y++)
+    {
+        for (unsigned int x = 0; x < 5; x++)
+        {
+            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_5[y] * GAUSSIAN_KERNEL_5[x]);
+        }
+    }
+    for (unsigned int y = 0; y < 7; y++)
+    {
+        for (unsigned int x = 0; x < 7; x++)
+        {
+            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_7[y] * GAUSSIAN_KERNEL_7[x]);
+        }
+    }
+    constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", Value::createValue<vector<float>>(gaussianWeightArray));
 }
 
 /// Get input which is used for sampling. If there is none
@@ -140,11 +150,10 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
                     const string sampleSizeName(output->getVariable() + "_sample_size");
                     const string vec2TypeString = shadergen.getSyntax().getTypeName(Type::VECTOR2);
                     string sampleCall(vec2TypeString + " " + sampleSizeName + " = " +
-                        sampleSizeFunctionUV + "(" +
-                        sampleInputValue + "," +
-                        std::to_string(filterSize) + "," +
-                        std::to_string(filterOffset) + ");"
-                    );
+                                      sampleSizeFunctionUV + "(" +
+                                      sampleInputValue + "," +
+                                      std::to_string(filterSize) + "," +
+                                      std::to_string(filterOffset) + ");");
                     shadergen.emitLine(sampleCall, stage);
 
                     // Build the sample offset strings. This is dependent on

@@ -48,11 +48,35 @@ ShaderPtr createDepthShader(GenContext& context,
     output->setConnectedNode(constant);
 
     // Generate the shader
-    context.getOptions().hwWriteDepthMoments = true;
-    ShaderPtr shader = createShader(shaderName, context, output);
-    context.getOptions().hwWriteDepthMoments = false;
+    GenContext depthContext = context;
+    depthContext.getOptions().hwWriteDepthMoments = true;
+    ShaderPtr shader = createShader(shaderName, depthContext, output);
 
     return shader;
+}
+
+ShaderPtr createBlurShader(GenContext& context,
+                           DocumentPtr stdLib,
+                           const string& shaderName,
+                           const string& filterType,
+                           float filterSize)
+{
+    // Construct the blur nodegraph
+    DocumentPtr doc = createDocument();
+    doc->importLibrary(stdLib);
+    NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    NodePtr imageNode = nodeGraph->addNode("image", "image");
+    NodePtr blurNode = nodeGraph->addNode("blur", "blur");
+    blurNode->setConnectedNode("in", imageNode);
+    blurNode->setParameterValue("size", filterSize);
+    blurNode->setParameterValue("filtertype", filterType);
+    OutputPtr output = nodeGraph->addOutput();
+    output->setConnectedNode(blurNode);
+
+    // Generate the shader
+    GenContext blurContext = context;
+    blurContext.getOptions().fileTextureVerticalFlip = false;
+    return createShader(shaderName, blurContext, output);
 }
 
 unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& uiProperties)
