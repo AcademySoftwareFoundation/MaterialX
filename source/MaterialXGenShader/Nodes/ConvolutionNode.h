@@ -8,8 +8,14 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
+#include <array>
+
 namespace MaterialX
 {
+
+extern const std::array<float, 3> GAUSSIAN_KERNEL_3;
+extern const std::array<float, 5> GAUSSIAN_KERNEL_5;
+extern const std::array<float, 7> GAUSSIAN_KERNEL_7;
 
 /// Utility class for implementations of nodes which perform convolutions
 ///

@@ -18,7 +18,7 @@ namespace
     /// as input, and return a 2 channel vector as output
     const string sampleSizeFunctionUV = "mx_compute_sample_size_uv";
 
-    const float filterSize = 2.0;
+    const float filterSize = 1.0;
     const float filterOffset = 0.0;
 }
 
