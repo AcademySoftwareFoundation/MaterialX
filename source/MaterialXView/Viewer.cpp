@@ -174,6 +174,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _splitDirectLight(false),
     _generateReferenceIrradiance(false),
     _saveGeneratedLights(false),
+    _shadowSoftness(1),
     _ambientOcclusionGain(0.6f),
     _meshFilename(meshFilename),
     _selectedGeom(0),
@@ -199,9 +200,8 @@ Viewer::Viewer(const std::string& materialFilename,
     loadStandardLibraries();
 
     // Set default generator options.
-    _genContext.getOptions().hwTransparency = true;
     _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
-    _genContext.getOptions().hwShadowMap = false;
+    _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
@@ -279,11 +279,10 @@ Viewer::Viewer(const std::string& materialFilename,
     loadEnvironmentLight();
 
     // Generate wireframe material.
-    const std::string wireShaderName("__WIRE_SHADER_NAME__");
-    _wireMaterial = Material::create();
     try
     {
-        _wireMaterial->generateConstantShader(_genContext, _stdLib, wireShaderName, mx::Color3(1.0f));
+        _wireMaterial = Material::create();
+        _wireMaterial->generateConstantShader(_genContext, _stdLib, "__WIRE_SHADER__", mx::Color3(1.0f));
     }
     catch (std::exception& e)
     {
@@ -292,16 +291,27 @@ Viewer::Viewer(const std::string& materialFilename,
     }
 
     // Generate shadow material.
-    const std::string shadowShaderName("__SHADOW_SHADER_NAME__");
-    _shadowMaterial = Material::create();
     try
     {
-        _shadowMaterial->generateDepthShader(_genContext, _stdLib, shadowShaderName);
+        _shadowMaterial = Material::create();
+        _shadowMaterial->generateDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
     }
     catch (std::exception& e)
     {
         _shadowMaterial = nullptr;
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shadow shader", e.what());
+    }
+
+    // Generate shadow blur material.
+    try
+    {
+        _shadowBlurMaterial = Material::create();
+        _shadowBlurMaterial->generateBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
+    }
+    catch (std::exception& e)
+    {
+        _shadowBlurMaterial = nullptr;
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shadow blur shader", e.what());
     }
 
     // Initialize camera
@@ -1334,14 +1344,13 @@ void Viewer::drawContents()
     // Environment background
     if (_drawEnvironment && _envMaterial)
     {
-        GLShaderPtr envShader = _envMaterial->getShader();
         auto meshes = _envGeometryHandler->getMeshes();
         auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
-        if (envShader && envPart)
+        if (_envMaterial && envPart)
         {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
-            envShader->bind();
+            _envMaterial->bindShader();
             _envMaterial->bindViewInformation(_envMatrix, view, proj);
             _envMaterial->bindImages(_imageHandler, _searchPath);
             _envMaterial->drawPartition(envPart);
@@ -1387,7 +1396,7 @@ void Viewer::drawContents()
         material->bindShader();
         material->bindViewInformation(world, view, proj);
         material->bindLights(_lightHandler, _imageHandler,
-                             _directLighting, _indirectLighting, shadowState,
+                             _directLighting, _indirectLighting, ShadowState(),
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
@@ -1670,15 +1679,21 @@ void Viewer::updateShadowMap()
         _shadowFramebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
     }
 
-    _shadowFramebuffer->bind();
-
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
     const mx::Matrix44& world = _shadowViewHandler->worldMatrix;
     const mx::Matrix44& view = _shadowViewHandler->viewMatrix;
     const mx::Matrix44& proj = _shadowViewHandler->projectionMatrix;
 
+    mx::ImageSamplingProperties blurSamplingProperties;
+    blurSamplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+    blurSamplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+    blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
+
+    // Clear shadow framebuffer.
+    _shadowFramebuffer->bind();
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    // Render shadow geometry.
     _shadowMaterial->bindShader();
     _shadowMaterial->bindViewInformation(world, view, proj);
     mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
@@ -1687,10 +1702,29 @@ void Viewer::updateShadowMap()
         mx::MeshPartitionPtr geom = mesh->getPartition(i);
         _shadowMaterial->drawPartition(geom);
     }
-
-    _shadowFramebuffer->unbind();
     _shadowMap = _shadowFramebuffer->createColorImage();
 
+    // Apply Gaussian blurring.
+    for (unsigned int i = 0; i < _shadowSoftness; i++)
+    {
+        _shadowFramebuffer->bind();
+        _shadowBlurMaterial->bindShader();
+        if (_imageHandler->bindImage(_shadowMap, blurSamplingProperties))
+        {
+            mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(_imageHandler);
+            int textureLocation = textureHandler->getBoundTextureLocation(_shadowMap->getResourceId());
+            if (textureLocation >= 0)
+            {
+                _shadowBlurMaterial->getShader()->setUniform("image_file", textureLocation);
+            }
+        }
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        mx::GlslRenderer::drawScreenSpaceQuad();
+        _imageHandler->releaseRenderResources(_shadowMap);
+        _shadowMap = _shadowFramebuffer->createColorImage();
+    }
+
+    // Restore state for scene rendering.
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
