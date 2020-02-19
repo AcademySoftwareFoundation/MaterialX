@@ -57,6 +57,26 @@ bool Material::generateDepthShader(mx::GenContext& context,
     return _glShader->init(shaderName, vertexShader, pixelShader);
 }
 
+bool Material::generateBlurShader(mx::GenContext& context,
+                                  mx::DocumentPtr stdLib,
+                                  const std::string& shaderName,
+                                  const std::string& filterType,
+                                  float filterSize)
+{
+    _hwShader = createBlurShader(context, stdLib, shaderName,
+                                 filterType, filterSize);
+    if (!_hwShader)
+    {
+        return false;
+    }
+    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
+    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
+
+    // Compile and return.
+    _glShader = std::make_shared<ng::GLShader>();
+    return _glShader->init(shaderName, vertexShader, pixelShader);
+}
+
 bool Material::generateEnvironmentShader(mx::GenContext& context,
                                          const mx::FilePath& filename,
                                          mx::DocumentPtr stdLib,
@@ -163,14 +183,17 @@ bool Material::generateShader(mx::GenContext& context)
         return false;
     }
 
-    _hwShader = createShader("Shader", context, _elem);
+    _hasTransparency = mx::isTransparentSurface(_elem, context.getShaderGenerator());
+
+    mx::GenContext materialContext = context;
+    materialContext.getOptions().hwTransparency = _hasTransparency;
+    materialContext.getOptions().hwShadowMap = materialContext.getOptions().hwShadowMap && !_hasTransparency;
+
+    _hwShader = createShader("Shader", materialContext, _elem);
     if (!_hwShader)
     {
         return false;
     }
-
-    _hasTransparency = context.getOptions().hwTransparency &&
-                       mx::isTransparentSurface(_elem, context.getShaderGenerator());
 
     std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
     std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
