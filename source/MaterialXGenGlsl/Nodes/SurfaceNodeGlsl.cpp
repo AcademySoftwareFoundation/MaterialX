@@ -132,7 +132,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         {
             shadergen.emitLine("vec3 shadowCoord = (" + HW::T_SHADOW_MATRIX + " * vec4(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
             shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
-            shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xw", stage);
+            shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
             shadergen.emitLine("float shadowOcc = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
         }
         else

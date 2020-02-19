@@ -118,6 +118,13 @@ class Material
                              mx::DocumentPtr stdLib,
                              const std::string& shaderName);
 
+    /// Generate a blur shader.
+    bool generateBlurShader(mx::GenContext& context,
+                            mx::DocumentPtr stdLib,
+                            const std::string& shaderName,
+                            const std::string& filterType,
+                            float filterSize);
+
     /// Generate an environment background shader
     bool generateEnvironmentShader(mx::GenContext& context,
                                    const mx::FilePath& filename,

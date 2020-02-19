@@ -98,6 +98,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vaddressMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterType);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterType);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
 
     return true;
 }
@@ -140,34 +141,6 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     int glType, glFormat, glInternalFormat;
     mapTextureFormatToGL(image->getBaseType(), image->getChannelCount(), false,
         glType, glFormat, glInternalFormat);
-
-    switch (image->getChannelCount())
-    {
-    case 3:
-    {
-        // Map {RGB} to {RGB, 1} at shader access time
-        GLint swizzleMaskRGB[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ONE };
-        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMaskRGB);
-        break;
-    }
-    case 2:
-    {
-        // Map {red, green} to {red, alpha} at shader access time
-        GLint swizzleMaskRG[] = { GL_RED, GL_RED, GL_RED, GL_GREEN };
-        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMaskRG);
-        break;
-    }
-    case 1:
-    {
-        // Map { red } to {red, green, blue, 1} at shader access time
-        GLint swizzleMaskR[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
-        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMaskR);
-        break;
-    }
-    default:
-        break;
-    }
-
     glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
         0, glFormat, glType, image->getResourceBuffer());
 

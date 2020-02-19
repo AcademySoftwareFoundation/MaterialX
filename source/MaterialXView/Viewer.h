@@ -170,8 +170,10 @@ class Viewer : public ng::Screen
 
     // Shadow mapping
     MaterialPtr _shadowMaterial;
+    MaterialPtr _shadowBlurMaterial;
     mx::GLFrameBufferPtr _shadowFramebuffer;
     mx::ImagePtr _shadowMap;
+    unsigned int _shadowSoftness;
 
     // Ambient occlusion
     float _ambientOcclusionGain;
