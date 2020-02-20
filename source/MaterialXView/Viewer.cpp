@@ -1605,7 +1605,7 @@ void Viewer::updateViewHandlers()
     mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size()).getTranspose();
 
     _cameraViewHandler->worldMatrix = mx::Matrix44::createScale(mx::Vector3(_modelZoom * _userZoom));
-    _cameraViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation + _userTranslation).getTranspose();
+    _cameraViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation + _userTranslation);
     _cameraViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(_eye, _center, _up) * arcball;
     _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
 
@@ -1614,7 +1614,7 @@ void Viewer::updateViewHandlers()
     {
         const float r = MODEL_SPHERE_RADIUS;
         _shadowViewHandler->worldMatrix = mx::Matrix44::createScale(mx::Vector3(_modelZoom));
-        _shadowViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
+        _shadowViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation);
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
         mx::ValuePtr dir = dirLight->getInputValue("direction");
         if (dir->isA<mx::Vector3>())

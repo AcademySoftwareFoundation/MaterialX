@@ -49,26 +49,26 @@ TEST_CASE("Matrices", "[types]")
     // Translation and scale
     mx::Matrix44 trans = mx::Matrix44::createTranslation(mx::Vector3(1, 2, 3));
     mx::Matrix44 scale = mx::Matrix44::createScale(mx::Vector3(2));
-    REQUIRE(trans == mx::Matrix44(1, 0, 0, 0,
-                                  0, 1, 0, 0,
-                                  0, 0, 1, 0,
-                                  1, 2, 3, 1));
+    REQUIRE(trans == mx::Matrix44(1, 0, 0, 1,
+                                  0, 1, 0, 2,
+                                  0, 0, 1, 3,
+                                  0, 0, 0, 1));
     REQUIRE(scale == mx::Matrix44(2, 0, 0, 0,
                                   0, 2, 0, 0,
                                   0, 0, 2, 0,
                                   0, 0, 0, 1));
 
     // Indexing operators
-    REQUIRE(trans[3][2] == 3);
-    trans[3][2] = 4;
-    REQUIRE(trans[3][2] == 4);
-    trans[3][2] = 3;
+    REQUIRE(trans[2][3] == 3);
+    trans[2][3] = 4;
+    REQUIRE(trans[2][3] == 4);
+    trans[2][3] = 3;
 
     // Matrix methods
-    REQUIRE(trans.getTranspose() == mx::Matrix44(1, 0, 0, 1,
-                                                 0, 1, 0, 2,
-                                                 0, 0, 1, 3,
-                                                 0, 0, 0, 1));
+    REQUIRE(trans.getTranspose() == mx::Matrix44(1, 0, 0, 0,
+                                                 0, 1, 0, 0,
+                                                 0, 0, 1, 0,
+                                                 1, 2, 3, 1));
     REQUIRE(scale.getTranspose() == scale);
     REQUIRE(trans.getDeterminant() == 1);
     REQUIRE(scale.getDeterminant() == 8);
@@ -81,18 +81,18 @@ TEST_CASE("Matrices", "[types]")
     mx::Matrix44 prod3 = trans * 2;
     mx::Matrix44 prod4 = trans;
     prod4 *= scale;
-    REQUIRE(prod1 == mx::Matrix44(2, 0, 0, 0,
-                                  0, 2, 0, 0,
-                                  0, 0, 2, 0,
-                                  2, 4, 6, 1));
-    REQUIRE(prod2 == mx::Matrix44(2, 0, 0, 0,
-                                  0, 2, 0, 0,
-                                  0, 0, 2, 0,
-                                  1, 2, 3, 1));
-    REQUIRE(prod3 == mx::Matrix44(2, 0, 0, 0,
-                                  0, 2, 0, 0,
-                                  0, 0, 2, 0,
-                                  2, 4, 6, 2));
+    REQUIRE(prod1 == mx::Matrix44(2, 0, 0, 1,
+                                  0, 2, 0, 2,
+                                  0, 0, 2, 3,
+                                  0, 0, 0, 1));
+    REQUIRE(prod2 == mx::Matrix44(2, 0, 0, 2,
+                                  0, 2, 0, 4,
+                                  0, 0, 2, 6,
+                                  0, 0, 0, 1));
+    REQUIRE(prod3 == mx::Matrix44(2, 0, 0, 2,
+                                  0, 2, 0, 4,
+                                  0, 0, 2, 6,
+                                  0, 0, 0, 2));
     REQUIRE(prod4 == prod1);
 
     // Matrix division

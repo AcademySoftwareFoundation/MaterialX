@@ -557,7 +557,9 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 };
 
 /// @class Matrix33
-/// A 3x3 matrix of floating-point values
+/// A 3x3 matrix of floating-point values.
+///
+/// All vector transformations assume column vectors.
 class Matrix33 : public MatrixN<Matrix33, float, 3>
 {
   public:
@@ -573,17 +575,21 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
                 m20, m21, m22};
     }
 
-    /// @name Point/Vector/Normal Transformations
-    /// @{
-
-    Vector3 multiply(const Vector3& rhs) const;
-    Vector2 transformPoint(const Vector2& rhs) const;
-    Vector2 transformVector(const Vector2& rhs) const;
-    Vector3 transformNormal(const Vector3& rhs) const;
-
     /// @}
-    /// @name 2D Transformations
+    /// @name Vector Transformations
     /// @{
+
+    /// Return the product of this matrix and a 3D vector.
+    Vector3 multiply(const Vector3& v) const;
+
+    /// Transform the given 2D point.
+    Vector2 transformPoint(const Vector2& v) const;
+
+    /// Transform the given 2D direction vector.
+    Vector2 transformVector(const Vector2& v) const;
+
+    /// Transform the given 3D normal vector.
+    Vector3 transformNormal(const Vector3& v) const;
 
     /// Create a translation matrix.
     static Matrix33 createTranslation(const Vector2& v);
@@ -591,8 +597,8 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
     /// Create a scale matrix.
     static Matrix33 createScale(const Vector2& v);
 
-    // Create a rotation matrix.
-    // @param angle Angle in radians
+    /// Create a rotation matrix.
+    /// @param angle Angle in radians
     static Matrix33 createRotation(float angle);
 
     /// @}
@@ -602,7 +608,9 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
 };
 
 /// @class Matrix44
-/// A 4x4 matrix of floating-point values
+/// A 4x4 matrix of floating-point values.
+///
+/// All vector transformations assume column vectors.
 class Matrix44 : public MatrixN<Matrix44, float, 4>
 {
   public:
@@ -620,17 +628,21 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
                 m30, m31, m32, m33};
     }
 
-    /// @name Point/Vector/Normal Transformations
-    /// @{
-
-    Vector4 multiply(const Vector4& rhs) const;
-    Vector3 transformPoint(const Vector3& rhs) const;
-    Vector3 transformVector(const Vector3& rhs) const;
-    Vector3 transformNormal(const Vector3& rhs) const;
-
     /// @}
-    /// @name 3D Transformations
+    /// @name Vector Transformations
     /// @{
+
+    /// Return the product of this matrix and a 4D vector.
+    Vector4 multiply(const Vector4& v) const;
+
+    /// Transform the given 3D point.
+    Vector3 transformPoint(const Vector3& v) const;
+
+    /// Transform the given 3D direction vector.
+    Vector3 transformVector(const Vector3& v) const;
+
+    /// Transform the given 3D normal vector.
+    Vector3 transformNormal(const Vector3& v) const;
 
     /// Create a translation matrix.
     static Matrix44 createTranslation(const Vector3& v);

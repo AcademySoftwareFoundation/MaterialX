@@ -206,7 +206,7 @@ void GlslRenderer::updateViewInformation(const Vector3& eye,
     view = ViewHandler::createViewMatrix(eye, center, up);
     proj = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, nearDist, farDist);
     world = Matrix44::createScale(Vector3(objectScale * meshFit));
-    world *= Matrix44::createTranslation(modelTranslation).getTranspose();
+    world *= Matrix44::createTranslation(modelTranslation);
 
     Matrix44 invView = view.getInverse();
     _viewHandler->viewDirection = { invView[0][2], invView[1][2], invView[2][2] };

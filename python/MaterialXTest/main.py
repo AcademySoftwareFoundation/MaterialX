@@ -96,26 +96,26 @@ class TestMaterialX(unittest.TestCase):
         # Translation and scale
         trans = mx.Matrix44.createTranslation(mx.Vector3(1, 2, 3))
         scale = mx.Matrix44.createScale(mx.Vector3(2))
-        self.assertTrue(trans == mx.Matrix44(1, 0, 0, 0,
-                                             0, 1, 0, 0,
-                                             0, 0, 1, 0,
-                                             1, 2, 3, 1))
+        self.assertTrue(trans == mx.Matrix44(1, 0, 0, 1,
+                                             0, 1, 0, 2,
+                                             0, 0, 1, 3,
+                                             0, 0, 0, 1))
         self.assertTrue(scale == mx.Matrix44(2, 0, 0, 0,
                                              0, 2, 0, 0,
                                              0, 0, 2, 0,
                                              0, 0, 0, 1))
 
         # Indexing operators
-        self.assertTrue(trans[3, 2] == 3)
-        trans[3, 2] = 4
-        self.assertTrue(trans[3, 2] == 4)
-        trans[3, 2] = 3
+        self.assertTrue(trans[2, 3] == 3)
+        trans[2, 3] = 4
+        self.assertTrue(trans[2, 3] == 4)
+        trans[2, 3] = 3
 
         # Matrix methods
-        self.assertTrue(trans.getTranspose() == mx.Matrix44(1, 0, 0, 1,
-                                                            0, 1, 0, 2,
-                                                            0, 0, 1, 3,
-                                                            0, 0, 0, 1))
+        self.assertTrue(trans.getTranspose() == mx.Matrix44(1, 0, 0, 0,
+                                                            0, 1, 0, 0,
+                                                            0, 0, 1, 0,
+                                                            1, 2, 3, 1))
         self.assertTrue(scale.getTranspose() == scale)
         self.assertTrue(trans.getDeterminant() == 1)
         self.assertTrue(scale.getDeterminant() == 8)
@@ -128,18 +128,18 @@ class TestMaterialX(unittest.TestCase):
         prod3 = trans * 2
         prod4 = trans
         prod4 *= scale
-        self.assertTrue(prod1 == mx.Matrix44(2, 0, 0, 0,
-                                             0, 2, 0, 0,
-                                             0, 0, 2, 0,
-                                             2, 4, 6, 1))
-        self.assertTrue(prod2 == mx.Matrix44(2, 0, 0, 0,
-                                             0, 2, 0, 0,
-                                             0, 0, 2, 0,
-                                             1, 2, 3, 1))
-        self.assertTrue(prod3 == mx.Matrix44(2, 0, 0, 0,
-                                             0, 2, 0, 0,
-                                             0, 0, 2, 0,
-                                             2, 4, 6, 2))
+        self.assertTrue(prod1 == mx.Matrix44(2, 0, 0, 1,
+                                             0, 2, 0, 2,
+                                             0, 0, 2, 3,
+                                             0, 0, 0, 1))
+        self.assertTrue(prod2 == mx.Matrix44(2, 0, 0, 2,
+                                             0, 2, 0, 4,
+                                             0, 0, 2, 6,
+                                             0, 0, 0, 1))
+        self.assertTrue(prod3 == mx.Matrix44(2, 0, 0, 2,
+                                             0, 2, 0, 4,
+                                             0, 0, 2, 6,
+                                             0, 0, 0, 2))
         self.assertTrue(prod4 == prod1)
 
         # Matrix division
