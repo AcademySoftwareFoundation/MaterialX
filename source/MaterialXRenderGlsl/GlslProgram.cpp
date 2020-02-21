@@ -450,25 +450,25 @@ void GlslProgram::bindStreams(MeshPtr mesh)
     // Bind any named attribute information
     const GlslProgram::InputMap& uniformList = getUniformsList();
     findInputs(HW::GEOMATTR + "_", uniformList, foundList, false);
-    for (const auto& Input : foundList)
+    for (const auto& input : foundList)
     {
         // Only handle float1-4 types for now
-        switch (Input.second->gltype)
+        switch (input.second->gltype)
         {
             case GL_INT:
-                glUniform1i(Input.second->location, 1);
+                glUniform1i(input.second->location, 1);
                 break;
             case GL_FLOAT:
-                glUniform1f(Input.second->location, 0.0f);
+                glUniform1f(input.second->location, 0.0f);
                 break;
             case GL_FLOAT_VEC2:
-                glUniform2f(Input.second->location, 0.0f, 0.0f);
+                glUniform2f(input.second->location, 0.0f, 0.0f);
                 break;
             case GL_FLOAT_VEC3:
-                glUniform3f(Input.second->location, 0.0f, 0.0f, 0.0f);
+                glUniform3f(input.second->location, 0.0f, 0.0f, 0.0f);
                 break;
             case GL_FLOAT_VEC4:
-                glUniform4f(Input.second->location, 0.0f, 0.0f, 0.0f, 1.0f);
+                glUniform4f(input.second->location, 0.0f, 0.0f, 0.0f, 1.0f);
                 break;
             default:
                 break;
@@ -851,196 +851,169 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
 
     GLint location = GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
 
-    //
-    // View direction and position
-    //
+    // View position and direction
     const GlslProgram::InputMap& uniformList = getUniformsList();
-    auto Input = uniformList.find(HW::VIEW_POSITION);
-    if (Input != uniformList.end())
+    auto input = uniformList.find(HW::VIEW_POSITION);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniform3fv(location, 1, viewHandler->viewPosition.data());
         }
     }
-    Input = uniformList.find(HW::VIEW_DIRECTION);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::VIEW_DIRECTION);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniform3fv(location, 1, viewHandler->viewDirection.data());
         }
     }
 
-    //
     // World matrix variants
-    //
     Matrix44& world = viewHandler->worldMatrix;
     Matrix44 invWorld = world.getInverse();
     Matrix44 invTransWorld = invWorld.getTranspose();
-
-    // World matrix 
-    Input = uniformList.find(HW::WORLD_MATRIX);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::WORLD_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
-        if (location >= 0)
-        {
-            glUniformMatrix4fv(location, 1, false, world.getTranspose().data());
-        }
-    }
-    // World transpose matrix
-    Input = uniformList.find(HW::WORLD_TRANSPOSE_MATRIX);
-    if (Input != uniformList.end())
-    {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniformMatrix4fv(location, 1, false, world.data());
         }
     }
-    // World inverse matrix
-    Input = uniformList.find(HW::WORLD_INVERSE_MATRIX);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::WORLD_TRANSPOSE_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
-            glUniformMatrix4fv(location, 1, false, invWorld.getTranspose().data());
+            glUniformMatrix4fv(location, 1, false, world.getTranspose().data());
         }
     }
-    // World inverse transpose matrix
-    Input = uniformList.find(HW::WORLD_INVERSE_TRANSPOSE_MATRIX);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::WORLD_INVERSE_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
+        if (location >= 0)
+        {
+            glUniformMatrix4fv(location, 1, false, invWorld.data());
+        }
+    }
+    input = uniformList.find(HW::WORLD_INVERSE_TRANSPOSE_MATRIX);
+    if (input != uniformList.end())
+    {
+        location = input->second->location;
         if (location >= 0)
         {
             glUniformMatrix4fv(location, 1, false, invTransWorld.getTranspose().data());
         }
     }
 
-    //
     // Projection matrix variants
-    //
     Matrix44& proj = viewHandler->projectionMatrix;
-    // Projection matrix 
-    Input = uniformList.find(HW::PROJ_MATRIX);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::PROJ_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
-        if (location >= 0)
-        {
-            glUniformMatrix4fv(location, 1, false, proj.getTranspose().data());
-        }
-    }
-    // Projection tranpose matrix
-    Input = uniformList.find(HW::PROJ_TRANSPOSE_MATRIX);
-    if (Input != uniformList.end())
-    {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniformMatrix4fv(location, 1, false, proj.data());
         }
     }
-    // Projection inverse matrix
-    Matrix44 projInverse= proj.getInverse();
-    Input = uniformList.find(HW::PROJ_INVERSE_MATRIX);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::PROJ_TRANSPOSE_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
-            glUniformMatrix4fv(location, 1, false, projInverse.getTranspose().data());
+            glUniformMatrix4fv(location, 1, false, proj.getTranspose().data());
         }
     }
-    // Projection inverse transpose matrix
-    Input = uniformList.find(HW::PROJ_INVERSE_TRANSPOSE_MATRIX);
-    if (Input != uniformList.end())
+    Matrix44 projInverse= proj.getInverse();
+    input = uniformList.find(HW::PROJ_INVERSE_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniformMatrix4fv(location, 1, false, projInverse.data());
         }
     }
-
-
-    //
-    // View matrix variants
-    //
-    Matrix44& view = viewHandler->viewMatrix;
-
-    // View matrix
-    Input = uniformList.find(HW::VIEW_MATRIX);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::PROJ_INVERSE_TRANSPOSE_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
-            glUniformMatrix4fv(location, 1, false, view.getTranspose().data());
+            glUniformMatrix4fv(location, 1, false, projInverse.getTranspose().data());
         }
     }
-    // View tranpose
-    Input = uniformList.find(HW::VIEW_TRANSPOSE_MATRIX);
-    if (Input != uniformList.end())
+
+    // View matrix variants
+    Matrix44& view = viewHandler->viewMatrix;
+    input = uniformList.find(HW::VIEW_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniformMatrix4fv(location, 1, false, view.data());
         }
     }
-    // View inverse
-    Matrix44 viewInverse = view.getInverse();
-    Input = uniformList.find(HW::VIEW_INVERSE_MATRIX);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::VIEW_TRANSPOSE_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
-            glUniformMatrix4fv(location, 1, false, viewInverse.getTranspose().data());
+            glUniformMatrix4fv(location, 1, false, view.getTranspose().data());
         }
     }
-    // View inverse transpose
-    Input = uniformList.find(HW::VIEW_INVERSE_TRANSPOSE_MATRIX);
-    if (Input != uniformList.end())
+    Matrix44 viewInverse = view.getInverse();
+    input = uniformList.find(HW::VIEW_INVERSE_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniformMatrix4fv(location, 1, false, viewInverse.data());
         }
     }
-    
-    //
-    // View projection matrix
-    //
-    Matrix44 viewProj = proj * view;
-    Input = uniformList.find(HW::VIEW_PROJECTION_MATRIX);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::VIEW_INVERSE_TRANSPOSE_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
-            glUniformMatrix4fv(location, 1, false, viewProj.getTranspose().data());
+            glUniformMatrix4fv(location, 1, false, viewInverse.getTranspose().data());
+        }
+    }
+    
+    // View-projection matrix
+    Matrix44 viewProj = view * proj;
+    input = uniformList.find(HW::VIEW_PROJECTION_MATRIX);
+    if (input != uniformList.end())
+    {
+        location = input->second->location;
+        if (location >= 0)
+        {
+            glUniformMatrix4fv(location, 1, false, viewProj.data());
         }
     }
 
-    //
-    // World view projection world
-    //
-    Matrix44 viewProjWorld = world * viewProj;
-    Input = uniformList.find(HW::WORLD_VIEW_PROJECTION_MATRIX);
-    if (Input != uniformList.end())
+    // View-projection-world matrix
+    Matrix44 viewProjWorld = viewProj * world;
+    input = uniformList.find(HW::WORLD_VIEW_PROJECTION_MATRIX);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
-            glUniformMatrix4fv(location, 1, false, viewProjWorld.getTranspose().data());
+            glUniformMatrix4fv(location, 1, false, viewProjWorld.data());
         }
     } 
 
@@ -1062,10 +1035,10 @@ void GlslProgram::bindTimeAndFrame()
 
     // Bind time
     const GlslProgram::InputMap& uniformList = getUniformsList();
-    auto Input = uniformList.find(HW::TIME);
-    if (Input != uniformList.end())
+    auto input = uniformList.find(HW::TIME);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniform1f(location, 1.0f);
@@ -1073,10 +1046,10 @@ void GlslProgram::bindTimeAndFrame()
     }
 
     // Bind frame
-    Input = uniformList.find(HW::FRAME);
-    if (Input != uniformList.end())
+    input = uniformList.find(HW::FRAME);
+    if (input != uniformList.end())
     {
-        location = Input->second->location;
+        location = input->second->location;
         if (location >= 0)
         {
             glUniform1f(location, 1.0f);
@@ -1416,26 +1389,26 @@ void GlslProgram::findInputs(const std::string& variable,
     // Scan all attributes which match the attribute identifier completely or as a prefix
     //
     int ilocation = UNDEFINED_OPENGL_PROGRAM_LOCATION;
-    auto Input = variableList.find(variable);
-    if (Input != variableList.end())
+    auto input = variableList.find(variable);
+    if (input != variableList.end())
     {
-        ilocation = Input->second->location;
+        ilocation = input->second->location;
         if (ilocation >= 0)
         {
-            foundList[variable] = Input->second;
+            foundList[variable] = input->second;
         }
     }
     else if (!exactMatch)
     {
-        for (Input = variableList.begin(); Input != variableList.end(); Input++)
+        for (input = variableList.begin(); input != variableList.end(); ++input)
         {
-            const std::string& name = Input->first;
+            const std::string& name = input->first;
             if (name.compare(0, variable.size(), variable) == 0)
             {
-                ilocation = Input->second->location;
+                ilocation = input->second->location;
                 if (ilocation >= 0)
                 {
-                    foundList[Input->first] = Input->second;
+                    foundList[input->first] = input->second;
                 }
             }
         }

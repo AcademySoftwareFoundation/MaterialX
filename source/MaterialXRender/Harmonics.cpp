@@ -167,8 +167,9 @@ void computeDominantLight(ConstImagePtr env, Vector3& lightDir, Color3& lightCol
     lightColor = Color3((float) color[0], (float) color[1], (float) color[2]);
 
     // Transform to match library conventions for latitude-longitude maps.
-    lightDir = Matrix44::createRotationY((float) PI / 2.0f).transformVector(lightDir);
-    lightDir = Matrix44::createScale(Vector3(1, 1, -1)).transformVector(lightDir);
+    Matrix44 lightTransform = Matrix44::createRotationY((float) PI / 2.0f) *
+                              Matrix44::createScale(Vector3(1, 1, -1));
+    lightDir = lightTransform.transformVector(lightDir);
 }
 
 ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsigned int height)
