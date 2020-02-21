@@ -82,23 +82,16 @@ class RtWriteOptions
     ///
     /// NONE: don't generate material elements or material nodes
     ///
-    /// ADD_MATERIAL_NODES_FOR_SHADERS: generate material nodes from
-    /// shaders
-    ///
     /// WRITE_MATERIALS_AS_ELEMENTS: writes out equivalent material
     /// elements for the material nodes present in a MaterialX
     /// document. If not set, writes out just the material nodes.
     ///
-    /// DELETE: delete source surface shaders
-    ///
-    /// LOOK: generate a look for the material element
+    /// CREATE_LOOKS: generate a look for the material elements
     ///
     /// TODO: Look into removing this once Material nodes are supported
     enum MaterialWriteOp{ NONE                           = 0,
-                          ADD_MATERIAL_NODES_FOR_SHADERS = 1 << 0,
-                          WRITE_MATERIALS_AS_ELEMENTS    = 1 << 1,
-                          DELETE                         = 1 << 2,
-                          LOOK                           = 1 << 3 };
+                          WRITE_MATERIALS_AS_ELEMENTS    = 1 << 0,
+                          CREATE_LOOKS                   = 1 << 1 };
 
     int materialWriteOp;
 };
