@@ -1329,10 +1329,10 @@ void Viewer::drawContents()
     {
         updateShadowMap();
         shadowState.shadowMap = _shadowMap;
-        shadowState.shadowMatrix = _shadowViewHandler->projectionMatrix *
-                                   _shadowViewHandler->viewMatrix *
+        shadowState.shadowMatrix = _cameraViewHandler->worldMatrix.getInverse() *
                                    _shadowViewHandler->worldMatrix *
-                                   _cameraViewHandler->worldMatrix.getInverse();
+                                   _shadowViewHandler->viewMatrix *
+                                   _shadowViewHandler->projectionMatrix;
     }
 
     const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
@@ -1515,7 +1515,7 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
         const mx::Matrix44& view = _cameraViewHandler->viewMatrix;
         const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
-        mx::Matrix44 worldView = view * world;
+        mx::Matrix44 worldView = world * view;;
 
         mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
         mx::Vector3 boxMin = mesh->getMinimumBounds();
@@ -1523,20 +1523,20 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
 
         float zval = ng::project(ng::Vector3f(sphereCenter.data()),
-                                 ng::Matrix4f(worldView.getTranspose().data()),
-                                 ng::Matrix4f(proj.getTranspose().data()),
+                                 ng::Matrix4f(worldView.data()),
+                                 ng::Matrix4f(proj.data()),
                                  mSize).z();
         ng::Vector3f pos1 = ng::unproject(ng::Vector3f((float) p.x(),
                                                        (float) (mSize.y() - p.y()),
                                                        (float) zval),
-                                          ng::Matrix4f(worldView.getTranspose().data()),
-                                          ng::Matrix4f(proj.getTranspose().data()),
+                                          ng::Matrix4f(worldView.data()),
+                                          ng::Matrix4f(proj.data()),
                                           mSize);
         ng::Vector3f pos0 = ng::unproject(ng::Vector3f((float) _userTranslationPixel.x(),
                                                        (float) (mSize.y() - _userTranslationPixel.y()),
                                                        (float) zval),
-                                          ng::Matrix4f(worldView.getTranspose().data()),
-                                          ng::Matrix4f(proj.getTranspose().data()),
+                                          ng::Matrix4f(worldView.data()),
+                                          ng::Matrix4f(proj.data()),
                                           mSize);
         ng::Vector3f delta = pos1 - pos0;
         _userTranslation = _userTranslationStart +
@@ -1602,19 +1602,19 @@ void Viewer::updateViewHandlers()
     float fW = fH * (float) mSize.x() / (float) mSize.y();
 
     ng::Matrix4f ngArcball = _arcball.matrix();
-    mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size()).getTranspose();
+    mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
 
-    _cameraViewHandler->worldMatrix = mx::Matrix44::createScale(mx::Vector3(_modelZoom * _userZoom));
-    _cameraViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation + _userTranslation).getTranspose();
-    _cameraViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(_eye, _center, _up) * arcball;
+    _cameraViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation + _userTranslation);
+    _cameraViewHandler->worldMatrix *= mx::Matrix44::createScale(mx::Vector3(_modelZoom * _userZoom));
+    _cameraViewHandler->viewMatrix = arcball * mx::ViewHandler::createViewMatrix(_eye, _center, _up);
     _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
 
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
         const float r = MODEL_SPHERE_RADIUS;
-        _shadowViewHandler->worldMatrix = mx::Matrix44::createScale(mx::Vector3(_modelZoom));
-        _shadowViewHandler->worldMatrix *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
+        _shadowViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation);
+        _shadowViewHandler->worldMatrix *= mx::Matrix44::createScale(mx::Vector3(_modelZoom));
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
         mx::ValuePtr dir = dirLight->getInputValue("direction");
         if (dir->isA<mx::Vector3>())
