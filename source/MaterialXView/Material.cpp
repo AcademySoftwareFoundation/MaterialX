@@ -281,15 +281,15 @@ void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44
         return;
     }
 
-    mx::Matrix44 viewProj = proj * view;
+    mx::Matrix44 viewProj = view * proj;
     mx::Matrix44 invView = view.getInverse();
     mx::Matrix44 invTransWorld = world.getInverse().getTranspose();
-    mx::Vector3 viewPosition(invView[0][3], invView[1][3], invView[2][3]);
+    mx::Vector3 viewPosition(invView[3][0], invView[3][1], invView[3][2]);
 
     // Bind view properties.
-    _glShader->setUniform(mx::HW::WORLD_MATRIX, ng::Matrix4f(world.getTranspose().data()), false);
-    _glShader->setUniform(mx::HW::VIEW_PROJECTION_MATRIX, ng::Matrix4f(viewProj.getTranspose().data()), false);
-    _glShader->setUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, ng::Matrix4f(invTransWorld.getTranspose().data()), false);
+    _glShader->setUniform(mx::HW::WORLD_MATRIX, ng::Matrix4f(world.data()), false);
+    _glShader->setUniform(mx::HW::VIEW_PROJECTION_MATRIX, ng::Matrix4f(viewProj.data()), false);
+    _glShader->setUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, ng::Matrix4f(invTransWorld.data()), false);
     _glShader->setUniform(mx::HW::VIEW_POSITION, ng::Vector3f(viewPosition.data()), false);
 }
 
@@ -567,7 +567,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
                 _glShader->setUniform(mx::HW::SHADOW_MAP, textureLocation);
             }
         }
-        _glShader->setUniform(mx::HW::SHADOW_MATRIX, ng::Matrix4f(shadowState.shadowMatrix.getTranspose().data()), false);
+        _glShader->setUniform(mx::HW::SHADOW_MATRIX, ng::Matrix4f(shadowState.shadowMatrix.data()), false);
     }
 
     // Bind ambient occlusion properties.
