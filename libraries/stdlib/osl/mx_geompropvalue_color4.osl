@@ -6,11 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_geomattrvalue_string
-    [[ string help = "The value assigned to the current geometry through the specified geomattr name" ]]
+shader mx_geompropvalue_color4
+    [[ string help = "The value assigned to the current geometry through the specified geomprop name" ]]
   (
     string attrname = "",
-    output string out = "zero"
+    color4 defaultVal = {color(0,0,0), 0},
+    output color4 out = {color(0,0,0), 0}
   )
 {
     getattribute(attrname, out);

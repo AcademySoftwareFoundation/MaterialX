@@ -62,7 +62,7 @@ Uniform variables :
     $viewDirection                      u_viewDirection                     vec3       World-space direction of the view (camera)
     $frame                              u_frame                             float      The current frame number as defined by the host application
     $time                               u_time                              float      The current time in seconds
-    $geomattr_<name>                    u_geomattr_<name>                   <type>     A named attribute of given <type> where <name> is the name of the variable on the geometry
+    $geomprop_<name>                    u_geomprop_<name>                   <type>     A named property of given <type> where <name> is the name of the variable on the geometry
     $numActiveLightSources              u_numActiveLightSources             int        The number of currently active light sources. Note that in shader this is clamped against
                                                                                        the maximum allowed number of lights sources. The maximum number is set by the generation
                                                                                        option GenOptions.hwMaxActiveLightSources.
@@ -118,7 +118,7 @@ namespace HW
     extern const string T_VIEW_DIRECTION;
     extern const string T_FRAME;
     extern const string T_TIME;
-    extern const string T_GEOMATTR;
+    extern const string T_GEOMPROP;
     extern const string T_NUM_ACTIVE_LIGHT_SOURCES;
     extern const string T_ENV_MATRIX;
     extern const string T_ENV_RADIANCE;
@@ -167,7 +167,7 @@ namespace HW
     extern const string VIEW_DIRECTION;
     extern const string FRAME;
     extern const string TIME;
-    extern const string GEOMATTR;
+    extern const string GEOMPROP;
     extern const string NUM_ACTIVE_LIGHT_SOURCES;
     extern const string ENV_MATRIX;
     extern const string ENV_RADIANCE;

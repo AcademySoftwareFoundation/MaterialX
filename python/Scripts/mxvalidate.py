@@ -208,18 +208,17 @@ def listContents(elemlist, resolve, vv):
 		    names.append(listSrefBindings(i[0], i[1], i[2]))
 
 	elif elem.getCategory() == "geominfo":
-	    #TODO: For 1.37, geomattr->geomprop
-	    attrs = elem.getGeomAttrs()
-	    if attrs:
-		attrnames = " (Geomattrs: " + string.join(map(lambda x: x.getName(), attrs), ", ") + ")"
+	    props = elem.getGeomProps()
+	    if props:
+		propnames = " (Geomprops: " + string.join(map(lambda x: x.getName(), props), ", ") + ")"
 	    else:
-		attrnames = ""
+		propnames = ""
 	    tokens = elem.getTokens()
 	    if tokens:
 		tokennames = " (Tokens: " + string.join(map(lambda x: x.getName(), tokens), ", ") + ")"
 	    else:
 		tokennames = ""
-	    names.append("%s%s%s" % (elem.getName(), attrnames, tokennames))
+	    names.append("%s%s%s" % (elem.getName(), propnames, tokennames))
 
 	elif elem.getCategory() == "variantset":
 	    vars = elem.getVariants()

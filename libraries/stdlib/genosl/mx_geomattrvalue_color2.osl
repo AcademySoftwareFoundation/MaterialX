@@ -1,7 +1,0 @@
-void mx_geomattrvalue_color2(string attrname, output color2 out)
-{
-    float value[2];
-    getattribute(attrname, value);
-    out.r = value[0];
-    out.a = value[1];
-}

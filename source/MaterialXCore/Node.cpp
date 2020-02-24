@@ -38,7 +38,7 @@ NodePtr GraphElement::addNode(const string& category,
     return node;
 }
 
-InputPtr Node::setConnectedNode(const string& inputName, NodePtr node)
+void Node::setConnectedNode(const string& inputName, NodePtr node)
 {
     InputPtr input = getInput(inputName);
     if (!input)
@@ -53,7 +53,6 @@ InputPtr Node::setConnectedNode(const string& inputName, NodePtr node)
     {
         input->setConnectedNode(node);
     }
-    return input;
 }
 
 NodePtr Node::getConnectedNode(const string& inputName) const
@@ -66,7 +65,7 @@ NodePtr Node::getConnectedNode(const string& inputName) const
     return input->getConnectedNode();    
 }
 
-InputPtr Node::setConnectedNodeName(const string& inputName, const string& nodeName)
+void Node::setConnectedNodeName(const string& inputName, const string& nodeName)
 {
     InputPtr input = getInput(inputName);
     if (!input)
@@ -74,7 +73,6 @@ InputPtr Node::setConnectedNodeName(const string& inputName, const string& nodeN
         input = addInput(inputName);
     }
     input->setNodeName(nodeName);
-    return input;
 }
 
 string Node::getConnectedNodeName(const string& inputName) const

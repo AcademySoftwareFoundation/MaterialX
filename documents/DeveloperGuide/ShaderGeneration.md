@@ -359,7 +359,7 @@ Uniform variables
 | u_viewDirection                     | vec3    | World-space direction of the viewer. |
 | u_frame                             | float   | The current frame number as defined by the host application. |
 | u_time                              | float   | The current time in seconds. |
-| u_geomattr_\<name>                   | \<type> | A named attribute of given \<type> where \<name> is the name of the variable on the geometry. |
+| u_geomprop_\<name>                   | \<type> | A named property of given \<type> where \<name> is the name of the variable on the geometry. |
 | u_numActiveLightSources             | int     | The number of currently active light sources. Note that in shader this is clamped against the maximum allowed number of light sources. |
 | u_lightData[]                       | struct  | Array of struct LightData holding parameters for active light sources. The `LightData` struct is built dynamically depending on requirements for bound light shaders. |
 | u_\<unitType>UnitTarget[]            | integer  | An attribute indicating the target unit for a given unit type definition (\<unitType>). |

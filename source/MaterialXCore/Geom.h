@@ -23,8 +23,8 @@ extern const string UDIMSET;
 extern const string UV_TILE_TOKEN;
 
 class GeomElement;
-class GeomAttr;
 class GeomInfo;
+class GeomProp;
 class GeomPropDef;
 class Collection;
 class CollectionAdd;
@@ -35,15 +35,15 @@ using GeomElementPtr = shared_ptr<GeomElement>;
 /// A shared pointer to a const GeomElement
 using ConstGeomElementPtr = shared_ptr<const GeomElement>;
 
-/// A shared pointer to a GeomAttr
-using GeomAttrPtr = shared_ptr<GeomAttr>;
-/// A shared pointer to a const GeomAttr
-using ConstGeomAttrPtr = shared_ptr<const GeomAttr>;
-
 /// A shared pointer to a GeomInfo
 using GeomInfoPtr = shared_ptr<GeomInfo>;
 /// A shared pointer to a const GeomInfo
 using ConstGeomInfoPtr = shared_ptr<const GeomInfo>;
+
+/// A shared pointer to a GeomProp
+using GeomPropPtr = shared_ptr<GeomProp>;
+/// A shared pointer to a const GeomProp
+using ConstGeomPropPtr = shared_ptr<const GeomProp>;
 
 /// A shared pointer to a GeomPropDef
 using GeomPropDefPtr = shared_ptr<GeomPropDef>;
@@ -244,35 +244,35 @@ class GeomInfo : public GeomElement
     }
     virtual ~GeomInfo() { }
 
-    /// @name GeomAttr Elements
+    /// @name GeomProp Elements
     /// @{
 
-    /// Add a GeomAttr to this element.
-    /// @param name The name of the new GeomAttr.
+    /// Add a GeomProp to this element.
+    /// @param name The name of the new GeomProp.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
-    /// @return A shared pointer to the new GeomAttr.
-    GeomAttrPtr addGeomAttr(const string& name = EMPTY_STRING)
+    /// @return A shared pointer to the new GeomProp.
+    GeomPropPtr addGeomProp(const string& name = EMPTY_STRING)
     {
-        return addChild<GeomAttr>(name);
+        return addChild<GeomProp>(name);
     }
 
-    /// Return the GeomAttr, if any, with the given name.
-    GeomAttrPtr getGeomAttr(const string& name) const
+    /// Return the GeomProp, if any, with the given name.
+    GeomPropPtr getGeomProp(const string& name) const
     {
-        return getChildOfType<GeomAttr>(name);
+        return getChildOfType<GeomProp>(name);
     }
 
-    /// Return a vector of all GeomAttr elements.
-    vector<GeomAttrPtr> getGeomAttrs() const
+    /// Return a vector of all GeomProp elements.
+    vector<GeomPropPtr> getGeomProps() const
     {
-        return getChildrenOfType<GeomAttr>();
+        return getChildrenOfType<GeomProp>();
     }
 
-    /// Remove the GeomAttr, if any, with the given name.
-    void removeGeomAttr(const string& name)
+    /// Remove the GeomProp, if any, with the given name.
+    void removeGeomProp(const string& name)
     {
-        removeChildOfType<GeomAttr>(name);
+        removeChildOfType<GeomProp>(name);
     }
 
     /// @}
@@ -311,9 +311,9 @@ class GeomInfo : public GeomElement
     /// @name Values
     /// @{
 
-    /// Set the value of a GeomAttr by its name, creating a child element
-    /// to hold the GeomAttr if needed.
-    template<class T> GeomAttrPtr setGeomAttrValue(const string& name,
+    /// Set the value of a GeomProp by its name, creating a child element
+    /// to hold the GeomProp if needed.
+    template<class T> GeomPropPtr setGeomPropValue(const string& name,
                                                    const T& value,
                                                    const string& type = EMPTY_STRING);
 
@@ -334,32 +334,29 @@ class GeomInfo : public GeomElement
     static const string CATEGORY;
 };
 
-/// @class GeomAttr
-/// A geometry attribute element within a GeomInfo.
-class GeomAttr : public ValueElement
+/// @class GeomProp
+/// A geometric property element within a GeomInfo.
+class GeomProp : public ValueElement
 {
   public:
-    GeomAttr(ElementPtr parent, const string& name) :
+    GeomProp(ElementPtr parent, const string& name) :
         ValueElement(parent, CATEGORY, name)
     {
     }
-    virtual ~GeomAttr() { }
+    virtual ~GeomProp() { }
 
   public:
     static const string CATEGORY;
 };
 
 /// @class GeomPropDef
-/// An element representing a declaration of geometric input data.
+/// An element representing a declaration of geometric property data.
 ///
 /// A GeomPropDef element contains a reference to a geometric node and a set of
 /// modifiers for that node.  For example, a world-space normal can be declared
 /// as a reference to the "normal" geometric node with a space setting of
 /// "world", or a specific set of texture coordinates can be declared as a
 /// reference to the "texcoord" geometric node with an index setting of "1".
-///
-/// Once a GeomPropDef has been declared it may be referenced by Input elements
-/// through their defaultgeomprop attribute.
 class GeomPropDef : public Element
 {
   public:
@@ -372,19 +369,19 @@ class GeomPropDef : public Element
     /// @name Geometric Property
     /// @{
 
-    /// Set the geomprop string of this element.
+    /// Set the geometric property string of this element.
     void setGeomProp(const string& node)
     {
         setAttribute(GEOM_PROP_ATTRIBUTE, node);
     }
 
-    /// Return true if this element has a geomprop string.
+    /// Return true if this element has a geometric property string.
     bool hasGeomProp() const
     {
         return hasAttribute(GEOM_PROP_ATTRIBUTE);
     }
 
-    /// Return the geomprop string of this element.
+    /// Return the geometric property string of this element.
     const string& getGeomProp() const
     {
         return getAttribute(GEOM_PROP_ATTRIBUTE);
@@ -435,35 +432,12 @@ class GeomPropDef : public Element
     }
 
     /// @}
-    /// @name Geometric Attr Name
-    /// @{
-
-    /// Set the attrname string of this element.
-    void setAttrName(const string& space)
-    {
-        setAttribute(ATTR_NAME_ATTRIBUTE, space);
-    }
-
-    /// Return true if this element has an attrname string.
-    bool hasAttrName() const
-    {
-        return hasAttribute(ATTR_NAME_ATTRIBUTE);
-    }
-
-    /// Return the attrname string of this element.
-    const string& getAttrName() const
-    {
-        return getAttribute(ATTR_NAME_ATTRIBUTE);
-    }
-
-    /// @}
 
   public:
     static const string CATEGORY;
     static const string GEOM_PROP_ATTRIBUTE;
     static const string SPACE_ATTRIBUTE;
     static const string INDEX_ATTRIBUTE;
-    static const string ATTR_NAME_ATTRIBUTE;
 };
 
 /// @class Collection
@@ -600,15 +574,15 @@ class Collection : public Element
     static const string INCLUDE_COLLECTION_ATTRIBUTE;
 };
 
-template<class T> GeomAttrPtr GeomInfo::setGeomAttrValue(const string& name,
+template<class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
                                                          const T& value,
                                                          const string& type)
 {
-    GeomAttrPtr geomAttr = getChildOfType<GeomAttr>(name);
-    if (!geomAttr)
-        geomAttr = addGeomAttr(name);
-    geomAttr->setValue(value, type);
-    return geomAttr;
+    GeomPropPtr geomProp = getChildOfType<GeomProp>(name);
+    if (!geomProp)
+        geomProp = addGeomProp(name);
+    geomProp->setValue(value, type);
+    return geomProp;
 }
 
 /// Given two geometry strings, each containing an array of geom names, return

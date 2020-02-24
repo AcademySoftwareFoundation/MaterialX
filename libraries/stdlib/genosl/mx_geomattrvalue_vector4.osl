@@ -1,9 +1,0 @@
-void mx_geomattrvalue_vector4(string attrname, output vector4 out)
-{
-    float value[4];
-    getattribute(attrname, value);
-    out.x = value[0];
-    out.y = value[1];
-    out.z = value[2];
-    out.w = value[3];
-}

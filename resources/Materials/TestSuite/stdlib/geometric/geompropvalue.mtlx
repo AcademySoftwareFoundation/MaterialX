@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!-- geompropvalue unit test -->
+<materialx version="1.37">
+  <output name="geompropvalue_integer_out" type="vector4" nodename="switch1" xpos="12.4207" ypos="4.42" />
+  <switch name="switch1" type="vector4" xpos="5.74483" ypos="4.12">
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
+    <input name="in2" type="vector4" value="0.3000, 0.3000, 0.3000, 0.3000" />
+    <input name="in3" type="vector4" value="0.5000, 0.5000, 0.5000, 0.5000" />
+    <input name="in4" type="vector4" value="0.7000, 0.7000, 0.7000, 0.7000" />
+    <input name="in5" type="vector4" value="1.0000, 1.0000, 1.0000, 1.0000" />
+    <parameter name="which" type="integer" nodnname="geompropvalue_integer" />
+  </switch>
+  <geompropvalue name="geompropvalue_integer" type="integer" xpos="9.00908" ypos="16.4387">
+    <parameter name="geomprop" type="string" value="geompropvalue_integer" />
+  </geompropvalue>
+
+  <output name="geompropvalue_boolean_out" type="color3" nodename="switch2" xpos="12.4886" ypos="11.0706" />
+  <ifequal name="switch2" type="color3" xpos="5.74483" ypos="4.58">
+    <input name="in1" type="color3" value="1.0000, 1.0000, 1.0000" />
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="value1" type="boolean" nodename="geompropvalue_boolean" />
+    <input name="value2" type="boolean" value="true" />
+  </ifequal>
+  <geompropvalue name="geompropvalue_boolean" type="boolean" xpos="9.15917" ypos="14.1093">
+    <parameter name="geomprop" type="string" value="geompropvalue_bool" />
+  </geompropvalue>
+
+  <output name="geompropvalue_string_out" type="color3" nodename="swizzle1" xpos="12.4636" ypos="6.70438" />
+  <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
+    <input name="in" type="color3" value="0.5, 0.5, 0.5" />
+    <parameter name="channels" type="string" nodename="geompropvalue_string" />
+  </swizzle>
+  <geompropvalue name="geompropvalue_string" type="string" xpos="9.07912" ypos="3.95942">
+    <parameter name="geomprop" type="string" value="geompropvalue_string" />
+  </geompropvalue>
+
+  <output name="geompropvalue_float_out" type="float" nodename="geompropvalue_float" xpos="12.4759" ypos="8.82" />
+  <geompropvalue name="geompropvalue_float" type="float" xpos="8.98436" ypos="6.29386">
+    <parameter name="geomprop" type="string" value="geompropvalue_float" />
+  </geompropvalue>
+  <output name="geompropvalue_color2_out" type="color2" nodename="geompropvalue_color2" xpos="12.5241" ypos="22.02" />
+  <geompropvalue name="geompropvalue_color2" type="color2" xpos="9.06207" ypos="8.8">
+    <parameter name="geomprop" type="string" value="geompropvalue_color2" />
+  </geompropvalue>
+  <output name="geompropvalue_color3_out" type="color3" nodename="geompropvalue_color3" xpos="12.5241" ypos="19.82" />
+  <geompropvalue name="geompropvalue_color3" type="color3" xpos="9.06207" ypos="8.8">
+    <parameter name="geomprop" type="string" value="geompropvalue_color3" />
+  </geompropvalue>
+  <output name="geompropvalue_color4_out" type="color4" nodename="geompropvalue_color4" xpos="12.5241" ypos="24.22" />
+  <geompropvalue name="geompropvalue_color4" type="color4" xpos="9.14353" ypos="11.1117">
+    <parameter name="geomprop" type="string" value="geompropvalue_color4" />
+  </geompropvalue>
+  <output name="geompropvalue_vector2_out" type="vector2" nodename="geompropvalue_vector2" xpos="12.5034" ypos="17.62" />
+  <geompropvalue name="geompropvalue_vector2" type="vector2" xpos="9.1327" ypos="23.9284">
+    <parameter name="geomprop" type="string" value="geompropvalue_vector2" />
+  </geompropvalue>
+  <output name="geompropvalue_vector3_out" type="vector3" nodename="geompropvalue_vector3" xpos="12.5093" ypos="13.22" />
+  <geompropvalue name="geompropvalue_vector3" type="vector3" xpos="9.1327" ypos="21.1948">
+    <parameter name="geomprop" type="string" value="geompropvalue_vector3" />
+  </geompropvalue>
+  <output name="geompropvalue_vector4_out" type="vector4" nodename="geompropvalue_vector4" xpos="12.5034" ypos="15.42" />
+  <geompropvalue name="geompropvalue_vector4" type="vector4" xpos="9.22581" ypos="18.5962">
+    <parameter name="geomprop" type="string" value="geompropvalue_vector4" />
+  </geompropvalue>
+</materialx>

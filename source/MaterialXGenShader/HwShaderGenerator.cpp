@@ -52,7 +52,7 @@ namespace HW
     const string T_VIEW_DIRECTION                 = "$viewDirection";
     const string T_FRAME                          = "$frame";
     const string T_TIME                           = "$time";
-    const string T_GEOMATTR                       = "$geomattr";
+    const string T_GEOMPROP                       = "$geomprop";
     const string T_NUM_ACTIVE_LIGHT_SOURCES       = "$numActiveLightSources";
     const string T_ENV_MATRIX                     = "$envMatrix";
     const string T_ENV_RADIANCE                   = "$envRadiance";
@@ -99,7 +99,7 @@ namespace HW
     const string VIEW_DIRECTION                   = "u_viewDirection";
     const string FRAME                            = "u_frame";
     const string TIME                             = "u_time";
-    const string GEOMATTR                         = "u_geomattr";
+    const string GEOMPROP                         = "u_geomprop";
     const string NUM_ACTIVE_LIGHT_SOURCES         = "u_numActiveLightSources";
     const string ENV_MATRIX                       = "u_envMatrix";
     const string ENV_RADIANCE                     = "u_envRadiance";
@@ -174,7 +174,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_VIEW_DIRECTION] = HW::VIEW_DIRECTION;
     _tokenSubstitutions[HW::T_FRAME] = HW::FRAME;
     _tokenSubstitutions[HW::T_TIME] = HW::TIME;
-    _tokenSubstitutions[HW::T_GEOMATTR] = HW::GEOMATTR;
+    _tokenSubstitutions[HW::T_GEOMPROP] = HW::GEOMPROP;
     _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = HW::NUM_ACTIVE_LIGHT_SOURCES;
     _tokenSubstitutions[HW::T_ENV_MATRIX] = HW::ENV_MATRIX;
     _tokenSubstitutions[HW::T_ENV_RADIANCE] = HW::ENV_RADIANCE;

@@ -109,9 +109,8 @@ class GlslImplementation : public ShaderNodeImpl
     static const string OBJECT;
     static const string MODEL;
     static const string INDEX;
-    static const string ATTRNAME;
+    static const string GEOMPROP;
 };
-
 
 } // namespace MaterialX
 
