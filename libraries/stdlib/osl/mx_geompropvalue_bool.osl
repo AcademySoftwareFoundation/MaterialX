@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_geomattrvalue_vector4
-    [[ string help = "The value assigned to the current geometry through the specified geomattr name" ]]
+shader mx_geompropvalue_bool
+    [[ string help = "The value assigned to the current geometry through the specified geomprop name" ]]
   (
     string attrname = "",
-    output vector4 out = {0,0,0,0}
+    output int out = 0
   )
 {
     getattribute(attrname, out);

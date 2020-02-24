@@ -3,16 +3,16 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_GEOMATTRVALUENODEGLSL_H
-#define MATERIALX_GEOMATTRVALUENODEGLSL_H
+#ifndef MATERIALX_GEOMPROPVALUENODEGLSL_H
+#define MATERIALX_GEOMPROPVALUENODEGLSL_H
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace MaterialX
 {
 
-/// GeomAttrValue node implementation for GLSL
-class GeomAttrValueNodeGlsl : public GlslImplementation
+/// GeomPropValue node implementation for GLSL
+class GeomPropValueNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();

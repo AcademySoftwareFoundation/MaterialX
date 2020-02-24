@@ -229,18 +229,16 @@ PropertySet.getPropertyValue = _getPropertyValue
 # GeomInfo
 #
 
-def _addGeomAttr(self, name):
-    "Add a geomattr to the geominfo."
-    return self._addGeomAttr(name)
-
-def _setGeomAttrValue(self, name, value, typeString = ''):
-    """Set the value of a geomattr by its name, creating a child element
-       to hold the geomattr if needed."""
-    method = getattr(self.__class__, "_setGeomAttrValue" + getTypeString(value))
+def _setGeomPropValue(self, name, value, typeString = ''):
+    """Set the value of a geomprop by its name, creating a child element
+       to hold the geomprop if needed."""
+    method = getattr(self.__class__, "_setGeomPropValue" + getTypeString(value))
     return method(self, name, value, typeString)
 
-GeomInfo.addGeomAttr = _addGeomAttr
-GeomInfo.setGeomAttrValue = _setGeomAttrValue
+GeomInfo.setGeomPropValue = _setGeomPropValue
+
+GeomInfo.addGeomAttr = GeomInfo.addGeomProp
+GeomInfo.setGeomAttrValue = GeomInfo.setGeomPropValue
 
 
 #

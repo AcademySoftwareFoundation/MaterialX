@@ -60,7 +60,7 @@ class Node : public InterfaceElement
 
     /// Set the Node connected to the given input, creating a child element
     /// for the input if needed.
-    InputPtr setConnectedNode(const string& inputName, NodePtr node);
+    void setConnectedNode(const string& inputName, NodePtr node);
 
     /// Return the Node connected to the given input.  If the given input is
     /// not present, then an empty NodePtr is returned.
@@ -68,7 +68,7 @@ class Node : public InterfaceElement
 
     /// Set the name of the Node connected to the given input, creating a child
     /// element for the input if needed.
-    InputPtr setConnectedNodeName(const string& inputName, const string& nodeName);
+    void setConnectedNodeName(const string& inputName, const string& nodeName);
 
     /// Return the name of the Node connected to the given input.  If the given
     /// input is not present, then an empty string is returned.

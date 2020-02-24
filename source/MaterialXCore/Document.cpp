@@ -229,7 +229,7 @@ vector<PortElementPtr> Document::getMatchingPorts(const string& nodeName) const
     return ports;
 }
 
-ValuePtr Document::getGeomAttrValue(const string& geomAttrName, const string& geom) const
+ValuePtr Document::getGeomPropValue(const string& geomPropName, const string& geom) const
 {
     ValuePtr value;
     for (GeomInfoPtr geomInfo : getGeomInfos())
@@ -238,10 +238,10 @@ ValuePtr Document::getGeomAttrValue(const string& geomAttrName, const string& ge
         {
             continue;
         }
-        GeomAttrPtr geomAttr = geomInfo->getGeomAttr(geomAttrName);
-        if (geomAttr)
+        GeomPropPtr geomProp = geomInfo->getGeomProp(geomPropName);
+        if (geomProp)
         {
-            value = geomAttr->getValue();
+            value = geomProp->getValue();
         }
     }
     return value;
@@ -470,16 +470,16 @@ void Document::upgradeVersion()
         }
 
         // Combine udim assignments into udim sets.
-        if (getGeomAttrValue("udim") && !getGeomAttrValue("udimset"))
+        if (getGeomPropValue("udim") && !getGeomPropValue("udimset"))
         {
             StringSet udimSet;
             for (GeomInfoPtr geomInfo : getGeomInfos())
             {
-                for (GeomAttrPtr geomAttr : geomInfo->getGeomAttrs())
+                for (GeomPropPtr geomProp : geomInfo->getGeomProps())
                 {
-                    if (geomAttr->getName() == "udim")
+                    if (geomProp->getName() == "udim")
                     {
-                        udimSet.insert(geomAttr->getValueString());
+                        udimSet.insert(geomProp->getValueString());
                     }
                 }
             }
@@ -498,7 +498,7 @@ void Document::upgradeVersion()
             }
 
             GeomInfoPtr udimSetInfo = addGeomInfo();
-            udimSetInfo->setGeomAttrValue("udimset", udimSetString, getTypeString<StringVec>());
+            udimSetInfo->setGeomPropValue("udimset", udimSetString, getTypeString<StringVec>());
         }
 
         minorVersion = 34;
@@ -604,7 +604,7 @@ void Document::upgradeVersion()
     // Upgrade path for 1.37 
     if (majorVersion == 1 && minorVersion == 36)
     {
-        // Change types attribute to child outputs.
+        // Convert type attributes to child outputs.
         for (NodeDefPtr nodeDef : getNodeDefs())
         {
             InterfaceElementPtr interfaceElem = std::static_pointer_cast<InterfaceElement>(nodeDef);
@@ -631,7 +631,38 @@ void Document::upgradeVersion()
             }
         }
 
-        const string BACKDROP_NODE = "backdrop";
+         // Convert geometric attributes to geometric properties.
+        for (GeomInfoPtr geomInfo : getGeomInfos())
+        {
+            vector<ElementPtr> origChildren = geomInfo->getChildren();
+            for (ElementPtr child : origChildren)
+            {
+                if (child->getCategory() == "geomattr")
+                {
+                    updateChildSubclass<GeomProp>(geomInfo, child);
+                }
+            }
+        }
+        for (ElementPtr elem : traverseTree())
+        {
+            NodePtr node = elem->asA<Node>();
+            if (!node)
+            {
+                continue;
+            }
+
+            if (node->getCategory() == "geomattrvalue")
+            {
+                node->setCategory("geompropvalue");
+                if (node->hasAttribute("attrname"))
+                {
+                    node->setAttribute("geomprop", node->getAttribute("attrname"));
+                    node->removeAttribute("attrname");
+                }
+            }
+        }
+
+       const string BACKDROP_NODE = "backdrop";
         const string INVERT_NODE = "invert";
         const string INVERT_MATRIX_NODE = "invertmatrix";
         const string ROTATE_NODE = "rotate";
@@ -659,12 +690,11 @@ void Document::upgradeVersion()
         const string FOUR_STRING = "4";
         for (ElementPtr elem : traverseTree())
         {
-            if (!elem->isA<Node>())
+            NodePtr node = elem->asA<Node>();
+            if (!node)
             {
                 continue;
             }
-
-            NodePtr node = elem->asA<Node>();
             const string& nodeCategory = node->getCategory();
 
             // Change category from "invert to "invertmatrix" for matrix invert nodes

@@ -447,9 +447,9 @@ void GlslProgram::bindStreams(MeshPtr mesh)
         bindAttribute(foundList, mesh);
     }
 
-    // Bind any named attribute information
+    // Bind any named geometric property information
     const GlslProgram::InputMap& uniformList = getUniformsList();
-    findInputs(HW::GEOMATTR + "_", uniformList, foundList, false);
+    findInputs(HW::GEOMPROP + "_", uniformList, foundList, false);
     for (const auto& input : foundList)
     {
         // Only handle float1-4 types for now

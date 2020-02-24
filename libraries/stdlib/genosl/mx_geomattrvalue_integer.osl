@@ -1,4 +1,0 @@
-void mx_geomattrvalue_integer(string attrname, output int out)
-{
-    getattribute(attrname, out);
-}
