@@ -10,6 +10,7 @@ shader mx_geompropvalue_color
     [[ string help = "The value assigned to the current geometry through the specified geomprop name" ]]
   (
     string attrname = "",
+    color defaultVal = 0,
     output color out = 0
   )
 {
