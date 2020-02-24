@@ -1,4 +1,5 @@
-void mx_geompropvalue_integer(string attrname, output int out)
+void mx_geompropvalue_integer(string geomprop, int defaultVal, output int out)
 {
-    getattribute(attrname, out);
+    if (getattribute(geomprop, out) == 0)
+        out = defaultVal;
 }

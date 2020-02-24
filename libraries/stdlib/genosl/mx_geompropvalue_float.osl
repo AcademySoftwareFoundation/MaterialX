@@ -1,4 +1,7 @@
-void mx_geompropvalue_float(string attrname, output float result)
+void mx_geompropvalue_float(string geomprop, float defaultVal, output float result)
 {
-    getattribute(attrname, result);
+    if (getattribute(geomprop, result) == 0)
+    {
+        result = defaultVal;
+    }
 }

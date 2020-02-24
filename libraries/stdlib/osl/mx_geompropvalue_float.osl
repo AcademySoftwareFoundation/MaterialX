@@ -10,6 +10,7 @@ shader mx_geompropvalue_float
     [[ string help = "The value assigned to the current geometry through the specified geomprop name" ]]
   (
     string attrname = "",
+    float defaultVal = 0,
     output float out = 0
   )
 {

@@ -10,6 +10,7 @@ shader mx_geompropvalue_bool
     [[ string help = "The value assigned to the current geometry through the specified geomprop name" ]]
   (
     string attrname = "",
+    int defaultVal = 0,
     output int out = 0
   )
 {
