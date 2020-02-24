@@ -10,6 +10,7 @@ shader mx_geompropvalue_vector2
     [[ string help = "The value assigned to the current geometry through the specified geomprop name" ]]
   (
     string attrname = "",
+    vector2 defaultVal = {0,0},
     output vector2 out = {0,0}
   )
 {
