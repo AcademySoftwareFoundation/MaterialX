@@ -3,6 +3,9 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
 
+add_compile_definitions(MATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION})
+add_compile_definitions(MATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION})
+
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 

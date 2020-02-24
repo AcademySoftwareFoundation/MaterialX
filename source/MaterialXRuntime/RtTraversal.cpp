@@ -128,6 +128,11 @@ RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
         PvtRelationship* rel = PvtObject::ptr<PvtRelationship>(obj);
         _ptr = rel->_targets.empty() ? nullptr : &rel->_targets;
     }
+    else if (obj.isA<RtPrim>())
+    {
+        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        _ptr = prim->_relOrder.empty() ? nullptr : &prim->_relOrder;
+    }
     ++*this;
 }
 

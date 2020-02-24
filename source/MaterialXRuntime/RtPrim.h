@@ -63,6 +63,9 @@ public:
     /// if no such relationship exists.
     RtRelationship getRelationship(const RtToken& name) const;
 
+    /// Return an iterator over all relationships of this prim.
+    RtConnectionIterator getRelationships() const;
+
     /// Add an attribute to the prim.
     RtAttribute createAttribute(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
