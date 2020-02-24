@@ -1,4 +1,4 @@
-void mx_geomattrvalue_vector4(string attrname, output vector4 out)
+void mx_geompropvalue_vector4(string attrname, output vector4 out)
 {
     float value[4];
     getattribute(attrname, value);

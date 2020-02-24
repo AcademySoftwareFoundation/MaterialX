@@ -1,0 +1,4 @@
+void mx_geompropvalue_float(string attrname, output float result)
+{
+    getattribute(attrname, result);
+}

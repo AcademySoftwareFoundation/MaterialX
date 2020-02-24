@@ -1,0 +1,4 @@
+void mx_geompropvalue_color(string attrname, output color out)
+{
+    getattribute(attrname, out);
+}
