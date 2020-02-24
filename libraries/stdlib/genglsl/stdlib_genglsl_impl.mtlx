@@ -185,17 +185,17 @@
   <implementation name="IM_geomcolor_color3_genglsl" nodedef="ND_geomcolor_color3" language="genglsl"/>
   <implementation name="IM_geomcolor_color4_genglsl" nodedef="ND_geomcolor_color4" language="genglsl"/>
 
-  <!-- <geomattrvalue> -->
-  <implementation name="IM_geomattrvalue_integer_genglsl" nodedef="ND_geomattrvalue_integer" function="mx_geomattrvalue_int" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_boolean_genglsl" nodedef="ND_geomattrvalue_boolean" function="mx_geomattrvalue_bool" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_string_genglsl" nodedef="ND_geomattrvalue_string" function="mx_geomattrvalue_string" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_float_genglsl" nodedef="ND_geomattrvalue_float" function="mx_geomattrvalue_float" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_color2_genglsl" nodedef="ND_geomattrvalue_color2" function="mx_geomattrvalue_color2" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_color3_genglsl" nodedef="ND_geomattrvalue_color3" function="mx_geomattrvalue_color" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_color4_genglsl" nodedef="ND_geomattrvalue_color4" function="mx_geomattrvalue_color4" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_vector2_genglsl" nodedef="ND_geomattrvalue_vector2" function="mx_geomattrvalue_vector2" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_vector3_genglsl" nodedef="ND_geomattrvalue_vector3" function="mx_geomattrvalue_vector" language="genglsl"/>
-  <implementation name="IM_geomattrvalue_vector4_genglsl" nodedef="ND_geomattrvalue_vector4" function="mx_geomattrvalue_vector4" language="genglsl"/>
+  <!-- <geompropvalue> -->
+  <implementation name="IM_geompropvalue_integer_genglsl" nodedef="ND_geompropvalue_integer" function="mx_geompropvalue_int" language="genglsl"/>
+  <implementation name="IM_geompropvalue_boolean_genglsl" nodedef="ND_geompropvalue_boolean" function="mx_geompropvalue_bool" language="genglsl"/>
+  <implementation name="IM_geompropvalue_string_genglsl" nodedef="ND_geompropvalue_string" function="mx_geompropvalue_string" language="genglsl"/>
+  <implementation name="IM_geompropvalue_float_genglsl" nodedef="ND_geompropvalue_float" function="mx_geompropvalue_float" language="genglsl"/>
+  <implementation name="IM_geompropvalue_color2_genglsl" nodedef="ND_geompropvalue_color2" function="mx_geompropvalue_color2" language="genglsl"/>
+  <implementation name="IM_geompropvalue_color3_genglsl" nodedef="ND_geompropvalue_color3" function="mx_geompropvalue_color" language="genglsl"/>
+  <implementation name="IM_geompropvalue_color4_genglsl" nodedef="ND_geompropvalue_color4" function="mx_geompropvalue_color4" language="genglsl"/>
+  <implementation name="IM_geompropvalue_vector2_genglsl" nodedef="ND_geompropvalue_vector2" function="mx_geompropvalue_vector2" language="genglsl"/>
+  <implementation name="IM_geompropvalue_vector3_genglsl" nodedef="ND_geompropvalue_vector3" function="mx_geompropvalue_vector" language="genglsl"/>
+  <implementation name="IM_geompropvalue_vector4_genglsl" nodedef="ND_geompropvalue_vector4" function="mx_geompropvalue_vector4" language="genglsl"/>
 
 
   <!-- ======================================================================== -->

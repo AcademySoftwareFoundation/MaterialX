@@ -1,4 +1,0 @@
-void mx_geomattrvalue_color(string attrname, output color out)
-{
-    getattribute(attrname, out);
-}

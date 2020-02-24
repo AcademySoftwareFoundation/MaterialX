@@ -190,17 +190,17 @@
   <implementation name="IM_geomcolor_color3_genosl" nodedef="ND_geomcolor_color3" file="stdlib/genosl/mx_geomcolor_color3.osl" function="mx_geomcolor_color3" language="genosl"/>
   <implementation name="IM_geomcolor_color4_genosl" nodedef="ND_geomcolor_color4" file="stdlib/genosl/mx_geomcolor_color4.osl" function="mx_geomcolor_color4" language="genosl"/>
 
-  <!-- <geomattrvalue> -->
-  <implementation name="IM_geomattrvalue_integer_genosl" nodedef="ND_geomattrvalue_integer" file="stdlib/genosl/mx_geomattrvalue_integer.osl" function="mx_geomattrvalue_integer" language="genosl"/>
-  <implementation name="IM_geomattrvalue_boolean_genosl" nodedef="ND_geomattrvalue_boolean" file="stdlib/genosl/mx_geomattrvalue_boolean.osl" function="mx_geomattrvalue_boolean" language="genosl"/>
-  <implementation name="IM_geomattrvalue_string_genosl" nodedef="ND_geomattrvalue_string" file="stdlib/genosl/mx_geomattrvalue_string.osl" function="mx_geomattrvalue_string" language="genosl"/>
-  <implementation name="IM_geomattrvalue_float_genosl" nodedef="ND_geomattrvalue_float" file="stdlib/genosl/mx_geomattrvalue_float.osl" function="mx_geomattrvalue_float" language="genosl"/>
-  <implementation name="IM_geomattrvalue_color2_genosl" nodedef="ND_geomattrvalue_color2" file="stdlib/genosl/mx_geomattrvalue_color2.osl" function="mx_geomattrvalue_color2" language="genosl"/>
-  <implementation name="IM_geomattrvalue_color3_genosl" nodedef="ND_geomattrvalue_color3" file="stdlib/genosl/mx_geomattrvalue_color3.osl" function="mx_geomattrvalue_color" language="genosl"/>
-  <implementation name="IM_geomattrvalue_color4_genosl" nodedef="ND_geomattrvalue_color4" file="stdlib/genosl/mx_geomattrvalue_color4.osl" function="mx_geomattrvalue_color4" language="genosl"/>
-  <implementation name="IM_geomattrvalue_vector2_genosl" nodedef="ND_geomattrvalue_vector2" file="stdlib/genosl/mx_geomattrvalue_vector2.osl" function="mx_geomattrvalue_vector2" language="genosl"/>
-  <implementation name="IM_geomattrvalue_vector3_genosl" nodedef="ND_geomattrvalue_vector3" file="stdlib/genosl/mx_geomattrvalue_vector3.osl" function="mx_geomattrvalue_vector" language="genosl"/>
-  <implementation name="IM_geomattrvalue_vector4_genosl" nodedef="ND_geomattrvalue_vector4" file="stdlib/genosl/mx_geomattrvalue_vector4.osl" function="mx_geomattrvalue_vector4" language="genosl"/>
+  <!-- <geompropvalue> -->
+  <implementation name="IM_geompropvalue_integer_genosl" nodedef="ND_geompropvalue_integer" file="stdlib/genosl/mx_geompropvalue_integer.osl" function="mx_geompropvalue_integer" language="genosl"/>
+  <implementation name="IM_geompropvalue_boolean_genosl" nodedef="ND_geompropvalue_boolean" file="stdlib/genosl/mx_geompropvalue_boolean.osl" function="mx_geompropvalue_boolean" language="genosl"/>
+  <implementation name="IM_geompropvalue_string_genosl" nodedef="ND_geompropvalue_string" file="stdlib/genosl/mx_geompropvalue_string.osl" function="mx_geompropvalue_string" language="genosl"/>
+  <implementation name="IM_geompropvalue_float_genosl" nodedef="ND_geompropvalue_float" file="stdlib/genosl/mx_geompropvalue_float.osl" function="mx_geompropvalue_float" language="genosl"/>
+  <implementation name="IM_geompropvalue_color2_genosl" nodedef="ND_geompropvalue_color2" file="stdlib/genosl/mx_geompropvalue_color2.osl" function="mx_geompropvalue_color2" language="genosl"/>
+  <implementation name="IM_geompropvalue_color3_genosl" nodedef="ND_geompropvalue_color3" file="stdlib/genosl/mx_geompropvalue_color3.osl" function="mx_geompropvalue_color" language="genosl"/>
+  <implementation name="IM_geompropvalue_color4_genosl" nodedef="ND_geompropvalue_color4" file="stdlib/genosl/mx_geompropvalue_color4.osl" function="mx_geompropvalue_color4" language="genosl"/>
+  <implementation name="IM_geompropvalue_vector2_genosl" nodedef="ND_geompropvalue_vector2" file="stdlib/genosl/mx_geompropvalue_vector2.osl" function="mx_geompropvalue_vector2" language="genosl"/>
+  <implementation name="IM_geompropvalue_vector3_genosl" nodedef="ND_geompropvalue_vector3" file="stdlib/genosl/mx_geompropvalue_vector3.osl" function="mx_geompropvalue_vector" language="genosl"/>
+  <implementation name="IM_geompropvalue_vector4_genosl" nodedef="ND_geompropvalue_vector4" file="stdlib/genosl/mx_geompropvalue_vector4.osl" function="mx_geompropvalue_vector4" language="genosl"/>
 
 
   <!-- ======================================================================== -->

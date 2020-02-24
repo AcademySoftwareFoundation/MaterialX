@@ -1147,52 +1147,6 @@
   </nodedef>
 
   <!--
-    Node: <geomattrvalue>
-    The value of the specified geomattr for the current geometry.
-    (This will be replaced by <geompropvalue> in 1.37)
-  -->
-  <nodedef name="ND_geomattrvalue_integer" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="integer" default="0"/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_boolean" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="boolean" default="false"/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_string" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="string" default=""/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_float" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_color2" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_color3" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="color3" default="0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_color4" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_vector2" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="vector2" default="0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_vector3" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="vector3" default="0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_geomattrvalue_vector4" node="geomattrvalue" nodegroup="geometric">
-    <parameter name="attrname" type="string" value=""/>
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-
-  <!--
     Node: <geompropvalue>
     The value of the specified geometric property for the current geometry.
   -->

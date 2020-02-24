@@ -296,45 +296,45 @@
 
   <!-- Node: UsdPrimvarReader -->
   <nodegraph name="IMP_UsdPrimvarReader_integer" nodedef="ND_UsdPrimvarReader_integer">
-    <geomattrvalue name="primvar" type="integer">
-      <parameter name="attrname" type="string" interfacename="varname"/>
-    </geomattrvalue>
+    <geompropvalue name="primvar" type="integer">
+      <parameter name="geomprop" type="string" interfacename="varname"/>
+    </geompropvalue>
     <output name="result" type="integer" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_boolean" nodedef="ND_UsdPrimvarReader_boolean">
-    <geomattrvalue name="primvar" type="boolean">
-      <parameter name="attrname" type="string" interfacename="varname"/>
-    </geomattrvalue>
+    <geompropvalue name="primvar" type="boolean">
+      <parameter name="geomprop" type="string" interfacename="varname"/>
+    </geompropvalue>
     <output name="result" type="boolean" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_string" nodedef="ND_UsdPrimvarReader_string">
-    <geomattrvalue name="primvar" type="string">
-      <parameter name="attrname" type="string" interfacename="varname"/>
-    </geomattrvalue>
+    <geompropvalue name="primvar" type="string">
+      <parameter name="geomprop" type="string" interfacename="varname"/>
+    </geompropvalue>
     <output name="result" type="string" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_float" nodedef="ND_UsdPrimvarReader_float">
-    <geomattrvalue name="primvar" type="float">
-      <parameter name="attrname" type="string" interfacename="varname"/>
-    </geomattrvalue>
+    <geompropvalue name="primvar" type="float">
+      <parameter name="geomprop" type="string" interfacename="varname"/>
+    </geompropvalue>
     <output name="result" type="float" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector2" nodedef="ND_UsdPrimvarReader_vector2">
-    <geomattrvalue name="primvar" type="vector2">
-      <parameter name="attrname" type="string" interfacename="varname"/>
-    </geomattrvalue>
+    <geompropvalue name="primvar" type="vector2">
+      <parameter name="geomprop" type="string" interfacename="varname"/>
+    </geompropvalue>
     <output name="result" type="vector2" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector3" nodedef="ND_UsdPrimvarReader_vector3">
-    <geomattrvalue name="primvar" type="vector3">
-      <parameter name="attrname" type="string" interfacename="varname"/>
-    </geomattrvalue>
+    <geompropvalue name="primvar" type="vector3">
+      <parameter name="geomprop" type="string" interfacename="varname"/>
+    </geompropvalue>
     <output name="result" type="vector3" nodename="primvar"/>
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector4" nodedef="ND_UsdPrimvarReader_vector4">
-    <geomattrvalue name="primvar" type="vector4">
-      <parameter name="attrname" type="string" interfacename="varname"/>
-    </geomattrvalue>
+    <geompropvalue name="primvar" type="vector4">
+      <parameter name="geomprop" type="string" interfacename="varname"/>
+    </geompropvalue>
     <output name="result" type="vector4" nodename="primvar"/>
   </nodegraph>
 
