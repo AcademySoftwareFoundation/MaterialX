@@ -40,9 +40,9 @@ RtRelationship RtPrim::getRelationship(const RtToken& name) const
     return rel ? rel->hnd() : RtRelationship();
 }
 
-RtConnectionIterator RtPrim::getRelationships() const
+RtRelationshipIterator RtPrim::getRelationships() const
 {
-    return RtConnectionIterator(*this);
+    return RtRelationshipIterator(*this);
 }
 
 RtAttribute RtPrim::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
