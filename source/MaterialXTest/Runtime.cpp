@@ -463,6 +463,15 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(!backdrop.getContains().hasTargets());
     backdrop.getNote().getValue().asString() = "These aren't the Droids you're looking for";
     REQUIRE(backdrop.getNote().getValue().asString() == "These aren't the Droids you're looking for");
+    REQUIRE(backdropPrim.getRelationship(backdrop.getContains().getName()) == backdrop.getContains());
+    bool found = false;
+    for (auto rel: backdropPrim.getRelationships()) {
+        if (rel.getName() == backdrop.getContains().getName()) {
+            found = true;
+            break;
+        }
+    }
+    REQUIRE(found);
 
     mx::RtPrim genericPrim = stage->createPrim("/generic1", mx::RtGeneric::typeName());
     REQUIRE(genericPrim);
@@ -1205,18 +1214,154 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     lookgroup1.addLook(lo1);
 
     // Test file I/O
-    mx::RtFileIo stageIo(stage);
-    stageIo.write("rtLookExport.mtlx", nullptr);
-    std::stringstream stream1;
-    stageIo.write(stream1);
+    bool useOptions = false;
+    for (int i = 0; i < 2; ++i) {
 
-    mx::RtStagePtr stage2 = api->createStage(ROOT);
-    mx::RtFileIo stageIo2(stage2);
-    stageIo2.read("rtLookExport.mtlx", mx::FileSearchPath(), nullptr);
-    stageIo2.write("rtLookExport_2.mtlx", nullptr);
-    std::stringstream stream2;
-    stageIo2.write(stream2);
-    REQUIRE(stream1.str() == stream2.str());
+        mx::RtWriteOptions writeOptions;
+        writeOptions.materialWriteOp = mx::RtWriteOptions::MaterialWriteOp::WRITE_LOOKS;
+        mx::RtReadOptions readOptions;
+        readOptions.readLookInformation = true;
+        // Do not upgrade on reload:
+        mx::DocumentPtr doc = mx::createDocument();
+        std::pair<int, int> versions = doc->getVersionIntegers();
+        readOptions.desiredMajorVersion = versions.first;
+        readOptions.desiredMinorVersion = versions.second;
+
+        mx::RtFileIo stageIo(stage);
+        stageIo.write("rtLookExport.mtlx", useOptions ? &writeOptions : nullptr);
+        std::stringstream stream1;
+        stageIo.write(stream1, useOptions ? &writeOptions : nullptr);
+
+        mx::RtStagePtr stage2 = api->createStage(ROOT);
+        mx::RtFileIo stageIo2(stage2);
+        stageIo2.read("rtLookExport.mtlx", mx::FileSearchPath(), useOptions ? &readOptions : nullptr);
+        stageIo2.write("rtLookExport_2.mtlx", useOptions ? &writeOptions : nullptr);
+        std::stringstream stream2;
+        stageIo2.write(stream2, useOptions ? &writeOptions : nullptr);
+        REQUIRE(stream1.str() == stream2.str());
+
+        // Make sure we get an identical runtime after reloading:
+
+        //
+        // Check collections
+        //
+        p1 = stage2->getPrimAtPath("/collection1");
+        REQUIRE(p1);
+        REQUIRE(p1.getTypeInfo()->getShortTypeName() == mx::RtCollection::typeName());
+        col1 = p1;
+        REQUIRE(col1.getIncludeGeom().getValueString() == "foo");
+        REQUIRE(col1.getExcludeGeom().getValueString() == "bar");
+
+        p2 = stage2->getPrimAtPath("/child1");
+        REQUIRE(p2);
+        REQUIRE(p2.getTypeInfo()->getShortTypeName() == mx::RtCollection::typeName());
+        p3 = stage2->getPrimAtPath("/child2");
+        REQUIRE(p3);
+        REQUIRE(p3.getTypeInfo()->getShortTypeName() == mx::RtCollection::typeName());
+        rel = col1.getIncludeCollection();
+        REQUIRE(rel.targetCount() == 2);
+        iter = rel.getTargets();
+        REQUIRE(!iter.isDone());
+        REQUIRE(*iter == p2);
+        ++iter;
+        REQUIRE(!iter.isDone());
+        REQUIRE(*iter == p3);
+        ++iter;
+        REQUIRE(iter.isDone());
+
+        //
+        // Check materialassign
+        //
+        pa = stage2->getPrimAtPath("/matassign1");
+        REQUIRE(pa);
+        REQUIRE(pa.getTypeInfo()->getShortTypeName() == mx::RtMaterialAssign::typeName());
+        assign1 = pa;
+        REQUIRE(assign1);
+        iter = assign1.getCollection().getTargets();
+        REQUIRE(!iter.isDone());
+        REQUIRE((*iter) == p1);
+        ++iter;
+        REQUIRE(iter.isDone());
+
+        // Check material
+        sm1 = stage2->getPrimAtPath("/surfacematerial1");
+        REQUIRE(sm1);
+        iter2 = assign1.getMaterial().getTargets();
+        REQUIRE(!iter2.isDone());
+        REQUIRE((*iter2) == sm1);
+        ++iter2;
+        REQUIRE(iter2.isDone());
+        REQUIRE(assign1.getExclusive().getValue().asBool() == true);
+        REQUIRE(assign1.getGeom().getValueString() == "/mygeom");
+
+        //
+        // Check look
+        //
+        lo1 = stage2->getPrimAtPath("/look1");
+        REQUIRE(lo1);
+        REQUIRE(lo1.getTypeInfo()->getShortTypeName() == mx::RtLook::typeName());
+        look1 = lo1;
+        REQUIRE(look1);
+
+        pa2 = stage2->getPrimAtPath("matassign2");
+        REQUIRE(pa2);
+        REQUIRE(pa2.getTypeInfo()->getShortTypeName() == mx::RtMaterialAssign::typeName());
+        assign2 = pa2;
+        REQUIRE(assign2);
+        iter = assign2.getCollection().getTargets();
+        REQUIRE(!iter.isDone());
+        REQUIRE((*iter) == p2);
+        ++iter;
+        REQUIRE(iter.isDone());
+        sm2 = stage2->getPrimAtPath("/surfacematerial2");
+        iter = assign2.getMaterial().getTargets();
+        REQUIRE(!iter.isDone());
+        REQUIRE((*iter) == sm2);
+        ++iter;
+        REQUIRE(iter.isDone());
+        REQUIRE(assign2.getExclusive().getValue().asBool() == false);
+        iter = look1.getMaterialAssigns().getTargets();
+        REQUIRE(!iter.isDone());
+        REQUIRE((*iter) == pa);
+        ++iter;
+        REQUIRE(!iter.isDone());
+        REQUIRE((*iter) == pa2);
+        ++iter;
+        REQUIRE(iter.isDone());
+
+        lo2 = stage2->getPrimAtPath("/look2");
+        REQUIRE(lo2);
+        REQUIRE(lo2.getTypeInfo()->getShortTypeName() == mx::RtLook::typeName());
+        look2 = lo2;
+        REQUIRE(look2);
+        iter = look2.getInherit().getTargets();
+        REQUIRE(!iter.isDone());
+        REQUIRE((*iter) == lo1);
+        ++iter;
+        REQUIRE(iter.isDone());
+
+        //
+        // Check lookgroup
+        //
+        lg1 = stage2->getPrimAtPath("/lookgroup1");
+        REQUIRE(lg1);
+        REQUIRE(lg1.getTypeInfo()->getShortTypeName() == mx::RtLookGroup::typeName());
+        lookgroup1 = lg1;
+        REQUIRE(lookgroup1);
+
+        iter = lookgroup1.getLooks().getTargets();
+        REQUIRE(!iter.isDone());
+        REQUIRE((*iter) == lo2);
+        ++iter;
+        REQUIRE(!iter.isDone());
+        REQUIRE((*iter) == lo1);
+        ++iter;
+        REQUIRE(iter.isDone());
+        REQUIRE(lookgroup1.getActiveLook().getValueString() == "look1");
+
+        // Try again, with options.
+        useOptions = true;
+    }
 }
 
 mx::RtToken toTestResolver(const mx::RtToken& str, const mx::RtToken& type)

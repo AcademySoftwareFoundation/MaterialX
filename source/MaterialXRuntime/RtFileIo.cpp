@@ -429,6 +429,8 @@ namespace
 
             rtMatAssign.getExclusive().getValue().asBool() = matAssign->getExclusive();
             rtMatAssign.getGeom().getValue().asString() = matAssign->getActiveGeom();
+
+            look.getMaterialAssigns().addTarget(assignPrim->hnd());
         }
         return lookPrim;
     }
@@ -586,7 +588,13 @@ namespace
                 }
                 else
                 {
-                    readGenericPrim(elem, stage->getRootPrim(), stage);
+                    const RtToken category(elem->getCategory());
+                    if (category != RtLook::typeName() &&
+                        category != RtLookGroup::typeName() &&
+                        category != RtMaterialAssign::typeName() &&
+                        category != RtCollection::typeName()) {
+                        readGenericPrim(elem, stage->getRootPrim(), stage);
+                    }
                 }
             }
         }
@@ -595,7 +603,7 @@ namespace
         createNodeConnections(doc->getNodes(), stage->getRootPrim());
 
         // Read look information
-        if (readOptions && readOptions->readLookInformation)
+        if (!readOptions || readOptions->readLookInformation)
         {
             readLookInformation(doc, stage, readOptions);
         }
@@ -1003,7 +1011,9 @@ namespace
         }
 
         // Write the existing look information
-        if (!writeOptions || !(writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::CREATE_LOOKS))
+        if (!writeOptions || 
+            (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE_LOOKS) ||
+            (writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::CREATE_LOOKS))
         {
             writeCollections(stage, *doc, filter);
             writeLooks(stage, *doc, filter);
@@ -1012,6 +1022,15 @@ namespace
     }
 
 } // end anonymous namespace
+
+RtReadOptions::RtReadOptions() :
+    skipConflictingElements(true),
+    readFilter(nullptr),
+    readLookInformation(false),
+    desiredMajorVersion(MATERIALX_MAJOR_VERSION),
+    desiredMinorVersion(MATERIALX_MINOR_VERSION + 1)
+{
+}
 
 void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPaths, const RtReadOptions* readOptions)
 {
@@ -1024,7 +1043,7 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         {
             xmlReadOptions.skipConflictingElements = readOptions->skipConflictingElements;
             xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
-            xmlReadOptions.desiredMajorVersion = readOptions->desiredMinorVersion;
+            xmlReadOptions.desiredMinorVersion = readOptions->desiredMinorVersion;
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
 

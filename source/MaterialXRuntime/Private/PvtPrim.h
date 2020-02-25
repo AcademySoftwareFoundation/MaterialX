@@ -189,6 +189,7 @@ protected:
     friend class PvtApi;
     friend class PvtStage;
     friend class RtNodeGraph;
+    friend class RtRelationshipIterator;
 };
 
 }

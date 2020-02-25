@@ -27,14 +27,7 @@ class RtReadOptions
     using ReadFilter = std::function<bool(const ElementPtr& elem)>;
 
   public:
-    RtReadOptions() :
-        skipConflictingElements(true),
-        readFilter(nullptr),
-        readLookInformation(false),
-        desiredMajorVersion(1),
-        desiredMinorVersion(38)
-    {
-    }
+    RtReadOptions();
     ~RtReadOptions() { }
 
     /// If true, duplicate elements with non-identical content will be skipped;
@@ -86,12 +79,16 @@ class RtWriteOptions
     /// elements for the material nodes present in a MaterialX
     /// document. If not set, writes out just the material nodes.
     ///
-    /// CREATE_LOOKS: generate a look for the material elements
+    /// CREATE_LOOKS: generate a look for the material elements (implies
+    ///               WRITE_LOOKS)
+    ///
+    /// WRITE_LOOKS: Write equivalent of RtReadOptions::readLookInformation
     ///
     /// TODO: Look into removing this once Material nodes are supported
     enum MaterialWriteOp{ NONE                           = 0,
                           WRITE_MATERIALS_AS_ELEMENTS    = 1 << 0,
-                          CREATE_LOOKS                   = 1 << 1 };
+                          CREATE_LOOKS                   = 1 << 1,
+                          WRITE_LOOKS                    = 1 << 2 };
 
     int materialWriteOp;
 };

@@ -21,6 +21,7 @@ namespace
 static const RtAttrIterator NULL_ATTR_ITERATOR;
 static const RtPrimIterator NULL_PRIM_ITERATOR;
 static const RtConnectionIterator NULL_CONNECTION_ITERATOR;
+static const RtRelationshipIterator NULL_RELATIONSHIP_ITERATOR;
 static const RtStageIterator NULL_STAGE_ITERATOR;
 
 using StageIteratorStackFrame = std::tuple<PvtStage*, int, int>;
@@ -157,6 +158,44 @@ const RtConnectionIterator& RtConnectionIterator::end()
     return NULL_CONNECTION_ITERATOR;
 }
 
+
+RtRelationshipIterator::RtRelationshipIterator(const RtObject& obj) :
+    _ptr(nullptr),
+    _current(-1)
+{
+    if (obj.isA<RtPrim>())
+    {
+        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        _ptr = prim->_relOrder.empty() ? nullptr : &prim->_relOrder;
+    }
+    ++*this;
+}
+
+RtObject RtRelationshipIterator::operator*() const
+{
+    PvtDataHandleVec& data = *static_cast<PvtDataHandleVec*>(_ptr);
+    return data[_current]->obj();
+}
+
+RtRelationshipIterator& RtRelationshipIterator::operator++()
+{
+    if (_ptr && ++_current < int(static_cast<PvtDataHandleVec*>(_ptr)->size()))
+    {
+        return *this;
+    }
+    abort();
+    return *this;
+}
+
+bool RtRelationshipIterator::isDone() const
+{
+    return !(_ptr && _current < int(static_cast<PvtDataHandleVec*>(_ptr)->size()));
+}
+
+const RtRelationshipIterator& RtRelationshipIterator::end()
+{
+    return NULL_RELATIONSHIP_ITERATOR;
+}
 
 RtStageIterator::RtStageIterator() :
     _ptr(nullptr)
