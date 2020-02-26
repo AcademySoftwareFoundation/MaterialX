@@ -142,7 +142,7 @@ class Half
         Bits s;
         s.si = mulC;
         s.f *= float(v.si);
-        int32_t mask = -(norC > v.si);
+        int32_t mask = (norC > v.si) ? -1 : 1;
         v.si <<= shift;
         v.si ^= (s.si ^ v.si) & mask;
         v.si |= sign;

@@ -48,7 +48,7 @@ class LightHandler
     }
 
     /// Return the first active light source, if any, of the given category.
-    NodePtr getFirstLightOfCategory(const std::string category)
+    NodePtr getFirstLightOfCategory(const string& category)
     {
         for (NodePtr light : _lightSources)
         {
