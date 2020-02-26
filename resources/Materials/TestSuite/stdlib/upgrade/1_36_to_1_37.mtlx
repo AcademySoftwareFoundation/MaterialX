@@ -178,7 +178,8 @@ Upgrade path test from 1.36 to 1.37
   <!-- geomattr -->
   <geominfo name="gi1" geom="/a/g1">
     <geomattr name="surfid" type="integer" value="15"/>
-  </geominfo>
+  </geominfo>
+
   <!-- geomattrvalue -->
   <geomattrvalue name="srfidval1" type="integer" attrname="surfid"/> 
   

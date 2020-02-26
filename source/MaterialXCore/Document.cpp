@@ -601,7 +601,7 @@ void Document::upgradeVersion()
         minorVersion = 36;
     }
 
-    // Upgrade path for 1.37 
+    // Upgrade from 1.36 to 1.37
     if (majorVersion == 1 && minorVersion == 36)
     {
         // Convert type attributes to child outputs.
@@ -631,7 +631,7 @@ void Document::upgradeVersion()
             }
         }
 
-         // Convert geometric attributes to geometric properties.
+        // Convert geometric attributes to geometric properties.
         for (GeomInfoPtr geomInfo : getGeomInfos())
         {
             vector<ElementPtr> origChildren = geomInfo->getChildren();
@@ -662,7 +662,7 @@ void Document::upgradeVersion()
             }
         }
 
-       const string BACKDROP_NODE = "backdrop";
+        const string BACKDROP_NODE = "backdrop";
         const string INVERT_NODE = "invert";
         const string INVERT_MATRIX_NODE = "invertmatrix";
         const string ROTATE_NODE = "rotate";
