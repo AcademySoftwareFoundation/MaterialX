@@ -68,6 +68,7 @@ namespace
     const mx::RtToken NONAME("");
     const mx::RtToken STDLIB("stdlib");
     const mx::RtToken PBRLIB("pbrlib");
+    const mx::RtToken BXDFLIB("bxdf");
 
     bool compareFiles(const mx::FilePath& filename1, const mx::FilePath& filename2)
     {
@@ -1415,6 +1416,18 @@ TEST_CASE("Runtime: NameResolvers", "[runtime]")
     REQUIRE(result3.str() == "test_toTestResolver");
     mx::RtToken result4 = registry->resolveIdentifier(pathToGeom, mx::RtNameResolverInfo::FILENAME_TYPE, false);
     REQUIRE(result4.str() == "test_fromTestResolver");
+}
+
+TEST_CASE("Runtime: materials", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+
+    // Load in all libraries required for materials
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    api->setSearchPath(searchPath);
+    api->loadLibrary(STDLIB);
+    api->loadLibrary(PBRLIB);
+    api->loadLibrary(BXDFLIB);
 }
 
 #endif // MATERIALX_BUILD_RUNTIME
