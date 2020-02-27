@@ -164,6 +164,7 @@ class Viewer : public ng::Screen
     bool _indirectLighting;
 
     // Light processing options
+    bool _normalizeEnvironment;
     bool _splitDirectLight;
     bool _generateReferenceIrradiance;
     bool _saveGeneratedLights;

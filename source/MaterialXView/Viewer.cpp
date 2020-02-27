@@ -27,6 +27,10 @@ const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
 const int DEFAULT_ENV_SAMPLES = 16;
 
+const float IDEAL_ENV_MAP_RADIANCE = 5.2374f;
+const float MAX_ENV_TEXEL_RADIANCE = 36000.0f;
+const float ENV_MAP_SPLIT_LUMINANCE = 2.0f;
+
 const int SHADOW_MAP_SIZE = 2048;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
@@ -171,6 +175,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _envRadiancePath(envRadiancePath),
     _directLighting(true),
     _indirectLighting(true),
+    _normalizeEnvironment(false),
     _splitDirectLight(false),
     _generateReferenceIrradiance(false),
     _saveGeneratedLights(false),
@@ -344,30 +349,30 @@ void Viewer::loadEnvironmentLight()
         return;
     }
 
+    // If requested, normalize the environment upon loading.
+    if (_normalizeEnvironment)
+    {
+        envRadianceMap = mx::normalizeEnvironment(envRadianceMap, IDEAL_ENV_MAP_RADIANCE, MAX_ENV_TEXEL_RADIANCE);
+        if (_saveGeneratedLights)
+        {
+            _imageHandler->saveImage("NormalizedRadiance.hdr", envRadianceMap);
+        }
+    }
+
     // If requested, split the environment into indirect and direct components.
     if (_splitDirectLight)
     {
         splitDirectLight(envRadianceMap, envRadianceMap, _lightRigDoc);
         if (_saveGeneratedLights)
         {
-            _imageHandler->saveImage("GeneratedRadiance.hdr", envRadianceMap);
-            mx::writeToXmlFile(_lightRigDoc, "GeneratedLightRig.mtlx");
-        }
-    }
-
-    // Generate reference irradiance if requested.
-    mx::ImagePtr envIrradianceMap;
-    if (_generateReferenceIrradiance)
-    {
-        envIrradianceMap = mx::renderReferenceIrradiance(envRadianceMap, IRRADIANCE_MAP_WIDTH, IRRADIANCE_MAP_HEIGHT);
-        if (_saveGeneratedLights)
-        {
-            _imageHandler->saveImage("GeneratedIrradiance.hdr", envIrradianceMap);
+            _imageHandler->saveImage("IndirectRadiance.hdr", envRadianceMap);
+            mx::writeToXmlFile(_lightRigDoc, "DirectLightRig.mtlx");
         }
     }
 
     // Look for an irradiance map using an expected filename convention.
-    if (!envIrradianceMap && !_splitDirectLight)
+    mx::ImagePtr envIrradianceMap;
+    if (!envIrradianceMap && !_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadiancePath.getBaseName();
         envIrradianceMap = _imageHandler->acquireImage(_searchPath.find(envIrradiancePath), true, nullptr, &message);
@@ -376,8 +381,23 @@ void Viewer::loadEnvironmentLight()
     // If not found, then generate an irradiance map via spherical harmonics.
     if (!envIrradianceMap)
     {
-        mx::Sh3ColorCoeffs shIrradiance = mx::projectEnvironment(envRadianceMap, true);
-        envIrradianceMap = mx::renderEnvironment(shIrradiance, IRRADIANCE_MAP_WIDTH, IRRADIANCE_MAP_HEIGHT);
+        if (_generateReferenceIrradiance)
+        {
+            envIrradianceMap = mx::renderReferenceIrradiance(envRadianceMap, IRRADIANCE_MAP_WIDTH, IRRADIANCE_MAP_HEIGHT);
+            if (_saveGeneratedLights)
+            {
+                _imageHandler->saveImage("ReferenceIrradiance.hdr", envIrradianceMap);
+            }
+        }
+        else
+        {
+            mx::Sh3ColorCoeffs shIrradiance = mx::projectEnvironment(envRadianceMap, true);
+            envIrradianceMap = mx::renderEnvironment(shIrradiance, IRRADIANCE_MAP_WIDTH, IRRADIANCE_MAP_HEIGHT);
+            if (_saveGeneratedLights)
+            {
+                _imageHandler->saveImage("SphericalHarmonicIrradiance.hdr", envIrradianceMap);
+            }
+        }
     }
 
     // Release any existing environment maps and store the new ones.
@@ -506,6 +526,8 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
                 }
 
                 initCamera();
+
+                _imageHandler->releaseRenderResources(_shadowMap);
                 _shadowMap = nullptr;
             }
             else
@@ -555,6 +577,8 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
             _envRadiancePath = filename;
             loadEnvironmentLight();
             loadDocument(_materialFilename, _stdLib);
+
+            _imageHandler->releaseRenderResources(_shadowMap);
             _shadowMap = nullptr;
         }
         mProcessEvents = true;
@@ -685,6 +709,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
     indirectLightingBox->setCallback([this](bool enable)
     {
         _indirectLighting = enable;
+    });
+
+    ng::CheckBox* normalizeEnvironmentBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
+    normalizeEnvironmentBox->setChecked(_normalizeEnvironment);
+    normalizeEnvironmentBox->setCallback([this](bool enable)
+    {
+        _normalizeEnvironment = enable;
     });
 
     ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
@@ -1654,7 +1685,13 @@ void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirec
 {
     mx::Vector3 lightDir;
     mx::Color3 lightColor;
-    mx::ImagePair imagePair = envRadianceMap->splitByLuminance(2.0f);
+    mx::ImagePair imagePair = envRadianceMap->splitByLuminance(ENV_MAP_SPLIT_LUMINANCE);
+    if (_saveGeneratedLights)
+    {
+        _imageHandler->saveImage("UnderflowRadiance.hdr", imagePair.first);
+        _imageHandler->saveImage("OverflowRadiance.hdr", imagePair.second);
+    }
+
     mx::computeDominantLight(imagePair.second, lightDir, lightColor);
     float lightIntensity = std::max(std::max(lightColor[0], lightColor[1]), lightColor[2]);
     lightColor /= lightIntensity;
