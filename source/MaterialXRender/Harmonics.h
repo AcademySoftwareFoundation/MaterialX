@@ -59,6 +59,13 @@ using Sh3ColorCoeffs = ShCoeffs<Color3d, 3>;
 /// @return The projection of the environment to third-order SH.
 Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance = false);
 
+/// Normalize an environment to the given radiance.
+/// @param env An environment map in lat-long format.
+/// @param envRadiance The radiance to which the environment map should be normalized.
+/// @param maxTexelRadiance The maximum radiance allowed for any individual texel of the map.
+/// @return A new normalized environment map, in the same format as the original.
+ImagePtr normalizeEnvironment(ConstImagePtr env, float envRadiance, float maxTexelRadiance);
+
 /// Compute the dominant light direction and color of an environment map.
 /// @param env An environment map in lat-long format.
 /// @param lightDir Returns the dominant light direction of the environment.
