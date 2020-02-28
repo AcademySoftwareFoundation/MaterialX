@@ -27,9 +27,9 @@ const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
 const int DEFAULT_ENV_SAMPLES = 16;
 
-const float IDEAL_ENV_MAP_RADIANCE = 5.2374f;
+const float ENV_MAP_SPLIT_RADIANCE = 16.0f;
 const float MAX_ENV_TEXEL_RADIANCE = 36000.0f;
-const float ENV_MAP_SPLIT_LUMINANCE = 2.0f;
+const float IDEAL_ENV_MAP_RADIANCE = 5.2374f;
 
 const int SHADOW_MAP_SIZE = 2048;
 const int IRRADIANCE_MAP_WIDTH = 256;
@@ -1685,12 +1685,7 @@ void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirec
 {
     mx::Vector3 lightDir;
     mx::Color3 lightColor;
-    mx::ImagePair imagePair = envRadianceMap->splitByLuminance(ENV_MAP_SPLIT_LUMINANCE);
-    if (_saveGeneratedLights)
-    {
-        _imageHandler->saveImage("UnderflowRadiance.hdr", imagePair.first);
-        _imageHandler->saveImage("OverflowRadiance.hdr", imagePair.second);
-    }
+    mx::ImagePair imagePair = envRadianceMap->splitByLuminance(ENV_MAP_SPLIT_RADIANCE);
 
     mx::computeDominantLight(imagePair.second, lightDir, lightColor);
     float lightIntensity = std::max(std::max(lightColor[0], lightColor[1]), lightColor[2]);
