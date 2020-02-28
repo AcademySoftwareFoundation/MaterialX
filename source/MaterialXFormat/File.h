@@ -209,6 +209,12 @@ class FileSearchPath
         return str;
     }
 
+    /// Clear the search paths
+    void clear()
+    {
+        _paths.clear();
+    }
+
     /// Append the given path to the sequence.
     void append(const FilePath& path)
     {

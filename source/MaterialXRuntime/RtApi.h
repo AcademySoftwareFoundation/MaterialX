@@ -77,9 +77,35 @@ public:
         unregisterCreateFunction(T::typeName());
     }
 
-    /// Set search path for libraries. Can be called multiple times
+    /// Clear the definition search path
+    void clearSearchPath();
+
+    /// Clear the texture search path 
+    void clearTextureSearchPath();
+
+    /// Clear the implementation saerch path
+    void clearImplementationSearchPath();
+
+    /// Set search path for definition libraries. Can be called multiple times
     /// to append to the current search path.
     void setSearchPath(const FileSearchPath& searchPath);
+
+    /// Set search path for texture resources. Can be called multiple times
+    /// to append to the current search path.
+    void setTextureSearchPath(const FileSearchPath& searchPath);
+
+    /// Set search path for implemntations used by libraries. Can be called multiple times
+    /// to append to the current search path.
+    void setImplementationSearchPath(const FileSearchPath& searchPath);
+
+    /// Get the search path for definition libraries. 
+    const FileSearchPath& getSearchPath() const;
+
+    /// Get search path for texture resources.
+    const FileSearchPath& getTextureSearchPath() const;
+
+    /// Get search path for implemntations used by libraries. 
+    const FileSearchPath& getImplementationSearchPath() const;
 
     /// Load a library.
     void loadLibrary(const RtToken& name);

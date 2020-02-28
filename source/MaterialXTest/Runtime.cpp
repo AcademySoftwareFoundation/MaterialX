@@ -1437,7 +1437,7 @@ TEST_CASE("Runtime: NameResolvers", "[runtime]")
     REQUIRE(result4.str() == "test_fromTestResolver");
 }
 
-TEST_CASE("Runtime: materials", "[runtime]")
+TEST_CASE("Runtime: libraries", "[runtime]")
 {
     mx::RtScopedApiHandle api;
 
@@ -1447,6 +1447,22 @@ TEST_CASE("Runtime: materials", "[runtime]")
     api->loadLibrary(STDLIB);
     api->loadLibrary(PBRLIB);
     api->loadLibrary(BXDFLIB);
+
+    // Set and test search paths
+    api->clearSearchPath();
+    REQUIRE(api->getSearchPath().isEmpty());
+    api->setSearchPath(searchPath);
+    REQUIRE(api->getSearchPath().asString() == searchPath.asString());
+
+    REQUIRE(api->getTextureSearchPath().isEmpty());
+    mx::FileSearchPath texturePath(mx::FilePath::getCurrentPath() / mx::FilePath("resources/Images"));
+    api->setTextureSearchPath(texturePath);
+    REQUIRE(api->getTextureSearchPath().find("brass_color.jpg").exists());
+
+    REQUIRE(api->getImplementationSearchPath().isEmpty());
+    mx::FileSearchPath implPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/genglsl"));
+    api->setImplementationSearchPath(implPath);
+    REQUIRE(api->getImplementationSearchPath().find("stdlib_genglsl_unit_impl.mtlx").exists());    
 }
 
 #endif // MATERIALX_BUILD_RUNTIME
