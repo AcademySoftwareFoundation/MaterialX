@@ -1124,11 +1124,11 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     REQUIRE(egeom.getValueString() == "bar");
 
     mx::RtPrim p2 = stage->createPrim("child1", mx::RtCollection::typeName());
-    mx::RtPrim p3= stage->createPrim("child2", mx::RtCollection::typeName());
+    mx::RtPrim p3 = stage->createPrim("child2", mx::RtCollection::typeName());
     col1.addCollection(p2);
     col1.addCollection(p3);
     mx::RtRelationship rel = col1.getIncludeCollection();
-    REQUIRE(rel.targetCount() == 2); 
+    REQUIRE(rel.targetCount() == 2);
     col1.removeCollection(p3);
     REQUIRE(rel.targetCount() == 1);
     col1.addCollection(p3);
@@ -1181,6 +1181,7 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     assign2.getExclusive().getValue().asBool() = false;
     look1.addMaterialAssign(pa);
     look1.addMaterialAssign(pa2);
+    REQUIRE_THROWS(look1.addMaterialAssign(col1.getPrim()));
 
     mx::RtConnectionIterator iter3 = look1.getMaterialAssigns().getTargets();
     REQUIRE(look1.getMaterialAssigns().targetCount() == 2);
@@ -1208,10 +1209,10 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     REQUIRE(lookgroup1.getLooks().targetCount() == 2);
     lookgroup1.removeLook(lo1);
     REQUIRE(lookgroup1.getLooks().targetCount() == 1);
-    
+
     lookgroup1.getActiveLook().setValueString("look1");
     REQUIRE(lookgroup1.getActiveLook().getValueString() == "look1");
-    
+
     lookgroup1.addLook(lo1);
 
     // Test file I/O
@@ -1363,6 +1364,24 @@ TEST_CASE("Runtime: Looks", "[runtime]")
         // Try again, with options.
         useOptions = true;
     }
+
+    // Look group relations
+    mx::RtPrim lg2 = stage->createPrim("parent_lookgroup", mx::RtLookGroup::typeName());
+    mx::RtLookGroup lookgroup2(lg2);
+    mx::RtPrim lg3 = stage->createPrim("child_lookgroup", mx::RtLookGroup::typeName());
+    mx::RtLookGroup lookgroup3(lg3);
+    lookgroup2.addLook(lg3);
+    lookgroup2.addLook(lo2);
+    REQUIRE_THROWS(lookgroup2.addLook(assign2.getPrim()));
+
+    iter = lookgroup2.getLooks().getTargets();
+    REQUIRE(!iter.isDone());
+    REQUIRE((*iter) == lg3);
+    ++iter;
+    REQUIRE(!iter.isDone());
+    REQUIRE((*iter) == lo2);
+    lookgroup2.getActiveLook().setValueString("child_lookgroup");
+    REQUIRE(lookgroup2.getActiveLook().getValueString() == "child_lookgroup");
 }
 
 mx::RtToken toTestResolver(const mx::RtToken& str, const mx::RtToken& type)

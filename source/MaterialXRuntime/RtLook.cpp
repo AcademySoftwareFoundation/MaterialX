@@ -53,6 +53,12 @@ RtAttribute RtLookGroup::getActiveLook() const
 
 void RtLookGroup::addLook(const RtObject& look)
 {
+    PvtPrim* pprim = PvtObject::ptr<PvtPrim>(look);
+    const string& typeName = pprim->getTypeInfo()->getShortTypeName();
+    if (typeName != RtLook::typeName() && typeName != RtLookGroup::typeName())
+    {
+        throw ExceptionRuntimeError("Cannot add invalid type to look group: '" + typeName + "'");
+    }
     getLooks().addTarget(look);
 }
 
@@ -93,6 +99,12 @@ RtRelationship RtLook::getInherit() const
 
 void RtLook::addMaterialAssign(const RtObject& assignment)
 {
+    PvtPrim* pprim = PvtObject::ptr<PvtPrim>(assignment);
+    const string& typeName = pprim->getTypeInfo()->getShortTypeName();
+    if (typeName != RtMaterialAssign::typeName())
+    {
+        throw ExceptionRuntimeError("Cannot add invalid type to look: '" + typeName + "'");
+    }
     getMaterialAssigns().addTarget(assignment);
 }
 
