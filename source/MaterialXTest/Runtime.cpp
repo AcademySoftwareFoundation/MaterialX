@@ -833,6 +833,27 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
     }
 }
 
+TEST_CASE("Runtime: DefaultLook", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    api->setSearchPath(searchPath);
+    api->loadLibrary(STDLIB);
+    api->loadLibrary(PBRLIB);
+    api->loadLibrary(BXDFLIB);
+
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
+    defaultStage->addReference(api->getLibrary());
+
+    mx::FileSearchPath lookSearchPath(mx::FilePath::getCurrentPath() /
+                                      "resources" /
+                                      "LookDev");
+    mx::RtFileIo fileIo(defaultStage);
+    fileIo.read("defaultLook.mtlx", lookSearchPath);
+    fileIo.read("emptyLook.mtlx", lookSearchPath);
+}
+
 TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
 {
     mx::RtScopedApiHandle api;

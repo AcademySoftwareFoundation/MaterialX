@@ -421,13 +421,22 @@ namespace
             PvtPrim* assignPrim = stage->createPrim(parent->getPath(), RtToken(matAssign->getName()), RtMaterialAssign::typeName());
             RtMaterialAssign rtMatAssign(assignPrim->hnd());
             
-            PvtPrim* collection = findPrimOrThrow(RtToken(matAssign->getCollectionString()), parent);
-            rtMatAssign.getCollection().addTarget(collection->hnd());
+            if (!matAssign->getCollectionString().empty()) {
+                PvtPrim* collection = findPrimOrThrow(RtToken(matAssign->getCollectionString()), parent);
+                rtMatAssign.getCollection().addTarget(collection->hnd());
+            }
 
-            PvtPrim* material = findPrimOrThrow(RtToken(matAssign->getMaterial()), parent);
-            rtMatAssign.getMaterial().addTarget(material->hnd());
+            if (!matAssign->getMaterial().empty()) {
+                PvtPrim* material = findPrimOrThrow(RtToken(matAssign->getMaterial()), parent);
+                rtMatAssign.getMaterial().addTarget(material->hnd());
+            }
 
-            rtMatAssign.getExclusive().getValue().asBool() = matAssign->getExclusive();
+            if (matAssign->hasAttribute(MaterialAssign::EXCLUSIVE_ATTRIBUTE)) {
+                rtMatAssign.getExclusive().getValue().asBool() = matAssign->getExclusive();
+            } else {
+                rtMatAssign.getExclusive().getValue().asBool() = true; // default
+            }
+
             rtMatAssign.getGeom().getValue().asString() = matAssign->getActiveGeom();
 
             look.getMaterialAssigns().addTarget(assignPrim->hnd());
