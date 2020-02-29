@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!-- Test the RtFileIo can read look where all optional elements are missing,
+	 simulating re-reading a file with unconnected Rt nodes. -->
+<materialx version="1.38">
+  <look name="emptyLook">
+  </look>
+  <look name="emptyMatAssign">
+    <materialassign name="defaultMaterialAssign" material=""/>
+  </look>
+  <collection name="emptyCollection" />
+  <lookgroup name="emptyLookGroup" looks="" />
+</materialx>
