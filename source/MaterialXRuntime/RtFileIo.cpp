@@ -566,8 +566,7 @@ namespace
         {
             if (!filter || filter(nodedef))
             {
-                PvtPath path(ROOT_PATH + nodedef->getName());
-                if (!stage->getPrimAtPath(path))
+                if (!RtApi::get().hasMasterPrim(RtToken(nodedef->getName())))
                 {
                     PvtPrim* prim = readNodeDef(nodedef, stage);
                     RtNodeDef(prim->hnd()).registerMasterPrim();
@@ -1106,9 +1105,7 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
     // when node instances are loaded later.
     for (const NodeDefPtr& nodedef : doc->getNodeDefs())
     {
-        PvtPath path(stage->getPath());
-        path.push(RtToken(nodedef->getName()));
-        if (!stage->getPrimAtPath(path))
+        if (!RtApi::get().hasMasterPrim(RtToken(nodedef->getName())))
         {
             PvtPrim* prim = readNodeDef(nodedef, stage);
             RtNodeDef(prim->hnd()).registerMasterPrim();
