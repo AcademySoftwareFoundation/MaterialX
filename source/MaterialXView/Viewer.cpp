@@ -27,16 +27,16 @@ const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
 const int DEFAULT_ENV_SAMPLES = 16;
 
-const float ENV_MAP_SPLIT_RADIANCE = 16.0f;
-const float MAX_ENV_TEXEL_RADIANCE = 36000.0f;
-const float IDEAL_ENV_MAP_RADIANCE = 5.2374f;
-
 const int SHADOW_MAP_SIZE = 2048;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
 
 const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
+
+const float ENV_MAP_SPLIT_RADIANCE = 16.0f;
+const float MAX_ENV_TEXEL_RADIANCE = 36000.0f;
+const float IDEAL_ENV_MAP_RADIANCE = 5.2374f;
 
 const float MODEL_SPHERE_RADIUS = 2.0f;
 
@@ -184,6 +184,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _meshFilename(meshFilename),
     _selectedGeom(0),
     _selectedMaterial(0),
+    _lightHandler(mx::LightHandler::create()),
+    _cameraViewHandler(mx::ViewHandler::create()),
+    _shadowViewHandler(mx::ViewHandler::create()),
     _genContext(mx::GlslShaderGenerator::create()),
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(false),
@@ -217,13 +220,6 @@ Viewer::Viewer(const std::string& materialFilename,
     mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
 #endif
     _imageHandler = mx::GLTextureHandler::create(imageLoader);
-
-    // Initialize light handler.
-    _lightHandler = mx::LightHandler::create();
-
-    // Initialize view handlers.
-    _cameraViewHandler = mx::ViewHandler::create();
-    _shadowViewHandler = mx::ViewHandler::create();
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -409,10 +405,7 @@ void Viewer::loadEnvironmentLight()
     // Look for a light rig using an expected filename convention.
     if (!_splitDirectLight)
     {
-        _lightRigFilename = _envRadiancePath.getParentPath();
-        std::string lightRigName = mx::removeExtension(_envRadiancePath.getBaseName()) +
-            "." + mx::MTLX_EXTENSION;
-        _lightRigFilename = _lightRigFilename / lightRigName;
+        _lightRigFilename = mx::removeExtension(_envRadiancePath) + "." + mx::MTLX_EXTENSION;
         if (_lightRigFilename.exists())
         {
             _lightRigDoc = mx::createDocument();
@@ -1674,11 +1667,10 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     }
 
     std::string aoSuffix = material->getUdim().empty() ? AO_FILENAME_SUFFIX : AO_FILENAME_SUFFIX + "_" + material->getUdim();
-    mx::FilePath aoFilePath = _meshFilename.getParentPath();
-    std::string aoFilename = mx::removeExtension(_meshFilename.getBaseName()) + aoSuffix + "." + AO_FILENAME_EXTENSION;
+    mx::FilePath aoFilename = mx::removeExtension(_meshFilename) + aoSuffix + "." + AO_FILENAME_EXTENSION;
 
     _imageHandler->setSearchPath(_searchPath);
-    return _imageHandler->acquireImage(aoFilePath / aoFilename, true, &AO_FALLBACK_COLOR);
+    return _imageHandler->acquireImage(aoFilename, true, &AO_FALLBACK_COLOR);
 }
 
 void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc)

@@ -38,7 +38,7 @@ By default, the `MATERIALX_BUILD_PYTHON` option will use the active version of P
 Additional options for the generation of MaterialX Python include the following:
 
 - `MATERIALX_PYTHON_OCIO_DIR`: Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python. The recommended OpenColorIO configuration for MaterialX is [ACES 1.0.3](https://github.com/imageworks/OpenColorIO-Configs/tree/master/aces_1.0.3).
-- `MATERIALX_PYTHON_PYBIND11_DIR`: Path to a folder containing the PyBind11 source. Defaults to the included PyBind11 source, which has been extended to support Python 2.6.
+- `MATERIALX_PYTHON_PYBIND11_DIR`: Path to a folder containing the PyBind11 source to be used in building MaterialX Python. Defaults to the included PyBind11 source.
 
 ### Building The MaterialX Viewer
 
