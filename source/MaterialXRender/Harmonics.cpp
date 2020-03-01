@@ -138,9 +138,6 @@ Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
 
 ImagePtr normalizeEnvironment(ConstImagePtr env, float envRadiance, float maxTexelRadiance)
 {
-    ImagePtr normEnv = Image::create(env->getWidth(), env->getHeight(), env->getChannelCount(), env->getBaseType());
-    normEnv->createResourceBuffer();
-
     // Compute the radiance of the original environment map.
     double origEnvRadiance = 0.0;
     for (unsigned int y = 0; y < env->getHeight(); y++)
@@ -170,9 +167,10 @@ ImagePtr normalizeEnvironment(ConstImagePtr env, float envRadiance, float maxTex
         }
     }
 
+    // Generate the normalized map.
+    ImagePtr normEnv = Image::create(env->getWidth(), env->getHeight(), env->getChannelCount(), env->getBaseType());
+    normEnv->createResourceBuffer();
     float envNormFactor = origEnvRadiance ? (float) (envRadiance / origEnvRadiance) : 1.0f;
-
-    // Store the normalized map.
     for (unsigned int y = 0; y < env->getHeight(); y++)
     {
         for (unsigned int x = 0; x < env->getWidth(); x++)
