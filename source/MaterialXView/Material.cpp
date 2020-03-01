@@ -1,13 +1,10 @@
 #include <MaterialXView/Material.h>
 
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
+#include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXRender/Util.h>
-
-#include <MaterialXFormat/File.h>
 
 #include <nanogui/messagedialog.h>
 
