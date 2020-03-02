@@ -79,4 +79,6 @@
     <!-- make the setgeom invisible to camera but still visible to shadows and reflections -->
     <visibility name="v3" vistype="camera" collection="c_setgeom" visible="false"/>
   </look>
+  <lookgroup name="testlooks" looks="lookA,lookB"/>
+
 </materialx>
