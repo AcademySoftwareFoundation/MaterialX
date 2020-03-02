@@ -52,7 +52,7 @@
       <input name="fg" type="surfaceshader" nodename="surf2"/>
       <input name="mix" type="float" interfacename="mixamt"/>
     </mix>
-    <output name="o_out" type="surfaceshader" nodename="srfmix"/>
+    <output name="out" type="surfaceshader" nodename="srfmix"/>
   </nodegraph>
 
   <image name="i_mixamt" type="float">
