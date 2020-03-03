@@ -63,8 +63,8 @@
 
   <unittypedef name="angle"/>
   <unitdef name="UD_stdlib_angle" unittype="angle">
-    <unit name="degrees" scale="1.0" />
-    <unit name="radians" scale="57.295779513" />
+    <unit name="degree" scale="1.0" />
+    <unit name="radian" scale="57.295779513" />
   </unitdef>
 
   <!-- ======================================================================== -->
@@ -1258,7 +1258,7 @@
     values represent greater accessibility to ambient light, 0 means "fully occluded".
   -->
   <nodedef name="ND_ambientocclusion_float" node="ambientocclusion" nodegroup="global">
-    <parameter name="coneangle" type="float" value="90.0" unittype="angle" unit="degrees"/>
+    <parameter name="coneangle" type="float" value="90.0" unittype="angle" unit="degree"/>
     <parameter name="maxdistance" type="float" value="1e38"/>
     <output name="out" type="float" default="1.0"/>
   </nodedef>
@@ -2593,7 +2593,7 @@
   -->
   <nodedef name="ND_rotate2d_vector2" node="rotate2d" nodegroup="math">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
+    <input name="amount" type="float" value="0.0" unittype="angle" unit="degree"/>
     <output name="out" type="vector2" defaultinput="in"/>
   </nodedef>
 
@@ -2603,7 +2603,7 @@
   -->
   <nodedef name="ND_rotate3d_vector3" node="rotate3d" nodegroup="math">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
+    <input name="amount" type="float" value="0.0" unittype="angle" unit="degree"/>
     <parameter name="axis" type="vector3" value="0.0, 1.0, 0.0"/>
     <output name="out" type="vector3" defaultinput="in"/>
   </nodedef>
@@ -2616,7 +2616,7 @@
     <input name="texcoord" type="vector2" value="0.0, 0.0"/>
     <parameter name="pivot" type="vector2" value="0.0,0.0"/>
     <input name="scale" type="vector2" value="1.0,1.0"/>
-    <input name="rotate" type="float" value="0.0" unittype="angle" unit="degrees"/>
+    <input name="rotate" type="float" value="0.0" unittype="angle" unit="degree"/>
     <input name="offset" type="vector2" value="0.0,0.0"/>
     <output name="out" type="vector2" defaultinput="texcoord"/>
   </nodedef>
