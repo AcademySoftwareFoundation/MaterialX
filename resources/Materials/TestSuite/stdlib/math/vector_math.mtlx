@@ -83,7 +83,7 @@ Basic vector math function tests each test is in a separate graph for each varia
       <output name="out" type="vector2" nodename="rotate1" />
       <rotate2d name="rotate1" type="vector2" xpos="5.62998" ypos="7.07692">
          <input name="in" type="vector2" value="0.0, 0.0" nodename="swizzle1" />
-         <input name="amount" type="float" value="1.5708" unittype="angle" unit="radians" />
+         <input name="amount" type="float" value="1.5708" unittype="angle" unit="radian" />
       </rotate2d>
       <swizzle name="swizzle1" type="vector2" xpos="4.31739" ypos="5.3662">
          <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
@@ -96,7 +96,7 @@ Basic vector math function tests each test is in a separate graph for each varia
       </position>
       <rotate3d name="rotate1" type="vector3" xpos="5.19248" ypos="5.306">
          <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
-         <input name="amount" type="float" value="180.0000" unittype="angle" unit="degrees" />
+         <input name="amount" type="float" value="180.0000" unittype="angle" unit="degree" />
          <parameter name="axis" type="vector3" value="0.0, 1.0000, 1.0000" />
       </rotate3d>
       <output name="out" type="vector3" nodename="rotate1" />

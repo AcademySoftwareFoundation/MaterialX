@@ -191,7 +191,7 @@ Basic transform function tests each test is in a separate graph for each variati
         <input name="texcoord" type="vector2" nodename="texcoord1"/>
         <parameter name="pivot" type="vector2" value="0.5,0.5"/>
         <input name="scale" type="vector2" value="2.0,2.0"/>
-        <input name="rotate" type="float" value="1.0" unittype="angle" unit="radians"/>
+        <input name="rotate" type="float" value="1.0" unittype="angle" unit="radian"/>
         <input name="offset" type="vector2" value="0.2,0.2"/>
     </place2d>
     <output name="out" type="vector2" nodename="place2d1_1" />

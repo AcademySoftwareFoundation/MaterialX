@@ -52,12 +52,12 @@ TEST_CASE("UnitAttribute", "[units]")
     // Test for target unit specified on a nodedef
     mx::NodeDefPtr customNodeDef = doc->addNodeDef("ND_dummy", "float", "dummy");
     mx::InputPtr input = customNodeDef->setInputValue("angle", 23.0f, "float");
-    input->setUnit("degrees");
+    input->setUnit("degree");
     mx::NodePtr custom = doc->addNodeInstance(customNodeDef);
     input = custom->setInputValue("angle", 45.0f, "float");
-    input->setUnit("radians");
-    REQUIRE(input->getUnit() == "radians");
-    REQUIRE(input->getActiveUnit() == "degrees");
+    input->setUnit("radian");
+    REQUIRE(input->getUnit() == "radian");
+    REQUIRE(input->getActiveUnit() == "degree");
 }
 
 TEST_CASE("UnitEvaluation", "[units]")
@@ -111,9 +111,9 @@ TEST_CASE("UnitEvaluation", "[units]")
     registry->addUnitConverter(angleTypeDef, converter2);
     mx::UnitConverterPtr uconverter2 = registry->getUnitConverter(angleTypeDef);
     REQUIRE(uconverter2);
-    result = converter2->convert(2.5f, "degrees", "degrees");
+    result = converter2->convert(2.5f, "degree", "degree");
     REQUIRE((result - 2.5f) < EPSILON);
-    result = converter2->convert(2.0f, "radians", "degrees");
+    result = converter2->convert(2.0f, "radian", "degree");
     REQUIRE((result - 114.591559026f) < EPSILON);
 }
 
