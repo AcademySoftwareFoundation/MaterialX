@@ -34,11 +34,11 @@ Upgrade path test from 1.36 to 1.37
   <!-- rotate to rotate2d and rotate3d -->
   <rotate name="rotate1" type="vector2">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <input name="amount" type="float" value="1.5708" unittype="angle" unit="radians" />
+    <input name="amount" type="float" value="1.5708" unittype="angle" unit="radian" />
   </rotate>
   <rotate name="rotate2" type="vector3" xpos="5.19248" ypos="5.306">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="amount" type="float" value="180.0000" unittype="angle" unit="degrees" />
+    <input name="amount" type="float" value="180.0000" unittype="angle" unit="degree" />
     <parameter name="axis" type="vector3" value="0.0, 1.0000, 1.0000" />
   </rotate>
 
@@ -178,7 +178,8 @@ Upgrade path test from 1.36 to 1.37
   <!-- geomattr -->
   <geominfo name="gi1" geom="/a/g1">
     <geomattr name="surfid" type="integer" value="15"/>
-  </geominfo>
+  </geominfo>
+
   <!-- geomattrvalue -->
   <geomattrvalue name="srfidval1" type="integer" attrname="surfid"/> 
   
