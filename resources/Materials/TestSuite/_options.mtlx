@@ -81,7 +81,7 @@
       <parameter name="radianceIBLPath" type="string" value="resources/Lights/san_giuseppe_bridge.hdr" />
 
       <!-- Suggested irradiance IBL file path -->
-      <parameter name="irradianceIBLPath" type="string" value="resources/Lights/san_giuseppe_bridge_diffuse.hdr" />
+      <parameter name="irradianceIBLPath" type="string" value="resources/Lights/irradiance/san_giuseppe_bridge.hdr" />
 
       <!-- Transforms UVs of loaded geometry -->
       <parameter name="transformUVs" type="matrix44" value="1.0f, 0.0f, 0.0f, -0.235f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f" />
