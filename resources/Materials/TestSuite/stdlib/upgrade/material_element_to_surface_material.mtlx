@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+  <material name="my_surface">
+    <shaderref name="my_surface" node="standard_surface">
+      <bindinput name="base_color" type="color3" nodegraph="NG_aiMixColor31" output="out" />
+    </shaderref>
+  </material>
+  <nodegraph name="NG_aiMixColor31">
+    <mix name="aiMixColor31" type="color3">
+      <input name="fg" type="color3" nodename="aiAbsvalColor31" />
+      <input name="bg" type="color3" nodename="aiAbsvalColor32" />
+      <input name="mix" type="float" value="0.5" />
+    </mix>
+    <absval name="aiAbsvalColor31" type="color3">
+      <input name="in" type="color3" value="1, 0, 0" />
+    </absval>
+    <absval name="aiAbsvalColor32" type="color3">
+      <input name="in" type="color3" value="0.671, 0.671, 0.671" />
+    </absval>
+    <output name="out" type="color3" nodename="aiMixColor31" />
+  </nodegraph>
+</materialx>

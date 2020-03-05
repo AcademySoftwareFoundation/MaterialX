@@ -145,7 +145,11 @@ namespace
             for (const InputPtr& elemInput : nodeElem->getInputs())
             {
                 PvtInput* input = findInputOrThrow(RtToken(elemInput->getName()), node);
-                const string& connectedNodeName = elemInput->getNodeName();
+                string connectedNodeName = elemInput->getNodeName();
+                if (connectedNodeName.empty())
+                {
+                    connectedNodeName = elemInput->getNodeGraphName();
+                }
                 if (!connectedNodeName.empty())
                 {
                     PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), parent);

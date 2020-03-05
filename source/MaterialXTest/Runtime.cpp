@@ -80,6 +80,39 @@ namespace
     }
 }
 
+TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    api->setSearchPath(searchPath);
+    api->loadLibrary(STDLIB);
+    api->loadLibrary(PBRLIB);
+    api->loadLibrary(BXDFLIB);
+    mx::FileSearchPath testSearchPath(mx::FilePath::getCurrentPath() /
+        "resources" /
+        "Materials" /
+        "TestSuite" /
+        "stdlib" /
+        "upgrade" );
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
+    mx::RtFileIo fileIo(defaultStage);
+    mx::RtReadOptions options;
+    options.desiredMinorVersion = 38;
+    fileIo.read("material_element_to_surface_material.mtlx", testSearchPath, &options);
+    mx::RtPrim mixNodeGraphPrim = defaultStage->getPrimAtPath("NG_aiMixColor31");
+    REQUIRE(mixNodeGraphPrim);
+    mx::RtNodeGraph mixNodeGraph(mixNodeGraphPrim);
+    REQUIRE(mixNodeGraph);
+    mx::RtOutput mixNodeGraphOutput = mixNodeGraph.getOutput(mx::RtToken("out"));
+    REQUIRE(mixNodeGraphOutput);
+    mx::RtConnectionIterator iter = mixNodeGraphOutput.getConnections();
+    while (!iter.isDone())
+    {
+        REQUIRE((*iter).getName() == "base_color");
+        break;
+    }
+}
+
 TEST_CASE("Runtime: Token", "[runtime]")
 {
     mx::RtToken tok1("hej");
