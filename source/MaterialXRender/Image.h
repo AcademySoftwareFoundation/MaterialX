@@ -129,6 +129,12 @@ class Image
     /// or image resource buffer are invalid, then an exception is thrown.
     Color4 getTexelColor(unsigned int x, unsigned int y) const;
 
+    /// Apply a 3x3 box blur to this image, returning a new blurred image.
+    ImagePtr applyBoxBlur();
+
+    /// Apply a 7x7 Gaussian blur to this image, returning a new blurred image.
+    ImagePtr applyGaussianBlur();
+
     /// Split this image by the given luminance threshold, returning the
     /// resulting underflow and overflow images.
     ImagePair splitByLuminance(float luminance);

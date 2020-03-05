@@ -72,7 +72,7 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 void GlslShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
                                                      GenShaderUtil::TestSuiteOptions& options)
 {
-    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
+    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/lights");
     for (const auto& lightFile : options.lightFiles)
     {
         loadLibrary(lightDir / mx::FilePath(lightFile), document);
@@ -333,7 +333,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             }
 
             // Validate
-            MaterialX::GlslProgramPtr program = _renderer->program();
+            MaterialX::GlslProgramPtr program = _renderer->getProgram();
             bool validated = false;
             try
             {
@@ -483,7 +483,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     {
                         RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.languageTimes.imageSaveTime, "GLSL image save time");
                         std::string fileName = shaderPath + "_glsl.png";
-                        _renderer->save(fileName, false);
+                        _renderer->save(fileName);
                     }
                 }
 

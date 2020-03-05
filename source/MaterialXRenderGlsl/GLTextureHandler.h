@@ -57,6 +57,9 @@ class GLTextureHandler : public ImageHandler
     /// Utility to map a filter type enumeration to an OpenGL filter type
     static int mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum);
 
+    static void mapTextureFormatToGL(Image::BaseType baseType, unsigned int channelCount, bool srgb,
+                                     int& glType, int& glFormat, int& glInternalFormat);
+
   protected:
     // Protected constructor
     GLTextureHandler(ImageLoaderPtr imageLoader);

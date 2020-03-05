@@ -803,7 +803,7 @@ void findRenderableShaderRefs(ConstDocumentPtr doc,
                 if (!nodeDef)
                 {
                     throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() +
-                        "' in material '" + shaderRef->getParent()->getName() + "'");
+                                                  "' in material '" + shaderRef->getParent()->getName() + "'");
                 }
                 if (requiresImplementation(nodeDef))
                 {

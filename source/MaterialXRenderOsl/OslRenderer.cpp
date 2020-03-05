@@ -400,9 +400,9 @@ void OslRenderer::render()
     }
 }
 
-void OslRenderer::save(const FilePath& /*filePath*/, bool /*floatingPoint*/)
+void OslRenderer::save(const FilePath& /*filePath*/)
 {
     // No-op: image save is done as part of rendering.
 }
 
-}
+} // namespace MaterialX

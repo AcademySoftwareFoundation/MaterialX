@@ -648,7 +648,7 @@ void Document::upgradeVersion(int desiredMajorVersion, int desiredMinorVersion)
         return;
     }
 
-    // Upgrade path for 1.37 
+    // Upgrade from 1.36 to 1.37
     if (majorVersion == 1 && minorVersion == 36)
     {
         // Convert type attributes to child outputs.
@@ -678,7 +678,7 @@ void Document::upgradeVersion(int desiredMajorVersion, int desiredMinorVersion)
             }
         }
 
-         // Convert geometric attributes to geometric properties.
+        // Convert geometric attributes to geometric properties.
         for (GeomInfoPtr geomInfo : getGeomInfos())
         {
             vector<ElementPtr> origChildren = geomInfo->getChildren();

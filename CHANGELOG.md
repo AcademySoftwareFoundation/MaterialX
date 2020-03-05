@@ -5,14 +5,18 @@
 Updated the MaterialX library to the v1.37 specification.  See the [v1.37 changelist](http://www.materialx.org/assets/MaterialX.v1.37REV2.Changelist.pdf) for full details.
 
 ### Added
-- Added support for LookGroup elements.
+- Added a Shadow Map option to the viewer, supported by shadowing functionality in GLSL code generation.
 - Added support for the 'uisoftmin', 'uisoftmax', and 'uistep' attributes, updating Autodesk Standard Surface to leverage these features.
+- Added support for LookGroup elements.
+- Added support for Clang 9.
 
 ### Changed
 - Updated the set of standard nodes to match the v1.37 specification.
 - Unified the rules for NodeDef outputs, with all NodeDefs defining their output set through Output child elements rather than 'type' attributes.
+- Replaced GeomAttr elements with GeomProp elements.
 - Replaced backdrop nodes with Backdrop elements.
-- Improved the robustness of GLSL and OSL code generation.
+- Aligned Matrix33 and Matrix44 with the row-vector convention, for improved consistency with Imath, USD, and other libraries.
+- Updated the stb_image library to version 2.23
 
 ## [1.36.5] - 2020-01-11
 

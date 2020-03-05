@@ -32,6 +32,15 @@ class DocumentModifiers
     std::string filePrefixTerminator;
 };
 
+class ShadowState
+{
+  public:
+    mx::ImagePtr shadowMap;
+    mx::Matrix44 shadowMatrix;
+    mx::ImagePtr ambientOcclusionMap;
+    float ambientOcclusionGain = 0.0f;
+};
+
 class Material
 {
   public:
@@ -117,6 +126,18 @@ class Material
                                 const std::string& shaderName,
                                 const mx::Color3& color);
 
+    /// Generate a depth shader.
+    bool generateDepthShader(mx::GenContext& context,
+                             mx::DocumentPtr stdLib,
+                             const std::string& shaderName);
+
+    /// Generate a blur shader.
+    bool generateBlurShader(mx::GenContext& context,
+                            mx::DocumentPtr stdLib,
+                            const std::string& shaderName,
+                            const std::string& filterType,
+                            float filterSize);
+
     /// Generate an environment background shader
     bool generateEnvironmentShader(mx::GenContext& context,
                                    const mx::FilePath& filename,
@@ -153,8 +174,7 @@ class Material
 
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                    bool directLighting, bool indirectLighting,
-                    mx::ImagePtr ambientOcclusionMap, float ambientOcclusionGain,
+                    bool directLighting, bool indirectLighting, const ShadowState& shadowState,
                     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples);
 
     /// Bind units.

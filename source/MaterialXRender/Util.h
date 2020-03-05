@@ -31,6 +31,19 @@ ShaderPtr createConstantShader(GenContext& context,
                                const string& shaderName,
                                const Color3& color);
 
+/// Create a shader with depth value output, using the given standard libraries
+/// for code generation.
+ShaderPtr createDepthShader(GenContext& context,
+                            DocumentPtr stdLib,
+                            const string& shaderName);
+
+/// Create a blur shader, using the given standard libraries for code generation.
+ShaderPtr createBlurShader(GenContext& context,
+                           DocumentPtr stdLib,
+                           const string& shaderName,
+                           const string& filterType,
+                           float filterSize);
+
 /// @}
 /// @name User Interface Utilities
 /// @{

@@ -58,7 +58,7 @@
   </image>
   <output name="image4_output_bridge3_hdr" type="color4" nodename="image4_bridge3" xpos="5.84828" ypos="-9.44" />
   <image name="image4_bridge3" type="color4" xpos="6.4069" ypos="18.82">
-    <parameter name="file" type="filename" value="resources/Images/Environments/san_giuseppe_bridge_diffuse.hdr" />
+    <parameter name="file" type="filename" value="resources/Lights/irradiance/san_giuseppe_bridge.hdr" />
     <parameter name="uaddressmode" type="string" value="constant" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -66,7 +66,7 @@
   </image>
   <output name="image4_output_bridge4_hdr" type="color4" nodename="image4_bridge4" xpos="5.84828" ypos="-2.84" />
   <image name="image4_bridge4" type="color4" xpos="6.4069" ypos="16">
-    <parameter name="file" type="filename" value="resources/Images/Environments/san_giuseppe_bridge.hdr" />
+    <parameter name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
     <parameter name="uaddressmode" type="string" value="constant" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />

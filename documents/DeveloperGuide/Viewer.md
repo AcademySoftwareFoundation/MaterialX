@@ -39,11 +39,9 @@ If a material document containing `look` elements is loaded into the viewer, the
 
 ### Lighting
 
-The default lighting environment for the viewer is the San Giuseppe Bridge environment from HDRI Haven.  To load another environment into the viewer, click `Load Environment` and navigate to the [Environments](../../resources/Images/Environments) folder, or load any HDR environment in the latitude-longitude format.  If the HDR file on disk has a companion image with the `_diffuse` suffix, then this file will be loaded as the diffuse convolution of the environment; otherwise, a diffuse convolution will be generated at load-time using spherical harmonics.
+The default lighting environment for the viewer is the San Giuseppe Bridge environment from HDRI Haven.  To load another environment into the viewer, click `Load Environment` and navigate to the [Lights](../../resources/Lights) folder, or load any HDR environment in the latitude-longitude format.  If the HDR file on disk has a companion MaterialX document with a matching name, then this document will be loaded as the direct lighting rig for the environment; otherwise only indirect lighting will be rendered.  If the HDR file on disk has a companion image in an `irradiance` subfolder, then this image will be loaded as the diffuse convolution of the environment; otherwise, a diffuse convolution will be generated at load-time using spherical harmonics.
 
-The fidelity of environment lighting can be improved by increasing the `Environment Samples` option under `Advanced Settings`, though this improved quality requires additional GPU resources and can affect the interactivity of the viewer.
-
-Additional direct lights may be enabled through the `Lighting Options` section of `Advanced Settings`, though these lights are not yet editable in the viewer at run-time.
+Shadow maps from the primary directional light may be enabled with the `Shadow Map` option under `Advanced Settings`.  Ambient occlusion, if available for the given geometry, may be enabled with the `Ambient Occlusion` option.  The fidelity of environment lighting may be improved by increasing the value of `Environment Samples`, though this requires additional GPU resources and can affect the interactivity of the viewer.
 
 ### Images
 

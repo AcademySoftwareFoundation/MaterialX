@@ -9,9 +9,9 @@
 /// @file
 /// GLSL code renderer
 
+#include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 
-#include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
 namespace MaterialX
@@ -74,9 +74,7 @@ class GlslRenderer : public ShaderRenderer
     void render() override;
 
     /// Render the current program in texture space to an off-screen buffer.
-    /// @param encodeSrgb If true, then the off-screen buffer will be encoded
-    ///    as sRGB; otherwise, no encoding is performed.
-    void renderTextureSpace(bool encodeSrgb);
+    void renderTextureSpace();
 
     /// @}
     /// @name Utilities
@@ -84,43 +82,28 @@ class GlslRenderer : public ShaderRenderer
 
     /// Save the current contents the offscreen hardware buffer to disk.
     /// @param filePath Name of file to save rendered image to.
-    /// @param floatingPoint Format of output image is floating point.
-    void save(const FilePath& filePath, bool floatingPoint) override;
+    void save(const FilePath& filePath) override;
 
-    /// Return the GLSL program wrapper class
-    MaterialX::GlslProgramPtr program()
+    /// Return the GL frame buffer.
+    GLFrameBufferPtr getFrameBuffer() const
+    {
+        return _frameBuffer;
+    }
+
+    /// Return the GLSL program.
+    GlslProgramPtr getProgram()
     {
         return _program;
     }
 
+    /// Submit geometry for a screen-space quad.
+    static void drawScreenSpaceQuad();
+
     /// @}
 
   protected:
-    /// Constructor
     GlslRenderer(unsigned int res);
 
-    /// @name Target handling
-    /// @{
-
-    /// Create a offscreen target used for rendering.
-    bool createTarget();
-    /// Delete any created offscreen target.
-    void deleteTarget();
-    /// Bind or unbind any created offscree target.
-    bool bindTarget(bool bind);
-
-    /// @}
-    /// @name Program bindings
-    /// @{
-
-    /// Update viewing information
-    /// @param eye Eye position
-    /// @param center Center of focus 
-    /// @param up Up vector
-    /// @param viewAngle Viewing angle in degrees
-    /// @param nearDist Distance to near plane
-    /// @param farDist Distance to far plane
-    /// @param objectScale Scale to apply to geometry
     void updateViewInformation(const Vector3& eye,
                                const Vector3& center,
                                const Vector3& up,
@@ -130,34 +113,17 @@ class GlslRenderer : public ShaderRenderer
                                float objectScale);
 
   private:
-    /// Utility to check for OpenGL context errors.
-    /// Will throw an ExceptionShaderRenderError exception which will list of the errors found
-    /// if any errors encountered.
     void checkErrors();
 
-    /// GLSL program.
+  private:
     GlslProgramPtr _program;
 
-    /// Hardware color target (texture)
-    unsigned int _colorTarget;
+    GLFrameBufferPtr _frameBuffer;
+    unsigned int _res;
 
-    /// Hardware depth target (texture)
-    unsigned int _depthTarget;
-
-    /// Hardware frame buffer object
-    unsigned int _frameBuffer;
-
-    /// Width of the frame buffer / targets to use.
-    unsigned int _frameBufferWidth;
-    /// Height of the frame buffer / targets to use.
-    unsigned int _frameBufferHeight;
-
-    /// Flag to indicate if renderer has been initialized properly.
     bool _initialized;
 
-    /// Dummy window for OpenGL usage.
     SimpleWindowPtr _window;
-    /// Dummy OpenGL context for OpenGL usage
     GLUtilityContextPtr _context;
 };
 

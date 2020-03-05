@@ -124,25 +124,22 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         const string outTransparency = output->getVariable() + ".transparency";
 
         //
-        // Compute shadowing and occlusion
+        // Handle direct lighting
         //
 
-        shadergen.emitComment("Compute occlusion term", stage);
-        if (context.getOptions().hwAmbientOcclusion)
+        shadergen.emitComment("Shadow occlusion", stage);
+        if (context.getOptions().hwShadowMap)
         {
-            ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
-            shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
-            shadergen.emitLine("float occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+            shadergen.emitLine("vec3 shadowCoord = (" + HW::T_SHADOW_MATRIX + " * vec4(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
+            shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
+            shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
+            shadergen.emitLine("float shadowOcc = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
         }
         else
         {
-            shadergen.emitLine("float occlusion = 1.0", stage);
+            shadergen.emitLine("float shadowOcc = 1.0", stage);
         }
         shadergen.emitLineBreak(stage);
-
-        //
-        // Handle direct lighting
-        //
 
         shadergen.emitComment("Light loop", stage);
         shadergen.emitLine("vec3 N = normalize(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_NORMAL_WORLD + ")", stage);
@@ -163,7 +160,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Accumulate the light's contribution", stage);
-        shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf + " * occlusion", stage);
+        shadergen.emitLine(outColor + " += lightShader.intensity * shadowOcc * " + bsdf, stage);
 
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
@@ -171,6 +168,19 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         //
         // Handle indirect lighting.
         //
+
+        shadergen.emitComment("Ambient occlusion", stage);
+        if (context.getOptions().hwAmbientOcclusion)
+        {
+            ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
+            shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
+            shadergen.emitLine("float ambOcc = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+        }
+        else
+        {
+            shadergen.emitLine("float ambOcc = 1.0", stage);
+        }
+        shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Add surface emission", stage);
         shadergen.emitScopeBegin(stage);
@@ -184,7 +194,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitScopeBegin(stage);
         shadergen.emitBsdfNodes(graph, node, _callIndirect, context, stage, bsdf);
         shadergen.emitLineBreak(stage);
-        shadergen.emitLine(outColor + " += " + bsdf + " * occlusion", stage);
+        shadergen.emitLine(outColor + " += ambOcc * " + bsdf, stage);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
 

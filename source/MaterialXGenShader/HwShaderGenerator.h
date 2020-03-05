@@ -127,6 +127,8 @@ namespace HW
     extern const string T_ENV_IRRADIANCE;
     extern const string T_AMB_OCC_MAP;
     extern const string T_AMB_OCC_GAIN;
+    extern const string T_SHADOW_MAP;
+    extern const string T_SHADOW_MATRIX;
     extern const string T_VERTEX_DATA_INSTANCE;
     extern const string T_LIGHT_DATA_INSTANCE;
 
@@ -176,6 +178,8 @@ namespace HW
     extern const string ENV_IRRADIANCE;
     extern const string AMB_OCC_MAP;
     extern const string AMB_OCC_GAIN;
+    extern const string SHADOW_MAP;
+    extern const string SHADOW_MATRIX;
     extern const string VERTEX_DATA_INSTANCE;
     extern const string LIGHT_DATA_INSTANCE;
 

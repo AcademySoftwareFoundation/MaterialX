@@ -481,9 +481,9 @@ void ShaderGeneratorTester::setupDependentLibraries()
 void ShaderGeneratorTester::addSkipFiles()
 {
     _skipFiles.insert("_options.mtlx");
-    _skipFiles.insert("light_rig.mtlx");
-    _skipFiles.insert("lightcompoundtest.mtlx");
-    _skipFiles.insert("default_viewer_lights.mtlx");
+    _skipFiles.insert("light_rig_test_1.mtlx");
+    _skipFiles.insert("light_rig_test_2.mtlx");
+    _skipFiles.insert("light_compound_test.mtlx");
 }
 
 void ShaderGeneratorTester::addSkipNodeDefs()
@@ -494,9 +494,9 @@ void ShaderGeneratorTester::addSkipLibraryFiles()
 {
 }
 
-void ShaderGeneratorTester::mapNodeDefToIdentiers(const std::vector<mx::NodePtr>& nodes,
-                                                  std::unordered_map<std::string, unsigned int>& ids)
+LightIdMap ShaderGeneratorTester::computeLightIdMap(const std::vector<mx::NodePtr>& nodes)
 {
+    std::unordered_map<std::string, unsigned int> idMap;
     unsigned int id = 1;
     for (const auto& node : nodes)
     {
@@ -504,12 +504,13 @@ void ShaderGeneratorTester::mapNodeDefToIdentiers(const std::vector<mx::NodePtr>
         if (nodedef)
         {
             const std::string& name = nodedef->getName();
-            if (!ids.count(name))
+            if (!idMap.count(name))
             {
-                ids[name] = id++;
+                idMap[name] = id++;
             }
         }
     }
+    return idMap;
 }
 
 void ShaderGeneratorTester::findLights(mx::DocumentPtr doc, std::vector<mx::NodePtr>& lights)
@@ -536,7 +537,7 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
     if (!lights.empty())
     {
         // Create a list of unique nodedefs and ids for them
-        mapNodeDefToIdentiers(lights, _lightIdentifierMap);
+        _lightIdentifierMap = computeLightIdMap(lights);
         for (const auto& id : _lightIdentifierMap)
         {
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);

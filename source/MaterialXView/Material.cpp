@@ -40,6 +40,43 @@ bool Material::generateConstantShader(mx::GenContext& context,
     return _glShader->init(shaderName, vertexShader, pixelShader);
 }
 
+bool Material::generateDepthShader(mx::GenContext& context,
+                                   mx::DocumentPtr stdLib,
+                                   const std::string& shaderName)
+{
+    _hwShader = createDepthShader(context, stdLib, shaderName);
+    if (!_hwShader)
+    {
+        return false;
+    }
+    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
+    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
+
+    // Compile and return.
+    _glShader = std::make_shared<ng::GLShader>();
+    return _glShader->init(shaderName, vertexShader, pixelShader);
+}
+
+bool Material::generateBlurShader(mx::GenContext& context,
+                                  mx::DocumentPtr stdLib,
+                                  const std::string& shaderName,
+                                  const std::string& filterType,
+                                  float filterSize)
+{
+    _hwShader = createBlurShader(context, stdLib, shaderName,
+                                 filterType, filterSize);
+    if (!_hwShader)
+    {
+        return false;
+    }
+    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
+    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
+
+    // Compile and return.
+    _glShader = std::make_shared<ng::GLShader>();
+    return _glShader->init(shaderName, vertexShader, pixelShader);
+}
+
 bool Material::generateEnvironmentShader(mx::GenContext& context,
                                          const mx::FilePath& filename,
                                          mx::DocumentPtr stdLib,
@@ -147,13 +184,17 @@ bool Material::generateShader(mx::GenContext& context)
         return false;
     }
 
-    _hwShader = createShader("Shader", context, _elem);
+    _hasTransparency = mx::isTransparentSurface(_elem, context.getShaderGenerator());
+
+    mx::GenContext materialContext = context;
+    materialContext.getOptions().hwTransparency = _hasTransparency;
+    materialContext.getOptions().hwShadowMap = materialContext.getOptions().hwShadowMap && !_hasTransparency;
+
+    _hwShader = createShader("Shader", materialContext, _elem);
     if (!_hwShader)
     {
         return false;
     }
-
-    _hasTransparency = context.getOptions().hwTransparency;
 
     std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
     std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
@@ -241,28 +282,16 @@ void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44
         return;
     }
 
-    mx::Matrix44 viewProj = proj * view;
+    mx::Matrix44 viewProj = view * proj;
     mx::Matrix44 invView = view.getInverse();
     mx::Matrix44 invTransWorld = world.getInverse().getTranspose();
+    mx::Vector3 viewPosition(invView[3][0], invView[3][1], invView[3][2]);
 
     // Bind view properties.
-    if (_glShader->uniform(mx::HW::WORLD_MATRIX, false) != -1)
-    {
-        _glShader->setUniform(mx::HW::WORLD_MATRIX, ng::Matrix4f(world.getTranspose().data()));
-    }
-    if (_glShader->uniform(mx::HW::VIEW_PROJECTION_MATRIX, false) != -1)
-    {
-        _glShader->setUniform(mx::HW::VIEW_PROJECTION_MATRIX, ng::Matrix4f(viewProj.getTranspose().data()));
-    }
-    if (_glShader->uniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, false) != -1)
-    {
-        _glShader->setUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, ng::Matrix4f(invTransWorld.getTranspose().data()));
-    }
-    if (_glShader->uniform(mx::HW::VIEW_POSITION, false) != -1)
-    {
-        mx::Vector3 viewPosition(invView[0][3], invView[1][3], invView[2][3]);
-        _glShader->setUniform(mx::HW::VIEW_POSITION, ng::Vector3f(viewPosition.data()));
-    }
+    _glShader->setUniform(mx::HW::WORLD_MATRIX, ng::Matrix4f(world.data()), false);
+    _glShader->setUniform(mx::HW::VIEW_PROJECTION_MATRIX, ng::Matrix4f(viewProj.data()), false);
+    _glShader->setUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, ng::Matrix4f(invTransWorld.data()), false);
+    _glShader->setUniform(mx::HW::VIEW_POSITION, ng::Vector3f(viewPosition.data()), false);
 }
 
 void Material::unbindImages(mx::ImageHandlerPtr imageHandler)
@@ -405,11 +434,10 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
 }
 
 void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                          bool directLighting, bool indirectLighting,
-                          mx::ImagePtr ambientOcclusionMap, float ambientOcclusionGain,
+                          bool directLighting, bool indirectLighting, const ShadowState& shadowState,
                           mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
 {
-    if (!_glShader || !lightHandler)
+    if (!_glShader)
     {
         return;
     }
@@ -426,8 +454,8 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
     }
     mx::ImageMap envLights =
     {
-        { mx::HW::ENV_RADIANCE, indirectLighting ? lightHandler->getEnvRadianceMap() : mx::ImagePtr() },
-        { mx::HW::ENV_IRRADIANCE, indirectLighting ? lightHandler->getEnvIrradianceMap() : mx::ImagePtr() }
+        { mx::HW::ENV_RADIANCE, indirectLighting ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
+        { mx::HW::ENV_IRRADIANCE, indirectLighting ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
     };
     for (const auto& env : envLights)
     {
@@ -522,8 +550,29 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
         }
     }
 
+    // Bind shadow map properties
+    if (shadowState.shadowMap && _glShader->uniform(mx::HW::SHADOW_MAP, false) != -1)
+    {
+        mx::ImageSamplingProperties samplingProperties;
+        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+
+        // Bind the shadow map.
+        if (imageHandler->bindImage(shadowState.shadowMap, samplingProperties))
+        {
+            mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+            int textureLocation = textureHandler->getBoundTextureLocation(shadowState.shadowMap->getResourceId());
+            if (textureLocation >= 0)
+            {
+                _glShader->setUniform(mx::HW::SHADOW_MAP, textureLocation);
+            }
+        }
+        _glShader->setUniform(mx::HW::SHADOW_MATRIX, ng::Matrix4f(shadowState.shadowMatrix.data()), false);
+    }
+
     // Bind ambient occlusion properties.
-    if (ambientOcclusionMap && _glShader->uniform(mx::HW::AMB_OCC_MAP, false) != -1)
+    if (shadowState.ambientOcclusionMap && _glShader->uniform(mx::HW::AMB_OCC_MAP, false) != -1)
     {
         mx::ImageSamplingProperties samplingProperties;
         samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
@@ -531,19 +580,16 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
         samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
 
         // Bind the ambient occlusion map.
-        if (imageHandler->bindImage(ambientOcclusionMap, samplingProperties))
+        if (imageHandler->bindImage(shadowState.ambientOcclusionMap, samplingProperties))
         {
             mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
-            int textureLocation = textureHandler->getBoundTextureLocation(ambientOcclusionMap->getResourceId());
+            int textureLocation = textureHandler->getBoundTextureLocation(shadowState.ambientOcclusionMap->getResourceId());
             if (textureLocation >= 0)
             {
-                _glShader->setUniform(mx::HW::AMB_OCC_MAP, textureLocation, false);
+                _glShader->setUniform(mx::HW::AMB_OCC_MAP, textureLocation);
             }
         }
-    }
-    if (_glShader->uniform(mx::HW::AMB_OCC_GAIN, false) != -1)
-    {
-        _glShader->setUniform(mx::HW::AMB_OCC_GAIN, ambientOcclusionGain);
+        _glShader->setUniform(mx::HW::AMB_OCC_GAIN, shadowState.ambientOcclusionGain, false);
     }
 }
 
@@ -586,7 +632,7 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
 
 void Material::drawPartition(mx::MeshPartitionPtr part) const
 {
-    if (!bindPartition(part))
+    if (!part || !bindPartition(part))
     {
         return;
     }

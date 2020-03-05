@@ -32,9 +32,9 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         ParentClass::setupDependentLibraries();
 
-        mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
-        loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), _dependLib);
-        loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), _dependLib);
+        mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/lights");
+        loadLibrary(lightDir / mx::FilePath("light_compound_test.mtlx"), _dependLib);
+        loadLibrary(lightDir / mx::FilePath("light_rig_test_1.mtlx"), _dependLib);
     }
 
   protected:

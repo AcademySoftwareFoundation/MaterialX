@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+  <directional_light name="dir_light" type="lightshader">
+    <input name="direction" type="vector3" value="0.578844, -0.13933, -0.803447" />
+    <input name="color" type="color3" value="1, 0.664479, 0.186564" />
+    <input name="intensity" type="float" value="3.63153" />
+  </directional_light>
+</materialx>

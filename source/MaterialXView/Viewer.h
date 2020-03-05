@@ -3,9 +3,15 @@
 
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
+
+#include <MaterialXRenderGlsl/GLFramebuffer.h>
+
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/ViewHandler.h>
+
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
 #include <MaterialXGenShader/UnitConverter.h>
 
 namespace mx = MaterialX;
@@ -82,9 +88,6 @@ class Viewer : public ng::Screen
     }
 
   private:
-    void drawScene3D();
-    void drawScene2D();
-
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
@@ -97,11 +100,9 @@ class Viewer : public ng::Screen
     /// Assign the given material to the given geometry, or remove any
     /// existing assignment if the given material is nullptr.
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
-    void initCamera();
-    void computeCameraMatrices(mx::Matrix44& world,
-                               mx::Matrix44& view,
-                               mx::Matrix44& proj);
 
+    void initCamera();
+    void updateViewHandlers();
     void updateGeometrySelections();
     void updateMaterialSelections();
     void updateMaterialSelectionUI();
@@ -114,14 +115,19 @@ class Viewer : public ng::Screen
     void createPropertyEditorInterface(Widget* parent, const std::string& label);
     void createAdvancedSettings(Widget* parent);
 
-    mx::MeshStreamPtr createUvPositionStream(mx::MeshPtr mesh, 
-                                            const std::string& uvStreamName,
-                                            unsigned int index,
-                                            const std::string& positionStreamName);
-
     /// Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
     
+    /// Split the given radiance map into indirect and direct components,
+    /// returning a new indirect map and directional light document.
+    void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
+
+    /// Update the current shadow map.
+    void updateShadowMap();
+
+    /// Check for any OpenGL errors that have been encountered.
+    void checkGlErrors(const std::string& context);
+
   private:
     ng::Window* _window;
     ng::Arcball _arcball;
@@ -129,17 +135,18 @@ class Viewer : public ng::Screen
     mx::Vector3 _eye;
     mx::Vector3 _center;
     mx::Vector3 _up;
-    float _zoom;
     float _viewAngle;
     float _nearDist;
     float _farDist;
 
-    mx::Vector3 _modelTranslation;
-    mx::Vector3 _modelTranslationStart;
     float _modelZoom;
+    mx::Vector3 _modelTranslation;
 
-    bool _translationActive;
-    ng::Vector2i _translationStart;
+    float _userZoom;
+    mx::Vector3 _userTranslation;
+    mx::Vector3 _userTranslationStart;
+    bool _userTranslationActive;
+    ng::Vector2i _userTranslationPixel;
 
     // Document management
     mx::FilePathVec _libraryFolders;
@@ -150,11 +157,26 @@ class Viewer : public ng::Screen
     mx::StringSet _xincludeFiles;
 
     // Lighting information
-    mx::FilePath _lightFilename;
     mx::FilePath _envRadiancePath;
-    mx::DocumentPtr _lightDoc;
+    mx::FilePath _lightRigFilename;
+    mx::DocumentPtr _lightRigDoc;
     bool _directLighting;
     bool _indirectLighting;
+
+    // Light processing options
+    bool _normalizeEnvironment;
+    bool _splitDirectLight;
+    bool _generateReferenceIrradiance;
+    bool _saveGeneratedLights;
+
+    // Shadow mapping
+    MaterialPtr _shadowMaterial;
+    MaterialPtr _shadowBlurMaterial;
+    mx::GLFrameBufferPtr _shadowFramebuffer;
+    mx::ImagePtr _shadowMap;
+    unsigned int _shadowSoftness;
+
+    // Ambient occlusion
     float _ambientOcclusionGain;
 
     // Geometry selections
@@ -179,6 +201,10 @@ class Viewer : public ng::Screen
     mx::GeometryHandlerPtr _geometryHandler;
     mx::ImageHandlerPtr _imageHandler;
     mx::LightHandlerPtr _lightHandler;
+
+    // View handlers
+    mx::ViewHandlerPtr _cameraViewHandler;
+    mx::ViewHandlerPtr _shadowViewHandler;
 
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
@@ -214,14 +240,11 @@ class Viewer : public ng::Screen
 
     // Image save
     bool _captureFrame;
-    mx::FilePath _captureFrameFileName;
+    mx::FilePath _captureFrameFilename;
 
-    // UV wireframe drawing
-    bool _drawUVGeometry;
-    MaterialPtr _wireMaterialUV;
-    mx::Vector3 _uvScale;
-    mx::Vector3 _uvTranslation;
-    float _uvZoom;
+    // Texture baking
+    bool _bakeRequested;
+    mx::FilePath _bakeFilename;
 };
 
 #endif // MATERIALXVIEW_VIEWER_H

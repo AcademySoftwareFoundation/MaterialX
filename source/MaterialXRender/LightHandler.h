@@ -41,10 +41,23 @@ class LightHandler
     /// Adds a light source node
     void addLightSource(NodePtr node);
 
-    /// Get the list of light sources.
+    /// Return the vector of active light sources.
     const vector<NodePtr>& getLightSources() const
     {
         return _lightSources;
+    }
+
+    /// Return the first active light source, if any, of the given category.
+    NodePtr getFirstLightOfCategory(const string& category)
+    {
+        for (NodePtr light : _lightSources)
+        {
+            if (light->getCategory() == category)
+            {
+                return light;
+            }
+        }
+        return nullptr;
     }
 
     /// Get a list of identifiers associated with a given light nodedef

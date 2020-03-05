@@ -26,6 +26,9 @@ namespace mx = MaterialX;
 namespace GenShaderUtil
 {
     
+/// An unordered map from light names to light indices.
+using LightIdMap = std::unordered_map<std::string, unsigned int>;
+
 //
 // Get source content, source path and resolved paths for
 // an implementation
@@ -190,9 +193,10 @@ class ShaderGeneratorTester
     // Load in dependent libraries
     virtual void setupDependentLibraries();
 
+    // TODO: Merge the methods below with equivalent methods in LightHandler.
+
     // From a set of nodes, create a mapping of nodedef identifiers to numbers
-    virtual void mapNodeDefToIdentiers(const std::vector<mx::NodePtr>& nodes,
-                                        std::unordered_map<std::string, unsigned int>& ids);
+    virtual LightIdMap computeLightIdMap(const std::vector<mx::NodePtr>& nodes);
 
     // Find lights to use based on an input document
     virtual void findLights(mx::DocumentPtr doc, std::vector<mx::NodePtr>& lights);

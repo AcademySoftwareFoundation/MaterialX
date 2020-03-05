@@ -68,32 +68,29 @@ template <> Matrix33 MatrixN<Matrix33, float, 3>::getAdjugate() const
         _arr[0][0]*_arr[1][1] - _arr[1][0]*_arr[0][1]);
 }
 
-Vector3 Matrix33::multiply(const Vector3& rhs) const
+Vector3 Matrix33::multiply(const Vector3& v) const
 {
     return Vector3(
-      _arr[0][0] * rhs[0] + _arr[0][1] * rhs[1] + _arr[0][2] * rhs[2],
-      _arr[1][0] * rhs[0] + _arr[1][1] * rhs[1] + _arr[1][2] * rhs[2],
-      _arr[2][0] * rhs[0] + _arr[2][1] * rhs[1] + _arr[2][2] * rhs[2]
-    );
+      v[0]*_arr[0][0] + v[1]*_arr[1][0] + v[2]*_arr[2][0],
+      v[0]*_arr[0][1] + v[1]*_arr[1][1] + v[2]*_arr[2][1],
+      v[0]*_arr[0][2] + v[1]*_arr[1][2] + v[2]*_arr[2][2]);
 }
 
-Vector2 Matrix33::transformPoint(const Vector2& rhs) const
+Vector2 Matrix33::transformPoint(const Vector2& v) const
 {
-    Vector3 rhs3(rhs[0], rhs[1], 1.0f);
-    rhs3 = multiply(rhs3);
-    return Vector2(rhs3[0], rhs3[1]);
+    Vector3 res = multiply(Vector3(v[0], v[1], 1.0f));
+    return Vector2(res[0], res[1]);
 }
 
-Vector2 Matrix33::transformVector(const Vector2& rhs) const
+Vector2 Matrix33::transformVector(const Vector2& v) const
 {
-    Vector3 rhs3(rhs[0], rhs[1], 0.0f);
-    rhs3 = multiply(rhs3);
-    return Vector2(rhs3[0], rhs3[1]);
+    Vector3 res = multiply(Vector3(v[0], v[1], 0.0f));
+    return Vector2(res[0], res[1]);
 }
 
-Vector3 Matrix33::transformNormal(const Vector3& rhs) const
+Vector3 Matrix33::transformNormal(const Vector3& v) const
 {
-    return getInverse().getTranspose().multiply(rhs);
+    return getInverse().getTranspose().multiply(v);
 }
 
 Matrix33 Matrix33::createTranslation(const Vector2& v)
@@ -112,11 +109,11 @@ Matrix33 Matrix33::createScale(const Vector2& v)
 
 Matrix33 Matrix33::createRotation(float angle)
 {
-    float sine = std::sin(angle);
-    float cosine = std::cos(angle);
+    float sin = std::sin(angle);
+    float cos = std::cos(angle);
 
-    return Matrix33(cosine, -sine, 0.0f,
-                    sine, cosine, 0.0f,
+    return Matrix33( cos,  sin, 0.0f,
+                    -sin,  cos, 0.0f,
                     0.0f, 0.0f, 1.0f);
 }
 
@@ -196,36 +193,30 @@ template <> Matrix44 MatrixN<Matrix44, float, 4>::getAdjugate() const
         _arr[0][0]*_arr[2][1]*_arr[1][2] - _arr[1][0]*_arr[0][1]*_arr[2][2] - _arr[2][0]*_arr[1][1]*_arr[0][2]);
 }
 
-
-Vector4 Matrix44::multiply(const Vector4& rhs) const
+Vector4 Matrix44::multiply(const Vector4& v) const
 {
     return Vector4(
-      _arr[0][0] * rhs[0] + _arr[0][1] * rhs[1] + _arr[0][2] * rhs[2] + _arr[0][3] * rhs[3],
-      _arr[1][0] * rhs[0] + _arr[1][1] * rhs[1] + _arr[1][2] * rhs[2] + _arr[1][3] * rhs[3],
-      _arr[2][0] * rhs[0] + _arr[2][1] * rhs[1] + _arr[2][2] * rhs[2] + _arr[2][3] * rhs[3],
-      _arr[3][0] * rhs[0] + _arr[3][1] * rhs[1] + _arr[3][2] * rhs[2] + _arr[3][3] * rhs[3]
-    );
+      v[0]*_arr[0][0] + v[1]*_arr[1][0] + v[2]*_arr[2][0] + v[3]*_arr[3][0],
+      v[0]*_arr[0][1] + v[1]*_arr[1][1] + v[2]*_arr[2][1] + v[3]*_arr[3][1],
+      v[0]*_arr[0][2] + v[1]*_arr[1][2] + v[2]*_arr[2][2] + v[3]*_arr[3][2],
+      v[0]*_arr[0][3] + v[1]*_arr[1][3] + v[2]*_arr[2][3] + v[3]*_arr[3][3]);
 }
 
-Vector3 Matrix44::transformPoint(const Vector3& rhs) const
+Vector3 Matrix44::transformPoint(const Vector3& v) const
 {
-    Vector4 rhs4(rhs[0], rhs[1], rhs[2], 1.0f);
-    rhs4 = multiply(rhs4);
-    return Vector3(rhs4[0], rhs4[1], rhs4[2]);
+    Vector4 res = multiply(Vector4(v[0], v[1], v[2], 1.0f));
+    return Vector3(res[0], res[1], res[2]);
 }
 
-Vector3 Matrix44::transformVector(const Vector3& rhs) const
+Vector3 Matrix44::transformVector(const Vector3& v) const
 {
-    Vector4 rhs4(rhs[0], rhs[1], rhs[2], 0.0f);
-    rhs4 = multiply(rhs4);
-    return Vector3(rhs4[0], rhs4[1], rhs4[2]);
+    Vector4 res = multiply(Vector4(v[0], v[1], v[2], 0.0f));
+    return Vector3(res[0], res[1], res[2]);
 }
 
-Vector3 Matrix44::transformNormal(const Vector3& rhs) const
+Vector3 Matrix44::transformNormal(const Vector3& v) const
 {
-    Vector4 rhs4(rhs[0], rhs[1], rhs[2], 0.0f);
-    rhs4 = getInverse().getTranspose().multiply(rhs4);
-    return Vector3(rhs4[0], rhs4[1], rhs4[2]);
+    return getInverse().getTranspose().transformVector(v);
 }
 
 Matrix44 Matrix44::createTranslation(const Vector3& v)
@@ -246,33 +237,33 @@ Matrix44 Matrix44::createScale(const Vector3& v)
 
 Matrix44 Matrix44::createRotationX(float angle)
 {
-    float sine = std::sin(angle);
-    float cosine = std::cos(angle);
+    float sin = std::sin(angle);
+    float cos = std::cos(angle);
 
     return Matrix44(1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, cosine, -sine, 0.0f,
-                    0.0f, sine, cosine, 0.0f,
+                    0.0f,  cos,  sin, 0.0f,
+                    0.0f, -sin,  cos, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix44 Matrix44::createRotationY(float angle)
 {
-    float sine = std::sin(angle);
-    float cosine = std::cos(angle);
+    float sin = std::sin(angle);
+    float cos = std::cos(angle);
 
-    return Matrix44(cosine, 0.0f, sine, 0.0f,
+    return Matrix44( cos, 0.0f, -sin, 0.0f,
                     0.0f, 1.0f, 0.0f, 0.0f,
-                    -sine, 0.0f, cosine, 0.0f,
+                     sin, 0.0f,  cos, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix44 Matrix44::createRotationZ(float angle)
 {
-    float sine = std::sin(angle);
-    float cosine = std::cos(angle);
+    float sin = std::sin(angle);
+    float cos = std::cos(angle);
 
-    return Matrix44(cosine, -sine, 0.0f, 0.0f,
-                    sine, cosine, 0.0f, 0.0f,
+    return Matrix44( cos,  sin, 0.0f, 0.0f,
+                    -sin,  cos, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f);
 }

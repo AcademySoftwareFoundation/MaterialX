@@ -40,7 +40,7 @@ double imageYToTheta(unsigned int y, unsigned int height)
 Vector3d sphericalToCartesian(double theta, double phi)
 {
     double r = std::sin(theta);
-    return Vector3d(r * std::cos(phi), r * std::sin(phi), std::cos(theta));
+    return Vector3d(-r * std::sin(phi), -std::cos(theta), r * std::cos(phi));
 }
 
 double texelSolidAngle(unsigned int y, unsigned int width, unsigned int height)
@@ -136,6 +136,63 @@ Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance)
     return shEnv;
 }
 
+ImagePtr normalizeEnvironment(ConstImagePtr env, float envRadiance, float maxTexelRadiance)
+{
+    // Compute the radiance of the original environment map.
+    double origEnvRadiance = 0.0;
+    for (unsigned int y = 0; y < env->getHeight(); y++)
+    {
+        double texelWeight = texelSolidAngle(y, env->getWidth(), env->getHeight());
+
+        for (unsigned int x = 0; x < env->getWidth(); x++)
+        {
+            // Sample the color at these coordinates.
+            Color4 color = env->getTexelColor(x, y);
+
+            // Apply maximum texel radiance.
+            double texelRadiance = Color3d(color[0], color[1], color[2]).dot(LUMA_COEFFS_REC709);
+            if ((float) texelRadiance > maxTexelRadiance)
+            {
+                color *= maxTexelRadiance / (float) texelRadiance;
+            }
+
+            // Combine color with texel weight.
+            Color3d weightedColor(color[0] * texelWeight,
+                                  color[1] * texelWeight,
+                                  color[2] * texelWeight);
+
+            // Add to environment radiance.
+            double texelContribution = weightedColor.dot(LUMA_COEFFS_REC709);
+            origEnvRadiance += texelContribution;
+        }
+    }
+
+    // Generate the normalized map.
+    ImagePtr normEnv = Image::create(env->getWidth(), env->getHeight(), env->getChannelCount(), env->getBaseType());
+    normEnv->createResourceBuffer();
+    float envNormFactor = origEnvRadiance ? (float) (envRadiance / origEnvRadiance) : 1.0f;
+    for (unsigned int y = 0; y < env->getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < env->getWidth(); x++)
+        {
+            // Sample the color at these coordinates.
+            Color4 color = env->getTexelColor(x, y);
+
+            // Apply maximum texel radiance.
+            double texelRadiance = Color3d(color[0], color[1], color[2]).dot(LUMA_COEFFS_REC709);
+            if ((float) texelRadiance > maxTexelRadiance)
+            {
+                color *= maxTexelRadiance / (float) texelRadiance;
+            }
+
+            // Store the normalized color.
+            normEnv->setTexelColor(x, y, color * envNormFactor);
+        }
+    }
+
+    return normEnv;
+}
+
 void computeDominantLight(ConstImagePtr env, Vector3& lightDir, Color3& lightColor)
 {
     // Reference:
@@ -165,10 +222,6 @@ void computeDominantLight(ConstImagePtr env, Vector3& lightDir, Color3& lightCol
     // Convert to single-precision floats.
     lightDir = Vector3((float) dir[0], (float) dir[1], (float) dir[2]);
     lightColor = Color3((float) color[0], (float) color[1], (float) color[2]);
-
-    // Transform to match library conventions for latitude-longitude maps.
-    lightDir = Matrix44::createRotationY((float) PI / 2.0f).transformVector(lightDir);
-    lightDir = Matrix44::createScale(Vector3(1, 1, -1)).transformVector(lightDir);
 }
 
 ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsigned int height)
