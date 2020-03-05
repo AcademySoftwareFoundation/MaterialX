@@ -41,9 +41,10 @@ class RtReadOptions
     /// Read look information
     bool readLookInformation;
 
-    ///
+    /// The desired major version
     unsigned int desiredMajorVersion;
 
+    /// The desired minor version
     unsigned int desiredMinorVersion;
 };
     
@@ -55,12 +56,7 @@ class RtWriteOptions
     using WriteFilter = std::function<bool(const RtObject& obj)>;
 
   public:
-     RtWriteOptions() :
-          writeIncludes(true),
-          writeFilter(nullptr),
-          materialWriteOp(NONE)
-    {
-    }
+    RtWriteOptions();
     ~RtWriteOptions() { }
 
     /// If true, elements with source file markings will be written as
@@ -91,6 +87,12 @@ class RtWriteOptions
                           WRITE_LOOKS                    = 1 << 2 };
 
     int materialWriteOp;
+
+    /// The desired major version
+    unsigned int desiredMajorVersion;
+
+    /// The desired minor version
+    unsigned int desiredMinorVersion;
 };
 
 /// API for read and write of data from MaterialX files

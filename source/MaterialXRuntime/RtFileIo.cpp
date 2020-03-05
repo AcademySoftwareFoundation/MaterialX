@@ -1062,6 +1062,15 @@ RtReadOptions::RtReadOptions() :
 {
 }
 
+RtWriteOptions::RtWriteOptions() :
+    writeIncludes(true),
+    writeFilter(nullptr),
+    materialWriteOp(NONE),
+    desiredMajorVersion(MATERIALX_MAJOR_VERSION),
+    desiredMinorVersion(MATERIALX_MINOR_VERSION + 1)
+{
+}
+
 void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPaths, const RtReadOptions* readOptions)
 {
     try
@@ -1171,6 +1180,7 @@ void RtFileIo::write(const FilePath& documentPath, const RtWriteOptions* options
     if (options)
     {
         xmlWriteOptions.writeXIncludeEnable = options->writeIncludes;
+        document->setVersionString(makeVersionString(options->desiredMajorVersion, options->desiredMinorVersion));
     }
     writeToXmlFile(document, documentPath, &xmlWriteOptions);
 }
@@ -1186,6 +1196,7 @@ void RtFileIo::write(std::ostream& stream, const RtWriteOptions* options)
     if (options)
     {
         xmlWriteOptions.writeXIncludeEnable = options->writeIncludes;
+        document->setVersionString(makeVersionString(options->desiredMajorVersion, options->desiredMinorVersion));
     }
     writeToXmlStream(document, stream, &xmlWriteOptions);
 }
