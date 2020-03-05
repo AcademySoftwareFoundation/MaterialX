@@ -1438,6 +1438,162 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     REQUIRE(lookgroup2.getActiveLook().getValueString() == "child_lookgroup");
 }
 
+TEST_CASE("Runtime: FileIo downgrade", "[runtime]")
+{
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    {
+        mx::RtScopedApiHandle api;
+
+        // Load in stdlib
+        api->setSearchPath(searchPath);
+        api->loadLibrary(STDLIB);
+        api->loadLibrary(PBRLIB);
+        api->loadLibrary(BXDFLIB);
+
+        // Create a stage.
+        mx::RtStagePtr stage = api->createStage(MAIN);
+
+        // Create a new graph
+        mx::RtLook lk1 = stage->createPrim("lk1", mx::RtLook::typeName());
+
+        mx::RtPrim materialassign1 = stage->createPrim("ma1", mx::RtMaterialAssign::typeName());
+        mx::RtMaterialAssign ma1(materialassign1);
+        lk1.addMaterialAssign(materialassign1);
+
+        ma1.getCollection().addTarget(stage->createPrim("co1", mx::RtCollection::typeName()));
+        const mx::RtToken smName("ND_surfacematerial");
+        const mx::RtToken smSurface("surfaceshader");
+        mx::RtPrim sm1 = stage->createPrim(mx::RtPath("/sm1"), smName);
+        ma1.getMaterial().addTarget(sm1);
+
+        const mx::RtToken ssName("ND_standard_surface_surfaceshader");
+        mx::RtPrim ss1 = stage->createPrim(mx::RtPath("/ss1"), ssName);
+        ss1.getOutput(OUT).connect(sm1.getInput(smSurface));
+        const mx::RtToken ssBase("base");
+        const mx::RtToken ssEmission("emission");
+        const mx::RtToken ssBaseColor("base_color");
+        const mx::RtToken ssSheenColor("sheen_color");
+        const mx::RtToken ssCoatColor("coat_color");
+        const mx::RtToken ssEmissionColor("emission_color");
+
+        ss1.getAttribute(ssBase).getValue().asFloat() = 0.5;
+        ss1.getAttribute(ssEmission).getValue().asFloat() = 0.5;
+
+        // Create a node and connect it twice to the Standard Surface.
+        mx::RtNode ml1 = stage->createPrim("ml1", mx::RtToken("ND_multiply_color3"));
+        mx::RtOutput ml1Out = ml1.getOutput(OUT);
+        ml1Out.connect(ss1.getInput(ssBaseColor));
+        ml1Out.connect(ss1.getInput(ssEmissionColor));
+
+        // Create an empty nodegraph and connect it twice to the Standard Surface
+        mx::RtNodeGraph ng1 = stage->createPrim("ng1", mx::RtNodeGraph::typeName());
+        mx::RtOutput ng1Out = ng1.createOutput(OUT, mx::RtType::COLOR3);
+        ng1Out.connect(ss1.getInput(ssSheenColor));
+        ng1Out.connect(ss1.getInput(ssCoatColor));
+
+        // Save and downgrade to v1.37:
+        mx::RtFileIo stageIo(stage);
+        mx::RtWriteOptions wops;
+        wops.writeIncludes = false;
+        wops.materialWriteOp =
+            mx::RtWriteOptions::MaterialWriteOp::WRITE_MATERIALS_AS_ELEMENTS |
+            mx::RtWriteOptions::MaterialWriteOp::WRITE_LOOKS;
+
+        std::stringstream stream;
+        stageIo.write(stream, &wops);
+
+        // What are we looking for:
+        //
+        // The 1.37 syntax for <bindinput> elements allows two and only two
+        // combinations:
+        //
+        //  <bindinput nodegraph="foo" [output="bar"] />
+        //     for connecting to the output of a nodegraph and
+        //  <bindinput output="baz" />
+        //     for connecting to a raw <output> element.
+        //
+        // You will notice the absence of an option to connect to the output of
+        // a <node> element since there is no "nodename" attribute on a
+        // <bindinput>.
+        //
+        // So we expect the two connections to the freestanding <multiply> node to
+        // be done via an intermediate <output> element added to the graph,
+        // while the connection to the "ng1" <nodegraph> should be done natively.
+        //
+        // <?xml version="1.0"?>
+        // <materialx version="1.37">
+        //   <multiply name="ml1" type="color3" />
+        //   <nodegraph name="ng1">
+        //     <output name="out" type="color3" />
+        //   </nodegraph>
+        //   <collection name="co1" excludegeom="" includegeom="" includecollection="" />
+        //   <look name="lk1" inherit="">
+        //     <materialassign name="ma1" exclusive="true" collection="co1" material="sm1" geom="" />
+        //   </look>
+        //   <material name="sm1">
+        //     <shaderref name="ss1" node="standard_surface">
+        //       <bindinput name="base" type="float" value="0.5" />
+        //       <bindinput name="base_color" type="color3" output="OUT_ml1_out" />
+        //       <bindinput name="sheen_color" type="color3" nodegraph="ng1" output="out" />
+        //       <bindinput name="coat_color" type="color3" nodegraph="ng1" output="out" />
+        //       <bindinput name="emission" type="float" value="0.5" />
+        //       <bindinput name="emission_color" type="color3" output="OUT_ml1_out" />
+        //     </shaderref>
+        //   </material>
+        //   <output name="OUT_ml1_out" type="color3" nodename="ml1" output="out" />
+        // </materialx>
+        mx::DocumentPtr doc = mx::createDocument();
+        mx::XmlReadOptions readOptions;
+        // Last version with material and shaderref:
+        readOptions.desiredMajorVersion = 1;
+        readOptions.desiredMinorVersion = 37;
+        mx::readFromXmlString(doc, stream.str(), &readOptions);
+
+        auto xmlMat = doc->getMaterial("sm1");
+        REQUIRE(xmlMat);
+
+        auto xmlSR = xmlMat->getShaderRef("ss1");
+        REQUIRE(xmlSR);
+
+        auto xmlBI = xmlSR->getBindInput(ssBase);
+        REQUIRE(xmlBI);
+        REQUIRE(xmlBI->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) == "0.5");
+        REQUIRE(!xmlBI->hasAttribute(mx::PortElement::NODE_GRAPH_ATTRIBUTE));
+        REQUIRE(!xmlBI->hasAttribute(mx::PortElement::OUTPUT_ATTRIBUTE));
+
+        xmlBI = xmlSR->getBindInput(ssEmission);
+        REQUIRE(xmlBI);
+        REQUIRE(xmlBI->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) == "0.5");
+        REQUIRE(!xmlBI->hasAttribute(mx::PortElement::NODE_GRAPH_ATTRIBUTE));
+        REQUIRE(!xmlBI->hasAttribute(mx::PortElement::OUTPUT_ATTRIBUTE));
+
+        xmlBI = xmlSR->getBindInput(ssBaseColor);
+        REQUIRE(xmlBI);
+        REQUIRE(!xmlBI->hasAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
+        REQUIRE(!xmlBI->hasAttribute(mx::PortElement::NODE_GRAPH_ATTRIBUTE));
+        auto const& outputName = xmlBI->getAttribute(mx::PortElement::OUTPUT_ATTRIBUTE);
+        auto xmlOUT = doc->getOutput(outputName);
+        REQUIRE(xmlOUT);
+        REQUIRE(xmlOUT->getAttribute(mx::PortElement::NODE_NAME_ATTRIBUTE) == "ml1");
+
+        xmlBI = xmlSR->getBindInput(ssEmissionColor);
+        REQUIRE(xmlBI);
+        REQUIRE(!xmlBI->hasAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
+        REQUIRE(!xmlBI->hasAttribute(mx::PortElement::NODE_GRAPH_ATTRIBUTE));
+        REQUIRE(xmlBI->getAttribute(mx::PortElement::OUTPUT_ATTRIBUTE) == outputName);
+
+        xmlBI = xmlSR->getBindInput(ssSheenColor);
+        REQUIRE(xmlBI);
+        REQUIRE(!xmlBI->hasAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
+        REQUIRE(xmlBI->getAttribute(mx::PortElement::NODE_GRAPH_ATTRIBUTE) == "ng1");
+
+        xmlBI = xmlSR->getBindInput(ssCoatColor);
+        REQUIRE(xmlBI);
+        REQUIRE(!xmlBI->hasAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
+        REQUIRE(xmlBI->getAttribute(mx::PortElement::NODE_GRAPH_ATTRIBUTE) == "ng1");
+    }
+}
+
 mx::RtToken toTestResolver(const mx::RtToken& str, const mx::RtToken& type)
 {
     mx::StringResolverPtr resolver = mx::StringResolver::create();

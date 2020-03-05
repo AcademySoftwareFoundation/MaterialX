@@ -37,6 +37,7 @@ namespace
     static const RtTokenSet stageMetadata       = {};
 
     static const RtToken DEFAULT_OUTPUT("out");
+    static const RtToken OUTPUT_ELEMENT_PREFIX("OUT_");
     static const RtToken MULTIOUTPUT("multioutput");
 
     PvtPrim* findPrimOrThrow(const RtToken& name, PvtPrim* parent)
@@ -779,12 +780,24 @@ namespace
             for (InputPtr input : surfaceShader->getActiveInputs())
             {
                 BindInputPtr bindInput = shaderRef->addBindInput(input->getName(), input->getType());
-                if (input->hasNodeName())
+                if (input->hasNodeName() && input->hasOutputString())
                 {
-                    if (input->hasOutputString())
+                    if (doc->getNodeGraph(input->getNodeName()))
                     {
                         bindInput->setNodeGraphString(input->getNodeName());
                         bindInput->setOutputString(input->getOutputString());
+                    }
+                    else
+                    {
+                        const auto outputName = std::string(OUTPUT_ELEMENT_PREFIX.c_str()) +
+                                                input->getNodeName() + "_" + 
+                                                input->getOutputString();
+                        if (!doc->getOutput(outputName)) {
+                            auto output = doc->addOutput(outputName, input->getType());
+                            output->setNodeName(input->getNodeName());
+                            output->setOutputString(input->getOutputString());
+                        }
+                        bindInput->setOutputString(outputName);
                     }
                 }
                 else
@@ -990,6 +1003,7 @@ namespace
         }
 
         RtWriteOptions::WriteFilter filter = writeOptions ? writeOptions->writeFilter : nullptr;
+        std::vector<NodePtr> materialElements;
         for (RtPrim child : stage->getRootPrim()->getChildren(filter))
         {
             const PvtPrim* prim = PvtObject::ptr<PvtPrim>(child);
@@ -1006,7 +1020,7 @@ namespace
                 if (output && output.getType() == MATERIAL_TYPE_STRING && writeOptions &&
                     writeOptions->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE_MATERIALS_AS_ELEMENTS)
                 {
-                    writeMaterialElement(mxNode, doc, writeOptions);
+                    materialElements.push_back(mxNode);
                 }
             }
             else if (typeName == RtNodeGraph::typeName())
@@ -1030,6 +1044,10 @@ namespace
             writeCollections(stage, *doc, filter);
             writeLooks(stage, *doc, filter);
             writeLookGroups(stage, *doc, filter);
+        }
+
+        for (auto & mxNode: materialElements) {
+            writeMaterialElement(mxNode, doc, writeOptions);
         }
     }
 
