@@ -791,7 +791,7 @@ namespace
                         if (!doc->getOutput(outputName)) {
                             auto output = doc->addOutput(outputName, input->getType());
                             output->setNodeName(input->getNodeName());
-                            output->setAttribute("output", input->getOutputString());
+                            output->setOutputString(input->getOutputString());
                         }
                         bindInput->setOutputString(outputName);
                     }

@@ -1458,7 +1458,7 @@ TEST_CASE("Runtime: FileIo downgrade", "[runtime]")
         ng1Out.connect(ss1.getInput(ssSheenColor));
         ng1Out.connect(ss1.getInput(ssCoatColor));
 
-        // Save using the latest version:
+        // Save and downgrade to v1.37:
         mx::RtFileIo stageIo(stage);
         mx::RtWriteOptions wops;
         wops.writeIncludes = false;
