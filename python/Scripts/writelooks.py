@@ -150,6 +150,13 @@ def main():
     va.setCollection(csetgeom)
     va.setVisible(0)
 
+    #
+    # Lookgroups
+    #
+    lookgrp = doc.addLookGroup("testlooks")
+    looks = "%s,%s" % (lookA.getName(), lookB.getName())
+    lookgrp.setLooks(looks)
+
     # Validate the doc just to be sure
     rc = doc.validate()
     if (len(rc) >= 1 and rc[0]):

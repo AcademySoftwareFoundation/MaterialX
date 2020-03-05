@@ -82,6 +82,7 @@ def main():
 	nodegraphs = doc.getNodeGraphs()
 	materials = doc.getMaterials()
 	looks = doc.getLooks()
+	lookgroups = doc.getLookGroups()
 	collections = doc.getCollections()
 	nodedefs = doc.getNodeDefs()
 	implementations = doc.getImplementations()
@@ -94,6 +95,7 @@ def main():
 	typedefs = doc.getTypeDefs()
 	propsets = doc.getPropertySets()
 	variantsets = doc.getVariantSets()
+	backdrops = doc.getBackdrops()
 	vv = (verbose>1)
 
 	print "Document MaterialX Version: {}.{:02d}".format(*doc.getVersionIntegers())
@@ -102,6 +104,7 @@ def main():
 	print "Document CMS: %s  (config file: %s)" % (clrmgmtsys, clrmgmtconfig)
 
 	print "%4d Custom Type%s%s" % (len(typedefs), pl(typedefs), listContents(typedefs,resolve,vv))
+	print "%4d Custom GeomProp%s%s" % (len(geompropdefs), pl(geompropdefs), listContents(geompropdefs,resolve,vv))
 	print "%4d NodeDef%s%s" % (len(nodedefs), pl(nodedefs), listContents(nodedefs,resolve,vv))
 	print "%4d Implementation%s%s" % (len(implementations), pl(implementations), listContents(implementations,resolve,vv))
 	print "%4d Nodegraph%s%s" % (len(nodegraphs), pl(nodegraphs), listContents(nodegraphs,resolve,vv))
@@ -109,9 +112,10 @@ def main():
 	print "%4d Material%s%s" % (len(materials), pl(materials), listContents(materials,resolve,vv))
 	print "%4d Collection%s%s" % (len(collections), pl(collections), listContents(collections,resolve,vv))
 	print "%4d GeomInfo%s%s" % (len(geominfos), pl(geominfos), listContents(geominfos,resolve,vv))
-	print "%4d Custom GeomProp%s%s" % (len(geompropdefs), pl(geompropdefs), listContents(geompropdefs,resolve,vv))
 	print "%4d PropertySet%s%s" % (len(propsets), pl(propsets), listContents(propsets,resolve,vv))
 	print "%4d Look%s%s" % (len(looks), pl(looks), listContents(looks,resolve,vv))
+	print "%4d LookGroup%s%s" % (len(lookgroups), pl(lookgroups), listContents(lookgroups,resolve,vv))
+	print "%4d Top-level backdrop%s%s" % (len(backdrops), pl(backdrops), listContents(backdrops,resolve,vv))
 
 
 def pl(elem):
@@ -154,9 +158,19 @@ def listContents(elemlist, resolve, vv):
 		impl = "%s [%s]" % (impl, elem.getFile())
 	    names.append(impl)
 
+	elif elem.getCategory() == "backdrop":
+	    names.append('%s: contains "%s"' % (elem.getName(),elem.getContains()))
+
 	elif elem.getCategory() == "nodegraph":
 	    nchildnodes = len(elem.getChildren()) - elem.getOutputCount()
+	    backdrops = elem.getBackdrops()
+	    nbackdrops = len(backdrops)
 	    outs = ""
+	    if nbackdrops > 0:
+		for bd in backdrops:
+		    outs = outs + '\n\t    backdrop "%s"' % (bd.getName())
+		    if vv:
+			outs = outs + ' contains "%s"' % bd.getContains()
 	    if elem.getOutputCount() > 0:
 		for ot in elem.getOutputs():
 		    outs = outs + '\n\t    %s output "%s"' % (ot.getType(), ot.getName())
@@ -166,7 +180,7 @@ def listContents(elemlist, resolve, vv):
 	    if nd:
 		names.append('%s (implementation for nodedef "%s"): %d nodes%s' % (elem.getName(), nd.getName(), nchildnodes, outs))
 	    else:
-		names.append("%s: %d nodes%s" % (elem.getName(), nchildnodes, outs))
+		names.append("%s: %d nodes, %d backdrop%s%s" % (elem.getName(), nchildnodes, nbackdrops,pl(backdrops), outs))
 
 	elif elem.getCategory() == "material":
 	    shaders = []
@@ -208,14 +222,26 @@ def listContents(elemlist, resolve, vv):
 		    names.append(listSrefBindings(i[0], i[1], i[2]))
 
 	elif elem.getCategory() == "geominfo":
-	    props = elem.getGeomProps()
-	    if props:
-		propnames = " (Geomprops: " + string.join(map(lambda x: x.getName(), props), ", ") + ")"
+	    #For 1.37, geomattr->geomprop
+	    (mxmajorv, mxminorv, mxbuildv) = mx.getVersionIntegers()
+	    if (mxminorv <= 36):
+		props = elem.getGeomAttrs()
+		if props:
+		    propnames = " (Geomattrs: " + string.join(map(lambda x: x.getName(), props), ", ") + ")"
+		else:
+		    propnames = ""
 	    else:
-		propnames = ""
+		props = elem.getGeomProps()
+		if props:
+		    #getConvertedValue() handles unit conversion if needed
+		    propnames = " (Geomprops: " + string.join(map(lambda x: "%s=%s"%(x.getName(),getConvertedValue(x)), props), ", ") + ")"
+		    #propnames = " (Geomprops: " + string.join(map(lambda x: "%s=%s"%(x.getName(),x.getResolvedValue().toValueString()), props), ", ") + ")"
+		else:
+		    propnames = ""
 	    tokens = elem.getTokens()
 	    if tokens:
-		tokennames = " (Tokens: " + string.join(map(lambda x: x.getName(), tokens), ", ") + ")"
+		#tokennames = " (Tokens: " + string.join(map(lambda x: x.getName(), tokens), ", ") + ")"
+		tokennames = " (Tokens: " + string.join(map(lambda x: "%s=%s"%(x.getName(),x.getValueString()), tokens), ", ") + ")"
 	    else:
 		tokennames = ""
 	    names.append("%s%s%s" % (elem.getName(), propnames, tokennames))
@@ -235,6 +261,13 @@ def listContents(elemlist, resolve, vv):
 	    else:
 		propnames = ""
 	    names.append("%s%s" % (elem.getName(), propnames))
+
+	elif elem.getCategory() == "lookgroup":
+	    lks = elem.getLooks()
+	    if lks:
+		names.append("%s (looks: %s)" % (elem.getName(), lks))
+	    else:
+		names.append("%s (no looks)" % (elem.getName()))
 
 	elif elem.getCategory() == "look":
 	    mas = ""
@@ -298,12 +331,12 @@ def listSrefBindings(nodetype, node, sref):
 	    else:
 		s = s + '\n\t    %s input "%s" -> output "%s"' % (btype, bname, outname)
 	else:
-	    bval = inp.getValueString()
+	    bval = getConvertedValue(inp)
 	    s = s + '\n\t    %s input "%s" = %s' % (btype, bname, bval)
     for parm in sref.getBindParams():
 	bname = parm.getName()
 	btype = parm.getType()
-	bval  = parm.getValueString()
+	bval  = getConvertedValue(parm)
 	s = s + '\n\t    %s parameter "%s" = %s' % (btype, bname, bval)
     for tok in sref.getBindTokens():
 	bname = tok.getName()
@@ -340,23 +373,55 @@ def traverseInputs(node, port, depth):
 	parent = node.getConnectedNode()
 	s = s + traverseInputs(parent, "", depth+1)
     else:
-	s = s + '%s%s->%s %s "%s"' % (spc(depth), port, node.getType(), node.getCategory(), node.getName())
+	s = s + '%s%s -> %s %s "%s"' % (spc(depth), port, node.getType(), node.getCategory(), node.getName())
 	ins = node.getActiveInputs()
 	for i in ins:
 	    if i.hasInterfaceName():
 		intname = i.getInterfaceName()
-		s = s + '%s%s->%s interface "%s"' % (spc(depth+1), i.getName(), i.getType(), intname)
+		s = s + '%s%s ^- %s interface "%s"' % (spc(depth+1), i.getName(), i.getType(), intname)
 	    elif i.hasValueString():
-		val = i.getValueString()
-		s = s + '%s%s->%s value "%s"' % (spc(depth+1), i.getName(), i.getType(), val)
+		val = getConvertedValue(i)
+		s = s + '%s%s = %s value %s' % (spc(depth+1), i.getName(), i.getType(), val)
 	    else:
 		parent = i.getConnectedNode()
 		if parent:
 		    s = s + traverseInputs(parent, i.getName(), depth+1)
+	parms = node.getActiveParameters()
+	for i in parms:
+	    if i.hasInterfaceName():
+		intname = i.getInterfaceName()
+		s = s + '%s[P]%s ^- %s interface "%s"' % (spc(depth+1), i.getName(), i.getType(), intname)
+	    elif i.hasValueString():
+		val = getConvertedValue(i)
+		s = s + '%s[P]%s = %s value %s' % (spc(depth+1), i.getName(), i.getType(), val)
+	    else:
+		s = s + '%s[P]%s error: no valueString' % (spc(depth+1), i.getName())
+	toks = node.getActiveTokens()
+	for i in toks:
+	    if i.hasInterfaceName():
+		intname = i.getInterfaceName()
+		s = s + '%s[T]%s ^- %s interface "%s"' % (spc(depth+1), i.getName(), i.getType(), intname)
+	    elif i.hasValueString():
+		val = i.getValueString()
+		s = s + '%s[T]%s = %s value "%s"' % (spc(depth+1), i.getName(), i.getType(), val)
+	    else:
+		s = s + '%s[T]%s error: no valueString' % (spc(depth+1), i.getName())
     return s
 
 def spc(depth):
     return "\n\t    " + ": "*depth
+
+# Return a value string for the element, converting units if appropriate
+def getConvertedValue(elem):
+    if elem.getType() in ["float","vector2","vector3","vector4"]:
+	if elem.hasUnit():
+	    u = elem.getUnit()
+	    print "[Unit for %s is %s]" % (elem.getName(), u)
+	    if elem.hasUnitType():
+		utype = elem.getUnitType()
+		print "[Unittype for %s is %s]" % (elem.getName(), utype)
+	    #NOTDONE...
+    return elem.getValueString()
 
 def getGeoms(elem, resolve):
     s = ""
