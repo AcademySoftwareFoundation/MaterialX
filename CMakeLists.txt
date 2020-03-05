@@ -35,24 +35,24 @@ mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 
-# Validation options for compiling and rendering generated shaders
-option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." OFF)
+# Render validation options
+option(MATERIALX_TEST_RENDER "Run rendering tests for the MaterialXRender module. GPU required for graphics validation." ON)
 mark_as_advanced(MATERIALX_TEST_RENDER)
+set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "For OSL validation, a full path to the oslc binary.")
+mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
+add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
+set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "For OSL validation, a full path to the testrender binary.")
+mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
+add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
+set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "For OSL validation, an additional set of search paths for shader includes.")
+mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
+add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
+
+# OpenImageIO options
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 mark_as_advanced(MATERIALX_OIIO_DIR)
-
-# Helpers for OSL validation
-set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
-mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
-add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
-set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
-mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
-add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
-set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.g. location of stdosl.h")
-mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
-add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
