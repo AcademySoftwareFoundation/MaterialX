@@ -925,10 +925,14 @@ namespace
                     {
                         massign->setExclusive(rtMatAssign.getExclusive().getValue().asBool());
                         auto iter = rtMatAssign.getCollection().getTargets();
-                        massign->setCollectionString((*iter).getName());
+                        if (!iter.isDone()) {
+                            massign->setCollectionString((*iter).getName());
+                        }
 
                         iter = rtMatAssign.getMaterial().getTargets();
-                        massign->setMaterial((*iter).getName());
+                        if (!iter.isDone()) {
+                            massign->setMaterial((*iter).getName());
+                        }
                         massign->setGeom(rtMatAssign.getGeom().getValueString());
                     }
                 }
