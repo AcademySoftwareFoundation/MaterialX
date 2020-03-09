@@ -21,7 +21,7 @@
 
   <nodegraph name="NG_NodeB" nodedef="ND_NodeB" fileprefix="resources/Images/">
     <tiledimage name="TI_diffColorEffect" type="color3">
-      <parameter name="file" type="filename" value="wood_base_color.jpg" />
+      <parameter name="file" type="filename" value="wood_color.jpg" />
     </tiledimage>
     <NodeA name="NodeA_instanceForNodeB" type="surfaceshader">
       <input name="diffColor" type="color3" nodename="TI_diffColorEffect"/>

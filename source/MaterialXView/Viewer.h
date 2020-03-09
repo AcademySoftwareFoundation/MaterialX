@@ -138,6 +138,7 @@ class Viewer : public ng::Screen
     float _viewAngle;
     float _nearDist;
     float _farDist;
+    float _cameraYaw;
 
     float _modelZoom;
     mx::Vector3 _modelTranslation;

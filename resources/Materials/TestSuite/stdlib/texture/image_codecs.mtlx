@@ -50,7 +50,7 @@
   </image>
   <output name="image4_output_wood_png" type="color4" nodename="image4_wood1" xpos="5.84828" ypos="-7.24" />
   <image name="image4_wood1" type="color4" xpos="6.4069" ypos="10.36">
-    <parameter name="file" type="filename" value="resources/Images/wood_base_color.png" />
+    <parameter name="file" type="filename" value="resources/Images/wood_color.jpg" />
     <parameter name="uaddressmode" type="string" value="constant" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
