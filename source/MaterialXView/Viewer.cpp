@@ -164,6 +164,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _viewAngle(45.0f),
     _nearDist(0.05f),
     _farDist(5000.0f),
+    _cameraYaw(0.0f),
     _modelZoom(1.0f),
     _userZoom(1.0f),
     _userTranslationActive(false),
@@ -1625,20 +1626,21 @@ void Viewer::updateViewHandlers()
     float fH = std::tan(_viewAngle / 360.0f * PI) * _nearDist;
     float fW = fH * (float) mSize.x() / (float) mSize.y();
 
+    mx::Matrix44 cameraYaw = mx::Matrix44::createRotationY(_cameraYaw / 360.0f * PI);
     ng::Matrix4f ngArcball = _arcball.matrix();
     mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
 
-    _cameraViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation + _userTranslation);
-    _cameraViewHandler->worldMatrix *= mx::Matrix44::createScale(mx::Vector3(_modelZoom * _userZoom));
-    _cameraViewHandler->viewMatrix = arcball * mx::ViewHandler::createViewMatrix(_eye, _center, _up);
+    _cameraViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation + _userTranslation) *
+                                      mx::Matrix44::createScale(mx::Vector3(_modelZoom * _userZoom));
+    _cameraViewHandler->viewMatrix = cameraYaw * arcball * mx::ViewHandler::createViewMatrix(_eye, _center, _up);
     _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
 
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
         const float r = MODEL_SPHERE_RADIUS;
-        _shadowViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation);
-        _shadowViewHandler->worldMatrix *= mx::Matrix44::createScale(mx::Vector3(_modelZoom));
+        _shadowViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation) *
+                                          mx::Matrix44::createScale(mx::Vector3(_modelZoom));
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
         mx::ValuePtr dir = dirLight->getInputValue("direction");
         if (dir->isA<mx::Vector3>())
