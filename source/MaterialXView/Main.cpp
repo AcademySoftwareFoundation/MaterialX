@@ -24,7 +24,7 @@ int main(int argc, char* const argv[])
     std::vector<std::string> tokens;
     for (int i = 1; i < argc; i++)
     {
-        tokens.push_back(std::string(argv[i]));
+        tokens.emplace_back(argv[i]);
     }
 
     mx::FilePathVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", 

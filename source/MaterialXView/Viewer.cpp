@@ -369,7 +369,7 @@ void Viewer::loadEnvironmentLight()
 
     // Look for an irradiance map using an expected filename convention.
     mx::ImagePtr envIrradianceMap;
-    if (!envIrradianceMap && !_normalizeEnvironment && !_splitDirectLight)
+    if (!_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadiancePath.getBaseName();
         envIrradianceMap = _imageHandler->acquireImage(_searchPath.find(envIrradiancePath), true, nullptr, &message);

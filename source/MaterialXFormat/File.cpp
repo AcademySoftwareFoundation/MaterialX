@@ -152,7 +152,7 @@ FilePathVec FilePath::getFilesInDirectory(const string& extension) const
         {
             if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
             {
-                files.push_back(FilePath(fd.cFileName));
+                files.emplace_back(fd.cFileName);
             }
         } while (FindNextFile(hFind, &fd));
         FindClose(hFind);
