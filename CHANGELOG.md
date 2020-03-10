@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.37.0] - Development
+## [1.37.0] - 2020-03-10
 
 Updated the MaterialX library to the v1.37 specification.  See the [v1.37 changelist](http://www.materialx.org/assets/MaterialX.v1.37REV2.Changelist.pdf) for full details.
 
@@ -16,7 +16,7 @@ Updated the MaterialX library to the v1.37 specification.  See the [v1.37 change
 - Replaced GeomAttr elements with GeomProp elements.
 - Replaced backdrop nodes with Backdrop elements.
 - Aligned Matrix33 and Matrix44 with the row-vector convention, for improved consistency with Imath, USD, and other libraries.
-- Updated the stb_image library to version 2.23
+- Updated the stb_image library to version 2.23.
 
 ## [1.36.5] - 2020-01-11
 
