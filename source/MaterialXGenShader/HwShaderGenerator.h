@@ -260,7 +260,7 @@ public:
     /// Add an extra argument to be used for functions in this context.
     void addArgument(const TypeDesc* type, const string& name)
     {
-        _arguments.push_back(Argument(type,name));
+        _arguments.emplace_back(type, name);
     }
 
     /// Return a list of extra argument to be used for functions in this context.
