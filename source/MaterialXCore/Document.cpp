@@ -924,7 +924,7 @@ bool Document::convertMaterialsToNodes(bool replaceNodes)
             // Should not occur as the shaderref is a uniquely named
             // child of a uniquely named material element, but the two combined
             // may have been used for another node instance which not a shader node.
-            string shaderNodeName = m->getName() + "_" + sr->getName();
+            string shaderNodeName = materialName + "_" + sr->getName();
             NodePtr existingShaderNode = getNode(shaderNodeName);
             if (existingShaderNode)
             {
