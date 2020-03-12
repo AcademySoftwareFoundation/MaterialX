@@ -553,6 +553,22 @@ namespace
         makeLookInheritConnections(doc->getLooks(), rootPrim);
     }
 
+    void validateNodesHaveNodedefs(DocumentPtr doc)
+    {
+        for (const ElementPtr& elem : doc->getChildren())
+        {
+            if (elem->isA<Node>())
+            {
+                NodePtr node = elem->asA<Node>();
+                const RtToken nodedefName = resolveNodeDefName(node);
+                if (nodedefName == EMPTY_TOKEN)
+                {
+                    throw ExceptionRuntimeError("No matching nodedef was found for node '" + node->getName() + "'");
+                }
+            }
+        }
+    }
+
     void readDocument(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions)
     {
         const string ROOT_PATH(PvtPath::ROOT_NAME);
@@ -578,6 +594,8 @@ namespace
                 }
             }
         }
+
+        validateNodesHaveNodedefs(doc);
 
         // Load all other elements.
         for (const ElementPtr& elem : doc->getChildren())
@@ -730,8 +748,29 @@ namespace
                             {
                                 RtPrim sourceNode = source.getParent();
                                 InputPtr inputElem = valueElem->asA<Input>();
-                                inputElem->setNodeName(sourceNode.getName());
-                                inputElem->setOutputString(source.getName());
+                                if (sourceNode.hasApi<RtNodeGraph>())
+                                {
+                                    inputElem->setNodeGraphName(
+                                        sourceNode.getName());
+                                    inputElem->setOutputString(
+                                        source.getName());
+                                }
+                                else
+                                {
+                                    inputElem->setNodeName(sourceNode.getName());
+                                    RtNode rtSourceNode(sourceNode);
+                                    int numSourceNodeOutputs = 0;
+                                    auto outputIter = rtSourceNode.getOutputs();
+                                    while (!outputIter.isDone())
+                                    {
+                                        numSourceNodeOutputs++;
+                                        ++outputIter;
+                                    }
+                                    if (numSourceNodeOutputs > 1)
+                                    {
+                                        inputElem->setOutputString(source.getName());
+                                    }
+                                }
                             }
                         }
                         else
@@ -780,25 +819,25 @@ namespace
             for (InputPtr input : surfaceShader->getActiveInputs())
             {
                 BindInputPtr bindInput = shaderRef->addBindInput(input->getName(), input->getType());
-                if (input->hasNodeName() && input->hasOutputString())
+                if (input->hasNodeGraphName() && input->hasOutputString() && doc->getNodeGraph(input->getNodeGraphName()))
                 {
-                    if (doc->getNodeGraph(input->getNodeName()))
-                    {
-                        bindInput->setNodeGraphString(input->getNodeName());
-                        bindInput->setOutputString(input->getOutputString());
-                    }
-                    else
-                    {
-                        const auto outputName = std::string(OUTPUT_ELEMENT_PREFIX.c_str()) +
-                                                input->getNodeName() + "_" + 
-                                                input->getOutputString();
-                        if (!doc->getOutput(outputName)) {
-                            auto output = doc->addOutput(outputName, input->getType());
-                            output->setNodeName(input->getNodeName());
+                    bindInput->setNodeGraphString(input->getNodeGraphName());
+                    bindInput->setOutputString(input->getOutputString());
+                }
+                else if(input->hasNodeName())
+                {
+                    const auto outputName = std::string(OUTPUT_ELEMENT_PREFIX.c_str()) +
+                                            input->getNodeName() + "_out";
+                    if (!doc->getOutput(outputName)) {
+                        auto output = doc->addOutput(outputName, input->getType());
+                        output->setNodeName(input->getNodeName());
+                        auto srcNode = input->getConnectedNode();
+                        if (srcNode->getOutputs().size() > 1)
+                        {
                             output->setOutputString(input->getOutputString());
                         }
-                        bindInput->setOutputString(outputName);
                     }
+                    bindInput->setOutputString(outputName);
                 }
                 else
                 {
@@ -856,7 +895,18 @@ namespace
                 {
                     RtPrim sourceNode = source.getParent();
                     output->setNodeName(sourceNode.getName());
-                    output->setOutputString(source.getName());
+                    RtNode rtSourceNode(sourceNode);
+                    int numSourceNodeOutputs = 0;
+                    auto outputIter = rtSourceNode.getOutputs();
+                    while (!outputIter.isDone())
+                    {
+                        numSourceNodeOutputs++;
+                        ++outputIter;
+                    }
+                    if (numSourceNodeOutputs > 1)
+                    {
+                        output->setOutputString(source.getName());
+                    }
                 }
             }
         }
@@ -906,7 +956,10 @@ namespace
                 LookPtr look = dest.addLook(name);
 
                 // Add inherit
-                look->setInheritString(rtLook.getInherit().getTargetsAsString());
+                if (!rtLook.getInherit().getTargetsAsString().empty())
+                {
+                    look->setInheritString(rtLook.getInherit().getTargetsAsString());
+                }
 
                 // Add in material assignments
                 for (const RtObject& obj : rtLook.getMaterialAssigns().getTargets())
@@ -1089,15 +1142,23 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
             xmlReadOptions.desiredMinorVersion = readOptions->desiredMinorVersion;
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
-
-        PvtStage* stage = PvtStage::ptr(_stage);
-        readDocument(document, stage, readOptions);
+        string errorMessage;
+        if (document->validate(&errorMessage))
+        {
+            PvtStage* stage = PvtStage::ptr(_stage);
+            readDocument(document, stage, readOptions);
+        }
+        else
+        {
+            throw ExceptionRuntimeError("Failed validation: " + errorMessage);
+        }
     }
     catch (Exception& e)
     {
         throw ExceptionRuntimeError("Could not read file: " + documentPath.asString() + ". Error: " + e.what());
     }
 }
+
 void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
 {
     try
@@ -1147,6 +1208,8 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
         }
     }
 
+    validateNodesHaveNodedefs(doc);
+
     // Second, load all other elements.
     for (const ElementPtr& elem : doc->getChildren())
     {
@@ -1186,6 +1249,10 @@ void RtFileIo::write(const FilePath& documentPath, const RtWriteOptions* options
         xmlWriteOptions.writeXIncludeEnable = options->writeIncludes;
         document->setVersionString(makeVersionString(options->desiredMajorVersion, options->desiredMinorVersion));
     }
+    else
+    {
+        document->setVersionString(makeVersionString(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION + 1));
+    }
     writeToXmlFile(document, documentPath, &xmlWriteOptions);
 }
 
@@ -1201,6 +1268,10 @@ void RtFileIo::write(std::ostream& stream, const RtWriteOptions* options)
     {
         xmlWriteOptions.writeXIncludeEnable = options->writeIncludes;
         document->setVersionString(makeVersionString(options->desiredMajorVersion, options->desiredMinorVersion));
+    }
+    else
+    {
+        document->setVersionString(makeVersionString(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION + 1));
     }
     writeToXmlStream(document, stream, &xmlWriteOptions);
 }
