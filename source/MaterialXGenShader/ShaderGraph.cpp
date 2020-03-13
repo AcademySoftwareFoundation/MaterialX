@@ -1653,7 +1653,7 @@ ShaderGraphEdgeIterator& ShaderGraphEdgeIterator::operator++()
     if (_upstream && _upstream->getNode()->numInputs())
     {
         // Traverse to the first upstream edge of this element.
-        _stack.push_back(StackFrame(_upstream, 0));
+        _stack.emplace_back(_upstream, 0);
 
         ShaderInput* input = _upstream->getNode()->getInput(0);
         ShaderOutput* output = input->getConnection();

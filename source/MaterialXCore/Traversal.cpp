@@ -50,7 +50,7 @@ TreeIterator& TreeIterator::operator++()
     if (!_prune && _elem && !_elem->getChildren().empty())
     {
         // Traverse to the first child of this element.
-        _stack.push_back(StackFrame(_elem, 0));
+        _stack.emplace_back(_elem, 0);
         _elem = _elem->getChildren()[0];
         return *this;
     }
@@ -112,7 +112,7 @@ GraphIterator& GraphIterator::operator++()
     if (!_prune && _upstreamElem && _upstreamElem->getUpstreamEdgeCount())
     {
         // Traverse to the first upstream edge of this element.
-        _stack.push_back(StackFrame(_upstreamElem, 0));
+        _stack.emplace_back(_upstreamElem, 0);
         Edge nextEdge = _upstreamElem->getUpstreamEdge(_material, 0);
         if (nextEdge && nextEdge.getUpstreamElement())
         {

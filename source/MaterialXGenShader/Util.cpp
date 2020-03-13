@@ -980,7 +980,7 @@ vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers)
         int uVal = udimVal % 10;
         uVal = (uVal == 0) ? 9 : uVal - 1;
         int vVal = (udimVal - uVal - 1) / 10;
-        udimCoordinates.push_back(Vector2(static_cast<float>(uVal), static_cast<float>(vVal)));
+        udimCoordinates.emplace_back(static_cast<float>(uVal), static_cast<float>(vVal));
     }
 
     return udimCoordinates;

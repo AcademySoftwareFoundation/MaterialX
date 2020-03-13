@@ -57,6 +57,11 @@ WindowWrapper::WindowWrapper(const WindowWrapper& other)
 
 const WindowWrapper& WindowWrapper::operator=(const WindowWrapper& other)
 {
+    if (this == &other)
+    {
+        return *this;
+    }
+
     release();
 
     _externalHandle = other._externalHandle;
