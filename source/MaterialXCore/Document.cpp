@@ -470,6 +470,17 @@ void Document::upgradeVersion()
         }
 
         // Combine udim assignments into udim sets.
+        for (GeomInfoPtr geomInfo : getGeomInfos())
+        {
+            vector<ElementPtr> origChildren = geomInfo->getChildren();
+            for (ElementPtr child : origChildren)
+            {
+                if (child->getCategory() == "geomattr")
+                {
+                    updateChildSubclass<GeomProp>(geomInfo, child);
+                }
+            }
+        }
         if (getGeomPropValue("udim") && !getGeomPropValue("udimset"))
         {
             StringSet udimSet;
