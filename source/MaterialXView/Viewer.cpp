@@ -221,6 +221,7 @@ Viewer::Viewer(const std::string& materialFilename,
     mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
 #endif
     _imageHandler = mx::GLTextureHandler::create(imageLoader);
+    _imageHandler->setSearchPath(_searchPath);
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -339,7 +340,7 @@ void Viewer::loadEnvironmentLight()
     std::string message;
 
     // Load the requested radiance map.
-    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_searchPath.find(_envRadiancePath), true, nullptr, &message);
+    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadiancePath, true, nullptr, &message);
     if (!envRadianceMap)
     {
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light", message);
@@ -372,7 +373,7 @@ void Viewer::loadEnvironmentLight()
     if (!_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadiancePath.getBaseName();
-        envIrradianceMap = _imageHandler->acquireImage(_searchPath.find(envIrradiancePath), true, nullptr, &message);
+        envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath, true, nullptr, &message);
     }
 
     // If not found, then generate an irradiance map via spherical harmonics.
@@ -407,7 +408,7 @@ void Viewer::loadEnvironmentLight()
     if (!_splitDirectLight)
     {
         _lightRigFilename = mx::removeExtension(_envRadiancePath) + "." + mx::MTLX_EXTENSION;
-        if (_lightRigFilename.exists())
+        if (_searchPath.find(_lightRigFilename).exists())
         {
             _lightRigDoc = mx::createDocument();
             mx::readFromXmlFile(_lightRigDoc, _lightRigFilename, _searchPath);
@@ -989,12 +990,14 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         if (!newMaterials.empty())
         {
+            // Extend the image search path to include this material folder.
+            mx::FilePath materialFolder = _materialFilename.getParentPath();
+            mx::FileSearchPath materialSearchPath = _searchPath;
+            materialSearchPath.append(materialFolder);
+            _imageHandler->setSearchPath(materialSearchPath);
+
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
-
-            // Set the default image search path.
-            mx::FilePath materialFolder = _materialFilename.getParentPath();
-            _imageHandler->setSearchPath(mx::FileSearchPath(materialFolder));
 
             mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
             MaterialPtr udimMaterial = nullptr;
@@ -1072,6 +1075,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load material", e.what());
         return;
     }
+
+    // Restore the original image search path.
+    _imageHandler->setSearchPath(_searchPath);
 
     // Update material UI.
     updateMaterialSelections();
@@ -1671,7 +1677,6 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     std::string aoSuffix = material->getUdim().empty() ? AO_FILENAME_SUFFIX : AO_FILENAME_SUFFIX + "_" + material->getUdim();
     mx::FilePath aoFilename = mx::removeExtension(_meshFilename) + aoSuffix + "." + AO_FILENAME_EXTENSION;
 
-    _imageHandler->setSearchPath(_searchPath);
     return _imageHandler->acquireImage(aoFilename, true, &AO_FALLBACK_COLOR);
 }
 
