@@ -5,24 +5,30 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       GENERATOR: Visual Studio 14 2015
-      ARCH: x64
-      PYTHON: C:\Python27-x64
+      TOOLSET_NAME: VS2015
+      ARCH: Win32
+      PYTHON: C:\Python27
+      PYTHON_NAME: Python27
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       GENERATOR: Visual Studio 15 2017
-      ARCH: Win32
-      PYTHON: C:\Python37
+      TOOLSET_NAME: VS2017
+      ARCH: x64
+      PYTHON: C:\Python37-x64
+      PYTHON_NAME: Python37
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       GENERATOR: Visual Studio 16 2019
+      TOOLSET_NAME: VS2019
       ARCH: x64
       PYTHON: C:\Python38-x64
+      PYTHON_NAME: Python38
 
 configuration:
   - Release
-    
+
 install:
   - set PATH=%PYTHON%;%PATH%
   - git submodule update --init --recursive
-  
+
 build_script:
   - mkdir build
   - cd build
@@ -31,3 +37,8 @@ build_script:
   - ctest -VV --output-on-failure --build-config %CONFIGURATION%
   - cmake -E chdir ../python/MaterialXTest python main.py
   - cmake -E chdir ../python/MaterialXTest python genshader.py
+
+artifacts:
+  - path: build/installed
+    name: MaterialX_Windows_%TOOLSET_NAME%_%ARCH%_%PYTHON_NAME%
+    type: zip
