@@ -405,4 +405,10 @@ void OslRenderer::save(const FilePath& /*filePath*/)
     // No-op: image save is done as part of rendering.
 }
 
+ImagePtr OslRenderer::saveImage()
+{
+    // No-op: image save is done as part of rendering.
+    return nullptr;
+}
+
 } // namespace MaterialX

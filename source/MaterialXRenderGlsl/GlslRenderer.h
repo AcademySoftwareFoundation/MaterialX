@@ -80,9 +80,12 @@ class GlslRenderer : public ShaderRenderer
     /// @name Utilities
     /// @{
 
-    /// Save the current contents the offscreen hardware buffer to disk.
+    /// Save the current contents of the offscreen hardware buffer to disk.
     /// @param filePath Name of file to save rendered image to.
     void save(const FilePath& filePath) override;
+
+    /// Save the current contents of the offscreen hardware buffer to an image.
+    ImagePtr saveImage() override;
 
     /// Return the GL frame buffer.
     GLFrameBufferPtr getFrameBuffer() const
