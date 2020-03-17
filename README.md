@@ -33,6 +33,13 @@ The MaterialX repository consists of the following folders:
 - [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
 - [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
 
+### Pre-Built Binaries
+
+The following binaries are automatically generated from the latest GitHub revision:
+
+- [Microsoft Windows (Visual Studio 2017, 64-bit)](https://ci.appveyor.com/api/projects/jstone-lucasfilm/materialx/artifacts/build%2FMaterialX_Windows_VS2017_x64_Python37.zip?job=Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202017%2C%20GENERATOR%3DVisual%20Studio%2015%202017%2C%20TOOLSET_NAME%3DVS2017%2C%20ARCH%3Dx64%2C%20PYTHON%3DC%3A%5CPython37-x64%2C%20PYTHON_NAME%3DPython37)
+- [Microsoft Windows (Visual Studio 2019, 64-bit)](https://ci.appveyor.com/api/projects/jstone-lucasfilm/materialx/artifacts/build%2FMaterialX_Windows_VS2019_x64_Python38.zip?job=Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202019%2C%20GENERATOR%3DVisual%20Studio%2016%202019%2C%20TOOLSET_NAME%3DVS2019%2C%20ARCH%3Dx64%2C%20PYTHON%3DC%3A%5CPython38-x64%2C%20PYTHON_NAME%3DPython38)
+
 ### MaterialX Viewer
 
 The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.
