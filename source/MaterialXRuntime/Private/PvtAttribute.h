@@ -104,9 +104,26 @@ public:
         md->getValue().asToken() = unit;
     }
 
+    const RtToken& getUnitType() const
+    {
+        const RtTypedValue* md = getMetadata(PvtAttribute::UNIT_TYPE);
+        return md ? md->getValue().asToken() : EMPTY_TOKEN;
+    }
+
+    void setUnitType(const RtToken& unit)
+    {
+        RtTypedValue* md = getMetadata(PvtAttribute::UNIT_TYPE);
+        if (!md)
+        {
+            md = addMetadata(PvtAttribute::UNIT_TYPE, RtType::TOKEN);
+        }
+        md->getValue().asToken() = unit;
+    }
+
     static const RtToken DEFAULT_OUTPUT_NAME;
     static const RtToken COLOR_SPACE;
     static const RtToken UNIT;
+    static const RtToken UNIT_TYPE;
     static const RtToken ATTRIBUTE;
 
 protected:

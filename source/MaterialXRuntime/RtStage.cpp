@@ -48,6 +48,11 @@ const RtToken& RtStage::getName() const
     return _cast(_ptr)->getName();
 }
 
+const RtTokenVec& RtStage::getSourceUri() const
+{
+    return _cast(_ptr)->getSourceUri();
+}
+
 RtPrim RtStage::createPrim(const RtToken& typeName)
 {
     return createPrim(RtPath("/"), EMPTY_TOKEN, typeName);

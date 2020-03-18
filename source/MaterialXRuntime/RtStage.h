@@ -31,6 +31,9 @@ public:
     /// Return the name of the stage.
     const RtToken& getName() const;
 
+    /// Return a list of source Uri loaded into a stage
+    const RtTokenVec& getSourceUri() const;
+
     /// Create a new prim at the root of the stage.
     RtPrim createPrim(const RtToken& typeName);
 

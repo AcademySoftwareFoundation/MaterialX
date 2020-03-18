@@ -12,6 +12,7 @@ namespace MaterialX
 const RtToken PvtAttribute::DEFAULT_OUTPUT_NAME("out");
 const RtToken PvtAttribute::COLOR_SPACE("colorspace");
 const RtToken PvtAttribute::UNIT("unit");
+const RtToken PvtAttribute::UNIT_TYPE("unittype");
 
 RT_DEFINE_RUNTIME_OBJECT(PvtAttribute, RtObjType::ATTRIBUTE, "PvtAttribute")
 

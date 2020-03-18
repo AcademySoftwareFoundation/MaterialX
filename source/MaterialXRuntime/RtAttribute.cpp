@@ -68,6 +68,16 @@ void RtAttribute::setUnit(const RtToken& unit)
     return hnd()->asA<PvtAttribute>()->setUnit(unit);
 }
 
+const RtToken& RtAttribute::getUnitType() const
+{
+    return hnd()->asA<PvtAttribute>()->getUnitType();
+}
+
+void RtAttribute::setUnitType(const RtToken& unit)
+{
+    return hnd()->asA<PvtAttribute>()->setUnitType(unit);
+}
+
 
 RT_DEFINE_RUNTIME_OBJECT(RtInput, RtObjType::INPUT, "RtInput")
 

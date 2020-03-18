@@ -74,6 +74,12 @@ public:
 
     /// Set the default unit for this attribute.
     void setUnit(const RtToken& unit);
+
+    /// Return the default unit type for this attribute.
+    const RtToken& getUnitType() const;
+
+    /// Set the default unit type for this attribute.
+    void setUnitType(const RtToken& unit);
 };
 
 

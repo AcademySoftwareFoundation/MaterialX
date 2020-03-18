@@ -13,6 +13,7 @@
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Types.h>
+#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
@@ -76,6 +77,9 @@ class UnitConverter
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
     virtual Vector4 convert(const Vector4& input, const string& inputUnit, const string& outputUnit) const = 0;
+
+    /// Create unit definitions in a document based on the converter
+    virtual void write(DocumentPtr doc) const = 0;
 };
 
 /// @class LinearUnitConverter
@@ -93,6 +97,9 @@ class LinearUnitConverter : public UnitConverter
     {
         return _unitType;
     }
+
+    /// Create unit definitions in a document based on the converter
+    void write(DocumentPtr doc) const override;
 
     /// @name Conversion
     /// @{
@@ -156,6 +163,9 @@ class LinearUnitConverter : public UnitConverter
     string _unitType;
 };
 
+/// Map of unit converters
+using UnitConverterPtrMap = std::unordered_map<string, UnitConverterPtr>;
+
 /// @class UnitConverterRegistry
 /// A registry for unit converters.
 class UnitConverterRegistry
@@ -185,6 +195,9 @@ class UnitConverterRegistry
     /// Returns -1 value if not found
     int getUnitAsInteger(const string& unitName) const;
 
+    /// Create unit definitions in a document based on registered converters
+    void write(DocumentPtr doc) const;
+
   private:
     UnitConverterRegistry(const UnitConverterRegistry&) = delete;
     UnitConverterRegistry() { }
@@ -192,7 +205,7 @@ class UnitConverterRegistry
     UnitConverterRegistry& operator=(const UnitConverterRegistry&) = delete;
 
   private:
-    std::unordered_map<string, UnitConverterPtr> _unitConverters;
+     UnitConverterPtrMap _unitConverters;
 };
 
 } // namespace MaterialX

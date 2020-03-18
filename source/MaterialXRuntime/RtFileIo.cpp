@@ -30,7 +30,7 @@ namespace
 {
     // Lists of known metadata which are handled explicitly by import/export.
     static const RtTokenSet nodedefMetadata     = { RtToken("name"), RtToken("type"), RtToken("node") };
-    static const RtTokenSet attrMetadata        = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("colorspace"), RtToken("unit") };
+    static const RtTokenSet attrMetadata        = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("colorspace"), RtToken("unit"), RtToken("unittype") };
     static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node") };
     static const RtTokenSet nodegraphMetadata   = { RtToken("name") };
     static const RtTokenSet genericMetadata     = { RtToken("name"), RtToken("kind") };
@@ -127,12 +127,21 @@ namespace
             {
                 RtValue::fromString(attrType, valueStr, attr.getValue());
             }
-            if (elem->hasColorSpace())
+            const string& colorSpace = elem->getColorSpace();
+            if (!colorSpace.empty())
             {
                 attr.setColorSpace(RtToken(elem->getColorSpace()));
             }
-            // TODO: fix when units are implemented in core
-            // input->setUnit(RtToken(elem->getUnit()));
+            const string& unitStr = elem->getUnit();
+            if (!unitStr.empty())
+            {
+                attr.setUnit(RtToken(unitStr));
+            }
+            const string& unitTypeStr = elem->getUnitType();
+            if (!unitTypeStr.empty())
+            {
+                attr.setUnitType(RtToken(unitTypeStr));
+            }
 
             readMetadata(elem, PvtObject::ptr<PvtObject>(attr), attrMetadata);
         }
@@ -270,6 +279,21 @@ namespace
             {
                 const RtToken portType(elem->getType());
                 RtValue::fromString(portType, valueStr, input->getValue());
+            }
+            const string& colorSpace = elem->getColorSpace();
+            if (!colorSpace.empty())
+            {
+                input->setColorSpace(RtToken(elem->getColorSpace()));
+            }
+            const string& unitStr = elem->getUnit();
+            if (!unitStr.empty())
+            {
+                input->setUnit(RtToken(unitStr));
+            }
+            const string& unitTypeStr = elem->getUnitType();
+            if (!unitTypeStr.empty())
+            {
+                input->setUnitType(RtToken(unitTypeStr));
             }
         }
 
@@ -675,11 +699,14 @@ namespace
             {
                 destPort->setColorSpace(attr->getColorSpace().str());
             }
-            // TODO: fix when units are implemented in core.
-            //if (attr->getUnit())
-            //{
-            //    destInput->setUnit(input->getUnit().str());
-            //}
+            if (attr->getUnit())
+            {
+                destPort->setUnit(attr->getUnit().str());
+            }
+            if (attr->getUnitType())
+            {
+                destPort->setUnitType(attr->getUnitType().str());
+            }
 
             writeMetadata(attr, destPort, attrMetadata);
         }
@@ -784,11 +811,16 @@ namespace
                     {
                         valueElem->setColorSpace(colorspace.str());
                     }
-                    //if (input.getUnit())
-                    //{
-                    //    TODO: fix when units are implemented in core.
-                    //    valueElem->setUnit(input->getUnit().str());
-                    //}
+                    const RtToken unit = input.getUnit();
+                    if (unit != EMPTY_TOKEN)
+                    {
+                        valueElem->setUnit(unit.str());
+                    }
+                    const RtToken unitType = input.getUnitType();
+                    if (unitType != EMPTY_TOKEN)
+                    {
+                        valueElem->setUnitType(unitType.str());
+                    }
                 }
                 else if(numOutputs > 1)
                 {
@@ -1108,6 +1140,27 @@ namespace
         }
     }
 
+    void readUnitDefinitions(DocumentPtr doc)
+    {
+        RtApi& api = RtApi::get();
+        UnitConverterRegistryPtr unitDefinitions = api.getUnitDefinitions();
+        for (UnitTypeDefPtr unitTypeDef : doc->getUnitTypeDefs())
+        {
+            LinearUnitConverterPtr unitConvert = LinearUnitConverter::create(unitTypeDef);
+            unitDefinitions->addUnitConverter(unitTypeDef, unitConvert);
+        }
+    }
+
+    void writeUnitDefinitions(DocumentPtr doc)
+    {
+        RtApi& api = RtApi::get();
+        UnitConverterRegistryPtr unitDefinitions = api.getUnitDefinitions();
+        if (unitDefinitions)
+        {
+            unitDefinitions->write(doc);
+        }
+    }
+
 } // end anonymous namespace
 
 RtReadOptions::RtReadOptions() :
@@ -1142,8 +1195,12 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
             xmlReadOptions.desiredMinorVersion = readOptions->desiredMinorVersion;
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
+
         string errorMessage;
-        if (document->validate(&errorMessage))
+        DocumentPtr validationDocument = createDocument();
+        writeUnitDefinitions(validationDocument);
+        validationDocument->copyContentFrom(document);
+        if (validationDocument->validate(&errorMessage))
         {
             PvtStage* stage = PvtStage::ptr(_stage);
             readDocument(document, stage, readOptions);
@@ -1174,8 +1231,20 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         }
         readFromXmlStream(document, stream, &xmlReadOptions);
 
-        PvtStage* stage = PvtStage::ptr(_stage);
-        readDocument(document, stage, readOptions);
+        string errorMessage; 
+        DocumentPtr validationDocument = createDocument();
+        writeUnitDefinitions(validationDocument);
+        validationDocument->copyContentFrom(document);
+        if (validationDocument->validate(&errorMessage))
+        {
+            PvtStage* stage = PvtStage::ptr(_stage);
+            readDocument(document, stage, readOptions);
+        }
+        else
+        {
+            throw ExceptionRuntimeError("Failed validation: " + errorMessage);
+        }
+
     }
     catch (Exception& e)
     {
@@ -1196,6 +1265,9 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
     {
         stage->addSourceUri(RtToken(uri));
     }
+
+    // Update any units found
+    readUnitDefinitions(doc);
 
     // First, load all nodedefs. Having these available is needed
     // when node instances are loaded later.
