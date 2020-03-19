@@ -32,7 +32,7 @@ class OslRenderer : public ShaderRenderer
 {
   public:
     /// Create an OSL renderer instance
-    static OslRendererPtr create();
+    static OslRendererPtr create(unsigned int width = 512, unsigned int height = 512);
 
     /// Destructor
     virtual ~OslRenderer();
@@ -72,6 +72,9 @@ class OslRenderer : public ShaderRenderer
     /// Validate inputs for the compiled OSL program.
     /// Note: Currently no validation has been implemented.
     void validateInputs() override;
+
+    /// Set the size for rendered image
+    void setSize(unsigned int width, unsigned int height) override;
 
     /// Render OSL program to disk.
     /// This is done by using either "testshade" or "testrender".
@@ -223,7 +226,7 @@ class OslRenderer : public ShaderRenderer
     void renderOSL(const FilePath& dirPath, const string& shaderName, const string& outputName);
 
     /// Constructor
-    OslRenderer();
+    OslRenderer(unsigned int width, unsigned int height);
 
   private:
     /// Path to "oslc" executable`

@@ -42,6 +42,9 @@
 
       <!-- Perform rendering validation test -->
       <parameter name="renderImages" type="boolean" value="true" />
+      
+      <!-- Rendered image size if render validation test enabled -->
+      <parameter name="renderSize" type="vector2" value="512, 512" />
 
       <!-- Perform saving of image. Can only be disabled for GLSL tests -->
       <parameter name="saveImages" type="boolean" value="true" />

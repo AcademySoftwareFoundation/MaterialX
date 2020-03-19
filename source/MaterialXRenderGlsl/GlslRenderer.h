@@ -41,7 +41,7 @@ class GlslRenderer : public ShaderRenderer
 {
   public:
     /// Create a GLSL renderer instance
-    static GlslRendererPtr create(unsigned int res = 512);
+    static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512);
 
     /// Destructor
     virtual ~GlslRenderer();
@@ -69,6 +69,9 @@ class GlslRenderer : public ShaderRenderer
 
     /// Validate inputs for the program
     void validateInputs() override;
+
+    /// Set the size of the rendered image
+    void setSize(unsigned int width, unsigned int height) override;
 
     /// Render the current program to an offscreen buffer.
     void render() override;
@@ -105,7 +108,7 @@ class GlslRenderer : public ShaderRenderer
     /// @}
 
   protected:
-    GlslRenderer(unsigned int res);
+    GlslRenderer(unsigned int width, unsigned int height);
 
     void updateViewInformation(const Vector3& eye,
                                const Vector3& center,
@@ -122,7 +125,6 @@ class GlslRenderer : public ShaderRenderer
     GlslProgramPtr _program;
 
     GLFrameBufferPtr _frameBuffer;
-    unsigned int _res;
 
     bool _initialized;
 

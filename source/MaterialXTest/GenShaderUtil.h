@@ -96,6 +96,9 @@ class TestSuiteOptions
     // Perform rendering validation test
     bool renderImages = true;
 
+    // Render size
+    mx::Vector2 renderSize = { 512, 512 };
+
     // Perform saving of image.
     bool saveImages = true;
 

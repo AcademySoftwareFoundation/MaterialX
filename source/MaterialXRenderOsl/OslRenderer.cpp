@@ -23,18 +23,28 @@ string OslRenderer::OSL_CLOSURE_COLOR_STRING("closure color");
 // OslRenderer methods
 //
 
-OslRendererPtr OslRenderer::create()
+OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height)
 {
-    return std::shared_ptr<OslRenderer>(new OslRenderer());
+    return std::shared_ptr<OslRenderer>(new OslRenderer(width, height));
 }
 
-OslRenderer::OslRenderer() :
+OslRenderer::OslRenderer(unsigned int width, unsigned int height) :
+    ShaderRenderer(width, height),
     _useTestRender(true) // By default use testrender
 {
 }
 
 OslRenderer::~OslRenderer()
 {
+}
+
+void OslRenderer::setSize(unsigned int width, unsigned int height)
+{
+    if (_width != width || _height != height)
+    {
+        _width = width;
+        _height = height;
+    }
 }
 
 void OslRenderer::initialize()
@@ -162,7 +172,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     string command(_oslTestRenderExecutable);
     command += " " + sceneFileName;
     command += " " + outputFileName;
-    command += " -r 512 512 --path " + osoPaths;
+    command += " -r " + std::to_string(_width) + " " + std::to_string(_height) + " --path " + osoPaths;
     if (isColorClosure)
     {
         command += " -aa 4 "; // Images are very noisy without anti-aliasing

@@ -839,6 +839,7 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tValidate Element To Render: " << validateElementToRender << std::endl;
     output << "\tCompile code: " << compileCode << std::endl;
     output << "\tRender Images: " << renderImages << std::endl;
+    output << "\tRender Size: " << renderSize[0] << "," << renderSize[1] << std::endl;
     output << "\tSave Images: " << saveImages << std::endl;
     output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
     output << "\tNon-Shaded Geometry: " << unShadedGeometry.asString() << std::endl;
@@ -866,6 +867,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string VALIDATE_ELEMENT_TO_RENDER_STRING("validateElementToRender");
     const std::string COMPILE_CODE_STRING("compileCode");
     const std::string RENDER_IMAGES_STRING("renderImages");
+    const std::string RENDER_SIZE_STRING("renderSize");
     const std::string SAVE_IMAGES_STRING("saveImages");
     const std::string DUMP_UNIFORMS_AND_ATTRIBUTES_STRING("dumpUniformsAndAttributes");
     const std::string CHECK_IMPL_COUNT_STRING("checkImplCount");
@@ -935,6 +937,10 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     else if (name == RENDER_IMAGES_STRING)
                     {
                         renderImages = val->asA<bool>();
+                    }
+                    else if (name == RENDER_SIZE_STRING)
+                    {
+                        renderSize = val->asA<mx::Vector2>();
                     }
                     else if (name == SAVE_IMAGES_STRING)
                     {

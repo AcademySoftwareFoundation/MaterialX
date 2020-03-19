@@ -198,6 +198,8 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 if (testOptions.renderImages)
                 {
+                    _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
+
                     const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
 
                     // Look for textures and build parameter override string for each image

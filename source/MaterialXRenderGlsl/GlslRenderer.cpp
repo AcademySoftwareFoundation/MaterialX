@@ -25,13 +25,13 @@ const float FAR_PLANE_PERSP = 100.0f;
 // GlslRenderer methods
 //
 
-GlslRendererPtr GlslRenderer::create(unsigned int res)
+GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height)
 {
-    return GlslRendererPtr(new GlslRenderer(res));
+    return GlslRendererPtr(new GlslRenderer(width, height));
 }
 
-GlslRenderer::GlslRenderer(unsigned int res) :
-    _res(res),
+GlslRenderer::GlslRenderer(unsigned int width, unsigned int height) :
+    ShaderRenderer(width, height),
     _initialized(false)
 {
     _program = GlslProgram::create();
@@ -58,6 +58,23 @@ GlslRenderer::~GlslRenderer()
     _window = nullptr;
 }
 
+void GlslRenderer::setSize(unsigned int width, unsigned int height)
+{
+    if (_context->makeCurrent())
+    {
+        if (_frameBuffer)
+        {
+            _frameBuffer->resize(width, height);
+        }
+        else
+        {
+            _frameBuffer = GLFramebuffer::create(width, height, 4, Image::BaseType::UINT8);
+        }
+        _width = width;
+        _height = height;
+    }
+}
+
 void GlslRenderer::initialize()
 {
     StringVec errors;
@@ -69,7 +86,7 @@ void GlslRenderer::initialize()
         _window = SimpleWindow::create();
 
         const char* windowName = "Renderer Window";
-        if (!_window->initialize(const_cast<char *>(windowName), _res, _res, nullptr))
+        if (!_window->initialize(const_cast<char *>(windowName), _width, _height, nullptr))
         {
             errors.push_back("Failed to create window for testing.");
             throw ExceptionShaderRenderError(errorType, errors);
@@ -97,7 +114,7 @@ void GlslRenderer::initialize()
             glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
             glClearStencil(0);
 
-            _frameBuffer = GLFramebuffer::create(_res, _res, 4, Image::BaseType::UINT8);
+            _frameBuffer = GLFramebuffer::create(_width, _height, 4, Image::BaseType::UINT8);
 
             _initialized = true;
         }
@@ -190,13 +207,15 @@ void GlslRenderer::updateViewInformation(const Vector3& eye,
                                            float farDist,
                                            float objectScale)
 {
+    float aspectRatio = float(_width) / float(_height);
     float fH = std::tan(viewAngle / 360.0f * PI) * nearDist;
-    float fW = fH * 1.0f;
+    float fW = fH * aspectRatio;
 
+    float geometryRatio = _height < _width ?  aspectRatio : (1.0f / aspectRatio);
     Vector3 boxMin = _geometryHandler->getMinimumBounds();
     Vector3 boxMax = _geometryHandler->getMaximumBounds();
     Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
-    float sphereRadius = (sphereCenter - boxMin).getMagnitude();
+    float sphereRadius = (sphereCenter - boxMin).getMagnitude() * geometryRatio;
     float meshFit = 2.0f / sphereRadius;
     Vector3 modelTranslation = sphereCenter * -1.0f;
 

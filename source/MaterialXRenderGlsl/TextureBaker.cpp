@@ -10,8 +10,8 @@
 namespace MaterialX
 {
 
-TextureBaker::TextureBaker(unsigned int res) :
-    GlslRenderer(res),
+TextureBaker::TextureBaker(unsigned int width, unsigned int height) :
+    GlslRenderer(width, height),
     _generator(GlslShaderGenerator::create()),
     _extension(ImageLoader::PNG_EXTENSION)
 {
