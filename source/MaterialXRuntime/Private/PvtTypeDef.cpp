@@ -16,6 +16,8 @@ namespace MaterialX
 
 namespace
 {
+static string VALUE_STRING_ONE = "1";
+static string VALUE_STRING_ZERO = "0";
 
 template<class T>
 RtValue createValue(RtObject&)
@@ -99,6 +101,14 @@ template <> void toStringValue<bool>(const RtValue& src, string& dest)
     std::stringstream ss;
     ss << src.asBool();
     dest = ss.str();
+    if (dest == VALUE_STRING_ONE) 
+    {
+        dest = VALUE_STRING_TRUE;
+    }
+    else if (dest == VALUE_STRING_ZERO)
+    {
+        dest = VALUE_STRING_FALSE;
+    }
 }
 template <> void toStringValue<float>(const RtValue& src, string& dest)
 {
@@ -238,9 +248,9 @@ void fromStringMatrix(const string& str, T& dest)
 }
 template<> void fromStringValue<bool>(const string& str, RtValue& dest)
 {
-    if (str == VALUE_STRING_TRUE)
+    if (str == VALUE_STRING_TRUE || str == VALUE_STRING_ONE)
         dest.asBool() = true;
-    else if (str == VALUE_STRING_FALSE)
+    else if (str == VALUE_STRING_FALSE || str == VALUE_STRING_ZERO)
         dest.asBool() = false;
     else
         throw ExceptionRuntimeError("Failed setting value from string: " + str);

@@ -206,6 +206,10 @@ TEST_CASE("Runtime: Values", "[runtime]")
     REQUIRE(value.asBool());
     mx::RtValue::fromString(mx::RtType::BOOLEAN, "false", value);
     REQUIRE(!value.asBool());
+    mx::RtValue::fromString(mx::RtType::BOOLEAN, "1", value);
+    REQUIRE(value.asBool());
+    mx::RtValue::fromString(mx::RtType::BOOLEAN, "0", value);
+    REQUIRE(!value.asBool());
     mx::RtValue::fromString(mx::RtType::INTEGER, "23", value);
     REQUIRE(value.asInt() == 23);
     mx::RtValue::fromString(mx::RtType::FLOAT, "1234.5678", value);
