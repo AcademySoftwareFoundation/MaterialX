@@ -4,11 +4,25 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 
 ### Example Images
 
-**Figure 1:** Standard Surface Shader with procedural and uniform materials
-<p><img src="/documents/Images/MaterialXView_StandardSurface_01.png" width="1024"></p>
+**Figure 1:** Procedural and uniform materials in the MaterialX viewer
+<p float="left">
+  <img src="/documents/Images/MaterialXView_Marble.png" width="213" />
+  <img src="/documents/Images/MaterialXView_Copper.png" width="213" /> 
+  <img src="/documents/Images/MaterialXView_Plastic.png" width="213" /> 
+  <img src="/documents/Images/MaterialXView_Carpaint.png" width="213" /> 
+</p>
 
-**Figure 2:** Standard Surface Shader with textured, color-space-managed materials
-<p><img src="/documents/Images/MaterialXView_StandardSurface_02.png" width="640"></p>
+**Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
+<p float="left">
+  <img src="/documents/Images/MaterialXView_TiledBrass.png" width="430" />
+  <img src="/documents/Images/MaterialXView_TiledWood.png" width="430" /> 
+</p>
+
+**Figure 3:** Droid character materials in the MaterialX viewer. © & TM Lucasfilm Ltd. Used with permission.
+<p float="left">
+  <img src="/documents/Images/MaterialXView_BB8.png" width="430" />
+  <img src="/documents/Images/MaterialXView_R2D2.png" width="430" /> 
+</p>
 
 ## Building The MaterialX Viewer
 Select the `MATERIALX_BUILD_VIEWER` option in CMake to build the MaterialX Viewer.  Installation will copy the **MaterialXView** executable to a `/bin` directory within the selected install folder.

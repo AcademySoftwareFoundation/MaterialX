@@ -142,6 +142,7 @@ class Viewer : public ng::Screen
 
     float _modelZoom;
     mx::Vector3 _modelTranslation;
+    float _modelYaw;
 
     float _userZoom;
     mx::Vector3 _userTranslation;

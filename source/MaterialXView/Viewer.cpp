@@ -35,8 +35,8 @@ const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
 
 const float ENV_MAP_SPLIT_RADIANCE = 16.0f;
-const float MAX_ENV_TEXEL_RADIANCE = 36000.0f;
-const float IDEAL_ENV_MAP_RADIANCE = 5.2374f;
+const float MAX_ENV_TEXEL_RADIANCE = 100000.0f;
+const float IDEAL_ENV_MAP_RADIANCE = 6.0f;
 
 const float MODEL_SPHERE_RADIUS = 2.0f;
 
@@ -155,7 +155,7 @@ Viewer::Viewer(const std::string& materialFilename,
                mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
                const std::string& envRadiancePath,
                int multiSampleCount) :
-    ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
+    ng::Screen(ng::Vector2i(1024, 1024), "MaterialXView",
         true, false,
         8, 8, 24, 8,
         multiSampleCount),
@@ -166,6 +166,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _farDist(5000.0f),
     _cameraYaw(0.0f),
     _modelZoom(1.0f),
+    _modelYaw(0.0f),
     _userZoom(1.0f),
     _userTranslationActive(false),
     _userTranslationPixel(0, 0),
@@ -1633,10 +1634,12 @@ void Viewer::updateViewHandlers()
     float fW = fH * (float) mSize.x() / (float) mSize.y();
 
     mx::Matrix44 cameraYaw = mx::Matrix44::createRotationY(_cameraYaw / 360.0f * PI);
+    mx::Matrix44 modelYaw = mx::Matrix44::createRotationY(_modelYaw / 360.0f * PI);
     ng::Matrix4f ngArcball = _arcball.matrix();
     mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
 
-    _cameraViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation + _userTranslation) *
+    _cameraViewHandler->worldMatrix = modelYaw *
+                                      mx::Matrix44::createTranslation(_modelTranslation + _userTranslation) *
                                       mx::Matrix44::createScale(mx::Vector3(_modelZoom * _userZoom));
     _cameraViewHandler->viewMatrix = cameraYaw * arcball * mx::ViewHandler::createViewMatrix(_eye, _center, _up);
     _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
@@ -1645,7 +1648,8 @@ void Viewer::updateViewHandlers()
     if (dirLight)
     {
         const float r = MODEL_SPHERE_RADIUS;
-        _shadowViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation) *
+        _shadowViewHandler->worldMatrix = modelYaw *
+                                          mx::Matrix44::createTranslation(_modelTranslation) *
                                           mx::Matrix44::createScale(mx::Vector3(_modelZoom));
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
         mx::ValuePtr dir = dirLight->getInputValue("direction");
