@@ -155,7 +155,7 @@ Viewer::Viewer(const std::string& materialFilename,
                mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
                const std::string& envRadiancePath,
                int multiSampleCount) :
-    ng::Screen(ng::Vector2i(1024, 1024), "MaterialXView",
+    ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
         true, false,
         8, 8, 24, 8,
         multiSampleCount),
