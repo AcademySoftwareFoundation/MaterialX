@@ -1,6 +1,8 @@
 # Change Log
 
-## [1.37.0] - 2020-03-10
+## [1.37.1] - Development
+
+## [1.37.0] - 2020-03-20
 
 Updated the MaterialX library to the v1.37 specification.  See the [v1.37 changelist](http://www.materialx.org/assets/MaterialX.v1.37REV2.Changelist.pdf) for full details.
 
