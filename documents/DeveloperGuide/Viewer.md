@@ -74,6 +74,7 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 The following are common command-line options for MaterialXView, and a complete list can be displayed with the `--help` option.
 - `--material [FILENAME]`: Specify the displayed material
 - `--mesh [FILENAME]`: Specify the displayed geometry
-- `--library [FILEPATH]`: Specify an additional library folder
-- `--path [FILEPATH]`: Specify an additional search-path folder
+- `--envRad [FILENAME]`: Specify the displayed environment light, stored as HDR environment radiance in the latitude-longitude format
+- `--path [FILEPATH]`: Specify an additional absolute search path location
+- `--library [FILEPATH]`: Specify an additional relative path to a custom data library folder
 - `--help`: Display the complete list of command-line options

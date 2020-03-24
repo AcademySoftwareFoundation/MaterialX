@@ -1203,6 +1203,10 @@ void Viewer::loadStandardLibraries()
 {
     // Initialize the standard library.
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    if (_stdLib->getChildren().empty())
+    {
+        std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
+    }
     for (std::string sourceUri : _stdLib->getReferencedSourceUris())
     {
         _xincludeFiles.insert(sourceUri);

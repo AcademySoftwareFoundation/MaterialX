@@ -10,14 +10,26 @@
 namespace MaterialX
 {
 
+namespace {
+
+const string SCALE_ATTRIBUTE = "scale";
+
+} // anonymous namespace
+
+//
+// LinearUnitConverter methods
+//
+
 LinearUnitConverter::LinearUnitConverter(UnitTypeDefPtr unitTypeDef)
 {
-    static const string SCALE_ATTRIBUTE = "scale";
-    unsigned int enumerant = 0;
+    if (!unitTypeDef)
+    {
+        return;
+    }
 
     // Populate the unit scale and offset maps for each UnitDef.
-    vector<UnitDefPtr> unitDefs = unitTypeDef->getUnitDefs();
-    for (UnitDefPtr unitdef : unitDefs)
+    unsigned int enumerant = 0;
+    for (UnitDefPtr unitdef : unitTypeDef->getUnitDefs())
     {
         for (UnitPtr unit : unitdef->getUnits())
         {
@@ -131,6 +143,10 @@ string LinearUnitConverter::getUnitFromInteger(int index) const
     return EMPTY_STRING;
 }
 
+//
+// UnitConverterRegistry methods
+//
+
 UnitConverterRegistryPtr UnitConverterRegistry::create()
 {
     static UnitConverterRegistryPtr registry(new UnitConverterRegistry());
@@ -139,36 +155,41 @@ UnitConverterRegistryPtr UnitConverterRegistry::create()
 
 bool UnitConverterRegistry::addUnitConverter(UnitTypeDefPtr def, UnitConverterPtr converter)
 {
-    const string& name = def->getName();
-    if (_unitConverters.find(name) != _unitConverters.end())
+    if (def && _unitConverters.find(def->getName()) == _unitConverters.end())
     {
-        return false;
+        _unitConverters[def->getName()] = converter;
+        return true;
     }
-    _unitConverters[name] = converter;
-    return true;
+
+    return false;
 }
 
 bool UnitConverterRegistry::removeUnitConverter(UnitTypeDefPtr def)
 {
-    const string& name = def->getName();
-    auto it = _unitConverters.find(name);
-    if (it == _unitConverters.end())
+    if (def)
     {
-        return false;
+        auto it = _unitConverters.find(def->getName());
+        if (it != _unitConverters.end())
+        {
+            _unitConverters.erase(it);
+            return true;
+        }
     }
 
-    _unitConverters.erase(it);
-    return true;
+    return false;
 }
 
 UnitConverterPtr UnitConverterRegistry::getUnitConverter(UnitTypeDefPtr def)
 {
-    const string& name = def->getName();
-    auto it = _unitConverters.find(name);
-    if (it != _unitConverters.end())
+    if (def)
     {
-        return it->second;
+        auto it = _unitConverters.find(def->getName());
+        if (it != _unitConverters.end())
+        {
+            return it->second;
+        }
     }
+
     return nullptr;
 }
 
