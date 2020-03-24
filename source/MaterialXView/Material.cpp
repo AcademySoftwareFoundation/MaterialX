@@ -105,11 +105,15 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
 
     // Create the shader.
     std::string shaderName = "__ENV_SHADER__";
-    _hwShader = createShader(shaderName, context, output); 
-    if (!_hwShader)
+    try
+    {
+        _hwShader = createShader(shaderName, context, output); 
+    }
+    catch (std::exception&)
     {
         return false;
     }
+
     std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
     std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
 
