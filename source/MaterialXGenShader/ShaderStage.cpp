@@ -318,10 +318,9 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
 
 void ShaderStage::addInclude(const string& file, GenContext& context)
 {
-    string resolvedFile = file;
-    tokenSubstitution(context.getShaderGenerator().getTokenSubstitutions(), resolvedFile);
-
-    resolvedFile = context.resolveSourceFile(resolvedFile);
+    string modifiedFile = file;
+    tokenSubstitution(context.getShaderGenerator().getTokenSubstitutions(), modifiedFile);
+    FilePath resolvedFile = context.resolveSourceFile(FilePath("libraries") / modifiedFile);
 
     if (!_includes.count(resolvedFile))
     {

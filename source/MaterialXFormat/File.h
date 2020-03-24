@@ -158,6 +158,9 @@ class FilePath
     /// Return the current working directory of the file system.
     static FilePath getCurrentPath();
 
+    /// Return the directory containing the executable module.
+    static FilePath getModulePath();
+
   private:
     StringVec _vec;
     Type _type;

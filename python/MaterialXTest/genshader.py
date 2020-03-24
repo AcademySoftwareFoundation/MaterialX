@@ -39,8 +39,8 @@ class TestGenShader(unittest.TestCase):
     def test_ShaderInterface(self):
         doc = mx.createDocument()
 
-        searchPath = os.path.join(_fileDir, "../../libraries")
-        libraryPath = os.path.join(searchPath, "stdlib")
+        searchPath = os.path.join(_fileDir, "../..")
+        libraryPath = os.path.join(searchPath, "libraries/stdlib")
         _loadLibraries(doc, searchPath, libraryPath)
 
         exampleName = u"shader_interface"
@@ -76,7 +76,7 @@ class TestGenShader(unittest.TestCase):
         # Add path to find all source code snippets
         context.registerSourceCodeSearchPath(searchPath)
         # Add path to find OSL include files
-        context.registerSourceCodeSearchPath(os.path.join(searchPath, "stdlib/osl"))
+        context.registerSourceCodeSearchPath(os.path.join(libraryPath, "osl"))
 
         # Test complete mode
         context.getOptions().shaderInterfaceType = int(ShaderInterfaceType.SHADER_INTERFACE_COMPLETE);
