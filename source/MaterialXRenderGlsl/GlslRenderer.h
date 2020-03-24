@@ -110,13 +110,8 @@ class GlslRenderer : public ShaderRenderer
   protected:
     GlslRenderer(unsigned int width, unsigned int height);
 
-    void updateViewInformation(const Vector3& eye,
-                               const Vector3& center,
-                               const Vector3& up,
-                               float viewAngle,
-                               float nearDist,
-                               float farDist,
-                               float objectScale);
+    virtual void updateViewInformation();
+    virtual void updateWorldInformation();
 
   private:
     void checkErrors();
@@ -127,6 +122,11 @@ class GlslRenderer : public ShaderRenderer
     GLFrameBufferPtr _frameBuffer;
 
     bool _initialized;
+
+    const Vector3 _eye;
+    const Vector3 _center;
+    const Vector3 _up;
+    float _objectScale;
 
     SimpleWindowPtr _window;
     GLUtilityContextPtr _context;

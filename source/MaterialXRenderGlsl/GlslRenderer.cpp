@@ -32,7 +32,11 @@ GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height)
 
 GlslRenderer::GlslRenderer(unsigned int width, unsigned int height) :
     ShaderRenderer(width, height),
-    _initialized(false)
+    _initialized(false),
+    _eye(0.0f, 0.0f, 4.0f),
+    _center(0.0f, 0.0f, 0.0f),
+    _up(0.0f, 1.0f, 0.0f),
+    _objectScale(1.0f)
 {
     _program = GlslProgram::create();
 
@@ -199,18 +203,22 @@ void GlslRenderer::validateInputs()
     _program->getAttributesList();
 }
 
-void GlslRenderer::updateViewInformation(const Vector3& eye,
-                                           const Vector3& center,
-                                           const Vector3& up,                                          
-                                           float viewAngle,
-                                           float nearDist,
-                                           float farDist,
-                                           float objectScale)
+void GlslRenderer::updateViewInformation()
+{
+    float fH = std::tan(FOV_PERSP / 360.0f * PI) * NEAR_PLANE_PERSP;
+    float fW = fH * 1.0f;
+
+    _viewHandler->viewMatrix = ViewHandler::createViewMatrix(_eye, _center, _up);
+    _viewHandler->projectionMatrix = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, NEAR_PLANE_PERSP, FAR_PLANE_PERSP);
+
+    Matrix44 invView = _viewHandler->viewMatrix.getInverse();
+    _viewHandler->viewDirection = { invView[2][0], invView[2][1], invView[2][2] };
+    _viewHandler->viewPosition = { invView[3][0], invView[3][1], invView[3][2] };
+}
+
+void GlslRenderer::updateWorldInformation()
 {
     float aspectRatio = float(_width) / float(_height);
-    float fH = std::tan(viewAngle / 360.0f * PI) * nearDist;
-    float fW = fH * aspectRatio;
-
     float geometryRatio = _height < _width ?  aspectRatio : (1.0f / aspectRatio);
     Vector3 boxMin = _geometryHandler->getMinimumBounds();
     Vector3 boxMax = _geometryHandler->getMaximumBounds();
@@ -218,15 +226,8 @@ void GlslRenderer::updateViewInformation(const Vector3& eye,
     float sphereRadius = (sphereCenter - boxMin).getMagnitude() * geometryRatio;
     float meshFit = 2.0f / sphereRadius;
     Vector3 modelTranslation = sphereCenter * -1.0f;
-
-    _viewHandler->viewMatrix = ViewHandler::createViewMatrix(eye, center, up);
-    _viewHandler->projectionMatrix = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, nearDist, farDist);
     _viewHandler->worldMatrix = Matrix44::createTranslation(modelTranslation) *
-                                Matrix44::createScale(Vector3(objectScale * meshFit));
-
-    Matrix44 invView = _viewHandler->viewMatrix.getInverse();
-    _viewHandler->viewDirection = { invView[2][0], invView[2][1], invView[2][2] };
-    _viewHandler->viewPosition = { invView[3][0], invView[3][1], invView[3][2] };
+                                Matrix44::createScale(Vector3(_objectScale * meshFit));
 }
 
 void GlslRenderer::render()
@@ -253,12 +254,8 @@ void GlslRenderer::render()
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Update viewing information
-    const Vector3 eye(0.0f, 0.0f, 4.0f);
-    const Vector3 center;
-    const Vector3 up(0.0f, 1.0f, 0.0f);
-    float objectScale(1.0f);
-    updateViewInformation(eye, center, up, FOV_PERSP, NEAR_PLANE_PERSP, FAR_PLANE_PERSP, objectScale);
+    updateViewInformation();
+    updateWorldInformation();
 
     try
     {
