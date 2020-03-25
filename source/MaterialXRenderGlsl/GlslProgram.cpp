@@ -510,6 +510,9 @@ void GlslProgram::unbindGeometry()
     }
     _attributeBufferIds.clear();
 
+    glDeleteVertexArrays(1, &_vertexArray);
+    _vertexArray = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+
     checkErrors();
 }
 
