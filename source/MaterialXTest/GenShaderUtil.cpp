@@ -748,17 +748,17 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                 }
             }
 
-            // Allow to skip nodedefs to test if specified
-            const std::string nodeDefName = nodeDef->getName();
-            if (_skipNodeDefs.count(nodeDefName))
-            {
-                _logFile << ">> Skipped testing nodedef: " << nodeDefName << std::endl;
-                continue;
-            }
-
             const std::string namePath(targetElement->getNamePath());
             if (nodeDef)
             {
+                // Allow to skip nodedefs to test if specified
+                const std::string nodeDefName = nodeDef->getName();
+                if (_skipNodeDefs.count(nodeDefName))
+                {
+                    _logFile << ">> Skipped testing nodedef: " << nodeDefName << std::endl;
+                    continue;
+                }
+
                 mx::string elementName = mx::replaceSubstrings(namePath, pathMap);
                 elementName = mx::createValidName(elementName);
 
