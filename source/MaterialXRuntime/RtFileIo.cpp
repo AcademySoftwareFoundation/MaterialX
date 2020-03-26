@@ -627,36 +627,37 @@ namespace
         }
     }
 
-    void validateNoConflicts(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions) {
+    template <typename T>
+    void checkElementConflicts(RtReadOptions::ReadFilter const& filter, PvtStage* stage, T const& elemCollection) {
         const string ROOT_PATH(PvtPath::ROOT_NAME);
+        for (auto const& elem : elemCollection)
+        {
+            if (filter && !filter(elem))
+            {
+                continue;
+            }
+            // Make sure the element has not been loaded already.
+            PvtPath path(ROOT_PATH + elem->getName());
+            if (stage->getPrimAtPath(path))
+            {
+                throw ExceptionRuntimeError("Element already exists in stage '" + elem->getName() + "'");
+            }
+        }
+    }
+
+    void validateNoConflicts(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions) {
         RtReadOptions::ReadFilter filter = readOptions ? readOptions->readFilter : nullptr;
 
-        auto checkElements = [&ROOT_PATH, &filter, stage](auto const& elemCollection){
-            for (auto const& elem : elemCollection)
-            {
-                if (filter && !filter(elem))
-                {
-                    continue;
-                }
-                // Make sure the element has not been loaded already.
-                PvtPath path(ROOT_PATH + elem->getName());
-                if (stage->getPrimAtPath(path))
-                {
-                    throw ExceptionRuntimeError("Element already exists in stage '" + elem->getName() + "'");
-                }
-            }
-        };
-
-        checkElements(doc->getChildren());
+        checkElementConflicts(filter, stage, doc->getChildren());
 
         if (readOptions && !readOptions->readLookInformation)
         {
             return;
         }
 
-        checkElements(doc->getCollections());
-        checkElements(doc->getLooks());
-        checkElements(doc->getLookGroups());
+        checkElementConflicts(filter, stage, doc->getCollections());
+        checkElementConflicts(filter, stage, doc->getLooks());
+        checkElementConflicts(filter, stage, doc->getLookGroups());
     }
 
     void readDocument(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions)
