@@ -30,9 +30,15 @@ class RtReadOptions
     RtReadOptions();
     ~RtReadOptions() { }
 
-    /// If true, duplicate elements with non-identical content will be skipped;
-    /// otherwise they will trigger an exception.  Defaults to false.
-    bool skipConflictingElements;
+    /// Conflict resolution enumeration
+    enum ConflictResolution {
+        SKIP_ELEMENTS, /// Skip conflicting elements
+        RENAME_ELEMENTS, /// Rename conflicting elements
+        THROW_ERROR /// Throw error and leave destination unmodified
+    };
+    
+    /// How to handle incoming elements conflicting with existing elements.
+    ConflictResolution conflictResolution;
 
     /// Filter function type used for filtering elements during read.
     /// If the filter returns false the element will not be read.

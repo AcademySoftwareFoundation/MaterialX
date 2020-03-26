@@ -59,6 +59,7 @@ namespace
     const mx::RtToken OUT("out");
     const mx::RtToken IN("in");
     const mx::RtToken REFLECTIVITY("reflectivity");
+    const mx::RtToken SURFACESHADER("surfaceshader");
     const mx::RtToken FOO("foo");
     const mx::RtToken BAR("bar");
     const mx::RtToken VERSION("version");
@@ -889,6 +890,104 @@ TEST_CASE("Runtime: DefaultLook", "[runtime]")
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("defaultLook.mtlx", lookSearchPath);
     fileIo.read("emptyLook.mtlx", lookSearchPath);
+}
+
+TEST_CASE("Runtime: Conflict resolution", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    api->setSearchPath(searchPath);
+    api->loadLibrary(STDLIB);
+    api->loadLibrary(PBRLIB);
+    api->loadLibrary(BXDFLIB);
+
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
+    defaultStage->addReference(api->getLibrary());
+
+    mx::FileSearchPath lookSearchPath(mx::FilePath::getCurrentPath() /
+                                      "resources" /
+                                      "LookDev");
+    mx::RtFileIo fileIo(defaultStage);
+    fileIo.read("defaultLook.mtlx", lookSearchPath);
+    int numBefore = 0;
+    auto stageTraverser = defaultStage->traverse();
+    while (!stageTraverser.isDone()) {
+        ++numBefore;
+        ++stageTraverser;
+    }
+
+    mx::RtReadOptions rops;
+    rops.readLookInformation = true;
+    rops.conflictResolution = mx::RtReadOptions::THROW_ERROR;
+    REQUIRE_THROWS(fileIo.read("defaultLook.mtlx", lookSearchPath, &rops));
+    int numAfter = 0;
+    stageTraverser = defaultStage->traverse();
+    while (!stageTraverser.isDone()) {
+        ++numAfter;
+        ++stageTraverser;
+    }
+    REQUIRE(numBefore == numAfter);
+
+    // Not testing SKIP_ELEMENTS
+
+    rops.conflictResolution = mx::RtReadOptions::RENAME_ELEMENTS;
+    fileIo.read("defaultLook.mtlx", lookSearchPath, &rops);
+    numAfter = 0;
+    stageTraverser = defaultStage->traverse();
+    while (!stageTraverser.isDone()) {
+        ++numAfter;
+        ++stageTraverser;
+    }
+    std::cout << std::endl;
+    // Everything duplicated except the nodedef ND_default_shader and its
+    // nodegraph implementation NG_default_shader
+    REQUIRE(numBefore * 2 - 2 == numAfter);
+
+    // And all duplicates correctly connected:
+    mx::RtPrim lg1 = defaultStage->getPrimAtPath("/defaultLookGroup1");
+    REQUIRE(lg1);
+    mx::RtLookGroup lookgroup1(lg1);
+
+    mx::RtConnectionIterator iter = lookgroup1.getLooks().getTargets();
+    REQUIRE(!iter.isDone());
+    mx::RtPrim lk1 = (*iter).asA<mx::RtPrim>();
+    REQUIRE(lk1);
+    REQUIRE(lk1.getName().str() == "defaultLook1");
+    ++iter;
+    REQUIRE(iter.isDone());
+
+    mx::RtLook look1(lk1);
+    iter = look1.getMaterialAssigns();
+    REQUIRE(!iter.isDone());
+    mx::RtPrim ma1 = (*iter).asA<mx::RtPrim>();
+    REQUIRE(ma1);
+    REQUIRE(ma1.getName().str() == "defaultMaterialAssign1");
+    ++iter;
+    REQUIRE(iter.isDone());
+
+    mx::RtMaterialAssign materialassign1(ma1);
+    iter = materialassign1.getMaterial();
+    REQUIRE(!iter.isDone());
+    mx::RtPrim mat1 = (*iter).asA<mx::RtPrim>();
+    REQUIRE(mat1);
+    REQUIRE(mat1.getName().str() == "defaultMaterial1");
+    ++iter;
+    REQUIRE(iter.isDone());
+    iter = materialassign1.getCollection();
+    REQUIRE(!iter.isDone());
+    mx::RtPrim co1 = (*iter).asA<mx::RtPrim>();
+    REQUIRE(co1);
+    REQUIRE(co1.getName().str() == "defaultCollection1");
+    ++iter;
+    REQUIRE(iter.isDone());
+
+    mx::RtNode material1(mat1);
+    mx::RtInput surfInput = material1.getInput(SURFACESHADER);
+    REQUIRE(surfInput.isConnected());
+    mx::RtPrim sh1 = surfInput.getConnection().getParent();
+    REQUIRE(sh1);
+    REQUIRE(sh1.getName().str() == "defaultShader1");
 }
 
 TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")

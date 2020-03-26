@@ -21,6 +21,7 @@
 #include <MaterialXCore/Types.h>
 
 #include <MaterialXGenShader/Util.h>
+#include <map>
 #include <sstream>
 
 namespace MaterialX
@@ -40,9 +41,34 @@ namespace
     static const RtToken OUTPUT_ELEMENT_PREFIX("OUT_");
     static const RtToken MULTIOUTPUT("multioutput");
 
-    PvtPrim* findPrimOrThrow(const RtToken& name, PvtPrim* parent)
+    class PvtRenamingMapper {
+        typedef RtTokenMap<RtToken> TokenToToken;
+        typedef std::map<PvtPrim*, TokenToToken> PerPrimMap;
+
+        PerPrimMap _map;
+    public:
+        void addMapping(PvtPrim* parent, const RtToken& originalName, const RtToken& finalName) {
+            if (originalName != finalName) {
+                _map[parent][originalName] = finalName;
+            }
+        }
+
+        const RtToken& getFinalName(PvtPrim* parent, const RtToken& originalName) const {
+            PerPrimMap::const_iterator primTarget = _map.find(parent);
+            if (primTarget != _map.cend()) {
+                TokenToToken const& nameMap = primTarget->second;
+                TokenToToken::const_iterator nameTarget = nameMap.find(originalName);
+                if (nameTarget != nameMap.cend()) {
+                    return nameTarget->second;
+                }
+            }
+            return originalName;
+        }
+    };
+
+    PvtPrim* findPrimOrThrow(const RtToken& name, PvtPrim* parent, PvtRenamingMapper const& mapper)
     {
-        PvtPrim* prim = parent->getChild(name);
+        PvtPrim* prim = parent->getChild(mapper.getFinalName(parent, name));
         if (!prim)
         {
             throw ExceptionRuntimeError("Can't find node '" + name.str() + "' in '" + parent->getName().str() + "'");
@@ -147,11 +173,11 @@ namespace
         }
     }
 
-    void createNodeConnections(const vector<NodePtr>& nodeElements, PvtPrim* parent)
+    void createNodeConnections(const vector<NodePtr>& nodeElements, PvtPrim* parent, PvtRenamingMapper const&mapper)
     {
         for (const NodePtr& nodeElem : nodeElements)
         {
-            PvtPrim* node = findPrimOrThrow(RtToken(nodeElem->getName()), parent);
+            PvtPrim* node = findPrimOrThrow(RtToken(nodeElem->getName()), parent, mapper);
             for (const InputPtr& elemInput : nodeElem->getInputs())
             {
                 PvtInput* input = findInputOrThrow(RtToken(elemInput->getName()), node);
@@ -162,7 +188,7 @@ namespace
                 }
                 if (!connectedNodeName.empty())
                 {
-                    PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), parent);
+                    PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), parent, mapper);
                     const RtToken outputName(elemInput->getOutputString());
                     PvtOutput* output = findOutputOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtAttribute::DEFAULT_OUTPUT_NAME, connectedNode);
                     output->connect(input);
@@ -248,7 +274,7 @@ namespace
         return EMPTY_TOKEN;
     }
 
-    PvtPrim* readNode(const NodePtr& src, PvtPrim* parent, PvtStage* stage)
+    PvtPrim* readNode(const NodePtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
         const RtToken nodedefName = resolveNodeDefName(src);
         if (nodedefName == EMPTY_TOKEN)
@@ -258,6 +284,7 @@ namespace
 
         const RtToken nodeName(src->getName());
         PvtPrim* node = stage->createPrim(parent->getPath(), nodeName, nodedefName);
+        mapper.addMapping(parent, nodeName, node->getName());
 
         readMetadata(src, node, attrMetadata);
 
@@ -300,11 +327,12 @@ namespace
         return node;
     }
 
-    PvtPrim* readNodeGraph(const NodeGraphPtr& src, PvtPrim* parent, PvtStage* stage)
+    PvtPrim* readNodeGraph(const NodeGraphPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
         const RtToken nodegraphName(src->getName());
 
         PvtPrim* nodegraph = stage->createPrim(parent->getPath(), nodegraphName, RtNodeGraph::typeName());
+        mapper.addMapping(parent, nodegraphName, nodegraph->getName());
         RtNodeGraph schema(nodegraph->hnd());
 
         readMetadata(src, nodegraph, nodegraphMetadata);
@@ -327,7 +355,7 @@ namespace
             NodePtr srcNnode = child->asA<Node>();
             if (srcNnode)
             {
-                PvtPrim* node = readNode(srcNnode, nodegraph, stage);
+                PvtPrim* node = readNode(srcNnode, nodegraph, stage, mapper);
 
                 // Check for connections to the internal graph sockets
                 for (auto elem : srcNnode->getChildrenOfType<ValueElement>())
@@ -357,7 +385,7 @@ namespace
         }
 
         // Create connections between all nodes.
-        createNodeConnections(src->getNodes(), nodegraph);
+        createNodeConnections(src->getNodes(), nodegraph, mapper);
 
         // Create connections between node outputs and internal graph sockets.
         for (const OutputPtr& elem : src->getOutputs())
@@ -373,7 +401,7 @@ namespace
                     throw ExceptionRuntimeError("Output '" + elem->getName() + "' does not match an internal output socket on the nodegraph '" + path.asString() + "'");
                 }
 
-                PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), nodegraph);
+                PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), nodegraph, mapper);
 
                 const RtToken outputName(elem->getOutputString());
                 RtOutput output(findOutputOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtAttribute::DEFAULT_OUTPUT_NAME, connectedNode)->hnd());
@@ -384,12 +412,13 @@ namespace
         return nodegraph;
     }
 
-    PvtPrim* readGenericPrim(const ElementPtr& src, PvtPrim* parent, PvtStage* stage)
+    PvtPrim* readGenericPrim(const ElementPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
         const RtToken name(src->getName());
         const RtToken category(src->getCategory());
 
         PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtGeneric::typeName());
+        mapper.addMapping(parent, name, prim->getName());
         RtGeneric generic(prim->hnd());
         generic.setKind(category);
 
@@ -397,7 +426,7 @@ namespace
 
         for (auto child : src->getChildren())
         {
-            readGenericPrim(child, prim, stage);
+            readGenericPrim(child, prim, stage, mapper);
         }
 
         return prim;
@@ -406,11 +435,12 @@ namespace
     // Note that this function reads in a single collection. After all required collections
     // have been read in, the createCollectionConnections() function can be called
     // to create collection inclusion connections.
-    PvtPrim* readCollection(const CollectionPtr& src, PvtPrim* parent, PvtStage* stage)
+    PvtPrim* readCollection(const CollectionPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
         const RtToken name(src->getName());
 
         PvtPrim* collectionPrim = stage->createPrim(parent->getPath(), name, RtCollection::typeName());
+        mapper.addMapping(parent, name, collectionPrim->getName());
         RtCollection collection(collectionPrim->hnd());
         collection.getIncludeGeom().setValueString(src->getIncludeGeom());
         collection.getExcludeGeom().setValueString(src->getExcludeGeom());
@@ -420,14 +450,14 @@ namespace
 
     // Create collection include connections assuming that all referenced
     // looks exist.
-    void makeCollectionIncludeConnections(const vector<CollectionPtr>& collectionElements, PvtPrim* parent)
+    void makeCollectionIncludeConnections(const vector<CollectionPtr>& collectionElements, PvtPrim* parent, PvtRenamingMapper const& mapper)
     {
         for (const CollectionPtr& colElement : collectionElements)
         {
-            PvtPrim* parentCollection = findPrimOrThrow(RtToken(colElement->getName()), parent);
+            PvtPrim* parentCollection = findPrimOrThrow(RtToken(colElement->getName()), parent, mapper);
             for (const CollectionPtr& includeCollection : colElement->getIncludeCollections())
             {
-                PvtPrim* childCollection = findPrimOrThrow(RtToken(includeCollection->getName()), parent);
+                PvtPrim* childCollection = findPrimOrThrow(RtToken(includeCollection->getName()), parent, mapper);
                 RtCollection rtCollection(parentCollection->hnd());
                 rtCollection.addCollection(childCollection->hnd());
             }
@@ -437,26 +467,29 @@ namespace
     // Note that this function reads in a single look. After all required looks have been
     // read in then createLookConnections() can be called to create look inheritance
     // connections.
-    PvtPrim* readLook(const LookPtr& src, PvtPrim* parent, PvtStage* stage)
+    PvtPrim* readLook(const LookPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
         const RtToken name(src->getName());
 
         PvtPrim* lookPrim = stage->createPrim(parent->getPath(), name, RtLook::typeName());
+        mapper.addMapping(parent, name, lookPrim->getName());
         RtLook look(lookPrim->hnd());
 
         // Create material assignments
         for (const MaterialAssignPtr matAssign : src->getMaterialAssigns())
         {
-            PvtPrim* assignPrim = stage->createPrim(parent->getPath(), RtToken(matAssign->getName()), RtMaterialAssign::typeName());
+            const RtToken matAssignName(matAssign->getName());
+            PvtPrim* assignPrim = stage->createPrim(parent->getPath(), matAssignName, RtMaterialAssign::typeName());
+            mapper.addMapping(parent, matAssignName, assignPrim->getName());
             RtMaterialAssign rtMatAssign(assignPrim->hnd());
             
             if (!matAssign->getCollectionString().empty()) {
-                PvtPrim* collection = findPrimOrThrow(RtToken(matAssign->getCollectionString()), parent);
+                PvtPrim* collection = findPrimOrThrow(RtToken(matAssign->getCollectionString()), parent, mapper);
                 rtMatAssign.getCollection().addTarget(collection->hnd());
             }
 
             if (!matAssign->getMaterial().empty()) {
-                PvtPrim* material = findPrimOrThrow(RtToken(matAssign->getMaterial()), parent);
+                PvtPrim* material = findPrimOrThrow(RtToken(matAssign->getMaterial()), parent, mapper);
                 rtMatAssign.getMaterial().addTarget(material->hnd());
             }
 
@@ -475,15 +508,15 @@ namespace
 
     // Create look inheritance connections assuming that all referenced
     // looks exist.
-    void makeLookInheritConnections(const vector<LookPtr>& lookElements, PvtPrim* parent)
+    void makeLookInheritConnections(const vector<LookPtr>& lookElements, PvtPrim* parent, PvtRenamingMapper const& mapper)
     {
         for (const LookPtr& lookElem : lookElements)
         {
-            PvtPrim* childLook = findPrimOrThrow(RtToken(lookElem->getName()), parent);
+            PvtPrim* childLook = findPrimOrThrow(RtToken(lookElem->getName()), parent, mapper);
             const string& inheritString = lookElem->getInheritString();
             if (!inheritString.empty())
             {
-                PvtPrim* parentLook = findPrimOrThrow(RtToken(inheritString), parent);
+                PvtPrim* parentLook = findPrimOrThrow(RtToken(inheritString), parent, mapper);
                 RtLook rtLook(childLook->hnd());
                 rtLook.getInherit().addTarget(parentLook->hnd());
             }
@@ -492,12 +525,13 @@ namespace
 
     // Read in a look group. This assumes that all referenced looks have
     // already been created.
-    PvtPrim* readLookGroup(const LookGroupPtr& src, PvtPrim* parent, PvtStage* stage)
+    PvtPrim* readLookGroup(const LookGroupPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
         const string LIST_SEPARATOR(",");
 
         const RtToken name(src->getName());
         PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtLookGroup::typeName());
+        mapper.addMapping(parent, name, prim->getName());
         RtLookGroup lookGroup(prim->hnd());
 
         // Link to looks
@@ -507,7 +541,7 @@ namespace
         {
             if (!lookName.empty())
             {
-                PvtPrim* lookPrim = findPrimOrThrow(RtToken(lookName), parent);
+                PvtPrim* lookPrim = findPrimOrThrow(RtToken(lookName), parent, mapper);
                 lookGroup.addLook(lookPrim->hnd());
             }
         }
@@ -519,7 +553,7 @@ namespace
 
     // Read in all look information from a document. Collections, looks and
     // look groups are read in first. Then relationship linkages are made.
-    void readLookInformation(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions)
+    void readLookInformation(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions, PvtRenamingMapper& mapper)
     {
         const string ROOT_PATH(PvtPath::ROOT_NAME);
 
@@ -534,11 +568,11 @@ namespace
             {
                 // Make sure the element has not been loaded already.
                 PvtPath path(ROOT_PATH + elem->getName());
-                if (stage->getPrimAtPath(path))
+                if (readOptions && readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS && stage->getPrimAtPath(path))
                 {
                     continue;
                 }
-                readCollection(elem->asA<Collection>(), rootPrim, stage);
+                readCollection(elem->asA<Collection>(), rootPrim, stage, mapper);
             }
         }
 
@@ -549,11 +583,11 @@ namespace
             {
                 // Make sure the element has not been loaded already.
                 PvtPath path(ROOT_PATH + elem->getName());
-                if (stage->getPrimAtPath(path))
+                if (readOptions && readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS && stage->getPrimAtPath(path))
                 {
                     continue;
                 }
-                readLook(elem, rootPrim, stage);
+                readLook(elem, rootPrim, stage, mapper);
             }
         }
 
@@ -564,17 +598,17 @@ namespace
             {
                 // Make sure the element has not been loaded already.
                 PvtPath path(ROOT_PATH + elem->getName());
-                if (stage->getPrimAtPath(path))
+                if (readOptions && readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS && stage->getPrimAtPath(path))
                 {
                     continue;
                 }
-                readLookGroup(elem, rootPrim, stage);
+                readLookGroup(elem, rootPrim, stage, mapper);
             }
         }
 
         // Create additional connections
-        makeCollectionIncludeConnections(doc->getCollections(), rootPrim);
-        makeLookInheritConnections(doc->getLooks(), rootPrim);
+        makeCollectionIncludeConnections(doc->getCollections(), rootPrim, mapper);
+        makeLookInheritConnections(doc->getLooks(), rootPrim, mapper);
     }
 
     void validateNodesHaveNodedefs(DocumentPtr doc)
@@ -593,8 +627,44 @@ namespace
         }
     }
 
+    void validateNoConflicts(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions) {
+        const string ROOT_PATH(PvtPath::ROOT_NAME);
+        RtReadOptions::ReadFilter filter = readOptions ? readOptions->readFilter : nullptr;
+
+        auto checkElements = [&ROOT_PATH, &filter, stage](auto const& elemCollection){
+            for (auto const& elem : elemCollection)
+            {
+                if (filter && !filter(elem))
+                {
+                    continue;
+                }
+                // Make sure the element has not been loaded already.
+                PvtPath path(ROOT_PATH + elem->getName());
+                if (stage->getPrimAtPath(path))
+                {
+                    throw ExceptionRuntimeError("Element already exists in stage '" + elem->getName() + "'");
+                }
+            }
+        };
+
+        checkElements(doc->getChildren());
+
+        if (readOptions && !readOptions->readLookInformation)
+        {
+            return;
+        }
+
+        checkElements(doc->getCollections());
+        checkElements(doc->getLooks());
+        checkElements(doc->getLookGroups());
+    }
+
     void readDocument(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions)
     {
+        if (readOptions && readOptions->conflictResolution == RtReadOptions::THROW_ERROR) {
+            validateNoConflicts(doc, stage, readOptions);
+        }
+
         const string ROOT_PATH(PvtPath::ROOT_NAME);
 
         // Set the source location 
@@ -621,6 +691,9 @@ namespace
 
         validateNodesHaveNodedefs(doc);
 
+        // Keep track of renamed nodes:
+        PvtRenamingMapper mapper;
+
         // Load all other elements.
         for (const ElementPtr& elem : doc->getChildren())
         {
@@ -628,18 +701,24 @@ namespace
             {
                 // Make sure the element has not been loaded already.
                 PvtPath path(ROOT_PATH + elem->getName());
-                if (stage->getPrimAtPath(path))
+                if (readOptions && readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS && stage->getPrimAtPath(path))
                 {
                     continue;
                 }
 
                 if (elem->isA<Node>())
                 {
-                    readNode(elem->asA<Node>(), stage->getRootPrim(), stage);
+                    readNode(elem->asA<Node>(), stage->getRootPrim(), stage, mapper);
                 }
                 else if (elem->isA<NodeGraph>())
                 {
-                    readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage);
+                    // Always skip if the nodegraph implements a nodedef
+                    if (readOptions && readOptions->conflictResolution == RtReadOptions::RENAME_ELEMENTS &&
+                        stage->getPrimAtPath(path) && elem->asA<NodeGraph>()->getNodeDef())
+                    {
+                        continue;
+                    }
+                    readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage, mapper);
                 }
                 else
                 {
@@ -647,20 +726,21 @@ namespace
                     if (category != RtLook::typeName() &&
                         category != RtLookGroup::typeName() &&
                         category != RtMaterialAssign::typeName() &&
-                        category != RtCollection::typeName()) {
-                        readGenericPrim(elem, stage->getRootPrim(), stage);
+                        category != RtCollection::typeName() &&
+                        category != RtNodeDef::typeName()) {
+                        readGenericPrim(elem, stage->getRootPrim(), stage, mapper);
                     }
                 }
             }
         }
 
         // Create connections between all root level nodes.
-        createNodeConnections(doc->getNodes(), stage->getRootPrim());
+        createNodeConnections(doc->getNodes(), stage->getRootPrim(), mapper);
 
         // Read look information
         if (!readOptions || readOptions->readLookInformation)
         {
-            readLookInformation(doc, stage, readOptions);
+            readLookInformation(doc, stage, readOptions, mapper);
         }
     }
 
@@ -1164,7 +1244,7 @@ namespace
 } // end anonymous namespace
 
 RtReadOptions::RtReadOptions() :
-    skipConflictingElements(true),
+    conflictResolution(RtReadOptions::SKIP_ELEMENTS),
     readFilter(nullptr),
     readLookInformation(false),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),
@@ -1190,7 +1270,7 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         xmlReadOptions.skipConflictingElements = true;
         if (readOptions)
         {
-            xmlReadOptions.skipConflictingElements = readOptions->skipConflictingElements;
+            xmlReadOptions.skipConflictingElements = readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS;
             xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
             xmlReadOptions.desiredMinorVersion = readOptions->desiredMinorVersion;
         }
@@ -1225,7 +1305,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         xmlReadOptions.skipConflictingElements = true;
         if (readOptions)
         {
-            xmlReadOptions.skipConflictingElements = readOptions->skipConflictingElements;
+            xmlReadOptions.skipConflictingElements = readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS;
             xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
             xmlReadOptions.desiredMajorVersion = readOptions->desiredMinorVersion;
         }
@@ -1282,6 +1362,9 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
 
     validateNodesHaveNodedefs(doc);
 
+    // We were already renaming on conflict here. Keep track of the new names.
+    PvtRenamingMapper mapper;
+
     // Second, load all other elements.
     for (const ElementPtr& elem : doc->getChildren())
     {
@@ -1295,15 +1378,15 @@ void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath
 
         if (elem->isA<Node>())
         {
-            readNode(elem->asA<Node>(), stage->getRootPrim(), stage);
+            readNode(elem->asA<Node>(), stage->getRootPrim(), stage, mapper);
         }
         else if (elem->isA<NodeGraph>())
         {
-            readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage);
+            readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage, mapper);
         }
         else
         {
-            readGenericPrim(elem, stage->getRootPrim(), stage);
+            readGenericPrim(elem, stage->getRootPrim(), stage, mapper);
         }
     }
 }
