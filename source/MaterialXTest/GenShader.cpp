@@ -182,11 +182,10 @@ TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
             if (impl)
             {
                 // Scan for file and see if we can read in the contents
-                std::string sourceContents;
                 mx::FilePath sourcePath = impl->getFile();
                 mx::FilePath resolvedPath = sourceCodeSearchPath.find(sourcePath);
-                bool found = mx::readFile(resolvedPath.asString(), sourceContents);
-                if (!found)
+                std::string sourceContents = mx::readFile(resolvedPath.asString());
+                if (sourceContents.empty())
                 {
                     missing++;
                     missing_str += "Missing source code: " + sourcePath.asString() + " for nodeDef: "

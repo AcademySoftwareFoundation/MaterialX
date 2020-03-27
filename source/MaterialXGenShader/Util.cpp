@@ -27,7 +27,7 @@ string removeExtension(const string& filename)
     return filename.substr(0, lastDot);
 }
 
-bool readFile(const string& filename, string& contents)
+string readFile(const string& filename)
 {
     std::ifstream file(filename, std::ios::in);
     if (file)
@@ -37,12 +37,10 @@ bool readFile(const string& filename, string& contents)
         file.close();
         if (stream)
         {
-            contents = stream.str();
-            return (contents.size() > 0);
+            return stream.str();
         }
-        return false;
     }
-    return false;
+    return EMPTY_STRING;
 }
 
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
