@@ -131,14 +131,14 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
         _glShader = std::make_shared<ng::GLShader>();
     }
 
-    std::string vertexShader;
-    if (!mx::readFile(vertexShaderFile, vertexShader))
+    std::string vertexShader = mx::readFile(vertexShaderFile);
+    if (vertexShader.empty())
     {
         return false;
     }
 
-    std::string pixelShader;
-    if (!mx::readFile(pixelShaderFile, pixelShader))
+    std::string pixelShader = mx::readFile(pixelShaderFile);
+    if (pixelShader.empty())
     {
         return false;
     }

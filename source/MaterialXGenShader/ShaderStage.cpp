@@ -324,8 +324,8 @@ void ShaderStage::addInclude(const string& file, GenContext& context)
 
     if (!_includes.count(resolvedFile))
     {
-        string content;
-        if (!readFile(resolvedFile, content))
+        string content = readFile(resolvedFile);
+        if (content.empty())
         {
             throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
         }
