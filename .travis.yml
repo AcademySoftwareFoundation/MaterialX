@@ -46,7 +46,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6 && PY=2"
       addons:
         apt:
           sources: ubuntu-toolchain-r-test
@@ -54,7 +54,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9 && PY=3"
+      env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
       addons:
         apt:
           sources: ubuntu-toolchain-r-test
@@ -62,13 +62,13 @@ matrix:
     - os: linux
       dist: bionic
       compiler: clang
-      env: MATRIX_EVAL="CC=clang-9 && CXX=clang++-9 && PY=3"
+      env: MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
       addons:
         apt:
           packages: [*packages_base, clang-9]
 
 before_install:
-  - export PY=2
+  - export PY=3
   - eval "${MATRIX_EVAL}"
 
 script:
