@@ -1,11 +1,3 @@
-vec2 mx_latlong_projection(vec3 dir)
-{
-    float latitude = -asin(dir.y) * M_PI_INV + 0.5;
-    latitude = clamp(latitude, 0.01, 0.99);
-    float longitude = atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
-    return vec2(longitude, latitude);
-}
-
 vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, sampler2D sampler)
 {
     vec2 res = textureSize(sampler, 0);
