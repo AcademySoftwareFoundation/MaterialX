@@ -464,7 +464,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
         if (image && _glShader->uniform(env.first, false) != -1)
         {
             mx::ImageSamplingProperties samplingProperties;
-            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
             samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
 

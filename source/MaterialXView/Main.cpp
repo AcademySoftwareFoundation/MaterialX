@@ -100,15 +100,13 @@ int main(int argc, char* const argv[])
         }
     }
 
-    // Add the module path to the search path.
-    mx::FilePath modulePath = mx::FilePath::getModulePath();
-    if ((modulePath.getParentPath() / "libraries").exists())
+    // Add default search paths for the viewer.
+    mx::FilePath installSearchPath = mx::FilePath::getModulePath().getParentPath();
+    mx::FilePath devSearchPath = installSearchPath.getParentPath().getParentPath().getParentPath();
+    searchPath.append(installSearchPath);
+    if (!devSearchPath.isEmpty() && (devSearchPath / "libraries").exists())
     {
-        searchPath.append(modulePath.getParentPath());
-    }
-    else
-    {
-        searchPath.append(modulePath);
+        searchPath.append(devSearchPath);
     }
 
     try
