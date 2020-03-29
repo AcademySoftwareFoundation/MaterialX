@@ -42,18 +42,14 @@ vec3 mx_microfacet_ggx_IS(vec2 Xi, vec3 X, vec3 Y, vec3 N, float alphaX, float a
     return normalize(H);
 }
 
-// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf (Equation 34)
-float mx_microfacet_ggx_G1(float cosTheta, float alpha)
-{
-    float cosTheta2 = cosTheta * cosTheta;
-    float tanTheta2 = (1.0 - cosTheta2) / cosTheta2;
-    return 2.0 / (1.0 + sqrt(1.0 + alpha * alpha * tanTheta2));
-}
-
-// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf (Equation 23)
+// http://jcgt.org/published/0003/02/03/paper.pdf
+// Equations 72 and 99
 float mx_microfacet_ggx_smith_G(float NdotL, float NdotV, float alpha)
 {
-    return mx_microfacet_ggx_G1(NdotL, alpha) * mx_microfacet_ggx_G1(NdotV, alpha);
+    float alpha2 = mx_square(alpha);
+    float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
+    float lambdaV = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotV));
+    return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
 }
 
 // http://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_sheen.pdf (Equation 2)
