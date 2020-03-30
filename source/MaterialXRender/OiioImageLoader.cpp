@@ -46,7 +46,7 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
     }
 
     bool written = false;
-    std::unique_ptr<OIIO::ImageOutput> imageOutput = OIIO::ImageOutput::create(filePath);
+    auto imageOutput = OIIO::ImageOutput::create(filePath);
     if (imageOutput)
     {
         if (imageOutput->open(filePath, imageSpec))
@@ -63,11 +63,14 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
             }
             else
             {
-                written = imageOutput->write_image(
-                    format,
-                    image->getResourceBuffer());
+                written = imageOutput->write_image(format, image->getResourceBuffer());
             }
             imageOutput->close();
+
+            // Handle deallocation in OpenImageIO 1.x
+            #if OIIO_VERSION < 10903
+            OIIO::ImageOutput::destroy(imageOutput);
+            #endif
         }
     }
     return written;
@@ -75,7 +78,7 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
 
 ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
 {
-    std::unique_ptr<OIIO::ImageInput> imageInput = OIIO::ImageInput::open(filePath);
+    auto imageInput = OIIO::ImageInput::open(filePath);
     if (!imageInput)
     {
         return nullptr;
@@ -106,6 +109,11 @@ ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
         image = nullptr;
     }
     imageInput->close();
+
+    // Handle deallocation in OpenImageIO 1.x
+    #if OIIO_VERSION < 10903
+    OIIO::ImageInput::destroy(imageInput);
+    #endif
 
     return image;
 }

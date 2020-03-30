@@ -109,11 +109,15 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
 
     // Create the shader.
     std::string shaderName = "__ENV_SHADER__";
-    _hwShader = createShader(shaderName, context, output); 
-    if (!_hwShader)
+    try
+    {
+        _hwShader = createShader(shaderName, context, output); 
+    }
+    catch (std::exception&)
     {
         return false;
     }
+
     std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
     std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
 
@@ -131,14 +135,14 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
         _glShader = std::make_shared<ng::GLShader>();
     }
 
-    std::string vertexShader;
-    if (!mx::readFile(vertexShaderFile, vertexShader))
+    std::string vertexShader = mx::readFile(vertexShaderFile);
+    if (vertexShader.empty())
     {
         return false;
     }
 
-    std::string pixelShader;
-    if (!mx::readFile(pixelShaderFile, pixelShader))
+    std::string pixelShader = mx::readFile(pixelShaderFile);
+    if (pixelShader.empty())
     {
         return false;
     }
@@ -464,7 +468,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
         if (image && _glShader->uniform(env.first, false) != -1)
         {
             mx::ImageSamplingProperties samplingProperties;
-            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
             samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
 

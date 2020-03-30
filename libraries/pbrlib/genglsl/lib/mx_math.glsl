@@ -56,14 +56,9 @@ float mx_mix(float v00, float v01, float v10, float v11,
    return mix(v0_, v1_, y);
 }
 
-// https://www.graphics.rwth-aachen.de/publication/2/jgt.pdf
-float mx_golden_ratio_sequence(int i)
+vec2 mx_latlong_projection(vec3 dir)
 {
-    return fract((float(i) + 1.0) * M_GOLDEN_RATIO);
-}
-
-// https://people.irisa.fr/Ricardo.Marques/articles/2013/SF_CGF.pdf
-vec2 mx_spherical_fibonacci(int i, int numSamples)
-{
-    return vec2((float(i) + 0.5) / float(numSamples), mx_golden_ratio_sequence(i));
+    float latitude = -asin(dir.y) * M_PI_INV + 0.5;
+    float longitude = atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
+    return vec2(longitude, latitude);
 }

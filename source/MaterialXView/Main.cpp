@@ -8,10 +8,10 @@ const std::string options =
 " Options: \n"
 "    --material [FILENAME]    Specify the displayed material\n"
 "    --mesh [FILENAME]        Specify the displayed geometry\n"
-"    --library [FILEPATH]     Specify an additional library folder\n"
-"    --path [FILEPATH]        Specify an additional search-path folder\n"
-"    --envMethod [INTEGER]    Environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, Default is 0)\n"
-"    --envRad [FILENAME]      Specify the environment radiance HDR\n"
+"    --envRad [FILENAME]      Specify the displayed environment light, stored as HDR environment radiance in the latitude-longitude format\n"
+"    --envMethod [INTEGER]    Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, Default is 0)\n"
+"    --path [FILEPATH]        Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
+"    --library [FILEPATH]     Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
 "    --msaa [INTEGER]         Multisampling count for anti-aliasing (0 = disabled, Default is 0)\n"
 "    --refresh [INTEGER]      Refresh period for the viewer in milliseconds (-1 = disabled, Default is 50)\n"
 "    --remap [TOKEN1:TOKEN2]  Remap one token to another when MaterialX document is loaded\n"
@@ -50,13 +50,9 @@ int main(int argc, char* const argv[])
         {
             meshFilename = nextToken;
         }
-        if (token == "--library" && !nextToken.empty())
+        if (token == "--envRad" && !nextToken.empty())
         {
-            libraryFolders.push_back(nextToken);
-        }
-        if (token == "--path" && !nextToken.empty())
-        {
-            searchPath.append(mx::FileSearchPath(nextToken));
+            envRadiancePath = nextToken;
         }
         if (token == "--envMethod" && !nextToken.empty())
         {
@@ -65,9 +61,13 @@ int main(int argc, char* const argv[])
                 specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_PREFILTER;
             }
         }
-        if (token == "--envRad" && !nextToken.empty())
+        if (token == "--path" && !nextToken.empty())
         {
-            envRadiancePath = nextToken;
+            searchPath.append(mx::FileSearchPath(nextToken));
+        }
+        if (token == "--library" && !nextToken.empty())
+        {
+            libraryFolders.push_back(nextToken);
         }
         if (token == "--msaa" && !nextToken.empty())
         {
@@ -100,31 +100,14 @@ int main(int argc, char* const argv[])
         }
     }
 
-    // Search current directory and parent directory if not found.
-    mx::FilePath currentPath(mx::FilePath::getCurrentPath());
-    mx::FilePath parentCurrentPath = currentPath.getParentPath();
-    std::vector<mx::FilePath> libraryPaths =
-    { 
-        mx::FilePath("libraries")
-    };
-    for (const auto& libraryPath : libraryPaths)
+    // Add default search paths for the viewer.
+    mx::FilePath installSearchPath = mx::FilePath::getModulePath().getParentPath();
+    mx::FilePath devSearchPath = installSearchPath.getParentPath().getParentPath().getParentPath();
+    searchPath.append(installSearchPath);
+    if (!devSearchPath.isEmpty() && (devSearchPath / "libraries").exists())
     {
-        mx::FilePath fullPath(currentPath / libraryPath);
-        if (!fullPath.exists())
-        {
-            fullPath = parentCurrentPath / libraryPath;
-            if (fullPath.exists())
-            {
-                searchPath.append(fullPath);
-            }
-        }
-        else
-        {
-            searchPath.append(fullPath);
-        }
+        searchPath.append(devSearchPath);
     }
-    searchPath.append(parentCurrentPath);
-    searchPath.prepend(currentPath);
 
     try
     {

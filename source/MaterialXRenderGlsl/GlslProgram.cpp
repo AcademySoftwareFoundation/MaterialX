@@ -710,7 +710,12 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
 
             if (image)
             {
-                if (imageHandler->bindImage(image, ImageSamplingProperties()))
+                ImageSamplingProperties samplingProperties;
+                samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::PERIODIC;
+                samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
+                samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
+
+                if (imageHandler->bindImage(image, samplingProperties))
                 {
                     GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
                     int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());

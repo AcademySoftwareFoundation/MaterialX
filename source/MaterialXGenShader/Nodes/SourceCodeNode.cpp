@@ -35,7 +35,6 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
         throw ExceptionShaderGenError("No source file specified for implementation '" + impl.getName() + "'");
     }
 
-    _functionSource = "";
     _inlined = (file.getExtension() == "inline");
 
     // Find the function name to use
@@ -47,15 +46,16 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
     }
     context.getShaderGenerator().getSyntax().makeValidName(_functionName);
 
-    if (!readFile(context.resolveSourceFile(file), _functionSource))
+    _functionSource = readFile(context.resolveSourceFile(FilePath("libraries") / file));
+    if (_functionSource.empty())
     {
-        throw ExceptionShaderGenError("Can't find source file '" + file.asString() +
+        throw ExceptionShaderGenError("Could not find source file '" + file.asString() +
                                       "' used by implementation '" + impl.getName() + "'");
     }
 
     if (_inlined)
     {
-        _functionSource.erase(std::remove(_functionSource.begin(), _functionSource.end(), '\n'), _functionSource.end());
+        _functionSource = replaceSubstrings(_functionSource, { { "\n", "" } });
     }
 
     // Set hash using the function name.

@@ -17,6 +17,10 @@
 #include <dirent.h>
 #endif
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
 #include <array>
 #include <cctype>
 #include <cerrno>
@@ -263,6 +267,62 @@ FilePath FilePath::getCurrentPath()
         throw Exception("Error in getCurrentPath: " + string(strerror(errno)));
     }
     return FilePath(buf.data());
+#endif
+}
+
+FilePath FilePath::getModulePath()
+{
+#if defined(_WIN32)
+    vector<char> buf(MAX_PATH);
+    while (true)
+    {
+        uint32_t reqSize = GetModuleFileName(NULL, buf.data(), (uint32_t) buf.size());
+        if (!reqSize)
+        {
+            throw Exception("Error in getModulePath: " + std::to_string(GetLastError()));
+        }
+        else if ((size_t) reqSize >= buf.size())
+        {
+            buf.resize(buf.size() * 2);
+        }
+        else
+        {
+            return FilePath(buf.data()).getParentPath();
+        }
+    }
+#elif defined(__APPLE__)
+    vector<char> buf(PATH_MAX);
+    while (true)
+    {
+        uint32_t reqSize = buf.size();
+        if (_NSGetExecutablePath(buf.data(), &reqSize) == -1)
+        {
+            buf.resize((size_t) reqSize);
+        }
+        else
+        {
+            return FilePath(buf.data()).getParentPath();
+        }
+    }
+#else
+    vector<char> buf(PATH_MAX);
+    while (true)
+    {
+        ssize_t reqSize = readlink("/proc/self/exe", buf.data(), buf.size());
+        if (reqSize == -1)
+        {
+            throw Exception("Error in getModulePath: " + string(strerror(errno)));
+        }
+        else if ((size_t) reqSize >= buf.size())
+        {
+            buf.resize(buf.size() * 2);
+        }
+        else
+        {
+            buf.data()[reqSize] = '\0';
+            return FilePath(buf.data()).getParentPath();
+        }
+    }
 #endif
 }
 

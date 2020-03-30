@@ -35,8 +35,8 @@ const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
 
 const float ENV_MAP_SPLIT_RADIANCE = 16.0f;
-const float MAX_ENV_TEXEL_RADIANCE = 36000.0f;
-const float IDEAL_ENV_MAP_RADIANCE = 5.2374f;
+const float MAX_ENV_TEXEL_RADIANCE = 100000.0f;
+const float IDEAL_ENV_MAP_RADIANCE = 6.0f;
 
 const float MODEL_SPHERE_RADIUS = 2.0f;
 
@@ -184,6 +184,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _farDist(5000.0f),
     _cameraYaw(0.0f),
     _modelZoom(1.0f),
+    _modelYaw(0.0f),
     _userZoom(1.0f),
     _userTranslationActive(false),
     _userTranslationPixel(0, 0),
@@ -239,6 +240,7 @@ Viewer::Viewer(const std::string& materialFilename,
     mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
 #endif
     _imageHandler = mx::GLTextureHandler::create(imageLoader);
+    _imageHandler->setSearchPath(_searchPath);
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -357,7 +359,7 @@ void Viewer::loadEnvironmentLight()
     std::string message;
 
     // Load the requested radiance map.
-    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_searchPath.find(_envRadiancePath), true, nullptr, &message);
+    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadiancePath, true, nullptr, &message);
     if (!envRadianceMap)
     {
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light", message);
@@ -390,7 +392,7 @@ void Viewer::loadEnvironmentLight()
     if (!_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadiancePath.getBaseName();
-        envIrradianceMap = _imageHandler->acquireImage(_searchPath.find(envIrradiancePath), true, nullptr, &message);
+        envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath, true, nullptr, &message);
     }
 
     // If not found, then generate an irradiance map via spherical harmonics.
@@ -425,7 +427,7 @@ void Viewer::loadEnvironmentLight()
     if (!_splitDirectLight)
     {
         _lightRigFilename = mx::removeExtension(_envRadiancePath) + "." + mx::MTLX_EXTENSION;
-        if (_lightRigFilename.exists())
+        if (_searchPath.find(_lightRigFilename).exists())
         {
             _lightRigDoc = mx::createDocument();
             mx::readFromXmlFile(_lightRigDoc, _lightRigFilename, _searchPath);
@@ -1058,12 +1060,14 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         if (!newMaterials.empty())
         {
+            // Extend the image search path to include this material folder.
+            mx::FilePath materialFolder = _materialFilename.getParentPath();
+            mx::FileSearchPath materialSearchPath = _searchPath;
+            materialSearchPath.append(materialFolder);
+            _imageHandler->setSearchPath(materialSearchPath);
+
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
-
-            // Set the default image search path.
-            mx::FilePath materialFolder = _materialFilename.getParentPath();
-            _imageHandler->setSearchPath(mx::FileSearchPath(materialFolder));
 
             mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
             MaterialPtr udimMaterial = nullptr;
@@ -1156,6 +1160,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load material", e.what());
         return;
     }
+
+    // Restore the original image search path.
+    _imageHandler->setSearchPath(_searchPath);
 
     // Update material UI.
     updateMaterialSelections();
@@ -1308,6 +1315,10 @@ void Viewer::loadStandardLibraries()
 {
     // Initialize the standard library.
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    if (_stdLib->getChildren().empty())
+    {
+        std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
+    }
     for (std::string sourceUri : _stdLib->getReferencedSourceUris())
     {
         _xincludeFiles.insert(sourceUri);
@@ -1739,10 +1750,12 @@ void Viewer::updateViewHandlers()
     float fW = fH * (float) mSize.x() / (float) mSize.y();
 
     mx::Matrix44 cameraYaw = mx::Matrix44::createRotationY(_cameraYaw / 360.0f * PI);
+    mx::Matrix44 modelYaw = mx::Matrix44::createRotationY(_modelYaw / 360.0f * PI);
     ng::Matrix4f ngArcball = _arcball.matrix();
     mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
 
-    _cameraViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation + _userTranslation) *
+    _cameraViewHandler->worldMatrix = modelYaw *
+                                      mx::Matrix44::createTranslation(_modelTranslation + _userTranslation) *
                                       mx::Matrix44::createScale(mx::Vector3(_modelZoom * _userZoom));
     _cameraViewHandler->viewMatrix = cameraYaw * arcball * mx::ViewHandler::createViewMatrix(_eye, _center, _up);
     _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
@@ -1751,7 +1764,8 @@ void Viewer::updateViewHandlers()
     if (dirLight)
     {
         const float r = MODEL_SPHERE_RADIUS;
-        _shadowViewHandler->worldMatrix = mx::Matrix44::createTranslation(_modelTranslation) *
+        _shadowViewHandler->worldMatrix = modelYaw *
+                                          mx::Matrix44::createTranslation(_modelTranslation) *
                                           mx::Matrix44::createScale(mx::Vector3(_modelZoom));
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
         mx::ValuePtr dir = dirLight->getInputValue("direction");
@@ -1783,7 +1797,6 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     std::string aoSuffix = material->getUdim().empty() ? AO_FILENAME_SUFFIX : AO_FILENAME_SUFFIX + "_" + material->getUdim();
     mx::FilePath aoFilename = mx::removeExtension(_meshFilename) + aoSuffix + "." + AO_FILENAME_EXTENSION;
 
-    _imageHandler->setSearchPath(_searchPath);
     return _imageHandler->acquireImage(aoFilename, true, &AO_FALLBACK_COLOR);
 }
 
