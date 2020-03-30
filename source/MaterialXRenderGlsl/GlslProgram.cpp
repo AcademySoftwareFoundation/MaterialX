@@ -32,9 +32,8 @@ GlslProgramPtr GlslProgram::create()
 GlslProgram::GlslProgram() :
     _programId(UNDEFINED_OPENGL_RESOURCE_ID),
     _shader(nullptr),
-    _indexBuffer(0),
-    _indexBufferSize(0),
-    _vertexArray(0)
+    _vertexArray(0),
+    _lastGeometryName(EMPTY_STRING)
 {
 }
 
@@ -273,12 +272,19 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
     getUniformsList();
     getAttributesList();
 
+    const MeshList& meshes = geometryHandler->getMeshes();
+    if (meshes.size() > 0 && meshes[0]->getIdentifier() != _lastGeometryName)
+    {
+        unbindGeometry();
+        _lastGeometryName = meshes[0]->getIdentifier();
+    }
     // Bind based on inputs found
     bindViewInformation(viewHandler);
     for (const auto& mesh : geometryHandler->getMeshes())
     {
         bindStreams(mesh);
     }
+
     bindTextures(imageHandler);
     bindTimeAndFrame();
     bindLighting(lightHandler, imageHandler);
@@ -298,7 +304,6 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
 void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
 {
     imageHandler->unbindImages();
-    unbindGeometry();
 
     // Clean up raster state if transparency was set in bindInputs()
     if (_shader->hasAttribute(HW::ATTR_TRANSPARENT))
@@ -354,6 +359,10 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
 
             _attributeBufferIds[input.first] = bufferId;
         }
+        else
+        {
+            glBindBuffer(GL_ARRAY_BUFFER, _attributeBufferIds[input.first]);
+        }
 
         glEnableVertexAttribArray(location);
         _enabledStreamLocations.insert(location);
@@ -361,7 +370,7 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
     }
 }
 
-void GlslProgram::bindPartition(MeshPartitionPtr partition)
+void GlslProgram::bindPartition(const std::string& meshName, MeshPartitionPtr partition)
 {
     StringVec errors;
     const std::string errorType("GLSL geometry bind error.");
@@ -371,11 +380,21 @@ void GlslProgram::bindPartition(MeshPartitionPtr partition)
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    MeshIndexBuffer& indexData = partition->getIndices();
-    _indexBufferSize = indexData.size();
-    glGenBuffers(1, &_indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indexBufferSize * sizeof(uint32_t), &indexData[0], GL_STATIC_DRAW);
+    const std::string identifier = meshName + partition->getIdentifier();
+    if (_indexBufferIds.find(identifier) != _indexBufferIds.end())
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBufferIds[identifier]);
+    }
+    else
+    {
+        MeshIndexBuffer& indexData = partition->getIndices();
+        size_t indexBufferSize = indexData.size();
+        unsigned int indexBuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+        glGenBuffers(1, &indexBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize * sizeof(uint32_t), &indexData[0], GL_STATIC_DRAW);
+        _indexBufferIds[identifier] = indexBuffer;
+    }
 }
 
 void GlslProgram::bindStreams(MeshPtr mesh)
@@ -398,10 +417,12 @@ void GlslProgram::bindStreams(MeshPtr mesh)
     GlslProgram::InputMap foundList;
     const GlslProgram::InputMap& attributeList = getAttributesList();
 
-    // Set up vertex arrays
-    glGenVertexArrays(1, &_vertexArray);
+    if (_vertexArray == UNDEFINED_OPENGL_RESOURCE_ID)
+    {
+        // Set up vertex arrays
+        glGenVertexArrays(1, &_vertexArray);
+    }
     glBindVertexArray(_vertexArray);
-
 
     // Bind positions
     findInputs(HW::IN_POSITION, attributeList, foundList, true);
@@ -495,11 +516,6 @@ void GlslProgram::unbindGeometry()
 
     // Clean up buffers
     //
-    if (_indexBuffer > 0)
-    {
-        glDeleteBuffers(1, &_indexBuffer);
-        _indexBuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-    }
     for (const auto& attributeBufferId : _attributeBufferIds)
     {
         unsigned int bufferId = attributeBufferId.second;
@@ -509,6 +525,15 @@ void GlslProgram::unbindGeometry()
         }
     }
     _attributeBufferIds.clear();
+    for (const auto& indexBufferId : _indexBufferIds)
+    {
+        unsigned int bufferId = indexBufferId.second;
+        if (bufferId > 0)
+        {
+            glDeleteBuffers(1, &bufferId);
+        }
+    }
+    _indexBufferIds.clear();
 
     glDeleteVertexArrays(1, &_vertexArray);
     _vertexArray = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
@@ -601,7 +626,6 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
             {
                 ImageSamplingProperties samplingProperties;
                 samplingProperties.setProperties(uniform.first, publicUniforms);
-
                 bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties);
             }
         }
@@ -1083,6 +1107,10 @@ void GlslProgram::unbind() const
     glUseProgram(0);
 }
 
+bool GlslProgram::geometryBound() const
+{
+    return _vertexArray != UNDEFINED_OPENGL_RESOURCE_ID;
+}
 
 void GlslProgram::clearInputLists()
 {

@@ -49,6 +49,14 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height) :
 
 GlslRenderer::~GlslRenderer()
 {
+    if (_program->geometryBound())
+    {
+        if (_context->makeCurrent())
+        {
+            _program->unbindGeometry();
+        }
+    }
+
     // Clean up the program
     _program = nullptr;
 
@@ -281,8 +289,7 @@ void GlslRenderer::render()
                     for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                     {
                         auto part = mesh->getPartition(i);
-                        _program->bindPartition(part);
-
+                        _program->bindPartition(mesh->getIdentifier(), part);
                         MeshIndexBuffer& indexData = part->getIndices();
                         glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
                     }

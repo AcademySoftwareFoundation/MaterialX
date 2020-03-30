@@ -37,7 +37,8 @@ void bindPyGlslProgram(py::module& mod)
         .def("bindLighting", &mx::GlslProgram::bindLighting)
         .def("bindViewInformation", &mx::GlslProgram::bindViewInformation)
         .def("bindTimeAndFrame", &mx::GlslProgram::bindTimeAndFrame)
-        .def("unbind", &mx::GlslProgram::unbind);
+        .def("unbind", &mx::GlslProgram::unbind)
+        .def("geometryBound", &mx::GlslProgram::geometryBound);
 
     py::class_<mx::GlslProgram::Input>(mod, "Input")
         .def_readwrite_static("INVALID_OPENGL_TYPE", &mx::GlslProgram::Input::INVALID_OPENGL_TYPE)
