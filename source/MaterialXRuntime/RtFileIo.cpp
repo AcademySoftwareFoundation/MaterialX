@@ -56,7 +56,7 @@ namespace
         const RtToken& getFinalName(PvtPrim* parent, const RtToken& originalName) const {
             PerPrimMap::const_iterator primTarget = _map.find(parent);
             if (primTarget != _map.cend()) {
-                TokenToToken const& nameMap = primTarget->second;
+                const TokenToToken& nameMap = primTarget->second;
                 TokenToToken::const_iterator nameTarget = nameMap.find(originalName);
                 if (nameTarget != nameMap.cend()) {
                     return nameTarget->second;
@@ -66,7 +66,7 @@ namespace
         }
     };
 
-    PvtPrim* findPrimOrThrow(const RtToken& name, PvtPrim* parent, PvtRenamingMapper const& mapper)
+    PvtPrim* findPrimOrThrow(const RtToken& name, PvtPrim* parent, const PvtRenamingMapper& mapper)
     {
         PvtPrim* prim = parent->getChild(mapper.getFinalName(parent, name));
         if (!prim)
@@ -173,7 +173,7 @@ namespace
         }
     }
 
-    void createNodeConnections(const vector<NodePtr>& nodeElements, PvtPrim* parent, PvtRenamingMapper const&mapper)
+    void createNodeConnections(const vector<NodePtr>& nodeElements, PvtPrim* parent, const PvtRenamingMapper&mapper)
     {
         for (const NodePtr& nodeElem : nodeElements)
         {
@@ -450,7 +450,7 @@ namespace
 
     // Create collection include connections assuming that all referenced
     // looks exist.
-    void makeCollectionIncludeConnections(const vector<CollectionPtr>& collectionElements, PvtPrim* parent, PvtRenamingMapper const& mapper)
+    void makeCollectionIncludeConnections(const vector<CollectionPtr>& collectionElements, PvtPrim* parent, const PvtRenamingMapper& mapper)
     {
         for (const CollectionPtr& colElement : collectionElements)
         {
@@ -508,7 +508,7 @@ namespace
 
     // Create look inheritance connections assuming that all referenced
     // looks exist.
-    void makeLookInheritConnections(const vector<LookPtr>& lookElements, PvtPrim* parent, PvtRenamingMapper const& mapper)
+    void makeLookInheritConnections(const vector<LookPtr>& lookElements, PvtPrim* parent, const PvtRenamingMapper& mapper)
     {
         for (const LookPtr& lookElem : lookElements)
         {
@@ -628,9 +628,9 @@ namespace
     }
 
     template <typename T>
-    void checkElementConflicts(RtReadOptions::ReadFilter const& filter, PvtStage* stage, T const& elemCollection) {
+    void checkElementConflicts(const RtReadOptions::ReadFilter& filter, PvtStage* stage, const T& elemCollection) {
         const string ROOT_PATH(PvtPath::ROOT_NAME);
-        for (auto const& elem : elemCollection)
+        for (const auto& elem : elemCollection)
         {
             if (filter && !filter(elem))
             {
