@@ -620,38 +620,8 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
 
             if (_bakeTextures && material->getMaterialElement())
             {
-
-                mx::FileSearchPath searchPath = _searchPath;
-                if (material->getDocument())
-                {
-                    mx::FilePath documentFilename = material->getDocument()->getSourceUri();
-                    searchPath.append(documentFilename.getParentPath());
-                }
-
-                mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
-                imageHandler->setSearchPath(searchPath);
-                if (!material->getUdim().empty())
-                {
-                    mx::StringResolverPtr resolver = mx::StringResolver::create();
-                    resolver->setUdimString(material->getUdim());
-                    imageHandler->setFilenameResolver(resolver);
-                }
-
-                mx::TextureBakerPtr baker = mx::TextureBaker::create();
-                baker->setImageHandler(imageHandler);
-
-                mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
-                if (shaderRef)
-                {
-                    baker->bakeShaderInputs(shaderRef, _genContext, filename.getParentPath());
-                    baker->writeBakedDocument(shaderRef, filename);
-                }
-                mx::NodePtr shader = material->getElement()->asA<mx::Node>();
-                if (shader)
-                {
-                    baker->bakeShaderInputs(shader, _genContext, filename.getParentPath());
-                    baker->writeBakedDocument(shader, filename);
-                }
+                _bakeRequested = true;
+                _bakeFilename = filename;
             }
             else
             {
@@ -1596,7 +1566,6 @@ void Viewer::drawContents()
         _bakeRequested = false;
 
         MaterialPtr material = getSelectedMaterial();
-        mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
         mx::FileSearchPath searchPath = _searchPath;
         if (material->getDocument())
         {
@@ -1617,8 +1586,21 @@ void Viewer::drawContents()
         {
             mx::TextureBakerPtr baker = mx::TextureBaker::create();
             baker->setImageHandler(imageHandler);
-            baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath());
-            baker->writeBakedDocument(shaderRef, _bakeFilename);
+            mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
+            if (shaderRef)
+            {
+                baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath());
+                baker->writeBakedDocument(shaderRef, _bakeFilename);
+            }
+            else
+            {
+                mx::NodePtr shader = material->getElement()->asA<mx::Node>();
+                if (shader)
+                {
+                    baker->bakeShaderInputs(shader, _genContext, _bakeFilename.getParentPath());
+                    baker->writeBakedDocument(shader, _bakeFilename);
+                }
+            }
         }
         catch (mx::Exception& e)
         {
