@@ -1213,7 +1213,9 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         string errorMessage;
         DocumentPtr validationDocument = createDocument();
         writeUnitDefinitions(validationDocument);
-        validationDocument->copyContentFrom(document);
+        CopyOptions cops;
+        cops.skipConflictingElements = true;
+        validationDocument->copyContentFrom(document, &cops);
         if (validationDocument->validate(&errorMessage))
         {
             PvtStage* stage = PvtStage::ptr(_stage);
@@ -1248,7 +1250,9 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         string errorMessage; 
         DocumentPtr validationDocument = createDocument();
         writeUnitDefinitions(validationDocument);
-        validationDocument->copyContentFrom(document);
+        CopyOptions cops;
+        cops.skipConflictingElements = true;
+        validationDocument->copyContentFrom(document, &cops);
         if (validationDocument->validate(&errorMessage))
         {
             PvtStage* stage = PvtStage::ptr(_stage);
