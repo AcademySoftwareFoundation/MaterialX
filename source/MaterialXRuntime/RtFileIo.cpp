@@ -555,8 +555,6 @@ namespace
     // look groups are read in first. Then relationship linkages are made.
     void readLookInformation(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions, PvtRenamingMapper& mapper)
     {
-        const string ROOT_PATH(PvtPath::ROOT_NAME);
-
         RtReadOptions::ReadFilter filter = readOptions ? readOptions->readFilter : nullptr;
 
         PvtPrim* rootPrim = stage->getRootPrim();
@@ -566,12 +564,6 @@ namespace
         {
             if (!filter || filter(elem))
             {
-                // Make sure the element has not been loaded already.
-                PvtPath path(ROOT_PATH + elem->getName());
-                if (readOptions && readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS && stage->getPrimAtPath(path))
-                {
-                    continue;
-                }
                 readCollection(elem->asA<Collection>(), rootPrim, stage, mapper);
             }
         }
@@ -581,12 +573,6 @@ namespace
         {
             if (!filter || filter(elem))
             {
-                // Make sure the element has not been loaded already.
-                PvtPath path(ROOT_PATH + elem->getName());
-                if (readOptions && readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS && stage->getPrimAtPath(path))
-                {
-                    continue;
-                }
                 readLook(elem, rootPrim, stage, mapper);
             }
         }
@@ -596,12 +582,6 @@ namespace
         {
             if (!filter || filter(elem))
             {
-                // Make sure the element has not been loaded already.
-                PvtPath path(ROOT_PATH + elem->getName());
-                if (readOptions && readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS && stage->getPrimAtPath(path))
-                {
-                    continue;
-                }
                 readLookGroup(elem, rootPrim, stage, mapper);
             }
         }
@@ -627,47 +607,8 @@ namespace
         }
     }
 
-    template <typename T>
-    void checkElementConflicts(const RtReadOptions::ReadFilter& filter, PvtStage* stage, const T& elemCollection) {
-        const string ROOT_PATH(PvtPath::ROOT_NAME);
-        for (const auto& elem : elemCollection)
-        {
-            if (filter && !filter(elem))
-            {
-                continue;
-            }
-            // Make sure the element has not been loaded already.
-            PvtPath path(ROOT_PATH + elem->getName());
-            if (stage->getPrimAtPath(path))
-            {
-                throw ExceptionRuntimeError("Element already exists in stage '" + elem->getName() + "'");
-            }
-        }
-    }
-
-    void validateNoConflicts(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions) {
-        RtReadOptions::ReadFilter filter = readOptions ? readOptions->readFilter : nullptr;
-
-        checkElementConflicts(filter, stage, doc->getChildren());
-
-        if (readOptions && !readOptions->readLookInformation)
-        {
-            return;
-        }
-
-        checkElementConflicts(filter, stage, doc->getCollections());
-        checkElementConflicts(filter, stage, doc->getLooks());
-        checkElementConflicts(filter, stage, doc->getLookGroups());
-    }
-
     void readDocument(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* readOptions)
     {
-        if (readOptions && readOptions->conflictResolution == RtReadOptions::THROW_ERROR) {
-            validateNoConflicts(doc, stage, readOptions);
-        }
-
-        const string ROOT_PATH(PvtPath::ROOT_NAME);
-
         // Set the source location 
         const std::string& uri = doc->getSourceUri();
         stage->addSourceUri(RtToken(uri));
@@ -700,13 +641,6 @@ namespace
         {
             if (!filter || filter(elem))
             {
-                // Make sure the element has not been loaded already.
-                PvtPath path(ROOT_PATH + elem->getName());
-                if (readOptions && readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS && stage->getPrimAtPath(path))
-                {
-                    continue;
-                }
-
                 if (elem->isA<Node>())
                 {
                     readNode(elem->asA<Node>(), stage->getRootPrim(), stage, mapper);
@@ -714,8 +648,8 @@ namespace
                 else if (elem->isA<NodeGraph>())
                 {
                     // Always skip if the nodegraph implements a nodedef
-                    if (readOptions && readOptions->conflictResolution == RtReadOptions::RENAME_ELEMENTS &&
-                        stage->getPrimAtPath(path) && elem->asA<NodeGraph>()->getNodeDef())
+                    PvtPath path(PvtPath::ROOT_NAME.str() + elem->getName());
+                    if (stage->getPrimAtPath(path) && elem->asA<NodeGraph>()->getNodeDef())
                     {
                         continue;
                     }
@@ -1245,7 +1179,6 @@ namespace
 } // end anonymous namespace
 
 RtReadOptions::RtReadOptions() :
-    conflictResolution(RtReadOptions::SKIP_ELEMENTS),
     readFilter(nullptr),
     readLookInformation(false),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),
@@ -1271,7 +1204,7 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         xmlReadOptions.skipConflictingElements = true;
         if (readOptions)
         {
-            xmlReadOptions.skipConflictingElements = readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS;
+            xmlReadOptions.skipConflictingElements = true;
             xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
             xmlReadOptions.desiredMinorVersion = readOptions->desiredMinorVersion;
         }
@@ -1306,7 +1239,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         xmlReadOptions.skipConflictingElements = true;
         if (readOptions)
         {
-            xmlReadOptions.skipConflictingElements = readOptions->conflictResolution == RtReadOptions::SKIP_ELEMENTS;
+            xmlReadOptions.skipConflictingElements = true;
             xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
             xmlReadOptions.desiredMajorVersion = readOptions->desiredMinorVersion;
         }

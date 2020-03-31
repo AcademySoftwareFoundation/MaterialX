@@ -30,16 +30,6 @@ class RtReadOptions
     RtReadOptions();
     ~RtReadOptions() { }
 
-    /// Conflict resolution enumeration
-    enum ConflictResolution {
-        SKIP_ELEMENTS, /// Skip conflicting elements
-        RENAME_ELEMENTS, /// Rename conflicting elements
-        THROW_ERROR /// Throw error and leave destination unmodified
-    };
-    
-    /// How to handle incoming elements conflicting with existing elements.
-    ConflictResolution conflictResolution;
-
     /// Filter function type used for filtering elements during read.
     /// If the filter returns false the element will not be read.
     ReadFilter readFilter;

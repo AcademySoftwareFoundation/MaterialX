@@ -917,23 +917,8 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
         ++stageTraverser;
     }
 
-    mx::RtReadOptions rops;
-    rops.readLookInformation = true;
-    rops.conflictResolution = mx::RtReadOptions::THROW_ERROR;
-    REQUIRE_THROWS(fileIo.read("defaultLook.mtlx", lookSearchPath, &rops));
+    fileIo.read("defaultLook.mtlx", lookSearchPath);
     int numAfter = 0;
-    stageTraverser = defaultStage->traverse();
-    while (!stageTraverser.isDone()) {
-        ++numAfter;
-        ++stageTraverser;
-    }
-    REQUIRE(numBefore == numAfter);
-
-    // Not testing SKIP_ELEMENTS
-
-    rops.conflictResolution = mx::RtReadOptions::RENAME_ELEMENTS;
-    fileIo.read("defaultLook.mtlx", lookSearchPath, &rops);
-    numAfter = 0;
     stageTraverser = defaultStage->traverse();
     while (!stageTraverser.isDone()) {
         ++numAfter;
