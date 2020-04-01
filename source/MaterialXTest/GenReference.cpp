@@ -167,6 +167,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     mx::GenContext context(generator);
     context.registerSourceCodeSearchPath(librariesPath);
     context.getOptions().fileTextureVerticalFlip = true;
+    context.getOptions().addUpstreamDependencies = false;
 
     bool runCompileTest = !std::string(MATERIALX_OSLC_EXECUTABLE).empty();
     mx::OslRendererPtr oslRenderer = nullptr;

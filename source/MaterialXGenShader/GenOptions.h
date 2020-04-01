@@ -60,7 +60,8 @@ class GenOptions
         hwShadowMap(false),
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
-        hwNormalizeUdimTexCoords(false)
+        hwNormalizeUdimTexCoords(false),
+        addUpstreamDependencies(true)
     {
     }
     virtual ~GenOptions() { }
@@ -121,6 +122,10 @@ class GenOptions
     /// compress a set of UDIMs into a single normalized image for
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
+
+    /// Sets whether to include upstream dependencies 
+    /// for the element to generate a shader for.
+    bool addUpstreamDependencies;
 };
 
 } // namespace MaterialX

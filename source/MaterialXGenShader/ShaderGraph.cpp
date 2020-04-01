@@ -425,10 +425,13 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     // Create output sockets from the nodegraph
     graph->addOutputSockets(nodeGraph);
 
-    // Traverse all outputs and create all upstream dependencies
-    for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
+    if (context.getOptions().addUpstreamDependencies)
     {
-        graph->addUpstreamDependencies(*graphOutput, nullptr, context);
+        // Traverse all outputs and create all upstream dependencies
+        for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
+        {
+            graph->addUpstreamDependencies(*graphOutput, nullptr, context);
+        }
     }
 
     // Add classification according to last node
@@ -756,6 +759,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     }
                 }
 
+                bool addedDefault = false;
                 if (nodedefPort->isA<Input>())
                 {
                     GeomPropDefPtr geomprop = nodedefPort->asA<Input>()->getDefaultGeomProp();
@@ -763,15 +767,25 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     {
                         inputSocket->setGeomProp(geomprop->getName());
                         input->setGeomProp(geomprop->getName());
+
+                        const string& connection = nodePort ? nodePort->asA<Input>()->getOutputString() : EMPTY_STRING;
+                        if (connection.empty())
+                        {
+                            graph->addDefaultGeomNode(input, *geomprop, context);
+                            addedDefault = true;
+                        }
                     }
                 }
 
                 // Connect to the graph input
-                inputSocket->makeConnection(input);
+                if (!addedDefault)
+                {
+                    inputSocket->makeConnection(input);
+                }
             }
 
-            // No traversal of upstream dependencies
-            root = nullptr;
+            // Set root for upstream dependency traversal
+            root = node;
         }
     }
 
@@ -958,7 +972,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
     }
 
     // Traverse and create all dependencies upstream
-    if (root)
+    if (root && context.getOptions().addUpstreamDependencies)
     {
         graph->addUpstreamDependencies(*root, material, context);
     }
