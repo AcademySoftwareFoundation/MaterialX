@@ -837,10 +837,10 @@ namespace
                         valueElem->setUnitType(unitType.str());
                     }
                 }
-                else if(numOutputs > 1)
-                {
-                    destNode->addOutput(attr.getName(), attr.getType());
-                }
+            }
+            else if(numOutputs > 1)
+            {
+                destNode->addOutput(attr.getName(), attr.getType());
             }
         }
 
