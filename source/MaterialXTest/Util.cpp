@@ -58,7 +58,7 @@ TEST_CASE("Print utilities", "[util]")
     mx::NodePtr add3 = nodeGraph->addNode("add");
     mx::NodePtr noise3d = nodeGraph->addNode("noise3d");
     mx::NodePtr mix = nodeGraph->addNode("mix");
-    mx::OutputPtr output = nodeGraph->addOutput("output");
+    mx::OutputPtr output = nodeGraph->addOutput();
     add1->setConnectedNode("in1", constant1);
     add1->setConnectedNode("in2", constant2);
     add2->setConnectedNode("in1", constant2);

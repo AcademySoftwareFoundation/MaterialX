@@ -200,17 +200,17 @@ TEST_CASE("Topological sort", "[nodegraph]")
     //                         [output]
     //
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr image1 = nodeGraph->addNode("image", "image1");
-    mx::NodePtr image2 = nodeGraph->addNode("image", "image2");
-    mx::NodePtr multiply = nodeGraph->addNode("multiply", "multiply");
-    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1");
-    mx::NodePtr constant2 = nodeGraph->addNode("constant", "constant2");
-    mx::NodePtr add1 = nodeGraph->addNode("add", "add1");
-    mx::NodePtr add2 = nodeGraph->addNode("add", "add2");
-    mx::NodePtr add3 = nodeGraph->addNode("add", "add3");
-    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d");
-    mx::NodePtr mix = nodeGraph->addNode("mix", "mix");
-    mx::OutputPtr output = nodeGraph->addOutput("output");
+    mx::NodePtr image1 = nodeGraph->addNode("image");
+    mx::NodePtr image2 = nodeGraph->addNode("image");
+    mx::NodePtr multiply = nodeGraph->addNode("multiply");
+    mx::NodePtr constant1 = nodeGraph->addNode("constant");
+    mx::NodePtr constant2 = nodeGraph->addNode("constant");
+    mx::NodePtr add1 = nodeGraph->addNode("add");
+    mx::NodePtr add2 = nodeGraph->addNode("add");
+    mx::NodePtr add3 = nodeGraph->addNode("add");
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d");
+    mx::NodePtr mix = nodeGraph->addNode("mix");
+    mx::OutputPtr output = nodeGraph->addOutput();
     add1->setConnectedNode("in1", constant1);
     add1->setConnectedNode("in2", constant2);
     add2->setConnectedNode("in1", constant2);
@@ -251,18 +251,18 @@ TEST_CASE("New nodegraph from output", "[nodegraph]")
     //                          [out1]                      [out2]
     //
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr image1 = nodeGraph->addNode("image", "image1");
-    mx::NodePtr image2 = nodeGraph->addNode("image", "image2");
-    mx::NodePtr multiply1 = nodeGraph->addNode("multiply", "multiply1");
-    mx::NodePtr multiply2 = nodeGraph->addNode("multiply", "multiply2");
-    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1");
-    mx::NodePtr constant2 = nodeGraph->addNode("constant", "constant2");
-    mx::NodePtr constant3 = nodeGraph->addNode("constant", "constant3");
-    mx::NodePtr add1 = nodeGraph->addNode("add", "add1");
-    mx::NodePtr add2 = nodeGraph->addNode("add", "add2");
-    mx::NodePtr add3 = nodeGraph->addNode("add", "add3");
-    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d");
-    mx::NodePtr mix = nodeGraph->addNode("mix", "mix");
+    mx::NodePtr image1 = nodeGraph->addNode("image");
+    mx::NodePtr image2 = nodeGraph->addNode("image");
+    mx::NodePtr multiply1 = nodeGraph->addNode("multiply");
+    mx::NodePtr multiply2 = nodeGraph->addNode("multiply");
+    mx::NodePtr constant1 = nodeGraph->addNode("constant");
+    mx::NodePtr constant2 = nodeGraph->addNode("constant");
+    mx::NodePtr constant3 = nodeGraph->addNode("constant");
+    mx::NodePtr add1 = nodeGraph->addNode("add");
+    mx::NodePtr add2 = nodeGraph->addNode("add");
+    mx::NodePtr add3 = nodeGraph->addNode("add");
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d");
+    mx::NodePtr mix = nodeGraph->addNode("mix");
     mx::OutputPtr out1 = nodeGraph->addOutput("out1");
     mx::OutputPtr out2 = nodeGraph->addOutput("out2");
     add1->setConnectedNode("in1", constant1);
@@ -354,17 +354,17 @@ TEST_CASE("Prune nodes", "[nodegraph]")
     //                         [output]
     //
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr image1 = nodeGraph->addNode("image", "image1");
-    mx::NodePtr image2 = nodeGraph->addNode("image", "image2");
-    mx::NodePtr multiply = nodeGraph->addNode("multiply", "multiply");
-    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1");
-    mx::NodePtr constant2 = nodeGraph->addNode("constant", "constant2");
-    mx::NodePtr add1 = nodeGraph->addNode("add", "add1");
-    mx::NodePtr add2 = nodeGraph->addNode("add", "add2");
-    mx::NodePtr add3 = nodeGraph->addNode("add", "add3");
-    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d");
-    mx::NodePtr mix = nodeGraph->addNode("mix", "mix");
-    mx::OutputPtr output = nodeGraph->addOutput("output");
+    mx::NodePtr image1 = nodeGraph->addNode("image");
+    mx::NodePtr image2 = nodeGraph->addNode("image");
+    mx::NodePtr multiply = nodeGraph->addNode("multiply");
+    mx::NodePtr constant1 = nodeGraph->addNode("constant");
+    mx::NodePtr constant2 = nodeGraph->addNode("constant");
+    mx::NodePtr add1 = nodeGraph->addNode("add");
+    mx::NodePtr add2 = nodeGraph->addNode("add");
+    mx::NodePtr add3 = nodeGraph->addNode("add");
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d");
+    mx::NodePtr mix = nodeGraph->addNode("mix");
+    mx::OutputPtr output = nodeGraph->addOutput();
     add1->setConnectedNode("in1", constant1);
     add1->setConnectedNode("in2", constant2);
     add2->setConnectedNode("in1", constant2);
@@ -473,8 +473,7 @@ TEST_CASE("Organization", "[nodegraph]")
     // Create a document.
     mx::DocumentPtr doc = mx::createDocument();
 
-    // 1. Create a node graph with the following structure to be used as a 
-    // nodedef implementation
+    // Create a node graph with the following structure:
     //
     //   [constant1] [constant2]      [image2]
     //           \   /          \    /
@@ -486,21 +485,18 @@ TEST_CASE("Organization", "[nodegraph]")
     //                            |
     //                         [output]
     //
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("custom1_nodegraph_impl");
-    mx::NodePtr image1 = nodeGraph->addNode("image", "image1");
-    mx::NodePtr image2 = nodeGraph->addNode("image", "image2");
-    mx::NodePtr multiply = nodeGraph->addNode("multiply", "multiply");
-    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1");
-    mx::NodePtr constant2 = nodeGraph->addNode("constant", "constant2");
-    mx::NodePtr add1 = nodeGraph->addNode("add", "add1");
-    mx::NodePtr add2 = nodeGraph->addNode("add", "add2");
-    mx::NodePtr add3 = nodeGraph->addNode("add", "add3");
-    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d");
-    mx::InputPtr noiseInput = noise3d->addInput("amplitude", "float");
-    noiseInput->setValue("2.0");
-    noiseInput->setType("float");
-    mx::NodePtr mix = nodeGraph->addNode("mix", "mix");
-    mx::OutputPtr output = nodeGraph->addOutput("output");
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    mx::NodePtr image1 = nodeGraph->addNode("image");
+    mx::NodePtr image2 = nodeGraph->addNode("image");
+    mx::NodePtr multiply = nodeGraph->addNode("multiply");
+    mx::NodePtr constant1 = nodeGraph->addNode("constant");
+    mx::NodePtr constant2 = nodeGraph->addNode("constant");
+    mx::NodePtr add1 = nodeGraph->addNode("add");
+    mx::NodePtr add2 = nodeGraph->addNode("add");
+    mx::NodePtr add3 = nodeGraph->addNode("add");
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d");
+    mx::NodePtr mix = nodeGraph->addNode("mix");
+    mx::OutputPtr output = nodeGraph->addOutput();
     add1->setConnectedNode("in1", constant1);
     add1->setConnectedNode("in2", constant2);
     add2->setConnectedNode("in1", constant2);
@@ -514,79 +510,39 @@ TEST_CASE("Organization", "[nodegraph]")
     mix->setConnectedNode("mask", noise3d);
     output->setConnectedNode(mix);
 
-    // Create a nodedef from the nodegraph
-    mx::NodeDefPtr nodeDef1 = doc->addNodeDef("ND_custom1");
-    nodeDef1->setNodeDefString("custom1");
-    nodeDef1->setNodeGroup("custom1_nodegroup");
-    nodeDef1->addInput("noiseAmplitude");
-    noise3d->getInput("amplitude")->setAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE, "noiseAmplitude");
-    nodeGraph->setNodeDef(nodeDef1);
+    // Create a backdrop element.
+    mx::BackdropPtr backdrop1 = nodeGraph->addBackdrop();
+    backdrop1->setContainsElements({ constant1, constant2, add1 });
+    backdrop1->setDocString("Group 1");
+    backdrop1->setWidth(10.0f);
+    backdrop1->setHeight(20.0f);
+    CHECK(backdrop1->getContainsElements().size() == 3);
+    CHECK(backdrop1->getContainsElements()[0] == constant1);
+    CHECK(backdrop1->getDocString() == "Group 1");
+    CHECK(backdrop1->getWidth() == 10.0f);
+    CHECK(backdrop1->getHeight() == 20.0f);
 
-    doc->addNode("custom1", "custom1_node");
+    // Create a second backdrop element.
+    mx::BackdropPtr backdrop2 = nodeGraph->addBackdrop();
+    backdrop2->setContainsElements({ multiply, noise3d, mix, output });
+    backdrop2->setDocString("Group 2");
+    backdrop2->setWidth(30.0f);
+    backdrop2->setHeight(40.0f);
+    CHECK(backdrop2->getContainsElements().size() == 4);
+    CHECK(backdrop2->getContainsElements()[0] == multiply);
+    CHECK(backdrop2->getDocString() == "Group 2");
+    CHECK(backdrop2->getWidth() == 30.0f);
+    CHECK(backdrop2->getHeight() == 40.0f);
 
-    // Add backdrop for the node which is implemented as a graph
-    mx::BackdropPtr backdrop = doc->addBackdrop("custom1_backdrop");
-    backdrop->setContains("custom1");
-    backdrop->setWidth(20.0f);
-    backdrop->setHeight(30.0f);
-    backdrop->setDocString("Backdrop for custom1.");
+    // Validate the document.
+    REQUIRE(doc->validate());
 
-    // 2. Additional graph to test backdrops
-    //   [image3] [image4]      
-    //         \   /
-    //         [add4]
-    //            |
-    //         [output]
-    //
-    mx::NodeGraphPtr nodeGraph2 = doc->addNodeGraph("custom2_nodegraph");
-    mx::NodePtr image3 = nodeGraph2->addNode("image", "image3");
-    mx::NodePtr image4 = nodeGraph2->addNode("image", "image4");
-    mx::NodePtr add4 = nodeGraph2->addNode("add", "add4");
-    add4->setConnectedNode("in1", image3);
-    add4->setConnectedNode("in2", image4);
-    mx::OutputPtr output2 = nodeGraph2->addOutput("output");
-    output2->setConnectedNode(add4);
+    // Create and test an invalid contains element.
+    backdrop2->setContainsElements({ nodeGraph });
+    REQUIRE(!doc->validate());
 
-    // Add backdrops for nodes / node graphs
-    mx::BackdropPtr backdrop2 = doc->addBackdrop("custom2_backdrop_nodes");
-    backdrop2->setContains("add4,image3");
-    backdrop2->setWidth(10.0f);
-    backdrop2->setHeight(15.0f);
-    backdrop2->setDocString("Backdrop for add and image3");
-    mx::BackdropPtr backdrop3 = doc->addBackdrop("custom2_backdrop_nodegraph");
-    backdrop3->setContains("custom2_nodegraph,custom1");
-    backdrop3->setWidth(45.0f);
-    backdrop3->setHeight(50.0f);
-    backdrop3->setDocString("Backdrop for: custom2_nodegraph, and custom1.");
-
-    doc->validate();
-
-    // Test write / read of backdrop information
-    mx::writeToXmlFile(doc, "custom1_nodedef.mtlx");
-    mx::readFromXmlFile(doc, "custom1_nodedef.mtlx");
-
-    // Test backdrop values and removal
-    backdrop = doc->getBackdrop("custom1_backdrop");
-    CHECK(backdrop != nullptr);
-    CHECK(backdrop->getContains() == "custom1");
-    CHECK(backdrop->getWidth() == 20.0f);
-    CHECK(backdrop->getHeight() == 30.0f);
-    CHECK(backdrop->getDocString() == "Backdrop for custom1.");
-
-    backdrop = doc->getBackdrop("custom2_backdrop_nodes");
-    CHECK(backdrop->getContains() == "add4,image3");
-    CHECK(backdrop->getWidth() == 10.0f);
-    CHECK(backdrop->getHeight() == 15.0f);
-    CHECK(backdrop->getDocString() == "Backdrop for add and image3");
-
-    backdrop = doc->getBackdrop("custom2_backdrop_nodegraph");
-    CHECK(backdrop->getContains() == "custom2_nodegraph,custom1");
-    CHECK(backdrop->getWidth() == 45.0f);
-    CHECK(backdrop->getHeight() == 50.0f);
-    CHECK(backdrop->getDocString() == "Backdrop for: custom2_nodegraph, and custom1.");
-
-    doc->removeBackdrop("custom1_backdrop");
-    doc->removeBackdrop("custom2_backdrop_nodes");
-    doc->removeBackdrop("custom2_backdrop_nodegraph");
-    CHECK(doc->getBackdrops().size() == 0);
+    // Remove backdrops.
+    nodeGraph->removeBackdrop(backdrop1->getName());
+    nodeGraph->removeBackdrop(backdrop2->getName());
+    CHECK(nodeGraph->getBackdrops().empty());
 }
