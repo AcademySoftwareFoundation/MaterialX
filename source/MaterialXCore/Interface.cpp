@@ -71,7 +71,7 @@ bool PortElement::validate(string* message) const
     bool res = true;
 
     NodePtr connectedNode = getConnectedNode();
-    if (hasNodeName())
+    if (hasNodeName() || hasOutputString())
     {
         validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
     }
@@ -79,7 +79,6 @@ bool PortElement::validate(string* message) const
     {
         if (hasOutputString())
         {
-            validateRequire(connectedNode->getType() == MULTI_OUTPUT_TYPE_STRING, res, message, "Multi-output type expected in port connection");
             NodeDefPtr connectedNodeDef = connectedNode->getNodeDef();
             if (connectedNodeDef)
             {
