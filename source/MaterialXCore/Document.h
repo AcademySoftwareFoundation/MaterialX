@@ -344,6 +344,8 @@ class Document : public GraphElement
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
     /// @param type An optional type string.
+    ///     If specified, then the new NodeDef will be assigned an Output of
+    ///     the given type.
     /// @param node An optional node string.
     /// @return A shared pointer to the new NodeDef.
     NodeDefPtr addNodeDef(const string& name = EMPTY_STRING,
