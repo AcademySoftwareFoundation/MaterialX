@@ -7,11 +7,12 @@
 
 #include <MaterialXFormat/File.h>
 
-#include <MaterialXGenShader/Util.h>
+#include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 
 #include <fstream>
+
 
 namespace MaterialX
 {

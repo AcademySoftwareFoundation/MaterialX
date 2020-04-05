@@ -10,9 +10,9 @@
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
 
-#include <MaterialXCore/Document.h>
-#include <MaterialXCore/Node.h>
 #include <MaterialXCore/Value.h>
+
+#include <MaterialXFormat/Util.h>
 
 namespace MaterialX
 {

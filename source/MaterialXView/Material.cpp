@@ -4,10 +4,11 @@
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/Util.h>
+
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 #include <nanogui/messagedialog.h>
 

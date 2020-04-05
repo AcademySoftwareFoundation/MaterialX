@@ -9,6 +9,8 @@
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Util.h>
 
+#include <MaterialXFormat/Util.h>
+
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
 

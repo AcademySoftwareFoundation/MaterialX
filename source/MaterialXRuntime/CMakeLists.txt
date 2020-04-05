@@ -41,7 +41,6 @@ set_target_properties(
 
 target_link_libraries(
     MaterialXRuntime
-    MaterialXGenShader
     MaterialXCore
     MaterialXFormat
     ${CMAKE_DL_LIBS})
