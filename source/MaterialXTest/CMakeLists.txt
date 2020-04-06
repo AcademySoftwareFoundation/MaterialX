@@ -49,17 +49,9 @@ if(MATERIALX_BUILD_GEN)
   endif()
   endif()
 
-if(MATERIALX_BUILD_RUNTIME)
-  add_subdirectory(MaterialXRuntime)
-  target_link_libraries(MaterialXTest MaterialXRuntime)
-endif()
-
 if(MATERIALX_BUILD_RENDER) # MATERIALX_BUILD_GEN is implied; can assume relevant MaterialXGen* libs already linked above
   add_subdirectory(MaterialXRender)
   target_link_libraries(MaterialXTest MaterialXRender)
-  if(MATERIALX_BUILD_CONTRIB)
-    target_link_libraries(MaterialXTest MaterialXContrib)
-  endif()
   if (MATERIALX_BUILD_OIIO)
     target_link_libraries(MaterialXTest ${OPENIMAGEIO_LIBRARIES})
   endif()
