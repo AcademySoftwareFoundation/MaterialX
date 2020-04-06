@@ -1,7 +1,3 @@
-include_directories(
-    ${EXTERNAL_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../)
-
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
@@ -22,11 +18,18 @@ if(APPLE)
     set(materialx_source ${materialx_source} ${materialx_source_oc})
     add_compile_options(-Wno-deprecated-declarations -DGL_SILENCE_DEPRECATION)
 elseif(UNIX)
+    find_package(PkgConfig REQUIRED)
     find_package(X11 REQUIRED)
-    find_package(OpenGL REQUIRED)
+    if(NOT X11_FOUND)
+        message("Error in building MaterialXRender: X11 was not found")
+    endif(NOT X11_FOUND)
     if(NOT X11_Xt_FOUND)
         message("Error in building MaterialXRender: Xt was not found")
-    endif()
+    endif(NOT X11_Xt_FOUND)
+    find_package(OpenGL REQUIRED)
+    if(NOT OPENGL_FOUND)
+        message("Error in building MaterialXRender: OpenGL was not found")
+    endif(NOT OPENGL_FOUND)
     include_directories(${X11_INCLUDE_DIR})
 endif()
 
@@ -62,14 +65,24 @@ set_target_properties(
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
-    SOVERSION "${MATERIALX_MAJOR_VERSION}")
+    SOVERSION "${MATERIALX_MAJOR_VERSION}"
+    DEBUG_POSTFIX "${MATERIALX_DEBUG_POSTFIX}")
+
+target_include_directories(MaterialXRenderGlsl
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+        $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
+    PRIVATE
+        ${EXTERNAL_INCLUDE_DIRS}
+)
 
 install(TARGETS MaterialXRenderGlsl
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+    EXPORT MaterialX
+    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderGlsl/ MESSAGE_NEVER
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderGlsl/ MESSAGE_NEVER
     FILES_MATCHING PATTERN "*.h*")
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRenderGlsl.pdb"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/" OPTIONAL)
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)

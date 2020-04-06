@@ -1,7 +1,3 @@
-include_directories(
-    ${EXTERNAL_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../)
-
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
@@ -12,7 +8,7 @@ if(APPLE)
   set_source_files_properties(${materialx_source_oc} PROPERTIES
                               COMPILE_FLAGS "-x objective-c++")
   set(materialx_source ${materialx_source} ${materialx_source_oc})
-endif()
+endif(APPLE)
 
 assign_source_group("Source Files" ${materialx_source})
 assign_source_group("Header Files" ${materialx_headers})
@@ -38,7 +34,7 @@ elseif(UNIX)
         ${CMAKE_DL_LIBS}
         ${X11_LIBRARIES}
         ${X11_Xt_LIB})
-endif()
+endif(MSVC)
 
 set_target_properties(
     MaterialXRenderHw PROPERTIES
@@ -46,14 +42,24 @@ set_target_properties(
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
-    SOVERSION "${MATERIALX_MAJOR_VERSION}")
+    SOVERSION "${MATERIALX_MAJOR_VERSION}"
+    DEBUG_POSTFIX "${MATERIALX_DEBUG_POSTFIX}")
+
+target_include_directories(MaterialXRenderHw
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+        $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
+    PRIVATE
+        ${EXTERNAL_INCLUDE_DIRS}
+)
 
 install(TARGETS MaterialXRenderHw
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+    EXPORT MaterialX
+    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderHw/ MESSAGE_NEVER
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderHw/ MESSAGE_NEVER
     FILES_MATCHING PATTERN "*.h*")
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRenderHw.pdb"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/" OPTIONAL)
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)

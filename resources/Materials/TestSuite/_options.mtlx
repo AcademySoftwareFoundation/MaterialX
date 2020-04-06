@@ -43,6 +43,9 @@
       <!-- Perform rendering validation test -->
       <parameter name="renderImages" type="boolean" value="true" />
 
+      <!-- Rendered image size if render validation test enabled -->
+      <parameter name="renderSize" type="vector2" value="512, 512" />
+
       <!-- Perform saving of image. Can only be disabled for GLSL tests -->
       <parameter name="saveImages" type="boolean" value="true" />
 
@@ -91,6 +94,12 @@
 
       <!-- External testing: extra comma separated list of test root paths -->
       <parameter name="externalTestPaths" type="string" value="" />
+
+      <!-- Desired major version to upgrade to if possible -->
+      <parameter name="desiredMajorVersion" type="integer" value="1" />
+
+      <!-- Desired minor version to upgrade to if possible -->
+      <parameter name="desiredMinorVersion" type="integer" value="38" />
 
    </nodedef>
 </materialx>

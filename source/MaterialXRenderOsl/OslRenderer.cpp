@@ -5,11 +5,14 @@
 
 #include <MaterialXRenderOsl/OslRenderer.h>
 
-#include <MaterialXGenShader/Util.h>
+#include <MaterialXFormat/File.h>
+
+#include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 
 #include <fstream>
+
 
 namespace MaterialX
 {
@@ -21,18 +24,28 @@ string OslRenderer::OSL_CLOSURE_COLOR_STRING("closure color");
 // OslRenderer methods
 //
 
-OslRendererPtr OslRenderer::create()
+OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height)
 {
-    return std::shared_ptr<OslRenderer>(new OslRenderer());
+    return std::shared_ptr<OslRenderer>(new OslRenderer(width, height));
 }
 
-OslRenderer::OslRenderer() :
+OslRenderer::OslRenderer(unsigned int width, unsigned int height) :
+    ShaderRenderer(width, height),
     _useTestRender(true) // By default use testrender
 {
 }
 
 OslRenderer::~OslRenderer()
 {
+}
+
+void OslRenderer::setSize(unsigned int width, unsigned int height)
+{
+    if (_width != width || _height != height)
+    {
+        _width = width;
+        _height = height;
+    }
 }
 
 void OslRenderer::initialize()
@@ -153,14 +166,14 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
 
     // Set oso file paths
     string osoPaths(_oslUtilityOSOPath);
-    osoPaths += ";" + dirPath.asString();
+    osoPaths += PATH_LIST_SEPARATOR + dirPath.asString();
 
     // Build and run render command
     //
     string command(_oslTestRenderExecutable);
     command += " " + sceneFileName;
     command += " " + outputFileName;
-    command += " -r 512 512 --path " + osoPaths;
+    command += " -r " + std::to_string(_width) + " " + std::to_string(_height) + " --path " + osoPaths;
     if (isColorClosure)
     {
         command += " -aa 4 "; // Images are very noisy without anti-aliasing
@@ -302,7 +315,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     }
 }
 
-void OslRenderer::createProgram(ShaderPtr shader)
+void OslRenderer::createProgram(const ShaderPtr shader)
 {
     StageMap stages = { {Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode()} };
     createProgram(stages);
@@ -401,6 +414,12 @@ void OslRenderer::render()
 void OslRenderer::save(const FilePath& /*filePath*/)
 {
     // No-op: image save is done as part of rendering.
+}
+
+ImagePtr OslRenderer::saveImage()
+{
+    // No-op: image save is done as part of rendering.
+    return nullptr;
 }
 
 } // namespace MaterialX

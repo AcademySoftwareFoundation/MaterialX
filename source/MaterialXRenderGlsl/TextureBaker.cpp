@@ -10,8 +10,8 @@
 namespace MaterialX
 {
 
-TextureBaker::TextureBaker(unsigned int res) :
-    GlslRenderer(res),
+TextureBaker::TextureBaker(unsigned int width, unsigned int height) :
+    GlslRenderer(width, height),
     _generator(GlslShaderGenerator::create()),
     _extension(ImageLoader::PNG_EXTENSION)
 {
@@ -28,6 +28,23 @@ void TextureBaker::bakeShaderInputs(ShaderRefPtr shaderRef, GenContext& context,
     for (BindInputPtr bindInput : shaderRef->getBindInputs())
     {
         OutputPtr output = bindInput->getConnectedOutput();
+        if (output)
+        {
+            bakeGraphOutput(output, context, outputFolder);
+        }
+    }
+}
+
+void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder)
+{
+    if (!shader)
+    {
+        return;
+    }
+
+    for (InputPtr input : shader->getInputs())
+    {
+        OutputPtr output = input->getConnectedOutput();
         if (output)
         {
             bakeGraphOutput(output, context, outputFolder);
@@ -97,6 +114,57 @@ void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& fi
         else
         {
             ElementPtr bakedElem = bakedShaderRef->addChildOfCategory(valueElem->getCategory(), valueElem->getName());
+            bakedElem->copyContentFrom(valueElem);
+        }
+    }
+
+    writeToXmlFile(bakedTextureDoc, filename);
+}
+
+void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename)
+{
+    if (!shader)
+    {
+        return;
+    }
+
+    // Create document.
+    DocumentPtr bakedTextureDoc = createDocument();
+
+    // Create top-level elements.
+    NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph("NG_baked");
+    bakedNodeGraph->setColorSpace("srgb_texture");
+    NodePtr bakedMaterial = bakedTextureDoc->addNode(SURFACE_MATERIAL_NODE_STRING, "M_baked", MATERIAL_TYPE_STRING);
+    NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + "_baked", shader->getType());
+    InputPtr shaderInput = bakedMaterial->addInput(SURFACE_SHADER_TYPE_STRING, SURFACE_SHADER_TYPE_STRING);
+    shaderInput->setNodeName(bakedShader->getName());
+
+    // Create input elements on the baked shader reference.
+    for (ValueElementPtr valueElem : shader->getChildrenOfType<ValueElement>())
+    {
+        InputPtr input = valueElem->asA<Input>();
+        if (input && input->getConnectedOutput())
+        {
+            OutputPtr output = input->getConnectedOutput();
+
+            // Create the baked bind input.
+            InputPtr bakedInput = bakedShader->addInput(input->getName(), input->getType());
+
+            // Add the image node.
+            NodePtr bakedImage = bakedNodeGraph->addNode("image", input->getName() + "_baked", input->getType());
+            ParameterPtr param = bakedImage->addParameter("file", "filename");
+            param->setValueString(generateTextureFilename(output));
+
+            // Add the graph output and connect it to the image node upstream
+            // and the shader input downstream.
+            OutputPtr bakedOutput = bakedNodeGraph->addOutput(input->getName() + "_output", input->getType());
+            bakedOutput->setConnectedNode(bakedImage);
+            bakedInput->setAttribute(PortElement::NODE_GRAPH_ATTRIBUTE, bakedNodeGraph->getName());
+            bakedInput->setAttribute(PortElement::OUTPUT_ATTRIBUTE, bakedOutput->getName());
+        }
+        else
+        {
+            ElementPtr bakedElem = bakedShader->addChildOfCategory(valueElem->getCategory(), valueElem->getName());
             bakedElem->copyContentFrom(valueElem);
         }
     }

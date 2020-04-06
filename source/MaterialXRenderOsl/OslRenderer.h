@@ -32,7 +32,7 @@ class OslRenderer : public ShaderRenderer
 {
   public:
     /// Create an OSL renderer instance
-    static OslRendererPtr create();
+    static OslRendererPtr create(unsigned int width = 512, unsigned int height = 512);
 
     /// Destructor
     virtual ~OslRenderer();
@@ -73,6 +73,9 @@ class OslRenderer : public ShaderRenderer
     /// Note: Currently no validation has been implemented.
     void validateInputs() override;
 
+    /// Set the size for rendered image
+    void setSize(unsigned int width, unsigned int height) override;
+
     /// Render OSL program to disk.
     /// This is done by using either "testshade" or "testrender".
     /// Currently only "testshade" is supported.
@@ -86,11 +89,16 @@ class OslRenderer : public ShaderRenderer
     /// @name Utilities
     /// @{
 
-    /// Save the current contents a rendering to disk. Note that this method
+    /// Save the current contents of rendering to disk. Note that this method
     /// does not perform any action as render() produces images as part if it's
     /// execution.
     /// @param filePath Name of file to save rendered image to.
     void save(const FilePath& filePath) override;
+
+    /// Save the current contents of rendering to an image. Note that this method
+    /// does not perform any action as render() produces images as part of it's
+    /// execution.
+    ImagePtr saveImage() override;
 
     /// @}
     /// @name Compilation settings
@@ -218,7 +226,7 @@ class OslRenderer : public ShaderRenderer
     void renderOSL(const FilePath& dirPath, const string& shaderName, const string& outputName);
 
     /// Constructor
-    OslRenderer();
+    OslRenderer(unsigned int width, unsigned int height);
 
   private:
     /// Path to "oslc" executable`

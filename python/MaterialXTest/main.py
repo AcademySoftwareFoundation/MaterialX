@@ -462,7 +462,7 @@ class TestMaterialX(unittest.TestCase):
         for filename in _exampleFilenames:
             doc = mx.createDocument()
             mx.readFromXmlFile(doc, filename, _searchPath)
-            self.assertTrue(doc.validate()[0])
+            self.assertTrue(doc.validate()[0], filename + ' is not valid.')
 
             # Copy the document.
             copiedDoc = doc.copy()
@@ -515,7 +515,9 @@ class TestMaterialX(unittest.TestCase):
         doc = mx.createDocument()
         filename = 'PostShaderComposite.mtlx'
         mx.readFromXmlFile(doc, filename, _searchPath)
-        mx.readFromXmlFile(doc, filename, _searchPath)
+        readOptions = mx.XmlReadOptions()
+        readOptions.skipConflictingElements = True
+        mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         self.assertTrue(doc.validate()[0])
 
 #--------------------------------------------------------------------------------

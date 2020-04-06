@@ -43,7 +43,7 @@
       <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
       <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
     </image>
-    <output name="N_out_float" type="float" nodename="N_img_float"/>
+    <output name="out" type="float" nodename="N_img_float"/>
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_color2" nodedef="ND_tiledimage_color2">
@@ -74,7 +74,7 @@
       <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
       <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
     </image>
-    <output name="N_out_color2" type="color2" nodename="N_img_color2"/>
+    <output name="out" type="color2" nodename="N_img_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_color3" nodedef="ND_tiledimage_color3">
@@ -105,7 +105,7 @@
       <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
       <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
     </image>
-    <output name="N_out_color3" type="color3" nodename="N_img_color3"/>
+    <output name="out" type="color3" nodename="N_img_color3"/>
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_color4" nodedef="ND_tiledimage_color4">
@@ -136,7 +136,7 @@
       <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
       <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
     </image>
-    <output name="N_out_color4" type="color4" nodename="N_img_color4"/>
+    <output name="out" type="color4" nodename="N_img_color4"/>
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_vector2" nodedef="ND_tiledimage_vector2">
@@ -167,7 +167,7 @@
       <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
       <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
     </image>
-    <output name="N_out_vector2" type="vector2" nodename="N_img_vector2"/>
+    <output name="out" type="vector2" nodename="N_img_vector2"/>
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_vector3" nodedef="ND_tiledimage_vector3">
@@ -198,7 +198,7 @@
       <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
       <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
     </image>
-    <output name="N_out_vector3" type="vector3" nodename="N_img_vector3"/>
+    <output name="out" type="vector3" nodename="N_img_vector3"/>
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_vector4" nodedef="ND_tiledimage_vector4">
@@ -229,7 +229,7 @@
       <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
       <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
     </image>
-    <output name="N_out_vector4" type="vector4" nodename="N_img_vector4"/>
+    <output name="out" type="vector4" nodename="N_img_vector4"/>
   </nodegraph>
 
 
@@ -344,7 +344,7 @@
       <input name="in1" type="float" nodename="N_add1_float"/>
       <input name="in2" type="float" nodename="N_nZ_float"/>
     </add>
-    <output name="N_out_float" type="float" nodename="N_add2_float"/>
+    <output name="out" type="float" nodename="N_add2_float"/>
   </nodegraph>
 
   <nodegraph name="NG_triplanarprojection_color2" nodedef="ND_triplanarprojection_color2">
@@ -452,7 +452,7 @@
       <input name="in1" type="color2" nodename="N_add1_color2"/>
       <input name="in2" type="color2" nodename="N_nZ_color2"/>
     </add>
-    <output name="N_out_color2" type="color2" nodename="N_add2_color2"/>
+    <output name="out" type="color2" nodename="N_add2_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_triplanarprojection_color3" nodedef="ND_triplanarprojection_color3">
@@ -560,7 +560,7 @@
       <input name="in1" type="color3" nodename="N_add1_color3"/>
       <input name="in2" type="color3" nodename="N_nZ_color3"/>
     </add>
-    <output name="N_out_color3" type="color3" nodename="N_add2_color3"/>
+    <output name="out" type="color3" nodename="N_add2_color3"/>
   </nodegraph>
 
   <nodegraph name="NG_triplanarprojection_color4" nodedef="ND_triplanarprojection_color4">
@@ -668,7 +668,7 @@
       <input name="in1" type="color4" nodename="N_add1_color4"/>
       <input name="in2" type="color4" nodename="N_nZ_color4"/>
     </add>
-    <output name="N_out_color4" type="color4" nodename="N_add2_color4"/>
+    <output name="out" type="color4" nodename="N_add2_color4"/>
   </nodegraph>
 
   <nodegraph name="NG_triplanarprojection_vector2" nodedef="ND_triplanarprojection_vector2">
@@ -776,7 +776,7 @@
       <input name="in1" type="vector2" nodename="N_add1_vector2"/>
       <input name="in2" type="vector2" nodename="N_nZ_vector2"/>
     </add>
-    <output name="N_out_vector2" type="vector2" nodename="N_add2_vector2"/>
+    <output name="out" type="vector2" nodename="N_add2_vector2"/>
   </nodegraph>
 
   <nodegraph name="NG_triplanarprojection_vector3" nodedef="ND_triplanarprojection_vector3">
@@ -884,7 +884,7 @@
       <input name="in1" type="vector3" nodename="N_add1_vector3"/>
       <input name="in2" type="vector3" nodename="N_nZ_vector3"/>
     </add>
-    <output name="N_out_vector3" type="vector3" nodename="N_add2_vector3"/>
+    <output name="out" type="vector3" nodename="N_add2_vector3"/>
   </nodegraph>
 
   <nodegraph name="NG_triplanarprojection_vector4" nodedef="ND_triplanarprojection_vector4">
@@ -992,7 +992,7 @@
       <input name="in1" type="vector4" nodename="N_add1_vector4"/>
       <input name="in2" type="vector4" nodename="N_nZ_vector4"/>
     </add>
-    <output name="N_out_vector4" type="vector4" nodename="N_add2_vector4"/>
+    <output name="out" type="vector4" nodename="N_add2_vector4"/>
   </nodegraph>
 
 
@@ -1032,7 +1032,7 @@
       <input name="fg" type="float" nodename="N_mixbot_float"/>
       <input name="mix" type="float" nodename="N_t_float"/>
     </mix>
-    <output name="N_out_float" type="float" nodename="N_mix_float"/>
+    <output name="out" type="float" nodename="N_mix_float"/>
   </nodegraph>
 
   <nodegraph name="NG_ramp4_color2" nodedef="ND_ramp4_color2">
@@ -1062,7 +1062,7 @@
       <input name="fg" type="color2" nodename="N_mixbot_color2"/>
       <input name="mix" type="float" nodename="N_t_color2"/>
     </mix>
-    <output name="N_out_color2" type="color2" nodename="N_mix_color2"/>
+    <output name="out" type="color2" nodename="N_mix_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_ramp4_color3" nodedef="ND_ramp4_color3">
@@ -1092,7 +1092,7 @@
       <input name="fg" type="color3" nodename="N_mixbot_color3"/>
       <input name="mix" type="float" nodename="N_t_color3"/>
     </mix>
-    <output name="N_out_color3" type="color3" nodename="N_mix_color3"/>
+    <output name="out" type="color3" nodename="N_mix_color3"/>
   </nodegraph>
 
   <nodegraph name="NG_ramp4_color4" nodedef="ND_ramp4_color4">
@@ -1122,7 +1122,7 @@
       <input name="fg" type="color4" nodename="N_mixbot_color4"/>
       <input name="mix" type="float" nodename="N_t_color4"/>
     </mix>
-    <output name="N_out_color4" type="color4" nodename="N_mix_color4"/>
+    <output name="out" type="color4" nodename="N_mix_color4"/>
   </nodegraph>
 
   <nodegraph name="NG_ramp4_vector2" nodedef="ND_ramp4_vector2">
@@ -1152,7 +1152,7 @@
       <input name="fg" type="vector2" nodename="N_mixbot_vector2"/>
       <input name="mix" type="float" nodename="N_t_vector2"/>
     </mix>
-    <output name="N_out_vector2" type="vector2" nodename="N_mix_vector2"/>
+    <output name="out" type="vector2" nodename="N_mix_vector2"/>
   </nodegraph>
 
   <nodegraph name="NG_ramp4_vector3" nodedef="ND_ramp4_vector3">
@@ -1182,7 +1182,7 @@
       <input name="fg" type="vector3" nodename="N_mixbot_vector3"/>
       <input name="mix" type="float" nodename="N_t_vector3"/>
     </mix>
-    <output name="N_out_vector3" type="vector3" nodename="N_mix_vector3"/>
+    <output name="out" type="vector3" nodename="N_mix_vector3"/>
   </nodegraph>
 
   <nodegraph name="NG_ramp4_vector4" nodedef="ND_ramp4_vector4">
@@ -1212,7 +1212,7 @@
       <input name="fg" type="vector4" nodename="N_mixbot_vector4"/>
       <input name="mix" type="float" nodename="N_t_vector4"/>
     </mix>
-    <output name="N_out_vector4" type="vector4" nodename="N_mix_vector4"/>
+    <output name="out" type="vector4" nodename="N_mix_vector4"/>
   </nodegraph>
 
 
@@ -1261,7 +1261,7 @@
       <input name="in1" type="vector2" nodename="N_applyoffset"/>
       <input name="in2" type="vector2" interfacename="pivot"/>
     </add>
-    <output name="N_out_vec2" type="vector2" nodename="N_addpivot"/>
+    <output name="out" type="vector2" nodename="N_addpivot"/>
   </nodegraph>
 
 
@@ -1286,7 +1286,7 @@
       <input name="in1" type="float" nodename="N_mul_float"/>
       <input name="in2" type="float" interfacename="pivot"/>
     </add>
-    <output name="N_out_float" type="float" nodename="N_add_float"/>
+    <output name="out" type="float" nodename="N_add_float"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_color2" nodedef="ND_contrast_color2">
@@ -1302,7 +1302,7 @@
       <input name="in1" type="color2" nodename="N_mul_color2"/>
       <input name="in2" type="color2" interfacename="pivot"/>
     </add>
-    <output name="N_out_color2" type="color2" nodename="N_add_color2"/>
+    <output name="out" type="color2" nodename="N_add_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_color3" nodedef="ND_contrast_color3">
@@ -1318,7 +1318,7 @@
       <input name="in1" type="color3" nodename="N_mul_color3"/>
       <input name="in2" type="color3" interfacename="pivot"/>
     </add>
-    <output name="N_out_color3" type="color3" nodename="N_add_color3"/>
+    <output name="out" type="color3" nodename="N_add_color3"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_color4" nodedef="ND_contrast_color4">
@@ -1334,7 +1334,7 @@
       <input name="in1" type="color4" nodename="N_mul_color4"/>
       <input name="in2" type="color4" interfacename="pivot"/>
     </add>
-    <output name="N_out_color4" type="color4" nodename="N_add_color4"/>
+    <output name="out" type="color4" nodename="N_add_color4"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_vector2" nodedef="ND_contrast_vector2">
@@ -1350,7 +1350,7 @@
       <input name="in1" type="vector2" nodename="N_mul_vector2"/>
       <input name="in2" type="vector2" interfacename="pivot"/>
     </add>
-    <output name="N_out_vector2" type="vector2" nodename="N_add_vector2"/>
+    <output name="out" type="vector2" nodename="N_add_vector2"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_vector3" nodedef="ND_contrast_vector3">
@@ -1366,7 +1366,7 @@
       <input name="in1" type="vector3" nodename="N_mul_vector3"/>
       <input name="in2" type="vector3" interfacename="pivot"/>
     </add>
-    <output name="N_out_vector3" type="vector3" nodename="N_add_vector3"/>
+    <output name="out" type="vector3" nodename="N_add_vector3"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_vector4" nodedef="ND_contrast_vector4">
@@ -1382,7 +1382,7 @@
       <input name="in1" type="vector4" nodename="N_mul_vector4"/>
       <input name="in2" type="vector4" interfacename="pivot"/>
     </add>
-    <output name="N_out_vector4" type="vector4" nodename="N_add_vector4"/>
+    <output name="out" type="vector4" nodename="N_add_vector4"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_color2FA" nodedef="ND_contrast_color2FA">
@@ -1398,7 +1398,7 @@
       <input name="in1" type="color2" nodename="N_mul_color2FA"/>
       <input name="in2" type="float" interfacename="pivot"/>
     </add>
-    <output name="N_out_color2FA" type="color2" nodename="N_add_color2FA"/>
+    <output name="out" type="color2" nodename="N_add_color2FA"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_color3FA" nodedef="ND_contrast_color3FA">
@@ -1414,7 +1414,7 @@
       <input name="in1" type="color3" nodename="N_mul_color3FA"/>
       <input name="in2" type="float" interfacename="pivot"/>
     </add>
-    <output name="N_out_color3FA" type="color3" nodename="N_add_color3FA"/>
+    <output name="out" type="color3" nodename="N_add_color3FA"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_color4FA" nodedef="ND_contrast_color4FA">
@@ -1430,7 +1430,7 @@
       <input name="in1" type="color4" nodename="N_mul_color4FA"/>
       <input name="in2" type="float" interfacename="pivot"/>
     </add>
-    <output name="N_out_color4FA" type="color4" nodename="N_add_color4FA"/>
+    <output name="out" type="color4" nodename="N_add_color4FA"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_vector2FA" nodedef="ND_contrast_vector2FA">
@@ -1446,7 +1446,7 @@
       <input name="in1" type="vector2" nodename="N_mul_vector2FA"/>
       <input name="in2" type="float" interfacename="pivot"/>
     </add>
-    <output name="N_out_vector2FA" type="vector2" nodename="N_add_vector2FA"/>
+    <output name="out" type="vector2" nodename="N_add_vector2FA"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_vector3FA" nodedef="ND_contrast_vector3FA">
@@ -1462,7 +1462,7 @@
       <input name="in1" type="vector3" nodename="N_mul_vector3FA"/>
       <input name="in2" type="float" interfacename="pivot"/>
     </add>
-    <output name="N_out_vector3FA" type="vector3" nodename="N_add_vector3FA"/>
+    <output name="out" type="vector3" nodename="N_add_vector3FA"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_vector4FA" nodedef="ND_contrast_vector4FA">
@@ -1478,7 +1478,7 @@
       <input name="in1" type="vector4" nodename="N_mul_vector4FA"/>
       <input name="in2" type="float" interfacename="pivot"/>
     </add>
-    <output name="N_out_vector4FA" type="vector4" nodename="N_add_vector4FA"/>
+    <output name="out" type="vector4" nodename="N_add_vector4FA"/>
   </nodegraph>
 
 
@@ -1529,7 +1529,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_float" type="float" nodename="N_switch_float"/>
+    <output name="out" type="float" nodename="N_switch_float"/>
   </nodegraph>
 
   <nodegraph name="NG_range_color2" nodedef="ND_range_color2">
@@ -1574,7 +1574,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_color2" type="color2" nodename="N_switch_color2"/>
+    <output name="out" type="color2" nodename="N_switch_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_range_color3" nodedef="ND_range_color3">
@@ -1619,7 +1619,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_color3" type="color3" nodename="N_switch_color3"/>
+    <output name="out" type="color3" nodename="N_switch_color3"/>
   </nodegraph>
 
   <nodegraph name="NG_range_color4" nodedef="ND_range_color4">
@@ -1665,7 +1665,7 @@
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
     <input name="value1" type="boolean" interfacename="doclamp"/>
-    <output name="N_out_color4" type="color4" nodename="N_switch_color4"/>
+    <output name="out" type="color4" nodename="N_switch_color4"/>
   </nodegraph>
 
   <nodegraph name="NG_range_vector2" nodedef="ND_range_vector2">
@@ -1710,7 +1710,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_vector2" type="vector2" nodename="N_switch_vector2"/>
+    <output name="out" type="vector2" nodename="N_switch_vector2"/>
   </nodegraph>
 
   <nodegraph name="NG_range_vector3" nodedef="ND_range_vector3">
@@ -1755,7 +1755,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_vector3" type="vector3" nodename="N_switch_vector3"/>
+    <output name="out" type="vector3" nodename="N_switch_vector3"/>
   </nodegraph>
 
   <nodegraph name="NG_range_vector4" nodedef="ND_range_vector4">
@@ -1800,7 +1800,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_vector4" type="vector4" nodename="N_switch_vector4"/>
+    <output name="out" type="vector4" nodename="N_switch_vector4"/>
   </nodegraph>
 
   <nodegraph name="NG_range_color2FA" nodedef="ND_range_color2FA">
@@ -1845,7 +1845,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_color2FA" type="color2" nodename="N_switch_color2FA"/>
+    <output name="out" type="color2" nodename="N_switch_color2FA"/>
   </nodegraph>
 
   <nodegraph name="NG_range_color3FA" nodedef="ND_range_color3FA">
@@ -1890,7 +1890,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_color3FA" type="color3" nodename="N_switch_color3FA"/>
+    <output name="out" type="color3" nodename="N_switch_color3FA"/>
   </nodegraph>
 
   <nodegraph name="NG_range_color4FA" nodedef="ND_range_color4FA">
@@ -1935,7 +1935,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_color4FA" type="color4" nodename="N_switch_color4FA"/>
+    <output name="out" type="color4" nodename="N_switch_color4FA"/>
   </nodegraph>
 
   <nodegraph name="NG_range_vector2FA" nodedef="ND_range_vector2FA">
@@ -1980,7 +1980,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_vector2FA" type="vector2" nodename="N_switch_vector2FA"/>
+    <output name="out" type="vector2" nodename="N_switch_vector2FA"/>
   </nodegraph>
 
   <nodegraph name="NG_range_vector3FA" nodedef="ND_range_vector3FA">
@@ -2025,7 +2025,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_vector3FA" type="vector3" nodename="N_switch_vector3FA"/>
+    <output name="out" type="vector3" nodename="N_switch_vector3FA"/>
   </nodegraph>
 
   <nodegraph name="NG_range_vector4FA" nodedef="ND_range_vector4FA">
@@ -2070,7 +2070,7 @@
       <input name="value1" type="boolean" interfacename="doclamp"/>
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
-    <output name="N_out_vector4FA" type="vector4" nodename="N_switch_vector4FA"/>
+    <output name="out" type="vector4" nodename="N_switch_vector4FA"/>
   </nodegraph>
 
 
@@ -2110,7 +2110,7 @@
     <hsvtorgb name="N_torgb_color3" type="color3">
       <input name="in" type="color3" nodename="N_tmp3_color3"/>
     </hsvtorgb>
-    <output name="N_out_color3" type="color3" nodename="N_torgb_color3"/>
+    <output name="out" type="color3" nodename="N_torgb_color3"/>
   </nodegraph>
 
   <nodegraph name="NG_hsvadjust_color4" nodedef="ND_hsvadjust_color4">
@@ -2146,7 +2146,7 @@
     <hsvtorgb name="N_torgb_color4" type="color4">
       <input name="in" type="color4" nodename="N_tmp3_color4"/>
     </hsvtorgb>
-    <output name="N_out_color4" type="color4" nodename="N_torgb_color4"/>
+    <output name="out" type="color4" nodename="N_torgb_color4"/>
   </nodegraph>
 
   <!--
@@ -2165,7 +2165,7 @@
       <input name="fg" type="color3" interfacename="in"/>
       <input name="mix" type="float" interfacename="amount"/>
     </mix>
-    <output name="N_out_color3" type="color3" nodename="N_mix_color3"/>
+    <output name="out" type="color3" nodename="N_mix_color3"/>
   </nodegraph>
 
   <nodegraph name="NG_saturate_color4" nodedef="ND_saturate_color4">
@@ -2178,7 +2178,7 @@
       <input name="fg" type="color4" interfacename="in"/>
       <input name="mix" type="float" interfacename="amount"/>
     </mix>
-    <output name="N_out_color4" type="color4" nodename="N_mix_color4"/>
+    <output name="out" type="color4" nodename="N_mix_color4"/>
   </nodegraph>
 
 
@@ -2215,7 +2215,7 @@
       <input name="in2" type="float" nodename="N_a_color2"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
-    <output name="N_out_color2" type="float" nodename="N_sw_color2"/>
+    <output name="out" type="float" nodename="N_sw_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_extract_vector2" nodedef="ND_extract_vector2">
@@ -2232,7 +2232,7 @@
       <input name="in2" type="float" nodename="N_y_vector2"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
-    <output name="N_out_vector2" type="float" nodename="N_sw_vector2"/>
+    <output name="out" type="float" nodename="N_sw_vector2"/>
   </nodegraph>
 
   <nodegraph name="NG_extract_color3" nodedef="ND_extract_color3">
@@ -2254,7 +2254,7 @@
       <input name="in3" type="float" nodename="N_b_color3"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
-    <output name="N_out_color3" type="float" nodename="N_sw_color3"/>
+    <output name="out" type="float" nodename="N_sw_color3"/>
   </nodegraph>
 
   <nodegraph name="NG_extract_vector3" nodedef="ND_extract_vector3">
@@ -2276,7 +2276,7 @@
       <input name="in3" type="float" nodename="N_z_vector3"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
-    <output name="N_out_vector3" type="float" nodename="N_sw_vector3"/>
+    <output name="out" type="float" nodename="N_sw_vector3"/>
   </nodegraph>
 
   <nodegraph name="NG_extract_color4" nodedef="ND_extract_color4">
@@ -2303,7 +2303,7 @@
       <input name="in4" type="float" nodename="N_a_color4"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
-    <output name="N_out_color4" type="float" nodename="N_sw_color4"/>
+    <output name="out" type="float" nodename="N_sw_color4"/>
   </nodegraph>
 
   <nodegraph name="NG_extract_vector4" nodedef="ND_extract_vector4">
@@ -2330,7 +2330,7 @@
       <input name="in4" type="float" nodename="N_w_vector4"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
-    <output name="N_out_vector4" type="float" nodename="N_sw_vector4"/>
+    <output name="out" type="float" nodename="N_sw_vector4"/>
   </nodegraph>
 
 

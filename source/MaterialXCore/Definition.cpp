@@ -48,7 +48,7 @@ const string& NodeDef::getType() const
     }
     else
     {
-        return DEFAULT_TYPE_STRING;
+        throw Exception("Nodedef: " + getName() + " has no outputs");
     }
 }
 

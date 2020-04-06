@@ -164,7 +164,7 @@ class GlslProgram
     void bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mesh);
 
     /// Bind input geometry partition (indexing)
-    void bindPartition(MeshPartitionPtr partition);
+    void bindPartition(const std::string& meshName, MeshPartitionPtr partition);
 
     /// Bind input geometry streams
     void bindStreams(MeshPtr mesh);
@@ -186,6 +186,9 @@ class GlslProgram
 
     /// Unbind the program. Equivalent to binding no program
     void unbind() const;
+
+    /// Whether the geometry is currently bound
+    bool geometryBound() const;
 
     /// @}
 
@@ -262,9 +265,7 @@ class GlslProgram
     std::unordered_map<std::string, unsigned int> _attributeBufferIds;
 
     /// Attribute indexing buffer handle
-    unsigned int _indexBuffer;
-    /// Size of index buffer
-    size_t _indexBufferSize;
+    std::map<std::string, unsigned int> _indexBufferIds;
 
     /// Attribute vertex array handle
     unsigned int _vertexArray;
@@ -274,6 +275,8 @@ class GlslProgram
 
     /// Enabled vertex stream program locations
     std::set<int> _enabledStreamLocations;
+
+    std::string _lastGeometryName;
 };
 
 } // namespace MaterialX

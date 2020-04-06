@@ -41,6 +41,12 @@ class XmlReadOptions : public CopyOptions
     /// The vector of parent XIncludes at the scope of the current document.
     /// Defaults to an empty vector.
     StringVec parentXIncludes;
+
+    /// Desired major version on read. By default this is the same as the library version
+    int desiredMajorVersion;
+
+    /// Desired minor version on read. By default this is the same as the library version
+    int desiredMinorVersion;
 };
 
 /// @class XmlWriteOptions

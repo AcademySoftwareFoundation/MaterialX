@@ -12,112 +12,8 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/PugiXML/pugixml.hpp>
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <unordered_set>
-
 namespace MaterialX
 {
-
-string removeExtension(const string& filename)
-{
-    size_t lastDot = filename.find_last_of('.');
-    if (lastDot == string::npos) return filename;
-    return filename.substr(0, lastDot);
-}
-
-string readFile(const string& filename)
-{
-    std::ifstream file(filename, std::ios::in);
-    if (file)
-    {
-        StringStream stream;
-        stream << file.rdbuf();
-        file.close();
-        if (stream)
-        {
-            return stream.str();
-        }
-    }
-    return EMPTY_STRING;
-}
-
-void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
-                   const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
-                   StringVec& errors)
-{
-    for (const FilePath& dir : rootPath.getSubDirectories())
-    {
-        for (const FilePath& file : dir.getFilesInDirectory(MTLX_EXTENSION))
-        {
-            if (!skipFiles.count(file) &&
-               (includeFiles.empty() || includeFiles.count(file)))
-            {
-                DocumentPtr doc = createDocument();
-                const FilePath filePath = dir / file;
-                try
-                {
-                    FileSearchPath readSearchPath(searchPath);
-                    readSearchPath.append(dir);
-                    readFromXmlFile(doc, filePath, readSearchPath);
-                    documents.push_back(doc);
-                    documentsPaths.push_back(filePath.asString());
-                }
-                catch (Exception& e)
-                {
-                    errors.push_back("Failed to load: " + filePath.asString() + ". Error: " + e.what());
-                }
-            }
-        }
-    }
-}
-
-void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath)
-{
-    DocumentPtr libDoc = createDocument();
-    XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
-    readFromXmlFile(libDoc, file, searchPath ? *searchPath : FileSearchPath(), &readOptions);
-    CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
-    doc->importLibrary(libDoc, &copyOptions);
-}
-
-StringVec loadLibraries(const StringVec& libraryNames,
-                        const FileSearchPath& searchPath,
-                        DocumentPtr doc,
-                        const StringSet* excludeFiles)
-{
-    StringVec loadedLibraries;
-    for (const std::string& libraryName : libraryNames)
-    {
-        FilePath libraryPath = searchPath.find(libraryName);
-        for (const FilePath& path : libraryPath.getSubDirectories())
-        {
-            for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
-            {
-                if (!excludeFiles || !excludeFiles->count(filename))
-                {
-                    const FilePath& file = path / filename;
-                    loadLibrary(file, doc, &searchPath);
-                    loadedLibraries.push_back(file.asString());
-                }
-            }
-        }
-    }
-    return loadedLibraries;
-}
-
-StringVec loadLibraries(const StringVec& libraryNames,
-                        const FilePath& filePath,
-                        DocumentPtr doc,
-                        const StringSet* excludeFiles)
-{
-    FileSearchPath searchPath;
-    searchPath.append(filePath);
-    return loadLibraries(libraryNames, searchPath, doc, excludeFiles);
-}
 
 namespace
 {
@@ -355,7 +251,135 @@ namespace
 
 bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
 {
-    if (element->isA<ShaderRef>())
+    // Handle shader nodes
+    NodePtr shaderNode = element->asA<Node>();
+    if (shaderNode && shaderNode->getType() == SURFACE_SHADER_TYPE_STRING)
+    {
+        NodeDefPtr nodeDef = shaderNode->getNodeDef();
+        if (!nodeDef)
+        {
+            throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + shaderNode->getNamePath());
+        }
+
+        const string& nodetype = nodeDef->getNodeString();
+        if (nodetype == "standard_surface")
+        {
+            bool opaque = false;
+
+            // First check the transmission weight
+            InputPtr transmission = shaderNode->getActiveInput("transmission");
+            if (!transmission)
+            {
+                opaque = true;
+            }
+            else if (transmission->getOutputString() == EMPTY_STRING)
+            {
+                // Unconnected, check the value
+                ValuePtr value = transmission->getValue();
+                if (!value || isZero(value->asA<float>()))
+                {
+                    opaque = true;
+                }
+            }
+
+            // Second check the opacity
+            if (opaque)
+            {
+                opaque = false;
+
+                InputPtr opacity = shaderNode->getActiveInput("opacity");
+                if (!opacity)
+                {
+                    opaque = true;
+                }
+                else if (opacity->getOutputString() == EMPTY_STRING)
+                {
+                    // Unconnected, check the value
+                    ValuePtr value = opacity->getValue();
+                    if (!value || (value->isA<Color3>() && isWhite(value->asA<Color3>())))
+                    {
+                        opaque = true;
+                    }
+                }
+            }
+
+            return !opaque;
+        }
+        else
+        {
+            InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+            if (!impl)
+            {
+                throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef->getNodeString() +
+                    "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
+            }
+
+            if (impl->isA<NodeGraph>())
+            {
+                NodeGraphPtr graph = impl->asA<NodeGraph>();
+
+                vector<OutputPtr> outputs = graph->getActiveOutputs();
+                if (!outputs.empty())
+                {
+                    const OutputPtr& output = outputs[0];
+                    if (TypeDesc::get(output->getType()) == Type::SURFACESHADER)
+                    {
+                        StringSet opacityInterfaceNames;
+                        StringSet transmissionInterfaceNames;
+                        bool isTransparent = isTransparentShaderGraph(output, shadergen, opacityInterfaceNames, transmissionInterfaceNames);
+
+                        if (!isTransparent)
+                        {
+                            for (const string& transmissionInterfaceName : transmissionInterfaceNames)
+                            {
+                                // First check the transmission weight
+                                InputPtr transmission = shaderNode->getActiveInput(transmissionInterfaceName);
+                                if (transmission)
+                                {
+                                    if (!transmission->getOutputString().empty())
+                                    {
+                                        isTransparent = true;
+                                    }
+                                    else
+                                    {
+                                        ValuePtr value = transmission->getValue();
+                                        if (value && !isZero(value->asA<float>()))
+                                        {
+                                            isTransparent = true;
+                                        }
+                                    }
+                                }
+                            }
+                            for (const string& opacityInterfaceName : opacityInterfaceNames)
+                            {
+                                InputPtr opacity = shaderNode->getActiveInput(opacityInterfaceName);
+                                if (opacity)
+                                {
+                                    if (!opacity->getOutputString().empty())
+                                    {
+                                        isTransparent = true;
+                                    }
+                                    else
+                                    {
+                                        ValuePtr value = opacity->getValue();
+                                        if (value && value->isA<Color3>() && !isWhite(value->asA<Color3>()))
+                                        {
+                                            isTransparent = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        return isTransparent;
+                    }
+                }
+            }
+        }
+    }
+
+    // Handle shader refs
+    else if (element->isA<ShaderRef>())
     {
         ShaderRefPtr shaderRef = element->asA<ShaderRef>();
         NodeDefPtr nodeDef = shaderRef->getNodeDef();
@@ -371,58 +395,41 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
         const string& nodetype = nodeDef->getNodeString();
         if (nodetype == "standard_surface")
         {
-            bool opaque = true;
+            bool opaque = false;
 
-            // Check transmission
+            // First check the transmission weight
             BindInputPtr transmission = shaderRef->getBindInput("transmission");
-            if (transmission)
+            if (!transmission)
             {
-                if (transmission->getConnectedOutput())
+                opaque = true;
+            }
+            else if (transmission->getOutputString() == EMPTY_STRING)
+            {
+                // Unconnected, check the value
+                ValuePtr value = transmission->getValue();
+                if (!value || isZero(value->asA<float>()))
                 {
-                    opaque = false;
-                }
-                else
-                {
-                    ValuePtr value = transmission->getValue();
-                    if (value && value->isA<float>() && !isZero(value->asA<float>()))
-                    {
-                        opaque = false;
-                    }
+                    opaque = true;
                 }
             }
 
-            // Check opacity
-            BindInputPtr opacity = shaderRef->getBindInput("opacity");
-            if (opacity)
+            // Second check the opacity
+            if (opaque)
             {
-                if (opacity->getConnectedOutput())
+                opaque = false;
+
+                BindInputPtr opacity = shaderRef->getBindInput("opacity");
+                if (!opacity)
                 {
-                    opaque = false;
+                    opaque = true;
                 }
-                else
+                else if (opacity->getOutputString() == EMPTY_STRING)
                 {
+                    // Unconnected, check the value
                     ValuePtr value = opacity->getValue();
-                    if (value && value->isA<Color3>() && !isWhite(value->asA<Color3>()))
+                    if (!value || (value->isA<Color3>() && isWhite(value->asA<Color3>())))
                     {
-                        opaque = false;
-                    }
-                }
-            }
-
-            // Check subsurface
-            BindInputPtr subsurface = shaderRef->getBindInput("subsurface");
-            if (subsurface)
-            {
-                if (subsurface->getConnectedOutput())
-                {
-                    opaque = false;
-                }
-                else
-                {
-                    ValuePtr value = subsurface->getValue();
-                    if (value && value->isA<float>() && !isZero(value->asA<float>()))
-                    {
-                        opaque = false;
+                        opaque = true;
                     }
                 }
             }
@@ -501,6 +508,8 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             }
         }
     }
+
+    // Handle output nodes
     else if (element->isA<Output>())
     {
         OutputPtr output = element->asA<Output>();
@@ -586,10 +595,98 @@ bool elementRequiresShading(ConstTypedElementPtr element)
             colorClosures.count(elementType) > 0);
 }
 
-void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
-{
-    std::unordered_set<OutputPtr> processedOutputs;
 
+vector<NodePtr> getShaderNodes(const NodePtr materialNode, const string& shaderType, const string& target)
+{
+    DocumentPtr doc = materialNode->getDocument();
+    vector<NodePtr> shaderNodes;
+    for (const InputPtr& input : materialNode->getActiveInputs())
+    {
+        const string& inputShader = input->getNodeName();
+        if (!inputShader.empty())
+        {
+            NodePtr shaderNode = doc->getNode(inputShader);
+            if (shaderNode)
+            {
+                if (!target.empty())
+                {
+                    NodeDefPtr nodeDef = shaderNode->getNodeDef();
+                    if (!nodeDef || !targetStringsMatch(nodeDef->getTarget(), target))
+                    {
+                        continue;
+                    }
+                }
+                if (shaderType.empty() || shaderNode->getType() == shaderType)
+                {
+                    shaderNodes.push_back(shaderNode);
+                }
+            }
+        }
+    }
+    return shaderNodes;
+}
+
+vector<MaterialAssignPtr> getGeometryBindings(NodePtr materialNode, const string& geom)
+{
+    vector<MaterialAssignPtr> matAssigns;
+    for (LookPtr look : materialNode->getDocument()->getLooks())
+    {
+        for (MaterialAssignPtr matAssign : look->getMaterialAssigns())
+        {
+            if (matAssign->getReferencedMaterialNode() == materialNode)
+            {
+                if (geomStringsMatch(geom, matAssign->getActiveGeom()))
+                {
+                    matAssigns.push_back(matAssign);
+                    continue;
+                }
+                CollectionPtr coll = matAssign->getCollection();
+                if (coll && coll->matchesGeomString(geom))
+                {
+                    matAssigns.push_back(matAssign);
+                    continue;
+                }
+            }
+        }
+    }
+    return matAssigns;
+}
+
+void findRenderableMaterialNodes(ConstDocumentPtr doc, 
+                                 vector<TypedElementPtr>& elements, 
+                                 bool includeReferencedGraphs,
+                                 std::unordered_set<OutputPtr> &processedOutputs)
+{
+    for (const NodePtr& material : doc->getMaterialNodes())
+    {
+        // Push the material node only once.
+        elements.push_back(material);
+
+        // Scan for any upstream shader outpus and put them on the "processed" list
+        // if we don't want to consider them for rendering.
+        vector<NodePtr> shaderNodes = getShaderNodes(material);
+        for (NodePtr shaderNode : shaderNodes)
+        {
+            if (!includeReferencedGraphs)
+            {
+                for (InputPtr input : shaderNode->getActiveInputs())
+                {
+                    OutputPtr outputPtr = input->getConnectedOutput();
+                    if (outputPtr && !outputPtr->hasSourceUri() && !processedOutputs.count(outputPtr))
+                    {
+                        processedOutputs.insert(outputPtr);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void findRenderableShaderRefs(ConstDocumentPtr doc, 
+                              vector<TypedElementPtr>& elements, 
+                              bool includeReferencedGraphs,
+                              std::unordered_set<OutputPtr> &processedOutputs)
+{
     for (const auto& material : doc->getMaterials())
     {
         for (const auto& shaderRef : material->getShaderRefs())
@@ -614,7 +711,7 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
                     for (const auto& bindInput : shaderRef->getBindInputs())
                     {
                         OutputPtr outputPtr = bindInput->getConnectedOutput();
-                        if (outputPtr)
+                        if (outputPtr && !outputPtr->hasSourceUri() && !processedOutputs.count(outputPtr))
                         {
                             processedOutputs.insert(outputPtr);
                         }
@@ -623,6 +720,14 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
             }
         }
     }
+}
+
+void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
+{
+    std::unordered_set<OutputPtr> processedOutputs;
+
+    findRenderableMaterialNodes(doc, elements, includeReferencedGraphs, processedOutputs);
+    findRenderableShaderRefs(doc, elements, includeReferencedGraphs, processedOutputs);
 
     // Find node graph outputs. Skip any light shaders
     for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
@@ -633,7 +738,7 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
         {
             for (OutputPtr output : nodeGraph->getOutputs())
             {
-                if (output->hasSourceUri() || processedOutputs.count(output))
+                if (processedOutputs.count(output))
                 {
                     continue;
                 }

@@ -30,6 +30,9 @@ class GLFramebuffer
     /// Destructor
     virtual ~GLFramebuffer();
 
+    /// Resize the framebuffer
+    void resize(unsigned int width, unsigned int height);
+
     /// Set the encode sRGB flag, which controls whether values written
     /// to the framebuffer are encoded to the sRGB color space.
     void setEncodeSrgb(bool encode)

@@ -678,7 +678,8 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
     if (variable->getType() == Type::FILENAME)
     {
         // Samplers must always be uniforms
-        emitString("uniform sampler2D " + variable->getVariable(), stage);
+        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+        emitString(str + "sampler2D " + variable->getVariable(), stage);
     }
     else
     {

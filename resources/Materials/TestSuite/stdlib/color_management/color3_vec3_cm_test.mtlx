@@ -2,7 +2,7 @@
 <materialx version="1.37" colorspace="lin_rec709">
 
   <!-- create nodegraph to test cm conversion on image node before feeding to heighttonormal  -->
-  <nodegraph name="height_to_norma_cm">
+  <nodegraph name="height_to_normal_cm">
     <image name="b_image" type="color3">
       <parameter name="file" type="filename" value="resources/Images/brass_old_spec.jpg" colorspace="srgb_texture"/>
       <parameter name="uaddressmode" type="string" value="periodic"/>

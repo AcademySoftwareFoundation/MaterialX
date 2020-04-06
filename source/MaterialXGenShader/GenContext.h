@@ -126,7 +126,7 @@ class GenContext
 
     /// Find and return a cached shader node implementation,
     /// or return nullptr if no implementation is found.
-    ShaderNodeImplPtr findNodeImplementation(const string& name);
+    ShaderNodeImplPtr findNodeImplementation(const string& name) const;
 
     /// Clear all cached shader node implementation.
     void clearNodeImplementations();
