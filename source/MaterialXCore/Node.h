@@ -334,41 +334,90 @@ class Backdrop : public Element
     }
     virtual ~Backdrop() { }
 
-    /// Set the comma-separated list of nodes that this backdrop contains.
-    void setContains(const string& contains)
+    /// @name Contains String
+    /// @{
+
+    /// Set the contains string for this backdrop.
+    void setContainsString(const string& contains)
     {
         setAttribute(CONTAINS_ATTRIBUTE, contains);
     }
 
-    /// Return the comma-separated list of nodes that this backdrop contains.
-    string getContains() const
+    /// Return true if this backdrop has a contains string.
+    bool hasContainsString() const
+    {
+        return hasAttribute(CONTAINS_ATTRIBUTE);
+    }
+
+    /// Return the contains string for this backdrop.
+    string getContainsString() const
     {
         return getAttribute(CONTAINS_ATTRIBUTE);
     }
 
-    /// Set the width of the backdrop when drawn in a UI.
+    /// @}
+    /// @name Width
+    /// @{
+
+    /// Set the width attribute of the backdrop.
     void setWidth(float width)
     {
         setTypedAttribute<float>(WIDTH_ATTRIBUTE, width);
     }
 
-    /// Return the width of the backdrop when drawn in a UI.
+    /// Return true if this backdrop has a width attribute.
+    bool hasWidth() const
+    {
+        return hasAttribute(WIDTH_ATTRIBUTE);
+    }
+
+    /// Return the width attribute of the backdrop.
     float getWidth() const
     {
         return getTypedAttribute<float>(WIDTH_ATTRIBUTE);
     }
 
-    /// Set the height of the backdrop when drawn in a UI.
+    /// @}
+    /// @name Height
+    /// @{
+
+    /// Set the height attribute of the backdrop.
     void setHeight(float height)
     {
         setTypedAttribute<float>(HEIGHT_ATTRIBUTE, height);
     }
 
-    /// Return the height of the backdrop when drawn in a UI.
+    /// Return true if this backdrop has a height attribute.
+    bool hasHeight() const
+    {
+        return hasAttribute(HEIGHT_ATTRIBUTE);
+    }
+
+    /// Return the height attribute of the backdrop.
     float getHeight() const
     {
         return getTypedAttribute<float>(HEIGHT_ATTRIBUTE);
     }
+
+    /// @}
+    /// @name Utility
+    /// @{
+
+    /// Set the vector of elements that this backdrop contains.
+    void setContainsElements(const vector<ConstTypedElementPtr>& nodes);
+
+    /// Return the vector of elements that this backdrop contains.
+    vector<TypedElementPtr> getContainsElements() const;
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
+    /// @}
 
   public:
     static const string CATEGORY;

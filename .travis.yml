@@ -44,20 +44,20 @@ matrix:
  
     # Custom builds
     - os: linux
-      dist: xenial
+      dist: bionic
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6 && PY=2"
       addons:
         apt:
-          sources: ubuntu-toolchain-r-test
           packages: [*packages_base, g++-6]
     - os: linux
-      dist: xenial
+      dist: bionic
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
       addons:
         apt:
-          sources: ubuntu-toolchain-r-test
+          sources:
+            sourceline: "ppa:ubuntu-toolchain-r/test"
           packages: [*packages_base, g++-9]
     - os: linux
       dist: bionic

@@ -529,4 +529,55 @@ ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
     return getNodeDef();
 }
 
+//
+// Backdrop methods
+//
+
+void Backdrop::setContainsElements(const vector<ConstTypedElementPtr>& elems)
+{
+    if (!elems.empty())
+    {
+        StringVec stringVec;
+        for (ConstTypedElementPtr elem : elems)
+        {
+            stringVec.push_back(elem->getName());
+        }
+        setTypedAttribute(CONTAINS_ATTRIBUTE, stringVec);
+    }
+    else
+    {
+        removeAttribute(CONTAINS_ATTRIBUTE);
+    }
+}
+
+vector<TypedElementPtr> Backdrop::getContainsElements() const
+{
+    vector<TypedElementPtr> vec;
+    ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+    if (graph)
+    {
+        for (const string& str : getTypedAttribute<StringVec>(CONTAINS_ATTRIBUTE))
+        {
+            TypedElementPtr elem = graph->getChildOfType<TypedElement>(str);
+            if (elem)
+            {
+                vec.push_back(elem);
+            }
+        }
+    }
+    return vec;
+}
+
+bool Backdrop::validate(string* message) const
+{
+    bool res = true;
+    if (hasContainsString())
+    {
+        StringVec stringVec = getTypedAttribute<StringVec>("contains");
+        vector<TypedElementPtr> elemVec = getContainsElements();
+        validateRequire(stringVec.size() == elemVec.size(), res, message, "Invalid element in contains string");
+    }
+    return Element::validate(message) && res;
+}
+
 } // namespace MaterialX
