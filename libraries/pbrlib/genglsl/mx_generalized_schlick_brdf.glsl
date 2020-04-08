@@ -20,18 +20,18 @@ void mx_generalized_schlick_brdf_reflection(vec3 L, vec3 V, float weight, vec3 c
 
     vec3 H = normalize(L + V);
     float NdotH = dot(N, H);
+    float VdotH = dot(V, H);
 
     float D = mx_microfacet_ggx_NDF(X, Y, H, NdotH, roughness.x, roughness.y);
-    float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, max(roughness.x, roughness.y));
-
-    float VdotH = dot(V, H);
     vec3 F = mx_fresnel_schlick(VdotH, color0, color90, exponent);
-    F *= weight;
-    float avgF = dot(F, vec3(1.0 / 3.0));
+    float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
+
+    vec3 dirAlbedo = mx_microfacet_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), color0, color90);
+    float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
     // Note: NdotL is cancelled out
-    result = D * G * F / (4 * NdotV)    // Top layer reflection
-           + base * (1.0 - avgF);       // Base layer reflection attenuated by top fresnel
+    result = D * F * G * weight / (4 * NdotV)		// Top layer reflection
+           + base * (1.0 - avgDirAlbedo * weight);	// Base layer reflection attenuated by top directional albedo
 }
 
 void mx_generalized_schlick_brdf_transmission(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
@@ -47,12 +47,11 @@ void mx_generalized_schlick_brdf_transmission(vec3 V, float weight, vec3 color0,
     // inverse of top layer reflectance.
 
     // Abs here to allow transparency through backfaces
-    float NdotV = abs(dot(N,V)); 
-    vec3 F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
-    F *= weight;
-    float avgF = dot(F, vec3(1.0 / 3.0));
+    float NdotV = abs(dot(N, V)); 
+    vec3 dirAlbedo = mx_microfacet_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), color0, color90);
+    float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
-    result = base * (1.0 - avgF); // Base layer transmission attenuated by top fresnel
+    result = base * (1.0 - avgDirAlbedo * weight); // Base layer transmission attenuated by top directional albedo
 }
 
 void mx_generalized_schlick_brdf_indirect(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
@@ -63,13 +62,12 @@ void mx_generalized_schlick_brdf_indirect(vec3 V, float weight, vec3 color0, vec
         return;
     }
 
-    vec3 Li = mx_environment_radiance(N, V, X, roughness, distribution);
+    vec3 Li = mx_environment_radiance(N, V, X, roughness, color0, color90, distribution);
 
-    float NdotV = dot(N,V);
-    vec3 F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
-    F *= weight;
-    float avgF = dot(F, vec3(1.0 / 3.0));
+    float NdotV = dot(N, V);
+    vec3 dirAlbedo = mx_microfacet_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), color0, color90);
+    float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
-    result = Li * F                 // Top layer reflection
-           + base * (1.0 - avgF);   // Base layer reflection attenuated by top fresnel
+    result = Li * weight                            // Top layer reflection
+           + base * (1.0 - avgDirAlbedo * weight);  // Base layer reflection attenuated by top directional albedo
 }

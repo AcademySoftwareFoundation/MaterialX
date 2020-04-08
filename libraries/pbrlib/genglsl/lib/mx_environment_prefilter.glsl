@@ -27,10 +27,13 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lodBias, sampler2D sa
     return vec3(0.0);
 }
 
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, vec3 F90, int distribution)
 {
-    vec3 dir = reflect(-V, N);
-    return mx_latlong_map_lookup(dir, $envMatrix, max(roughness.x, roughness.y), $envRadiance);
+    vec3 L = reflect(-V, N);
+    float NdotV = dot(N, V);
+
+    vec3 dirAlbedo = mx_microfacet_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), F0, F90);
+    return mx_latlong_map_lookup(L, $envMatrix, mx_average_roughness(roughness), $envRadiance) * dirAlbedo;
 }
 
 vec3 mx_environment_irradiance(vec3 N)
