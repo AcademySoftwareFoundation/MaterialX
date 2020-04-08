@@ -30,7 +30,7 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D sample
 }
 
 // Only GGX is supported for now and the distribution argument is ignored
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, vec3 F90, int distribution)
 {
     vec3 Y = normalize(cross(N, X));
     X = cross(Y, N);
@@ -60,20 +60,19 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
         float lod = mx_latlong_compute_lod(L, pdf, $envRadianceMips - 1, $envRadianceSamples);
         vec3 sampleColor = mx_latlong_map_lookup(L, $envMatrix, lod, $envRadiance);
 
-        // Compute the geometric term.
-        float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, max(roughness.x, roughness.y));
-        
-        // Fresnel is applied outside the lighting integral for now.
-        // TODO: Move Fresnel term into the lighting integral.
-        float F = 1.0;
+        // Compute the Fresnel term.
+        vec3 F = mx_fresnel_schlick(VdotH, F0, F90, 5.0);
 
+        // Compute the geometric term.
+        float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
+        
         // Add the radiance contribution of this sample.
         // From https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
         //   incidentLight = sampleColor * NdotL
-        //   microfacetSpecular = D * G * F / (4 * NdotL * NdotV)
+        //   microfacetSpecular = D * F * G / (4 * NdotL * NdotV)
         //   pdf = D * NdotH / (4 * VdotH)
         //   radiance = incidentLight * microfacetSpecular / pdf
-        radiance += sampleColor * G * F * VdotH / (NdotV * NdotH);
+        radiance += sampleColor * F * G * VdotH / (NdotV * NdotH);
     }
 
     // Normalize and return the final radiance.
