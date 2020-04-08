@@ -13,7 +13,6 @@
 
 #include <fstream>
 
-
 namespace MaterialX
 {
 
