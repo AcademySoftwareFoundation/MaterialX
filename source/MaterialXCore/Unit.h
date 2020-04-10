@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_UNITCONVERTER_H_
-#define MATERIALX_UNITCONVERTER_H_
+#ifndef MATERIALX_UNIT_H_
+#define MATERIALX_UNIT_H_
 
 /// @file
 /// Unit converter classes
@@ -12,8 +12,8 @@
 #include <MaterialXCore/Library.h>
 
 #include <MaterialXCore/Definition.h>
-#include <MaterialXCore/Types.h>
 #include <MaterialXCore/Document.h>
+#include <MaterialXCore/Types.h>
 
 namespace MaterialX
 {
