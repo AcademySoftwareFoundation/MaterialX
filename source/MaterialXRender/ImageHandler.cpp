@@ -40,7 +40,7 @@ const string ImageLoader::TXR_EXTENSION = "txr";
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
     addLoader(imageLoader);
-    _zeroImage = Image::createConstantColor(1, 1, Color4(0.0f));
+    _zeroImage = createUniformImage(1, 1, Color4(0.0f));
 }
 
 void ImageHandler::addLoader(ImageLoaderPtr loader)
@@ -117,7 +117,7 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
     }
     if (fallbackColor)
     {
-        ImagePtr image = Image::createConstantColor(1, 1, *fallbackColor);
+        ImagePtr image = createUniformImage(1, 1, *fallbackColor);
         if (image)
         {
             cacheImage(filePath, image);
