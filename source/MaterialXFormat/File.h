@@ -130,6 +130,12 @@ class FilePath
         return i != string::npos ? baseName.substr(i + 1) : EMPTY_STRING;
     }
 
+    /// Add a file extension to the given path.
+    void addExtension(const string& ext)
+    {
+        assign(asString() + "." + ext);
+    }
+
     /// Concatenate two paths with a directory separator, returning the
     /// combined path.
     FilePath operator/(const FilePath& rhs) const;
