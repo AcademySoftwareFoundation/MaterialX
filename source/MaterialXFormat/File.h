@@ -218,12 +218,6 @@ class FileSearchPath
         return str;
     }
 
-    /// Clear the search paths
-    void clear()
-    {
-        _paths.clear();
-    }
-
     /// Append the given path to the sequence.
     void append(const FilePath& path)
     {
@@ -245,6 +239,12 @@ class FileSearchPath
         _paths.insert(_paths.begin(), path);
     }
     
+    /// Clear all paths from the sequence.
+    void clear()
+    {
+        _paths.clear();
+    }
+
     /// Return the number of paths in the sequence.
     size_t size() const
     {

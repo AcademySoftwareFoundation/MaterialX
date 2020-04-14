@@ -53,6 +53,7 @@ void bindPyFile(py::module& mod)
         .def("append", static_cast<void (mx::FileSearchPath::*)(const mx::FilePath&)>(&mx::FileSearchPath::append))
         .def("append", static_cast<void (mx::FileSearchPath::*)(const mx::FileSearchPath&)>(&mx::FileSearchPath::append))
         .def("prepend", &mx::FileSearchPath::prepend)
+        .def("clear", &mx::FileSearchPath::clear)
         .def("size", &mx::FileSearchPath::size)
         .def("isEmpty", &mx::FileSearchPath::isEmpty)
         .def("find", &mx::FileSearchPath::find);
