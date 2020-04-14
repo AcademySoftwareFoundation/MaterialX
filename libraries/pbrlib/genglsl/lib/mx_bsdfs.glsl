@@ -1,3 +1,10 @@
+#include "pbrlib/genglsl/lib/mx_refraction_index.glsl"
+
+float mx_average_roughness(vec2 roughness)
+{
+    return sqrt(roughness.x * roughness.y);
+}
+
 float mx_orennayar(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 {
     float LdotV = dot(L, V);
@@ -50,6 +57,22 @@ float mx_microfacet_ggx_smith_G(float NdotL, float NdotV, float alpha)
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
     float lambdaV = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotV));
     return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
+}
+
+// https://www.unrealengine.com/blog/physically-based-shading-on-mobile
+vec3 mx_microfacet_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
+{
+    const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
+    const vec4 c1 = vec4( 1,  0.0425,  1.04, -0.04 );
+    vec4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
+    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+    return F0 * AB.x + F90 * AB.y;
+}
+
+float mx_microfacet_ggx_directional_albedo(float NdotV, float roughness, float ior)
+{
+    return mx_microfacet_ggx_directional_albedo(NdotV, roughness, vec3(mx_ior_to_f0(ior)), vec3(1.0)).x;
 }
 
 // http://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_sheen.pdf (Equation 2)
@@ -117,35 +140,17 @@ vec3 mx_fresnel_schlick(float cosTheta, vec3 F0, vec3 F90, float exponent)
 
 vec3 mx_fresnel_schlick(float cosTheta, vec3 F0)
 {
-    if (cosTheta < 0.0)
-        return vec3(1.0);
-    float x = 1.0 - cosTheta;
-    float x2 = x*x;
-    float x5 = x2*x2*x;
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    float x5 = mx_pow5(x);
     return F0 + (1.0 - F0) * x5;
 }
 
 float mx_fresnel_schlick(float cosTheta, float ior)
 {
-    if (cosTheta < 0.0)
-        return 1.0;
-    float F0 = (ior - 1.0) / (ior + 1.0);
-    F0 *= F0;
-    float x = 1.0 - cosTheta;
-    float x2 = x*x;
-    float x5 = x2*x2*x;
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    float x5 = mx_pow5(x);
+    float F0 = mx_ior_to_f0(ior);
     return F0 + (1.0 - F0) * x5;
-}
-
-float mx_fresnel_schlick_roughness(float cosTheta, float ior, float roughness)
-{
-    cosTheta = abs(cosTheta);
-    float F0 = (ior - 1.0) / (ior + 1.0);
-    F0 *= F0;
-    float x = 1.0 - cosTheta;
-    float x2 = x*x;
-    float x5 = x2*x2*x;
-    return F0 + (max(1.0 - roughness, F0) - F0) * x5;
 }
 
 // https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/

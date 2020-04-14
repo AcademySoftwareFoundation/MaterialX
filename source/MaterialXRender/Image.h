@@ -50,9 +50,6 @@ class Image
         return ImagePtr(new Image(width, height, channelCount, baseType));
     }
 
-    /// Create a constant color image with the given properties.
-    static ImagePtr createConstantColor(unsigned int width, unsigned int height, const Color4& color);
-
     ~Image();
 
     /// Return the width of the image.
@@ -158,6 +155,12 @@ class Image
     ImageBufferDeallocator _resourceBufferDeallocator;
     unsigned int _resourceId;
 };
+
+/// Create a uniform-color image with the given properties.
+ImagePtr createUniformImage(unsigned int width, unsigned int height, const Color4& color);
+
+/// Create a horizontal image strip from a vector of images with identical resolutions and formats.
+ImagePtr createImageStrip(vector<ImagePtr> imageVec);
 
 } // namespace MaterialX
 
