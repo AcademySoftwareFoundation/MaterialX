@@ -244,6 +244,24 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     _syntax->makeIdentifier(functionName, graph.getIdentifierMap());
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
+
+    // Add any metadata if set on the graph.
+    const ShaderMetadataVecPtr& metadata = graph.getMetadata();
+    if (metadata && metadata->size())
+    {
+        emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+        for (size_t j = 0; j < metadata->size(); ++j)
+        {
+            const ShaderMetadata& data = metadata->at(j);
+            const string& delim = (j == metadata->size() - 1) ? EMPTY_STRING : COMMA;
+            const string& dataType = _syntax->getTypeName(data.type);
+            const string dataValue = _syntax->getValue(data.type, *data.value, true);
+            emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
+        }
+        emitScopeEnd(stage, false, false);
+        emitLineEnd(stage, false);
+    }
+
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
     // Emit shader inputs
@@ -286,6 +304,39 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     replaceTokens(_tokenSubstitutions, stage);
 
     return shader;
+}
+
+void OslShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const
+{
+    // Register all standard metadata.
+    ShaderGenerator::registerShaderMetadata(doc, context);
+
+    ShaderMetadataRegistryPtr registry = context.getUserData<ShaderMetadataRegistry>(ShaderMetadataRegistry::USER_DATA_NAME);
+    if (!registry)
+    {
+        throw ExceptionShaderGenError("Registration of metadata faild");
+    }
+
+    // Rename the standard metadata names to corresponding OSL metadata names.
+    const StringMap nameRemapping =
+    {
+        {ValueElement::UI_NAME_ATTRIBUTE, "label"},
+        {ValueElement::UI_FOLDER_ATTRIBUTE, "page"},
+        {ValueElement::UI_MIN_ATTRIBUTE, "min"},
+        {ValueElement::UI_MAX_ATTRIBUTE, "max"},
+        {ValueElement::UI_SOFT_MIN_ATTRIBUTE, "slidermin"},
+        {ValueElement::UI_SOFT_MAX_ATTRIBUTE, "slidermax"},
+        {ValueElement::UI_STEP_ATTRIBUTE, "sensitivity"},
+        {ValueElement::DOC_ATTRIBUTE, "help"}
+    };
+    for (auto it : nameRemapping)
+    {
+        ShaderMetadata* data = registry->findMetadata(it.first);
+        if (data)
+        {
+            data->name = it.second;
+        }
+    }
 }
 
 ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -370,12 +421,6 @@ namespace
         {"UV0", "{u,v}"},
         {"Vworld", "I"}
     };
-
-    std::unordered_map<string, string> UI_WIDGET_METADATA =
-    {
-        {"filename", "string widget = \"filename\""},
-        {"boolean", "string widget = \"checkBox\""}
-    };
 }
 
 void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
@@ -383,6 +428,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         const ShaderPort* input = inputs[i];
+
         const string& type = _syntax->getTypeName(input->getType());
         const string value = (input->getValue() ?
             _syntax->getValue(input->getType(), *input->getValue(), true) :
@@ -402,11 +448,43 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
             emitString(type + " " + input->getVariable() + " = " + value, stage);
         }
 
-        // Add widget metadata.
-        auto it = UI_WIDGET_METADATA.find(input->getType()->getName());
-        if (it != UI_WIDGET_METADATA.end())
+        //
+        // Add shader input metadata.
+        //
+
+        const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
         {
-            emitString(" [[ " + it->second + " ]]", stage);
+            { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+            { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+            { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
+            { Type::BOOLEAN,  ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
+        };
+
+        auto widgetMetadataIt = UI_WIDGET_METADATA.find(input->getType());
+        const ShaderMetadata* widgetMetadata = widgetMetadataIt != UI_WIDGET_METADATA.end() ? &widgetMetadataIt->second : nullptr;
+        const ShaderMetadataVecPtr& metadata = input->getMetadata();
+        if (widgetMetadata || (metadata && metadata->size()))
+        {
+            emitLineEnd(stage, false);
+            emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+            if (metadata)
+            {
+                for (size_t j = 0; j < metadata->size(); ++j)
+                {
+                    const ShaderMetadata& data = metadata->at(j);
+                    const string& delim = (widgetMetadata || j < metadata->size() - 1) ? COMMA : EMPTY_STRING;
+                    const string& dataType = _syntax->getTypeName(data.type);
+                    const string dataValue = _syntax->getValue(data.type, *data.value, true);
+                    emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
+                }
+            }
+            if (widgetMetadata)
+            {
+                const string& dataType = _syntax->getTypeName(widgetMetadata->type);
+                const string dataValue = _syntax->getValue(widgetMetadata->type, *widgetMetadata->value, true);
+                emitLine(dataType + " " + widgetMetadata->name + " = " + dataValue, stage, false);
+            }
+            emitScopeEnd(stage, false, false);
         }
 
         emitString(",", stage);

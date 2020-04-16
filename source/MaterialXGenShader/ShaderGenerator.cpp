@@ -294,6 +294,50 @@ namespace
     }
 }
 
+void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const
+{
+    ShaderMetadataRegistryPtr registry = context.getUserData<ShaderMetadataRegistry>(ShaderMetadataRegistry::USER_DATA_NAME);
+    if (!registry)
+    {
+        registry = std::make_shared<ShaderMetadataRegistry>();
+        context.pushUserData(ShaderMetadataRegistry::USER_DATA_NAME, registry);
+    }
+
+    // Add default entries.
+    ShaderMetadataVec defaultMetadata =
+    {
+        ShaderMetadata(ValueElement::UI_NAME_ATTRIBUTE, Type::STRING),
+        ShaderMetadata(ValueElement::UI_FOLDER_ATTRIBUTE, Type::STRING),
+        ShaderMetadata(ValueElement::UI_MIN_ATTRIBUTE, nullptr),
+        ShaderMetadata(ValueElement::UI_MAX_ATTRIBUTE, nullptr),
+        ShaderMetadata(ValueElement::UI_SOFT_MIN_ATTRIBUTE, nullptr),
+        ShaderMetadata(ValueElement::UI_SOFT_MAX_ATTRIBUTE, nullptr),
+        ShaderMetadata(ValueElement::UI_STEP_ATTRIBUTE, nullptr),
+        ShaderMetadata(ValueElement::UI_ADVANCED_ATTRIBUTE, Type::BOOLEAN),
+        ShaderMetadata(ValueElement::DOC_ATTRIBUTE, Type::STRING),
+        ShaderMetadata(ValueElement::UNIT_ATTRIBUTE, Type::STRING)
+    };
+    for (auto data : defaultMetadata)
+    {
+        registry->addMetadata(data.name, data.type);
+    }
+
+    // Add entries from AttributeDefs in the document.
+    vector<AttributeDefPtr> attributeDefs = doc->getAttributeDefs();
+    for (const AttributeDefPtr& def : attributeDefs)
+    {
+        if (def->getExportable())
+        {
+            const string& attrName = def->getAttrName();
+            const TypeDesc* type = TypeDesc::get(def->getType());
+            if (!attrName.empty() && type)
+            {
+                registry->addMetadata(attrName, type, def->getValue());
+            }
+        }
+    }
+}
+
 void ShaderGenerator::replaceTokens(const StringMap& substitutions, ShaderStage& stage) const
 {
     // Replace tokens in source code

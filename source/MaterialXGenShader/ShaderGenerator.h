@@ -180,6 +180,17 @@ class ShaderGenerator
         return _tokenSubstitutions;
     }
 
+    /// Register metadata that should be exported to the generated shaders.
+    /// Supported metadata includes standard UI attributes like "uiname", "uifolder", 
+    /// "uimin", "uimax", etc. 
+    /// But it is also extendable by defining custom attributes using AttributeDefs.
+    /// Any AttributeDef in the given document with exportable="true" will be 
+    /// exported as shader metadata when found on nodes during shader generation.
+    /// Derived shader generators may override this method to change the registration.
+    /// Applications must explicitly call this method before shader generation to enable
+    /// export of metadata.
+    virtual void registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const;
+
   protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);

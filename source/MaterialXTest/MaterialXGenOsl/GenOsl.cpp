@@ -7,9 +7,11 @@
 #include <MaterialXTest/MaterialXGenOsl/GenOsl.h>
 
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
@@ -100,6 +102,88 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
     context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
+}
+
+TEST_CASE("GenShader: Metadata", "[genosl]")
+{
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
+
+    //
+    // Define custom attributes to be exported as shader metadata
+    //
+
+    mx::AttributeDefPtr adNodeName = doc->addAttributeDef("AD_node_name");
+    adNodeName->setType("string");
+    adNodeName->setAttrName("node_name");
+    adNodeName->setExportable(true);
+
+    mx::AttributeDefPtr adNodeCategory = doc->addAttributeDef("AD_node_category");
+    adNodeCategory->setType("string");
+    adNodeCategory->setAttrName("node_category");
+    adNodeCategory->setExportable(true);
+
+    mx::AttributeDefPtr adNodeTypeId = doc->addAttributeDef("AD_node_type_id");
+    adNodeTypeId->setType("integer");
+    adNodeTypeId->setAttrName("node_type_id");
+    adNodeTypeId->setExportable(true);
+
+    mx::AttributeDefPtr adAttributeLongName = doc->addAttributeDef("AD_attribute_long_name");
+    adAttributeLongName->setType("string");
+    adAttributeLongName->setAttrName("attribute_long_name");
+    adAttributeLongName->setExportable(true);
+
+    mx::AttributeDefPtr adAttributeShortName = doc->addAttributeDef("AD_attribute_short_name");
+    adAttributeShortName->setType("string");
+    adAttributeShortName->setAttrName("attribute_short_name");
+    adAttributeShortName->setExportable(true);
+
+    // Define a non-exportable attribute.
+    mx::AttributeDefPtr adShouldNotBeExported = doc->addAttributeDef("AD_should_not_be_exported");
+    adShouldNotBeExported->setType("float");
+    adShouldNotBeExported->setAttrName("should_not_be_exported");
+    adShouldNotBeExported->setExportable(false);
+
+    //
+    // Assign metadata on a shader nodedef
+    //
+
+    mx::NodeDefPtr stdSurfNodeDef = doc->getNodeDef("ND_standard_surface_surfaceshader");
+    REQUIRE(stdSurfNodeDef != nullptr);
+    stdSurfNodeDef->setAttribute("node_name", "StandardSurface");
+    stdSurfNodeDef->setAttribute("node_category", "shader/surface");
+    stdSurfNodeDef->setAttribute("node_type_id", "1234");
+
+    mx::InputPtr baseColor = stdSurfNodeDef->getInput("base_color");
+    REQUIRE(baseColor != nullptr);
+    baseColor->setAttribute("attribute_long_name", "BaseColor");
+    baseColor->setAttribute("attribute_short_name", "bc");
+    baseColor->setAttribute("should_not_be_exported", "42");
+
+    //
+    // Create an instance of this shader and validate that metadata is exported as expected.
+    //
+
+    mx::NodePtr stdSurf1 = doc->addNodeInstance(stdSurfNodeDef, "standardSurface1");
+    REQUIRE(stdSurf1 != nullptr);
+
+    mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
+    mx::GenContext context(mx::OslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+
+    // Metadata to export must be registered in the context before shader generation starts.
+    // Custom generators can override this mehtod to customize which metadata gets registered.
+    generator->registerShaderMetadata(doc, context);
+
+    // Generate the shader and write to file for inspection.
+    mx::ShaderPtr shader = generator->generate(stdSurf1->getName(), stdSurf1, context);
+    REQUIRE(shader != nullptr);
+    const std::string filepath = mx::FilePath::getCurrentPath() / mx::FilePath("standardSurfaceWithMetadata.osl");
+    std::ofstream file;
+    file.open(filepath);
+    file << shader->getSourceCode();
 }
 
 static void generateOslCode()
