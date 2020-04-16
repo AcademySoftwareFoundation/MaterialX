@@ -16,6 +16,24 @@ namespace MaterialX
 namespace
 {
 
+class OslBooleanTypeSyntax : public ScalarTypeSyntax
+{
+public:
+    OslBooleanTypeSyntax() :
+        ScalarTypeSyntax("int", "0", "0", EMPTY_STRING, "#define true 1\n#define false 0")
+    {}
+
+    string getValue(const Value& value, bool /*uniform*/) const override
+    {
+        return value.asA<bool>() ? "1" : "0";
+    }
+
+    string getValue(const StringVec& values, bool /*uniform*/) const override
+    {
+        return values.size() && values[0] == "true" ? "1" : 0;
+    }
+};
+
 class OslArrayTypeSyntax : public ScalarTypeSyntax
 {
   public:
@@ -299,12 +317,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::BOOLEAN,
-        std::make_shared<ScalarTypeSyntax>(
-            "int",
-            "0",
-            "0",
-            EMPTY_STRING,
-            "#define true 1\n#define false 0")
+        std::make_shared<OslBooleanTypeSyntax>()
     );
 
     registerTypeSyntax
