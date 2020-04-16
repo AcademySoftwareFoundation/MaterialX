@@ -11,17 +11,12 @@ set(CMAKE_MACOSX_RPATH ON)
 enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
-option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." ON)
+option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
-
-if(MATERIALX_DISABLE_BUILD_RENDER)
-    message(WARNING "MATERIALX_DISABLE_BUILD_RENDER is deprecated. Please use MATERIALX_BUILD_RENDER instead")
-    set(MATERIALX_BUILD_RENDER OFF)
-endif()
 
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
@@ -184,30 +179,22 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
     if(MATERIALX_BUILD_VIEWER)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXView)
     else()
-        if (NOT MATERIALX_DISABLE_BUILD_RENDER)
-            set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXTest)
-        endif()
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXTest)
     endif()
 endif()
 
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    ${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
-    VERSION ${CMAKE_VERSION}
-    COMPATIBILITY AnyNewerVersion
-)
+write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
+                                 VERSION ${CMAKE_VERSION}
+                                 COMPATIBILITY AnyNewerVersion)
 
 # Package for using the developer build
-export(
-    EXPORT MaterialX
-    FILE ${CMAKE_BINARY_DIR}/cmake/MaterialXConfig.cmake
-    )
+export(EXPORT MaterialX
+       FILE ${CMAKE_BINARY_DIR}/cmake/MaterialXConfig.cmake)
 
 # Package for using the installed build
-install(
-    EXPORT      MaterialX
-    DESTINATION cmake
-    FILE        MaterialXConfig.cmake)
-install(
-    FILES "${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake"
-    DESTINATION cmake)
+install(EXPORT MaterialX
+        DESTINATION cmake
+        FILE MaterialXConfig.cmake)
+install(FILES "${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake"
+        DESTINATION cmake)
