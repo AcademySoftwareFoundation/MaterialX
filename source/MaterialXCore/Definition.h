@@ -27,6 +27,7 @@ class ShaderRef;
 class Unit;
 class UnitDef;
 class UnitTypeDef;
+class AttributeDef;
 
 /// A shared pointer to a NodeDef
 using NodeDefPtr = shared_ptr<NodeDef>;
@@ -62,6 +63,11 @@ using ConstUnitDefPtr = shared_ptr<const UnitDef>;
 using UnitTypeDefPtr = shared_ptr<UnitTypeDef>;
 /// A shared pointer to a const UnitTypeDef
 using ConstUnitTypeDefPtr = shared_ptr<const UnitTypeDef>;
+
+/// A shared pointer to an AttributeDef
+using AttributeDefPtr = shared_ptr<AttributeDef>;
+/// A shared pointer to a const AttributeDef
+using AttributeDefDefPtr = shared_ptr<const AttributeDef>;
 
 /// @class NodeDef
 /// A node definition element within a Document.
@@ -505,6 +511,145 @@ class UnitTypeDef : public Element
 
   public:
     static const string CATEGORY;
+};
+
+/// @class AttributeDef
+/// An attribute definition element within a Document.
+class AttributeDef : public TypedElement
+{
+public:
+    AttributeDef(ElementPtr parent, const string& name) :
+        TypedElement(parent, CATEGORY, name)
+    {
+    }
+    virtual ~AttributeDef() { }
+
+    /// @}
+    /// @name Attribute name
+    /// @{
+
+    /// Set the element's attrname string.
+    void setAttrName(const string& name)
+    {
+        setAttribute(ATTRNAME_ATTRIBUTE, name);
+    }
+
+    /// Return true if this element has an attrname string.
+    bool hasAttrName() const
+    {
+        return hasAttribute(ATTRNAME_ATTRIBUTE);
+    }
+
+    /// Return the element's attrname string.
+    const string& getAttrName() const
+    {
+        return getAttribute(ATTRNAME_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Value String
+    /// @{
+
+    /// Set the value string of an element.
+    void setValueString(const string& value)
+    {
+        setAttribute(VALUE_ATTRIBUTE, value);
+    }
+
+    /// Return true if the given element has a value string.
+    bool hasValueString() const
+    {
+        return hasAttribute(VALUE_ATTRIBUTE);
+    }
+
+    /// Get the value string of a element.
+    const string& getValueString() const
+    {
+        return getAttribute(VALUE_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Typed Value
+    /// @{
+
+    /// Set the typed value of an element.
+    template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
+    {
+        setType(!type.empty() ? type : getTypeString<T>());
+        setValueString(toValueString(value));
+    }
+
+    /// Set the typed value of an element from a C-style string.
+    void setValue(const char* value, const string& type = EMPTY_STRING)
+    {
+        setValue(value ? string(value) : EMPTY_STRING, type);
+    }
+
+    /// Return true if the element possesses a typed value.
+    bool hasValue() const
+    {
+        return hasAttribute(VALUE_ATTRIBUTE);
+    }
+
+    /// Return the typed value of an element as a generic value object, which
+    /// may be queried to access its data.
+    ///
+    /// @return A shared pointer to the typed value of this element, or an
+    ///    empty shared pointer if no value is present.
+    ValuePtr getValue() const
+    {
+        if (!hasValue())
+            return ValuePtr();
+        return Value::createValueFromStrings(getValueString(), getType());
+    }
+
+    /// @}
+    /// @name Elements
+    /// @{
+
+    /// Set the element's elements string.
+    void setElements(const string& elements)
+    {
+        setAttribute(ELEMENTS_ATTRIBUTE, elements);
+    }
+
+    /// Return true if the element has an elements string.
+    bool hasElements() const
+    {
+        return hasAttribute(ELEMENTS_ATTRIBUTE);
+    }
+
+    /// Return the element's elements string.
+    const string& getElements() const
+    {
+        return getAttribute(ELEMENTS_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Exportable
+    /// @{
+
+    /// Set the exportable boolean for the element.
+    void setExportable(bool value)
+    {
+        setTypedAttribute<bool>(EXPORTABLE_ATTRIBUTE, value);
+    }
+
+    /// Return the exportable boolean for the element.
+    /// Defaults to false if exportable is not set.
+    bool getExportable() const
+    {
+        return getTypedAttribute<bool>(EXPORTABLE_ATTRIBUTE);
+    }
+
+    /// @}
+
+public:
+    static const string CATEGORY;
+    static const string ATTRNAME_ATTRIBUTE;
+    static const string VALUE_ATTRIBUTE;
+    static const string ELEMENTS_ATTRIBUTE;
+    static const string EXPORTABLE_ATTRIBUTE;
 };
 
 } // namespace MaterialX

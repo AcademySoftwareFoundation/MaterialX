@@ -13,6 +13,8 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <queue>
+
 namespace MaterialX
 {
 
@@ -472,7 +474,11 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
     // Create this shader node in the graph.
     const string& newNodeName = node->getName();
     ShaderNodePtr newNode = ShaderNode::create(graph.get(), newNodeName, *nodeDef, context);
+    newNode->initialize(*node, *nodeDef, context);
     graph->addNode(newNode);
+
+    // Share metadata.
+    graph->setMetadata(newNode->getMetadata());
 
     // Connect it to the graph output
     ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
@@ -524,6 +530,9 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
 
         // Connect graph input socket to the node input
         inputSocket->makeConnection(input);
+
+        // Share metadata.
+        inputSocket->setMetadata(input->getMetadata());
     }
 
     // Set node input values onto grah input sockets
@@ -578,6 +587,9 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
                 inputSocket->makeConnection(input);
             }
         }
+
+        // Share metadata.
+        inputSocket->setMetadata(input->getMetadata());
     }
 
     // Add shader node paths and unit value
@@ -718,6 +730,9 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             ShaderNodePtr newNode = ShaderNode::create(graph.get(), node->getName(), *nodeDef, context);
             graph->addNode(newNode);
 
+            // Share metadata.
+            graph->setMetadata(newNode->getMetadata());
+
             // Connect it to the graph outputs
             for (size_t i = 0; i < newNode->numOutputs(); ++i)
             {
@@ -782,6 +797,9 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 {
                     inputSocket->makeConnection(input);
                 }
+
+                // Share metadata.
+                inputSocket->setMetadata(input->getMetadata());
             }
 
             // Set root for upstream dependency traversal
@@ -815,6 +833,9 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
         outputSocket->makeConnection(newNode->getOutput());
         outputSocket->setPath(shaderRef->getNamePath());
+
+        // Share metadata.
+        graph->setMetadata(newNode->getMetadata());
 
         string targetColorSpace;
         ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
@@ -861,6 +882,9 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
 
             // Connect to the graph input
             inputSocket->makeConnection(input);
+
+            // Share metadata.
+            inputSocket->setMetadata(input->getMetadata());
         }
 
         // Handle node inputs
@@ -917,6 +941,9 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     inputSocket->makeConnection(input);
                 }
             }
+
+            // Share metadata.
+            inputSocket->setMetadata(input->getMetadata());
         }
 
         // Add shaderRef nodedef paths
@@ -997,8 +1024,7 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
     // Create this node in the graph.
     const string& name = node.getName();
     ShaderNodePtr newNode = ShaderNode::create(this, name, *nodeDef, context);
-    newNode->setValues(node, *nodeDef, context);
-    newNode->setPaths(node, *nodeDef);
+    newNode->initialize(node, *nodeDef, context);
     _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
 
@@ -1195,6 +1221,7 @@ void ShaderGraph::finalize(GenContext& context)
                             inputSocket->setUnit(input->getUnit());
                         }
                         inputSocket->makeConnection(input);
+                        inputSocket->setMetadata(input->getMetadata());
                     }
                 }
             }

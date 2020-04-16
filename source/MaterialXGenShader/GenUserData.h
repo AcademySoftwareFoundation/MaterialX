@@ -1,0 +1,62 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#ifndef MATERIALX_GENUSERDATA_H
+#define MATERIALX_GENUSERDATA_H
+
+/// @file
+/// User data base class for shader generation
+
+#include <MaterialXGenShader/Library.h>
+
+namespace MaterialX
+{
+
+class GenUserData;
+
+/// Shared pointer to a GenUserData
+using GenUserDataPtr = std::shared_ptr<GenUserData>;
+
+/// Shared pointer to a constant GenUserData
+using ConstGenUserDataPtr = std::shared_ptr<const GenUserData>;
+
+/// @class GenUserData 
+/// Base class for custom user data needed during shader generation.
+class GenUserData : public std::enable_shared_from_this<GenUserData>
+{
+  public:
+    virtual ~GenUserData() { }
+    
+    /// Return a shared pointer for this object.
+    GenUserDataPtr getSelf()
+    {
+        return shared_from_this();
+    }
+
+    /// Return a shared pointer for this object.
+    ConstGenUserDataPtr getSelf() const
+    {
+        return shared_from_this();
+    }
+
+    /// Return this object cast to a templated type.
+    template<class T> shared_ptr<T> asA()
+    {
+        return std::dynamic_pointer_cast<T>(getSelf());
+    }
+
+    /// Return this object cast to a templated type.
+    template<class T> shared_ptr<const T> asA() const
+    {
+        return std::dynamic_pointer_cast<const T>(getSelf());
+    }
+
+  protected:
+    GenUserData() { }
+};
+
+} // namespace MaterialX
+
+#endif // MATERIALX_GENCONTEXT_H

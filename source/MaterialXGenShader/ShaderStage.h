@@ -18,9 +18,7 @@
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Node.h>
 
-#include <queue>
 #include <sstream>
-#include <unordered_map>
 
 /// Macro for being/end of statements to be picked up by a given shader stage.
 /// For shaders that are multi-stage all code generation statements adding code 
@@ -253,7 +251,7 @@ class ShaderStage
     int _indentations;
 
     /// Current scope.
-    std::queue<Syntax::Punctuation> _scopes;
+    vector<Syntax::Punctuation> _scopes;
 
     /// Set of include files that has been included.
     StringSet _includes;
