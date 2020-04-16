@@ -12,6 +12,8 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
 
+#include <queue>
+
 namespace MaterialX
 {
 

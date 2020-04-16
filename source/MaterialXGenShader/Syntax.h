@@ -44,7 +44,8 @@ class Syntax
     {
         PARENTHESES,
         CURLY_BRACKETS,
-        SQUARE_BRACKETS
+        SQUARE_BRACKETS,
+        DOUBLE_SQUARE_BRACKETS
     };
 
   public:

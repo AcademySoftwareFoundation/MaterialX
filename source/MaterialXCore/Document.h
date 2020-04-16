@@ -402,6 +402,38 @@ class Document : public GraphElement
     vector<NodeDefPtr> getMatchingNodeDefs(const string& nodeName) const;
 
     /// @}
+    /// @name AttributeDef Elements
+    /// @{
+
+    /// Add an AttributeDef to the document.
+    /// @param name The name of the new AttributeDef.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new AttributeDef.
+    AttributeDefPtr addAttributeDef(const string& name = EMPTY_STRING)
+    {
+        return addChild<AttributeDef>(name);
+    }
+
+    /// Return the AttributeDef, if any, with the given name.
+    AttributeDefPtr getAttributeDef(const string& name) const
+    {
+        return getChildOfType<AttributeDef>(name);
+    }
+
+    /// Return a vector of all AttributeDef elements in the document.
+    vector<AttributeDefPtr> getAttributeDefs() const
+    {
+        return getChildrenOfType<AttributeDef>();
+    }
+
+    /// Remove the AttributeDef, if any, with the given name.
+    void removeAttributeDef(const string& name)
+    {
+        removeChildOfType<AttributeDef>(name);
+    }
+
+    /// @}
     /// @name PropertySet Elements
     /// @{
 
