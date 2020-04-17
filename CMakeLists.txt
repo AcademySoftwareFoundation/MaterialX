@@ -22,6 +22,11 @@ option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 
+set(MATERIALX_PYTHON_VERSION "" CACHE STRING "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
+set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python27/python.exe').")
+set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
+set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source/PyMaterialX/PyBind11" CACHE PATH "Path to a folder containing the PyBind11 source. Defaults to the included PyBind11 source.")
+
 option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
@@ -47,10 +52,6 @@ else()
 endif()
 
 set(MATERIALX_DEBUG_POSTFIX "" CACHE STRING "Postfix to append to the target file name for debug configuration (e.g. 'd').")
-set(MATERIALX_PYTHON_VERSION "" CACHE STRING "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
-set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python27/python.exe').")
-set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
-set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source/PyMaterialX/PyBind11" CACHE PATH "Path to a folder containing the PyBind11 source. Defaults to the included PyBind11 source, which has been extended to support Python 2.6.")
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 
 # Settings to define installation layout
