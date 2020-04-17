@@ -31,11 +31,6 @@ option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. G
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
 
-if (NOT MATERIALX_BUILD_PYTHON)
-    set(MATERIALX_PYTHON_LTO OFF)
-    set(MATERIALX_INSTALL_PYTHON OFF)
-endif()
-
 if (MATERIALX_BUILD_RENDER)
     set(MATERIALX_BUILD_OSL ON)
     set(MATERIALX_BUILD_GLSL ON)
