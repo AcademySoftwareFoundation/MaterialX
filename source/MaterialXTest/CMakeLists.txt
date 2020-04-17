@@ -36,7 +36,7 @@ target_link_libraries(MaterialXTest MaterialXCore)
 add_subdirectory(MaterialXFormat)
 target_link_libraries(MaterialXTest MaterialXFormat)
 
-if(MATERIALX_BUILD_GEN)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
   add_subdirectory(MaterialXGenShader)
   target_link_libraries(MaterialXTest MaterialXGenShader)
   if(MATERIALX_BUILD_GEN_GLSL)
@@ -49,7 +49,7 @@ if(MATERIALX_BUILD_GEN)
   endif()
   endif()
 
-if(MATERIALX_BUILD_RENDER) # MATERIALX_BUILD_GEN is implied; can assume relevant MaterialXGen* libs already linked above
+if(MATERIALX_BUILD_RENDER)
   add_subdirectory(MaterialXRender)
   target_link_libraries(MaterialXTest MaterialXRender)
   if (MATERIALX_BUILD_OIIO)

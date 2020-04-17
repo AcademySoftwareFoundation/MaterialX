@@ -40,12 +40,6 @@ else()
     set(MATERIALX_BUILD_OIIO OFF)
 endif()
 
-if (MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
-    set(MATERIALX_BUILD_GEN ON)
-else()
-    set(MATERIALX_BUILD_GEN OFF)
-endif()
-
 set(MATERIALX_DEBUG_POSTFIX "" CACHE STRING "Postfix to append to the target file name for debug configuration (e.g. 'd').")
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 
@@ -61,7 +55,6 @@ set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
-mark_as_advanced(MATERIALX_BUILD_GEN)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_PYTHON_LTO)
 mark_as_advanced(MATERIALX_INSTALL_PYTHON)
@@ -124,7 +117,7 @@ add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 
 # Add shader generation subdirectories
-if (MATERIALX_BUILD_GEN)
+if (MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
     # TODO: split up libraries to only install those relevant to enabled generators
     add_subdirectory(libraries)
     add_subdirectory(source/MaterialXGenShader)
