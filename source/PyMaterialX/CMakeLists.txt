@@ -47,7 +47,7 @@ endif()
 
 add_subdirectory(PyMaterialXCore)
 add_subdirectory(PyMaterialXFormat)
-if (MATERIALX_BUILD_GEN)
+if (MATERIALX_BUILD_GEN_GLSL or MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(PyMaterialXGenShader)
     if (MATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(PyMaterialXGenGlsl)
