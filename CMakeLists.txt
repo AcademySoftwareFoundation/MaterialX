@@ -86,7 +86,6 @@ if(MSVC)
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(/WX)
     endif()
-
 else()
     add_compile_options(-Wall -Wno-missing-braces)
     if(MATERIALX_WARNINGS_AS_ERRORS)
@@ -108,14 +107,10 @@ function(assign_source_group prefix)
     endforeach()
 endfunction(assign_source_group)
 
-# Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 
-# Add shader generation subdirectories
 if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
-    # TODO: split up libraries to only install those relevant to enabled generators
-    add_subdirectory(libraries)
     add_subdirectory(source/MaterialXGenShader)
     if (MATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXGenGlsl)
@@ -123,27 +118,25 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
     if (MATERIALX_BUILD_GEN_OSL)
         add_subdirectory(source/MaterialXGenOsl)
     endif()
+    # TODO: Add only those libraries that are required for enabled generators
+    add_subdirectory(libraries)
 endif()
 
-# Add render module subdirectories
 if(MATERIALX_BUILD_RENDER)
-    if(MATERIALX_BUILD_OIIO)
-        add_definitions(-DMATERIALX_BUILD_OIIO)
-        add_definitions(-DOPENIMAGEIO_ROOT_DIR=\"${OPENIMAGEIO_ROOT_DIR}\")
-    endif()
     add_subdirectory(source/MaterialXRender)
     add_subdirectory(source/MaterialXRenderOsl)
     add_subdirectory(source/MaterialXRenderHw)
     add_subdirectory(source/MaterialXRenderGlsl)
     add_subdirectory(resources)
-
-    if(MATERIALX_TEST_RENDER)
-        add_definitions(-DMATERIALX_TEST_RENDER)
-    endif()
-
-    # Add viewer subdirectory
     if(MATERIALX_BUILD_VIEWER)
         add_subdirectory(source/MaterialXView)
+    endif()
+    if(MATERIALX_BUILD_OIIO)
+        add_definitions(-DMATERIALX_BUILD_OIIO)
+        add_definitions(-DOPENIMAGEIO_ROOT_DIR=\"${OPENIMAGEIO_ROOT_DIR}\")
+    endif()
+    if(MATERIALX_TEST_RENDER)
+        add_definitions(-DMATERIALX_TEST_RENDER)
     endif()
 endif()
 
