@@ -7,7 +7,7 @@
 #define MATERIALX_UNIT_H_
 
 /// @file
-/// Unit converter classes
+/// Unit classes
 
 #include <MaterialXCore/Library.h>
 
@@ -205,7 +205,7 @@ class UnitConverterRegistry
     UnitConverterRegistry& operator=(const UnitConverterRegistry&) = delete;
 
   private:
-     UnitConverterPtrMap _unitConverters;
+    UnitConverterPtrMap _unitConverters;
 };
 
 } // namespace MaterialX
