@@ -47,7 +47,7 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(MaterialXGenOsl)
     target_link_libraries(MaterialXTest MaterialXGenOsl)
   endif()
-  endif()
+endif()
 
 if(MATERIALX_BUILD_RENDER)
   add_subdirectory(MaterialXRender)
