@@ -107,9 +107,11 @@ function(assign_source_group prefix)
     endforeach()
 endfunction(assign_source_group)
 
+# Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 
+# Add shader generation subdirectories
 if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(source/MaterialXGenShader)
     if (MATERIALX_BUILD_GEN_GLSL)
@@ -122,6 +124,7 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(libraries)
 endif()
 
+# Add rendering and viewer subdirectories
 if(MATERIALX_BUILD_RENDER)
     add_subdirectory(source/MaterialXRender)
     add_subdirectory(source/MaterialXRenderOsl)
@@ -140,6 +143,12 @@ if(MATERIALX_BUILD_RENDER)
     endif()
 endif()
 
+# Add test subdirectory
+if(MATERIALX_BUILD_TESTS)
+    add_subdirectory(source/MaterialXTest)
+endif()
+
+# Add Python subdirectories
 if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(source/PyMaterialX)
     add_subdirectory(python)
@@ -147,10 +156,6 @@ endif()
 
 if(MATERIALX_BUILD_DOCS)
     add_subdirectory(documents)
-endif()
-
-if(MATERIALX_BUILD_TESTS)
-    add_subdirectory(source/MaterialXTest)
 endif()
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
