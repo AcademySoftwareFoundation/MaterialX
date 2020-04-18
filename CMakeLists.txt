@@ -17,9 +17,12 @@ option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires t
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
+option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
+option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
 
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
+option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
@@ -27,48 +30,41 @@ set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH "Python executable to be used 
 set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
 set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source/PyMaterialX/PyBind11" CACHE PATH "Path to a folder containing the PyBind11 source. Defaults to the included PyBind11 source.")
 
-option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." ON)
-option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
-option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
-
-if (MATERIALX_BUILD_RENDER)
-    set(MATERIALX_BUILD_OSL ON)
-    set(MATERIALX_BUILD_GLSL ON)
-else()
-    set(MATERIALX_TEST_RENDER OFF)
-    set(MATERIALX_BUILD_VIEWER OFF)
-    set(MATERIALX_BUILD_OIIO OFF)
-endif()
-
-set(MATERIALX_DEBUG_POSTFIX "" CACHE STRING "Postfix to append to the target file name for debug configuration (e.g. 'd').")
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
-
-# Settings to define installation layout
-set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
-set(MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING "Install lib path (e.g. 'libs', 'lib').")
-set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtlx std libs (e.g. 'libraries').")
+set(MATERIALX_DEBUG_POSTFIX "" CACHE STRING "Postfix to append to the target file name for debug configuration (e.g. 'd').")
 
 # Helpers for OSL validation
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
 set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.g. location of stdosl.h")
 
+# Settings to define installation layout
+set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
+set(MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING "Install lib path (e.g. 'libs', 'lib').")
+set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtlx std libs (e.g. 'libraries').")
+
 mark_as_advanced(MATERIALX_BUILD_DOCS)
-mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
+mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
+mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
+mark_as_advanced(MATERIALX_BUILD_OIIO)
+mark_as_advanced(MATERIALX_BUILD_TESTS)
 mark_as_advanced(MATERIALX_PYTHON_LTO)
 mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 mark_as_advanced(MATERIALX_TEST_RENDER)
-mark_as_advanced(MATERIALX_BUILD_OIIO)
-mark_as_advanced(MATERIALX_DEBUG_POSTFIX)
+mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
 mark_as_advanced(MATERIALX_PYTHON_VERSION)
 mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 mark_as_advanced(MATERIALX_OIIO_DIR)
+mark_as_advanced(MATERIALX_DEBUG_POSTFIX)
 mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
 mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
 mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
+mark_as_advanced(MATERIALX_INSTALL_INCLUDE_PATH)
+mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
+mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
 
 add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
 add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
@@ -117,7 +113,7 @@ add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 
 # Add shader generation subdirectories
-if (MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
     # TODO: split up libraries to only install those relevant to enabled generators
     add_subdirectory(libraries)
     add_subdirectory(source/MaterialXGenShader)
@@ -130,7 +126,7 @@ if (MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
 endif()
 
 # Add render module subdirectories
-if (MATERIALX_BUILD_RENDER)
+if(MATERIALX_BUILD_RENDER)
     if(MATERIALX_BUILD_OIIO)
         add_definitions(-DMATERIALX_BUILD_OIIO)
         add_definitions(-DOPENIMAGEIO_ROOT_DIR=\"${OPENIMAGEIO_ROOT_DIR}\")
