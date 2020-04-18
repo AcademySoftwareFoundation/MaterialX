@@ -19,9 +19,9 @@ endif()
 add_library(MaterialXRender STATIC ${materialx_source} ${materialx_headers})
 
 target_link_libraries(
-     MaterialXRender
-     MaterialXGenShader
-     ${CMAKE_DL_LIBS})
+    MaterialXRender
+    MaterialXGenShader
+    ${CMAKE_DL_LIBS})
 
 if(MATERIALX_BUILD_OIIO)
     set(OPENIMAGEIO_ROOT_DIR ${MATERIALX_OIIO_DIR})
