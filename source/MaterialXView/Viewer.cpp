@@ -189,7 +189,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
-    _showAdvancedProperties(false),
     _captureRequested(false),
     _wedgeRequested(false),
     _wedgePropertyName("specular_roughness"),
@@ -780,16 +779,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
             _envSamples = MIN_ENV_SAMPLES * (int) std::pow(4, index);
         });
     }
-
-    new ng::Label(advancedPopup, "Property Editor Options");
-
-    ng::CheckBox* showAdvancedProperties = new ng::CheckBox(advancedPopup, "Show Advanced Properties");
-    showAdvancedProperties->setChecked(_showAdvancedProperties);
-    showAdvancedProperties->setCallback([this](bool enable)
-    {
-        _showAdvancedProperties = enable;
-        updateDisplayedProperties();
-    });
 }
 
 void Viewer::updateGeometrySelections()

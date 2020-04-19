@@ -46,7 +46,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, ve
         vec2 Xi = mx_spherical_fibonacci(i, $envRadianceSamples);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_microfacet_ggx_IS(Xi, X, Y, N, roughness.x, roughness.y);
+        vec3 H = mx_ggx_importance_sample_NDF(Xi, X, Y, N, roughness.x, roughness.y);
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
@@ -56,7 +56,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, ve
         float LdotH = VdotH;
 
         // Sample the environment light from the given direction.
-        float pdf = mx_microfacet_ggx_PDF(X, Y, H, NdotH, LdotH, roughness.x, roughness.y);
+        float pdf = mx_ggx_PDF(X, Y, H, NdotH, LdotH, roughness.x, roughness.y);
         float lod = mx_latlong_compute_lod(L, pdf, $envRadianceMips - 1, $envRadianceSamples);
         vec3 sampleColor = mx_latlong_map_lookup(L, $envMatrix, lod, $envRadiance);
 
@@ -64,7 +64,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, ve
         vec3 F = mx_fresnel_schlick(VdotH, F0, F90, 5.0);
 
         // Compute the geometric term.
-        float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
+        float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
         
         // Add the radiance contribution of this sample.
         // From https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
