@@ -20,7 +20,7 @@ void mx_sheen_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float ro
     float NdotH = dot(N, H);
 
     float alpha = clamp(roughness, M_FLOAT_EPS, 1.0);
-    float D = mx_microfacet_sheen_NDF(NdotH, alpha);
+    float D = mx_imageworks_sheen_NDF(NdotH, alpha);
 
     vec3 F = color * weight;
 
@@ -30,7 +30,7 @@ void mx_sheen_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float ro
 
     // Get sheen directional albedo for attenuating base layer
     // in order to be energy conserving.
-    float albedo = weight * mx_microfacet_sheen_albedo(NdotV, alpha);
+    float albedo = weight * mx_imageworks_sheen_directional_albedo(NdotV, alpha);
 
     // We need to include NdotL from the light integral here
     // as in this case it's not cancelled out by the BRDF denominator.
@@ -48,7 +48,7 @@ void mx_sheen_brdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
 
     float NdotV = abs(dot(N,V));
     float alpha = clamp(roughness, M_FLOAT_EPS, 1.0);
-    float albedo = weight * mx_microfacet_sheen_albedo(NdotV, alpha);
+    float albedo = weight * mx_imageworks_sheen_directional_albedo(NdotV, alpha);
 
     vec3 Li = mx_environment_irradiance(N);
     result = Li * color * albedo + base * (1.0 - albedo);
