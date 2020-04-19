@@ -25,9 +25,9 @@ void mx_conductor_brdf_reflection(vec3 L, vec3 V, float weight, vec3 reflectivit
     vec3 ior_n, ior_k;
     mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
 
-    float D = mx_microfacet_ggx_NDF(X, Y, H, NdotH, roughness.x, roughness.y);
+    float D = mx_ggx_NDF(X, Y, H, NdotH, roughness.x, roughness.y);
     vec3 F = mx_fresnel_conductor(VdotH, ior_n, ior_k);
-    float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
+    float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
 
     // Note: NdotL is cancelled out
     result = D * F * G * weight / (4 * NdotV);
