@@ -17,13 +17,6 @@ vec3 mx_fresnel_schlick(float cosTheta, vec3 F0, vec3 F90, float exponent)
     return mix(F0, F90, pow(x, exponent));
 }
 
-vec3 mx_fresnel_schlick(float cosTheta, vec3 F0)
-{
-    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
-    float x5 = mx_pow5(x);
-    return F0 + (1.0 - F0) * x5;
-}
-
 float mx_fresnel_schlick(float cosTheta, float ior)
 {
     float x = clamp(1.0 - cosTheta, 0.0, 1.0);
