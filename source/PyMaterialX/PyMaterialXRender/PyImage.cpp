@@ -16,7 +16,6 @@ void bindPyImage(py::module& mod)
 
     py::class_<mx::Image>(mod, "Image")
         .def_static("create", &mx::Image::create)
-        .def_static("createConstantColor", &mx::Image::createConstantColor)
         .def("getWidth", &mx::Image::getWidth)
         .def("getHeight", &mx::Image::getHeight)
         .def("getChannelCount", &mx::Image::getChannelCount)
@@ -30,4 +29,7 @@ void bindPyImage(py::module& mod)
         .def("setResourceBufferDeallocator", &mx::Image::setResourceBufferDeallocator)
         .def("getResourceBufferDeallocator", &mx::Image::getResourceBufferDeallocator)
         .def("getTexelColor", &mx::Image::getTexelColor);
+
+        mod.def("createUniformImage", &mx::createUniformImage);
+        mod.def("createImageStrip", &mx::createImageStrip);
 }

@@ -37,11 +37,8 @@ class RtReadOptions
     /// Read look information
     bool readLookInformation;
 
-    /// The desired major version
-    unsigned int desiredMajorVersion;
-
-    /// The desired minor version
-    unsigned int desiredMinorVersion;
+    /// Apply latest updates
+    bool applyLatestUpdates;
 };
     
 /// @class RtWriteOptions

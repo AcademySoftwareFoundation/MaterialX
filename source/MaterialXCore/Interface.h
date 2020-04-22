@@ -159,7 +159,6 @@ class PortElement : public ValueElement
         return getAttribute(NODE_GRAPH_ATTRIBUTE);
     }
 
-
     /// @}
     /// @name Output
     /// @{

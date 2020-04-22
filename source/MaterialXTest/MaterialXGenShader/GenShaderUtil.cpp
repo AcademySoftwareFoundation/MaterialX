@@ -565,14 +565,14 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     TestSuiteOptions options;
     if (!options.readOptions(optionsFilePath))
     {
-        _logFile << "Can't find options file. Skip test." << std::endl;
+        _logFile << "Cannot read options file: " << optionsFilePath << ". Skipping test." << std::endl;
         _logFile.close();
         return;
     }
     // Test has been turned off so just do nothing.
     if (!runTest(options))
     {
-        _logFile << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
+        _logFile << "Language / target: " << _languageTargetString << " not set to run. Skipping test." << std::endl;
         _logFile.close();
         return;
     }
@@ -600,17 +600,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     mx::StringVec errorLog;
     mx::FileSearchPath searchPath(_libSearchPath);
     mx::XmlReadOptions readOptions;
-    bool fileUpgraded = false;
-    if (options.desiredMajorVersion > readOptions.desiredMajorVersion)
-    {
-        fileUpgraded = true;
-        readOptions.desiredMajorVersion = options.desiredMajorVersion;
-    }
-    if (options.desiredMinorVersion > readOptions.desiredMinorVersion)
-    {
-        fileUpgraded = true;
-        readOptions.desiredMinorVersion = options.desiredMinorVersion;
-    }
+    readOptions.applyLatestUpdates = options.applyLatestUpdates;
     for (const auto& testRoot : _testRootPaths)
     {
         mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
@@ -635,9 +625,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     mx::GenContext context(_shaderGenerator);
     context.getOptions() = generateOptions;
     context.registerSourceCodeSearchPath(_srcSearchPath);
-
-    // Register shader metadata defined in the libraries.
-    _shaderGenerator->registerShaderMetadata(_dependLib, context);
 
     // Define working unit if required
     if (context.getOptions().targetDistanceUnit.empty())
@@ -666,7 +653,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             continue;
         }
 
-        if (fileUpgraded && 
+        if (options.applyLatestUpdates &&
             (!doc->getNodes(mx::SURFACE_MATERIAL_NODE_STRING).empty() ||
              !doc->getNodes(mx::VOLUME_MATERIAL_NODE_STRING).empty()))
         {
@@ -822,8 +809,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 void TestSuiteOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
-    output << "\tVersion Target: " << std::to_string(desiredMajorVersion) + "." +
-        std::to_string(desiredMinorVersion) << std::endl;
+    output << "\tApply latest updates: " << std::to_string(applyLatestUpdates) << std::endl;
     output << "\tOverride Files: { ";
     for (const auto& overrideFile : overrideFiles) { output << overrideFile << " "; }
     output << "} " << std::endl;
@@ -891,8 +877,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
-    const std::string DESIRED_MAJOR_VERSION("desiredMajorVersion");
-    const std::string DESIRED_MINOR_VERSION("desiredMinorVersion");
+    const std::string APPLY_LATEST_UPDATES("applyLatestUpdates");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -902,9 +887,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableDirectLighting = true;
     enableIndirectLighting = true;
     specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    std::tuple<int, int, int> versionIntegers = mx::getVersionIntegers();
-    desiredMajorVersion = std::get<0>(versionIntegers);
-    desiredMinorVersion = std::get<1>(versionIntegers);
+    applyLatestUpdates = false;
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
@@ -1024,13 +1007,9 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                             externalTestPaths.append(mx::FilePath(l));
                         }
                     }
-                    else if (name == DESIRED_MAJOR_VERSION)
+                    else if (name == APPLY_LATEST_UPDATES)
                     {
-                        desiredMajorVersion = p->getValue()->asA<int>();
-                    }
-                    else if (name == DESIRED_MINOR_VERSION)
-                    {
-                        desiredMinorVersion = p->getValue()->asA<int>();
+                        applyLatestUpdates = p->getValue()->asA<bool>();
                     }
                 }
             }

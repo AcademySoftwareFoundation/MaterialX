@@ -9,8 +9,72 @@
 
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
+#include <cstring>
+
 namespace MaterialX
 {
+
+//
+// Global functions
+//
+
+ImagePtr createUniformImage(unsigned int width, unsigned int height, const Color4& color)
+{
+    ImagePtr image = Image::create(width, height, 4, Image::BaseType::FLOAT);
+    image->createResourceBuffer();
+    float* pixel = static_cast<float*>(image->getResourceBuffer());
+    for (size_t i = 0; i < image->getWidth(); i++)
+    {
+        for (size_t j = 0; j < image->getHeight(); j++)
+        {
+            for (unsigned int c = 0; c < image->getChannelCount(); c++)
+            {
+                *pixel++ = color[c];
+            }
+        }
+    }
+    return image;
+}
+
+ImagePtr createImageStrip(vector<ImagePtr> imageVec)
+{
+    if (imageVec.empty())
+    {
+        return nullptr;
+    }
+
+    unsigned int srcWidth = imageVec[0]->getWidth();
+    unsigned int srcHeight = imageVec[0]->getHeight();
+    unsigned int destWidth = srcWidth * (unsigned int) imageVec.size();
+    unsigned int destHeight = srcHeight;
+    unsigned int channelCount = imageVec[0]->getChannelCount();
+    unsigned int pixelStride = imageVec[0]->getBaseStride() * channelCount;
+    Image::BaseType baseType = imageVec[0]->getBaseType();
+
+    ImagePtr imageStrip = Image::create(destWidth, destHeight, channelCount, baseType);
+    imageStrip->createResourceBuffer();
+
+    unsigned int xOffset = 0;
+    for (ImagePtr srcImage : imageVec)
+    {
+        if (srcImage->getWidth() != srcWidth ||
+            srcImage->getHeight() != srcHeight ||
+            srcImage->getChannelCount() != channelCount ||
+            srcImage->getBaseType() != baseType)
+        {
+            throw Exception("Source images must have identical resolutions and formats in createImageStrip");
+        }
+        for (unsigned int y = 0; y < srcHeight; y++)
+        {
+            uint8_t* src = (uint8_t*) srcImage->getResourceBuffer() + y * srcWidth * pixelStride;
+            uint8_t* dst = (uint8_t*) imageStrip->getResourceBuffer() + (y * destWidth + xOffset) * pixelStride;
+            memcpy(dst, src, srcWidth * pixelStride);
+        }
+        xOffset += srcWidth;
+    }
+
+    return imageStrip;
+}
 
 //
 // Image methods
@@ -52,31 +116,6 @@ unsigned int Image::getBaseStride() const
 unsigned int Image::getMaxMipCount() const
 {
     return (unsigned int) std::log2(std::max(_width, _height)) + 1;
-}
-
-ImagePtr Image::createConstantColor(unsigned int width, unsigned int height, const Color4& color)
-{
-    unsigned int channelCount = 4;
-    size_t bufferSize = width * height * channelCount;
-    if (!bufferSize)
-    {
-        return nullptr;
-    }
-
-    ImagePtr image = create(width, height, channelCount, Image::BaseType::FLOAT);
-    image->createResourceBuffer();
-    float* pixel = static_cast<float*>(image->getResourceBuffer());
-    for (size_t i = 0; i < image->getWidth(); i++)
-    {
-        for (size_t j = 0; j < image->getHeight(); j++)
-        {
-            for (unsigned int c = 0; c < image->getChannelCount(); c++)
-            {
-                *pixel++ = color[c];
-            }
-        }
-    }
-    return image;
 }
 
 void Image::setTexelColor(unsigned int x, unsigned int y, const Color4& color)

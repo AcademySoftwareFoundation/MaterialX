@@ -197,9 +197,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";
 
-    // Register shader metadata defined in the libraries.
-    _shaderGenerator->registerShaderMetadata(dependLib, context);
-
     setupTime.endTimer();
 
     registerLights(dependLib, options, context);
@@ -247,8 +244,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 mx::FileSearchPath readSearchPath(searchPath);
                 readSearchPath.append(dir);
                 mx::XmlReadOptions readOptions;
-                readOptions.desiredMajorVersion = options.desiredMajorVersion;
-                readOptions.desiredMinorVersion = options.desiredMinorVersion;
+                readOptions.applyLatestUpdates = options.applyLatestUpdates;
                 mx::readFromXmlFile(doc, filename, readSearchPath, &readOptions);
             }
             catch (mx::Exception& e)

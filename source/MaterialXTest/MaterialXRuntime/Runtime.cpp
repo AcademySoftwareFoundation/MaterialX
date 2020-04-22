@@ -97,7 +97,7 @@ TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
     mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
     mx::RtFileIo fileIo(defaultStage);
     mx::RtReadOptions options;
-    options.desiredMinorVersion = 38;
+    options.applyLatestUpdates = true;
     fileIo.read("material_element_to_surface_material.mtlx", testSearchPath, &options);
     mx::RtPrim mixNodeGraphPrim = defaultStage->getPrimAtPath("NG_aiMixColor31");
     REQUIRE(mixNodeGraphPrim);
@@ -1366,9 +1366,7 @@ TEST_CASE("Runtime: Looks", "[runtime]")
         readOptions.readLookInformation = true;
         // Do not upgrade on reload:
         mx::DocumentPtr doc = mx::createDocument();
-        std::pair<int, int> versions = doc->getVersionIntegers();
-        readOptions.desiredMajorVersion = versions.first;
-        readOptions.desiredMinorVersion = versions.second;
+        readOptions.applyLatestUpdates = false;
 
         mx::RtFileIo stageIo(stage);
         stageIo.write("rtLookExport.mtlx", useOptions ? &writeOptions : nullptr);
@@ -1632,8 +1630,7 @@ TEST_CASE("Runtime: FileIo downgrade", "[runtime]")
         mx::DocumentPtr doc = mx::createDocument();
         mx::XmlReadOptions readOptions;
         // Last version with material and shaderref:
-        readOptions.desiredMajorVersion = 1;
-        readOptions.desiredMinorVersion = 37;
+        readOptions.applyLatestUpdates = false;
         mx::readFromXmlString(doc, stream.str(), &readOptions);
 
         auto xmlMat = doc->getMaterial("sm1");
@@ -1789,7 +1786,7 @@ TEST_CASE("Runtime: units", "[runtime]")
                          "texture_units.mtlx",
                          "tiledimage_unit.mtlx" };
     mx::RtReadOptions options;
-    options.desiredMinorVersion = 38;
+    options.applyLatestUpdates = true;
     for (auto test : tests)
     {
         mx::RtStagePtr stage = api->createStage(mx::RtToken("stage: " + test));
@@ -1802,7 +1799,7 @@ TEST_CASE("Runtime: units", "[runtime]")
         std::stringstream inStream;
         mx::DocumentPtr inDoc = mx::createDocument();
         mx::XmlReadOptions readOptions;
-        readOptions.desiredMinorVersion = 38;
+        readOptions.applyLatestUpdates = true;
         mx::readFromXmlFile(inDoc, test, testSearchPath, &readOptions);
 
         mx::DocumentPtr outDoc = mx::createDocument();

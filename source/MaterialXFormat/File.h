@@ -130,6 +130,12 @@ class FilePath
         return i != string::npos ? baseName.substr(i + 1) : EMPTY_STRING;
     }
 
+    /// Add a file extension to the given path.
+    void addExtension(const string& ext)
+    {
+        assign(asString() + "." + ext);
+    }
+
     /// Concatenate two paths with a directory separator, returning the
     /// combined path.
     FilePath operator/(const FilePath& rhs) const;
@@ -212,12 +218,6 @@ class FileSearchPath
         return str;
     }
 
-    /// Clear the search paths
-    void clear()
-    {
-        _paths.clear();
-    }
-
     /// Append the given path to the sequence.
     void append(const FilePath& path)
     {
@@ -239,6 +239,12 @@ class FileSearchPath
         _paths.insert(_paths.begin(), path);
     }
     
+    /// Clear all paths from the sequence.
+    void clear()
+    {
+        _paths.clear();
+    }
+
     /// Return the number of paths in the sequence.
     size_t size() const
     {

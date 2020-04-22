@@ -141,11 +141,8 @@ class TestSuiteOptions
     // Additional testPaths paths
     mx::FileSearchPath externalTestPaths;
 
-    // Desired major version to test
-    int desiredMajorVersion;
-
-    // Desired minor version to test
-    int desiredMinorVersion;
+    // Apply latest updates
+    bool applyLatestUpdates;
 };
 
 // Utility class to handle testing of shader generators.

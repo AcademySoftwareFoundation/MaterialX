@@ -1181,8 +1181,7 @@ namespace
 RtReadOptions::RtReadOptions() :
     readFilter(nullptr),
     readLookInformation(false),
-    desiredMajorVersion(MATERIALX_MAJOR_VERSION),
-    desiredMinorVersion(MATERIALX_MINOR_VERSION + 1)
+    applyLatestUpdates(true)
 {
 }
 
@@ -1205,8 +1204,7 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         if (readOptions)
         {
             xmlReadOptions.skipConflictingElements = true;
-            xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
-            xmlReadOptions.desiredMinorVersion = readOptions->desiredMinorVersion;
+            xmlReadOptions.applyLatestUpdates = readOptions->applyLatestUpdates;
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
 
@@ -1242,8 +1240,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         if (readOptions)
         {
             xmlReadOptions.skipConflictingElements = true;
-            xmlReadOptions.desiredMajorVersion = readOptions->desiredMajorVersion;
-            xmlReadOptions.desiredMajorVersion = readOptions->desiredMinorVersion;
+            xmlReadOptions.applyLatestUpdates = readOptions->applyLatestUpdates;
         }
         readFromXmlStream(document, stream, &xmlReadOptions);
 

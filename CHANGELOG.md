@@ -3,7 +3,13 @@
 ## [1.37.1] - Development
 
 ### Added
+- Added initial support for wedge rendering in the viewer.
+- Added utility methods Backdrop\:\:setContainsElements and Backdrop\:\:getContainsElements.
 - Added backwards compatibility for OpenImageIO 1.x.
+
+### Changed
+- Updated the GLSL implementation of Smith masking-shadowing from uncorrelated to height-correlated forms.
+- Renamed Backdrop\:\:setContains and getContains to Backdrop\:\:setContainsString and getContainsString for consistency.
 
 ## [1.37.0] - 2020-03-20
 

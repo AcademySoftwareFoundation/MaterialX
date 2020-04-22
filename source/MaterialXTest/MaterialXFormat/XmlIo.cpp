@@ -15,10 +15,10 @@ TEST_CASE("Load content", "[xmlio]")
 {
     mx::XmlReadOptions readOptions;
     readOptions.skipConflictingElements = true;
-    std::vector<int> versions = { 37, 38 };
-    for (int version : versions)
+    std::vector<bool> applyUpdates = { false, true };
+    for (auto applyUpdate : applyUpdates)
     {
-        readOptions.desiredMinorVersion = version;
+        readOptions.applyLatestUpdates = applyUpdate;
 
         mx::FilePath libraryPath("libraries/stdlib");
         mx::FilePath examplesPath("resources/Materials/Examples/Syntax");

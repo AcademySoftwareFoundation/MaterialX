@@ -113,6 +113,15 @@ string replaceSubstrings(string str, const StringMap& stringMap)
     return str;
 }
 
+bool stringEndsWith(const std::string& str, const std::string& suffix)
+{
+    if (str.length() >= suffix.length())
+    {
+        return !str.compare(str.length() - suffix.length(), suffix.length(), suffix);
+    }
+    return false;
+}
+
 string prettyPrint(ConstElementPtr elem)
 {
     string text;
