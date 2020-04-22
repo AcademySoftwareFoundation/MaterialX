@@ -29,8 +29,6 @@
 namespace MaterialX
 {
 
-const string VALID_SEPARATORS = "/\\";
-
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';
 const char PREFERRED_SEPARATOR_POSIX = '/';
 
@@ -47,6 +45,7 @@ const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
 
 void FilePath::assign(const string& str)
 {
+    const string VALID_SEPARATORS = "/\\";
     _type = TypeRelative;
     _vec = splitString(str, VALID_SEPARATORS);
     if (!str.empty())
