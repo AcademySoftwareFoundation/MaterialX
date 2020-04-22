@@ -573,10 +573,8 @@ class Document : public GraphElement
 
     /// Upgrade the content of this document from earlier supported versions to
     /// the library version.  Documents from future versions are left unmodified.
-    void upgradeVersion(int desiredMajorVersion, int desiredMinorVersion);
-
-    // Convert Material Elements to Material Nodes
-    bool convertMaterialsToNodes(bool replaceNodes);
+    /// @param applyLatestUpdates Will apply the latest updates on top of the current library version
+    void upgradeVersion(bool applyLatestUpdates);
 
     /// @}
     /// @name Color Management System
