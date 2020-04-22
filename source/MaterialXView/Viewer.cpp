@@ -9,10 +9,10 @@
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Util.h>
 
-#include <MaterialXFormat/Util.h>
-
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
+
+#include <MaterialXFormat/Util.h>
 
 #include <nanogui/button.h>
 #include <nanogui/combobox.h>
