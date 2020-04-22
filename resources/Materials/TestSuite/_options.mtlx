@@ -96,7 +96,7 @@
       <parameter name="externalTestPaths" type="string" value="" />
 
       <!-- Use the most recent updates regardless of current library version -->
-      <parameter name="applyLatestUpdates" type="bool" value="true" />
+      <parameter name="applyLatestUpdates" type="boolean" value="true" />
 
    </nodedef>
 </materialx>

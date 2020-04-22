@@ -565,14 +565,14 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     TestSuiteOptions options;
     if (!options.readOptions(optionsFilePath))
     {
-        _logFile << "Can't find options file. Skip test." << std::endl;
+        _logFile << "Cannot read options file: " << optionsFilePath << ". Skipping test." << std::endl;
         _logFile.close();
         return;
     }
     // Test has been turned off so just do nothing.
     if (!runTest(options))
     {
-        _logFile << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
+        _logFile << "Language / target: " << _languageTargetString << " not set to run. Skipping test." << std::endl;
         _logFile.close();
         return;
     }
