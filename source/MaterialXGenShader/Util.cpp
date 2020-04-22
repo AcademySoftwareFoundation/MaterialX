@@ -412,41 +412,58 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
         const string& nodetype = nodeDef->getNodeString();
         if (nodetype == "standard_surface")
         {
-            bool opaque = false;
+            bool opaque = true;
 
-            // First check the transmission weight
+            // Check transmission
             BindInputPtr transmission = shaderRef->getBindInput("transmission");
-            if (!transmission)
+            if (transmission)
             {
-                opaque = true;
-            }
-            else if (transmission->getOutputString() == EMPTY_STRING)
-            {
-                // Unconnected, check the value
-                ValuePtr value = transmission->getValue();
-                if (!value || isZero(value->asA<float>()))
+                if (transmission->getConnectedOutput())
                 {
-                    opaque = true;
+                    opaque = false;
                 }
-            }
-
-            // Second check the opacity
-            if (opaque)
-            {
-                opaque = false;
-
-                BindInputPtr opacity = shaderRef->getBindInput("opacity");
-                if (!opacity)
+                else
                 {
-                    opaque = true;
-                }
-                else if (opacity->getOutputString() == EMPTY_STRING)
-                {
-                    // Unconnected, check the value
-                    ValuePtr value = opacity->getValue();
-                    if (!value || (value->isA<Color3>() && isWhite(value->asA<Color3>())))
+                    ValuePtr value = transmission->getValue();
+                    if (value && value->isA<float>() && !isZero(value->asA<float>()))
                     {
-                        opaque = true;
+                        opaque = false;
+                    }
+                }
+            }
+
+            // Check opacity
+            BindInputPtr opacity = shaderRef->getBindInput("opacity");
+            if (opacity)
+            {
+                if (opacity->getConnectedOutput())
+                {
+                    opaque = false;
+                }
+                else
+                {
+                    ValuePtr value = opacity->getValue();
+                    if (value && value->isA<Color3>() && !isWhite(value->asA<Color3>()))
+                    {
+                        opaque = false;
+                    }
+                }
+            }
+
+            // Check subsurface
+            BindInputPtr subsurface = shaderRef->getBindInput("subsurface");
+            if (subsurface)
+            {
+                if (subsurface->getConnectedOutput())
+                {
+                    opaque = false;
+                }
+                else
+                {
+                    ValuePtr value = subsurface->getValue();
+                    if (value && value->isA<float>() && !isZero(value->asA<float>()))
+                    {
+                        opaque = false;
                     }
                 }
             }
