@@ -236,7 +236,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
     // Initialize image handler.
-#if MATERIALX_BUILD_OIIO
+#if MATERIALX_USE_OIIO
     mx::ImageLoaderPtr imageLoader = mx::OiioImageLoader::create();
 #else
     mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();

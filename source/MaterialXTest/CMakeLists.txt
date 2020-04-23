@@ -11,6 +11,16 @@ function(add_tests _sources)
       add_test(NAME "MaterialXTest_${test_safe_name}"
           COMMAND MaterialXTest ${test_name}
           WORKING_DIRECTORY ${MATERIALX_TEST_BINARY_DIR})
+      if(MATERIALX_BUILD_OIIO AND MSVC)
+        # Add path to OIIO library so it can be found for the test.
+        # On windows we have to escape the semicolons, otherwise only
+        # the first path entry will be passed to the test executable
+        STRING(REPLACE ";" "\\;" TESTPATH "$ENV{PATH}")
+        STRING(APPEND TESTPATH "\\;${OPENIMAGEIO_ROOT_DIR}/bin")
+        STRING(REPLACE "/" "\\" TESTPATH "${TESTPATH}")
+        set_tests_properties("MaterialXTest_${test_safe_name}" PROPERTIES
+                             ENVIRONMENT "PATH=${TESTPATH}")
+      endif()
     endforeach()
   endforeach()
 endfunction()
@@ -77,6 +87,7 @@ if(MATERIALX_BUILD_RENDER) # MATERIALX_BUILD_GEN is implied; can assume relevant
   endif()
   if (MATERIALX_BUILD_OIIO)
     target_link_libraries(MaterialXTest ${OPENIMAGEIO_LIBRARIES})
+    target_compile_definitions(MaterialXTest PRIVATE MATERIALX_USE_OIIO)
   endif()
   if(MATERIALX_BUILD_GEN_GLSL)
     add_subdirectory(MaterialXRenderGlsl)
