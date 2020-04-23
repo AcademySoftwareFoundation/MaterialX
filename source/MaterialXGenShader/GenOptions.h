@@ -60,7 +60,8 @@ class GenOptions
         hwShadowMap(false),
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
-        hwNormalizeUdimTexCoords(false)
+        hwNormalizeUdimTexCoords(false),
+        hwReferenceQuality(false)
     {
     }
     virtual ~GenOptions() { }
@@ -121,6 +122,10 @@ class GenOptions
     /// compress a set of UDIMs into a single normalized image for
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
+
+    /// Enable reference quality mode, improving the accuracy of
+	/// shading computations at an additional cost to GPU resources.
+    bool hwReferenceQuality;
 };
 
 } // namespace MaterialX
