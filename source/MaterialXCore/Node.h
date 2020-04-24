@@ -181,7 +181,13 @@ class GraphElement : public InterfaceElement
     /// @return A shared pointer to the new Node.
     NodePtr addNode(const string& category,
                     const string& name = EMPTY_STRING,
-                    const string& type = DEFAULT_TYPE_STRING);
+                    const string& type = DEFAULT_TYPE_STRING)
+    {
+        NodePtr node = addChild<Node>(name);
+        node->setCategory(category);
+        node->setType(type);
+        return node;
+    }
 
     /// Add a Node that is an instance of the given NodeDef.
     NodePtr addNodeInstance(ConstNodeDefPtr nodeDef, const string& name = EMPTY_STRING)
