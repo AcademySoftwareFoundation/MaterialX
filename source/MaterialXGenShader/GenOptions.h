@@ -124,7 +124,7 @@ class GenOptions
     bool hwNormalizeUdimTexCoords;
 
     /// Enable reference quality mode, improving the accuracy of
-	/// shading computations at an additional cost to GPU resources.
+    /// shading computations at an additional cost to GPU resources.
     bool hwReferenceQuality;
 };
 
