@@ -1,4 +1,4 @@
-float mx_microfacet_sheen_albedo(float cosTheta, float roughness)
+float mx_imageworks_sheen_directional_albedo(float cosTheta, float roughness)
 {
     // LUT for sheen directional albedo. 
     // A 2D table parameterized with 'cosTheta' (cosine of angle to normal) on x-axis and 'roughness' on y-axis.
@@ -51,7 +51,7 @@ void mx_sheen_brdf(float weight, color Ks, float roughness, vector N, BSDF base,
 
         float NdotV = fabs(dot(N,V));
         float alpha = clamp(roughness, M_FLOAT_EPS, 1.0);
-        float albedo = weight * mx_microfacet_sheen_albedo(NdotV, alpha);
+        float albedo = weight * mx_imageworks_sheen_directional_albedo(NdotV, alpha);
         result = albedo * Ks * diffuse(N) + (1.0 - albedo) * base;
     }
     else
