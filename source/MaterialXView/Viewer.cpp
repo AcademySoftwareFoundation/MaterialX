@@ -9,10 +9,10 @@
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Util.h>
 
-#include <MaterialXFormat/Util.h>
-
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
+
+#include <MaterialXFormat/Util.h>
 
 #include <nanogui/button.h>
 #include <nanogui/combobox.h>
@@ -424,7 +424,7 @@ void Viewer::loadEnvironmentLight()
     // Look for a light rig using an expected filename convention.
     if (!_splitDirectLight)
     {
-        _lightRigFilename = mx::removeExtension(_envRadiancePath) + "." + mx::MTLX_EXTENSION;
+        _lightRigFilename = mx::removeExtension(_envRadiancePath).asString() + "." + mx::MTLX_EXTENSION;
         if (_searchPath.find(_lightRigFilename).exists())
         {
             _lightRigDoc = mx::createDocument();
@@ -610,13 +610,12 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
         // Save document
         if (material && !filename.isEmpty())
         {
-            mx::DocumentPtr doc = material->getDocument();
             if (filename.getExtension() != mx::MTLX_EXTENSION)
             {
                 filename.addExtension(mx::MTLX_EXTENSION);
             }
 
-            if (_bakeTextures && material->getMaterialElement())
+            if (_bakeTextures)
             {
                 _bakeRequested = true;
                 _bakeFilename = filename;
@@ -635,7 +634,7 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 mx::XmlWriteOptions writeOptions;
                 writeOptions.writeXIncludeEnable = true;
                 writeOptions.elementPredicate = skipXincludes;
-                mx::writeToXmlFile(doc, filename, &writeOptions);
+                mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
             }
 
             // Update material file name
@@ -902,7 +901,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
-    readOptions.applyLatestUpdates = true;
     readOptions.skipConflictingElements = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
@@ -1826,7 +1824,7 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     }
 
     std::string aoSuffix = material->getUdim().empty() ? AO_FILENAME_SUFFIX : AO_FILENAME_SUFFIX + "_" + material->getUdim();
-    mx::FilePath aoFilename = mx::removeExtension(_meshFilename) + aoSuffix + "." + AO_FILENAME_EXTENSION;
+    mx::FilePath aoFilename = mx::removeExtension(_meshFilename).asString() + aoSuffix + "." + AO_FILENAME_EXTENSION;
 
     return _imageHandler->acquireImage(aoFilename, true, &AO_FALLBACK_COLOR);
 }

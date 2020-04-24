@@ -958,61 +958,67 @@ void Document::upgradeVersion(bool applyLatestUpdates)
         minorVersion = 37;
     }
 
-    // Apply latest updates targetted for the next release version
-    if ((majorVersion == 1 && minorVersion == 37) && applyLatestUpdates)
+    // Apply latest updates on top of the current library version.
+    // When the next version become official, the update check
+    // will be moved and applied the that library version.
+    if (applyLatestUpdates)
     {
         // Convert material Elements to Nodes
         convertMaterialsToNodes(getDocument());
 
-        // Update atan2 interface
-        const string ATAN2 = "atan2";
-        const string IN1 = "in1";
-        const string IN2 = "in2";
-
-        // Update nodedefs
-        for (auto nodedef : getMatchingNodeDefs(ATAN2))
+        // The following changes require a version bump
+        //
+        if (majorVersion == 1 && minorVersion == 37)
         {
-            InputPtr input = nodedef->getInput(IN1);
-            InputPtr input2 = nodedef->getInput(IN2);
-            string inputValue = input->getValueString();
-            input->setValueString(input2->getValueString());
-            input2->setValueString(inputValue);
-        }
+            // Update atan2 interface
+            const string ATAN2 = "atan2";
+            const string IN1 = "in1";
+            const string IN2 = "in2";
 
-        // Update nodes
-        for (ElementPtr elem : traverseTree())
-        {
-            NodePtr node = elem->asA<Node>();
-            if (!node)
+            // Update nodedefs
+            for (auto nodedef : getMatchingNodeDefs(ATAN2))
             {
-                continue;
+                InputPtr input = nodedef->getInput(IN1);
+                InputPtr input2 = nodedef->getInput(IN2);
+                string inputValue = input->getValueString();
+                input->setValueString(input2->getValueString());
+                input2->setValueString(inputValue);
             }
-            const string& nodeCategory = node->getCategory();
-            if (nodeCategory == ATAN2)
-            {
-                InputPtr input = node->getInput(IN1);
-                InputPtr input2 = node->getInput(IN2);
-                if (input && input2)
-                {
-                    string inputValue = input->getValueString();
-                    input->setValueString(input2->getValueString());
-                    input2->setValueString(inputValue);
-                }
-                else
-                {
-                    if (input)
-                    {
-                        input->setName(IN2);
-                    }
-                    if (input2)
-                    {
-                        input2->setName(IN1);
-                    }
-                }
-            }
-        }
 
-        minorVersion = 38;
+            // Update nodes
+            for (ElementPtr elem : traverseTree())
+            {
+                NodePtr node = elem->asA<Node>();
+                if (!node)
+                {
+                    continue;
+                }
+                const string& nodeCategory = node->getCategory();
+                if (nodeCategory == ATAN2)
+                {
+                    InputPtr input = node->getInput(IN1);
+                    InputPtr input2 = node->getInput(IN2);
+                    if (input && input2)
+                    {
+                        string inputValue = input->getValueString();
+                        input->setValueString(input2->getValueString());
+                        input2->setValueString(inputValue);
+                    }
+                    else
+                    {
+                        if (input)
+                        {
+                            input->setName(IN2);
+                        }
+                        if (input2)
+                        {
+                            input2->setName(IN1);
+                        }
+                    }
+                }
+            }
+            minorVersion = 38;
+        }
     }
 
     if (majorVersion >= MATERIALX_MAJOR_VERSION &&
