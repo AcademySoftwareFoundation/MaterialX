@@ -959,10 +959,59 @@ void Document::upgradeVersion(bool applyLatestUpdates)
     }
 
     // Apply latest updates targetted for the next release version
-    if (applyLatestUpdates)
+    if ((majorVersion == 1 && minorVersion == 37) && applyLatestUpdates)
     {
         // Convert material Elements to Nodes
         convertMaterialsToNodes(getDocument());
+
+        // Update atan2 interface
+        const string ATAN2 = "atan2";
+        const string IN1 = "in1";
+        const string IN2 = "in2";
+
+        // Update nodedefs
+        for (auto nodedef : getMatchingNodeDefs(ATAN2))
+        {
+            InputPtr input = nodedef->getInput(IN1);
+            InputPtr input2 = nodedef->getInput(IN2);
+            string inputValue = input->getValueString();
+            input->setValueString(input2->getValueString());
+            input2->setValueString(inputValue);
+        }
+
+        // Update nodes
+        for (ElementPtr elem : traverseTree())
+        {
+            NodePtr node = elem->asA<Node>();
+            if (!node)
+            {
+                continue;
+            }
+            const string& nodeCategory = node->getCategory();
+            if (nodeCategory == ATAN2)
+            {
+                InputPtr input = node->getInput(IN1);
+                InputPtr input2 = node->getInput(IN2);
+                if (input && input2)
+                {
+                    string inputValue = input->getValueString();
+                    input->setValueString(input2->getValueString());
+                    input2->setValueString(inputValue);
+                }
+                else
+                {
+                    if (input)
+                    {
+                        input->setName(IN2);
+                    }
+                    if (input2)
+                    {
+                        input2->setName(IN1);
+                    }
+                }
+            }
+        }
+
         minorVersion = 38;
     }
 
