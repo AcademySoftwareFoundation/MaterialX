@@ -105,7 +105,7 @@ void GlslProgram::deleteProgram()
 unsigned int GlslProgram::build()
 {
     StringVec errors;
-    const std::string errorType("GLSL program creation error.");
+    const string errorType("GLSL program creation error.");
 
     deleteProgram();
 
@@ -122,7 +122,7 @@ unsigned int GlslProgram::build()
 
     // Create vertex shader
     GLuint vertexShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
-    std::string &vertexShaderSource = _stages[Stage::VERTEX];
+    string &vertexShaderSource = _stages[Stage::VERTEX];
     if (vertexShaderSource.length())
     {
         vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -153,7 +153,7 @@ unsigned int GlslProgram::build()
 
     // Create fragment shader
     GLuint fragmentShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
-    std::string& fragmentShaderSource = _stages[Stage::PIXEL];
+    string& fragmentShaderSource = _stages[Stage::PIXEL];
     if (fragmentShaderSource.length())
     {
         fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
@@ -260,7 +260,7 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
     // Bind the program to use
     if (!bind())
     {
-        const std::string errorType("GLSL bind inputs error.");
+        const string errorType("GLSL bind inputs error.");
         StringVec errors;
         errors.push_back("Cannot bind inputs without a valid program");
         throw ExceptionShaderRenderError(errorType, errors);
@@ -314,7 +314,7 @@ void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
 
 void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mesh)
 {
-    const std::string errorType("GLSL bind attribute error.");
+    const string errorType("GLSL bind attribute error.");
     StringVec errors;
 
     if (!mesh)
@@ -370,17 +370,17 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
     }
 }
 
-void GlslProgram::bindPartition(const std::string& meshName, MeshPartitionPtr partition)
+void GlslProgram::bindPartition(const string& meshName, MeshPartitionPtr partition)
 {
     StringVec errors;
-    const std::string errorType("GLSL geometry bind error.");
+    const string errorType("GLSL geometry bind error.");
     if (!partition || partition->getFaceCount() == 0)
     {
         errors.push_back("Cannot bind geometry partition");
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    const std::string identifier = meshName + partition->getIdentifier();
+    const string identifier = meshName + partition->getIdentifier();
     if (_indexBufferIds.find(identifier) != _indexBufferIds.end())
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBufferIds[identifier]);
@@ -401,7 +401,7 @@ void GlslProgram::bindStreams(MeshPtr mesh)
 {
     _enabledStreamLocations.clear(); 
     StringVec errors;
-    const std::string errorType("GLSL geometry bind error.");
+    const string errorType("GLSL geometry bind error.");
 
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
@@ -565,7 +565,7 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
         else
         {
             StringVec errors;
-            const std::string errorType("GLSL texture bind error.");
+            const string errorType("GLSL texture bind error.");
             errors.push_back("Cannot load image: " + filePath.asString());
             throw ExceptionShaderRenderError(errorType, errors);
         }
@@ -576,7 +576,7 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
     return nullptr;
 }
 
-MaterialX::ValuePtr GlslProgram::findUniformValue(const std::string& uniformName, const GlslProgram::InputMap& uniformList)
+MaterialX::ValuePtr GlslProgram::findUniformValue(const string& uniformName, const GlslProgram::InputMap& uniformList)
 {
     auto uniform = uniformList.find(uniformName);
     if (uniform != uniformList.end())
@@ -593,7 +593,7 @@ MaterialX::ValuePtr GlslProgram::findUniformValue(const std::string& uniformName
 void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 {
     StringVec errors;
-    const std::string errorType("GLSL texture bind error.");
+    const string errorType("GLSL texture bind error.");
 
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
@@ -616,7 +616,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
         if (uniformLocation >= 0 &&
             uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
         {
-            const std::string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
+            const string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
 
             // Skip binding if nothing to bind or if is a lighting texture.
             // Lighting textures are handled in the bindLighting() call
@@ -648,7 +648,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
 
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        const std::string errorType("GLSL light binding error.");
+        const string errorType("GLSL light binding error.");
         errors.push_back("Cannot bind without a valid program");
         throw ExceptionShaderRenderError(errorType, errors);
     }
@@ -808,7 +808,7 @@ void GlslProgram::bindUniform(int location, const Value& value)
 {
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        const std::string errorType("GLSL bind uniform error.");
+        const string errorType("GLSL bind uniform error.");
         StringVec errors;
         errors.push_back("Cannot bind without a valid program");
         throw ExceptionShaderRenderError(errorType, errors);
@@ -875,7 +875,7 @@ void GlslProgram::bindUniform(int location, const Value& value)
 void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
 {
     StringVec errors;
-    const std::string errorType("GLSL view input binding error.");
+    const string errorType("GLSL view input binding error.");
 
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
@@ -1062,7 +1062,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
 void GlslProgram::bindTimeAndFrame()
 {
     StringVec errors;
-    const std::string errorType("GLSL input binding error.");
+    const string errorType("GLSL input binding error.");
 
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
@@ -1136,7 +1136,7 @@ const GlslProgram::InputMap& GlslProgram::getAttributesList()
 const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 {
     StringVec errors;
-    const std::string errorType("GLSL uniform parsing error.");
+    const string errorType("GLSL uniform parsing error.");
 
     if (_uniformList.size() > 0)
     {
@@ -1164,7 +1164,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         if (uniformLocation >= 0)
         {
             InputPtr inputPtr = std::make_shared<Input>(uniformLocation, uniformType, uniformSize, EMPTY_STRING);
-            _uniformList[std::string(uniformName)] = inputPtr;
+            _uniformList[string(uniformName)] = inputPtr;
         }
     }
     delete[] uniformName;
@@ -1326,7 +1326,7 @@ int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
 const GlslProgram::InputMap& GlslProgram::updateAttributesList()
 {
     StringVec errors;
-    const std::string errorType("GLSL attribute parsing error.");
+    const string errorType("GLSL attribute parsing error.");
 
     if (_attributeList.size() > 0)
     {
@@ -1357,17 +1357,17 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
 
             // Attempt to pull out the set number for specific attributes
             //
-            std::string sattributeName(attributeName);
-            const std::string colorSet(HW::IN_COLOR + "_");
-            const std::string uvSet(HW::IN_TEXCOORD + "_");
-            if (std::string::npos != sattributeName.find(colorSet))
+            string sattributeName(attributeName);
+            const string colorSet(HW::IN_COLOR + "_");
+            const string uvSet(HW::IN_TEXCOORD + "_");
+            if (string::npos != sattributeName.find(colorSet))
             {
-                std::string setNumber = sattributeName.substr(colorSet.size(), sattributeName.size());
+                string setNumber = sattributeName.substr(colorSet.size(), sattributeName.size());
                 inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
             }
-            else if (std::string::npos != sattributeName.find(uvSet))
+            else if (string::npos != sattributeName.find(uvSet))
             {
-                std::string setNumber = sattributeName.substr(uvSet.size(), sattributeName.size());
+                string setNumber = sattributeName.substr(uvSet.size(), sattributeName.size());
                 inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
             }
 
@@ -1422,7 +1422,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
     return _attributeList;
 }
 
-void GlslProgram::findInputs(const std::string& variable,
+void GlslProgram::findInputs(const string& variable,
                                          const InputMap& variableList,
                                          InputMap& foundList,
                                          bool exactMatch)
@@ -1445,7 +1445,7 @@ void GlslProgram::findInputs(const std::string& variable,
     {
         for (input = variableList.begin(); input != variableList.end(); ++input)
         {
-            const std::string& name = input->first;
+            const string& name = input->first;
             if (name.compare(0, variable.size(), variable) == 0)
             {
                 ilocation = input->second->location;
@@ -1466,9 +1466,9 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
         unsigned int gltype = input.second->gltype;
         int location = input.second->location;
         int size = input.second->size;
-        std::string type = input.second->typeString;
-        std::string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
-        std::string unit = input.second->unit;
+        string type = input.second->typeString;
+        string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
+        string unit = input.second->unit;
         bool isConstant = input.second->isConstant;
         outputStream << "Program Uniform: \"" << input.first
             << "\". Location:" << location
@@ -1498,8 +1498,8 @@ void GlslProgram::printAttributes(std::ostream& outputStream)
         unsigned int gltype = input.second->gltype;
         int location = input.second->location;
         int size = input.second->size;
-        std::string type = input.second->typeString;
-        std::string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
+        string type = input.second->typeString;
+        string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
         outputStream << "Program Attribute: \"" << input.first
             << "\". Location:" << location
             << ". GLtype: " << std::hex << gltype
