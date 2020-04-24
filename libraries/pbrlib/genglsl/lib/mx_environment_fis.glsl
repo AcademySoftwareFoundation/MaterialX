@@ -1,17 +1,5 @@
 #include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
 
-// https://www.graphics.rwth-aachen.de/publication/2/jgt.pdf
-float mx_golden_ratio_sequence(int i)
-{
-    return fract((float(i) + 1.0) * M_GOLDEN_RATIO);
-}
-
-// https://people.irisa.fr/Ricardo.Marques/articles/2013/SF_CGF.pdf
-vec2 mx_spherical_fibonacci(int i, int numSamples)
-{
-    return vec2((float(i) + 0.5) / float(numSamples), mx_golden_ratio_sequence(i));
-}
-
 // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
 // Section 20.4 Equation 13
 float mx_latlong_compute_lod(vec3 dir, float pdf, float maxMipLevel, int envSamples)

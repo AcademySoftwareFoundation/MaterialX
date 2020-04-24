@@ -1,5 +1,17 @@
 #include "pbrlib/genglsl/lib/mx_refraction_index.glsl"
 
+// https://www.graphics.rwth-aachen.de/publication/2/jgt.pdf
+float mx_golden_ratio_sequence(int i)
+{
+    return fract((float(i) + 1.0) * M_GOLDEN_RATIO);
+}
+
+// https://people.irisa.fr/Ricardo.Marques/articles/2013/SF_CGF.pdf
+vec2 mx_spherical_fibonacci(int i, int numSamples)
+{
+    return vec2((float(i) + 0.5) / float(numSamples), mx_golden_ratio_sequence(i));
+}
+
 float mx_average_roughness(vec2 roughness)
 {
     return sqrt(roughness.x * roughness.y);
@@ -96,9 +108,9 @@ vec3 mx_ggx_importance_sample_NDF(vec2 Xi, vec3 X, vec3 Y, vec3 N, float alphaX,
 {
     float phi = 2.0 * M_PI * Xi.x;
     float tanTheta = sqrt(Xi.y / (1.0 - Xi.y));
-    vec3 H = vec3(X * (tanTheta * alphaX * cos(phi)) +
-                  Y * (tanTheta * alphaY * sin(phi)) +
-                  N);
+    vec3 H = X * (tanTheta * alphaX * cos(phi)) +
+             Y * (tanTheta * alphaY * sin(phi)) +
+             N;
     return normalize(H);
 }
 
@@ -112,8 +124,44 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
     return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
 }
 
+// https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+vec3 mx_ggx_directional_albedo_reference(float NdotV, float roughness, vec3 F0, vec3 F90)
+{
+    NdotV = clamp(NdotV, 1e-8, 1.0);
+    vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
+
+    vec2 AB = vec2(0.0);
+    const int SAMPLE_COUNT = 64;
+    for (int i = 0; i < SAMPLE_COUNT; i++)
+    {
+        vec2 Xi = mx_spherical_fibonacci(i, SAMPLE_COUNT);
+
+        // Compute the half vector and incoming light direction.
+        vec3 H = mx_ggx_importance_sample_NDF(Xi, vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1), roughness, roughness);
+        vec3 L = -reflect(V, H);
+        
+        // Compute dot products for this sample.
+        float NdotL = clamp(L.z, 1e-8, 1.0);
+        float NdotH = clamp(H.z, 1e-8, 1.0);
+        float VdotH = clamp(dot(V, H), 1e-8, 1.0);
+
+        // Compute the geometric visibility term.
+        float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) * VdotH / NdotH;
+        
+        // Add the contribution of this sample.
+        float F = mx_pow5(1 - VdotH);
+        AB += vec2(Gvis * (1 - F), Gvis * F);
+    }
+
+    // Normalize integrated terms.
+    AB /= (SAMPLE_COUNT * NdotV);
+
+    // Return the final directional albedo.
+    return F0 * AB.x + F90 * AB.y;
+}
+
 // https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-vec3 mx_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_directional_albedo_approx(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
     const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
     const vec4 c1 = vec4( 1,  0.0425,  1.04, -0.04 );
@@ -123,9 +171,31 @@ vec3 mx_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
     return F0 * AB.x + F90 * AB.y;
 }
 
+vec3 mx_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
+{
+#if REFERENCE_QUALITY
+    return mx_ggx_directional_albedo_reference(NdotV, roughness, F0, F90);
+#else
+    return mx_ggx_directional_albedo_approx(NdotV, roughness, F0, F90);
+#endif
+}
+
 float mx_ggx_directional_albedo(float NdotV, float roughness, float ior)
 {
     return mx_ggx_directional_albedo(NdotV, roughness, vec3(mx_ior_to_f0(ior)), vec3(1.0)).x;
+}
+
+// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
+// Equations 14 and 16
+vec3 mx_ggx_energy_compensation(float NdotV, float roughness, vec3 Fss)
+{
+    float Ess = mx_ggx_directional_albedo(NdotV, roughness, vec3(1.0), vec3(1.0)).x;
+    return 1.0 + Fss * (1.0 - Ess) / Ess;
+}
+
+float mx_ggx_energy_compensation(float NdotV, float roughness, float Fss)
+{
+    return mx_ggx_energy_compensation(NdotV, roughness, vec3(Fss)).x;
 }
 
 // http://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_sheen.pdf (Equation 2)
