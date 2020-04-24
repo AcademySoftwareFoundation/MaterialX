@@ -902,7 +902,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
-    readOptions.applyLatestUpdates = false;
+    readOptions.applyLatestUpdates = true;
     readOptions.skipConflictingElements = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
