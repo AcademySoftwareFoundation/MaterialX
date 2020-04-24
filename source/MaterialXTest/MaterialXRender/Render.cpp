@@ -196,7 +196,7 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
         options.imageHandler = imageHandler;
         testImageHandler(options);
 
-#if defined(MATERIALX_BUILD_OIIO) && defined(OPENIMAGEIO_ROOT_DIR)
+#if defined(MATERIALX_BUILD_OIIO)
         imageHandlerLog << "** Test OpenImageIO image loader **" << std::endl;
         mx::OiioImageLoaderPtr oiioLoader = mx::OiioImageLoader::create();
         mx::ImageHandlerPtr imageHandler3 = mx::ImageHandler::create(nullptr);
