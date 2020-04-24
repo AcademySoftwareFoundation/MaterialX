@@ -958,12 +958,13 @@ void Document::upgradeVersion(bool applyLatestUpdates)
         minorVersion = 37;
     }
 
-    // Apply latest updates targetted for the next release version
+    // Apply latest updates on top of the current library version.
+    // When the next version become official, the update check
+    // will be moved and applied the that library version.
     if (applyLatestUpdates)
     {
         // Convert material Elements to Nodes
         convertMaterialsToNodes(getDocument());
-        minorVersion = 38;
     }
 
     if (majorVersion >= MATERIALX_MAJOR_VERSION &&

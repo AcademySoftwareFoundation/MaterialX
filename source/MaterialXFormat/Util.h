@@ -19,12 +19,12 @@
 namespace MaterialX
 {
 
-/// Removes the extension from the provided filename
-string removeExtension(const string& filename);
+/// Removes the extension from the provided file path
+FilePath removeExtension(const FilePath& file);
 
 /// Read the given file and return a string containing its contents; if the read is not
 /// successful, then the empty string is returned.
-string readFile(const string& filename);
+string readFile(const FilePath& file);
 
 /// Scans for all documents under a root path and returns documents which can be loaded
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,

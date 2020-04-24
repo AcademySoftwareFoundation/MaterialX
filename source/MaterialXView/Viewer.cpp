@@ -424,7 +424,7 @@ void Viewer::loadEnvironmentLight()
     // Look for a light rig using an expected filename convention.
     if (!_splitDirectLight)
     {
-        _lightRigFilename = mx::removeExtension(_envRadiancePath) + "." + mx::MTLX_EXTENSION;
+        _lightRigFilename = mx::removeExtension(_envRadiancePath).asString() + "." + mx::MTLX_EXTENSION;
         if (_searchPath.find(_lightRigFilename).exists())
         {
             _lightRigDoc = mx::createDocument();
@@ -1824,7 +1824,7 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     }
 
     std::string aoSuffix = material->getUdim().empty() ? AO_FILENAME_SUFFIX : AO_FILENAME_SUFFIX + "_" + material->getUdim();
-    mx::FilePath aoFilename = mx::removeExtension(_meshFilename) + aoSuffix + "." + AO_FILENAME_EXTENSION;
+    mx::FilePath aoFilename = mx::removeExtension(_meshFilename).asString() + aoSuffix + "." + AO_FILENAME_EXTENSION;
 
     return _imageHandler->acquireImage(aoFilename, true, &AO_FALLBACK_COLOR);
 }
