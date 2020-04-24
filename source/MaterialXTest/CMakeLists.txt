@@ -87,7 +87,6 @@ if(MATERIALX_BUILD_RENDER) # MATERIALX_BUILD_GEN is implied; can assume relevant
   endif()
   if (MATERIALX_BUILD_OIIO)
     target_link_libraries(MaterialXTest ${OPENIMAGEIO_LIBRARIES})
-    target_compile_definitions(MaterialXTest PRIVATE MATERIALX_USE_OIIO)
   endif()
   if(MATERIALX_BUILD_GEN_GLSL)
     add_subdirectory(MaterialXRenderGlsl)
