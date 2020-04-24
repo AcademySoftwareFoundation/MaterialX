@@ -61,7 +61,8 @@ class GenOptions
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
-        addUpstreamDependencies(true)
+        addUpstreamDependencies(true),
+        hwReferenceQuality(false)
     {
     }
     virtual ~GenOptions() { }
@@ -126,6 +127,10 @@ class GenOptions
     /// Sets whether to include upstream dependencies 
     /// for the element to generate a shader for.
     bool addUpstreamDependencies;
+
+    /// Enable reference quality mode, improving the accuracy of
+    /// shading computations at an additional cost to GPU resources.
+    bool hwReferenceQuality;
 };
 
 } // namespace MaterialX

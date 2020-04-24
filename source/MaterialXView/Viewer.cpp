@@ -779,6 +779,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _drawEnvironment = enable;
     });
 
+    ng::CheckBox* referenceQualityBox = new ng::CheckBox(advancedPopup, "Reference Quality");
+    referenceQualityBox->setChecked(_genContext.getOptions().hwReferenceQuality);
+    referenceQualityBox->setCallback([this](bool enable)
+    {
+        _genContext.getOptions().hwReferenceQuality = enable;
+        reloadShaders();
+    });
+
     if (_specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
     {
         Widget* sampleGroup = new Widget(advancedPopup);
