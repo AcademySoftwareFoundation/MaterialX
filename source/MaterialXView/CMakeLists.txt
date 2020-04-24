@@ -63,7 +63,6 @@ add_custom_command(TARGET MaterialXView POST_BUILD
     ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
 if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
-    target_compile_definitions(MaterialXView PRIVATE MATERIALX_USE_OIIO)
     add_custom_command(TARGET MaterialXView POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})

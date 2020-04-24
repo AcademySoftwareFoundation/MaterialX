@@ -11,7 +11,7 @@
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Types.h>
 
-#ifdef MATERIALX_USE_OIIO
+#ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
 #ifdef MATERIALX_BUILD_CONTRIB
