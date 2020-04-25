@@ -6,8 +6,10 @@
 #ifndef GENGLSL_H
 #define GENGLSL_H
 
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXTest/GenShaderUtil.h>
+#include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
+
+#include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
 
@@ -44,7 +46,8 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         {
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_light_genglsl",
-            "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl", "IM_angle"
+            "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl", "IM_angle", 
+            "surfacematerial", "volumematerial", "ND_surfacematerial", "ND_volumematerial" 
         };
     }
 };

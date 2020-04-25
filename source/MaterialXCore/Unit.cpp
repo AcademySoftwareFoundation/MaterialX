@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/UnitConverter.h>
+#include <MaterialXCore/Unit.h>
 
 #include <MaterialXCore/Util.h>
 
@@ -57,6 +57,31 @@ LinearUnitConverter::LinearUnitConverter(UnitTypeDefPtr unitTypeDef)
 LinearUnitConverterPtr LinearUnitConverter::create(UnitTypeDefPtr unitTypeDef)
 {
     return std::shared_ptr<LinearUnitConverter>(new LinearUnitConverter(unitTypeDef));
+}
+
+void LinearUnitConverter::write(DocumentPtr doc) const
+{
+    if (!doc->getUnitTypeDef(_unitType))
+    {
+        // Add a unittypedef
+        doc->addUnitTypeDef(_unitType);
+
+        // Add a unitdef definition
+        string unitdefName = "UD_stdlib_" + _unitType;
+        if (!doc->getUnitDef(unitdefName))
+        {
+            UnitDefPtr unitDef = doc->addUnitDef(unitdefName);
+            unitDef->setUnitType(_unitType);
+
+            // Add in units to the definition
+            for (auto unitScale : _unitScale)
+            {
+                const string& unitName = unitScale.first;
+                UnitPtr unitPtr = unitDef->addUnit(unitName);
+                unitPtr->setAttribute(SCALE_ATTRIBUTE, std::to_string(unitScale.second));
+            }
+        }
+    }
 }
 
 float LinearUnitConverter::conversionRatio(const string& inputUnit, const string& outputUnit) const
@@ -208,6 +233,14 @@ int UnitConverterRegistry::getUnitAsInteger(const string& unitName) const
     }
 
     return -1;
+}
+
+void UnitConverterRegistry::write(DocumentPtr doc) const
+{
+    for (auto it : _unitConverters)
+    {
+        it.second->write(doc);
+    }
 }
 
 } // namespace MaterialX

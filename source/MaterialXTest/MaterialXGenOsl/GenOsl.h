@@ -7,10 +7,9 @@
 #define GENOSL_H
 
 #include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
-
-#include <MaterialXTest/GenShaderUtil.h>
 
 namespace mx = MaterialX;
 
@@ -56,7 +55,7 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         whiteList =
         {
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_angle"
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_angle", "material", "ND_material"
         };
     }
 };

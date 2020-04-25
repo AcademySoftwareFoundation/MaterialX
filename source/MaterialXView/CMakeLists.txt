@@ -32,21 +32,35 @@ set_property(TARGET nanogui nanogui-obj glfw glfw_objects PROPERTY FOLDER "Exter
 set(CMAKE_C_FLAGS ${PREV_CMAKE_C_FLAGS})
 set(CMAKE_CXX_FLAGS ${PREV_CMAKE_CXX_FLAGS})
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../
-    ${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI/include
-    ${NANOGUI_EXTRA_INCS})
-
 add_definitions(${NANOGUI_EXTRA_DEFS})
 
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
+set_target_properties(
+    MaterialXView PROPERTIES
+    DEBUG_POSTFIX "${MATERIALX_DEBUG_POSTFIX}")
+
 target_link_libraries(
     MaterialXView
+    MaterialXFormat
     MaterialXGenGlsl
     MaterialXRenderGlsl
     nanogui
     ${NANOGUI_EXTRA_LIBS})
+
+target_include_directories(
+    MaterialXView
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../
+    ${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI/include
+    ${NANOGUI_EXTRA_INCS})
+
+add_custom_command(TARGET MaterialXView POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
+add_custom_command(TARGET MaterialXView POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
 if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
     add_custom_command(TARGET MaterialXView POST_BUILD
@@ -55,6 +69,7 @@ if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
 endif()
 
 install(TARGETS MaterialXView
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
+    EXPORT MaterialX
+    RUNTIME DESTINATION bin)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
     DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)

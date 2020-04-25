@@ -16,39 +16,14 @@
 #include <MaterialXCore/Interface.h>
 
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/XmlIo.h>
+
+#include <unordered_set>
 
 namespace MaterialX
 {
 
 class ShaderGenerator;
-
-/// Removes the extension from the provided filename
-string removeExtension(const string& filename);
-
-/// Read the given file and return a string containing its contents; if the read is not
-/// successful, then the empty string is returned.
-string readFile(const string& filename);
-
-/// Scans for all documents under a root path and returns documents which can be loaded
-void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
-                   const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
-                   StringVec& errors);
-
-/// Load a given MaterialX library into a document
-void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath = nullptr);
-
-/// Load all MaterialX files with given library names in given search paths.
-/// Note that all library files will have a URI set on them.
-StringVec loadLibraries(const StringVec& libraryNames,
-                        const FileSearchPath& searchPath,
-                        DocumentPtr doc,
-                        const StringSet* excludeFiles = nullptr);
-
-/// Load all MaterialX files with given library names in a given path.
-StringVec loadLibraries(const StringVec& libraryNames,
-                        const FilePath& filePath,
-                        DocumentPtr doc,
-                        const StringSet* excludeFiles = nullptr);
 
 /// Returns true if the given element is a surface shader with the potential
 /// of beeing transparent. This can be used by HW shader generators to determine
@@ -76,6 +51,48 @@ bool requiresImplementation(ConstNodeDefPtr nodeDef);
 
 /// Determine if a given element requires shading / lighting for rendering
 bool elementRequiresShading(ConstTypedElementPtr element);
+
+/// Return a vector of all Shader nodes for a Material node.
+/// @param materialNode Node to example
+/// @param shaderType Type of shader to return. If an empty string is specified then
+///        all shader node types are returned. The default argument value is an empetyr
+///        string which inidates to include shaders which match any type.
+/// @param target Target attribute of shader to return. The default argument value is an empty string
+///        which indicates to include shaders which match any target.
+vector<NodePtr> getShaderNodes(const NodePtr materialNode, 
+                               const string& shaderType = EMPTY_STRING,
+                               const string& target = EMPTY_STRING);
+
+/// Return a vector of all MaterialAssign elements that bind this material node
+/// to the given geometry string
+/// @param materialNode Node to examine
+/// @param geom The geometry for which material bindings should be returned.
+///    By default, this argument is the universal geometry string "/", and
+///    all material bindings are returned.
+/// @return Vector of MaterialAssign elements
+vector<MaterialAssignPtr> getGeometryBindings(NodePtr materialNode, const string& geom);
+
+/// Find any material node elements which are renderable (have input shaders)
+/// @param doc Document to examine
+/// @param elements List of renderable elements (returned)
+/// @param includeRefencedGraphs Whether to check for outputs on referenced graphs
+/// @param graphOutputs List of outputs examined. Graph outputs are added if they do
+///     not already exist
+void findRenderableMaterialNodes(ConstDocumentPtr doc, 
+                                 vector<TypedElementPtr>& elements, 
+                                 bool includeReferencedGraphs,
+                                 std::unordered_set<OutputPtr> &processedOutputs);
+
+/// Find any shaderrefs elements which are renderable
+/// @param doc Document to examine
+/// @param elements List of renderable elements (returned)
+/// @param includeRefencedGraphs Whether to check for outputs on referenced graphs
+/// @param graphOutputs List of outputs examined. Graph outputs are added if they do
+///     not already exist
+void findRenderableShaderRefs(ConstDocumentPtr doc,
+                              vector<TypedElementPtr>& elements, 
+                              bool includeReferencedGraphs,
+                              std::unordered_set<OutputPtr> &processedOutputs);
 
 /// Find any elements which may be renderable from within a document.
 /// This includes all outputs on node graphs and shader references which are not

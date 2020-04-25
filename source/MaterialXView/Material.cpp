@@ -1,10 +1,14 @@
 #include <MaterialXView/Material.h>
 
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
-#include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
+
+#include <MaterialXRender/Util.h>
+
+#include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 #include <nanogui/messagedialog.h>
 
@@ -83,7 +87,8 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
     mx::DocumentPtr doc = mx::createDocument();
     doc->importLibrary(stdLib);
     mx::DocumentPtr envDoc = mx::createDocument();
-    mx::readFromXmlFile(envDoc, filename);
+    mx::XmlReadOptions options;
+    mx::readFromXmlFile(envDoc, filename, mx::FileSearchPath(), &options);
     doc->importLibrary(envDoc);
 
     mx::NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");

@@ -336,6 +336,9 @@ class MaterialAssign : public GeomElement
     /// Return the Material, if any, referenced by the MaterialAssign.
     MaterialPtr getReferencedMaterial() const;
 
+    /// Return the Material node, if any, referenced by the MaterialAssign.
+    NodePtr getReferencedMaterialNode() const;
+
     /// @}
     /// @name VariantAssign Elements
     /// @{

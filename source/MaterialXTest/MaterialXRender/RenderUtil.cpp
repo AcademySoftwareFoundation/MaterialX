@@ -3,13 +3,14 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXTest/RenderUtil.h>
 #include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/MaterialXRender/RenderUtil.h>
+
+#include <MaterialXCore/Unit.h>
+
+#include <MaterialXFormat/Util.h>
 
 #include <MaterialXRender/Image.h>
-
-#include <MaterialXGenShader/UnitConverter.h>
-#include <MaterialXGenShader/Util.h>
 
 namespace mx = MaterialX;
 
@@ -93,25 +94,6 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 
 bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
 {
-    // Test has been turned off so just do nothing.
-    // Check for an option file
-    GenShaderUtil::TestSuiteOptions options;
-    if (!options.readOptions(optionsFilePath))
-    {
-        std::cout << "Can't find options file. Skip test." << std::endl;
-        return false;
-    }
-    if (!runTest(options))
-    {
-        std::cout << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
-        return false;
-    }
-
-    // Profiling times
-    RenderUtil::RenderProfileTimes profileTimes;
-    // Global setup timer
-    RenderUtil::AdditiveScopedTimer totalTime(profileTimes.totalTime, "Global total time");
-
 #ifdef LOG_TO_FILE
     std::ofstream logfile(_languageTargetString + "_render_log.txt");
     std::ostream& log(logfile);
@@ -126,6 +108,25 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     std::ostream& docValidLog(std::cout);
     std::ostream& profilingLog(std::cout);
 #endif
+
+    // Test has been turned off so just do nothing.
+    // Check for an option file
+    GenShaderUtil::TestSuiteOptions options;
+    if (!options.readOptions(optionsFilePath))
+    {
+        log << "Can't find options file. Skip test." << std::endl;
+        return false;
+    }
+    if (!runTest(options))
+    {
+        log << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
+        return false;
+    }
+
+    // Profiling times
+    RenderUtil::RenderProfileTimes profileTimes;
+    // Global setup timer
+    RenderUtil::AdditiveScopedTimer totalTime(profileTimes.totalTime, "Global total time");
 
     // Add files to override the files in the test suite to be tested.
     mx::StringSet testfileOverride;
@@ -242,7 +243,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             {
                 mx::FileSearchPath readSearchPath(searchPath);
                 readSearchPath.append(dir);
-                mx::readFromXmlFile(doc, filename, readSearchPath);
+                mx::XmlReadOptions readOptions;
+                readOptions.applyFutureUpdates = options.applyFutureUpdates;
+                mx::readFromXmlFile(doc, filename, readSearchPath, &readOptions);
             }
             catch (mx::Exception& e)
             {
@@ -285,20 +288,39 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             mx::FileSearchPath imageSearchPath(dir);
             for (const auto& element : elements)
             {
-                mx::OutputPtr output = element->asA<mx::Output>();
-                mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
+                mx::TypedElementPtr targetElement = element;
+                mx::OutputPtr output = targetElement->asA<mx::Output>();
+                mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
+                mx::NodePtr outputNode = targetElement->asA<mx::Node>();
                 mx::NodeDefPtr nodeDef = nullptr;
                 if (output)
                 {
-                    nodeDef = output->getConnectedNode()->getNodeDef();
+                    outputNode = output->getConnectedNode();
+                    // Handle connected upstream material nodes later on.
+                    if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
+                    {
+                        nodeDef = outputNode->getNodeDef();
+                    }
                 }
                 else if (shaderRef)
                 {
                     nodeDef = shaderRef->getNodeDef();
                 }
+
+                // Handle material node checking. For now only check first surface shader if any
+                if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
+                {
+                    std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                    if (!shaderNodes.empty())
+                    {
+                        nodeDef = shaderNodes[0]->getNodeDef();
+                        targetElement = shaderNodes[0];
+                    }
+                }
+
                 if (nodeDef)
                 {
-                    mx::string elementName = mx::replaceSubstrings(element->getNamePath(), pathMap);
+                    mx::string elementName = mx::replaceSubstrings(targetElement->getNamePath(), pathMap);
                     elementName = mx::createValidName(elementName);
                     {
                         renderableSearchTimer.startTimer();
@@ -312,7 +334,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runRenderer(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath);
+                            runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath);
                         }
                     }
                 }

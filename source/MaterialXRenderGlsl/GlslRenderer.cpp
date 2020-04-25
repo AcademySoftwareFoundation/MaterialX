@@ -25,14 +25,18 @@ const float FAR_PLANE_PERSP = 100.0f;
 // GlslRenderer methods
 //
 
-GlslRendererPtr GlslRenderer::create(unsigned int res)
+GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height)
 {
-    return GlslRendererPtr(new GlslRenderer(res));
+    return GlslRendererPtr(new GlslRenderer(width, height));
 }
 
-GlslRenderer::GlslRenderer(unsigned int res) :
-    _res(res),
-    _initialized(false)
+GlslRenderer::GlslRenderer(unsigned int width, unsigned int height) :
+    ShaderRenderer(width, height),
+    _initialized(false),
+    _eye(0.0f, 0.0f, 4.0f),
+    _center(0.0f, 0.0f, 0.0f),
+    _up(0.0f, 1.0f, 0.0f),
+    _objectScale(1.0f)
 {
     _program = GlslProgram::create();
 
@@ -45,6 +49,14 @@ GlslRenderer::GlslRenderer(unsigned int res) :
 
 GlslRenderer::~GlslRenderer()
 {
+    if (_program->geometryBound())
+    {
+        if (_context->makeCurrent())
+        {
+            _program->unbindGeometry();
+        }
+    }
+
     // Clean up the program
     _program = nullptr;
 
@@ -58,6 +70,23 @@ GlslRenderer::~GlslRenderer()
     _window = nullptr;
 }
 
+void GlslRenderer::setSize(unsigned int width, unsigned int height)
+{
+    if (_context->makeCurrent())
+    {
+        if (_frameBuffer)
+        {
+            _frameBuffer->resize(width, height);
+        }
+        else
+        {
+            _frameBuffer = GLFramebuffer::create(width, height, 4, Image::BaseType::UINT8);
+        }
+        _width = width;
+        _height = height;
+    }
+}
+
 void GlslRenderer::initialize()
 {
     StringVec errors;
@@ -69,7 +98,7 @@ void GlslRenderer::initialize()
         _window = SimpleWindow::create();
 
         const char* windowName = "Renderer Window";
-        if (!_window->initialize(const_cast<char *>(windowName), _res, _res, nullptr))
+        if (!_window->initialize(const_cast<char *>(windowName), _width, _height, nullptr))
         {
             errors.push_back("Failed to create window for testing.");
             throw ExceptionShaderRenderError(errorType, errors);
@@ -97,7 +126,7 @@ void GlslRenderer::initialize()
             glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
             glClearStencil(0);
 
-            _frameBuffer = GLFramebuffer::create(_res, _res, 4, Image::BaseType::UINT8);
+            _frameBuffer = GLFramebuffer::create(_width, _height, 4, Image::BaseType::UINT8);
 
             _initialized = true;
         }
@@ -182,32 +211,31 @@ void GlslRenderer::validateInputs()
     _program->getAttributesList();
 }
 
-void GlslRenderer::updateViewInformation(const Vector3& eye,
-                                           const Vector3& center,
-                                           const Vector3& up,                                          
-                                           float viewAngle,
-                                           float nearDist,
-                                           float farDist,
-                                           float objectScale)
+void GlslRenderer::updateViewInformation()
 {
-    float fH = std::tan(viewAngle / 360.0f * PI) * nearDist;
+    float fH = std::tan(FOV_PERSP / 360.0f * PI) * NEAR_PLANE_PERSP;
     float fW = fH * 1.0f;
 
-    Vector3 boxMin = _geometryHandler->getMinimumBounds();
-    Vector3 boxMax = _geometryHandler->getMaximumBounds();
-    Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
-    float sphereRadius = (sphereCenter - boxMin).getMagnitude();
-    float meshFit = 2.0f / sphereRadius;
-    Vector3 modelTranslation = sphereCenter * -1.0f;
-
-    _viewHandler->viewMatrix = ViewHandler::createViewMatrix(eye, center, up);
-    _viewHandler->projectionMatrix = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, nearDist, farDist);
-    _viewHandler->worldMatrix = Matrix44::createTranslation(modelTranslation) *
-                                Matrix44::createScale(Vector3(objectScale * meshFit));
+    _viewHandler->viewMatrix = ViewHandler::createViewMatrix(_eye, _center, _up);
+    _viewHandler->projectionMatrix = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, NEAR_PLANE_PERSP, FAR_PLANE_PERSP);
 
     Matrix44 invView = _viewHandler->viewMatrix.getInverse();
     _viewHandler->viewDirection = { invView[2][0], invView[2][1], invView[2][2] };
     _viewHandler->viewPosition = { invView[3][0], invView[3][1], invView[3][2] };
+}
+
+void GlslRenderer::updateWorldInformation()
+{
+    float aspectRatio = float(_width) / float(_height);
+    float geometryRatio = _height < _width ?  aspectRatio : (1.0f / aspectRatio);
+    Vector3 boxMin = _geometryHandler->getMinimumBounds();
+    Vector3 boxMax = _geometryHandler->getMaximumBounds();
+    Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
+    float sphereRadius = (sphereCenter - boxMin).getMagnitude() * geometryRatio;
+    float meshFit = 2.0f / sphereRadius;
+    Vector3 modelTranslation = sphereCenter * -1.0f;
+    _viewHandler->worldMatrix = Matrix44::createTranslation(modelTranslation) *
+                                Matrix44::createScale(Vector3(_objectScale * meshFit));
 }
 
 void GlslRenderer::render()
@@ -234,12 +262,8 @@ void GlslRenderer::render()
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Update viewing information
-    const Vector3 eye(0.0f, 0.0f, 4.0f);
-    const Vector3 center;
-    const Vector3 up(0.0f, 1.0f, 0.0f);
-    float objectScale(1.0f);
-    updateViewInformation(eye, center, up, FOV_PERSP, NEAR_PLANE_PERSP, FAR_PLANE_PERSP, objectScale);
+    updateViewInformation();
+    updateWorldInformation();
 
     try
     {
@@ -265,8 +289,7 @@ void GlslRenderer::render()
                     for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                     {
                         auto part = mesh->getPartition(i);
-                        _program->bindPartition(part);
-
+                        _program->bindPartition(mesh->getIdentifier(), part);
                         MeshIndexBuffer& indexData = part->getIndices();
                         glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
                     }
@@ -294,14 +317,28 @@ void GlslRenderer::save(const FilePath& filePath)
     StringVec errors;
     const string errorType("GLSL image save error.");
 
+    ImagePtr image = saveImage();
+
+    // Save using the handler.
+    if (!_imageHandler->saveImage(filePath, image, true))
+    {
+        errors.push_back("Failed to save to file:" + filePath.asString());
+        throw ExceptionShaderRenderError(errorType, errors);
+    }
+}
+
+ImagePtr GlslRenderer::saveImage()
+{
+    StringVec errors;
+    const string errorType("GLSL image save error.");
+
     if (!_imageHandler)
     {
         errors.push_back("No image handler specified.");
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    ImagePtr image = _frameBuffer->createColorImage();
-
+    ImagePtr result = _frameBuffer->createColorImage();
     try
     {
         checkErrors();
@@ -312,13 +349,7 @@ void GlslRenderer::save(const FilePath& filePath)
         errors.insert(std::end(errors), std::begin(e.errorLog()), std::end(e.errorLog()));
         throw ExceptionShaderRenderError(errorType, errors);
     }
-
-    // Save using the handler.
-    if (!_imageHandler->saveImage(filePath, image, true))
-    {
-        errors.push_back("Failed to save to file:" + filePath.asString());
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
+    return result;
 }
 
 void GlslRenderer::checkErrors()

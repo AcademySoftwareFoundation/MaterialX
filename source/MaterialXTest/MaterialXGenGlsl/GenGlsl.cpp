@@ -4,15 +4,15 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
-
-#include <MaterialXTest/GenGlsl.h>
-#include <MaterialXTest/GenShaderUtil.h>
+#include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
+#include <MaterialXTest/MaterialXGenGlsl/GenGlsl.h>
 
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXFormat/File.h>
 
-#include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/TypeDesc.h>
+
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
@@ -83,7 +83,7 @@ TEST_CASE("GenShader: GLSL Implementation Check", "[genglsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 64);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 66);
 }
 
 TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")

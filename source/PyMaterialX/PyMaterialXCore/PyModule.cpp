@@ -19,6 +19,7 @@ void bindPyNode(py::module& mod);
 void bindPyProperty(py::module& mod);
 void bindPyTraversal(py::module& mod);
 void bindPyTypes(py::module& mod);
+void bindPyUnitConverters(py::module& mod);
 void bindPyUtil(py::module& mod);
 void bindPyValue(py::module& mod);
 void bindPyVariant(py::module& mod);
@@ -40,6 +41,7 @@ PYBIND11_MODULE(PyMaterialXCore, mod)
     bindPyVariant(mod);
     bindPyDocument(mod);
     bindPyTypes(mod);
+    bindPyUnitConverters(mod);
     bindPyUtil(mod);
     bindPyException(mod);
 }

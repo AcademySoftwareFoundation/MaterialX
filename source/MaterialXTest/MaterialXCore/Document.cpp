@@ -7,8 +7,8 @@
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
-#include <MaterialXGenShader/Util.h>
 
 namespace mx = MaterialX;
 

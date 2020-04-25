@@ -210,6 +210,20 @@ class GraphElement : public InterfaceElement
         return getChildrenOfType<Node>(category);
     }
 
+    /// Return a vector of nodes in the graph which have a given type
+    vector<NodePtr> getNodesOfType(const string& nodeType) const
+    {
+        vector<NodePtr> nodes;
+        for (auto node : getNodes())
+        {
+            if (node->getType() == nodeType)
+            {
+                nodes.push_back(node);
+            }
+        }
+        return nodes;
+    }
+
     /// Remove the Node, if any, with the given name.
     void removeNode(const string& name)
     {

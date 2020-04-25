@@ -41,7 +41,7 @@ class GlslRenderer : public ShaderRenderer
 {
   public:
     /// Create a GLSL renderer instance
-    static GlslRendererPtr create(unsigned int res = 512);
+    static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512);
 
     /// Destructor
     virtual ~GlslRenderer();
@@ -70,6 +70,9 @@ class GlslRenderer : public ShaderRenderer
     /// Validate inputs for the program
     void validateInputs() override;
 
+    /// Set the size of the rendered image
+    void setSize(unsigned int width, unsigned int height) override;
+
     /// Render the current program to an offscreen buffer.
     void render() override;
 
@@ -80,9 +83,12 @@ class GlslRenderer : public ShaderRenderer
     /// @name Utilities
     /// @{
 
-    /// Save the current contents the offscreen hardware buffer to disk.
+    /// Save the current contents of the offscreen hardware buffer to disk.
     /// @param filePath Name of file to save rendered image to.
     void save(const FilePath& filePath) override;
+
+    /// Save the current contents of the offscreen hardware buffer to an image.
+    ImagePtr saveImage() override;
 
     /// Return the GL frame buffer.
     GLFrameBufferPtr getFrameBuffer() const
@@ -102,15 +108,10 @@ class GlslRenderer : public ShaderRenderer
     /// @}
 
   protected:
-    GlslRenderer(unsigned int res);
+    GlslRenderer(unsigned int width, unsigned int height);
 
-    void updateViewInformation(const Vector3& eye,
-                               const Vector3& center,
-                               const Vector3& up,
-                               float viewAngle,
-                               float nearDist,
-                               float farDist,
-                               float objectScale);
+    virtual void updateViewInformation();
+    virtual void updateWorldInformation();
 
   private:
     void checkErrors();
@@ -119,9 +120,13 @@ class GlslRenderer : public ShaderRenderer
     GlslProgramPtr _program;
 
     GLFrameBufferPtr _frameBuffer;
-    unsigned int _res;
 
     bool _initialized;
+
+    const Vector3 _eye;
+    const Vector3 _center;
+    const Vector3 _up;
+    float _objectScale;
 
     SimpleWindowPtr _window;
     GLUtilityContextPtr _context;

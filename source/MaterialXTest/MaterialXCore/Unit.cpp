@@ -6,17 +6,16 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
+#include <MaterialXCore/Unit.h>
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
-#include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/UnitConverter.h>
+#include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
 
 const float EPSILON = 1e-4f;
 
-TEST_CASE("UnitAttribute", "[units]")
+TEST_CASE("UnitAttribute", "[unit]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
@@ -60,7 +59,7 @@ TEST_CASE("UnitAttribute", "[units]")
     REQUIRE(input->getActiveUnit() == "degree");
 }
 
-TEST_CASE("UnitEvaluation", "[units]")
+TEST_CASE("UnitEvaluation", "[unit]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
@@ -117,7 +116,7 @@ TEST_CASE("UnitEvaluation", "[units]")
     REQUIRE((result - 114.591559026f) < EPSILON);
 }
 
-TEST_CASE("UnitDocument", "[units]")
+TEST_CASE("UnitDocument", "[unit]")
 {
     mx::FilePath libraryPath("libraries/stdlib");
     mx::FilePath examplesPath("resources/Materials/TestSuite/stdlib/units");
@@ -153,32 +152,31 @@ TEST_CASE("UnitDocument", "[units]")
             {
                 if (pNode->getInputCount()) {
                     for (mx::InputPtr input : pNode->getInputs()) {
-                        const mx::TypeDesc* type = mx::TypeDesc::get(input->getType());
+                        const std::string type = input->getType();
                         const mx::ValuePtr value = input->getValue();
                         if (input->hasUnit() && value) {
-
-                            if (type->isScalar() && type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT)
+                            if (type == "float")
                             {
                                 float originalval = value->asA<float>();
                                 float convertedValue = uconverter->convert(originalval, input->getUnit(), DISTANCE_DEFAULT);
                                 float reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, input->getUnit());
                                 REQUIRE((originalval - reconvert) < EPSILON);
                             }
-                            else if (type->isFloat2())
+                            else if (type == "vector2")
                             {
                                 mx::Vector2 originalval = value->asA<mx::Vector2>();
                                 mx::Vector2 convertedValue = uconverter->convert(originalval, input->getUnit(), DISTANCE_DEFAULT);
                                 mx::Vector2 reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, input->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
-                            else if (type->isFloat3())
+                            else if (type == "vector3")
                             {
                                 mx::Vector3 originalval = value->asA<mx::Vector3>();
                                 mx::Vector3 convertedValue = uconverter->convert(originalval, input->getUnit(), DISTANCE_DEFAULT);
                                 mx::Vector3 reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, input->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
-                            else if (type->isFloat4())
+                            else if (type == "vector4")
                             {
                                 mx::Vector4 originalval = value->asA<mx::Vector4>();
                                 mx::Vector4 convertedValue = uconverter->convert(originalval, input->getUnit(), DISTANCE_DEFAULT);
@@ -191,32 +189,32 @@ TEST_CASE("UnitDocument", "[units]")
 
                 if (pNode->getParameterCount()) {
                     for (mx::ParameterPtr param: pNode->getParameters()) {
-                        const mx::TypeDesc* type = mx::TypeDesc::get(param->getType());
+                        const std::string type = param->getType();
                         const mx::ValuePtr value = param->getValue();
                         if (param->hasUnit() && value) {
 
-                            if (type->isScalar() && type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT)
+                            if (type == "float")
                             {
                                 float originalval = value->asA<float>();
                                 float convertedValue = uconverter->convert(originalval, param->getUnit(), DISTANCE_DEFAULT);
                                 float reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, param->getUnit());
                                 REQUIRE((originalval - reconvert) < EPSILON);
                             }
-                            else if (type->isFloat2())
+                            else if (type == "vector2")
                             {
                                 mx::Vector2 originalval = value->asA<mx::Vector2>();
                                 mx::Vector2 convertedValue = uconverter->convert(originalval, param->getUnit(), DISTANCE_DEFAULT);
                                 mx::Vector2 reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, param->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
-                            else if (type->isFloat3())
+                            else if (type == "vector3")
                             {
                                 mx::Vector3 originalval = value->asA<mx::Vector3>();
                                 mx::Vector3 convertedValue = uconverter->convert(originalval, param->getUnit(), DISTANCE_DEFAULT);
                                 mx::Vector3 reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, param->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
-                            else if (type->isFloat4())
+                            else if (type == "vector4")
                             {
                                 mx::Vector4 originalval = value->asA<mx::Vector4>();
                                 mx::Vector4 convertedValue = uconverter->convert(originalval, param->getUnit(), DISTANCE_DEFAULT);

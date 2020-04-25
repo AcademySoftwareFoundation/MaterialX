@@ -4,8 +4,7 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
-
-#include <MaterialXTest/RenderUtil.h>
+#include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
 #include <MaterialXRender/StbImageLoader.h>
