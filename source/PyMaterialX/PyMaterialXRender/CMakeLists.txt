@@ -20,18 +20,11 @@ set_target_properties(
     SOVERSION "${MATERIALX_MAJOR_VERSION}"
     DEBUG_POSTFIX "${MATERIALX_PYTHON_DEBUG_POSTFIX}")
 
-if(NOT MATERIALX_BUILD_CONTRIB)
-  target_link_libraries(
+target_link_libraries(
     PyMaterialXRender
     PUBLIC PyMaterialXGenShader
            MaterialXRender
     PRIVATE ${CMAKE_DL_LIBS})
-else()
-  target_link_libraries(
-    PyMaterialXRender
-    PUBLIC PyMaterialXGenShader
-           MaterialXRender
-    PRIVATE ${CMAKE_DL_LIBS})
-endif()
+
 install(TARGETS PyMaterialXRender
         DESTINATION "${CMAKE_INSTALL_PREFIX}/python/MaterialX")
