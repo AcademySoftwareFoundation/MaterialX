@@ -809,7 +809,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 void TestSuiteOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
-    output << "\tApply latest updates: " << std::to_string(applyFutureUpdates) << std::endl;
+    output << "\tApply future updates: " << std::to_string(applyFutureUpdates) << std::endl;
     output << "\tOverride Files: { ";
     for (const auto& overrideFile : overrideFiles) { output << overrideFile << " "; }
     output << "} " << std::endl;
