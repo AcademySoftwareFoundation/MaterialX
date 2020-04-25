@@ -42,8 +42,8 @@ class XmlReadOptions : public CopyOptions
     /// Defaults to an empty vector.
     StringVec parentXIncludes;
 
-    /// Apply the latest updates on top of the current library version
-    /// Defaults to false.
+    /// Apply the latest updates supported by the current library version,
+    /// including proposed features for upcoming versions.  Defaults to false.
     bool applyLatestUpdates;
 };
 
