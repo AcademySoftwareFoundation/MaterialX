@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
 {
@@ -44,7 +43,7 @@ const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetyp
     auto it = map.find(name);
     if (it != map.end())
     {
-        throw ExceptionShaderGenError("A type with name '" + name + "' is already registered");
+        throw Exception("A type with name '" + name + "' is already registered");
     }
 
     std::unique_ptr<TypeDesc> uniquePtr(new TypeDesc(name, basetype, semantic, size, editable, channelMapping));
@@ -66,7 +65,7 @@ const TypeDesc* TypeDesc::get(const string& name)
     auto it = map.find(name);
     if (it == map.end())
     {
-        throw ExceptionShaderGenError("No registered type with name '" + name + "' could be found");
+        throw Exception("No registered type with name '" + name + "' could be found");
     }
     return it->second.get();
 }
@@ -99,6 +98,7 @@ namespace Type
     const TypeDesc* VOLUMESHADER       = TypeDesc::registerType("volumeshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1, false);
     const TypeDesc* DISPLACEMENTSHADER = TypeDesc::registerType("displacementshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1, false);
     const TypeDesc* LIGHTSHADER        = TypeDesc::registerType("lightshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1, false);
+    const TypeDesc* MATERIAL           = TypeDesc::registerType("material", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_MATERIAL, 1, false);
 }
 
 }

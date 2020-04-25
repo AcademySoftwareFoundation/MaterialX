@@ -5,7 +5,7 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXGenShader/UnitConverter.h>
+#include <MaterialXCore/Unit.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
@@ -84,7 +84,7 @@ void bindPyUnitConverters(py::module& mod)
         .def("getUnitAsInteger", &mx::LinearUnitConverter::getUnitAsInteger)
         .def("getUnitFromInteger", &mx::LinearUnitConverter::getUnitFromInteger);
 
-    py::class_<mx::UnitConverterRegistry, std::unique_ptr<mx::UnitConverterRegistry, py::nodelete>>(mod, "UnitConverterRegistry")
+    py::class_<mx::UnitConverterRegistry, mx::UnitConverterRegistryPtr>(mod, "UnitConverterRegistry")
         .def_static("create", &mx::UnitConverterRegistry::create)
         .def("addUnitConverter", &mx::UnitConverterRegistry::addUnitConverter)
         .def("removeUnitConverter", &mx::UnitConverterRegistry::removeUnitConverter)

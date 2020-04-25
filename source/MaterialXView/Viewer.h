@@ -12,7 +12,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-#include <MaterialXGenShader/UnitConverter.h>
+#include <MaterialXCore/Unit.h>
 
 namespace mx = MaterialX;
 namespace ng = nanogui;

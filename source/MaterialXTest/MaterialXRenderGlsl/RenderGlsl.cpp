@@ -3,29 +3,27 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXRenderGlsl/GlslRenderer.h>
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
-
-#include <MaterialXCore/Types.h>
-
-#ifdef MATERIALX_BUILD_OIIO
-#include <MaterialXRender/OiioImageLoader.h>
-#endif
-#include <MaterialXRender/StbImageLoader.h>
-
-#include <MaterialXRender/GeometryHandler.h>
-#include <MaterialXRender/TinyObjLoader.h>
-
 #if defined(__linux__)
 #define NonePrev None
 #undef None
 #endif
 #include <MaterialXTest/Catch/catch.hpp>
 #if defined(__linux__)
-    #define None NonePrev
+#define None NonePrev
 #endif
-#include <MaterialXTest/RenderUtil.h>
+#include <MaterialXTest/MaterialXRender/RenderUtil.h>
+
+#include <MaterialXCore/Types.h>
+
+#include <MaterialXFormat/Util.h>
+
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
+#include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXRender/GeometryHandler.h>
+
+#include <MaterialXRenderGlsl/GlslRenderer.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 namespace mx = MaterialX;
 
@@ -478,6 +476,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     {
                         RenderUtil::AdditiveScopedTimer renderTimer(profileTimes.languageTimes.renderTime, "GLSL render time");
                         _renderer->getImageHandler()->setSearchPath(imageSearchPath);
+                        _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
                         _renderer->render();
                     }
 

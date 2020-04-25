@@ -1,32 +1,87 @@
-include_directories(
+set(MATERIALX_TEST_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
+# Discover all tests and allow them to be run in parallel (ctest -j20):
+function(add_tests _sources)
+  foreach(src_file ${_sources})
+    file(STRINGS ${src_file} matched_lines REGEX "TEST_CASE")
+    foreach(matched_line ${matched_lines})
+      string(REGEX REPLACE "(TEST_CASE[( \"]+)" "" test_name ${matched_line})
+      string(REGEX REPLACE "(\".*)" "" test_name ${test_name})
+      string(REGEX REPLACE "[^A-Za-z0-9_]+" "_" test_safe_name ${test_name})
+      add_test(NAME "MaterialXTest_${test_safe_name}"
+          COMMAND MaterialXTest ${test_name}
+          WORKING_DIRECTORY ${MATERIALX_TEST_BINARY_DIR})
+    endforeach()
+  endforeach()
+endfunction()
+
+add_executable(MaterialXTest)
+
+target_include_directories( MaterialXTest PUBLIC
     ${EXTERNAL_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
-file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
+list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/catch.hpp")
 
 assign_source_group("Source Files" ${materialx_source})
 assign_source_group("Header Files" ${materialx_headers})
 
-add_executable(MaterialXTest ${materialx_source} ${materialx_headers})
+target_sources(MaterialXTest PUBLIC ${materialx_source} ${materialx_headers})
 
-add_test(NAME MaterialXTest
-	COMMAND MaterialXTest
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+add_subdirectory(MaterialXCore)
+target_link_libraries(MaterialXTest MaterialXCore)
+add_subdirectory(MaterialXFormat)
+target_link_libraries(MaterialXTest MaterialXFormat)
 
-if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
-    add_custom_command(TARGET MaterialXTest POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
+  add_subdirectory(MaterialXGenShader)
+  target_link_libraries(MaterialXTest MaterialXGenShader)
+  if(MATERIALX_BUILD_GEN_GLSL)
+    add_subdirectory(MaterialXGenGlsl)
+    target_link_libraries(MaterialXTest MaterialXGenGlsl)
+  endif()
+  if(MATERIALX_BUILD_GEN_OSL)
+    add_subdirectory(MaterialXGenOsl)
+    target_link_libraries(MaterialXTest MaterialXGenOsl)
+  endif()
 endif()
+
+if(MATERIALX_BUILD_RENDER)
+  add_subdirectory(MaterialXRender)
+  target_link_libraries(MaterialXTest MaterialXRender)
+  if (MATERIALX_BUILD_OIIO)
+    target_link_libraries(MaterialXTest ${OPENIMAGEIO_LIBRARIES})
+  endif()
+  if(MATERIALX_BUILD_GEN_GLSL)
+    add_subdirectory(MaterialXRenderGlsl)
+    target_link_libraries(MaterialXTest MaterialXRenderGlsl)
+  endif()
+  if(MATERIALX_BUILD_GEN_OSL)
+    add_subdirectory(MaterialXRenderOsl)
+    target_link_libraries(MaterialXTest MaterialXRenderOsl)
+  endif()
+  if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
+      add_custom_command(TARGET MaterialXTest POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+endif()
+
+# TODO: Only do this stuff when it's relevant
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)     
+	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
+
 install(DIRECTORY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl)
+
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stdlib/osl/"
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl
     FILES_MATCHING PATTERN "*.h")
+
 add_custom_command(TARGET MaterialXTest POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
@@ -37,20 +92,9 @@ set_target_properties(
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
-    SOVERSION "${MATERIALX_MAJOR_VERSION}")
-
-set(LIBS
-    MaterialXCore
-    MaterialXFormat
-    MaterialXGenShader
-    MaterialXGenOsl
-    MaterialXGenGlsl
-    MaterialXRender
-    MaterialXRenderOsl
-    MaterialXRenderHw
-    MaterialXRenderGlsl)
+    SOVERSION "${MATERIALX_MAJOR_VERSION}"
+    DEBUG_POSTFIX "${MATERIALX_DEBUG_POSTFIX}")
 
 target_link_libraries(
     MaterialXTest
-    ${LIBS}
     ${CMAKE_DL_LIBS})

@@ -4,30 +4,19 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Observer.h>
 
-#include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/Nodes/SwizzleNode.h>
-#include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/Util.h>
-
-#include <MaterialXTest/GenShaderUtil.h>
 
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <vector>
 #include <set>
-
-#if defined (MATERIALX_BUILD_CONTRIB)
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXGenOsl/OslShaderGenerator.h>
-#endif
 
 namespace mx = MaterialX;
 

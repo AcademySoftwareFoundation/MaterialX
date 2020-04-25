@@ -103,6 +103,9 @@ class ShaderRenderer
     /// Validate inputs for the program 
     virtual void validateInputs() = 0;
 
+    /// Set the size of the rendered image
+    virtual void setSize(unsigned int /*width*/, unsigned int /*height*/) = 0;
+
     /// Render the current program to produce an image
     virtual void render() = 0;
 
@@ -110,17 +113,31 @@ class ShaderRenderer
     /// @name Utilities
     /// @{
 
-    /// Save the current contents the offscreen hardware buffer to disk.
+    /// Save the current contents of the offscreen hardware buffer to disk.
     /// @param filePath Path to file to save rendered image to.
     virtual void save(const FilePath& filePath) = 0;
-    
+
+    /// Save the current contents of the offscreen hardware buffer to an image.
+    virtual ImagePtr saveImage() = 0;
+
     /// @}
 
   protected:
     // Protected constructor
-    ShaderRenderer() { }
+    ShaderRenderer() :
+        _width(0),
+        _height(0)
+    { }
+
+    ShaderRenderer(unsigned int width, unsigned int height) :
+        _width(width),
+        _height(height)
+    { }
 
   protected:
+    unsigned int _width;
+    unsigned int _height;
+
     ImageHandlerPtr _imageHandler;
     GeometryHandlerPtr _geometryHandler;
     LightHandlerPtr _lightHandler;

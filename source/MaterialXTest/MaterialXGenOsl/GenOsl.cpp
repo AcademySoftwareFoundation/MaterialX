@@ -4,20 +4,15 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
-
-#include <MaterialXTest/GenOsl.h>
-
-#include <MaterialXCore/Document.h>
+#include <MaterialXTest/MaterialXGenOsl/GenOsl.h>
 
 #include <MaterialXFormat/File.h>
 
+#include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/GenContext.h>
+
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
-
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Util.h>
-
 
 namespace mx = MaterialX;
 
@@ -92,7 +87,7 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 65);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 67);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
@@ -122,6 +117,7 @@ static void generateOslCode()
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
 
     OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
+    tester.addSkipLibraryFiles();
 
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");

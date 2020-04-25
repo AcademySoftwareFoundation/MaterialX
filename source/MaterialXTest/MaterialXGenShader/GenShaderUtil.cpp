@@ -4,13 +4,17 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
-#include <MaterialXTest/GenShaderUtil.h>
+#include <MaterialXCore/Util.h>
+#include <MaterialXCore/Unit.h>
+
+#include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <MaterialXFormat/File.h>
+#include <MaterialXGenShader/TypeDesc.h>
 
 namespace mx = MaterialX;
 
@@ -75,7 +79,9 @@ void checkImplementations(mx::GenContext& context,
         "thin_film_brdf",
         "worleynoise2d",
         "worleynoise3d",
-        "geompropvalue"
+        "geompropvalue",
+        "surfacematerial",
+        "volumematerial"
     };
     skipNodeTypes.insert(generatorSkipNodeTypes.begin(), generatorSkipNodeTypes.end());
 
@@ -93,7 +99,9 @@ void checkImplementations(mx::GenContext& context,
         "ND_multiply_vdfC",
         "ND_mix_displacementshader",
         "ND_mix_volumeshader",
-        "ND_mix_vdf"
+        "ND_mix_vdf",
+        "ND_surfacematerial",
+        "ND_volumematerial"
     };
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 
@@ -297,8 +305,8 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 }
 
 
-void ShaderGeneratorTester::checkImplementationUsage(mx::StringSet& usedImpls,
-                                                     mx::GenContext& context,
+void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedImpls,
+                                                     const mx::GenContext& context,
                                                      std::ostream& stream)
 {
     // Get list of implementations a given langauge.
@@ -465,7 +473,8 @@ void ShaderGeneratorTester::setupDependentLibraries()
 
     // Load the standard libraries.
     const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
-    loadLibraries(libraries, _libSearchPath, _dependLib);
+
+    loadLibraries(libraries, _libSearchPath, _dependLib, &_skipLibraryFiles);
 
     // Load shader definitions used in the test suite.
     loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
@@ -481,6 +490,10 @@ void ShaderGeneratorTester::addSkipFiles()
 }
 
 void ShaderGeneratorTester::addSkipNodeDefs()
+{
+}
+
+void ShaderGeneratorTester::addSkipLibraryFiles()
 {
 }
 
@@ -545,19 +558,25 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
 
 void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath)
 {
-    // Test has been turned off so just do nothing.
+    // Start logging
+    _logFile.open(_logFilePath);
+
     // Check for an option file
     TestSuiteOptions options;
     if (!options.readOptions(optionsFilePath))
     {
-        std::cout << "Can't find options file. Skip test." << std::endl;
+        _logFile << "Cannot read options file: " << optionsFilePath << ". Skipping test." << std::endl;
+        _logFile.close();
         return;
     }
+    // Test has been turned off so just do nothing.
     if (!runTest(options))
     {
-        std::cout << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
+        _logFile << "Language / target: " << _languageTargetString << " not set to run. Skipping test." << std::endl;
+        _logFile.close();
         return;
     }
+    options.print(_logFile);
 
     // Add files to override the files in the test suite to be examined.
     mx::StringSet overrideFiles;
@@ -565,9 +584,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     {
         overrideFiles.insert(filterFile);
     }
-
-    // Start logging
-    _logFile.open(_logFilePath);
 
     // Dependent library setup
     setupDependentLibraries();
@@ -583,9 +599,12 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Load in all documents to test
     mx::StringVec errorLog;
     mx::FileSearchPath searchPath(_libSearchPath);
+    mx::XmlReadOptions readOptions;
+    readOptions.applyFutureUpdates = options.applyFutureUpdates;
     for (const auto& testRoot : _testRootPaths)
     {
-        mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, errorLog);
+        mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
+                          readOptions, errorLog);
     }
     CHECK(errorLog.empty());
     for (const auto& error : errorLog)
@@ -634,6 +653,27 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             continue;
         }
 
+        if (options.applyFutureUpdates &&
+            (!doc->getNodes(mx::SURFACE_MATERIAL_NODE_STRING).empty() ||
+             !doc->getNodes(mx::VOLUME_MATERIAL_NODE_STRING).empty()))
+        {
+            _logFile << "Updated version document written to: " << doc->getSourceUri() + "modified.mtlxx" << std::endl;
+
+            mx::StringSet xincludeFiles = doc->getReferencedSourceUris();
+            auto skipXincludes = [xincludeFiles](mx::ConstElementPtr elem)
+            {
+                if (elem->hasSourceUri())
+                {
+                    return (xincludeFiles.count(elem->getSourceUri()) == 0);
+                }
+                return true;
+            };
+            mx::XmlWriteOptions writeOptions;
+            writeOptions.writeXIncludeEnable = true;
+            writeOptions.elementPredicate = skipXincludes;
+            mx::writeToXmlFile(doc, doc->getSourceUri() + "_modified.mtlxx", &writeOptions);
+        }
+
         // Find and register lights
         findLights(doc, _lights);
         registerLights(doc, _lights, context);
@@ -671,29 +711,47 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         int codeGenerationFailures = 0;
         for (const auto& element : elements)
         {
-            mx::OutputPtr output = element->asA<mx::Output>();
-            mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
+            mx::TypedElementPtr targetElement = element;
+            mx::OutputPtr output = targetElement->asA<mx::Output>();
+            mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
+            mx::NodePtr outputNode = targetElement->asA<mx::Node>();
             mx::NodeDefPtr nodeDef = nullptr;
             if (output)
             {
-                nodeDef = output->getConnectedNode()->getNodeDef();
+                outputNode = output->getConnectedNode();
+                // Handle connected upstream material nodes later on.
+                if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
+                {
+                    nodeDef = outputNode->getNodeDef();
+                }
             }
             else if (shaderRef)
             {
                 nodeDef = shaderRef->getNodeDef();
             }
 
-            // Allow to skip nodedefs to test if specified
-            const std::string nodeDefName = nodeDef->getName();
-            if (_skipNodeDefs.count(nodeDefName))
+            // Handle material node checking. For now only check first surface shader if any
+            if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                _logFile << ">> Skipped testing nodedef: " << nodeDefName << std::endl;
-                continue;
+                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                if (!shaderNodes.empty())
+                {
+                    nodeDef = shaderNodes[0]->getNodeDef();
+                    targetElement = shaderNodes[0];
+                }
             }
 
-            const std::string namePath(element->getNamePath());
+            const std::string namePath(targetElement->getNamePath());
             if (nodeDef)
             {
+                // Allow to skip nodedefs to test if specified
+                const std::string nodeDefName = nodeDef->getName();
+                if (_skipNodeDefs.count(nodeDefName))
+                {
+                    _logFile << ">> Skipped testing nodedef: " << nodeDefName << std::endl;
+                    continue;
+                }
+
                 mx::string elementName = mx::replaceSubstrings(namePath, pathMap);
                 elementName = mx::createValidName(elementName);
 
@@ -710,7 +768,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
                     _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
                     mx::StringVec sourceCode;
-                    bool generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
+                    bool generatedCode = generateCode(context, elementName, targetElement, _logFile, _testStages, sourceCode);
                     if (!generatedCode)
                     {
                         _logFile << ">> Failed to generate code for nodedef: " << nodeDefName << std::endl;
@@ -751,6 +809,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 void TestSuiteOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
+    output << "\tApply future updates: " << std::to_string(applyFutureUpdates) << std::endl;
     output << "\tOverride Files: { ";
     for (const auto& overrideFile : overrideFiles) { output << overrideFile << " "; }
     output << "} " << std::endl;
@@ -772,6 +831,7 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tValidate Element To Render: " << validateElementToRender << std::endl;
     output << "\tCompile code: " << compileCode << std::endl;
     output << "\tRender Images: " << renderImages << std::endl;
+    output << "\tRender Size: " << renderSize[0] << "," << renderSize[1] << std::endl;
     output << "\tSave Images: " << saveImages << std::endl;
     output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
     output << "\tNon-Shaded Geometry: " << unShadedGeometry.asString() << std::endl;
@@ -799,6 +859,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string VALIDATE_ELEMENT_TO_RENDER_STRING("validateElementToRender");
     const std::string COMPILE_CODE_STRING("compileCode");
     const std::string RENDER_IMAGES_STRING("renderImages");
+    const std::string RENDER_SIZE_STRING("renderSize");
     const std::string SAVE_IMAGES_STRING("saveImages");
     const std::string DUMP_UNIFORMS_AND_ATTRIBUTES_STRING("dumpUniformsAndAttributes");
     const std::string CHECK_IMPL_COUNT_STRING("checkImplCount");
@@ -816,6 +877,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
+    const std::string APPLY_LATEST_UPDATES("applyFutureUpdates");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -825,10 +887,12 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableDirectLighting = true;
     enableIndirectLighting = true;
     specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
+    applyFutureUpdates = false;
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
-        MaterialX::readFromXmlFile(doc, optionFile);
+        mx::XmlReadOptions readOptions;
+        MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath(), &readOptions);
 
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
@@ -862,6 +926,10 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     else if (name == RENDER_IMAGES_STRING)
                     {
                         renderImages = val->asA<bool>();
+                    }
+                    else if (name == RENDER_SIZE_STRING)
+                    {
+                        renderSize = val->asA<mx::Vector2>();
                     }
                     else if (name == SAVE_IMAGES_STRING)
                     {
@@ -938,6 +1006,10 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                         {
                             externalTestPaths.append(mx::FilePath(l));
                         }
+                    }
+                    else if (name == APPLY_LATEST_UPDATES)
+                    {
+                        applyFutureUpdates = p->getValue()->asA<bool>();
                     }
                 }
             }

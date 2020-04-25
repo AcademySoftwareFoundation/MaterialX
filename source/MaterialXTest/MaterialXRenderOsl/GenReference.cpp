@@ -4,16 +4,15 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
-
-#include <MaterialXTest/GenShaderUtil.h>
+#include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
+
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
@@ -167,6 +166,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     mx::GenContext context(generator);
     context.registerSourceCodeSearchPath(librariesPath);
     context.getOptions().fileTextureVerticalFlip = true;
+    context.getOptions().addUpstreamDependencies = false;
 
     bool runCompileTest = !std::string(MATERIALX_OSLC_EXECUTABLE).empty();
     mx::OslRendererPtr oslRenderer = nullptr;
@@ -189,6 +189,10 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
         {
             nodeName = nodeName.substr(3);
         }
+        if (nodeName == mx::MATERIAL_TYPE_STRING)
+        {
+            continue;
+        }
 
         mx::NodePtr node = stdlibDoc->addNodeInstance(nodedef, nodeName);
         REQUIRE(node);
@@ -210,7 +214,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
                 oslRenderer->compileOSL(filepath);
             }
 
-            mx::ImplementationPtr impl = implDoc->addImplementation("IM_" + nodeName + "_osl");
+            mx::ImplementationPtr impl = implDoc->addImplementation(node->getName());
+            impl->setAttribute("node", nodedef->getNodeString());
             impl->setNodeDef(nodedef);
             impl->setFile((outputPathRel / filename).asString(mx::FilePath::FormatPosix));
             impl->setFunction(node->getName());

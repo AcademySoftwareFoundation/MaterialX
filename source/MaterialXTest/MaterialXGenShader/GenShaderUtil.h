@@ -96,6 +96,9 @@ class TestSuiteOptions
     // Perform rendering validation test
     bool renderImages = true;
 
+    // Render size
+    mx::Vector2 renderSize = { 512, 512 };
+
     // Perform saving of image.
     bool saveImages = true;
 
@@ -137,6 +140,9 @@ class TestSuiteOptions
 
     // Additional testPaths paths
     mx::FileSearchPath externalTestPaths;
+
+    // Apply updates for future versions
+    bool applyFutureUpdates;
 };
 
 // Utility class to handle testing of shader generators.
@@ -175,6 +181,9 @@ class ShaderGeneratorTester
     // Add nodedefs to not examine
     virtual void addSkipNodeDefs();
 
+    // Add files to be skipped while loading libraries
+    virtual void addSkipLibraryFiles();
+
     // Add color management
     virtual void addColorManagement();
 
@@ -203,13 +212,13 @@ class ShaderGeneratorTester
     void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);
 
   protected:
-    // Check to see that all implemenations have been tested for a given
+    // Check to see that all implementations have been tested for a given
     // language.
-    void checkImplementationUsage(mx::StringSet& usedImpls,
-                                    mx::GenContext& context,
-                                    std::ostream& stream);
+    void checkImplementationUsage(const mx::StringSet& usedImpls,
+                                  const mx::GenContext& context,
+                                  std::ostream& stream);
 
-    // Get implemenation "whitelist" for those implementations that have
+    // Get implementation "whitelist" for those implementations that have
     // been skipped for checking
     virtual void getImplementationWhiteList(mx::StringSet& whiteList) = 0;
 
@@ -229,6 +238,7 @@ class ShaderGeneratorTester
     const mx::FilePath _logFilePath;
 
     mx::StringSet _skipFiles;
+    mx::StringSet _skipLibraryFiles;
     std::vector<mx::DocumentPtr> _documents;
     mx::StringVec _documentPaths;
     std::ofstream _logFile;

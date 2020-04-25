@@ -3,12 +3,15 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXGenOsl/OslShaderGenerator.h>
-#include <MaterialXRenderOsl/OslRenderer.h>
-
 #include <MaterialXTest/Catch/catch.hpp>
-#include <MaterialXTest/RenderUtil.h>
+#include <MaterialXTest/MaterialXRender/RenderUtil.h>
+
+#include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/Util.h>
+
+#include <MaterialXGenOsl/OslShaderGenerator.h>
+
+#include <MaterialXRenderOsl/OslRenderer.h>
 
 namespace mx = MaterialX;
 
@@ -198,6 +201,8 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 if (testOptions.renderImages)
                 {
+                    _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
+
                     const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
 
                     // Look for textures and build parameter override string for each image

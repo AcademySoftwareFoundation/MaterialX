@@ -137,6 +137,22 @@ class Document : public GraphElement
     }
 
     /// @}
+    /// @name Material Node Utilities
+    /// @{
+
+    /// Return the Material node, if any, with the given name.
+    NodePtr getMaterialNode(const string& name) const
+    {
+        return getNode(name);
+    }
+
+    /// Return a vector of all Material nodes in the document.
+    vector<NodePtr> getMaterialNodes() const
+    {
+        return getNodesOfType(MATERIAL_TYPE_STRING);
+    }
+
+    /// @}
     /// @name GeomInfo Elements
     /// @{
 
@@ -556,8 +572,10 @@ class Document : public GraphElement
     std::pair<int, int> getVersionIntegers() const override;
 
     /// Upgrade the content of this document from earlier supported versions to
-    /// the library version.  Documents from future versions are left unmodified.
-    void upgradeVersion();
+    /// the library version.
+    /// @param applyFutureUpdates Apply updates that test prototype functionality
+    ///    for future versions of MaterialX
+    void upgradeVersion(bool applyFutureUpdates = false);
 
     /// @}
     /// @name Color Management System

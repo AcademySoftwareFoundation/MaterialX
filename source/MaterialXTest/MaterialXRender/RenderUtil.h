@@ -6,7 +6,10 @@
 #ifndef RENDER_UTIL_H
 #define RENDER_UTIL_H
 
+#include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
+
 #include <MaterialXCore/Document.h>
+
 #include <MaterialXFormat/XmlIo.h>
 
 #include <MaterialXGenShader/Util.h>
@@ -16,8 +19,6 @@
 
 #include <MaterialXRender/Util.h>
 #include <MaterialXRender/LightHandler.h>
-
-#include <MaterialXTest/GenShaderUtil.h>
 
 #include <chrono>
 #include <ctime>
