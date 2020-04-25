@@ -283,10 +283,6 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
-        if (child->getCategory().empty())
-        {
-            throw Exception("Trying to import child without a category: " + child->getName());
-        }
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);
@@ -425,11 +421,17 @@ bool Document::validate(string* message) const
     return GraphElement::validate(message) && res;
 }
 
-void Document::upgradeVersion(bool applyLatestUpdates)
+void Document::upgradeVersion(bool applyFutureUpdates)
 {
     std::pair<int, int> versions = getVersionIntegers();
     int majorVersion = versions.first;
     int minorVersion = versions.second;
+    if (majorVersion == MATERIALX_MAJOR_VERSION &&
+        minorVersion == MATERIALX_MINOR_VERSION &&
+        !applyFutureUpdates)
+    {
+        return;
+    }
 
     // Upgrade from v1.22 to v1.23
     if (majorVersion == 1 && minorVersion == 22)
@@ -958,16 +960,13 @@ void Document::upgradeVersion(bool applyLatestUpdates)
         minorVersion = 37;
     }
 
-    // Apply the latest updates supported by the current library version,
-    // including proposed features for upcoming versions.
-    if (applyLatestUpdates)
+    if (majorVersion == MATERIALX_MAJOR_VERSION &&
+        minorVersion == MATERIALX_MINOR_VERSION)
     {
-        convertMaterialsToNodes(getDocument());
-    }
-
-    if (majorVersion >= MATERIALX_MAJOR_VERSION &&
-        minorVersion >= MATERIALX_MINOR_VERSION)
-    {
+        if (applyFutureUpdates)
+        {
+            convertMaterialsToNodes(getDocument());
+        }
         setVersionString(DOCUMENT_VERSION_STRING);
     }
 }

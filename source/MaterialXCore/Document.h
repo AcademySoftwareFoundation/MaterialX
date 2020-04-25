@@ -572,9 +572,10 @@ class Document : public GraphElement
     std::pair<int, int> getVersionIntegers() const override;
 
     /// Upgrade the content of this document from earlier supported versions to
-    /// the library version.  Documents from future versions are left unmodified.
-    /// @param applyLatestUpdates Will apply the latest updates on top of the current library version
-    void upgradeVersion(bool applyLatestUpdates);
+    /// the library version.
+    /// @param applyFutureUpdates Apply updates that test prototype functionality
+    ///    for future versions of MaterialX
+    void upgradeVersion(bool applyFutureUpdates = false);
 
     /// @}
     /// @name Color Management System

@@ -141,8 +141,8 @@ class TestSuiteOptions
     // Additional testPaths paths
     mx::FileSearchPath externalTestPaths;
 
-    // Apply latest updates
-    bool applyLatestUpdates;
+    // Apply updates for future versions
+    bool applyFutureUpdates;
 };
 
 // Utility class to handle testing of shader generators.

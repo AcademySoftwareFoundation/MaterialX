@@ -238,8 +238,8 @@ void documentFromXml(DocumentPtr doc,
         elementFromXml(xmlRoot, doc, readOptions);
     }
 
-    bool applyLatestUpdates = readOptions ? readOptions->applyLatestUpdates : false;
-    doc->upgradeVersion(applyLatestUpdates);
+    bool applyFutureUpdates = readOptions ? readOptions->applyFutureUpdates : false;
+    doc->upgradeVersion(applyFutureUpdates);
 }
 
 } // anonymous namespace
@@ -250,7 +250,7 @@ void documentFromXml(DocumentPtr doc,
 
 XmlReadOptions::XmlReadOptions() :
     readXIncludeFunction(readFromXmlFile),
-    applyLatestUpdates(false)
+    applyFutureUpdates(false)
 {
 }
 

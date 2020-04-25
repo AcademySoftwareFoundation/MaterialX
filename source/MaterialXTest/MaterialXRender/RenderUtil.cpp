@@ -244,7 +244,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 mx::FileSearchPath readSearchPath(searchPath);
                 readSearchPath.append(dir);
                 mx::XmlReadOptions readOptions;
-                readOptions.applyLatestUpdates = options.applyLatestUpdates;
+                readOptions.applyFutureUpdates = options.applyFutureUpdates;
                 mx::readFromXmlFile(doc, filename, readSearchPath, &readOptions);
             }
             catch (mx::Exception& e)

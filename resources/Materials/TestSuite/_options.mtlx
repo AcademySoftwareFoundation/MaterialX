@@ -95,8 +95,8 @@
       <!-- External testing: extra comma separated list of test root paths -->
       <parameter name="externalTestPaths" type="string" value="" />
 
-      <!-- Use the most recent updates regardless of current library version -->
-      <parameter name="applyLatestUpdates" type="boolean" value="true" />
+      <!-- Test prototype functionality for future versions of MaterialX -->
+      <parameter name="applyFutureUpdates" type="boolean" value="true" />
 
    </nodedef>
 </materialx>
