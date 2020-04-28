@@ -284,8 +284,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             }
             renderableSearchTimer.endTimer();
 
-            std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
             mx::FileSearchPath imageSearchPath(dir);
+            mx::FilePath outputPath = mx::FilePath(dir) / file;
+            outputPath.removeExtension();
             for (const auto& element : elements)
             {
                 mx::TypedElementPtr targetElement = element;

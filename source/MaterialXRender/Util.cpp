@@ -43,7 +43,6 @@ ShaderPtr createDepthShader(GenContext& context,
     doc->importLibrary(stdLib);
     NodeGraphPtr nodeGraph = doc->addNodeGraph();
     NodePtr constant = nodeGraph->addNode("constant");
-    constant->setParameterValue("value", Color3(0.0f));
     OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
 
@@ -51,6 +50,26 @@ ShaderPtr createDepthShader(GenContext& context,
     GenContext depthContext = context;
     depthContext.getOptions().hwWriteDepthMoments = true;
     ShaderPtr shader = createShader(shaderName, depthContext, output);
+
+    return shader;
+}
+
+ShaderPtr createAlbedoTableShader(GenContext& context,
+                                  DocumentPtr stdLib,
+                                  const string& shaderName)
+{
+    // Construct a dummy nodegraph.
+    DocumentPtr doc = createDocument();
+    doc->importLibrary(stdLib);
+    NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    NodePtr constant = nodeGraph->addNode("constant");
+    OutputPtr output = nodeGraph->addOutput();
+    output->setConnectedNode(constant);
+
+    // Generate the shader
+    GenContext tableContext = context;
+    tableContext.getOptions().hwWriteAlbedoTable = true;
+    ShaderPtr shader = createShader(shaderName, tableContext, output);
 
     return shader;
 }

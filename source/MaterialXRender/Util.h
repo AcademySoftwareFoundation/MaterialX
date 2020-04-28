@@ -37,6 +37,12 @@ ShaderPtr createDepthShader(GenContext& context,
                             DocumentPtr stdLib,
                             const string& shaderName);
 
+/// Create a shader that generates a look-up table for directional albedo, using
+/// the given standard libraries for code generation.
+ShaderPtr createAlbedoTableShader(GenContext& context,
+                                  DocumentPtr stdLib,
+                                  const string& shaderName);
+
 /// Create a blur shader, using the given standard libraries for code generation.
 ShaderPtr createBlurShader(GenContext& context,
                            DocumentPtr stdLib,
@@ -51,35 +57,35 @@ ShaderPtr createBlurShader(GenContext& context,
 /// Set of possible UI properties for an element
 struct UIProperties
 {
-	/// UI name
-	string uiName;
+    /// UI name
+    string uiName;
 
-	/// UI folder
-	string uiFolder;
+    /// UI folder
+    string uiFolder;
 
-	/// Enumeration
-	StringVec enumeration;
+    /// Enumeration
+    StringVec enumeration;
 
-	/// Enumeration Values
-	vector<ValuePtr> enumerationValues;
+    /// Enumeration Values
+    vector<ValuePtr> enumerationValues;
 
-	/// UI minimum value
-	ValuePtr uiMin;
+    /// UI minimum value
+    ValuePtr uiMin;
 
-	/// UI maximum value
-	ValuePtr uiMax;
+    /// UI maximum value
+    ValuePtr uiMax;
 
-	/// UI soft minimum value
-	ValuePtr uiSoftMin;
+    /// UI soft minimum value
+    ValuePtr uiSoftMin;
 
-	/// UI soft maximum value
-	ValuePtr uiSoftMax;
+    /// UI soft maximum value
+    ValuePtr uiSoftMax;
 
-	/// UI step value
-	ValuePtr uiStep;
+    /// UI step value
+    ValuePtr uiStep;
 
-	/// UI advanced element
-	bool uiAdvanced = false;
+    /// UI advanced element
+    bool uiAdvanced = false;
 };
 
 /// Get the UI properties for a given nodedef element.

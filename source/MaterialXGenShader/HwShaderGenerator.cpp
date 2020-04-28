@@ -59,6 +59,8 @@ namespace HW
     const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
     const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
     const string T_ENV_IRRADIANCE                 = "$envIrradiance";
+    const string T_ALBEDO_TABLE                   = "$albedoTable";
+    const string T_ALBEDO_TABLE_SIZE              = "$albedoTableSize";
     const string T_AMB_OCC_MAP                    = "$ambOccMap";
     const string T_AMB_OCC_GAIN                   = "$ambOccGain";
     const string T_SHADOW_MAP                     = "$shadowMap";
@@ -108,10 +110,12 @@ namespace HW
     const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
     const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
     const string ENV_IRRADIANCE                   = "u_envIrradiance";
-    const string SHADOW_MAP                       = "u_shadowMap";
-    const string SHADOW_MATRIX                    = "u_shadowMatrix";
+    const string ALBEDO_TABLE                     = "u_albedoTable";
+    const string ALBEDO_TABLE_SIZE                = "u_albedoTableSize";
     const string AMB_OCC_MAP                      = "u_ambOccMap";
     const string AMB_OCC_GAIN                     = "u_ambOccGain";
+    const string SHADOW_MAP                       = "u_shadowMap";
+    const string SHADOW_MATRIX                    = "u_shadowMatrix";
     const string VERTEX_DATA_INSTANCE             = "vd";
     const string LIGHT_DATA_INSTANCE              = "u_lightData";
 
@@ -185,6 +189,8 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS] = HW::ENV_RADIANCE_MIPS;
     _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES] = HW::ENV_RADIANCE_SAMPLES;
     _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE;
+    _tokenSubstitutions[HW::T_ALBEDO_TABLE] = HW::ALBEDO_TABLE;
+    _tokenSubstitutions[HW::T_ALBEDO_TABLE_SIZE] = HW::ALBEDO_TABLE_SIZE;
     _tokenSubstitutions[HW::T_SHADOW_MAP] = HW::SHADOW_MAP;
     _tokenSubstitutions[HW::T_SHADOW_MATRIX] = HW::SHADOW_MATRIX;
     _tokenSubstitutions[HW::T_AMB_OCC_MAP] = HW::AMB_OCC_MAP;
@@ -243,14 +249,14 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Add a block for data from vertex to pixel shader.
     addStageConnectorBlock(HW::VERTEX_DATA, HW::T_VERTEX_DATA_INSTANCE, *vs, *ps);
 
-    // Add uniforms for shadow map rendering if needed.
+    // Add uniforms for shadow map rendering.
     if (context.getOptions().hwShadowMap)
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_SHADOW_MAP);
         psPrivateUniforms->add(Type::MATRIX44, HW::T_SHADOW_MATRIX, Value::createValue(Matrix44::IDENTITY));
     }
 
-    // Add inputs and uniforms for ambient occlusion if needed.
+    // Add inputs and uniforms for ambient occlusion.
     if (context.getOptions().hwAmbientOcclusion)
     {
         addStageInput(HW::VERTEX_INPUTS, Type::VECTOR2, HW::T_IN_TEXCOORD + "_0", *vs);
@@ -259,7 +265,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         psPrivateUniforms->add(Type::FLOAT, HW::T_AMB_OCC_GAIN, Value::createValue(1.0f));
     }
 
-    // Add uniforms for environment lighting if needed.
+    // Add uniforms for environment lighting.
     bool lighting = graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
                     graph->hasClassification(ShaderNode::Classification::BSDF);
     if (lighting && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
@@ -270,6 +276,14 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
+    }
+
+    // Add uniforms for the directional albedo table.
+    if (context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
+        context.getOptions().hwWriteAlbedoTable)
+    {
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ALBEDO_TABLE);
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ALBEDO_TABLE_SIZE, Value::createValue<int>(64));
     }
 
     // Create uniforms for the published graph interface
