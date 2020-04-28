@@ -29,34 +29,59 @@ PvtDataHandle PvtPrim::createNew(const RtTypeInfo* type, const RtToken& name, Pv
     return PvtDataHandle(new PvtPrim(type, primName, parent));
 }
 
-void PvtPrim::dispose()
+void PvtPrim::dispose(bool state)
 {
-    // Dispose all relationships.
     for (const PvtDataHandle& hnd : _relOrder)
     {
-        hnd->setDisposed();
+        hnd->setDisposed(state);
+    }
+    for (const PvtDataHandle& hnd : _attrOrder)
+    {
+        hnd->setDisposed(state);
+    }
+    for (const PvtDataHandle& hnd : _primOrder)
+    {
+        hnd->asA<PvtPrim>()->dispose(state);
+    }
+    setDisposed(state);
+}
+
+void PvtPrim::destroy()
+{
+    // Tag as disposed.
+    dispose(true);
+
+    // Disconnect and delete all relationships.
+    for (PvtDataHandle& hnd : _relOrder)
+    {
+        PvtRelationship* rel = hnd->asA<PvtRelationship>();
+        rel->clearTargets();
     }
     _relOrder.clear();
     _relMap.clear();
 
-    // Dispose all attributes.
-    for (const PvtDataHandle& hnd : _attrOrder)
+    // Disconnect and delete all attributes.
+    for (PvtDataHandle& hnd : _attrOrder)
     {
-        hnd->setDisposed();
+        if (hnd->isA<PvtInput>())
+        {
+            hnd->asA<PvtInput>()->clearConnection();
+        }
+        else if (hnd->isA<PvtOutput>())
+        {
+            hnd->asA<PvtOutput>()->clearConnections();
+        }
     }
     _attrOrder.clear();
     _attrMap.clear();
 
-    // Dispose all child prims reqursively.
+    // Destroy all child prims reqursively.
     for (const PvtDataHandle& hnd : _primOrder)
     {
-        hnd->asA<PvtPrim>()->dispose();
+        hnd->asA<PvtPrim>()->destroy();
     }
     _primOrder.clear();
     _primMap.clear();
-
-    // Tag as disposed
-    setDisposed();
 }
 
 PvtRelationship* PvtPrim::createRelationship(const RtToken& name)
@@ -87,7 +112,7 @@ void PvtPrim::removeRelationship(const RtToken& name)
                 break;
             }
         }
-        rel->setDisposed();
+        rel->setDisposed(true);
         _relMap.erase(name);
     }
 }
@@ -148,7 +173,7 @@ void PvtPrim::removeAttribute(const RtToken& name)
                 break;
             }
         }
-        attr->setDisposed();
+        attr->setDisposed(true);
         _attrMap.erase(name);
     }
 }

@@ -117,6 +117,12 @@ public:
         return _hnd == other._hnd;
     }
 
+    /// Return true if the objects are not equal.
+    bool operator!=(const RtObject& other) const
+    {
+        return _hnd != other._hnd;
+    }
+
     /// Return the name of the object.
     const RtToken& getName() const;
 

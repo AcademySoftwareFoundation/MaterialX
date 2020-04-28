@@ -54,7 +54,8 @@ RtTypedValue* PvtObject::addMetadata(const RtToken& name, const RtToken& type)
         return &it->second;
     }
 
-    _metadataMap[name] = RtTypedValue(type, RtValue::createNew(type, obj()));
+    PvtPrim* prim = isA<PvtPrim>() ? asA<PvtPrim>() : _parent;
+    _metadataMap[name] = RtTypedValue(type, RtValue::createNew(type, prim->prim()));
     _metadataOrder.push_back(name);
 
     return &_metadataMap[name];

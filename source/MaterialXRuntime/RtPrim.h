@@ -106,6 +106,9 @@ public:
     RtPrimIterator getChildren(RtObjectPredicate predicate = nullptr) const;
 };
 
+/// Function type for creating prims for a typed schema.
+using RtPrimCreateFunc = std::function<RtPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)>;
+
 }
 
 #endif

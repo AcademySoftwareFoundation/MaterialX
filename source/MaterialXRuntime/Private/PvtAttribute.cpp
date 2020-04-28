@@ -18,7 +18,7 @@ RT_DEFINE_RUNTIME_OBJECT(PvtAttribute, RtObjType::ATTRIBUTE, "PvtAttribute")
 
 PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
     PvtObject(name, parent),
-    _value(type, RtValue::createNew(type, parent->obj())),
+    _value(type, RtValue::createNew(type, parent->prim())),
     _flags(flags)
 {
     setTypeBit<PvtAttribute>();

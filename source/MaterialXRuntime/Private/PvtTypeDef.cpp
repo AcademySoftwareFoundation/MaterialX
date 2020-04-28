@@ -20,27 +20,27 @@ static string VALUE_STRING_ONE = "1";
 static string VALUE_STRING_ZERO = "0";
 
 template<class T>
-RtValue createValue(RtObject&)
+RtValue createValue(RtPrim&)
 {
     return RtValue((T)0);
 }
-template<> RtValue createValue<Matrix33>(RtObject& owner)
+template<> RtValue createValue<Matrix33>(RtPrim& owner)
 {
     return RtValue(Matrix33::IDENTITY, owner);
 }
-template<> RtValue createValue<Matrix44>(RtObject& owner)
+template<> RtValue createValue<Matrix44>(RtPrim& owner)
 {
     return RtValue(Matrix44::IDENTITY, owner);
 }
-template<> RtValue createValue<string>(RtObject& owner)
+template<> RtValue createValue<string>(RtPrim& owner)
 {
     return RtValue(string(""), owner);
 }
-template<> RtValue createValue<RtToken>(RtObject&)
+template<> RtValue createValue<RtToken>(RtPrim&)
 {
     return RtValue(EMPTY_TOKEN);
 }
-RtValue createNoneValue(RtObject&)
+RtValue createNoneValue(RtPrim&)
 {
     return RtValue(0);
 }

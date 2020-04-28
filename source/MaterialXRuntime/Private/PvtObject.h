@@ -42,9 +42,16 @@ public:
         return (_typeBits & TypeBits(RtObjType::DISPOSED)) != 0;
     }
 
-    void setDisposed()
+    void setDisposed(bool state)
     {
-        _typeBits |= TypeBits(RtObjType::DISPOSED);
+        if (state)
+        {
+            _typeBits |= TypeBits(RtObjType::DISPOSED);
+        }
+        else
+        {
+            _typeBits &= ~TypeBits(RtObjType::DISPOSED);
+        }
     }
 
     bool isCompatible(RtObjType objType) const
@@ -63,7 +70,7 @@ public:
     }
 
     // Casting the object to a given type.
-    // NOTE: In release builds no type check if performed so the templated type 
+    // NOTE: In release builds no type check is performed so the templated type 
     // must be of a type compatible with this object.
     template<class T> T* asA()
     {
@@ -85,8 +92,8 @@ public:
     }
 
     // Casting the object to a given type.
-    // NOTE: No type check if performed so the templated type 
-    // must be a type supported by the object.
+    // NOTE: In release builds no type check is performed so the templated type 
+    // must be of a type compatible with this object.
     template<class T> const T* asA() const
     {
         return const_cast<PvtObject*>(this)->asA<T>();
@@ -111,7 +118,7 @@ public:
     }
 
     // Retreive a raw pointer to the private data of an RtObject.
-    // NOTE: No type check if performed so the templated type 
+    // NOTE: No type check is performed so the templated type 
     // must be a type supported by the object.
     template<class T>
     static T* ptr(const RtObject& obj)

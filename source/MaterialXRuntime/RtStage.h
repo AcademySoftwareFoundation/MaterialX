@@ -53,11 +53,11 @@ public:
     /// Move a prim to a new parent.
     RtToken reparentPrim(const RtPath& path, const RtPath& newParentPath);
 
-    // Find the prim at the given path, Returns a null object
-    // if no such prim is found.
+    /// Find the prim at the given path, Returns a null object
+    /// if no such prim is found.
     RtPrim getPrimAtPath(const RtPath& path);
 
-    // Return the prim representing the root of the stage's prim hierarchy.
+    /// Return the prim representing the root of the stage's prim hierarchy.
     RtPrim getRootPrim();
 
     /// Return an iterator traversing all child prims (siblings) in the stage,
@@ -86,9 +86,14 @@ protected:
 
     void setName(const RtToken& name);
 
+    void disposePrim(const RtPath& path);
+    void restorePrim(const RtPath& parentPath, const RtPrim& prim);
+
     void* _ptr;
     friend class PvtStage;
     friend class PvtApi;
+    friend class PvtCreatePrimCmd;
+    friend class PvtRemovePrimCmd;
 };
 
 }

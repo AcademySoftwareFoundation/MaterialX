@@ -88,12 +88,61 @@ void PvtStage::removePrim(const PvtPath& path)
         throw ExceptionRuntimeError("Given path '" + path.asString() + " does not point to a prim in this stage");
     }
 
-    // Dispose this prim and all its children.
-    prim->dispose();
+    // Destroy this prim and all its children.
+    prim->destroy();
 
     // Remove from its parent.
     PvtPrim* parent = prim->getParent();
     parent->removeChildPrim(prim);
+}
+
+void PvtStage::disposePrim(const PvtPath& path)
+{
+    PvtPrim* prim = getPrimAtPathLocal(path);
+    if (!(prim && prim->getParent()))
+    {
+        throw ExceptionRuntimeError("Given path '" + path.asString() + " does not point to a prim in this stage");
+    }
+
+    // Make sure the prim has no connections.
+    for (RtAttribute attr : prim->getAttributes())
+    {
+        if (attr.isA<RtInput>() && attr.asA<RtInput>().isConnected())
+        {
+            throw ExceptionRuntimeError("Found a connection to '" + attr.getName().str() + "'. Cannot dispose a prim with connections.");
+        }
+        else if (attr.isA<RtOutput>() && attr.asA<RtOutput>().isConnected())
+        {
+            throw ExceptionRuntimeError("Found a connection from '" + attr.getName().str() + "'. Cannot dispose a prim with connections.");
+        }
+    }
+
+    // Dispose this prim and all its children.
+    prim->dispose(true);
+
+    // Remove from its parent.
+    PvtPrim* parent = prim->getParent();
+    parent->removeChildPrim(prim);
+}
+
+void PvtStage::restorePrim(const PvtPath& parentPath, const RtPrim& primH)
+{
+    // Use explicit cast since the asA() method will throw
+    // in debug mode when the prim is disposed.
+    PvtPrim* prim = static_cast<PvtPrim*>(primH._hnd.get());
+    if (!prim->isDisposed())
+    {
+        throw ExceptionRuntimeError("Trying to revive prim '" + prim->getPath().asString() + "' that is already alive.");
+    }
+
+    PvtPrim* parent = getPrimAtPathLocal(parentPath);
+    if (!parent)
+    {
+        throw ExceptionRuntimeError("Given parent path '" + parentPath.asString() + "' does not point to a prim in this stage.");
+    }
+
+    prim->dispose(false);
+    parent->addChildPrim(prim);
 }
 
 RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)

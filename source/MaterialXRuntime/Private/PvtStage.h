@@ -106,6 +106,10 @@ public:
 
     void removePrim(const PvtPath& path);
 
+    void disposePrim(const PvtPath& path);
+
+    void restorePrim(const PvtPath& parentPath, const RtPrim& prim);
+
     RtToken renamePrim(const PvtPath& path, const RtToken& newName);
 
     RtToken reparentPrim(const PvtPath& path, const PvtPath& newParentPath);

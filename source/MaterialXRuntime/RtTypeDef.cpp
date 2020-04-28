@@ -69,7 +69,7 @@ RtTypeDef::~RtTypeDef()
     delete static_cast<PvtTypeDef*>(_ptr);
 }
 
-RtValue RtTypeDef::createValue(RtObject& owner) const
+RtValue RtTypeDef::createValue(RtPrim& owner) const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().create(owner);
 }

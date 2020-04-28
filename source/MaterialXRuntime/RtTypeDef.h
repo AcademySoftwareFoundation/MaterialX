@@ -55,7 +55,7 @@ public:
 };
 
 /// Function type for creating a value of a specific data type.
-using RtValueCreateFunc = std::function<RtValue(RtObject & owner)>;
+using RtValueCreateFunc = std::function<RtValue(RtPrim & owner)>;
 
 /// Function type for copying a value of a specific data type.
 using RtValueCopyFunc = std::function<void(const RtValue & src, RtValue & dest)>;
@@ -169,9 +169,9 @@ public:
     const RtTokenSet& getValidConnectionTypes() const;
 
     /// Create a new value of this type.
-    /// If the type is a large value the given object will take
+    /// If the type is a large value the given prim will take
     /// ownership of allocated data.
-    RtValue createValue(RtObject& owner) const;
+    RtValue createValue(RtPrim& owner) const;
 
     /// Copy data from one value to another.
     void copyValue(const RtValue& src, RtValue& dest) const;

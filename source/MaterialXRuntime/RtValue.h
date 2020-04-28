@@ -49,9 +49,9 @@ public:
 
     /// Explicit value constructor for large values.
     /// Allocated data is managed by the given prim.
-    explicit RtValue(const Matrix33& v, RtObject& prim);
-    explicit RtValue(const Matrix44& v, RtObject& prim);
-    explicit RtValue(const string& v, RtObject& prim);
+    explicit RtValue(const Matrix33& v, RtPrim& prim);
+    explicit RtValue(const Matrix44& v, RtPrim& prim);
+    explicit RtValue(const string& v, RtPrim& prim);
 
     /// Return bool value.
     const bool& asBool() const
@@ -224,9 +224,14 @@ public:
     }
 
     /// Create a new value of given type.
-    /// If the type is a large value the given object will take
+    /// If the type is a large value the given prim will take
     /// ownership of allocated data.
-    static RtValue createNew(const RtToken& type, RtObject owner);
+    static RtValue createNew(const RtToken& type, RtPrim owner);
+
+    /// Clone a value of given type.
+    /// If the type is a large value the given prim will take
+    /// ownership of allocated data.
+    static RtValue clone(const RtToken& type, const RtValue& value, RtPrim owner);
 
     /// Copy a value from one instance to another.
     /// Both RtValue instances must be initialized for the given type.
