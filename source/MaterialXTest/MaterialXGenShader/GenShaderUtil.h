@@ -141,8 +141,8 @@ class TestSuiteOptions
     // Additional testPaths paths
     mx::FileSearchPath externalTestPaths;
 
-    // Apply latest updates
-    bool applyLatestUpdates;
+    // Apply updates for future versions
+    bool applyFutureUpdates;
 };
 
 // Utility class to handle testing of shader generators.
@@ -215,8 +215,8 @@ class ShaderGeneratorTester
     // Check to see that all implementations have been tested for a given
     // language.
     void checkImplementationUsage(const mx::StringSet& usedImpls,
-                                    const mx::GenContext& context,
-                                    std::ostream& stream);
+                                  const mx::GenContext& context,
+                                  std::ostream& stream);
 
     // Get implementation "whitelist" for those implementations that have
     // been skipped for checking

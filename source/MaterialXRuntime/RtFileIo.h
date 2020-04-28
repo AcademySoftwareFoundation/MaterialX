@@ -38,7 +38,7 @@ class RtReadOptions
     bool readLookInformation;
 
     /// Apply latest updates
-    bool applyLatestUpdates;
+    bool applyFutureUpdates;
 };
     
 /// @class RtWriteOptions

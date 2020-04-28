@@ -18,7 +18,7 @@ TEST_CASE("Load content", "[xmlio]")
     std::vector<bool> applyUpdates = { false, true };
     for (auto applyUpdate : applyUpdates)
     {
-        readOptions.applyLatestUpdates = applyUpdate;
+        readOptions.applyFutureUpdates = applyUpdate;
 
         mx::FilePath libraryPath("libraries/stdlib");
         mx::FilePath examplesPath("resources/Materials/Examples/Syntax");

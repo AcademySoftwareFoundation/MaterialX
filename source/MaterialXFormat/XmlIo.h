@@ -42,9 +42,9 @@ class XmlReadOptions : public CopyOptions
     /// Defaults to an empty vector.
     StringVec parentXIncludes;
 
-    /// Apply the latest updates on top of the current library version
-    /// Defaults to false.
-    bool applyLatestUpdates;
+    /// Apply updates that test prototype functionality for future versions
+    /// of MaterialX.  Defaults to false.
+    bool applyFutureUpdates;
 };
 
 /// @class XmlWriteOptions

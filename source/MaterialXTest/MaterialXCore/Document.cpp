@@ -164,7 +164,7 @@ TEST_CASE("Version", "[document]")
     // 1.37 to 1.38
     {
         mx::XmlReadOptions options;
-        options.applyLatestUpdates = true;
+        options.applyFutureUpdates = true;
         doc = mx::createDocument();
         mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc, nullptr, &options);
         mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc, nullptr, &options);

@@ -600,7 +600,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     mx::StringVec errorLog;
     mx::FileSearchPath searchPath(_libSearchPath);
     mx::XmlReadOptions readOptions;
-    readOptions.applyLatestUpdates = options.applyLatestUpdates;
+    readOptions.applyFutureUpdates = options.applyFutureUpdates;
     for (const auto& testRoot : _testRootPaths)
     {
         mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
@@ -653,7 +653,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             continue;
         }
 
-        if (options.applyLatestUpdates &&
+        if (options.applyFutureUpdates &&
             (!doc->getNodes(mx::SURFACE_MATERIAL_NODE_STRING).empty() ||
              !doc->getNodes(mx::VOLUME_MATERIAL_NODE_STRING).empty()))
         {
@@ -809,7 +809,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 void TestSuiteOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
-    output << "\tApply latest updates: " << std::to_string(applyLatestUpdates) << std::endl;
+    output << "\tApply future updates: " << std::to_string(applyFutureUpdates) << std::endl;
     output << "\tOverride Files: { ";
     for (const auto& overrideFile : overrideFiles) { output << overrideFile << " "; }
     output << "} " << std::endl;
@@ -877,7 +877,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
-    const std::string APPLY_LATEST_UPDATES("applyLatestUpdates");
+    const std::string APPLY_LATEST_UPDATES("applyFutureUpdates");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -887,7 +887,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableDirectLighting = true;
     enableIndirectLighting = true;
     specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    applyLatestUpdates = false;
+    applyFutureUpdates = false;
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
@@ -1009,7 +1009,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     }
                     else if (name == APPLY_LATEST_UPDATES)
                     {
-                        applyLatestUpdates = p->getValue()->asA<bool>();
+                        applyFutureUpdates = p->getValue()->asA<bool>();
                     }
                 }
             }

@@ -22,7 +22,7 @@ elseif(UNIX)
     find_package(OpenGL REQUIRED)
     if(NOT X11_Xt_FOUND)
         message("Error in building MaterialXRender: Xt was not found")
-    endif(NOT X11_Xt_FOUND)
+    endif()
     include_directories(${X11_INCLUDE_DIR})
 endif()
 

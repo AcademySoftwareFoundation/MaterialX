@@ -425,11 +425,17 @@ bool Document::validate(string* message) const
     return GraphElement::validate(message) && res;
 }
 
-void Document::upgradeVersion(bool applyLatestUpdates)
+void Document::upgradeVersion(bool applyFutureUpdates)
 {
     std::pair<int, int> versions = getVersionIntegers();
     int majorVersion = versions.first;
     int minorVersion = versions.second;
+    if (majorVersion == MATERIALX_MAJOR_VERSION &&
+        minorVersion == MATERIALX_MINOR_VERSION &&
+        !applyFutureUpdates)
+    {
+        return;
+    }
 
     // Upgrade from v1.22 to v1.23
     if (majorVersion == 1 && minorVersion == 22)
@@ -956,18 +962,15 @@ void Document::upgradeVersion(bool applyLatestUpdates)
         removeNodeDef("ND_rotate_vector3");
 
         minorVersion = 37;
-    }
+    }  
 
-    // Apply latest updates on top of the current library version.
-    // When the next version become official, the update check
+    // Apply latest updates on top of the current library version.	    
+    // When the next version become official, the update check	
     // will be moved and applied the that library version.
-    if (applyLatestUpdates)
+    if (applyFutureUpdates)
     {
-        // Convert material Elements to Nodes
         convertMaterialsToNodes(getDocument());
 
-        // The following changes require a version bump
-        //
         if (majorVersion == 1 && minorVersion == 37)
         {
             // Update atan2 interface
@@ -1024,7 +1027,7 @@ void Document::upgradeVersion(bool applyLatestUpdates)
     if (majorVersion >= MATERIALX_MAJOR_VERSION &&
         minorVersion >= MATERIALX_MINOR_VERSION)
     {
-        setVersionString(makeVersionString(majorVersion, minorVersion));
+        setVersionString(makeVersionString(majorVersion, minorVersion)); 
     }
 }
 

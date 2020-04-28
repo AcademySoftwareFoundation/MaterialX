@@ -1181,7 +1181,7 @@ namespace
 RtReadOptions::RtReadOptions() :
     readFilter(nullptr),
     readLookInformation(false),
-    applyLatestUpdates(true)
+    applyFutureUpdates(true)
 {
 }
 
@@ -1204,7 +1204,7 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
         if (readOptions)
         {
             xmlReadOptions.skipConflictingElements = true;
-            xmlReadOptions.applyLatestUpdates = readOptions->applyLatestUpdates;
+            xmlReadOptions.applyFutureUpdates = readOptions->applyFutureUpdates;
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
 
@@ -1240,7 +1240,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
         if (readOptions)
         {
             xmlReadOptions.skipConflictingElements = true;
-            xmlReadOptions.applyLatestUpdates = readOptions->applyLatestUpdates;
+            xmlReadOptions.applyFutureUpdates = readOptions->applyFutureUpdates;
         }
         readFromXmlStream(document, stream, &xmlReadOptions);
 

@@ -20,23 +20,6 @@ const string Backdrop::HEIGHT_ATTRIBUTE = "height";
 //
 // Node methods
 //
-NodePtr GraphElement::addNode(const string& category,
-                              const string& name,
-                              const string& type)
-{
-    if (category.empty())
-    {
-        throw Exception("No category specified: type: " + type + ". name: " + name + ". category: " + category);
-    }
-    if (type.empty())
-    {
-        throw Exception("No type specified: type: " + type + ". name: " + name + ". category: " + category);
-    }
-    NodePtr node = addChild<Node>(name);
-    node->setCategory(category);
-    node->setType(type);
-    return node;
-}
 
 void Node::setConnectedNode(const string& inputName, NodePtr node)
 {
@@ -205,6 +188,7 @@ vector<PortElementPtr> Node::getDownstreamPorts() const
 bool Node::validate(string* message) const
 {
     bool res = true;
+    validateRequire(!getCategory().empty(), res, message, "Missing category");
     validateRequire(hasType(), res, message, "Missing type");
     return InterfaceElement::validate(message) && res;
 }
