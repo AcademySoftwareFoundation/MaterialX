@@ -977,7 +977,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     }
                     else if (name == SPECULAR_ENVIRONMENT_METHOD)
                     {
-                        specularEnvironmentMethod = val->asA<int>();
+                        specularEnvironmentMethod = (mx::HwSpecularEnvironmentMethod) val->asA<int>();
                     }
                     else if (name == RADIANCE_IBL_PATH_STRING)
                     {

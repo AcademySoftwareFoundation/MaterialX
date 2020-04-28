@@ -30,6 +30,7 @@ const int MAX_ENV_SAMPLES = 1024;
 const int DEFAULT_ENV_SAMPLES = 16;
 
 const int SHADOW_MAP_SIZE = 2048;
+const int ALBEDO_TABLE_SIZE = 64;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
 
@@ -206,7 +207,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _mergeMaterials(false),
     _bakeTextures(false),
     _outlineSelection(false),
-    _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
     _captureRequested(false),
@@ -225,7 +225,8 @@ Viewer::Viewer(const std::string& materialFilename,
     loadStandardLibraries();
 
     // Set default generator options.
-    _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
+    _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
+    _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
@@ -300,8 +301,9 @@ Viewer::Viewer(const std::string& materialFilename,
     // Generate wireframe material.
     try
     {
+        mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _stdLib, "__WIRE_SHADER__", mx::Color3(1.0f));
         _wireMaterial = Material::create();
-        _wireMaterial->generateConstantShader(_genContext, _stdLib, "__WIRE_SHADER__", mx::Color3(1.0f));
+        _wireMaterial->generateShader(hwShader);
     }
     catch (std::exception& e)
     {
@@ -312,8 +314,9 @@ Viewer::Viewer(const std::string& materialFilename,
     // Generate shadow material.
     try
     {
+        mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
         _shadowMaterial = Material::create();
-        _shadowMaterial->generateDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
+        _shadowMaterial->generateShader(hwShader);
     }
     catch (std::exception& e)
     {
@@ -324,8 +327,9 @@ Viewer::Viewer(const std::string& materialFilename,
     // Generate shadow blur material.
     try
     {
+        mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
         _shadowBlurMaterial = Material::create();
-        _shadowBlurMaterial->generateBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
+        _shadowBlurMaterial->generateShader(hwShader);
     }
     catch (std::exception& e)
     {
@@ -423,7 +427,9 @@ void Viewer::loadEnvironmentLight()
     // Look for a light rig using an expected filename convention.
     if (!_splitDirectLight)
     {
-        _lightRigFilename = mx::removeExtension(_envRadiancePath).asString() + "." + mx::MTLX_EXTENSION;
+        _lightRigFilename = _envRadiancePath;
+        _lightRigFilename.removeExtension();
+        _lightRigFilename.addExtension(mx::MTLX_EXTENSION);
         if (_searchPath.find(_lightRigFilename).exists())
         {
             _lightRigDoc = mx::createDocument();
@@ -780,14 +786,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
 
     ng::CheckBox* referenceQualityBox = new ng::CheckBox(advancedPopup, "Reference Quality");
-    referenceQualityBox->setChecked(_genContext.getOptions().hwReferenceQuality);
+    referenceQualityBox->setChecked(false);
     referenceQualityBox->setCallback([this](bool enable)
     {
-        _genContext.getOptions().hwReferenceQuality = enable;
+        _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_IS : mx::DIRECTIONAL_ALBEDO_TABLE;
         reloadShaders();
     });
 
-    if (_specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+    if (_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
     {
         Widget* sampleGroup = new Widget(advancedPopup);
         sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
@@ -1434,6 +1440,9 @@ void Viewer::renderFrame()
     glDisable(GL_CULL_FACE);
     glDisable(GL_FRAMEBUFFER_SRGB);
 
+    // Update shading tables
+    updateAlbedoTable();
+
     // Update shadow state
     ShadowState shadowState;
     shadowState.ambientOcclusionGain = _ambientOcclusionGain;
@@ -1485,9 +1494,8 @@ void Viewer::renderFrame()
 
         material->bindShader();
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_lightHandler, _imageHandler,
-            _directLighting, _indirectLighting, shadowState,
-            _specularEnvironmentMethod, _envSamples);
+        material->bindLights(_genContext, _lightHandler, _imageHandler,
+                             _directLighting, _indirectLighting, shadowState, _envSamples);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
@@ -1508,9 +1516,8 @@ void Viewer::renderFrame()
 
         material->bindShader();
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_lightHandler, _imageHandler,
-            _directLighting, _indirectLighting, ShadowState(),
-            _specularEnvironmentMethod, _envSamples);
+        material->bindLights(_genContext, _lightHandler, _imageHandler,
+                             _directLighting, _indirectLighting, ShadowState(), _envSamples);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
@@ -1821,8 +1828,10 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     }
 
     std::string aoSuffix = material->getUdim().empty() ? AO_FILENAME_SUFFIX : AO_FILENAME_SUFFIX + "_" + material->getUdim();
-    mx::FilePath aoFilename = mx::removeExtension(_meshFilename).asString() + aoSuffix + "." + AO_FILENAME_EXTENSION;
-
+    mx::FilePath aoFilename = _meshFilename;
+    aoFilename.removeExtension();
+    aoFilename = aoFilename.asString() + aoSuffix;
+    aoFilename.addExtension(AO_FILENAME_EXTENSION);
     return _imageHandler->acquireImage(aoFilename, true, &AO_FALLBACK_COLOR);
 }
 
@@ -1851,11 +1860,6 @@ void Viewer::updateShadowMap()
         return;
     }
 
-    if (!_shadowFramebuffer)
-    {
-        _shadowFramebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
-    }
-
     const mx::Matrix44& world = _shadowViewHandler->worldMatrix;
     const mx::Matrix44& view = _shadowViewHandler->viewMatrix;
     const mx::Matrix44& proj = _shadowViewHandler->projectionMatrix;
@@ -1865,8 +1869,9 @@ void Viewer::updateShadowMap()
     blurSamplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
     blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
 
-    // Clear shadow framebuffer.
-    _shadowFramebuffer->bind();
+    // Create framebuffer.
+    mx::GLFrameBufferPtr framebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
+    framebuffer->bind();
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -1879,12 +1884,12 @@ void Viewer::updateShadowMap()
         mx::MeshPartitionPtr geom = mesh->getPartition(i);
         _shadowMaterial->drawPartition(geom);
     }
-    _shadowMap = _shadowFramebuffer->createColorImage();
+    _shadowMap = framebuffer->createColorImage();
 
     // Apply Gaussian blurring.
     for (unsigned int i = 0; i < _shadowSoftness; i++)
     {
-        _shadowFramebuffer->bind();
+        framebuffer->bind();
         _shadowBlurMaterial->bindShader();
         if (_imageHandler->bindImage(_shadowMap, blurSamplingProperties))
         {
@@ -1898,7 +1903,47 @@ void Viewer::updateShadowMap()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         mx::GlslRenderer::drawScreenSpaceQuad();
         _imageHandler->releaseRenderResources(_shadowMap);
-        _shadowMap = _shadowFramebuffer->createColorImage();
+        _shadowMap = framebuffer->createColorImage();
+    }
+
+    // Restore state for scene rendering.
+    glViewport(0, 0, mFBSize[0], mFBSize[1]);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+}
+
+void Viewer::updateAlbedoTable()
+{
+    if (_lightHandler->getAlbedoTable())
+    {
+        return;
+    }
+
+    // Create framebuffer.
+    mx::GLFrameBufferPtr framebuffer = mx::GLFramebuffer::create(ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE, 2, mx::Image::BaseType::FLOAT);
+    framebuffer->bind();
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    // Create shader.
+    mx::ShaderPtr hwShader = mx::createAlbedoTableShader(_genContext, _stdLib, "__ALBEDO_LUT_SHADER__");
+    MaterialPtr material = Material::create();
+    material->generateShader(hwShader);
+
+    // Render albedo table.
+    material->bindShader();
+    if (material->getShader()->uniform(mx::HW::ALBEDO_TABLE_SIZE, false) != -1)
+    {
+        material->getShader()->setUniform(mx::HW::ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE);
+    }
+    mx::GlslRenderer::drawScreenSpaceQuad();
+
+    // Store albedo table image.
+    _imageHandler->releaseRenderResources(_lightHandler->getAlbedoTable());
+    _lightHandler->setAlbedoTable(framebuffer->createColorImage());
+    if (_saveGeneratedLights)
+    {
+        _imageHandler->saveImage("AlbedoTable.exr", _lightHandler->getAlbedoTable());
     }
 
     // Restore state for scene rendering.
