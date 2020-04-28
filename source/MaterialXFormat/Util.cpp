@@ -12,14 +12,6 @@
 namespace MaterialX
 {
 
-FilePath removeExtension(const FilePath& file)
-{
-    string fileName = file.asString();
-    size_t lastDot = fileName.find_last_of('.');
-    if (lastDot == string::npos) return file;
-    return fileName.substr(0, lastDot);
-}
-
 string readFile(const FilePath& filePath)
 {
     std::ifstream file(filePath.asString(), std::ios::in);

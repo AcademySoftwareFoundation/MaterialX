@@ -46,6 +46,19 @@ enum HwSpecularEnvironmentMethod
     SPECULAR_ENVIRONMENT_PREFILTER
 };
 
+/// Method to use for directional albedo evaluation
+enum HwDirectionalAlbedoMethod
+{
+    /// Use a curve fit approximation for directional albedo.
+    DIRECTIONAL_ALBEDO_CURVE_FIT,
+
+    /// Use a table look-up for directional albedo.
+    DIRECTIONAL_ALBEDO_TABLE,
+
+    /// Use importance sampling for directional albedo.
+    DIRECTIONAL_ALBEDO_IS
+};
+
 /// @class GenOptions 
 /// Class holding options to configure shader generation.
 class GenOptions
@@ -54,15 +67,16 @@ class GenOptions
     GenOptions() :
         shaderInterfaceType(SHADER_INTERFACE_COMPLETE),
         fileTextureVerticalFlip(false),
+        addUpstreamDependencies(true),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
+        hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_CURVE_FIT),
         hwWriteDepthMoments(false),
         hwShadowMap(false),
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
-        addUpstreamDependencies(true),
-        hwReferenceQuality(false)
+        hwWriteAlbedoTable(false)
     {
     }
     virtual ~GenOptions() { }
@@ -90,6 +104,10 @@ class GenOptions
     /// input distance values to the given unit.
     string targetDistanceUnit;
     
+    /// Sets whether to include upstream dependencies 
+    /// for the element to generate a shader for.
+    bool addUpstreamDependencies;
+
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent
     /// this must be set to true, otherwise no transparency
@@ -97,9 +115,13 @@ class GenOptions
     /// the surface will be fully opaque.
     bool hwTransparency;
 
-    /// Sets the method to use for specular environment 
-    /// lighting for HW shader targets.
-    int hwSpecularEnvironmentMethod;
+    /// Sets the method to use for specular environment lighting
+    /// for HW shader targets.
+    HwSpecularEnvironmentMethod hwSpecularEnvironmentMethod;
+
+    /// Sets the method to use for directional albedo evaluation
+    /// for HW shader targets.
+    HwDirectionalAlbedoMethod hwDirectionalAlbedoMethod;
 
     /// Enables the writing of depth moments for HW shader targets.
     /// Defaults to false.
@@ -124,13 +146,9 @@ class GenOptions
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
 
-    /// Sets whether to include upstream dependencies 
-    /// for the element to generate a shader for.
-    bool addUpstreamDependencies;
-
-    /// Enable reference quality mode, improving the accuracy of
-    /// shading computations at an additional cost to GPU resources.
-    bool hwReferenceQuality;
+    /// Enables the writing of a directional albedo table.
+    /// Defaults to false.
+    bool hwWriteAlbedoTable;
 };
 
 } // namespace MaterialX

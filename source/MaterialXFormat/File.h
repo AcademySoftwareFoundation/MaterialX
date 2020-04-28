@@ -136,6 +136,20 @@ class FilePath
         assign(asString() + "." + ext);
     }
 
+    /// Remove the file extension, if any, from the given path.
+    void removeExtension()
+    {
+        if (!isEmpty())
+        {
+            string& baseName = _vec[_vec.size() - 1];
+            size_t i = baseName.rfind('.');
+            if (i != string::npos)
+            {
+                baseName = baseName.substr(0, i);
+            }
+        }
+    }
+
     /// Concatenate two paths with a directory separator, returning the
     /// combined path.
     FilePath operator/(const FilePath& rhs) const;

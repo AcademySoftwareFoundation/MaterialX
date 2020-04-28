@@ -124,8 +124,32 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
     return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
 }
 
+// https://www.unrealengine.com/blog/physically-based-shading-on-mobile
+vec3 mx_ggx_directional_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
+{
+    const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
+    const vec4 c1 = vec4( 1,  0.0425,  1.04, -0.04 );
+    vec4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
+    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+    return F0 * AB.x + F90 * AB.y;
+}
+
+vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
+{
+#if DIRECTIONAL_ALBEDO_METHOD == 1
+    vec2 res = textureSize($albedoTable, 0);
+    if (res.x > 0)
+    {
+        vec2 AB = texture($albedoTable, vec2(NdotV, roughness)).rg;
+        return F0 * AB.x + F90 * AB.y;
+    }
+#endif
+    return vec3(0.0);
+}
+
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-vec3 mx_ggx_directional_albedo_reference(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
     NdotV = clamp(NdotV, 1e-8, 1.0);
     vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
@@ -145,38 +169,31 @@ vec3 mx_ggx_directional_albedo_reference(float NdotV, float roughness, vec3 F0, 
         float NdotH = clamp(H.z, 1e-8, 1.0);
         float VdotH = clamp(dot(V, H), 1e-8, 1.0);
 
+        // Compute the Fresnel term.
+        float F = mx_pow5(1 - VdotH);
+
         // Compute the geometric visibility term.
-        float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) * VdotH / NdotH;
+        float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
         
         // Add the contribution of this sample.
-        float F = mx_pow5(1 - VdotH);
         AB += vec2(Gvis * (1 - F), Gvis * F);
     }
 
     // Normalize integrated terms.
-    AB /= (SAMPLE_COUNT * NdotV);
+    AB /= SAMPLE_COUNT;
 
     // Return the final directional albedo.
     return F0 * AB.x + F90 * AB.y;
 }
 
-// https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-vec3 mx_ggx_directional_albedo_approx(float NdotV, float roughness, vec3 F0, vec3 F90)
-{
-    const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
-    const vec4 c1 = vec4( 1,  0.0425,  1.04, -0.04 );
-    vec4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
-    return F0 * AB.x + F90 * AB.y;
-}
-
 vec3 mx_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
-#if REFERENCE_QUALITY
-    return mx_ggx_directional_albedo_reference(NdotV, roughness, F0, F90);
+#if DIRECTIONAL_ALBEDO_METHOD == 0
+    return mx_ggx_directional_albedo_curve_fit(NdotV, roughness, F0, F90);
+#elif DIRECTIONAL_ALBEDO_METHOD == 1
+    return mx_ggx_directional_albedo_table_lookup(NdotV, roughness, F0, F90);
 #else
-    return mx_ggx_directional_albedo_approx(NdotV, roughness, F0, F90);
+    return mx_ggx_directional_albedo_importance_sample(NdotV, roughness, F0, F90);
 #endif
 }
 

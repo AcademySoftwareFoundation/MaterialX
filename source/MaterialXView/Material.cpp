@@ -23,110 +23,6 @@ const mx::Color4 IMAGE_DEFAULT_COLOR(0, 0, 0, 1);
 // Material methods
 //
 
-bool Material::generateConstantShader(mx::GenContext& context,
-                                      mx::DocumentPtr stdLib,
-                                      const std::string& shaderName,
-                                      const mx::Color3& color)
-{
-    _hwShader = createConstantShader(context, stdLib, shaderName, color);
-    if (!_hwShader)
-    {
-        return false;
-    }
-    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
-    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
-
-    // Compile and return.
-    _glShader = std::make_shared<ng::GLShader>();
-    return _glShader->init(shaderName, vertexShader, pixelShader);
-}
-
-bool Material::generateDepthShader(mx::GenContext& context,
-                                   mx::DocumentPtr stdLib,
-                                   const std::string& shaderName)
-{
-    _hwShader = createDepthShader(context, stdLib, shaderName);
-    if (!_hwShader)
-    {
-        return false;
-    }
-    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
-    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
-
-    // Compile and return.
-    _glShader = std::make_shared<ng::GLShader>();
-    return _glShader->init(shaderName, vertexShader, pixelShader);
-}
-
-bool Material::generateBlurShader(mx::GenContext& context,
-                                  mx::DocumentPtr stdLib,
-                                  const std::string& shaderName,
-                                  const std::string& filterType,
-                                  float filterSize)
-{
-    _hwShader = createBlurShader(context, stdLib, shaderName,
-                                 filterType, filterSize);
-    if (!_hwShader)
-    {
-        return false;
-    }
-    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
-    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
-
-    // Compile and return.
-    _glShader = std::make_shared<ng::GLShader>();
-    return _glShader->init(shaderName, vertexShader, pixelShader);
-}
-
-bool Material::generateEnvironmentShader(mx::GenContext& context,
-                                         const mx::FilePath& filename,
-                                         mx::DocumentPtr stdLib,
-                                         const mx::FilePath& imagePath)
-{
-    // Read in the environment nodegraph. 
-    mx::DocumentPtr doc = mx::createDocument();
-    doc->importLibrary(stdLib);
-    mx::DocumentPtr envDoc = mx::createDocument();
-    mx::XmlReadOptions options;
-    mx::readFromXmlFile(envDoc, filename, mx::FileSearchPath(), &options);
-    doc->importLibrary(envDoc);
-
-    mx::NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");
-    if (!envGraph)
-    {
-        return false;
-    }
-    mx::NodePtr image = envGraph->getNode("envImage");
-    if (!image)
-    {
-        return false;
-    }
-    image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
-    mx::OutputPtr output = envGraph->getOutput("out");
-    if (!output)
-    {
-        return false;
-    }
-
-    // Create the shader.
-    std::string shaderName = "__ENV_SHADER__";
-    try
-    {
-        _hwShader = createShader(shaderName, context, output); 
-    }
-    catch (std::exception&)
-    {
-        return false;
-    }
-
-    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
-    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
-
-    // Compile and return.
-    _glShader = std::make_shared<ng::GLShader>();
-    return _glShader->init(shaderName, vertexShader, pixelShader);
-}
-
 bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePath& pixelShaderFile, const std::string& shaderName, bool hasTransparency)
 {
     _hasTransparency = hasTransparency;
@@ -210,6 +106,60 @@ bool Material::generateShader(mx::GenContext& context)
     updateUniformsList();
 
     return true;
+}
+
+bool Material::generateShader(mx::ShaderPtr hwShader)
+{
+    _hwShader = hwShader;
+
+    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
+    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
+
+    _glShader = std::make_shared<ng::GLShader>();
+    return _glShader->init(hwShader->getName(), vertexShader, pixelShader);
+}
+
+bool Material::generateEnvironmentShader(mx::GenContext& context,
+                                         const mx::FilePath& filename,
+                                         mx::DocumentPtr stdLib,
+                                         const mx::FilePath& imagePath)
+{
+    // Read in the environment nodegraph. 
+    mx::DocumentPtr doc = mx::createDocument();
+    doc->importLibrary(stdLib);
+    mx::DocumentPtr envDoc = mx::createDocument();
+    mx::readFromXmlFile(envDoc, filename);
+    doc->importLibrary(envDoc);
+
+    mx::NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");
+    if (!envGraph)
+    {
+        return false;
+    }
+    mx::NodePtr image = envGraph->getNode("envImage");
+    if (!image)
+    {
+        return false;
+    }
+    image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
+    mx::OutputPtr output = envGraph->getOutput("out");
+    if (!output)
+    {
+        return false;
+    }
+
+    // Create the shader.
+    std::string shaderName = "__ENV_SHADER__";
+    try
+    {
+        _hwShader = createShader(shaderName, context, output); 
+    }
+    catch (std::exception&)
+    {
+        return false;
+    }
+
+    return generateShader(_hwShader);
 }
 
 void Material::bindShader()
@@ -438,9 +388,8 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
     }
 }
 
-void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                          bool directLighting, bool indirectLighting, const ShadowState& shadowState,
-                          mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
+void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
+                          bool directLighting, bool indirectLighting, const ShadowState& shadowState, int envSamples)
 {
     if (!_glShader)
     {
@@ -450,7 +399,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
     _glShader->bind();
 
     // Bind environment lighting properties.
-    if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+    if (genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
     {
         if (_glShader->uniform(mx::HW::ENV_RADIANCE_SAMPLES, false) != -1)
         {
@@ -484,7 +433,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
                 }
 
                 // Bind any associated uniforms.
-                if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+                if (genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
                 {
                     if (uniform == mx::HW::ENV_RADIANCE)
                     {
@@ -595,6 +544,28 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
             }
         }
         _glShader->setUniform(mx::HW::AMB_OCC_GAIN, shadowState.ambientOcclusionGain, false);
+    }
+
+    // Bind the directional albedo table.
+    if (genContext.getOptions().hwDirectionalAlbedoMethod == mx::DIRECTIONAL_ALBEDO_TABLE)
+    {
+        if (_glShader->uniform(mx::HW::ALBEDO_TABLE, false) != -1)
+        {
+            mx::ImageSamplingProperties samplingProperties;
+            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+            mx::ImagePtr albedoTable = lightHandler->getAlbedoTable();
+            if (imageHandler->bindImage(albedoTable, samplingProperties))
+            {
+                mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+                int textureLocation = textureHandler->getBoundTextureLocation(albedoTable->getResourceId());
+                if (textureLocation >= 0)
+                {
+                    _glShader->setUniform(mx::HW::ALBEDO_TABLE, textureLocation, false);
+                }
+            }
+        }
     }
 }
 

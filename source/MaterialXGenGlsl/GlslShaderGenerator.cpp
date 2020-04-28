@@ -396,7 +396,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context, stage);
     const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
     emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), stage, false);
-    emitLine("#define REFERENCE_QUALITY " + std::to_string(int(context.getOptions().hwReferenceQuality)), stage, false);
+    emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
     emitLineBreak(stage);
     emitTypeDefinitions(context, stage);
 
@@ -424,6 +424,8 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     bool lighting = graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
                     graph.hasClassification(ShaderNode::Classification::BSDF);
+    bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
+                     context.getOptions().hwWriteDepthMoments;
 
     // Add light data block if needed
     if (lighting)
@@ -462,25 +464,28 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
-    // Emit lighting and shadowing functions
+    // Emit texture sampling code
+    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
+    {
+        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context, stage);
+        emitLineBreak(stage);
+    }
+
+    // Emit lighting and shadowing code
     if (lighting)
     {
         emitSpecularEnvironment(context, stage);
-        if (context.getOptions().hwShadowMap)
-        {
-            emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_shadow.glsl", context, stage);
-        }
     }
-    if (context.getOptions().hwWriteDepthMoments)
+    if (shadowing)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_shadow.glsl", context, stage);
     }
 
-    // Emit sampling code if needed
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
+    // Emit directional albedo table code.
+    if (context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
+        context.getOptions().hwWriteAlbedoTable)
     {
-        // Emit sampling functions
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context, stage);
+        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_table.glsl", context, stage);
         emitLineBreak(stage);
     }
 
@@ -521,6 +526,10 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     else if (context.getOptions().hwWriteDepthMoments)
     {
         emitLine(outputSocket->getVariable() + " = vec4(mx_compute_depth_moments(), 0.0, 1.0)", stage);
+    }
+    else if (context.getOptions().hwWriteAlbedoTable)
+    {
+        emitLine(outputSocket->getVariable() + " = vec4(mx_ggx_directional_albedo_generate_table(), 0.0, 1.0)", stage);
     }
     else
     {

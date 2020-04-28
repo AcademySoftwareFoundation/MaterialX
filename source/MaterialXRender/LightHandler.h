@@ -96,6 +96,18 @@ class LightHandler
         return _envIrradianceMap;
     }
 
+    /// Set the directional albedo table
+    void setAlbedoTable(ImagePtr table)
+    {
+        _albedoTable = table;
+    }
+
+    /// Return the directional albedo table
+    ImagePtr getAlbedoTable() const
+    {
+        return _albedoTable;
+    }
+
     /// From a set of nodes, create a mapping of corresponding
     /// nodedef identifiers to numbers
     LightIdMap computeLightIdMap(const vector<NodePtr>& nodes);
@@ -116,6 +128,7 @@ class LightHandler
     std::unordered_map<string, unsigned int> _lightIdentifierMap;
     ImagePtr _envRadianceMap;
     ImagePtr _envIrradianceMap;
+    ImagePtr _albedoTable;
 };
 
 } // namespace MaterialX
