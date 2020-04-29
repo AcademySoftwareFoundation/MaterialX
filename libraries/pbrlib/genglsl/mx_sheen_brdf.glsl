@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
+#include "pbrlib/genglsl/lib/mx_microfacet_sheen.glsl"
 
 void mx_sheen_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float roughness, vec3 N, BSDF base, out BSDF result)
 {

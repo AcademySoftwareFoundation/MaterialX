@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
+#include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
 vec2 mx_ggx_directional_albedo_generate_table()
 {

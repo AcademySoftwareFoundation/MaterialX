@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
+#include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
 void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
@@ -23,7 +23,7 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, floa
     float VdotH = dot(V, H);
 
     float D = mx_ggx_NDF(X, Y, H, NdotH, roughness.x, roughness.y);
-    float F = mx_fresnel_schlick(VdotH, ior);
+    float F = mx_fresnel_schlick(VdotH, mx_ior_to_f0(ior));
     float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
 
     float comp = mx_ggx_energy_compensation(NdotV, mx_average_roughness(roughness), F);
@@ -48,7 +48,7 @@ void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior,
 
     // Abs here to allow transparency through backfaces
     float NdotV = abs(dot(N, V));
-    float F = mx_fresnel_schlick(NdotV, ior);
+    float F = mx_fresnel_schlick(NdotV, mx_ior_to_f0(ior));
 
     float comp = mx_ggx_energy_compensation(NdotV, mx_average_roughness(roughness), F);
     float dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), ior) * comp;
@@ -67,7 +67,7 @@ void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
     vec3 Li = mx_environment_radiance(N, V, X, roughness, vec3(mx_ior_to_f0(ior)), vec3(1.0), distribution);
 
     float NdotV = dot(N, V);
-    float F = mx_fresnel_schlick(NdotV, ior);
+    float F = mx_fresnel_schlick(NdotV, mx_ior_to_f0(ior));
 
     float comp = mx_ggx_energy_compensation(NdotV, mx_average_roughness(roughness), F);
     float dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), ior) * comp;

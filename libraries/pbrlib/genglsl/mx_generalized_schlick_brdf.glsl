@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
+#include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
 void mx_generalized_schlick_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {

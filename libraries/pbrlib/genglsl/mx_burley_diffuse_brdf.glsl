@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
+#include "pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl"
 
 void mx_burley_diffuse_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float roughness, vec3 normal, out BSDF result)
 {
@@ -22,7 +22,9 @@ void mx_burley_diffuse_brdf_indirect(vec3 V, float weight, vec3 color, float rou
         return;
     }
 
+    float NdotV = dot(normal, V);
+
     vec3 Li = mx_environment_irradiance(normal) *
-              mx_burley_directional_albedo(V, normal, roughness);
+              mx_burley_diffuse_directional_albedo(NdotV, roughness);
     result = Li * color * weight;
 }
