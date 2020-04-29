@@ -4,20 +4,21 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Otherwise, use the information provided by the user.
+# Apply Python version and location requests from the user.
 set(PYBIND11_PYTHON_VERSION ${MATERIALX_PYTHON_VERSION})
 set(PYTHON_EXECUTABLE ${MATERIALX_PYTHON_EXECUTABLE})
 
-# If no explicit pybind11 directory was provided, attempt to find it.
+# First look for a standard PyBind11 package via CMake.
 if(MATERIALX_PYTHON_PYBIND11_DIR STREQUAL "")
-    find_package(pybind11)
+    find_package(pybind11 QUIET)
     if(pybind11_FOUND)
-       include_directories(${PYBIND11_INCLUDE_DIR})
+        include_directories(${PYBIND11_INCLUDE_DIR})
     else()
         set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/PyBind11")
     endif()
 endif()
 
+# Then look for PyBind11 at its standard or user-specified location.
 if(NOT pybind11_FOUND)
     set(PYBIND11_INCLUDE_DIR "${MATERIALX_PYTHON_PYBIND11_DIR}/include")
     set(PYBIND11_COMMON_H "${PYBIND11_INCLUDE_DIR}/pybind11/detail/common.h")
@@ -37,9 +38,7 @@ if(NOT pybind11_FOUND)
     list(APPEND CMAKE_MODULE_PATH "${MATERIALX_PYTHON_PYBIND11_DIR}/tools")
 endif()
 
-
 include(pybind11Tools)
-
 
 if(NOT MATERIALX_PYTHON_LTO)
     set(PYBIND11_MODULE_FLAGS "NO_EXTRAS")
