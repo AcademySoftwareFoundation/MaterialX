@@ -23,6 +23,9 @@ PYBIND11_MODULE(PyMaterialXGenShader, mod)
 {
     mod.doc() = "Module containing Python bindings for the MaterialXGenShader library";
 
+    py::module::import("MaterialX.PyMaterialXCore");
+    py::module::import("MaterialX.PyMaterialXFormat");
+
     bindPyColorManagement(mod);
     bindPyShaderPort(mod);
     bindPyShader(mod);

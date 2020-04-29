@@ -13,5 +13,7 @@ PYBIND11_MODULE(PyMaterialXRenderOsl, mod)
 {
     mod.doc() = "Module containing Python bindings for the MaterialXRenderOsl library";
 
+    py::module::import("MaterialX.PyMaterialXRender");
+
     bindPyOslRenderer(mod);
 }

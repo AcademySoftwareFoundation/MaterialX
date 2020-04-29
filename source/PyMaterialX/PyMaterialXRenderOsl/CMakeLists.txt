@@ -19,8 +19,7 @@ set_target_properties(
 
 target_link_libraries(
     PyMaterialXRenderOsl
-    PUBLIC PyMaterialXRender
-           MaterialXRenderOsl
+    PUBLIC MaterialXRenderOsl
     PRIVATE ${CMAKE_DL_LIBS})
 
 install(TARGETS PyMaterialXRenderOsl

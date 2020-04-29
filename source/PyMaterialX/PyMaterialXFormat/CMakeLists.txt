@@ -19,8 +19,7 @@ set_target_properties(
 
 target_link_libraries(
     PyMaterialXFormat
-    PUBLIC PyMaterialXCore
-           MaterialXFormat
+    PUBLIC MaterialXFormat
     PRIVATE ${CMAKE_DL_LIBS})
 
 install(TARGETS PyMaterialXFormat
