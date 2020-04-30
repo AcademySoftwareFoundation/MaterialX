@@ -6,39 +6,6 @@ float mx_ior_to_f0(float ior)
     return mx_square((ior - 1.0) / (ior + 1.0));
 }
 
-// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
-float mx_fresnel_dielectric(float cosTheta, float ior)
-{
-    if (cosTheta < 0.0)
-        return 1.0;
-
-    float g =  ior*ior + cosTheta*cosTheta - 1.0;
-    // Check for total internal reflection
-    if (g < 0.0)
-        return 1.0;
-
-    g = sqrt(g);
-    float gmc = g - cosTheta;
-    float gpc = g + cosTheta;
-    float x = gmc / gpc;
-    float y = (gpc * cosTheta - 1.0) / (gmc * cosTheta + 1.0);
-    return 0.5 * x * x * (1.0 + y * y);
-}
-
-vec3 mx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
-{
-   float c2 = cosTheta*cosTheta;
-   vec3 n2_k2 = n*n + k*k;
-   vec3 nc2 = 2.0 * n * cosTheta;
-
-   vec3 rs_a = n2_k2 + c2;
-   vec3 rp_a = n2_k2 * c2 + 1.0;
-   vec3 rs = (rs_a - nc2) / (rs_a + nc2);
-   vec3 rp = (rp_a - nc2) / (rp_a + nc2);
-
-   return 0.5 * (rs + rp);
-}
-
 // https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
 // Appendix B.2 Equation 13
 float mx_ggx_NDF(vec3 X, vec3 Y, vec3 H, float NdotH, float alphaX, float alphaY)
@@ -167,4 +134,37 @@ vec3 mx_ggx_energy_compensation(float NdotV, float roughness, vec3 Fss)
 float mx_ggx_energy_compensation(float NdotV, float roughness, float Fss)
 {
     return mx_ggx_energy_compensation(NdotV, roughness, vec3(Fss)).x;
+}
+
+// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
+float mx_fresnel_dielectric(float cosTheta, float ior)
+{
+    if (cosTheta < 0.0)
+        return 1.0;
+
+    float g =  ior*ior + cosTheta*cosTheta - 1.0;
+    // Check for total internal reflection
+    if (g < 0.0)
+        return 1.0;
+
+    g = sqrt(g);
+    float gmc = g - cosTheta;
+    float gpc = g + cosTheta;
+    float x = gmc / gpc;
+    float y = (gpc * cosTheta - 1.0) / (gmc * cosTheta + 1.0);
+    return 0.5 * x * x * (1.0 + y * y);
+}
+
+vec3 mx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
+{
+   float c2 = cosTheta*cosTheta;
+   vec3 n2_k2 = n*n + k*k;
+   vec3 nc2 = 2.0 * n * cosTheta;
+
+   vec3 rs_a = n2_k2 + c2;
+   vec3 rp_a = n2_k2 * c2 + 1.0;
+   vec3 rs = (rs_a - nc2) / (rs_a + nc2);
+   vec3 rp = (rp_a - nc2) / (rp_a + nc2);
+
+   return 0.5 * (rs + rp);
 }
