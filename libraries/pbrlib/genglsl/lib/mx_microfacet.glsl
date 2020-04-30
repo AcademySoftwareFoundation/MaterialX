@@ -38,6 +38,12 @@ vec3 mx_fresnel_schlick(float cosTheta, vec3 F0, vec3 F90, float exponent)
     return mix(F0, F90, pow(x, exponent));
 }
 
+// Convert a real-valued index of refraction to normal-incidence reflectivity.
+float mx_ior_to_f0(float ior)
+{
+    return mx_square((ior - 1.0) / (ior + 1.0));
+}
+
 // Compute the average of an anisotropic roughness pair
 float mx_average_roughness(vec2 roughness)
 {

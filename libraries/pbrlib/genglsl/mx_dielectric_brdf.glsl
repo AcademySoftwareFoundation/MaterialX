@@ -27,7 +27,7 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, floa
     float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
 
     float comp = mx_ggx_energy_compensation(NdotV, mx_average_roughness(roughness), F);
-    float dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), ior) * comp;
+    float dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), mx_ior_to_f0(ior), 1.0) * comp;
 
     // Note: NdotL is cancelled out
     result = D * F * G * comp * tint * weight / (4 * NdotV) // Top layer reflection
@@ -51,7 +51,7 @@ void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     float F = mx_fresnel_schlick(NdotV, mx_ior_to_f0(ior));
 
     float comp = mx_ggx_energy_compensation(NdotV, mx_average_roughness(roughness), F);
-    float dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), ior) * comp;
+    float dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), mx_ior_to_f0(ior), 1.0) * comp;
 
     result = base * (1.0 - dirAlbedo * weight); // Base layer transmission attenuated by top layer
 }
@@ -70,7 +70,7 @@ void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
     float F = mx_fresnel_schlick(NdotV, mx_ior_to_f0(ior));
 
     float comp = mx_ggx_energy_compensation(NdotV, mx_average_roughness(roughness), F);
-    float dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), ior) * comp;
+    float dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), mx_ior_to_f0(ior), 1.0) * comp;
 
     result = Li * tint * comp * weight          // Top layer reflection
            + base * (1.0 - dirAlbedo * weight); // Base layer reflection attenuated by top layer

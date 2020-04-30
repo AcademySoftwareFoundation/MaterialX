@@ -1,11 +1,5 @@
 #include "pbrlib/genglsl/lib/mx_microfacet.glsl"
 
-// Convert a real-valued index of refraction to normal-incidence reflectivity.
-float mx_ior_to_f0(float ior)
-{
-    return mx_square((ior - 1.0) / (ior + 1.0));
-}
-
 // https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
 // Appendix B.2 Equation 13
 float mx_ggx_NDF(vec3 X, vec3 Y, vec3 H, float NdotH, float alphaX, float alphaY)
@@ -118,16 +112,16 @@ vec3 mx_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
 #endif
 }
 
-float mx_ggx_directional_albedo(float NdotV, float roughness, float ior)
+float mx_ggx_directional_albedo(float NdotV, float roughness, float F0, float F90)
 {
-    return mx_ggx_directional_albedo(NdotV, roughness, vec3(mx_ior_to_f0(ior)), vec3(1.0)).x;
+    return mx_ggx_directional_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
 }
 
 // https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 // Equations 14 and 16
 vec3 mx_ggx_energy_compensation(float NdotV, float roughness, vec3 Fss)
 {
-    float Ess = mx_ggx_directional_albedo(NdotV, roughness, vec3(1.0), vec3(1.0)).x;
+    float Ess = mx_ggx_directional_albedo(NdotV, roughness, 1.0, 1.0);
     return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 
