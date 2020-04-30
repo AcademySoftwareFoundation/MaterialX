@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<materialx version="1.38" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <nodedef name="ND_colorcorrect" node="colorcorrect1" nodegroup="adjustment">
+    <output name="outColor" type="color3" />
+    <output name="outAlpha" type="float" />
+    <input name="AlphaClampAndGamma_inlow" type="float" value="0" />
+    <input name="AlphaClampAndGamma_inhigh" type="float" value="1" />
+    <input name="AlphaClampAndGamma_gamma" type="float" value="3" />
+    <input name="AlphaClampAndGamma_outlow" type="float" value="0" />
+    <input name="AlphaClampAndGamma_outhigh" type="float" value="1" />
+    <parameter name="AlphaClampAndGamma_doclamp" type="boolean" value="true" />
+    <input name="AlphaGain_in2" type="float" value="1" />
+    <input name="AlphaOffset_in2" type="float" value="0" />
+    <input name="ColorClampAndGamma_inlow" type="color3" value="0, 0, 0" />
+    <input name="ColorClampAndGamma_inhigh" type="color3" value="1, 1, 1" />
+    <input name="ColorClampAndGamma_gamma" type="color3" value="2, 1, 1" />
+    <input name="ColorClampAndGamma_outlow" type="color3" value="0, 0, 0" />
+    <input name="ColorClampAndGamma_outhigh" type="color3" value="1, 1, 1" />
+    <parameter name="ColorClampAndGamma_doclamp" type="boolean" value="false" />
+    <input name="ColorGain_in2" type="color3" value="1, 1, 1" />
+    <input name="ColorOffset_in2" type="color3" value="0, 0, 0" />
+    <input name="HSV_adjust_amount" type="vector3" value="0, 1, 1" />
+    <input name="if_premultiply_condition_value1" type="boolean" value="false" />
+    <input name="if_premultiply_condition_value2" type="boolean" value="true" />
+    <input name="if_unpremultiply_condition_value1" type="boolean" value="false" />
+    <input name="if_unpremultiply_condition_value2" type="boolean" value="true" />
+    <parameter name="outputColor_channels" type="string" value="rgb" />
+    <parameter name="outputAlpha_channels" type="string" value="a" />
+    <parameter name="extractColorForHsv_channels" type="string" value="rgb" />
+    <parameter name="extractAlphaForGain_channels" type="string" value="r" />
+    <parameter name="inputColor_value" type="color3" value="0.5, 0.5, 0.5" />
+    <parameter name="inputAlpha_value" type="float" value="1" />
+  </nodedef>
+  <nodegraph name="NG_colorcorrect" nodedef="ND_colorcorrect">
+    <range name="AlphaClampAndGamma" type="float">
+      <input name="in" type="float" nodename="AlphaOffset" />
+      <input name="gamma" type="float" value="3" interfacename="AlphaClampAndGamma_gamma" />
+      <parameter name="doclamp" type="boolean" value="true" interfacename="AlphaClampAndGamma_doclamp" />
+      <input name="inlow" type="float" value="0.0" interfacename="AlphaClampAndGamma_inlow" />
+      <input name="inhigh" type="float" value="1.0" interfacename="AlphaClampAndGamma_inhigh" />
+      <input name="outlow" type="float" value="0.0" interfacename="AlphaClampAndGamma_outlow" />
+      <input name="outhigh" type="float" value="1.0" interfacename="AlphaClampAndGamma_outhigh" />
+    </range>
+    <multiply name="AlphaGain" type="float">
+      <input name="in1" type="float" nodename="extractAlphaForGain" />
+      <input name="in2" type="float" value="1.0" interfacename="AlphaGain_in2" />
+    </multiply>
+    <add name="AlphaOffset" type="float">
+      <input name="in1" type="float" nodename="AlphaGain" />
+      <input name="in2" type="float" value="0.0" interfacename="AlphaOffset_in2" />
+    </add>
+    <range name="ColorClampAndGamma" type="color3">
+      <input name="in" type="color3" nodename="ColorOffset" />
+      <input name="gamma" type="color3" value="2, 1, 1" interfacename="ColorClampAndGamma_gamma" />
+      <input name="inlow" type="color3" value="0.0, 0.0, 0.0" interfacename="ColorClampAndGamma_inlow" />
+      <input name="inhigh" type="color3" value="1.0, 1.0, 1.0" interfacename="ColorClampAndGamma_inhigh" />
+      <input name="outlow" type="color3" value="0.0, 0.0, 0.0" interfacename="ColorClampAndGamma_outlow" />
+      <input name="outhigh" type="color3" value="1.0, 1.0, 1.0" interfacename="ColorClampAndGamma_outhigh" />
+      <parameter name="doclamp" type="boolean" value="false" interfacename="ColorClampAndGamma_doclamp" />
+    </range>
+    <multiply name="ColorGain" type="color3">
+      <input name="in1" type="color3" nodename="HSV_adjust" />
+      <input name="in2" type="color3" value="1.0, 1.0, 1.0" interfacename="ColorGain_in2" />
+    </multiply>
+    <add name="ColorOffset" type="color3">
+      <input name="in1" type="color3" nodename="ColorGain" />
+      <input name="in2" type="color3" value="0.0, 0.0, 0.0" interfacename="ColorOffset_in2" />
+    </add>
+    <combine2 name="CombineColorAlpha" type="color4">
+      <input name="in1" type="color3" nodename="ColorClampAndGamma" />
+      <input name="in2" type="float" nodename="AlphaClampAndGamma" />
+    </combine2>
+    <hsvadjust name="HSV_adjust" type="color3">
+      <input name="in" type="color3" nodename="extractColorForHsv" />
+      <input name="amount" type="vector3" value="0.0, 1.0, 1.0" interfacename="HSV_adjust_amount" />
+    </hsvadjust>
+    <premult name="premultiplyColor" type="color4">
+      <input name="in" type="color4" nodename="CombineColorAlpha" />
+    </premult>
+    <ifequal name="if_premultiply_condition" type="color4">
+      <input name="value2" type="boolean" value="true" interfacename="if_premultiply_condition_value2" />
+      <input name="in1" type="color4" nodename="premultiplyColor" />
+      <input name="in2" type="color4" nodename="CombineColorAlpha" />
+      <input name="value1" type="boolean" value="false" interfacename="if_premultiply_condition_value1" />
+    </ifequal>
+    <unpremult name="unpremultiply" type="color4">
+      <input name="in" type="color4" nodename="combineInput" />
+    </unpremult>
+    <ifequal name="if_unpremultiply_condition" type="color4">
+      <input name="value2" type="boolean" value="true" interfacename="if_unpremultiply_condition_value2" />
+      <input name="in1" type="color4" nodename="unpremultiply" />
+      <input name="in2" type="color4" nodename="combineInput" />
+      <input name="value1" type="boolean" value="false" interfacename="if_unpremultiply_condition_value1" />
+    </ifequal>
+    <swizzle name="outputColor" type="color3">
+      <input name="in" type="color4" nodename="if_premultiply_condition" />
+      <parameter name="channels" type="string" value="rgb" interfacename="outputColor_channels" />
+    </swizzle>
+    <swizzle name="outputAlpha" type="float">
+      <input name="in" type="color4" nodename="if_premultiply_condition" />
+      <parameter name="channels" type="string" value="a" interfacename="outputAlpha_channels" />
+    </swizzle>
+    <swizzle name="extractColorForHsv" type="color3">
+      <input name="in" type="color4" nodename="if_unpremultiply_condition" />
+      <parameter name="channels" type="string" value="rgb" interfacename="extractColorForHsv_channels" />
+    </swizzle>
+    <swizzle name="extractAlphaForGain" type="float">
+      <input name="in" type="color4" nodename="if_unpremultiply_condition" />
+      <parameter name="channels" type="string" value="r" interfacename="extractAlphaForGain_channels" />
+    </swizzle>
+    <constant name="inputColor" type="color3">
+      <parameter name="value" type="color3" value="0.5, 0.5, 0.5" interfacename="inputColor_value" />
+    </constant>
+    <constant name="inputAlpha" type="float">
+      <parameter name="value" type="float" value="1" interfacename="inputAlpha_value" />
+    </constant>
+    <combine2 name="combineInput" type="color4">
+      <input name="in1" type="color3" nodename="inputColor" />
+      <input name="in2" type="float" nodename="inputAlpha" />
+    </combine2>
+    <output name="outColor" type="color3" nodename="outputColor" />
+    <output name="outAlpha" type="float" nodename="outputAlpha" />
+  </nodegraph>
+  
+</materialx>

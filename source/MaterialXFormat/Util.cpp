@@ -36,6 +36,19 @@ string readFile(const FilePath& filePath)
     return EMPTY_STRING;
 }
 
+void getSubdirectories(const FilePathVec rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
+{
+    for (const auto& root : rootDirectories)
+    {
+        FilePath rootPath = searchPath.find(root);
+        if (rootPath.exists())
+        {
+            FilePathVec childDirectories = rootPath.getSubDirectories();
+            subDirectories.insert(std::end(subDirectories), std::begin(childDirectories), std::end(childDirectories));
+        }
+    }
+}
+
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
                    const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
                    const XmlReadOptions& readOptions, StringVec& errors)
@@ -85,7 +98,7 @@ void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* se
     doc->importLibrary(libDoc, &copyOptions);
 }
 
-StringVec loadLibraries(const StringVec& libraryNames,
+StringVec loadLibraries(const FilePathVec& libraryNames,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
                         const StringSet* excludeFiles,
@@ -109,16 +122,6 @@ StringVec loadLibraries(const StringVec& libraryNames,
         }
     }
     return loadedLibraries;
-}
-
-StringVec loadLibraries(const StringVec& libraryNames,
-                        const FilePath& filePath,
-                        DocumentPtr doc,
-                        const StringSet* excludeFiles)
-{
-    FileSearchPath searchPath;
-    searchPath.append(filePath);
-    return loadLibraries(libraryNames, searchPath, doc, excludeFiles);
 }
 
 }

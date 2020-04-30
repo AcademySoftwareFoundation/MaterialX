@@ -233,7 +233,7 @@ class ShaderGeneratorTester
     mx::DocumentPtr _dependLib;
 
     const mx::FilePathVec _testRootPaths;
-    const mx::FilePath _libSearchPath;
+    const mx::FileSearchPath _libSearchPath;
     const mx::FileSearchPath _srcSearchPath;
     const mx::FilePath _logFilePath;
 

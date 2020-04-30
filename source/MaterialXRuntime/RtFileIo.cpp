@@ -219,7 +219,7 @@ namespace
         if (nodeType != MULTIOUTPUT)
         {
             // For single output nodes we can match the output directly.
-            PvtOutput* out = prim->getOutput(PvtAttribute::DEFAULT_OUTPUT_NAME);
+            PvtOutput* out = prim->getOutput(EMPTY_TOKEN);
             if (!out || out->getType() != nodeType)
             {
                 return false;
@@ -1267,13 +1267,13 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
     }
 }
 
-void RtFileIo::readLibraries(const StringVec& libraryPaths, const FileSearchPath& searchPaths)
+void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths)
 {
     PvtStage* stage = PvtStage::ptr(_stage);
 
     // Load all content into a document.
     DocumentPtr doc = createDocument();
-    MaterialX::loadLibraries(libraryPaths, searchPaths, doc);
+    MaterialX::loadLibraries(libraryPaths, searchPaths, doc, nullptr, nullptr);
 
     StringSet uris = doc->getReferencedSourceUris();
     for (const string& uri : uris)

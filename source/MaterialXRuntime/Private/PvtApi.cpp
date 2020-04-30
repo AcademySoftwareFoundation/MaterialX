@@ -42,7 +42,7 @@ void PvtApi::loadLibrary(const RtToken& name)
     _libraries[name] = lib;
 
     RtFileIo file(lib);
-    file.readLibraries({ name }, _searchPaths);
+    file.readLibraries({ name.str() }, _searchPaths);
 
     _libraryRoot->addReference(lib);
 }
