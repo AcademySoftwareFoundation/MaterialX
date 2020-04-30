@@ -1,4 +1,5 @@
-#include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
+#include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+#include "pbrlib/genglsl/lib/mx_refraction_index.glsl"
 
 void mx_conductor_brdf_reflection(vec3 L, vec3 V, float weight, vec3 reflectivity, vec3 edge_color, vec2 roughness, vec3 N, vec3 X, int distribution, out BSDF result)
 {
@@ -25,11 +26,13 @@ void mx_conductor_brdf_reflection(vec3 L, vec3 V, float weight, vec3 reflectivit
     vec3 ior_n, ior_k;
     mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
 
+    float avgRoughness = mx_average_roughness(roughness);
+
     float D = mx_ggx_NDF(X, Y, H, NdotH, roughness.x, roughness.y);
     vec3 F = mx_fresnel_conductor(VdotH, ior_n, ior_k);
-    float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
+    float G = mx_ggx_smith_G(NdotL, NdotV, avgRoughness);
 
-    vec3 comp = mx_ggx_energy_compensation(NdotV, mx_average_roughness(roughness), F);
+    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
 
     // Note: NdotL is cancelled out
     result = D * F * G * comp * weight / (4 * NdotV);
@@ -53,10 +56,12 @@ void mx_conductor_brdf_indirect(vec3 V, float weight, vec3 reflectivity, vec3 ed
     vec3 ior_n, ior_k;
     mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
 
+    float avgRoughness = mx_average_roughness(roughness);
+
     vec3 Li = mx_environment_radiance(N, V, X, roughness, vec3(1.0), vec3(1.0), distribution);
     vec3 F = mx_fresnel_conductor(dot(N, V), ior_n, ior_k);
 
-    vec3 comp = mx_ggx_energy_compensation(NdotV, mx_average_roughness(roughness), F);
+    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
 
     result = Li * F * comp * weight;
 }

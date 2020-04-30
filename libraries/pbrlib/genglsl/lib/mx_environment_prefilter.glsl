@@ -32,8 +32,10 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, ve
     vec3 L = reflect(-V, N);
     float NdotV = dot(N, V);
 
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, mx_average_roughness(roughness), F0, F90);
-    return mx_latlong_map_lookup(L, $envMatrix, mx_average_roughness(roughness), $envRadiance) * dirAlbedo;
+    float avgRoughness = mx_average_roughness(roughness);
+
+    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, F90);
+    return mx_latlong_map_lookup(L, $envMatrix, avgRoughness, $envRadiance) * dirAlbedo;
 }
 
 vec3 mx_environment_irradiance(vec3 N)
