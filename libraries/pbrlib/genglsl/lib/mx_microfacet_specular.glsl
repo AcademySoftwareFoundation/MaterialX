@@ -130,6 +130,12 @@ float mx_ggx_energy_compensation(float NdotV, float roughness, float Fss)
     return mx_ggx_energy_compensation(NdotV, roughness, vec3(Fss)).x;
 }
 
+// Convert a real-valued index of refraction to normal-incidence reflectivity.
+float mx_ior_to_f0(float ior)
+{
+    return mx_square((ior - 1.0) / (ior + 1.0));
+}
+
 // https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 float mx_fresnel_dielectric(float cosTheta, float ior)
 {
