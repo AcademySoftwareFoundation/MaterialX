@@ -552,14 +552,11 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     graph.removeInput(graph_in.getName());
     REQUIRE(!graph_in.isValid());
     stage->removePrim(graph.getPath());
-    REQUIRE(!graph_out.isValid());
+    REQUIRE(!graph_in.isValid());
     REQUIRE(!node2.isValid());
     REQUIRE(!graph.isValid());
-#ifndef NDEBUG
-    // In debug builds accessing a disposed object should throw
     REQUIRE_THROWS(graph.getName());
-    REQUIRE_THROWS(graph_out.isConnected());
-#endif
+    REQUIRE_THROWS(graph_in.isConnected());
 }
 
 TEST_CASE("Runtime: Nodes", "[runtime]")

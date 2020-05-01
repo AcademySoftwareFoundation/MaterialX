@@ -48,9 +48,6 @@ void PvtPrim::dispose(bool state)
 
 void PvtPrim::destroy()
 {
-    // Tag as disposed.
-    dispose(true);
-
     // Disconnect and delete all relationships.
     for (PvtDataHandle& hnd : _relOrder)
     {
@@ -82,6 +79,9 @@ void PvtPrim::destroy()
     }
     _primOrder.clear();
     _primMap.clear();
+
+    // Tag as disposed.
+    dispose(true);
 }
 
 PvtRelationship* PvtPrim::createRelationship(const RtToken& name)
