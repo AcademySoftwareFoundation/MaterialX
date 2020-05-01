@@ -106,13 +106,13 @@
       <input name="in1" type="float" nodename="coat_affect_roughness_multiply1" />
       <input name="in2" type="float" interfacename="coat_roughness" />
     </multiply>
-    <mix name="coat_affected_rougness" type="float">
+    <mix name="coat_affected_roughness" type="float">
       <input name="fg" type="float" value="1.0" />
       <input name="bg" type="float" interfacename="specular_roughness" />
       <input name="mix" type="float" nodename="coat_affect_roughness_multiply2" />
     </mix>
-    <roughness_anisotropy name="main_rougness" type="vector2">
-      <input name="roughness" type="float" nodename="coat_affected_rougness" />
+    <roughness_anisotropy name="main_roughness" type="vector2">
+      <input name="roughness" type="float" nodename="coat_affected_roughness" />
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
     </roughness_anisotropy>
 
@@ -231,7 +231,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="transmission_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
-      <input name="roughness" type="vector2" nodename="main_rougness" />
+      <input name="roughness" type="vector2" nodename="main_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
@@ -248,7 +248,7 @@
       <input name="weight" type="float" interfacename="specular" />
       <input name="tint" type="color3" interfacename="specular_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
-      <input name="roughness" type="vector2" nodename="main_rougness" />
+      <input name="roughness" type="vector2" nodename="main_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
@@ -268,7 +268,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="reflectivity" type="color3" nodename="metal_reflectivity"/>
       <input name="edge_color" type="color3" nodename="metal_edgecolor"/>
-      <input name="roughness" type="vector2" nodename="main_rougness" />
+      <input name="roughness" type="vector2" nodename="main_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
