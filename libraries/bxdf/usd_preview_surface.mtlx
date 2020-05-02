@@ -101,45 +101,18 @@
   <!-- Node: UsdPreviewSurface -->
   <nodegraph name="IMP_UsdPreviewSurface_surfaceshader" nodedef="ND_UsdPreviewSurface_surfaceshader">
 
-    <!-- Calculate normal from tangent space input-->
-    <normal name="Nw" type="vector3">
-      <parameter name="space" type="string" value="world"/>
-    </normal>
-    <tangent name="Tw" type="vector3">
-      <parameter name="space" type="string" value="world"/>
-    </tangent>
-    <bitangent name="Bw" type="vector3">
-      <parameter name="space" type="string" value="world"/>
-    </bitangent>
-    <separate3 name="normal_components" type="multioutput">
-      <input name="in" type="vector3" interfacename="normal"/>
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
-      <output name="outz" type="float" />
-    </separate3>
-    <multiply name="normal_x" type="vector3">
-      <input name="in1" type="vector3" nodename="Tw"/>
-      <input name="in2" type="float" nodename="normal_components" output="outx"/>
+    <!-- Compute the per-pixel surface normal -->
+    <multiply name="scale_normal" type="vector3">
+      <input name="in1" type="vector3" interfacename="normal" />
+      <input name="in2" type="float" value="0.5" />
     </multiply>
-    <multiply name="normal_y" type="vector3">
-      <input name="in1" type="vector3" nodename="Bw"/>
-      <input name="in2" type="float" nodename="normal_components" output="outy"/>
-    </multiply>
-    <multiply name="normal_z" type="vector3">
-      <input name="in1" type="vector3" nodename="Nw"/>
-      <input name="in2" type="float" nodename="normal_components" output="outz"/>
-    </multiply>
-    <add name="normal_xy" type="vector3">
-      <input name="in1" type="vector3" nodename="normal_x"/>
-      <input name="in2" type="vector3" nodename="normal_y"/>
+    <add name="bias_normal" type="vector3">
+      <input name="in1" type="vector3" nodename="scale_normal" />
+      <input name="in2" type="float" value="0.5" />
     </add>
-    <add name="normal_xyz" type="vector3">
-      <input name="in1" type="vector3" nodename="normal_xy"/>
-      <input name="in2" type="vector3" nodename="normal_z"/>
-    </add>
-    <normalize name="surface_normal" type="vector3">
-      <input name="in" type="vector3" nodename="normal_xyz"/>
-    </normalize>
+    <normalmap name="surface_normal" type="vector3">
+      <input name="in" type="vector3" nodename="bias_normal" />
+    </normalmap>
 
     <!-- Diffuse Layer -->
     <diffuse_brdf name="diffuse_bsdf" type="BSDF">
