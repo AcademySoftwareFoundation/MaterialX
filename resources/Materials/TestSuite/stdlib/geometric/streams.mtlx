@@ -1,107 +1,116 @@
 <?xml version="1.0"?>
-<!--- Geometric node test for "stock" streams: 
-      - position, 
-      - normal
-      - color, 
-      - tangent, 
-      - bi-tangent,
-      - uvs
-      
-      For color, tangent, bi-tangent, and uvs set 0 and set 1 are
-      asked for. uvs are 2d and are swizzled to fill 3d.
-      
-      Space variations are not included currently. All streams are considered
-      to be in world space
--->
+<!--- Geometric node unit tests, also useful for debug visualization of geometric streams -->
 <materialx version="1.37">
-   <normal name="normal_world" type="vector3">
-      <parameter name="space" type="string" value="world" />
-   </normal>
-   <output name="normal_world_output" type="vector3" nodename="normal_world" />
+  <normal name="normal_object" type="vector3">
+    <parameter name="space" type="string" value="object" />
+  </normal>
+  <multiply name="normal_object_scale" type="vector3">
+    <input name="in1" type="vector3" nodename="normal_object" />
+    <input name="in2" type="float" value="0.5" />
+  </multiply>
+  <add name="normal_object_bias" type="vector3">
+    <input name="in1" type="vector3" nodename="normal_object_scale" />
+    <input name="in2" type="float" value="0.5" />
+  </add>
+  <output name="normal_object_output" type="vector3" nodename="normal_object_bias" />
 
-   <normal name="normal_object" type="vector3">
-      <parameter name="space" type="string" value="object" />
-   </normal>
-   <output name="normal_object_output" type="vector3" nodename="normal_object" />
-   
-   <position name="position_world" type="vector3">
-      <parameter name="space" type="string" value="world" />
-   </position>
-   <output name="position_world_output" type="vector3" nodename="position_world" />
+  <normal name="normal_world" type="vector3">
+    <parameter name="space" type="string" value="world" />
+  </normal>
+  <multiply name="normal_world_scale" type="vector3">
+    <input name="in1" type="vector3" nodename="normal_world" />
+    <input name="in2" type="float" value="0.5" />
+  </multiply>
+  <add name="normal_world_bias" type="vector3">
+    <input name="in1" type="vector3" nodename="normal_world_scale" />
+    <input name="in2" type="float" value="0.5" />
+  </add>
+  <output name="normal_world_output" type="vector3" nodename="normal_world_bias" />
 
-   <position name="position_object" type="vector3">
-      <parameter name="space" type="string" value="object" />
-   </position>
-   <output name="position_object_output" type="vector3" nodename="position_object" />
+  <tangent name="tangent" type="vector3">
+    <parameter name="index" type="integer" value="0" />
+  </tangent>
+  <multiply name="tangent_scale" type="vector3">
+    <input name="in1" type="vector3" nodename="tangent" />
+    <input name="in2" type="float" value="0.5" />
+  </multiply>
+  <add name="tangent_bias" type="vector3">
+    <input name="in1" type="vector3" nodename="tangent_scale" />
+    <input name="in2" type="float" value="0.5" />
+  </add>
+  <output name="tangent_output" type="vector3" nodename="tangent_bias" />
 
-   <geomcolor name="color1_set0" type="float">
-      <parameter name="index" type="integer" value="0" />
-   </geomcolor>
-   <swizzle name="swizzle_color1_set0" type="vector3">
-      <input name="in" type="float" nodename="color1_set0" />
-      <parameter name="channels" type="string" value="x00" />
-   </swizzle>
-   <output name="color1_output0" type="vector3" nodename="swizzle_color1_set0" />
+  <bitangent name="bitangent" type="vector3">
+    <parameter name="index" type="integer" value="0" />
+  </bitangent>
+  <multiply name="bitangent_scale" type="vector3">
+    <input name="in1" type="vector3" nodename="bitangent" />
+    <input name="in2" type="float" value="0.5" />
+  </multiply>
+  <add name="bitangent_bias" type="vector3">
+    <input name="in1" type="vector3" nodename="bitangent_scale" />
+    <input name="in2" type="float" value="0.5" />
+  </add>
+  <output name="bitangent_output" type="vector3" nodename="bitangent_bias" />
+  
+  <position name="position_object" type="vector3">
+    <parameter name="space" type="string" value="object" />
+  </position>
+  <multiply name="position_object_scale" type="vector3">
+    <input name="in1" type="vector3" nodename="position_object" />
+    <input name="in2" type="float" value="0.5" />
+  </multiply>
+  <add name="position_object_bias" type="vector3">
+    <input name="in1" type="vector3" nodename="position_object_scale" />
+    <input name="in2" type="float" value="0.5" />
+  </add>
+  <output name="position_object_output" type="vector3" nodename="position_object_bias" />
 
-   <geomcolor name="color2_set0" type="color2">
-      <parameter name="index" type="integer" value="0" />
-   </geomcolor>
-   <swizzle name="swizzle_color2_set0" type="vector3">
-      <input name="in" type="color2" nodename="color2_set0" />
-      <parameter name="channels" type="string" value="ra0" />
-   </swizzle>
-   <output name="color2_output0" type="vector3" nodename="swizzle_color2_set0" />
+  <position name="position_world" type="vector3">
+    <parameter name="space" type="string" value="world" />
+  </position>
+  <multiply name="position_world_scale" type="vector3">
+    <input name="in1" type="vector3" nodename="position_world" />
+    <input name="in2" type="float" value="0.5" />
+  </multiply>
+  <add name="position_world_bias" type="vector3">
+    <input name="in1" type="vector3" nodename="position_world_scale" />
+    <input name="in2" type="float" value="0.5" />
+  </add>
+  <output name="position_world_output" type="vector3" nodename="position_world_bias" />
 
-   <geomcolor name="color3_set0" type="color3">
-      <parameter name="index" type="integer" value="0" />
-   </geomcolor>
-   <output name="color3_output0" type="color3" nodename="color3_set0" />
+  <texcoord name="texcoord0" type="vector2">
+    <parameter name="index" type="integer" value="0" />
+  </texcoord>
+  <output name="texcoord0_output" type="vector3" nodename="texcoord0" channels="xy0" />
 
-   <geomcolor name="color4_set0" type="color4">
-      <parameter name="index" type="integer" value="0" />
-   </geomcolor>
-   <output name="color4_output0" type="color4" nodename="color4_set0" />
+  <texcoord name="texcoord0_vec3" type="vector3">
+    <parameter name="index" type="integer" value="0" />
+  </texcoord>
+  <output name="texcoord0_vec3_output" type="vector3" nodename="texcoord0_vec3" />
 
-   <geomcolor name="color3_set1" type="color3">
-      <parameter name="index" type="integer" value="1" />
-   </geomcolor>
-   <output name="color3_output1" type="color3" nodename="color3_set1" />
-      
-   <tangent name="tangent0" type="vector3">
-      <parameter name="index" type="integer" value="1" />
-      <parameter name="space" type="string" value="world" />
-   </tangent>
-   <output name="tangent0_output" type="vector3" nodename="tangent0" />
-   
-   <tangent name="tangent1" type="vector3">
-      <parameter name="index" type="integer" value="1" />
-      <parameter name="space" type="string" value="world" />
-   </tangent>
-   <output name="tangent1_output" type="vector3" nodename="tangent1" />
-   
-   <bitangent name="bitangent0" type="vector3">
-      <parameter name="index" type="integer" value="0" />
-      <parameter name="space" type="string" value="world" />
-   </bitangent>
-   <output name="bitangent0_output" type="vector3" nodename="bitangent0" />
-   
-   <bitangent name="bitangent1" type="vector3">
-      <parameter name="index" type="integer" value="1" />
-   </bitangent>
-   <output name="bitangent1_output" type="vector3" nodename="bitangent1" />
+  <texcoord name="texcoord1" type="vector2">
+    <parameter name="index" type="integer" value="1" />
+  </texcoord>
+  <output name="texcoord1_output" type="vector3" nodename="texcoord1" channels="xy0" />
+  
+  <geomcolor name="color_float" type="float">
+    <parameter name="index" type="integer" value="0" />
+  </geomcolor>
+  <output name="color_float_output" type="vector3" nodename="color_float" channels="x00" />
 
-   <texcoord name="uv3_set0" type="vector3">
-      <parameter name="index" type="integer" value="0" />
-   </texcoord>
-   <output name="uv3_output0" type="vector3" nodename="uv3_set0" />
+  <geomcolor name="color_vec2" type="color2">
+    <parameter name="index" type="integer" value="0" />
+  </geomcolor>
+  <output name="color_vec2_output" type="vector3" nodename="color_vec2" channels="ra0" />
 
-   <texcoord name="uv2_set0" type="vector2">
-      <parameter name="index" type="integer" value="0" />
-   </texcoord>
-   <output name="uv2_output0" type="vector3" nodename="uv2_set0" channels="xy0" />
-   
-   <texcoord name="uv2_set1" type="vector2">
-      <parameter name="index" type="integer" value="1" />
-   </texcoord>
-   <output name="uv2_output1" type="vector3" nodename="uv2_set1" channels="xy0" />
+  <geomcolor name="color_vec3" type="color3">
+    <parameter name="index" type="integer" value="0" />
+  </geomcolor>
+  <output name="color_vec3_output" type="color3" nodename="color_vec3" />
+
+  <geomcolor name="color_vec4" type="color4">
+    <parameter name="index" type="integer" value="0" />
+  </geomcolor>
+  <output name="color_vec4_output" type="color4" nodename="color_vec4" />
 </materialx>
