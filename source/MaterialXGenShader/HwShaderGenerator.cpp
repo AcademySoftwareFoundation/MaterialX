@@ -20,7 +20,6 @@ namespace HW
     const string T_IN_POSITION                    = "$inPosition";
     const string T_IN_NORMAL                      = "$inNormal";
     const string T_IN_TANGENT                     = "$inTangent";
-    const string T_IN_BITANGENT                   = "$inBitangent";
     const string T_IN_TEXCOORD                    = "$inTexcoord";
     const string T_IN_COLOR                       = "$inColor";
     const string T_POSITION_WORLD                 = "$positionWorld";
@@ -71,7 +70,6 @@ namespace HW
     const string IN_POSITION                      = "i_position";
     const string IN_NORMAL                        = "i_normal";
     const string IN_TANGENT                       = "i_tangent";
-    const string IN_BITANGENT                     = "i_bitangent";
     const string IN_TEXCOORD                      = "i_texcoord";
     const string IN_COLOR                         = "i_color";
     const string POSITION_WORLD                   = "positionWorld";
@@ -150,7 +148,6 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_IN_POSITION] = HW::IN_POSITION;
     _tokenSubstitutions[HW::T_IN_NORMAL] = HW::IN_NORMAL;
     _tokenSubstitutions[HW::T_IN_TANGENT] = HW::IN_TANGENT;
-    _tokenSubstitutions[HW::T_IN_BITANGENT] = HW::IN_BITANGENT;
     _tokenSubstitutions[HW::T_IN_TEXCOORD] = HW::IN_TEXCOORD;
     _tokenSubstitutions[HW::T_IN_COLOR] = HW::IN_COLOR;
     _tokenSubstitutions[HW::T_POSITION_WORLD] = HW::POSITION_WORLD;

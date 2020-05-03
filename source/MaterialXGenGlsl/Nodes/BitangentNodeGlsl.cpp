@@ -20,7 +20,8 @@ void BitangentNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Sha
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
-    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_BITANGENT, vs);
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_NORMAL, vs);
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_TANGENT, vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
@@ -51,7 +52,8 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             if (!bitangent->isEmitted())
             {
                 bitangent->setEmitted();
-                shadergen.emitLine(prefix + bitangent->getVariable() + " = (" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_BITANGENT + ",0.0)).xyz", stage);
+                shadergen.emitLine(prefix + bitangent->getVariable() +
+                    " = (" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(cross(" + HW::T_IN_NORMAL + ", " + HW::T_IN_TANGENT + "), 0.0)).xyz", stage);
             }
         }
         else
@@ -60,7 +62,7 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             if (!bitangent->isEmitted())
             {
                 bitangent->setEmitted();
-                shadergen.emitLine(prefix + bitangent->getVariable() + " = " + HW::T_IN_BITANGENT, stage);
+                shadergen.emitLine(prefix + bitangent->getVariable() + " = cross(" + HW::T_IN_NORMAL + ", " + HW::T_IN_TANGENT + ")", stage);
             }
         }
     END_SHADER_STAGE(stage, Stage::VERTEX)

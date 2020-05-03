@@ -223,13 +223,23 @@ void GlslShaderRenderTester::transformUVs(const mx::MeshList& meshes, const mx::
 {
     for(mx::MeshPtr mesh : meshes)
     {
+        // Transform texture coordinates.
         mx::MeshStreamPtr uvStream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
         uvStream->transform(matrixTransform);
-        mx::MeshStreamPtr positionStream = mesh->getStream(mx::MeshStream::POSITION_ATTRIBUTE, 0);
-        mx::MeshStreamPtr normalStream = mesh->getStream(mx::MeshStream::NORMAL_ATTRIBUTE, 0);
+
+        // Regenerate tangents
         mx::MeshStreamPtr tangentStream = mesh->getStream(mx::MeshStream::TANGENT_ATTRIBUTE, 0);
-        mx::MeshStreamPtr bitangentStream = mesh->getStream(mx::MeshStream::BITANGENT_ATTRIBUTE, 0);
-        mesh->generateTangents(positionStream, uvStream, normalStream, tangentStream, bitangentStream);
+        if (tangentStream)
+        {
+            mesh->removeStream(tangentStream);
+            tangentStream = mesh->generateTangents(mesh->getStream(mx::MeshStream::POSITION_ATTRIBUTE, 0),
+                                                   mesh->getStream(mx::MeshStream::NORMAL_ATTRIBUTE, 0),
+                                                   uvStream);
+            if (tangentStream)
+            {
+                mesh->addStream(tangentStream);
+            }
+        }
     }
 }
 

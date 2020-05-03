@@ -199,13 +199,6 @@ void Material::bindMesh(mx::MeshPtr mesh) const
         MatrixXfProxy tangents(&buffer[0], stream->getStride(), buffer.size() / stream->getStride());
         _glShader->uploadAttrib(mx::HW::IN_TANGENT, tangents);
     }
-    if (_glShader->attrib(mx::HW::IN_BITANGENT, false) != -1)
-    {
-        mx::MeshStreamPtr stream = mesh->getStream(mx::MeshStream::BITANGENT_ATTRIBUTE, 0);
-        mx::MeshFloatBuffer &buffer = stream->getData();
-        MatrixXfProxy bitangents(&buffer[0], stream->getStride(), buffer.size() / stream->getStride());
-        _glShader->uploadAttrib(mx::HW::IN_BITANGENT, bitangents);
-    }
     const std::string texcoord = mx::HW::IN_TEXCOORD + "_0";
     if (_glShader->attrib(texcoord, false) != -1)
     {
