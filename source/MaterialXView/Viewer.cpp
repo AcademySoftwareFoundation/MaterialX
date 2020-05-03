@@ -452,9 +452,17 @@ void Viewer::loadEnvironmentLight()
         // Create environment shader.
         mx::FilePath envFilename = _searchPath.find(
             mx::FilePath("resources/Materials/TestSuite/lights/envmap_shader.mtlx"));
-        _envMaterial = Material::create();
-        _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadiancePath);
-        _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
+        try
+        {
+            _envMaterial = Material::create();
+            _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadiancePath);
+            _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
+        }
+        catch (std::exception& e)
+        {
+            _envMaterial = nullptr;
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate environment shader", e.what());
+        }
     }
 }
 
@@ -1468,7 +1476,7 @@ void Viewer::renderFrame()
     {
         auto meshes = _envGeometryHandler->getMeshes();
         auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
-        if (_envMaterial && envPart)
+        if (envPart)
         {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
@@ -1926,9 +1934,17 @@ void Viewer::updateAlbedoTable()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Create shader.
-    mx::ShaderPtr hwShader = mx::createAlbedoTableShader(_genContext, _stdLib, "__ALBEDO_LUT_SHADER__");
+    mx::ShaderPtr hwShader = mx::createAlbedoTableShader(_genContext, _stdLib, "__ALBEDO_TABLE_SHADER__");
     MaterialPtr material = Material::create();
-    material->generateShader(hwShader);
+    try
+    {
+        material->generateShader(hwShader);
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate albedo table shader", e.what());
+        return;
+    }
 
     // Render albedo table.
     material->bindShader();

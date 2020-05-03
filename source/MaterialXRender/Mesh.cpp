@@ -18,7 +18,16 @@ const string MeshStream::BITANGENT_ATTRIBUTE("bitangent");
 const string MeshStream::COLOR_ATTRIBUTE("color");
 const string MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE("geomprop");
 
+namespace {
+
 const float MAX_FLOAT = std::numeric_limits<float>::max();
+const size_t FACE_VERTEX_COUNT = 3;
+
+} // anonymous namespace
+
+//
+// Mesh methods
+//
 
 Mesh::Mesh(const string& identifier) :
     _identifier(identifier),
@@ -30,114 +39,125 @@ Mesh::Mesh(const string& identifier) :
 {
 }
 
-bool Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoordStream, MeshStreamPtr normalStream,
-                            MeshStreamPtr tangentStream, MeshStreamPtr bitangentStream)
+MeshStreamPtr Mesh::generateNormals(MeshStreamPtr positionStream)
 {
-    MeshFloatBuffer& positions = positionStream->getData();
-    unsigned int positionStride = positionStream->getStride();
-    MeshFloatBuffer& texcoords = texcoordStream->getData();
-    unsigned int texcoordStride = texcoordStream->getStride();
-    MeshFloatBuffer& normals = normalStream->getData();
-    unsigned int normalStride = normalStream->getStride();
+    // Create the normal stream.
+    MeshStreamPtr normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, 0);
+    normalStream->getData().resize(positionStream->getData().size());
 
-    size_t vertexCount = positions.size() / positionStride;
-    size_t uvCount = texcoords.size() / texcoordStride;
-    size_t normalCount = normals.size() / normalStride;
-    if (vertexCount != uvCount ||
-        vertexCount != normalCount)
-    {
-        return false;
-    }
-
-    // Prepare tangent stream data
-    MeshFloatBuffer& tangents = tangentStream->getData();
-    tangents.resize(positions.size());
-    std::fill(tangents.begin(), tangents.end(), 0.0f);
-    const unsigned int tangentStride = MeshStream::STRIDE_3D;
-    tangentStream->setStride(tangentStride);
-
+    // Iterate through partitions.
     for (size_t i = 0; i < getPartitionCount(); i++)
     {
-        auto part = getPartition(i);
+        MeshPartitionPtr part = getPartition(i);
 
-        // Based on Eric Lengyel at http://www.terathon.com/code/tangent.html
-
-        const MeshIndexBuffer& indices = part->getIndices();
+        // Iterate through faces.
         for (size_t faceIndex = 0; faceIndex < part->getFaceCount(); faceIndex++)
         {
-            uint32_t i1 = indices[faceIndex * MeshStream::STRIDE_3D + 0];
-            uint32_t i2 = indices[faceIndex * MeshStream::STRIDE_3D + 1];
-            uint32_t i3 = indices[faceIndex * MeshStream::STRIDE_3D + 2];
+            uint32_t i0 = part->getIndices()[faceIndex * FACE_VERTEX_COUNT + 0];
+            uint32_t i1 = part->getIndices()[faceIndex * FACE_VERTEX_COUNT + 1];
+            uint32_t i2 = part->getIndices()[faceIndex * FACE_VERTEX_COUNT + 2];
 
-            Vector3& v1 = *reinterpret_cast<Vector3*>(&(positions[i1 * positionStride]));
-            Vector3& v2 = *reinterpret_cast<Vector3*>(&(positions[i2 * positionStride]));
-            Vector3& v3 = *reinterpret_cast<Vector3*>(&(positions[i3 * positionStride]));
+            const Vector3& p0 = positionStream->getElement<Vector3>(i0);
+            const Vector3& p1 = positionStream->getElement<Vector3>(i1);
+            const Vector3& p2 = positionStream->getElement<Vector3>(i2);
 
-            Vector2& w1 = *reinterpret_cast<Vector2*>(&(texcoords[i1 * texcoordStride]));
-            Vector2& w2 = *reinterpret_cast<Vector2*>(&(texcoords[i2 * texcoordStride]));
-            Vector2& w3 = *reinterpret_cast<Vector2*>(&(texcoords[i3 * texcoordStride]));
+            Vector3& n0 = normalStream->getElement<Vector3>(i0);
+            Vector3& n1 = normalStream->getElement<Vector3>(i1);
+            Vector3& n2 = normalStream->getElement<Vector3>(i2);
 
-            float x1 = v2[0] - v1[0];
-            float x2 = v3[0] - v1[0];
-            float y1 = v2[1] - v1[1];
-            float y2 = v3[1] - v1[1];
-            float z1 = v2[2] - v1[2];
-            float z2 = v3[2] - v1[2];
-
-            float s1 = w2[0] - w1[0];
-            float s2 = w3[0] - w1[0];
-            float t1 = w2[1] - w1[1];
-            float t2 = w3[1] - w1[1];
-
-            float denom = s1 * t2 - s2 * t1;
-            float r = denom ? 1.0f / denom : 0.0f;
-            Vector3 dir((t2 * x1 - t1 * x2) * r,
-                (t2 * y1 - t1 * y2) * r,
-                (t2 * z1 - t1 * z2) * r);
-
-            Vector3& tan1 = *reinterpret_cast<Vector3*>(&(tangents[i1 * tangentStride]));
-            Vector3& tan2 = *reinterpret_cast<Vector3*>(&(tangents[i2 * tangentStride]));
-            Vector3& tan3 = *reinterpret_cast<Vector3*>(&(tangents[i3 * tangentStride]));
-            tan1 += dir;
-            tan2 += dir;
-            tan3 += dir;
+            Vector3 faceNormal = (p1 - p0).cross(p2 - p0).getNormalized();
+            n0 = faceNormal;
+            n1 = faceNormal;
+            n2 = faceNormal;
         }
     }
 
-    // Prepare bitangent stream data
-    MeshFloatBuffer* bitangents = nullptr;
-    unsigned int bitangentStride = 0;
-    if (bitangentStream)
+    return normalStream;
+}
+
+MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream)
+{
+    size_t vertexCount = positionStream->getData().size() / positionStream->getStride();
+    size_t normalCount = normalStream->getData().size() / normalStream->getStride();
+    size_t texcoordCount = texcoordStream->getData().size() / texcoordStream->getStride();
+    if (vertexCount != normalCount ||
+        vertexCount != texcoordCount)
     {
-        bitangents = &(bitangentStream->getData());
-        bitangents->resize(positions.size());
-        std::fill(bitangents->begin(), bitangents->end(), 0.0f);
-        bitangentStride = bitangentStream->getStride();
+        return nullptr;
     }
 
+    // Create the tangent stream.
+    MeshStreamPtr tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
+    tangentStream->getData().resize(positionStream->getData().size());
+    std::fill(tangentStream->getData().begin(), tangentStream->getData().end(), 0.0f);
+
+    // Iterate through partitions.
+    for (size_t i = 0; i < getPartitionCount(); i++)
+    {
+        MeshPartitionPtr part = getPartition(i);
+
+        // Iterate through faces.
+        for (size_t faceIndex = 0; faceIndex < part->getFaceCount(); faceIndex++)
+        {
+            uint32_t i0 = part->getIndices()[faceIndex * FACE_VERTEX_COUNT + 0];
+            uint32_t i1 = part->getIndices()[faceIndex * FACE_VERTEX_COUNT + 1];
+            uint32_t i2 = part->getIndices()[faceIndex * FACE_VERTEX_COUNT + 2];
+
+            const Vector3& p0 = positionStream->getElement<Vector3>(i0);
+            const Vector3& p1 = positionStream->getElement<Vector3>(i1);
+            const Vector3& p2 = positionStream->getElement<Vector3>(i2);
+
+            const Vector2& w0 = texcoordStream->getElement<Vector2>(i0);
+            const Vector2& w1 = texcoordStream->getElement<Vector2>(i1);
+            const Vector2& w2 = texcoordStream->getElement<Vector2>(i2);
+
+            Vector3& t0 = tangentStream->getElement<Vector3>(i0);
+            Vector3& t1 = tangentStream->getElement<Vector3>(i1);
+            Vector3& t2 = tangentStream->getElement<Vector3>(i2);
+
+            // Based on Eric Lengyel at http://www.terathon.com/code/tangent.html
+
+            Vector3 e1 = p1 - p0;
+            Vector3 e2 = p2 - p0;
+
+            float x1 = w1[0] - w0[0];
+            float x2 = w2[0] - w0[0];
+            float y1 = w1[1] - w0[1];
+            float y2 = w2[1] - w0[1];
+
+            float denom = x1 * y2 - x2 * y1;
+            float r = denom ? (1.0f / denom) : 0.0f;
+            Vector3 t = (e1 * y2 - e2 * y1) * r;
+
+            t0 += t;
+            t1 += t;
+            t2 += t;
+        }
+    }
+
+    // Iterate through vertices.
     for (size_t v = 0; v < vertexCount; v++)
     {
-        Vector3& n = *reinterpret_cast<Vector3*>(&(normals[v * normalStride]));
-        Vector3& t = *reinterpret_cast<Vector3*>(&(tangents[v * tangentStride]));
-        Vector3* b = bitangents ? reinterpret_cast<Vector3*>(&((*bitangents)[v * bitangentStride])) : nullptr;
+        Vector3& n = normalStream->getElement<Vector3>(v);
+        Vector3& t = tangentStream->getElement<Vector3>(v);
 
-        // Gram-Schmidt orthogonalize
         if (t != Vector3(0.0f))
         {
+            // Gram-Schmidt orthogonalize.
             t = (t - n * n.dot(t)).getNormalized();
         }
         else
         {
-            // Tangent vector is zero length so set a default direction
-            // to avoid sending invalid data to the renderer.
-            t = Vector3(0.0f, 0.0f, 1.0f);
-        }
-        if (b)
-        {
-            *b = n.cross(t);
+            // Generate an arbitrary tangent.
+            // https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+            float sign = (n[2] < 0.0f) ? -1.0f : 1.0f;
+            float a = -1.0f / (sign + n[2]);
+            float b = n[0] * n[1] * a;
+            t = Vector3(1.0f + sign * n[0] * n[0] * a, sign * b, -sign * n[0]);
         }
     }
-    return true;
+
+    return tangentStream;
 }
 
 void Mesh::mergePartitions()
@@ -172,7 +192,6 @@ void Mesh::splitByUdims()
 
     using UdimMap = std::map<uint32_t, MeshPartitionPtr>;
     UdimMap udimMap;
-    const size_t FACE_VERTEX_COUNT = 3;
     for (size_t p = 0; p < getPartitionCount(); p++)
     {
         MeshPartitionPtr part = getPartition(p);
@@ -182,7 +201,7 @@ void Mesh::splitByUdims()
             uint32_t i1 = part->getIndices()[f * FACE_VERTEX_COUNT + 1];
             uint32_t i2 = part->getIndices()[f * FACE_VERTEX_COUNT + 2];
 
-            const Vector2& uv0 = reinterpret_cast<Vector2*>(&texcoords->getData()[0])[i0];
+            const Vector2& uv0 = texcoords->getElement<Vector2>(i0);
             uint32_t udimU = (uint32_t) uv0[0];
             uint32_t udimV = (uint32_t) uv0[1];
             uint32_t udim = 1001 + udimU + (10 * udimV);
@@ -206,6 +225,10 @@ void Mesh::splitByUdims()
         addPartition(pair.second);
     }
 }
+
+//
+// MeshStream methods
+//
 
 void MeshStream::transform(const Matrix44 &matrix)
 {

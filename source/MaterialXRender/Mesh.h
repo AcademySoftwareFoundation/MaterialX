@@ -82,16 +82,28 @@ class MeshStream
         return _index;
     }
 
-    /// Get stream data
+    /// Return the raw float vector
     MeshFloatBuffer& getData()
     {
         return _data;
     }
 
-    /// Get stream data
+    /// Return the raw float vector
     const MeshFloatBuffer& getData() const
     {
         return _data;
+    }
+
+    // Return the typed element at the given index
+    template <class T> T& getElement(size_t index)
+    {
+        return reinterpret_cast<T*>(getData().data())[index];
+    }
+
+    // Return the typed element at the given index
+    template <class T> const T& getElement(size_t index) const
+    {
+        return reinterpret_cast<const T*>(getData().data())[index];
     }
 
     /// Get stride between elements
@@ -275,6 +287,16 @@ class Mesh
         _streams.push_back(stream);
     }
 
+    /// Remove a mesh stream
+    void removeStream(MeshStreamPtr stream)
+    {
+        auto it = std::find(_streams.begin(), _streams.end(), stream);
+        if (it != _streams.end())
+        {
+            _streams.erase(it);
+        }
+    }
+
     /// Set vertex count
     void setVertexCount(size_t val)
     {
@@ -353,16 +375,17 @@ class Mesh
         return _partitions[partIndex];
     }
 
-    /// Generate tangents and optionally bitangents for a given
-    /// set of positions, texture coordinates and normals.
-    /// @param positionStream Positions to use
-    /// @param texcoordStream Texture coordinates to use
-    /// @param normalStream Normals to use
-    /// @param tangentStream Tangents to produce
-    /// @param bitangentStream Bitangents to produce.
-    /// Returns true if successful.
-    bool generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoordStream, MeshStreamPtr normalStream,
-                          MeshStreamPtr tangentStream, MeshStreamPtr bitangentStream);
+    /// Generate face normals from the given positions.
+    /// @param positionStream Input position stream
+    /// @return The generated normal stream
+    MeshStreamPtr generateNormals(MeshStreamPtr positionStream);
+
+    /// Generate tangents from the given positions, normals, and texture coordinates.
+    /// @param positionStream Input position stream
+    /// @param normalStream Input normal stream
+    /// @param texcoordStream Input texcoord stream
+    /// @return The generated tangent stream, on success; otherwise, a null pointer.
+    MeshStreamPtr generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream);
 
     /// Merge all mesh partitions into one.
     void mergePartitions();
