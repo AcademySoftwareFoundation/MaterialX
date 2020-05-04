@@ -189,7 +189,16 @@ namespace
                 if (!connectedNodeName.empty())
                 {
                     PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), parent, mapper);
-                    const RtToken outputName(elemInput->getOutputString());
+                    RtToken outputName(elemInput->getOutputString());
+                    if (outputName == EMPTY_TOKEN && connectedNode)
+                    {
+                        RtNode rtConnectedNode(connectedNode->hnd());
+                        auto output = rtConnectedNode.getOutput(EMPTY_TOKEN);
+                        if (output)
+                        {
+                            outputName = output.getName();
+                        }
+                    }
                     PvtOutput* output = findOutputOrThrow(outputName != EMPTY_TOKEN ? outputName : PvtAttribute::DEFAULT_OUTPUT_NAME, connectedNode);
                     output->connect(input);
                 }
@@ -792,26 +801,23 @@ namespace
                                 InputPtr inputElem = valueElem->asA<Input>();
                                 if (sourceNode.hasApi<RtNodeGraph>())
                                 {
-                                    inputElem->setNodeGraphName(
-                                        sourceNode.getName());
-                                    inputElem->setOutputString(
-                                        source.getName());
+                                    inputElem->setNodeGraphName(sourceNode.getName());
                                 }
                                 else
                                 {
                                     inputElem->setNodeName(sourceNode.getName());
-                                    RtNode rtSourceNode(sourceNode);
-                                    int numSourceNodeOutputs = 0;
-                                    auto outputIter = rtSourceNode.getOutputs();
-                                    while (!outputIter.isDone())
-                                    {
-                                        numSourceNodeOutputs++;
-                                        ++outputIter;
-                                    }
-                                    if (numSourceNodeOutputs > 1)
-                                    {
-                                        inputElem->setOutputString(source.getName());
-                                    }
+                                }
+                                RtNode rtSourceNode(sourceNode);
+                                int numSourceNodeOutputs = 0;
+                                auto outputIter = rtSourceNode.getOutputs();
+                                while (!outputIter.isDone())
+                                {
+                                    numSourceNodeOutputs++;
+                                    ++outputIter;
+                                }
+                                if (numSourceNodeOutputs > 1)
+                                {
+                                    inputElem->setOutputString(source.getName());
                                 }
                             }
                         }
@@ -866,10 +872,13 @@ namespace
             for (InputPtr input : surfaceShader->getActiveInputs())
             {
                 BindInputPtr bindInput = shaderRef->addBindInput(input->getName(), input->getType());
-                if (input->hasNodeGraphName() && input->hasOutputString() && doc->getNodeGraph(input->getNodeGraphName()))
+                if (input->hasNodeGraphName() && doc->getNodeGraph(input->getNodeGraphName()))
                 {
                     bindInput->setNodeGraphString(input->getNodeGraphName());
-                    bindInput->setOutputString(input->getOutputString());
+                    if (input->hasOutputString())
+                    {
+                        bindInput->setOutputString(input->getOutputString());
+                    }
                 }
                 else if(input->hasNodeName())
                 {

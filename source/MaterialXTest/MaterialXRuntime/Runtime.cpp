@@ -1621,8 +1621,8 @@ TEST_CASE("Runtime: FileIo downgrade", "[runtime]")
         //     <shaderref name="ss1" node="standard_surface">
         //       <bindinput name="base" type="float" value="0.5" />
         //       <bindinput name="base_color" type="color3" output="OUT_ml1_out" />
-        //       <bindinput name="sheen_color" type="color3" nodegraph="ng1" output="out" />
-        //       <bindinput name="coat_color" type="color3" nodegraph="ng1" output="out" />
+        //       <bindinput name="sheen_color" type="color3" nodegraph="ng1" />
+        //       <bindinput name="coat_color" type="color3" nodegraph="ng1" />
         //       <bindinput name="emission" type="float" value="0.5" />
         //       <bindinput name="emission_color" type="color3" output="OUT_ml1_out" />
         //     </shaderref>
@@ -2027,6 +2027,36 @@ TEST_CASE("Runtime: commands", "[runtime]")
     mx::RtCommand::undo(result);
     REQUIRE(!result); // undo should fail
     REQUIRE(node);    // node should remain created
+}
+
+TEST_CASE("Runtime: graph output connection", "[runtime]") {
+    mx::RtScopedApiHandle api;
+
+    // Load in all libraries required for materials
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() /
+                                  mx::FilePath("libraries"));
+    api->setSearchPath(searchPath);
+    api->loadLibrary(STDLIB);
+    api->loadLibrary(PBRLIB);
+    api->loadLibrary(BXDFLIB);
+
+    const std::string mtlxDoc =
+        "<?xml version=\"1.0\"?>\n"
+        "<materialx version=\"1.38\">\n"
+        "  <nodegraph name=\"Compound\">\n"
+        "    <output name=\"in\" type=\"color2\" />\n"
+        "  </nodegraph>\n"
+        "  <clamp name=\"clamp\" type=\"color2\">\n"
+        "    <input name=\"in\" type=\"color2\" nodegraph=\"Compound\" />\n"
+        "  </clamp>\n"
+        "</materialx>";
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
+    mx::RtFileIo   fileIo(defaultStage);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    std::stringstream ss;
+    ss << mtlxDoc;
+    REQUIRE_NOTHROW(fileIo.read(ss, &options));
 }
 
 #endif // MATERIALX_BUILD_RUNTIME
