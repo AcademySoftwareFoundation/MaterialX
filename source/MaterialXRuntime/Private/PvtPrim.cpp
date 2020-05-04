@@ -117,6 +117,21 @@ void PvtPrim::removeRelationship(const RtToken& name)
     }
 }
 
+void PvtPrim::renameRelationship(const RtToken& name, const RtToken& newName)
+{
+    if (getRelationship(newName))
+    {
+        throw ExceptionRuntimeError("A relationship named '" + newName.str() + "' already exists in prim '" + getName().str() + "'");
+    }
+    PvtRelationship* rel = getRelationship(name);
+    if (rel)
+    {
+        rel->setName(newName);
+        _relMap[newName] = rel->hnd();
+        _relMap.erase(name);
+    }
+}
+
 PvtAttribute* PvtPrim::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
 {
     if (getAttribute(name))
@@ -174,6 +189,21 @@ void PvtPrim::removeAttribute(const RtToken& name)
             }
         }
         attr->setDisposed(true);
+        _attrMap.erase(name);
+    }
+}
+
+void PvtPrim::renameAttribute(const RtToken& name, const RtToken& newName)
+{
+    if (getAttribute(newName))
+    {
+        throw ExceptionRuntimeError("An attribute named '" + newName.str() + "' already exists in prim '" + getName().str() + "'");
+    }
+    PvtAttribute* attr = getAttribute(name);
+    if (attr)
+    {
+        attr->setName(newName);
+        _attrMap[newName] = attr->hnd();
         _attrMap.erase(name);
     }
 }

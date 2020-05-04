@@ -743,10 +743,17 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.getInputSocket(B));
     REQUIRE(graph1.getOutputSocket(OUT));
 
-    // Test deleting an input.
-    graph1.createInput(X, mx::RtType::FLOAT);
+    // Test renaming an input.
+    graph1.createInput(FOO, mx::RtType::FLOAT);
+    REQUIRE(graph1.getInput(FOO));
+    REQUIRE(graph1.getInputSocket(FOO));
+    graph1.renameInput(FOO, X);
+    REQUIRE(!graph1.getInput(FOO));
+    REQUIRE(!graph1.getInputSocket(FOO));
     REQUIRE(graph1.getInput(X));
     REQUIRE(graph1.getInputSocket(X));
+
+    // Test deleting an input.
     graph1.removeInput(X);
     REQUIRE(!graph1.getInput(X));
     REQUIRE(!graph1.getInputSocket(X));

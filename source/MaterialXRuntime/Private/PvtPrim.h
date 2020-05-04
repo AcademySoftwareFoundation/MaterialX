@@ -98,6 +98,8 @@ public:
 
     void removeRelationship(const RtToken& name);
 
+    void renameRelationship(const RtToken& name, const RtToken& newName);
+
     PvtRelationship* getRelationship(const RtToken& name)
     {
         auto it = _relMap.find(name);
@@ -116,6 +118,8 @@ public:
     PvtOutput* createOutput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
     void removeAttribute(const RtToken& name);
+
+    void renameAttribute(const RtToken& name, const RtToken& newName);
 
     PvtAttribute* getAttribute(const RtToken& name) const
     {
