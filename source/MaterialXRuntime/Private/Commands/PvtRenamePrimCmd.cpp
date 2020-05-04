@@ -4,6 +4,9 @@
 //
 
 #include <MaterialXRuntime/Private/Commands/PvtRenamePrimCmd.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
+
+#include <MaterialXRuntime/RtPrim.h>
 
 namespace MaterialX
 {
@@ -17,6 +20,25 @@ void PvtRenamePrimCmd::execute(RtCommandResult& result)
 {
     try
     {
+        // Validate that the prim exists.
+        RtPrim prim = _stage->getPrimAtPath(_path);
+        if (!prim)
+        {
+            result = RtCommandResult(false, "Given path '" + _path.asString() + " does not point to a prim in this stage");
+            return;
+        }
+
+        // Make sure the new name is a unique child name for the parent.
+        // Otherwise the name will be updated during rename in order to be
+        // unique, and the message we send will not have correct information.
+        RtPrim parent = prim.getParent();
+        PvtDataHandle parentH = PvtObject::hnd(parent);
+        PvtPrim* parentPtr = parentH->asA<PvtPrim>();
+        _newName = parentPtr->makeUniqueChildName(_newName);
+
+        // Send message that the prim is about to be renamed.
+        msg().sendRenamePrimMessage(_stage, prim, _newName);
+
         RtToken oldName = _path.getName();
         RtToken resultName = _stage->renamePrim(_path, _newName);
 

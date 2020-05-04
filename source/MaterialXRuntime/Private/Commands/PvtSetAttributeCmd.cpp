@@ -27,11 +27,15 @@ void PvtSetAttributeCmd::execute(RtCommandResult& result)
     {
         try
         {
+            // Send message that the attribute is changing
+            msg().sendSetAttributeMessage(_attr, _value);
+
             // Save old value for undo/redo
             _oldValue = RtValue::clone(_attr.getType(), _attr.getValue(), _attr.getParent());
 
             // Set the value
             _attr.setValue(_value);
+            result = RtCommandResult(true);
         }
         catch (const ExceptionRuntimeError& e)
         {
@@ -50,8 +54,12 @@ void PvtSetAttributeCmd::undo(RtCommandResult& result)
     {
         try
         {
+            // Send message that the attribute is changing
+            msg().sendSetAttributeMessage(_attr, _oldValue);
+
             // Reset the value
             _attr.setValue(_oldValue);
+            result = RtCommandResult(true);
         }
         catch (const ExceptionRuntimeError& e)
         {
@@ -70,8 +78,12 @@ void PvtSetAttributeCmd::redo(RtCommandResult& result)
     {
         try
         {
+            // Send message that the attribute is changing
+            msg().sendSetAttributeMessage(_attr, _value);
+
             // Set the value
             _attr.setValue(_value);
+            result = RtCommandResult(true);
         }
         catch (const ExceptionRuntimeError& e)
         {

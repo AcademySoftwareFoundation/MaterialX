@@ -17,7 +17,7 @@
 namespace MaterialX
 {
 
-// Allocator class handling allocation of data for elements.
+// Allocator class handling allocation of data for prims.
 // The data allocated is kept by the allocator and freed
 // upon allocator destruction or by calling free() explicitly.
 // NOTE: Data is stored as raw byte pointers and destructors
@@ -61,7 +61,6 @@ private:
     vector<uint8_t*> _storage;
 };
 
-class PvtPrimDef;
 class RtAttrIterator;
 class RtPrimIterator;
 
@@ -186,7 +185,7 @@ public:
         return _allocator;
     }
 
-    RtToken makeUniqueName(const RtToken& name) const;
+    RtToken makeUniqueChildName(const RtToken& name) const;
 
 protected:
     PvtPrim(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* parent);

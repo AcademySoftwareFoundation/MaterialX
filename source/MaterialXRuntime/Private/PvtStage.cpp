@@ -158,7 +158,7 @@ RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
     parent->_primMap.erase(prim->getName());
 
     // Make sure the new name is unique and insert it to the name map.
-    prim->setName(parent->makeUniqueName(newName));
+    prim->setName(parent->makeUniqueChildName(newName));
     parent->_primMap[prim->getName()] = prim->hnd();
 
     return prim->getName();
@@ -185,7 +185,7 @@ RtToken PvtStage::reparentPrim(const PvtPath& path, const PvtPath& newParentPath
         oldParent->removeChildPrim(prim);
 
         // Make sure the name is unique in the new parent.
-        prim->setName(newParent->makeUniqueName(prim->getName()));
+        prim->setName(newParent->makeUniqueChildName(prim->getName()));
 
         // Add to new parent.
         newParent->addChildPrim(prim);

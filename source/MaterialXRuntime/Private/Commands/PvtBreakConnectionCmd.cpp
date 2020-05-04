@@ -19,7 +19,13 @@ void PvtBreakConnectionCmd::execute(RtCommandResult& result)
     {
         try
         {
+            // Break the connection.
             _src.disconnect(_dest);
+
+            // Send message that the connection has been broken.
+            msg().sendBreakConnectionMessage(_src, _dest);
+
+            result = RtCommandResult(true);
         }
         catch (const ExceptionRuntimeError& e)
         {
@@ -38,7 +44,13 @@ void PvtBreakConnectionCmd::undo(RtCommandResult& result)
     {
         try
         {
+            // Make the connection.
             _src.connect(_dest);
+
+            // Send message that the connection has been made.
+            msg().sendMakeConnectionMessage(_src, _dest);
+
+            result = RtCommandResult(true);
         }
         catch (const ExceptionRuntimeError& e)
         {

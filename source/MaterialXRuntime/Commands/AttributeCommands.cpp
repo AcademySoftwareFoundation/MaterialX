@@ -7,7 +7,7 @@
 #include <MaterialXRuntime/RtApi.h>
 
 #include <MaterialXRuntime/Private/PvtApi.h>
-#include <MaterialXRuntime/Private/PvtCommandEngine.h>
+#include <MaterialXRuntime/Private/PvtCommand.h>
 #include <MaterialXRuntime/Private/Commands/PvtSetAttributeCmd.h>
 #include <MaterialXRuntime/Private/Commands/PvtMakeConnectionCmd.h>
 #include <MaterialXRuntime/Private/Commands/PvtBreakConnectionCmd.h>

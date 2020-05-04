@@ -6,7 +6,7 @@
 #ifndef MATERIALX_PVTBREAKCONNECTIONCMD_H
 #define MATERIALX_PVTBREAKCONNECTIONCMD_H
 
-#include <MaterialXRuntime/Private/PvtCommandEngine.h>
+#include <MaterialXRuntime/Private/PvtCommand.h>
 
 #include <MaterialXRuntime/RtAttribute.h>
 

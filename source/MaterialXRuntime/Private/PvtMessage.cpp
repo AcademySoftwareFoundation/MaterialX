@@ -1,0 +1,166 @@
+//
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#include <MaterialXRuntime/Private/PvtMessage.h>
+
+namespace MaterialX
+{
+
+PvtMessageHandler::PvtMessageHandler() :
+    _callbackIdCounter(1)
+{}
+
+RtCallbackId PvtMessageHandler::addCreatePrimCallback(RtCreatePrimCallbackFunc callback, void* userData)
+{
+    PvtCreatePrimObserver observer = PvtCreatePrimObserver(callback, userData);
+    _createPrimObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
+RtCallbackId PvtMessageHandler::addRemovePrimCallback(RtRemovePrimCallbackFunc callback, void* userData)
+{
+    PvtRemovePrimObserver observer = PvtRemovePrimObserver(callback, userData);
+    _removePrimObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
+RtCallbackId PvtMessageHandler::addRenamePrimCallback(RtRenamePrimCallbackFunc callback, void* userData)
+{
+    PvtRenamePrimObserver observer = PvtRenamePrimObserver(callback, userData);
+    _renamePrimObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
+RtCallbackId PvtMessageHandler::addReparentPrimCallback(RtReparentPrimCallbackFunc callback, void* userData)
+{
+    PvtReparentPrimObserver observer = PvtReparentPrimObserver(callback, userData);
+    _reparentPrimObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
+RtCallbackId PvtMessageHandler::addSetAttributeCallback(RtSetAttributeCallbackFunc callback, void* userData)
+{
+    PvtSetAttributeObserver observer = PvtSetAttributeObserver(callback, userData);
+    _setAttrObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
+RtCallbackId PvtMessageHandler::addMakeConnectionCallback(RtMakeConnectionCallbackFunc callback, void* userData)
+{
+    PvtMakeConnectionObserver observer = PvtMakeConnectionObserver(callback, userData);
+    _makeConnectionObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
+RtCallbackId PvtMessageHandler::addBreakConnectionCallback(RtBreakConnectionCallbackFunc callback, void* userData)
+{
+    PvtBreakConnectionObserver observer = PvtBreakConnectionObserver(callback, userData);
+    _breakConnectionObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
+void PvtMessageHandler::removeCallback(RtCallbackId id)
+{
+    auto it = _callbackIdToType.find(id);
+    if (it != _callbackIdToType.end())
+    {
+        // Remove from the message type map
+        _callbackIdToType.erase(id);
+
+        // Remove the corresponding observer
+        switch (it->second)
+        {
+        case PvtMessageType::CREATE_PRIM:
+            _createPrimObservers.erase(id);
+            break;
+        case PvtMessageType::REMOVE_PRIM:
+            _removePrimObservers.erase(id);
+            break;
+        case PvtMessageType::RENAME_PRIM:
+            _renamePrimObservers.erase(id);
+            break;
+        case PvtMessageType::REPARENT_PRIM:
+            _reparentPrimObservers.erase(id);
+            break;
+        case PvtMessageType::SET_ATTRIBUTE:
+            _setAttrObservers.erase(id);
+            break;
+        case PvtMessageType::MAKE_CONNECTION:
+            _makeConnectionObservers.erase(id);
+            break;
+        case PvtMessageType::BREAK_CONNECTION:
+            _breakConnectionObservers.erase(id);
+            break;
+        default:
+            throw ExceptionRuntimeError("Removal of callback faild! Message type '" + std::to_string(size_t(it->second)) + "' has not been implemented properly.");
+        }
+    }
+}
+
+void PvtMessageHandler::sendCreatePrimMessage(RtStagePtr stage, const RtPrim& prim)
+{
+    for (auto observer : _createPrimObservers)
+    {
+        observer.second.callback(stage, prim, observer.second.userData);
+    }
+}
+
+void PvtMessageHandler::sendRemovePrimMessage(RtStagePtr stage, const RtPrim& prim)
+{
+    for (auto observer : _removePrimObservers)
+    {
+        observer.second.callback(stage, prim, observer.second.userData);
+    }
+}
+
+void PvtMessageHandler::sendRenamePrimMessage(RtStagePtr stage, const RtPrim& prim, const RtToken& newName)
+{
+    for (auto observer : _renamePrimObservers)
+    {
+        observer.second.callback(stage, prim, newName, observer.second.userData);
+    }
+}
+
+void PvtMessageHandler::sendReparentPrimMessage(RtStagePtr stage, const RtPrim& prim, const RtPath& newPath)
+{
+    for (auto observer : _reparentPrimObservers)
+    {
+        observer.second.callback(stage, prim, newPath, observer.second.userData);
+    }
+}
+
+void PvtMessageHandler::sendSetAttributeMessage(const RtAttribute& attr, const RtValue& value)
+{
+    for (auto observer : _setAttrObservers)
+    {
+        observer.second.callback(attr, value, observer.second.userData);
+    }
+}
+
+void PvtMessageHandler::sendMakeConnectionMessage(const RtOutput& src, const RtInput& dest)
+{
+    for (auto observer : _makeConnectionObservers)
+    {
+        observer.second.callback(src, dest, observer.second.userData);
+    }
+}
+
+void PvtMessageHandler::sendBreakConnectionMessage(const RtOutput& src, const RtInput& dest)
+{
+    for (auto observer : _breakConnectionObservers)
+    {
+        observer.second.callback(src, dest, observer.second.userData);
+    }
+}
+
+
+}

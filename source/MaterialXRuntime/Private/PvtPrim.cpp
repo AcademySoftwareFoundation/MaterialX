@@ -25,7 +25,7 @@ PvtPrim::PvtPrim(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* paren
 PvtDataHandle PvtPrim::createNew(const RtTypeInfo* type, const RtToken& name, PvtPrim* parent)
 {
     // Make the name unique.
-    const RtToken primName = parent->makeUniqueName(name);
+    const RtToken primName = parent->makeUniqueChildName(name);
     return PvtDataHandle(new PvtPrim(type, primName, parent));
 }
 
@@ -218,7 +218,7 @@ RtPrimIterator PvtPrim::getChildren(RtObjectPredicate predicate) const
     return RtPrimIterator(hnd(), predicate);
 }
 
-RtToken PvtPrim::makeUniqueName(const RtToken& name) const
+RtToken PvtPrim::makeUniqueChildName(const RtToken& name) const
 {
     RtToken newName = name;
 

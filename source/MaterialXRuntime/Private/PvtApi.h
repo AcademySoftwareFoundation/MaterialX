@@ -14,7 +14,8 @@
 
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
-#include <MaterialXRuntime/Private/PvtCommandEngine.h>
+#include <MaterialXRuntime/Private/PvtCommand.h>
+#include <MaterialXRuntime/Private/PvtMessage.h>
 
 namespace MaterialX
 {
@@ -32,6 +33,11 @@ public:
     PvtCommandEngine& getCommandEngine()
     {
         return _commandEngine;
+    }
+
+    PvtMessageHandler& getMessageHandler()
+    {
+        return _messageHandler;
     }
 
     void registerCreateFunction(const RtToken& typeName, RtPrimCreateFunc creator)
@@ -221,6 +227,7 @@ public:
     }
 
     PvtCommandEngine _commandEngine;
+    PvtMessageHandler _messageHandler;
 
     FileSearchPath _searchPaths;
     FileSearchPath _implementationSearchPaths;

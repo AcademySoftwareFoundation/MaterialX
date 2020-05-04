@@ -9,13 +9,12 @@
 
 #include <MaterialXRuntime/RtCommand.h>
 
-#include <vector>
+#include <MaterialXRuntime/Private/PvtMessage.h>
 
 namespace MaterialX
 {
 
-/// @class PvtCommand
-/// Base class for runtime commands.
+// Base class for runtime commands.
 class PvtCommand
 {
 public:
@@ -24,13 +23,13 @@ public:
     PvtCommand(const PvtCommand&) = delete;
     PvtCommand& operator=(const PvtCommand&) = delete;
 
-    /// Execute the command.
+    // Execute the command.
     virtual void execute(RtCommandResult& result) = 0;
 
-    /// Undo the command.
+    // Undo the command.
     virtual void undo(RtCommandResult& result) = 0;
 
-    /// Redo the command.
+    // Redo the command.
     virtual void redo(RtCommandResult& result)
     {
         execute(result);
@@ -38,50 +37,50 @@ public:
 
 protected:
     PvtCommand() {}
+
+    // Utility for message handler access.
+    PvtMessageHandler& msg();
 };
 
-/// A shared pointer to a runtime command.
+// A shared pointer to a runtime command.
 using PvtCommandPtr = RtSharedPtr<PvtCommand>;
 
-/// @class PvtCommandList
-/// Class for executing lists of multiple commands.
 class PvtCommandList : public PvtCommand
 {
 public:
-    /// Add a command to the batch.
+    // Add a command to the batch.
     void addCommand(PvtCommandPtr cmd);
 
-    /// Clear all commands in the batch.
+    // Clear all commands in the batch.
     void clearCommands();
 
-    /// Execute the command.
+    // Execute the command.
     void execute(RtCommandResult& result) override;
 
-    /// Undo the command.
+    // Undo the command.
     void undo(RtCommandResult& result)  override;
 
-    /// Redo the command.
+    // Redo the command.
     void redo(RtCommandResult& result)  override;
 
 protected:
     vector<PvtCommandPtr> _commands;
 };
 
-
 class PvtCommandEngine
 {
 public:
-    /// Execute a new command.
+    // Execute a new command.
     void execute(PvtCommandPtr cmd, RtCommandResult& result);
 
-    /// Undo the last previously executed command.
+    // Undo the last previously executed command.
     void undo(RtCommandResult& result);
 
-    /// Redo the last previously executed undo command.
+    // Redo the last previously executed undo command.
     void redo(RtCommandResult& result);
 
-    /// Flush the undo and redo queues.
-    /// All commands previously executed will no longer be undoable.
+    // Flush the undo and redo queues.
+    // All commands previously executed will no longer be undoable.
     void flushUndoQueue();
 
 private:

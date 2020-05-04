@@ -24,8 +24,10 @@ void PvtRemovePrimCmd::execute(RtCommandResult& result)
             throw ExceptionRuntimeError("Can't find a prim with path '" + _path.asString() + "'");
         }
 
+        // Clear any previous commands.
         clearCommands();
 
+        // Collect commands for breaking all input connections
         RtObjTypePredicate<RtInput> inputFilter;
         for (RtAttribute attr : _prim.getAttributes(inputFilter))
         {
@@ -37,6 +39,7 @@ void PvtRemovePrimCmd::execute(RtCommandResult& result)
             }
         }
 
+        // Collect commands for breaking all output connections
         RtObjTypePredicate<RtOutput> outputFilter;
         for (RtAttribute attr : _prim.getAttributes(outputFilter))
         {
@@ -50,6 +53,9 @@ void PvtRemovePrimCmd::execute(RtCommandResult& result)
                 }
             }
         }
+
+        // Send message that the prim is about to be removed.
+        msg().sendRemovePrimMessage(_stage, _prim);
 
         // Execute all the break connection commands.
         PvtCommandList::execute(result);
@@ -80,6 +86,9 @@ void PvtRemovePrimCmd::undo(RtCommandResult& result)
         // Undo all the break connection commands.
         PvtCommandList::undo(result);
         clearCommands();
+
+        // Send message that the prim has been created/restored.
+        msg().sendCreatePrimMessage(_stage, _prim);
 
         result = RtCommandResult(true);
     }

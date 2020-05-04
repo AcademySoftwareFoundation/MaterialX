@@ -6,7 +6,7 @@
 #ifndef MATERIALX_PVTMAKECONNECTIONCMD_H
 #define MATERIALX_PVTMAKECONNECTIONCMD_H
 
-#include <MaterialXRuntime/Private/PvtCommandEngine.h>
+#include <MaterialXRuntime/Private/PvtCommand.h>
 
 #include <MaterialXRuntime/RtAttribute.h>
 

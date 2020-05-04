@@ -6,7 +6,7 @@
 #ifndef MATERIALX_PVTSETATTRIBUTECMD_H
 #define MATERIALX_PVTSETATTRIBUTECMD_H
 
-#include <MaterialXRuntime/Private/PvtCommandEngine.h>
+#include <MaterialXRuntime/Private/PvtCommand.h>
 
 #include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtValue.h>

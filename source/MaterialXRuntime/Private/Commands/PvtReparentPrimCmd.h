@@ -6,7 +6,7 @@
 #ifndef MATERIALX_PVTREPARENTPRIMCMD_H
 #define MATERIALX_PVTREPARENTPRIMCMD_H
 
-#include <MaterialXRuntime/Private/PvtCommandEngine.h>
+#include <MaterialXRuntime/Private/PvtCommand.h>
 
 #include <MaterialXRuntime/RtStage.h>
 #include <MaterialXRuntime/RtPath.h>
@@ -20,7 +20,7 @@ public:
     PvtReparentPrimCmd(RtStagePtr stage, const RtPath& path, const RtPath& newParentPath) :
         _stage(stage),
         _path(path),
-        _parentPath(newParentPath),
+        _newParentPath(newParentPath),
         _originalName(path.getName())
     {}
 
@@ -32,7 +32,7 @@ public:
 private:
     RtStagePtr _stage;
     RtPath _path;
-    RtPath _parentPath;
+    RtPath _newParentPath;
     RtToken _originalName;
 };
 

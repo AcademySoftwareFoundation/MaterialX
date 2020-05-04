@@ -6,7 +6,7 @@
 #ifndef MATERIALX_PVTCREATEPRIMCMD_H
 #define MATERIALX_PVTCREATEPRIMCMD_H
 
-#include <MaterialXRuntime/Private/PvtCommandEngine.h>
+#include <MaterialXRuntime/Private/PvtCommand.h>
 
 #include <MaterialXRuntime/RtStage.h>
 #include <MaterialXRuntime/RtPrim.h>
