@@ -44,8 +44,11 @@ StringVec splitString(const string& str, const string& sep);
 /// Apply the given substring substitutions to the input string.
 string replaceSubstrings(string str, const StringMap& stringMap);
 
+/// Return a copy of the given string with letters converted to lower case.
+string stringToLower(string str);
+
 /// Return true if the given string ends with the given suffix.
-bool stringEndsWith(const std::string& str, const std::string& suffix);
+bool stringEndsWith(const string& str, const string& suffix);
 
 /// Pretty print the given element tree, calling asString recursively on each
 /// element in depth-first order.
