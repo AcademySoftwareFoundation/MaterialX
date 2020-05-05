@@ -7,6 +7,8 @@
 
 #include <MaterialXCore/Element.h>
 
+#include <cctype>
+
 namespace MaterialX
 {
 
@@ -108,7 +110,16 @@ string replaceSubstrings(string str, const StringMap& stringMap)
     return str;
 }
 
-bool stringEndsWith(const std::string& str, const std::string& suffix)
+string stringToLower(string str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c)
+    {
+        return (char) std::tolower(c);
+    });
+    return str;
+}
+
+bool stringEndsWith(const string& str, const string& suffix)
 {
     if (str.length() >= suffix.length())
     {
