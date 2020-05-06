@@ -223,6 +223,13 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
+    if (_stdLib)
+    {
+        for (std::string sourceUri : _stdLib->getReferencedSourceUris())
+        {
+            _xincludeFiles.insert(sourceUri);
+        }
+    }
 
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
@@ -307,8 +314,8 @@ Viewer::Viewer(const std::string& materialFilename,
     }
     catch (std::exception& e)
     {
+        std::cerr << "Failed to generate wireframe shader: " << e.what() << std::endl;
         _wireMaterial = nullptr;
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate wire shader", e.what());
     }
 
     // Generate shadow material.
@@ -320,8 +327,8 @@ Viewer::Viewer(const std::string& materialFilename,
     }
     catch (std::exception& e)
     {
+        std::cerr << "Failed to generate shadow shader: " << e.what() << std::endl;
         _shadowMaterial = nullptr;
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shadow shader", e.what());
     }
 
     // Generate shadow blur material.
@@ -333,8 +340,8 @@ Viewer::Viewer(const std::string& materialFilename,
     }
     catch (std::exception& e)
     {
+        std::cerr << "Failed to generate shadow blur shader: " << e.what() << std::endl;
         _shadowBlurMaterial = nullptr;
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shadow blur shader", e.what());
     }
 
     // Initialize camera
@@ -460,8 +467,8 @@ void Viewer::loadEnvironmentLight()
         }
         catch (std::exception& e)
         {
+            std::cerr << "Failed to generate environment shader: " << e.what() << std::endl;
             _envMaterial = nullptr;
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate environment shader", e.what());
         }
     }
 }
@@ -707,7 +714,10 @@ void Viewer::createAdvancedSettings(Widget* parent)
     _distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
     _distanceUnitBox->setFixedSize(ng::Vector2i(100, 20));
     _distanceUnitBox->setChevronIcon(-1);
-    _distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger("meter"));
+    if (_distanceUnitConverter)
+    {
+        _distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger("meter"));
+    }
     _distanceUnitBox->setCallback([this](int index)
     {
         mProcessEvents = false;
@@ -1290,14 +1300,18 @@ void Viewer::saveDotFiles()
 void Viewer::loadStandardLibraries()
 {
     // Initialize the standard library.
-    _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    try
+    {
+        _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
+        return;
+    }
     if (_stdLib->getChildren().empty())
     {
         std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
-    }
-    for (std::string sourceUri : _stdLib->getReferencedSourceUris())
-    {
-        _xincludeFiles.insert(sourceUri);
     }
 
     // Initialize color management.
