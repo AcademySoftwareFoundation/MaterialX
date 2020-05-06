@@ -394,9 +394,15 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     // Add global constants and type definitions
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context, stage);
-    const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
-    emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), stage, false);
-    emitLineBreak(stage);
+
+    // Emit Light shader if required
+    if (context.getOptions().hwMaxActiveLightSources > 0)
+    {
+        const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
+        emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), stage, false);
+        emitLineBreak(stage);
+    }
+
     emitTypeDefinitions(context, stage);
 
     // Add all constants
@@ -425,7 +431,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
                     graph.hasClassification(ShaderNode::Classification::BSDF);
 
     // Add light data block if needed
-    if (lighting)
+    if (lighting && context.getOptions().hwMaxActiveLightSources > 0)
     {
         const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
         emitLine("struct " + lightData.getName(), stage, false);
@@ -584,22 +590,26 @@ void GlslShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenC
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
-    // For surface shaders we need light shaders
-    if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+    // Emit Light functions if requested
+    if (context.getOptions().hwMaxActiveLightSources > 0)
     {
-        // Emit functions for all bound light shaders
-        HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
-        if (lightShaders)
+        // For surface shaders we need light shaders
+        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
         {
-            for (const auto& it : lightShaders->get())
+            // Emit functions for all bound light shaders
+            HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+            if (lightShaders)
             {
-                emitFunctionDefinition(*it.second, context, stage);
+                for (const auto& it : lightShaders->get())
+                {
+                    emitFunctionDefinition(*it.second, context, stage);
+                }
             }
-        }
-        // Emit functions for light sampling
-        for (const auto& it : _lightSamplingNodes)
-        {
-            emitFunctionDefinition(*it, context, stage);
+            // Emit functions for light sampling
+            for (const auto& it : _lightSamplingNodes)
+            {
+                emitFunctionDefinition(*it, context, stage);
+            }
         }
     }
 END_SHADER_STAGE(stage, Stage::PIXEL)
