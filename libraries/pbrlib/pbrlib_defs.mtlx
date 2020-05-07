@@ -160,7 +160,7 @@
   -->
   <nodedef name="ND_thin_film_brdf" node="thin_film_brdf" bsdf="R" nodegroup="pbr"
            doc="Adds an iridescent thin film layer over a microfacet base BSDF.">
-    <input name="thickness" type="float" value="0.001"/>
+    <input name="thickness" type="float" value="1000" unittype="distance" unit="nanometer"/>
     <input name="ior" type="float" value="1.5"/>
     <input name="base" type="BSDF" value=""/>
     <output name="out" type="BSDF"/>
