@@ -19,7 +19,9 @@ set_target_properties(
 
 target_link_libraries(
     PyMaterialXGenShader
-    PUBLIC MaterialXGenShader
+    PUBLIC PyMaterialXCore
+           PyMaterialXFormat
+           MaterialXGenShader
     PRIVATE ${CMAKE_DL_LIBS})
 
 install(TARGETS PyMaterialXGenShader
