@@ -66,9 +66,8 @@ void LightCompoundNodeGlsl::createVariables(const ShaderNode&, GenContext& conte
         lightData.add(u->getSelf());
     }
 
-    // Create uniform for number of active light sources
-    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
-    numActiveLights->setValue(Value::createValue<int>(0));
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    shadergen.addStageLightingUniforms(context, ps);
 }
 
 void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
