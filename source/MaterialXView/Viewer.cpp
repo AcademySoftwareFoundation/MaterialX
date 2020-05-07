@@ -223,6 +223,13 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
+    if (_stdLib)
+    {
+        for (std::string sourceUri : _stdLib->getReferencedSourceUris())
+        {
+            _xincludeFiles.insert(sourceUri);
+        }
+    }
 
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
@@ -307,8 +314,8 @@ Viewer::Viewer(const std::string& materialFilename,
     }
     catch (std::exception& e)
     {
+        std::cerr << "Failed to generate wireframe shader: " << e.what() << std::endl;
         _wireMaterial = nullptr;
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate wire shader", e.what());
     }
 
     // Generate shadow material.
@@ -320,8 +327,8 @@ Viewer::Viewer(const std::string& materialFilename,
     }
     catch (std::exception& e)
     {
+        std::cerr << "Failed to generate shadow shader: " << e.what() << std::endl;
         _shadowMaterial = nullptr;
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shadow shader", e.what());
     }
 
     // Generate shadow blur material.
@@ -333,8 +340,8 @@ Viewer::Viewer(const std::string& materialFilename,
     }
     catch (std::exception& e)
     {
+        std::cerr << "Failed to generate shadow blur shader: " << e.what() << std::endl;
         _shadowBlurMaterial = nullptr;
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shadow blur shader", e.what());
     }
 
     // Initialize camera
@@ -452,9 +459,17 @@ void Viewer::loadEnvironmentLight()
         // Create environment shader.
         mx::FilePath envFilename = _searchPath.find(
             mx::FilePath("resources/Materials/TestSuite/lights/envmap_shader.mtlx"));
-        _envMaterial = Material::create();
-        _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadiancePath);
-        _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
+        try
+        {
+            _envMaterial = Material::create();
+            _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadiancePath);
+            _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Failed to generate environment shader: " << e.what() << std::endl;
+            _envMaterial = nullptr;
+        }
     }
 }
 
@@ -699,7 +714,10 @@ void Viewer::createAdvancedSettings(Widget* parent)
     _distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
     _distanceUnitBox->setFixedSize(ng::Vector2i(100, 20));
     _distanceUnitBox->setChevronIcon(-1);
-    _distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger("meter"));
+    if (_distanceUnitConverter)
+    {
+        _distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger("meter"));
+    }
     _distanceUnitBox->setCallback([this](int index)
     {
         mProcessEvents = false;
@@ -1282,14 +1300,18 @@ void Viewer::saveDotFiles()
 void Viewer::loadStandardLibraries()
 {
     // Initialize the standard library.
-    _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    try
+    {
+        _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
+        return;
+    }
     if (_stdLib->getChildren().empty())
     {
         std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
-    }
-    for (std::string sourceUri : _stdLib->getReferencedSourceUris())
-    {
-        _xincludeFiles.insert(sourceUri);
     }
 
     // Initialize color management.
@@ -1468,7 +1490,7 @@ void Viewer::renderFrame()
     {
         auto meshes = _envGeometryHandler->getMeshes();
         auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
-        if (_envMaterial && envPart)
+        if (envPart)
         {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
@@ -1926,9 +1948,17 @@ void Viewer::updateAlbedoTable()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Create shader.
-    mx::ShaderPtr hwShader = mx::createAlbedoTableShader(_genContext, _stdLib, "__ALBEDO_LUT_SHADER__");
+    mx::ShaderPtr hwShader = mx::createAlbedoTableShader(_genContext, _stdLib, "__ALBEDO_TABLE_SHADER__");
     MaterialPtr material = Material::create();
-    material->generateShader(hwShader);
+    try
+    {
+        material->generateShader(hwShader);
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate albedo table shader", e.what());
+        return;
+    }
 
     // Render albedo table.
     material->bindShader();

@@ -61,7 +61,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     explicit VectorN(const vector<S>& vec) { std::copy(vec.begin(), vec.end(), _arr.begin()); }
     explicit VectorN(const S* begin, const S* end) { std::copy(begin, end, _arr.begin()); }
 
-    /// @name Equality Operators
+    /// @name Comparison Operators
     /// @{
 
     /// Return true if the given vector is identical to this one.
@@ -69,6 +69,12 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
 
     /// Return true if the given vector differs from this one.
     bool operator!=(const V& rhs) const { return _arr != rhs._arr; }
+
+    /// Compare two vectors lexicographically.
+    bool operator<(const V& rhs) const
+    {
+        return _arr < rhs._arr;
+    }
 
     /// @}
     /// @name Indexing Operators
@@ -363,13 +369,13 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     explicit MatrixN(S s) { std::fill_n(&_arr[0][0], N * N, s); }
     explicit MatrixN(const S* begin, const S* end) { std::copy(begin, end, &_arr[0][0]); }
 
-    /// @name Equality Operators
+    /// @name Comparison Operators
     /// @{
 
     /// Return true if the given matrix is identical to this one.
     bool operator==(const M& rhs) const { return _arr == rhs._arr; }
 
-    /// Return true if the given vector differs from this one.
+    /// Return true if the given matrix differs from this one.
     bool operator!=(const M& rhs) const { return _arr != rhs._arr; }
 
     /// Return true if the given matrix is equivalent to this one

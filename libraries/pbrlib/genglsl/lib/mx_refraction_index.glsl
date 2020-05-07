@@ -1,9 +1,3 @@
-// Convert a real-valued index of refraction to normal-incidence reflectivity.
-float mx_ior_to_f0(float ior)
-{
-    return mx_square((ior - 1.0) / (ior + 1.0));
-}
-
 // "Artist Friendly Metallic Fresnel", Ole Gulbrandsen, 2014
 // http://jcgt.org/published/0003/04/03/paper.pdf
 
