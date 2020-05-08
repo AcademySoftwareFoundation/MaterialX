@@ -290,18 +290,6 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    bool remapEnumeration(const mx::ValueElement& input, const std::string& value, std::pair<const mx::TypeDesc*, mx::ValuePtr>& result) const override
-    {
-        PYBIND11_OVERLOAD(
-            bool,
-            mx::ShaderGenerator,
-            remapEnumeration,
-            input,
-            value,
-            result
-        );
-    }
-
   protected:
     mx::ShaderStagePtr createStage(const std::string& name, mx::Shader& shader) const override
     {

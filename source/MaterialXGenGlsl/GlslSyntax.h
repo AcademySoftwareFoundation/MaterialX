@@ -29,6 +29,10 @@ class GlslSyntax : public Syntax
 
     bool typeSupported(const TypeDesc* type) const override;
 
+    /// Given an input specification attempt to remap this to an enumeration which is accepted by
+    /// the shader generator. The enumeration may be converted to a different type than the input.
+    bool remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const override;
+
     static const string INPUT_QUALIFIER;
     static const string OUTPUT_QUALIFIER;
     static const string UNIFORM_QUALIFIER;

@@ -964,8 +964,8 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         minorVersion = 37;
     }  
 
-    // Apply latest updates on top of the current library version.	    
-    // When the next version become official, the update check	
+    // Apply latest updates on top of the current library version.
+    // When the next version become official, the update check
     // will be moved and applied the that library version.
     if (applyFutureUpdates)
     {
@@ -973,10 +973,12 @@ void Document::upgradeVersion(bool applyFutureUpdates)
 
         if (majorVersion == 1 && minorVersion == 37)
         {
-            // Update atan2 interface
+            // Update atan2 interface and rotate3d interface
             const string ATAN2 = "atan2";
             const string IN1 = "in1";
             const string IN2 = "in2";
+            const string ROTATE3D = "rotate3d";
+            const string AXIS = "axis";
 
             // Update nodedefs
             for (auto nodedef : getMatchingNodeDefs(ATAN2))
@@ -986,6 +988,15 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                 string inputValue = input->getValueString();
                 input->setValueString(input2->getValueString());
                 input2->setValueString(inputValue);
+            }
+            for (auto nodedef : getMatchingNodeDefs(ROTATE3D))
+            {
+                ParameterPtr param = nodedef->getParameter(AXIS);
+                if (param)
+                {
+                    nodedef->removeParameter(AXIS);
+                    nodedef->addInput(AXIS, "vector3");
+                }
             }
 
             // Update nodes
@@ -1017,6 +1028,17 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                         {
                             input2->setName(IN1);
                         }
+                    }
+                }
+                else if (nodeCategory == ROTATE3D)
+                {
+                    ParameterPtr param = node->getParameter(AXIS);
+                    if (param)
+                    {
+                        const string v = param->getValueString();
+                        node->removeParameter(AXIS);
+                        InputPtr input = node->addInput(AXIS, "vector3");
+                        input->setValueString(v);
                     }
                 }
             }

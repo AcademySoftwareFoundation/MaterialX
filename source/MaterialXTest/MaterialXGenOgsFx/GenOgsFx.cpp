@@ -84,8 +84,9 @@ class OgsFxShaderGeneratorTester : public GlslShaderGeneratorTester
 {
   public:
     OgsFxShaderGeneratorTester(const mx::FilePathVec& testRootPaths, const mx::FilePath& libSearchPath,
-                                 const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
-            GlslShaderGeneratorTester(mx::OgsFxShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logFilePath)
+                               const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath, 
+                               bool writeShadersToDisk) :
+            GlslShaderGeneratorTester(mx::OgsFxShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logFilePath, writeShadersToDisk)
     {}
 
     void setTestStages() override
@@ -119,7 +120,9 @@ static void generateOgsFxCode()
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_ogsfx_generate_test.txt");
-    OgsFxShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath);
+
+    bool writeShadersToDisk = false;
+    OgsFxShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");

@@ -155,6 +155,8 @@ class GenContext
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
   protected:
+    GenContext() = delete;
+
     // Shader generator.
     ShaderGeneratorPtr _sg;
 

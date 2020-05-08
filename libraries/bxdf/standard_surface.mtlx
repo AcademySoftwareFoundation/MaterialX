@@ -124,7 +124,7 @@
     <rotate3d name="tangent_rotate" type="vector3">
       <input name="in" type="vector3" interfacename="tangent" />
       <input name="amount" type="float" nodename="tangent_rotate_degree" />
-      <parameter name="axis" type="vector3" interfacename="normal"/>
+      <input name="axis" type="vector3" interfacename="normal"/>
     </rotate3d>
     <normalize name="tangent_rotate_normalize" type="vector3">
       <input name="in" type="vector3" nodename="tangent_rotate" />
@@ -144,7 +144,7 @@
     <rotate3d name="coat_tangent_rotate" type="vector3">
       <input name="in" type="vector3" interfacename="tangent" />
       <input name="amount" type="float" nodename="coat_tangent_rotate_degree" />
-      <parameter name="axis" type="vector3" interfacename="coat_normal"/>
+      <input name="axis" type="vector3" interfacename="coat_normal"/>
     </rotate3d>
     <normalize name="coat_tangent_rotate_normalize" type="vector3">
       <input name="in" type="vector3" nodename="coat_tangent_rotate" />

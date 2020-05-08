@@ -103,7 +103,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
 
         emitLine("struct", pixelStage, false);
         emitScopeBegin(pixelStage);
-        emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, pixelStage, false);
+        emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, pixelStage, false);
         emitScopeEnd(pixelStage, false, false);
         emitString(" " + HW::T_VERTEX_DATA_INSTANCE, pixelStage);
         emitLineEnd(pixelStage, true);
@@ -122,7 +122,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     const VariableBlock& constants = pixelStage.getConstantBlock();
     if (!constants.empty())
     {
-        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), SEMICOLON, context, pixelStage);
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, pixelStage);
         emitLineBreak(pixelStage);
     }
 
@@ -135,7 +135,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
         const VariableBlock& lightData = pixelStage.getUniformBlock(HW::LIGHT_DATA);
         emitLine("struct " + lightData.getName(), pixelStage, false);
         emitScopeBegin(pixelStage);
-        emitVariableDeclarations(lightData, EMPTY_STRING, SEMICOLON, context, pixelStage, false);
+        emitVariableDeclarations(lightData, EMPTY_STRING, Syntax::SEMICOLON, context, pixelStage, false);
         emitScopeEnd(pixelStage, true);
         emitLineBreak(pixelStage);
         emitLine("uniform " + lightData.getName() + " " + lightData.getInstance() + "[MAX_LIGHT_SOURCES]", pixelStage);
@@ -197,7 +197,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
             }
             else
             {
-                emitString(COMMA, pixelStage);
+                emitString(Syntax::COMMA, pixelStage);
                 emitLineEnd(pixelStage, false);
             }
 
@@ -228,7 +228,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
 
             if (!firstArgument)
             {
-                emitString(COMMA, pixelStage);
+                emitString(Syntax::COMMA, pixelStage);
                 emitLineEnd(pixelStage, false);
             }
 
@@ -389,7 +389,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
             emitVariableDeclaration(
                 shaderPort, _syntax->getUniformQualifier(), context, uniformsStage
             );
-            emitString(SEMICOLON, uniformsStage);
+            emitString(Syntax::SEMICOLON, uniformsStage);
             emitLineEnd(uniformsStage, false);
         }
 

@@ -12,6 +12,11 @@
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
 
+#include <MaterialXGenOsl/OslShaderGenerator.h>
+#include <MaterialXGenMdl/MdlShaderGenerator.h>
+#include <MaterialXGenOgsFx/MayaGlslPluginShaderGenerator.h>
+
+#include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
 #include <nanogui/button.h>
@@ -201,6 +206,12 @@ Viewer::Viewer(const std::string& materialFilename,
     _cameraViewHandler(mx::ViewHandler::create()),
     _shadowViewHandler(mx::ViewHandler::create()),
     _genContext(mx::GlslShaderGenerator::create()),
+#if MATERIALX_BUILD_GEN_OSL
+    _genContextOsl(mx::OslShaderGenerator::create()),
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+    _genContextMdl(mx::MdlShaderGenerator::create()),
+#endif
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(false),
     _mergeMaterials(false),
@@ -230,6 +241,16 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
+
+    // Set OSL/MDL generator options.
+#if MATERIALX_BUILD_GEN_OSL
+    _genContextOsl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextOsl.getOptions().fileTextureVerticalFlip = false;
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+    _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextMdl.getOptions().fileTextureVerticalFlip = false;
+#endif
 
     // Initialize image handler.
 #if MATERIALX_BUILD_OIIO
@@ -699,6 +720,12 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         mProcessEvents = false;
         _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#if MATERIALX_BUILD_GEN_OSL
+        _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+        _genContextMdl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#endif
         for (MaterialPtr material : _materials)
         {
             material->bindUnits(_unitRegistry, _genContext);
@@ -976,11 +1003,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
                 materials.push_back(node);
             }
-            else
+            else if (elem->isA<mx::ShaderRef>())
             {
                 mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-                mx::TypedElementPtr materialRef = (shaderRef ? shaderRef->getParent()->asA<mx::TypedElement>() : nullptr);
+                mx::TypedElementPtr materialRef = shaderRef->getParent()->asA<mx::TypedElement>();
                 materials.push_back(materialRef);
+            }
+            else
+            {
+                materials.push_back(nullptr);
             }
             renderablePaths.push_back(renderableElem->getNamePath());
         }
@@ -1083,7 +1114,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
                 else if (mat && mat->getMaterialElement())
                 {
-                    mx::NodePtr materialNode = mat->getMaterialElement()->asA<mx::Node>();
+                    mx::TypedElementPtr mtrlElem = mat->getMaterialElement();
+                    mx::NodePtr materialNode = mtrlElem ? mtrlElem->asA<mx::Node>() : nullptr;
                     if (materialNode)
                     {
                         for (mx::MeshPartitionPtr part : _geometryList)
@@ -1156,7 +1188,7 @@ void Viewer::reloadShaders()
     }
 }
 
-void Viewer::saveShaderSource()
+void Viewer::saveShaderSource(mx::GenContext& context)
 {
     try
     {
@@ -1164,15 +1196,35 @@ void Viewer::saveShaderSource()
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            mx::ShaderPtr shader = createShader(elem->getNamePath(), _genContext, elem);
+            mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
             if (shader)
             {
-                std::string vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
-                std::string pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                std::string baseName = _searchPath[0] / elem->getName();
-                writeTextFile(vertexShader,  baseName + "_vs.glsl");
-                writeTextFile(pixelShader, baseName + "_ps.glsl");
-                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ", baseName);
+                const std::string path = mx::getEnviron("MATERIALX_VIEW_OUTPUT_PATH");
+                const std::string baseName = (path.empty() ? _searchPath[0] : mx::FilePath(path)) / elem->getName();
+                if (context.getShaderGenerator().getLanguage() == mx::GlslShaderGenerator::LANGUAGE && context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
+                {
+                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                    writeTextFile(vertexShader, baseName + "_vs.glsl");
+                    writeTextFile(pixelShader, baseName + "_ps.glsl");
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ", baseName);
+                }
+#if MATERIALX_BUILD_GEN_OSL
+                else if (context.getShaderGenerator().getLanguage() == mx::OslShaderGenerator::LANGUAGE)
+                {
+                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                    writeTextFile(pixelShader, baseName + ".osl");
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved OSL source: ", baseName);
+                }
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+                else if (context.getShaderGenerator().getLanguage() == mx::MdlShaderGenerator::LANGUAGE)
+                {
+                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                    writeTextFile(pixelShader, baseName + ".mdl");
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", baseName);
+                }
+#endif
             }
         }
     }
@@ -1276,6 +1328,24 @@ void Viewer::saveDotFiles()
     }
 }
 
+void Viewer::initContext(mx::GenContext& context)
+{
+    // Initialize search paths.
+    context.registerSourceCodeSearchPath(_searchPath);
+
+    // Initialize color management.
+    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getLanguage());
+    cms->loadLibrary(_stdLib);
+    context.getShaderGenerator().setColorManagementSystem(cms);
+
+    // Initialize unit management.
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getLanguage());
+    unitSystem->loadLibrary(_stdLib);
+    unitSystem->setUnitConverterRegistry(_unitRegistry);
+    context.getShaderGenerator().setUnitSystem(unitSystem);
+    context.getOptions().targetDistanceUnit = "meter";
+}
+
 void Viewer::loadStandardLibraries()
 {
     // Initialize the standard library.
@@ -1289,24 +1359,13 @@ void Viewer::loadStandardLibraries()
         _xincludeFiles.insert(sourceUri);
     }
 
-    // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
-    cms->loadLibrary(_stdLib);
-    _genContext.registerSourceCodeSearchPath(_searchPath);
-    _genContext.getShaderGenerator().setColorManagementSystem(cms);
-
     // Initialize unit management.
-    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_genContext.getShaderGenerator().getLanguage());
-    unitSystem->loadLibrary(_stdLib);
-    unitSystem->setUnitConverterRegistry(_unitRegistry);
-    _genContext.getShaderGenerator().setUnitSystem(unitSystem);
     mx::UnitTypeDefPtr distanceTypeDef = _stdLib->getUnitTypeDef("distance");
     _distanceUnitConverter = mx::LinearUnitConverter::create(distanceTypeDef);
     _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
     mx::UnitTypeDefPtr angleTypeDef = _stdLib->getUnitTypeDef("angle");
     mx::LinearUnitConverterPtr angleConverter = mx::LinearUnitConverter::create(angleTypeDef);
     _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
-    _genContext.getOptions().targetDistanceUnit = "meter";
 
     // Create the list of supported distance units.
     auto unitScales = _distanceUnitConverter->getUnitScale();
@@ -1316,6 +1375,15 @@ void Viewer::loadStandardLibraries()
         int location = _distanceUnitConverter->getUnitAsInteger(unitScale.first);
         _distanceUnitOptions[location] = unitScale.first;
     }
+
+    // Initialize the generator contexts.
+    initContext(_genContext);
+#if MATERIALX_BUILD_GEN_OSL
+    initContext(_genContextOsl);
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+    initContext(_genContextMdl);
+#endif
 }
 
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
@@ -1353,9 +1421,27 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     // Save the current shader source to file.
     if (key == GLFW_KEY_S && action == GLFW_PRESS)
     {
-        saveShaderSource();
+        saveShaderSource(_genContext);
         return true;
     }
+
+#if MATERIALX_BUILD_GEN_OSL
+    // Save OSL shader source to file.
+    if (key == GLFW_KEY_O && action == GLFW_PRESS)
+    {
+        saveShaderSource(_genContextOsl);
+        return true;
+    }
+#endif
+
+#if MATERIALX_BUILD_GEN_MDL
+    // Save MDL shader source to file.
+    if (key == GLFW_KEY_M && action == GLFW_PRESS)
+    {
+        saveShaderSource(_genContextMdl);
+        return true;
+    }
+#endif
 
     // Load shader source from file.  Editing the source files before loading
     // provides a way to debug and experiment with shader source code.
@@ -1546,6 +1632,7 @@ mx::ImagePtr Viewer::getFrameImage()
 
     // Read pixels into the image buffer.
     glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
+
 
     return image;
 }

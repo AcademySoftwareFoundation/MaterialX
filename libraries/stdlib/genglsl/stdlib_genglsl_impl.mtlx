@@ -65,6 +65,7 @@
   <implementation name="IM_ramplr_vector2_genglsl" nodedef="ND_ramplr_vector2" file="stdlib/genglsl/mx_ramplr_vector2.glsl" function="mx_ramplr_vector2" language="genglsl"/>
   <implementation name="IM_ramplr_vector3_genglsl" nodedef="ND_ramplr_vector3" file="stdlib/genglsl/mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" language="genglsl"/>
   <implementation name="IM_ramplr_vector4_genglsl" nodedef="ND_ramplr_vector4" file="stdlib/genglsl/mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" language="genglsl"/>
+
   <!-- <ramptb> -->
   <implementation name="IM_ramptb_float_genglsl" nodedef="ND_ramptb_float" file="stdlib/genglsl/mx_ramptb_float.glsl" function="mx_ramptb_float" language="genglsl"/>
   <implementation name="IM_ramptb_color2_genglsl" nodedef="ND_ramptb_color2" file="stdlib/genglsl/mx_ramptb_vector2.glsl" function="mx_ramptb_vector2" language="genglsl"/>
@@ -73,14 +74,6 @@
   <implementation name="IM_ramptb_vector2_genglsl" nodedef="ND_ramptb_vector2" file="stdlib/genglsl/mx_ramptb_vector2.glsl" function="mx_ramptb_vector2" language="genglsl"/>
   <implementation name="IM_ramptb_vector3_genglsl" nodedef="ND_ramptb_vector3" file="stdlib/genglsl/mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" language="genglsl"/>
   <implementation name="IM_ramptb_vector4_genglsl" nodedef="ND_ramptb_vector4" file="stdlib/genglsl/mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" language="genglsl"/>
-  <!-- <ramp4> -->
-  <implementation name="IM_ramp4_float_genglsl" nodedef="ND_ramp4_float" file="stdlib/genglsl/mx_ramp4_float.glsl" function="mx_ramp4_float" language="genglsl"/>
-  <implementation name="IM_ramp4_color2_genglsl" nodedef="ND_ramp4_color2" file="stdlib/genglsl/mx_ramp4_vector2.glsl" function="mx_ramp4_vector2" language="genglsl"/>
-  <implementation name="IM_ramp4_color3_genglsl" nodedef="ND_ramp4_color3" file="stdlib/genglsl/mx_ramp4_vector3.glsl" function="mx_ramp4_vector3" language="genglsl"/>
-  <implementation name="IM_ramp4_color4_genglsl" nodedef="ND_ramp4_color4" file="stdlib/genglsl/mx_ramp4_vector4.glsl" function="mx_ramp4_vector4" language="genglsl"/>
-  <implementation name="IM_ramp4_vector2_genglsl" nodedef="ND_ramp4_vector2" file="stdlib/genglsl/mx_ramp4_vector2.glsl" function="mx_ramp4_vector2" language="genglsl"/>
-  <implementation name="IM_ramp4_vector3_genglsl" nodedef="ND_ramp4_vector3" file="stdlib/genglsl/mx_ramp4_vector3.glsl" function="mx_ramp4_vector3" language="genglsl"/>
-  <implementation name="IM_ramp4_vector4_genglsl" nodedef="ND_ramp4_vector4" file="stdlib/genglsl/mx_ramp4_vector4.glsl" function="mx_ramp4_vector4" language="genglsl"/>
 
   <!-- <splitlr> -->
   <implementation name="IM_splitlr_float_genglsl" nodedef="ND_splitlr_float" file="stdlib/genglsl/mx_splitlr_float.glsl" function="mx_splitlr_float" language="genglsl"/>

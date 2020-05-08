@@ -27,8 +27,21 @@ int main(int argc, char* const argv[])
         tokens.emplace_back(argv[i]);
     }
 
-    mx::FilePathVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", 
-                                       "libraries/bxdf", "libraries/lights", "libraries/lights/genglsl" };
+    mx::FilePathVec libraryFolders = 
+    {
+        "libraries/stdlib",
+        "libraries/stdlib/genglsl",
+        "libraries/stdlib/genosl",
+        "libraries/stdlib/genmdl",
+        "libraries/pbrlib",
+        "libraries/pbrlib/genglsl",
+        "libraries/pbrlib/genosl",
+        "libraries/pbrlib/genmdl",
+        "libraries/bxdf",
+        "libraries/lights",
+        "libraries/lights/genglsl"
+    };
+
     mx::FileSearchPath searchPath;
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.obj";

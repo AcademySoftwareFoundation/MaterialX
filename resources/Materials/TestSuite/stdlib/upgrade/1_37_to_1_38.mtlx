@@ -17,5 +17,10 @@
          <input name="in1" type="vector4" value="0.5, 0.5, 0.5, 0.5" />
          <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
       </atan2>
+      <rotate3d name="rot1" type="vector3">
+         <input name="in" type="vector3" value="1.0, 0.0, 0.0"/>
+         <input name="amount" type="float" value="10.0"/>
+         <parameter name="axis" type="vector3" value="0.0, 0.0, 1.0"/>
+      </rotate3d>
    </nodegraph>
 </materialx>

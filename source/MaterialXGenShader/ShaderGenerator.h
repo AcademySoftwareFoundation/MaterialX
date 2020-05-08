@@ -165,15 +165,6 @@ class ShaderGenerator
     /// will be returned, as defined by the createDefaultImplementation method.
     ShaderNodeImplPtr getImplementation(const InterfaceElement& element, GenContext& context) const;
 
-    /// Given an input specification attempt to remap this to an enumeration which is accepted by
-    /// the shader generator. The enumeration may be converted to a different type than the input.
-    /// @param input Nodedef input potentially holding an enum definition.
-    /// @param value The value string to remap.
-    /// @param result Enumeration type and value (returned).
-    /// @return Return true if the remapping was successful.
-    virtual bool remapEnumeration(const ValueElement& input, const string& value,
-                                  std::pair<const TypeDesc*, ValuePtr>& result) const;
-
     /// Return the map of token substitutions used by the generator.
     const StringMap& getTokenSubstitutions() const
     {
@@ -208,6 +199,11 @@ class ShaderGenerator
     /// Derived classes can override this to use custom compound implementations.
     virtual ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const;
 
+    /// Method called on all created shader graphs. By default it does nothing,
+    /// but shader generators can override this to perform custom edits on the graph
+    /// before shader generation starts.
+    virtual void finalizeShaderGraph(ShaderGraph& /*graph*/) {};
+
     /// Set function name for a stage.
     void setFunctionName(const string& functionName, ShaderStage& stage) const
     {
@@ -218,8 +214,6 @@ class ShaderGenerator
     void replaceTokens(const StringMap& substitutions, ShaderStage& stage) const;
 
   protected:
-    static const string SEMICOLON;
-    static const string COMMA;
     static const string T_FILE_TRANSFORM_UV;
 
     SyntaxPtr _syntax;
@@ -227,6 +221,8 @@ class ShaderGenerator
     ColorManagementSystemPtr _colorManagementSystem;
     UnitSystemPtr _unitSystem;
     mutable StringMap _tokenSubstitutions;
+
+    friend ShaderGraph;
 };
 
 } // namespace MaterialX

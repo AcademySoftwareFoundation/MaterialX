@@ -28,14 +28,16 @@ public:
         const mx::FilePathVec& testRootPaths,
         const mx::FilePath& libSearchPath,
         const mx::FileSearchPath& srcSearchPath,
-        const mx::FilePath& logFilePath
+        const mx::FilePath& logFilePath, 
+        bool writeShadersToDisk
     )
         : GlslShaderGeneratorTester(
             mx::GlslFragmentGenerator::create(),
             testRootPaths,
             libSearchPath,
             srcSearchPath,
-            logFilePath
+            logFilePath,
+            writeShadersToDisk
         )
     {
         dumpMaterials = { "Tiled_Brass", "Brass_Wire_Mesh" };
@@ -116,7 +118,8 @@ static void generateXmlCode()
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genogsxml_generate_test.txt");
 
-    OgsXmlShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath);
+    bool writeShadersToDisk = false;
+    OgsXmlShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPaths.front() / mx::FilePath("_options.mtlx");

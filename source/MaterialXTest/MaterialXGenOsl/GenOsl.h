@@ -20,8 +20,8 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     OslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const std::vector<mx::FilePath>& testRootPaths,
                              const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath,
-                             const mx::FilePath& logFilePath) :
-        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath)
+                             const mx::FilePath& logFilePath, bool writeShadersToDisk) :
+        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath, writeShadersToDisk)
     {}
 
     void setTestStages() override

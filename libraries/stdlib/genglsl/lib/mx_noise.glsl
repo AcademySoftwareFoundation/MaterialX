@@ -93,7 +93,7 @@ vec3 mx_trilerp(vec3 v0, vec3 v1, vec3 v2, vec3 v3, vec3 v4, vec3 v5, vec3 v6, v
 // randomly chosen vector. Note that the gradient vector is not normalized, but
 // this only affects the overal "scale" of the result, so we simply account for
 // the scale by multiplying in the corresponding "perlin" function.
-float mx_gradient(uint hash, float x, float y)
+float mx_gradient_float(uint hash, float x, float y)
 {
     // 8 possible directions (+-1,+-2) and (+-2,+-1)
     uint h = hash & 7u;
@@ -102,7 +102,7 @@ float mx_gradient(uint hash, float x, float y)
     // compute the dot product with (x,y).
     return mx_negate_if(u, bool(h&1u)) + mx_negate_if(v, bool(h&2u));
 }
-float mx_gradient(uint hash, float x, float y, float z)
+float mx_gradient_float(uint hash, float x, float y, float z)
 {
     // use vectors pointing to the edges of the cube
     uint h = hash & 15u;
@@ -110,13 +110,13 @@ float mx_gradient(uint hash, float x, float y, float z)
     float v = mx_select(h<4u, y, mx_select((h==12u)||(h==14u), x, z));
     return mx_negate_if(u, bool(h&1u)) + mx_negate_if(v, bool(h&2u));
 }
-vec3 mx_gradient(uvec3 hash, float x, float y)
+vec3 mx_gradient_vec3(uvec3 hash, float x, float y)
 {
-    return vec3(mx_gradient(hash.x, x, y), mx_gradient(hash.y, x, y), mx_gradient(hash.z, x, y));
+    return vec3(mx_gradient_float(hash.x, x, y), mx_gradient_float(hash.y, x, y), mx_gradient_float(hash.z, x, y));
 }
-vec3 mx_gradient(uvec3 hash, float x, float y, float z)
+vec3 mx_gradient_vec3(uvec3 hash, float x, float y, float z)
 {
-    return vec3(mx_gradient(hash.x, x, y, z), mx_gradient(hash.y, x, y, z), mx_gradient(hash.z, x, y, z));
+    return vec3(mx_gradient_float(hash.x, x, y, z), mx_gradient_float(hash.y, x, y, z), mx_gradient_float(hash.z, x, y, z));
 }
 // Scaling factors to normalize the result of gradients above.
 // These factors were experimentally calculated to be:
@@ -160,25 +160,23 @@ float mx_fade(float t)
 
 uint mx_hash_int(int x, int y)
 {
-    uint a, b, c;
     uint len = 2u;
+    uint a, b, c;
     a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
     a += uint(x);
     b += uint(y);
-    c = mx_bjfinal(a, b, c);
-    return c;
+    return mx_bjfinal(a, b, c);
 }
 
 uint mx_hash_int(int x, int y, int z)
 {
-    uint a, b, c;
     uint len = 3u;
+    uint a, b, c;
     a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
     a += uint(x);
     b += uint(y);
     c += uint(z);
-    c = mx_bjfinal(a, b, c);
-    return c;
+    return mx_bjfinal(a, b, c);
 }
 
 uvec3 mx_hash_vec3(int x, int y)
@@ -213,10 +211,10 @@ float mx_perlin_noise_float(vec2 p)
     float u = mx_fade(fx);
     float v = mx_fade(fy);
     float result = mx_bilerp(
-        mx_gradient(mx_hash_int(X  , Y  ), fx    , fy     ),
-        mx_gradient(mx_hash_int(X+1, Y  ), fx-1.0, fy     ),
-        mx_gradient(mx_hash_int(X  , Y+1), fx    , fy-1.0),
-        mx_gradient(mx_hash_int(X+1, Y+1), fx-1.0, fy-1.0),
+        mx_gradient_float(mx_hash_int(X  , Y  ), fx    , fy     ),
+        mx_gradient_float(mx_hash_int(X+1, Y  ), fx-1.0, fy     ),
+        mx_gradient_float(mx_hash_int(X  , Y+1), fx    , fy-1.0),
+        mx_gradient_float(mx_hash_int(X+1, Y+1), fx-1.0, fy-1.0),
         u, v);
     return mx_gradient_scale2d(result);
 }
@@ -231,14 +229,14 @@ float mx_perlin_noise_float(vec3 p)
     float v = mx_fade(fy);
     float w = mx_fade(fz);
     float result = mx_trilerp(
-        mx_gradient(mx_hash_int(X  , Y  , Z  ), fx    , fy    , fz     ),
-        mx_gradient(mx_hash_int(X+1, Y  , Z  ), fx-1.0, fy    , fz     ),
-        mx_gradient(mx_hash_int(X  , Y+1, Z  ), fx    , fy-1.0, fz     ),
-        mx_gradient(mx_hash_int(X+1, Y+1, Z  ), fx-1.0, fy-1.0, fz     ),
-        mx_gradient(mx_hash_int(X  , Y  , Z+1), fx    , fy    , fz-1.0),
-        mx_gradient(mx_hash_int(X+1, Y  , Z+1), fx-1.0, fy    , fz-1.0),
-        mx_gradient(mx_hash_int(X  , Y+1, Z+1), fx    , fy-1.0, fz-1.0),
-        mx_gradient(mx_hash_int(X+1, Y+1, Z+1), fx-1.0, fy-1.0, fz-1.0),
+        mx_gradient_float(mx_hash_int(X  , Y  , Z  ), fx    , fy    , fz     ),
+        mx_gradient_float(mx_hash_int(X+1, Y  , Z  ), fx-1.0, fy    , fz     ),
+        mx_gradient_float(mx_hash_int(X  , Y+1, Z  ), fx    , fy-1.0, fz     ),
+        mx_gradient_float(mx_hash_int(X+1, Y+1, Z  ), fx-1.0, fy-1.0, fz     ),
+        mx_gradient_float(mx_hash_int(X  , Y  , Z+1), fx    , fy    , fz-1.0),
+        mx_gradient_float(mx_hash_int(X+1, Y  , Z+1), fx-1.0, fy    , fz-1.0),
+        mx_gradient_float(mx_hash_int(X  , Y+1, Z+1), fx    , fy-1.0, fz-1.0),
+        mx_gradient_float(mx_hash_int(X+1, Y+1, Z+1), fx-1.0, fy-1.0, fz-1.0),
         u, v, w);
     return mx_gradient_scale3d(result);
 }
@@ -251,10 +249,10 @@ vec3 mx_perlin_noise_vec3(vec2 p)
     float u = mx_fade(fx);
     float v = mx_fade(fy);
     vec3 result = mx_bilerp(
-        mx_gradient(mx_hash_vec3(X  , Y  ), fx    , fy     ),
-        mx_gradient(mx_hash_vec3(X+1, Y  ), fx-1.0, fy     ),
-        mx_gradient(mx_hash_vec3(X  , Y+1), fx    , fy-1.0),
-        mx_gradient(mx_hash_vec3(X+1, Y+1), fx-1.0, fy-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y  ), fx    , fy     ),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y  ), fx-1.0, fy     ),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y+1), fx    , fy-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y+1), fx-1.0, fy-1.0),
         u, v);
     return mx_gradient_scale2d(result);
 }
@@ -269,14 +267,14 @@ vec3 mx_perlin_noise_vec3(vec3 p)
     float v = mx_fade(fy);
     float w = mx_fade(fz);
     vec3 result = mx_trilerp(
-        mx_gradient(mx_hash_vec3(X  , Y  , Z  ), fx    , fy    , fz     ),
-        mx_gradient(mx_hash_vec3(X+1, Y  , Z  ), fx-1.0, fy    , fz     ),
-        mx_gradient(mx_hash_vec3(X  , Y+1, Z  ), fx    , fy-1.0, fz     ),
-        mx_gradient(mx_hash_vec3(X+1, Y+1, Z  ), fx-1.0, fy-1.0, fz     ),
-        mx_gradient(mx_hash_vec3(X  , Y  , Z+1), fx    , fy    , fz-1.0),
-        mx_gradient(mx_hash_vec3(X+1, Y  , Z+1), fx-1.0, fy    , fz-1.0),
-        mx_gradient(mx_hash_vec3(X  , Y+1, Z+1), fx    , fy-1.0, fz-1.0),
-        mx_gradient(mx_hash_vec3(X+1, Y+1, Z+1), fx-1.0, fy-1.0, fz-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y  , Z  ), fx    , fy    , fz     ),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y  , Z  ), fx-1.0, fy    , fz     ),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y+1, Z  ), fx    , fy-1.0, fz     ),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y+1, Z  ), fx-1.0, fy-1.0, fz     ),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y  , Z+1), fx    , fy    , fz-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y  , Z+1), fx-1.0, fy    , fz-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y+1, Z+1), fx    , fy-1.0, fz-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y+1, Z+1), fx-1.0, fy-1.0, fz-1.0),
         u, v, w);
     return mx_gradient_scale3d(result);
 }

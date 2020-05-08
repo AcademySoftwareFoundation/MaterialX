@@ -29,31 +29,36 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
 
     const Implementation& impl = static_cast<const Implementation&>(element);
 
-    FilePath file = impl.getAttribute("file");
-    if (file.isEmpty())
-    {
-        throw ExceptionShaderGenError("No source file specified for implementation '" + impl.getName() + "'");
-    }
-
-    _inlined = (file.getExtension() == "inline");
-
-    // Find the function name to use
-    _functionName = impl.getAttribute("function");
-    if (_functionName.empty())
-    {
-        // No function given so use nodedef name
-        _functionName = impl.getNodeDefString();
-    }
-    context.getShaderGenerator().getSyntax().makeValidName(_functionName);
-
-    _functionSource = readFile(context.resolveSourceFile(FilePath("libraries") / file));
+    // Get source code from either an attribute or a file.
+    _functionSource = impl.getAttribute("sourcecode");
     if (_functionSource.empty())
     {
-        throw ExceptionShaderGenError("Could not find source file '" + file.asString() +
-                                      "' used by implementation '" + impl.getName() + "'");
+        FilePath file(impl.getAttribute("file"));
+        file = context.resolveSourceFile(FilePath("libraries") / file);
+        _functionSource = readFile(file);
+        if (_functionSource.empty())
+        {
+            throw ExceptionShaderGenError("Failed to get source code from file '" + file.asString() +
+                "' used by implementation '" + impl.getName() + "'");
+        }
     }
 
-    if (_inlined)
+    // Find the function name to use
+    // If no function is given the source will be inlined.
+    _functionName = impl.getAttribute("function");
+    _inlined = _functionName.empty();
+    if (!_inlined)
+    {
+        // Make sure the function name is valid.
+        string validFunctionName = _functionName;
+        context.getShaderGenerator().getSyntax().makeValidName(validFunctionName);
+        if (_functionName != validFunctionName)
+        {
+            throw ExceptionShaderGenError("Function name '" + _functionName +
+                "' used by implementation '" + impl.getName() + "' is not a valid identifier.");
+        }
+    }
+    else
     {
         _functionSource = replaceSubstrings(_functionSource, { { "\n", "" } });
     }

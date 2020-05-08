@@ -1,0 +1,1007 @@
+/*
+ * Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Support functions to simplify conversions between vector types with swizzles
+// Supported argument types: float (with implied field name x), float2, float3, 
+//     float4, color, color4 (as RGB and RGBA)                     
+// Supported return types: float, float2, float3, float4
+
+mdl 1.6;
+
+using .::core import color4;
+
+// Swizzles with float return type
+export float x( float a) { return a; }
+
+export float x( float2 a) { return a.x; }
+export float y( float2 a) { return a.y; }
+
+export float x( float3 a) { return a.x; }
+export float y( float3 a) { return a.y; }
+export float z( float3 a) { return a.z; }
+
+export float x( float4 a) { return a.x; }
+export float y( float4 a) { return a.y; }
+export float z( float4 a) { return a.z; }
+export float w( float4 a) { return a.w; }
+
+export float x( color a) { return x( float3(a)); }
+export float y( color a) { return y( float3(a)); }
+export float z( color a) { return z( float3(a)); }
+
+export float x( color4 a) { return float3( a.rgb).x; }
+export float y( color4 a) { return float3( a.rgb).y; }
+export float z( color4 a) { return float3( a.rgb).z; }
+export float w( color4 a) { return a.a; }
+
+// Swizzles with float2 return type
+export float2 xx( float a) { return float2( a, a); }
+
+export float2 xx( float2 a) { return float2( a.x, a.x); }
+export float2 xy( float2 a) { return float2( a.x, a.y); }
+export float2 yx( float2 a) { return float2( a.y, a.x); }
+export float2 yy( float2 a) { return float2( a.y, a.y); }
+
+export float2 xx( float3 a) { return float2( a.x, a.x); }
+export float2 xy( float3 a) { return float2( a.x, a.y); }
+export float2 xz( float3 a) { return float2( a.x, a.z); }
+export float2 yx( float3 a) { return float2( a.y, a.x); }
+export float2 yy( float3 a) { return float2( a.y, a.y); }
+export float2 yz( float3 a) { return float2( a.y, a.z); }
+export float2 zx( float3 a) { return float2( a.z, a.x); }
+export float2 zy( float3 a) { return float2( a.z, a.y); }
+export float2 zz( float3 a) { return float2( a.z, a.z); }
+
+export float2 xx( float4 a) { return float2( a.x, a.x); }
+export float2 xy( float4 a) { return float2( a.x, a.y); }
+export float2 xz( float4 a) { return float2( a.x, a.z); }
+export float2 xw( float4 a) { return float2( a.x, a.w); }
+export float2 yx( float4 a) { return float2( a.y, a.x); }
+export float2 yy( float4 a) { return float2( a.y, a.y); }
+export float2 yz( float4 a) { return float2( a.y, a.z); }
+export float2 yw( float4 a) { return float2( a.y, a.w); }
+export float2 zx( float4 a) { return float2( a.z, a.x); }
+export float2 zy( float4 a) { return float2( a.z, a.y); }
+export float2 zz( float4 a) { return float2( a.z, a.z); }
+export float2 zw( float4 a) { return float2( a.z, a.w); }
+export float2 wx( float4 a) { return float2( a.w, a.x); }
+export float2 wy( float4 a) { return float2( a.w, a.y); }
+export float2 wz( float4 a) { return float2( a.w, a.z); }
+export float2 ww( float4 a) { return float2( a.w, a.w); }
+
+export float2 xx( color a) { return xx( float3(a)); }
+export float2 xy( color a) { return xy( float3(a)); }
+export float2 xz( color a) { return xz( float3(a)); }
+export float2 yx( color a) { return yx( float3(a)); }
+export float2 yy( color a) { return yy( float3(a)); }
+export float2 yz( color a) { return yz( float3(a)); }
+export float2 zx( color a) { return zx( float3(a)); }
+export float2 zy( color a) { return zy( float3(a)); }
+export float2 zz( color a) { return zz( float3(a)); }
+
+export float2 xx( color4 a) { return xx( float3( a.rgb)); }
+export float2 xy( color4 a) { return xy( float3( a.rgb)); }
+export float2 xz( color4 a) { return xz( float3( a.rgb)); }
+export float2 xw( color4 a) { return float2( float3( a.rgb).x, a.a); }
+export float2 yx( color4 a) { return yx( float3( a.rgb)); }
+export float2 yy( color4 a) { return yy( float3( a.rgb)); }
+export float2 yz( color4 a) { return yz( float3( a.rgb)); }
+export float2 yw( color4 a) { return float2( float3( a.rgb).y, a.a); }
+export float2 zx( color4 a) { return zx( float3( a.rgb)); }
+export float2 zy( color4 a) { return zy( float3( a.rgb)); }
+export float2 zz( color4 a) { return zz( float3( a.rgb)); }
+export float2 zw( color4 a) { return float2( float3( a.rgb).z, a.a); }
+export float2 wx( color4 a) { return float2( a.a, float3( a.rgb).x); }
+export float2 wy( color4 a) { return float2( a.a, float3( a.rgb).y); }
+export float2 wz( color4 a) { return float2( a.a, float3( a.rgb).z); }
+export float2 ww( color4 a) { return float2( a.a, a.a); }
+
+// Swizzles with float3 return type
+export float3 xxx( float a) { return float3( a, a, a); }
+
+export float3 xxx( float2 a) { return float3( a.x, a.x, a.x); }
+export float3 xxy( float2 a) { return float3( a.x, a.x, a.y); }
+export float3 xyx( float2 a) { return float3( a.x, a.y, a.x); }
+export float3 xyy( float2 a) { return float3( a.x, a.y, a.y); }
+export float3 yxx( float2 a) { return float3( a.y, a.x, a.x); }
+export float3 yxy( float2 a) { return float3( a.y, a.x, a.y); }
+export float3 yyx( float2 a) { return float3( a.y, a.y, a.x); }
+export float3 yyy( float2 a) { return float3( a.y, a.y, a.y); }
+
+export float3 xxx( float3 a) { return float3( a.x, a.x, a.x); }
+export float3 xxy( float3 a) { return float3( a.x, a.x, a.y); }
+export float3 xxz( float3 a) { return float3( a.x, a.x, a.z); }
+export float3 xyx( float3 a) { return float3( a.x, a.y, a.x); }
+export float3 xyy( float3 a) { return float3( a.x, a.y, a.y); }
+export float3 xyz( float3 a) { return float3( a.x, a.y, a.z); }
+export float3 xzx( float3 a) { return float3( a.x, a.z, a.x); }
+export float3 xzy( float3 a) { return float3( a.x, a.z, a.y); }
+export float3 xzz( float3 a) { return float3( a.x, a.z, a.z); }
+export float3 yxx( float3 a) { return float3( a.y, a.x, a.x); }
+export float3 yxy( float3 a) { return float3( a.y, a.x, a.y); }
+export float3 yxz( float3 a) { return float3( a.y, a.x, a.z); }
+export float3 yyx( float3 a) { return float3( a.y, a.y, a.x); }
+export float3 yyy( float3 a) { return float3( a.y, a.y, a.y); }
+export float3 yyz( float3 a) { return float3( a.y, a.y, a.z); }
+export float3 yzx( float3 a) { return float3( a.y, a.z, a.x); }
+export float3 yzy( float3 a) { return float3( a.y, a.z, a.y); }
+export float3 yzz( float3 a) { return float3( a.y, a.z, a.z); }
+export float3 zxx( float3 a) { return float3( a.z, a.x, a.x); }
+export float3 zxy( float3 a) { return float3( a.z, a.x, a.y); }
+export float3 zxz( float3 a) { return float3( a.z, a.x, a.z); }
+export float3 zyx( float3 a) { return float3( a.z, a.y, a.x); }
+export float3 zyy( float3 a) { return float3( a.z, a.y, a.y); }
+export float3 zyz( float3 a) { return float3( a.z, a.y, a.z); }
+export float3 zzx( float3 a) { return float3( a.z, a.z, a.x); }
+export float3 zzy( float3 a) { return float3( a.z, a.z, a.y); }
+export float3 zzz( float3 a) { return float3( a.z, a.z, a.z); }
+
+export float3 xxx( float4 a) { return float3( a.x, a.x, a.x); }
+export float3 xxy( float4 a) { return float3( a.x, a.x, a.y); }
+export float3 xxz( float4 a) { return float3( a.x, a.x, a.z); }
+export float3 xxw( float4 a) { return float3( a.x, a.x, a.w); }
+export float3 xyx( float4 a) { return float3( a.x, a.y, a.x); }
+export float3 xyy( float4 a) { return float3( a.x, a.y, a.y); }
+export float3 xyz( float4 a) { return float3( a.x, a.y, a.z); }
+export float3 xyw( float4 a) { return float3( a.x, a.y, a.w); }
+export float3 xzx( float4 a) { return float3( a.x, a.z, a.x); }
+export float3 xzy( float4 a) { return float3( a.x, a.z, a.y); }
+export float3 xzz( float4 a) { return float3( a.x, a.z, a.z); }
+export float3 xzw( float4 a) { return float3( a.x, a.z, a.w); }
+export float3 xwx( float4 a) { return float3( a.x, a.w, a.x); }
+export float3 xwy( float4 a) { return float3( a.x, a.w, a.y); }
+export float3 xwz( float4 a) { return float3( a.x, a.w, a.z); }
+export float3 xww( float4 a) { return float3( a.x, a.w, a.w); }
+export float3 yxx( float4 a) { return float3( a.y, a.x, a.x); }
+export float3 yxy( float4 a) { return float3( a.y, a.x, a.y); }
+export float3 yxz( float4 a) { return float3( a.y, a.x, a.z); }
+export float3 yxw( float4 a) { return float3( a.y, a.x, a.w); }
+export float3 yyx( float4 a) { return float3( a.y, a.y, a.x); }
+export float3 yyy( float4 a) { return float3( a.y, a.y, a.y); }
+export float3 yyz( float4 a) { return float3( a.y, a.y, a.z); }
+export float3 yyw( float4 a) { return float3( a.y, a.y, a.w); }
+export float3 yzx( float4 a) { return float3( a.y, a.z, a.x); }
+export float3 yzy( float4 a) { return float3( a.y, a.z, a.y); }
+export float3 yzz( float4 a) { return float3( a.y, a.z, a.z); }
+export float3 yzw( float4 a) { return float3( a.y, a.z, a.w); }
+export float3 ywx( float4 a) { return float3( a.y, a.w, a.x); }
+export float3 ywy( float4 a) { return float3( a.y, a.w, a.y); }
+export float3 ywz( float4 a) { return float3( a.y, a.w, a.z); }
+export float3 yww( float4 a) { return float3( a.y, a.w, a.w); }
+export float3 zxx( float4 a) { return float3( a.z, a.x, a.x); }
+export float3 zxy( float4 a) { return float3( a.z, a.x, a.y); }
+export float3 zxz( float4 a) { return float3( a.z, a.x, a.z); }
+export float3 zxw( float4 a) { return float3( a.z, a.x, a.w); }
+export float3 zyx( float4 a) { return float3( a.z, a.y, a.x); }
+export float3 zyy( float4 a) { return float3( a.z, a.y, a.y); }
+export float3 zyz( float4 a) { return float3( a.z, a.y, a.z); }
+export float3 zyw( float4 a) { return float3( a.z, a.y, a.w); }
+export float3 zzx( float4 a) { return float3( a.z, a.z, a.x); }
+export float3 zzy( float4 a) { return float3( a.z, a.z, a.y); }
+export float3 zzz( float4 a) { return float3( a.z, a.z, a.z); }
+export float3 zzw( float4 a) { return float3( a.z, a.z, a.w); }
+export float3 zwx( float4 a) { return float3( a.z, a.w, a.x); }
+export float3 zwy( float4 a) { return float3( a.z, a.w, a.y); }
+export float3 zwz( float4 a) { return float3( a.z, a.w, a.z); }
+export float3 zww( float4 a) { return float3( a.z, a.w, a.w); }
+export float3 wxx( float4 a) { return float3( a.w, a.x, a.x); }
+export float3 wxy( float4 a) { return float3( a.w, a.x, a.y); }
+export float3 wxz( float4 a) { return float3( a.w, a.x, a.z); }
+export float3 wxw( float4 a) { return float3( a.w, a.x, a.w); }
+export float3 wyx( float4 a) { return float3( a.w, a.y, a.x); }
+export float3 wyy( float4 a) { return float3( a.w, a.y, a.y); }
+export float3 wyz( float4 a) { return float3( a.w, a.y, a.z); }
+export float3 wyw( float4 a) { return float3( a.w, a.y, a.w); }
+export float3 wzx( float4 a) { return float3( a.w, a.z, a.x); }
+export float3 wzy( float4 a) { return float3( a.w, a.z, a.y); }
+export float3 wzz( float4 a) { return float3( a.w, a.z, a.z); }
+export float3 wzw( float4 a) { return float3( a.w, a.z, a.w); }
+export float3 wwx( float4 a) { return float3( a.w, a.w, a.x); }
+export float3 wwy( float4 a) { return float3( a.w, a.w, a.y); }
+export float3 wwz( float4 a) { return float3( a.w, a.w, a.z); }
+export float3 www( float4 a) { return float3( a.w, a.w, a.w); }
+
+export float3 xxx( color a) { return xxx( float3(a)); }
+export float3 xxy( color a) { return xxy( float3(a)); }
+export float3 xxz( color a) { return xxz( float3(a)); }
+export float3 xyx( color a) { return xyx( float3(a)); }
+export float3 xyy( color a) { return xyy( float3(a)); }
+export float3 xyz( color a) { return xyz( float3(a)); }
+export float3 xzx( color a) { return xzx( float3(a)); }
+export float3 xzy( color a) { return xzy( float3(a)); }
+export float3 xzz( color a) { return xzz( float3(a)); }
+export float3 yxx( color a) { return yxx( float3(a)); }
+export float3 yxy( color a) { return yxy( float3(a)); }
+export float3 yxz( color a) { return yxz( float3(a)); }
+export float3 yyx( color a) { return yyx( float3(a)); }
+export float3 yyy( color a) { return yyy( float3(a)); }
+export float3 yyz( color a) { return yyz( float3(a)); }
+export float3 yzx( color a) { return yzx( float3(a)); }
+export float3 yzy( color a) { return yzy( float3(a)); }
+export float3 yzz( color a) { return yzz( float3(a)); }
+export float3 zxx( color a) { return zxx( float3(a)); }
+export float3 zxy( color a) { return zxy( float3(a)); }
+export float3 zxz( color a) { return zxz( float3(a)); }
+export float3 zyx( color a) { return zyx( float3(a)); }
+export float3 zyy( color a) { return zyy( float3(a)); }
+export float3 zyz( color a) { return zyz( float3(a)); }
+export float3 zzx( color a) { return zzx( float3(a)); }
+export float3 zzy( color a) { return zzy( float3(a)); }
+export float3 zzz( color a) { return zzz( float3(a)); }
+
+export float3 xxx( color4 a) { return xxx( float3( a.rgb)); }
+export float3 xxy( color4 a) { return xxy( float3( a.rgb)); }
+export float3 xxz( color4 a) { return xxz( float3( a.rgb)); }
+export float3 xxw( color4 a) { return float3( float3( a.rgb).x, float3( a.rgb).x, a.a); }
+export float3 xyx( color4 a) { return xyx( float3( a.rgb)); }
+export float3 xyy( color4 a) { return xyy( float3( a.rgb)); }
+export float3 xyz( color4 a) { return xyz( float3( a.rgb)); }
+export float3 xyw( color4 a) { return float3( float3( a.rgb).x, float3( a.rgb).y, a.a); }
+export float3 xzx( color4 a) { return xzx( float3( a.rgb)); }
+export float3 xzy( color4 a) { return xzy( float3( a.rgb)); }
+export float3 xzz( color4 a) { return xzz( float3( a.rgb)); }
+export float3 xzw( color4 a) { return float3( float3( a.rgb).x, float3( a.rgb).z, a.a); }
+export float3 xwx( color4 a) { return float3( float3( a.rgb).x, a.a, float3( a.rgb).x); }
+export float3 xwy( color4 a) { return float3( float3( a.rgb).x, a.a, float3( a.rgb).y); }
+export float3 xwz( color4 a) { return float3( float3( a.rgb).x, a.a, float3( a.rgb).z); }
+export float3 xww( color4 a) { return float3( float3( a.rgb).x, a.a, a.a); }
+export float3 yxx( color4 a) { return yxx( float3( a.rgb)); }
+export float3 yxy( color4 a) { return yxy( float3( a.rgb)); }
+export float3 yxz( color4 a) { return yxz( float3( a.rgb)); }
+export float3 yxw( color4 a) { return float3( float3( a.rgb).y, float3( a.rgb).x, a.a); }
+export float3 yyx( color4 a) { return yyx( float3( a.rgb)); }
+export float3 yyy( color4 a) { return yyy( float3( a.rgb)); }
+export float3 yyz( color4 a) { return yyz( float3( a.rgb)); }
+export float3 yyw( color4 a) { return float3( float3( a.rgb).y, float3( a.rgb).y, a.a); }
+export float3 yzx( color4 a) { return yzx( float3( a.rgb)); }
+export float3 yzy( color4 a) { return yzy( float3( a.rgb)); }
+export float3 yzz( color4 a) { return yzz( float3( a.rgb)); }
+export float3 yzw( color4 a) { return float3( float3( a.rgb).y, float3( a.rgb).z, a.a); }
+export float3 ywx( color4 a) { return float3( float3( a.rgb).y, a.a, float3( a.rgb).x); }
+export float3 ywy( color4 a) { return float3( float3( a.rgb).y, a.a, float3( a.rgb).y); }
+export float3 ywz( color4 a) { return float3( float3( a.rgb).y, a.a, float3( a.rgb).z); }
+export float3 yww( color4 a) { return float3( float3( a.rgb).y, a.a, a.a); }
+export float3 zxx( color4 a) { return zxx( float3( a.rgb)); }
+export float3 zxy( color4 a) { return zxy( float3( a.rgb)); }
+export float3 zxz( color4 a) { return zxz( float3( a.rgb)); }
+export float3 zxw( color4 a) { return float3( float3( a.rgb).z, float3( a.rgb).x, a.a); }
+export float3 zyx( color4 a) { return zyx( float3( a.rgb)); }
+export float3 zyy( color4 a) { return zyy( float3( a.rgb)); }
+export float3 zyz( color4 a) { return zyz( float3( a.rgb)); }
+export float3 zyw( color4 a) { return float3( float3( a.rgb).z, float3( a.rgb).y, a.a); }
+export float3 zzx( color4 a) { return zzx( float3( a.rgb)); }
+export float3 zzy( color4 a) { return zzy( float3( a.rgb)); }
+export float3 zzz( color4 a) { return zzz( float3( a.rgb)); }
+export float3 zzw( color4 a) { return float3( float3( a.rgb).z, float3( a.rgb).z, a.a); }
+export float3 zwx( color4 a) { return float3( float3( a.rgb).z, a.a, float3( a.rgb).x); }
+export float3 zwy( color4 a) { return float3( float3( a.rgb).z, a.a, float3( a.rgb).y); }
+export float3 zwz( color4 a) { return float3( float3( a.rgb).z, a.a, float3( a.rgb).z); }
+export float3 zww( color4 a) { return float3( float3( a.rgb).z, a.a, a.a); }
+export float3 wxx( color4 a) { return float3( a.a, float3( a.rgb).x, float3( a.rgb).x); }
+export float3 wxy( color4 a) { return float3( a.a, float3( a.rgb).x, float3( a.rgb).y); }
+export float3 wxz( color4 a) { return float3( a.a, float3( a.rgb).x, float3( a.rgb).z); }
+export float3 wxw( color4 a) { return float3( a.a, float3( a.rgb).x, a.a); }
+export float3 wyx( color4 a) { return float3( a.a, float3( a.rgb).y, float3( a.rgb).x); }
+export float3 wyy( color4 a) { return float3( a.a, float3( a.rgb).y, float3( a.rgb).y); }
+export float3 wyz( color4 a) { return float3( a.a, float3( a.rgb).y, float3( a.rgb).z); }
+export float3 wyw( color4 a) { return float3( a.a, float3( a.rgb).y, a.a); }
+export float3 wzx( color4 a) { return float3( a.a, float3( a.rgb).z, float3( a.rgb).x); }
+export float3 wzy( color4 a) { return float3( a.a, float3( a.rgb).z, float3( a.rgb).y); }
+export float3 wzz( color4 a) { return float3( a.a, float3( a.rgb).z, float3( a.rgb).z); }
+export float3 wzw( color4 a) { return float3( a.a, float3( a.rgb).z, a.a); }
+export float3 wwx( color4 a) { return float3( a.a, a.a, float3( a.rgb).x); }
+export float3 wwy( color4 a) { return float3( a.a, a.a, float3( a.rgb).y); }
+export float3 wwz( color4 a) { return float3( a.a, a.a, float3( a.rgb).z); }
+export float3 www( color4 a) { return float3( a.a, a.a, a.a); }
+
+// Swizzles with float4 return type
+export float4 xxxx( float a) { return float4( a, a, a, a); }
+
+export float4 xxxx( float2 a) { return float4( a.x, a.x, a.x, a.x); }
+export float4 xxxy( float2 a) { return float4( a.x, a.x, a.x, a.y); }
+export float4 xxyx( float2 a) { return float4( a.x, a.x, a.y, a.x); }
+export float4 xxyy( float2 a) { return float4( a.x, a.x, a.y, a.y); }
+export float4 xyxx( float2 a) { return float4( a.x, a.y, a.x, a.x); }
+export float4 xyxy( float2 a) { return float4( a.x, a.y, a.x, a.y); }
+export float4 xyyx( float2 a) { return float4( a.x, a.y, a.y, a.x); }
+export float4 xyyy( float2 a) { return float4( a.x, a.y, a.y, a.y); }
+export float4 yxxx( float2 a) { return float4( a.y, a.x, a.x, a.x); }
+export float4 yxxy( float2 a) { return float4( a.y, a.x, a.x, a.y); }
+export float4 yxyx( float2 a) { return float4( a.y, a.x, a.y, a.x); }
+export float4 yxyy( float2 a) { return float4( a.y, a.x, a.y, a.y); }
+export float4 yyxx( float2 a) { return float4( a.y, a.y, a.x, a.x); }
+export float4 yyxy( float2 a) { return float4( a.y, a.y, a.x, a.y); }
+export float4 yyyx( float2 a) { return float4( a.y, a.y, a.y, a.x); }
+export float4 yyyy( float2 a) { return float4( a.y, a.y, a.y, a.y); }
+
+export float4 xxxx( float3 a) { return float4( a.x, a.x, a.x, a.x); }
+export float4 xxxy( float3 a) { return float4( a.x, a.x, a.x, a.y); }
+export float4 xxxz( float3 a) { return float4( a.x, a.x, a.x, a.z); }
+export float4 xxyx( float3 a) { return float4( a.x, a.x, a.y, a.x); }
+export float4 xxyy( float3 a) { return float4( a.x, a.x, a.y, a.y); }
+export float4 xxyz( float3 a) { return float4( a.x, a.x, a.y, a.z); }
+export float4 xxzx( float3 a) { return float4( a.x, a.x, a.z, a.x); }
+export float4 xxzy( float3 a) { return float4( a.x, a.x, a.z, a.y); }
+export float4 xxzz( float3 a) { return float4( a.x, a.x, a.z, a.z); }
+export float4 xyxx( float3 a) { return float4( a.x, a.y, a.x, a.x); }
+export float4 xyxy( float3 a) { return float4( a.x, a.y, a.x, a.y); }
+export float4 xyxz( float3 a) { return float4( a.x, a.y, a.x, a.z); }
+export float4 xyyx( float3 a) { return float4( a.x, a.y, a.y, a.x); }
+export float4 xyyy( float3 a) { return float4( a.x, a.y, a.y, a.y); }
+export float4 xyyz( float3 a) { return float4( a.x, a.y, a.y, a.z); }
+export float4 xyzx( float3 a) { return float4( a.x, a.y, a.z, a.x); }
+export float4 xyzy( float3 a) { return float4( a.x, a.y, a.z, a.y); }
+export float4 xyzz( float3 a) { return float4( a.x, a.y, a.z, a.z); }
+export float4 xzxx( float3 a) { return float4( a.x, a.z, a.x, a.x); }
+export float4 xzxy( float3 a) { return float4( a.x, a.z, a.x, a.y); }
+export float4 xzxz( float3 a) { return float4( a.x, a.z, a.x, a.z); }
+export float4 xzyx( float3 a) { return float4( a.x, a.z, a.y, a.x); }
+export float4 xzyy( float3 a) { return float4( a.x, a.z, a.y, a.y); }
+export float4 xzyz( float3 a) { return float4( a.x, a.z, a.y, a.z); }
+export float4 xzzx( float3 a) { return float4( a.x, a.z, a.z, a.x); }
+export float4 xzzy( float3 a) { return float4( a.x, a.z, a.z, a.y); }
+export float4 xzzz( float3 a) { return float4( a.x, a.z, a.z, a.z); }
+export float4 yxxx( float3 a) { return float4( a.y, a.x, a.x, a.x); }
+export float4 yxxy( float3 a) { return float4( a.y, a.x, a.x, a.y); }
+export float4 yxxz( float3 a) { return float4( a.y, a.x, a.x, a.z); }
+export float4 yxyx( float3 a) { return float4( a.y, a.x, a.y, a.x); }
+export float4 yxyy( float3 a) { return float4( a.y, a.x, a.y, a.y); }
+export float4 yxyz( float3 a) { return float4( a.y, a.x, a.y, a.z); }
+export float4 yxzx( float3 a) { return float4( a.y, a.x, a.z, a.x); }
+export float4 yxzy( float3 a) { return float4( a.y, a.x, a.z, a.y); }
+export float4 yxzz( float3 a) { return float4( a.y, a.x, a.z, a.z); }
+export float4 yyxx( float3 a) { return float4( a.y, a.y, a.x, a.x); }
+export float4 yyxy( float3 a) { return float4( a.y, a.y, a.x, a.y); }
+export float4 yyxz( float3 a) { return float4( a.y, a.y, a.x, a.z); }
+export float4 yyyx( float3 a) { return float4( a.y, a.y, a.y, a.x); }
+export float4 yyyy( float3 a) { return float4( a.y, a.y, a.y, a.y); }
+export float4 yyyz( float3 a) { return float4( a.y, a.y, a.y, a.z); }
+export float4 yyzx( float3 a) { return float4( a.y, a.y, a.z, a.x); }
+export float4 yyzy( float3 a) { return float4( a.y, a.y, a.z, a.y); }
+export float4 yyzz( float3 a) { return float4( a.y, a.y, a.z, a.z); }
+export float4 yzxx( float3 a) { return float4( a.y, a.z, a.x, a.x); }
+export float4 yzxy( float3 a) { return float4( a.y, a.z, a.x, a.y); }
+export float4 yzxz( float3 a) { return float4( a.y, a.z, a.x, a.z); }
+export float4 yzyx( float3 a) { return float4( a.y, a.z, a.y, a.x); }
+export float4 yzyy( float3 a) { return float4( a.y, a.z, a.y, a.y); }
+export float4 yzyz( float3 a) { return float4( a.y, a.z, a.y, a.z); }
+export float4 yzzx( float3 a) { return float4( a.y, a.z, a.z, a.x); }
+export float4 yzzy( float3 a) { return float4( a.y, a.z, a.z, a.y); }
+export float4 yzzz( float3 a) { return float4( a.y, a.z, a.z, a.z); }
+export float4 zxxx( float3 a) { return float4( a.z, a.x, a.x, a.x); }
+export float4 zxxy( float3 a) { return float4( a.z, a.x, a.x, a.y); }
+export float4 zxxz( float3 a) { return float4( a.z, a.x, a.x, a.z); }
+export float4 zxyx( float3 a) { return float4( a.z, a.x, a.y, a.x); }
+export float4 zxyy( float3 a) { return float4( a.z, a.x, a.y, a.y); }
+export float4 zxyz( float3 a) { return float4( a.z, a.x, a.y, a.z); }
+export float4 zxzx( float3 a) { return float4( a.z, a.x, a.z, a.x); }
+export float4 zxzy( float3 a) { return float4( a.z, a.x, a.z, a.y); }
+export float4 zxzz( float3 a) { return float4( a.z, a.x, a.z, a.z); }
+export float4 zyxx( float3 a) { return float4( a.z, a.y, a.x, a.x); }
+export float4 zyxy( float3 a) { return float4( a.z, a.y, a.x, a.y); }
+export float4 zyxz( float3 a) { return float4( a.z, a.y, a.x, a.z); }
+export float4 zyyx( float3 a) { return float4( a.z, a.y, a.y, a.x); }
+export float4 zyyy( float3 a) { return float4( a.z, a.y, a.y, a.y); }
+export float4 zyyz( float3 a) { return float4( a.z, a.y, a.y, a.z); }
+export float4 zyzx( float3 a) { return float4( a.z, a.y, a.z, a.x); }
+export float4 zyzy( float3 a) { return float4( a.z, a.y, a.z, a.y); }
+export float4 zyzz( float3 a) { return float4( a.z, a.y, a.z, a.z); }
+export float4 zzxx( float3 a) { return float4( a.z, a.z, a.x, a.x); }
+export float4 zzxy( float3 a) { return float4( a.z, a.z, a.x, a.y); }
+export float4 zzxz( float3 a) { return float4( a.z, a.z, a.x, a.z); }
+export float4 zzyx( float3 a) { return float4( a.z, a.z, a.y, a.x); }
+export float4 zzyy( float3 a) { return float4( a.z, a.z, a.y, a.y); }
+export float4 zzyz( float3 a) { return float4( a.z, a.z, a.y, a.z); }
+export float4 zzzx( float3 a) { return float4( a.z, a.z, a.z, a.x); }
+export float4 zzzy( float3 a) { return float4( a.z, a.z, a.z, a.y); }
+export float4 zzzz( float3 a) { return float4( a.z, a.z, a.z, a.z); }
+
+export float4 xxxx( float4 a) { return float4( a.x, a.x, a.x, a.x); }
+export float4 xxxy( float4 a) { return float4( a.x, a.x, a.x, a.y); }
+export float4 xxxz( float4 a) { return float4( a.x, a.x, a.x, a.z); }
+export float4 xxxw( float4 a) { return float4( a.x, a.x, a.x, a.w); }
+export float4 xxyx( float4 a) { return float4( a.x, a.x, a.y, a.x); }
+export float4 xxyy( float4 a) { return float4( a.x, a.x, a.y, a.y); }
+export float4 xxyz( float4 a) { return float4( a.x, a.x, a.y, a.z); }
+export float4 xxyw( float4 a) { return float4( a.x, a.x, a.y, a.w); }
+export float4 xxzx( float4 a) { return float4( a.x, a.x, a.z, a.x); }
+export float4 xxzy( float4 a) { return float4( a.x, a.x, a.z, a.y); }
+export float4 xxzz( float4 a) { return float4( a.x, a.x, a.z, a.z); }
+export float4 xxzw( float4 a) { return float4( a.x, a.x, a.z, a.w); }
+export float4 xxwx( float4 a) { return float4( a.x, a.x, a.w, a.x); }
+export float4 xxwy( float4 a) { return float4( a.x, a.x, a.w, a.y); }
+export float4 xxwz( float4 a) { return float4( a.x, a.x, a.w, a.z); }
+export float4 xxww( float4 a) { return float4( a.x, a.x, a.w, a.w); }
+export float4 xyxx( float4 a) { return float4( a.x, a.y, a.x, a.x); }
+export float4 xyxy( float4 a) { return float4( a.x, a.y, a.x, a.y); }
+export float4 xyxz( float4 a) { return float4( a.x, a.y, a.x, a.z); }
+export float4 xyxw( float4 a) { return float4( a.x, a.y, a.x, a.w); }
+export float4 xyyx( float4 a) { return float4( a.x, a.y, a.y, a.x); }
+export float4 xyyy( float4 a) { return float4( a.x, a.y, a.y, a.y); }
+export float4 xyyz( float4 a) { return float4( a.x, a.y, a.y, a.z); }
+export float4 xyyw( float4 a) { return float4( a.x, a.y, a.y, a.w); }
+export float4 xyzx( float4 a) { return float4( a.x, a.y, a.z, a.x); }
+export float4 xyzy( float4 a) { return float4( a.x, a.y, a.z, a.y); }
+export float4 xyzz( float4 a) { return float4( a.x, a.y, a.z, a.z); }
+export float4 xyzw( float4 a) { return float4( a.x, a.y, a.z, a.w); }
+export float4 xywx( float4 a) { return float4( a.x, a.y, a.w, a.x); }
+export float4 xywy( float4 a) { return float4( a.x, a.y, a.w, a.y); }
+export float4 xywz( float4 a) { return float4( a.x, a.y, a.w, a.z); }
+export float4 xyww( float4 a) { return float4( a.x, a.y, a.w, a.w); }
+export float4 xzxx( float4 a) { return float4( a.x, a.z, a.x, a.x); }
+export float4 xzxy( float4 a) { return float4( a.x, a.z, a.x, a.y); }
+export float4 xzxz( float4 a) { return float4( a.x, a.z, a.x, a.z); }
+export float4 xzxw( float4 a) { return float4( a.x, a.z, a.x, a.w); }
+export float4 xzyx( float4 a) { return float4( a.x, a.z, a.y, a.x); }
+export float4 xzyy( float4 a) { return float4( a.x, a.z, a.y, a.y); }
+export float4 xzyz( float4 a) { return float4( a.x, a.z, a.y, a.z); }
+export float4 xzyw( float4 a) { return float4( a.x, a.z, a.y, a.w); }
+export float4 xzzx( float4 a) { return float4( a.x, a.z, a.z, a.x); }
+export float4 xzzy( float4 a) { return float4( a.x, a.z, a.z, a.y); }
+export float4 xzzz( float4 a) { return float4( a.x, a.z, a.z, a.z); }
+export float4 xzzw( float4 a) { return float4( a.x, a.z, a.z, a.w); }
+export float4 xzwx( float4 a) { return float4( a.x, a.z, a.w, a.x); }
+export float4 xzwy( float4 a) { return float4( a.x, a.z, a.w, a.y); }
+export float4 xzwz( float4 a) { return float4( a.x, a.z, a.w, a.z); }
+export float4 xzww( float4 a) { return float4( a.x, a.z, a.w, a.w); }
+export float4 xwxx( float4 a) { return float4( a.x, a.w, a.x, a.x); }
+export float4 xwxy( float4 a) { return float4( a.x, a.w, a.x, a.y); }
+export float4 xwxz( float4 a) { return float4( a.x, a.w, a.x, a.z); }
+export float4 xwxw( float4 a) { return float4( a.x, a.w, a.x, a.w); }
+export float4 xwyx( float4 a) { return float4( a.x, a.w, a.y, a.x); }
+export float4 xwyy( float4 a) { return float4( a.x, a.w, a.y, a.y); }
+export float4 xwyz( float4 a) { return float4( a.x, a.w, a.y, a.z); }
+export float4 xwyw( float4 a) { return float4( a.x, a.w, a.y, a.w); }
+export float4 xwzx( float4 a) { return float4( a.x, a.w, a.z, a.x); }
+export float4 xwzy( float4 a) { return float4( a.x, a.w, a.z, a.y); }
+export float4 xwzz( float4 a) { return float4( a.x, a.w, a.z, a.z); }
+export float4 xwzw( float4 a) { return float4( a.x, a.w, a.z, a.w); }
+export float4 xwwx( float4 a) { return float4( a.x, a.w, a.w, a.x); }
+export float4 xwwy( float4 a) { return float4( a.x, a.w, a.w, a.y); }
+export float4 xwwz( float4 a) { return float4( a.x, a.w, a.w, a.z); }
+export float4 xwww( float4 a) { return float4( a.x, a.w, a.w, a.w); }
+export float4 yxxx( float4 a) { return float4( a.y, a.x, a.x, a.x); }
+export float4 yxxy( float4 a) { return float4( a.y, a.x, a.x, a.y); }
+export float4 yxxz( float4 a) { return float4( a.y, a.x, a.x, a.z); }
+export float4 yxxw( float4 a) { return float4( a.y, a.x, a.x, a.w); }
+export float4 yxyx( float4 a) { return float4( a.y, a.x, a.y, a.x); }
+export float4 yxyy( float4 a) { return float4( a.y, a.x, a.y, a.y); }
+export float4 yxyz( float4 a) { return float4( a.y, a.x, a.y, a.z); }
+export float4 yxyw( float4 a) { return float4( a.y, a.x, a.y, a.w); }
+export float4 yxzx( float4 a) { return float4( a.y, a.x, a.z, a.x); }
+export float4 yxzy( float4 a) { return float4( a.y, a.x, a.z, a.y); }
+export float4 yxzz( float4 a) { return float4( a.y, a.x, a.z, a.z); }
+export float4 yxzw( float4 a) { return float4( a.y, a.x, a.z, a.w); }
+export float4 yxwx( float4 a) { return float4( a.y, a.x, a.w, a.x); }
+export float4 yxwy( float4 a) { return float4( a.y, a.x, a.w, a.y); }
+export float4 yxwz( float4 a) { return float4( a.y, a.x, a.w, a.z); }
+export float4 yxww( float4 a) { return float4( a.y, a.x, a.w, a.w); }
+export float4 yyxx( float4 a) { return float4( a.y, a.y, a.x, a.x); }
+export float4 yyxy( float4 a) { return float4( a.y, a.y, a.x, a.y); }
+export float4 yyxz( float4 a) { return float4( a.y, a.y, a.x, a.z); }
+export float4 yyxw( float4 a) { return float4( a.y, a.y, a.x, a.w); }
+export float4 yyyx( float4 a) { return float4( a.y, a.y, a.y, a.x); }
+export float4 yyyy( float4 a) { return float4( a.y, a.y, a.y, a.y); }
+export float4 yyyz( float4 a) { return float4( a.y, a.y, a.y, a.z); }
+export float4 yyyw( float4 a) { return float4( a.y, a.y, a.y, a.w); }
+export float4 yyzx( float4 a) { return float4( a.y, a.y, a.z, a.x); }
+export float4 yyzy( float4 a) { return float4( a.y, a.y, a.z, a.y); }
+export float4 yyzz( float4 a) { return float4( a.y, a.y, a.z, a.z); }
+export float4 yyzw( float4 a) { return float4( a.y, a.y, a.z, a.w); }
+export float4 yywx( float4 a) { return float4( a.y, a.y, a.w, a.x); }
+export float4 yywy( float4 a) { return float4( a.y, a.y, a.w, a.y); }
+export float4 yywz( float4 a) { return float4( a.y, a.y, a.w, a.z); }
+export float4 yyww( float4 a) { return float4( a.y, a.y, a.w, a.w); }
+export float4 yzxx( float4 a) { return float4( a.y, a.z, a.x, a.x); }
+export float4 yzxy( float4 a) { return float4( a.y, a.z, a.x, a.y); }
+export float4 yzxz( float4 a) { return float4( a.y, a.z, a.x, a.z); }
+export float4 yzxw( float4 a) { return float4( a.y, a.z, a.x, a.w); }
+export float4 yzyx( float4 a) { return float4( a.y, a.z, a.y, a.x); }
+export float4 yzyy( float4 a) { return float4( a.y, a.z, a.y, a.y); }
+export float4 yzyz( float4 a) { return float4( a.y, a.z, a.y, a.z); }
+export float4 yzyw( float4 a) { return float4( a.y, a.z, a.y, a.w); }
+export float4 yzzx( float4 a) { return float4( a.y, a.z, a.z, a.x); }
+export float4 yzzy( float4 a) { return float4( a.y, a.z, a.z, a.y); }
+export float4 yzzz( float4 a) { return float4( a.y, a.z, a.z, a.z); }
+export float4 yzzw( float4 a) { return float4( a.y, a.z, a.z, a.w); }
+export float4 yzwx( float4 a) { return float4( a.y, a.z, a.w, a.x); }
+export float4 yzwy( float4 a) { return float4( a.y, a.z, a.w, a.y); }
+export float4 yzwz( float4 a) { return float4( a.y, a.z, a.w, a.z); }
+export float4 yzww( float4 a) { return float4( a.y, a.z, a.w, a.w); }
+export float4 ywxx( float4 a) { return float4( a.y, a.w, a.x, a.x); }
+export float4 ywxy( float4 a) { return float4( a.y, a.w, a.x, a.y); }
+export float4 ywxz( float4 a) { return float4( a.y, a.w, a.x, a.z); }
+export float4 ywxw( float4 a) { return float4( a.y, a.w, a.x, a.w); }
+export float4 ywyx( float4 a) { return float4( a.y, a.w, a.y, a.x); }
+export float4 ywyy( float4 a) { return float4( a.y, a.w, a.y, a.y); }
+export float4 ywyz( float4 a) { return float4( a.y, a.w, a.y, a.z); }
+export float4 ywyw( float4 a) { return float4( a.y, a.w, a.y, a.w); }
+export float4 ywzx( float4 a) { return float4( a.y, a.w, a.z, a.x); }
+export float4 ywzy( float4 a) { return float4( a.y, a.w, a.z, a.y); }
+export float4 ywzz( float4 a) { return float4( a.y, a.w, a.z, a.z); }
+export float4 ywzw( float4 a) { return float4( a.y, a.w, a.z, a.w); }
+export float4 ywwx( float4 a) { return float4( a.y, a.w, a.w, a.x); }
+export float4 ywwy( float4 a) { return float4( a.y, a.w, a.w, a.y); }
+export float4 ywwz( float4 a) { return float4( a.y, a.w, a.w, a.z); }
+export float4 ywww( float4 a) { return float4( a.y, a.w, a.w, a.w); }
+export float4 zxxx( float4 a) { return float4( a.z, a.x, a.x, a.x); }
+export float4 zxxy( float4 a) { return float4( a.z, a.x, a.x, a.y); }
+export float4 zxxz( float4 a) { return float4( a.z, a.x, a.x, a.z); }
+export float4 zxxw( float4 a) { return float4( a.z, a.x, a.x, a.w); }
+export float4 zxyx( float4 a) { return float4( a.z, a.x, a.y, a.x); }
+export float4 zxyy( float4 a) { return float4( a.z, a.x, a.y, a.y); }
+export float4 zxyz( float4 a) { return float4( a.z, a.x, a.y, a.z); }
+export float4 zxyw( float4 a) { return float4( a.z, a.x, a.y, a.w); }
+export float4 zxzx( float4 a) { return float4( a.z, a.x, a.z, a.x); }
+export float4 zxzy( float4 a) { return float4( a.z, a.x, a.z, a.y); }
+export float4 zxzz( float4 a) { return float4( a.z, a.x, a.z, a.z); }
+export float4 zxzw( float4 a) { return float4( a.z, a.x, a.z, a.w); }
+export float4 zxwx( float4 a) { return float4( a.z, a.x, a.w, a.x); }
+export float4 zxwy( float4 a) { return float4( a.z, a.x, a.w, a.y); }
+export float4 zxwz( float4 a) { return float4( a.z, a.x, a.w, a.z); }
+export float4 zxww( float4 a) { return float4( a.z, a.x, a.w, a.w); }
+export float4 zyxx( float4 a) { return float4( a.z, a.y, a.x, a.x); }
+export float4 zyxy( float4 a) { return float4( a.z, a.y, a.x, a.y); }
+export float4 zyxz( float4 a) { return float4( a.z, a.y, a.x, a.z); }
+export float4 zyxw( float4 a) { return float4( a.z, a.y, a.x, a.w); }
+export float4 zyyx( float4 a) { return float4( a.z, a.y, a.y, a.x); }
+export float4 zyyy( float4 a) { return float4( a.z, a.y, a.y, a.y); }
+export float4 zyyz( float4 a) { return float4( a.z, a.y, a.y, a.z); }
+export float4 zyyw( float4 a) { return float4( a.z, a.y, a.y, a.w); }
+export float4 zyzx( float4 a) { return float4( a.z, a.y, a.z, a.x); }
+export float4 zyzy( float4 a) { return float4( a.z, a.y, a.z, a.y); }
+export float4 zyzz( float4 a) { return float4( a.z, a.y, a.z, a.z); }
+export float4 zyzw( float4 a) { return float4( a.z, a.y, a.z, a.w); }
+export float4 zywx( float4 a) { return float4( a.z, a.y, a.w, a.x); }
+export float4 zywy( float4 a) { return float4( a.z, a.y, a.w, a.y); }
+export float4 zywz( float4 a) { return float4( a.z, a.y, a.w, a.z); }
+export float4 zyww( float4 a) { return float4( a.z, a.y, a.w, a.w); }
+export float4 zzxx( float4 a) { return float4( a.z, a.z, a.x, a.x); }
+export float4 zzxy( float4 a) { return float4( a.z, a.z, a.x, a.y); }
+export float4 zzxz( float4 a) { return float4( a.z, a.z, a.x, a.z); }
+export float4 zzxw( float4 a) { return float4( a.z, a.z, a.x, a.w); }
+export float4 zzyx( float4 a) { return float4( a.z, a.z, a.y, a.x); }
+export float4 zzyy( float4 a) { return float4( a.z, a.z, a.y, a.y); }
+export float4 zzyz( float4 a) { return float4( a.z, a.z, a.y, a.z); }
+export float4 zzyw( float4 a) { return float4( a.z, a.z, a.y, a.w); }
+export float4 zzzx( float4 a) { return float4( a.z, a.z, a.z, a.x); }
+export float4 zzzy( float4 a) { return float4( a.z, a.z, a.z, a.y); }
+export float4 zzzz( float4 a) { return float4( a.z, a.z, a.z, a.z); }
+export float4 zzzw( float4 a) { return float4( a.z, a.z, a.z, a.w); }
+export float4 zzwx( float4 a) { return float4( a.z, a.z, a.w, a.x); }
+export float4 zzwy( float4 a) { return float4( a.z, a.z, a.w, a.y); }
+export float4 zzwz( float4 a) { return float4( a.z, a.z, a.w, a.z); }
+export float4 zzww( float4 a) { return float4( a.z, a.z, a.w, a.w); }
+export float4 zwxx( float4 a) { return float4( a.z, a.w, a.x, a.x); }
+export float4 zwxy( float4 a) { return float4( a.z, a.w, a.x, a.y); }
+export float4 zwxz( float4 a) { return float4( a.z, a.w, a.x, a.z); }
+export float4 zwxw( float4 a) { return float4( a.z, a.w, a.x, a.w); }
+export float4 zwyx( float4 a) { return float4( a.z, a.w, a.y, a.x); }
+export float4 zwyy( float4 a) { return float4( a.z, a.w, a.y, a.y); }
+export float4 zwyz( float4 a) { return float4( a.z, a.w, a.y, a.z); }
+export float4 zwyw( float4 a) { return float4( a.z, a.w, a.y, a.w); }
+export float4 zwzx( float4 a) { return float4( a.z, a.w, a.z, a.x); }
+export float4 zwzy( float4 a) { return float4( a.z, a.w, a.z, a.y); }
+export float4 zwzz( float4 a) { return float4( a.z, a.w, a.z, a.z); }
+export float4 zwzw( float4 a) { return float4( a.z, a.w, a.z, a.w); }
+export float4 zwwx( float4 a) { return float4( a.z, a.w, a.w, a.x); }
+export float4 zwwy( float4 a) { return float4( a.z, a.w, a.w, a.y); }
+export float4 zwwz( float4 a) { return float4( a.z, a.w, a.w, a.z); }
+export float4 zwww( float4 a) { return float4( a.z, a.w, a.w, a.w); }
+export float4 wxxx( float4 a) { return float4( a.w, a.x, a.x, a.x); }
+export float4 wxxy( float4 a) { return float4( a.w, a.x, a.x, a.y); }
+export float4 wxxz( float4 a) { return float4( a.w, a.x, a.x, a.z); }
+export float4 wxxw( float4 a) { return float4( a.w, a.x, a.x, a.w); }
+export float4 wxyx( float4 a) { return float4( a.w, a.x, a.y, a.x); }
+export float4 wxyy( float4 a) { return float4( a.w, a.x, a.y, a.y); }
+export float4 wxyz( float4 a) { return float4( a.w, a.x, a.y, a.z); }
+export float4 wxyw( float4 a) { return float4( a.w, a.x, a.y, a.w); }
+export float4 wxzx( float4 a) { return float4( a.w, a.x, a.z, a.x); }
+export float4 wxzy( float4 a) { return float4( a.w, a.x, a.z, a.y); }
+export float4 wxzz( float4 a) { return float4( a.w, a.x, a.z, a.z); }
+export float4 wxzw( float4 a) { return float4( a.w, a.x, a.z, a.w); }
+export float4 wxwx( float4 a) { return float4( a.w, a.x, a.w, a.x); }
+export float4 wxwy( float4 a) { return float4( a.w, a.x, a.w, a.y); }
+export float4 wxwz( float4 a) { return float4( a.w, a.x, a.w, a.z); }
+export float4 wxww( float4 a) { return float4( a.w, a.x, a.w, a.w); }
+export float4 wyxx( float4 a) { return float4( a.w, a.y, a.x, a.x); }
+export float4 wyxy( float4 a) { return float4( a.w, a.y, a.x, a.y); }
+export float4 wyxz( float4 a) { return float4( a.w, a.y, a.x, a.z); }
+export float4 wyxw( float4 a) { return float4( a.w, a.y, a.x, a.w); }
+export float4 wyyx( float4 a) { return float4( a.w, a.y, a.y, a.x); }
+export float4 wyyy( float4 a) { return float4( a.w, a.y, a.y, a.y); }
+export float4 wyyz( float4 a) { return float4( a.w, a.y, a.y, a.z); }
+export float4 wyyw( float4 a) { return float4( a.w, a.y, a.y, a.w); }
+export float4 wyzx( float4 a) { return float4( a.w, a.y, a.z, a.x); }
+export float4 wyzy( float4 a) { return float4( a.w, a.y, a.z, a.y); }
+export float4 wyzz( float4 a) { return float4( a.w, a.y, a.z, a.z); }
+export float4 wyzw( float4 a) { return float4( a.w, a.y, a.z, a.w); }
+export float4 wywx( float4 a) { return float4( a.w, a.y, a.w, a.x); }
+export float4 wywy( float4 a) { return float4( a.w, a.y, a.w, a.y); }
+export float4 wywz( float4 a) { return float4( a.w, a.y, a.w, a.z); }
+export float4 wyww( float4 a) { return float4( a.w, a.y, a.w, a.w); }
+export float4 wzxx( float4 a) { return float4( a.w, a.z, a.x, a.x); }
+export float4 wzxy( float4 a) { return float4( a.w, a.z, a.x, a.y); }
+export float4 wzxz( float4 a) { return float4( a.w, a.z, a.x, a.z); }
+export float4 wzxw( float4 a) { return float4( a.w, a.z, a.x, a.w); }
+export float4 wzyx( float4 a) { return float4( a.w, a.z, a.y, a.x); }
+export float4 wzyy( float4 a) { return float4( a.w, a.z, a.y, a.y); }
+export float4 wzyz( float4 a) { return float4( a.w, a.z, a.y, a.z); }
+export float4 wzyw( float4 a) { return float4( a.w, a.z, a.y, a.w); }
+export float4 wzzx( float4 a) { return float4( a.w, a.z, a.z, a.x); }
+export float4 wzzy( float4 a) { return float4( a.w, a.z, a.z, a.y); }
+export float4 wzzz( float4 a) { return float4( a.w, a.z, a.z, a.z); }
+export float4 wzzw( float4 a) { return float4( a.w, a.z, a.z, a.w); }
+export float4 wzwx( float4 a) { return float4( a.w, a.z, a.w, a.x); }
+export float4 wzwy( float4 a) { return float4( a.w, a.z, a.w, a.y); }
+export float4 wzwz( float4 a) { return float4( a.w, a.z, a.w, a.z); }
+export float4 wzww( float4 a) { return float4( a.w, a.z, a.w, a.w); }
+export float4 wwxx( float4 a) { return float4( a.w, a.w, a.x, a.x); }
+export float4 wwxy( float4 a) { return float4( a.w, a.w, a.x, a.y); }
+export float4 wwxz( float4 a) { return float4( a.w, a.w, a.x, a.z); }
+export float4 wwxw( float4 a) { return float4( a.w, a.w, a.x, a.w); }
+export float4 wwyx( float4 a) { return float4( a.w, a.w, a.y, a.x); }
+export float4 wwyy( float4 a) { return float4( a.w, a.w, a.y, a.y); }
+export float4 wwyz( float4 a) { return float4( a.w, a.w, a.y, a.z); }
+export float4 wwyw( float4 a) { return float4( a.w, a.w, a.y, a.w); }
+export float4 wwzx( float4 a) { return float4( a.w, a.w, a.z, a.x); }
+export float4 wwzy( float4 a) { return float4( a.w, a.w, a.z, a.y); }
+export float4 wwzz( float4 a) { return float4( a.w, a.w, a.z, a.z); }
+export float4 wwzw( float4 a) { return float4( a.w, a.w, a.z, a.w); }
+export float4 wwwx( float4 a) { return float4( a.w, a.w, a.w, a.x); }
+export float4 wwwy( float4 a) { return float4( a.w, a.w, a.w, a.y); }
+export float4 wwwz( float4 a) { return float4( a.w, a.w, a.w, a.z); }
+export float4 wwww( float4 a) { return float4( a.w, a.w, a.w, a.w); }
+
+export float4 xxxx( color a) { return xxxx( float3(a)); }
+export float4 xxxy( color a) { return xxxy( float3(a)); }
+export float4 xxxz( color a) { return xxxz( float3(a)); }
+export float4 xxyx( color a) { return xxyx( float3(a)); }
+export float4 xxyy( color a) { return xxyy( float3(a)); }
+export float4 xxyz( color a) { return xxyz( float3(a)); }
+export float4 xxzx( color a) { return xxzx( float3(a)); }
+export float4 xxzy( color a) { return xxzy( float3(a)); }
+export float4 xxzz( color a) { return xxzz( float3(a)); }
+export float4 xyxx( color a) { return xyxx( float3(a)); }
+export float4 xyxy( color a) { return xyxy( float3(a)); }
+export float4 xyxz( color a) { return xyxz( float3(a)); }
+export float4 xyyx( color a) { return xyyx( float3(a)); }
+export float4 xyyy( color a) { return xyyy( float3(a)); }
+export float4 xyyz( color a) { return xyyz( float3(a)); }
+export float4 xyzx( color a) { return xyzx( float3(a)); }
+export float4 xyzy( color a) { return xyzy( float3(a)); }
+export float4 xyzz( color a) { return xyzz( float3(a)); }
+export float4 xzxx( color a) { return xzxx( float3(a)); }
+export float4 xzxy( color a) { return xzxy( float3(a)); }
+export float4 xzxz( color a) { return xzxz( float3(a)); }
+export float4 xzyx( color a) { return xzyx( float3(a)); }
+export float4 xzyy( color a) { return xzyy( float3(a)); }
+export float4 xzyz( color a) { return xzyz( float3(a)); }
+export float4 xzzx( color a) { return xzzx( float3(a)); }
+export float4 xzzy( color a) { return xzzy( float3(a)); }
+export float4 xzzz( color a) { return xzzz( float3(a)); }
+export float4 yxxx( color a) { return yxxx( float3(a)); }
+export float4 yxxy( color a) { return yxxy( float3(a)); }
+export float4 yxxz( color a) { return yxxz( float3(a)); }
+export float4 yxyx( color a) { return yxyx( float3(a)); }
+export float4 yxyy( color a) { return yxyy( float3(a)); }
+export float4 yxyz( color a) { return yxyz( float3(a)); }
+export float4 yxzx( color a) { return yxzx( float3(a)); }
+export float4 yxzy( color a) { return yxzy( float3(a)); }
+export float4 yxzz( color a) { return yxzz( float3(a)); }
+export float4 yyxx( color a) { return yyxx( float3(a)); }
+export float4 yyxy( color a) { return yyxy( float3(a)); }
+export float4 yyxz( color a) { return yyxz( float3(a)); }
+export float4 yyyx( color a) { return yyyx( float3(a)); }
+export float4 yyyy( color a) { return yyyy( float3(a)); }
+export float4 yyyz( color a) { return yyyz( float3(a)); }
+export float4 yyzx( color a) { return yyzx( float3(a)); }
+export float4 yyzy( color a) { return yyzy( float3(a)); }
+export float4 yyzz( color a) { return yyzz( float3(a)); }
+export float4 yzxx( color a) { return yzxx( float3(a)); }
+export float4 yzxy( color a) { return yzxy( float3(a)); }
+export float4 yzxz( color a) { return yzxz( float3(a)); }
+export float4 yzyx( color a) { return yzyx( float3(a)); }
+export float4 yzyy( color a) { return yzyy( float3(a)); }
+export float4 yzyz( color a) { return yzyz( float3(a)); }
+export float4 yzzx( color a) { return yzzx( float3(a)); }
+export float4 yzzy( color a) { return yzzy( float3(a)); }
+export float4 yzzz( color a) { return yzzz( float3(a)); }
+export float4 zxxx( color a) { return zxxx( float3(a)); }
+export float4 zxxy( color a) { return zxxy( float3(a)); }
+export float4 zxxz( color a) { return zxxz( float3(a)); }
+export float4 zxyx( color a) { return zxyx( float3(a)); }
+export float4 zxyy( color a) { return zxyy( float3(a)); }
+export float4 zxyz( color a) { return zxyz( float3(a)); }
+export float4 zxzx( color a) { return zxzx( float3(a)); }
+export float4 zxzy( color a) { return zxzy( float3(a)); }
+export float4 zxzz( color a) { return zxzz( float3(a)); }
+export float4 zyxx( color a) { return zyxx( float3(a)); }
+export float4 zyxy( color a) { return zyxy( float3(a)); }
+export float4 zyxz( color a) { return zyxz( float3(a)); }
+export float4 zyyx( color a) { return zyyx( float3(a)); }
+export float4 zyyy( color a) { return zyyy( float3(a)); }
+export float4 zyyz( color a) { return zyyz( float3(a)); }
+export float4 zyzx( color a) { return zyzx( float3(a)); }
+export float4 zyzy( color a) { return zyzy( float3(a)); }
+export float4 zyzz( color a) { return zyzz( float3(a)); }
+export float4 zzxx( color a) { return zzxx( float3(a)); }
+export float4 zzxy( color a) { return zzxy( float3(a)); }
+export float4 zzxz( color a) { return zzxz( float3(a)); }
+export float4 zzyx( color a) { return zzyx( float3(a)); }
+export float4 zzyy( color a) { return zzyy( float3(a)); }
+export float4 zzyz( color a) { return zzyz( float3(a)); }
+export float4 zzzx( color a) { return zzzx( float3(a)); }
+export float4 zzzy( color a) { return zzzy( float3(a)); }
+export float4 zzzz( color a) { return zzzz( float3(a)); }
+
+export float4 xxxx( color4 a) { return xxxx( float3( a.rgb)); }
+export float4 xxxy( color4 a) { return xxxy( float3( a.rgb)); }
+export float4 xxxz( color4 a) { return xxxz( float3( a.rgb)); }
+export float4 xxxw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).x, float3( a.rgb).x, a.a); }
+export float4 xxyx( color4 a) { return xxyx( float3( a.rgb)); }
+export float4 xxyy( color4 a) { return xxyy( float3( a.rgb)); }
+export float4 xxyz( color4 a) { return xxyz( float3( a.rgb)); }
+export float4 xxyw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).x, float3( a.rgb).y, a.a); }
+export float4 xxzx( color4 a) { return xxzx( float3( a.rgb)); }
+export float4 xxzy( color4 a) { return xxzy( float3( a.rgb)); }
+export float4 xxzz( color4 a) { return xxzz( float3( a.rgb)); }
+export float4 xxzw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).x, float3( a.rgb).z, a.a); }
+export float4 xxwx( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).x, a.a, float3( a.rgb).x); }
+export float4 xxwy( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).x, a.a, float3( a.rgb).y); }
+export float4 xxwz( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).x, a.a, float3( a.rgb).z); }
+export float4 xxww( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).x, a.a, a.a); }
+export float4 xyxx( color4 a) { return xyxx( float3( a.rgb)); }
+export float4 xyxy( color4 a) { return xyxy( float3( a.rgb)); }
+export float4 xyxz( color4 a) { return xyxz( float3( a.rgb)); }
+export float4 xyxw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).y, float3( a.rgb).x, a.a); }
+export float4 xyyx( color4 a) { return xyyx( float3( a.rgb)); }
+export float4 xyyy( color4 a) { return xyyy( float3( a.rgb)); }
+export float4 xyyz( color4 a) { return xyyz( float3( a.rgb)); }
+export float4 xyyw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).y, float3( a.rgb).y, a.a); }
+export float4 xyzx( color4 a) { return xyzx( float3( a.rgb)); }
+export float4 xyzy( color4 a) { return xyzy( float3( a.rgb)); }
+export float4 xyzz( color4 a) { return xyzz( float3( a.rgb)); }
+export float4 xyzw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).y, float3( a.rgb).z, a.a); }
+export float4 xywx( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).y, a.a, float3( a.rgb).x); }
+export float4 xywy( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).y, a.a, float3( a.rgb).y); }
+export float4 xywz( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).y, a.a, float3( a.rgb).z); }
+export float4 xyww( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).y, a.a, a.a); }
+export float4 xzxx( color4 a) { return xzxx( float3( a.rgb)); }
+export float4 xzxy( color4 a) { return xzxy( float3( a.rgb)); }
+export float4 xzxz( color4 a) { return xzxz( float3( a.rgb)); }
+export float4 xzxw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).z, float3( a.rgb).x, a.a); }
+export float4 xzyx( color4 a) { return xzyx( float3( a.rgb)); }
+export float4 xzyy( color4 a) { return xzyy( float3( a.rgb)); }
+export float4 xzyz( color4 a) { return xzyz( float3( a.rgb)); }
+export float4 xzyw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).z, float3( a.rgb).y, a.a); }
+export float4 xzzx( color4 a) { return xzzx( float3( a.rgb)); }
+export float4 xzzy( color4 a) { return xzzy( float3( a.rgb)); }
+export float4 xzzz( color4 a) { return xzzz( float3( a.rgb)); }
+export float4 xzzw( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).z, float3( a.rgb).z, a.a); }
+export float4 xzwx( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).z, a.a, float3( a.rgb).x); }
+export float4 xzwy( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).z, a.a, float3( a.rgb).y); }
+export float4 xzwz( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).z, a.a, float3( a.rgb).z); }
+export float4 xzww( color4 a) { return float4( float3( a.rgb).x, float3( a.rgb).z, a.a, a.a); }
+export float4 xwxx( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).x, float3( a.rgb).x); }
+export float4 xwxy( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).x, float3( a.rgb).y); }
+export float4 xwxz( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).x, float3( a.rgb).z); }
+export float4 xwxw( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).x, a.a); }
+export float4 xwyx( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).y, float3( a.rgb).x); }
+export float4 xwyy( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).y, float3( a.rgb).y); }
+export float4 xwyz( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).y, float3( a.rgb).z); }
+export float4 xwyw( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).y, a.a); }
+export float4 xwzx( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).z, float3( a.rgb).x); }
+export float4 xwzy( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).z, float3( a.rgb).y); }
+export float4 xwzz( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).z, float3( a.rgb).z); }
+export float4 xwzw( color4 a) { return float4( float3( a.rgb).x, a.a, float3( a.rgb).z, a.a); }
+export float4 xwwx( color4 a) { return float4( float3( a.rgb).x, a.a, a.a, float3( a.rgb).x); }
+export float4 xwwy( color4 a) { return float4( float3( a.rgb).x, a.a, a.a, float3( a.rgb).y); }
+export float4 xwwz( color4 a) { return float4( float3( a.rgb).x, a.a, a.a, float3( a.rgb).z); }
+export float4 xwww( color4 a) { return float4( float3( a.rgb).x, a.a, a.a, a.a); }
+export float4 yxxx( color4 a) { return yxxx( float3( a.rgb)); }
+export float4 yxxy( color4 a) { return yxxy( float3( a.rgb)); }
+export float4 yxxz( color4 a) { return yxxz( float3( a.rgb)); }
+export float4 yxxw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).x, float3( a.rgb).x, a.a); }
+export float4 yxyx( color4 a) { return yxyx( float3( a.rgb)); }
+export float4 yxyy( color4 a) { return yxyy( float3( a.rgb)); }
+export float4 yxyz( color4 a) { return yxyz( float3( a.rgb)); }
+export float4 yxyw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).x, float3( a.rgb).y, a.a); }
+export float4 yxzx( color4 a) { return yxzx( float3( a.rgb)); }
+export float4 yxzy( color4 a) { return yxzy( float3( a.rgb)); }
+export float4 yxzz( color4 a) { return yxzz( float3( a.rgb)); }
+export float4 yxzw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).x, float3( a.rgb).z, a.a); }
+export float4 yxwx( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).x, a.a, float3( a.rgb).x); }
+export float4 yxwy( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).x, a.a, float3( a.rgb).y); }
+export float4 yxwz( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).x, a.a, float3( a.rgb).z); }
+export float4 yxww( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).x, a.a, a.a); }
+export float4 yyxx( color4 a) { return yyxx( float3( a.rgb)); }
+export float4 yyxy( color4 a) { return yyxy( float3( a.rgb)); }
+export float4 yyxz( color4 a) { return yyxz( float3( a.rgb)); }
+export float4 yyxw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).y, float3( a.rgb).x, a.a); }
+export float4 yyyx( color4 a) { return yyyx( float3( a.rgb)); }
+export float4 yyyy( color4 a) { return yyyy( float3( a.rgb)); }
+export float4 yyyz( color4 a) { return yyyz( float3( a.rgb)); }
+export float4 yyyw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).y, float3( a.rgb).y, a.a); }
+export float4 yyzx( color4 a) { return yyzx( float3( a.rgb)); }
+export float4 yyzy( color4 a) { return yyzy( float3( a.rgb)); }
+export float4 yyzz( color4 a) { return yyzz( float3( a.rgb)); }
+export float4 yyzw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).y, float3( a.rgb).z, a.a); }
+export float4 yywx( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).y, a.a, float3( a.rgb).x); }
+export float4 yywy( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).y, a.a, float3( a.rgb).y); }
+export float4 yywz( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).y, a.a, float3( a.rgb).z); }
+export float4 yyww( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).y, a.a, a.a); }
+export float4 yzxx( color4 a) { return yzxx( float3( a.rgb)); }
+export float4 yzxy( color4 a) { return yzxy( float3( a.rgb)); }
+export float4 yzxz( color4 a) { return yzxz( float3( a.rgb)); }
+export float4 yzxw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).z, float3( a.rgb).x, a.a); }
+export float4 yzyx( color4 a) { return yzyx( float3( a.rgb)); }
+export float4 yzyy( color4 a) { return yzyy( float3( a.rgb)); }
+export float4 yzyz( color4 a) { return yzyz( float3( a.rgb)); }
+export float4 yzyw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).z, float3( a.rgb).y, a.a); }
+export float4 yzzx( color4 a) { return yzzx( float3( a.rgb)); }
+export float4 yzzy( color4 a) { return yzzy( float3( a.rgb)); }
+export float4 yzzz( color4 a) { return yzzz( float3( a.rgb)); }
+export float4 yzzw( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).z, float3( a.rgb).z, a.a); }
+export float4 yzwx( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).z, a.a, float3( a.rgb).x); }
+export float4 yzwy( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).z, a.a, float3( a.rgb).y); }
+export float4 yzwz( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).z, a.a, float3( a.rgb).z); }
+export float4 yzww( color4 a) { return float4( float3( a.rgb).y, float3( a.rgb).z, a.a, a.a); }
+export float4 ywxx( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).x, float3( a.rgb).x); }
+export float4 ywxy( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).x, float3( a.rgb).y); }
+export float4 ywxz( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).x, float3( a.rgb).z); }
+export float4 ywxw( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).x, a.a); }
+export float4 ywyx( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).y, float3( a.rgb).x); }
+export float4 ywyy( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).y, float3( a.rgb).y); }
+export float4 ywyz( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).y, float3( a.rgb).z); }
+export float4 ywyw( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).y, a.a); }
+export float4 ywzx( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).z, float3( a.rgb).x); }
+export float4 ywzy( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).z, float3( a.rgb).y); }
+export float4 ywzz( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).z, float3( a.rgb).z); }
+export float4 ywzw( color4 a) { return float4( float3( a.rgb).y, a.a, float3( a.rgb).z, a.a); }
+export float4 ywwx( color4 a) { return float4( float3( a.rgb).y, a.a, a.a, float3( a.rgb).x); }
+export float4 ywwy( color4 a) { return float4( float3( a.rgb).y, a.a, a.a, float3( a.rgb).y); }
+export float4 ywwz( color4 a) { return float4( float3( a.rgb).y, a.a, a.a, float3( a.rgb).z); }
+export float4 ywww( color4 a) { return float4( float3( a.rgb).y, a.a, a.a, a.a); }
+export float4 zxxx( color4 a) { return zxxx( float3( a.rgb)); }
+export float4 zxxy( color4 a) { return zxxy( float3( a.rgb)); }
+export float4 zxxz( color4 a) { return zxxz( float3( a.rgb)); }
+export float4 zxxw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).x, float3( a.rgb).x, a.a); }
+export float4 zxyx( color4 a) { return zxyx( float3( a.rgb)); }
+export float4 zxyy( color4 a) { return zxyy( float3( a.rgb)); }
+export float4 zxyz( color4 a) { return zxyz( float3( a.rgb)); }
+export float4 zxyw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).x, float3( a.rgb).y, a.a); }
+export float4 zxzx( color4 a) { return zxzx( float3( a.rgb)); }
+export float4 zxzy( color4 a) { return zxzy( float3( a.rgb)); }
+export float4 zxzz( color4 a) { return zxzz( float3( a.rgb)); }
+export float4 zxzw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).x, float3( a.rgb).z, a.a); }
+export float4 zxwx( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).x, a.a, float3( a.rgb).x); }
+export float4 zxwy( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).x, a.a, float3( a.rgb).y); }
+export float4 zxwz( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).x, a.a, float3( a.rgb).z); }
+export float4 zxww( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).x, a.a, a.a); }
+export float4 zyxx( color4 a) { return zyxx( float3( a.rgb)); }
+export float4 zyxy( color4 a) { return zyxy( float3( a.rgb)); }
+export float4 zyxz( color4 a) { return zyxz( float3( a.rgb)); }
+export float4 zyxw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).y, float3( a.rgb).x, a.a); }
+export float4 zyyx( color4 a) { return zyyx( float3( a.rgb)); }
+export float4 zyyy( color4 a) { return zyyy( float3( a.rgb)); }
+export float4 zyyz( color4 a) { return zyyz( float3( a.rgb)); }
+export float4 zyyw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).y, float3( a.rgb).y, a.a); }
+export float4 zyzx( color4 a) { return zyzx( float3( a.rgb)); }
+export float4 zyzy( color4 a) { return zyzy( float3( a.rgb)); }
+export float4 zyzz( color4 a) { return zyzz( float3( a.rgb)); }
+export float4 zyzw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).y, float3( a.rgb).z, a.a); }
+export float4 zywx( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).y, a.a, float3( a.rgb).x); }
+export float4 zywy( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).y, a.a, float3( a.rgb).y); }
+export float4 zywz( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).y, a.a, float3( a.rgb).z); }
+export float4 zyww( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).y, a.a, a.a); }
+export float4 zzxx( color4 a) { return zzxx( float3( a.rgb)); }
+export float4 zzxy( color4 a) { return zzxy( float3( a.rgb)); }
+export float4 zzxz( color4 a) { return zzxz( float3( a.rgb)); }
+export float4 zzxw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).z, float3( a.rgb).x, a.a); }
+export float4 zzyx( color4 a) { return zzyx( float3( a.rgb)); }
+export float4 zzyy( color4 a) { return zzyy( float3( a.rgb)); }
+export float4 zzyz( color4 a) { return zzyz( float3( a.rgb)); }
+export float4 zzyw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).z, float3( a.rgb).y, a.a); }
+export float4 zzzx( color4 a) { return zzzx( float3( a.rgb)); }
+export float4 zzzy( color4 a) { return zzzy( float3( a.rgb)); }
+export float4 zzzz( color4 a) { return zzzz( float3( a.rgb)); }
+export float4 zzzw( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).z, float3( a.rgb).z, a.a); }
+export float4 zzwx( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).z, a.a, float3( a.rgb).x); }
+export float4 zzwy( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).z, a.a, float3( a.rgb).y); }
+export float4 zzwz( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).z, a.a, float3( a.rgb).z); }
+export float4 zzww( color4 a) { return float4( float3( a.rgb).z, float3( a.rgb).z, a.a, a.a); }
+export float4 zwxx( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).x, float3( a.rgb).x); }
+export float4 zwxy( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).x, float3( a.rgb).y); }
+export float4 zwxz( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).x, float3( a.rgb).z); }
+export float4 zwxw( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).x, a.a); }
+export float4 zwyx( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).y, float3( a.rgb).x); }
+export float4 zwyy( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).y, float3( a.rgb).y); }
+export float4 zwyz( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).y, float3( a.rgb).z); }
+export float4 zwyw( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).y, a.a); }
+export float4 zwzx( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).z, float3( a.rgb).x); }
+export float4 zwzy( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).z, float3( a.rgb).y); }
+export float4 zwzz( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).z, float3( a.rgb).z); }
+export float4 zwzw( color4 a) { return float4( float3( a.rgb).z, a.a, float3( a.rgb).z, a.a); }
+export float4 zwwx( color4 a) { return float4( float3( a.rgb).z, a.a, a.a, float3( a.rgb).x); }
+export float4 zwwy( color4 a) { return float4( float3( a.rgb).z, a.a, a.a, float3( a.rgb).y); }
+export float4 zwwz( color4 a) { return float4( float3( a.rgb).z, a.a, a.a, float3( a.rgb).z); }
+export float4 zwww( color4 a) { return float4( float3( a.rgb).z, a.a, a.a, a.a); }
+export float4 wxxx( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).x, float3( a.rgb).x); }
+export float4 wxxy( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).x, float3( a.rgb).y); }
+export float4 wxxz( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).x, float3( a.rgb).z); }
+export float4 wxxw( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).x, a.a); }
+export float4 wxyx( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).y, float3( a.rgb).x); }
+export float4 wxyy( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).y, float3( a.rgb).y); }
+export float4 wxyz( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).y, float3( a.rgb).z); }
+export float4 wxyw( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).y, a.a); }
+export float4 wxzx( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).z, float3( a.rgb).x); }
+export float4 wxzy( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).z, float3( a.rgb).y); }
+export float4 wxzz( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).z, float3( a.rgb).z); }
+export float4 wxzw( color4 a) { return float4( a.a, float3( a.rgb).x, float3( a.rgb).z, a.a); }
+export float4 wxwx( color4 a) { return float4( a.a, float3( a.rgb).x, a.a, float3( a.rgb).x); }
+export float4 wxwy( color4 a) { return float4( a.a, float3( a.rgb).x, a.a, float3( a.rgb).y); }
+export float4 wxwz( color4 a) { return float4( a.a, float3( a.rgb).x, a.a, float3( a.rgb).z); }
+export float4 wxww( color4 a) { return float4( a.a, float3( a.rgb).x, a.a, a.a); }
+export float4 wyxx( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).x, float3( a.rgb).x); }
+export float4 wyxy( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).x, float3( a.rgb).y); }
+export float4 wyxz( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).x, float3( a.rgb).z); }
+export float4 wyxw( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).x, a.a); }
+export float4 wyyx( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).y, float3( a.rgb).x); }
+export float4 wyyy( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).y, float3( a.rgb).y); }
+export float4 wyyz( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).y, float3( a.rgb).z); }
+export float4 wyyw( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).y, a.a); }
+export float4 wyzx( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).z, float3( a.rgb).x); }
+export float4 wyzy( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).z, float3( a.rgb).y); }
+export float4 wyzz( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).z, float3( a.rgb).z); }
+export float4 wyzw( color4 a) { return float4( a.a, float3( a.rgb).y, float3( a.rgb).z, a.a); }
+export float4 wywx( color4 a) { return float4( a.a, float3( a.rgb).y, a.a, float3( a.rgb).x); }
+export float4 wywy( color4 a) { return float4( a.a, float3( a.rgb).y, a.a, float3( a.rgb).y); }
+export float4 wywz( color4 a) { return float4( a.a, float3( a.rgb).y, a.a, float3( a.rgb).z); }
+export float4 wyww( color4 a) { return float4( a.a, float3( a.rgb).y, a.a, a.a); }
+export float4 wzxx( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).x, float3( a.rgb).x); }
+export float4 wzxy( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).x, float3( a.rgb).y); }
+export float4 wzxz( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).x, float3( a.rgb).z); }
+export float4 wzxw( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).x, a.a); }
+export float4 wzyx( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).y, float3( a.rgb).x); }
+export float4 wzyy( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).y, float3( a.rgb).y); }
+export float4 wzyz( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).y, float3( a.rgb).z); }
+export float4 wzyw( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).y, a.a); }
+export float4 wzzx( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).z, float3( a.rgb).x); }
+export float4 wzzy( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).z, float3( a.rgb).y); }
+export float4 wzzz( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).z, float3( a.rgb).z); }
+export float4 wzzw( color4 a) { return float4( a.a, float3( a.rgb).z, float3( a.rgb).z, a.a); }
+export float4 wzwx( color4 a) { return float4( a.a, float3( a.rgb).z, a.a, float3( a.rgb).x); }
+export float4 wzwy( color4 a) { return float4( a.a, float3( a.rgb).z, a.a, float3( a.rgb).y); }
+export float4 wzwz( color4 a) { return float4( a.a, float3( a.rgb).z, a.a, float3( a.rgb).z); }
+export float4 wzww( color4 a) { return float4( a.a, float3( a.rgb).z, a.a, a.a); }
+export float4 wwxx( color4 a) { return float4( a.a, a.a, float3( a.rgb).x, float3( a.rgb).x); }
+export float4 wwxy( color4 a) { return float4( a.a, a.a, float3( a.rgb).x, float3( a.rgb).y); }
+export float4 wwxz( color4 a) { return float4( a.a, a.a, float3( a.rgb).x, float3( a.rgb).z); }
+export float4 wwxw( color4 a) { return float4( a.a, a.a, float3( a.rgb).x, a.a); }
+export float4 wwyx( color4 a) { return float4( a.a, a.a, float3( a.rgb).y, float3( a.rgb).x); }
+export float4 wwyy( color4 a) { return float4( a.a, a.a, float3( a.rgb).y, float3( a.rgb).y); }
+export float4 wwyz( color4 a) { return float4( a.a, a.a, float3( a.rgb).y, float3( a.rgb).z); }
+export float4 wwyw( color4 a) { return float4( a.a, a.a, float3( a.rgb).y, a.a); }
+export float4 wwzx( color4 a) { return float4( a.a, a.a, float3( a.rgb).z, float3( a.rgb).x); }
+export float4 wwzy( color4 a) { return float4( a.a, a.a, float3( a.rgb).z, float3( a.rgb).y); }
+export float4 wwzz( color4 a) { return float4( a.a, a.a, float3( a.rgb).z, float3( a.rgb).z); }
+export float4 wwzw( color4 a) { return float4( a.a, a.a, float3( a.rgb).z, a.a); }
+export float4 wwwx( color4 a) { return float4( a.a, a.a, a.a, float3( a.rgb).x); }
+export float4 wwwy( color4 a) { return float4( a.a, a.a, a.a, float3( a.rgb).y); }
+export float4 wwwz( color4 a) { return float4( a.a, a.a, a.a, float3( a.rgb).z); }
+export float4 wwww( color4 a) { return float4( a.a, a.a, a.a, a.a); }
+

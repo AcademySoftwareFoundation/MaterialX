@@ -253,7 +253,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         for (size_t j = 0; j < metadata->size(); ++j)
         {
             const ShaderMetadata& data = metadata->at(j);
-            const string& delim = (j == metadata->size() - 1) ? EMPTY_STRING : COMMA;
+            const string& delim = (j == metadata->size() - 1) ? EMPTY_STRING : Syntax::COMMA;
             const string& dataType = _syntax->getTypeName(data.type);
             const string dataValue = _syntax->getValue(data.type, *data.value, true);
             emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
@@ -282,7 +282,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const VariableBlock& constants = stage.getConstantBlock();
     if (constants.size())
     {
-        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), SEMICOLON, context, stage);
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, stage);
         emitLineBreak(stage);
     }
 
@@ -472,7 +472,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
                 for (size_t j = 0; j < metadata->size(); ++j)
                 {
                     const ShaderMetadata& data = metadata->at(j);
-                    const string& delim = (widgetMetadata || j < metadata->size() - 1) ? COMMA : EMPTY_STRING;
+                    const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
                     const string& dataType = _syntax->getTypeName(data.type);
                     const string dataValue = _syntax->getValue(data.type, *data.value, true);
                     emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
@@ -487,7 +487,11 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
             emitScopeEnd(stage, false, false);
         }
 
-        emitString(",", stage);
+        if (i < inputs.size())
+        {
+            emitString(",", stage);
+        }
+
         emitLineEnd(stage, false);
     }
 }
@@ -500,7 +504,7 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
         const TypeDesc* outputType = output->getType();
         const string type = _syntax->getOutputTypeName(outputType);
         const string value = _syntax->getDefaultValue(outputType, true);
-        const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : COMMA;
+        const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : Syntax::COMMA;
         emitLine(type + " " + output->getVariable() + " = " + value + delim, stage, false);
     }
 }

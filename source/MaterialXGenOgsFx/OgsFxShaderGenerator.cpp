@@ -124,7 +124,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     const VariableBlock& vertexInputs = vs.getInputBlock(HW::VERTEX_INPUTS);
     emitLine("attribute " + vertexInputs.getName(), fx, false);
     emitScopeBegin(fx);
-    emitVariableDeclarations(vertexInputs, EMPTY_STRING, SEMICOLON, context, fx, false);
+    emitVariableDeclarations(vertexInputs, EMPTY_STRING, Syntax::SEMICOLON, context, fx, false);
     emitScopeEnd(fx, true);
     emitLineBreak(fx);
 
@@ -132,7 +132,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     const VariableBlock& vertexData = vs.getOutputBlock(HW::VERTEX_DATA);
     emitLine("attribute " + vertexData.getName(), fx, false);
     emitScopeBegin(fx);
-    emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, fx, false);
+    emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, fx, false);
     emitScopeEnd(fx, true);
     emitLineBreak(fx);
 
@@ -151,7 +151,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment("Vertex stage uniform block: " + uniforms.getName(), fx);
-            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), SEMICOLON, context, fx);
+            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, fx);
             emitLineBreak(fx);
         }
     }
@@ -161,7 +161,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment("Vertex stage uniform block: " + uniforms.getName(), fx);
-            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), SEMICOLON, context, fx);
+            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, fx);
             emitLineBreak(fx);
         }
     }
@@ -171,7 +171,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment("Pixel stage uniform block: " + uniforms.getName(), fx);
-            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), SEMICOLON, context, fx);
+            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, fx);
             emitLineBreak(fx);
         }
     }
@@ -181,7 +181,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment("Pixel stage uniform block: " + uniforms.getName(), fx);
-            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), SEMICOLON, context, fx);
+            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, fx);
             emitLineBreak(fx);
         }
     }
@@ -259,7 +259,7 @@ void OgsFxShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext&
     const VariableBlock& constants = stage.getConstantBlock();
     if (!constants.empty())
     {
-        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), SEMICOLON, context, stage);
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, stage);
         emitLineBreak(stage);
     }
 
@@ -297,7 +297,7 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
     const VariableBlock& constants = stage.getConstantBlock();
     if (!constants.empty())
     {
-        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), SEMICOLON, context, stage);
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, stage);
         emitLineBreak(stage);
     }
 
@@ -447,7 +447,7 @@ void OgsFxShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, c
         // If an array we need an array qualifier (suffix) for the variable name
         if (variable->getType()->isArray() && variable->getValue())
         {
-            str += _syntax->getArraySuffix(variable->getType(), *variable->getValue());
+            str += _syntax->getArrayVariableSuffix(variable->getType(), *variable->getValue());
         }
 
         if (!variable->getSemantic().empty())
