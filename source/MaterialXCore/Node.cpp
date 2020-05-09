@@ -27,15 +27,12 @@ void Node::setConnectedNode(const string& inputName, NodePtr node)
     if (!input)
     {
         input = addInput(inputName);
-        if (node)
-        {
-            input->setType(node->getType());
-        }
     }
     if (node)
     {
-        input->setConnectedNode(node);
+        input->setType(node->getType());
     }
+    input->setConnectedNode(node);
 }
 
 NodePtr Node::getConnectedNode(const string& inputName) const
