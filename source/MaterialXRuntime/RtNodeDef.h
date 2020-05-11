@@ -30,6 +30,36 @@ public:
     /// Set the node for this nodedef.
     void setNode(const RtToken& node);
 
+    /// Return the node group for this nodedef.
+    const RtToken& getNodeGroup() const;
+
+    /// Set the node for this nodedef.
+    void setNodeGroup(const RtToken& nodegroup);
+
+    /// Return the target for this nodedef.
+    const RtToken& getTarget() const;
+
+    /// Set the target for this nodedef.
+    void setTarget(const RtToken& nodegroup);
+
+    /// Return the inheritance for this nodedef.
+    const RtToken& getIneritance() const;
+
+    /// Set the inheritance for this nodedef.
+    void setIneritance(const RtToken& inherit);
+
+    /// Return the version for this nodedef.
+    const RtToken& getVersion() const;
+
+    /// Set the version for this nodedef.
+    void setVersion(const RtToken& version);
+
+    /// Return the version for this nodedef.
+    bool getIsDefaultVersion() const;
+
+    /// Set the version for this nodedef.
+    void setIsDefaultVersion(bool isDefault);
+
     /// Add an input attribute to the interface.
     RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
 
@@ -74,6 +104,13 @@ public:
 
     /// Return true if this nodedef is registerd as a master prim.
     bool isMasterPrim() const;
+
+    static RtToken NODE;
+    static RtToken NODEGROUP;
+    static RtToken INHERIT;
+    static RtToken TARGET;
+    static RtToken VERSION;
+    static RtToken IS_DEFAULT_VERSION;
 };
 
 }

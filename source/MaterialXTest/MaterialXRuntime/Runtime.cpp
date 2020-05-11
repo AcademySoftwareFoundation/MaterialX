@@ -775,6 +775,25 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(add1.getPrim().getRoot() == stage->getRootPrim());
     REQUIRE(add1.getPrim().getStage().lock() == stage);
     REQUIRE(graph1.getPrim().getParent() == stage->getRootPrim());
+
+    // Test creating a nodedef from a nodegraph
+    const mx::RtToken ND_ADDGRAPH("ND_addgraph");
+    const mx::RtToken ADDGRAPH("addgraph");
+    const mx::RtToken MATH_GROUP("math");
+    const mx::RtToken ADDGRAPH_VERSION("3.4");
+    mx::RtPrim addgraphPrim = stage->createNodeDef(graph1, ND_ADDGRAPH, ADDGRAPH, MATH_GROUP);
+    mx::RtNodeDef addgraphDef(addgraphPrim);
+
+    REQUIRE(addgraphDef.isMasterPrim());
+    REQUIRE(graph1.getNodeDef().getName() == ND_ADDGRAPH);
+    REQUIRE(addgraphDef.numInputs() == 0);
+    REQUIRE(addgraphDef.numOutputs() == 1);
+    REQUIRE(addgraphDef.getOutput().getName() == OUT);
+    REQUIRE(addgraphDef.getName() == ND_ADDGRAPH);
+    REQUIRE(addgraphDef.getNode() == ADDGRAPH);
+    REQUIRE(addgraphDef.getNodeGroup() == MATH_GROUP);
+    addgraphDef.setVersion(ADDGRAPH_VERSION);
+    REQUIRE(addgraphDef.getVersion() == ADDGRAPH_VERSION);
 }
 
 TEST_CASE("Runtime: FileIo", "[runtime]")

@@ -277,6 +277,40 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
+NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, string& newGraphName, const string& group)
+{
+    if (getNodeDef(nodeDefName))
+    {
+        throw Exception("Cannot create duplicate nodedef: " + nodeDefName);
+    }
+
+    NodeGraphPtr graph = nodeGraph;
+    if (!newGraphName.empty())
+    {
+        if (getNodeGraph(newGraphName))
+        {
+            throw Exception("Cannot create duplicate nodegraph: " + newGraphName);
+        }
+        graph = addNodeGraph(newGraphName);
+        graph->copyContentFrom(nodeGraph);
+    }
+    graph->setNodeDefString(nodeDefName);
+
+    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
+    nodeDef->setNodeString(node);
+    if (!group.empty())
+    {
+        nodeDef->setNodeGroup(group);
+    }
+
+    for (auto output : graph->getOutputs())
+    {
+        nodeDef->addOutput(output->getName(), output->getType());
+    }
+
+    return nodeDef;
+}
+
 void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
 {
     bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;

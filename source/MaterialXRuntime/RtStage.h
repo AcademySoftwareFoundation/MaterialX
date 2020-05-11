@@ -17,6 +17,7 @@ namespace MaterialX
 {
 
 class RtPath;
+class RtNodeGraph;
 
 /// @class RtStage
 /// A stage is the root container of material description data.
@@ -43,6 +44,10 @@ public:
     /// Create a new prim inside the parent given by path.
     /// If an empty name is given a name will be generated.
     RtPrim createPrim(const RtPath& parentPath, const RtToken& name, const RtToken& typeName);
+
+    /// Create a node definition based on a nodegraph
+    RtPrim createNodeDef(RtNodeGraph& nodeGraph, 
+                         const RtToken& nodeDefName, const RtToken& nodeName, const RtToken& nodeGroup = EMPTY_TOKEN);
 
     /// Remove a prim from the stage.
     void removePrim(const RtPath& path);

@@ -380,6 +380,16 @@ class Document : public GraphElement
         return child;
     }
 
+    /// Create a NodeDef declaration which is based on a NodeGraph.
+    /// @param nodeGraph NodeGraph used to create NodeDef
+    /// @param nodeDefName Declaration name 
+    /// @param node Node type for the new declaration
+    /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
+    ///        modify the existing NodeGraph. Default value is an empty string.
+    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
+    /// @return New declaration if successful.
+    NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, string& newGraphName, const string& nodeGroup = EMPTY_STRING);
+
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
     {

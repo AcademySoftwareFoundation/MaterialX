@@ -27,6 +27,9 @@ public:
     /// Return the nodedef for this node.
     RtPrim getNodeDef() const;
 
+    /// Set the nodedef for this node.
+    void setNodeDef(RtPrim prim);
+
     /// Return the number of inputs on the node.
     size_t numInputs() const;
 
