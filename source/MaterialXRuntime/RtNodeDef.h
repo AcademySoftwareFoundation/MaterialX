@@ -42,14 +42,25 @@ public:
     /// Remove an output attribute from the interface.
     void removeOutput(const RtToken& name);
 
+    /// Return the number of inputs on the interface.
+    size_t numInputs() const;
+
     /// Return the named input.
     RtInput getInput(const RtToken& name) const;
 
     /// Return an iterator traversing all input attributes.
     RtAttrIterator getInputs() const;
 
+    /// Return the number of outputs on the interface.
+    size_t numOutputs() const;
+
     /// Return the named output.
     RtOutput getOutput(const RtToken& name) const;
+
+    /// Return the single output for single output nodes.
+    /// Or if multiple outputs are available return the 
+    /// last created output.
+    RtOutput getOutput() const;
 
     /// Return an iterator traversing all output attributes.
     RtAttrIterator getOutputs() const;

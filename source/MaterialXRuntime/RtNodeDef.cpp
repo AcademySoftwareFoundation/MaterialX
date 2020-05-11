@@ -76,6 +76,11 @@ void RtNodeDef::removeOutput(const RtToken& name)
     prim()->removeAttribute(name);
 }
 
+size_t RtNodeDef::numInputs() const
+{
+    return prim()->numInputs();
+}
+
 RtInput RtNodeDef::getInput(const RtToken& name) const
 {
     PvtInput* input = prim()->getInput(name);
@@ -88,9 +93,20 @@ RtAttrIterator RtNodeDef::getInputs() const
     return RtAttrIterator(getPrim(), filter);
 }
 
+size_t RtNodeDef::numOutputs() const
+{
+    return prim()->numOutputs();
+}
+
 RtOutput RtNodeDef::getOutput(const RtToken& name) const
 {
     PvtOutput* output = prim()->getOutput(name);
+    return output ? output->hnd() : RtOutput();
+}
+
+RtOutput RtNodeDef::getOutput() const
+{
+    PvtOutput* output = prim()->getOutput();
     return output ? output->hnd() : RtOutput();
 }
 

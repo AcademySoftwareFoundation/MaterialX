@@ -193,7 +193,7 @@ namespace
                     if (outputName == EMPTY_TOKEN && connectedNode)
                     {
                         RtNode rtConnectedNode(connectedNode->hnd());
-                        auto output = rtConnectedNode.getOutput(EMPTY_TOKEN);
+                        auto output = rtConnectedNode.getOutput();
                         if (output)
                         {
                             outputName = output.getName();
@@ -228,7 +228,7 @@ namespace
         if (nodeType != MULTIOUTPUT)
         {
             // For single output nodes we can match the output directly.
-            PvtOutput* out = prim->getOutput(EMPTY_TOKEN);
+            PvtOutput* out = prim->getOutput();
             if (!out || out->getType() != nodeType)
             {
                 return false;
@@ -358,7 +358,7 @@ namespace
             createInterface(src, schema);
         }
 
-        // Create all nodes and connection between node inputs and internal graph sockets.
+        // Create all nodes and connections between node inputs and internal graph sockets.
         for (auto child : src->getChildren())
         {
             NodePtr srcNnode = child->asA<Node>();
@@ -797,25 +797,17 @@ namespace
                             }
                             else
                             {
-                                RtPrim sourceNode = source.getParent();
+                                RtPrim sourcePrim = source.getParent();
                                 InputPtr inputElem = valueElem->asA<Input>();
-                                if (sourceNode.hasApi<RtNodeGraph>())
+                                if (sourcePrim.hasApi<RtNodeGraph>())
                                 {
-                                    inputElem->setNodeGraphName(sourceNode.getName());
+                                    inputElem->setNodeGraphName(sourcePrim.getName());
                                 }
                                 else
                                 {
-                                    inputElem->setNodeName(sourceNode.getName());
+                                    inputElem->setNodeName(sourcePrim.getName());
                                 }
-                                RtNode rtSourceNode(sourceNode);
-                                int numSourceNodeOutputs = 0;
-                                auto outputIter = rtSourceNode.getOutputs();
-                                while (!outputIter.isDone())
-                                {
-                                    numSourceNodeOutputs++;
-                                    ++outputIter;
-                                }
-                                if (numSourceNodeOutputs > 1)
+                                if (sourcePrim.numOutputs() > 1)
                                 {
                                     inputElem->setOutputString(source.getName());
                                 }
@@ -921,12 +913,38 @@ namespace
         doc->removeChild(uniqueName);
     }
 
-    void writeNodeGraph(const PvtPrim * src, DocumentPtr dest)
+    void writeNodeGraph(const PvtPrim* src, DocumentPtr dest)
     {
         NodeGraphPtr destNodeGraph = dest->addNodeGraph(src->getName());
         writeMetadata(src, destNodeGraph, nodegraphMetadata);
 
         RtNodeGraph nodegraph(src->hnd());
+
+        // Write inputs/parameters.
+        RtObjTypePredicate<RtInput> inputsFilter;
+        for (RtAttribute attr : src->getAttributes(inputsFilter))
+        {
+            RtInput nodegraphInput = nodegraph.getInput(attr.getName());
+            if (nodegraphInput.isUniform())
+            {
+                destNodeGraph->addParameter(nodegraphInput.getName(), nodegraphInput.getType());
+            }
+            else
+            {
+                InputPtr input = destNodeGraph->addInput(nodegraphInput.getName(), nodegraphInput.getType());
+                if (nodegraphInput.isConnected())
+                {
+                    // Write connections to upstream nodes.
+                    RtOutput source = nodegraphInput.getConnection();
+                    RtNode sourceNode = source.getParent();
+                    input->setNodeName(sourceNode.getName());
+                    if (sourceNode.numOutputs() > 1)
+                    {
+                        input->setOutputString(source.getName());
+                    }
+                }
+            }
+        }
 
         // Write nodes.
         for (RtPrim node : nodegraph.getNodes())
@@ -949,17 +967,9 @@ namespace
                 }
                 else
                 {
-                    RtPrim sourceNode = source.getParent();
+                    RtNode sourceNode = source.getParent();
                     output->setNodeName(sourceNode.getName());
-                    RtNode rtSourceNode(sourceNode);
-                    int numSourceNodeOutputs = 0;
-                    auto outputIter = rtSourceNode.getOutputs();
-                    while (!outputIter.isDone())
-                    {
-                        numSourceNodeOutputs++;
-                        ++outputIter;
-                    }
-                    if (numSourceNodeOutputs > 1)
+                    if (sourceNode.numOutputs() > 1)
                     {
                         output->setOutputString(source.getName());
                     }

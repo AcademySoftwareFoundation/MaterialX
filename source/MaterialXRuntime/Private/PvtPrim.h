@@ -136,23 +136,45 @@ public:
 
     PvtOutput* getOutput(const RtToken& name) const
     {
-        // Return first output if no name / empty name provided
-        if (name.str().empty())
-        {
-            for (auto it : _attrMap)
-            {
-                if (it.second->isA<PvtOutput>())
-                {
-                    return it.second->asA<PvtOutput>();
-                }
-            }
-            return nullptr;
-        }
-
         // TODO: Improve type check and type conversion for RtObject subclasses.
         auto it = _attrMap.find(name);
         return it != _attrMap.end() && it->second->isA<PvtOutput>() ?
             it->second->asA<PvtOutput>() : nullptr;
+    }
+
+    PvtOutput* getOutput() const
+    {
+        // Return first output found.
+        // Iterate backwards since outputs are often created after inputs.
+        for (auto it = _attrOrder.rbegin(); it != _attrOrder.rend(); ++it)
+        {
+            const PvtDataHandle& hnd = *it;
+            if (hnd->isA<PvtOutput>())
+            {
+                return hnd->asA<PvtOutput>();
+            }
+        }
+        return nullptr;
+    }
+
+    size_t numInputs() const
+    {
+        size_t count = 0;
+        for (const PvtDataHandle& hnd : _attrOrder)
+        {
+            count += size_t(hnd->isA<PvtInput>());
+        }
+        return count;
+    }
+
+    size_t numOutputs() const
+    {
+        size_t count = 0;
+        for (const PvtDataHandle& hnd : _attrOrder)
+        {
+            count += size_t(hnd->isA<PvtOutput>());
+        }
+        return count;
     }
 
     RtAttrIterator getAttributes(RtObjectPredicate predicate = nullptr) const;

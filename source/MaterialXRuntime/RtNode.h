@@ -27,6 +27,9 @@ public:
     /// Return the nodedef for this node.
     RtPrim getNodeDef() const;
 
+    /// Return the number of inputs on the node.
+    size_t numInputs() const;
+
     /// Return the named input.
     RtInput getInput(const RtToken& name) const;
 
@@ -34,8 +37,16 @@ public:
     /// on this node.
     RtAttrIterator getInputs() const;
 
+    /// Return the number of outputs on the node.
+    size_t numOutputs() const;
+
     /// Return the named output.
     RtOutput getOutput(const RtToken& name) const;
+
+    /// Return the single output for single output nodes.
+    /// Or if multiple outputs are available return the 
+    /// last created output.
+    RtOutput getOutput() const;
 
     /// Return an iterator traversing all output attributes
     /// on this node.
