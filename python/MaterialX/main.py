@@ -1,6 +1,5 @@
 import warnings
 
-from .PyMaterialXCore import *
 from .PyMaterialXFormat import *
 from .datatype import *
 
