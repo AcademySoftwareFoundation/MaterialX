@@ -1531,7 +1531,7 @@ export color mx_modulo_color3(
 		anno::description("Node Group: math")
 	]]
 {
-	return color(::math::fmod(float3(mxp_in1), float3(mxp_in2)));
+	return color(mx_mod(float3(mxp_in1), float3(mxp_in2)));
 }
 
 export color4 mx_modulo_color4(
@@ -1542,7 +1542,7 @@ export color4 mx_modulo_color4(
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::fmod(mk_float4(mxp_in1), mk_float4(mxp_in2)));
+	return mk_color4(mx_mod(mk_float4(mxp_in1), mk_float4(mxp_in2)));
 }
 
 export color mx_modulo_color3FA(
@@ -1553,7 +1553,7 @@ export color mx_modulo_color3FA(
 		anno::description("Node Group: math")
 	]]
 {
-	return color(::math::fmod(float3(mxp_in1), float3(mxp_in2)));
+	return color(mx_mod(float3(mxp_in1), float3(mxp_in2)));
 }
 
 export color4 mx_modulo_color4FA(
@@ -1564,7 +1564,7 @@ export color4 mx_modulo_color4FA(
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::fmod(mk_float4(mxp_in1), float4(mxp_in2)));
+	return mk_color4(mx_mod(mk_float4(mxp_in1), float4(mxp_in2)));
 }
 
 export color4 mx_invert_color4(

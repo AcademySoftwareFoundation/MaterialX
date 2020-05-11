@@ -132,8 +132,9 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
     {
         mdlcCommand += " -p\"" + extraPath + "\"";
     }
+    // Note: These paths are based on
     mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FilePath coreModulePath = currentPath / mx::FilePath("libraries/stdlib/genmdl");
+    mx::FilePath coreModulePath = currentPath / std::string(MATERIALX_INSTALL_MDL_MODULE_PATH) / "mdl";
     mx::FilePath coreModulePath2 = coreModulePath / mx::FilePath("materialx");
     mdlcCommand += " -p \"" + currentPath.asString() + "\"";
     mdlcCommand += " -p \"" + coreModulePath.asString() + "\"";
@@ -177,7 +178,9 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 
     const mx::FilePath logPath("genmdl_mdl_generate_test.txt");
 
-    bool writeShadersToDisk = false;
+    // Write shaders and try to compile only if mdlc exe specified.
+    std::string mdlcExec(MATERIALX_MDLC_EXECUTABLE);
+    bool writeShadersToDisk = !mdlcExec.empty();
     MdlShaderGeneratorTester tester(mx::MdlShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
     tester.addSkipLibraryFiles();
 

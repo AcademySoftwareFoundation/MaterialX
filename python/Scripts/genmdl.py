@@ -707,7 +707,7 @@ def main():
                         file.write(INDENT + 'return mxp_in1 / mxp_in2;\n')
                         wroteImplementation = True
                 elif nodeCategory == 'modulo':
-                    _writeTwoArgumentFunc(file, outputType, '::math::fmod')
+                    _writeTwoArgumentFunc(file, outputType, 'mx_mod')
                     wroteImplementation = True
                 elif nodeCategory == 'power':
                     _writeTwoArgumentFunc(file, outputType, '::math::pow')

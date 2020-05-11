@@ -99,6 +99,13 @@ export color4 mx_multiply( color4 v1, color4 v2) { return color4(v1.rgb * v2.rgb
 export color4 mx_multiply( color4 v1,  float v2) { return color4(v1.rgb * v2    , v1.a * v2  ); }
 export color4 mx_divide(   color4 v1, color4 v2) { return color4(v1.rgb / v2.rgb, v1.a / v2.a); }
 export color4 mx_divide(   color4 v1,  float v2) { return color4(v1.rgb / v2    , v1.a / v2  ); }
+export float mx_mod(       float x, float y) { return x - y * math::floor(x/y); }
+export float2 mx_mod(      float2 x, float2 y) { return x - y * math::floor(x/y); }
+export float3 mx_mod(      float3 x, float3 y) { return x - y * math::floor(x/y); }
+export float4 mx_mod(      float4 x, float4 y) { return x - y * math::floor(x/y); }
+export float2 mx_mod(      float2 x, float y) { return mx_mod(x, float2(y,y)); }
+export float3 mx_mod(      float3 x, float y) { return mx_mod(x, float3(y,y,y)); }
+export float4 mx_mod(      float4 x, float y) { return mx_mod(x, float4(y,y,y,y)); }
 
 // Parameter Expressions and Function Curves
 // Idea: attach an auxiliary lookup function if an array of frame values is
@@ -187,4 +194,5 @@ export enum mx_filter_type {
 export enum mx_distribution_type {
     mx_distribution_type_ggx
 };
+
 
