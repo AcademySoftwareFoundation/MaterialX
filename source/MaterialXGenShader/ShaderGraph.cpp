@@ -436,21 +436,16 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     // Create output sockets from the nodegraph
     graph->addOutputSockets(nodeGraph);
 
-    if (context.getOptions().addUpstreamDependencies)
+    // Traverse all outputs and create all internal nodes
+    for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
     {
-        // Traverse all outputs and create all upstream dependencies
-        for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
-        {
-            graph->addUpstreamDependencies(*graphOutput, nullptr, context);
-        }
+        graph->addUpstreamDependencies(*graphOutput, nullptr, context);
     }
 
     // Add classification according to last node
     // TODO: What if the graph has multiple outputs?
-    {
-        ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-        graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
-    }
+    ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
+    graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
 
     // Finalize the graph
     graph->finalize(context);
