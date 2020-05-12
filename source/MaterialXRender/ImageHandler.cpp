@@ -114,7 +114,11 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
 
     if (message && !filePath.isEmpty())
     {
-        if (!extensionSupported)
+        if (!foundFilePath.exists())
+        {
+            *message = string("Image file not found: ") + filePath.asString();
+        }
+        else if (!extensionSupported)
         {
             *message = string("Unsupported image extension: ") + filePath.asString();
         }
