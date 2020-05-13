@@ -784,6 +784,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     const mx::RtToken ADDGRAPH("addgraph");
     const mx::RtToken MATH_GROUP("math");
     const mx::RtToken ADDGRAPH_VERSION("3.4");
+    const mx::RtToken ADDGRAPH_TARGET("mytarget");
     stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
     mx::RtPrim addgraphPrim = stage->createNodeDef(graph1, ND_ADDGRAPH, ADDGRAPH, MATH_GROUP);
     mx::RtNodeDef addgraphDef(addgraphPrim);    
@@ -798,6 +799,19 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(addgraphDef.getNodeGroup() == MATH_GROUP);
     addgraphDef.setVersion(ADDGRAPH_VERSION);
     REQUIRE(addgraphDef.getVersion() == ADDGRAPH_VERSION);
+    addgraphDef.setTarget(ADDGRAPH_TARGET);
+
+    // Check instance creation. Metadata like version should be copied
+    // but not target or node.
+    mx::RtPrim agPrim = stage->createPrim("addgraph1", ND_ADDGRAPH);
+    REQUIRE(agPrim.isValid());
+    mx::RtNode agNode(agPrim);
+    mx::RtTypedValue* agVersion = agNode.getMetadata(mx::RtNodeDef::VERSION);
+    REQUIRE(agVersion->getValueString() == ADDGRAPH_VERSION);
+    mx::RtTypedValue* agTarget= agNode.getMetadata(mx::RtNodeDef::TARGET);
+    REQUIRE(!agTarget);
+    mx::RtTypedValue* agNodeValue = agNode.getMetadata(mx::RtNodeDef::NODE);
+    REQUIRE(!agNodeValue);
 
     mx::RtFileIo stageIo(stage);
     mx::RtTokenVec names;
@@ -808,6 +822,8 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     mx::readFromXmlFile(doc, "ND_addgraph.mtlx");
     mx::NodeDefPtr nodeDef = doc->getNodeDef(ND_ADDGRAPH.str());
     REQUIRE(nodeDef);
+    REQUIRE(nodeDef->getVersionString() == ADDGRAPH_VERSION.str());
+    REQUIRE(nodeDef->getTarget() == ADDGRAPH_TARGET.str());
     std::vector<mx::InputPtr> inputs = nodeDef->getInputs();
     bool inputCheck = 
         (inputs.size() == 2) &&
@@ -849,6 +865,19 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
             }
         }
     }
+
+    // Check instance creation
+    stageIo.write("addgraph_example.mtlx");
+    doc = mx::createDocument();
+    mx::readFromXmlFile(doc, "addgraph_example.mtlx");
+    mx::ElementPtr agInstance = doc->getChild("addgraph1");
+    REQUIRE(agInstance);
+    bool instanceVersionSaved = agInstance->getAttribute(mx::RtNodeDef::VERSION.str()) == ADDGRAPH_VERSION;
+    REQUIRE(instanceVersionSaved);
+    bool instanceTargetNotSaved = agInstance->getAttribute(mx::RtNodeDef::TARGET.str()) == mx::EMPTY_STRING;
+    REQUIRE(instanceTargetNotSaved);
+    bool instanceNodeNotSaved = agInstance->getAttribute(mx::RtNodeDef::NODE.str()) == mx::EMPTY_STRING;
+    REQUIRE(instanceNodeNotSaved);
 }
 
 TEST_CASE("Runtime: FileIo", "[runtime]")

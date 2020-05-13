@@ -123,7 +123,11 @@ namespace
                 continue;
             }
             const RtTypedValue* md = src->getMetadata(name);
-            dest->setAttribute(name.str(), md->getValueString());
+            std::string valueString = md->getValueString();
+            if (!valueString.empty())
+            {
+                dest->setAttribute(name.str(), valueString);
+            }
         }
     }
 

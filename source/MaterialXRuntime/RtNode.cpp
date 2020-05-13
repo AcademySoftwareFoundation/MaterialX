@@ -47,6 +47,25 @@ RtPrim RtNode::createPrim(const RtToken& typeName, const RtToken& name, RtPrim p
     PvtRelationship* nodedefRelation = node->createRelationship(NODEDEF);
     nodedefRelation->addTarget(nodedef);
 
+    // Copy over meta-data from nodedef to node. 
+    // TODO: Checks with ILM need to be made to make sure that the appropriate
+    // meta-data set. TBD if target should be set.
+    RtTokenSet copyList = { RtNodeDef::VERSION };
+    const vector<RtToken>& metadata = nodedef->getMetadataOrder();
+    for (const RtToken dataName : metadata)
+    { 
+        if (copyList.count(dataName))
+        {
+            const RtTypedValue* src = nodedef->getMetadata(dataName);
+            RtTypedValue* v = src ? node->addMetadata(dataName, src->getType()) : nullptr;
+            if (v)
+            {
+                RtToken valueToCopy = src->getValue().asToken();
+                v->getValue().asToken() = valueToCopy;
+            }
+        }
+    }
+
     // Create the interface according to nodedef.
     for (const PvtDataHandle& attrH : nodedef->getAllAttributes())
     {
