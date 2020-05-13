@@ -125,6 +125,9 @@ public:
     /// will be written to the document.
     void write(const FilePath& documentPath, const RtWriteOptions* writeOptions = nullptr);
 
+    void writeDefinitions(std::ostream& stream, const RtTokenVec& names);
+    void writeDefinitions(const FilePath& documentPath, const RtTokenVec& names);
+
 protected:
     /// Read all contents from one or more libraries.
     /// All MaterialX files found inside the given libraries will be read.

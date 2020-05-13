@@ -57,6 +57,12 @@ public:
     /// Return an iterator over the nodes in the graph.
     RtPrimIterator getNodes() const;
 
+    /// Return any associated definition name.
+    const RtToken& getDefinition() const;
+
+    /// Set the associated definition name.
+    void setDefinition(const RtToken& value);
+
     /// Convert this graph to a string in the DOT language syntax. This can be
     /// used to visualise the graph using GraphViz (http://www.graphviz.org).
     string asStringDot() const;

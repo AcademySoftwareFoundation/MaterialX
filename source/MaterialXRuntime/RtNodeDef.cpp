@@ -39,19 +39,19 @@ RtPrim RtNodeDef::createPrim(const RtToken& typeName, const RtToken& name, RtPri
 const RtToken& RtNodeDef::getNode() const
 {
     RtTypedValue* v = prim()->getMetadata(NODE);
-    return v->getValue().asToken();
+    return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setNode(const RtToken& node)
 {
-    RtTypedValue* v = prim()->getMetadata(NODE);
+    RtTypedValue* v = prim()->addMetadata(NODE, RtType::TOKEN);
     v->getValue().asToken() = node;
 }
 
 const RtToken& RtNodeDef::getNodeGroup() const
 {
-    RtTypedValue* v = prim()->addMetadata(NODEGROUP, RtType::TOKEN);
-    return v->getValue().asToken();
+    RtTypedValue* v = prim()->getMetadata(NODEGROUP);
+    return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setNodeGroup(const RtToken& nodegroup)

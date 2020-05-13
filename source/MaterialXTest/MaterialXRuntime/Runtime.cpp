@@ -731,8 +731,10 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(!stage->getPrimAtPath(add3Path));
 
     // Add an interface to the graph.
-    graph1.createInput(A, mx::RtType::FLOAT);
-    graph1.createInput(B, mx::RtType::FLOAT);
+    mx::RtInput Ainput = graph1.createInput(A, mx::RtType::FLOAT);
+    Ainput.setValueString("0.3");
+    mx::RtInput Binput = graph1.createInput(B, mx::RtType::FLOAT);
+    Binput.setValueString("0.1");
     graph1.createOutput(OUT, mx::RtType::FLOAT);
     REQUIRE(graph1.getPrim().getAttribute(A));
     REQUIRE(graph1.getPrim().getAttribute(B));
@@ -777,16 +779,18 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.getPrim().getParent() == stage->getRootPrim());
 
     // Test creating a nodedef from a nodegraph
+    const mx::RtToken NG_ADDGRAPH("NG_addgraph");
     const mx::RtToken ND_ADDGRAPH("ND_addgraph");
     const mx::RtToken ADDGRAPH("addgraph");
     const mx::RtToken MATH_GROUP("math");
     const mx::RtToken ADDGRAPH_VERSION("3.4");
+    stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
     mx::RtPrim addgraphPrim = stage->createNodeDef(graph1, ND_ADDGRAPH, ADDGRAPH, MATH_GROUP);
-    mx::RtNodeDef addgraphDef(addgraphPrim);
+    mx::RtNodeDef addgraphDef(addgraphPrim);    
 
     REQUIRE(addgraphDef.isMasterPrim());
-    REQUIRE(graph1.getNodeDef().getName() == ND_ADDGRAPH);
-    REQUIRE(addgraphDef.numInputs() == 0);
+    REQUIRE(graph1.getDefinition() == ND_ADDGRAPH);
+    REQUIRE(addgraphDef.numInputs() == 2);
     REQUIRE(addgraphDef.numOutputs() == 1);
     REQUIRE(addgraphDef.getOutput().getName() == OUT);
     REQUIRE(addgraphDef.getName() == ND_ADDGRAPH);
@@ -794,6 +798,57 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(addgraphDef.getNodeGroup() == MATH_GROUP);
     addgraphDef.setVersion(ADDGRAPH_VERSION);
     REQUIRE(addgraphDef.getVersion() == ADDGRAPH_VERSION);
+
+    mx::RtFileIo stageIo(stage);
+    mx::RtTokenVec names;
+    names.push_back(ND_ADDGRAPH);
+    stageIo.writeDefinitions("ND_addgraph.mtlx", names);
+
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlFile(doc, "ND_addgraph.mtlx");
+    mx::NodeDefPtr nodeDef = doc->getNodeDef(ND_ADDGRAPH.str());
+    REQUIRE(nodeDef);
+    std::vector<mx::InputPtr> inputs = nodeDef->getInputs();
+    bool inputCheck = 
+        (inputs.size() == 2) &&
+        (inputs[0]->getName() == "a") &&
+        (inputs[0]->getType() == "float") &&
+        (inputs[0]->getValueString() == "0.3") &&
+        (inputs[1]->getName() == "b") &&
+        (inputs[1]->getType() == "float") &&
+        (inputs[1]->getValueString() == "0.1");
+    REQUIRE(inputCheck);
+    mx::OutputPtr out = nodeDef->getOutput("out");
+    bool outputCheck = out && 
+        (out->getName() == "out") &&
+        (out->getType() == "float") &&
+        (out->getValueString() == "0");
+    REQUIRE(outputCheck);
+    mx::NodeGraphPtr nodeGraph = doc->getNodeGraph(NG_ADDGRAPH.str());
+    REQUIRE((nodeGraph && nodeGraph->getOutputs().size() == 1));
+    for (mx::TreeIterator it = nodeGraph->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
+    {
+        mx::ValueElementPtr input = it.getElement()->asA<mx::ValueElement>();
+        if (input)
+        {
+            if (input->getName() == "in1" && input->getAttribute("nodename").empty())
+            {
+                REQUIRE((input->getInterfaceName() == "a"));
+            }
+            else if (input->getName() == "in2")
+            {
+                if (input->getParent())
+                {
+                    bool interfaceNameMatched = true;
+                    if (input->getParent()->getName() == "add2")
+                        interfaceNameMatched = (input->getInterfaceName() == "a");
+                    else
+                        interfaceNameMatched = (input->getInterfaceName() == "b");
+                    REQUIRE(interfaceNameMatched);
+                }
+            }
+        }
+    }
 }
 
 TEST_CASE("Runtime: FileIo", "[runtime]")

@@ -171,6 +171,13 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
         nodedef.setNodeGroup(nodeGroup);
     }
 
+    // Add an output per nodegraph input
+    for (auto input : nodeGraph.getInputs())
+    {
+        RtAttribute attr = nodedef.createInput(input.getName(), input.getType());
+        attr.setValue(input.getValue());
+    }
+
     // Add an output per nodegraph output
     for (auto output : nodeGraph.getOutputs())
     {
@@ -178,8 +185,8 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
         attr.setValue(output.getValue());
     }
 
-    // Set up relationship between nodegraph and nodedef
-    nodeGraph.setNodeDef(prim->hnd());
+    // Set up definition on nodegraph
+    nodeGraph.setDefinition(nodeDefName);
 
     // Add definiion
     nodedef.registerMasterPrim();

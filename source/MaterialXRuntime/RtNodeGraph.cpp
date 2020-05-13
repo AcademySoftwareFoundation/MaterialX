@@ -17,6 +17,7 @@ namespace
     static const RtTypeInfo SOCKETS_TYPE_INFO("_nodegraph_internal_sockets");
     static const RtToken SOCKETS("_nodegraph_internal_sockets");
     static const RtToken NODEGRAPH1("nodegraph1");
+    static const RtToken NODEDEF("nodedef");
 }
 
 DEFINE_TYPED_SCHEMA(RtNodeGraph, "node:nodegraph");
@@ -128,6 +129,19 @@ RtPrimIterator RtNodeGraph::getNodes() const
 {
     RtSchemaPredicate<RtNode> predicate;
     return RtPrimIterator(hnd(), predicate);
+}
+
+const RtToken& RtNodeGraph::getDefinition() const
+{
+    RtTypedValue* v = prim()->getMetadata(NODEDEF);
+    return v ? v->getValue().asToken() : EMPTY_TOKEN;
+}
+
+/// Set the associated definition name.
+void RtNodeGraph::setDefinition(const RtToken& value)
+{
+    RtTypedValue* v = prim()->addMetadata(NODEDEF, RtType::TOKEN);
+    v->getValue().asToken() = value;
 }
 
 string RtNodeGraph::asStringDot() const
