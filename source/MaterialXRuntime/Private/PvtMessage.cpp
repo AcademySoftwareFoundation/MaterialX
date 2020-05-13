@@ -73,9 +73,6 @@ void PvtMessageHandler::removeCallback(RtCallbackId id)
     auto it = _callbackIdToType.find(id);
     if (it != _callbackIdToType.end())
     {
-        // Remove from the message type map
-        _callbackIdToType.erase(id);
-
         // Remove the corresponding observer
         switch (it->second)
         {
@@ -103,6 +100,9 @@ void PvtMessageHandler::removeCallback(RtCallbackId id)
         default:
             throw ExceptionRuntimeError("Removal of callback faild! Message type '" + std::to_string(size_t(it->second)) + "' has not been implemented properly.");
         }
+
+        // Remove from the message type map
+        _callbackIdToType.erase(id);
     }
 }
 

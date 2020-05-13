@@ -2144,7 +2144,8 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtMessage::removeCallback(breakConnectionCB_id);
 }
 
-TEST_CASE("Runtime: graph output connection", "[runtime]") {
+TEST_CASE("Runtime: graph output connection", "[runtime]")
+{
     mx::RtScopedApiHandle api;
 
     // Load in all libraries required for materials
@@ -2172,6 +2173,67 @@ TEST_CASE("Runtime: graph output connection", "[runtime]") {
     std::stringstream ss;
     ss << mtlxDoc;
     REQUIRE_NOTHROW(fileIo.read(ss, &options));
+}
+
+using TestLoggerPtr = std::shared_ptr<class TestLogger>;
+class TestLogger : public mx::RtLogger
+{
+protected:
+    TestLogger() :
+        mx::RtLogger()
+    {
+    }
+
+    void logImpl(mx::RtLogger::MessageType type, const mx::RtToken& msg) override
+    {
+        if (type == mx::RtLogger::MessageType::ERROR)
+        {
+            result = "Error: ";
+        }
+        else if (type == mx::RtLogger::MessageType::WARNING)
+        {
+            result = "Warning: ";
+        }
+        else if (type == mx::RtLogger::MessageType::INFO)
+        {
+            result = "Info: ";
+        }
+
+        result += msg.str();
+    }
+
+public:
+    static TestLoggerPtr get()
+    {
+        return TestLoggerPtr(new TestLogger());
+    }
+
+    std::string result = "";
+};
+
+TEST_CASE("Runtime: logging", "[runtime]")
+{
+    TestLoggerPtr logger = TestLogger::get();
+    mx::RtApi& api = mx::RtApi::get();
+    api.registerLogger(logger);
+    mx::RtToken testMsg("Test");
+    api.log(mx::RtLogger::MessageType::ERROR, testMsg);
+    REQUIRE("Error: Test" == logger->result);
+    api.log(mx::RtLogger::MessageType::WARNING, testMsg);
+    REQUIRE("Warning: Test" == logger->result);
+    api.log(mx::RtLogger::MessageType::INFO, testMsg);
+    REQUIRE("Info: Test" == logger->result);
+
+    logger->enable(mx::RtLogger::MessageType::WARNING, false);
+    REQUIRE(logger->isEnabled(mx::RtLogger::MessageType::ERROR));
+    REQUIRE(!logger->isEnabled(mx::RtLogger::MessageType::WARNING));
+    REQUIRE(logger->isEnabled(mx::RtLogger::MessageType::INFO));
+    api.log(mx::RtLogger::MessageType::ERROR, testMsg);
+    REQUIRE("Error: Test" == logger->result);
+    api.log(mx::RtLogger::MessageType::WARNING, testMsg);
+    REQUIRE("Error: Test" == logger->result);
+    api.log(mx::RtLogger::MessageType::INFO, testMsg);
+    REQUIRE("Info: Test" == logger->result);
 }
 
 #endif // MATERIALX_BUILD_RUNTIME

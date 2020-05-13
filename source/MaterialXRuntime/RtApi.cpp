@@ -61,6 +61,21 @@ void RtApi::shutdown()
     _cast(_ptr)->reset();
 }
 
+void RtApi::registerLogger(RtLoggerPtr logger)
+{
+    _cast(_ptr)->registerLogger(logger);
+}
+
+void RtApi::unregisterLogger(RtLoggerPtr logger)
+{
+    _cast(_ptr)->unregisterLogger(logger);
+}
+
+void RtApi::log(RtLogger::MessageType type, const RtToken& msg)
+{
+    _cast(_ptr)->log(type, msg);
+}
+
 void RtApi::registerCreateFunction(const RtToken& typeName, RtPrimCreateFunc func)
 {
     _cast(_ptr)->registerCreateFunction(typeName, func);

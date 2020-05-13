@@ -10,6 +10,7 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
+#include <MaterialXRuntime/RtLogger.h>
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 
@@ -30,6 +31,15 @@ public:
 
     /// Shutdown the API session.
     void shutdown();
+
+    /// Registers a logger with the API
+    void registerLogger(RtLoggerPtr logger);
+
+    /// Unregisters a logger with the API
+    void unregisterLogger(RtLoggerPtr logger);
+
+    /// Logs a message with the registered loggers
+    void log(RtLogger::MessageType type, const RtToken& msg);
 
     /// Register a create function for a typename.
     void registerCreateFunction(const RtToken& typeName, RtPrimCreateFunc func);

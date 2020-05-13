@@ -40,6 +40,27 @@ public:
         return _messageHandler;
     }
 
+    void registerLogger(RtLoggerPtr logger)
+    {
+        _loggers.push_back(logger);
+    }
+
+    void unregisterLogger(RtLoggerPtr logger)
+    {
+        static_cast<void>(std::remove(_loggers.begin(), _loggers.end(), logger));
+    }
+
+    void log(RtLogger::MessageType type, const RtToken& msg)
+    {
+        for (RtLoggerPtr logger : _loggers)
+        {
+            if (logger)
+            {
+                logger->log(type, msg);
+            }
+        }
+    }
+
     void registerCreateFunction(const RtToken& typeName, RtPrimCreateFunc creator)
     {
         if (getCreateFunction(typeName))
@@ -225,6 +246,8 @@ public:
     {
         return reinterpret_cast<PvtApi*>(api._ptr);
     }
+
+    vector<RtLoggerPtr> _loggers;
 
     PvtCommandEngine _commandEngine;
     PvtMessageHandler _messageHandler;
