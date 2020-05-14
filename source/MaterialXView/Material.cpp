@@ -19,6 +19,8 @@ using MatrixXuProxy = Eigen::Map<const ng::MatrixXu>;
 
 const mx::Color4 IMAGE_DEFAULT_COLOR(0, 0, 0, 1);
 
+const float PI = std::acos(-1.0f);
+
 //
 // Material methods
 //
@@ -382,7 +384,7 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
 }
 
 void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                          bool directLighting, bool indirectLighting, const ShadowState& shadowState, int envSamples)
+                          const LightingState& lightingState, const ShadowState& shadowState)
 {
     if (!_glShader)
     {
@@ -391,20 +393,23 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
 
     _glShader->bind();
 
+
     // Bind environment lighting properties.
-    if (genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+    if (_glShader->uniform(mx::HW::ENV_MATRIX, false) != -1)
     {
-        if (_glShader->uniform(mx::HW::ENV_RADIANCE_SAMPLES, false) != -1)
-        {
-            _glShader->setUniform(mx::HW::ENV_RADIANCE_SAMPLES, envSamples);
-        }
+        mx::Matrix44 envRotation = mx::Matrix44::createRotationY(PI) * lightingState.lightTransform;
+        _glShader->setUniform(mx::HW::ENV_MATRIX, ng::Matrix4f(envRotation.data()));
     }
-    mx::ImageMap envLights =
+    if (_glShader->uniform(mx::HW::ENV_RADIANCE_SAMPLES, false) != -1)
     {
-        { mx::HW::ENV_RADIANCE, indirectLighting ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
-        { mx::HW::ENV_IRRADIANCE, indirectLighting ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
+        _glShader->setUniform(mx::HW::ENV_RADIANCE_SAMPLES, lightingState.envSamples);
+    }
+    mx::ImageMap envImages =
+    {
+        { mx::HW::ENV_RADIANCE, lightingState.indirectLighting ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
+        { mx::HW::ENV_IRRADIANCE, lightingState.indirectLighting ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
     };
-    for (const auto& env : envLights)
+    for (const auto& env : envImages)
     {
         std::string uniform = env.first;
         mx::ImagePtr image = env.second;
@@ -443,7 +448,7 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
     // Bind direct lighting properties.
     if (_glShader->uniform(mx::HW::NUM_ACTIVE_LIGHT_SOURCES, false) != -1)
     {
-        int lightCount = directLighting ? (int) lightHandler->getLightSources().size() : 0;
+        int lightCount = lightingState.directLighting ? (int) lightHandler->getLightSources().size() : 0;
         _glShader->setUniform(mx::HW::NUM_ACTIVE_LIGHT_SOURCES, lightCount);
         mx::LightIdMap idMap = lightHandler->computeLightIdMap(lightHandler->getLightSources());
         size_t index = 0;
@@ -474,7 +479,16 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
                     std::string inputName(prefix + "." + input->getName());
                     if (_glShader->uniform(inputName, false) != -1)
                     {
-                        bindUniform(inputName, input->getValue());
+                        if (input->getName() == "direction" && input->hasValue() && input->getValue()->isA<mx::Vector3>())
+                        {
+                            mx::Vector3 dir = input->getValue()->asA<mx::Vector3>();
+                            dir = lightingState.lightTransform.transformVector(dir);
+                            bindUniform(inputName, mx::Value::createValue(dir));
+                        }
+                        else
+                        {
+                            bindUniform(inputName, input->getValue());
+                        }
                     }
                 }
             }

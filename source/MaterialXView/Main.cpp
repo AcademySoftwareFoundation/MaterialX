@@ -6,18 +6,20 @@ NANOGUI_FORCE_DISCRETE_GPU();
 
 const std::string options = 
 " Options: \n"
-"    --material [FILENAME]    Specify the displayed material\n"
-"    --mesh [FILENAME]        Specify the displayed geometry\n"
-"    --envRad [FILENAME]      Specify the displayed environment light, stored as HDR environment radiance in the latitude-longitude format\n"
-"    --envMethod [INTEGER]    Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, Default is 0)\n"
-"    --path [FILEPATH]        Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
-"    --library [FILEPATH]     Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
-"    --msaa [INTEGER]         Multisampling count for anti-aliasing (0 = disabled, Default is 0)\n"
-"    --refresh [INTEGER]      Refresh period for the viewer in milliseconds (-1 = disabled, Default is 50)\n"
-"    --remap [TOKEN1:TOKEN2]  Remap one token to another when MaterialX document is loaded\n"
-"    --skip [NAME]            Skip elements matching the given name attribute\n"
-"    --terminator [STRING]    Enforce the given terminator string for file prefixes\n"
-"    --help                   Print this list\n";
+"    --material [FILENAME]          Specify the displayed material\n"
+"    --mesh [FILENAME]              Specify the displayed geometry\n"
+"    --meshRotation [VECTOR3]       Specify the rotation of the displayed geometry as three comma-separated floats (e.g. '0,90,0'), representing rotations in degrees about the X, Y, and Z axes.\n"
+"    --envRad [FILENAME]            Specify the displayed environment light, stored as HDR environment radiance in the latitude-longitude format\n"
+"    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, Default is 0)\n"
+"    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis.\n"
+"    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
+"    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
+"    --msaa [INTEGER]               Multisampling count for anti-aliasing (0 = disabled, Default is 0)\n"
+"    --refresh [INTEGER]            Refresh period for the viewer in milliseconds (-1 = disabled, Default is 50)\n"
+"    --remap [TOKEN1:TOKEN2]        Remap one token to another when MaterialX document is loaded\n"
+"    --skip [NAME]                  Skip elements matching the given name attribute\n"
+"    --terminator [STRING]          Enforce the given terminator string for file prefixes\n"
+"    --help                         Print this list\n";
 
 int main(int argc, char* const argv[])
 {  
@@ -32,7 +34,9 @@ int main(int argc, char* const argv[])
     mx::FileSearchPath searchPath;
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.obj";
+    mx::Vector3 meshRotation;
     std::string envRadiancePath = "resources/Lights/san_giuseppe_bridge_split.hdr";
+    float lightRotation = 0.0f;
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
     int refresh = 50;
@@ -42,61 +46,103 @@ int main(int argc, char* const argv[])
     {
         const std::string& token = tokens[i];
         const std::string& nextToken = i + 1 < tokens.size() ? tokens[i + 1] : mx::EMPTY_STRING;
-        if (token == "--material" && !nextToken.empty())
+        if (token == "--material")
         {
             materialFilename = nextToken;
         }
-        if (token == "--mesh" && !nextToken.empty())
+        else if (token == "--mesh")
         {
             meshFilename = nextToken;
         }
-        if (token == "--envRad" && !nextToken.empty())
+        else if (token == "--meshRotation")
+        {
+            mx::ValuePtr value = mx::Value::createValueFromStrings(nextToken, "vector3");
+            if (value)
+            {
+                meshRotation = value->asA<mx::Vector3>();
+            }
+            else if (!nextToken.empty())
+            {
+                std::cout << "Unable to parse token following command-line option: " << token << std::endl;
+            }
+        }
+        else if (token == "--envRad")
         {
             envRadiancePath = nextToken;
         }
-        if (token == "--envMethod" && !nextToken.empty())
+        else if (token == "--envMethod")
         {
             if (std::stoi(nextToken) == 1)
             {
                 specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_PREFILTER;
             }
         }
-        if (token == "--path" && !nextToken.empty())
+        else if (token == "--lightRotation")
+        {
+            mx::ValuePtr value = mx::Value::createValueFromStrings(nextToken, "float");
+            if (value)
+            {
+                lightRotation = value->asA<float>();
+            }
+            else if (!nextToken.empty())
+            {
+                std::cout << "Unable to parse token following command-line option: " << token << std::endl;
+            }
+        }
+        else if (token == "--path")
         {
             searchPath.append(mx::FileSearchPath(nextToken));
         }
-        if (token == "--library" && !nextToken.empty())
+        else if (token == "--library")
         {
             libraryFolders.push_back(nextToken);
         }
-        if (token == "--msaa" && !nextToken.empty())
+        else if (token == "--msaa")
         {
             multiSampleCount = std::stoi(nextToken);
         }
-        if (token == "--refresh" && !nextToken.empty())
+        else if (token == "--refresh")
         {
             refresh = std::stoi(nextToken);
         }
-        if (token == "--remap" && !nextToken.empty())
+        else if (token == "--remap")
         {
             mx::StringVec vec = mx::splitString(nextToken, ":");
             if (vec.size() == 2)
             {
                 modifiers.remapElements[vec[0]] = vec[1];
             }
+            else if (!nextToken.empty())
+            {
+                std::cout << "Unable to parse token following command-line option: " << token << std::endl;
+            }
         }
-        if (token == "--skip" && !nextToken.empty())
+        else if (token == "--skip")
         {
             modifiers.skipElements.insert(nextToken);
         }
-        if (token == "--terminator" && !nextToken.empty())
+        else if (token == "--terminator")
         {
             modifiers.filePrefixTerminator = nextToken;
         }
-        if (token == "--help")
+        else if (token == "--help")
         {
             std::cout << options << std::endl;
             return 0;
+        }
+        else
+        {
+            std::cout << "Unrecognized command-line option: " << token << std::endl;
+            std::cout << "Launch the viewer with '--help' for a complete list of supported options." << std::endl;
+        }
+
+        if (nextToken.empty())
+        {
+            std::cout << "Expected another token following command-line option: " << token << std::endl;
+        }
+        else
+        {
+            i++;
         }
     }
 
@@ -115,11 +161,13 @@ int main(int argc, char* const argv[])
         {
             ng::ref<Viewer> viewer = new Viewer(materialFilename,
                                                 meshFilename,
+                                                meshRotation,
                                                 libraryFolders,
                                                 searchPath,
                                                 modifiers,
                                                 specularEnvironmentMethod,
                                                 envRadiancePath,
+                                                lightRotation,
                                                 multiSampleCount);
             viewer->setVisible(true);
             ng::mainloop(refresh);
