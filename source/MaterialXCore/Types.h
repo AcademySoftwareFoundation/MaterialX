@@ -192,6 +192,15 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
         return *this;
     }
 
+    /// Unary negation of a vector.
+    V operator-()
+    {
+        V res(Uninit{});
+        for (size_t i = 0; i < N; i++)
+            res[i] = -_arr[i];
+        return res;
+    }
+
     /// @}
     /// @name Geometric Methods
     /// @{

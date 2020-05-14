@@ -23,8 +23,6 @@
 #include <fstream>
 #include <iostream>
 
-const float PI = std::acos(-1.0f);
-
 const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
 const int DEFAULT_ENV_SAMPLES = 16;
@@ -42,6 +40,8 @@ const float MAX_ENV_TEXEL_RADIANCE = 100000.0f;
 const float IDEAL_ENV_MAP_RADIANCE = 6.0f;
 
 const float MODEL_SPHERE_RADIUS = 2.0f;
+
+const float PI = std::acos(-1.0f);
 
 namespace {
 
@@ -161,11 +161,13 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 
 Viewer::Viewer(const std::string& materialFilename,
                const std::string& meshFilename,
+               const mx::Vector3& meshRotation,
                const mx::FilePathVec& libraryFolders,
                const mx::FileSearchPath& searchPath,
                const DocumentModifiers& modifiers,
                mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
                const std::string& envRadiancePath,
+               float lightRotation,
                int multiSampleCount) :
     ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
         true, false,
@@ -177,8 +179,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _nearDist(0.05f),
     _farDist(5000.0f),
     _cameraYaw(0.0f),
-    _modelZoom(1.0f),
-    _modelYaw(0.0f),
+    _meshZoom(1.0f),
+    _meshRotation(meshRotation),
     _userZoom(1.0f),
     _userTranslationActive(false),
     _userTranslationPixel(0, 0),
@@ -187,6 +189,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _materialFilename(materialFilename),
     _modifiers(modifiers),
     _envRadiancePath(envRadiancePath),
+    _lightRotation(lightRotation),
     _directLighting(true),
     _indirectLighting(true),
     _normalizeEnvironment(false),
@@ -451,11 +454,6 @@ void Viewer::loadEnvironmentLight()
     const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
     if (!meshes.empty())
     {
-        // Set up world matrix for drawing
-        const float scaleFactor = 300.0f;
-        const float rotationRadians = PI / 2.0f; // 90 degree rotation 
-        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor)) * mx::Matrix44::createRotationY(rotationRadians);
-
         // Create environment shader.
         mx::FilePath envFilename = _searchPath.find(
             mx::FilePath("resources/Materials/TestSuite/lights/envmap_shader.mtlx"));
@@ -557,6 +555,7 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
                     }
                 }
 
+                _meshRotation = mx::Vector3();
                 initCamera();
 
                 _imageHandler->releaseRenderResources(_shadowMap);
@@ -759,6 +758,20 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _splitDirectLight = enable;
     });
 
+    ng::Widget* lightRotationRow = new ng::Widget(advancedPopup);
+    lightRotationRow->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    mx::UIProperties ui;
+    ui.uiMin = mx::Value::createValue(0.0f);
+    ui.uiMax = mx::Value::createValue(360.0f);
+    ng::FloatBox<float>* lightRotationBox = createFloatWidget(lightRotationRow, "Light Rotation:",
+        _lightRotation, &ui, [this](float value)
+    {
+        _lightRotation = value;
+        _imageHandler->releaseRenderResources(_shadowMap);
+        _shadowMap = nullptr;
+    });
+    lightRotationBox->setEditable(true);
+
     new ng::Label(advancedPopup, "Shadowing Options");
 
     ng::CheckBox* shadowMapBox = new ng::CheckBox(advancedPopup, "Shadow Map");
@@ -785,7 +798,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _ambientOcclusionGain = value;
     });
     ambientOcclusionGainBox->setEditable(true);
-    ambientOcclusionGainBox->setMinMaxValues(0.0f, 1.0f);
 
     new ng::Label(advancedPopup, "Render Options");
 
@@ -1465,7 +1477,14 @@ void Viewer::renderFrame()
     // Update shading tables
     updateAlbedoTable();
 
-    // Update shadow state
+    // Update lighting tate.
+    LightingState lightingState;
+    lightingState.lightTransform = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI);
+    lightingState.directLighting = _directLighting;
+    lightingState.indirectLighting = _indirectLighting;
+    lightingState.envSamples = _envSamples;
+
+    // Update shadow state.
     ShadowState shadowState;
     shadowState.ambientOcclusionGain = _ambientOcclusionGain;
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
@@ -1490,12 +1509,16 @@ void Viewer::renderFrame()
     {
         auto meshes = _envGeometryHandler->getMeshes();
         auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
+        mx::Matrix44 envMatrix = mx::Matrix44::createScale(mx::Vector3(300.0f)) *
+                                 mx::Matrix44::createRotationY(PI / 2.0f) *
+                                 lightingState.lightTransform;
+
         if (envPart)
         {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
             _envMaterial->bindShader();
-            _envMaterial->bindViewInformation(_envMatrix, view, proj);
+            _envMaterial->bindViewInformation(envMatrix, view, proj);
             _envMaterial->bindImages(_imageHandler, _searchPath);
             _envMaterial->drawPartition(envPart);
             glDisable(GL_CULL_FACE);
@@ -1516,8 +1539,7 @@ void Viewer::renderFrame()
 
         material->bindShader();
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_genContext, _lightHandler, _imageHandler,
-                             _directLighting, _indirectLighting, shadowState, _envSamples);
+        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
@@ -1538,8 +1560,7 @@ void Viewer::renderFrame()
 
         material->bindShader();
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_genContext, _lightHandler, _imageHandler,
-                             _directLighting, _indirectLighting, ShadowState(), _envSamples);
+        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, ShadowState());
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
@@ -1790,13 +1811,16 @@ void Viewer::initCamera()
         return;
     }
     mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+    mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
+                                mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
+                                mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
 
     mx::Vector3 boxMin = mesh->getMinimumBounds();
     mx::Vector3 boxMax = mesh->getMaximumBounds();
     mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
     float sphereRadius = (sphereCenter - boxMin).getMagnitude();
-    _modelZoom = MODEL_SPHERE_RADIUS / sphereRadius;
-    _modelTranslation = sphereCenter * -1.0f;
+    _meshZoom = MODEL_SPHERE_RADIUS / sphereRadius;
+    _meshTranslation = -meshRotation.transformPoint(sphereCenter);
 }
 
 void Viewer::updateViewHandlers()
@@ -1804,14 +1828,16 @@ void Viewer::updateViewHandlers()
     float fH = std::tan(_viewAngle / 360.0f * PI) * _nearDist;
     float fW = fH * (float) mSize.x() / (float) mSize.y();
 
+    mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
+                                mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
+                                mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
     mx::Matrix44 cameraYaw = mx::Matrix44::createRotationY(_cameraYaw / 180.0f * PI);
-    mx::Matrix44 modelYaw = mx::Matrix44::createRotationY(_modelYaw / 180.0f * PI);
     ng::Matrix4f ngArcball = _arcball.matrix();
     mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
 
-    _cameraViewHandler->worldMatrix = modelYaw *
-                                      mx::Matrix44::createTranslation(_modelTranslation + _userTranslation) *
-                                      mx::Matrix44::createScale(mx::Vector3(_modelZoom * _userZoom));
+    _cameraViewHandler->worldMatrix = meshRotation *
+                                      mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
+                                      mx::Matrix44::createScale(mx::Vector3(_meshZoom * _userZoom));
     _cameraViewHandler->viewMatrix = cameraYaw * arcball * mx::ViewHandler::createViewMatrix(_eye, _center, _up);
     _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
 
@@ -1819,15 +1845,15 @@ void Viewer::updateViewHandlers()
     if (dirLight)
     {
         const float r = MODEL_SPHERE_RADIUS;
-        _shadowViewHandler->worldMatrix = modelYaw *
-                                          mx::Matrix44::createTranslation(_modelTranslation) *
-                                          mx::Matrix44::createScale(mx::Vector3(_modelZoom));
+        _shadowViewHandler->worldMatrix = meshRotation *
+                                          mx::Matrix44::createTranslation(_meshTranslation) *
+                                          mx::Matrix44::createScale(mx::Vector3(_meshZoom));
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
-        mx::ValuePtr dir = dirLight->getInputValue("direction");
-        if (dir->isA<mx::Vector3>())
+        mx::ValuePtr value = dirLight->getInputValue("direction");
+        if (value->isA<mx::Vector3>())
         {
-            _shadowViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(
-                dir->asA<mx::Vector3>() * -r, mx::Vector3(0.0f), _up);
+            mx::Vector3 dir = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI).transformVector(value->asA<mx::Vector3>());
+            _shadowViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(dir * -r, mx::Vector3(0.0f), _up);
         }
     }
 }

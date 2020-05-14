@@ -22,11 +22,13 @@ class Viewer : public ng::Screen
   public:
     Viewer(const std::string& materialFilename,
            const std::string& meshFilename,
+           const mx::Vector3& meshRotation,
            const mx::FilePathVec& libraryFolders,
            const mx::FileSearchPath& searchPath,
            const DocumentModifiers& modifiers,
            mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
            const std::string& envRadiancePath,
+           float lightRotation,
            int multiSampleCount);
     ~Viewer() { }
 
@@ -143,9 +145,9 @@ class Viewer : public ng::Screen
     float _farDist;
     float _cameraYaw;
 
-    float _modelZoom;
-    mx::Vector3 _modelTranslation;
-    float _modelYaw;
+    float _meshZoom;
+    mx::Vector3 _meshTranslation;
+    mx::Vector3 _meshRotation;
 
     float _userZoom;
     mx::Vector3 _userTranslation;
@@ -165,6 +167,7 @@ class Viewer : public ng::Screen
     mx::FilePath _envRadiancePath;
     mx::FilePath _lightRigFilename;
     mx::DocumentPtr _lightRigDoc;
+    float _lightRotation;
     bool _directLighting;
     bool _indirectLighting;
 
@@ -236,7 +239,6 @@ class Viewer : public ng::Screen
     bool _outlineSelection;
     int _envSamples;
     bool _drawEnvironment;
-    mx::Matrix44 _envMatrix;
 
     // Frame capture
     bool _captureRequested;
