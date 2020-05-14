@@ -1,0 +1,38 @@
+name: Build CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: build dir
+      run: mkdir build
+    - name: cmake
+      run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A "x64" ..
+      working-directory: build
+    - name: build
+      run: cmake --build . --target install --config Release
+      working-directory: build
+    - name: unit tests
+      run: ctest -VV --output-on-failure --build-config Release
+      working-directory: build
+    - name: main tests
+      run: cmake -E chdir ../python/MaterialXTest python main.py
+      working-directory: build
+    - name: genshader tests
+      run: cmake -E chdir ../python/MaterialXTest python genshader.py
+      working-directory: build
+    - uses: actions/upload-artifact@v2
+      with:
+        name: MaterialX_Windows_VS2019_x64
+        path: build/installed/
