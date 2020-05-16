@@ -23,12 +23,15 @@ class Viewer : public ng::Screen
     Viewer(const std::string& materialFilename,
            const std::string& meshFilename,
            const mx::Vector3& meshRotation,
+           float meshScale,
+           const mx::Vector3& cameraPosition,
+           const mx::Vector3& cameraTarget,
+           const std::string& envRadiancePath,
+           mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
+           float lightRotation,
            const mx::FilePathVec& libraryFolders,
            const mx::FileSearchPath& searchPath,
            const DocumentModifiers& modifiers,
-           mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
-           const std::string& envRadiancePath,
-           float lightRotation,
            int multiSampleCount);
     ~Viewer() { }
 
@@ -137,23 +140,23 @@ class Viewer : public ng::Screen
     ng::Window* _window;
     ng::Arcball _arcball;
 
-    mx::Vector3 _eye;
-    mx::Vector3 _center;
-    mx::Vector3 _up;
-    float _viewAngle;
-    float _nearDist;
-    float _farDist;
-    float _cameraYaw;
-
-    float _meshZoom;
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;
+    float _meshScale;
 
-    float _userZoom;
+    mx::Vector3 _cameraPosition;
+    mx::Vector3 _cameraTarget;
+    mx::Vector3 _cameraUp;
+    float _cameraViewAngle;
+    float _cameraNearDist;
+    float _cameraFarDist;
+
+    bool _userCameraEnabled;
     mx::Vector3 _userTranslation;
     mx::Vector3 _userTranslationStart;
     bool _userTranslationActive;
     ng::Vector2i _userTranslationPixel;
+    float _userScale;
 
     // Document management
     mx::FilePathVec _libraryFolders;
@@ -256,5 +259,7 @@ class Viewer : public ng::Screen
     bool _bakeRequested;
     mx::FilePath _bakeFilename;
 };
+
+extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
 
 #endif // MATERIALXVIEW_VIEWER_H

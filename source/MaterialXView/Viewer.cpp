@@ -23,6 +23,10 @@
 #include <fstream>
 #include <iostream>
 
+const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
+
+namespace {
+
 const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
 const int DEFAULT_ENV_SAMPLES = 16;
@@ -39,11 +43,9 @@ const float ENV_MAP_SPLIT_RADIANCE = 16.0f;
 const float MAX_ENV_TEXEL_RADIANCE = 100000.0f;
 const float IDEAL_ENV_MAP_RADIANCE = 6.0f;
 
-const float MODEL_SPHERE_RADIUS = 2.0f;
+const float IDEAL_MESH_SPHERE_RADIUS = 2.0f;
 
 const float PI = std::acos(-1.0f);
-
-namespace {
 
 void writeTextFile(const std::string& text, const std::string& filePath)
 {
@@ -162,28 +164,32 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 Viewer::Viewer(const std::string& materialFilename,
                const std::string& meshFilename,
                const mx::Vector3& meshRotation,
+               float meshScale,
+               const mx::Vector3& cameraPosition,
+               const mx::Vector3& cameraTarget,
+               const std::string& envRadiancePath,
+               mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
+               float lightRotation,
                const mx::FilePathVec& libraryFolders,
                const mx::FileSearchPath& searchPath,
                const DocumentModifiers& modifiers,
-               mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
-               const std::string& envRadiancePath,
-               float lightRotation,
                int multiSampleCount) :
     ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
         true, false,
         8, 8, 24, 8,
         multiSampleCount),
-    _eye(0.0f, 0.0f, 5.0f),
-    _up(0.0f, 1.0f, 0.0f),
-    _viewAngle(45.0f),
-    _nearDist(0.05f),
-    _farDist(5000.0f),
-    _cameraYaw(0.0f),
-    _meshZoom(1.0f),
     _meshRotation(meshRotation),
-    _userZoom(1.0f),
+    _meshScale(meshScale),
+    _cameraPosition(cameraPosition),
+    _cameraTarget(cameraTarget),
+    _cameraUp(0.0f, 1.0f, 0.0f),
+    _cameraViewAngle(45.0f),
+    _cameraNearDist(0.05f),
+    _cameraFarDist(5000.0f),
+    _userCameraEnabled(true),
     _userTranslationActive(false),
     _userTranslationPixel(0, 0),
+    _userScale(1.0f),
     _libraryFolders(libraryFolders),
     _searchPath(searchPath),
     _materialFilename(materialFilename),
@@ -556,6 +562,9 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
                 }
 
                 _meshRotation = mx::Vector3();
+                _meshScale = 1.0f;
+                _cameraPosition = DEFAULT_CAMERA_POSITION;
+                _cameraTarget = mx::Vector3();
                 initCamera();
 
                 _imageHandler->releaseRenderResources(_shadowMap);
@@ -996,6 +1005,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         std::vector<mx::TypedElementPtr> elems;
         std::vector<mx::TypedElementPtr> materials;
         mx::findRenderableElements(doc, elems);
+        if (elems.empty())
+        {
+            throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
+        }
         for (mx::TypedElementPtr elem : elems)
         {
             mx::TypedElementPtr renderableElem = elem;
@@ -1363,13 +1376,16 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     }
 
     // Adjust camera zoom.
-    if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
+    if (_userCameraEnabled)
     {
-        _userZoom *= 1.1f;
-    }
-    if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
-    {
-        _userZoom = std::max(0.1f, _userZoom * 0.9f);
+        if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
+        {
+            _userScale *= 1.1f;
+        }
+        if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
+        {
+            _userScale = std::max(0.1f, _userScale * 0.9f);
+        }
     }
 
     // Reload the current document, and optionally the standard libraries, from
@@ -1711,11 +1727,18 @@ void Viewer::drawContents()
 
 bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
 {
-    if (!Screen::scrollEvent(p, rel))
+    if (Screen::scrollEvent(p, rel))
     {
-        _userZoom = std::max(0.1f, _userZoom * ((rel.y() > 0) ? 1.1f : 0.9f));
+        return true;
     }
-    return true;
+
+    if (_userCameraEnabled)
+    {
+        _userScale = std::max(0.1f, _userScale * ((rel.y() > 0) ? 1.1f : 0.9f));
+        return true;
+    }
+
+    return false;
 }
 
 bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
@@ -1806,6 +1829,10 @@ void Viewer::initCamera()
     _arcball = ng::Arcball();
     _arcball.setSize(mSize);
 
+    // Disable user camera controls when non-centered views are requested.
+    _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
+                         _meshScale == 1.0f;
+
     if (_geometryHandler->getMeshes().empty())
     {
         return;
@@ -1815,45 +1842,48 @@ void Viewer::initCamera()
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
 
-    mx::Vector3 boxMin = mesh->getMinimumBounds();
-    mx::Vector3 boxMax = mesh->getMaximumBounds();
-    mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
-    float sphereRadius = (sphereCenter - boxMin).getMagnitude();
-    _meshZoom = MODEL_SPHERE_RADIUS / sphereRadius;
-    _meshTranslation = -meshRotation.transformPoint(sphereCenter);
+    if (_userCameraEnabled)
+    {
+        _meshTranslation = -meshRotation.transformPoint(mesh->getSphereCenter());
+        _meshScale = IDEAL_MESH_SPHERE_RADIUS / mesh->getSphereRadius();
+    }
 }
 
 void Viewer::updateViewHandlers()
 {
-    float fH = std::tan(_viewAngle / 360.0f * PI) * _nearDist;
+    float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
     float fW = fH * (float) mSize.x() / (float) mSize.y();
 
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
-    mx::Matrix44 cameraYaw = mx::Matrix44::createRotationY(_cameraYaw / 180.0f * PI);
-    ng::Matrix4f ngArcball = _arcball.matrix();
-    mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
+
+    mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
+    if (_userCameraEnabled)
+    {
+        ng::Matrix4f ngArcball = _arcball.matrix();
+        arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
+    }
 
     _cameraViewHandler->worldMatrix = meshRotation *
                                       mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
-                                      mx::Matrix44::createScale(mx::Vector3(_meshZoom * _userZoom));
-    _cameraViewHandler->viewMatrix = cameraYaw * arcball * mx::ViewHandler::createViewMatrix(_eye, _center, _up);
-    _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
+                                      mx::Matrix44::createScale(mx::Vector3(_meshScale * _userScale));
+    _cameraViewHandler->viewMatrix = arcball * mx::ViewHandler::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp);
+    _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist);
 
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
-        const float r = MODEL_SPHERE_RADIUS;
+        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+        float r = mesh->getSphereRadius();
         _shadowViewHandler->worldMatrix = meshRotation *
-                                          mx::Matrix44::createTranslation(_meshTranslation) *
-                                          mx::Matrix44::createScale(mx::Vector3(_meshZoom));
+                                          mx::Matrix44::createTranslation(-mesh->getSphereCenter());
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
         mx::ValuePtr value = dirLight->getInputValue("direction");
         if (value->isA<mx::Vector3>())
         {
             mx::Vector3 dir = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI).transformVector(value->asA<mx::Vector3>());
-            _shadowViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(dir * -r, mx::Vector3(0.0f), _up);
+            _shadowViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp);
         }
     }
 }
