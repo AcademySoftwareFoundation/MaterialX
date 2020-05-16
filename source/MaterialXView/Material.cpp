@@ -2,17 +2,17 @@
 
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/Shader.h>
-
 #include <MaterialXRender/Util.h>
 
-#include <MaterialXFormat/File.h>
+#include <MaterialXGenShader/Shader.h>
+
 #include <MaterialXFormat/Util.h>
 
 #include <nanogui/messagedialog.h>
 
 #include <iostream>
+
+namespace {
 
 using MatrixXfProxy = Eigen::Map<const ng::MatrixXf>;
 using MatrixXuProxy = Eigen::Map<const ng::MatrixXu>;
@@ -20,6 +20,8 @@ using MatrixXuProxy = Eigen::Map<const ng::MatrixXu>;
 const mx::Color4 IMAGE_DEFAULT_COLOR(0, 0, 0, 1);
 
 const float PI = std::acos(-1.0f);
+
+} // anonymous namespace
 
 //
 // Material methods

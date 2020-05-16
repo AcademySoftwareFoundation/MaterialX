@@ -9,6 +9,9 @@ const std::string options =
 "    --material [FILENAME]          Specify the displayed material\n"
 "    --mesh [FILENAME]              Specify the displayed geometry\n"
 "    --meshRotation [VECTOR3]       Specify the rotation of the displayed geometry as three comma-separated floats (e.g. '0,90,0'), representing rotations in degrees about the X, Y, and Z axes.\n"
+"    --meshScale [FLOAT]            Specify the scale of the displayed geometry.\n"
+"    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats.\n"
+"    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats.\n"
 "    --envRad [FILENAME]            Specify the displayed environment light, stored as HDR environment radiance in the latitude-longitude format\n"
 "    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, Default is 0)\n"
 "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis.\n"
@@ -35,12 +38,15 @@ int main(int argc, char* const argv[])
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     mx::Vector3 meshRotation;
+    float meshScale = 1.0f;
+    mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
+    mx::Vector3 cameraTarget(0.0f);
     std::string envRadiancePath = "resources/Lights/san_giuseppe_bridge_split.hdr";
+    mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
     float lightRotation = 0.0f;
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
     int refresh = 50;
-    mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -60,6 +66,42 @@ int main(int argc, char* const argv[])
             if (value)
             {
                 meshRotation = value->asA<mx::Vector3>();
+            }
+            else if (!nextToken.empty())
+            {
+                std::cout << "Unable to parse token following command-line option: " << token << std::endl;
+            }
+        }
+        else if (token == "--meshScale")
+        {
+            mx::ValuePtr value = mx::Value::createValueFromStrings(nextToken, "float");
+            if (value)
+            {
+                meshScale = value->asA<float>();
+            }
+            else if (!nextToken.empty())
+            {
+                std::cout << "Unable to parse token following command-line option: " << token << std::endl;
+            }
+        }
+        else if (token == "--cameraPosition")
+        {
+            mx::ValuePtr value = mx::Value::createValueFromStrings(nextToken, "vector3");
+            if (value)
+            {
+                cameraPosition = value->asA<mx::Vector3>();
+            }
+            else if (!nextToken.empty())
+            {
+                std::cout << "Unable to parse token following command-line option: " << token << std::endl;
+            }
+        }
+        else if (token == "--cameraTarget")
+        {
+            mx::ValuePtr value = mx::Value::createValueFromStrings(nextToken, "vector3");
+            if (value)
+            {
+                cameraTarget = value->asA<mx::Vector3>();
             }
             else if (!nextToken.empty())
             {
@@ -162,12 +204,15 @@ int main(int argc, char* const argv[])
             ng::ref<Viewer> viewer = new Viewer(materialFilename,
                                                 meshFilename,
                                                 meshRotation,
+                                                meshScale,
+                                                cameraPosition,
+                                                cameraTarget,
+                                                envRadiancePath,
+                                                specularEnvironmentMethod,
+                                                lightRotation,
                                                 libraryFolders,
                                                 searchPath,
                                                 modifiers,
-                                                specularEnvironmentMethod,
-                                                envRadiancePath,
-                                                lightRotation,
                                                 multiSampleCount);
             viewer->setVisible(true);
             ng::mainloop(refresh);
