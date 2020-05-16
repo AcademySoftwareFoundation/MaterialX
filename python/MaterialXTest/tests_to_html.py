@@ -20,7 +20,7 @@ def createDiff(image1Path, image2Path, imageDiffPath):
         diff = ImageChops.difference(image1, image2)
         diff.save(imageDiffPath)
     except Exception:
-        print "Failed to create image diff between: " + image1Path + ", " + image2Path
+        print ("Failed to create image diff between: " + image1Path + ", " + image2Path)
 
 def main(args=None):
 
