@@ -167,14 +167,18 @@ Viewer::Viewer(const std::string& materialFilename,
                float meshScale,
                const mx::Vector3& cameraPosition,
                const mx::Vector3& cameraTarget,
+               float cameraViewAngle,
                const std::string& envRadiancePath,
                mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
                float lightRotation,
                const mx::FilePathVec& libraryFolders,
                const mx::FileSearchPath& searchPath,
                const DocumentModifiers& modifiers,
+               int screenWidth,
+               int screenHeight,
+               const mx::Color3& screenColor,
                int multiSampleCount) :
-    ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
+    ng::Screen(ng::Vector2i(screenWidth, screenHeight), "MaterialXView",
         true, false,
         8, 8, 24, 8,
         multiSampleCount),
@@ -183,7 +187,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _cameraPosition(cameraPosition),
     _cameraTarget(cameraTarget),
     _cameraUp(0.0f, 1.0f, 0.0f),
-    _cameraViewAngle(45.0f),
+    _cameraViewAngle(cameraViewAngle),
     _cameraNearDist(0.05f),
     _cameraFarDist(5000.0f),
     _userCameraEnabled(true),
@@ -229,6 +233,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _window = new ng::Window(this, "Viewer Options");
     _window->setPosition(ng::Vector2i(15, 15));
     _window->setLayout(new ng::GroupLayout());
+
+    // Set the requested background color.
+    setBackground(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
 
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
