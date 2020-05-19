@@ -778,7 +778,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     }
                 }
 
-                bool addedDefault = false;
                 if (nodedefPort->isA<Input>())
                 {
                     GeomPropDefPtr geomprop = nodedefPort->asA<Input>()->getDefaultGeomProp();
@@ -786,21 +785,11 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     {
                         inputSocket->setGeomProp(geomprop->getName());
                         input->setGeomProp(geomprop->getName());
-
-                        const string& connection = nodePort ? nodePort->asA<Input>()->getOutputString() : EMPTY_STRING;
-                        if (connection.empty())
-                        {
-                            graph->addDefaultGeomNode(input, *geomprop, context);
-                            addedDefault = true;
-                        }
                     }
                 }
 
                 // Connect to the graph input
-                if (!addedDefault)
-                {
-                    inputSocket->makeConnection(input);
-                }
+                inputSocket->makeConnection(input);
 
                 // Share metadata.
                 inputSocket->setMetadata(input->getMetadata());
