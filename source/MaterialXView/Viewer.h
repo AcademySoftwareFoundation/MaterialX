@@ -26,12 +26,16 @@ class Viewer : public ng::Screen
            float meshScale,
            const mx::Vector3& cameraPosition,
            const mx::Vector3& cameraTarget,
+           float cameraViewAngle,
            const std::string& envRadiancePath,
            mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
            float lightRotation,
            const mx::FilePathVec& libraryFolders,
            const mx::FileSearchPath& searchPath,
            const DocumentModifiers& modifiers,
+           int screenWidth,
+           int screenHeight,
+           const mx::Color3& screenColor,
            int multiSampleCount);
     ~Viewer() { }
 

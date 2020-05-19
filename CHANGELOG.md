@@ -3,9 +3,9 @@
 ## [1.37.1] - Development
 
 ### Added
-- Added command-line options '--meshRotation' and '--lightRotation' to the viewer.
+- Added command-line options for mesh, light, and camera transforms to the viewer.
+- Added command-line options for screen dimensions and background color to the viewer.
 - Added a Light Rotation slider to the Advanced Settings panel of the viewer.
-- Added initial support for wedge rendering in the viewer.
 - Added utility methods Backdrop\:\:setContainsElements and Backdrop\:\:getContainsElements.
 - Added backwards compatibility for OpenImageIO 1.x.
 
