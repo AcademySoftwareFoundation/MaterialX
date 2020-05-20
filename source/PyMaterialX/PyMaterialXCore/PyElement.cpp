@@ -223,4 +223,5 @@ void bindPyElement(py::module& mod)
     py::register_exception<mx::ExceptionOrphanedElement>(mod, "ExceptionOrphanedElement");
 
     mod.def("targetStringsMatch", &mx::targetStringsMatch);
+    mod.def("prettyPrint", &mx::prettyPrint);
 }

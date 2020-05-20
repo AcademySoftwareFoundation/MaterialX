@@ -20,7 +20,6 @@
 #endif
 
 #include <iostream>
-#include <map>
 
 namespace MaterialX
 {
@@ -29,6 +28,18 @@ namespace {
 
 const float MAX_FLOAT = std::numeric_limits<float>::max();
 const size_t FACE_VERTEX_COUNT = 3;
+
+class VertexVector : public VectorN<VertexVector, float, 8>
+{
+  public:
+    using VectorN<VertexVector, float, 8>::VectorN;
+    VertexVector(const Vector3& p, const Vector3& n, const Vector2& t) : VectorN(Uninit{})
+    {
+        _arr = {p[0], p[1], p[2], n[0], n[1], n[2], t[0], t[1]};
+    }
+};
+
+using VertexIndexMap = std::unordered_map<VertexVector, uint32_t, VertexVector::Hash>;
 
 } // anonymous namespace
 
@@ -63,13 +74,10 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
     MeshStreamPtr texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
     texcoordStream->setStride(MeshStream::STRIDE_2D);
 
-    using VertexTuple = std::tuple<Vector3, Vector3, Vector2>;
-    using VertexIndexMap = std::map<VertexTuple, uint32_t>;
-    VertexIndexMap vertexIndexMap;
-
     Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
     Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
 
+    VertexIndexMap vertexIndexMap;
     uint32_t nextVertexIndex = 0;
     bool normalsFound = false;
     for (const tinyobj::shape_t& shape : shapes)
@@ -111,14 +119,14 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
             }
 
             // Check for duplicate vertices.
-            VertexTuple tuple(position, normal, texcoord);
-            VertexIndexMap::iterator it = vertexIndexMap.find(tuple);
+            VertexVector vec(position, normal, texcoord);
+            VertexIndexMap::iterator it = vertexIndexMap.find(vec);
             if (it != vertexIndexMap.end())
             {
                 indices[i] = it->second;
                 continue;
             }
-            vertexIndexMap[tuple] = nextVertexIndex;
+            vertexIndexMap[vec] = nextVertexIndex;
 
             // Store vertex components.
             for (unsigned int k = 0; k < MeshStream::STRIDE_3D; k++)
