@@ -476,7 +476,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     mx::RtNode node(nodePrim);
     REQUIRE(node);
     REQUIRE(node.getTypeInfo().getShortTypeName() == mx::RtNode::typeName());
-    REQUIRE(node.getName() == mx::RtToken("foo2"));
+    REQUIRE(node.getName() == mx::RtToken("foo1"));
     REQUIRE(node.getNodeDef() == nodedefPrim);
 
     mx::RtPrim graphPrim = stage->createPrim(mx::RtNodeGraph::typeName());
@@ -691,7 +691,7 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
 
     // Test node creation with generated name
     mx::RtNode add4 = stage->createPrim("/", NONAME, nodedef.getName());
-    REQUIRE(add4.getName() == "add4");
+    REQUIRE(add4.getName() == "add");
 
     // Find object by path
     mx::RtPrim prim1 = stage->getPrimAtPath("/add3");
@@ -1166,8 +1166,8 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     mx::RtNode node2 = stage->createPrim(nodedefName);
     REQUIRE(node1);
     REQUIRE(node2);
-    REQUIRE(node1.getName() == "add1");
-    REQUIRE(node2.getName() == "add2");
+    REQUIRE(node1.getName() == "add");
+    REQUIRE(node2.getName() == "add1");
 
     // Test node renaming
     mx::RtToken newName1 = stage->renamePrim(node1.getPath(), mx::RtToken("foo"));
@@ -1177,17 +1177,17 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     REQUIRE(node1.getName() == "foo");
     REQUIRE(node2.getName() == "foo1");
 
-    stage->renamePrim(node1.getPath(), mx::RtToken("add1"));
-    REQUIRE(node1.getName() == "add1");
+    stage->renamePrim(node1.getPath(), mx::RtToken("add"));
+    REQUIRE(node1.getName() == "add");
     stage->renamePrim(node2.getPath(), mx::RtToken("foo"));
     REQUIRE(node2.getName() == "foo");
-    stage->renamePrim(node2.getPath(), mx::RtToken("add2"));
-    REQUIRE(node2.getName() == "add2");
-
-    // Test that a rename to existing "add1" results in the
-    // old name "add2" since that is still a unique name.
     stage->renamePrim(node2.getPath(), mx::RtToken("add1"));
-    REQUIRE(node2.getName() == "add2");
+    REQUIRE(node2.getName() == "add1");
+
+    // Test that a rename to existing "add" results in the
+    // old name "add1" since that is still a unique name.
+    stage->renamePrim(node2.getPath(), mx::RtToken("add"));
+    REQUIRE(node2.getName() == "add1");
 }
 
 TEST_CASE("Runtime: Stage References", "[runtime]")
