@@ -70,6 +70,12 @@ class Exception : public std::exception
     string _msg;
 };
 
+/// Combine the hash of an arbitrary value with an existing seed.
+template<typename T> void hashCombine(size_t& seed, const T& value)
+{
+    seed ^= std::hash<T>()(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+} 
+
 } // namespace MaterialX
 
 #endif

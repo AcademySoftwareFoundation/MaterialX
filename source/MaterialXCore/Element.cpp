@@ -751,6 +751,17 @@ bool targetStringsMatch(const string& target1, const string& target2)
     return !matches.empty();
 }
 
+string prettyPrint(ConstElementPtr elem)
+{
+    string text;
+    for (TreeIterator it = elem->traverseTree().begin(); it != TreeIterator::end(); ++it)
+    {
+        string indent(it.getElementDepth() * 2, ' ');
+        text += indent + it.getElement()->asString() + "\n";
+    }
+    return text;
+}
+
 //
 // Element registry class
 //

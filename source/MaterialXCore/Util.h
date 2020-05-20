@@ -16,11 +16,6 @@ namespace MaterialX
 
 extern const string EMPTY_STRING;
 
-class Element;
-
-using ElementPtr = shared_ptr<Element>;
-using ConstElementPtr = shared_ptr<const Element>;
-
 /// Return the version of the MaterialX library as a string.
 string getVersionString();
 
@@ -49,10 +44,6 @@ string stringToLower(string str);
 
 /// Return true if the given string ends with the given suffix.
 bool stringEndsWith(const string& str, const string& suffix);
-
-/// Pretty print the given element tree, calling asString recursively on each
-/// element in depth-first order.
-string prettyPrint(ConstElementPtr elem);
 
 } // namespace MaterialX
 
