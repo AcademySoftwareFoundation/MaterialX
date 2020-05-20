@@ -6,6 +6,7 @@
 #include <MaterialXCore/Util.h>
 #include <MaterialXRuntime/RtLook.h>
 
+#include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
@@ -25,6 +26,10 @@ namespace
     static const RtToken LOOKGROUP1("lookgroup1");
     static const RtToken LOOK1("look1");
     static const RtToken MATERIALASSIGN1("materialassign1");
+
+    static const string MSG_NONE_ROOT_LOOKGROUP("A lookgroup can only be created at the top / root level");
+    static const string MSG_NONE_ROOT_LOOK("A look can only be created at the top / root level");
+    static const string MSG_NONE_ROOT_MATERIALASSIGN("A materialassign can only be created at the top / root level");
 }
 
 DEFINE_TYPED_SCHEMA(RtLookGroup, "lookgroup");
@@ -35,6 +40,7 @@ RtPrim RtLookGroup::createPrim(const RtToken& typeName, const RtToken& name, RtP
     {
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
+    PvtPath::throwIfNotRoot(parent.getPath(), MSG_NONE_ROOT_LOOKGROUP);
 
     const RtToken primName = name == EMPTY_TOKEN ? LOOKGROUP1 : name;
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
@@ -81,6 +87,7 @@ RtPrim RtLook::createPrim(const RtToken& typeName, const RtToken& name, RtPrim p
     {
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
+    PvtPath::throwIfNotRoot(parent.getPath(), MSG_NONE_ROOT_LOOK);
 
     const RtToken primName = name == EMPTY_TOKEN ? LOOK1 : name;
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
@@ -127,6 +134,7 @@ RtPrim RtMaterialAssign::createPrim(const RtToken& typeName, const RtToken& name
     {
         throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
     }
+    PvtPath::throwIfNotRoot(parent.getPath(), MSG_NONE_ROOT_MATERIALASSIGN);
 
     const RtToken primName = name == EMPTY_TOKEN ? MATERIALASSIGN1 : name;
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));

@@ -6,6 +6,8 @@
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
+#include <MaterialXRuntime/RtPath.h>
+
 namespace MaterialX
 {
 
@@ -32,6 +34,14 @@ void PvtPath::setObject(const PvtObject* obj)
     else
     {
         _elements.push_back(ROOT_NAME);
+    }
+}
+
+void PvtPath::throwIfNotRoot(const RtPath& path, const std::string& msg)
+{
+    if (path.getName() != ROOT_NAME)
+    {
+        throw ExceptionRuntimeError(msg);
     }
 }
 
