@@ -240,7 +240,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     ConstIterator end() const { return _arr.end(); }
 
     /// @}
-    /// @name Data Pointers
+    /// @name Utility
     /// @{
 
     /// Return a pointer to the underlying data array.
@@ -248,6 +248,19 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
 
     /// Return a const pointer to the underlying data array.
     const S* data() const { return _arr.data(); }
+
+    /// Function object for hashing vectors.
+    class Hash
+    {
+      public:
+        size_t operator()(const V& v) const noexcept
+        {
+            size_t h = 0;
+            for (size_t i = 0; i < N; i++)
+                hashCombine(h, v[i]);
+            return h;
+        }
+    };
 
     /// @}
     /// @name Static Methods
@@ -549,7 +562,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     ConstIterator end() const { return _arr.end(); }
 
     /// @}
-    /// @name Data Pointers
+    /// @name Utility
     /// @{
 
     /// Return a pointer to the underlying data array.

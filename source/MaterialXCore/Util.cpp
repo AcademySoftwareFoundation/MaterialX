@@ -5,8 +5,6 @@
 
 #include <MaterialXCore/Util.h>
 
-#include <MaterialXCore/Element.h>
-
 #include <cctype>
 
 namespace MaterialX
@@ -126,17 +124,6 @@ bool stringEndsWith(const string& str, const string& suffix)
         return !str.compare(str.length() - suffix.length(), suffix.length(), suffix);
     }
     return false;
-}
-
-string prettyPrint(ConstElementPtr elem)
-{
-    string text;
-    for (TreeIterator it = elem->traverseTree().begin(); it != TreeIterator::end(); ++it)
-    {
-        string indent(it.getElementDepth() * 2, ' ');
-        text += indent + it.getElement()->asString() + "\n";
-    }
-    return text;
 }
 
 } // namespace MaterialX
