@@ -61,8 +61,8 @@ int main(int argc, char* const argv[])
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
-    mx::Vector3 cameraTarget(0.0f);
-    float cameraViewAngle(45.0f);
+    mx::Vector3 cameraTarget;
+    float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
     std::string envRadiancePath = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
     float lightRotation = 0.0f;

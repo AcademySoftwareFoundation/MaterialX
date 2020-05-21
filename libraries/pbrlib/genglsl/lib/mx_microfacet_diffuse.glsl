@@ -26,7 +26,7 @@ float mx_burley_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
     float F90 = 0.5 + (2.0 * roughness * mx_square(LdotH));
     float refL = mx_fresnel_schlick(NdotL, 1.0, F90);
     float refV = mx_fresnel_schlick(NdotV, 1.0, F90);
-    return refL * refV * M_PI_INV;
+    return refL * refV;
 }
 
 // Compute the directional albedo component of Burley diffuse for the given

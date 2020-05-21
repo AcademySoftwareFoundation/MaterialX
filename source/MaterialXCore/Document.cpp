@@ -838,17 +838,17 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             else if (nodeCategory == "compare")
             {
                 node->setCategory("ifgreatereq");
-                ParameterPtr cutoff = node->getParameter("cutoff");
-                if (cutoff)
-                {
-                    InputPtr value1 = node->addInput("value1");
-                    value1->copyContentFrom(cutoff);
-                    node->removeChild(cutoff->getName());
-                }
                 InputPtr intest = node->getInput("intest");
                 if (intest)
                 {
-                    intest->setName("value2");
+                    intest->setName("value1");
+                }
+                ParameterPtr cutoff = node->getParameter("cutoff");
+                if (cutoff)
+                {
+                    InputPtr value2 = node->addInput("value2");
+                    value2->copyContentFrom(cutoff);
+                    node->removeChild(cutoff->getName());
                 }
                 InputPtr in1 = node->getInput("in1");
                 InputPtr in2 = node->getInput("in2");
