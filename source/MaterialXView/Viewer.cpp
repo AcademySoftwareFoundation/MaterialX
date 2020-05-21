@@ -24,6 +24,7 @@
 #include <iostream>
 
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
+const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
 
 namespace {
 
@@ -572,6 +573,7 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
                 _meshScale = 1.0f;
                 _cameraPosition = DEFAULT_CAMERA_POSITION;
                 _cameraTarget = mx::Vector3();
+                _cameraViewAngle = DEFAULT_CAMERA_VIEW_ANGLE;
                 initCamera();
 
                 _imageHandler->releaseRenderResources(_shadowMap);
