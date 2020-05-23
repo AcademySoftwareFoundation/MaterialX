@@ -539,7 +539,7 @@ vector<MaterialAssignPtr> getGeometryBindings(NodePtr materialNode, const string
 void findRenderableMaterialNodes(ConstDocumentPtr doc, 
                                  vector<TypedElementPtr>& elements, 
                                  bool includeReferencedGraphs,
-                                 std::unordered_set<OutputPtr> &processedOutputs)
+                                 std::unordered_set<OutputPtr>& processedOutputs)
 {
     for (const NodePtr& material : doc->getMaterialNodes())
     {
@@ -569,7 +569,7 @@ void findRenderableMaterialNodes(ConstDocumentPtr doc,
 void findRenderableShaderRefs(ConstDocumentPtr doc, 
                               vector<TypedElementPtr>& elements, 
                               bool includeReferencedGraphs,
-                              std::unordered_set<OutputPtr> &processedOutputs)
+                              std::unordered_set<OutputPtr>& processedOutputs)
 {
     for (const auto& material : doc->getMaterials())
     {
