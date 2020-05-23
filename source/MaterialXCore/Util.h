@@ -45,6 +45,12 @@ string stringToLower(string str);
 /// Return true if the given string ends with the given suffix.
 bool stringEndsWith(const string& str, const string& suffix);
 
+/// Combine the hash of a value with an existing seed.
+template<typename T> void hashCombine(size_t& seed, const T& value)
+{
+    seed ^= std::hash<T>()(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+} 
+
 } // namespace MaterialX
 
 #endif
