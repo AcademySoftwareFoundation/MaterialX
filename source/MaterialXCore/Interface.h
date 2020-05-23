@@ -11,8 +11,6 @@
 
 #include <MaterialXCore/Library.h>
 
-#include <MaterialXCore/Element.h>
-
 #include <MaterialXCore/Geom.h>
 
 namespace MaterialX

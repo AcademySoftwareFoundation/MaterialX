@@ -39,12 +39,12 @@ matrix:
     - os: linux
       dist: bionic
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+      env: MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
       addons:
         apt:
           sources:
             sourceline: "ppa:ubuntu-toolchain-r/test"
-          packages: [*packages_base, g++-9]
+          packages: [*packages_base, g++-10]
     - os: linux
       dist: bionic
       compiler: clang

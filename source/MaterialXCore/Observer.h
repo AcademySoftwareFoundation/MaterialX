@@ -9,6 +9,8 @@
 /// @file
 /// Observer classes
 
+#include <MaterialXCore/Library.h>
+
 #include <MaterialXCore/Document.h>
 
 namespace MaterialX

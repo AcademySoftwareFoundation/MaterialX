@@ -11,6 +11,8 @@
 
 #include <MaterialXCore/Library.h>
 
+#include <MaterialXCore/Util.h>
+
 #include <array>
 #include <cmath>
 
