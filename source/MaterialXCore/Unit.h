@@ -13,7 +13,6 @@
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Types.h>
 
 namespace MaterialX
 {
