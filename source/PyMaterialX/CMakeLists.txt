@@ -8,7 +8,7 @@ include_directories(
 set(PYBIND11_PYTHON_VERSION ${MATERIALX_PYTHON_VERSION})
 set(PYTHON_EXECUTABLE ${MATERIALX_PYTHON_EXECUTABLE})
 
-# First look for a standard PyBind11 package via CMake.
+# First look for a PyBind11 package via CMake.
 if(MATERIALX_PYTHON_PYBIND11_DIR STREQUAL "")
     find_package(pybind11 QUIET)
     if(pybind11_FOUND)
@@ -18,7 +18,7 @@ if(MATERIALX_PYTHON_PYBIND11_DIR STREQUAL "")
     endif()
 endif()
 
-# Then look for PyBind11 at its standard or user-specified location.
+# Then look for PyBind11 at its native or user-specified location.
 if(NOT pybind11_FOUND)
     set(PYBIND11_INCLUDE_DIR "${MATERIALX_PYTHON_PYBIND11_DIR}/include")
     set(PYBIND11_COMMON_H "${PYBIND11_INCLUDE_DIR}/pybind11/detail/common.h")
