@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+   <standard_surface name="MappedShader" type="surfaceshader">
+      <input name="base" type="float" value="1" />
+      <input name="base_color" type="color3" nodegraph="RedRamp" />
+      <input name="metalness" type="float" value="1" />
+      <input name="specular" type="float" value="0" />
+      <input name="coat" type="float" value="1" />
+   </standard_surface>
+   <nodegraph name="RedRamp">
+      <ramp4 name="ramp4" type="color3">
+         <parameter name="valuetl" type="color3" value="1, 0, 0" />
+      </ramp4>
+      <output name="out" type="color3" nodename="ramp4" />
+   </nodegraph>
+   <surfacematerial name="MappedShaderMaterial" type="material">
+      <input name="surfaceshader" type="surfaceshader" nodename="MappedShader" />
+      <input name="displacementshader" type="displacementshader" />
+   </surfacematerial>
+</materialx>

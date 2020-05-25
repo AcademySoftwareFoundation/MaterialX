@@ -75,8 +75,8 @@ vector<MaterialAssignPtr> getGeometryBindings(NodePtr materialNode, const string
 /// Find any material node elements which are renderable (have input shaders)
 /// @param doc Document to examine
 /// @param elements List of renderable elements (returned)
-/// @param includeRefencedGraphs Whether to check for outputs on referenced graphs
-/// @param graphOutputs List of outputs examined. Graph outputs are added if they do
+/// @param includeReferencedGraphs Whether to check for outputs on referenced graphs
+/// @param processedOutputs List of outputs examined. Graph outputs are added if they do
 ///     not already exist
 void findRenderableMaterialNodes(ConstDocumentPtr doc, 
                                  vector<TypedElementPtr>& elements, 
