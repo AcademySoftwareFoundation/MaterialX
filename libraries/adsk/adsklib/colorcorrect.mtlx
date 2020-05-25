@@ -62,7 +62,7 @@
     </combine2>
     <hsvadjust name="HSV_adjust" type="color3">
       <input name="in" type="color3" nodename="extractColorForHsv" />
-      <input name="amount" type="vector3" value="0.0, 1.0, 1.0" interfacename="hsv" />
+      <input name="amount" type="vector3" value="0.0, 1.0, 1.0" interfacename="HSV" />
     </hsvadjust>
     <premult name="premultiplyColor" type="color4">
       <input name="in" type="color4" nodename="combineInput" />
