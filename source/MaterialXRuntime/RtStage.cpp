@@ -171,10 +171,22 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
         nodedef.setNodeGroup(nodeGroup);
     }
 
-    // Add an output per nodegraph input
+    // Add an input per nodegraph input
     for (auto input : nodeGraph.getInputs())
     {
-        RtAttribute attr = nodedef.createInput(input.getName(), input.getType());
+        RtInput attr = nodedef.createInput(input.getName(), input.getType());
+
+        const PvtObject* obj = PvtObject::hnd(input)->asA<PvtObject>();
+        const vector<RtToken>& metadataNames = obj->getMetadataOrder();
+        for (auto metadataName : metadataNames)
+        {
+            const RtTypedValue* metadataValue = obj->getMetadata(metadataName);
+            if (metadataValue)
+            {
+                RtTypedValue* vNew = attr.addMetadata(metadataName, metadataValue->getType());
+                vNew->getValue().asToken() = metadataValue->getValue().asToken();
+            }
+        }
         attr.setValue(input.getValue());
     }
 

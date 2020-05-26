@@ -930,13 +930,16 @@ namespace
         for (RtAttribute attr : src->getAttributes(inputsFilter))
         {
             RtInput nodegraphInput = nodegraph.getInput(attr.getName());
+            ValueElementPtr v = nullptr;
             if (nodegraphInput.isUniform())
             {
-                destNodeGraph->addParameter(nodegraphInput.getName(), nodegraphInput.getType());
+                v = destNodeGraph->addParameter(nodegraphInput.getName(), nodegraphInput.getType());
             }
             else
             {
                 InputPtr input = destNodeGraph->addInput(nodegraphInput.getName(), nodegraphInput.getType());
+                v = input->asA<ValueElement>();
+
                 if (nodegraphInput.isConnected())
                 {
                     // Write connections to upstream nodes.
@@ -948,6 +951,10 @@ namespace
                         input->setOutputString(source.getName());
                     }
                 }
+            }
+            if (v)
+            {
+                v->setValueString(nodegraphInput.getValueString());
             }
         }
 
