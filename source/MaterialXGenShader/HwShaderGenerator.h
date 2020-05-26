@@ -86,7 +86,6 @@ namespace HW
     extern const string T_IN_POSITION;
     extern const string T_IN_NORMAL;
     extern const string T_IN_TANGENT;
-    extern const string T_IN_BITANGENT;
     extern const string T_IN_TEXCOORD;
     extern const string T_IN_COLOR;
     extern const string T_POSITION_WORLD;
@@ -125,6 +124,8 @@ namespace HW
     extern const string T_ENV_RADIANCE_MIPS;
     extern const string T_ENV_RADIANCE_SAMPLES;
     extern const string T_ENV_IRRADIANCE;
+    extern const string T_ALBEDO_TABLE;
+    extern const string T_ALBEDO_TABLE_SIZE;
     extern const string T_AMB_OCC_MAP;
     extern const string T_AMB_OCC_GAIN;
     extern const string T_SHADOW_MAP;
@@ -137,7 +138,6 @@ namespace HW
     extern const string IN_POSITION;
     extern const string IN_NORMAL;
     extern const string IN_TANGENT;
-    extern const string IN_BITANGENT;
     extern const string IN_TEXCOORD;
     extern const string IN_COLOR;
     extern const string POSITION_WORLD;
@@ -176,6 +176,8 @@ namespace HW
     extern const string ENV_RADIANCE_MIPS;
     extern const string ENV_RADIANCE_SAMPLES;
     extern const string ENV_IRRADIANCE;
+    extern const string ALBEDO_TABLE;
+    extern const string ALBEDO_TABLE_SIZE;
     extern const string AMB_OCC_MAP;
     extern const string AMB_OCC_GAIN;
     extern const string SHADOW_MAP;

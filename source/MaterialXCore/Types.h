@@ -11,6 +11,8 @@
 
 #include <MaterialXCore/Library.h>
 
+#include <MaterialXCore/Util.h>
+
 #include <array>
 #include <cmath>
 
@@ -61,7 +63,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     explicit VectorN(const vector<S>& vec) { std::copy(vec.begin(), vec.end(), _arr.begin()); }
     explicit VectorN(const S* begin, const S* end) { std::copy(begin, end, _arr.begin()); }
 
-    /// @name Equality Operators
+    /// @name Comparison Operators
     /// @{
 
     /// Return true if the given vector is identical to this one.
@@ -69,6 +71,12 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
 
     /// Return true if the given vector differs from this one.
     bool operator!=(const V& rhs) const { return _arr != rhs._arr; }
+
+    /// Compare two vectors lexicographically.
+    bool operator<(const V& rhs) const
+    {
+        return _arr < rhs._arr;
+    }
 
     /// @}
     /// @name Indexing Operators
@@ -186,6 +194,15 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
         return *this;
     }
 
+    /// Unary negation of a vector.
+    V operator-() const
+    {
+        V res(Uninit{});
+        for (size_t i = 0; i < N; i++)
+            res[i] = -_arr[i];
+        return res;
+    }
+
     /// @}
     /// @name Geometric Methods
     /// @{
@@ -225,7 +242,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     ConstIterator end() const { return _arr.end(); }
 
     /// @}
-    /// @name Data Pointers
+    /// @name Utility
     /// @{
 
     /// Return a pointer to the underlying data array.
@@ -233,6 +250,19 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
 
     /// Return a const pointer to the underlying data array.
     const S* data() const { return _arr.data(); }
+
+    /// Function object for hashing vectors.
+    class Hash
+    {
+      public:
+        size_t operator()(const V& v) const noexcept
+        {
+            size_t h = 0;
+            for (size_t i = 0; i < N; i++)
+                hashCombine(h, v[i]);
+            return h;
+        }
+    };
 
     /// @}
     /// @name Static Methods
@@ -363,13 +393,13 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     explicit MatrixN(S s) { std::fill_n(&_arr[0][0], N * N, s); }
     explicit MatrixN(const S* begin, const S* end) { std::copy(begin, end, &_arr[0][0]); }
 
-    /// @name Equality Operators
+    /// @name Comparison Operators
     /// @{
 
     /// Return true if the given matrix is identical to this one.
     bool operator==(const M& rhs) const { return _arr == rhs._arr; }
 
-    /// Return true if the given vector differs from this one.
+    /// Return true if the given matrix differs from this one.
     bool operator!=(const M& rhs) const { return _arr != rhs._arr; }
 
     /// Return true if the given matrix is equivalent to this one
@@ -534,7 +564,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     ConstIterator end() const { return _arr.end(); }
 
     /// @}
-    /// @name Data Pointers
+    /// @name Utility
     /// @{
 
     /// Return a pointer to the underlying data array.

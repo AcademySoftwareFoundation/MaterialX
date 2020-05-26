@@ -298,11 +298,8 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
 
     // Add tangent basis
     //
-    MeshStreamPtr tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
-    MeshStreamPtr bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
-    mesh->generateTangents(positionStream, texCoordStream, normalStream, tangentStream, bitangentStream);
+    MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texCoordStream);
     mesh->addStream(tangentStream);
-    mesh->addStream(bitangentStream);
 
     mesh->setVertexCount(positionData.size() / 3);
 

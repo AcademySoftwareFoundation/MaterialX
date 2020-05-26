@@ -9,6 +9,8 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
+#include <stdexcept>
+
 namespace MaterialX
 {
 
@@ -749,6 +751,17 @@ bool targetStringsMatch(const string& target1, const string& target2)
     std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), 
                           std::inserter(matches, matches.end()));
     return !matches.empty();
+}
+
+string prettyPrint(ConstElementPtr elem)
+{
+    string text;
+    for (TreeIterator it = elem->traverseTree().begin(); it != TreeIterator::end(); ++it)
+    {
+        string indent(it.getElementDepth() * 2, ' ');
+        text += indent + it.getElement()->asString() + "\n";
+    }
+    return text;
 }
 
 //

@@ -282,19 +282,17 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
         return;
     }
 
-    string oslFileName = oslFilePath.asString();
-
-    // Remove .osl and add .oso extension for output.
-    string outputFileName = removeExtension(oslFileName);
-    outputFileName += ".oso";
+    FilePath outputFileName = oslFilePath;
+    outputFileName.removeExtension();
+    outputFileName.addExtension("oso");
 
     // Use a known error file name to check
-    string errorFile(oslFileName + "_compile_errors.txt");
+    string errorFile(oslFilePath.asString() + "_compile_errors.txt");
     const string redirectString(" 2>&1");
 
     // Run the command and get back the result. If non-empty string throw exception with error
-    string command = _oslCompilerExecutable.asString() + " -q -I\"" + _oslIncludePath.asString() + "\" " + oslFileName + " -o " + outputFileName + " > " +
-        errorFile + redirectString;
+    string command = _oslCompilerExecutable.asString() + " -q -I\"" + _oslIncludePath.asString() + "\" " +
+                     oslFilePath.asString() + " -o " + outputFileName.asString() + " > " + errorFile + redirectString;
 
     int returnValue = std::system(command.c_str());
 

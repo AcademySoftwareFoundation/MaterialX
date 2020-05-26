@@ -222,7 +222,8 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(custom.getParameterValue('octaves') == 5)
 
         # Validate the document.
-        self.assertTrue(doc.validate()[0])
+        valid, message = doc.validate()
+        self.assertTrue(valid, 'Document returned validation warnings: ' + message)
 
         # Test scoped attributes.
         nodeGraph.setFilePrefix('folder/')
@@ -362,7 +363,8 @@ class TestMaterialX(unittest.TestCase):
         output.setConnectedNode(mix)
 
         # Validate the document.
-        self.assertTrue(doc.validate()[0])
+        valid, message = doc.validate()
+        self.assertTrue(valid, 'Document returned validation warnings: ' + message)
 
         # Traverse the document tree (implicit iterator).
         nodeCount = 0
@@ -462,7 +464,8 @@ class TestMaterialX(unittest.TestCase):
         for filename in _exampleFilenames:
             doc = mx.createDocument()
             mx.readFromXmlFile(doc, filename, _searchPath)
-            self.assertTrue(doc.validate()[0], filename + ' is not valid.')
+            valid, message = doc.validate()
+            self.assertTrue(valid, filename + ' returned validation warnings: ' + message)
 
             # Copy the document.
             copiedDoc = doc.copy()

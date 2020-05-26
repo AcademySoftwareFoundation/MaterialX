@@ -24,6 +24,29 @@
 namespace MaterialX
 {
 
+namespace {
+
+const float MAX_FLOAT = std::numeric_limits<float>::max();
+const size_t FACE_VERTEX_COUNT = 3;
+
+class VertexVector : public VectorN<VertexVector, float, 8>
+{
+  public:
+    using VectorN<VertexVector, float, 8>::VectorN;
+    VertexVector(const Vector3& p, const Vector3& n, const Vector2& t) : VectorN(Uninit{})
+    {
+        _arr = {p[0], p[1], p[2], n[0], n[1], n[2], t[0], t[1]};
+    }
+};
+
+using VertexIndexMap = std::unordered_map<VertexVector, uint32_t, VertexVector::Hash>;
+
+} // anonymous namespace
+
+//
+// TinyObjLoader methods
+//
+
 bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     tinyobj::attrib_t attrib;
@@ -37,10 +60,7 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
         std::cerr << err << std::endl;
         return false;
     }
-
-    size_t vertComponentCount = std::max(attrib.vertices.size(), attrib.normals.size());
-    size_t vertexCount = vertComponentCount / MeshStream::STRIDE_3D;
-    if (!vertexCount)
+    if (!attrib.vertices.size())
     {
         return false;
     }
@@ -48,46 +68,18 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
     MeshPtr mesh = Mesh::create(filePath);
     meshList.push_back(mesh);
     mesh->setSourceUri(filePath);
+
     MeshStreamPtr positionStream = MeshStream::create("i_" + MeshStream::POSITION_ATTRIBUTE, MeshStream::POSITION_ATTRIBUTE, 0);
-    MeshFloatBuffer& positions = positionStream->getData();
-    mesh->addStream(positionStream);
-
     MeshStreamPtr normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, 0);
-    MeshFloatBuffer& normals = normalStream->getData();
-    mesh->addStream(normalStream);
+    MeshStreamPtr texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
+    texcoordStream->setStride(MeshStream::STRIDE_2D);
 
-    MeshStreamPtr texCoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
-    texCoordStream->setStride(MeshStream::STRIDE_2D);
-    MeshFloatBuffer& texcoords = texCoordStream->getData();
-    mesh->addStream(texCoordStream);
-
-    MeshStreamPtr tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
-    tangentStream->setStride(MeshStream::STRIDE_3D);
-    MeshFloatBuffer& tangents = tangentStream->getData();
-    mesh->addStream(tangentStream);
-
-    // Explode the geometry, since we may have unshared geometry
-    // in position, normal or uv
-    size_t totalIndexCount = 0;
-    for (const tinyobj::shape_t& shape : shapes)
-    {
-        totalIndexCount += shape.mesh.indices.size();
-    }
-    positions.resize(totalIndexCount * MeshStream::STRIDE_3D);
-    normals.resize(totalIndexCount * MeshStream::STRIDE_3D);
-    texcoords.resize(totalIndexCount * MeshStream::STRIDE_2D);
-    tangents.resize(totalIndexCount * MeshStream::STRIDE_3D);
-    mesh->setVertexCount(totalIndexCount);
-
-    const float MAX_FLOAT = std::numeric_limits<float>::max();
     Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
     Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
 
-    uint32_t writeIndex0 = 0;
-    uint32_t writeIndex1 = 1;
-    uint32_t writeIndex2 = 2;
-
-    const size_t FACE_VERTEX_COUNT = 3;
+    VertexIndexMap vertexIndexMap;
+    uint32_t nextVertexIndex = 0;
+    bool normalsFound = false;
     for (const tinyobj::shape_t& shape : shapes)
     {
         size_t indexCount = shape.mesh.indices.size();
@@ -99,110 +91,88 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
 
         MeshPartitionPtr part = MeshPartition::create();
         part->setIdentifier(shape.name);
-        MeshIndexBuffer& indices = part->getIndices();
-        indices.resize(shape.mesh.indices.size());
         part->setFaceCount(faceCount);
         mesh->addPartition(part);
 
-        for (size_t faceIndex = 0; faceIndex < faceCount; faceIndex++)
-        {
-            const tinyobj::index_t& indexObj0 = shape.mesh.indices[faceIndex * 3 + 0];
-            const tinyobj::index_t& indexObj1 = shape.mesh.indices[faceIndex * 3 + 1];
-            const tinyobj::index_t& indexObj2 = shape.mesh.indices[faceIndex * 3 + 2];
- 
-            // Copy indices.
-            indices[faceIndex * MeshStream::STRIDE_3D + 0] = writeIndex0;
-            indices[faceIndex * MeshStream::STRIDE_3D + 1] = writeIndex1;
-            indices[faceIndex * MeshStream::STRIDE_3D + 2] = writeIndex2;
+        MeshIndexBuffer& indices = part->getIndices();
+        indices.resize(indexCount);
 
-            // Copy positions and compute bounding box.
-            Vector3 v[MeshStream::STRIDE_3D];
+        for (size_t i = 0; i < shape.mesh.indices.size(); i++)
+        {
+            const tinyobj::index_t& indexObj = shape.mesh.indices[i];
+
+            // Read vertex components.
+            Vector3 position, normal;
+            Vector2 texcoord;
             for (unsigned int k = 0; k < MeshStream::STRIDE_3D; k++)
             {
-                v[0][k] = attrib.vertices[indexObj0.vertex_index * MeshStream::STRIDE_3D + k];
-                v[1][k] = attrib.vertices[indexObj1.vertex_index * MeshStream::STRIDE_3D + k];
-                v[2][k] = attrib.vertices[indexObj2.vertex_index * MeshStream::STRIDE_3D + k];
-
-                boxMin[k] = std::min(v[0][k], boxMin[k]);
-                boxMin[k] = std::min(v[1][k], boxMin[k]);
-                boxMin[k] = std::min(v[2][k], boxMin[k]);
-
-                boxMax[k] = std::max(v[0][k], boxMax[k]);
-                boxMax[k] = std::max(v[1][k], boxMax[k]);
-                boxMax[k] = std::max(v[2][k], boxMax[k]);
-            }
-
-            Vector3* pos = reinterpret_cast<Vector3*>(&(positions[writeIndex0 * MeshStream::STRIDE_3D]));
-            *pos = v[0];
-            pos = reinterpret_cast<Vector3*>(&(positions[writeIndex1 * MeshStream::STRIDE_3D]));
-            *pos = v[1];
-            pos = reinterpret_cast<Vector3*>(&(positions[writeIndex2 * MeshStream::STRIDE_3D]));
-            *pos = v[2];
-
-            // Copy or compute normals
-            Vector3 n[3];
-            if (indexObj0.normal_index >= 0 &&
-                indexObj1.normal_index >= 0 &&
-                indexObj2.normal_index >= 0)
-            {
-                for (int k = 0; k < 3; k++)
+                position[k] = attrib.vertices[indexObj.vertex_index * MeshStream::STRIDE_3D + k];
+                if (indexObj.normal_index >= 0)
                 {
-                    n[0][k] = attrib.normals[indexObj0.normal_index * MeshStream::STRIDE_3D + k];
-                    n[1][k] = attrib.normals[indexObj1.normal_index * MeshStream::STRIDE_3D + k];
-                    n[2][k] = attrib.normals[indexObj2.normal_index * MeshStream::STRIDE_3D + k];
+                    normal[k] = attrib.normals[indexObj.normal_index * MeshStream::STRIDE_3D + k];
+                    normalsFound = true;
                 }
-            }
-            else
-            {
-                Vector3 faceNorm = (v[1] - v[0]).cross(v[2] - v[0]).getNormalized();
-                n[0] = faceNorm;
-                n[1] = faceNorm;
-                n[2] = faceNorm;
-            }
-
-            Vector3* norm = reinterpret_cast<Vector3*>(&(normals[writeIndex0 * MeshStream::STRIDE_3D]));
-            *norm = n[0];
-            norm = reinterpret_cast<Vector3*>(&(normals[writeIndex1 * MeshStream::STRIDE_3D]));
-            *norm = n[1];
-            norm = reinterpret_cast<Vector3*>(&(normals[writeIndex2 * MeshStream::STRIDE_3D]));
-            *norm = n[2];
-
-            // Copy texture coordinates.
-            Vector2 t[3];
-            if (indexObj0.texcoord_index >= 0 &&
-                indexObj1.texcoord_index >= 0 &&
-                indexObj2.texcoord_index >= 0)
-            {
-                for (int k = 0; k < 2; k++)
+                if (indexObj.texcoord_index >= 0 && k < MeshStream::STRIDE_2D)
                 {
-                    t[0][k] = attrib.texcoords[indexObj0.texcoord_index * MeshStream::STRIDE_2D + k];
-                    t[1][k] = attrib.texcoords[indexObj1.texcoord_index * MeshStream::STRIDE_2D + k];
-                    t[2][k] = attrib.texcoords[indexObj2.texcoord_index * MeshStream::STRIDE_2D + k];
+                    texcoord[k] = attrib.texcoords[indexObj.texcoord_index * MeshStream::STRIDE_2D + k];
                 }
             }
 
-            Vector2* texcoord = reinterpret_cast<Vector2*>(&(texcoords[writeIndex0 * MeshStream::STRIDE_2D]));
-            *texcoord = t[0];
-            texcoord = reinterpret_cast<Vector2*>(&(texcoords[writeIndex1 * MeshStream::STRIDE_2D]));
-            *texcoord = t[1];
-            texcoord = reinterpret_cast<Vector2*>(&(texcoords[writeIndex2 * MeshStream::STRIDE_2D]));
-            *texcoord = t[2];
+            // Check for duplicate vertices.
+            VertexVector vec(position, normal, texcoord);
+            VertexIndexMap::iterator it = vertexIndexMap.find(vec);
+            if (it != vertexIndexMap.end())
+            {
+                indices[i] = it->second;
+                continue;
+            }
+            vertexIndexMap[vec] = nextVertexIndex;
 
-            writeIndex0 += MeshStream::STRIDE_3D;
-            writeIndex1 += MeshStream::STRIDE_3D;
-            writeIndex2 += MeshStream::STRIDE_3D;
+            // Store vertex components.
+            for (unsigned int k = 0; k < MeshStream::STRIDE_3D; k++)
+            {
+                positionStream->getData().push_back(position[k]);
+                normalStream->getData().push_back(normal[k]);
+                if (k < MeshStream::STRIDE_2D)
+                {
+                    texcoordStream->getData().push_back(texcoord[k]);
+                }
+
+                // Update bounds.
+                boxMin[k] = std::min(position[k], boxMin[k]);
+                boxMax[k] = std::max(position[k], boxMax[k]);
+            }
+
+            // Store index data.
+            indices[i] = nextVertexIndex++;
         }
     }
 
+    // Generate normals if needed.
+    if (!normalsFound)
+    {
+        normalStream = mesh->generateNormals(positionStream);
+    }
+
+    // Generate tangents.
+    MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+
+    // Assign streams to mesh.
+    mesh->addStream(positionStream);
+    mesh->addStream(normalStream);
+    mesh->addStream(texcoordStream);
+    if (tangentStream)
+    {
+        mesh->addStream(tangentStream);
+    }
+
+    // Assign properties to mesh.
+    mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
     mesh->setMinimumBounds(boxMin);
     mesh->setMaximumBounds(boxMax);
     Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
     mesh->setSphereCenter(sphereCenter);
     mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
-
-    MeshStreamPtr bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
-    mesh->generateTangents(positionStream, texCoordStream, normalStream, tangentStream, bitangentStream);
-    mesh->addStream(bitangentStream);
 
     return true;
 }

@@ -58,8 +58,9 @@ class Node : public InterfaceElement
     /// @name Connections
     /// @{
 
-    /// Set the Node connected to the given input, creating a child element
-    /// for the input if needed.
+    /// Set the node to which the given input is connected, creating a
+    /// child input if needed.  If the node argument is null, then any
+    /// existing node connection on the input will be cleared.
     void setConnectedNode(const string& inputName, NodePtr node);
 
     /// Return the Node connected to the given input.  If the given input is

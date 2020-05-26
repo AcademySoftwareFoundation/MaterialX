@@ -16,11 +16,6 @@ namespace MaterialX
 
 extern const string EMPTY_STRING;
 
-class Element;
-
-using ElementPtr = shared_ptr<Element>;
-using ConstElementPtr = shared_ptr<const Element>;
-
 /// Return the version of the MaterialX library as a string.
 string getVersionString();
 
@@ -47,12 +42,17 @@ StringVec splitString(const string& str, const string& sep);
 /// Apply the given substring substitutions to the input string.
 string replaceSubstrings(string str, const StringMap& stringMap);
 
-/// Return true if the given string ends with the given suffix.
-bool stringEndsWith(const std::string& str, const std::string& suffix);
+/// Return a copy of the given string with letters converted to lower case.
+string stringToLower(string str);
 
-/// Pretty print the given element tree, calling asString recursively on each
-/// element in depth-first order.
-string prettyPrint(ConstElementPtr elem);
+/// Return true if the given string ends with the given suffix.
+bool stringEndsWith(const string& str, const string& suffix);
+
+/// Combine the hash of a value with an existing seed.
+template<typename T> void hashCombine(size_t& seed, const T& value)
+{
+    seed ^= std::hash<T>()(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+} 
 
 } // namespace MaterialX
 

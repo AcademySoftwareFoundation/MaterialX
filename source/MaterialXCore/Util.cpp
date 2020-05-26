@@ -5,7 +5,7 @@
 
 #include <MaterialXCore/Util.h>
 
-#include <MaterialXCore/Element.h>
+#include <cctype>
 
 namespace MaterialX
 {
@@ -113,24 +113,22 @@ string replaceSubstrings(string str, const StringMap& stringMap)
     return str;
 }
 
-bool stringEndsWith(const std::string& str, const std::string& suffix)
+string stringToLower(string str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c)
+    {
+        return (char) std::tolower(c);
+    });
+    return str;
+}
+
+bool stringEndsWith(const string& str, const string& suffix)
 {
     if (str.length() >= suffix.length())
     {
         return !str.compare(str.length() - suffix.length(), suffix.length(), suffix);
     }
     return false;
-}
-
-string prettyPrint(ConstElementPtr elem)
-{
-    string text;
-    for (TreeIterator it = elem->traverseTree().begin(); it != TreeIterator::end(); ++it)
-    {
-        string indent(it.getElementDepth() * 2, ' ');
-        text += indent + it.getElement()->asString() + "\n";
-    }
-    return text;
 }
 
 } // namespace MaterialX

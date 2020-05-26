@@ -43,7 +43,6 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
         { HW::T_IN_POSITION, "POSITION"},
         { HW::T_IN_NORMAL, "NORMAL" },
         { HW::T_IN_TANGENT, "TANGENT" },
-        { HW::T_IN_BITANGENT, "BINORMAL" },
 
         { HW::T_IN_TEXCOORD + "_0", "TEXCOORD0" },
         { HW::T_IN_TEXCOORD + "_1", "TEXCOORD1" },

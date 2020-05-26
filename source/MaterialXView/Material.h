@@ -32,6 +32,15 @@ class DocumentModifiers
     std::string filePrefixTerminator;
 };
 
+class LightingState
+{
+  public:
+    mx::Matrix44 lightTransform;
+    bool directLighting = true;
+    bool indirectLighting = true;
+    int envSamples = 16;
+};
+
 class ShadowState
 {
   public:
@@ -110,8 +119,18 @@ class Material
                     const std::string& shaderName,
                     bool hasTransparency);
 
-    /// Generate a shader from the given inputs.
+    /// Generate a shader from our currently stored element and
+    /// the given generator context.
     bool generateShader(mx::GenContext& context);
+
+    /// Generate a shader from the given hardware shader.
+    bool generateShader(mx::ShaderPtr hwShader);
+
+    /// Generate an environment background shader
+    bool generateEnvironmentShader(mx::GenContext& context,
+                                   const mx::FilePath& filename,
+                                   mx::DocumentPtr stdLib,
+                                   const mx::FilePath& imagePath);
 
     /// Copy shader from one material to this one
     void copyShader(MaterialPtr material)
@@ -119,30 +138,6 @@ class Material
         _hwShader = material->_hwShader;
         _glShader = material->_glShader;
     }
-
-    /// Generate a constant color shader
-    bool generateConstantShader(mx::GenContext& context,
-                                mx::DocumentPtr stdLib,
-                                const std::string& shaderName,
-                                const mx::Color3& color);
-
-    /// Generate a depth shader.
-    bool generateDepthShader(mx::GenContext& context,
-                             mx::DocumentPtr stdLib,
-                             const std::string& shaderName);
-
-    /// Generate a blur shader.
-    bool generateBlurShader(mx::GenContext& context,
-                            mx::DocumentPtr stdLib,
-                            const std::string& shaderName,
-                            const std::string& filterType,
-                            float filterSize);
-
-    /// Generate an environment background shader
-    bool generateEnvironmentShader(mx::GenContext& context,
-                                   const mx::FilePath& filename,
-                                   mx::DocumentPtr stdLib,
-                                   const mx::FilePath& imagePath);
 
     /// Return the underlying OpenGL shader.
     GLShaderPtr getShader() const
@@ -173,9 +168,8 @@ class Material
                            const mx::ImageSamplingProperties& samplingProperties, const mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.
-    void bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                    bool directLighting, bool indirectLighting, const ShadowState& shadowState,
-                    mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples);
+    void bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
+                    const LightingState& lightingState, const ShadowState& shadowState);
 
     /// Bind units.
     void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);

@@ -97,7 +97,7 @@ void PropertyEditor::create(Viewer& parent)
     // Remove the window associated with the form.
     // This is done by explicitly creating and owning the window
     // as opposed to having it being done by the form
-    ng::Vector2i previousPosition(15, parentWindow->height() + 60);
+    ng::Vector2i previousPosition(15, parentWindow->height());
     if (_window)
     {
         for (int i = 0; i < _window->childCount(); i++)
@@ -122,7 +122,7 @@ void PropertyEditor::create(Viewer& parent)
     _window->setVisible(_visible);
 
     ng::VScrollPanel *scroll_panel = new ng::VScrollPanel(_window);
-    scroll_panel->setFixedHeight(200);
+    scroll_panel->setFixedHeight(300);
     _container = new ng::Widget(scroll_panel);
     _container->setLayout(new ng::GroupLayout(1, 1, 1, 1));
 
@@ -716,7 +716,6 @@ void PropertyEditor::updateContents(Viewer* viewer)
         nameLabel->setFontSize(20);
     }
 
-    const bool showAdvancedItems = viewer->showAdvancedProperties();
     bool addedItems = false;
     const mx::VariableBlock* publicUniforms = material->getPublicUniforms();
     if (publicUniforms)
@@ -735,10 +734,6 @@ void PropertyEditor::updateContents(Viewer* viewer)
             const std::string& folder = it->first;
             const mx::UIPropertyItem& item = it->second;
 
-            if (item.ui.uiAdvanced && !showAdvancedItems)
-            {
-                continue;
-            }
             // Find out if the uniform is editable. Some
             // inputs may be optimized out during compilation.
             if (material->findUniform(item.variable->getPath()))
@@ -754,10 +749,6 @@ void PropertyEditor::updateContents(Viewer* viewer)
         for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
         {
             const mx::UIPropertyItem& item = it2->second;
-            if (item.ui.uiAdvanced && !showAdvancedItems)
-            {
-                continue;
-            }
             if (material->findUniform(item.variable->getPath()))
             {
                 addItemToForm(item, addedLabel ? mx::EMPTY_STRING : otherString, _container, viewer, editable);

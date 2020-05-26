@@ -1403,6 +1403,10 @@ template<class T> shared_ptr<T> Element::addChild(const string& name)
 /// matches all targets.
 bool targetStringsMatch(const string& target1, const string& target2);
 
+/// Pretty print the given element tree, calling asString recursively on each
+/// element in depth-first order.
+string prettyPrint(ConstElementPtr elem);
+
 } // namespace MaterialX
 
 #endif

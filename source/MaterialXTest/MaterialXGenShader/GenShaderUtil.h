@@ -124,7 +124,7 @@ class TestSuiteOptions
     //   0 : Prefiltered - Use a radiance IBL texture that has been prefiltered with the BRDF.
     //   1 : Filtered Importance Sampling - Use FIS to sample the IBL texture according to the BRDF in runtime.
     // Default value is 1.
-    int specularEnvironmentMethod;
+    mx::HwSpecularEnvironmentMethod specularEnvironmentMethod;
 
     // Radiance IBL file.
     mx::FilePath radianceIBLPath;
@@ -133,7 +133,7 @@ class TestSuiteOptions
     mx::FilePath irradianceIBLPath;
 
     // Transforms UVs of loaded geometry
-    MaterialX::Matrix44 transformUVs;
+    mx::Matrix44 transformUVs;
 
     // Additional library paths
     mx::FileSearchPath externalLibraryPaths;

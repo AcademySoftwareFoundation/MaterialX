@@ -1,6 +1,9 @@
 version: 1.38.{build}
 clone_folder: C:\Projects\MaterialX
 
+build:
+  parallel: true
+
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015

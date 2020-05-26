@@ -73,17 +73,17 @@ else()
     set(MATERIALX_BUILD_GEN OFF)
 endif()
 
-set(MATERIALX_DEBUG_POSTFIX "" CACHE STRING "Postfix to append to the target file name for debug configuration (e.g. 'd').")
-set(MATERIALX_PYTHON_VERSION "" CACHE STRING "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
-set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python27/python.exe').")
-set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
-set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source/PyMaterialX/PyBind11" CACHE PATH "Path to a folder containing the PyBind11 source. Defaults to the included PyBind11 source, which has been extended to support Python 2.6.")
-set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
+set(MATERIALX_PYTHON_VERSION "" CACHE STRING
+    "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
+set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
+    "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python27/python.exe').")
+set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
+    "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
+set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
+    "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
 
-# Settings to define installation layout
-set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
-set(MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING "Install lib path (e.g. 'libs', 'lib').")
-set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtlx std libs (e.g. 'libraries').")
+set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
+set(MATERIALX_DEBUG_POSTFIX "" CACHE STRING "Postfix to append to the target file name for debug configuration (e.g. 'd').")
 
 # Helpers for OSL validation
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
@@ -97,6 +97,11 @@ if (MATERIALX_BUILD_GEN_MDL)
     set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
     set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
 endif()
+
+# Settings to define installation layout
+set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
+set(MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING "Install lib path (e.g. 'libs', 'lib').")
+set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtlx std libs (e.g. 'libraries').")
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
@@ -126,9 +131,16 @@ if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
 endif()
 
+# Add global definitions
 add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
 add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
 add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
+if(MATERIALX_BUILD_OIIO)
+    add_definitions(-DMATERIALX_BUILD_OIIO)
+endif()
+if(MATERIALX_TEST_RENDER)
+    add_definitions(-DMATERIALX_TEST_RENDER)
+endif()
 
 if (MATERIALX_BUILD_GEN_MDL)
     add_definitions(-DMATERIALX_MDLC_EXECUTABLE=\"${MATERIALX_MDLC_EXECUTABLE}\")

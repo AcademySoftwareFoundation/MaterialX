@@ -12,9 +12,7 @@
 #include <MaterialXCore/Library.h>
 
 #include <MaterialXCore/Look.h>
-#include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
-#include <MaterialXCore/Variant.h>
 
 namespace MaterialX
 {
