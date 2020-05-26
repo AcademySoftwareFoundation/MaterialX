@@ -55,17 +55,7 @@ int main(int argc, char* const argv[])
 
     mx::FilePathVec libraryFolders = 
     {
-        "libraries/stdlib",
-        "libraries/stdlib/genglsl",
-        "libraries/stdlib/genosl",
-        "libraries/stdlib/genmdl",
-        "libraries/pbrlib",
-        "libraries/pbrlib/genglsl",
-        "libraries/pbrlib/genosl",
-        "libraries/pbrlib/genmdl",
-        "libraries/bxdf",
-        "libraries/lights",
-        "libraries/lights/genglsl"
+        "libraries",
     };
 
     mx::FileSearchPath searchPath;

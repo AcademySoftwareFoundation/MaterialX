@@ -90,25 +90,60 @@ void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* se
     doc->importLibrary(libDoc, &copyOptions);
 }
 
-StringVec loadLibraries(const FilePathVec& libraryNames,
+StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
                         const StringSet* excludeFiles,
                         XmlReadOptions* readOptions)
 {
-    StringVec loadedLibraries;
-    for (const std::string& libraryName : libraryNames)
+    // Include pathes specified by environment variable last
+    FileSearchPath librarySearchPath = searchPath;
+    librarySearchPath.append(getEnvironmentPath());
+
+    StringSet loadedLibraries;
+
+    // No specific libraries specified so scan in all search paths
+    if (libraryFolders.empty())
     {
-        FilePath libraryPath = searchPath.find(libraryName);
-        for (const FilePath& path : libraryPath.getSubDirectories())
+        for (const FilePath& libraryPath : librarySearchPath)
         {
-            for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
+            for (const FilePath& path : libraryPath.getSubDirectories())
             {
-                if (!excludeFiles || !excludeFiles->count(filename))
+                for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
                 {
-                    const FilePath& file = path / filename;
-                    loadLibrary(file, doc, &searchPath, readOptions);
-                    loadedLibraries.push_back(file.asString());
+                    if (!excludeFiles || !excludeFiles->count(filename))
+                    {
+                        const FilePath& file = path / filename;
+                        if (loadedLibraries.count(file) == 0)
+                        {
+                            loadLibrary(file, doc, &searchPath, readOptions);
+                            loadedLibraries.insert(file.asString());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Look for specific library folders in the search paths
+    else
+    {
+        for (const std::string& libraryName : libraryFolders)
+        {
+            FilePath libraryPath = librarySearchPath.find(libraryName);
+            for (const FilePath& path : libraryPath.getSubDirectories())
+            {
+                for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
+                {
+                    if (!excludeFiles || !excludeFiles->count(filename))
+                    {
+                        const FilePath& file = path / filename;
+                        if (loadedLibraries.count(file) == 0)
+                        {
+                            loadLibrary(file, doc, &searchPath, readOptions);
+                            loadedLibraries.insert(file.asString());
+                        }
+                    }
                 }
             }
         }

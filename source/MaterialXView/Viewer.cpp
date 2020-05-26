@@ -61,28 +61,6 @@ void writeTextFile(const std::string& text, const std::string& filePath)
     file.close();
 }
 
-mx::DocumentPtr loadLibraries(const mx::FilePathVec& libraryFolders, const mx::FileSearchPath& searchPath)
-{
-    mx::DocumentPtr doc = mx::createDocument();
-    for (const std::string& libraryFolder : libraryFolders)
-    {
-        mx::CopyOptions copyOptions;
-        copyOptions.skipConflictingElements = true;
-
-        mx::XmlReadOptions readOptions;
-        readOptions.skipConflictingElements = true;
-
-        mx::FilePath libraryPath = searchPath.find(libraryFolder);
-        for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
-        {
-            mx::DocumentPtr libDoc = mx::createDocument();
-            mx::readFromXmlFile(libDoc, libraryPath / filename, mx::FileSearchPath(), &readOptions);
-            doc->importLibrary(libDoc, &copyOptions);
-        }
-    }
-    return doc;
-}
-
 void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 {
     for (mx::ElementPtr elem : doc->traverseTree())
@@ -251,13 +229,6 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
-    if (_stdLib)
-    {
-        for (std::string sourceUri : _stdLib->getReferencedSourceUris())
-        {
-            _xincludeFiles.insert(sourceUri);
-        }
-    }
 
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
@@ -1406,16 +1377,17 @@ void Viewer::loadStandardLibraries()
     // Initialize the standard library.
     try
     {
-        _stdLib = loadLibraries(_libraryFolders, _searchPath);
+        _stdLib = mx::createDocument();
+        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
+        if (_xincludeFiles.empty())
+        {
+            std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
+        }
     }
     catch (std::exception& e)
     {
         std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
         return;
-    }
-    if (_stdLib->getChildren().empty())
-    {
-        std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
     }
 
     // Initialize unit management.
