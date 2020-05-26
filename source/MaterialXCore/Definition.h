@@ -517,7 +517,7 @@ class UnitTypeDef : public Element
 /// An attribute definition element within a Document.
 class AttributeDef : public TypedElement
 {
-public:
+  public:
     AttributeDef(ElementPtr parent, const string& name) :
         TypedElement(parent, CATEGORY, name)
     {
@@ -644,7 +644,7 @@ public:
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
     static const string ATTRNAME_ATTRIBUTE;
     static const string VALUE_ATTRIBUTE;
