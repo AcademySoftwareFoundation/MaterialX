@@ -1034,15 +1034,14 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
         if (!interfaceName.empty())
         {
             ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
-            if (!inputSocket)
+            if (inputSocket)
             {
-                throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on nodegraph '" + getName() + "'");
-            }
-            ShaderInput* input = newNode->getInput(elem->getName());
+                ShaderInput* input = newNode->getInput(elem->getName());
 
-            if (input)
-            {
-                input->makeConnection(inputSocket);
+                if (input)
+                {
+                    input->makeConnection(inputSocket);
+                }
             }
         }
     }
