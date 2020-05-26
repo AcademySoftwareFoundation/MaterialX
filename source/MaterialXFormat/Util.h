@@ -23,26 +23,25 @@ namespace MaterialX
 /// successful, then the empty string is returned.
 string readFile(const FilePath& file);
 
+/// Get all subdirectories for a given set of directories and search paths
+void getSubdirectories(const FilePathVec rootDirectories, const FileSearchPath& searchPath, FilePathVec& subdirectories);
+
 /// Scans for all documents under a root path and returns documents which can be loaded
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
                    const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
                    const XmlReadOptions& readOptions, StringVec& errors);
 
 /// Load a given MaterialX library into a document
-void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath = nullptr);
+void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath = nullptr, 
+                 XmlReadOptions* readOptions = nullptr);
 
 /// Load all MaterialX files with given library names in given search paths.
 /// Note that all library files will have a URI set on them.
-StringVec loadLibraries(const StringVec& libraryNames,
+StringSet loadLibraries(const FilePathVec& libraryNames,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
-                        const StringSet* excludeFiles = nullptr);
-
-/// Load all MaterialX files with given library names in a given path.
-StringVec loadLibraries(const StringVec& libraryNames,
-                        const FilePath& filePath,
-                        DocumentPtr doc,
-                        const StringSet* excludeFiles = nullptr);
+                        const StringSet* excludeFiles = nullptr,
+                        XmlReadOptions* readOptions = nullptr);
 
 } // namespace MaterialX
 

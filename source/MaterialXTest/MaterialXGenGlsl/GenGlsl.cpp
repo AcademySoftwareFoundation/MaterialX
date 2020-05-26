@@ -100,7 +100,8 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     loadLibraries({ "stdlib", "pbrlib", "lights" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
@@ -133,6 +134,7 @@ static void generateGlslCode()
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");
 
+    bool writeShadersToDisk = false;
     GlslShaderGeneratorTester tester(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
 
     const mx::GenOptions genOptions;

@@ -179,7 +179,7 @@ class ShaderRenderTester
     }
 
     // Load dependencies
-    void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FilePath searchPath,
+    void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath,
                              mx::DocumentPtr& dependLib);
 
     // Load any additional libraries requird by the generator

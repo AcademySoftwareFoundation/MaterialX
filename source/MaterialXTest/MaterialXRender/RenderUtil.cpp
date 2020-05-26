@@ -68,11 +68,11 @@ void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
     //}
 }
 
-void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FilePath searchPath, mx::DocumentPtr& dependLib)
+void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath, mx::DocumentPtr& dependLib)
 {
     dependLib = mx::createDocument();
 
-    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "stdlib", "pbrlib", "lights" };
     mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
     for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
     {
@@ -161,7 +161,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     addSkipFiles();
 
     // Library search path
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
     // Load in the library dependencies once
     // This will be imported in each test document below
