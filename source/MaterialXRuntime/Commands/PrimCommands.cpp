@@ -9,6 +9,7 @@
 
 #include <MaterialXRuntime/Private/PvtApi.h>
 #include <MaterialXRuntime/Private/Commands/PvtCreatePrimCmd.h>
+#include <MaterialXRuntime/Private/Commands/PvtCopyPrimCmd.h>
 #include <MaterialXRuntime/Private/Commands/PvtRemovePrimCmd.h>
 #include <MaterialXRuntime/Private/Commands/PvtRenamePrimCmd.h>
 #include <MaterialXRuntime/Private/Commands/PvtReparentPrimCmd.h>
@@ -36,6 +37,18 @@ void createPrim(RtStagePtr stage, const RtToken& typeName, const RtPath& path, R
 void createPrim(RtStagePtr stage, const RtToken& typeName, const RtPath& parentPath, const RtToken& name, RtCommandResult& result)
 {
     PvtCommandPtr cmd = PvtCreatePrimCmd::create(stage, typeName, parentPath, name);
+    PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
+}
+
+void copyPrim(RtStagePtr stage, const RtPrim& prim, RtCommandResult& result)
+{
+    PvtCommandPtr cmd = PvtCopyPrimCmd::create(stage, prim, prim.getParent().getPath());
+    PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
+}
+
+void copyPrim(RtStagePtr stage, const RtPrim& prim, const RtPath& parentPath, RtCommandResult& result)
+{
+    PvtCommandPtr cmd = PvtCopyPrimCmd::create(stage, prim, parentPath);
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 

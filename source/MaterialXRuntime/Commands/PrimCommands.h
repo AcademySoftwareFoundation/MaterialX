@@ -28,6 +28,12 @@ namespace RtCommand
     /// If an empty name is given a name will be generated.
     void createPrim(RtStagePtr stage, const RtToken& typeName, const RtPath& parentPath, const RtToken& name, RtCommandResult& result);
 
+    /// Make a copy of the given prim and place the copy at the same parent path.
+    void copyPrim(RtStagePtr stage, const RtPrim& prim, RtCommandResult& result);
+
+    /// Make a copy of the given prim and place the copy at the given parent path.
+    void copyPrim(RtStagePtr stage, const RtPrim& prim, const RtPath& parentPath, RtCommandResult& result);
+
     /// Remove a prim from a stage.
     void removePrim(RtStagePtr stage, const RtPath& path, RtCommandResult& result);
 

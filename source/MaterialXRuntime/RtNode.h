@@ -37,7 +37,7 @@ public:
     RtInput getInput(const RtToken& name) const;
 
     /// Return an iterator traversing all input attributes
-    /// on this node.
+    /// on this node. Shorthand for getPrim().getInputs().
     RtAttrIterator getInputs() const;
 
     /// Return the number of outputs on the node.
@@ -52,7 +52,7 @@ public:
     RtOutput getOutput() const;
 
     /// Return an iterator traversing all output attributes
-    /// on this node.
+    /// on this node. Shorthand for getPrim().getOutputs().
     RtAttrIterator getOutputs() const;
 };
 

@@ -2000,7 +2000,6 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtCallbackId makeConnectionCB_id = mx::RtMessage::addMakeConnectionCallback(makeConnectionCB, &makeConnectionCount);
     mx::RtCallbackId breakConnectionCB_id = mx::RtMessage::addBreakConnectionCallback(breakConnectionCB, &breakConnectionCount);
 
-
     mx::RtCommandResult result;
 
     //
@@ -2014,6 +2013,10 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     REQUIRE(result);
     REQUIRE(result.getObject().isA<mx::RtPrim>());
     mx::RtPrim graph1(result.getObject().asA<mx::RtPrim>());
+    mx::RtNodeGraph ng1(graph1);
+    ng1.createInput(IN1, mx::RtType::FLOAT);
+    ng1.createInput(IN2, mx::RtType::FLOAT);
+    ng1.createOutput(OUT, mx::RtType::FLOAT);
 
     const mx::RtToken addFloatNode("ND_add_float");
 
@@ -2122,8 +2125,55 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     REQUIRE(result);
     REQUIRE(add2.getInput(IN1).getConnection() == add1.getOutput(OUT));
 
-    REQUIRE(makeConnectionCount == 2);
-    REQUIRE(breakConnectionCount == 1);
+    mx::RtCommand::makeConnection(ng1.getInputSocket(IN1), add1.getInput(IN1), result);
+    REQUIRE(result);
+    mx::RtCommand::makeConnection(ng1.getInputSocket(IN2), add1.getInput(IN2), result);
+    REQUIRE(result);
+    mx::RtCommand::makeConnection(add2.getOutput(OUT), ng1.getOutputSocket(OUT), result);
+    REQUIRE(result);
+    mx::RtCommand::breakConnection(add2.getOutput(OUT), ng1.getOutputSocket(OUT), result);
+    REQUIRE(result);
+    mx::RtCommand::undo(result);
+    REQUIRE(result);
+
+    REQUIRE(makeConnectionCount == 6);
+    REQUIRE(breakConnectionCount == 2);
+
+    //
+    // Test prim copy
+    //
+
+    createPrimCount = 0;
+    removePrimCount = 0;
+
+    mx::RtCommand::copyPrim(stage, add1, add1.getParent().getPath(), result);
+    REQUIRE(result);
+    REQUIRE(result.getObject().isA<mx::RtPrim>());
+    mx::RtPrim add1Copy(result.getObject().asA<mx::RtPrim>());
+    REQUIRE(add1Copy.getParent().getPath() == add1.getParent().getPath());
+    REQUIRE(add1Copy.numInputs() == add1.numInputs());
+    REQUIRE(add1Copy.numOutputs() == add1.numOutputs());
+
+    mx::RtCommand::undo(result);
+    REQUIRE(result);
+    REQUIRE(!add1Copy.isValid());
+    mx::RtCommand::redo(result);
+    REQUIRE(result);
+    REQUIRE(add1Copy.isValid());
+
+    mx::RtCommand::copyPrim(stage, graph1, result);
+    REQUIRE(result);
+    REQUIRE(result.getObject().isA<mx::RtPrim>());
+    mx::RtPrim graph1Copy(result.getObject().asA<mx::RtPrim>());
+    REQUIRE(graph1Copy.getParent().getPath() == mx::RtPath("/"));
+    REQUIRE(graph1Copy.numChildren() == graph1.numChildren());
+
+    mx::RtNodeGraph ng1Copy(graph1Copy);
+    REQUIRE(ng1Copy.asStringDot() == ng1.asStringDot());
+
+    REQUIRE(createPrimCount == 3);
+    REQUIRE(removePrimCount == 1);
+
 
     //
     // Test node deletion
@@ -2135,15 +2185,17 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     REQUIRE(result);
     REQUIRE(!add2.isValid());
     REQUIRE(!add1.getOutput(OUT).isConnected());
+    REQUIRE(!ng1.getOutputSocket(OUT).isConnected());
 
     mx::RtCommand::undo(result);
     REQUIRE(result);
     REQUIRE(add2.isValid());
     REQUIRE(add1.getOutput(OUT).isConnected());
     REQUIRE(add2.getInput(IN1).getConnection() == add1.getOutput(OUT));
+    REQUIRE(ng1.getOutputSocket(OUT).getConnection() == add2.getOutput(OUT));
 
-    REQUIRE(makeConnectionCount == 1);
-    REQUIRE(breakConnectionCount == 1);
+    REQUIRE(makeConnectionCount == 2);
+    REQUIRE(breakConnectionCount == 2);
 
     //
     // Test node reparenting

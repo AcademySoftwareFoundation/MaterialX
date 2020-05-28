@@ -107,6 +107,17 @@ public:
     /// of this prim.
     RtAttrIterator getAttributes(RtObjectPredicate predicate = nullptr) const;
 
+    /// Return an iterator traversing all input attributes
+    /// on this prim.
+    RtAttrIterator getInputs() const;
+
+    /// Return an iterator traversing all output attributes
+    /// on this prim.
+    RtAttrIterator getOutputs() const;
+
+    /// Return the number of children in the prim.
+    size_t numChildren() const;
+
     /// Return a child prim by name, or a null object
     /// if no such child prim exists.
     RtPrim getChild(const RtToken& name) const;

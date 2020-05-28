@@ -118,8 +118,7 @@ RtInput RtNode::getInput(const RtToken& name) const
 
 RtAttrIterator RtNode::getInputs() const
 {
-    RtObjTypePredicate<RtInput> filter;
-    return RtAttrIterator(getPrim(), filter);
+    return getPrim().getInputs();
 }
 
 size_t RtNode::numOutputs() const
@@ -141,8 +140,7 @@ RtOutput RtNode::getOutput() const
 
 RtAttrIterator RtNode::getOutputs() const
 {
-    RtObjTypePredicate<RtOutput> filter;
-    return RtAttrIterator(getPrim(), filter);
+    return getPrim().getOutputs();
 }
 
 }

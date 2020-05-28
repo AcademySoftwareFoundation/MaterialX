@@ -284,6 +284,11 @@ public:
         return _value;
     }
 
+    void setValue(const RtValue& v)
+    {
+        _value = v;
+    }
+
     /// Return a string representation for the value of this attribute.
     string getValueString() const
     {

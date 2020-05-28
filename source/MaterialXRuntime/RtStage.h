@@ -98,6 +98,7 @@ protected:
     friend class PvtStage;
     friend class PvtApi;
     friend class PvtCreatePrimCmd;
+    friend class PvtCopyPrimCmd;
     friend class PvtRemovePrimCmd;
 };
 

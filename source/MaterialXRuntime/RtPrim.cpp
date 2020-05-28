@@ -104,6 +104,23 @@ RtAttrIterator RtPrim::getAttributes(RtObjectPredicate filter) const
     return RtAttrIterator(*this, filter);
 }
 
+RtAttrIterator RtPrim::getInputs() const
+{
+    RtObjTypePredicate<RtInput> filter;
+    return RtAttrIterator(*this, filter);
+}
+
+RtAttrIterator RtPrim::getOutputs() const
+{
+    RtObjTypePredicate<RtOutput> filter;
+    return RtAttrIterator(*this, filter);
+}
+
+size_t RtPrim::numChildren() const
+{
+    return hnd()->asA<PvtPrim>()->getAllChildren().size();
+}
+
 RtPrim RtPrim::getChild(const RtToken& name) const
 {
     PvtPrim* child = hnd()->asA<PvtPrim>()->getChild(name);
