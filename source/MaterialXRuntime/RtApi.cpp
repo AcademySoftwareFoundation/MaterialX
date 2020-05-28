@@ -181,6 +181,16 @@ RtTokenVec RtApi::getLibraryNames() const
     return _cast(_ptr)->getLibraryNames();
 }
 
+const FilePath& RtApi::getUserDefinitionPath() const
+{
+    return _cast(_ptr)->getUserDefinitionPath();
+}
+
+void RtApi::setUserDefinitionPath(const FilePath& path)
+{
+    return _cast(_ptr)->setUserDefinitionPath(path);
+}
+
 RtStagePtr RtApi::getLibrary()
 {
     return _cast(_ptr)->getLibraryRoot();

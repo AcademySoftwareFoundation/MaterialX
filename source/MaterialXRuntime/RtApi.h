@@ -129,6 +129,12 @@ public:
     /// Return the library stage containing all loaded libraries.
     RtStagePtr getLibrary();
 
+    /// Set location for non-library user definitions
+    const FilePath& getUserDefinitionPath() const;
+
+    /// Set location for non-library user definitions
+    void setUserDefinitionPath(const FilePath& path);
+
     /// Create a new empty stage.
     RtStagePtr createStage(const RtToken& name);
 
