@@ -34,7 +34,7 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
     if (_functionSource.empty())
     {
         FilePath file(impl.getAttribute("file"));
-        file = context.resolveSourceFile(FilePath("libraries") / file);
+        file = context.resolveSourceFile(file);
         _functionSource = readFile(file);
         if (_functionSource.empty())
         {
