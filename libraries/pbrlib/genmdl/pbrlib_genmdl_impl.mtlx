@@ -59,8 +59,8 @@
   <implementation name="IM_light_genmdl" nodedef="ND_light" sourcecode="mx::pbrlib::mx_light(mxp_edf:{{edf}}, mxp_intensity:{{intensity}}, mxp_exposure:{{exposure}})" language="genmdl"/>
 
   <!-- <displacement> -->
-  <implementation name="IM_displacement_float_genmdl" nodedef="ND_displacement_float" sourcecode="mx::pbrlib::mx_displacement_float(mxp_mxp_displacement:{{mxp_displacement}}, mxp_scale:{{scale}})" language="genmdl"/>
-  <implementation name="IM_displacement_vector3_genmdl" nodedef="ND_displacement_vector3" sourcecode="mx::pbrlib::mx_displacement_vector3(mxp_mxp_displacement:{{mxp_displacement}}, mxp_scale:{{scale}})" language="genmdl"/>
+  <implementation name="IM_displacement_float_genmdl" nodedef="ND_displacement_float" sourcecode="mx::pbrlib::mx_displacement_float(mxp_displacement:{{displacement}}, mxp_scale:{{scale}})" language="genmdl"/>
+  <implementation name="IM_displacement_vector3_genmdl" nodedef="ND_displacement_vector3" sourcecode="mx::pbrlib::mx_displacement_vector3(mxp_displacement:{{displacement}}, mxp_scale:{{scale}})" language="genmdl"/>
 
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genmdl" nodedef="ND_mix_bsdf" sourcecode="mx::pbrlib::mx_mix_bsdf(mxp_fg:{{fg}}, mxp_bg:{{bg}}, mxp_mix:{{mix}})" language="genmdl"/>

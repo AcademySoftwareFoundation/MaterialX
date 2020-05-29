@@ -290,40 +290,57 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             outputPath.removeExtension();
             for (const auto& element : elements)
             {
-                mx::TypedElementPtr targetElement = element;
-                mx::OutputPtr output = targetElement->asA<mx::Output>();
-                mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
-                mx::NodePtr outputNode = targetElement->asA<mx::Node>();
-                mx::NodeDefPtr nodeDef = nullptr;
+                std::vector<mx::TypedElementPtr> targetElements;
+                std::vector<mx::NodeDefPtr> nodeDefs;
+
+                mx::OutputPtr output = element->asA<mx::Output>();
+                mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
+                mx::NodePtr outputNode = element->asA<mx::Node>();
+
                 if (output)
                 {
                     outputNode = output->getConnectedNode();
                     // Handle connected upstream material nodes later on.
                     if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
                     {
-                        nodeDef = outputNode->getNodeDef();
+                        mx::NodeDefPtr nodeDef = outputNode->getNodeDef();
+                        if (nodeDef)
+                        {
+                            nodeDefs.push_back(nodeDef);
+                            targetElements.push_back(output);
+                        }
                     }
                 }
                 else if (shaderRef)
                 {
-                    nodeDef = shaderRef->getNodeDef();
-                }
-
-                // Handle material node checking. For now only check first surface shader if any
-                if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
-                {
-                    std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
-                    if (!shaderNodes.empty())
+                    mx::NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                    if (nodeDef)
                     {
-                        nodeDef = shaderNodes[0]->getNodeDef();
-                        targetElement = shaderNodes[0];
+                        nodeDefs.push_back(nodeDef);
+                        targetElements.push_back(shaderRef);
                     }
                 }
 
-                if (nodeDef)
+                // Get connected shader nodes if a material node.
+                if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
                 {
-                    mx::string elementName = mx::replaceSubstrings(targetElement->getNamePath(), pathMap);
-                    elementName = mx::createValidName(elementName);
+                    std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
+                    for (auto node : shaderNodes)
+                    {
+                        mx::NodeDefPtr nodeDef = node->getNodeDef();
+                        if (nodeDef)
+                        {
+                            nodeDefs.push_back(nodeDef);
+                            targetElements.push_back(node);
+                        }
+                    }
+                }
+
+                for (size_t i=0; i < nodeDefs.size(); ++i)
+                {
+                    const mx::NodeDefPtr& nodeDef = nodeDefs[i];
+                    const mx::TypedElementPtr& targetElement = targetElements[i];
+                    const mx::string elementName = mx::createValidName(mx::replaceSubstrings(targetElement->getNamePath(), pathMap));
                     {
                         renderableSearchTimer.startTimer();
                         mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());
