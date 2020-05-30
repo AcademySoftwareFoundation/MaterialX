@@ -4,6 +4,7 @@ import sys
 import os
 import datetime
 import argparse
+import itertools
 
 try:
     # Use pip to install Pillow and Image to enable image diffs
@@ -20,7 +21,7 @@ def createDiff(image1Path, image2Path, imageDiffPath):
         diff = ImageChops.difference(image1, image2)
         diff.save(imageDiffPath)
     except Exception:
-        print "Failed to create image diff between: " + image1Path + ", " + image2Path
+        print ("Failed to create image diff between: " + image1Path + ", " + image2Path)
 
 def main(args=None):
 
@@ -62,13 +63,12 @@ def main(args=None):
             print ("Number of glsl files " + str(len(glslFiles)) + " does not match number of osl files " +  str(len(oslFiles)) + " in dir: " + subdir)
             print ("GLSL list: " + str(glslFiles))
             print ("OSL files: " + str(oslFiles))
-            continue
-        elif len(glslFiles) > 0 and len(oslFiles) > 0:
+        if len(glslFiles) > 0 or len(oslFiles) > 0:
             fh.write("<h2>" + subdir + ":</h2><br>\n")
             fh.write("<table>\n")
-            for glslFile, oslFile in zip(glslFiles, oslFiles):
-                fullGlslPath = os.path.join(subdir, glslFile)
-                fullOslPath = os.path.join(subdir, oslFile)
+            for glslFile, oslFile in itertools.zip_longest(glslFiles, oslFiles):
+                fullGlslPath = os.path.join(subdir, glslFile) if glslFile else None
+                fullOslPath = os.path.join(subdir, oslFile) if glslFile else None
                 if glslFile and oslFile and DIFF_ENABLED and args.CREATE_DIFF:
                     diffPath = fullGlslPath[0:-8] + "diff.png"
                     createDiff(fullGlslPath, fullOslPath, diffPath)
