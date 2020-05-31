@@ -17,14 +17,13 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D sample
     return textureLod(sampler, uv, lod).rgb;
 }
 
-// Only GGX is supported for now and the distribution argument is ignored
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, vec3 F90, int distribution)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, vec3 F90, vec3 iorN, vec3 iorK, int distribution, int fresnelModel)
 {
     vec3 Y = normalize(cross(N, X));
     X = cross(Y, N);
 
     // Compute shared dot products.
-    float NdotV = clamp(dot(N, V), 1e-8, 1.0);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
     
     // Integrate outgoing radiance using filtered importance sampling.
     // http://cgg.mff.cuni.cz/~jaroslav/papers/2008-egsr-fis/2008-egsr-fis-final-embedded.pdf
@@ -38,9 +37,9 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, ve
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
-        float NdotH = clamp(dot(N, H), 1e-8, 1.0);
-        float NdotL = clamp(dot(N, L), 1e-8, 1.0);
-        float VdotH = clamp(dot(V, H), 1e-8, 1.0);
+        float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
+        float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
+        float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
         float LdotH = VdotH;
 
         // Sample the environment light from the given direction.
@@ -49,7 +48,9 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, ve
         vec3 sampleColor = mx_latlong_map_lookup(L, $envMatrix, lod, $envRadiance);
 
         // Compute the Fresnel term.
-        vec3 F = mx_fresnel_schlick(VdotH, F0, F90, 5.0);
+        vec3 F = fresnelModel == 0 ?
+                 mx_fresnel_schlick(VdotH, F0, F90, 5.0) :
+                 mx_fresnel_conductor(VdotH, iorN, iorK);
 
         // Compute the geometric term.
         float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));

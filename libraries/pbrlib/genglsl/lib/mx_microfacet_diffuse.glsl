@@ -4,8 +4,8 @@
 // based on https://mimosa-pudica.net/improved-oren-nayar.html.
 float mx_oren_nayar_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 {
-    float LdotV = dot(L, V);
-    float NdotV = dot(N, V);
+    float LdotV = clamp(dot(L, V), M_FLOAT_EPS, 1.0);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
     float s = LdotV - NdotL * NdotV;
     float stinv = (s > 0.0f) ? s / max(NdotL, NdotV) : 0.0;
 
@@ -21,8 +21,8 @@ float mx_oren_nayar_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness
 float mx_burley_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 {
     vec3 H = normalize(L + V);
-    float LdotH = max(dot(L, H), 0.0);
-    float NdotV = max(dot(N, V), 0.0);
+    float LdotH = clamp(dot(L, H), M_FLOAT_EPS, 1.0);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     float F90 = 0.5 + (2.0 * roughness * mx_square(LdotH));
     float refL = mx_fresnel_schlick(NdotL, 1.0, F90);

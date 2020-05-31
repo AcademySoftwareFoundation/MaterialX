@@ -8,16 +8,11 @@ void mx_sheen_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float ro
         return;
     }
 
-    float NdotL = dot(N,L);
-    float NdotV = dot(N,V);
-    if (NdotL <= 0.0 || NdotV <= 0.0)
-    {
-        result = base;
-        return;
-    }
-
     vec3 H = normalize(L + V);
-    float NdotH = dot(N, H);
+
+    float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
+    float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
 
     float alpha = clamp(roughness, M_FLOAT_EPS, 1.0);
     float D = mx_imageworks_sheen_NDF(NdotH, alpha);
@@ -42,7 +37,8 @@ void mx_sheen_brdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
         return;
     }
 
-    float NdotV = abs(dot(N,V));
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
+
     float alpha = clamp(roughness, M_FLOAT_EPS, 1.0);
     float dirAlbedo = mx_imageworks_sheen_directional_albedo(NdotV, alpha);
 

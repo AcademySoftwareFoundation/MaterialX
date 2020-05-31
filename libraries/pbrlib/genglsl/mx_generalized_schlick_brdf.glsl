@@ -8,19 +8,13 @@ void mx_generalized_schlick_brdf_reflection(vec3 L, vec3 V, float weight, vec3 c
         return;
     }
 
-    float NdotL = dot(N,L);
-    float NdotV = dot(N,V);
-    if (NdotL <= 0.0 || NdotV <= 0.0)
-    {
-        result = base;
-        return;
-    }
-
     vec3 Y = normalize(cross(N, X));
-
     vec3 H = normalize(L + V);
-    float NdotH = dot(N, H);
-    float VdotH = dot(V, H);
+
+    float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
+    float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
+    float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
     float avgRoughness = mx_average_roughness(roughness);
 
@@ -50,10 +44,10 @@ void mx_generalized_schlick_brdf_transmission(vec3 V, float weight, vec3 color0,
     // inverse of top layer reflectance.
 
     // Abs here to allow transparency through backfaces
-    float NdotV = abs(dot(N, V)); 
-    vec3 F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
+    float NdotV = abs(dot(N, V));
 
     float avgRoughness = mx_average_roughness(roughness);
+    vec3 F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
 
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
     vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
@@ -70,16 +64,16 @@ void mx_generalized_schlick_brdf_indirect(vec3 V, float weight, vec3 color0, vec
         return;
     }
 
-    float NdotV = dot(N, V);
-    vec3 F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     float avgRoughness = mx_average_roughness(roughness);
+    vec3 F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
 
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
     vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
-    vec3 Li = mx_environment_radiance(N, V, X, roughness, color0, color90, distribution);
+    vec3 Li = mx_environment_radiance(N, V, X, roughness, color0, color90, vec3(1.0), vec3(1.0), distribution, 0);
 
     result = Li * comp * weight                     // Top layer reflection
            + base * (1.0 - avgDirAlbedo * weight);  // Base layer reflection attenuated by top layer

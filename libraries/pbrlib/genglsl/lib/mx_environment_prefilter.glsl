@@ -27,10 +27,10 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lodBias, sampler2D sa
     return vec3(0.0);
 }
 
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, vec3 F90, int distribution)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, vec3 F90, vec3 iorN, vec3 iorK, int distribution, int fresnelModel)
 {
     vec3 L = reflect(-V, N);
-    float NdotV = dot(N, V);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     float avgRoughness = mx_average_roughness(roughness);
 
