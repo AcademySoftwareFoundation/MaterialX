@@ -1359,7 +1359,10 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
 
     // Load all content into a document.
     DocumentPtr doc = createDocument();
-    MaterialX::loadLibraries(libraryPaths, searchPaths, doc, nullptr, nullptr);
+    XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
+    readOptions.applyFutureUpdates = true;
+    MaterialX::loadLibraries(libraryPaths, searchPaths, doc, nullptr, &readOptions);
 
     StringSet uris = doc->getReferencedSourceUris();
     for (const string& uri : uris)
