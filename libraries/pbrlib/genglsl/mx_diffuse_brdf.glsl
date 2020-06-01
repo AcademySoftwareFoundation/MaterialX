@@ -13,7 +13,7 @@ void mx_diffuse_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float 
     result = color * weight * NdotL * M_PI_INV;
     if (roughness > 0.0)
     {
-        result *= mx_orennayar(L, V, normal, NdotL, roughness);
+        result *= mx_oren_nayar_diffuse(L, V, normal, NdotL, roughness);
     }
 }
 
