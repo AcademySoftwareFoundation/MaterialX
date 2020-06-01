@@ -197,9 +197,14 @@ int main(int argc, char* const argv[])
     mx::FilePath installSearchPath = mx::FilePath::getModulePath().getParentPath();
     mx::FilePath devSearchPath = installSearchPath.getParentPath().getParentPath().getParentPath();
     searchPath.append(installSearchPath);
-    if (!devSearchPath.isEmpty() && (devSearchPath / "libraries").exists())
+    if (!devSearchPath.isEmpty() && devSearchPath.exists())
     {
         searchPath.append(devSearchPath);
+        devSearchPath = devSearchPath / "libraries";
+        if (devSearchPath.exists())
+        {
+            searchPath.append(devSearchPath);
+        }
     }
 
     try
