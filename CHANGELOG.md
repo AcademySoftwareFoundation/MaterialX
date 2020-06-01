@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.37.1] - Development
+## [1.37.1] - 2020-06-01
 
 ### Added
 - Added command-line options for mesh, light, and camera transforms to the viewer.
