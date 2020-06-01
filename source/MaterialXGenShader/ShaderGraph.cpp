@@ -39,20 +39,27 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
     {
         if (!port->isA<Output>())
         {
+            ShaderGraphInputSocket* inputSocket = nullptr;
             const string& portValue = port->getResolvedValueString();
             std::pair<const TypeDesc*, ValuePtr> enumResult;
-            if (context.getShaderGenerator().remapEnumeration(*port, portValue, enumResult))
+            const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+            const TypeDesc* portType = TypeDesc::get(port->getType());
+            if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
-                ShaderGraphInputSocket* inputSocket = addInputSocket(port->getName(), enumResult.first);
+                inputSocket = addInputSocket(port->getName(), enumResult.first);
                 inputSocket->setValue(enumResult.second);
             }
             else
             {
-                ShaderGraphInputSocket* inputSocket = addInputSocket(port->getName(), TypeDesc::get(port->getType()));
+                inputSocket = addInputSocket(port->getName(), portType);
                 if (!portValue.empty())
                 {
                     inputSocket->setValue(port->getValue());
                 }
+            }
+            if (port->isA<Parameter>())
+            {
+                inputSocket->setUniform();
             }
         }
     }
@@ -237,7 +244,9 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
             if (spaceInput && nodeDefSpaceInput)
             {
                 std::pair<const TypeDesc*, ValuePtr> enumResult;
-                if (context.getShaderGenerator().remapEnumeration(*nodeDefSpaceInput, space, enumResult))
+                const string& enumNames = nodeDefSpaceInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+                const TypeDesc* portType = TypeDesc::get(nodeDefSpaceInput->getType());
+                if (context.getShaderGenerator().getSyntax().remapEnumeration(space, portType, enumNames, enumResult))
                 {
                     spaceInput->setValue(enumResult.second);
                 }
@@ -427,21 +436,16 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     // Create output sockets from the nodegraph
     graph->addOutputSockets(nodeGraph);
 
-    if (context.getOptions().addUpstreamDependencies)
+    // Traverse all outputs and create all internal nodes
+    for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
     {
-        // Traverse all outputs and create all upstream dependencies
-        for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
-        {
-            graph->addUpstreamDependencies(*graphOutput, nullptr, context);
-        }
+        graph->addUpstreamDependencies(*graphOutput, nullptr, context);
     }
 
     // Add classification according to last node
     // TODO: What if the graph has multiple outputs?
-    {
-        ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-        graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
-    }
+    ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
+    graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
 
     // Finalize the graph
     graph->finalize(context);
@@ -774,7 +778,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     }
                 }
 
-                bool addedDefault = false;
                 if (nodedefPort->isA<Input>())
                 {
                     GeomPropDefPtr geomprop = nodedefPort->asA<Input>()->getDefaultGeomProp();
@@ -782,21 +785,11 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     {
                         inputSocket->setGeomProp(geomprop->getName());
                         input->setGeomProp(geomprop->getName());
-
-                        const string& connection = nodePort ? nodePort->asA<Input>()->getOutputString() : EMPTY_STRING;
-                        if (connection.empty())
-                        {
-                            graph->addDefaultGeomNode(input, *geomprop, context);
-                            addedDefault = true;
-                        }
                     }
                 }
 
                 // Connect to the graph input
-                if (!addedDefault)
-                {
-                    inputSocket->makeConnection(input);
-                }
+                inputSocket->makeConnection(input);
 
                 // Share metadata.
                 inputSocket->setMetadata(input->getMetadata());
@@ -1041,15 +1034,14 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
         if (!interfaceName.empty())
         {
             ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
-            if (!inputSocket)
+            if (inputSocket)
             {
-                throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on nodegraph '" + getName() + "'");
-            }
-            ShaderInput* input = newNode->getInput(elem->getName());
+                ShaderInput* input = newNode->getInput(elem->getName());
 
-            if (input)
-            {
-                input->makeConnection(inputSocket);
+                if (input)
+                {
+                    input->makeConnection(inputSocket);
+                }
             }
         }
     }
@@ -1219,6 +1211,10 @@ void ShaderGraph::finalize(GenContext& context)
                             inputSocket->setPath(input->getPath());
                             inputSocket->setValue(input->getValue());
                             inputSocket->setUnit(input->getUnit());
+                            if (input->isUniform())
+                            {
+                                inputSocket->setUniform();
+                            }
                         }
                         inputSocket->makeConnection(input);
                         inputSocket->setMetadata(input->getMetadata());
@@ -1258,6 +1254,9 @@ void ShaderGraph::finalize(GenContext& context)
             }
         }
     }
+
+    // Let the generator perform any custom edits on the graph
+    context.getShaderGenerator().finalizeShaderGraph(*this);
 }
 
 void ShaderGraph::disconnect(ShaderNode* node) const
@@ -1574,7 +1573,6 @@ void ShaderGraph::setVariableNames(GenContext& context)
         }
         for (ShaderOutput* output : node->getOutputs())
         {
-            // Node outputs use long names for better code readability
             string variable = output->getFullName();
             variable = syntax.getVariableName(variable, output->getType(), _identifiers);
             output->setVariable(variable);

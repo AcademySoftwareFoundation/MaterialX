@@ -26,7 +26,7 @@ const string& SurfaceShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void SurfaceShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void SurfaceShaderNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // TODO: 
     // The surface shader needs position, view position and light sources. We should solve this by adding some 
@@ -41,8 +41,9 @@ void SurfaceShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shad
     addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_POSITION_WORLD, vs, ps);
 
     addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, HW::T_VIEW_POSITION, ps);
-    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
-    numActiveLights->setValue(Value::createValue<int>(0));
+
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    shadergen.addStageLightingUniforms(context, ps);
 }
 
 void SurfaceShaderNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const

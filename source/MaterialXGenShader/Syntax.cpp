@@ -10,10 +10,14 @@
 
 #include <MaterialXCore/Value.h>
 
+#include <regex>
+
 namespace MaterialX
 {
 
 const string Syntax::NEWLINE = "\n";
+const string Syntax::SEMICOLON = ";";
+const string Syntax::COMMA = ",";
 const string Syntax::INDENTATION = "    ";
 const string Syntax::STRING_QUOTE = "\"";
 const string Syntax::INCLUDE_STATEMENT = "#include";
@@ -21,17 +25,13 @@ const string Syntax::SINGLE_LINE_COMMENT = "// ";
 const string Syntax::BEGIN_MULTI_LINE_COMMENT = "/* ";
 const string Syntax::END_MULTI_LINE_COMMENT = " */";
 
-namespace {
-
-const std::unordered_map<char, size_t> CHANNELS_MAPPING =
+const std::unordered_map<char, size_t> Syntax::CHANNELS_MAPPING =
 {
     { 'r', 0 }, { 'x', 0 },
     { 'g', 1 }, { 'y', 1 },
     { 'b', 2 }, { 'z', 2 },
     { 'a', 3 }, { 'w', 3 }
 };
-
-} // anonymous namespace
 
 //
 // Syntax methods
@@ -78,6 +78,24 @@ const TypeSyntax& Syntax::getTypeSyntax(const TypeDesc* type) const
         throw ExceptionShaderGenError("No syntax is defined for the given type '" + type->getName() + "'.");
     }
     return *_typeSyntaxes[it->second];
+}
+
+const TypeDesc* Syntax::getTypeDescription(const TypeSyntaxPtr& typeSyntax) const
+{
+    auto pos = std::find(_typeSyntaxes.begin(), _typeSyntaxes.end(), typeSyntax);
+    if (pos == _typeSyntaxes.end())
+    {
+        throw ExceptionShaderGenError("The syntax'" + typeSyntax->getName() + "' is not registered.");
+    }
+    const size_t index = static_cast<size_t>(std::distance(_typeSyntaxes.begin(), pos));
+    for (auto item : _typeSyntaxByType)
+    {
+        if (item.second == index)
+        {
+            return item.first;
+        }
+    }
+    return nullptr;
 }
 
 string Syntax::getValue(const TypeDesc* type, const Value& value, bool uniform) const
@@ -255,7 +273,7 @@ bool Syntax::typeSupported(const TypeDesc*) const
     return true;
 }
 
-string Syntax::getArraySuffix(const TypeDesc* type, const Value& value) const
+string Syntax::getArrayVariableSuffix(const TypeDesc* type, const Value& value) const
 {
     if (type->isArray())
     {
@@ -281,9 +299,10 @@ static bool isInvalidChar(char c)
 void Syntax::makeValidName(string& name) const
 {
     std::replace_if(name.begin(), name.end(), isInvalidChar, '_');
-    if (_invalidTokens.size())
+    for (auto tokenPair : _invalidTokens)
     {
-        name = replaceSubstrings(name, _invalidTokens);
+        std::regex expression(tokenPair.first);
+        name = std::regex_replace(name, expression, tokenPair.second);
     }
 }
 
@@ -319,6 +338,10 @@ string Syntax::getVariableName(const string& name, const TypeDesc* /*type*/, Ide
     return variable;
 }
 
+bool Syntax::remapEnumeration(const string&, const TypeDesc*, const string&, std::pair<const TypeDesc*, ValuePtr>&) const
+{
+    return false;
+}
 
 const StringVec TypeSyntax::EMPTY_MEMBERS;
 

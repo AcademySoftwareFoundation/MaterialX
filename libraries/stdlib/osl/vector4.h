@@ -286,6 +286,19 @@ vector4 min(vector4 a, float b)
     return min(a, vector4(b, b, b, b));
 }
 
+vector4 mod(vector4 a, vector4 b)
+{
+    return vector4(mod(a.x, b.x),
+                   mod(a.y, b.y),
+                   mod(a.z, b.z),
+                   mod(a.w, b.w));
+}
+
+vector4 mod(vector4 a, float b)
+{
+    return mod(a, vector4(b, b, b, b));
+}
+
 vector4 fmod(vector4 a, vector4 b)
 {
     return vector4 (fmod(a.x, b.x),

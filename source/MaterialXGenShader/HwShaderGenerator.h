@@ -352,6 +352,9 @@ public:
     virtual void emitEdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
                               GenContext& context, ShaderStage& stage, string& edf) const;
 
+    /// Emit code for active light count definitions and uniforms
+    virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
+
     /// Return the closure contexts defined for the given node.
     void getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const;
 

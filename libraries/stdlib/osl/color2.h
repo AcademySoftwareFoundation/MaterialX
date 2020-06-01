@@ -242,6 +242,22 @@ color2 min(color2 a, float b)
                   min(a.a, b));
 }
 
+color2 mod(color2 a, color2 b)
+{
+    return color2(mod(a.r, b.r),
+                  mod(a.a, b.a));
+}
+
+color2 mod(color2 a, int b)
+{
+    return mod(a, color2(b, b));
+}
+
+color2 mod(color2 a, float b)
+{
+    return mod(a, color2(b, b));
+}
+
 color2 fmod(color2 a, color2 b)
 {
     return color2(fmod(a.r, b.r),

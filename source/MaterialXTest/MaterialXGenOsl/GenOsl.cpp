@@ -201,7 +201,8 @@ static void generateOslCode()
     srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/osl"));
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
 
-    OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
+    bool writeShadersToDisk = false;
+    OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
     tester.addSkipLibraryFiles();
 
     const mx::GenOptions genOptions;

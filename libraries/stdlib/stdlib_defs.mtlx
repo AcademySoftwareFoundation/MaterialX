@@ -2575,7 +2575,7 @@
   <nodedef name="ND_rotate3d_vector3" node="rotate3d" nodegroup="math">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
     <input name="amount" type="float" value="0.0" unittype="angle" unit="degree"/>
-    <parameter name="axis" type="vector3" value="0.0, 1.0, 0.0"/>
+    <input name="axis" type="vector3" value="0.0, 1.0, 0.0"/>
     <output name="out" type="vector3" defaultinput="in"/>
   </nodedef>
 

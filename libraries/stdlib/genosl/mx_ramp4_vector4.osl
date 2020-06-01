@@ -1,8 +1,0 @@
-void mx_ramp4_vector4(vector4 valuetl, vector4 valuetr, vector4 valuebl, vector4 valuebr, vector2 texcoord, output vector4 result)
-{
-    float ss = clamp(texcoord.x, 0, 1);
-    float tt = clamp(texcoord.y, 0, 1);
-    result = mix(mix(valuetl, valuetr, ss),
-                 mix(valuebl, valuebr, ss),
-                 tt);
-}

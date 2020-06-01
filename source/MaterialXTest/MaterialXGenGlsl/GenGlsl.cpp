@@ -134,7 +134,8 @@ static void generateGlslCode()
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");
 
-    GlslShaderGeneratorTester tester(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
+    bool writeShadersToDisk = false;
+    GlslShaderGeneratorTester tester(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");

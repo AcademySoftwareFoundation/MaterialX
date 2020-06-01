@@ -604,4 +604,14 @@ ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(const NodeGrap
     return HwCompoundNode::create();
 }
 
+void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStage& stage) const
+{
+    // Create uniform for number of active light sources
+    if (context.getOptions().hwMaxActiveLightSources > 0)
+    {
+        ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, stage);
+        numActiveLights->setValue(Value::createValue<int>(0));
+    }
+}
+
 } // namespace MaterialX

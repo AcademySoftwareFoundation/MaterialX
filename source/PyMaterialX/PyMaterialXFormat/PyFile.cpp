@@ -45,7 +45,8 @@ void bindPyFile(py::module& mod)
         .def("getFilesInDirectory", &mx::FilePath::getFilesInDirectory)
         .def("getSubDirectories", &mx::FilePath::getSubDirectories)
         .def("createDirectory", &mx::FilePath::createDirectory)
-        .def_static("getCurrentPath", &mx::FilePath::getCurrentPath);
+        .def_static("getCurrentPath", &mx::FilePath::getCurrentPath)
+        .def_static("getModulePath", &mx::FilePath::getModulePath);
 
     py::class_<mx::FileSearchPath>(mod, "FileSearchPath")
         .def(py::init<>())

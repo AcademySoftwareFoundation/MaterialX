@@ -16,6 +16,7 @@ option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires t
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
+option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
@@ -41,6 +42,14 @@ set(MATERIALX_DEBUG_POSTFIX "" CACHE STRING "Postfix to append to the target fil
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
 set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.g. location of stdosl.h")
+
+# Helpers for MDL validation
+if (MATERIALX_BUILD_GEN_MDL)
+    set(MATERIALX_MDLC_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
+    set(MATERIALX_MDL_RENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the mdl renderer binary.")
+    set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
+    set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
+endif()
 
 # Settings to define installation layout
 set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
@@ -69,6 +78,11 @@ mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_INSTALL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
 mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
+if (MATERIALX_BUILD_GEN_MDL)
+    mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
+    mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
+    mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
+endif()
 
 # Add global definitions
 add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
@@ -79,6 +93,13 @@ if(MATERIALX_BUILD_OIIO)
 endif()
 if(MATERIALX_TEST_RENDER)
     add_definitions(-DMATERIALX_TEST_RENDER)
+endif()
+
+if (MATERIALX_BUILD_GEN_MDL)
+    add_definitions(-DMATERIALX_MDLC_EXECUTABLE=\"${MATERIALX_MDLC_EXECUTABLE}\")
+    add_definitions(-DMATERIALX_MDL_RENDER_EXECUTABLE=\"${MATERIALX_MDL_RENDER_EXECUTABLE}\")
+    add_definitions(-DMATERIALX_MDL_MODULE_PATHS=\"${MATERIALX_MDL_MODULE_PATHS}\")
+    add_definitions(-DMATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_MDL_MODULE_PATH}\")
 endif()
 
 # Adjust the default installation path
@@ -123,13 +144,19 @@ add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 
 # Add shader generation subdirectories
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL)
     add_subdirectory(source/MaterialXGenShader)
     if (MATERIALX_BUILD_GEN_GLSL)
+        add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXGenGlsl)
     endif()
     if (MATERIALX_BUILD_GEN_OSL)
+        add_definitions(-DMATERIALX_BUILD_GEN_OSL)
         add_subdirectory(source/MaterialXGenOsl)
+    endif()
+    if (MATERIALX_BUILD_GEN_MDL)
+        add_definitions(-DMATERIALX_BUILD_GEN_MDL)
+        add_subdirectory(source/MaterialXGenMdl)
     endif()
     # TODO: Add only those libraries that are required for enabled generators
     add_subdirectory(libraries)

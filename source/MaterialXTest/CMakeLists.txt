@@ -36,7 +36,7 @@ target_link_libraries(MaterialXTest MaterialXCore)
 add_subdirectory(MaterialXFormat)
 target_link_libraries(MaterialXTest MaterialXFormat)
 
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL)
   add_subdirectory(MaterialXGenShader)
   target_link_libraries(MaterialXTest MaterialXGenShader)
   if(MATERIALX_BUILD_GEN_GLSL)
@@ -46,6 +46,10 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL)
   if(MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(MaterialXGenOsl)
     target_link_libraries(MaterialXTest MaterialXGenOsl)
+  endif()
+  if(MATERIALX_BUILD_GEN_MDL)
+    add_subdirectory(MaterialXGenMdl)
+    target_link_libraries(MaterialXTest MaterialXGenMdl)
   endif()
 endif()
 
@@ -81,6 +85,11 @@ install(DIRECTORY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/refer
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stdlib/osl/"
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl
     FILES_MATCHING PATTERN "*.h")
+
+if(MATERIALX_BUILD_GEN_MDL)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
+endif()
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory

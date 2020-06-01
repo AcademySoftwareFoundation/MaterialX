@@ -21,6 +21,9 @@
 
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/GeometryHandler.h>
+#if defined(MATERIALX_BUILD_OIIO)
+#include <MaterialXRender/OiioImageLoader.h>
+#endif
 
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
@@ -116,7 +119,11 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
         _renderer->initialize();
 
         // Set image handler on renderer
+#if defined(MATERIALX_BUILD_OIIO)
+        mx::OiioImageLoaderPtr stbLoader = mx::OiioImageLoader::create();
+#else
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
+#endif
         mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
         _renderer->setImageHandler(imageHandler);
 

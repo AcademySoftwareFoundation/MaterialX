@@ -58,7 +58,7 @@ void LightShaderNodeGlsl::initialize(const InterfaceElement& element, GenContext
     }
 }
 
-void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
@@ -70,9 +70,8 @@ void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader
         lightData.add(u->getType(), u->getName());
     }
 
-    // Create uniform for number of active light sources
-    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
-    numActiveLights->setValue(Value::createValue<int>(0));
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    shadergen.addStageLightingUniforms(context, ps);
 }
 
 void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
