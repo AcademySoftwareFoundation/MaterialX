@@ -44,6 +44,8 @@ target_link_libraries(
     MaterialXView
     MaterialXFormat
     MaterialXGenGlsl
+    MaterialXGenOsl
+    MaterialXGenMdl
     MaterialXRenderGlsl
     nanogui
     ${NANOGUI_EXTRA_LIBS})
