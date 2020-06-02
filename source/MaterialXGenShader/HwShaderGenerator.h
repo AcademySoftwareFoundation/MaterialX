@@ -190,6 +190,7 @@ namespace HW
     extern const string VERTEX_DATA;      // Connector block for data transfer from vertex stage to pixel stage.
     extern const string PRIVATE_UNIFORMS; // Uniform inputs set privately by application.
     extern const string PUBLIC_UNIFORMS;  // Uniform inputs visible in UI and set by user.
+    extern const string SAMPLER_UNIFORMS; // Uniform inputs for all sampler texture objects.
     extern const string LIGHT_DATA;       // Uniform inputs for light sources.
     extern const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
@@ -204,6 +205,7 @@ namespace HW
     /// User data names.
     extern const string USER_DATA_CLOSURE_CONTEXT;
     extern const string USER_DATA_LIGHT_SHADERS;
+    extern const string USER_DATA_BINDING_CONTEXT;
 }
 
 namespace Stage
@@ -215,6 +217,7 @@ namespace Stage
 class HwClosureContext;
 class HwLightShaders;
 class HwShaderGenerator;
+class HwResourceBindingContext;
 
 /// Shared pointer to a HwClosureContext
 using HwClosureContextPtr = shared_ptr<class HwClosureContext>;
@@ -222,6 +225,8 @@ using HwClosureContextPtr = shared_ptr<class HwClosureContext>;
 using HwLightShadersPtr = shared_ptr<class HwLightShaders>;
 /// Shared pointer to a HwShaderGenerator
 using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
+/// Shared pointer to a HwResourceBindingContext
+using HwResourceBindingContextPtr = shared_ptr<class HwResourceBindingContext>;
 
 /// @class HwClosureContext
 /// Class representing a context for closure evaluation on hardware targets.
@@ -387,6 +392,21 @@ protected:
     HwClosureContextPtr _defTransmission;
     HwClosureContextPtr _defIndirect;
     HwClosureContextPtr _defEmission;
+};
+
+/// @class HwResourceBinding
+/// Class representing a context for resource binding for hardware resources.
+class HwResourceBindingContext : public GenUserData
+{
+public:
+    virtual ~HwResourceBindingContext() {}
+
+    // Emit directives required for binding support 
+    virtual void emitDirectives(GenContext& context, ShaderStage& stage) = 0;
+
+    // Emit resource blocks with binding information
+    virtual void emitResourceBindingBlocks(GenContext& context, const VariableBlock& uniforms, SyntaxPtr syntax, ShaderStage& stage) = 0;
+
 };
 
 } // namespace MaterialX

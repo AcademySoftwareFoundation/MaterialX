@@ -191,6 +191,9 @@ class ShaderGeneratorTester
     // Add unit system
     virtual void addUnitSystem();
 
+    // Add user data 
+    virtual void addUserData(mx::GenContext&) {}
+
     // Load in dependent libraries
     virtual void setupDependentLibraries();
 
@@ -210,7 +213,7 @@ class ShaderGeneratorTester
                               std::ostream& log, mx::StringVec testStages, mx::StringVec& sourceCode);
 
     // Run test for source code generation
-    void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);
+    void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath, bool enableUserData = false);
 
     // Compile generated source code. Default implementation does nothing.
     virtual void compileSource(const std::vector<mx::FilePath>& /*sourceCodePaths*/) {};

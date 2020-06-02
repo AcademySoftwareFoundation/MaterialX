@@ -305,8 +305,15 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
 
 void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    // Add version directive
+    HwResourceBindingContextPtr resourceBindingCtx =
+        context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+
+    // Add directives
     emitLine("#version " + getVersion(), stage, false);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->emitDirectives(context, stage);
+    }
     emitLineBreak(stage);
 
     // Add all constants
@@ -324,8 +331,15 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
         if (!uniforms.empty())
         {
             emitComment("Uniform block: " + uniforms.getName(), stage);
-            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
-            emitLineBreak(stage);
+            if (resourceBindingCtx)
+            {
+                resourceBindingCtx->emitResourceBindingBlocks(context, uniforms, _syntax, stage);
+            }
+            else
+            {
+                emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
+                emitLineBreak(stage);
+            }
         }
     }
 
@@ -388,8 +402,16 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    // Add version directive
+
+    HwResourceBindingContextPtr resourceBindingCtx =
+        context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+
+    // Add directives
     emitLine("#version " + getVersion(), stage, false);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->emitDirectives(context, stage);
+    }
     emitLineBreak(stage);
 
     // Add global constants and type definitions
@@ -421,8 +443,15 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         if (!uniforms.empty() && uniforms.getName() != HW::LIGHT_DATA)
         {
             emitComment("Uniform block: " + uniforms.getName(), stage);
-            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
-            emitLineBreak(stage);
+            if (resourceBindingCtx)
+            {
+                resourceBindingCtx->emitResourceBindingBlocks(context, uniforms, _syntax, stage);
+            }
+            else
+            {
+                emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
+                emitLineBreak(stage);
+            }
         }
     }
 
@@ -775,5 +804,4 @@ bool GlslImplementation::isEditable(const ShaderInput& input) const
 {
     return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
-
 }

@@ -15,6 +15,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
+#include <MaterialXGenGlsl/GlslResourceBindingContext.h>
 
 namespace mx = MaterialX;
 
@@ -121,6 +122,12 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
+// Add user data to context
+void GlslShaderGeneratorTester::addUserData(mx::GenContext& context)
+{
+    context.pushUserData(mx::HW::USER_DATA_BINDING_CONTEXT, mx::GlslResourceBindingContext::create());
+}
+
 static void generateGlslCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
@@ -140,6 +147,14 @@ static void generateGlslCode()
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
+
+    // Test glsl 400 with uniform layout qualifier extensions
+    const mx::FilePath glsl42LogPath("genglsl_glsl420_layout_generate_test.txt");
+    writeShadersToDisk = false;
+    GlslShaderGeneratorTester testerglsl42(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, glsl42LogPath, writeShadersToDisk);
+    
+    // enable tester to use userdata
+    testerglsl42.validate(genOptions, optionsFilePath, true);
 }
 
 TEST_CASE("GenShader: GLSL Shader Generation", "[genglsl]")

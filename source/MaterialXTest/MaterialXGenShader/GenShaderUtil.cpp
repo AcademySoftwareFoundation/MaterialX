@@ -20,6 +20,7 @@ namespace mx = MaterialX;
 
 namespace GenShaderUtil
 {
+    const std::string TEST_USER_DATA_SUFFIX = "_ud";
 
 namespace
 {
@@ -569,7 +570,7 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
     context.getOptions().hwMaxActiveLightSources = lightSourceCount;
 }
 
-void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath)
+void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath, bool enableUserData)
 {
     // Start logging
     _logFile.open(_logFilePath);
@@ -691,6 +692,13 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         findLights(doc, _lights);
         registerLights(doc, _lights, context);
 
+
+        // Add any userdata if required
+        if (enableUserData)
+        {
+            addUserData(context);
+        }
+
         // Find elements to render in the document
         std::vector<mx::TypedElementPtr> elements;
         try
@@ -789,6 +797,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     }
                     else if (_writeShadersToDisk && sourceCode.size())
                     {
+                        const std::string udsuffix(enableUserData ? TEST_USER_DATA_SUFFIX : mx::EMPTY_STRING);
+
                         mx::FilePath path = element->getActiveSourceUri();
                         if (!path.isEmpty())
                         {
@@ -828,7 +838,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                         {
                             for (size_t i=0; i<sourceCode.size(); ++i)
                             {
-                                const mx::FilePath filename = path / (elementName + "." + _testStages[i] + "." + getFileExtensionForLanguage(_shaderGenerator->getLanguage()));
+                                const mx::FilePath filename = path / (elementName + udsuffix + "." + _testStages[i] + "." + getFileExtensionForLanguage(_shaderGenerator->getLanguage()));
                                 sourceCodePaths.push_back(filename);
                                 std::ofstream file(filename.asString());
                                 file << sourceCode[i];
