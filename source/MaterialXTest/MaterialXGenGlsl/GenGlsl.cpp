@@ -128,7 +128,7 @@ void GlslShaderGeneratorTester::addUserData(mx::GenContext& context)
     context.pushUserData(mx::HW::USER_DATA_BINDING_CONTEXT, mx::GlslResourceBindingContext::create());
 }
 
-static void generateGlslCode()
+static void generateGlslCode(bool generateLayout = false)
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
     const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
@@ -139,25 +139,25 @@ static void generateGlslCode()
     testRootPaths.push_back(testRootPath3);
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");
-
     bool writeShadersToDisk = false;
-    GlslShaderGeneratorTester tester(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
-    tester.validate(genOptions, optionsFilePath);
 
-    // Test glsl 400 with uniform layout qualifier extensions
-    const mx::FilePath glsl42LogPath("genglsl_glsl420_layout_generate_test.txt");
-    writeShadersToDisk = false;
-    GlslShaderGeneratorTester testerglsl42(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, glsl42LogPath, writeShadersToDisk);
-    
-    // enable tester to use userdata
-    testerglsl42.validate(genOptions, optionsFilePath, true);
+    const mx::FilePath logPath(generateLayout ? "genglsl_glsl420_layout_generate_test.txt" : "genglsl_glsl400_generate_test.txt");
+
+    GlslShaderGeneratorTester tester(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
+    tester.validate(genOptions, optionsFilePath, generateLayout);
 }
 
 TEST_CASE("GenShader: GLSL Shader Generation", "[genglsl]")
 {
+    // Generate with standard GLSL i.e version 400
     generateGlslCode();
+}
+
+TEST_CASE("GenShader: GLSL Shader with Layout Generation", "[genglsl]")
+{
+    // Generate GLSL with layout i.e version 400 + layout extension
+    generateGlslCode(true);
 }
