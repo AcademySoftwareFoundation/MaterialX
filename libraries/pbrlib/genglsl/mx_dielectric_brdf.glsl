@@ -8,19 +8,13 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, floa
         return;
     }
 
-    float NdotL = dot(N,L);
-    float NdotV = dot(N,V);
-    if (NdotL <= 0.0 || NdotV <= 0.0)
-    {
-        result = base;
-        return;
-    }
-
     vec3 Y = normalize(cross(N, X));
-
     vec3 H = normalize(L + V);
-    float NdotH = dot(N, H);
-    float VdotH = dot(V, H);
+
+    float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
+    float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
+    float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
     float avgRoughness = mx_average_roughness(roughness);
     float F0 = mx_ior_to_f0(ior);
@@ -49,11 +43,11 @@ void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     // attenuate the base layer transmission by the
     // inverse of top layer reflectance.
 
-    float avgRoughness = mx_average_roughness(roughness);
-    float F0 = mx_ior_to_f0(ior);
-
     // Abs here to allow transparency through backfaces
     float NdotV = abs(dot(N, V));
+
+    float avgRoughness = mx_average_roughness(roughness);
+    float F0 = mx_ior_to_f0(ior);
     float F = mx_fresnel_schlick(NdotV, F0);
 
     float comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
@@ -70,16 +64,20 @@ void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
         return;
     }
 
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
+    if (NdotV == M_FLOAT_EPS)
+    {
+        weight = 0.0;
+    }
+
     float avgRoughness = mx_average_roughness(roughness);
     float F0 = mx_ior_to_f0(ior);
-
-    vec3 Li = mx_environment_radiance(N, V, X, roughness, vec3(F0), vec3(1.0), distribution);
-
-    float NdotV = dot(N, V);
     float F = mx_fresnel_schlick(NdotV, F0);
 
     float comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
     float dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
+
+    vec3 Li = mx_environment_radiance(N, V, X, roughness, vec3(F0), vec3(1.0), vec3(1.0), vec3(1.0), distribution, 0);
 
     result = Li * tint * comp * weight          // Top layer reflection
            + base * (1.0 - dirAlbedo * weight); // Base layer reflection attenuated by top layer
