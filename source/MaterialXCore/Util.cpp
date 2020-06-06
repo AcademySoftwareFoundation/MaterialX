@@ -43,11 +43,6 @@ std::tuple<int, int, int> getVersionIntegers()
     return LIBRARY_VERSION_TUPLE;
 }
 
-string makeVersionString(int majorVersion, int minorVersion)
-{
-    return std::to_string(majorVersion) + "." + std::to_string(minorVersion);
-}
-
 string createValidName(string name, char replaceChar)
 {
     std::replace_if(name.begin(), name.end(), invalidNameChar, replaceChar);
