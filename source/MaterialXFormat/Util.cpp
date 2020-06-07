@@ -84,15 +84,14 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const StringSet* excludeFiles,
                         XmlReadOptions* readOptions)
 {
-    // Include pathes specified by environment variable last
+    // Append environment path to the specified search path.
     FileSearchPath librarySearchPath = searchPath;
     librarySearchPath.append(getEnvironmentPath());
 
     StringSet loadedLibraries;
-
-    // No specific libraries specified so scan in all search paths
     if (libraryFolders.empty())
     {
+        // No libraries specified so scan in all search paths
         for (const FilePath& libraryPath : librarySearchPath)
         {
             for (const FilePath& path : libraryPath.getSubDirectories())
@@ -112,10 +111,9 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
             }
         }
     }
-
-    // Look for specific library folders in the search paths
     else
     {
+        // Look for specific library folders in the search paths
         for (const std::string& libraryName : libraryFolders)
         {
             FilePath libraryPath = librarySearchPath.find(libraryName);
@@ -139,4 +137,4 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     return loadedLibraries;
 }
 
-}
+} // namespace MaterialX
