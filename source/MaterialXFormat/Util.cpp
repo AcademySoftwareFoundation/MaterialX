@@ -28,9 +28,9 @@ string readFile(const FilePath& filePath)
     return EMPTY_STRING;
 }
 
-void getSubdirectories(const FilePathVec rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
+void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
 {
-    for (const auto& root : rootDirectories)
+    for (const FilePath& root : rootDirectories)
     {
         FilePath rootPath = searchPath.find(root);
         if (rootPath.exists())
@@ -114,7 +114,7 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     else
     {
         // Look for specific library folders in the search paths
-        for (const std::string& libraryName : libraryFolders)
+        for (const string& libraryName : libraryFolders)
         {
             FilePath libraryPath = librarySearchPath.find(libraryName);
             for (const FilePath& path : libraryPath.getSubDirectories())
