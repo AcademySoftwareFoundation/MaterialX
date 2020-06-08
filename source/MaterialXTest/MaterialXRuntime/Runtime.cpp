@@ -983,6 +983,30 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
     }
 }
 
+TEST_CASE("Runtime: FileIo no validatioon", "[runtime2]")
+{
+    mx::RtScopedApiHandle api;
+    mx::FileSearchPath bxdfPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries") / mx::FilePath("bxdf"));
+    mx::RtReadOptions options;
+    options.validateDocument = false;
+
+    mx::RtStagePtr stage = api->createStage(MAIN);
+    mx::RtFileIo fileIo(stage);
+    REQUIRE_THROWS(fileIo.read("standard_surface.mtlx", bxdfPath));
+    REQUIRE_NOTHROW(fileIo.read("standard_surface.mtlx", bxdfPath, &options));
+
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlFile(doc, "standard_surface.mtlx", bxdfPath);
+    std::stringstream stream;
+    mx::writeToXmlStream(doc, stream);
+    stage = api->createStage(MAIN);
+    mx::RtFileIo fileIo2(stage);
+    REQUIRE_THROWS(fileIo2.read(stream));
+    std::stringstream stream2;
+    mx::writeToXmlStream(doc, stream2);
+    REQUIRE_NOTHROW(fileIo2.read(stream2, &options));
+}
+
 TEST_CASE("Runtime: DefaultLook", "[runtime]")
 {
     mx::RtScopedApiHandle api;

@@ -34,11 +34,14 @@ class RtReadOptions
     /// If the filter returns false the element will not be read.
     ReadFilter readFilter;
 
-    /// Read look information
+    /// Read look information. The default value is false.
     bool readLookInformation;
 
-    /// Apply latest updates
+    /// Apply the latest MaterialX feature updates. The default value is true.
     bool applyFutureUpdates;
+
+    /// Validate MaterialX documents read. The default is true.
+    bool validateDocument;
 };
     
 /// @class RtWriteOptions
