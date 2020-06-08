@@ -62,6 +62,9 @@
   <implementation name="IM_displacement_float_genmdl" nodedef="ND_displacement_float" sourcecode="mx::pbrlib::mx_displacement_float(mxp_displacement:{{displacement}}, mxp_scale:{{scale}})" language="genmdl"/>
   <implementation name="IM_displacement_vector3_genmdl" nodedef="ND_displacement_vector3" sourcecode="mx::pbrlib::mx_displacement_vector3(mxp_displacement:{{displacement}}, mxp_scale:{{scale}})" language="genmdl"/>
 
+  <!-- <layer> -->
+  <implementation name="IM_layer_bsdf_genmdl" nodedef="ND_layer_bsdf" language="genmdl"/>
+
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genmdl" nodedef="ND_mix_bsdf" sourcecode="mx::pbrlib::mx_mix_bsdf(mxp_fg:{{fg}}, mxp_bg:{{bg}}, mxp_mix:{{mix}})" language="genmdl"/>
   <implementation name="IM_mix_edf_genmdl" nodedef="ND_mix_edf" sourcecode="mx::pbrlib::mx_mix_edf(mxp_fg:{{fg}}, mxp_bg:{{bg}}, mxp_mix:{{mix}})" language="genmdl"/>

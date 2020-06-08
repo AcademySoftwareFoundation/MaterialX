@@ -91,16 +91,22 @@ void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext&
 void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
                                        bool checkScope) const
 {
+    // Omit node if it's tagged to be excluded.
+    if (node.getFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL))
+    {
+        return;
+    }
+
     // Omit node if it's only used inside a conditional branch
     if (checkScope && node.referencedConditionally())
     {
         emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
                     node.getScopeInfo().conditionalNode->getName() + "'", stage);
+        return;
     }
-    else
-    {
-        node.getImplementation().emitFunctionCall(node, context, stage);
-    }
+
+    // Emit the function call.
+    node.getImplementation().emitFunctionCall(node, context, stage);
 }
 
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const

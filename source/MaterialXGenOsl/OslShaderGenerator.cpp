@@ -17,6 +17,7 @@
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/LayerNode.h>
 
 namespace MaterialX
 {
@@ -186,6 +187,9 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector2_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
     registerImplementation("IM_blur_vector3_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
+
+    // <!-- <layer> -->
+    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::LANGUAGE, LayerNode::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

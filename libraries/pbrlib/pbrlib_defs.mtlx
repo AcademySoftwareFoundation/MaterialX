@@ -307,6 +307,16 @@
   <!-- ======================================================================== -->
 
   <!--
+    Node: <layer>
+  -->
+  <nodedef name="ND_layer_bsdf" node="layer" nodegroup="pbr" defaultinput="top"
+           doc="Layer two BSDF's with vertical layering.">
+    <input name="top" type="BSDF" value=""/>
+    <input name="base" type="BSDF" value=""/>
+    <output name="out" type="BSDF"/>
+  </nodedef>
+
+  <!--
     Node: <mix>
   -->
   <nodedef name="ND_mix_bsdf" node="mix" nodegroup="pbr" defaultinput="bg"

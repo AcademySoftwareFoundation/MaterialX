@@ -131,6 +131,7 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
     _parent(parent),
     _name(name),
     _classification(0),
+    _flags(0),
     _impl(nullptr)
 {
 }
@@ -307,6 +308,12 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         else if (bsdfType == BSDF_T)
         {
             newNode->_classification |= Classification::BSDF_T;
+        }
+
+        // Check specifically for the vertical layering node
+        if (nodeDef.getName() == "ND_layer_bsdf")
+        {
+            newNode->_classification |= Classification::LAYER;
         }
     }
     else if (primaryOutput->getType() == Type::EDF)

@@ -31,6 +31,9 @@
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" file="pbrlib/genosl/mx_uniform_edf.inline" language="genosl"/>
 
+  <!-- <layer> -->
+  <implementation name="IM_layer_bsdf_genosl" nodedef="ND_layer_bsdf" language="genosl"/>
+
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" file="pbrlib/genosl/mx_mix.inline" language="genosl"/>
   <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" file="pbrlib/genosl/mx_mix.inline" language="genosl"/>

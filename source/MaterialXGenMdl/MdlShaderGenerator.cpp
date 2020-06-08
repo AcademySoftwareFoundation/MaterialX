@@ -19,6 +19,7 @@
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
+#include <MaterialXGenShader/Nodes/LayerNode.h>
 
 namespace MaterialX
 {
@@ -200,6 +201,9 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <heighttonormal> -->
     registerImplementation("IM_heighttonormal_vector3_" + MdlShaderGenerator::LANGUAGE, HeightToNormalNodeMdl::create);
+
+    // <!-- <layer> -->
+    registerImplementation("IM_layer_bsdf_" + MdlShaderGenerator::LANGUAGE, LayerNode::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

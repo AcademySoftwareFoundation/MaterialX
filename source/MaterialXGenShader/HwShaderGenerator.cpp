@@ -409,50 +409,55 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
 void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const
 {
+    // Omit node if it's tagged to be excluded.
+    if (node.getFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL))
+    {
+        return;
+    }
+
     // Omit node if it's only used inside a conditional branch
     if (checkScope && node.referencedConditionally())
     {
         emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" + 
                     node.getScopeInfo().conditionalNode->getName() + "'", stage);
+        return;
+    }
+
+    bool match = true;
+
+    // Check if we have a closure context to modify the function call.
+    HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
+
+    if (ccx && node.hasClassification(ShaderNode::Classification::CLOSURE))
+    {
+        match =
+            // For reflection and indirect we don't support pure transmissive closures.
+            ((ccx->getType() == HwClosureContext::REFLECTION || ccx->getType() == HwClosureContext::INDIRECT) &&
+                node.hasClassification(ShaderNode::Classification::BSDF) &&
+                !node.hasClassification(ShaderNode::Classification::BSDF_T)) ||
+            // For transmissive we don't support pure reflective closures.
+            (ccx->getType() == HwClosureContext::TRANSMISSION &&
+                node.hasClassification(ShaderNode::Classification::BSDF) &&
+                !node.hasClassification(ShaderNode::Classification::BSDF_R)) ||
+            // For emission we only support emission closures.
+            (ccx->getType() == HwClosureContext::EMISSION &&
+                node.hasClassification(ShaderNode::Classification::EDF));
+    }
+
+    if (match)
+    {
+        // A match between closure context and node classification was found.
+        // So emit the function call in this context.
+        node.getImplementation().emitFunctionCall(node, context, stage);
     }
     else
     {
-        bool match = true;
-
-        // Check if we have a closure context to modify the function call.
-        HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
-
-        if (ccx && node.hasClassification(ShaderNode::Classification::CLOSURE))
-        {
-            match =
-                // For reflection and indirect we don't support pure transmissive closures.
-                ((ccx->getType() == HwClosureContext::REFLECTION || ccx->getType() == HwClosureContext::INDIRECT) &&
-                    node.hasClassification(ShaderNode::Classification::BSDF) &&
-                    !node.hasClassification(ShaderNode::Classification::BSDF_T)) ||
-                // For transmissive we don't support pure reflective closures.
-                (ccx->getType() == HwClosureContext::TRANSMISSION &&
-                    node.hasClassification(ShaderNode::Classification::BSDF) &&
-                    !node.hasClassification(ShaderNode::Classification::BSDF_R)) ||
-                // For emission we only support emission closures.
-                (ccx->getType() == HwClosureContext::EMISSION &&
-                    node.hasClassification(ShaderNode::Classification::EDF));
-        }
-
-        if (match)
-        {
-            // A match between closure context and node classification was found.
-            // So emit the function call in this context.
-            node.getImplementation().emitFunctionCall(node, context, stage);
-        }
-        else
-        {
-            // Context and node classification doen't match so just
-            // emit the output variable set to default value, in case
-            // it is referenced by another nodes in this context.
-            emitLineBegin(stage);
-            emitOutput(node.getOutput(), true, true, context, stage);
-            emitLineEnd(stage);
-        }
+        // Context and node classification doesn't match so just
+        // emit the output variable set to default value, in case
+        // it is referenced by another nodes in this context.
+        emitLineBegin(stage);
+        emitOutput(node.getOutput(), true, true, context, stage);
+        emitLineEnd(stage);
     }
 }
 

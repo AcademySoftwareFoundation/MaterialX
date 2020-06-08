@@ -189,8 +189,11 @@
       <input name="color" type="color3" interfacename="sheen_color" />
       <input name="roughness" type="float" interfacename="sheen_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="base" type="BSDF" nodename="diffuse_bsdf" />
     </sheen_brdf>
+    <layer name="diffuse_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="sheen_bsdf" />
+      <input name="base" type="BSDF" nodename="diffuse_bsdf" />
+    </layer>
 
     <!-- Subsurface Layer -->
     <diffuse_btdf name="translucent_bsdf" type="BSDF">
@@ -222,7 +225,7 @@
     </mix>
     <mix name="subsurface_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="selected_subsurface_bsdf" />
-      <input name="bg" type="BSDF" nodename="sheen_bsdf" />
+      <input name="bg" type="BSDF" nodename="diffuse_layer" />
       <input name="mix" type="float" interfacename="subsurface" />
     </mix>
 
@@ -252,8 +255,11 @@
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
-      <input name="base" type="BSDF" nodename="transmission_mix" />
     </dielectric_brdf>
+    <layer name="specular_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="specular_bsdf" />
+      <input name="base" type="BSDF" nodename="transmission_mix" />
+    </layer>
 
     <!-- Metal Layer -->
     <multiply name="metal_reflectivity" type="color3">
@@ -275,7 +281,7 @@
     </conductor_brdf>
     <mix name="metalness_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="metal_bsdf" />
-      <input name="bg" type="BSDF" nodename="specular_bsdf" />
+      <input name="bg" type="BSDF" nodename="specular_layer" />
       <input name="mix" type="float" interfacename="metalness" />
     </mix>
 
@@ -301,8 +307,11 @@
       <input name="normal" type="vector3" interfacename="coat_normal" />
       <input name="tangent" type="vector3" nodename="coat_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
-      <input name="base" type="BSDF" nodename="metalness_mix_attenuated" />
     </dielectric_brdf>
+    <layer name="coat_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="coat_bsdf" />
+      <input name="base" type="BSDF" nodename="metalness_mix_attenuated" />
+    </layer>
 
     <!-- Emission Layer -->
     <multiply name="emission_weight" type="color3">
@@ -339,7 +348,7 @@
       <input name="in" type="color3" interfacename="opacity" />
     </luminance>
     <surface name="standard_surface_constructor" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="coat_bsdf" />
+      <input name="bsdf" type="BSDF" nodename="coat_layer" />
       <input name="edf" type="EDF" nodename="emission_edf" />
       <input name="opacity" type="float" nodename="opacity_luminance" channels="r"/>
     </surface>

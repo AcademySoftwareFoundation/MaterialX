@@ -1233,30 +1233,68 @@ void ShaderGraph::finalize(GenContext& context)
     // Set variable names for inputs and outputs in the graph.
     setVariableNames(context);
 
-    // Track closure nodes used by each surface shader.
-    //
-    // TODO: Optimize this search for closures.
-    //       No need to do a full traversal when 
-    //       texture nodes are reached.
+    // Let the generator perform any custom edits on the graph
+    context.getShaderGenerator().finalizeShaderGraph(*this);
+
+    // Analyze the graph and extract information needed by shader nodes and BSDF nodes.
+    bool layerOperatorUsed = false;
     for (ShaderNode* node : _nodeOrder)
     {
+        // Track closure nodes used by surface shaders.
         if (node->hasClassification(ShaderNode::Classification::SHADER))
         {
+            // TODO: Optimize this search for closures.
+            //       No need to do a full traversal when 
+            //       texture nodes are reached.
             for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(node->getOutput()))
             {
-                if (edge.upstream)
+                if (edge.upstream && edge.upstream->getNode()->hasClassification(ShaderNode::Classification::CLOSURE))
                 {
-                    if (edge.upstream->getNode()->hasClassification(ShaderNode::Classification::CLOSURE))
-                    {
-                        node->_usedClosures.insert(edge.upstream->getNode());
-                    }
+                    node->_usedClosures.insert(edge.upstream->getNode());
                 }
             }
         }
+        else if (node->hasClassification(ShaderNode::Classification::LAYER))
+        {
+            layerOperatorUsed = true;
+        }
     }
+    if (layerOperatorUsed)
+    {
+        for (ShaderNode* node : _nodeOrder)
+        {
+            if (node->hasClassification(ShaderNode::Classification::BSDF) &&
+                !node->hasClassification(ShaderNode::Classification::LAYER))
+            {
+                // Dissalow using explicit 'base' connections in a graph where
+                // layer operators are used.
+                ShaderInput* base = node->getInput("base");
+                if (base && base->getType() == Type::BSDF && base->getConnection())
+                {
+                    throw ExceptionShaderGenError("Explicit 'base' connection to '" + node->getName() + "' is not supported in a graph where layer operators are used." +
+                                                  "Resolve by using a layer operator for '" + node->getName() + "' as well.");
+                }
 
-    // Let the generator perform any custom edits on the graph
-    context.getShaderGenerator().finalizeShaderGraph(*this);
+                // Check if the BSDF is strictly used as top layer in vertical layering.
+                // If so we can exclude its function call since the layering node will
+                // emit this for each layering instance used.
+                bool exclude = true;
+                const ShaderOutput* output = node->getOutput();
+                for (const ShaderInput* downstreamInput : output->getConnections())
+                {
+                    if (!downstreamInput->getNode()->hasClassification(ShaderNode::Classification::LAYER) ||
+                        downstreamInput->getName() != "top")
+                    {
+                        // This is not a connection to a layer operator "top" input.
+                        // So we should not exclude this function call.
+                        exclude = false;
+                        break;
+                    }
+                }
+                node->setFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL, exclude);
+            }
+        }
+    }
 }
 
 void ShaderGraph::disconnect(ShaderNode* node) const
