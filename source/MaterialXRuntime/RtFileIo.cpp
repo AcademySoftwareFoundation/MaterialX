@@ -1314,6 +1314,11 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
                 throw ExceptionRuntimeError("Failed validation: " + errorMessage);
             }
         }
+        else
+        {
+            PvtStage* stage = PvtStage::ptr(_stage);
+            readDocument(document, stage, readOptions);
+        }
     }
     catch (Exception& e)
     {
@@ -1353,6 +1358,11 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
             {
                 throw ExceptionRuntimeError("Failed validation: " + errorMessage);
             }
+        }
+        else
+        {
+            PvtStage* stage = PvtStage::ptr(_stage);
+            readDocument(document, stage, readOptions);
         }
     }
     catch (Exception& e)
