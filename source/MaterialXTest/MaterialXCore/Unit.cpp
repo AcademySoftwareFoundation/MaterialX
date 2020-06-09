@@ -15,7 +15,7 @@ namespace mx = MaterialX;
 
 const float EPSILON = 1e-4f;
 
-TEST_CASE("UnitAttribute", "[units]")
+TEST_CASE("UnitAttribute", "[unit]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
@@ -59,7 +59,7 @@ TEST_CASE("UnitAttribute", "[units]")
     REQUIRE(input->getActiveUnit() == "degree");
 }
 
-TEST_CASE("UnitEvaluation", "[units]")
+TEST_CASE("UnitEvaluation", "[unit]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
@@ -116,7 +116,7 @@ TEST_CASE("UnitEvaluation", "[units]")
     REQUIRE((result - 114.591559026f) < EPSILON);
 }
 
-TEST_CASE("UnitDocument", "[units]")
+TEST_CASE("UnitDocument", "[unit]")
 {
     mx::FilePath libraryPath("libraries/stdlib");
     mx::FilePath examplesPath("resources/Materials/TestSuite/stdlib/units");

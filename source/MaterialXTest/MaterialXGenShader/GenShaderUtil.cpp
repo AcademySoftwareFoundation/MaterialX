@@ -640,6 +640,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     context.getOptions() = generateOptions;
     context.registerSourceCodeSearchPath(_srcSearchPath);
 
+    // Register shader metadata defined in the libraries.	
+    _shaderGenerator->registerShaderMetadata(_dependLib, context);
+
     // Define working unit if required
     if (context.getOptions().targetDistanceUnit.empty())
     {

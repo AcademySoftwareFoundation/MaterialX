@@ -799,6 +799,7 @@ const string T::CATEGORY(category);                     \
 ElementRegistry<T> registry##T;                         \
 INSTANTIATE_SUBCLASS(T)
 
+INSTANTIATE_CONCRETE_SUBCLASS(AttributeDef, "attributedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Backdrop, "backdrop")
 INSTANTIATE_CONCRETE_SUBCLASS(BindParam, "bindparam")
 INSTANTIATE_CONCRETE_SUBCLASS(BindInput, "bindinput")
@@ -831,7 +832,6 @@ INSTANTIATE_CONCRETE_SUBCLASS(TypeDef, "typedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Unit, "unit")
 INSTANTIATE_CONCRETE_SUBCLASS(UnitDef, "unitdef")
 INSTANTIATE_CONCRETE_SUBCLASS(UnitTypeDef, "unittypedef")
-INSTANTIATE_CONCRETE_SUBCLASS(AttributeDef, "attributedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Variant, "variant")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantAssign, "variantassign")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")
