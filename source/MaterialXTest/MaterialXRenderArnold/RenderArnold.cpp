@@ -27,6 +27,9 @@ class ArnoldShaderRenderTester : public RenderUtil::ShaderRenderTester
         // Include extra OSL implementation files
         mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
         context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+
+        // Include current path to find resources.
+        context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath());
     }
 
     void createRenderer(std::ostream& log) override;

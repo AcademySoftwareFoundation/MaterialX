@@ -1,5 +1,3 @@
-#include "pbrlib/genosl/lib/mx_fresnel.osl"
-
 void mx_burley_diffuse_brdf(float weight, color reflectance, float roughness, normal N, output BSDF result)
 {
     // TODO: Implement properly.

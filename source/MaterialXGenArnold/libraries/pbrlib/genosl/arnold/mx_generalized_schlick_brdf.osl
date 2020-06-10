@@ -12,18 +12,15 @@ void mx_generalized_schlick_brdf(float weight, color color0, color color90, floa
     color F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
     float avgRoughness = mx_average_roughness(roughness);
 
-    // Calculate compensation for multiple scattering.
-    // This should normally be done inside the closure
-    // but since vanilla OSL doesen't support this we
-    // add it here in shader code instead.
-    color comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-
     // Calculate directional albedo since we need
     // to attenuate the base layer according to this.
-    color dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    color dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90);
     float avgDirAlbedo = dot(dirAlbedo, color(1.0 / 3.0));
 
+    // NOTE: No compensation for multiscatter is done here since this is already
+    // handled internally in Arnold's microfacet closure.
+
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    result = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false)
+    result = F * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false)
              + base * (1.0 - avgDirAlbedo * weight);
 }

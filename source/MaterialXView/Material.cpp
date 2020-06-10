@@ -556,7 +556,7 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
     }
 
     // Bind the directional albedo table.
-    if (genContext.getOptions().hwDirectionalAlbedoMethod == mx::DIRECTIONAL_ALBEDO_TABLE)
+    if (genContext.getOptions().directionalAlbedoMethod == mx::DIRECTIONAL_ALBEDO_TABLE)
     {
         if (_glShader->uniform(mx::HW::ALBEDO_TABLE, false) != -1)
         {

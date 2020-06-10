@@ -201,9 +201,20 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     emitIncludes(stage, context);
 
+    // Resolve path to directional albedo table.
+    // Force path to use slash since backslash even if escaped 
+    // gives problems when saving the source code to file.
+    FilePath albedoTableFile = context.resolveSourceFile("resources/Lights/AlbedoTable.exr");
+    string albedoTableFilePath = albedoTableFile.asString();
+    std::replace(albedoTableFilePath.begin(), albedoTableFilePath.end(), '\\', '/');
+
     // Add global constants and type definitions
-    emitLine("#define M_FLOAT_EPS 0.000001", stage, false);
     emitTypeDefinitions(context, stage);
+    emitLine("#define M_FLOAT_EPS 1e-8", stage, false);
+    emitLine("#define M_GOLDEN_RATIO 1.6180339887498948482045868343656", stage, false);
+    emitLine("#define GGX_DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().directionalAlbedoMethod)), stage, false);
+    emitLine("#define GGX_DIRECTIONAL_ALBEDO_TABLE \"" + albedoTableFilePath + "\"", stage, false);
+    emitLineBreak(stage);
 
     // Emit sampling code if needed
     if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
@@ -404,7 +415,13 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
     for (const string& file : INCLUDE_FILES)
     {
         FilePath path = context.resolveSourceFile(file);
-        emitLine(INCLUDE_PREFIX + path.asString() + INCLUDE_SUFFIX, stage, false);
+
+        // Force path to use slash since backslash even if escaped 
+        // gives problems when saving the source code to file.
+        string pathStr = path.asString();
+        std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
+
+        emitLine(INCLUDE_PREFIX + pathStr + INCLUDE_SUFFIX, stage, false);
     }
 
     emitLineBreak(stage);

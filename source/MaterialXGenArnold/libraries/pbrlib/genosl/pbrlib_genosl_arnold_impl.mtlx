@@ -2,6 +2,12 @@
 <materialx version="1.35">
   <!-- Implementation overrides for Arnold -->
 
+  <!-- <dielectric_brdf> -->
+  <implementation name="IM_dielectric_brdf_genosl_arnold" nodedef="ND_dielectric_brdf" file="pbrlib/genosl/arnold/mx_dielectric_brdf.osl" function="mx_dielectric_brdf" language="genosl" target="arnold"/>
+
+  <!-- <generalized_schlick_brdf> -->
+  <implementation name="IM_generalized_schlick_brdf_genosl_arnold" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genosl/arnold/mx_generalized_schlick_brdf.osl" function="mx_generalized_schlick_brdf" language="genosl" target="arnold"/>
+
   <!-- <conductor_brdf> -->
   <implementation name="IM_conductor_brdf_genosl_arnold" nodedef="ND_conductor_brdf" file="pbrlib/genosl/arnold/mx_conductor_brdf.osl" function="mx_conductor_brdf" language="genosl" target="arnold"/>
 

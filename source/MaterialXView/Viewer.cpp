@@ -230,8 +230,8 @@ Viewer::Viewer(const std::string& materialFilename,
     loadStandardLibraries();
 
     // Set default generator options.
+    _genContext.getOptions().directionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
     _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
-    _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
@@ -834,7 +834,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     referenceQualityBox->setChecked(false);
     referenceQualityBox->setCallback([this](bool enable)
     {
-        _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_IS : mx::DIRECTIONAL_ALBEDO_TABLE;
+        _genContext.getOptions().directionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_IS : mx::DIRECTIONAL_ALBEDO_TABLE;
         reloadShaders();
     });
 

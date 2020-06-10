@@ -68,7 +68,7 @@ ShaderPtr createAlbedoTableShader(GenContext& context,
 
     // Generate the shader
     GenContext tableContext = context;
-    tableContext.getOptions().hwWriteAlbedoTable = true;
+    tableContext.getOptions().writeDirectionalAlbedoTable = true;
     ShaderPtr shader = createShader(shaderName, tableContext, output);
 
     return shader;

@@ -1,5 +1,5 @@
 #include "pbrlib/genosl/lib/mx_refraction_index.osl"
-#include "pbrlib/genosl/lib/mx_fresnel.osl"
+#include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
 void mx_conductor_brdf(float weight, color reflectivity, color edge_color, vector2 roughness, normal N, vector U, string distribution, output BSDF result)
 {
@@ -19,8 +19,14 @@ void mx_conductor_brdf(float weight, color reflectivity, color edge_color, vecto
     vector ior_n, ior_k;
     mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
     color F = mx_fresnel_conductor(NdotV, ior_n, ior_k);
-    F *= weight;
+
+    // Calculate compensation for multiple scattering.
+    // This should normally be done inside the closure
+    // but since vanilla OSL doesen't support this we
+    // add it here in shader code instead.
+    float avgRoughness = mx_average_roughness(roughness);
+    color comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    result = F * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false);
+    result = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false);
 }
