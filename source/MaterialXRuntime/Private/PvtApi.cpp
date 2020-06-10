@@ -29,6 +29,21 @@ void PvtApi::reset()
     _unitDefinitions = UnitConverterRegistry::create();
 }
 
+void PvtApi::createLibrary(const RtToken& name)
+{
+    // If already loaded unload the old first,
+    // to support reloading of updated libraries.
+    if (getLibrary(name))
+    {
+        unloadLibrary(name);
+    }
+
+    RtStagePtr lib = RtStage::createNew(name);
+    _libraries[name] = lib;
+
+    _libraryRoot->addReference(lib);
+}
+
 void PvtApi::loadLibrary(const RtToken& name)
 {
     // If already loaded unload the old first,

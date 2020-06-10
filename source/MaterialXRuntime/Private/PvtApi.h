@@ -167,6 +167,8 @@ public:
         return _implementationSearchPaths;
     }
 
+    void createLibrary(const RtToken& name);
+
     void loadLibrary(const RtToken& name);
 
     void unloadLibrary(const RtToken& name);

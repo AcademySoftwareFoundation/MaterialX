@@ -166,6 +166,11 @@ const FileSearchPath& RtApi::getImplementationSearchPath() const
     return _cast(_ptr)->getImplementationSearchPath();
 }
 
+void RtApi::createLibrary(const RtToken& name)
+{
+    _cast(_ptr)->createLibrary(name);
+}
+
 void RtApi::loadLibrary(const RtToken& name)
 {
     _cast(_ptr)->loadLibrary(name);
@@ -189,6 +194,11 @@ const FilePath& RtApi::getUserDefinitionPath() const
 void RtApi::setUserDefinitionPath(const FilePath& path)
 {
     return _cast(_ptr)->setUserDefinitionPath(path);
+}
+
+RtStagePtr RtApi::getLibrary(const RtToken& name)
+{
+    return _cast(_ptr)->getLibrary(name);
 }
 
 RtStagePtr RtApi::getLibrary()

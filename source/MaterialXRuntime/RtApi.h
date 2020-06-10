@@ -117,6 +117,9 @@ public:
     /// Get search path for implemntations used by libraries. 
     const FileSearchPath& getImplementationSearchPath() const;
 
+    /// Create a library.
+    void createLibrary(const RtToken& name);
+
     /// Load a library.
     void loadLibrary(const RtToken& name);
 
@@ -125,6 +128,9 @@ public:
 
     /// Return a list of all loaded libraries.
     RtTokenVec getLibraryNames() const;
+
+    /// Return a particular library stage
+    RtStagePtr getLibrary(const RtToken& name);
 
     /// Return the library stage containing all loaded libraries.
     RtStagePtr getLibrary();

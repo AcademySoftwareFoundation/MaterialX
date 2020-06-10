@@ -59,6 +59,9 @@ class RtWriteOptions
     /// includes rather than explicit data.  Defaults to true.
     bool writeIncludes;
 
+    // If true, writes out nodegraph inputs
+    bool writeNodeGraphInputs;
+
     /// Filter function type used for filtering objects during write.
     /// If the filter returns false the object will not be written.
     WriteFilter writeFilter;
@@ -128,8 +131,8 @@ public:
     /// will be written to the document.
     void write(const FilePath& documentPath, const RtWriteOptions* writeOptions = nullptr);
 
-    void writeDefinitions(std::ostream& stream, const RtTokenVec& names);
-    void writeDefinitions(const FilePath& documentPath, const RtTokenVec& names);
+    void writeDefinitions(std::ostream& stream, const RtTokenVec& names, const RtWriteOptions* writeOptions = nullptr);
+    void writeDefinitions(const FilePath& documentPath, const RtTokenVec& names, const RtWriteOptions* writeOptions = nullptr);
 
 protected:
     /// Read all contents from one or more libraries.
