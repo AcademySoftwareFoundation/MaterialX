@@ -13,10 +13,11 @@ namespace mx = MaterialX;
 
 void bindPyXmlIo(py::module& mod)
 {
-    py::class_<mx::XmlReadOptions, mx::CopyOptions>(mod, "XmlReadOptions")
+    py::class_<mx::XmlReadOptions>(mod, "XmlReadOptions")
         .def(py::init())
         .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
-        .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
+        .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes)
+        .def_readwrite("applyFutureUpdates", &mx::XmlReadOptions::applyFutureUpdates);
 
     py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions")
         .def(py::init())

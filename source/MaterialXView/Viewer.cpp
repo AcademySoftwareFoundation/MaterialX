@@ -56,28 +56,6 @@ void writeTextFile(const std::string& text, const std::string& filePath)
     file.close();
 }
 
-mx::DocumentPtr loadLibraries(const mx::FilePathVec& libraryFolders, const mx::FileSearchPath& searchPath)
-{
-    mx::DocumentPtr doc = mx::createDocument();
-    for (const std::string& libraryFolder : libraryFolders)
-    {
-        mx::CopyOptions copyOptions;
-        copyOptions.skipConflictingElements = true;
-
-        mx::XmlReadOptions readOptions;
-        readOptions.skipConflictingElements = true;
-
-        mx::FilePath libraryPath = searchPath.find(libraryFolder);
-        for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
-        {
-            mx::DocumentPtr libDoc = mx::createDocument();
-            mx::readFromXmlFile(libDoc, libraryPath / filename, mx::FileSearchPath(), &readOptions);
-            doc->importLibrary(libDoc, &copyOptions);
-        }
-    }
-    return doc;
-}
-
 void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 {
     for (mx::ElementPtr elem : doc->traverseTree())
@@ -240,13 +218,6 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
-    if (_stdLib)
-    {
-        for (std::string sourceUri : _stdLib->getReferencedSourceUris())
-        {
-            _xincludeFiles.insert(sourceUri);
-        }
-    }
 
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
@@ -489,9 +460,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
 {
     if (_lightRigDoc)
     {
-        mx::CopyOptions copyOptions;
-        copyOptions.skipConflictingElements = true;
-        doc->importLibrary(_lightRigDoc, &copyOptions);
+        doc->importLibrary(_lightRigDoc);
         _xincludeFiles.insert(_lightRigFilename);
     }
 
@@ -952,7 +921,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
     {
@@ -991,9 +959,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
 
         // Import libraries.
-        mx::CopyOptions copyOptions; 
-        copyOptions.skipConflictingElements = true;
-        doc->importLibrary(libraries, &copyOptions);
+        doc->importLibrary(libraries);
 
         // Apply direct lights.
         applyDirectLights(doc);
@@ -1336,16 +1302,17 @@ void Viewer::loadStandardLibraries()
     // Initialize the standard library.
     try
     {
-        _stdLib = loadLibraries(_libraryFolders, _searchPath);
+        _stdLib = mx::createDocument();
+        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib, nullptr);
+        if (_xincludeFiles.empty())
+        {
+            std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
+        }
     }
     catch (std::exception& e)
     {
         std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
         return;
-    }
-    if (_stdLib->getChildren().empty())
-    {
-        std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
     }
 
     // Initialize color management.

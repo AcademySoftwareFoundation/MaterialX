@@ -48,6 +48,10 @@
   <!-- <surface> -->
   <implementation name="IM_surface_genosl" nodedef="ND_surface" file="pbrlib/genosl/mx_surface.osl" function="mx_surface" language="genosl"/>
 
+  <!-- <displacement> -->
+  <implementation name="IM_displacement_float_genosl" nodedef="ND_displacement_float" file="pbrlib/genosl/mx_displacement_float.osl" function="mx_displacement_float" language="genosl"/>
+  <implementation name="IM_displacement_vector3_genosl" nodedef="ND_displacement_vector3" file="pbrlib/genosl/mx_displacement_vector3.osl" function="mx_displacement_vector3" language="genosl"/>
+
   <!-- <backfacing> -->
   <implementation name="IM_backfacing_boolean_genosl" nodedef="ND_backfacing_boolean" file="pbrlib/genosl/mx_backfacing_boolean.inline" language="genosl"/>
   <implementation name="IM_backfacing_integer_genosl" nodedef="ND_backfacing_integer" file="pbrlib/genosl/mx_backfacing_integer.inline" language="genosl"/>

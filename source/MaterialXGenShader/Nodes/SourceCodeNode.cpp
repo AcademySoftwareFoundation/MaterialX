@@ -46,7 +46,7 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
     }
     context.getShaderGenerator().getSyntax().makeValidName(_functionName);
 
-    _functionSource = readFile(context.resolveSourceFile(FilePath("libraries") / file));
+    _functionSource = readFile(context.resolveSourceFile(file));
     if (_functionSource.empty())
     {
         throw ExceptionShaderGenError("Could not find source file '" + file.asString() +

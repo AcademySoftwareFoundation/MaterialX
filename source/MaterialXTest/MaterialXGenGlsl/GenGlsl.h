@@ -30,6 +30,14 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         _testStages.push_back(mx::Stage::PIXEL);
     }
 
+    // Ignore trying to create shader code for displacementshaders
+    void addSkipNodeDefs() override
+    {
+        _skipNodeDefs.insert("ND_displacement_float");
+        _skipNodeDefs.insert("ND_displacement_vector3");
+        ParentClass::addSkipNodeDefs();
+    }
+
     void setupDependentLibraries() override
     {
         ParentClass::setupDependentLibraries();
