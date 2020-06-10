@@ -983,9 +983,15 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
     }
 }
 
-TEST_CASE("Runtime: FileIo no validatioon", "[runtime2]")
+TEST_CASE("Runtime: FileIo no validatioon", "[runtime]")
 {
     mx::RtScopedApiHandle api;
+
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    api->setSearchPath(searchPath);
+    api->loadLibrary(STDLIB);
+    api->loadLibrary(PBRLIB);
+
     mx::FileSearchPath bxdfPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries") / mx::FilePath("bxdf"));
     mx::RtReadOptions options;
     options.validateDocument = false;
