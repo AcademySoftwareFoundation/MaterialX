@@ -53,8 +53,11 @@ int main(int argc, char* const argv[])
         tokens.emplace_back(argv[i]);
     }
 
-    mx::FilePathVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", 
-                                       "libraries/bxdf", "libraries/lights", "libraries/lights/genglsl" };
+    mx::FilePathVec libraryFolders = 
+    {
+        "libraries",
+    };
+
     mx::FileSearchPath searchPath;
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.obj";
@@ -194,9 +197,14 @@ int main(int argc, char* const argv[])
     mx::FilePath installSearchPath = mx::FilePath::getModulePath().getParentPath();
     mx::FilePath devSearchPath = installSearchPath.getParentPath().getParentPath().getParentPath();
     searchPath.append(installSearchPath);
-    if (!devSearchPath.isEmpty() && (devSearchPath / "libraries").exists())
+    if (!devSearchPath.isEmpty() && devSearchPath.exists())
     {
         searchPath.append(devSearchPath);
+        devSearchPath = devSearchPath / "libraries";
+        if (devSearchPath.exists())
+        {
+            searchPath.append(devSearchPath);
+        }
     }
 
     try

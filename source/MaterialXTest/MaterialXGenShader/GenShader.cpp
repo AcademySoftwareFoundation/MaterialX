@@ -45,7 +45,8 @@ TEST_CASE("GenShader: Valid Libraries", "[genshader]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     std::string validationErrors;
@@ -100,7 +101,8 @@ TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FileSearchPath searchPath;
+    searchPath .append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     loadLibraries({ "stdlib" }, searchPath, doc);
 
     // Set source code search path

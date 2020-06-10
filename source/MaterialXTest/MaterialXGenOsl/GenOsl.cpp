@@ -106,7 +106,8 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
 
 TEST_CASE("GenShader: Metadata", "[genosl]")
 {
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibraries({ "stdlib", "pbrlib", "bxdf" }, searchPath, doc);

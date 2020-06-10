@@ -479,12 +479,11 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::DISPLACEMENTSHADER,
-        std::make_shared<OslStructTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "displacementshader",
-            "{vector(0.0), 0.0}",
-            "{vector(0.0), 0.0}",
-            EMPTY_STRING,
-            "struct displacementshader { vector offset; float scale; };")
+            "vector(0.0)",
+            "vector(0.0)",
+            "vector")
     );
 
     registerTypeSyntax

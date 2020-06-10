@@ -28,6 +28,19 @@ string readFile(const FilePath& filePath)
     return EMPTY_STRING;
 }
 
+void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
+{
+    for (const FilePath& root : rootDirectories)
+    {
+        FilePath rootPath = searchPath.find(root);
+        if (rootPath.exists())
+        {
+            FilePathVec childDirectories = rootPath.getSubDirectories();
+            subDirectories.insert(std::end(subDirectories), std::begin(childDirectories), std::end(childDirectories));
+        }
+    }
+}
+
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
                    const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
                    const XmlReadOptions& readOptions, StringVec& errors)
@@ -58,35 +71,65 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
     }
 }
 
-void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath)
+void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath, XmlReadOptions* readOptions)
 {
     DocumentPtr libDoc = createDocument();
-    XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
-    readFromXmlFile(libDoc, file, searchPath ? *searchPath : FileSearchPath(), &readOptions);
-    CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
-    doc->importLibrary(libDoc, &copyOptions);
+    readFromXmlFile(libDoc, file, searchPath ? *searchPath : FileSearchPath(), readOptions);
+    doc->importLibrary(libDoc);
 }
 
-StringVec loadLibraries(const StringVec& libraryNames,
+StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
-                        const StringSet* excludeFiles)
+                        const StringSet* excludeFiles,
+                        XmlReadOptions* readOptions)
 {
-    StringVec loadedLibraries;
-    for (const std::string& libraryName : libraryNames)
+    // Append environment path to the specified search path.
+    FileSearchPath librarySearchPath = searchPath;
+    librarySearchPath.append(getEnvironmentPath());
+
+    StringSet loadedLibraries;
+    if (libraryFolders.empty())
     {
-        FilePath libraryPath = searchPath.find(libraryName);
-        for (const FilePath& path : libraryPath.getSubDirectories())
+        // No libraries specified so scan in all search paths
+        for (const FilePath& libraryPath : librarySearchPath)
         {
-            for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
+            for (const FilePath& path : libraryPath.getSubDirectories())
             {
-                if (!excludeFiles || !excludeFiles->count(filename))
+                for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
                 {
-                    const FilePath& file = path / filename;
-                    loadLibrary(file, doc, &searchPath);
-                    loadedLibraries.push_back(file.asString());
+                    if (!excludeFiles || !excludeFiles->count(filename))
+                    {
+                        const FilePath& file = path / filename;
+                        if (loadedLibraries.count(file) == 0)
+                        {
+                            loadLibrary(file, doc, &searchPath, readOptions);
+                            loadedLibraries.insert(file.asString());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        // Look for specific library folders in the search paths
+        for (const string& libraryName : libraryFolders)
+        {
+            FilePath libraryPath = librarySearchPath.find(libraryName);
+            for (const FilePath& path : libraryPath.getSubDirectories())
+            {
+                for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
+                {
+                    if (!excludeFiles || !excludeFiles->count(filename))
+                    {
+                        const FilePath& file = path / filename;
+                        if (loadedLibraries.count(file) == 0)
+                        {
+                            loadLibrary(file, doc, &searchPath, readOptions);
+                            loadedLibraries.insert(file.asString());
+                        }
+                    }
                 }
             }
         }
@@ -94,14 +137,4 @@ StringVec loadLibraries(const StringVec& libraryNames,
     return loadedLibraries;
 }
 
-StringVec loadLibraries(const StringVec& libraryNames,
-                        const FilePath& filePath,
-                        DocumentPtr doc,
-                        const StringSet* excludeFiles)
-{
-    FileSearchPath searchPath;
-    searchPath.append(filePath);
-    return loadLibraries(libraryNames, searchPath, doc, excludeFiles);
-}
-
-}
+} // namespace MaterialX

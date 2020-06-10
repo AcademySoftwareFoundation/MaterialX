@@ -2,6 +2,12 @@
 
 ## [1.37.2] - Development
 
+### Added
+- Added support for displacement shaders in generated OSL.
+
+### Removed
+- Removed the CopyOptions class, making it the default behavior of Document\:\:importLibrary to skip conflicting elements.
+
 ## [1.37.1] - 2020-06-04
 
 ### Added

@@ -47,7 +47,8 @@ void checkImplementations(mx::GenContext& context,
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FileSearchPath searchPath; 
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     std::string generatorId = shadergen.getLanguage() + "_" + shadergen.getTarget();
@@ -269,7 +270,8 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     loadLibraries({ "stdlib" }, searchPath, doc);
 
     const std::string exampleName = "unique_names";
@@ -472,13 +474,13 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "stdlib", "pbrlib", "lights" };
 
     loadLibraries(libraries, _libSearchPath, _dependLib, &_skipLibraryFiles);
 
     // Load shader definitions used in the test suite.
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), _dependLib);
+    loadLibrary(mx::FilePath("bxdf/standard_surface.mtlx"), _dependLib, &_libSearchPath);
+    loadLibrary(mx::FilePath("bxdf/usd_preview_surface.mtlx"), _dependLib, &_libSearchPath);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -636,15 +638,13 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     }
 
     size_t documentIndex = 0;
-    mx::CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
     for (const auto& doc : _documents)
     {
         // Add in dependent libraries
         bool importedLibrary = false;
         try
         {
-            doc->importLibrary(_dependLib, &copyOptions);
+            doc->importLibrary(_dependLib);
             importedLibrary = true;
         }
         catch (mx::Exception& e)
