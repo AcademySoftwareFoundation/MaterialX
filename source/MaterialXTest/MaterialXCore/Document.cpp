@@ -207,6 +207,13 @@ TEST_CASE("Version", "[document]")
                 }
             }
         }
+
+        mx::NodeGraphPtr testNodeGraph = doc2->getNodeGraph("NG_Test");
+        REQUIRE(!testNodeGraph->getNode("add"));
+        REQUIRE(testNodeGraph->getNode("add1"));
+        REQUIRE(testNodeGraph->getNode("add2"));
+        REQUIRE(testNodeGraph->getNode("add2")->getInput("in1")->getInterfaceName() == "add");
+        REQUIRE(testNodeGraph->getNode("add1")->getInput("in1")->getNodeName() == "add2");
     }
 }
 

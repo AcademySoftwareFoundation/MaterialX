@@ -1061,6 +1061,45 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     }
                 }
             }
+
+            // Make it so that interface names and nodes in a nodegraph are not duplicates
+            // If they are, rename the nodes.
+            for (NodeGraphPtr nodegraph : getNodeGraphs())
+            {
+                StringSet interfaceNames;
+                for (ElementPtr child : nodegraph->getChildren())
+                {
+                    NodePtr node = child->asA<Node>();
+                    if (node)
+                    {
+                        for (ValueElementPtr elem : node->getChildrenOfType<ValueElement>())
+                        {
+                            const string& interfaceName = elem->getInterfaceName();
+                            if (!interfaceName.empty())
+                            {
+                                interfaceNames.insert(interfaceName);
+                            }
+                        }
+                    }
+                }
+                for (string interfaceName : interfaceNames)
+                {
+                    NodePtr node = nodegraph->getNode(interfaceName);
+                    if (node)
+                    {
+                        string newNodeName = nodegraph->createValidChildName(interfaceName);
+                        vector<MaterialX::PortElementPtr> downstreamPorts = node->getDownstreamPorts();
+                        for (MaterialX::PortElementPtr downstreamPort : downstreamPorts)
+                        {
+                            if (downstreamPort->getNodeName() == interfaceName)
+                            {
+                                downstreamPort->setNodeName(newNodeName);
+                            }
+                        }
+                        node->setName(newNodeName);
+                    }
+                }
+            }
             minorVersion = 38;
         }
     }
