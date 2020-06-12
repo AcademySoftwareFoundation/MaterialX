@@ -192,7 +192,10 @@ class ShaderGeneratorTester
     virtual void addUnitSystem();
 
     // Add user data 
-    virtual void addUserData(mx::GenContext&) {}
+    void addUserData(const std::string& name, mx::GenUserDataPtr data)
+    {
+        _userData[name] = data;
+    }
 
     // Load in dependent libraries
     virtual void setupDependentLibraries();
@@ -213,7 +216,7 @@ class ShaderGeneratorTester
                               std::ostream& log, mx::StringVec testStages, mx::StringVec& sourceCode);
 
     // Run test for source code generation
-    void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath, bool enableUserData = false);
+    void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);
 
     // Compile generated source code. Default implementation does nothing.
     virtual void compileSource(const std::vector<mx::FilePath>& /*sourceCodePaths*/) {};
@@ -256,6 +259,7 @@ class ShaderGeneratorTester
     std::vector<mx::NodePtr> _lights;
     std::unordered_map<std::string, unsigned int> _lightIdentifierMap;
 
+    std::unordered_map<std::string, mx::GenUserDataPtr> _userData;
     mx::StringSet _usedImplementations;
 };
 

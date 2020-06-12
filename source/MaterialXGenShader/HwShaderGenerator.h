@@ -190,7 +190,6 @@ namespace HW
     extern const string VERTEX_DATA;      // Connector block for data transfer from vertex stage to pixel stage.
     extern const string PRIVATE_UNIFORMS; // Uniform inputs set privately by application.
     extern const string PUBLIC_UNIFORMS;  // Uniform inputs visible in UI and set by user.
-    extern const string SAMPLER_UNIFORMS; // Uniform inputs for all sampler texture objects.
     extern const string LIGHT_DATA;       // Uniform inputs for light sources.
     extern const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
@@ -401,12 +400,14 @@ class HwResourceBindingContext : public GenUserData
 public:
     virtual ~HwResourceBindingContext() {}
 
+    // Initialize the context before generation starts.
+    virtual void initialize() = 0;
+
     // Emit directives required for binding support 
     virtual void emitDirectives(GenContext& context, ShaderStage& stage) = 0;
 
-    // Emit resource blocks with binding information
-    virtual void emitResourceBindingBlocks(GenContext& context, const VariableBlock& uniforms, SyntaxPtr syntax, ShaderStage& stage) = 0;
-
+    // Emit uniforms with binding information
+    virtual void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) = 0;
 };
 
 } // namespace MaterialX

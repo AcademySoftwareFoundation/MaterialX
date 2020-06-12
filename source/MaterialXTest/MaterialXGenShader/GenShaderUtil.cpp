@@ -20,7 +20,8 @@ namespace mx = MaterialX;
 
 namespace GenShaderUtil
 {
-    const std::string TEST_USER_DATA_SUFFIX = "_ud";
+
+const std::string LAYOUT_SUFFIX = "_layout";
 
 namespace
 {
@@ -570,7 +571,7 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
     context.getOptions().hwMaxActiveLightSources = lightSourceCount;
 }
 
-void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath, bool enableUserData)
+void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath)
 {
     // Start logging
     _logFile.open(_logFilePath);
@@ -640,7 +641,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     context.getOptions() = generateOptions;
     context.registerSourceCodeSearchPath(_srcSearchPath);
 
-    // Register shader metadata defined in the libraries.	
+    // Register shader metadata defined in the libraries.
     _shaderGenerator->registerShaderMetadata(_dependLib, context);
 
     // Define working unit if required
@@ -649,11 +650,21 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         context.getOptions().targetDistanceUnit = _defaultDistanceUnit;
     }
 
+    // Check if a binding context has been set.
+    bool bindingContextUsed = _userData.count(mx::HW::USER_DATA_BINDING_CONTEXT) > 0;
+
     size_t documentIndex = 0;
     mx::CopyOptions copyOptions;
     copyOptions.skipConflictingElements = true;
     for (const auto& doc : _documents)
     {
+        // Set user data
+        context.clearUserData();
+        for (auto it : _userData)
+        {
+            context.pushUserData(it.first, it.second);
+        }
+
         // Add in dependent libraries
         bool importedLibrary = false;
         try
@@ -694,13 +705,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         // Find and register lights
         findLights(doc, _lights);
         registerLights(doc, _lights, context);
-
-
-        // Add any userdata if required
-        if (enableUserData)
-        {
-            addUserData(context);
-        }
 
         // Find elements to render in the document
         std::vector<mx::TypedElementPtr> elements;
@@ -800,7 +804,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     }
                     else if (_writeShadersToDisk && sourceCode.size())
                     {
-                        const std::string udsuffix(enableUserData ? TEST_USER_DATA_SUFFIX : mx::EMPTY_STRING);
+                        const std::string elementNameSuffix(bindingContextUsed ? LAYOUT_SUFFIX : mx::EMPTY_STRING);
 
                         mx::FilePath path = element->getActiveSourceUri();
                         if (!path.isEmpty())
@@ -841,7 +845,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                         {
                             for (size_t i=0; i<sourceCode.size(); ++i)
                             {
-                                const mx::FilePath filename = path / (elementName + udsuffix + "." + _testStages[i] + "." + getFileExtensionForLanguage(_shaderGenerator->getLanguage()));
+                                const mx::FilePath filename = path / (elementName + elementNameSuffix + "." + _testStages[i] + "." + getFileExtensionForLanguage(_shaderGenerator->getLanguage()));
                                 sourceCodePaths.push_back(filename);
                                 std::ofstream file(filename.asString());
                                 file << sourceCode[i];

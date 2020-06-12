@@ -293,6 +293,13 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
     // any scientific notation which isn't supported by all OpenGL targets.
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
+    // Make sure we initialize/reset the binding context before generation.
+    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->initialize();
+    }
+
     // Emit code for vertex shader stage
     ShaderStage& vs = shader->getStage(Stage::VERTEX);
     emitVertexStage(shader->getGraph(), context, vs);
@@ -308,8 +315,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
 
 void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    HwResourceBindingContextPtr resourceBindingCtx =
-        context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
 
     // Add directives
     emitLine("#version " + getVersion(), stage, false);
@@ -336,7 +342,7 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
             emitComment("Uniform block: " + uniforms.getName(), stage);
             if (resourceBindingCtx)
             {
-                resourceBindingCtx->emitResourceBindingBlocks(context, uniforms, _syntax, stage);
+                resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
             }
             else
             {
@@ -405,9 +411,7 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-
-    HwResourceBindingContextPtr resourceBindingCtx =
-        context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
 
     // Add directives
     emitLine("#version " + getVersion(), stage, false);
@@ -448,7 +452,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
             emitComment("Uniform block: " + uniforms.getName(), stage);
             if (resourceBindingCtx)
             {
-                resourceBindingCtx->emitResourceBindingBlocks(context, uniforms, _syntax, stage);
+                resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
             }
             else
             {

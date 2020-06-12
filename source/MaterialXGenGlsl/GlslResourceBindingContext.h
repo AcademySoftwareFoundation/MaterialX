@@ -27,37 +27,21 @@ public:
 
     static GlslResourceBindingContextPtr create() { return std::make_shared<GlslResourceBindingContext>(); }
 
+    // Initialize the context before generation starts.
+    void initialize() override;
+
     // Emit directives for stage
     void emitDirectives(GenContext& context, ShaderStage& stage) override;
 
-    // Emit blocks with resource binding information
-    void emitResourceBindingBlocks(GenContext& context, const VariableBlock& uniforms, SyntaxPtr syntax, ShaderStage& stage) override
-    {
-        const string uniformBlockName(uniforms.getName());
-        if (uniformBlockName == HW::SAMPLER_UNIFORMS)
-        {
-            emitSamplerBlocks(context, uniforms, syntax, stage);
-        }
-        else
-        {
-            emitUniformBlock(context, uniforms, syntax, stage);
-        }
-    }
-
-    // Emits each sampler as a separate block
-    void emitSamplerBlocks(GenContext& context, const VariableBlock& uniforms, SyntaxPtr syntax, ShaderStage& stage);
-
-    // Emits all uniforms group as a block
-    void emitUniformBlock(GenContext& context, const VariableBlock& uniforms, SyntaxPtr syntax, ShaderStage& stage);
+    // Emit uniforms with binding information
+    void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) override;
 
 protected:
-
     // List of required extensions
     StringSet _requiredExtensions;
 
     // Binding location
-    int _hwBindLocation = 0;
-
+    size_t _hwBindLocation = 0;
 };
 
 } // namespace MaterialX

@@ -124,7 +124,6 @@ namespace HW
     const string VERTEX_DATA                      = "VertexData";
     const string PRIVATE_UNIFORMS                 = "PrivateUniforms";
     const string PUBLIC_UNIFORMS                  = "PublicUniforms";
-    const string SAMPLER_UNIFORMS                 = "SamplerUniforms";
     const string LIGHT_DATA                       = "LightData";
     const string PIXEL_OUTPUTS                    = "PixelOutputs";
     const string DIR_N                            = "N";
@@ -241,7 +240,6 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
     vs->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     vs->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
-    vs->createUniformBlock(HW::SAMPLER_UNIFORMS, "u_s");
 
     // Create required variables for vertex stage
     VariableBlock& vsInputs = vs->getInputBlock(HW::VERTEX_INPUTS);
@@ -257,7 +255,6 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Create required Uniform blocks and any additonal blocks if needed.
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
-    VariableBlockPtr psSamplerUniforms = ps->createUniformBlock(HW::SAMPLER_UNIFORMS, "u_s");
     VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
     lightData->add(Type::INTEGER, "type");
 
@@ -267,7 +264,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Add uniforms for shadow map rendering.
     if (context.getOptions().hwShadowMap)
     {
-        psSamplerUniforms->add(Type::FILENAME, HW::T_SHADOW_MAP);
+        psPrivateUniforms->add(Type::FILENAME, HW::T_SHADOW_MAP);
         psPrivateUniforms->add(Type::MATRIX44, HW::T_SHADOW_MATRIX, Value::createValue(Matrix44::IDENTITY));
     }
 
@@ -276,7 +273,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     {
         addStageInput(HW::VERTEX_INPUTS, Type::VECTOR2, HW::T_IN_TEXCOORD + "_0", *vs);
         addStageConnector(HW::VERTEX_DATA, Type::VECTOR2, HW::T_TEXCOORD + "_0", *vs, *ps);
-        psSamplerUniforms->add(Type::FILENAME, HW::T_AMB_OCC_MAP);
+        psPrivateUniforms->add(Type::FILENAME, HW::T_AMB_OCC_MAP);
         psPrivateUniforms->add(Type::FLOAT, HW::T_AMB_OCC_GAIN, Value::createValue(1.0f));
     }
 
@@ -287,17 +284,17 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     {
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
-        psSamplerUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
-        psSamplerUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
     }
 
     // Add uniforms for the directional albedo table.
     if (context.getOptions().directionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
         context.getOptions().writeDirectionalAlbedoTable)
     {
-        psSamplerUniforms->add(Type::FILENAME, HW::T_ALBEDO_TABLE);
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ALBEDO_TABLE);
         psPrivateUniforms->add(Type::INTEGER, HW::T_ALBEDO_TABLE_SIZE, Value::createValue<int>(64));
     }
 
@@ -308,14 +305,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         // and are editable by users.
         if (!inputSocket->getConnections().empty() && graph->isEditable(*inputSocket))
         {
-            if (inputSocket->getType() == Type::FILENAME)
-            {
-                psSamplerUniforms->add(inputSocket->getSelf());
-            }
-            else
-            {
-                psPublicUniforms->add(inputSocket->getSelf());
-            }
+            psPublicUniforms->add(inputSocket->getSelf());
         }
     }
 
@@ -381,7 +371,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
                     if (!input->getConnection() && input->getType() == Type::FILENAME)
                     {
                         // Create the uniform using the filename type to make this uniform into a texture sampler.
-                        ShaderPort* filename = psSamplerUniforms->add(Type::FILENAME, input->getVariable(), input->getValue());
+                        ShaderPort* filename = psPublicUniforms->add(Type::FILENAME, input->getVariable(), input->getValue());
                         filename->setPath(input->getPath());
 
                         // Assing the uniform name to the input value

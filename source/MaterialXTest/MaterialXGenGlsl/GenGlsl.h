@@ -47,8 +47,6 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         loadLibrary(lightDir / mx::FilePath("light_rig_test_1.mtlx"), _dependLib);
     }
 
-    void addUserData(mx::GenContext& context) override;
-
   protected:
     void getImplementationWhiteList(mx::StringSet& whiteList) override
     {

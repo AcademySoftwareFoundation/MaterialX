@@ -122,12 +122,6 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
-// Add user data to context
-void GlslShaderGeneratorTester::addUserData(mx::GenContext& context)
-{
-    context.pushUserData(mx::HW::USER_DATA_BINDING_CONTEXT, mx::GlslResourceBindingContext::create());
-}
-
 static void generateGlslCode(bool generateLayout = false)
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
@@ -147,7 +141,14 @@ static void generateGlslCode(bool generateLayout = false)
     const mx::FilePath logPath(generateLayout ? "genglsl_glsl420_layout_generate_test.txt" : "genglsl_glsl400_generate_test.txt");
 
     GlslShaderGeneratorTester tester(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
-    tester.validate(genOptions, optionsFilePath, generateLayout);
+
+    if (generateLayout)
+    {
+        // Set binding context to handle resource binding layouts
+        tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, mx::GlslResourceBindingContext::create());
+    }
+
+    tester.validate(genOptions, optionsFilePath);
 }
 
 TEST_CASE("GenShader: GLSL Shader Generation", "[genglsl]")
