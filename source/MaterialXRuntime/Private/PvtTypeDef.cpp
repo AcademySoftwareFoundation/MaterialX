@@ -119,7 +119,7 @@ template <> void toStringValue<float>(const RtValue& src, string& dest)
 template <> void toStringValue<int>(const RtValue& src, string& dest)
 {
     std::stringstream ss;
-    ss << src.asFloat();
+    ss << src.asInt();
     dest = ss.str();
 }
 template<class T>
