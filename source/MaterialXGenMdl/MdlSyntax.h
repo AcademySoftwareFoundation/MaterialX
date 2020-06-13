@@ -7,7 +7,7 @@
 #define MATERIALX_MDLSYNTAX_H
 
 /// @file
-/// OSL syntax class
+/// MDL syntax class
 
 #include <MaterialXGenShader/Syntax.h>
 
@@ -23,7 +23,7 @@ using MdlSyntaxPtr = shared_ptr<MdlSyntax>;
 /// Syntax class for MDL (Material Definition Language)
 class MdlSyntax : public Syntax
 {
-public:
+  public:
     MdlSyntax();
 
     static SyntaxPtr create() { return std::make_shared<MdlSyntax>(); }
