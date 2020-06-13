@@ -646,15 +646,13 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     }
 
     size_t documentIndex = 0;
-    mx::CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
     for (const auto& doc : _documents)
     {
         // Add in dependent libraries
         bool importedLibrary = false;
         try
         {
-            doc->importLibrary(_dependLib, &copyOptions);
+            doc->importLibrary(_dependLib);
             importedLibrary = true;
         }
         catch (mx::Exception& e)

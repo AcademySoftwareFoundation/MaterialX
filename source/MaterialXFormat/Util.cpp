@@ -28,9 +28,9 @@ string readFile(const FilePath& filePath)
     return EMPTY_STRING;
 }
 
-void getSubdirectories(const FilePathVec rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
+void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
 {
-    for (const auto& root : rootDirectories)
+    for (const FilePath& root : rootDirectories)
     {
         FilePath rootPath = searchPath.find(root);
         if (rootPath.exists())
@@ -74,20 +74,8 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
 void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath, XmlReadOptions* readOptions)
 {
     DocumentPtr libDoc = createDocument();
-    XmlReadOptions localOptions;
-    localOptions.skipConflictingElements = true;
-    if (!readOptions)
-    {
-        readOptions = &localOptions;
-    }
-    else
-    {
-        readOptions->skipConflictingElements = true;
-    }
     readFromXmlFile(libDoc, file, searchPath ? *searchPath : FileSearchPath(), readOptions);
-    CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
-    doc->importLibrary(libDoc, &copyOptions);
+    doc->importLibrary(libDoc);
 }
 
 StringSet loadLibraries(const FilePathVec& libraryFolders,
@@ -96,15 +84,14 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const StringSet* excludeFiles,
                         XmlReadOptions* readOptions)
 {
-    // Include pathes specified by environment variable last
+    // Append environment path to the specified search path.
     FileSearchPath librarySearchPath = searchPath;
     librarySearchPath.append(getEnvironmentPath());
 
     StringSet loadedLibraries;
-
-    // No specific libraries specified so scan in all search paths
     if (libraryFolders.empty())
     {
+        // No libraries specified so scan in all search paths
         for (const FilePath& libraryPath : librarySearchPath)
         {
             for (const FilePath& path : libraryPath.getSubDirectories())
@@ -124,11 +111,10 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
             }
         }
     }
-
-    // Look for specific library folders in the search paths
     else
     {
-        for (const std::string& libraryName : libraryFolders)
+        // Look for specific library folders in the search paths
+        for (const string& libraryName : libraryFolders)
         {
             FilePath libraryPath = librarySearchPath.find(libraryName);
             for (const FilePath& path : libraryPath.getSubDirectories())
@@ -148,7 +134,6 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
             }
         }
     }
-    return loadedLibraries;
 }
 
-}
+} // namespace MaterialX
