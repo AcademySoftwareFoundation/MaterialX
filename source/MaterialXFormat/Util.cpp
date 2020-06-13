@@ -134,7 +134,6 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
             }
         }
     }
-
     return loadedLibraries;
 }
 
