@@ -395,7 +395,6 @@ bool GlslSyntax::typeSupported(const TypeDesc* type) const
     return type != Type::STRING;
 }
 
-
 bool GlslSyntax::remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const
 {
     // Early out if not an enum input.
