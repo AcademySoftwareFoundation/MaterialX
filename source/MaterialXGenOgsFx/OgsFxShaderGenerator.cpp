@@ -304,14 +304,6 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
-    // Emit sampling code if needed
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
-    {
-        // Emit sampling functions
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context, stage);
-        emitLineBreak(stage);
-    }
-
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)

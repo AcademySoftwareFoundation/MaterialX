@@ -216,14 +216,6 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitLine("#define GGX_DIRECTIONAL_ALBEDO_TABLE \"" + albedoTableFilePath + "\"", stage, false);
     emitLineBreak(stage);
 
-    // Emit sampling code if needed
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
-    {
-        // Emit sampling functions
-        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl", context, stage);
-        emitLineBreak(stage);
-    }
-
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)

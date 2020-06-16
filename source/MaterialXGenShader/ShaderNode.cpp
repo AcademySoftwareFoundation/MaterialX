@@ -121,7 +121,6 @@ const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";
 const string ShaderNode::TEXTURE3D_GROUPNAME = "texture3d";
 const string ShaderNode::PROCEDURAL2D_GROUPNAME = "procedural2d";
 const string ShaderNode::PROCEDURAL3D_GROUPNAME = "procedural3d";
-const string ShaderNode::CONVOLUTION2D_GROUPNAME = "convolution2d";
 
 //
 // ShaderNode methods
@@ -229,10 +228,6 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         else if (groupName == TEXTURE3D_GROUPNAME || groupName == PROCEDURAL3D_GROUPNAME)
         {
             groupClassification = Classification::SAMPLE3D;
-        }
-        else if (groupName == CONVOLUTION2D_GROUPNAME)
-        {
-            groupClassification = Classification::CONVOLUTION2D;
         }
     }
 

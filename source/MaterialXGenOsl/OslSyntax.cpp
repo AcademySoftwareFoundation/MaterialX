@@ -250,6 +250,7 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
 } // anonymous namespace
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
+const string OslSyntax::SOURCE_FILE_EXTENSION = ".osl";
 const StringVec OslSyntax::VECTOR_MEMBERS  = { "[0]", "[1]", "[2]" };
 const StringVec OslSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
 const StringVec OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };

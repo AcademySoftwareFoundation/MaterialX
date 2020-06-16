@@ -148,6 +148,9 @@ class Syntax
     /// Return the characters used to end a multi line comments block.
     virtual const string& getEndMultiLineComment() const { return END_MULTI_LINE_COMMENT; };
 
+    /// Return the file extension used for source code files in this language.
+    virtual const string& getSourceFileExtension() const = 0;
+
     /// Return the array suffix to use for declaring an array type.
     virtual string getArrayTypeSuffix(const TypeDesc*, const Value&) const { return EMPTY_STRING; };
 

@@ -180,6 +180,7 @@ public:
 
 const string MdlSyntax::CONST_QUALIFIER = "";
 const string MdlSyntax::UNIFORM_QUALIFIER = "uniform";
+const string MdlSyntax::SOURCE_FILE_EXTENSION = ".mdl";
 const StringVec MdlSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
 const StringVec MdlSyntax::VECTOR3_MEMBERS = { ".x", ".y", ".z" };
 const StringVec MdlSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };

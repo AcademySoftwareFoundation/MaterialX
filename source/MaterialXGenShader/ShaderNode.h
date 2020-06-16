@@ -355,7 +355,6 @@ class ShaderNode
         // Types based on nodegroup
         static const uint32_t SAMPLE2D      = 1 << 17; /// Can be sampled in 2D (uv space)
         static const uint32_t SAMPLE3D      = 1 << 18; /// Can be sampled in 3D (position)
-        static const uint32_t CONVOLUTION2D = 1 << 19; /// Performs a convolution in 2D (uv space)
     };
 
     /// @struct ScopeInfo
@@ -400,7 +399,6 @@ class ShaderNode
     static const string TEXTURE3D_GROUPNAME;
     static const string PROCEDURAL2D_GROUPNAME;
     static const string PROCEDURAL3D_GROUPNAME;
-    static const string CONVOLUTION2D_GROUPNAME;
 
   public:
     /// Constructor.

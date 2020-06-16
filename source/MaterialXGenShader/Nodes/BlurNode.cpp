@@ -74,6 +74,16 @@ void BlurNode::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& 
     }
 }
 
+void BlurNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+{
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+        // Emit sampling functions
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitInclude("stdlib/" + shadergen.getLanguage() + "/lib/mx_sampling" + shadergen.getSyntax().getSourceFileExtension(), context, stage);
+        shadergen.emitLineBreak(stage);
+    END_SHADER_STAGE(shader, Stage::PIXEL)
+}
+
 void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)

@@ -151,14 +151,6 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
         emitSpecularEnvironment(context, pixelStage);
     }
 
-    // Emit sampling code if needed
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
-    {
-        // Emit sampling functions
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context, pixelStage);
-        emitLineBreak(pixelStage);
-    }
-
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
     _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE +

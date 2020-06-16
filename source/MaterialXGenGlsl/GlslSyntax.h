@@ -26,6 +26,7 @@ class GlslSyntax : public Syntax
     const string& getOutputQualifier() const override { return OUTPUT_QUALIFIER; }
     const string& getConstantQualifier() const override { return CONSTANT_QUALIFIER; };
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };
+    const string& getSourceFileExtension() const override { return SOURCE_FILE_EXTENSION; };
 
     bool typeSupported(const TypeDesc* type) const override;
 
@@ -37,6 +38,7 @@ class GlslSyntax : public Syntax
     static const string OUTPUT_QUALIFIER;
     static const string UNIFORM_QUALIFIER;
     static const string CONSTANT_QUALIFIER;
+    static const string SOURCE_FILE_EXTENSION;
 
     static const StringVec VEC2_MEMBERS;
     static const StringVec VEC3_MEMBERS;

@@ -257,6 +257,11 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");
             }
 
+            // For each new file clear the implementation cache.
+            // Since the new file might contain implementations with names
+            // colliding with implementations in previous test cases.
+            context.clearNodeImplementations();
+
             doc->importLibrary(dependLib, &copyOptions);
             ioTimer.endTimer();
 

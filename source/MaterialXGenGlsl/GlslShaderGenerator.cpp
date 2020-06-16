@@ -504,13 +504,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
-    // Emit texture sampling code
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
-    {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context, stage);
-        emitLineBreak(stage);
-    }
-
     // Emit lighting and shadowing code
     if (lighting)
     {

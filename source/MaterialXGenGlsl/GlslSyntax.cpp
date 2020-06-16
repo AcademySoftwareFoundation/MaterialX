@@ -101,6 +101,7 @@ const string GlslSyntax::INPUT_QUALIFIER = "in";
 const string GlslSyntax::OUTPUT_QUALIFIER = "out";
 const string GlslSyntax::UNIFORM_QUALIFIER = "uniform";
 const string GlslSyntax::CONSTANT_QUALIFIER = "const";
+const string GlslSyntax::SOURCE_FILE_EXTENSION = ".glsl";
 const StringVec GlslSyntax::VEC2_MEMBERS = { ".x", ".y" };
 const StringVec GlslSyntax::VEC3_MEMBERS = { ".x", ".y", ".z" };
 const StringVec GlslSyntax::VEC4_MEMBERS = { ".x", ".y", ".z", ".w" };

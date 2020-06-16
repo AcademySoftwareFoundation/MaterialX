@@ -1021,12 +1021,6 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
     _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
 
-    // Check if the node is a convolution node and mark the graph as such.
-    if (newNode->hasClassification(Classification::CONVOLUTION2D))
-    {
-        _classification |= Classification::CONVOLUTION2D;
-    }
-
     // Check if any of the node inputs should be connected to the graph interface
     for (ValueElementPtr elem : node.getChildrenOfType<ValueElement>())
     {

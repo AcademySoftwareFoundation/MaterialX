@@ -224,11 +224,6 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     {
         emitLine(module, stage);
     }
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
-    {
-        // TODO: create a package with the convolution functions
-        // emitLine("import materialx::convolution::*", stage);
-    }
 
     // Add global constants and type definitions
     emitTypeDefinitions(context, stage);
