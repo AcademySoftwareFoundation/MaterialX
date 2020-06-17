@@ -2,6 +2,21 @@
 
 ## [1.37.2] - Development
 
+- ADSK : ShaderGen general changes
+  - Fix handling of included functions for convolution nodes (PR 909)
+  - Improve layering in OSL (#901)
+  - Support for vertical layering through a layer operator node. (#892)
+  - Use mod() vs fmod() logic for OSL and MDL codegen (#871). Only for 1.38
+- ADSK : OpenGL ShaderGen layout support
+  - Fix regressions with layout bindings. (#906)
+  - Fix regression with search paths in MaterialXView (#894)
+  - Test case and python bindings (#898)
+  - Enable GlslShaderGenerator to add `layout` in generated code. (#896) 
+- ADSK Definition publishing support:
+  - Makes it so that on read when an interface name has a matching node (#905)
+  - Fix input traversal so "output" attribute is optional if nodename/nodegraph specified. (#882)
+  - Add in nodedef from nodegraph utilities (#848)
+
 ## [1.37.1] - 2020-06-04
 
 ### Added
