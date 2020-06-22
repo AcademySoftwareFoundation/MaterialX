@@ -1,0 +1,6 @@
+
+# Ignore the build wasm folder
+**/_build/*
+
+test/node_modules/*
+test/package-lock.json

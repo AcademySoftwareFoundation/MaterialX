@@ -7,6 +7,7 @@
 - [MaterialXGenOsl](MaterialXGenOsl) : OSL shading language generation support.
 - [MaterialXTest](MaterialXTest) : Unit tests for all MaterialX libraries.
 - [MaterialXView](MaterialXView) : Default material viewer.
-- [PyMaterialX](PyMaterialX) : Python wrappers for C++ modules
+- [PyMaterialX](PyMaterialX) : Python wrappers for C++ modules.
+- [JsMaterialX](JsMaterialX) : JavaScript bindings for C++ modules.
 
 \[1\] <a class="anchor" id="1"></a> For more details, see the [Shader Generation Guide](../documents/DeveloperGuide/ShaderGeneration.md) and the [MaterialX Data Libraries](../libraries/README.md) containing node definitions and implementations.

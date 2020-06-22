@@ -11,6 +11,7 @@ MaterialX is an open standard for transfer of rich material and look-development
 - Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
+- Select the `MATERIALX_BUILD_JS` option to build JavaScript bindings.
 - Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.
 
 ### Supported Platforms
@@ -23,6 +24,8 @@ The MaterialX codebase requires a compiler with support for C++11, and can be bu
 
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 2.7 and 3.x.
 
+The JavaScript bindings for MaterialX are based on [emscripten](https://emscripten.org/).
+
 ### Repository
 
 The MaterialX repository consists of the following folders:
@@ -30,6 +33,7 @@ The MaterialX repository consists of the following folders:
 - [documents](documents) - MaterialX documentation, including the specification and developer guide.
 - [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the standard and physically-based-shading nodes.
 - [python](python) - Support modules and example scripts for MaterialX Python.
+- [javascript](source/JsMaterialX) - Support modules and tests for MaterialX JavaScript.
 - [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
 - [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
 
@@ -68,4 +72,5 @@ The following binaries are automatically generated from the latest GitHub revisi
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
 - The [Python Scripts](python/Scripts/README.md) folder contains standalone examples of MaterialX Python code.
+- The [JavaScript](source/JsMaterialX/README.md) source folder contains more information about the setup.
 - Presentations at the [Autodesk Vision Series](https://area.autodesk.com/blogs/thebuzz/open-source-at-autodesk-materialx/) provide details on the roadmap for MaterialX development.

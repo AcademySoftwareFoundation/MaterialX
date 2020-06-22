@@ -1,3 +1,23 @@
+option(MATERIALX_BUILD_JS "Build the MaterialX Javascript package from C++ bindings. Requires the emscripten environment." OFF)
+set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'C:/emsdk').")
+
+if (MATERIALX_BUILD_JS)
+    # Set the the emsdk path
+    if (EXISTS "${MATERIALX_EMSDK_PATH}")        
+        set(EMSDK_PATH ${MATERIALX_EMSDK_PATH})
+    elseif (EXISTS $ENV{EMSDK})
+        set(EMSDK_PATH $ENV{EMSDK})
+    endif()
+
+    if (EMSDK_PATH)
+        # NOTE: Setting the CMAKE_TOOLCHAIN_FILE needs to happen before calling project()
+        set(CMAKE_TOOLCHAIN_FILE "${MATERIALX_EMSDK_PATH}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
+    else()
+        message("The EMSDK path was not supplied, disabling MATERIALX_BUILD_JS")
+        set(MATERIALX_BUILD_JS OFF)
+    endif()
+endif()
+
 project(MaterialX)
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 37)
@@ -277,6 +297,10 @@ endif()
 if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(source/PyMaterialX)
     add_subdirectory(python)
+endif()
+
+if(MATERIALX_BUILD_JS)
+    add_subdirectory(source/JsMaterialX)
 endif()
 
 if(MATERIALX_BUILD_DOCS)

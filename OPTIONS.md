@@ -86,6 +86,14 @@ The following options are affected when `MATERIALX_BUILD_GEN_ARNOLD=ON`:
 
 -   `MATERIALX_BUILD_GEN_OSL`: forced to `ON`
 
+### `MATERIALX_BUILD_JS` (default: `OFF`)
+
+Build the MaterialX JavaScript package. Requires [Emscripten 1.39.7](https://emscripten.org/docs/getting_started/downloads.html) or greater.
+
+The following additional options are only relevant when `MATERIALX_BUILD_JS=ON`:
+
+-   `MATERIALX_EMSDK_PATH` (default: `OFF`): Path that is used when setting up the emscripten tool chain.
+
 ## Compiler Options
 
 ### `MATERIALX_WARNINGS_AS_ERRORS` (default: `OFF`)
