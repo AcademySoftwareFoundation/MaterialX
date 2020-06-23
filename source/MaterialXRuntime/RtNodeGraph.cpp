@@ -44,8 +44,9 @@ RtPrim RtNodeGraph::createPrim(const RtToken& typeName, const RtToken& name, RtP
 RtInput RtNodeGraph::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
     PvtPrim* socket = prim()->getChild(SOCKETS);
-    socket->createOutput(name, type, flags | RtAttrFlag::SOCKET);
-    return prim()->createInput(name, type, flags)->hnd();
+    RtInput input = prim()->createInput(name, type, flags)->hnd();
+    socket->createOutput(input.getName(), type, flags | RtAttrFlag::SOCKET);
+    return input;
 }
 
 void RtNodeGraph::removeInput(const RtToken& name)
@@ -60,7 +61,7 @@ void RtNodeGraph::removeInput(const RtToken& name)
     prim()->removeAttribute(name);
 }
 
-void RtNodeGraph::renameInput(const RtToken& name, const RtToken& newName)
+RtToken RtNodeGraph::renameInput(const RtToken& name, const RtToken& newName)
 {
     PvtInput* input = prim()->getInput(name);
     if (!(input && input->isA<PvtInput>()))
@@ -68,15 +69,17 @@ void RtNodeGraph::renameInput(const RtToken& name, const RtToken& newName)
         throw ExceptionRuntimeError("No input found with name '" + name.str() + "'");
     }
     PvtPrim* socket = prim()->getChild(SOCKETS);
-    socket->renameAttribute(name, newName);
-    prim()->renameAttribute(name, newName);
+    RtToken newPrimAttrName = prim()->renameAttribute(name, newName);
+    socket->setAttributeName(name, newPrimAttrName);
+    return newPrimAttrName;
 }
 
 RtOutput RtNodeGraph::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
     PvtPrim* socket = prim()->getChild(SOCKETS);
-    socket->createInput(name, type, flags | RtAttrFlag::SOCKET);
-    return prim()->createOutput(name, type, flags)->hnd();
+    RtOutput output = prim()->createOutput(name, type, flags)->hnd();
+    socket->createInput(output.getName(), type, flags | RtAttrFlag::SOCKET);
+    return output;
 }
 
 void RtNodeGraph::removeOutput(const RtToken& name)
@@ -91,7 +94,7 @@ void RtNodeGraph::removeOutput(const RtToken& name)
     prim()->removeAttribute(name);
 }
 
-void RtNodeGraph::renameOutput(const RtToken& name, const RtToken& newName)
+RtToken RtNodeGraph::renameOutput(const RtToken& name, const RtToken& newName)
 {
     PvtOutput* output = prim()->getOutput(name);
     if (!(output && output->isA<PvtOutput>()))
@@ -99,8 +102,9 @@ void RtNodeGraph::renameOutput(const RtToken& name, const RtToken& newName)
         throw ExceptionRuntimeError("No output found with name '" + name.str() + "'");
     }
     PvtPrim* socket = prim()->getChild(SOCKETS);
-    socket->renameAttribute(name, newName);
-    prim()->renameAttribute(name, newName);
+    RtToken newPrimAttrName = prim()->renameAttribute(name, newName);
+    socket->setAttributeName(name, newPrimAttrName);
+    return newPrimAttrName;
 }
 
 RtOutput RtNodeGraph::getInputSocket(const RtToken& name) const

@@ -148,28 +148,20 @@ PvtAttribute* PvtPrim::createAttribute(const RtToken& name, const RtToken& type,
 
 PvtInput* PvtPrim::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    if (getAttribute(name))
-    {
-        throw ExceptionRuntimeError("An input named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
-    }
-
-    PvtDataHandle attrH(new PvtInput(name, type, flags, this));
+    RtToken uniqueName = makeUniqueChildName(name);
+    PvtDataHandle attrH(new PvtInput(uniqueName, type, flags, this));
     _attrOrder.push_back(attrH);
-    _attrMap[name] = attrH;
+    _attrMap[uniqueName] = attrH;
 
     return attrH->asA<PvtInput>();
 }
 
 PvtOutput* PvtPrim::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
-    if (getAttribute(name))
-    {
-        throw ExceptionRuntimeError("An output named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
-    }
-
-    PvtDataHandle attrH(new PvtOutput(name, type, flags, this));
+    RtToken uniqueName = makeUniqueChildName(name);
+    PvtDataHandle attrH(new PvtOutput(uniqueName, type, flags, this));
     _attrOrder.push_back(attrH);
-    _attrMap[name] = attrH;
+    _attrMap[uniqueName] = attrH;
 
     return attrH->asA<PvtOutput>();
 }
@@ -193,12 +185,8 @@ void PvtPrim::removeAttribute(const RtToken& name)
     }
 }
 
-void PvtPrim::renameAttribute(const RtToken& name, const RtToken& newName)
+void PvtPrim::setAttributeName(const RtToken& name, const RtToken& newName)
 {
-    if (getAttribute(newName))
-    {
-        throw ExceptionRuntimeError("An attribute named '" + newName.str() + "' already exists in prim '" + getName().str() + "'");
-    }
     PvtAttribute* attr = getAttribute(name);
     if (attr)
     {
@@ -206,6 +194,17 @@ void PvtPrim::renameAttribute(const RtToken& name, const RtToken& newName)
         _attrMap[newName] = attr->hnd();
         _attrMap.erase(name);
     }
+    else
+    {
+        throw ExceptionRuntimeError("Unable to set attribute name. Attribute named: " + name.str() + " does not exist.");
+    }
+}
+
+RtToken PvtPrim::renameAttribute(const RtToken& name, const RtToken& newName)
+{
+    RtToken uniqueNewName = makeUniqueChildName(newName);
+    setAttributeName(name, uniqueNewName);
+    return uniqueNewName;
 }
 
 RtAttrIterator PvtPrim::getAttributes(RtObjectPredicate predicate) const
@@ -224,7 +223,8 @@ RtToken PvtPrim::makeUniqueChildName(const RtToken& name) const
 
     // Check if there is another child with this name.
     const PvtPrim* otherChild = getChild(name);
-    if (otherChild)
+    const PvtAttribute* otherAttr = getAttribute(name);
+    if (otherChild || otherAttr)
     {
         // Find a number to append to the name, incrementing
         // the counter until a unique name is found.
@@ -241,7 +241,8 @@ RtToken PvtPrim::makeUniqueChildName(const RtToken& name) const
         do {
             newName = baseName + std::to_string(i++);
             otherChild = getChild(newName);
-        } while (otherChild);
+	    otherAttr = getAttribute(newName);
+        } while (otherChild || otherAttr);
     }
     return newName;
 }

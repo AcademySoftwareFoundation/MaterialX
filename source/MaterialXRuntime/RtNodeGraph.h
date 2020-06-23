@@ -31,8 +31,10 @@ public:
     /// Remove an input attribute from the graph.
     void removeInput(const RtToken& name);
 
-    /// Rename an input attribute in the graph.
-    void renameInput(const RtToken& name, const RtToken& newName);
+    /// Rename an input attribute in the graph. Return the actual new name which may not
+    /// match the provided newName as it may already exist as a child node, input or output
+    /// name.
+    RtToken renameInput(const RtToken& name, const RtToken& newName);
 
     /// Add an output attribute to the graph.
     RtOutput createOutput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
@@ -40,8 +42,10 @@ public:
     /// Remove an output attribute from the graph.
     void removeOutput(const RtToken& name);
 
-    /// Rename an output attribute in the graph.
-    void renameOutput(const RtToken& name, const RtToken& newName);
+    /// Rename an output attribute in the graph. Return the actual new name which may not
+    /// match the provided newName as it may already exist as a child node, input or output
+    /// name.
+    RtToken renameOutput(const RtToken& name, const RtToken& newName);
 
     /// Return the internal socket that corresponds
     /// to the named input attribute.

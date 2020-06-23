@@ -2431,4 +2431,106 @@ TEST_CASE("Runtime: logging", "[runtime]")
     REQUIRE("Info: Test" == logger->result);
 }
 
+TEST_CASE("Runtime: duplicate name", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+
+    mx::RtStagePtr stage = api->createStage(ROOT);
+
+    // Create a new nodedef for an add node.
+    mx::RtNodeDef addFloat = stage->createPrim("/ND_add_float", mx::RtNodeDef::typeName());
+    addFloat.setNode(ADD);
+    addFloat.createInput(IN1, mx::RtType::FLOAT);
+    addFloat.createInput(IN2, mx::RtType::FLOAT);
+    addFloat.createOutput(OUT, mx::RtType::FLOAT);
+    addFloat.registerMasterPrim();
+
+    // Create a nodegraph object.
+    mx::RtNodeGraph graph1 = stage->createPrim("/graph1", mx::RtNodeGraph::typeName());
+    REQUIRE(graph1.isValid());
+
+    // Create add node in the graph.
+    mx::RtNode add1Node = stage->createPrim("/graph1/add1", addFloat.getName());
+    REQUIRE(graph1.getNode(add1Node.getName()));
+
+    // Add an interface to the graph.
+    mx::RtInput Ainput = graph1.createInput(A, mx::RtType::FLOAT);
+    graph1.createOutput(OUT, mx::RtType::FLOAT);
+    REQUIRE(graph1.getPrim().getAttribute(A));
+    REQUIRE(graph1.getPrim().getAttribute(OUT));
+    REQUIRE(graph1.getInput(A));
+    REQUIRE(graph1.getOutput(OUT));
+    REQUIRE(graph1.getInputSocket(A));
+    REQUIRE(graph1.getOutputSocket(OUT));
+
+    mx::RtToken add1("add1");
+    mx::RtToken add2("add2");
+    mx::RtToken add3("add3");
+    mx::RtToken add4("add4");
+    mx::RtToken add5("add5");
+
+    auto duplicateCount = [graph1](const mx::RtToken& name)
+    {
+        unsigned int count = 0;
+        for (auto inputIttr = graph1.getInputs(); !inputIttr.isDone(); ++inputIttr)
+        {
+            auto input = *inputIttr;
+            if (input.getName() == name)
+            {
+                count++;
+            }
+        }
+        for (auto outputIttr = graph1.getOutputs(); !outputIttr.isDone(); ++outputIttr)
+        {
+            auto output = *outputIttr;
+            if (output.getName() == name)
+            {
+                count++;
+            }
+        }
+        for (auto nodeIttr = graph1.getNodes(); !nodeIttr.isDone(); ++nodeIttr)
+        {
+            auto node = *nodeIttr;
+            if (node.getName() == name)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    };
+
+    // Test renaming the input to the name of the node
+    REQUIRE(graph1.renameInput(A, add1) == add2);
+    REQUIRE(!graph1.getInput(A));
+    REQUIRE(!graph1.getInputSocket(A));
+    REQUIRE(!graph1.getInput(add1));
+    REQUIRE(!graph1.getInputSocket(add1));
+    REQUIRE(graph1.getInput(add2));
+    REQUIRE(graph1.getInputSocket(add2));
+    REQUIRE(duplicateCount(add2) == 1);
+
+    // Test renaming the output to the name of the node
+    REQUIRE(graph1.renameOutput(OUT, add1) == add3);
+    REQUIRE(!graph1.getOutput(OUT));
+    REQUIRE(!graph1.getOutputSocket(OUT));
+    REQUIRE(!graph1.getOutput(add1));
+    REQUIRE(!graph1.getOutputSocket(add1));
+    REQUIRE(graph1.getOutput(add3));
+    REQUIRE(graph1.getOutputSocket(add3));
+    REQUIRE(duplicateCount(add3) == 1);
+
+    // Add an interface to the graph with the same name as the add node.
+    mx::RtInput input2 = graph1.createInput(add1, mx::RtType::FLOAT);
+    REQUIRE(graph1.getInput(add4));
+    REQUIRE(graph1.getInputSocket(add4));
+    REQUIRE(duplicateCount(add4) == 1);
+
+    // Add an output to the graph with the same name as the add node.
+    mx::RtOutput output2 = graph1.createOutput(add1, mx::RtType::FLOAT);
+    REQUIRE(graph1.getOutput(add5));
+    REQUIRE(graph1.getOutputSocket(add5));
+    REQUIRE(duplicateCount(add5) == 1);
+}
+
 #endif // MATERIALX_BUILD_RUNTIME
