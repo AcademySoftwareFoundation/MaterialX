@@ -59,7 +59,7 @@ class RtWriteOptions
     /// includes rather than explicit data.  Defaults to true.
     bool writeIncludes;
 
-    // If true, writes out nodegraph inputs
+    // If true, writes out nodegraph inputs. Default value is false.
     bool writeNodeGraphInputs;
 
     /// Filter function type used for filtering objects during write.

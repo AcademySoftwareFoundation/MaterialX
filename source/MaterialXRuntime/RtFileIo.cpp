@@ -389,6 +389,14 @@ namespace
                             const RtToken inputType(elem->getType());
                             RtInput input = schema.createInput(socketName, inputType);
                             socket = schema.getInputSocket(input.getName());
+
+                            // Set the input value
+                            const string& valueStr = elem->getValueString();
+                            if (!valueStr.empty())
+                            {
+                                const RtToken portType(elem->getType());
+                                RtValue::fromString(portType, valueStr, input.getValue());
+                            }
                         }
 
                         RtInput input(findInputOrThrow(inputName, node)->hnd());
@@ -784,9 +792,10 @@ namespace
                                 valueElem->setInterfaceName(source.getName());
                             }
                         }
-                        else
+                        const string& inputValueString = input.getValueString(); 
+                        if (!inputValueString.empty())
                         {
-                            valueElem->setValueString(input.getValueString());
+                            valueElem->setValueString(inputValueString);
                         }
                     }
                     else
@@ -797,8 +806,13 @@ namespace
                             RtOutput source = input.getConnection();
                             if (source.isSocket())
                             {
-                                // This is a connection to the internal socket of a graph
+                                // This is a connection to the internal socket of a graph                                
                                 valueElem->setInterfaceName(source.getName());
+                                const string& inputValueString = input.getValueString();
+                                if (!inputValueString.empty())
+                                {
+                                    valueElem->setValueString(inputValueString);
+                                }
                             }
                             else
                             {
@@ -925,7 +939,7 @@ namespace
 
         RtNodeGraph nodegraph(src->hnd());
 
-        if (!writeOptions || writeOptions->writeNodeGraphInputs)
+        if (writeOptions && writeOptions->writeNodeGraphInputs)
         {
             // Write inputs/parameters.
             RtObjTypePredicate<RtInput> inputsFilter;
@@ -1165,6 +1179,10 @@ namespace
             {
                 writeNodeGraph(prim, doc, writeOptions);
             }
+            else if (typeName == RtBackdrop::typeName())
+            {
+                //writeBackdrop(prim, doc)
+            }
             else if (typeName != RtLook::typeName() &&
                      typeName != RtLookGroup::typeName() &&
                      typeName != RtMaterialAssign::typeName() &&
@@ -1277,7 +1295,7 @@ RtReadOptions::RtReadOptions() :
 
 RtWriteOptions::RtWriteOptions() :
     writeIncludes(true),
-    writeNodeGraphInputs(true),
+    writeNodeGraphInputs(false),
     writeFilter(nullptr),
     materialWriteOp(NONE),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),
