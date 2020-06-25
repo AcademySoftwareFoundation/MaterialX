@@ -57,6 +57,10 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
 void Material::updateUniformsList()
 {
     _uniformVariable.clear();
+    if (!_glShader)
+    {
+        return;
+    }
 
     // Must bind to be able to inspect the uniforms
     _glShader->bind();
@@ -82,6 +86,13 @@ void Material::updateUniformsList()
     delete[] uniformName;
 }
 
+void Material::clearShader()
+{
+    _hwShader = nullptr;
+    _glShader = nullptr;
+    _uniformVariable.clear();
+}
+
 bool Material::generateShader(mx::GenContext& context)
 {
     if (!_elem)
@@ -95,11 +106,10 @@ bool Material::generateShader(mx::GenContext& context)
     materialContext.getOptions().hwTransparency = _hasTransparency;
     materialContext.getOptions().hwShadowMap = materialContext.getOptions().hwShadowMap && !_hasTransparency;
 
+    // Initialize in case creation fails and throws an exception
+    clearShader();
+
     _hwShader = createShader("Shader", materialContext, _elem);
-    if (!_hwShader)
-    {
-        return false;
-    }
 
     std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
     std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
@@ -154,16 +164,17 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
 
     // Create the shader.
     std::string shaderName = "__ENV_SHADER__";
+    bool generated = false;
     try
     {
         _hwShader = createShader(shaderName, context, output); 
+        generated = generateShader(_hwShader);
     }
-    catch (std::exception&)
+    catch (std::exception& e)
     {
-        return false;
+        std::cerr << "Failed to generate environment shader: " << e.what() << std::endl;
     }
-
-    return generateShader(_hwShader);
+    return generated;
 }
 
 void Material::bindShader()
@@ -264,6 +275,10 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
     _boundImages.clear();
 
     const mx::VariableBlock* publicUniforms = getPublicUniforms();
+    if (!publicUniforms)
+    {
+        return;
+    }
     for (const auto& uniform : publicUniforms->getVariableOrder())
     {
         if (uniform->getType() != mx::Type::FILENAME)

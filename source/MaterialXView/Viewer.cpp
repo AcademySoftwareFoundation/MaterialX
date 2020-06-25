@@ -1107,7 +1107,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     else
                     {
                         // Generate a shader for the new material.
-                        mat->generateShader(_genContext);
+                        try
+                        {
+                            mat->generateShader(_genContext);
+                        }
+                        catch (std::exception& e)
+                        {
+                            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
+                            continue;
+                        }
                         if (udimElement == elem)
                         {
                             udimMaterial = mat;
@@ -1117,7 +1125,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 else
                 {
                     // Generate a shader for the new material.
-                    mat->generateShader(_genContext);
+                    try
+                    {
+                        mat->generateShader(_genContext);
+                    }
+                    catch (std::exception& e)
+                    {
+                        mat->copyShader(_wireMaterial);
+                        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
+                    }
                 }
 
                 // Apply geometric assignments specified in the document, if any.
@@ -1618,12 +1634,20 @@ void Viewer::renderFrame()
             continue;
         }
 
+        if (material->getShader()->name() == "__WIRE_SHADER__")
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
         material->bindShader();
         material->bindViewInformation(world, view, proj);
         material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
+        if (material->getShader()->name() == "__WIRE_SHADER__")
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
     }
 
     // Transparent pass

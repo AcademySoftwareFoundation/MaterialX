@@ -636,14 +636,19 @@ bool elementRequiresShading(ConstTypedElementPtr element)
 
 vector<NodePtr> getShaderNodes(const NodePtr materialNode, const string& shaderType, const string& target)
 {
-    DocumentPtr doc = materialNode->getDocument();
+    ElementPtr parent = materialNode ? materialNode->getParent() : nullptr;
+    if (!parent)
+    {
+        throw ExceptionShaderGenError("Could not find a parent for material node '" + (materialNode ? materialNode->getNamePath() : EMPTY_STRING) + "'");
+    }
+
     vector<NodePtr> shaderNodes;
     for (const InputPtr& input : materialNode->getActiveInputs())
     {
         const string& inputShader = input->getNodeName();
         if (!inputShader.empty())
         {
-            NodePtr shaderNode = doc->getNode(inputShader);
+            NodePtr shaderNode = parent->getChildOfType<Node>(inputShader);
             if (shaderNode)
             {
                 if (!target.empty())
@@ -657,6 +662,42 @@ vector<NodePtr> getShaderNodes(const NodePtr materialNode, const string& shaderT
                 if (shaderType.empty() || shaderNode->getType() == shaderType)
                 {
                     shaderNodes.push_back(shaderNode);
+                }
+            }
+        }
+        else
+        {
+            const string& inputGraph = input->getNodeGraphName();
+            if (!inputGraph.empty())
+            {
+                NodeGraphPtr nodeGraph = parent->getChildOfType<NodeGraph>(inputGraph);
+                if (nodeGraph)
+                {
+                    const string& nodeGraphOutput = input->getOutputString();
+                    OutputPtr out = nullptr;
+                    if (!nodeGraphOutput.empty())
+                    {
+                        out = nodeGraph->getOutput(nodeGraphOutput);
+                    }
+                    else
+                    {
+                        std::vector<OutputPtr> outputs = nodeGraph->getOutputs();
+                        if (!outputs.empty())
+                        {
+                            out = outputs[0];
+                        }
+                    }
+                    if (out)
+                    {
+                        if (shaderType.empty() || out->getType() == shaderType)
+                        {
+                            NodePtr upstreamNode = out->getConnectedNode();
+                            if (upstreamNode)
+                            {
+                                shaderNodes.push_back(upstreamNode);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -697,22 +738,25 @@ void findRenderableMaterialNodes(ConstDocumentPtr doc,
 {
     for (const NodePtr& material : doc->getMaterialNodes())
     {
-        // Push the material node only once.
-        elements.push_back(material);
-
-        // Scan for any upstream shader outpus and put them on the "processed" list
+        // Scan for any upstream shader outputs and put them on the "processed" list
         // if we don't want to consider them for rendering.
         vector<NodePtr> shaderNodes = getShaderNodes(material);
-        for (NodePtr shaderNode : shaderNodes)
+        if (!shaderNodes.empty())
         {
+            // Push the material node only once if any shader nodes are found
+            elements.push_back(material);
+
             if (!includeReferencedGraphs)
             {
-                for (InputPtr input : shaderNode->getActiveInputs())
+                for (NodePtr shaderNode : shaderNodes)
                 {
-                    OutputPtr outputPtr = input->getConnectedOutput();
-                    if (outputPtr && !outputPtr->hasSourceUri() && !processedOutputs.count(outputPtr))
+                    for (InputPtr input : shaderNode->getActiveInputs())
                     {
-                        processedOutputs.insert(outputPtr);
+                        OutputPtr outputPtr = input->getConnectedOutput();
+                        if (outputPtr && !outputPtr->hasSourceUri() && !processedOutputs.count(outputPtr))
+                        {
+                            processedOutputs.insert(outputPtr);
+                        }
                     }
                 }
             }

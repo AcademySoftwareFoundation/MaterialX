@@ -211,6 +211,7 @@ class Material
     void setUniformEnum(const std::string& path, int index, const std::string& value);
 
   protected:
+    void clearShader();
     void bindUniform(const std::string& name, mx::ConstValuePtr value);
     void updateUniformsList();
 
