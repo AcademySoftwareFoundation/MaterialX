@@ -611,10 +611,11 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
         {
             const string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
 
-            // Skip binding if nothing to bind or if is a lighting texture.
-            // Lighting textures are handled in the bindLighting() call
-            if (!fileName.empty() &&
-                fileName != HW::ENV_RADIANCE &&
+            // Always bind a texture unless it is a lighting texture.
+            // Lighting textures are handled in the bindLighting() call.
+            // If no texture can be loaded then the default color defined in 
+            // "samplingProperties" will be used to create a fallback texture.
+            if (fileName != HW::ENV_RADIANCE &&
                 fileName != HW::ENV_IRRADIANCE)
             {
                 ImageSamplingProperties samplingProperties;
