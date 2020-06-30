@@ -194,18 +194,13 @@ int main(int argc, char* const argv[])
     }
 
     // Add default search paths for the viewer.
-    mx::FilePath installSearchPath = mx::FilePath::getModulePath().getParentPath();
-    mx::FilePath devSearchPath = installSearchPath.getParentPath().getParentPath().getParentPath();
-    searchPath.append(installSearchPath);
-    if (!devSearchPath.isEmpty() && devSearchPath.exists())
-    {
-        searchPath.append(devSearchPath);
-        devSearchPath = devSearchPath / "libraries";
-        if (devSearchPath.exists())
-        {
-            searchPath.append(devSearchPath);
-        }
-    }
+	mx::FilePath rootDirPath = mx::FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
+	searchPath.append(rootDirPath);
+	rootDirPath = rootDirPath / "libraries";
+	if (rootDirPath.exists())
+	{
+		searchPath.append(rootDirPath);
+	}
 
     try
     {
