@@ -25,13 +25,13 @@ const float FAR_PLANE_PERSP = 100.0f;
 // GlslRenderer methods
 //
 
-GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height)
+GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Image::BaseType baseType)
 {
-    return GlslRendererPtr(new GlslRenderer(width, height));
+    return GlslRendererPtr(new GlslRenderer(width, height, baseType));
 }
 
-GlslRenderer::GlslRenderer(unsigned int width, unsigned int height) :
-    ShaderRenderer(width, height),
+GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
+    ShaderRenderer(width, height, baseType),
     _initialized(false),
     _eye(0.0f, 0.0f, 4.0f),
     _center(0.0f, 0.0f, 0.0f),
@@ -126,7 +126,7 @@ void GlslRenderer::initialize()
             glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
             glClearStencil(0);
 
-            _frameBuffer = GLFramebuffer::create(_width, _height, 4, Image::BaseType::UINT8);
+            _frameBuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
 
             _initialized = true;
         }
