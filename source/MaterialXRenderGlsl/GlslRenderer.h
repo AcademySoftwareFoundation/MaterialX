@@ -41,7 +41,7 @@ class GlslRenderer : public ShaderRenderer
 {
   public:
     /// Create a GLSL renderer instance
-    static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512);
+    static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
 
     /// Destructor
     virtual ~GlslRenderer();
@@ -108,7 +108,7 @@ class GlslRenderer : public ShaderRenderer
     /// @}
 
   protected:
-    GlslRenderer(unsigned int width, unsigned int height);
+    GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
     virtual void updateViewInformation();
     virtual void updateWorldInformation();
