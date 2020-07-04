@@ -52,6 +52,9 @@ class Image
 
     ~Image();
 
+    /// @name Property Accessors
+    /// @{
+
     /// Return the width of the image.
     unsigned int getWidth() const
     {
@@ -82,6 +85,36 @@ class Image
     /// Return the maximum number of mipmaps for this image.
     unsigned int getMaxMipCount() const;
 
+    /// @}
+    /// @name Texel Accessors
+    /// @{
+
+    /// Set the texel color at the given coordinates.  If the coordinates
+    /// or image resource buffer are invalid, then an exception is thrown.
+    void setTexelColor(unsigned int x, unsigned int y, const Color4& color);
+
+    /// Return the texel color at the given coordinates.  If the coordinates
+    /// or image resource buffer are invalid, then an exception is thrown.
+    Color4 getTexelColor(unsigned int x, unsigned int y) const;
+
+    /// @}
+    /// @name Image Processing
+    /// @{
+
+    /// Apply a 3x3 box blur to this image, returning a new blurred image.
+    ImagePtr applyBoxBlur();
+
+    /// Apply a 7x7 Gaussian blur to this image, returning a new blurred image.
+    ImagePtr applyGaussianBlur();
+
+    /// Split this image by the given luminance threshold, returning the
+    /// resulting underflow and overflow images.
+    ImagePair splitByLuminance(float luminance);
+
+    /// @}
+    /// @name Resource Buffers
+    /// @{
+
     /// Set the resource buffer for this image.
     void setResourceBuffer(void* buffer)
     {
@@ -93,6 +126,12 @@ class Image
     {
         return _resourceBuffer;
     }
+
+    /// Allocate a resource buffer for this image that matches its properties.
+    void createResourceBuffer();
+
+    /// Release the resource buffer for this image.
+    void releaseResourceBuffer();
 
     /// Set the resource buffer deallocator for this image.
     void setResourceBufferDeallocator(ImageBufferDeallocator deallocator)
@@ -106,6 +145,10 @@ class Image
         return _resourceBufferDeallocator;
     }
 
+    /// @}
+    /// @name Resource IDs
+    /// @{
+
     /// Set the resource ID for this image.
     void setResourceId(unsigned int id)
     {
@@ -118,29 +161,7 @@ class Image
         return _resourceId;
     }
 
-    /// Set the texel color at the given coordinates.  If the coordinates
-    /// or image resource buffer are invalid, then an exception is thrown.
-    void setTexelColor(unsigned int x, unsigned int y, const Color4& color);
-
-    /// Return the texel color at the given coordinates.  If the coordinates
-    /// or image resource buffer are invalid, then an exception is thrown.
-    Color4 getTexelColor(unsigned int x, unsigned int y) const;
-
-    /// Apply a 3x3 box blur to this image, returning a new blurred image.
-    ImagePtr applyBoxBlur();
-
-    /// Apply a 7x7 Gaussian blur to this image, returning a new blurred image.
-    ImagePtr applyGaussianBlur();
-
-    /// Split this image by the given luminance threshold, returning the
-    /// resulting underflow and overflow images.
-    ImagePair splitByLuminance(float luminance);
-
-    /// Allocate a resource buffer for this image that matches its properties.
-    void createResourceBuffer();
-
-    /// Release the resource buffer for this image.
-    void releaseResourceBuffer();
+    /// @}
 
   protected:
     Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType);

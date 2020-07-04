@@ -32,7 +32,7 @@ class OslRenderer : public ShaderRenderer
 {
   public:
     /// Create an OSL renderer instance
-    static OslRendererPtr create(unsigned int width = 512, unsigned int height = 512);
+    static OslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
 
     /// Destructor
     virtual ~OslRenderer();
@@ -226,7 +226,7 @@ class OslRenderer : public ShaderRenderer
     void renderOSL(const FilePath& dirPath, const string& shaderName, const string& outputName);
 
     /// Constructor
-    OslRenderer(unsigned int width, unsigned int height);
+    OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
   private:
     /// Path to "oslc" executable`
