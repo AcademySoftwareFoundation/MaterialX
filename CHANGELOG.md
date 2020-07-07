@@ -2,6 +2,10 @@
 
 ## [1.37.2] - Development
 
+- ILM : General
+  - Load standard libraries for MaterialXView regardless of build folder location (#922)
+- ILM : Baking
+  - Add support for floating-point render targets (#922)
 - ADSK : ShaderGen general changes
   - Fix handling of included functions for convolution nodes (#909)
   - Improve layering in OSL (#901)
@@ -15,6 +19,7 @@
 - ADSK : Render general changes
   - Enhance upstream shader search for <surfacematerial> node. Enhance MaterialXView shader failure handling. (#911)
   - Fix binding issue if empty filename given to bind with. Remove skipping binding in that condition. (#915)
+  - Disable C++20 Warning for TinyExrLoader (#922)
 - ADSK Definition publishing support:
   - Makes it so that on read when an interface name has a matching node (#905)
   - Fix input traversal so "output" attribute is optional if nodename/nodegraph specified. (#882)
