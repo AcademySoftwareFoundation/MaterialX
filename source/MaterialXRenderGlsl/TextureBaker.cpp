@@ -10,11 +10,16 @@
 namespace MaterialX
 {
 
-TextureBaker::TextureBaker(unsigned int width, unsigned int height) :
-    GlslRenderer(width, height),
-    _generator(GlslShaderGenerator::create()),
-    _extension(ImageLoader::PNG_EXTENSION)
+TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
+    GlslRenderer(width, height, baseType),
+    _generator(GlslShaderGenerator::create())
 {
+    // Assign a default extension for texture baking.
+    _extension = (baseType == Image::BaseType::UINT8) ?
+                 ImageLoader::PNG_EXTENSION :
+                 ImageLoader::HDR_EXTENSION;
+
+    // Initialize the underlying renderer.
     initialize();
 }
 
@@ -88,7 +93,10 @@ void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& fi
     NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph("NG_baked");
     MaterialPtr bakedMaterial = bakedTextureDoc->addMaterial("M_baked");
     ShaderRefPtr bakedShaderRef = bakedMaterial->addShaderRef(shaderRef->getName() + "_baked", shaderRef->getAttribute("node"));
-    bakedNodeGraph->setColorSpace("srgb_texture");
+    if (_baseType == Image::BaseType::UINT8)
+    {
+        bakedNodeGraph->setColorSpace("srgb_texture");
+    }
 
     // Create bind elements on the baked shader reference.
     for (ValueElementPtr valueElem : shaderRef->getChildrenOfType<ValueElement>())

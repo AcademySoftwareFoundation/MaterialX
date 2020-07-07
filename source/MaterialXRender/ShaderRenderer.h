@@ -126,17 +126,20 @@ class ShaderRenderer
     // Protected constructor
     ShaderRenderer() :
         _width(0),
-        _height(0)
+        _height(0),
+        _baseType(Image::BaseType::UINT8)
     { }
 
-    ShaderRenderer(unsigned int width, unsigned int height) :
+    ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
         _width(width),
-        _height(height)
+        _height(height),
+        _baseType(baseType)
     { }
 
   protected:
     unsigned int _width;
     unsigned int _height;
+    Image::BaseType _baseType;
 
     ImageHandlerPtr _imageHandler;
     GeometryHandlerPtr _geometryHandler;

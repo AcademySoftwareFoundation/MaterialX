@@ -24,13 +24,13 @@ string OslRenderer::OSL_CLOSURE_COLOR_STRING("closure color");
 // OslRenderer methods
 //
 
-OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height)
+OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height, Image::BaseType baseType)
 {
-    return std::shared_ptr<OslRenderer>(new OslRenderer(width, height));
+    return std::shared_ptr<OslRenderer>(new OslRenderer(width, height, baseType));
 }
 
-OslRenderer::OslRenderer(unsigned int width, unsigned int height) :
-    ShaderRenderer(width, height),
+OslRenderer::OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
+    ShaderRenderer(width, height, baseType),
     _useTestRender(true) // By default use testrender
 {
 }
