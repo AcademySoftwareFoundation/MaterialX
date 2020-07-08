@@ -80,6 +80,9 @@ class ImageSamplingProperties
     /// Filter type
     FilterType filterType = FilterType::UNSPECIFIED;
 
+    /// Enable mipmaps
+    bool enableMipmaps = true;
+
     /// Default color. Corresponds to the "default" value on the image
     /// node definition.
     Color4 defaultColor = { 0.0f, 0.0f, 0.0f, 1.0f };
