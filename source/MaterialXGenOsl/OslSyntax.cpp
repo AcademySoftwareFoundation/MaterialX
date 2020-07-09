@@ -503,7 +503,7 @@ OslSyntax::OslSyntax()
         Type::THINFILM,
         std::make_shared<AggregateTypeSyntax>(
             "thinfilm",
-            "{0.0, 1.5}",
+            "thinfilm(0.0, 1.5)",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct thinfilm { float thickness; float ior; };")
