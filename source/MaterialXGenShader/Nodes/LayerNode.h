@@ -20,8 +20,8 @@ class LayerNode : public ShaderNodeImpl
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     /// String constants
-    static const string TOP_STRING;
-    static const string BASE_STRING;
+    static const string TOP;
+    static const string BASE;
 };
 
 } // namespace MaterialX

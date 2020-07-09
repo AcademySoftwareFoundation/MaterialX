@@ -1180,55 +1180,17 @@ void ShaderGraph::finalize(GenContext& context)
     // Optimize the graph, removing redundant paths.
     optimize(context);
 
-    if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
-    {
-        // Publish all node inputs that has not been connected already.
-        for (const ShaderNode* node : getNodes())
-        {
-            for (ShaderInput* input : node->getInputs())
-            {
-                if (!input->getConnection())
-                {
-                    // Check if the type is editable otherwise we can't
-                    // publish the input as an editable uniform.
-                    if (input->getType()->isEditable() && node->isEditable(*input))
-                    {
-                        // Use a consistent naming convention: <nodename>_<inputname>
-                        // so application side can figure out what uniforms to set
-                        // when node inputs change on application side.
-                        const string interfaceName = node->getName() + "_" + input->getName();
+    // Let the generator perform any custom edits on the graph
+    context.getShaderGenerator().finalizeShaderGraph(*this);
 
-                        ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
-                        if (!inputSocket)
-                        {
-                            inputSocket = addInputSocket(interfaceName, input->getType());
-                            inputSocket->setPath(input->getPath());
-                            inputSocket->setValue(input->getValue());
-                            inputSocket->setUnit(input->getUnit());
-                            if (input->isUniform())
-                            {
-                                inputSocket->setUniform();
-                            }
-                        }
-                        inputSocket->makeConnection(input);
-                        inputSocket->setMetadata(input->getMetadata());
-                    }
-                }
-            }
-        }
-    }
+    // Set variable names for inputs and outputs in the graph.
+    setVariableNames(context);
 
     // Sort the nodes in topological order.
     topologicalSort();
 
     // Calculate scopes for all nodes in the graph.
     calculateScopes();
-
-    // Set variable names for inputs and outputs in the graph.
-    setVariableNames(context);
-
-    // Let the generator perform any custom edits on the graph
-    context.getShaderGenerator().finalizeShaderGraph(*this);
 
     // Analyze the graph and extract information needed by shader nodes and BSDF nodes.
     bool layerOperatorUsed = false;
@@ -1286,6 +1248,44 @@ void ShaderGraph::finalize(GenContext& context)
                     }
                 }
                 node->setFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL, exclude);
+            }
+        }
+    }
+
+    if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
+    {
+        // Publish all node inputs that has not been connected already.
+        for (const ShaderNode* node : getNodes())
+        {
+            for (ShaderInput* input : node->getInputs())
+            {
+                if (!input->getConnection())
+                {
+                    // Check if the type is editable otherwise we can't
+                    // publish the input as an editable uniform.
+                    if (input->getType()->isEditable() && node->isEditable(*input))
+                    {
+                        // Use a consistent naming convention: <nodename>_<inputname>
+                        // so application side can figure out what uniforms to set
+                        // when node inputs change on application side.
+                        const string interfaceName = node->getName() + "_" + input->getName();
+
+                        ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
+                        if (!inputSocket)
+                        {
+                            inputSocket = addInputSocket(interfaceName, input->getType());
+                            inputSocket->setPath(input->getPath());
+                            inputSocket->setValue(input->getValue());
+                            inputSocket->setUnit(input->getUnit());
+                            if (input->isUniform())
+                            {
+                                inputSocket->setUniform();
+                            }
+                        }
+                        inputSocket->makeConnection(input);
+                        inputSocket->setMetadata(input->getMetadata());
+                    }
+                }
             }
         }
     }

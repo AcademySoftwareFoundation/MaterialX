@@ -28,6 +28,9 @@
   <!-- <sheen_brdf> -->
   <implementation name="IM_sheen_brdf_genglsl" nodedef="ND_sheen_brdf" file="pbrlib/genglsl/mx_sheen_brdf.glsl" function="mx_sheen_brdf" language="genglsl"/>
 
+  <!-- <thin_film_brdf> -->
+  <implementation name="IM_thin_film_brdf_genglsl" nodedef="ND_thin_film_brdf" language="genglsl"/>
+
   <!-- <layer> -->
   <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" language="genglsl"/>
 

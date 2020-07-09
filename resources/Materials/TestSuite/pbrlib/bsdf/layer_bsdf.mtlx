@@ -8,10 +8,16 @@
       <input name="base" type="BSDF" nodename="diffuse_brdf_1" />
     </sheen_brdf>
     <dielectric_brdf name="dielectric_brdf_1" type="BSDF">
+      <input name="ior" type="float" value="2.5" />
       <input name="base" type="BSDF" nodename="sheen_brdf_1" />
     </dielectric_brdf>
+    <dielectric_brdf name="dielectric_brdf_2" type="BSDF">
+      <input name="ior" type="float" value="1.2" />
+      <input name="tint" type="color3" value="1,0,0" />
+      <input name="base" type="BSDF" nodename="dielectric_brdf_1" />
+    </dielectric_brdf>
     <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="dielectric_brdf_1" />
+      <input name="bsdf" type="BSDF" nodename="dielectric_brdf_2" />
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
@@ -20,7 +26,13 @@
   <nodegraph name="layer_bsdf_test2">
     <diffuse_brdf name="diffuse_brdf_1" type="BSDF" />
     <sheen_brdf name="sheen_brdf_1" type="BSDF" />
-    <dielectric_brdf name="dielectric_brdf_1" type="BSDF" />
+    <dielectric_brdf name="dielectric_brdf_1" type="BSDF">
+      <input name="ior" type="float" value="2.5" />
+    </dielectric_brdf>
+    <dielectric_brdf name="dielectric_brdf_2" type="BSDF">
+      <input name="ior" type="float" value="1.2" />
+      <input name="tint" type="color3" value="1,0,0" />
+    </dielectric_brdf>
     <layer name="layer_bsdf_1" type="BSDF">
       <input name="top" type="BSDF" nodename="sheen_brdf_1" />
       <input name="base" type="BSDF" nodename="diffuse_brdf_1" />
@@ -29,8 +41,12 @@
       <input name="top" type="BSDF" nodename="dielectric_brdf_1" />
       <input name="base" type="BSDF" nodename="layer_bsdf_1" />
     </layer>
+    <layer name="layer_bsdf_3" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_brdf_2" />
+      <input name="base" type="BSDF" nodename="layer_bsdf_2" />
+    </layer>
     <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="layer_bsdf_2" />
+      <input name="bsdf" type="BSDF" nodename="layer_bsdf_3" />
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>

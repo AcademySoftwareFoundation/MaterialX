@@ -310,6 +310,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             newNode->_classification |= Classification::LAYER;
         }
+        // Check specifically for the thin-film node
+        else if (nodeDef.getName() == "ND_thin_film_brdf")
+        {
+            newNode->_classification |= Classification::THINFILM;
+        }
     }
     else if (primaryOutput->getType() == Type::EDF)
     {

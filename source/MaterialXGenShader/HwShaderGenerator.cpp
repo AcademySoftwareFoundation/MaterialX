@@ -426,7 +426,7 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         const ShaderNode* classifyNode = &node;
         if (node.hasClassification(ShaderNode::Classification::LAYER))
         {
-            const ShaderInput* top = node.getInput(LayerNode::TOP_STRING);
+            const ShaderInput* top = node.getInput(LayerNode::TOP);
             if (top && top->getConnection())
             {
                 classifyNode = top->getConnection()->getNode();

@@ -462,6 +462,9 @@ ShaderNodeImplPtr MdlShaderGenerator::createCompoundImplementation(const NodeGra
 
 void MdlShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
 {
+    // NOTE: Don't call the base class ShaderGenerator::finalizeShaderGraph here to
+    // transform thin-film nodes, since MDL has explicit support for the thin-film node.
+
     // MDL does not allow varying volume IOR.
     // As a workaround break any connections to transmission IOR.
     //

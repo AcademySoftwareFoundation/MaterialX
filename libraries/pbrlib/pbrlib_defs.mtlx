@@ -67,7 +67,7 @@
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.5"/>
-    <input name="roughness" type="vector2" value="0.0, 0.0"/>
+    <input name="roughness" type="vector2" value="0.05, 0.05"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -84,7 +84,7 @@
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.5"/>
-    <input name="roughness" type="vector2" value="0.0, 0.0"/>
+    <input name="roughness" type="vector2" value="0.05, 0.05"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -101,7 +101,7 @@
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="reflectivity" type="color3" value="0.944, 0.776, 0.373" colorspace="lin_rec709"/>
     <input name="edge_color" type="color3" value="0.998, 0.981, 0.751" colorspace="lin_rec709"/>
-    <input name="roughness" type="vector2" value="0.0, 0.0"/>
+    <input name="roughness" type="vector2" value="0.05, 0.05"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -118,7 +118,7 @@
     <input name="color0" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="color90" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="exponent" type="float" value="5.0"/>
-    <input name="roughness" type="vector2" value="0.0, 0.0"/>
+    <input name="roughness" type="vector2" value="0.05, 0.05"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -160,7 +160,7 @@
   -->
   <nodedef name="ND_thin_film_brdf" node="thin_film_brdf" bsdf="R" nodegroup="pbr"
            doc="Adds an iridescent thin film layer over a microfacet base BSDF.">
-    <input name="thickness" type="float" value="1000" unittype="distance" unit="nanometer"/>
+    <input name="thickness" type="float" value="550" unittype="distance" unit="nanometer"/>
     <input name="ior" type="float" value="1.5"/>
     <input name="base" type="BSDF" value=""/>
     <output name="out" type="BSDF"/>

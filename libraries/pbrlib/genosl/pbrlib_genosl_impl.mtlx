@@ -28,6 +28,9 @@
   <!-- <sheen_brdf> -->
   <implementation name="IM_sheen_brdf_genosl" nodedef="ND_sheen_brdf" file="pbrlib/genosl/mx_sheen_brdf.osl" function="mx_sheen_brdf" language="genosl"/>
 
+  <!-- <thin_film_brdf> -->
+  <implementation name="IM_thin_film_brdf_genosl" nodedef="ND_thin_film_brdf" language="genosl"/>
+
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" file="pbrlib/genosl/mx_uniform_edf.inline" language="genosl"/>
 

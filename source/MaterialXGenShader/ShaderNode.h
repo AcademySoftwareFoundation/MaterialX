@@ -345,16 +345,17 @@ class ShaderNode
         static const uint32_t EDF           = 1 << 9;  /// A EDF node
         static const uint32_t VDF           = 1 << 10; /// A VDF node
         static const uint32_t LAYER         = 1 << 11; /// A node for vertical layering of other closure nodes
+        static const uint32_t THINFILM      = 1 << 12; /// A node for adding thin-film over microfacet BSDF nodes
         // Specific shader types
-        static const uint32_t SURFACE       = 1 << 12; /// A surface shader node
-        static const uint32_t VOLUME        = 1 << 13; /// A volume shader node
-        static const uint32_t LIGHT         = 1 << 14; /// A light shader node
+        static const uint32_t SURFACE       = 1 << 13; /// A surface shader node
+        static const uint32_t VOLUME        = 1 << 14; /// A volume shader node
+        static const uint32_t LIGHT         = 1 << 15; /// A light shader node
         // Specific conditional types
-        static const uint32_t IFELSE        = 1 << 15; /// An if-else statement
-        static const uint32_t SWITCH        = 1 << 16; /// A switch statement
+        static const uint32_t IFELSE        = 1 << 16; /// An if-else statement
+        static const uint32_t SWITCH        = 1 << 17; /// A switch statement
         // Types based on nodegroup
-        static const uint32_t SAMPLE2D      = 1 << 17; /// Can be sampled in 2D (uv space)
-        static const uint32_t SAMPLE3D      = 1 << 18; /// Can be sampled in 3D (position)
+        static const uint32_t SAMPLE2D      = 1 << 18; /// Can be sampled in 2D (uv space)
+        static const uint32_t SAMPLE3D      = 1 << 19; /// Can be sampled in 3D (position)
     };
 
     /// @struct ScopeInfo

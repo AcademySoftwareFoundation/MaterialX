@@ -13,8 +13,8 @@
 namespace MaterialX
 {
 
-const string LayerNode::TOP_STRING = "top";
-const string LayerNode::BASE_STRING = "base";
+const string LayerNode::TOP = "top";
+const string LayerNode::BASE = "base";
 
 ShaderNodeImplPtr LayerNode::create()
 {
@@ -28,8 +28,8 @@ void LayerNode::emitFunctionCall(const ShaderNode& _node, GenContext& context, S
 
         ShaderNode& node = const_cast<ShaderNode&>(_node);
 
-        ShaderInput* top = node.getInput(TOP_STRING);
-        ShaderInput* base = node.getInput(BASE_STRING);
+        ShaderInput* top = node.getInput(TOP);
+        ShaderInput* base = node.getInput(BASE);
         ShaderOutput* output = node.getOutput();
         if (!(top && base && output))
         {
@@ -48,7 +48,7 @@ void LayerNode::emitFunctionCall(const ShaderNode& _node, GenContext& context, S
         ShaderNode* topBsdf = top->getConnection()->getNode();
 
         // Layerable nodes require a BSDF input named "base"
-        ShaderInput* topBsdfInput = topBsdf->getInput(BASE_STRING);
+        ShaderInput* topBsdfInput = topBsdf->getInput(BASE);
         if (!topBsdfInput || topBsdfInput->getType() != Type::BSDF)
         {
             throw ExceptionShaderGenError("Node connected as top layer '" + topBsdf->getName() + "' is not a layerable BSDF");

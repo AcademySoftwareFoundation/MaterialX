@@ -7,6 +7,7 @@
 
 #include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 #include <sstream>
 
@@ -495,6 +496,17 @@ OslSyntax::OslSyntax()
             "null_closure",
             "0",
             "closure color")
+    );
+
+    registerTypeSyntax
+    (
+        Type::THINFILM,
+        std::make_shared<AggregateTypeSyntax>(
+            "thinfilm",
+            "{0.0, 1.5}",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "struct thinfilm { float thickness; float ior; };")
     );
 }
 
