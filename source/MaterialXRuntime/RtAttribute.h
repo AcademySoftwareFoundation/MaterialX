@@ -100,6 +100,9 @@ public:
     /// Return true if this input is uniform.
     bool isUniform() const;
 
+    /// Sets the input to be a uniform or not a uniform
+    void setUniform(bool uniform);
+
     /// Return true if this input is connected.
     bool isConnected() const;
 

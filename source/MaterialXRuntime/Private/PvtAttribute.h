@@ -179,6 +179,18 @@ public:
         return (_flags & RtAttrFlag::UNIFORM) != 0;
     }
 
+    void setUniform(bool uniform)
+    {
+        if (uniform)
+        {
+            _flags |= RtAttrFlag::UNIFORM;
+        }
+        else
+        {
+            _flags &= ~RtAttrFlag::UNIFORM;
+        }
+    }
+
     bool isConnected() const
     {
         return _connection != nullptr;

@@ -175,6 +175,7 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
     for (auto input : nodeGraph.getInputs())
     {
         RtInput attr = nodedef.createInput(input.getName(), input.getType());
+        attr.setUniform(input.asA<RtInput>().isUniform());
 
         const PvtObject* obj = PvtObject::hnd(input)->asA<PvtObject>();
         const vector<RtToken>& metadataNames = obj->getMetadataOrder();

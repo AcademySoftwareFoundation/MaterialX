@@ -91,6 +91,11 @@ bool RtInput::isUniform() const
     return hnd()->asA<PvtInput>()->isUniform();
 }
 
+void RtInput::setUniform(bool uniform)
+{
+    hnd()->asA<PvtInput>()->setUniform(uniform);
+}
+
 bool RtInput::isConnected() const
 {
     return hnd()->asA<PvtInput>()->isConnected();
