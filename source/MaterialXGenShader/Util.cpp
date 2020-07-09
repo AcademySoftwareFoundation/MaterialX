@@ -5,12 +5,16 @@
 
 #include <MaterialXGenShader/Util.h>
 
+#include <MaterialXCore/MaterialNode.h>
+
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/PugiXML/pugixml.hpp>
+
+#include <list>
 
 namespace MaterialX
 {
@@ -633,118 +637,21 @@ bool elementRequiresShading(ConstTypedElementPtr element)
             colorClosures.count(elementType) > 0);
 }
 
-
-vector<NodePtr> getShaderNodes(const NodePtr materialNode, const string& shaderType, const string& target)
-{
-    ElementPtr parent = materialNode ? materialNode->getParent() : nullptr;
-    if (!parent)
-    {
-        throw ExceptionShaderGenError("Could not find a parent for material node '" + (materialNode ? materialNode->getNamePath() : EMPTY_STRING) + "'");
-    }
-
-    vector<NodePtr> shaderNodes;
-    for (const InputPtr& input : materialNode->getActiveInputs())
-    {
-        const string& inputShader = input->getNodeName();
-        if (!inputShader.empty())
-        {
-            NodePtr shaderNode = parent->getChildOfType<Node>(inputShader);
-            if (shaderNode)
-            {
-                if (!target.empty())
-                {
-                    NodeDefPtr nodeDef = shaderNode->getNodeDef();
-                    if (!nodeDef || !targetStringsMatch(nodeDef->getTarget(), target))
-                    {
-                        continue;
-                    }
-                }
-                if (shaderType.empty() || shaderNode->getType() == shaderType)
-                {
-                    shaderNodes.push_back(shaderNode);
-                }
-            }
-        }
-        else
-        {
-            const string& inputGraph = input->getNodeGraphName();
-            if (!inputGraph.empty())
-            {
-                NodeGraphPtr nodeGraph = parent->getChildOfType<NodeGraph>(inputGraph);
-                if (nodeGraph)
-                {
-                    const string& nodeGraphOutput = input->getOutputString();
-                    OutputPtr out = nullptr;
-                    if (!nodeGraphOutput.empty())
-                    {
-                        out = nodeGraph->getOutput(nodeGraphOutput);
-                    }
-                    else
-                    {
-                        std::vector<OutputPtr> outputs = nodeGraph->getOutputs();
-                        if (!outputs.empty())
-                        {
-                            out = outputs[0];
-                        }
-                    }
-                    if (out)
-                    {
-                        if (shaderType.empty() || out->getType() == shaderType)
-                        {
-                            NodePtr upstreamNode = out->getConnectedNode();
-                            if (upstreamNode)
-                            {
-                                shaderNodes.push_back(upstreamNode);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return shaderNodes;
-}
-
-vector<MaterialAssignPtr> getGeometryBindings(NodePtr materialNode, const string& geom)
-{
-    vector<MaterialAssignPtr> matAssigns;
-    for (LookPtr look : materialNode->getDocument()->getLooks())
-    {
-        for (MaterialAssignPtr matAssign : look->getMaterialAssigns())
-        {
-            if (matAssign->getReferencedMaterialNode() == materialNode)
-            {
-                if (geomStringsMatch(geom, matAssign->getActiveGeom()))
-                {
-                    matAssigns.push_back(matAssign);
-                    continue;
-                }
-                CollectionPtr coll = matAssign->getCollection();
-                if (coll && coll->matchesGeomString(geom))
-                {
-                    matAssigns.push_back(matAssign);
-                    continue;
-                }
-            }
-        }
-    }
-    return matAssigns;
-}
-
 void findRenderableMaterialNodes(ConstDocumentPtr doc, 
                                  vector<TypedElementPtr>& elements, 
                                  bool includeReferencedGraphs,
-                                 std::unordered_set<OutputPtr>& processedOutputs)
+                                 std::unordered_set<ElementPtr>& processedSources)
 {
     for (const NodePtr& material : doc->getMaterialNodes())
     {
         // Scan for any upstream shader outputs and put them on the "processed" list
         // if we don't want to consider them for rendering.
-        vector<NodePtr> shaderNodes = getShaderNodes(material);
+        std::unordered_set<NodePtr> shaderNodes = getShaderNodes(material);
         if (!shaderNodes.empty())
         {
             // Push the material node only once if any shader nodes are found
             elements.push_back(material);
+            processedSources.insert(material);
 
             if (!includeReferencedGraphs)
             {
@@ -753,9 +660,9 @@ void findRenderableMaterialNodes(ConstDocumentPtr doc,
                     for (InputPtr input : shaderNode->getActiveInputs())
                     {
                         OutputPtr outputPtr = input->getConnectedOutput();
-                        if (outputPtr && !outputPtr->hasSourceUri() && !processedOutputs.count(outputPtr))
+                        if (outputPtr && !outputPtr->hasSourceUri() && !processedSources.count(outputPtr))
                         {
-                            processedOutputs.insert(outputPtr);
+                            processedSources.insert(outputPtr);
                         }
                     }
                 }
@@ -767,7 +674,7 @@ void findRenderableMaterialNodes(ConstDocumentPtr doc,
 void findRenderableShaderRefs(ConstDocumentPtr doc, 
                               vector<TypedElementPtr>& elements, 
                               bool includeReferencedGraphs,
-                              std::unordered_set<OutputPtr>& processedOutputs)
+                              std::unordered_set<ElementPtr>& processedSources)
 {
     for (const auto& material : doc->getMaterials())
     {
@@ -793,9 +700,9 @@ void findRenderableShaderRefs(ConstDocumentPtr doc,
                     for (const auto& bindInput : shaderRef->getBindInputs())
                     {
                         OutputPtr outputPtr = bindInput->getConnectedOutput();
-                        if (outputPtr && !outputPtr->hasSourceUri() && !processedOutputs.count(outputPtr))
+                        if (outputPtr && !outputPtr->hasSourceUri() && !processedSources.count(outputPtr))
                         {
-                            processedOutputs.insert(outputPtr);
+                            processedSources.insert(outputPtr);
                         }
                     }
                 }
@@ -806,49 +713,68 @@ void findRenderableShaderRefs(ConstDocumentPtr doc,
 
 void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
 {
-    std::unordered_set<OutputPtr> processedOutputs;
+    std::unordered_set<ElementPtr> processedSources;
 
-    findRenderableMaterialNodes(doc, elements, includeReferencedGraphs, processedOutputs);
-    findRenderableShaderRefs(doc, elements, includeReferencedGraphs, processedOutputs);
+    findRenderableMaterialNodes(doc, elements, includeReferencedGraphs, processedSources);
+    findRenderableShaderRefs(doc, elements, includeReferencedGraphs, processedSources);
 
     // Find node graph outputs. Skip any light shaders
+    std::list<OutputPtr> testOutputs;
     for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
     {
         // Skip anything from an include file including libraries.
         // Skip any nodegraph which is a definition
         if (!nodeGraph->hasSourceUri() && !nodeGraph->hasAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE))
         {
-            for (OutputPtr output : nodeGraph->getOutputs())
+            for (auto graphOutput : nodeGraph->getOutputs())
             {
-                if (processedOutputs.count(output))
-                {
-                    continue;
-                }
-                NodePtr node = output->getConnectedNode();
-                if (node && node->getType() != LIGHT_SHADER_TYPE_STRING)
-                {
-                    NodeDefPtr nodeDef = node->getNodeDef();
-                    if (!nodeDef)
-                    {
-                        throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getNamePath() + "'");
-                    }
-                    if (requiresImplementation(nodeDef))
-                    {
-                        elements.push_back(output);
-                    }
-                }
-                processedOutputs.insert(output);
+                testOutputs.push_back(graphOutput);
             }
         }
     }
 
     // Add in all top-level outputs not already processed.
-    for (OutputPtr output : doc->getOutputs())
+    auto docOutputs = doc->getOutputs();
+    for (auto docOutput : docOutputs)
     {
-        if (!output->hasSourceUri() && !processedOutputs.count(output))
+        if (!docOutput->hasSourceUri())
         {
-            elements.push_back(output);
+            testOutputs.push_back(docOutput);
         }
+    }
+
+    for (OutputPtr output : testOutputs)
+    {
+        if (processedSources.count(output))
+        {
+            continue;
+        }
+        NodePtr node = output->getConnectedNode();
+        if (node && node->getType() != LIGHT_SHADER_TYPE_STRING)
+        {
+            NodeDefPtr nodeDef = node->getNodeDef();
+            if (!nodeDef)
+            {
+                throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getNamePath() + "'");
+            }
+            if (requiresImplementation(nodeDef))
+            {
+                if (node->getType() == MATERIAL_TYPE_STRING)
+                {
+                    if (processedSources.count(node))
+                    {
+                        continue;
+                    }
+                    elements.push_back(node);
+                    processedSources.insert(node);
+                }
+                else
+                {
+                    elements.push_back(output);
+                }
+            }
+        }
+        processedSources.insert(output);
     }
 }
 

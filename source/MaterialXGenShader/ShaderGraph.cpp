@@ -675,7 +675,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         {
             // A free floating output.
             outputParent = output->getConnectedNode();
-            interface = outputParent->asA<InterfaceElement>();
+            interface = outputParent ? outputParent->asA<InterfaceElement>() : nullptr;
         }
         if (!interface)
         {

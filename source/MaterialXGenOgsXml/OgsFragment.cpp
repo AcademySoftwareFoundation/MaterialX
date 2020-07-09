@@ -1,5 +1,6 @@
 #include "OgsFragment.h"
 
+#include <MaterialXCore/MaterialNode.h>
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
@@ -39,11 +40,11 @@ class GlslGeneratorWrapperBase
             mx::NodePtr outputNode = element->asA<mx::Node>();
             if (outputNode->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::vector<mx::NodePtr> shaderNodes = 
+                std::unordered_set<mx::NodePtr> shaderNodes =
                     mx::getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
                 if (!shaderNodes.empty())
                 {
-                    _element = shaderNodes[0];
+                    _element = *shaderNodes.begin();
                     _isSurface = true;
                 }
             }

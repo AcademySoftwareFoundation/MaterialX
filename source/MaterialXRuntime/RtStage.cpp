@@ -188,14 +188,31 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
                 vNew->getValue().asToken() = metadataValue->getValue().asToken();
             }
         }
-        attr.setValue(input.getValue());
+        if (!input.getValueString().empty())
+        {
+            attr.setValue(input.getValue());
+        }
     }
 
     // Add an output per nodegraph output
     for (auto output : nodeGraph.getOutputs())
     {
         RtAttribute attr = nodedef.createOutput(output.getName(), output.getType());
-        attr.setValue(output.getValue());
+        const PvtObject* obj = PvtObject::hnd(output)->asA<PvtObject>();
+        const vector<RtToken>& metadataNames = obj->getMetadataOrder();
+        for (auto metadataName : metadataNames)
+        {
+            const RtTypedValue* metadataValue = obj->getMetadata(metadataName);
+            if (metadataValue)
+            {
+                RtTypedValue* vNew = attr.addMetadata(metadataName, metadataValue->getType());
+                vNew->getValue().asToken() = metadataValue->getValue().asToken();
+            }
+        }
+        if (!output.getValueString().empty())
+        {
+            attr.setValue(output.getValue());
+        }
     }
 
     // Set up definition on nodegraph

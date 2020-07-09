@@ -31,6 +31,8 @@ void bindPyDocument(py::module& mod)
         .def("getMaterial", &mx::Document::getMaterial)
         .def("getMaterials", &mx::Document::getMaterials)
         .def("removeMaterial", &mx::Document::removeMaterial)
+        .def("getMaterialNode", &mx::Document::getMaterialNode)
+        .def("getMaterialNodes", &mx::Document::getMaterialNodes)
         .def("addGeomInfo", &mx::Document::addGeomInfo,
             py::arg("name") = mx::EMPTY_STRING, py::arg("geom") = mx::UNIVERSAL_GEOM_NAME)
         .def("getGeomInfo", &mx::Document::getGeomInfo)
