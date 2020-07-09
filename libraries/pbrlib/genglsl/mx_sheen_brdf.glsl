@@ -8,6 +8,12 @@ void mx_sheen_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float ro
         return;
     }
 
+    // Make sure we are forward facing.
+    if (dot(N,V) < 0.0)
+    {
+        N = -N;
+    }
+
     vec3 H = normalize(L + V);
 
     float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
@@ -35,6 +41,12 @@ void mx_sheen_brdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
     {
         result = base;
         return;
+    }
+
+    // Make sure we are forward facing.
+    if (dot(N,V) < 0.0)
+    {
+        N = -N;
     }
 
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
