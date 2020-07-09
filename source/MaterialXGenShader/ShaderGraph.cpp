@@ -1183,9 +1183,6 @@ void ShaderGraph::finalize(GenContext& context)
     // Let the generator perform any custom edits on the graph
     context.getShaderGenerator().finalizeShaderGraph(*this);
 
-    // Set variable names for inputs and outputs in the graph.
-    setVariableNames(context);
-
     // Sort the nodes in topological order.
     topologicalSort();
 
@@ -1289,6 +1286,9 @@ void ShaderGraph::finalize(GenContext& context)
             }
         }
     }
+
+    // Set variable names for inputs and outputs in the graph.
+    setVariableNames(context);
 }
 
 void ShaderGraph::disconnect(ShaderNode* node) const
