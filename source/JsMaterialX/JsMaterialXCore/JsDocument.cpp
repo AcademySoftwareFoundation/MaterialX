@@ -61,12 +61,17 @@ extern "C"
             .function("getTypeDefs", &mx::Document::getTypeDefs)
             .function("removeTypeDef", &mx::Document::removeTypeDef)
             .function("addNodeDef", &mx::Document::addNodeDef)
-            .function("addNodeDefFromGraph", ems::optional_override([](mx::Document &self, mx::NodeGraphPtr nodeGraph, std::string nodeDefName, std::string node, std::string newGraphName, std::string nodeGroup) {
+            .function("addNodeDefFromGraph", ems::optional_override([](mx::Document &self, 
+                                mx::NodeGraphPtr nodeGraph, std::string nodeDefName, std::string node,
+                                std::string version, bool isDefaultVersion, std::string nodeGroup, std::string newGraphName)
+                      {
                           const std::string &nodeDefName1 = nodeDefName;
                           const std::string &node1 = node;
-                          std::string &newGraphName1 = newGraphName;
+                          const std::string& version1 = version;
                           const std::string &nodeGroup1 = nodeGroup;
-                          return self.mx::Document::addNodeDefFromGraph(nodeGraph, nodeDefName1, node1, newGraphName1, nodeGroup1);
+                          std::string &newGraphName1 = newGraphName;
+                          return self.mx::Document::addNodeDefFromGraph(nodeGraph, nodeDefName1, node1,  
+                                                version1, isDefaultVersion, nodeGroup1, newGraphName1);
                       }))
             .function("getNodeDef", &mx::Document::getNodeDef)
             .function("getNodeDefs", &mx::Document::getNodeDefs)

@@ -67,7 +67,7 @@ void checkImplementations(mx::GenContext& context,
 
     mx::FileSearchPath searchPath; 
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+    loadLibraries({ "adsk", "stdlib", "pbrlib" }, searchPath, doc);
 
     std::string generatorId = shadergen.getLanguage() + "_" + shadergen.getTarget();
     std::string fileName = generatorId + "_implementation_check.txt";
@@ -488,7 +488,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    const mx::FilePathVec libraries = { "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "adsk", "stdlib", "pbrlib", "lights" };
 
     loadLibraries(libraries, _libSearchPath, _dependLib, &_skipLibraryFiles);
 

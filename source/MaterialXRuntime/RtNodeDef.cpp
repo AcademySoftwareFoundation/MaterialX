@@ -98,7 +98,7 @@ void RtNodeDef::setVersion(const RtToken& version)
 
 bool RtNodeDef::getIsDefaultVersion() const
 {
-    RtTypedValue* v = prim()->addMetadata(IS_DEFAULT_VERSION, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(IS_DEFAULT_VERSION, RtType::BOOLEAN);
     return v ? v->getValue().asBool() : false;
 }
 

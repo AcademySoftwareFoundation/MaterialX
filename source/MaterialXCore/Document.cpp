@@ -277,7 +277,8 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, string& newGraphName, const string& group)
+NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, 
+                                         const string& version, bool isDefaultVersion, const string& group, string& newGraphName)
 {
     if (getNodeDef(nodeDefName))
     {
@@ -301,6 +302,17 @@ NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& n
     if (!group.empty())
     {
         nodeDef->setNodeGroup(group);
+    }
+
+    if (!version.empty())
+    {
+        nodeDef->setVersionString(version);
+        
+        // Can only be a default version if there is a version string
+        if (isDefaultVersion)
+        {
+            nodeDef->setDefaultVersion(true);
+        }
     }
 
     for (auto output : graph->getOutputs())

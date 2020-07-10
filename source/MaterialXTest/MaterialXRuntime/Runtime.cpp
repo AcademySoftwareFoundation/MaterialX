@@ -788,8 +788,9 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     const mx::RtToken MATH_GROUP("math");
     const mx::RtToken ADDGRAPH_VERSION("3.4");
     const mx::RtToken ADDGRAPH_TARGET("mytarget");
+    bool isDefaultVersion = false;
     stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
-    mx::RtPrim addgraphPrim = stage->createNodeDef(graph1, ND_ADDGRAPH, ADDGRAPH, MATH_GROUP);
+    mx::RtPrim addgraphPrim = stage->createNodeDef(graph1, ND_ADDGRAPH, ADDGRAPH, ADDGRAPH_VERSION, isDefaultVersion, MATH_GROUP);
     mx::RtNodeDef addgraphDef(addgraphPrim);    
 
     REQUIRE(addgraphDef.isMasterPrim());
@@ -800,9 +801,10 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(addgraphDef.getName() == ND_ADDGRAPH);
     REQUIRE(addgraphDef.getNode() == ADDGRAPH);
     REQUIRE(addgraphDef.getNodeGroup() == MATH_GROUP);
-    addgraphDef.setVersion(ADDGRAPH_VERSION);
     REQUIRE(addgraphDef.getVersion() == ADDGRAPH_VERSION);
+    REQUIRE_FALSE(addgraphDef.getIsDefaultVersion());
     addgraphDef.setTarget(ADDGRAPH_TARGET);
+    REQUIRE(addgraphDef.getTarget() == ADDGRAPH_TARGET);
 
     // Check instance creation. Metadata like version should be copied
     // but not target or node.

@@ -73,7 +73,7 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 {
     dependLib = mx::createDocument();
 
-    const mx::FilePathVec libraries = { "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "adsk", "stdlib", "pbrlib", "lights" };
     mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
     for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
     {

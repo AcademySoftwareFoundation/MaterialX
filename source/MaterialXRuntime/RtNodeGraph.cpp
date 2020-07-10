@@ -141,7 +141,6 @@ const RtToken& RtNodeGraph::getDefinition() const
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
-/// Set the associated definition name.
 void RtNodeGraph::setDefinition(const RtToken& value)
 {
     RtTypedValue* v = prim()->addMetadata(NODEDEF, RtType::TOKEN);

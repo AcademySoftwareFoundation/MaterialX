@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="nodegraph1" type="surfaceshader">
+    <parquet_03 name="parquet_03" type="surfaceshader" version="1.0"/>
+    <adsk:colorcorrect name="adsk_colorcorrect" type="multioutput" version="1.0">
+       <parameter name="color" type="color3" value="1.0, 0.0, 1.0" />
+       <parameter name="alpha" type="float" value="1.0" />
+       <output name="outColor" type="color3" />
+      <output name="outAlpha" type="float" />
+    </adsk:colorcorrect>
+    <output name="parquet_out" type="surfaceshader" nodename="parquet_03" />
+    <output name="colorcorrect_out" type="color3" nodename="adsk_colorcorrect" output="outColor" />
+  </nodegraph>
+</materialx>

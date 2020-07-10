@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <nodedef name="ND_parquet_03_shader" node="parquet_03" nodegroup="Shaders">>
+  <nodedef name="ND_parquet_03_shader" node="parquet_03" nodegroup="Shaders" version="1.0" isdefaultversion="true">
     <output name="surfaceshader" type="surfaceshader"/>
   </nodedef>
   <nodegraph name="NG_parquet_03_shader" nodedef="ND_parquet_03_shader">

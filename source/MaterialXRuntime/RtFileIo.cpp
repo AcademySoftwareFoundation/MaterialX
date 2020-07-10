@@ -1245,10 +1245,13 @@ namespace
         // TODO: Want to change this to keep this in <implementation>
         // elements but requires a spec change plus support in the runtime
         // for implementation associations.
+        RtNodeDef nodedef(prim->hnd());
         RtToken nodeDefName = prim->getName();
         RtSchemaPredicate<RtNodeGraph> filter;
         for (RtPrim child : stage->getRootPrim()->getChildren(filter))
         {
+            // The association between a nodedef and a nodegraph is by name. No
+            // version check is required as nodegraphs are not versioned.
             RtNodeGraph nodeGraph(child);
             if (nodeGraph.getDefinition() == nodeDefName)
             {

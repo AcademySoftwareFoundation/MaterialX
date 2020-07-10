@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38" xmlns:xi="http://www.w3.org/2001/XInclude">
- <nodedef name="ND_colorcorrect" node="colorcorrect" nodegroup="adjustment">
+ <nodedef name="ND_colorcorrect" node="colorcorrect" nodegroup="adjustment" 
+          version="1.0" isdefaultversion="true" namespace="adsk">
     <parameter name="color" type="color3" value="0.5, 0.5, 0.5" />
     <parameter name="alpha" type="float" value="1" />
     <input name="HSV" type="vector3" value="0, 1, 1" />
@@ -21,7 +22,7 @@
     <output name="outColor" type="color3" />
     <output name="outAlpha" type="float" />
   </nodedef>
-  <nodegraph name="NG_colorcorrect" nodedef="ND_colorcorrect">
+  <nodegraph name="NG_colorcorrect" nodedef="adsk:ND_colorcorrect" namespace="adsk">
     <range name="AlphaClampAndGamma" type="float">
       <input name="in" type="float" nodename="AlphaOffset" />
       <input name="gamma" type="float" value="1" interfacename="alpha_gamma" />

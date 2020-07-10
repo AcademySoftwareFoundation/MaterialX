@@ -4,7 +4,7 @@
     Autodesk Standard Surface node definition.
   -->
   <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" nodegroup="pbr"
-            doc="Autodesk standard surface shader">
+            doc="Autodesk standard surface shader" version="1.0.1" isdefaultversion="true">
       <input name="base" type="float" value="0.8" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base"
             doc="Multiplier on the intensity of the diffuse reflection." />
       <input name="base_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Base Color"  uifolder="Base"
