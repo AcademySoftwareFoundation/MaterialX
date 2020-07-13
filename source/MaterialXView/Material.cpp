@@ -403,7 +403,7 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
     // Bind environment lighting properties.
     if (_glShader->uniform(mx::HW::ENV_MATRIX, false) != -1)
     {
-        mx::Matrix44 envRotation = mx::Matrix44::createRotationY(PI) * lightingState.lightTransform;
+        mx::Matrix44 envRotation = mx::Matrix44::createRotationY(PI) * lightingState.lightTransform.getTranspose();
         _glShader->setUniform(mx::HW::ENV_MATRIX, ng::Matrix4f(envRotation.data()));
     }
     if (_glShader->uniform(mx::HW::ENV_RADIANCE_SAMPLES, false) != -1)
