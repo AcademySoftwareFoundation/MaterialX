@@ -27,7 +27,7 @@ describe('Basics', () => {
 
     it('DataTypes', () => {
         for (let type in testValues) {
-            const value = testValues[type];
+            const value = testValues[String(type)];
             const newValue = mx.Value.createValueFromStrings(value, type);
             const typeString = newValue.getTypeString();
             const valueString = newValue.getValueString();

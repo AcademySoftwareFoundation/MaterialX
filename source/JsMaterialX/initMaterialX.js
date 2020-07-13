@@ -36,14 +36,14 @@ function argGen(args, defaultArgs = []) {
         }
     }
     for (let k = 0; k < defaultArgs.length; k++) {
-        var defaultArg = defaultArgs[k];
-        if (defaultArg === REQUIRED && args[k] === undefined) {
+        var defaultArg = defaultArgs[parseInt(k)];
+        if (defaultArg === REQUIRED && args[parseInt(k)] === undefined) {
             undefinedArgs.push(`arg${k}`);
             missingArgs = true;
         } else {
-            args1[k] = args[k] !== undefined ? args[k] : defaultArg;
-            if (args1[k] !== undefined && args1[k] !== null && args1[k].hasOwnProperty('prototype') && !missingArgs) {
-                args1[k] = new args1[k]();
+            args1[parseInt(k)] = args[parseInt(k)] !== undefined ? args[parseInt(k)] : defaultArg;
+            if (args1[parseInt(k)] !== undefined && args1[parseInt(k)] !== null && args1[parseInt(k)].hasOwnProperty('prototype') && !missingArgs) {
+                args1[parseInt(k)] = new args1[parseInt(k)]();
             }
         }
     }
@@ -98,10 +98,10 @@ function wrapperFactory(klass, funcArgOverride = {}) {
     var proto = klass.prototype;
     var funcNames = Object.keys(proto);
     for (var i = 0; i < funcNames.length; i++) {
-        var funcName = funcNames[i];
-        var apiFunc = proto[funcName];
-        var defaultArgs = funcArgOverride[funcName];
-        proto[funcName] = wrapperFunction(apiFunc, defaultArgs);
+        var funcName = funcNames[parseInt(i)];
+        var apiFunc = proto[String(funcName)];
+        var defaultArgs = funcArgOverride[String(funcName)];
+        proto[String(funcName)] = wrapperFunction(apiFunc, defaultArgs);
     }
     return klass;
 }
@@ -117,7 +117,7 @@ Module.onRuntimeInitialized = function() {
     var MaterialX = {};
     // Generate wrappers
     for (var i = 0; i < _wrappers.length; i++) {
-        var wrapper = _wrappers[i];
+        var wrapper = _wrappers[parseInt(i)];
         wrapper(Module, MaterialX);
     }
     Module['getMaterialX'] = function() {

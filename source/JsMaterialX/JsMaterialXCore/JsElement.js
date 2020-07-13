@@ -42,8 +42,8 @@ addWrapper(function (Module, api) {
     };
 
     for (var i = 0; i < funcs.length; i++) {
-        var name = funcs[i];
-        defaultArgs[name] = [REQUIRED, ''];
+        var name = funcs[parseInt(i, 10)];
+        defaultArgs[String(name)] = [REQUIRED, ''];
     }
 
     /** Setup the ValueElement class */

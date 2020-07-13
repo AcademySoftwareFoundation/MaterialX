@@ -21,7 +21,7 @@ addWrapper(function(Module, api) {
 
     function iterateTypedValues(cb) {
         for (var i = 0; i < typedValues.length; i++) {
-            var typedValue = typedValues[i];
+            var typedValue = typedValues[parseInt(i, 10)];
             cb && cb(typedValue);
         }
     }
@@ -31,6 +31,6 @@ addWrapper(function(Module, api) {
 
     /** Setup the typedValue classes */
     iterateTypedValues(function(typedValue) {
-        api[typedValue] = wrapperFactory(Module[typedValue]);
+        api[String(typedValue)] = wrapperFactory(Module[typedValue]);
     });
 });
