@@ -4,14 +4,20 @@
 
 - ILM : General
   - Load standard libraries for MaterialXView regardless of build folder location (#922)
+  - Add definition searching for shader nodes for <material> instances (#919)
 - ILM : Baking
   - Add support for floating-point render targets (#922)
 - ADSK : ShaderGen general changes
+  - Fix regression with variable naming. (#927)
+  - Support for thin-film. (#923)
   - Fix handling of included functions for convolution nodes (#909)
   - Improve layering in OSL (#901)
   - Support for vertical layering through a layer operator node. (#892)
   - Use mod() vs fmod() logic for OSL and MDL codegen (#871). Only for 1.38
-- ADSK : OpenGL ShaderGen layout support
+- ADSK : OSL / GLSL ShaderGen layout support
+  - Fix GLSL regression with non-FIS environment sampling. (#930)
+  - Face forward GLSL fix to sheen brdf (#926)
+  - Fix regression in OSL generation. (#928)
   - Fix regressions with layout bindings. (#906)
   - Fix regression with search paths in MaterialXView (#894)
   - Test case and python bindings (#898)
@@ -21,11 +27,13 @@
   - Fix binding issue if empty filename given to bind with. Remove skipping binding in that condition. (#915)
   - Disable C++20 Warning for TinyExrLoader (#922)
 - ADSK Definition publishing support:
+  - Initial Node Definition Version support code. (#899)
   - Makes it so that on read when an interface name has a matching node (#905)
   - Fix input traversal so "output" attribute is optional if nodename/nodegraph specified. (#882)
   - Add in nodedef from nodegraph utilities (#848)
 - ADSK : Javascript Bindings
   - Part I : Basic setup MaterialX and parts of MaterialXFormat modules. CI on Travis. (#879)
+  - Fix JavaScript security issues from the Codacy scan (#925)
 
 ## [1.37.1] - 2020-06-04
 
