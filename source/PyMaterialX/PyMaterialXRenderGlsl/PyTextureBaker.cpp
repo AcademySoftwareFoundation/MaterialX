@@ -6,6 +6,7 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
+#include <MaterialXCore/Material.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
@@ -13,13 +14,6 @@ namespace mx = MaterialX;
 void bindPyTextureBaker(py::module& mod)
 {
     py::class_<mx::TextureBaker, mx::GlslRenderer, mx::TextureBakerPtr>(mod, "TextureBaker")
-        .def_static("create", &mx::TextureBaker::create);
-        //.def(py::init<>());
-        //.def_static("create", &mx::TextureBaker::create);
-        //.def_property("_extension", &mx::TextureBaker::getExtension, &mx::TextureBaker::setExtension)
-        //.def("bakeShaderInputs", (void (mx::TextureBaker::*)(mx::ShaderRefPtr, mx::GenContext&, const mx::FilePath&)) &mx::TextureBaker::bakeShaderInputs)
-        //.def("bakeShaderInputs", (void (mx::TextureBaker::*)(mx::NodePtr, mx::GenContext&, const mx::FilePath&)) &mx::TextureBaker::bakeShaderInputs)
-        //.def("bakeGraphOutput", &mx::TextureBaker::bakeGraphOutput);
-        //.def("writeBakedDocument", (void(mx::TextureBaker::*)(mx::ShaderRefPtr, const mx::FilePath&)) &mx::TextureBaker::writeBakedDocument)
-        //.def("writeBakedDocument", (void(mx::TextureBaker::*)(mx::NodePtr, const mx::FilePath&)) &mx::TextureBaker::writeBakedDocument);
+        .def_static("create", &mx::TextureBaker::create)
+        .def_static("bakeAndSave", &mx::TextureBaker::bakeAndSave);
 }

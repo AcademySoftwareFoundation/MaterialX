@@ -10,6 +10,8 @@
 /// Texture baking functionality
 
 #include <MaterialXRenderGlsl/GlslRenderer.h>
+#include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
@@ -42,25 +44,29 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Bake textures for all graph inputs of the given shader reference.
-    void bakeShaderInputs(ShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder);
+    void bakeShaderInputs(const shared_ptr<const ShaderRef>& rf, GenContext& context, const FilePath& outputFolder, const std::string udim = "");
 
     /// Bake textures for all graph inputs of the given shader node.
-    void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder);
+    void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const std::string udim = "");
 
     /// Bake a texture for the given graph output.
-    void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder);
+    void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const std::string udim = "");
 
     /// Write out the baked material document based on a shader reference
-    void writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename);
+    void writeBakedDocument(const shared_ptr<const ShaderRef>& sr, const FilePath& filename, bool udims = false);
 
     /// Write out the baked material document based on a shader node
-    void writeBakedDocument(NodePtr shader, const FilePath& filename);
+    void writeBakedDocument(NodePtr shader, const FilePath& filename, bool udims = false);
+
+    //static void bakeAndSave(const shared_ptr<const ShaderRef>& sr, std::string file);
+    
+    static void bakeAndSave(DocumentPtr& library, std::string file);
 
   protected:
     TextureBaker(unsigned int width, unsigned int height);
 
     // Generate a texture filename for the given graph output.
-    FilePath generateTextureFilename(OutputPtr output);
+    FilePath generateTextureFilename(OutputPtr output, const std::string udim = "");
 
   protected:
     ShaderGeneratorPtr _generator;
