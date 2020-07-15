@@ -58,7 +58,7 @@ export float mx_image_float(
 	[[
 		anno::display_name("Layer")
 	]],
-	uniform float mxp_default = float(0.0)	
+	float mxp_default = float(0.0)	
 	[[
 		anno::display_name("Default Color")
 	]],
@@ -122,7 +122,7 @@ export float2 mx_image_color2(
 	[[
 		anno::display_name("Layer")
 	]],
-	uniform float2 mxp_default = float2(0.0, 0.0)	
+	float2 mxp_default = float2(0.0, 0.0)	
 	[[
 		anno::display_name("Default Color")
 	]],
@@ -186,7 +186,7 @@ export color mx_image_color3(
 	[[
 		anno::display_name("Layer")
 	]],
-	uniform color mxp_default = color(0.0, 0.0, 0.0)	
+	color mxp_default = color(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Default Color")
 	]],
@@ -250,7 +250,7 @@ export color4 mx_image_color4(
 	[[
 		anno::display_name("Layer")
 	]],
-	uniform color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0)	
+	color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Default Color")
 	]],
@@ -314,7 +314,7 @@ export float2 mx_image_vector2(
 	[[
 		anno::display_name("Layer")
 	]],
-	uniform float2 mxp_default = float2(0.0, 0.0)	
+	float2 mxp_default = float2(0.0, 0.0)	
 	[[
 		anno::display_name("Default Color")
 	]],
@@ -378,7 +378,7 @@ export float3 mx_image_vector3(
 	[[
 		anno::display_name("Layer")
 	]],
-	uniform float3 mxp_default = float3(0.0, 0.0, 0.0)	
+	float3 mxp_default = float3(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Default Color")
 	]],
@@ -442,7 +442,7 @@ export float4 mx_image_vector4(
 	[[
 		anno::display_name("Layer")
 	]],
-	uniform float4 mxp_default = float4(0.0, 0.0, 0.0, 0.0)	
+	float4 mxp_default = float4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Default Color")
 	]],

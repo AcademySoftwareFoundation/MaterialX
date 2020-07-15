@@ -58,7 +58,7 @@ using ShaderMetadataVecPtr = shared_ptr<ShaderMetadataVec>;
 /// if found on nodes and inputs during shader generation.
 class ShaderMetadataRegistry : public GenUserData
 {
-public:
+  public:
     static const string USER_DATA_NAME;
 
     /// Add a new metadata entry to the registry.
@@ -102,7 +102,7 @@ public:
         _entries.clear();
     }
 
-protected:
+  protected:
     vector<ShaderMetadata> _entries;
     std::unordered_map<string, size_t> _entryIndex;
 };
@@ -111,11 +111,12 @@ using ShaderMetadataRegistryPtr = shared_ptr<ShaderMetadataRegistry>;
 
 
 /// Flags set on shader ports.
-enum class ShaderPortFlag
+class ShaderPortFlag
 {
-    UNIFORM     = 1 << 0,
-    EMITTED     = 1 << 1,
-    BIND_INPUT  = 1 << 2
+  public:
+    static const uint32_t UNIFORM    = 1u << 0;
+    static const uint32_t EMITTED    = 1u << 1;
+    static const uint32_t BIND_INPUT = 1u << 2;
 };
 
 /// @class ShaderPort
@@ -197,34 +198,34 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     uint32_t getFlags() const { return _flags; }
 
     /// Set the on|off state of a given flag.
-    void setFlag(ShaderPortFlag flag, bool value)
+    void setFlag(uint32_t flag, bool value)
     {
-        _flags = value ? (_flags | uint32_t(flag)) : (_flags & ~uint32_t(flag));
+        _flags = value ? (_flags | flag) : (_flags & ~flag);
     }
 
     /// Return the on|off state of a given flag.
-    bool getFlag(ShaderPortFlag flag) const
+    bool getFlag(uint32_t flag) const
     {
-        return ((_flags & uint32_t(flag)) != 0);
+        return ((_flags & flag) != 0);
     }
 
     /// Set the uniform flag this port to true.
-    void setUniform() { _flags |= uint32_t(ShaderPortFlag::UNIFORM); }
+    void setUniform() { _flags |= ShaderPortFlag::UNIFORM; }
 
     /// Return the uniform flag on this port.
-    bool isUniform() const { return (_flags & uint32_t(ShaderPortFlag::UNIFORM)) != 0; }
+    bool isUniform() const { return (_flags & ShaderPortFlag::UNIFORM) != 0; }
 
     /// Set the emitted state on this port to true.
-    void setEmitted() { _flags |= uint32_t(ShaderPortFlag::EMITTED); }
+    void setEmitted() { _flags |= ShaderPortFlag::EMITTED; }
 
     /// Return the emitted state of this port.
-    bool isEmitted() const { return (_flags & uint32_t(ShaderPortFlag::EMITTED)) != 0; }
+    bool isEmitted() const { return (_flags & ShaderPortFlag::EMITTED) != 0; }
 
     /// Set the bind input state on this port to true.
-    void setBindInput() { _flags |= uint32_t(ShaderPortFlag::BIND_INPUT); }
+    void setBindInput() { _flags |= ShaderPortFlag::BIND_INPUT; }
 
     /// Return the emitted state of this port.
-    bool isBindInput() const { return (_flags & uint32_t(ShaderPortFlag::BIND_INPUT)) != 0; }
+    bool isBindInput() const { return (_flags & ShaderPortFlag::BIND_INPUT) != 0; }
 
     /// Set the metadata vector.
     void setMetadata(ShaderMetadataVecPtr metadata) { _metadata = metadata; }

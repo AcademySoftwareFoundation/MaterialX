@@ -208,6 +208,11 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
+    // For MDL we cannot cache node implementations between generation calls,
+    // because this generator needs to do edits to subgraphs implementations
+    // depending on the context in which a node is used.
+    context.clearNodeImplementations();
+
     ShaderPtr shader = createShader(name, element, context);
 
     ShaderGraph& graph = shader->getGraph();
@@ -227,21 +232,6 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Add global constants and type definitions
     emitTypeDefinitions(context, stage);
-
-    // TODO: Fix this!
-    //
-    // Set the include file to use for uv transformations,
-    // depending on the vertical flip flag.
-    /*
-    if (context.getOptions().fileTextureVerticalFlip)
-    {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.osl";
-    }
-    else
-    {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.osl";
-    }
-    */
 
     // Emit function definitions for all nodes
     emitFunctionDefinitions(graph, context, stage);
@@ -334,7 +324,7 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
     {
         return _syntax->getValue(upstreamOutput->getType(), *upstreamOutput->getValue());
     }
-    
+
     if (!upstreamOutput || upstreamOutput->getNode()->isAGraph())
     {
         return ShaderGenerator::getUpstreamResult(input, context);
@@ -365,6 +355,137 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
     }
 
     return variable;
+}
+
+
+namespace
+{
+    // [TODO]
+    // Here we assume this bit of the port flags is unused.
+    // Change this to a more general and safe solution.
+    class ShaderPortFlagMdl
+    {
+      public:
+        static const uint32_t TRANSMISSION_IOR_DEPENDENCY = 1u << 31;
+    };
+
+    // Check if a graph has inputs with dependencies on transmission IOR on the inside.
+    // Track all subgraphs found that has such a dependency, as well as subgraphs that are 
+    // found to have a varying connection to transmission IOR.
+    // Returns true if uniform ior dependencies are found.
+    bool checkTransmissionIorDependencies(ShaderGraph* g, std::set<ShaderGraph*>& graphsWithIorDependency, std::set<ShaderGraph*>& graphsWithIorVarying)
+    {
+        bool result = false;
+        for (ShaderNode* node : g->getNodes())
+        {
+            ShaderGraph* subgraph = node->getImplementation().getGraph();
+            if (subgraph)
+            {
+                // Check recursively if this subgraph has IOR dependencies.
+                if (checkTransmissionIorDependencies(subgraph, graphsWithIorDependency, graphsWithIorVarying))
+                {
+                    for (ShaderOutput* socket : subgraph->getInputSockets())
+                    {
+                        if (socket->getFlag(ShaderPortFlagMdl::TRANSMISSION_IOR_DEPENDENCY))
+                        {
+                            ShaderInput* input = node->getInput(socket->getName());
+                            ShaderOutput* source = input ? input->getConnection() : nullptr;
+                            if (source)
+                            {
+                                // Check if this is a graph interface connection.
+                                if (source->getNode() == g)
+                                {
+                                    graphsWithIorDependency.insert(g);
+                                    source->setFlag(ShaderPortFlagMdl::TRANSMISSION_IOR_DEPENDENCY, true);
+                                    result = true;
+                                }
+                                else if (source->getNode()->hasClassification(ShaderNode::Classification::CONSTANT))
+                                {
+                                    // If the connection is to a constant node we can
+                                    // handled that here since it's just a uniform value.
+                                    ShaderInput* value = source->getNode()->getInput(ValueElement::VALUE_ATTRIBUTE);
+                                    if (value && value->getValue())
+                                    {
+                                        input->setValue(value->getValue());
+                                    }
+                                    input->breakConnection();
+                                }
+                                else
+                                {
+                                    // If we get here we have to assume this is a varying connection.
+                                    // Save the graph as a varying graph so we later can break its 
+                                    // internal connections to transmission IOR.
+                                    graphsWithIorVarying.insert(subgraph);
+                                    return false; // no need to continue with this subgraph
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Check for transmission BSDF node.
+                if (node->hasClassification(ShaderNode::Classification::BSDF_T))
+                {
+                    // Check if IOR is connected.
+                    ShaderInput* ior = node->getInput("ior");
+                    ShaderOutput* source = ior ? ior->getConnection() : nullptr;
+                    if (source)
+                    {
+                        // Check if this is a graph interface connection.
+                        if (source->getNode() == g)
+                        {
+                            graphsWithIorDependency.insert(g);
+                            source->setFlag(ShaderPortFlagMdl::TRANSMISSION_IOR_DEPENDENCY, true);
+                            result = true;
+                        }
+                        else if (source->getNode()->hasClassification(ShaderNode::Classification::CONSTANT))
+                        {
+                            // If the connection is to a constant node we can
+                            // handled that here since it's just a uniform value.
+                            ShaderInput* value = source->getNode()->getInput(ValueElement::VALUE_ATTRIBUTE);
+                            if (value && value->getValue())
+                            {
+                                ior->setValue(value->getValue());
+                            }
+                            ior->breakConnection();
+                        }
+                        else
+                        {
+                            // If we get here we have to assume this is a varying connection
+                            // and we can break it immediately here.
+                            ior->breakConnection();
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    // Disconnect any incomming connections to transmission IOR
+    // inside a graph.
+    void disconnectTransmissionIor(ShaderGraph* g)
+    {
+        for (ShaderNode* node : g->getNodes())
+        {
+            ShaderGraph* subgraph = node->getImplementation().getGraph();
+            if (subgraph && (subgraph->hasClassification(ShaderNode::Classification::SHADER) ||
+                             subgraph->hasClassification(ShaderNode::Classification::CLOSURE)))
+            {
+                disconnectTransmissionIor(subgraph);
+            }
+            else if (node->hasClassification(ShaderNode::Classification::BSDF_T))
+            {
+                ShaderInput* ior = node->getInput("ior");
+                if (ior)
+                {
+                    ior->breakConnection();
+                }
+            }
+        }
+    }
 }
 
 ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -399,6 +520,52 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
     for (ShaderGraphOutputSocket* outputSocket : graph->getOutputSockets())
     {
         outputs->add(outputSocket->getSelf());
+    }
+
+    // MDL does not allow varying data connected to transmission IOR.
+    // We must find all uses of transmission IOR and make sure we don't
+    // have a varying connection to it. If a varying connection is found
+    // we break that connection and revert to using default value on that
+    // instance of IOR, so that other uses of the same varying input still
+    // works in other places.
+    // As a result if a varying connections is set on transmission IOR 
+    // it just reverts to default value. Varying data on transmission IOR
+    // is very rare so this is normally not a problem in practice.
+    // One use-case where this fix is important is for shading models with
+    // a single IOR input, that gets connected to both reflection and 
+    // transmission IOR inside the shading model graph. For such cases
+    // this fix will disconnect the transmission IOR on the inside, but
+    // still support the connection to reflection IOR.
+    //
+    if (graph->hasClassification(ShaderNode::Classification::SHADER) ||
+        graph->hasClassification(ShaderNode::Classification::CLOSURE))
+    {
+        // Find dependencies on transmission IOR.
+        std::set<ShaderGraph*> graphsWithIorDependency;
+        std::set<ShaderGraph*> graphsWithIorVarying;
+        checkTransmissionIorDependencies(graph.get(), graphsWithIorDependency, graphsWithIorVarying);
+
+        // For any graphs found that has a varying connection
+        // to transmission IOR we need to break that connection.
+        for (ShaderGraph* g : graphsWithIorVarying)
+        {
+            disconnectTransmissionIor(g);
+            graphsWithIorDependency.erase(g);
+        }
+
+        // For graphs that has a dependency with transmission IOR on the inside,
+        // we can declare the corresponding inputs as being uniform and preserve
+        // the internal connection to transmssion IOR.
+        for (ShaderGraph* g : graphsWithIorDependency)
+        {
+            for (ShaderOutput* socket : g->getInputSockets())
+            {
+                if (socket->getFlag(ShaderPortFlagMdl::TRANSMISSION_IOR_DEPENDENCY))
+                {
+                    socket->setUniform();
+                }
+            }
+        }
     }
 
     return shader;
@@ -460,28 +627,10 @@ ShaderNodeImplPtr MdlShaderGenerator::createCompoundImplementation(const NodeGra
     return CompoundNodeMdl::create();
 }
 
-void MdlShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
+void MdlShaderGenerator::finalizeShaderGraph(ShaderGraph& /*graph*/)
 {
     // NOTE: Don't call the base class ShaderGenerator::finalizeShaderGraph here to
     // transform thin-film nodes, since MDL has explicit support for the thin-film node.
-
-    // MDL does not allow varying volume IOR.
-    // As a workaround break any connections to transmission IOR.
-    //
-    // TODO: Try to find a better workaround, since this will limit
-    //       tranmission IOR to always take on the default value.
-    //
-    for (ShaderNode* node : graph.getNodes())
-    {
-        if (node->hasClassification(ShaderNode::Classification::BSDF_T))
-        {
-            ShaderInput* ior = node->getInput("ior");
-            if (ior)
-            {
-                ior->breakConnection();
-            }
-        }
-    }
 }
 
 namespace MDL

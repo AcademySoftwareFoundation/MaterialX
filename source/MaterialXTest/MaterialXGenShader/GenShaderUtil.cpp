@@ -659,6 +659,11 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     copyOptions.skipConflictingElements = true;
     for (const auto& doc : _documents)
     {
+        // For each new file clear the implementation cache.
+        // Since the new file might contain implementations with names
+        // colliding with implementations in previous test cases.
+        context.clearNodeImplementations();
+
         // Set user data
         context.clearUserData();
         for (auto it : _userData)
@@ -787,17 +792,20 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                 mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());
                 if (impl)
                 {
+                    _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
+
+                    mx::StringVec sourceCode;
+                    bool generatedCode = generateCode(context, elementName, targetElement, _logFile, _testStages, sourceCode);
+
                     // Record implementations tested
                     if (options.checkImplCount)
                     {
+                        context.getNodeImplementationNames(_usedImplementations);
                         mx::NodeGraphPtr nodeGraph = impl->asA<mx::NodeGraph>();
                         mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                         _usedImplementations.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                     }
 
-                    _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
-                    mx::StringVec sourceCode;
-                    bool generatedCode = generateCode(context, elementName, targetElement, _logFile, _testStages, sourceCode);
                     if (!generatedCode)
                     {
                         _logFile << ">> Failed to generate code for nodedef: " << nodeDefName << std::endl;
