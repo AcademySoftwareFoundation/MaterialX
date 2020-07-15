@@ -86,7 +86,8 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
     for (InterfaceElementPtr interface : interfaces)
     {
         if (interface->isA<Implementation>() ||
-            !targetStringsMatch(interface->getTarget(), target))
+            !targetStringsMatch(interface->getTarget(), target) ||
+            !isVersionCompatible(interface))
         {
             continue;
         }

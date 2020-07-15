@@ -149,7 +149,10 @@ RtPrim RtStage::getImplementation(const RtNodeDef& definition) const
     for (RtPrim child : _cast(_ptr)->getRootPrim()->getChildren(filter))
     {
         RtNodeGraph nodeGraph(child);
-        if (nodeGraph.getDefinition() == nodeDefName)
+        // Check if there is a definition name match and
+        // if the versions are compatible.
+        if (nodeGraph.getDefinition() == nodeDefName &&
+            definition.isVersionCompatible(nodeGraph.getVersion()))
         {
             PvtPrim* graphPrim = PvtObject::ptr<PvtPrim>(child);
             return RtPrim(graphPrim->hnd());
@@ -190,6 +193,8 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
     if (version != EMPTY_TOKEN)
     {
         nodedef.setVersion(version);
+        nodeGraph.setVersion(version);
+
         // If a version is specified, set if it is the default version
         if (isDefaultVersion)
         {

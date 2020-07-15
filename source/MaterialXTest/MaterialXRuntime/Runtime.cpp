@@ -793,8 +793,9 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     mx::RtPrim addgraphPrim = stage->createNodeDef(graph1, ND_ADDGRAPH, ADDGRAPH, ADDGRAPH_VERSION, isDefaultVersion, MATH_GROUP);
     mx::RtNodeDef addgraphDef(addgraphPrim);    
 
-    REQUIRE(addgraphDef.isMasterPrim());
     REQUIRE(graph1.getDefinition() == ND_ADDGRAPH);
+    REQUIRE(graph1.getVersion() == ADDGRAPH_VERSION);
+    REQUIRE(addgraphDef.isMasterPrim());
     REQUIRE(addgraphDef.numInputs() == 2);
     REQUIRE(addgraphDef.numOutputs() == 1);
     REQUIRE(addgraphDef.getOutput().getName() == OUT);
@@ -806,18 +807,41 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     addgraphDef.setTarget(ADDGRAPH_TARGET);
     REQUIRE(addgraphDef.getTarget() == ADDGRAPH_TARGET);
 
-    // Check instance creation. Metadata like version should be copied
-    // but not target or node.
+    // Check implementation search based on nodegraph.
+    mx::RtPrim addGraphImpl = stage->getImplementation(addgraphDef);
+    // Exact version check
+    {
+        REQUIRE(addGraphImpl.getPath() == graph1.getPath());
+    }
+    // Bad version check
+    {
+        graph1.setVersion(mx::RtToken("badVersion")); 
+        addGraphImpl = stage->getImplementation(addgraphDef);
+        REQUIRE_FALSE(addGraphImpl.isValid());
+        graph1.setVersion(ADDGRAPH_VERSION);
+    }
+
+    // Check instance creation:
     mx::RtPrim agPrim = stage->createPrim("addgraph1", ND_ADDGRAPH);
     REQUIRE(agPrim.isValid());
     mx::RtNode agNode(agPrim);
-    mx::RtTypedValue* agVersion = agNode.getMetadata(mx::RtNodeDef::VERSION);
-    REQUIRE(agVersion->getValueString() == ADDGRAPH_VERSION);
-    mx::RtTypedValue* agTarget= agNode.getMetadata(mx::RtNodeDef::TARGET);
-    REQUIRE(!agTarget);
-    mx::RtTypedValue* agNodeValue = agNode.getMetadata(mx::RtNodeDef::NODE);
-    REQUIRE(!agNodeValue);
+    {
+        // 1. Metadata like version should be copiedbut not target or node.
+        mx::RtTypedValue* agVersion = agNode.getMetadata(mx::RtNodeDef::VERSION);
+        REQUIRE(agVersion->getValueString() == ADDGRAPH_VERSION);
+        mx::RtTypedValue* agTarget = agNode.getMetadata(mx::RtNodeDef::TARGET);
+        REQUIRE(!agTarget);
+        mx::RtTypedValue* agNodeValue = agNode.getMetadata(mx::RtNodeDef::NODE);
+        REQUIRE(!agNodeValue);
+    }
 
+    // 2. The assocaited nodedef can be found.
+    {
+        mx::RtPrim agNodeDefinition = agNode.getNodeDef();
+        REQUIRE(agNodeDefinition.getPath() == addgraphDef.getPath());
+    }
+
+    // Check export to MTLX document:
     mx::RtFileIo stageIo(stage);
     mx::RtTokenVec names;
     names.push_back(ND_ADDGRAPH);
@@ -825,64 +849,76 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 
     mx::DocumentPtr doc = mx::createDocument();
     mx::readFromXmlFile(doc, "ND_addgraph.mtlx");
+    doc->validate();
     mx::NodeDefPtr nodeDef = doc->getNodeDef(ND_ADDGRAPH.str());
-    REQUIRE(nodeDef);
-    REQUIRE(nodeDef->getVersionString() == ADDGRAPH_VERSION.str());
-    REQUIRE(nodeDef->getTarget() == ADDGRAPH_TARGET.str());
-    std::vector<mx::InputPtr> inputs = nodeDef->getInputs();
-    bool inputCheck = 
-        (inputs.size() == 2) &&
-        (inputs[0]->getName() == "a") &&
-        (inputs[0]->getType() == "float") &&
-        (inputs[0]->getValueString() == "0.3") &&
-        (inputs[1]->getName() == "b") &&
-        (inputs[1]->getType() == "float") &&
-        (inputs[1]->getValueString() == "0.1");
-    REQUIRE(inputCheck);
-    mx::OutputPtr out = nodeDef->getOutput("out");
-    bool outputCheck = out && 
-        (out->getName() == "out") &&
-        (out->getType() == "float") &&
-        (out->getValueString() == "0");
-    REQUIRE(outputCheck);
-    mx::NodeGraphPtr nodeGraph = doc->getNodeGraph(NG_ADDGRAPH.str());
-    REQUIRE((nodeGraph && nodeGraph->getOutputs().size() == 1));
-    for (mx::TreeIterator it = nodeGraph->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
     {
-        mx::ValueElementPtr input = it.getElement()->asA<mx::ValueElement>();
-        if (input)
+        // 1. Check nodedef
+        REQUIRE(nodeDef);
+        REQUIRE(nodeDef->getVersionString() == ADDGRAPH_VERSION.str());
+        REQUIRE(nodeDef->getTarget() == ADDGRAPH_TARGET.str());
+        std::vector<mx::InputPtr> inputs = nodeDef->getInputs();
+        bool inputCheck =
+            (inputs.size() == 2) &&
+            (inputs[0]->getName() == "a") &&
+            (inputs[0]->getType() == "float") &&
+            (inputs[0]->getValueString() == "0.3") &&
+            (inputs[1]->getName() == "b") &&
+            (inputs[1]->getType() == "float") &&
+            (inputs[1]->getValueString() == "0.1");
+        REQUIRE(inputCheck);
+        mx::OutputPtr out = nodeDef->getOutput("out");
+        bool outputCheck = out &&
+            (out->getName() == "out") &&
+            (out->getType() == "float") &&
+            (out->getValueString() == "0");
+        REQUIRE(outputCheck);
+    }
+
+    // 2. Check the nodegraph for the nodedef
+    {
+        mx::InterfaceElementPtr inter = nodeDef->getImplementation();
+        mx::NodeGraphPtr nodeGraph = inter->asA<mx::NodeGraph>();
+        REQUIRE((nodeGraph && nodeGraph->getOutputs().size() == 1));
+        for (mx::TreeIterator it = nodeGraph->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
         {
-            if (input->getName() == "in1" && input->getAttribute("nodename").empty())
+            mx::ValueElementPtr input = it.getElement()->asA<mx::ValueElement>();
+            if (input)
             {
-                REQUIRE((input->getInterfaceName() == "a"));
-            }
-            else if (input->getName() == "in2")
-            {
-                if (input->getParent())
+                if (input->getName() == "in1" && input->getAttribute("nodename").empty())
                 {
-                    bool interfaceNameMatched = true;
-                    if (input->getParent()->getName() == "add2")
-                        interfaceNameMatched = (input->getInterfaceName() == "a");
-                    else
-                        interfaceNameMatched = (input->getInterfaceName() == "b");
-                    REQUIRE(interfaceNameMatched);
+                    REQUIRE((input->getInterfaceName() == "a"));
+                }
+                else if (input->getName() == "in2")
+                {
+                    if (input->getParent())
+                    {
+                        bool interfaceNameMatched = true;
+                        if (input->getParent()->getName() == "add2")
+                            interfaceNameMatched = (input->getInterfaceName() == "a");
+                        else
+                            interfaceNameMatched = (input->getInterfaceName() == "b");
+                        REQUIRE(interfaceNameMatched);
+                    }
                 }
             }
         }
     }
 
-    // Check instance creation
-    stageIo.write("addgraph_example.mtlx");
-    doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "addgraph_example.mtlx");
-    mx::ElementPtr agInstance = doc->getChild("addgraph1");
-    REQUIRE(agInstance);
-    bool instanceVersionSaved = agInstance->getAttribute(mx::RtNodeDef::VERSION.str()) == ADDGRAPH_VERSION;
-    REQUIRE(instanceVersionSaved);
-    bool instanceTargetNotSaved = agInstance->getAttribute(mx::RtNodeDef::TARGET.str()) == mx::EMPTY_STRING;
-    REQUIRE(instanceTargetNotSaved);
-    bool instanceNodeNotSaved = agInstance->getAttribute(mx::RtNodeDef::NODE.str()) == mx::EMPTY_STRING;
-    REQUIRE(instanceNodeNotSaved);
+    // 3. Check instance creation
+    {
+        stageIo.write("addgraph_example.mtlx");
+        doc = mx::createDocument();
+        mx::readFromXmlFile(doc, "addgraph_example.mtlx");
+        doc->validate();
+        mx::ElementPtr agInstance = doc->getChild("addgraph1");
+        REQUIRE(agInstance);
+        bool instanceVersionSaved = agInstance->getAttribute(mx::RtNodeDef::VERSION.str()) == ADDGRAPH_VERSION;
+        REQUIRE(instanceVersionSaved);
+        bool instanceTargetNotSaved = agInstance->getAttribute(mx::RtNodeDef::TARGET.str()) == mx::EMPTY_STRING;
+        REQUIRE(instanceTargetNotSaved);
+        bool instanceNodeNotSaved = agInstance->getAttribute(mx::RtNodeDef::NODE.str()) == mx::EMPTY_STRING;
+        REQUIRE(instanceNodeNotSaved);
+    }
 }
 
 TEST_CASE("Runtime: FileIo", "[runtime]")

@@ -6,7 +6,7 @@
       <input name="v1_in2" type="color3" value="0, 1, 0" uiname="Input 2. Version 1"/>
       <output name="out" type="color3" value="0, 0, 0" />
    </nodedef>
-   <nodegraph name="NG_version1" nodedef="ND_my_add">
+   <nodegraph name="NG_version1" nodedef="ND_my_add" version="1.0">
       <add name="add" type="color3">
          <input name="in1" type="color3" interfacename="v1_in1" />
          <input name="in2" type="color3" interfacename="v1_in2" />
@@ -20,7 +20,7 @@
       <input name="v2_in2" type="color3" value="0, 1, 1" uiname="Input 2. Version 2"/>
       <output name="out" type="color3" value="0, 0, 0" />
    </nodedef>
-   <nodegraph name="NG_version2" nodedef="ND_my_add2">
+   <nodegraph name="NG_version2" nodedef="ND_my_add2" version="2.0">
       <add name="add" type="color3">
          <input name="in1" type="color3" interfacename="v2_in1" />
          <input name="in2" type="color3" interfacename="v2_in2" />
@@ -32,15 +32,15 @@
    <nodegraph name="my_add_graph">
       <my_add name="my_add_v1" type="color3" version="1.0">
          <input name="v1_in1" type="color3" value="1, 0, 0.5" />
-         <input name="v1_in2" type="color3" value="0, 1, 0.5" />
+         <input name="v1_in2" type="color3" value="0, 0.0, 0.5" />
       </my_add>
       <output name="out" type="color3" nodename="my_add_v1" />
    </nodegraph>
 
-   <!-- Explicitly choose version 1.0 -->
+   <!-- Explicitly choose version 2.0 -->
    <nodegraph name="my_add_graph2">
       <my_add name="my_add_v2" type="color3" version="2.0" >
-         <input name="v2_in1" type="color3" value="1, 0, 0.5" />
+         <input name="v2_in1" type="color3" value="0.0, 0, 0.5" />
          <input name="v2_in2" type="color3" value="0.5, 1, 1" />
       </my_add>
       <output name="out" type="color3" nodename="my_add_v2" />

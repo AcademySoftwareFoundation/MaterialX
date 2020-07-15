@@ -54,7 +54,10 @@ public:
     /// Set the version for this nodedef.
     void setVersion(const RtToken& version);
 
-    /// Return the version for this nodedef.
+    /// Is the version for this definition compatible with the version passed in
+    bool isVersionCompatible(const RtToken& version) const;
+
+    /// Return if this definition is the default version.
     bool getIsDefaultVersion() const;
 
     /// Set the version for this nodedef.

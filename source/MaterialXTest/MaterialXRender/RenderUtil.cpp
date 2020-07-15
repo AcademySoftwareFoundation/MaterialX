@@ -206,9 +206,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     registerLights(dependLib, options, context);
 
-    // Map to replace "/" in Element path names with "_".
+    // Map to replace "/" in Element path and ":" in namespaced names with "_".
     mx::StringMap pathMap;
     pathMap["/"] = "_";
+    pathMap[":"] = "_";
 
     RenderUtil::AdditiveScopedTimer validateTimer(profileTimes.validateTime, "Global validation time");
     RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");

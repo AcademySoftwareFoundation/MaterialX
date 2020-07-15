@@ -1,53 +1,56 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <nodedef name="ND_parquet_03_shader" node="parquet_03" nodegroup="Shaders" version="1.0" isdefaultversion="true">
-    <output name="surfaceshader" type="surfaceshader"/>
-  </nodedef>
-  <nodegraph name="NG_parquet_03_shader" nodedef="ND_parquet_03_shader">
-    <constant name="colorCorrect_diffuse" type="color3">
-      <parameter name="value" type="color3" value="1.12, 0.99, 0.63" />
-    </constant>
-    <extract name="extract_color3_1" type="float">
-      <input name="in" type="color3" nodename="remap_color3_1" />
-    </extract>
-    <multiply name="multiply_color" type="color3">
-      <input name="in1" type="color3" nodename="multiply_difuse" />
-      <input name="in2" type="color3" nodename="colorCorrect_diffuse" />
-    </multiply>
-    <multiply name="multiply_difuse" type="color3">
-      <input name="in1" type="color3" nodename="parquet_03_basecolor" />
-      <input name="in2" type="color3" value="1.1, 1.1, 1.1" />
-    </multiply>
-    <normalmap name="normalmap_1" type="vector3">
-      <input name="in" type="vector3" nodename="parquet_03_normal" />
-    </normalmap>
-    <image name="parquet_03_basecolor" type="color3">
-      <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_basecolor_2k_acescg.exr" />
-    </image>
-    <image name="parquet_03_normal" type="vector3">
-      <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_normal_2k_raw.exr" />
-    </image>
-    <image name="parquet_03_roughness" type="color3">
-      <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_roughness_2k_raw.exr" />
-    </image>
-    <standard_surface name="parquete_03_sts" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="saturate_color" />
-      <input name="diffuse_roughness" type="float" value="1" />
-      <input name="specular_roughness" type="float" value="0.5" />
-      <input name="coat" type="float" value="1" />
-      <input name="coat_roughness" type="float" nodename="extract_color3_1" />
-      <input name="normal" type="vector3" nodename="normalmap_1" />
-    </standard_surface>
-    <remap name="remap_color3_1" type="color3">
-      <input name="in" type="color3" nodename="parquet_03_roughness" />
-      <input name="inhigh" type="color3" value="0.1, 0.1, 0.1" />
-      <input name="outhigh" type="color3" value="0.6, 0.6, 0.6" />
-    </remap>
-    <saturate name="saturate_color" type="color3">
-      <input name="in" type="color3" nodename="multiply_color" />
-      <input name="amount" type="float" value="0.9" />
-      <parameter name="lumacoeffs" type="color3" value="1, 1, 1" />
-    </saturate>
-    <output name="surfaceshader" type="surfaceshader" nodename="parquete_03_sts" />
-  </nodegraph>
+   <!-- Sample parquet shader interface. Versioned and namespaced -->
+   <nodedef name="ND_parquet_03_shader" node="parquet_03" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
+      <output name="surfaceshader" type="surfaceshader"/>
+   </nodedef>
+
+   <!-- Sample parquet shader implementation. Versioned and namespaced -->
+   <nodegraph name="NG_parquet_03_shader" nodedef="adsk:ND_parquet_03_shader" version="1.0" namespace="adsk">
+      <constant name="colorCorrect_diffuse" type="color3">
+         <parameter name="value" type="color3" value="1.12, 0.99, 0.63" />
+      </constant>
+      <extract name="extract_color3_1" type="float">
+         <input name="in" type="color3" nodename="remap_color3_1" />
+      </extract>
+      <multiply name="multiply_color" type="color3">
+         <input name="in1" type="color3" nodename="multiply_difuse" />
+         <input name="in2" type="color3" nodename="colorCorrect_diffuse" />
+      </multiply>
+      <multiply name="multiply_difuse" type="color3">
+         <input name="in1" type="color3" nodename="parquet_03_basecolor" />
+         <input name="in2" type="color3" value="1.1, 1.1, 1.1" />
+      </multiply>
+      <normalmap name="normalmap_1" type="vector3">
+         <input name="in" type="vector3" nodename="parquet_03_normal" />
+      </normalmap>
+      <image name="parquet_03_basecolor" type="color3">
+         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_basecolor_2k_acescg.exr" />
+      </image>
+      <image name="parquet_03_normal" type="vector3">
+         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_normal_2k_raw.exr" />
+      </image>
+      <image name="parquet_03_roughness" type="color3">
+         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_roughness_2k_raw.exr" />
+      </image>
+      <standard_surface name="parquete_03_sts" type="surfaceshader">
+         <input name="base_color" type="color3" nodename="saturate_color" />
+         <input name="diffuse_roughness" type="float" value="1" />
+         <input name="specular_roughness" type="float" value="0.5" />
+         <input name="coat" type="float" value="1" />
+         <input name="coat_roughness" type="float" nodename="extract_color3_1" />
+         <input name="normal" type="vector3" nodename="normalmap_1" />
+      </standard_surface>
+      <remap name="remap_color3_1" type="color3">
+         <input name="in" type="color3" nodename="parquet_03_roughness" />
+         <input name="inhigh" type="color3" value="0.1, 0.1, 0.1" />
+         <input name="outhigh" type="color3" value="0.6, 0.6, 0.6" />
+      </remap>
+      <saturate name="saturate_color" type="color3">
+         <input name="in" type="color3" nodename="multiply_color" />
+         <input name="amount" type="float" value="0.9" />
+         <parameter name="lumacoeffs" type="color3" value="1, 1, 1" />
+      </saturate>
+      <output name="surfaceshader" type="surfaceshader" nodename="parquete_03_sts" />
+   </nodegraph>
 </materialx>
