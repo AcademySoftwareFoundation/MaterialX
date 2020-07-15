@@ -79,7 +79,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     save(filename);
 }
 
-void TextureBaker::writeBakedDocument(const shared_ptr<const ShaderRef>& shaderRef, const FilePath& filename, bool udims)
+void TextureBaker::writeBakedDocument(const shared_ptr<const ShaderRef>& shaderRef, const FilePath& filename, ValuePtr udimSetValue)
 {
     if (!shaderRef)
     {
@@ -91,6 +91,11 @@ void TextureBaker::writeBakedDocument(const shared_ptr<const ShaderRef>& shaderR
 
     // Create top-level elements.
     NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph("NG_baked");
+    GeomInfoPtr bakedGeom = (udimSetValue) ? bakedTextureDoc->addGeomInfo("GI_baked") : nullptr;
+    if (bakedGeom)
+    {
+        bakedGeom->setGeomPropValue("udimset", udimSetValue->getValueString(), "stringarray");
+    }
     MaterialPtr bakedMaterial = bakedTextureDoc->addMaterial("M_baked");
     ShaderRefPtr bakedShaderRef = bakedMaterial->addShaderRef(shaderRef->getName() + "_baked", shaderRef->getAttribute("node"));
     bakedNodeGraph->setColorSpace("srgb_texture");
@@ -109,7 +114,7 @@ void TextureBaker::writeBakedDocument(const shared_ptr<const ShaderRef>& shaderR
             // Add the image node.
             NodePtr bakedImage = bakedNodeGraph->addNode("image", bindInput->getName() + "_baked", bindInput->getType());
             ParameterPtr param = bakedImage->addParameter("file", "filename");
-            param->setValueString(generateTextureFilename(output));
+            param->setValueString(generateTextureFilename(output, (udimSetValue) ? "<UDIM>" : ""));
 
             // Add the graph output.
             OutputPtr bakedOutput = bakedNodeGraph->addOutput(bindInput->getName() + "_output", bindInput->getType());
@@ -126,7 +131,7 @@ void TextureBaker::writeBakedDocument(const shared_ptr<const ShaderRef>& shaderR
     writeToXmlFile(bakedTextureDoc, filename);
 }
 
-void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, bool udims)
+void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue)
 {
     if (!shader)
     {
@@ -139,6 +144,11 @@ void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, 
     // Create top-level elements.
     NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph("NG_baked");
     bakedNodeGraph->setColorSpace("srgb_texture");
+    GeomInfoPtr bakedGeom = (udimSetValue)? bakedTextureDoc->addGeomInfo("GI_baked") : nullptr;
+    if (bakedGeom)
+    {
+        bakedGeom->setGeomPropValue("udimset", udimSetValue->getValueString(), "stringarray");
+    }
     NodePtr bakedMaterial = bakedTextureDoc->addNode(SURFACE_MATERIAL_NODE_STRING, "M_baked", MATERIAL_TYPE_STRING);
     NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + "_baked", shader->getType());
     InputPtr shaderInput = bakedMaterial->addInput(SURFACE_SHADER_TYPE_STRING, SURFACE_SHADER_TYPE_STRING);
@@ -156,10 +166,9 @@ void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, 
             InputPtr bakedInput = bakedShader->addInput(input->getName(), input->getType());
 
             // Add the image node.
-            std::string udimsSuffix = (udims) ? "_<UDIM>" : "";
-            NodePtr bakedImage = bakedNodeGraph->addNode("image", input->getName() + "_baked" + udimsSuffix, input->getType());
+            NodePtr bakedImage = bakedNodeGraph->addNode("image", input->getName() + "_baked", input->getType());
             ParameterPtr param = bakedImage->addParameter("file", "filename");
-            param->setValueString(generateTextureFilename(output));
+            param->setValueString(generateTextureFilename(output, (udimSetValue) ? "<UDIM>" : ""));
 
             // Add the graph output and connect it to the image node upstream
             // and the shader input downstream.
@@ -183,8 +192,7 @@ FilePath TextureBaker::generateTextureFilename(OutputPtr output, const std::stri
     string outputName = createValidName(output->getNamePath());
     string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
 
-    string newFolder = udim.empty() ? EMPTY_STRING : FilePath(output->getNamePath()).getParentPath().asString() + "_BakedImages/";
-    return FilePath(newFolder + outputName + "_baked" + udimSuffix + "." + _extension);
+    return FilePath(outputName + "_baked" + udimSuffix + "." + _extension);
 }
 
 
@@ -291,7 +299,7 @@ void TextureBaker::bakeAndSave(DocumentPtr& doc, std::string file)
 
                 baker->bakeShaderInputs(sr, genContext, out.getParentPath(), udim);
             }
-            baker->writeBakedDocument(sr, out, true);
+            baker->writeBakedDocument(sr, out, udimSetValue);
         }
         else
         {

@@ -1621,31 +1621,55 @@ void Viewer::bakeTextures()
     MaterialPtr material = getSelectedMaterial();
     mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
     mx::FileSearchPath searchPath = _searchPath;
-    if (material->getDocument())
+    mx::DocumentPtr doc = material->getDocument();
+    mx::ValuePtr udimSetValue;
+    if (doc)
     {
         mx::FilePath documentFilename = material->getDocument()->getSourceUri();
         searchPath.append(documentFilename.getParentPath());
+        udimSetValue = doc->getGeomPropValue("udimset");
     }
 
     mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
     imageHandler->setSearchPath(searchPath);
-    if (!material->getUdim().empty())
+    // if material has udims
+    if (!material->getUdim().empty() && udimSetValue && _materials.size() > 1)
     {
-        mx::StringResolverPtr resolver = mx::StringResolver::create();
-        resolver->setUdimString(material->getUdim());
-        imageHandler->setFilenameResolver(resolver);
-    }
+        for (MaterialPtr mat : _materials)
+        {
+            mx::StringResolverPtr resolver = mx::StringResolver::create();
+            resolver->setUdimString(mat->getUdim());
+            imageHandler->setFilenameResolver(resolver);
 
-    try
-    {
-        mx::TextureBakerPtr baker = mx::TextureBaker::create();
-        baker->setImageHandler(imageHandler);
-        baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath());
-        baker->writeBakedDocument(shaderRef, _bakeFilename);
+            try
+            {
+                mx::TextureBakerPtr baker = mx::TextureBaker::create();
+                baker->setImageHandler(imageHandler);
+                baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath(), mat->getUdim());
+                if (mat == _materials.back())
+                {
+                    baker->writeBakedDocument(shaderRef, _bakeFilename, udimSetValue);
+                }
+            }
+            catch (mx::Exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+            }
+        }
     }
-    catch (mx::Exception& e)
+    else
     {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+        try
+        {
+            mx::TextureBakerPtr baker = mx::TextureBaker::create();
+            baker->setImageHandler(imageHandler);
+            baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath());
+            baker->writeBakedDocument(shaderRef, _bakeFilename);
+        }
+        catch (mx::Exception& e)
+        {
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+        }
     }
 
     glfwMakeContextCurrent(mGLFWWindow);

@@ -53,10 +53,10 @@ class TextureBaker : public GlslRenderer
     void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const std::string udim = "");
 
     /// Write out the baked material document based on a shader reference
-    void writeBakedDocument(const shared_ptr<const ShaderRef>& sr, const FilePath& filename, bool udims = false);
+    void writeBakedDocument(const shared_ptr<const ShaderRef>& sr, const FilePath& filename, ValuePtr udimSetValue = nullptr);
 
     /// Write out the baked material document based on a shader node
-    void writeBakedDocument(NodePtr shader, const FilePath& filename, bool udims = false);
+    void writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue = nullptr);
 
     //static void bakeAndSave(const shared_ptr<const ShaderRef>& sr, std::string file);
     
