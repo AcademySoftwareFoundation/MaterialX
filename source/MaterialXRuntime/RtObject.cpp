@@ -80,6 +80,11 @@ RtTypedValue* RtObject::getMetadata(const RtToken& name)
     return hnd()->asA<PvtObject>()->getMetadata(name);
 }
 
+const RtTypedValue* RtObject::getMetadata(const RtToken& name) const
+{
+    return hnd()->asA<PvtObject>()->getMetadata(name);
+}
+
 bool RtObject::isCompatible(RtObjType typeId) const
 {
     return hnd()->asA<PvtObject>()->isCompatible(typeId);
