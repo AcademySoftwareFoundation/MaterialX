@@ -26,9 +26,9 @@ using TextureBakerPtr = shared_ptr<class TextureBaker>;
 class TextureBaker : public GlslRenderer
 {
   public:
-    static TextureBakerPtr create(unsigned int width = 1024, unsigned int height = 1024)
+    static TextureBakerPtr create(unsigned int width = 1024, unsigned int height = 1024, Image::BaseType baseType = Image::BaseType::UINT8)
     {
-        return TextureBakerPtr(new TextureBaker(width, height));
+        return TextureBakerPtr(new TextureBaker(width, height, baseType));
     }
 
     /// Set the file extension for baked textures.
@@ -63,7 +63,7 @@ class TextureBaker : public GlslRenderer
     static void bakeAndSave(DocumentPtr& library, std::string file);
 
   protected:
-    TextureBaker(unsigned int width, unsigned int height);
+    TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
     // Generate a texture filename for the given graph output.
     FilePath generateTextureFilename(OutputPtr output, const std::string udim = "");
