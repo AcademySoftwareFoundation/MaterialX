@@ -237,6 +237,7 @@ class Viewer : public ng::Screen
     bool _mergeMaterials;
     bool _bakeTextures;
     bool _bakeHdr;
+    int _bakeTextureRes;
 
     // Unit options
     mx::StringVec _distanceUnitOptions;

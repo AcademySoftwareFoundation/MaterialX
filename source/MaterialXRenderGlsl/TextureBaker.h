@@ -57,10 +57,8 @@ class TextureBaker : public GlslRenderer
 
     /// Write out the baked material document based on a shader node
     void writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue = nullptr);
-
-    //static void bakeAndSave(const shared_ptr<const ShaderRef>& sr, std::string file);
     
-    static void bakeAndSave(DocumentPtr& library, std::string file);
+    static void bakeAndSave(DocumentPtr& doc, std::string file, bool HDR = false, int textureRes = 1024);
 
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
