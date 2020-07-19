@@ -195,6 +195,7 @@ namespace MaterialX
         writeToXmlFile(bakedTextureDoc, filename);
     }
 
+    // Helper function to generate mtlx filename
     FilePath TextureBaker::generateTextureFilename(OutputPtr output, const std::string udim)
     {
         string outputName = createValidName(output->getNamePath());
@@ -203,6 +204,7 @@ namespace MaterialX
         return FilePath(outputName + "_baked" + udimSuffix + "." + _extension);
     }
 
+    // Helper function to initialize file search pat
     FileSearchPath initFileSearchPath()
     {
         FilePath installSearchPath = FilePath::getModulePath().getParentPath();
@@ -222,6 +224,7 @@ namespace MaterialX
         return filename;
     }
 
+    // Helper function to initialize shader generation context
     GenContext initGenContext()
     {
         GenContext genContext = GlslShaderGenerator::create();
@@ -233,6 +236,7 @@ namespace MaterialX
         return genContext;
     }
 
+    // Helper function to determine which materials to bake from renderable paths
     StringVec getRenderablePaths(DocumentPtr& doc)
     {
         StringVec renderablePaths;
@@ -268,6 +272,7 @@ namespace MaterialX
         return renderablePaths;
     }
 
+    // Helper function to generate texture filenames
     FilePath generateOutTextureName(std::string file)
     {
         FilePath origFile = FilePath(file);

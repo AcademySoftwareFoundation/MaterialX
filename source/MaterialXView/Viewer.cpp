@@ -1673,18 +1673,17 @@ void Viewer::bakeTextures()
     mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
     mx::FileSearchPath searchPath = _searchPath;
     mx::DocumentPtr doc = material->getDocument();
-    mx::ValuePtr udimSetValue;
-    if (doc)
+    if (!doc)
     {
-        mx::FilePath documentFilename = material->getDocument()->getSourceUri();
-        searchPath.append(documentFilename.getParentPath());
-        udimSetValue = doc->getGeomPropValue("udimset");
+        return;
     }
-
+    mx::FilePath documentFilename = doc->getSourceUri();
+    searchPath.append(documentFilename.getParentPath());
+    mx::ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
     mx::Image::BaseType baseType = (_bakeHdr)? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
-
     mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
     imageHandler->setSearchPath(searchPath);
+
     // if material has udims
     if (!material->getUdim().empty() && udimSetValue && _materials.size() > 1)
     {
