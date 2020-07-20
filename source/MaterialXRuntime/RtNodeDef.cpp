@@ -18,6 +18,7 @@ RtToken RtNodeDef::INHERIT("inherit");
 RtToken RtNodeDef::TARGET("target");
 RtToken RtNodeDef::VERSION("version");
 RtToken RtNodeDef::IS_DEFAULT_VERSION("isdefaultversion");
+RtToken RtNodeDef::NAMESPACE("namespace");
 
 DEFINE_TYPED_SCHEMA(RtNodeDef, "nodedef");
 
@@ -41,6 +42,19 @@ const RtToken& RtNodeDef::getNode() const
     RtTypedValue* v = prim()->getMetadata(NODE);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
+
+RtToken RtNodeDef::getNamespacedNode() const
+{
+    const RtToken& nodeToken = getNode();
+    string nodeString = nodeToken.c_str();
+    string namespaceString = getNamespace().c_str();;
+    if (!namespaceString.empty())
+    {
+        return RtToken(namespaceString + NAME_PREFIX_SEPARATOR + nodeString);
+    }
+    return nodeToken;
+}
+
 
 void RtNodeDef::setNode(const RtToken& node)
 {
@@ -106,6 +120,18 @@ void RtNodeDef::setIsDefaultVersion(bool isDefault)
 {
     RtTypedValue* v = prim()->addMetadata(IS_DEFAULT_VERSION, RtType::BOOLEAN);
     v->getValue().asBool() = isDefault;
+}
+
+const RtToken& RtNodeDef::getNamespace() const
+{
+    RtTypedValue* v = prim()->getMetadata(NAMESPACE);
+    return v ? v->getValue().asToken() : EMPTY_TOKEN;
+}
+
+void RtNodeDef::setNamespace(const RtToken& space)
+{
+    RtTypedValue* v = prim()->addMetadata(NAMESPACE, RtType::TOKEN);
+    v->getValue().asToken() = space;
 }
 
 bool RtNodeDef::isVersionCompatible(const RtToken& version) const

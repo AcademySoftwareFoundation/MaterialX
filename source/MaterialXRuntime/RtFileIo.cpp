@@ -768,7 +768,7 @@ namespace
             outputType = attr.getType();
         }
 
-        NodePtr destNode = dest->addNode(nodedef.getNode(), node.getName(), numOutputs > 1 ? "multioutput" : outputType);
+        NodePtr destNode = dest->addNode(nodedef.getNamespacedNode(), node.getName(), numOutputs > 1 ? "multioutput" : outputType);
 
         for (RtAttribute attrDef : nodedef.getPrim().getAttributes())
         {

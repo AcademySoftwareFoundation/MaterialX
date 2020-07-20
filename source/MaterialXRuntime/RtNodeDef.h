@@ -27,6 +27,9 @@ public:
     /// Return the node for this nodedef.
     const RtToken& getNode() const;
 
+    /// Return the namespaced node for this nodedef.
+    RtToken getNamespacedNode() const;
+
     /// Set the node for this nodedef.
     void setNode(const RtToken& node);
 
@@ -62,6 +65,12 @@ public:
 
     /// Set the version for this nodedef.
     void setIsDefaultVersion(bool isDefault);
+
+    /// Return the namespacefor this nodedef.
+    const RtToken& getNamespace() const;
+
+    /// Set the namespacefor this nodedef.
+    void setNamespace(const RtToken& space);
 
     /// Add an input attribute to the interface.
     RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
@@ -114,6 +123,7 @@ public:
     static RtToken TARGET;
     static RtToken VERSION;
     static RtToken IS_DEFAULT_VERSION;
+    static RtToken NAMESPACE;
 };
 
 }
