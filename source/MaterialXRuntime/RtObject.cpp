@@ -75,6 +75,22 @@ void RtObject::removeMetadata(const RtToken& name)
     hnd()->asA<PvtObject>()->removeMetadata(name);
 }
 
+size_t RtObject::numMetadata() const
+{
+    return hnd()->asA<PvtObject>()->getMetadataOrder().size();
+}
+
+const RtToken& RtObject::getMetadataName(size_t index) const
+{
+    const auto& mdn = hnd()->asA<PvtObject>()->getMetadataOrder();
+    if (index >= mdn.size())
+    {
+        throw ExceptionRuntimeError("getMetadataName: index is out of range");
+    }
+
+    return mdn[index];
+}
+
 RtTypedValue* RtObject::getMetadata(const RtToken& name)
 {
     return hnd()->asA<PvtObject>()->getMetadata(name);
