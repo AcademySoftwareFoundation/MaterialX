@@ -676,9 +676,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ng::Popup* advancedPopupParent = advancedButton->popup();
     advancedPopupParent->setLayout(new ng::GroupLayout());
 
-    ng::VScrollPanel* scroll_panel = new ng::VScrollPanel(advancedPopupParent);
-    scroll_panel->setFixedHeight(500);
-    ng::Widget* advancedPopup = new ng::Widget(scroll_panel);
+    ng::VScrollPanel* scrollPanel = new ng::VScrollPanel(advancedPopupParent);
+    scrollPanel->setFixedHeight(500);
+    ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
     advancedPopup->setLayout(new ng::GroupLayout(13));
 
     ng::Label* meshLabel = new ng::Label(advancedPopup, "Mesh Options");

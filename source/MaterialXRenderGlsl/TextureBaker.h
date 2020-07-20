@@ -44,28 +44,28 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Bake textures for all graph inputs of the given shader reference.
-    void bakeShaderInputs(const shared_ptr<const ShaderRef>& rf, GenContext& context, const FilePath& outputFolder, const std::string udim = "");
+    void bakeShaderInputs(const shared_ptr<const ShaderRef>& rf, GenContext& context, const FilePath& outputFolder, const string udim = "");
 
     /// Bake textures for all graph inputs of the given shader node.
-    void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const std::string udim = "");
+    void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string udim = "");
 
     /// Bake a texture for the given graph output.
-    void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const std::string udim = "");
+    void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const string udim = "");
 
     /// Write out the baked material document based on a shader reference
-    void writeBakedDocument(const shared_ptr<const ShaderRef>& sr, const FilePath& filename, ValuePtr udimSetValue = nullptr);
+    void writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename, ValuePtr udimSetValue = nullptr);
 
     /// Write out the baked material document based on a shader node
     void writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue = nullptr);
     
     /// Bake material and its inputs to textures 
-    static void bakeAndSave(DocumentPtr& doc, std::string file, bool HDR = false, int textureRes = 1024);
+    static void bakeAndSave(DocumentPtr& doc, string file, bool HDR = false, int textureRes = 1024);
 
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
     // Generate a texture filename for the given graph output.
-    FilePath generateTextureFilename(OutputPtr output, const std::string udim = "");
+    FilePath generateTextureFilename(OutputPtr output, const string udim = "");
 
   protected:
     ShaderGeneratorPtr _generator;
