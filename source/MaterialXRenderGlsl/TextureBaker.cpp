@@ -18,14 +18,6 @@ namespace MaterialX
 namespace
 {
 
-FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& udim)
-{
-    string outputName = createValidName(output->getNamePath());
-    string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
-
-    return FilePath(outputName + "_baked" + udimSuffix + "." + _extension);
-}
-
 // Helper function to initialize file search pat
 FileSearchPath initFileSearchPath()
 {
@@ -287,6 +279,14 @@ void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, 
     }
 
     writeToXmlFile(bakedTextureDoc, filename);
+}
+
+FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& udim)
+{
+    string outputName = createValidName(output->getNamePath());
+    string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
+
+    return FilePath(outputName + "_baked" + udimSuffix + "." + _extension);
 }
 
 void TextureBaker::bakeAndSave(DocumentPtr& doc, string file, bool hdr, int texres)
