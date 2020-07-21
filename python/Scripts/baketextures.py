@@ -5,7 +5,6 @@ Generate the baked mtlx file and baked textures programmatically.
 
 import sys, os, string
 import argparse
-import glfw
 import struct
 import MaterialX as mx
 from MaterialX import PyMaterialXRender as mx_render
@@ -41,5 +40,4 @@ def main():
     mx_render_glsl.TextureBaker.bakeAndSave(doc, opts.filename, opts.hdr, opts.tex_res)
 
 if __name__ == '__main__':
-    glfw.init()
     main()
