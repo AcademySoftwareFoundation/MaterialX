@@ -105,8 +105,8 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
 {
     // Assign a default extension for texture baking.
     _extension = (baseType == Image::BaseType::UINT8) ?
-                ImageLoader::PNG_EXTENSION :
-                ImageLoader::HDR_EXTENSION;
+                 ImageLoader::PNG_EXTENSION :
+                 ImageLoader::HDR_EXTENSION;
 
     // Initialize the underlying renderer.
     initialize();
