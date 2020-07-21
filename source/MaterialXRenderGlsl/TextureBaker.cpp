@@ -15,20 +15,112 @@
 namespace MaterialX
 {
 
+namespace
+{
+
+FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& udim)
+{
+    string outputName = createValidName(output->getNamePath());
+    string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
+
+    return FilePath(outputName + "_baked" + udimSuffix + "." + _extension);
+}
+
+// Helper function to initialize file search pat
+FileSearchPath initFileSearchPath()
+{
+    FilePath installSearchPath = FilePath::getModulePath().getParentPath();
+    FilePath devSearchPath = FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
+    FileSearchPath filename = FileSearchPath(installSearchPath);
+    filename.append(installSearchPath);
+
+    if (!devSearchPath.isEmpty() && devSearchPath.exists())
+    {
+        filename.append(devSearchPath);
+        devSearchPath = devSearchPath / "libraries";
+        if (devSearchPath.exists())
+        {
+            filename.append(devSearchPath);
+        }
+    }
+    return filename;
+}
+
+// Helper function to initialize shader generation context
+GenContext initGenContext()
+{
+    GenContext genContext = GlslShaderGenerator::create();
+    genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
+    genContext.getOptions().hwDirectionalAlbedoMethod = DIRECTIONAL_ALBEDO_TABLE;
+    genContext.getOptions().hwShadowMap = true;
+    genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
+    genContext.getOptions().fileTextureVerticalFlip = true;
+    return genContext;
+}
+
+// Helper function to determine which materials to bake from renderable paths
+StringVec getRenderablePaths(DocumentPtr& doc)
+{
+    StringVec renderablePaths;
+    std::vector<TypedElementPtr> elems;
+    std::vector<TypedElementPtr> materials;
+    findRenderableElements(doc, elems);
+
+    if (elems.empty())
+    {
+        return StringVec();
+    }
+    for (TypedElementPtr elem : elems)
+    {
+        TypedElementPtr renderableElem = elem;
+        NodePtr node = elem->asA<Node>();
+        if (node && node->getType() == MATERIAL_TYPE_STRING)
+        {
+            std::vector<NodePtr> shaderNodes = getShaderNodes(node, SURFACE_SHADER_TYPE_STRING);
+            if (!shaderNodes.empty())
+            {
+                renderableElem = shaderNodes[0];
+            }
+            materials.push_back(node);
+        }
+        else
+        {
+            ShaderRefPtr shaderRef = elem->asA<ShaderRef>();
+            TypedElementPtr materialRef = (shaderRef ? shaderRef->getParent()->asA<TypedElement>() : nullptr);
+            materials.push_back(materialRef);
+        }
+        renderablePaths.push_back(renderableElem->getNamePath());
+    }
+    return renderablePaths;
+} 
+
+// Helper function to generate texture filenames
+FilePath generateOutTextureName(string file)
+{
+    FilePath origFile = FilePath(file);
+    string extension = origFile.getExtension();
+    origFile.removeExtension();
+    string outStr = origFile.getBaseName() + "_baked." + extension;
+    FilePath out = FilePath(outStr);
+    return out;
+}
+
+} // anonymous namespace
+
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
     GlslRenderer(width, height, baseType),
     _generator(GlslShaderGenerator::create())
 {
     // Assign a default extension for texture baking.
     _extension = (baseType == Image::BaseType::UINT8) ?
-        ImageLoader::PNG_EXTENSION :
-        ImageLoader::HDR_EXTENSION;
+            ImageLoader::PNG_EXTENSION :
+            ImageLoader::HDR_EXTENSION;
 
     // Initialize the underlying renderer.
     initialize();
 }
 
-void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string udim)
+void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string& udim)
 {
     if (!shaderRef)
     {
@@ -45,7 +137,7 @@ void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& con
     }
 }
 
-void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string udim)
+void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string& udim)
 {
     if (!shader)
     {
@@ -62,7 +154,7 @@ void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const F
     }
 }
 
-void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const string udim)
+void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const string& udim)
 {
     if (!output)
     {
@@ -195,94 +287,6 @@ void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, 
     }
 
     writeToXmlFile(bakedTextureDoc, filename);
-}
-
-// Helper function to generate mtlx filename
-FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string udim)
-{
-    string outputName = createValidName(output->getNamePath());
-    string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
-
-    return FilePath(outputName + "_baked" + udimSuffix + "." + _extension);
-}
-
-// Helper function to initialize file search pat
-FileSearchPath initFileSearchPath()
-{
-    FilePath installSearchPath = FilePath::getModulePath().getParentPath();
-    FilePath devSearchPath = FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
-    FileSearchPath filename = FileSearchPath(installSearchPath);
-    filename.append(installSearchPath);
-
-    if (!devSearchPath.isEmpty() && devSearchPath.exists())
-    {
-        filename.append(devSearchPath);
-        devSearchPath = devSearchPath / "libraries";
-        if (devSearchPath.exists())
-        {
-            filename.append(devSearchPath);
-        }
-    }
-    return filename;
-}
-
-// Helper function to initialize shader generation context
-GenContext initGenContext()
-{
-    GenContext genContext = GlslShaderGenerator::create();
-    genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
-    genContext.getOptions().hwDirectionalAlbedoMethod = DIRECTIONAL_ALBEDO_TABLE;
-    genContext.getOptions().hwShadowMap = true;
-    genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
-    genContext.getOptions().fileTextureVerticalFlip = true;
-    return genContext;
-}
-
-// Helper function to determine which materials to bake from renderable paths
-StringVec getRenderablePaths(DocumentPtr& doc)
-{
-    StringVec renderablePaths;
-    std::vector<TypedElementPtr> elems;
-    std::vector<TypedElementPtr> materials;
-    findRenderableElements(doc, elems);
-
-    if (elems.empty())
-    {
-        return StringVec();
-    }
-    for (TypedElementPtr elem : elems)
-    {
-        TypedElementPtr renderableElem = elem;
-        NodePtr node = elem->asA<Node>();
-        if (node && node->getType() == MATERIAL_TYPE_STRING)
-        {
-            std::vector<NodePtr> shaderNodes = getShaderNodes(node, SURFACE_SHADER_TYPE_STRING);
-            if (!shaderNodes.empty())
-            {
-                renderableElem = shaderNodes[0];
-            }
-            materials.push_back(node);
-        }
-        else
-        {
-            ShaderRefPtr shaderRef = elem->asA<ShaderRef>();
-            TypedElementPtr materialRef = (shaderRef ? shaderRef->getParent()->asA<TypedElement>() : nullptr);
-            materials.push_back(materialRef);
-        }
-        renderablePaths.push_back(renderableElem->getNamePath());
-    }
-    return renderablePaths;
-}
-
-// Helper function to generate texture filenames
-FilePath generateOutTextureName(string file)
-{
-    FilePath origFile = FilePath(file);
-    string extension = origFile.getExtension();
-    origFile.removeExtension();
-    string outStr = origFile.getBaseName() + "_baked." + extension;
-    FilePath out = FilePath(outStr);
-    return out;
 }
 
 void TextureBaker::bakeAndSave(DocumentPtr& doc, string file, bool hdr, int texres)
