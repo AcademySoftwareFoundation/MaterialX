@@ -44,7 +44,7 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Bake textures for all graph inputs of the given shader reference.
-    void bakeShaderInputs(const shared_ptr<const ShaderRef>& rf, GenContext& context, const FilePath& outputFolder, const string udim = "");
+    void bakeShaderInputs(ConstShaderRefPtr rf, GenContext& context, const FilePath& outputFolder, const string udim = "");
 
     /// Bake textures for all graph inputs of the given shader node.
     void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string udim = "");

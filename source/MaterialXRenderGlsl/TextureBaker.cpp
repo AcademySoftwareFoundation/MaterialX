@@ -28,7 +28,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     initialize();
 }
 
-void TextureBaker::bakeShaderInputs(const shared_ptr<const ShaderRef>& shaderRef, GenContext& context, const FilePath& outputFolder, const string udim)
+void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string udim)
 {
     if (!shaderRef)
     {
