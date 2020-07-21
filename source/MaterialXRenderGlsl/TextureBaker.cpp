@@ -10,6 +10,8 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 
+#include <iostream>
+
 namespace MaterialX
 {
 
@@ -80,6 +82,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
 
     FilePath filename = outputFolder / generateTextureFilename(output, udim);
     save(filename);
+    std::cout << "Saved " + filename.getBaseName() << std::endl;
 }
 
 void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename, ValuePtr udimSetValue)
@@ -135,6 +138,7 @@ void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& fi
     }
 
     writeToXmlFile(bakedTextureDoc, filename);
+    std::cout << "Wrote out " + filename.getBaseName() << std::endl;
 }
 
 void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue)
@@ -289,10 +293,8 @@ void TextureBaker::bakeAndSave(DocumentPtr& doc, std::string file, bool hdr, int
     genContext.registerSourceCodeSearchPath(filename);
     StringVec renderablePaths = getRenderablePaths(doc);
     StringResolverPtr resolver = StringResolver::create();
-
-    for (size_t i = 0; i < renderablePaths.size(); i++)
+    for (const auto& renderablePath : renderablePaths)
     {
-        const auto& renderablePath = renderablePaths[i];
         ElementPtr elem = doc->getDescendant(renderablePath);
         TypedElementPtr typedElem = elem ? elem->asA<TypedElement>() : nullptr;
         if (!typedElem)
