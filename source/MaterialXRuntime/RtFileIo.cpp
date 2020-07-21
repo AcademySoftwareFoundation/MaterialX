@@ -158,22 +158,6 @@ namespace
             {
                 RtValue::fromString(attrType, valueStr, attr.getValue());
             }
-            const string& colorSpace = elem->getColorSpace();
-            if (!colorSpace.empty())
-            {
-                attr.setColorSpace(RtToken(elem->getColorSpace()));
-            }
-            const string& unitStr = elem->getUnit();
-            if (!unitStr.empty())
-            {
-                attr.setUnit(RtToken(unitStr));
-            }
-            const string& unitTypeStr = elem->getUnitType();
-            if (!unitTypeStr.empty())
-            {
-                attr.setUnitType(RtToken(unitTypeStr));
-            }
-
             readMetadata(elem, PvtObject::ptr<PvtObject>(attr), attrMetadata);
         }
     }
@@ -321,21 +305,7 @@ namespace
                 const RtToken portType(elem->getType());
                 RtValue::fromString(portType, valueStr, input->getValue());
             }
-            const string& colorSpace = elem->getColorSpace();
-            if (!colorSpace.empty())
-            {
-                input->setColorSpace(RtToken(elem->getColorSpace()));
-            }
-            const string& unitStr = elem->getUnit();
-            if (!unitStr.empty())
-            {
-                input->setUnit(RtToken(unitStr));
-            }
-            const string& unitTypeStr = elem->getUnitType();
-            if (!unitTypeStr.empty())
-            {
-                input->setUnitType(RtToken(unitTypeStr));
-            }
+            readMetadata(elem, input, attrMetadata);
         }
 
         return node;
@@ -731,20 +701,6 @@ namespace
             }
 
             destPort->setValueString(attr->getValueString());
-
-            if (attr->getColorSpace())
-            {
-                destPort->setColorSpace(attr->getColorSpace().str());
-            }
-            if (attr->getUnit())
-            {
-                destPort->setUnit(attr->getUnit().str());
-            }
-            if (attr->getUnitType())
-            {
-                destPort->setUnitType(attr->getUnitType().str());
-            }
-
             writeMetadata(attr, destPort, attrMetadata);
         }
     }
@@ -838,21 +794,7 @@ namespace
                         }
                     }
 
-                    const RtToken colorspace = input.getColorSpace();
-                    if (colorspace != EMPTY_TOKEN)
-                    {
-                        valueElem->setColorSpace(colorspace.str());
-                    }
-                    const RtToken unit = input.getUnit();
-                    if (unit != EMPTY_TOKEN)
-                    {
-                        valueElem->setUnit(unit.str());
-                    }
-                    const RtToken unitType = input.getUnitType();
-                    if (unitType != EMPTY_TOKEN)
-                    {
-                        valueElem->setUnitType(unitType.str());
-                    }
+                    writeMetadata(PvtObject::ptr<PvtObject>(attr), valueElem, attrMetadata);
                 }
             }
             else if(numOutputs > 1)
