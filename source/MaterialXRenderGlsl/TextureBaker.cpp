@@ -28,7 +28,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     initialize();
 }
 
-void TextureBaker::bakeShaderInputs(const shared_ptr<const ShaderRef>& shaderRef, GenContext& context, const FilePath& outputFolder, const std::string udim)
+void TextureBaker::bakeShaderInputs(const shared_ptr<const ShaderRef>& shaderRef, GenContext& context, const FilePath& outputFolder, const string udim)
 {
     if (!shaderRef)
     {
@@ -45,7 +45,7 @@ void TextureBaker::bakeShaderInputs(const shared_ptr<const ShaderRef>& shaderRef
     }
 }
 
-void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const std::string udim)
+void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string udim)
 {
     if (!shader)
     {
@@ -62,7 +62,7 @@ void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const F
     }
 }
 
-void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const std::string udim)
+void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const string udim)
 {
     if (!output)
     {
@@ -85,7 +85,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     std::cout << "Saved " + filename.getBaseName() << std::endl;
 }
 
-void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename, ValuePtr udimSetValue)
+void TextureBaker::writeBakedDocument(ConstShaderRefPtr shaderRef, const FilePath& filename, ValuePtr udimSetValue)
 {
     if (!shaderRef)
     {
@@ -198,7 +198,7 @@ void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, 
 }
 
 // Helper function to generate mtlx filename
-FilePath TextureBaker::generateTextureFilename(OutputPtr output, const std::string udim)
+FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string udim)
 {
     string outputName = createValidName(output->getNamePath());
     string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
@@ -275,17 +275,17 @@ StringVec getRenderablePaths(DocumentPtr& doc)
 }
 
 // Helper function to generate texture filenames
-FilePath generateOutTextureName(std::string file)
+FilePath generateOutTextureName(string file)
 {
     FilePath origFile = FilePath(file);
-    std::string extension = origFile.getExtension();
+    string extension = origFile.getExtension();
     origFile.removeExtension();
-    std::string outStr = origFile.getBaseName() + "_baked." + extension;
+    string outStr = origFile.getBaseName() + "_baked." + extension;
     FilePath out = FilePath(outStr);
     return out;
 }
 
-void TextureBaker::bakeAndSave(DocumentPtr& doc, std::string file, bool hdr, int texres)
+void TextureBaker::bakeAndSave(DocumentPtr& doc, string file, bool hdr, int texres)
 {
     TextureBakerPtr baker = TextureBaker::create(texres, texres, hdr ? Image::BaseType::FLOAT : Image::BaseType::UINT8);
     FileSearchPath filename = initFileSearchPath();
@@ -312,7 +312,7 @@ void TextureBaker::bakeAndSave(DocumentPtr& doc, std::string file, bool hdr, int
 
         if (udimSetValue && udimSetValue->isA<StringVec>())
         {
-            for (const std::string& udim : udimSetValue->asA<StringVec>())
+            for (const string& udim : udimSetValue->asA<StringVec>())
             {
                 ShaderPtr hwShader = createShader("Shader", genContext, elem);
                 if (!hwShader)
