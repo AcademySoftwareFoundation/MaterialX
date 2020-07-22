@@ -296,6 +296,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             renderableSearchTimer.endTimer();
 
             mx::FileSearchPath imageSearchPath(dir);
+            imageSearchPath.append(searchPath);
+
             mx::FilePath outputPath = mx::FilePath(dir) / file;
             outputPath.removeExtension();
             for (const auto& element : elements)

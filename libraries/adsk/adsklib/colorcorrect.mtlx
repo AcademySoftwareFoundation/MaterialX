@@ -3,8 +3,8 @@
 
    <!-- Sample color correct interface. Versioned and namespaced -->
    <nodedef name="ND_colorcorrect" node="colorcorrect" nodegroup="adjustment" version="1.0" isdefaultversion="true" namespace="adsk">
-      <parameter name="color" type="color3" value="0.5, 0.5, 0.5" />
-      <parameter name="alpha" type="float" value="1" />
+      <input name="color" type="color3" value="0.5, 0.5, 0.5" />
+      <input name="alpha" type="float" value="1" />
       <input name="HSV" type="vector3" value="0, 1, 1" />
       <input name="color_gain" type="color3" value="1, 1, 1" />
       <input name="alpha_gain" type="float" value="1" />
@@ -102,15 +102,9 @@
          <input name="in" type="color4" nodename="if_premultiply_condition" />
          <parameter name="channels" type="string" value="a" />
       </swizzle>
-      <constant name="inputColor" type="color3">
-         <parameter name="value" type="color3" value="0.5, 0.5, 0.5" interfacename="color" />
-      </constant>
-      <constant name="inputAlpha" type="float">
-         <parameter name="value" type="float" value="1" interfacename="alpha" />
-      </constant>
       <combine2 name="combineInput" type="color4">
-         <input name="in1" type="color3" nodename="inputColor" />
-         <input name="in2" type="float" nodename="inputAlpha" />
+         <input name="in1" type="color3" value="0.5, 0.5, 0.5" interfacename="color" />
+         <input name="in2" type="float" value="1" interfacename="alpha" />
       </combine2>
       <output name="outColor" type="color3" nodename="outputColor" />
       <output name="outAlpha" type="float" nodename="outputAlpha" />

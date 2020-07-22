@@ -654,6 +654,10 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Check if a binding context has been set.
     bool bindingContextUsed = _userData.count(mx::HW::USER_DATA_BINDING_CONTEXT) > 0;
 
+    // Map to remove invalid names for files when writing to disk
+    mx::StringMap filenameRemap;
+    filenameRemap[":"] = "_";
+
     size_t documentIndex = 0;
     mx::CopyOptions copyOptions;
     copyOptions.skipConflictingElements = true;
@@ -788,6 +792,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
                 mx::string elementName = mx::replaceSubstrings(namePath, pathMap);
                 elementName = mx::createValidName(elementName);
+                elementName = mx::replaceSubstrings(elementName, filenameRemap);
 
                 mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());
                 if (impl)
@@ -833,22 +838,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                         {
                             path = mx::FilePath::getCurrentPath();
                         }
-                        path = path / "generatedshaders";
-                        if (!path.exists())
-                        {
-                            path.createDirectory();
-                        }
-                        path = path / _shaderGenerator->getLanguage();
-                        if (!path.exists())
-                        {
-                            path.createDirectory();
-                        }
-                        path = path / _shaderGenerator->getTarget();
-                        if (!path.exists())
-                        {
-                            path.createDirectory();
-                        }
-                        
+
                         std::vector<mx::FilePath> sourceCodePaths;
                         if (sourceCode.size() > 1)
                         {
@@ -857,6 +847,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                                 const mx::FilePath filename = path / (elementName + elementNameSuffix + "." + _testStages[i] + "." + getFileExtensionForLanguage(_shaderGenerator->getLanguage()));
                                 sourceCodePaths.push_back(filename);
                                 std::ofstream file(filename.asString());
+                                _logFile << "Write source code: " << filename.asString() << std::endl;
                                 file << sourceCode[i];
                                 file.close();
                             }
@@ -866,6 +857,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                             path = path / (elementName + "." + getFileExtensionForLanguage(_shaderGenerator->getLanguage()));
                             sourceCodePaths.push_back(path);
                             std::ofstream file(path.asString());
+                            _logFile << "Write source code: " << path.asString() << std::endl;
+                            std::cout << "Write source code: " << path.asString() << std::endl;
                             file << sourceCode[0];
                             file.close();
                         }
