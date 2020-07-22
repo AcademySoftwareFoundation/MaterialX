@@ -47,7 +47,7 @@ bool convertMaterialsToNodes(DocumentPtr doc)
             throw Exception("Material node already exists: " + materialName);
         }
 
-        // Create a temporary name for the material element 
+        // Create a temporary name for the material element
         // so the new node can reuse the existing name.
         string validName = doc->createValidChildName(materialName + "1");
         m->setName(validName);
@@ -141,7 +141,7 @@ bool convertMaterialsToNodes(DocumentPtr doc)
                 materialNode->setSourceUri(m->getSourceUri());
                 // Note: Inheritance does not get transfered to the node we do
                 // not perform the following:
-                //      - materialNode->setInheritString(m->getInheritString()); 
+                //      - materialNode->setInheritString(m->getInheritString());
             }
             // Create input to replace each shaderref. Use shaderref name as unique
             // input name.
@@ -277,7 +277,7 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, 
+NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
                                          const string& version, bool isDefaultVersion, const string& group, string& newGraphName)
 {
     if (getNodeDef(nodeDefName))
@@ -307,7 +307,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     if (!version.empty())
     {
         nodeDef->setVersionString(version);
-        
+
         // Can only be a default version if there is a version string
         if (isDefaultVersion)
         {
@@ -993,7 +993,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         removeNodeDef("ND_rotate_vector3");
 
         minorVersion = 37;
-    }  
+    }
 
     // Apply latest updates on top of the current library version.
     // When the next version become official, the update check
@@ -1045,9 +1045,9 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     InputPtr input2 = node->getInput(IN2);
                     if (input && input2)
                     {
-                        string inputValue = input->getValueString();
-                        input->setValueString(input2->getValueString());
-                        input2->setValueString(inputValue);
+                        input->setName(EMPTY_STRING);
+                        input2->setName(IN1);
+                        input->setName(IN2);
                     }
                     else
                     {
@@ -1119,7 +1119,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     if (majorVersion >= MATERIALX_MAJOR_VERSION &&
         minorVersion >= MATERIALX_MINOR_VERSION)
     {
-        setVersionString(makeVersionString(majorVersion, minorVersion)); 
+        setVersionString(makeVersionString(majorVersion, minorVersion));
     }
 }
 

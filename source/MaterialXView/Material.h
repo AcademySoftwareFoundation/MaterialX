@@ -158,7 +158,7 @@ class Material
     void bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj);
 
     /// Bind all images for this material.
-    void bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath);
+    void bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath, bool enableMipmaps = true);
 
     /// Unbbind all images for this material.
     void unbindImages(mx::ImageHandlerPtr imageHandler);

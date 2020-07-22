@@ -1607,17 +1607,17 @@ void Viewer::renderFrame()
     {
         auto meshes = _envGeometryHandler->getMeshes();
         auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
-        mx::Matrix44 envMatrix = mx::Matrix44::createScale(mx::Vector3(300.0f)) *
-                                 mx::Matrix44::createRotationY(PI / 2.0f) *
-                                 lightingState.lightTransform;
+        mx::Matrix44 envWorld = mx::Matrix44::createScale(mx::Vector3(300.0f));
+        float longitudeOffset = (_lightRotation / 360.0f) + 0.5f;
+        _envMaterial->setUniformFloat("longitude/in2", longitudeOffset);
 
         if (envPart)
         {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
             _envMaterial->bindShader();
-            _envMaterial->bindViewInformation(envMatrix, view, proj);
-            _envMaterial->bindImages(_imageHandler, _searchPath);
+            _envMaterial->bindViewInformation(envWorld, view, proj);
+            _envMaterial->bindImages(_imageHandler, _searchPath, false);
             _envMaterial->drawPartition(envPart);
             glDisable(GL_CULL_FACE);
             glCullFace(GL_BACK);

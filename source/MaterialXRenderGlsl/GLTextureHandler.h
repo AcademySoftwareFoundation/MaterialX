@@ -55,7 +55,7 @@ class GLTextureHandler : public ImageHandler
     static int mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum);
 
     /// Utility to map a filter type enumeration to an OpenGL filter type
-    static int mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum);
+    static int mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum, bool enableMipmaps);
 
     static void mapTextureFormatToGL(Image::BaseType baseType, unsigned int channelCount, bool srgb,
                                      int& glType, int& glFormat, int& glInternalFormat);
