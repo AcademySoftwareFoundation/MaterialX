@@ -19,4 +19,4 @@ The sub-folders in the test suite contain a set of input MaterialX documents. Du
 
 At the top level, the [options file (_options.mtlx)](_options.mtlx) is a MaterialX document that defines the set of execution options for Render tests. The values may be edited locally as desired.
 
-For details on how to build the unit test module to use this test suite see the [source documentation](../../source/MaterialXTest/README.md).
+For details on how to build the unit test module to use this test suite see the [source documentation](../../../source/MaterialXTest/README.md).
