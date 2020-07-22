@@ -130,7 +130,7 @@ void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& con
     }
 }
 
-void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context,  const FilePath& outputFolder, const string& udim)
+void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string& udim)
 {
     if (!shader)
     {
