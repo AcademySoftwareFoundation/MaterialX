@@ -37,7 +37,7 @@ def main():
     mx.loadLibraries(library_folder, searchPath, stdlib, set(), None)
     doc.importLibrary(stdlib)
 
-    mx_render_glsl.TextureBaker.bakeAndSave(doc, opts.filename, opts.hdr, opts.tex_res)
+    mx_render_glsl.TextureBaker.bakeAllShaders(doc, opts.filename, opts.hdr, opts.tex_res)
 
 if __name__ == '__main__':
     main()

@@ -86,13 +86,13 @@ StringVec getRenderablePaths(DocumentPtr& doc)
     return renderablePaths;
 } 
 
-// Helper function to generate texture filenames
-FilePath generateOutTextureName(string file)
+// Helper function to generate mtlx filenames
+FilePath generateOutMtlxFilename(string file, string srName)
 {
     FilePath origFile = FilePath(file);
     string extension = origFile.getExtension();
     origFile.removeExtension();
-    string outStr = origFile.getBaseName() + "_baked." + extension;
+    string outStr = origFile.getBaseName() + "_" + srName + "_baked." + extension;
     FilePath out = FilePath(outStr);
     return out;
 }
@@ -124,12 +124,13 @@ void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& con
         OutputPtr output = bindInput->getConnectedOutput();
         if (output)
         {
-            bakeGraphOutput(output, context, outputFolder, udim);
+            FilePath filename = FilePath(outputFolder / generateTextureFilename(output, shaderRef->getName(), udim));
+            bakeGraphOutput(output, context, filename);
         }
     }
 }
 
-void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string& udim)
+void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context,  const FilePath& outputFolder, const string& udim)
 {
     if (!shader)
     {
@@ -141,12 +142,13 @@ void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const F
         OutputPtr output = input->getConnectedOutput();
         if (output)
         {
-            bakeGraphOutput(output, context, outputFolder, udim);
+            FilePath filename = FilePath(outputFolder / generateTextureFilename(output, shader->getName(), udim));
+            bakeGraphOutput(output, context, filename);
         }
     }
 }
 
-void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder, const string& udim)
+void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& filename)
 {
     if (!output)
     {
@@ -164,7 +166,6 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     // TODO: Add support for graphs containing geometric nodes such as position and normal.
     //       Currently, the only supported geometric node is texcoord.
 
-    FilePath filename = outputFolder / generateTextureFilename(output, udim);
     save(filename);
     std::cout << "Saved " + filename.getBaseName() << std::endl;
 }
@@ -207,7 +208,7 @@ void TextureBaker::writeBakedDocument(ConstShaderRefPtr shaderRef, const FilePat
             // Add the image node.
             NodePtr bakedImage = bakedNodeGraph->addNode("image", bindInput->getName() + "_baked", bindInput->getType());
             ParameterPtr param = bakedImage->addParameter("file", "filename");
-            param->setValueString(generateTextureFilename(output, (udimSetValue) ? "<UDIM>" : ""));
+            param->setValueString(generateTextureFilename(output, shaderRef->getName(), (udimSetValue) ? "<UDIM>" : ""));
 
             // Add the graph output.
             OutputPtr bakedOutput = bakedNodeGraph->addOutput(bindInput->getName() + "_output", bindInput->getType());
@@ -281,15 +282,16 @@ void TextureBaker::writeBakedDocument(NodePtr shader, const FilePath& filename, 
     writeToXmlFile(bakedTextureDoc, filename);
 }
 
-FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& udim)
+FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& srName, const string& udim)
 {
     string outputName = createValidName(output->getNamePath());
+    string srSegment = srName.empty() ? EMPTY_STRING : "_" + srName;
     string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
 
-    return FilePath(outputName + "_baked" + udimSuffix + "." + _extension);
+    return FilePath(outputName + srSegment + "_baked" + udimSuffix + "." + _extension);
 }
 
-void TextureBaker::bakeAndSave(DocumentPtr& doc, string file, bool hdr, int texres)
+void TextureBaker::bakeAllShaders(DocumentPtr& doc, string file, bool hdr, int texres)
 {
     TextureBakerPtr baker = TextureBaker::create(texres, texres, hdr ? Image::BaseType::FLOAT : Image::BaseType::UINT8);
     FileSearchPath filename = initFileSearchPath();
@@ -301,13 +303,12 @@ void TextureBaker::bakeAndSave(DocumentPtr& doc, string file, bool hdr, int texr
     {
         ElementPtr elem = doc->getDescendant(renderablePath);
         TypedElementPtr typedElem = elem ? elem->asA<TypedElement>() : nullptr;
-        if (!typedElem)
+        if (!typedElem || elem->getCategory() != "shaderref")
         {
             continue;
         }
-
         ShaderRefPtr sr = elem->asA<ShaderRef>();
-        FilePath out = generateOutTextureName(file);
+        FilePath out = generateOutMtlxFilename(file, sr->getName());
         StbImageLoaderPtr stbimg = StbImageLoader::create();
         ImageHandlerPtr imageHandler = GLTextureHandler::create(stbimg);
 

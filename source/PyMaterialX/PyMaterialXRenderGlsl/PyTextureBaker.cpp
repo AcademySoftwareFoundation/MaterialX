@@ -15,5 +15,5 @@ void bindPyTextureBaker(py::module& mod)
 {
     py::class_<mx::TextureBaker, mx::GlslRenderer, mx::TextureBakerPtr>(mod, "TextureBaker")
         .def_static("create", &mx::TextureBaker::create)
-        .def_static("bakeAndSave", &mx::TextureBaker::bakeAndSave);
+        .def_static("bakeAllShaders", &mx::TextureBaker::bakeAllShaders);
 }
