@@ -74,7 +74,7 @@ If rendering tests are enabled via the build options then code for each Element 
 - `MDL` : Uses the utility `mdlc` from the MDL SDK distribution available from [MDL distribution](https://developer.nvidia.com/mdl-sdk)
     - The test suite has been tested with mdlc version 1.0 build 327300.6313.
     - The following build options are require to be set:
-        - `MATERIALX_MDLC_EXECUTABLEMATERIALX_OSLC_EXECUTABLE`: Full path to the `mdlc` binary. 
+        - `MATERIALX_MDLC_EXECUTABLE`: Full path to the `mdlc` binary. 
 
 #### Test Outputs
 
