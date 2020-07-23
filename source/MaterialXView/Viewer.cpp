@@ -39,7 +39,7 @@ const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
 
 const int MIN_TEXTURE_RES = 256;
-const int MAX_TEXTURE_RES = 4096;
+int MAX_TEXTURE_RES = 4096;
 const int DEFAULT_TEXTURE_RES = 1024;
 
 const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
@@ -241,6 +241,7 @@ Viewer::Viewer(const std::string& materialFilename,
 #endif
     _imageHandler = mx::GLTextureHandler::create(imageLoader);
     _imageHandler->setSearchPath(_searchPath);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &MAX_TEXTURE_RES);
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -677,7 +678,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     advancedPopupParent->setLayout(new ng::GroupLayout());
 
     ng::VScrollPanel* scrollPanel = new ng::VScrollPanel(advancedPopupParent);
-    scrollPanel->setFixedHeight(500);
+    scrollPanel->setFixedHeight(400);
     ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
     advancedPopup->setLayout(new ng::GroupLayout(13));
 
@@ -853,9 +854,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
     bakeTexturesBox->setChecked(_bakeTextures);
     bakeTexturesBox->setCallback([this](bool enable)
-        {
-            _bakeTextures = enable;
-        });
+    {
+        _bakeTextures = enable;
+    });
 
     ng::CheckBox* bakeHdrBox = new ng::CheckBox(advancedPopup, "Bake HDR Textures");
     bakeHdrBox->setChecked(_bakeTextures);
@@ -1670,7 +1671,6 @@ mx::ImagePtr Viewer::renderWedge()
 void Viewer::bakeTextures()
 {
     MaterialPtr material = getSelectedMaterial();
-    mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
     mx::FileSearchPath searchPath = _searchPath;
     mx::DocumentPtr doc = material->getDocument();
     if (!doc)
@@ -1685,47 +1685,44 @@ void Viewer::bakeTextures()
     imageHandler->setSearchPath(searchPath);
 
     // if material has udims
+    std::vector<MaterialPtr> materialsToBake;
+    std::vector<std::string> udimSet;
     if (!material->getUdim().empty() && udimSetValue && _materials.size() > 1)
     {
-        for (MaterialPtr mat : _materials)
-        {
-            if (mat->getElement()->getCategory() == "shaderref")
-            {
-                mx::StringResolverPtr resolver = mx::StringResolver::create();
-                resolver->setUdimString(mat->getUdim());
-                imageHandler->setFilenameResolver(resolver);
-
-                try
-                {
-                    mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
-                    baker->setImageHandler(imageHandler);
-                    baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath(), mat->getUdim());
-                    std::vector<std::string> udimSet = udimSetValue->asA<std::vector<std::string>>();
-                    if (mat->getUdim() == udimSet.back())
-                    {
-                        baker->writeBakedDocument(shaderRef, _bakeFilename, udimSetValue);
-                    }
-                }
-                catch (mx::Exception& e)
-                {
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
-                }
-            }
-        }
+        materialsToBake = _materials;
+        udimSet = udimSetValue->asA<std::vector<std::string>>();
     }
     else
     {
-        try
+        materialsToBake.push_back(material);
+        udimSet.push_back("");
+    }
+    for (MaterialPtr mat : materialsToBake)
+    {
+        if (mat->getElement()->getCategory() == "shaderref")
         {
-            mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
-            baker->setImageHandler(imageHandler);
-            baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath());
-            baker->writeBakedDocument(shaderRef, _bakeFilename);
+            mx::ShaderRefPtr shaderRef = mat->getElement()->asA<mx::ShaderRef>();
+            mx::StringResolverPtr resolver = mx::StringResolver::create();
+            resolver->setUdimString(mat->getUdim());
+            imageHandler->setFilenameResolver(resolver);
+
+            try
+            {
+                mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
+                baker->setImageHandler(imageHandler);
+                baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath(), mat->getUdim());
+
+                if (mat->getUdim() == udimSet.back())
+                {
+                    baker->writeBakedDocument(shaderRef, _bakeFilename, udimSetValue);
+                }
+            }
+            catch (mx::Exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+            }
         }
-        catch (mx::Exception& e)
-        {
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
-        }
+
     }
 
     glfwMakeContextCurrent(mGLFWWindow);

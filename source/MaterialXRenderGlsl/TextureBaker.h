@@ -44,10 +44,10 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Bake textures for all graph inputs of the given shader reference.
-    void bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string& udim = "");
+    void bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string& udim = EMPTY_STRING);
 
     /// Bake textures for all graph inputs of the given shader node.
-    void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string& udim = "");
+    void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string& udim = EMPTY_STRING);
 
     /// Bake a texture for the given graph output.
     void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& filename);
@@ -59,13 +59,13 @@ class TextureBaker : public GlslRenderer
     void writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue = nullptr);
     
     /// Bake material and its inputs to textures 
-    static void bakeAllShaders(DocumentPtr& doc, string file, bool HDR = false, int textureRes = 1024);
+    static void bakeAllShaders(DocumentPtr& doc, string file, bool HDR = false, int texresx = 1024, int texresy = 1024);
 
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
     /// Generate a texture filename for the given graph output.
-    FilePath generateTextureFilename(OutputPtr output, const string& srName = "", const string& udim = "");
+    FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);
 
   protected:
     ShaderGeneratorPtr _generator;
