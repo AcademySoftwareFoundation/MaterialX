@@ -10,8 +10,9 @@
 /// Texture baking functionality
 
 #include <MaterialXRenderGlsl/GlslRenderer.h>
-#include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
+
+#include <MaterialXRender/StbImageLoader.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
