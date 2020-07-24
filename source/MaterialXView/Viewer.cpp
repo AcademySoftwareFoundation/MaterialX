@@ -19,6 +19,7 @@
 #include <nanogui/label.h>
 #include <nanogui/layout.h>
 #include <nanogui/messagedialog.h>
+#include <nanogui/vscrollpanel.h>
 
 #include <fstream>
 #include <iostream>
@@ -36,6 +37,10 @@ const int SHADOW_MAP_SIZE = 2048;
 const int ALBEDO_TABLE_SIZE = 64;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
+
+const int MIN_TEXTURE_RES = 256;
+int MAX_TEXTURE_RES = 4096;
+const int DEFAULT_TEXTURE_RES = 1024;
 
 const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
@@ -198,6 +203,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _splitByUdims(false),
     _mergeMaterials(false),
     _bakeTextures(false),
+    _bakeHdr(false),
+    _bakeTextureRes(DEFAULT_TEXTURE_RES),
     _outlineSelection(false),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
@@ -234,6 +241,7 @@ Viewer::Viewer(const std::string& materialFilename,
 #endif
     _imageHandler = mx::GLTextureHandler::create(imageLoader);
     _imageHandler->setSearchPath(_searchPath);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &MAX_TEXTURE_RES);
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
@@ -666,10 +674,17 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ng::PopupButton* advancedButton = new ng::PopupButton(parent, "Advanced Settings");
     advancedButton->setIcon(ENTYPO_ICON_TOOLS);
     advancedButton->setChevronIcon(-1);
-    ng::Popup* advancedPopup = advancedButton->popup();
-    advancedPopup->setLayout(new ng::GroupLayout());
+    ng::Popup* advancedPopupParent = advancedButton->popup();
+    advancedPopupParent->setLayout(new ng::GroupLayout());
 
-    new ng::Label(advancedPopup, "Mesh Options");
+    ng::VScrollPanel* scrollPanel = new ng::VScrollPanel(advancedPopupParent);
+    scrollPanel->setFixedHeight(400);
+    ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
+    advancedPopup->setLayout(new ng::GroupLayout(13));
+
+    ng::Label* meshLabel = new ng::Label(advancedPopup, "Mesh Options");
+    meshLabel->setFontSize(20);
+    meshLabel->setFont("sans-bold");
 
     ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
     splitUdimsBox->setChecked(_splitByUdims);
@@ -678,20 +693,15 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _splitByUdims = enable;
     });
 
-    new ng::Label(advancedPopup, "Material Options");
+    ng::Label* materialLabel = new ng::Label(advancedPopup, "Material Options");
+    materialLabel->setFontSize(20);
+    materialLabel->setFont("sans-bold");
 
     ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
     mergeMaterialsBox->setChecked(_mergeMaterials);
     mergeMaterialsBox->setCallback([this](bool enable)
     {
         _mergeMaterials = enable;
-    });    
-
-    ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
-    bakeTexturesBox->setChecked(_bakeTextures);
-    bakeTexturesBox->setCallback([this](bool enable)
-    {
-        _bakeTextures = enable;
     });    
 
     Widget* unitGroup = new Widget(advancedPopup);
@@ -715,7 +725,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
         mProcessEvents = true;
     });
 
-    new ng::Label(advancedPopup, "Lighting Options");
+    ng::Label* lightingLabel = new ng::Label(advancedPopup, "Lighting Options");
+    lightingLabel->setFontSize(20);
+    lightingLabel->setFont("sans-bold");
 
     ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
     directLightingBox->setChecked(_directLighting);
@@ -759,7 +771,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
     lightRotationBox->setEditable(true);
 
-    new ng::Label(advancedPopup, "Shadowing Options");
+    ng::Label* shadowingLabel = new ng::Label(advancedPopup, "Shadowing Options");
+    shadowingLabel->setFontSize(20);
+    shadowingLabel->setFont("sans-bold");
 
     ng::CheckBox* shadowMapBox = new ng::CheckBox(advancedPopup, "Shadow Map");
     shadowMapBox->setChecked(_genContext.getOptions().hwShadowMap);
@@ -786,7 +800,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
     ambientOcclusionGainBox->setEditable(true);
 
-    new ng::Label(advancedPopup, "Render Options");
+    ng::Label* renderLabel = new ng::Label(advancedPopup, "Render Options");
+    renderLabel->setFontSize(20);
+    renderLabel->setFont("sans-bold");
 
     ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
     outlineSelectedGeometryBox->setChecked(_outlineSelection);
@@ -830,6 +846,42 @@ void Viewer::createAdvancedSettings(Widget* parent)
             _envSamples = MIN_ENV_SAMPLES * (int) std::pow(4, index);
         });
     }
+
+    ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options");
+    textureLabel->setFontSize(20);
+    textureLabel->setFont("sans-bold");
+
+    ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
+    bakeTexturesBox->setChecked(_bakeTextures);
+    bakeTexturesBox->setCallback([this](bool enable)
+    {
+        _bakeTextures = enable;
+    });
+
+    ng::CheckBox* bakeHdrBox = new ng::CheckBox(advancedPopup, "Bake HDR Textures");
+    bakeHdrBox->setChecked(_bakeTextures);
+    bakeHdrBox->setCallback([this](bool enable)
+        {
+            _bakeHdr = enable;
+        });
+
+    Widget* textureResGroup = new Widget(advancedPopup);
+    textureResGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(textureResGroup, "Texture Res:");
+    mx::StringVec textureResOptions;
+    for (int i = MIN_TEXTURE_RES; i <= MAX_TEXTURE_RES; i *= 2)
+    {
+        mProcessEvents = false;
+        textureResOptions.push_back(std::to_string(i));
+        mProcessEvents = true;
+    }
+    ng::ComboBox* textureResBox = new ng::ComboBox(textureResGroup, textureResOptions);
+    textureResBox->setChevronIcon(-1);
+    textureResBox->setSelectedIndex((int)std::log2(DEFAULT_TEXTURE_RES / MIN_TEXTURE_RES));
+    textureResBox->setCallback([this](int index)
+        {
+            _bakeTextureRes = MIN_TEXTURE_RES * (int)std::pow(2, index);
+        });
 }
 
 void Viewer::updateGeometrySelections()
@@ -1619,33 +1671,58 @@ mx::ImagePtr Viewer::renderWedge()
 void Viewer::bakeTextures()
 {
     MaterialPtr material = getSelectedMaterial();
-    mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
     mx::FileSearchPath searchPath = _searchPath;
-    if (material->getDocument())
+    mx::DocumentPtr doc = material->getDocument();
+    if (!doc)
     {
-        mx::FilePath documentFilename = material->getDocument()->getSourceUri();
-        searchPath.append(documentFilename.getParentPath());
+        return;
     }
-
+    mx::FilePath documentFilename = doc->getSourceUri();
+    searchPath.append(documentFilename.getParentPath());
+    mx::ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+    mx::Image::BaseType baseType = (_bakeHdr)? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
     mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
     imageHandler->setSearchPath(searchPath);
-    if (!material->getUdim().empty())
-    {
-        mx::StringResolverPtr resolver = mx::StringResolver::create();
-        resolver->setUdimString(material->getUdim());
-        imageHandler->setFilenameResolver(resolver);
-    }
 
-    try
+    // if material has udims
+    std::vector<MaterialPtr> materialsToBake;
+    std::vector<std::string> udimSet;
+    if (!material->getUdim().empty() && udimSetValue && _materials.size() > 1)
     {
-        mx::TextureBakerPtr baker = mx::TextureBaker::create();
-        baker->setImageHandler(imageHandler);
-        baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath());
-        baker->writeBakedDocument(shaderRef, _bakeFilename);
+        materialsToBake = _materials;
+        udimSet = udimSetValue->asA<std::vector<std::string>>();
     }
-    catch (mx::Exception& e)
+    else
     {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+        materialsToBake.push_back(material);
+        udimSet.push_back("");
+    }
+    for (MaterialPtr mat : materialsToBake)
+    {
+        if (mat->getElement()->getCategory() == "shaderref")
+        {
+            mx::ShaderRefPtr shaderRef = mat->getElement()->asA<mx::ShaderRef>();
+            mx::StringResolverPtr resolver = mx::StringResolver::create();
+            resolver->setUdimString(mat->getUdim());
+            imageHandler->setFilenameResolver(resolver);
+
+            try
+            {
+                mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
+                baker->setImageHandler(imageHandler);
+                baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath(), mat->getUdim());
+
+                if (mat->getUdim() == udimSet.back())
+                {
+                    baker->writeBakedDocument(shaderRef, _bakeFilename, udimSetValue);
+                }
+            }
+            catch (mx::Exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+            }
+        }
+
     }
 
     glfwMakeContextCurrent(mGLFWWindow);
