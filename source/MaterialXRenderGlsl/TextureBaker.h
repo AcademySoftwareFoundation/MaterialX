@@ -64,7 +64,7 @@ class TextureBaker : public GlslRenderer
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
-    /// Generate a texture filename for the given graph output.
+    // Generate a texture filename for the given graph output.
     FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);
 
   protected:
