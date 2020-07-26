@@ -120,7 +120,11 @@ bool Material::generateShader(mx::ShaderPtr hwShader)
     std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
 
     _glShader = std::make_shared<ng::GLShader>();
-    return _glShader->init(hwShader->getName(), vertexShader, pixelShader);
+    _glShader->init(hwShader->getName(), vertexShader, pixelShader);
+
+    updateUniformsList();
+
+    return true;
 }
 
 bool Material::generateEnvironmentShader(mx::GenContext& context,
@@ -154,11 +158,8 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
 
     // Create the shader.
     std::string shaderName = "__ENV_SHADER__";
-    try
-    {
-        _hwShader = createShader(shaderName, context, output); 
-    }
-    catch (std::exception&)
+    _hwShader = createShader(shaderName, context, output); 
+    if (!_hwShader)
     {
         return false;
     }
@@ -254,7 +255,7 @@ void Material::unbindImages(mx::ImageHandlerPtr imageHandler)
     }
 }
 
-void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath)
+void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath, bool enableMipmaps)
 {
     if (!_glShader)
     {
@@ -280,6 +281,9 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
         // Extract out sampling properties
         mx::ImageSamplingProperties samplingProperties;
         samplingProperties.setProperties(uniformVariable, *publicUniforms);
+
+        // Set the requested mipmap sampling property,
+        samplingProperties.enableMipmaps = enableMipmaps;
 
         mx::ImagePtr image = bindImage(filename, uniformVariable, imageHandler, samplingProperties, &IMAGE_DEFAULT_COLOR);
         if (image)
@@ -399,7 +403,7 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
     // Bind environment lighting properties.
     if (_glShader->uniform(mx::HW::ENV_MATRIX, false) != -1)
     {
-        mx::Matrix44 envRotation = mx::Matrix44::createRotationY(PI) * lightingState.lightTransform;
+        mx::Matrix44 envRotation = mx::Matrix44::createRotationY(PI) * lightingState.lightTransform.getTranspose();
         _glShader->setUniform(mx::HW::ENV_MATRIX, ng::Matrix4f(envRotation.data()));
     }
     if (_glShader->uniform(mx::HW::ENV_RADIANCE_SAMPLES, false) != -1)
@@ -672,13 +676,16 @@ void Material::changeUniformElement(mx::ShaderPort* uniform, const std::string& 
         throw std::runtime_error("Null ShaderPort");
     }
     uniform->setValue(mx::Value::createValueFromStrings(value, uniform->getType()->getName()));
-    mx::ElementPtr element = _doc->getDescendant(uniform->getPath());
-    if (element)
+    if (_doc)
     {
-        mx::ValueElementPtr valueElement = element->asA<mx::ValueElement>();
-        if (valueElement)
+        mx::ElementPtr element = _doc->getDescendant(uniform->getPath());
+        if (element)
         {
-            valueElement->setValueString(value);
+            mx::ValueElementPtr valueElement = element->asA<mx::ValueElement>();
+            if (valueElement)
+            {
+                valueElement->setValueString(value);
+            }
         }
     }
 }
