@@ -5,6 +5,7 @@
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
+#include <MaterialXCore/MaterialNode.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRender/Util.h>
 #include <MaterialXGenShader/Shader.h>
@@ -68,10 +69,10 @@ StringVec getRenderablePaths(DocumentPtr& doc)
         NodePtr node = elem->asA<Node>();
         if (node && node->getType() == MATERIAL_TYPE_STRING)
         {
-            std::vector<NodePtr> shaderNodes = getShaderNodes(node, SURFACE_SHADER_TYPE_STRING);
+            std::unordered_set<NodePtr> shaderNodes = getShaderNodes(node, SURFACE_SHADER_TYPE_STRING);
             if (!shaderNodes.empty())
             {
-                renderableElem = shaderNodes[0];
+                renderableElem = *shaderNodes.begin();
             }
             materials.push_back(node);
         }

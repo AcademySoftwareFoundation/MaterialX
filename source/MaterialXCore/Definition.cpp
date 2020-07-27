@@ -52,7 +52,7 @@ const string& NodeDef::getType() const
     }
     else
     {
-        throw Exception("Nodedef: " + getName() + " has no outputs");
+        return DEFAULT_TYPE_STRING;
     }
 }
 

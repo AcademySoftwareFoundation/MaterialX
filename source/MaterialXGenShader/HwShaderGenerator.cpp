@@ -291,8 +291,8 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     }
 
     // Add uniforms for the directional albedo table.
-    if (context.getOptions().directionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
-        context.getOptions().writeDirectionalAlbedoTable)
+    if (context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
+        context.getOptions().hwWriteAlbedoTable)
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_ALBEDO_TABLE);
         psPrivateUniforms->add(Type::INTEGER, HW::T_ALBEDO_TABLE_SIZE, Value::createValue<int>(64));

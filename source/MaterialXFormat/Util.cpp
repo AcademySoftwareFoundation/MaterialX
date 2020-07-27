@@ -30,7 +30,7 @@ string readFile(const FilePath& filePath)
 
 void getSubdirectories(const FilePathVec rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
 {
-    for (const auto& root : rootDirectories)
+    for (const FilePath& root : rootDirectories)
     {
         FilePath rootPath = searchPath.find(root);
         if (rootPath.exists())
@@ -151,4 +151,4 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     return loadedLibraries;
 }
 
-}
+} // namespace MaterialX

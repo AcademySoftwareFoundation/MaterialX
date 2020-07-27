@@ -172,7 +172,6 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
 
     // Create the shader.
     std::string shaderName = "__ENV_SHADER__";
-    
     _hwShader = createShader(shaderName, context, output); 
     if (!_hwShader)
     {
@@ -578,7 +577,7 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
     }
 
     // Bind the directional albedo table.
-    if (genContext.getOptions().directionalAlbedoMethod == mx::DIRECTIONAL_ALBEDO_TABLE)
+    if (genContext.getOptions().hwDirectionalAlbedoMethod == mx::DIRECTIONAL_ALBEDO_TABLE)
     {
         if (_glShader->uniform(mx::HW::ALBEDO_TABLE, false) != -1)
         {

@@ -219,7 +219,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitTypeDefinitions(context, stage);
     emitLine("#define M_FLOAT_EPS 1e-8", stage, false);
     emitLine("#define M_GOLDEN_RATIO 1.6180339887498948482045868343656", stage, false);
-    emitLine("#define GGX_DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().directionalAlbedoMethod)), stage, false);
+    emitLine("#define GGX_DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
     emitLine("#define GGX_DIRECTIONAL_ALBEDO_TABLE \"" + albedoTableFilePath + "\"", stage, false);
     emitLineBreak(stage);
 

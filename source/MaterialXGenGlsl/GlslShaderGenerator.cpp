@@ -436,7 +436,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
         emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), stage, false);
     }
-    emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().directionalAlbedoMethod)), stage, false);
+    emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
     emitLineBreak(stage);
     emitTypeDefinitions(context, stage);
 
@@ -522,8 +522,8 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
 
     // Emit directional albedo table code.
-    if (context.getOptions().directionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
-        context.getOptions().writeDirectionalAlbedoTable)
+    if (context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
+        context.getOptions().hwWriteAlbedoTable)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_table.glsl", context, stage);
         emitLineBreak(stage);
@@ -567,7 +567,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     {
         emitLine(outputSocket->getVariable() + " = vec4(mx_compute_depth_moments(), 0.0, 1.0)", stage);
     }
-    else if (context.getOptions().writeDirectionalAlbedoTable)
+    else if (context.getOptions().hwWriteAlbedoTable)
     {
         emitLine(outputSocket->getVariable() + " = vec4(mx_ggx_directional_albedo_generate_table(), 0.0, 1.0)", stage);
     }
