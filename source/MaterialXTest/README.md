@@ -67,10 +67,10 @@ If rendering tests are enabled via the build options then code for each Element 
         - `MATERIALX_OSLC_EXECUTABLE`: Full path to the `oslc` binary.
         - `MATERIALX_TESTRENDER_EXECUTABLE`: Full path to the `testrender` binary.
         - `MATERIALX_OSL_INCLUDE_PATH`: Full path to OSL include paths (i.e. location of `stdosl.h`).
-- `MDL` : Uses the utility `mdlc` from the MDL SDK distribution available from [MDL distribution](https://developer.nvidia.com/mdl-sdk)
-    - The test suite has been tested with mdlc version 1.0 build 327300.6313.
-    - The following build options are require to be set:
-        - `MATERIALX_MDLC_EXECUTABLE`: Full path to the `mdlc` binary. 
+- `MDL` : Uses the utility `mdlc` from the [MDL distribution](https://github.com/NVIDIA/MDL-SDK) Prebuilt binaries can be downloaded from [here](https://developer.nvidia.com/mdl-sdk).
+    - The recommended MDL version is 1.6. The minimal support version is: [2019.2 (325000.1814)](https://github.com/NVIDIA/MDL-SDK/releases/tag/2019.2)
+    - The following build options are required to be set:
+        - `MATERIALX_MDLC_EXECUTABLE`: Full path to the `mdlc` binary.
 
 #### Test Outputs
 
