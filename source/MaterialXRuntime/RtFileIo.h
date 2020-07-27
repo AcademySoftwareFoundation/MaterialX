@@ -39,9 +39,6 @@ class RtReadOptions
 
     /// Apply the latest MaterialX feature updates. The default value is true.
     bool applyFutureUpdates;
-
-    /// Validate MaterialX documents read. The default is true.
-    bool validateDocument;
 };
     
 /// @class RtWriteOptions

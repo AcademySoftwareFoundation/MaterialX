@@ -75,6 +75,7 @@ namespace
     const mx::RtToken STDLIB("stdlib");
     const mx::RtToken PBRLIB("pbrlib");
     const mx::RtToken BXDFLIB("bxdf");
+    const mx::RtToken ADSKLIB("adsk");
 
     bool compareFiles(const mx::FilePath& filename1, const mx::FilePath& filename2)
     {
@@ -1024,36 +1025,6 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
     }
 }
 
-TEST_CASE("Runtime: FileIo no validatioon", "[runtime]")
-{
-    mx::RtScopedApiHandle api;
-
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
-
-    mx::FileSearchPath bxdfPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries") / mx::FilePath("bxdf"));
-    mx::RtReadOptions options;
-    options.validateDocument = false;
-
-    mx::RtStagePtr stage = api->createStage(MAIN);
-    mx::RtFileIo fileIo(stage);
-    REQUIRE_THROWS(fileIo.read("standard_surface.mtlx", bxdfPath));
-    REQUIRE_NOTHROW(fileIo.read("standard_surface.mtlx", bxdfPath, &options));
-
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "standard_surface.mtlx", bxdfPath);
-    std::stringstream stream;
-    mx::writeToXmlStream(doc, stream);
-    stage = api->createStage(MAIN);
-    mx::RtFileIo fileIo2(stage);
-    REQUIRE_THROWS(fileIo2.read(stream));
-    std::stringstream stream2;
-    mx::writeToXmlStream(doc, stream2);
-    REQUIRE_NOTHROW(fileIo2.read(stream2, &options));
-}
-
 TEST_CASE("Runtime: DefaultLook", "[runtime]")
 {
     mx::RtScopedApiHandle api;
@@ -1073,6 +1044,40 @@ TEST_CASE("Runtime: DefaultLook", "[runtime]")
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("defaultLook.mtlx", lookSearchPath);
     fileIo.read("emptyLook.mtlx", lookSearchPath);
+}
+
+TEST_CASE("Runtime: Namespaced definitions", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+
+    mx::FilePath librariesPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FilePathVec rootPaths;
+    rootPaths.push_back(librariesPath);
+    mx::FileSearchPath searchPath(librariesPath);
+    mx::FilePathVec childFolders;
+    mx::getSubdirectories(rootPaths, searchPath, childFolders);
+    for (const auto& childFolder : childFolders)
+    {
+        searchPath.append(childFolder);
+    }
+    api->setSearchPath(searchPath);
+    api->loadLibrary(STDLIB);
+    api->loadLibrary(PBRLIB);
+    api->loadLibrary(BXDFLIB);
+    api->loadLibrary(ADSKLIB);
+
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
+    defaultStage->addReference(api->getLibrary());
+
+    mx::FileSearchPath adskTestPath(mx::FilePath::getCurrentPath() /
+        "resources" /
+        "Materials" / 
+        "TestSuite" / 
+        "adsklib");
+
+    mx::RtFileIo fileIo(defaultStage);
+
+    fileIo.read("adsk_shaders.mtlx", adskTestPath);
 }
 
 TEST_CASE("Runtime: Conflict resolution", "[runtime]")

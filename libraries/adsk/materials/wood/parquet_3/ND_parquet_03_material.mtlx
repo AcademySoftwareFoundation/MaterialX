@@ -12,7 +12,7 @@
       <input name="surfaceshader" type="surfaceshader" nodename="parquet_03_surface_shader" />
       <input name="displacementshader" type="displacementshader" nodename="parquet_03_displacement_shader" />
     </surfacematerial>
-    <parquet_03 name="parquet_03_surface_shader" type="surfaceshader" />
+    <adsk:parquet_03 name="parquet_03_surface_shader" type="surfaceshader" />
     <output name="out" type="material" nodename="parquet_03_material" />
   </nodegraph>
 </materialx>
