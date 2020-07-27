@@ -119,42 +119,101 @@ TEST_CASE("Version", "[document]")
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
     mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/upgrade/");
 
-    mx::readFromXmlFile(doc, "1_36_to_1_37.mtlx", searchPath);
-    REQUIRE(doc->validate());
-
-    mx::XmlWriteOptions writeOptions;
-    writeOptions.writeXIncludeEnable = true;
-    mx::writeToXmlFile(doc, "1_36_to_1_37_updated.mtlx", &writeOptions);
-
-    mx::DocumentPtr doc2 = mx::createDocument();
-    mx::readFromXmlFile(doc2, "1_36_to_1_37_updated.mtlx");
-    REQUIRE(doc2->validate());
-
-    // Check conversion to desired types occurred
-    std::unordered_map<std::string, unsigned int> convertSet = 
+    // 1.36 to 1.37
     {
-        { "invertmatrix", 2}, 
-        { "rotate2d", 1},
-        { "rotate3d", 1},
-        { "transformmatrix", 8},
-        { "ifgreatereq", 7}, 
-        { "separate2", 1}, 
-        { "separate3", 1},
-        { "separate4", 1},
-        { "combine2", 1}, 
-        { "combine3", 1},
-        { "combine4", 1}
-    };
-    for (mx::NodePtr node : doc2->getNodes())
-    {
-        auto convertItem = convertSet.find(node->getCategory());
-        if (convertItem != convertSet.end())
+        mx::readFromXmlFile(doc, "1_36_to_1_37.mtlx", searchPath);
+        REQUIRE(doc->validate());
+
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.writeXIncludeEnable = true;
+        mx::writeToXmlFile(doc, "1_36_to_1_37_updated.mtlx", &writeOptions);
+
+        mx::DocumentPtr doc2 = mx::createDocument();
+        mx::readFromXmlFile(doc2, "1_36_to_1_37_updated.mtlx");
+        REQUIRE(doc2->validate());
+
+        // Check conversion to desired types occurred
+        std::unordered_map<std::string, unsigned int> convertSet =
         {
-            convertItem->second--;
+            { "invertmatrix", 2},
+            { "rotate2d", 1},
+            { "rotate3d", 1},
+            { "transformmatrix", 8},
+            { "ifgreatereq", 7},
+            { "separate2", 1},
+            { "separate3", 1},
+            { "separate4", 1},
+            { "combine2", 1},
+            { "combine3", 1},
+            { "combine4", 1}
+        };
+        for (mx::NodePtr node : doc2->getNodes())
+        {
+            auto convertItem = convertSet.find(node->getCategory());
+            if (convertItem != convertSet.end())
+            {
+                convertItem->second--;
+            }
+        }
+        for (auto convertItem : convertSet)
+        {
+            REQUIRE((convertItem.second == 0));
         }
     }
-    for (auto convertItem : convertSet)
+
+    // 1.37 to 1.38
     {
-        REQUIRE((convertItem.second == 0));
+        mx::XmlReadOptions options;
+        options.applyFutureUpdates = true;
+        doc = mx::createDocument();
+        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc, nullptr, &options);
+        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc, nullptr, &options);
+        mx::readFromXmlFile(doc, "1_37_to_1_38.mtlx", searchPath, &options);
+        REQUIRE(doc->validate());
+
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.writeXIncludeEnable = true;
+        mx::writeToXmlFile(doc, "1_37_to_1_38_updated.mtlx", &writeOptions);
+
+        mx::DocumentPtr doc2 = mx::createDocument();
+        mx::readFromXmlFile(doc2, "1_37_to_1_38_updated.mtlx");
+        REQUIRE(doc2->validate());
+
+        // atan2 test
+        const std::string ATAN2 = "atan2";
+        mx::StringMap ATAN2_MAP;
+        ATAN2_MAP["in1"] = "in2";
+        ATAN2_MAP["in2"] = "in1";
+
+        for (mx::ElementPtr elem : doc->traverseTree())
+        {
+            mx::NodePtr node = elem->asA<mx::Node>();
+            if (!node)
+            {
+                continue;
+            }
+            const std::string& nodeCategory = node->getCategory();
+            if (nodeCategory == ATAN2)
+            {
+                const std::string &nodePath = node->getNamePath();
+                for (auto in : ATAN2_MAP)
+                {
+                    mx::ElementPtr input = node->getChild(in.first);
+                    if (input)
+                    {
+                        mx::ElementPtr newNode = doc2->getDescendant(nodePath);
+                        REQUIRE((newNode && newNode->getChild(in.second)));
+                    }
+                }
+            }
+        }
+
+        mx::NodeGraphPtr testNodeGraph = doc2->getNodeGraph("NG_Test");
+        REQUIRE(!testNodeGraph->getNode("add"));
+        REQUIRE(testNodeGraph->getNode("add1"));
+        REQUIRE(testNodeGraph->getNode("add2"));
+        REQUIRE(testNodeGraph->getNode("add2")->getInput("in1")->getInterfaceName() == "add");
+        REQUIRE(testNodeGraph->getNode("add1")->getInput("in1")->getNodeName() == "add2");
     }
 }
+

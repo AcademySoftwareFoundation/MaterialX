@@ -29,7 +29,7 @@
   <implementation name="IM_sheen_brdf_genmdl" nodedef="ND_sheen_brdf" sourcecode="mx::pbrlib::mx_sheen_brdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" language="genmdl"/>
 
   <!-- <thin_film_brdf> -->
-  <implementation name="IM_thin_film_brdf_genmdl" nodedef="ND_thin_film_brdf" sourcecode="mx::pbrlib::mx_thin_film_brdf(mxp_thickness:{{thickness}}, mxp_ior:{{iot}}, mxp_base:{{base}})" language="genmdl"/>
+  <implementation name="IM_thin_film_brdf_genmdl" nodedef="ND_thin_film_brdf" sourcecode="mx::pbrlib::mx_thin_film_brdf(mxp_thickness:{{thickness}}, mxp_ior:{{ior}}, mxp_base:{{base}})" language="genmdl"/>
 
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genmdl" nodedef="ND_uniform_edf" sourcecode="mx::pbrlib::mx_uniform_edf(mxp_color:{{color}})" language="genmdl"/>
@@ -61,6 +61,9 @@
   <!-- <displacement> -->
   <implementation name="IM_displacement_float_genmdl" nodedef="ND_displacement_float" sourcecode="mx::pbrlib::mx_displacement_float(mxp_displacement:{{displacement}}, mxp_scale:{{scale}})" language="genmdl"/>
   <implementation name="IM_displacement_vector3_genmdl" nodedef="ND_displacement_vector3" sourcecode="mx::pbrlib::mx_displacement_vector3(mxp_displacement:{{displacement}}, mxp_scale:{{scale}})" language="genmdl"/>
+
+  <!-- <layer> -->
+  <implementation name="IM_layer_bsdf_genmdl" nodedef="ND_layer_bsdf" language="genmdl"/>
 
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genmdl" nodedef="ND_mix_bsdf" sourcecode="mx::pbrlib::mx_mix_bsdf(mxp_fg:{{fg}}, mxp_bg:{{bg}}, mxp_mix:{{mix}})" language="genmdl"/>

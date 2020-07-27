@@ -272,10 +272,7 @@ NodePtr Parameter::getConnectedNode() const
 OutputPtr Input::getConnectedOutput() const
 {
     const string& outputString = getOutputString();
-    if (outputString.empty())
-    {
-        return OutputPtr();
-    }
+    OutputPtr result = nullptr;
 
     // Look for an output in a nodegraph
     if (hasNodeGraphName())
@@ -283,7 +280,18 @@ OutputPtr Input::getConnectedOutput() const
         NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphName());
         if (nodeGraph)
         {
-            return nodeGraph->getOutput(outputString);
+            std::vector<OutputPtr> outputs = nodeGraph->getOutputs();
+            if (!outputs.empty())
+            {
+                if (outputString.empty())
+                {
+                    result = outputs[0];
+                }
+                else
+                {
+                    result = nodeGraph->getOutput(outputString);
+                }
+            }
         }
     }
     // Look for output on a node
@@ -293,11 +301,26 @@ OutputPtr Input::getConnectedOutput() const
         NodePtr node = graph ? graph->getNode(getNodeName()) : nullptr;
         if (node)
         {
-            return node->getOutput(outputString);
+            std::vector<OutputPtr> outputs = node->getOutputs();
+            if (!outputs.empty())
+            {
+                if (outputString.empty())
+                {
+                    result = outputs[0];
+                }
+                else
+                {
+                    result = node->getOutput(outputString);
+                }
+            }
         }
     }
     // Look for output in the document
-    return getDocument()->getOutput(outputString);
+    if (!result)
+    {
+        result = getDocument()->getOutput(outputString);
+    }
+    return result;
 }
 
 NodePtr Input::getConnectedNode() const

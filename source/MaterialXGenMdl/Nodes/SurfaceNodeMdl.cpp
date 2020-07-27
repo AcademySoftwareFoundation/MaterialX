@@ -26,6 +26,11 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         const MdlShaderGenerator& shadergen = static_cast<const MdlShaderGenerator&>(context.getShaderGenerator());
         const ShaderGraph& graph = *node.getParent();
 
+        // Check if transmission IOR is used in the BSDF graph.
+        // MDL only supports a single transmission IOR per material and
+        // it is given as an input on the 'material' constructor.
+        // So if used we must forward this value/connection to the surface
+        // constructor. It's set as an extra input below.
         const ShaderInput* ior = nullptr;
         for (const ShaderNode* candidate : graph.getNodes())
         {
@@ -54,9 +59,9 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             delim = ", ";
         }
 
-        // Emit the ior input.
         if (ior)
         {
+            // Emit the extra input for transmission IOR.
             shadergen.emitString(delim, stage);
             shadergen.emitInput(ior, context, stage);
         }

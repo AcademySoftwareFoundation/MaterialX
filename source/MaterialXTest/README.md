@@ -36,6 +36,7 @@ Refer to the [test suite documentation](../../resources/Materials/TestSuite/READ
 - GenShader.cpp : Core shader generation tests which are run when the test tag `[genshader]` is specified.
 - GenOsl.cpp : OSL shader generation tests which are run when the test tag `[genosl]` is specified.
 - GenGlsl.cpp : GLSL shader generation tests which are run when the test tag `[genglsl]` is specified.
+- GenMdl.cpp : MDL shader generation tests which are run when the test tag `[genmdl]` is specified.
 
 Per language tests will scan MaterialX files in the test suite for input Elements.
 
@@ -66,6 +67,10 @@ If rendering tests are enabled via the build options then code for each Element 
         - `MATERIALX_OSLC_EXECUTABLE`: Full path to the `oslc` binary.
         - `MATERIALX_TESTRENDER_EXECUTABLE`: Full path to the `testrender` binary.
         - `MATERIALX_OSL_INCLUDE_PATH`: Full path to OSL include paths (i.e. location of `stdosl.h`).
+- `MDL` : Uses the utility `mdlc` from the MDL SDK distribution available from [MDL distribution](https://developer.nvidia.com/mdl-sdk)
+    - The test suite has been tested with mdlc version 1.0 build 327300.6313.
+    - The following build options are require to be set:
+        - `MATERIALX_MDLC_EXECUTABLE`: Full path to the `mdlc` binary. 
 
 #### Test Outputs
 

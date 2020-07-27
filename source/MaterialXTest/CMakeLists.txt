@@ -11,6 +11,16 @@ function(add_tests _sources)
       add_test(NAME "MaterialXTest_${test_safe_name}"
           COMMAND MaterialXTest ${test_name}
           WORKING_DIRECTORY ${MATERIALX_TEST_BINARY_DIR})
+      if(MATERIALX_BUILD_OIIO AND MSVC)
+        # Add path to OIIO library so it can be found for the test.
+        # On windows we have to escape the semicolons, otherwise only
+        # the first path entry will be passed to the test executable
+        STRING(REPLACE ";" "\\;" TESTPATH "$ENV{PATH}")
+        STRING(APPEND TESTPATH "\\;${OPENIMAGEIO_ROOT_DIR}/bin")
+        STRING(REPLACE "/" "\\" TESTPATH "${TESTPATH}")
+        set_tests_properties("MaterialXTest_${test_safe_name}" PROPERTIES
+                             ENVIRONMENT "PATH=${TESTPATH}")
+      endif()
     endforeach()
   endforeach()
 endfunction()
@@ -80,11 +90,12 @@ add_custom_command(TARGET MaterialXTest POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
 
-install(DIRECTORY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl)
-
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stdlib/osl/"
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl
-    FILES_MATCHING PATTERN "*.h")
+if(MATERIALX_BUILD_GEN_OSL)
+    install(DIRECTORY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stdlib/osl/"
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl
+        FILES_MATCHING PATTERN "*.h")
+endif()
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"

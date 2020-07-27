@@ -15,6 +15,7 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 
+#include <MaterialXCore/MaterialNode.h>
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
@@ -488,7 +489,9 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
 {
     if (_lightRigDoc)
     {
-        doc->importLibrary(_lightRigDoc);
+        mx::CopyOptions copyOptions;
+        copyOptions.skipConflictingElements = true;
+        doc->importLibrary(_lightRigDoc, &copyOptions);
         _xincludeFiles.insert(_lightRigFilename);
     }
 
@@ -999,6 +1002,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
+    readOptions.applyFutureUpdates = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
     {
@@ -1037,7 +1042,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
 
         // Import libraries.
-        doc->importLibrary(libraries);
+        mx::CopyOptions copyOptions; 
+        copyOptions.skipConflictingElements = true;
+        doc->importLibrary(libraries, &copyOptions);
 
         // Apply direct lights.
         applyDirectLights(doc);
@@ -1068,10 +1075,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             mx::NodePtr node = elem->asA<mx::Node>();
             if (node && node->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(node, mx::SURFACE_SHADER_TYPE_STRING);
+                std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(node, mx::SURFACE_SHADER_TYPE_STRING);
                 if (!shaderNodes.empty())
                 {
-                    renderableElem = shaderNodes[0];
+                    renderableElem = *shaderNodes.begin();
                 }
                 materials.push_back(node);
             }
@@ -1153,7 +1160,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     else
                     {
                         // Generate a shader for the new material.
-                        mat->generateShader(_genContext);
+                        try
+                        {
+                            mat->generateShader(_genContext);
+                        }
+                        catch (std::exception& e)
+                        {
+                            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
+                            continue;
+                        }
                         if (udimElement == elem)
                         {
                             udimMaterial = mat;
@@ -1163,7 +1178,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 else
                 {
                     // Generate a shader for the new material.
-                    mat->generateShader(_genContext);
+                    try
+                    {
+                        mat->generateShader(_genContext);
+                    }
+                    catch (std::exception& e)
+                    {
+                        mat->copyShader(_wireMaterial);
+                        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
+                    }
                 }
 
                 // Apply geometric assignments specified in the document, if any.
@@ -1309,8 +1332,8 @@ void Viewer::loadShaderSource()
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            std::string elementName = elem->getName();
-            std::string baseName = _searchPath[0] / elementName;
+            const std::string path = mx::getEnviron("MATERIALX_VIEW_OUTPUT_PATH");
+            const std::string baseName = (path.empty() ? _searchPath[0] : mx::FilePath(path)) / elem->getName();
             std::string vertexShaderFile = baseName + "_vs.glsl";
             std::string pixelShaderFile = baseName + "_ps.glsl";
             bool hasTransparency = false;
@@ -1418,8 +1441,11 @@ void Viewer::loadStandardLibraries()
     // Initialize the standard library.
     try
     {
+        mx::XmlReadOptions readOptions;
+        readOptions.skipConflictingElements = true;
+        readOptions.applyFutureUpdates = true;
         _stdLib = mx::createDocument();
-        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib, nullptr);
+        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib, nullptr, &readOptions);
         if (_xincludeFiles.empty())
         {
             std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
@@ -1430,12 +1456,6 @@ void Viewer::loadStandardLibraries()
         std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
         return;
     }
-
-    // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
-    cms->loadLibrary(_stdLib);
-    _genContext.registerSourceCodeSearchPath(_searchPath);
-    _genContext.getShaderGenerator().setColorManagementSystem(cms);
 
     // Initialize unit management.
     mx::UnitTypeDefPtr distanceTypeDef = _stdLib->getUnitTypeDef("distance");
@@ -1667,12 +1687,20 @@ void Viewer::renderFrame()
             continue;
         }
 
+        if (material->getShader()->name() == "__WIRE_SHADER__")
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
         material->bindShader();
         material->bindViewInformation(world, view, proj);
         material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
+        if (material->getShader()->name() == "__WIRE_SHADER__")
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
     }
 
     // Transparent pass

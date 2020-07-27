@@ -1,4 +1,4 @@
-#include "pbrlib/genosl/lib/mx_fresnel.osl"
+#include "pbrlib/genosl/lib/mx_microfacet.osl"
 
 void mx_fresnel_ior(float ior, vector _normal, vector viewdir, output float result)
 {

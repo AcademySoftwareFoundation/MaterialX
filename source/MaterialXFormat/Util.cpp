@@ -28,7 +28,7 @@ string readFile(const FilePath& filePath)
     return EMPTY_STRING;
 }
 
-void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
+void getSubdirectories(const FilePathVec rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories)
 {
     for (const FilePath& root : rootDirectories)
     {
@@ -74,8 +74,20 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
 void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath, XmlReadOptions* readOptions)
 {
     DocumentPtr libDoc = createDocument();
+    XmlReadOptions localOptions;
+    localOptions.skipConflictingElements = true;
+    if (!readOptions)
+    {
+        readOptions = &localOptions;
+    }
+    else
+    {
+        readOptions->skipConflictingElements = true;
+    }
     readFromXmlFile(libDoc, file, searchPath ? *searchPath : FileSearchPath(), readOptions);
-    doc->importLibrary(libDoc);
+    CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
+    doc->importLibrary(libDoc, &copyOptions);
 }
 
 StringSet loadLibraries(const FilePathVec& libraryFolders,
@@ -84,14 +96,15 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const StringSet* excludeFiles,
                         XmlReadOptions* readOptions)
 {
-    // Append environment path to the specified search path.
+    // Include pathes specified by environment variable last
     FileSearchPath librarySearchPath = searchPath;
     librarySearchPath.append(getEnvironmentPath());
 
     StringSet loadedLibraries;
+
+    // No specific libraries specified so scan in all search paths
     if (libraryFolders.empty())
     {
-        // No libraries specified so scan in all search paths
         for (const FilePath& libraryPath : librarySearchPath)
         {
             for (const FilePath& path : libraryPath.getSubDirectories())
@@ -111,10 +124,11 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
             }
         }
     }
+
+    // Look for specific library folders in the search paths
     else
     {
-        // Look for specific library folders in the search paths
-        for (const string& libraryName : libraryFolders)
+        for (const std::string& libraryName : libraryFolders)
         {
             FilePath libraryPath = librarySearchPath.find(libraryName);
             for (const FilePath& path : libraryPath.getSubDirectories())

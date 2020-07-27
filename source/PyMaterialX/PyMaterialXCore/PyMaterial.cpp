@@ -6,12 +6,7 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXCore/Material.h>
-
-#include <MaterialXCore/Look.h>
-
-
-#include <MaterialXCore/Material.h>
-
+#include <MaterialXCore/MaterialNode.h>
 #include <MaterialXCore/Look.h>
 
 namespace py = pybind11;
@@ -83,5 +78,9 @@ void bindPyMaterial(py::module& mod)
         .def("removeBindToken", &mx::ShaderRef::removeBindToken)
         .def("getReferencedOutputs", &mx::ShaderRef::getReferencedOutputs)
         .def_readonly_static("CATEGORY", &mx::ShaderRef::CATEGORY);
+
+    mod.def("getShaderNodes", &mx::getShaderNodes);
+    mod.def("getGeometryBindings", &mx::getGeometryBindings);
+
 }
 

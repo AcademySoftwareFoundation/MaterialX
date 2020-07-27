@@ -191,6 +191,12 @@ class ShaderGeneratorTester
     // Add unit system
     virtual void addUnitSystem();
 
+    // Add user data 
+    void addUserData(const std::string& name, mx::GenUserDataPtr data)
+    {
+        _userData[name] = data;
+    }
+
     // Load in dependent libraries
     virtual void setupDependentLibraries();
 
@@ -253,6 +259,7 @@ class ShaderGeneratorTester
     std::vector<mx::NodePtr> _lights;
     std::unordered_map<std::string, unsigned int> _lightIdentifierMap;
 
+    std::unordered_map<std::string, mx::GenUserDataPtr> _userData;
     mx::StringSet _usedImplementations;
 };
 

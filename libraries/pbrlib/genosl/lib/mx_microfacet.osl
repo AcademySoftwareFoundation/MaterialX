@@ -1,0 +1,125 @@
+float mx_square(float x)
+{
+    return x*x;
+}
+
+vector2 mx_square(vector2 x)
+{
+    return x*x;
+}
+
+vector mx_square(vector x)
+{
+    return x*x;
+}
+
+vector4 mx_square(vector4 x)
+{
+    return x*x;
+}
+
+float mx_pow5(float x)
+{
+    return mx_square(mx_square(x)) * x;
+}
+
+float mx_fract(float x)
+{
+    return x - floor(x);
+}
+
+float mx_average_roughness(vector2 roughness)
+{
+    return sqrt(roughness.x * roughness.y);
+}
+
+// https://www.graphics.rwth-aachen.de/publication/2/jgt.pdf
+float mx_golden_ratio_sequence(int i)
+{
+    return mx_fract((float(i) + 1.0) * M_GOLDEN_RATIO);
+}
+
+// https://people.irisa.fr/Ricardo.Marques/articles/2013/SF_CGF.pdf
+vector2 mx_spherical_fibonacci(int i, int numSamples)
+{
+    return vector2((float(i) + 0.5) / float(numSamples), mx_golden_ratio_sequence(i));
+}
+
+// Convert a real-valued index of refraction to normal-incidence reflectivity.
+float mx_ior_to_f0(float ior)
+{
+    return mx_square((ior - 1.0) / (ior + 1.0));
+}
+
+// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
+float mx_fresnel_dielectric(float cosTheta, float ior)
+{
+    if (cosTheta < 0.0 || ior == 0.0)
+        return 1.0;
+
+    float g =  ior*ior + cosTheta*cosTheta - 1.0;
+    // Check for total internal reflection
+    if (g < 0.0)
+        return 1.0;
+
+    g = sqrt(g);
+    float gmc = g - cosTheta;
+    float gpc = g + cosTheta;
+    float x = gmc / gpc;
+    float y = (gpc * cosTheta - 1.0) / (gmc * cosTheta + 1.0);
+    return 0.5 * x * x * (1.0 + y * y);
+}
+
+color mx_fresnel_conductor(float cosTheta, vector n, vector k)
+{
+   float c2 = cosTheta*cosTheta;
+   vector n2_k2 = n*n + k*k;
+   vector nc2 = 2.0 * n * cosTheta;
+
+   vector rs_a = n2_k2 + c2;
+   vector rp_a = n2_k2 * c2 + 1.0;
+   vector rs = (rs_a - nc2) / (rs_a + nc2);
+   vector rp = (rp_a - nc2) / (rp_a + nc2);
+
+   return 0.5 * (rs + rp);
+}
+
+// Standard Schlick Fresnel
+float mx_fresnel_schlick(float cosTheta, float F0)
+{
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    float x5 = mx_pow5(x);
+    return F0 + (1.0 - F0) * x5;
+}
+color mx_fresnel_schlick(float cosTheta, color F0)
+{
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    float x5 = mx_pow5(x);
+    return F0 + (1.0 - F0) * x5;
+}
+
+// Generalized Schlick Fresnel
+float mx_fresnel_schlick(float cosTheta, float F0, float F90)
+{
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    float x5 = mx_pow5(x);
+    return mix(F0, F90, x5);
+}
+color mx_fresnel_schlick(float cosTheta, color F0, color F90)
+{
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    float x5 = mx_pow5(x);
+    return mix(F0, F90, x5);
+}
+
+// Generalized Schlick Fresnel with a variable exponent
+color mx_fresnel_schlick(float cosTheta, float f0, float f90, float exponent)
+{
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    return mix(f0, f90, pow(x, exponent));
+}
+color mx_fresnel_schlick(float cosTheta, color f0, color f90, float exponent)
+{
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    return mix(f0, f90, pow(x, exponent));
+}

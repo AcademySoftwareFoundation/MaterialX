@@ -121,7 +121,6 @@ const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";
 const string ShaderNode::TEXTURE3D_GROUPNAME = "texture3d";
 const string ShaderNode::PROCEDURAL2D_GROUPNAME = "procedural2d";
 const string ShaderNode::PROCEDURAL3D_GROUPNAME = "procedural3d";
-const string ShaderNode::CONVOLUTION2D_GROUPNAME = "convolution2d";
 
 //
 // ShaderNode methods
@@ -131,6 +130,7 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
     _parent(parent),
     _name(name),
     _classification(0),
+    _flags(0),
     _impl(nullptr)
 {
 }
@@ -229,10 +229,6 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             groupClassification = Classification::SAMPLE3D;
         }
-        else if (groupName == CONVOLUTION2D_GROUPNAME)
-        {
-            groupClassification = Classification::CONVOLUTION2D;
-        }
     }
 
     // Create interface from nodedef
@@ -307,6 +303,17 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         else if (bsdfType == BSDF_T)
         {
             newNode->_classification |= Classification::BSDF_T;
+        }
+
+        // Check specifically for the vertical layering node
+        if (nodeDef.getName() == "ND_layer_bsdf")
+        {
+            newNode->_classification |= Classification::LAYER;
+        }
+        // Check specifically for the thin-film node
+        else if (nodeDef.getName() == "ND_thin_film_brdf")
+        {
+            newNode->_classification |= Classification::THINFILM;
         }
     }
     else if (primaryOutput->getType() == Type::EDF)

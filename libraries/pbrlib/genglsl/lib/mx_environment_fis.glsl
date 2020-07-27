@@ -17,7 +17,7 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D sample
     return textureLod(sampler, uv, lod).rgb;
 }
 
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, vec3 F90, vec3 iorN, vec3 iorK, int distribution, int fresnelModel)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData f)
 {
     vec3 Y = normalize(cross(N, X));
     X = cross(Y, N);
@@ -48,9 +48,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, ve
         vec3 sampleColor = mx_latlong_map_lookup(L, $envMatrix, lod, $envRadiance);
 
         // Compute the Fresnel term.
-        vec3 F = fresnelModel == 0 ?
-                 mx_fresnel_schlick(VdotH, F0, F90, 5.0) :
-                 mx_fresnel_conductor(VdotH, iorN, iorK);
+        vec3 F = mx_compute_fresnel(VdotH, f);
 
         // Compute the geometric term.
         float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));

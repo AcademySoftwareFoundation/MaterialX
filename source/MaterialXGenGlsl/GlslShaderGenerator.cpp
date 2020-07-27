@@ -36,6 +36,8 @@
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenShader/Nodes/LayerNode.h>
+#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 namespace MaterialX
 {
@@ -277,6 +279,14 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_image_vector3_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
     registerImplementation("IM_image_vector4_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
 
+    // <!-- <layer> -->
+    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::LANGUAGE, LayerNode::create);
+
+    // <!-- <thin_film_brdf> -->
+    registerImplementation("IM_thin_film_brdf_" + GlslShaderGenerator::LANGUAGE, ThinFilmNode::create);
+    // <!-- <dielectric_brdf> -->
+    registerImplementation("IM_dielectric_brdf_" + GlslShaderGenerator::LANGUAGE, ThinFilmSupport::create);
+
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
 }
@@ -289,6 +299,13 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
     // emitted with a decimal point and not as integers, and to avoid
     // any scientific notation which isn't supported by all OpenGL targets.
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
+
+    // Make sure we initialize/reset the binding context before generation.
+    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->initialize();
+    }
 
     // Emit code for vertex shader stage
     ShaderStage& vs = shader->getStage(Stage::VERTEX);
@@ -305,8 +322,14 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
 
 void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    // Add version directive
+    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+
+    // Add directives
     emitLine("#version " + getVersion(), stage, false);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->emitDirectives(context, stage);
+    }
     emitLineBreak(stage);
 
     // Add all constants
@@ -324,8 +347,15 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
         if (!uniforms.empty())
         {
             emitComment("Uniform block: " + uniforms.getName(), stage);
-            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
-            emitLineBreak(stage);
+            if (resourceBindingCtx)
+            {
+                resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
+            }
+            else
+            {
+                emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
+                emitLineBreak(stage);
+            }
         }
     }
 
@@ -388,8 +418,14 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    // Add version directive
+    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+
+    // Add directives
     emitLine("#version " + getVersion(), stage, false);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->emitDirectives(context, stage);
+    }
     emitLineBreak(stage);
 
     // Add global constants and type definitions
@@ -421,8 +457,15 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         if (!uniforms.empty() && uniforms.getName() != HW::LIGHT_DATA)
         {
             emitComment("Uniform block: " + uniforms.getName(), stage);
-            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
-            emitLineBreak(stage);
+            if (resourceBindingCtx)
+            {
+                resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
+            }
+            else
+            {
+                emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
+                emitLineBreak(stage);
+            }
         }
     }
 
@@ -467,13 +510,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Emit common math functions
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
-
-    // Emit texture sampling code
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
-    {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context, stage);
-        emitLineBreak(stage);
-    }
 
     // Emit lighting and shadowing code
     if (lighting)
@@ -740,6 +776,7 @@ ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(const NodeGr
     }
     return HwShaderGenerator::createCompoundImplementation(impl);
 }
+
 
 const string GlslImplementation::SPACE = "space";
 const string GlslImplementation::TO_SPACE = "tospace";

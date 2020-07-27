@@ -4,7 +4,7 @@
     Autodesk Standard Surface node definition.
   -->
   <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" nodegroup="pbr"
-            doc="Autodesk standard surface shader">
+            doc="Autodesk standard surface shader" version="1.0.1" isdefaultversion="true">
       <input name="base" type="float" value="0.8" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base"
             doc="Multiplier on the intensity of the diffuse reflection." />
       <input name="base_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Base Color"  uifolder="Base"
@@ -177,22 +177,13 @@
       <input name="in2" type="float" nodename="coat_gamma" />
     </power>
 
-    <!-- Diffuse Layer -->
+    <!-- Diffuse/Subsurface Layer -->
     <diffuse_brdf name="diffuse_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="base" />
       <input name="color" type="color3" nodename="coat_affected_diffuse_color" />
       <input name="roughness" type="float" interfacename="diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
     </diffuse_brdf>
-    <sheen_brdf name="sheen_bsdf" type="BSDF">
-      <input name="weight" type="float" interfacename="sheen" />
-      <input name="color" type="color3" interfacename="sheen_color" />
-      <input name="roughness" type="float" interfacename="sheen_roughness" />
-      <input name="normal" type="vector3" interfacename="normal" />
-      <input name="base" type="BSDF" nodename="diffuse_bsdf" />
-    </sheen_brdf>
-
-    <!-- Subsurface Layer -->
     <diffuse_btdf name="translucent_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" nodename="coat_affected_subsurface_color" />
@@ -222,9 +213,21 @@
     </mix>
     <mix name="subsurface_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="selected_subsurface_bsdf" />
-      <input name="bg" type="BSDF" nodename="sheen_bsdf" />
+      <input name="bg" type="BSDF" nodename="diffuse_bsdf" />
       <input name="mix" type="float" interfacename="subsurface" />
     </mix>
+
+    <!-- Sheen Layer -->
+    <sheen_brdf name="sheen_bsdf" type="BSDF">
+      <input name="weight" type="float" interfacename="sheen" />
+      <input name="color" type="color3" interfacename="sheen_color" />
+      <input name="roughness" type="float" interfacename="sheen_roughness" />
+      <input name="normal" type="vector3" interfacename="normal" />
+    </sheen_brdf>
+    <layer name="sheen_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="sheen_bsdf" />
+      <input name="base" type="BSDF" nodename="subsurface_mix" />
+    </layer>
 
     <!-- Transmission Layer -->
     <dielectric_btdf name="transmission_bsdf" type="BSDF">
@@ -239,9 +242,15 @@
     </dielectric_btdf>
     <mix name="transmission_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="transmission_bsdf" />
-      <input name="bg" type="BSDF" nodename="subsurface_mix" />
+      <input name="bg" type="BSDF" nodename="sheen_layer" />
       <input name="mix" type="float" interfacename="transmission" />
     </mix>
+
+    <!-- Thin-film -->
+    <thin_film_brdf name="thin_film_bsdf" type="BSDF">
+      <input name="thickness" type="float" interfacename="thin_film_thickness" />
+      <input name="ior" type="float" interfacename="thin_film_IOR" />
+    </thin_film_brdf>
 
     <!-- Specular Layer -->
     <dielectric_brdf name="specular_bsdf" type="BSDF">
@@ -252,8 +261,15 @@
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
-      <input name="base" type="BSDF" nodename="transmission_mix" />
     </dielectric_brdf>
+    <layer name="specular_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="specular_bsdf" />
+      <input name="base" type="BSDF" nodename="transmission_mix" />
+    </layer>
+    <layer name="specular_layer_with_thin_film" type="BSDF">
+      <input name="top" type="BSDF" nodename="thin_film_bsdf" />
+      <input name="base" type="BSDF" nodename="specular_layer" />
+    </layer>
 
     <!-- Metal Layer -->
     <multiply name="metal_reflectivity" type="color3">
@@ -275,7 +291,7 @@
     </conductor_brdf>
     <mix name="metalness_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="metal_bsdf" />
-      <input name="bg" type="BSDF" nodename="specular_bsdf" />
+      <input name="bg" type="BSDF" nodename="specular_layer_with_thin_film" />
       <input name="mix" type="float" interfacename="metalness" />
     </mix>
 
@@ -301,8 +317,11 @@
       <input name="normal" type="vector3" interfacename="coat_normal" />
       <input name="tangent" type="vector3" nodename="coat_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
-      <input name="base" type="BSDF" nodename="metalness_mix_attenuated" />
     </dielectric_brdf>
+    <layer name="coat_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="coat_bsdf" />
+      <input name="base" type="BSDF" nodename="metalness_mix_attenuated" />
+    </layer>
 
     <!-- Emission Layer -->
     <multiply name="emission_weight" type="color3">
@@ -338,14 +357,18 @@
     <luminance name="opacity_luminance" type="color3">
       <input name="in" type="color3" interfacename="opacity" />
     </luminance>
-    <surface name="standard_surface_constructor" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="coat_bsdf" />
+    <swizzle name="opacity_luminance_r" type="float">
+      <input name="in" type="color3" nodename="opacity_luminance" />
+      <param name="channels" type="string" value="r" />
+    </swizzle>
+    <surface name="shader_constructor" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="coat_layer" />
       <input name="edf" type="EDF" nodename="emission_edf" />
-      <input name="opacity" type="float" nodename="opacity_luminance" channels="r"/>
+      <input name="opacity" type="float" nodename="opacity_luminance_r" />
     </surface>
 
     <!-- Output -->
-    <output name="out" type="surfaceshader" nodename="standard_surface_constructor" />
+    <output name="out" type="surfaceshader" nodename="shader_constructor" />
 
   </nodegraph>
 </materialx>

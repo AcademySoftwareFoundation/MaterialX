@@ -7,6 +7,7 @@
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXCore/Unit.h>
+#include <MaterialXCore/MaterialNode.h>
 
 #include <MaterialXFormat/Util.h>
 
@@ -72,7 +73,7 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 {
     dependLib = mx::createDocument();
 
-    const mx::FilePathVec libraries = { "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "adsk", "stdlib", "pbrlib", "lights" };
     mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
     for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
     {
@@ -205,14 +206,18 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     registerLights(dependLib, options, context);
 
-    // Map to replace "/" in Element path names with "_".
+    // Map to replace "/" in Element path and ":" in namespaced names with "_".
     mx::StringMap pathMap;
     pathMap["/"] = "_";
+    pathMap[":"] = "_";
 
     RenderUtil::AdditiveScopedTimer validateTimer(profileTimes.validateTime, "Global validation time");
     RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");
 
     mx::StringSet usedImpls;
+
+    mx::CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
 
     const std::string MTLX_EXTENSION("mtlx");
     for (const auto& dir : dirs)
@@ -254,7 +259,12 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");
             }
 
-            doc->importLibrary(dependLib);
+            // For each new file clear the implementation cache.
+            // Since the new file might contain implementations with names
+            // colliding with implementations in previous test cases.
+            context.clearNodeImplementations();
+
+            doc->importLibrary(dependLib, &copyOptions);
             ioTimer.endTimer();
 
             validateTimer.startTimer();
@@ -286,6 +296,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             renderableSearchTimer.endTimer();
 
             mx::FileSearchPath imageSearchPath(dir);
+            imageSearchPath.append(searchPath);
+
             mx::FilePath outputPath = mx::FilePath(dir) / file;
             outputPath.removeExtension();
             for (const auto& element : elements)
@@ -324,7 +336,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 // Get connected shader nodes if a material node.
                 if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
                 {
-                    std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
+                    std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
                     for (auto node : shaderNodes)
                     {
                         mx::NodeDefPtr nodeDef = node->getNodeDef();

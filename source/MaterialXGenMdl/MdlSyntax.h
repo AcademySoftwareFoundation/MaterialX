@@ -7,7 +7,7 @@
 #define MATERIALX_MDLSYNTAX_H
 
 /// @file
-/// MDL syntax class
+/// OSL syntax class
 
 #include <MaterialXGenShader/Syntax.h>
 
@@ -23,13 +23,14 @@ using MdlSyntaxPtr = shared_ptr<MdlSyntax>;
 /// Syntax class for MDL (Material Definition Language)
 class MdlSyntax : public Syntax
 {
-  public:
+public:
     MdlSyntax();
 
     static SyntaxPtr create() { return std::make_shared<MdlSyntax>(); }
 
     const string& getConstantQualifier() const override { return CONST_QUALIFIER; };
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };
+    const string& getSourceFileExtension() const override { return SOURCE_FILE_EXTENSION; };
 
     string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const override;
 
@@ -41,6 +42,7 @@ class MdlSyntax : public Syntax
 
     static const string CONST_QUALIFIER;
     static const string UNIFORM_QUALIFIER;
+    static const string SOURCE_FILE_EXTENSION;
     static const StringVec VECTOR2_MEMBERS;
     static const StringVec VECTOR3_MEMBERS;
     static const StringVec VECTOR4_MEMBERS;

@@ -383,9 +383,10 @@ InheritanceIterator Element::traverseInheritance() const
     return InheritanceIterator(getSelf());
 }
 
-void Element::copyContentFrom(const ConstElementPtr& source)
+void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* copyOptions)
 {
     DocumentPtr doc = getDocument();
+    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
 
     // Handle change notifications.
     ScopedUpdate update(doc);
@@ -401,7 +402,7 @@ void Element::copyContentFrom(const ConstElementPtr& source)
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(name);
-        if (previous)
+        if (previous && skipConflictingElements)
         {
             continue;
         }
@@ -409,6 +410,12 @@ void Element::copyContentFrom(const ConstElementPtr& source)
         // Create the copied element.
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), name, !previous);
         childCopy->copyContentFrom(child);
+
+        // Check for conflicting elements.
+        if (previous && *previous != *childCopy)
+        {
+            throw Exception("Duplicate element with conflicting content: " + name);
+        }
     }
 }
 

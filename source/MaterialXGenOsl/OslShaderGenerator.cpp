@@ -17,6 +17,8 @@
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/LayerNode.h>
+#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 namespace MaterialX
 {
@@ -186,6 +188,15 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector2_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
     registerImplementation("IM_blur_vector3_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
+
+    // <!-- <layer> -->
+    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::LANGUAGE, LayerNode::create);
+
+    // <!-- <thin_film_brdf> -->
+    registerImplementation("IM_thin_film_brdf_" + OslShaderGenerator::LANGUAGE, ThinFilmNode::create);
+    // <!-- <dielectric_brdf> -->
+    registerImplementation("IM_dielectric_brdf_" + OslShaderGenerator::LANGUAGE, ThinFilmSupport::create);
+
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -197,17 +208,20 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     emitIncludes(stage, context);
 
-    // Add global constants and type definitions
-    emitLine("#define M_FLOAT_EPS 0.000001", stage, false);
-    emitTypeDefinitions(context, stage);
+    // Resolve path to directional albedo table.
+    // Force path to use slash since backslash even if escaped 
+    // gives problems when saving the source code to file.
+    FilePath albedoTableFile = context.resolveSourceFile("resources/Lights/AlbedoTable.exr");
+    string albedoTableFilePath = albedoTableFile.asString();
+    std::replace(albedoTableFilePath.begin(), albedoTableFilePath.end(), '\\', '/');
 
-    // Emit sampling code if needed
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
-    {
-        // Emit sampling functions
-        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl", context, stage);
-        emitLineBreak(stage);
-    }
+    // Add global constants and type definitions
+    emitTypeDefinitions(context, stage);
+    emitLine("#define M_FLOAT_EPS 1e-8", stage, false);
+    emitLine("#define M_GOLDEN_RATIO 1.6180339887498948482045868343656", stage, false);
+    emitLine("#define GGX_DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
+    emitLine("#define GGX_DIRECTIONAL_ALBEDO_TABLE \"" + albedoTableFilePath + "\"", stage, false);
+    emitLineBreak(stage);
 
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
@@ -400,7 +414,13 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
     for (const string& file : INCLUDE_FILES)
     {
         FilePath path = context.resolveSourceFile(file);
-        emitLine(INCLUDE_PREFIX + path.asString() + INCLUDE_SUFFIX, stage, false);
+
+        // Force path to use slash since backslash even if escaped 
+        // gives problems when saving the source code to file.
+        string pathStr = path.asString();
+        std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
+
+        emitLine(INCLUDE_PREFIX + pathStr + INCLUDE_SUFFIX, stage, false);
     }
 
     emitLineBreak(stage);

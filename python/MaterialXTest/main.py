@@ -518,7 +518,9 @@ class TestMaterialX(unittest.TestCase):
         doc = mx.createDocument()
         filename = 'PostShaderComposite.mtlx'
         mx.readFromXmlFile(doc, filename, _searchPath)
-        mx.readFromXmlFile(doc, filename, _searchPath)
+        readOptions = mx.XmlReadOptions()
+        readOptions.skipConflictingElements = True
+        mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         self.assertTrue(doc.validate()[0])
 
 #--------------------------------------------------------------------------------

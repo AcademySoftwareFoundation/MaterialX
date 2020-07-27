@@ -57,6 +57,10 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
 void Material::updateUniformsList()
 {
     _uniformVariable.clear();
+    if (!_glShader)
+    {
+        return;
+    }
 
     // Must bind to be able to inspect the uniforms
     _glShader->bind();
@@ -82,6 +86,13 @@ void Material::updateUniformsList()
     delete[] uniformName;
 }
 
+void Material::clearShader()
+{
+    _hwShader = nullptr;
+    _glShader = nullptr;
+    _uniformVariable.clear();
+}
+
 bool Material::generateShader(mx::GenContext& context)
 {
     if (!_elem)
@@ -94,6 +105,9 @@ bool Material::generateShader(mx::GenContext& context)
     mx::GenContext materialContext = context;
     materialContext.getOptions().hwTransparency = _hasTransparency;
     materialContext.getOptions().hwShadowMap = materialContext.getOptions().hwShadowMap && !_hasTransparency;
+
+    // Initialize in case creation fails and throws an exception
+    clearShader();
 
     _hwShader = createShader("Shader", materialContext, _elem);
     if (!_hwShader)
@@ -163,7 +177,6 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
     {
         return false;
     }
-
     return generateShader(_hwShader);
 }
 
@@ -265,6 +278,10 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
     _boundImages.clear();
 
     const mx::VariableBlock* publicUniforms = getPublicUniforms();
+    if (!publicUniforms)
+    {
+        return;
+    }
     for (const auto& uniform : publicUniforms->getVariableOrder())
     {
         if (uniform->getType() != mx::Type::FILENAME)

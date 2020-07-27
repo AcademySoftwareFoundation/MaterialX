@@ -1,3 +1,5 @@
+#include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+
 vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, sampler2D sampler)
 {
     vec2 res = textureSize(sampler, 0);
@@ -27,14 +29,14 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lodBias, sampler2D sa
     return vec3(0.0);
 }
 
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, vec3 F0, vec3 F90, vec3 iorN, vec3 iorK, int distribution, int fresnelModel)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData f)
 {
     vec3 L = reflect(-V, N);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     float avgRoughness = mx_average_roughness(roughness);
 
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, F90);
+    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, f.ior, f.extinction);
     return mx_latlong_map_lookup(L, $envMatrix, avgRoughness, $envRadiance) * dirAlbedo;
 }
 

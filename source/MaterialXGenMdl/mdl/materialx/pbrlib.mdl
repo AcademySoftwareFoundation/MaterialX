@@ -317,7 +317,7 @@ export material mx_sheen_brdf(
 );
 
 export material mx_thin_film_brdf(
-    float  mxp_thickness  = 1000.0, // TODO: check default once fixed in Spec, unit is nm
+    float  mxp_thickness  = 550.0,
     float  mxp_ior        = 1.5,
     material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
 ) [[ 
