@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Generate the baked mtlx file and baked textures programmatically.
+Generate baked versions of all materials in the input document, using the TextureBaker class in the MaterialXRenderGlsl library.
 '''
 
 import sys, os, string
@@ -44,15 +44,13 @@ def main():
     searchPath = mx.FileSearchPath(os.getcwd())
     mx.loadLibraries(library_folder, searchPath, stdlib, set(), None)
     doc.importLibrary(stdlib)
-    rc = doc.validate()
 
-    if (len(rc) == 0 or not rc[0]):
-        print("%s is not a valid MaterialX %s document:" % (opts.filename, mxversion))
-        print(rc[1])
-        sys.exit(0)
+    valid, msg = doc.validate()
+    if (not valid):
+        print("Validation warnings for input document:")
+        print(msg)
 
     mx_render_glsl.TextureBaker.bakeAllShaders(doc, opts.filename, opts.hdr, opts.tex_res_x, opts.tex_res_y)
 
 if __name__ == '__main__':
     main()
-
