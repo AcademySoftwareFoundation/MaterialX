@@ -28,7 +28,7 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 The MaterialX repository consists of the following folders:
 
 - [documents](documents) - MaterialX documentation, including the specification and developer guide.
-- [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the standard and physically-based-shading nodes.
+- [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the pattern and shading nodes.
 - [python](python) - Support modules and example scripts for MaterialX Python.
 - [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
 - [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
@@ -67,5 +67,5 @@ The following binaries are automatically generated from the latest GitHub revisi
 ### Additional Resources
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
-- The [Python Scripts](python/Scripts/README.md) folder contains standalone examples of MaterialX Python code.
+- The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
 - Presentations at the [Autodesk Vision Series](https://area.autodesk.com/blogs/thebuzz/open-source-at-autodesk-materialx/) provide details on the roadmap for MaterialX development.
