@@ -4,8 +4,12 @@
 
 - ILM : General
   - Load standard libraries for MaterialXView regardless of build folder location (#922)
+  - Python Texture Bake and Multiple Udims Texture Bake Support (#943)
 - ADSK : General
   - Add definition searching for shader nodes for <material> instances (#919)
+  - Add in new ADSK shaderball + rectangle geometries (#943)
+  - Unit tests can use relative image paths from libraries root (#942)
+  - Unit tests image comparison HTML script update (#948)
 - ILM : Baking
   - Add support for floating-point render targets (#922)
 - ADSK : ShaderGen general changes
@@ -24,6 +28,8 @@
   - Enable GlslShaderGenerator to add `layout` in generated code. (#896) 
   - Use mod() vs fmod() logic for OSL and MDL codegen (#871). Only for 1.38
 - ADSK : Render general changes
+  - Environment rendering improvements (#945)
+  - Disable C++ Warning for OiioImageLoader (#938)
   - Disable C++20 Warning for TinyExrLoader (#922)
   - Fix binding issue if empty filename given to bind with. Remove skipping binding in that condition. (#915)
   - Enhance upstream shader search for <surfacematerial> node. Enhance MaterialXView shader failure handling. (#911)
