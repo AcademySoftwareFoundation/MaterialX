@@ -582,7 +582,7 @@ export material mx_mix_bsdf(
 export material mx_mix_edf(
     material mxp_fg = material() [[ anno::usage( "materialx:edf") ]],
     material mxp_bg = material() [[ anno::usage( "materialx:edf"), anno::unused() ]],
-    float    mxp_mix = 0.0 [[ ann::unused() ]]
+    float    mxp_mix = 0.0 [[ anno::unused() ]]
 ) [[ 
     anno::usage( "materialx:edf") 
 ]]
