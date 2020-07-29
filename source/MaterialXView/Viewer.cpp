@@ -1698,7 +1698,6 @@ void Viewer::bakeTextures()
         udimSet.push_back("");
     }
     mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
-
     for (MaterialPtr mat : materialsToBake)
     {
         if (mat->getElement()->getCategory() == "shaderref")

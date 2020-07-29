@@ -184,7 +184,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     renderTextureSpace();
 
     // TODO: Add support for graphs containing geometric nodes such as position and normal.
-
+    //       Currently, the only supported geometric node is texcoord.
     save(filename);
 }
 
