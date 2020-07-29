@@ -137,7 +137,7 @@ void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& con
             {
                 ElementPtr normalMapNode = output->getParent()->getChild(output->getAttribute("nodename"));
                 output->setAttribute("nodename", normalMapNode->getChild("in")->getAttribute("nodename"));
-                _worldSpaceShaderInputs.insert(output->getName());
+                _worldSpaceShaderInputs.insert(bindInput->getName());
             }
             bakeGraphOutput(output, context, filename);
         }
@@ -161,7 +161,7 @@ void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const F
             {
                 ElementPtr normalMapNode = output->getParent()->getChild(output->getAttribute("nodename"));
                 output->setAttribute("nodename", normalMapNode->getChild("in")->getAttribute("nodename"));
-                _worldSpaceShaderInputs.insert(output->getName());
+                _worldSpaceShaderInputs.insert(input->getName());
             }
             bakeGraphOutput(output, context, filename);
         }
