@@ -739,7 +739,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         bool docValid = doc->validate(&message);
         if (!docValid)
         {
-            _logFile << "Document is invalid: [" << doc->getSourceUri() << "] " << message;
+            std::string msg = "Document is invalid: [" + doc->getSourceUri() + "] " + message;
+            _logFile << msg;
+            WARN(msg);
         }
         CHECK(docValid);
 

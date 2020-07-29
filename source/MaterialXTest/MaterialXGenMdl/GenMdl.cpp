@@ -205,7 +205,7 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
             renderCommand += " " + renderArgs;
         }
         renderCommand += " --noaux";
-        std::string iblFile = (currentPath / "resources/san_giuseppe_bridge.hdr").asString();
+        std::string iblFile = (currentPath / "resources/lights/san_giuseppe_bridge.hdr").asString();
         renderCommand += " --hdr \"" + iblFile + "\"";
         renderCommand += " ::" + moduleToTest + "::*";
 
