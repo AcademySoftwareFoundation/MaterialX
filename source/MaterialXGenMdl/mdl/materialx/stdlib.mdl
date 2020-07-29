@@ -56,7 +56,7 @@ export float mx_image_float(
 	]],
 	uniform string mxp_layer = string("")	
 	[[
-		anno::display_name("Layer")
+		anno::display_name("Layer"), anno::unused()
 	]],
 	float mxp_default = float(0.0)	
 	[[
@@ -79,20 +79,24 @@ export float mx_image_float(
 	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type")
+		anno::display_name("Filter Type"),
+        anno::unused()
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
-		anno::display_name("Frame Range")
+		anno::display_name("Frame Range"),
+        anno::unused()
 	]],
 	uniform int mxp_frameoffset = int(0)	
 	[[
-		anno::display_name("Frame Offset")
+		anno::display_name("Frame Offset"),
+        anno::unused()
 	]],
 	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Frame End Action")
+		anno::display_name("Frame End Action"),
+        anno::unused()
 	]]
 )
 	[[
@@ -120,7 +124,7 @@ export float2 mx_image_color2(
 	]],
 	uniform string mxp_layer = string("")	
 	[[
-		anno::display_name("Layer")
+		anno::display_name("Layer"), anno::unused()
 	]],
 	float2 mxp_default = float2(0.0, 0.0)	
 	[[
@@ -143,20 +147,24 @@ export float2 mx_image_color2(
 	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type")
+		anno::display_name("Filter Type"),
+        anno::unused()
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
-		anno::display_name("Frame Range")
+		anno::display_name("Frame Range"),
+        anno::unused()
 	]],
 	uniform int mxp_frameoffset = int(0)	
 	[[
-		anno::display_name("Frame Offset")
+		anno::display_name("Frame Offset"),
+        anno::unused()
 	]],
 	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Frame End Action")
+		anno::display_name("Frame End Action"),
+        anno::unused()
 	]]
 )
 	[[
@@ -184,7 +192,7 @@ export color mx_image_color3(
 	]],
 	uniform string mxp_layer = string("")	
 	[[
-		anno::display_name("Layer")
+		anno::display_name("Layer"), anno::unused()
 	]],
 	color mxp_default = color(0.0, 0.0, 0.0)	
 	[[
@@ -207,20 +215,24 @@ export color mx_image_color3(
 	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type")
+		anno::display_name("Filter Type"),
+        anno::unused()
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
-		anno::display_name("Frame Range")
+		anno::display_name("Frame Range"),
+        anno::unused()
 	]],
 	uniform int mxp_frameoffset = int(0)	
 	[[
-		anno::display_name("Frame Offset")
+		anno::display_name("Frame Offset"),
+        anno::unused()
 	]],
 	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Frame End Action")
+		anno::display_name("Frame End Action"),
+        anno::unused()
 	]]
 )
 	[[
@@ -248,7 +260,7 @@ export color4 mx_image_color4(
 	]],
 	uniform string mxp_layer = string("")	
 	[[
-		anno::display_name("Layer")
+		anno::display_name("Layer"), anno::unused()
 	]],
 	color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
@@ -271,20 +283,24 @@ export color4 mx_image_color4(
 	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type")
+		anno::display_name("Filter Type"),
+        anno::unused()
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
-		anno::display_name("Frame Range")
+		anno::display_name("Frame Range"),
+        anno::unused()
 	]],
 	uniform int mxp_frameoffset = int(0)	
 	[[
-		anno::display_name("Frame Offset")
+		anno::display_name("Frame Offset"),
+        anno::unused()
 	]],
 	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Frame End Action")
+		anno::display_name("Frame End Action"),
+        anno::unused()
 	]]
 )
 	[[
@@ -312,7 +328,7 @@ export float2 mx_image_vector2(
 	]],
 	uniform string mxp_layer = string("")	
 	[[
-		anno::display_name("Layer")
+		anno::display_name("Layer"), anno::unused()
 	]],
 	float2 mxp_default = float2(0.0, 0.0)	
 	[[
@@ -335,20 +351,24 @@ export float2 mx_image_vector2(
 	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type")
+		anno::display_name("Filter Type"),
+        anno::unused()
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
-		anno::display_name("Frame Range")
+		anno::display_name("Frame Range"),
+        anno::unused()
 	]],
 	uniform int mxp_frameoffset = int(0)	
 	[[
-		anno::display_name("Frame Offset")
+		anno::display_name("Frame Offset"),
+        anno::unused()
 	]],
 	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Frame End Action")
+		anno::display_name("Frame End Action"),
+        anno::unused()
 	]]
 )
 	[[
@@ -376,7 +396,7 @@ export float3 mx_image_vector3(
 	]],
 	uniform string mxp_layer = string("")	
 	[[
-		anno::display_name("Layer")
+		anno::display_name("Layer"), anno::unused()
 	]],
 	float3 mxp_default = float3(0.0, 0.0, 0.0)	
 	[[
@@ -399,20 +419,24 @@ export float3 mx_image_vector3(
 	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type")
+		anno::display_name("Filter Type"),
+        anno::unused()
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
-		anno::display_name("Frame Range")
+		anno::display_name("Frame Range"),
+        anno::unused()
 	]],
 	uniform int mxp_frameoffset = int(0)	
 	[[
-		anno::display_name("Frame Offset")
+		anno::display_name("Frame Offset"),
+        anno::unused()
 	]],
 	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Frame End Action")
+		anno::display_name("Frame End Action"),
+        anno::unused()
 	]]
 )
 	[[
@@ -440,7 +464,7 @@ export float4 mx_image_vector4(
 	]],
 	uniform string mxp_layer = string("")	
 	[[
-		anno::display_name("Layer")
+		anno::display_name("Layer"), anno::unused()
 	]],
 	float4 mxp_default = float4(0.0, 0.0, 0.0, 0.0)	
 	[[
@@ -463,20 +487,24 @@ export float4 mx_image_vector4(
 	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type")
+		anno::display_name("Filter Type"),
+        anno::unused()
 	]],
 	uniform string mxp_framerange = string("")	
 	[[
-		anno::display_name("Frame Range")
+		anno::display_name("Frame Range"),
+        anno::unused()
 	]],
 	uniform int mxp_frameoffset = int(0)	
 	[[
-		anno::display_name("Frame Offset")
+		anno::display_name("Frame Offset"),
+        anno::unused()
 	]],
 	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Frame End Action")
+		anno::display_name("Frame End Action"),
+        anno::unused()
 	]]
 )
 	[[
@@ -1213,7 +1241,7 @@ export float3 mx_texcoord_vector3(
 }
 
 export float mx_geomcolor_float(
-	uniform int mxp_index = int(0)
+	uniform int mxp_index = int(0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1225,7 +1253,7 @@ export float mx_geomcolor_float(
 }
 
 export float2 mx_geomcolor_color2(
-	uniform int mxp_index = int(0)
+	uniform int mxp_index = int(0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1237,7 +1265,7 @@ export float2 mx_geomcolor_color2(
 }
 
 export color mx_geomcolor_color3(
-	uniform int mxp_index = int(0)
+	uniform int mxp_index = int(0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1249,7 +1277,7 @@ export color mx_geomcolor_color3(
 }
 
 export color4 mx_geomcolor_color4(
-	uniform int mxp_index = int(0)
+	uniform int mxp_index = int(0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1261,8 +1289,8 @@ export color4 mx_geomcolor_color4(
 }
 
 export int mx_geompropvalue_integer(
-	uniform string mxp_geomprop = string(""),
-	uniform int mxp_default = int(0)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform int mxp_default = int(0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1274,8 +1302,8 @@ export int mx_geompropvalue_integer(
 }
 
 export bool mx_geompropvalue_boolean(
-	uniform string mxp_geomprop = string(""),
-	uniform bool mxp_default = bool(false)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform bool mxp_default = bool(false) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1287,8 +1315,8 @@ export bool mx_geompropvalue_boolean(
 }
 
 export string mx_geompropvalue_string(
-	uniform string mxp_geomprop = string(""),
-	uniform string mxp_default = string("")
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform string mxp_default = string("") [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1300,8 +1328,8 @@ export string mx_geompropvalue_string(
 }
 
 export float mx_geompropvalue_float(
-	uniform string mxp_geomprop = string(""),
-	uniform float mxp_default = float(0.0)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform float mxp_default = float(0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1313,8 +1341,8 @@ export float mx_geompropvalue_float(
 }
 
 export float2 mx_geompropvalue_color2(
-	uniform string mxp_geomprop = string(""),
-	uniform float2 mxp_default = float2(0.0, 0.0)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform float2 mxp_default = float2(0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1326,8 +1354,8 @@ export float2 mx_geompropvalue_color2(
 }
 
 export color mx_geompropvalue_color3(
-	uniform string mxp_geomprop = string(""),
-	uniform color mxp_default = color(0.0, 0.0, 0.0)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform color mxp_default = color(0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1339,8 +1367,8 @@ export color mx_geompropvalue_color3(
 }
 
 export color4 mx_geompropvalue_color4(
-	uniform string mxp_geomprop = string(""),
-	uniform color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1352,8 +1380,8 @@ export color4 mx_geompropvalue_color4(
 }
 
 export float2 mx_geompropvalue_vector2(
-	uniform string mxp_geomprop = string(""),
-	uniform float2 mxp_default = float2(0.0, 0.0)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform float2 mxp_default = float2(0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1365,8 +1393,8 @@ export float2 mx_geompropvalue_vector2(
 }
 
 export float3 mx_geompropvalue_vector3(
-	uniform string mxp_geomprop = string(""),
-	uniform float3 mxp_default = float3(0.0, 0.0, 0.0)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform float3 mxp_default = float3(0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1378,8 +1406,8 @@ export float3 mx_geompropvalue_vector3(
 }
 
 export float4 mx_geompropvalue_vector4(
-	uniform string mxp_geomprop = string(""),
-	uniform float4 mxp_default = float4(0.0, 0.0, 0.0, 0.0)
+	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
+	uniform float4 mxp_default = float4(0.0, 0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1391,11 +1419,12 @@ export float4 mx_geompropvalue_vector4(
 }
 
 export float mx_ambientocclusion_float(
-	uniform float mxp_coneangle = float(90.0)	
+	uniform float mxp_coneangle = float(90.0) 
 	[[
-		anno::description("Unit Type:angle. Unit:degrees.")
+		anno::description("Unit Type:angle. Unit:degrees."),
+        anno::unused()
 	]],
-	uniform float mxp_maxdistance = float(1e38)
+	uniform float mxp_maxdistance = float(1e38) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: global")
@@ -1418,7 +1447,7 @@ export float mx_frame_float(
 }
 
 export float mx_time_float(
-	uniform float mxp_fps = float(24.0)
+	uniform float mxp_fps = float(24.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: application")
@@ -1430,7 +1459,8 @@ export float mx_time_float(
 export float3 mx_viewdirection_vector3(
 	uniform mx_coordinatespace_type mxp_space = mx_coordinatespace_type(mx_coordinatespace_type_world)	
 	[[
-		anno::description("Enumeration {model,object,world}.")
+		anno::description("Enumeration {model,object,world}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -1444,7 +1474,7 @@ export float3 mx_viewdirection_vector3(
 
 export material mx_add_surfaceshader(
 	material mxp_in1,
-	material mxp_in2
+	material mxp_in2 [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -1453,7 +1483,7 @@ export material mx_add_surfaceshader(
 
 export material mx_add_displacementshader(
 	material mxp_in1,
-	material mxp_in2
+	material mxp_in2 [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -1462,7 +1492,7 @@ export material mx_add_displacementshader(
 
 export material mx_add_volumeshader(
 	material mxp_in1,
-	material mxp_in2
+	material mxp_in2 [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -1472,6 +1502,9 @@ export material mx_add_volumeshader(
 export material mx_multiply_surfaceshaderF(
 	material mxp_in1,
 	float mxp_in2 = float(1.0)
+    [[
+        anno::unused()
+    ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -1481,6 +1514,9 @@ export material mx_multiply_surfaceshaderF(
 export material mx_multiply_displacementshaderF(
 	material mxp_in1,
 	float mxp_in2 = float(1.0)
+    [[
+        anno::unused()
+    ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -1490,6 +1526,9 @@ export material mx_multiply_displacementshaderF(
 export material mx_multiply_volumeshaderF(
 	material mxp_in1,
 	float mxp_in2 = float(1.0)
+    [[
+        anno::unused()
+    ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -1499,6 +1538,9 @@ export material mx_multiply_volumeshaderF(
 export material mx_multiply_surfaceshaderC(
 	material mxp_in1,
 	color mxp_in2 = color(1.0, 1.0, 1.0)
+    [[
+        anno::unused()
+    ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -1508,6 +1550,9 @@ export material mx_multiply_surfaceshaderC(
 export material mx_multiply_volumeshaderC(
 	material mxp_in1,
 	color mxp_in2 = color(1.0, 1.0, 1.0)
+    [[
+        anno::unused()
+    ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -1517,6 +1562,9 @@ export material mx_multiply_volumeshaderC(
 export material mx_multiply_displacementshaderV(
 	material mxp_in1,
 	float3 mxp_in2 = float3(1.0, 1.0, 1.0)
+    [[
+        anno::unused()
+    ]]
 )
 	[[
 		anno::description("Node Group: math")
@@ -2699,7 +2747,7 @@ export float4 mx_smoothstep_vector4FA(
 
 export float mx_curveadjust_float(
 	float mxp_in = float(0.0),
-	uniform float2[<N>] mxp_knots = float2[]()
+	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2712,7 +2760,7 @@ export float mx_curveadjust_float(
 
 export float2 mx_curveadjust_color2(
 	float2 mxp_in = float2(0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]()
+	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2725,7 +2773,7 @@ export float2 mx_curveadjust_color2(
 
 export color mx_curveadjust_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]()
+	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2738,7 +2786,7 @@ export color mx_curveadjust_color3(
 
 export color4 mx_curveadjust_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]()
+	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2751,7 +2799,7 @@ export color4 mx_curveadjust_color4(
 
 export float2 mx_curveadjust_vector2(
 	float2 mxp_in = float2(0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]()
+	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2764,7 +2812,7 @@ export float2 mx_curveadjust_vector2(
 
 export float3 mx_curveadjust_vector3(
 	float3 mxp_in = float3(0.0, 0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]()
+	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2777,7 +2825,7 @@ export float3 mx_curveadjust_vector3(
 
 export float4 mx_curveadjust_vector4(
 	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]()
+	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2792,7 +2840,8 @@ export color mx_luminance_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
 	uniform color mxp_lumacoeffs = color(0.272287, 0.6740818, 0.0536895)	
 	[[
-		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}.")
+		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -2804,9 +2853,10 @@ export color mx_luminance_color3(
 
 export color4 mx_luminance_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color mxp_lumacoeffs = color(0.272287, 0.6740818, 0.0536895)	
+	uniform color mxp_lumacoeffs = color(0.272287, 0.6740818, 0.0536895)
 	[[
-		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}.")
+		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -3374,9 +3424,9 @@ export color4 mx_mix_color4(
 }
 
 export material mx_mix_surfaceshader(
-	material mxp_fg,
+	material mxp_fg [[ anno::unused() ]],
 	material mxp_bg,
-	float mxp_mix = float(0.0)
+	float mxp_mix = float(0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: compositing")
@@ -3384,9 +3434,9 @@ export material mx_mix_surfaceshader(
 = mxp_bg; // TODO 
 
 export material mx_mix_displacementshader(
-	material mxp_fg,
+	material mxp_fg [[ anno::unused() ]],
 	material mxp_bg,
-	float mxp_mix = float(0.0)
+	float mxp_mix = float(0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: compositing")
@@ -3394,9 +3444,9 @@ export material mx_mix_displacementshader(
 = mxp_bg; // TODO 
 
 export material mx_mix_volumeshader(
-	material mxp_fg,
+	material mxp_fg [[ anno::unused() ]],
 	material mxp_bg,
-	float mxp_mix = float(0.0)
+	float mxp_mix = float(0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: compositing")
@@ -4707,10 +4757,14 @@ export float4 mx_combine4_vector4(
 
 export float mx_blur_float(
 	float mxp_in = float(0.0),
-	uniform float mxp_size = float(0.0),
+	uniform float mxp_size = float(0.0)
+    [[
+        anno::unused()
+    ]],
 	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
 	[[
-		anno::description("Enumeration {box,gaussian}.")
+		anno::description("Enumeration {box,gaussian}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -4724,10 +4778,14 @@ export float mx_blur_float(
 
 export float2 mx_blur_color2(
 	float2 mxp_in = float2(0.0, 0.0),
-	uniform float mxp_size = float(0.0),
+	uniform float mxp_size = float(0.0)
+    [[
+        anno::unused()
+    ]],
 	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
 	[[
-		anno::description("Enumeration {box,gaussian}.")
+		anno::description("Enumeration {box,gaussian}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -4741,10 +4799,14 @@ export float2 mx_blur_color2(
 
 export color mx_blur_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
-	uniform float mxp_size = float(0.0),
+	uniform float mxp_size = float(0.0)
+    [[
+        anno::unused()
+    ]],
 	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
 	[[
-		anno::description("Enumeration {box,gaussian}.")
+		anno::description("Enumeration {box,gaussian}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -4758,10 +4820,14 @@ export color mx_blur_color3(
 
 export color4 mx_blur_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform float mxp_size = float(0.0),
+	uniform float mxp_size = float(0.0)
+    [[
+        anno::unused()
+    ]],
 	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
 	[[
-		anno::description("Enumeration {box,gaussian}.")
+		anno::description("Enumeration {box,gaussian}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -4775,10 +4841,14 @@ export color4 mx_blur_color4(
 
 export float2 mx_blur_vector2(
 	float2 mxp_in = float2(0.0, 0.0),
-	uniform float mxp_size = float(0.0),
+	uniform float mxp_size = float(0.0)
+    [[
+        anno::unused()
+    ]],
 	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
 	[[
-		anno::description("Enumeration {box,gaussian}.")
+		anno::description("Enumeration {box,gaussian}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -4792,10 +4862,14 @@ export float2 mx_blur_vector2(
 
 export float3 mx_blur_vector3(
 	float3 mxp_in = float3(0.0, 0.0, 0.0),
-	uniform float mxp_size = float(0.0),
+	uniform float mxp_size = float(0.0)
+    [[
+        anno::unused()
+    ]],
 	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
 	[[
-		anno::description("Enumeration {box,gaussian}.")
+		anno::description("Enumeration {box,gaussian}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -4809,10 +4883,14 @@ export float3 mx_blur_vector3(
 
 export float4 mx_blur_vector4(
 	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0),
-	uniform float mxp_size = float(0.0),
+	uniform float mxp_size = float(0.0)
+    [[
+        anno::unused()
+    ]],
 	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
 	[[
-		anno::description("Enumeration {box,gaussian}.")
+		anno::description("Enumeration {box,gaussian}."),
+        anno::unused()
 	]]
 )
 	[[
@@ -4825,8 +4903,8 @@ export float4 mx_blur_vector4(
 }
 
 export float3 mx_heighttonormal_vector3(
-	float mxp_in = float(0.0),
-	uniform float mxp_scale = float(1.0)
+	float mxp_in = float(0.0) [[ anno::unused() ]],
+	uniform float mxp_scale = float(1.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: convolution2d")

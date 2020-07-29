@@ -209,9 +209,9 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
         renderCommand += " --hdr \"" + iblFile + "\"";
         renderCommand += " ::" + moduleToTest + "::*";
 
-        std::string extension(".png");
+        std::string extension("_mdl.png");
 #if defined(MATERIALX_BUILD_OIIO)
-        extension = ".exr";
+        extension = "_mdl.exr";
 #endif
         mx::FilePath outputImageName = moduleToTestPath / (moduleToTest + extension);
 
