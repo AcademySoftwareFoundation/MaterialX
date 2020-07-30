@@ -87,7 +87,7 @@ StringVec getRenderablePaths(ConstDocumentPtr doc)
 // Helper function to check if shader requires normals to be transformed from tangent space to world space
 bool connectsToNormalMapNode(OutputPtr output)
 {
-    ElementPtr normalMapNode = (output) ? output->getParent()->getChild(output->getAttribute("nodename")) : nullptr;
+    ElementPtr normalMapNode = (output) ? output->getParent()->getChild(output->getNodeName()) : nullptr;
 
     return normalMapNode && normalMapNode->getCategory() == "normalmap";
 }
@@ -122,8 +122,8 @@ void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& con
 
             if (connectsToNormalMapNode(output))
             {
-                ElementPtr normalMapNode = output->getParent()->getChild(output->getAttribute("nodename"));
-                output->setAttribute("nodename", normalMapNode->getChild("in")->getAttribute("nodename"));
+                NodePtr normalMapNode = output->getParent()->getChild(output->getNodeName())->asA<Node>();
+                output->setNodeName(normalMapNode->getInput("in")->getNodeName());
                 _worldSpaceShaderInputs.insert(bindInput->getName());
             }
             bakeGraphOutput(output, context, filename);
@@ -146,8 +146,8 @@ void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const F
             FilePath filename = FilePath(outputFolder / generateTextureFilename(output, shader->getName(), udim));
             if (connectsToNormalMapNode(output))
             {
-                ElementPtr normalMapNode = output->getParent()->getChild(output->getAttribute("nodename"));
-                output->setAttribute("nodename", normalMapNode->getChild("in")->getAttribute("nodename"));
+                NodePtr normalMapNode = output->getParent()->getChild(output->getNodeName())->asA<Node>();
+                output->setNodeName(normalMapNode->getInput("in")->getNodeName());
                 _worldSpaceShaderInputs.insert(input->getName());
             }
             bakeGraphOutput(output, context, filename);
