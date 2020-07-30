@@ -97,14 +97,6 @@ FilePath generateOutMtlxFilename(string file, string srName)
     return out;
 }
 
-// Helper function to check if shader requires normals to be transformed from tangent space to world space
-bool connectsToNormalMapNode(OutputPtr output)
-{
-    ElementPtr normalMapNode = (output) ? output->getParent()->getChild(output->getAttribute("nodename")) : nullptr;
-
-    return normalMapNode && normalMapNode->getCategory() == "normalmap";
-}
-
 } // anonymous namespace
 
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
