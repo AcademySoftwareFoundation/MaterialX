@@ -275,6 +275,29 @@ namespace
     }
 }
 
+FileSearchPath getDefaultSearchPath()
+{
+    FileSearchPath searchPath;
+
+    // Default search path for installed binaries.
+    FilePath installSearchPath = FilePath::getModulePath().getParentPath();
+    if (installSearchPath.exists())
+    {
+        searchPath.append(installSearchPath);
+        searchPath.append(installSearchPath / "libraries");
+    }
+
+    // Default search path for development environments.
+    FilePath devSearchPath = FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
+    if (devSearchPath.exists())
+    {
+        searchPath.append(devSearchPath);
+        searchPath.append(devSearchPath / "libraries");
+    }
+
+    return searchPath;
+}
+
 bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
 {
     // Handle shader nodes
@@ -633,10 +656,9 @@ bool elementRequiresShading(ConstTypedElementPtr element)
             colorClosures.count(elementType) > 0);
 }
 
-
-vector<NodePtr> getShaderNodes(const NodePtr materialNode, const string& shaderType, const string& target)
+vector<NodePtr> getShaderNodes(ConstNodePtr materialNode, const string& shaderType, const string& target)
 {
-    DocumentPtr doc = materialNode->getDocument();
+    ConstDocumentPtr doc = materialNode->getDocument();
     vector<NodePtr> shaderNodes;
     for (const InputPtr& input : materialNode->getActiveInputs())
     {
@@ -956,6 +978,13 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
     scaleUV[1] = 1.0f / (maxUV[1] - minUV[1]);
     offsetUV[0] = -minUV[0];
     offsetUV[1] = -minUV[1];
+}
+
+bool connectsToNormalMapNode(OutputPtr output)
+{
+    ElementPtr normalMapNode = (output) ? output->getParent()->getChild(output->getNodeName()) : nullptr;
+
+    return normalMapNode && normalMapNode->getCategory() == "normalmap";
 }
 
 } // namespace MaterialX

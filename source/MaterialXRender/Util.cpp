@@ -277,13 +277,11 @@ void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocume
 
         if (!item.ui.uiFolder.empty())
         {
-            groups.insert(std::pair<string, UIPropertyItem>
-                (item.ui.uiFolder, item));
+            groups.emplace(item.ui.uiFolder, item);
         }
         else
         {
-            unnamedGroups.insert(std::pair<string, UIPropertyItem>
-                (EMPTY_STRING, item));
+            unnamedGroups.emplace(EMPTY_STRING, item);
         }
     }
 }
@@ -299,14 +297,6 @@ void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocum
             createUIPropertyGroups(uniformElement, contentDocument, materialElement, pathSeparator, groups, unnamedGroups, uniform);
         }
     }
-}
-
-// Helper function to check if shader requires normals to be transformed from tangent space to world space
-bool connectsToNormalMapNode(OutputPtr output)
-{
-    ElementPtr normalMapNode = (output) ? output->getParent()->getChild(output->getAttribute("nodename")) : nullptr;
-
-    return normalMapNode && normalMapNode->getCategory() == "normalmap";
 }
 
 } // namespace MaterialX

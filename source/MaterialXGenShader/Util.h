@@ -25,6 +25,9 @@ namespace MaterialX
 
 class ShaderGenerator;
 
+/// Return a default search path for binaries that leverage shader generation.
+FileSearchPath getDefaultSearchPath();
+
 /// Returns true if the given element is a surface shader with the potential
 /// of beeing transparent. This can be used by HW shader generators to determine
 /// if a shader will require transparency handling.
@@ -59,7 +62,7 @@ bool elementRequiresShading(ConstTypedElementPtr element);
 ///        string which inidates to include shaders which match any type.
 /// @param target Target attribute of shader to return. The default argument value is an empty string
 ///        which indicates to include shaders which match any target.
-vector<NodePtr> getShaderNodes(const NodePtr materialNode, 
+vector<NodePtr> getShaderNodes(ConstNodePtr materialNode, 
                                const string& shaderType = EMPTY_STRING,
                                const string& target = EMPTY_STRING);
 
@@ -119,6 +122,10 @@ vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers);
 /// Get the UV scale and offset to transform uv coordinates from UDIM uv space to
 /// 0..1 space.
 void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scaleUV, Vector2& offsetUV);
+
+/// Checks if output connected to shaderreeef input requires normals to be transformed from tangent 
+/// space to world space.
+bool connectsToNormalMapNode(OutputPtr output);
 
 } // namespace MaterialX
 

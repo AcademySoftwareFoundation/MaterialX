@@ -58,7 +58,7 @@ int main(int argc, char* const argv[])
         "libraries",
     };
 
-    mx::FileSearchPath searchPath;
+    mx::FileSearchPath searchPath = mx::getDefaultSearchPath();
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     mx::Vector3 meshRotation;
@@ -190,20 +190,6 @@ int main(int argc, char* const argv[])
         else
         {
             i++;
-        }
-    }
-
-    // Add default search paths for the viewer.
-    mx::FilePath installSearchPath = mx::FilePath::getModulePath().getParentPath();
-    mx::FilePath devSearchPath = mx::FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
-    searchPath.append(installSearchPath);
-    if (!devSearchPath.isEmpty() && devSearchPath.exists())
-    {
-        searchPath.append(devSearchPath);
-        devSearchPath = devSearchPath / "libraries";
-        if (devSearchPath.exists())
-        {
-            searchPath.append(devSearchPath);
         }
     }
 

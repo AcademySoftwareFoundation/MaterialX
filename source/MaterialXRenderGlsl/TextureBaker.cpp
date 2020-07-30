@@ -84,6 +84,14 @@ StringVec getRenderablePaths(ConstDocumentPtr doc)
     return renderablePaths;
 } 
 
+// Helper function to check if shader requires normals to be transformed from tangent space to world space
+bool connectsToNormalMapNode(OutputPtr output)
+{
+    ElementPtr normalMapNode = (output) ? output->getParent()->getChild(output->getNodeName()) : nullptr;
+
+    return normalMapNode && normalMapNode->getCategory() == "normalmap";
+}
+
 } // anonymous namespace
 
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
@@ -114,8 +122,9 @@ void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& con
 
             if (connectsToNormalMapNode(output))
             {
-                ElementPtr normalMapNode = output->getParent()->getChild(output->getAttribute("nodename"));
-                output->setAttribute("nodename", normalMapNode->getChild("in")->getAttribute("nodename"));
+
+                NodePtr normalMapNode = output->getParent()->getChild(output->getNodeName())->asA<Node>();
+                output->setNodeName(normalMapNode->getInput("in")->getNodeName());
                 _worldSpaceShaderInputs.insert(bindInput->getName());
             }
             bakeGraphOutput(output, context, filename);
@@ -138,8 +147,8 @@ void TextureBaker::bakeShaderInputs(NodePtr shader, GenContext& context, const F
             FilePath filename = FilePath(outputFolder / generateTextureFilename(output, shader->getName(), udim));
             if (connectsToNormalMapNode(output))
             {
-                ElementPtr normalMapNode = output->getParent()->getChild(output->getAttribute("nodename"));
-                output->setAttribute("nodename", normalMapNode->getChild("in")->getAttribute("nodename"));
+                NodePtr normalMapNode = output->getParent()->getChild(output->getNodeName())->asA<Node>();
+                output->setNodeName(normalMapNode->getInput("in")->getNodeName());
                 _worldSpaceShaderInputs.insert(input->getName());
             }
             bakeGraphOutput(output, context, filename);
@@ -207,15 +216,6 @@ void TextureBaker::writeBakedDocument(ConstShaderRefPtr shaderRef, const FilePat
             NodePtr bakedImage = bakedNodeGraph->addNode("image", bindInput->getName() + "_baked", bindInput->getType());
             ParameterPtr param = bakedImage->addParameter("file", "filename");
             param->setValueString(generateTextureFilename(output, shaderRef->getName(), (udimSetValue) ? UDIM_TOKEN : EMPTY_STRING));
-
-            // Check if is a normal node and transform normals into world space
-            if (_worldSpaceShaderInputs.count(bindInput->getName()))
-            {
-                NodePtr bakedImageOrig = bakedImage;
-                bakedImage = bakedNodeGraph->addNode("normalmap", bindInput->getName() + "_baked_map", bindInput->getType());
-                InputPtr mapInput = bakedImage->addInput("in", bindInput->getType());
-                mapInput->setNodeName(bakedImageOrig->getName());
-            }
 
             // Add the graph output.
             OutputPtr bakedOutput = bakedNodeGraph->addOutput(bindInput->getName() + "_output", bindInput->getType());
