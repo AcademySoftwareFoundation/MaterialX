@@ -19,24 +19,6 @@ namespace MaterialX
 namespace
 {
 
-// Helper function to initialize file search path
-FileSearchPath initFileSearchPath()
-{
-    FilePath installSearchPath = FilePath::getModulePath().getParentPath();
-    FilePath devSearchPath = FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
-    FileSearchPath searchPath = FileSearchPath(installSearchPath);
-    if (!devSearchPath.isEmpty() && devSearchPath.exists())
-    {
-        searchPath.append(devSearchPath);
-        devSearchPath = devSearchPath / "libraries";
-        if (devSearchPath.exists())
-        {
-            searchPath.append(devSearchPath);
-        }
-    }
-    return searchPath;
-}
-
 // Helper function to initialize shader generation context
 GenContext initGenContext()
 {
@@ -321,7 +303,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
     GenContext genContext = initGenContext();
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(doc);
-    FileSearchPath searchPath = initFileSearchPath();
+    FileSearchPath searchPath = getDefaultSearchPath();
     genContext.registerSourceCodeSearchPath(searchPath);
     genContext.getShaderGenerator().setColorManagementSystem(cms);
     StringResolverPtr resolver = StringResolver::create();
