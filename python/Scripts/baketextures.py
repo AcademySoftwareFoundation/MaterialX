@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Generate the baked mtlx file and baked textures programmatically.
+Generate a baked version of each material in the input document, using the TextureBaker class in the MaterialXRenderGlsl library.
 '''
 
 import sys, os, string
@@ -12,12 +12,14 @@ from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
 from MaterialX import PyMaterialXGenShader as ms_gen_shader
 
 def main():
-    parser = argparse.ArgumentParser(description="Bake out MaterialX sharderref inputs into textures.")
-    parser.add_argument("--hdr", "--HDR", dest="hdr", action="store_true", help="Save images to hdr format.")
-    parser.add_argument("--incl", "--i", dest="include", default = "", help="Txt document with each library path on each line")
-    parser.add_argument("--tx", "--texResX", "--texresx", dest="tex_res_x", type=int, default=1024, help="X Resolution at which to save textures.")
-    parser.add_argument("--ty", "--texResY", "--texresy", dest="tex_res_y", type=int, default=1024, help="Y Resolution at which to save textures.")
-    parser.add_argument(dest="filename", help="Input mtlx filename.")
+    parser = argparse.ArgumentParser(description="Generate a baked version of each material in the input document.")
+    parser.add_argument("--width", dest="width", type=int, default=1024, help="Specify the width of baked textures.")
+    parser.add_argument("--height", dest="height", type=int, default=1024, help="Specify the height of baked textures.")
+    parser.add_argument("--hdr", dest="hdr", action="store_true", help="Save images to hdr format.")
+    parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
+    parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
+    parser.add_argument(dest="input_filename", help="Filename of the input document.")
+    parser.add_argument(dest="output_filename", help="Filename of the output document.")
 
     opts = parser.parse_args()
 
@@ -25,34 +27,34 @@ def main():
     mxversion = mx.getVersionString()
 
     try:
-        mx.readFromXmlFile(doc, opts.filename)
+        mx.readFromXmlFile(doc, opts.input_filename)
     except mx.ExceptionFileMissing as err:
         print(err)
         sys.exit(0)
 
     stdlib = mx.createDocument()
-    library_folder = [
-        mx.FilePath("../../libraries/stdlib"),
-        mx.FilePath("../../libraries/pbrlib"),
-        mx.FilePath("../../libraries/bxdf"), 
-        mx.FilePath("../../libraries/pbrlib/genglsl")
-        ]
-    if (opts.include != ""):
-        with open(opts.include) as f:
-            for line in f:
-                library_folder.append(mx.FilePath(line.rstrip()))
-    searchPath = mx.FileSearchPath(os.getcwd())
-    mx.loadLibraries(library_folder, searchPath, stdlib, set(), None)
+    search_path = mx.FileSearchPath()
+    library_folders = [ mx.FilePath("libraries") ]
+    if opts.paths:
+        for path_list in opts.paths:
+            for path in path_list:
+                search_path.append(path)
+    search_path.append(os.path.join(os.getcwd(), '../..'))
+    if opts.libraries:
+        for library_list in opts.libraries:
+            for library in library_list:
+                library_folders.append(library)
+    mx.loadLibraries(library_folders, search_path, stdlib, set(), None)
     doc.importLibrary(stdlib)
-    rc = doc.validate()
 
-    if (len(rc) == 0 or not rc[0]):
-        print("%s is not a valid MaterialX %s document:" % (opts.filename, mxversion))
-        print(rc[1])
-        sys.exit(0)
+    valid, msg = doc.validate()
+    if (not valid):
+        print("Validation warnings for input document:")
+        print(msg)
 
-    mx_render_glsl.TextureBaker.bakeAllShaders(doc, opts.filename, opts.hdr, opts.tex_res_x, opts.tex_res_y)
+    image_search_path = mx.FileSearchPath(os.path.dirname(opts.input_filename))
+    mx_render_glsl.TextureBaker.bakeAllMaterials(doc, image_search_path,
+                                                 opts.output_filename, opts.hdr, opts.width, opts.height)
 
 if __name__ == '__main__':
     main()
-
