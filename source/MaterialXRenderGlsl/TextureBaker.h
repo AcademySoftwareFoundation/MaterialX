@@ -60,7 +60,7 @@ class TextureBaker : public GlslRenderer
     void writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue = nullptr);
     
     /// Generate a baked version of each material in the input document
-    static void bakeAllMaterials(ConstDocumentPtr doc, const FileSearchPath& imageSearchPath,
+    static void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath,
                                  const FilePath& outputFilename, bool hdr = false, int width = 1024, int height = 1024);
 
   protected:
