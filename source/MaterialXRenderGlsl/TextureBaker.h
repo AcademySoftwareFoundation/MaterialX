@@ -73,6 +73,7 @@ class TextureBaker : public GlslRenderer
     ShaderGeneratorPtr _generator;
     string _udim;
     string _extension;
+    StringSet _worldSpaceShaderInputs;
 };
 
 } // namespace MaterialX
