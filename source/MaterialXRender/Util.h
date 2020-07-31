@@ -121,9 +121,6 @@ void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocum
                             const string& pathSeparator, UIPropertyGroup& groups,
                             UIPropertyGroup& unnamedGroups);
 
-/// Checks if shader requires normals to be transformed from tangent space to world space
-bool connectsToNormalMapNode(OutputPtr output);
-
 /// @}
 
 } // namespace MaterialX

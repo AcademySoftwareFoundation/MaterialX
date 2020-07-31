@@ -5,18 +5,24 @@
 
 #include <MaterialXGenShader/ShaderTranslator.h>
 
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/Util.h>
 
 namespace MaterialX
 {
 
-//
-// ShaderTranslator methods
-//
+    //
+    // ShaderTranslator methods
+    //
 
-ShaderTranslator::ShaderTranslator()
-{
-}
+    ShaderTranslator::ShaderTranslator()
+    {
+    }
+
+    /*ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl, unsigned int classification)
+    {
+        ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
+        newNode->_impl = impl;
+        newNode->_classification = classification;
+        return newNode;
+    }*/
 
 } // namespace MaterialX
