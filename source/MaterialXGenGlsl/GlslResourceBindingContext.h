@@ -36,6 +36,11 @@ public:
     // Emit uniforms with binding information
     void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) override;
 
+    // Emit Structured uniforms with binding information and align members where possible
+    void emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
+        ShaderStage& stage, const std::string& structInstanceName,
+        const std::string& arraySuffix) override;
+
 protected:
     // List of required extensions
     StringSet _requiredExtensions;

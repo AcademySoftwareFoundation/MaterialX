@@ -184,6 +184,7 @@ namespace HW
     extern const string SHADOW_MATRIX;
     extern const string VERTEX_DATA_INSTANCE;
     extern const string LIGHT_DATA_INSTANCE;
+    extern const string LIGHT_DATA_MAX_LIGHT_SOURCES;
 
     /// Variable blocks names.
     extern const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
@@ -408,6 +409,12 @@ public:
 
     // Emit uniforms with binding information
     virtual void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) = 0;
+
+    // Emit struct uniforms with binding information
+    virtual void emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
+        ShaderStage& stage, const std::string& structInstanceName,
+        const std::string& arraySuffix = EMPTY_STRING) = 0;
+
 };
 
 } // namespace MaterialX
