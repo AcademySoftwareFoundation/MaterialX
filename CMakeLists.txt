@@ -60,6 +60,7 @@ set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtl
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
+mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 mark_as_advanced(MATERIALX_BUILD_TESTS)
@@ -84,6 +85,7 @@ if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
     mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
     mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
+    mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
 endif()
 
 # Add global definitions
