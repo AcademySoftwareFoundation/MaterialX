@@ -137,7 +137,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// current element is returned.  If no element is found at the given path,
     /// then an empty shared pointer is returned.
     /// @param namePath The relative name path of the specified element.
-    ElementPtr getDescendant(const string& namePath);
+    ElementPtr getDescendant(const string& namePath) const;
 
     /// @}
     /// @name File Prefix

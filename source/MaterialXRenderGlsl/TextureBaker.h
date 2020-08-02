@@ -59,8 +59,9 @@ class TextureBaker : public GlslRenderer
     /// Write out the baked material document based on a shader node
     void writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue = nullptr);
     
-    /// Bake material and its inputs to textures 
-    static void bakeAllShaders(DocumentPtr& doc, string file, bool HDR = false, int texresx = 1024, int texresy = 1024);
+    /// Generate a baked version of each material in the input document
+    static void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath,
+                                 const FilePath& outputFilename, bool hdr = false, int width = 1024, int height = 1024);
 
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
@@ -72,6 +73,7 @@ class TextureBaker : public GlslRenderer
     ShaderGeneratorPtr _generator;
     string _udim;
     string _extension;
+    StringSet _worldSpaceShaderInputs;
 };
 
 } // namespace MaterialX

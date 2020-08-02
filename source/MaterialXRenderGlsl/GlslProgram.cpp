@@ -12,6 +12,8 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
+#include <iostream>
+
 namespace MaterialX
 {
 
@@ -542,25 +544,20 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
         // Acquire the image.
-        ImagePtr image = imageHandler->acquireImage(filePath, generateMipMaps, &(samplingProperties.defaultColor));
-        if (image)
+        string error;
+        ImagePtr image = imageHandler->acquireImage(filePath, generateMipMaps, &(samplingProperties.defaultColor), &error);
+        if (!error.empty())
         {
-            if (imageHandler->bindImage(image, samplingProperties))
-            {
-                GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
-                int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
-                if (textureLocation >= 0)
-                {
-                    glUniform1i(uniformLocation, textureLocation);
-                }
-            }
+            std::cerr << error << std::endl;
         }
-        else
+        if (imageHandler->bindImage(image, samplingProperties))
         {
-            StringVec errors;
-            const string errorType("GLSL texture bind error.");
-            errors.push_back("Cannot load image: " + filePath.asString());
-            throw ExceptionShaderRenderError(errorType, errors);
+            GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
+            int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
+            if (textureLocation >= 0)
+            {
+                glUniform1i(uniformLocation, textureLocation);
+            }
         }
         checkErrors();
         return image;

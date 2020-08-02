@@ -25,6 +25,9 @@ namespace MaterialX
 
 class ShaderGenerator;
 
+/// Return a default search path for binaries that leverage shader generation.
+FileSearchPath getDefaultSearchPath();
+
 /// Returns true if the given element is a surface shader with the potential
 /// of beeing transparent. This can be used by HW shader generators to determine
 /// if a shader will require transparency handling.

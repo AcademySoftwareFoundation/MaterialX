@@ -123,10 +123,10 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     return res;
 }
 
-ElementPtr Element::getDescendant(const string& namePath)
+ElementPtr Element::getDescendant(const string& namePath) const
 {
     const StringVec nameVec = splitString(namePath, NAME_PATH_SEPARATOR);
-    ElementPtr elem = getSelf();
+    ElementPtr elem = getSelfNonConst();
     for (const string& name : nameVec)
     {
         elem = elem->getChild(name);

@@ -279,6 +279,29 @@ namespace
     }
 }
 
+FileSearchPath getDefaultSearchPath()
+{
+    FileSearchPath searchPath;
+
+    // Default search path for installed binaries.
+    FilePath installSearchPath = FilePath::getModulePath().getParentPath();
+    if (installSearchPath.exists())
+    {
+        searchPath.append(installSearchPath);
+        searchPath.append(installSearchPath / "libraries");
+    }
+
+    // Default search path for development environments.
+    FilePath devSearchPath = FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
+    if (devSearchPath.exists())
+    {
+        searchPath.append(devSearchPath);
+        searchPath.append(devSearchPath / "libraries");
+    }
+
+    return searchPath;
+}
+
 bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
 {
     // Handle shader nodes
