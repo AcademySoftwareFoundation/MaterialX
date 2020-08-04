@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
-  <nodegraph name="NG_brick_02_surfaceshader_impl" namespace="adsk">
+  <nodegraph name="NG_brick_02_surfaceshader_template" namespace="adsk">
     <add name="aiColorCorrect_baseColor29" type="color3">
       <input name="in1" type="color3" nodename="bricks_02_basecolor" />
     </add>

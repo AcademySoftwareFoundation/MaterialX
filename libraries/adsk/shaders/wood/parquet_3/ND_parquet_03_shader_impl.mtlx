@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
    <!-- Sample parquet shader implementation template -->
-   <nodegraph name="NG_parquet_03_shader" namespace="adsk">
+   <nodegraph name="NG_parquet_03_shader_template" namespace="adsk">
       <constant name="colorCorrect_diffuse" type="color3">
          <parameter name="value" type="color3" value="1.12, 0.99, 0.63" />
       </constant>
