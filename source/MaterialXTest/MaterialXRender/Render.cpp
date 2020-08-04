@@ -179,7 +179,7 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
     try
     {
         mx::Color4 color(1.0f, 0.0f, 0.0f, 1.0f);
-        mx::ImagePtr uniformImage = createUniformImage(1, 1, color);
+        mx::ImagePtr uniformImage = createUniformImage(1, 1, 4, mx::Image::BaseType::UINT8, color);
         CHECK(uniformImage->getWidth() == 1);
         CHECK(uniformImage->getHeight() == 1);
         CHECK(uniformImage->getMaxMipCount() == 1);
