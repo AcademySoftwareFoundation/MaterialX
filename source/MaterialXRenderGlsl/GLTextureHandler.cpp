@@ -124,7 +124,6 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
         unsigned int resourceId;
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glGenTextures(1, &resourceId);
         image->setResourceId(resourceId);
     }
@@ -141,6 +140,7 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     int glType, glFormat, glInternalFormat;
     mapTextureFormatToGL(image->getBaseType(), image->getChannelCount(), false,
         glType, glFormat, glInternalFormat);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
         0, glFormat, glType, image->getResourceBuffer());
 
