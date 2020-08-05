@@ -12,6 +12,8 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
+#include <MaterialXGenShader/ShaderTranslator.h>
+
 #include <MaterialXCore/Unit.h>
 
 namespace mx = MaterialX;
@@ -50,6 +52,8 @@ class Viewer : public ng::Screen
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
     void bakeTextures();
+
+    void translateShader();
 
     ng::Window* getWindow() const
     {
@@ -238,6 +242,11 @@ class Viewer : public ng::Screen
     bool _bakeTextures;
     bool _bakeHdr;
     int _bakeTextureRes;
+
+    // Shader translation
+    mx::ShaderTranslatorPtr _shaderTranslator;
+    bool _translateShader;
+    std::string _destinationShadingModel;
 
     // Unit options
     mx::StringVec _distanceUnitOptions;

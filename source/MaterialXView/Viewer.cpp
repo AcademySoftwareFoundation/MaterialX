@@ -11,6 +11,7 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderTranslator.h>
 
 #include <MaterialXFormat/Util.h>
 
@@ -205,6 +206,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeTextures(false),
     _bakeHdr(false),
     _bakeTextureRes(DEFAULT_TEXTURE_RES),
+    _translateShader(false),
     _outlineSelection(false),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
@@ -1394,6 +1396,9 @@ void Viewer::loadStandardLibraries()
         int location = _distanceUnitConverter->getUnitAsInteger(unitScale.first);
         _distanceUnitOptions[location] = unitScale.first;
     }
+
+    // Update available shader translations
+    _shaderTranslator = mx::ShaderTranslator::create(_stdLib);
 }
 
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
@@ -1503,6 +1508,25 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             }
         }
         return true;
+    }
+
+    // Just for testing shader translation
+    if (key == GLFW_KEY_T && action == GLFW_PRESS)
+    {
+        if (!_translateShader)
+        {
+            mx::ElementPtr matElement = getSelectedMaterial()->getElement();
+            _destinationShadingModel = "UnrealDefaultLit";
+            _shaderTranslator = mx::ShaderTranslator::create(_stdLib);
+            mx::StringSet translations = _shaderTranslator->getAvailableTranslations(matElement->getAttribute("node"));
+            _shaderTranslator->translateShader(matElement->asA<mx::ShaderRef>(), _destinationShadingModel);
+            _translateShader = true;
+        }
+        else
+        {
+            _destinationShadingModel = mx::EMPTY_STRING;
+            _translateShader = false;
+        }
     }
 
     return false;
@@ -1728,6 +1752,32 @@ void Viewer::bakeTextures()
     glfwMakeContextCurrent(mGLFWWindow);
     glfwGetFramebufferSize(mGLFWWindow, &mFBSize[0], &mFBSize[1]);
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
+}
+
+void Viewer::translateShader()
+{
+    MaterialPtr material = getSelectedMaterial();
+    mx::FileSearchPath searchPath = _searchPath;
+    mx::DocumentPtr doc = material->getDocument();
+    if (!doc)
+    {
+        return;
+    }
+
+    /*for (mx::MaterialPtr material : doc->getMaterials())
+    {
+        for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
+        {
+            _shaderTranslator->translateShader(shaderRef, _destinationShadingModel);
+
+        }
+    }*/
+
+
+
+
+
+
 }
 
 void Viewer::drawContents()
