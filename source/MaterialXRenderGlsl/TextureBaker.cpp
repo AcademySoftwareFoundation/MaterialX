@@ -7,6 +7,7 @@
 
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRender/Util.h>
+#include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -17,24 +18,6 @@ namespace MaterialX
 
 namespace
 {
-
-// Helper function to initialize file search path
-FileSearchPath initFileSearchPath()
-{
-    FilePath installSearchPath = FilePath::getModulePath().getParentPath();
-    FilePath devSearchPath = FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
-    FileSearchPath searchPath = FileSearchPath(installSearchPath);
-    if (!devSearchPath.isEmpty() && devSearchPath.exists())
-    {
-        searchPath.append(devSearchPath);
-        devSearchPath = devSearchPath / "libraries";
-        if (devSearchPath.exists())
-        {
-            searchPath.append(devSearchPath);
-        }
-    }
-    return searchPath;
-}
 
 // Helper function to initialize shader generation context
 GenContext initGenContext()
@@ -313,13 +296,16 @@ FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& s
     return FilePath(outputName + srSegment + "_baked" + udimSuffix + "." + _extension);
 }
 
-void TextureBaker::bakeAllMaterials(ConstDocumentPtr doc, const FileSearchPath& imageSearchPath,
+void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath,
                                     const FilePath& outputFilename, bool hdr, int width, int height)
 {
     TextureBakerPtr baker = TextureBaker::create(width, height, hdr ? Image::BaseType::FLOAT : Image::BaseType::UINT8);
     GenContext genContext = initGenContext();
-    FileSearchPath searchPath = initFileSearchPath();
+    DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getLanguage());
+    cms->loadLibrary(doc);
+    FileSearchPath searchPath = getDefaultSearchPath();
     genContext.registerSourceCodeSearchPath(searchPath);
+    genContext.getShaderGenerator().setColorManagementSystem(cms);
     StringResolverPtr resolver = StringResolver::create();
     ImageHandlerPtr imageHandler = GLTextureHandler::create(StbImageLoader::create());
     StringVec renderablePaths = getRenderablePaths(doc);

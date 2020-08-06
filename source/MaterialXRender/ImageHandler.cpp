@@ -40,7 +40,7 @@ const string ImageLoader::TXR_EXTENSION = "txr";
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
     addLoader(imageLoader);
-    _zeroImage = createUniformImage(1, 1, Color4(0.0f));
+    _zeroImage = createUniformImage(1, 1, 4, Image::BaseType::UINT8, Color4(0.0f));
 }
 
 void ImageHandler::addLoader(ImageLoaderPtr loader)
@@ -106,6 +106,13 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
             ImagePtr image = loader->loadImage(foundFilePath);
             if (image)
             {
+                // Workaround for sampling issues with 1x1 textures.
+                if (image->getWidth() == 1 && image->getHeight() == 1)
+                {
+                    image = createUniformImage(2, 2, image->getChannelCount(),
+                                               image->getBaseType(), image->getTexelColor(0, 0));
+                }
+
                 cacheImage(foundFilePath, image);
                 return image;
             }
@@ -129,7 +136,7 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
     }
     if (fallbackColor)
     {
-        ImagePtr image = createUniformImage(1, 1, *fallbackColor);
+        ImagePtr image = createUniformImage(2, 2, 4, Image::BaseType::UINT8, *fallbackColor);
         if (image)
         {
             cacheImage(filePath, image);
