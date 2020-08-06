@@ -1516,9 +1516,11 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         if (!_translateShader)
         {
             mx::ElementPtr matElement = getSelectedMaterial()->getElement();
-            _destinationShadingModel = "UnrealDefaultLit";
             _shaderTranslator = mx::ShaderTranslator::create(_stdLib);
             mx::StringSet translations = _shaderTranslator->getAvailableTranslations(matElement->getAttribute("node"));
+            // grabbing the first available translation
+            _destinationShadingModel = *translations.begin();
+
             _shaderTranslator->translateShader(matElement->asA<mx::ShaderRef>(), _destinationShadingModel);
             _translateShader = true;
         }
@@ -1526,6 +1528,12 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         {
             _destinationShadingModel = mx::EMPTY_STRING;
             _translateShader = false;
+
+            // reload the original document
+            MaterialPtr material = getSelectedMaterial();
+            mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
+            mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
+            loadDocument(filename, _stdLib);
         }
     }
 

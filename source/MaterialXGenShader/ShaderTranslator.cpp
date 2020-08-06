@@ -67,6 +67,7 @@ namespace MaterialX
         NodeGraphPtr ng = doc->getNodeGraph(shaderRef->getBindInputs()[0]->getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE));
         _translationNode = ng->addNode(translateNodeString, "translation", MULTI_OUTPUT_TYPE_STRING);
 
+        int size = shaderRef->getBindInputs().size();
         for (BindInputPtr bindInput : shaderRef->getBindInputs())
         {
             OutputPtr output = bindInput->getConnectedOutput();
@@ -80,18 +81,24 @@ namespace MaterialX
             }
         }
 
+        for (BindInputPtr bindInput : shaderRef->getBindInputs())
+        {
+            shaderRef->removeBindInput(bindInput->getName());
+        }
+
+
         shaderRef->setNodeString(destShader);
         vector<OutputPtr> outputs = doc->getNodeGraph("NG_" + translateNodeString)->getOutputs();
         for (OutputPtr newSrInput : doc->getNodeGraph("NG_" + translateNodeString)->getOutputs())
         {
-
             string outputName = newSrInput->getName();
             outputName = outputName.substr(0, outputName.find("_out"));
             NodePtr dotNode = ng->addNode("dot", outputName + "_dot", newSrInput->getType());
             InputPtr dotNodeInput = dotNode->addInput("in", newSrInput->getType());
             dotNodeInput->setConnectedNode(_translationNode);
-            dotNodeInput->setAttribute("output", outputName + "_out");
-            OutputPtr translatedOutput = ng->addOutput(outputName, newSrInput->getType());
+            dotNodeInput->setOutputString(outputName + "_out");
+
+            OutputPtr translatedOutput = ng->addOutput(outputName + "_out", newSrInput->getType());
             translatedOutput->setConnectedNode(dotNode);
 
             BindInputPtr translatedBindInput = shaderRef->addBindInput(outputName, newSrInput->getType());
