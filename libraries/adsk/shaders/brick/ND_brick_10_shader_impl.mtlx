@@ -2,45 +2,45 @@
 <materialx version="1.38">
   <nodegraph name="NG_brick_10_surfaceshader_template" namespace="adsk">
     <add name="aiColorCorrect_baseColor29" type="color3">
-      <input name="in1" type="color3" nodename="bricks_02_basecolor" />
+      <input name="in1" type="color3" nodename="bricks_10_basecolor" />
     </add>
     <add name="aiColorToFloat_roughness29" type="float">
       <input name="in1" type="float" nodename="aiRange_roughness29" />
     </add>
     <normalmap name="aiNormalMap_normal29" type="vector3">
-      <input name="in" type="vector3" nodename="bricks_02_normal" />
+      <input name="in" type="vector3" nodename="bricks_10_normal" />
     </normalmap>
     <range name="aiRange_ao29" type="float">
-      <input name="in" type="float" nodename="bricks_02_ao" />
+      <input name="in" type="float" nodename="bricks_10_ao" />
     </range>
     <range name="aiRange_roughness29" type="float">
       <input name="in" type="float" nodename="smoothstep" />
       <input name="outhigh" type="float" value="0.7" />
     </range>
-    <tiledimage name="bricks_02_ao" type="float">
-      <parameter name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_ao_2k_raw.exr" />
+    <tiledimage name="bricks_10_ao" type="float">
+      <parameter name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_ao_2k_raw.png" />
       <input name="uvtiling" type="vector2" value="2, 2" />
     </tiledimage>
-    <tiledimage name="bricks_02_basecolor" type="color3">
-      <parameter name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_basecolor_2k_acescg.exr" colorspace="acescg" />
+    <tiledimage name="bricks_10_basecolor" type="color3">
+      <parameter name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_basecolor_2k_acescg.png" colorspace="acescg" />
       <input name="uvtiling" type="vector2" value="2, 2" />
     </tiledimage>
-    <tiledimage name="bricks_02_normal" type="vector3">
-      <parameter name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_normal_2k_raw.exr" />
+    <tiledimage name="bricks_10_normal" type="vector3">
+      <parameter name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_normal_2k_raw.png" />
       <input name="uvtiling" type="vector2" value="2, 2" />
     </tiledimage>
-    <tiledimage name="bricks_02_roughness" type="float">
-      <parameter name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_roughness_2k_raw.exr" />
+    <tiledimage name="bricks_10_roughness" type="float">
+      <parameter name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_roughness_2k_raw.png" />
       <input name="uvtiling" type="vector2" value="2, 2" />
     </tiledimage>
     <standard_surface name="node1" type="surfaceshader" version="1.0.1">
-      <input name="base" type="float" nodename="aiRange_ao29" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base" doc="Multiplier on the intensity of the diffuse reflection." />
-      <input name="base_color" type="color3" nodename="aiColorCorrect_baseColor29" uimin="0,0,0" uimax="1,1,1" uiname="Base Color" uifolder="Base" doc="Color of the diffuse reflection." />
-      <input name="specular_roughness" type="float" nodename="aiColorToFloat_roughness29" uimin="0.0" uimax="1.0" uiname="Specular Roughness" uifolder="Specular" doc="The roughness of the specular reflection. Lower numbers produce sharper reflections, higher numbers produce blurrier reflections." />
-      <input name="normal" type="vector3" nodename="aiNormalMap_normal29" defaultgeomprop="Nworld" uiname="Normal" uifolder="Geometry" doc="Input geometric normal" />
+      <input name="base" type="float" nodename="aiRange_ao29" />
+      <input name="base_color" type="color3" nodename="aiColorCorrect_baseColor29" />
+      <input name="specular_roughness" type="float" nodename="aiColorToFloat_roughness29" />
+      <input name="normal" type="vector3" nodename="aiNormalMap_normal29" />
     </standard_surface>
     <smoothstep name="smoothstep" type="float">
-      <input name="in" type="float" nodename="bricks_02_roughness" />
+      <input name="in" type="float" nodename="bricks_10_roughness" />
       <input name="low" type="float" value="0.2" />
     </smoothstep>
     <output name="out" type="surfaceshader" nodename="node1" />

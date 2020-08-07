@@ -2,9 +2,9 @@
 <materialx version="1.38">
    <!-- Sample parquet shader interface. Versioned and namespaced -->
    <nodedef name="ND_parquet_03_shader" node="parquet_03" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
-      <parameter name="base_color_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_basecolor_2k_acescg.exr" colorspace="acescg" />
-      <parameter name="normalmap_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_normal_2k_raw.exr" />
-      <parameter name="roughness_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_roughness_2k_raw.exr" />
+      <parameter name="base_color_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_basecolor_2k_acescg.png" colorspace="acescg" />
+      <parameter name="normalmap_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_normal_2k_raw.png" />
+      <parameter name="roughness_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_roughness_2k_raw.png" />
       <output name="surfaceshader" type="surfaceshader"/>
    </nodedef>
 

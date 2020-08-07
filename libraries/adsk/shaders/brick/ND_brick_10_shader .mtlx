@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+  <nodedef name="ND_bricks_10_surfaceshader" node="brick_10" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
+     <parameter name="ao_image" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_ao_2k_raw.png" />
+     <parameter name="color_image" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_basecolor_2k_acescg.png" colorspace="acescg" />
+     <parameter name="normalmap_image" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_normal_2k_raw.png" />
+     <parameter name="roughness_image" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_roughness_2k_raw.png" />
+     <output name="out" type="surfaceshader" value="" />
+  </nodedef>
+   <nodegraph name="NG_bricks_10_surfaceshader" nodedef="adsk:ND_bricks_10_surfaceshader" namespace="adsk">
+      <add name="aiColorCorrect_baseColor29" type="color3">
+         <input name="in1" type="color3" nodename="bricks_10_basecolor" />
+      </add>
+      <add name="aiColorToFloat_roughness29" type="float">
+         <input name="in1" type="float" nodename="aiRange_roughness29" />
+      </add>
+      <normalmap name="aiNormalMap_normal29" type="vector3">
+         <input name="in" type="vector3" nodename="bricks_10_normal" />
+      </normalmap>
+      <range name="aiRange_ao29" type="float">
+         <input name="in" type="float" nodename="swizzle" />
+      </range>
+      <range name="aiRange_roughness29" type="float">
+         <input name="in" type="float" nodename="smoothstep" />
+         <input name="outhigh" type="float" value="0.7" />
+      </range>
+      <tiledimage name="bricks_10_basecolor" type="color3">
+         <parameter name="file" type="filename" interfacename="color_image" />
+         <input name="uvtiling" type="vector2" value="2, 2" />
+      </tiledimage>
+      <tiledimage name="bricks_10_normal" type="vector3">
+         <parameter name="file" type="filename" interfacename="normalmap_image" />
+         <input name="uvtiling" type="vector2" value="2, 2" />
+      </tiledimage>
+      <tiledimage name="bricks_10_roughness" type="float">
+         <parameter name="file" type="filename" interfacename="roughness_image" />
+         <input name="uvtiling" type="vector2" value="2, 2" />
+      </tiledimage>
+      <standard_surface name="node1" type="surfaceshader" version="1.0.1">
+         <input name="base" type="float" nodename="aiRange_ao29" />
+         <input name="base_color" type="color3" nodename="aiColorCorrect_baseColor29" />
+         <input name="specular_roughness" type="float" nodename="aiColorToFloat_roughness29" />
+         <input name="normal" type="vector3" nodename="aiNormalMap_normal29" />
+      </standard_surface>
+      <smoothstep name="smoothstep" type="float">
+         <input name="in" type="float" nodename="bricks_10_roughness" />
+         <input name="low" type="float" value="0.2" />
+      </smoothstep>
+      <tiledimage name="bricks_10_ao" type="color3">
+         <parameter name="file" type="filename" interfacename="ao_image" />
+         <input name="uvtiling" type="vector2" value="2, 2" />
+      </tiledimage>
+      <swizzle name="swizzle" type="float">
+         <input name="in" type="color3" nodename="bricks_10_ao" />
+      </swizzle>
+      <output name="out" type="surfaceshader" nodename="node1" />
+   </nodegraph>   
+</materialx>

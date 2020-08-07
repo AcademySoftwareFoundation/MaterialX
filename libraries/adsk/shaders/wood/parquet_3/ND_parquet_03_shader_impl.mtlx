@@ -20,13 +20,13 @@
          <input name="in" type="vector3" nodename="parquet_03_normal" />
       </normalmap>
       <image name="parquet_03_basecolor" type="color3">
-         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_basecolor_2k_acescg.exr" colorspace="acescg" />
+         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_basecolor_2k_acescg.png" colorspace="acescg" />
       </image>
       <image name="parquet_03_normal" type="vector3">
-         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_normal_2k_raw.exr" />
+         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_normal_2k_raw.png" />
       </image>
       <image name="parquet_03_roughness" type="color3">
-         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_roughness_2k_raw.exr" />
+         <parameter name="file" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_roughness_2k_raw.png" />
       </image>
       <standard_surface name="parquete_03_sts" type="surfaceshader">
          <input name="base_color" type="color3" nodename="saturate_color" />

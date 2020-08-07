@@ -14,8 +14,10 @@
    <nodegraph name="shader_defs" type="multioutput">
       <adsk:parquet_03 name="parquet_03" type="surfaceshader" version="1.0" />
       <adsk:brick_02 name="brick_02" type="surfaceshader" version="1.0" />
+      <adsk:brick_10 name="brick_10" type="surfaceshader" version="1.0" />
       <output name="parquet_out" type="surfaceshader" nodename="parquet_03" /> 
-      <output name="brick_out" type="surfaceshader" nodename="brick_02" /> 
+      <output name="brick_02_out" type="surfaceshader" nodename="brick_02" />
+      <output name="brick_10_out" type="surfaceshader" nodename="brick_10" />
    </nodegraph>
  
    <nodegraph name="material_defs" type="material">

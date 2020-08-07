@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
   <nodedef name="ND_brick_02_surfaceshader" node="brick_02" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
-     <parameter name="ao_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_ao_2k_raw.exr" />
-     <parameter name="color_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_basecolor_2k_acescg.exr" colorspace="acescg" />
-     <parameter name="normalmap_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_normal_2k_raw.exr" />
-     <parameter name="roughness_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_roughness_2k_raw.exr" />
+     <parameter name="ao_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_ao_2k_raw.png" />
+     <parameter name="color_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_basecolor_2k_acescg.png" colorspace="acescg" />
+     <parameter name="normalmap_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_normal_2k_raw.png" />
+     <parameter name="roughness_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_roughness_2k_raw.png" />
      <output name="out" type="surfaceshader" value="" />
   </nodedef>
   <nodegraph name="NG_brick_02_surfaceshader" nodedef="adsk:ND_brick_02_surfaceshader" namespace="adsk">
