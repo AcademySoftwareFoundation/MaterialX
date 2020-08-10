@@ -13,7 +13,7 @@
    <nodedef name="TestSuiteOptions">
 
       <!-- List of comma separated file names acts as a filter to only test documents with these names -->
-      <parameter name="overrideFiles" type="string" value="adsk_shaders.mtlx" />
+      <parameter name="overrideFiles" type="string" value="" />
 
       <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
       <parameter name="lightFiles" type="string" value="light_rig_test_2.mtlx" />

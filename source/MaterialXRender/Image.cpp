@@ -18,19 +18,15 @@ namespace MaterialX
 // Global functions
 //
 
-ImagePtr createUniformImage(unsigned int width, unsigned int height, const Color4& color)
+ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType, const Color4& color)
 {
-    ImagePtr image = Image::create(width, height, 4, Image::BaseType::FLOAT);
+    ImagePtr image = Image::create(width, height, channelCount, baseType);
     image->createResourceBuffer();
-    float* pixel = static_cast<float*>(image->getResourceBuffer());
-    for (size_t i = 0; i < image->getWidth(); i++)
+    for (unsigned int x = 0; x < image->getWidth(); x++)
     {
-        for (size_t j = 0; j < image->getHeight(); j++)
+        for (unsigned int y = 0; y < image->getHeight(); y++)
         {
-            for (unsigned int c = 0; c < image->getChannelCount(); c++)
-            {
-                *pixel++ = color[c];
-            }
+            image->setTexelColor(x, y, color);
         }
     }
     return image;
@@ -146,6 +142,14 @@ void Image::setTexelColor(unsigned int x, unsigned int y, const Color4& color)
             data[c] = (Half) color[c];
         }
     }
+    else if (_baseType == BaseType::UINT8)
+    {
+        uint8_t* data = static_cast<uint8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        for (unsigned int c = 0; c < writeChannels; c++)
+        {
+            data[c] = (uint8_t) std::round(color[c] * 255.0f);
+        }
+    }
     else
     {
         throw Exception("Unsupported base type in setTexelColor");
@@ -205,6 +209,31 @@ Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
         else if (_channelCount == 1)
         {
             return Color4(data[0], data[0], data[0], 1.0f);
+        }
+        else
+        {
+            throw Exception("Unsupported channel count in getTexelColor");
+        }
+    }
+    else if (_baseType == BaseType::UINT8)
+    {
+        uint8_t* data = static_cast<uint8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        if (_channelCount == 4)
+        {
+            return Color4(data[0] / 255.0f, data[1] / 255.0f, data[2] / 255.0f, data[3] / 255.0f);
+        }
+        else if (_channelCount == 3)
+        {
+            return Color4(data[0] / 255.0f, data[1] / 255.0f, data[2] / 255.0f, 1.0f);
+        }
+        else if (_channelCount == 2)
+        {
+            return Color4(data[0] / 255.0f, data[1] / 255.0f, 0.0f, 1.0f);
+        }
+        else if (_channelCount == 1)
+        {
+            float scalar = data[0] / 255.0f;
+            return Color4(scalar, scalar, scalar, 1.0f);
         }
         else
         {
