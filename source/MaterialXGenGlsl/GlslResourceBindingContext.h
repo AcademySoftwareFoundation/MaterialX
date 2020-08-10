@@ -23,9 +23,14 @@ class GlslResourceBindingContext : public HwResourceBindingContext
 {
 public:
 
-    GlslResourceBindingContext();
+    GlslResourceBindingContext(size_t uniformBindingLocation, size_t samplerBindingLocation);
 
-    static GlslResourceBindingContextPtr create() { return std::make_shared<GlslResourceBindingContext>(); }
+    static GlslResourceBindingContextPtr create(
+        size_t uniformBindingLocation=0, size_t samplerBindingLocation=0)
+    {
+        return std::make_shared<GlslResourceBindingContext>(
+            uniformBindingLocation, samplerBindingLocation);
+    }
 
     // Initialize the context before generation starts.
     void initialize() override;
@@ -45,8 +50,18 @@ protected:
     // List of required extensions
     StringSet _requiredExtensions;
 
-    // Binding location
-    size_t _hwBindLocation = 0;
+    // Binding location for Uniform Blocks
+    size_t _hwUniformBindLocation = 0;
+
+    // Initial value of uniform binding location
+    size_t _hwInitUniformBindLocation = 0;
+
+    // Binding location for Sampler Blocks
+    size_t _hwSamplerBindLocation = 0;
+
+    // Initial value of sampler binding location
+    size_t _hwInitSamplerBindLocation = 0;
+
 };
 
 } // namespace MaterialX

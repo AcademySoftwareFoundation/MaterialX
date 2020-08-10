@@ -11,7 +11,10 @@ namespace MaterialX
 //
 // GlslResourceBindingContext
 //
-GlslResourceBindingContext::GlslResourceBindingContext()
+GlslResourceBindingContext::GlslResourceBindingContext(
+    size_t uniformBindingLocation, size_t samplerBindingLocation) :
+    _hwInitUniformBindLocation(uniformBindingLocation),
+    _hwInitSamplerBindLocation(samplerBindingLocation)
 {
     _requiredExtensions.insert("GL_ARB_shading_language_420pack");
 }
@@ -19,7 +22,10 @@ GlslResourceBindingContext::GlslResourceBindingContext()
 void GlslResourceBindingContext::initialize()
 {
     // Reset bind location counter.
-    _hwBindLocation = 0;
+    _hwUniformBindLocation = _hwInitUniformBindLocation;
+
+    // Reset sampler bind location counter.
+    _hwSamplerBindLocation = _hwInitSamplerBindLocation;
 }
 
 void GlslResourceBindingContext::emitDirectives(GenContext& context, ShaderStage& stage)
@@ -49,7 +55,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     }
     if (hasValueUniforms)
     {
-        generator.emitLine("layout (std140, binding=" + std::to_string(_hwBindLocation++) + ") " + 
+        generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) + ") " + 
                            syntax.getUniformQualifier() + " " + uniforms.getName() + "_" + stage.getName(), 
                            stage, false);
         generator.emitScopeBegin(stage);
@@ -71,7 +77,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     {
         if (uniform->getType() == Type::FILENAME)
         {
-            generator.emitString("layout (binding=" + std::to_string(_hwBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
+            generator.emitString("layout (binding=" + std::to_string(_hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
             generator.emitLineEnd(stage, true);
         }
@@ -152,7 +158,7 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
 
     // emit the binding info
     generator.emitLineBreak(stage);
-    generator.emitLine("layout (std140, binding=" + std::to_string(_hwBindLocation++) +
+    generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) +
         ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
         stage.getName(),
     stage, false);

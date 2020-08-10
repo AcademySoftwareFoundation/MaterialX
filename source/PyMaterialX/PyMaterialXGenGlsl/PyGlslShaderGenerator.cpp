@@ -30,7 +30,7 @@ void bindPyGlslResourceBindingContext(py::module &mod)
 {
     py::class_<mx::GlslResourceBindingContext, mx::HwResourceBindingContext, mx::GlslResourceBindingContextPtr>(mod, "GlslResourceBindingContext")
         .def_static("create", &mx::GlslResourceBindingContext::create)
-        .def(py::init<>())
+        .def(py::init<size_t, size_t>())
         .def("emitDirectives", &mx::GlslResourceBindingContext::emitDirectives)
         .def("emitResourceBindings", &mx::GlslResourceBindingContext::emitResourceBindings);
 }
