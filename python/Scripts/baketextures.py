@@ -53,8 +53,9 @@ def main():
         print(msg)
 
     image_search_path = mx.FileSearchPath(os.path.dirname(opts.input_filename))
-    mx_render_glsl.TextureBaker.bakeAllMaterials(doc, image_search_path,
-                                                 opts.output_filename, opts.hdr, opts.width, opts.height)
+    base_type = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
+    baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, base_type)
+    baker.bakeAllMaterials(doc, image_search_path, opts.output_filename)
 
 if __name__ == '__main__':
     main()
