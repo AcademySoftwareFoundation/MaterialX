@@ -12,6 +12,12 @@ namespace mx = MaterialX;
 
 void bindPyImage(py::module& mod)
 {
+    py::enum_<mx::Image::BaseType>(mod, "BaseType")
+        .value("UINT8", mx::Image::BaseType::UINT8)
+        .value("HALF", mx::Image::BaseType::HALF)
+        .value("FLOAT", mx::Image::BaseType::FLOAT)
+        .export_values();
+
     py::class_<mx::ImageBufferDeallocator>(mod, "ImageBufferDeallocator");
 
     py::class_<mx::Image>(mod, "Image")
