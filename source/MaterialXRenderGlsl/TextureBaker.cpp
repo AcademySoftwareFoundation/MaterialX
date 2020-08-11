@@ -58,6 +58,26 @@ bool connectsToNormalMapNode(OutputPtr output)
     return connectedNode && connectedNode->getCategory() == "normalmap";
 }
 
+void setValueStringFromColor(ValueElementPtr elem, const Color4& color)
+{
+    if (elem->getType() == "color4" || elem->getType() == "vector4")
+    {
+        elem->setValueString(toValueString(color));
+    }
+    else if (elem->getType() == "color3" || elem->getType() == "vector3")
+    {
+        elem->setValueString(toValueString(Vector3(color[0], color[1], color[2])));
+    }
+    else if (elem->getType() == "color2" || elem->getType() == "vector2")
+    {
+        elem->setValueString(toValueString(Vector2(color[0], color[1])));
+    }
+    else if (elem->getType() == "float")
+    {
+        elem->setValue(color[0]);
+    }
+}
+
 } // anonymous namespace
 
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
@@ -194,25 +214,13 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
             if (_uniformOutputs.count(output))
             {
                 Color4 uniformColor = _bakedImageMap[output][0].uniformColor;
-                if (bindInput->getType() == "color4" || bindInput->getType() == "vector4")
+                setValueStringFromColor(bakedBindInput, uniformColor);
+                if (_baseType == Image::BaseType::UINT8)
                 {
-                    bakedBindInput->setValueString(toValueString(uniformColor));
-                }
-                else if (bindInput->getType() == "color3" || bindInput->getType() == "vector3")
-                {
-                    bakedBindInput->setValueString(toValueString(Vector3(uniformColor[0], uniformColor[1], uniformColor[2])));
-                }
-                else if (bindInput->getType() == "color2" || bindInput->getType() == "vector2")
-                {
-                    bakedBindInput->setValueString(toValueString(Vector2(uniformColor[0], uniformColor[1])));
-                }
-                else if (bindInput->getType() == "float")
-                {
-                    bakedBindInput->setValue(uniformColor[0]);
-                }
-                if (bindInput->getType() == "color4" || bindInput->getType() == "color3")
-                {
-                    bakedBindInput->setColorSpace("srgb_texture");
+                    if (bakedBindInput->getType() == "color4" || bakedBindInput->getType() == "color3")
+                    {
+                        bakedBindInput->setColorSpace("srgb_texture");
+                    }
                 }
                 continue;
             }
