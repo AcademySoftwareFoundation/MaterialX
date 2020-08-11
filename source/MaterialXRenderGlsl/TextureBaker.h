@@ -12,8 +12,6 @@
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
-#include <MaterialXRender/StbImageLoader.h>
-
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace MaterialX
@@ -24,6 +22,8 @@ using TextureBakerPtr = shared_ptr<class TextureBaker>;
 
 /// @class TextureBaker
 /// A helper class for baking procedural material content to textures.
+/// TODO: Add support for graphs containing geometric nodes such as position
+///       and normal.
 class TextureBaker : public GlslRenderer
 {
   public:
@@ -47,21 +47,17 @@ class TextureBaker : public GlslRenderer
     /// Bake textures for all graph inputs of the given shader reference.
     void bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string& udim = EMPTY_STRING);
 
-    /// Bake textures for all graph inputs of the given shader node.
-    void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder, const string& udim = EMPTY_STRING);
-
     /// Bake a texture for the given graph output.
     void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& filename);
 
-    /// Write out the baked material document based on a shader reference
-    void writeBakedDocument(ConstShaderRefPtr shaderRef, const FilePath& filename, ValuePtr udimSetValue = nullptr);
+    /// Optimize baked textures before writing.
+    void optimizeBakedTextures();
 
-    /// Write out the baked material document based on a shader node
-    void writeBakedDocument(NodePtr shader, const FilePath& filename, ValuePtr udimSetValue = nullptr);
-    
-    /// Generate a baked version of each material in the input document
-    static void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath,
-                                 const FilePath& outputFilename, bool hdr = false, int width = 1024, int height = 1024);
+    /// Write out the baked material and textures.
+    void writeBakedMaterial(const FilePath& filename, const StringVec& udimSet);
+
+    /// Generate a baked version of each material in the input document.
+    void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFilename);
 
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
@@ -70,10 +66,25 @@ class TextureBaker : public GlslRenderer
     FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);
 
   protected:
+    class BakedImage
+    {
+      public:
+        ImagePtr image;
+        bool isUniform = false;
+        Color4 uniformColor;
+        FilePath filename;
+    };
+    using BakedImageVec = vector<BakedImage>;
+    using BakedImageMap = std::unordered_map<OutputPtr, BakedImageVec>;
+
+  protected:
     ShaderGeneratorPtr _generator;
     string _udim;
     string _extension;
+    ConstShaderRefPtr _shaderRef;
     StringSet _worldSpaceShaderInputs;
+    std::set<OutputPtr> _uniformOutputs;
+    BakedImageMap _bakedImageMap;
 };
 
 } // namespace MaterialX

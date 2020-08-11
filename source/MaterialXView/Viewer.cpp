@@ -1695,7 +1695,6 @@ void Viewer::bakeTextures()
     else
     {
         materialsToBake.push_back(material);
-        udimSet.push_back("");
     }
 
     {
@@ -1717,11 +1716,6 @@ void Viewer::bakeTextures()
                 {
                     baker->setImageHandler(imageHandler);
                     baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath(), mat->getUdim());
-
-                    if (mat->getUdim() == udimSet.back())
-                    {
-                        baker->writeBakedDocument(shaderRef, _bakeFilename, udimSetValue);
-                    }
                 }
                 catch (mx::Exception& e)
                 {
@@ -1729,6 +1723,12 @@ void Viewer::bakeTextures()
                 }
             }
         }
+
+        // Optimize baked textures.
+        baker->optimizeBakedTextures();
+
+        // Write the baked document and textures.
+        baker->writeBakedMaterial(_bakeFilename, udimSet);
     }
 
     // Restore state for scene rendering.
