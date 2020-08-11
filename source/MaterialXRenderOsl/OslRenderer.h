@@ -89,16 +89,16 @@ class OslRenderer : public ShaderRenderer
     /// @name Utilities
     /// @{
 
+    /// Capture the current contents of rendering to an image. Note that this method
+    /// does not perform any action as render() produces images as part of it's
+    /// execution.
+    ImagePtr captureImage() override;
+
     /// Save the current contents of rendering to disk. Note that this method
     /// does not perform any action as render() produces images as part if it's
     /// execution.
     /// @param filePath Name of file to save rendered image to.
-    void save(const FilePath& filePath) override;
-
-    /// Save the current contents of rendering to an image. Note that this method
-    /// does not perform any action as render() produces images as part of it's
-    /// execution.
-    ImagePtr saveImage() override;
+    void saveImage(const FilePath& filePath) override;
 
     /// @}
     /// @name Compilation settings
