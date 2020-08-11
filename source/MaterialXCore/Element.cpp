@@ -9,6 +9,7 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
+#include <iterator>
 #include <stdexcept>
 
 namespace MaterialX

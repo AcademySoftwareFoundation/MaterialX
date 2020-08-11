@@ -22,9 +22,9 @@ ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned in
 {
     ImagePtr image = Image::create(width, height, channelCount, baseType);
     image->createResourceBuffer();
-    for (unsigned int x = 0; x < image->getWidth(); x++)
+    for (unsigned int y = 0; y < image->getHeight(); y++)
     {
-        for (unsigned int y = 0; y < image->getHeight(); y++)
+        for (unsigned int x = 0; x < image->getWidth(); x++)
         {
             image->setTexelColor(x, y, color);
         }
@@ -244,6 +244,30 @@ Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
     {
         throw Exception("Unsupported base type in getTexelColor");
     }
+}
+
+bool Image::isUniformColor(Color4* uniformColor)
+{
+    Color4 refColor = getTexelColor(0, 0);
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            if (!x && !y)
+            {
+                continue;
+            }
+            if (getTexelColor(x, y) != refColor)
+            {
+                return false;
+            }
+        }
+    }
+    if (uniformColor)
+    {
+        *uniformColor = refColor;
+    }
+    return true;
 }
 
 ImagePtr Image::applyBoxBlur()
