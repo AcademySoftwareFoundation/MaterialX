@@ -277,13 +277,11 @@ void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocume
 
         if (!item.ui.uiFolder.empty())
         {
-            groups.insert(std::pair<string, UIPropertyItem>
-                (item.ui.uiFolder, item));
+            groups.emplace(item.ui.uiFolder, item);
         }
         else
         {
-            unnamedGroups.insert(std::pair<string, UIPropertyItem>
-                (EMPTY_STRING, item));
+            unnamedGroups.emplace(EMPTY_STRING, item);
         }
     }
 }
