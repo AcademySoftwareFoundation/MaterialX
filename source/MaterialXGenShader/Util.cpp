@@ -656,10 +656,9 @@ bool elementRequiresShading(ConstTypedElementPtr element)
             colorClosures.count(elementType) > 0);
 }
 
-
-vector<NodePtr> getShaderNodes(const NodePtr materialNode, const string& shaderType, const string& target)
+vector<NodePtr> getShaderNodes(ConstNodePtr materialNode, const string& shaderType, const string& target)
 {
-    DocumentPtr doc = materialNode->getDocument();
+    ConstDocumentPtr doc = materialNode->getDocument();
     vector<NodePtr> shaderNodes;
     for (const InputPtr& input : materialNode->getActiveInputs())
     {

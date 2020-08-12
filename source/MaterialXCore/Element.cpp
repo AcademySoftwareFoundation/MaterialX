@@ -270,15 +270,13 @@ template<class T> shared_ptr<const T> Element::asA() const
     return std::dynamic_pointer_cast<const T>(getSelf());
 }
 
-ElementPtr Element::addChildOfCategory(const string& category,
-                                       string name,
-                                       bool registerChild)
+ElementPtr Element::addChildOfCategory(const string& category, string name)
 {
     if (name.empty())
     {
         name = createValidChildName(category + "1");
     }
-    if (registerChild && _childMap.count(name))
+    if (_childMap.count(name))
     {
         throw Exception("Child name is not unique: " + name);
     }
@@ -306,10 +304,7 @@ ElementPtr Element::addChildOfCategory(const string& category,
         child->setCategory(category);
     }
 
-    if (registerChild)
-    {
-        registerChildElement(child);
-    }
+    registerChildElement(child);
 
     return child;
 }
@@ -408,7 +403,7 @@ void Element::copyContentFrom(const ConstElementPtr& source)
         }
 
         // Create the copied element.
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name, !previous);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
         childCopy->copyContentFrom(child);
     }
 }

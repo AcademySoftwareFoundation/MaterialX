@@ -50,7 +50,7 @@ void ImageHandler::addLoader(ImageLoaderPtr loader)
         const StringSet& extensions = loader->supportedExtensions();
         for (const auto& extension : extensions)
         {
-            _imageLoaders.insert(std::pair<string, ImageLoaderPtr>(extension, loader));
+            _imageLoaders.emplace(extension, loader);
         }
     }
 }
