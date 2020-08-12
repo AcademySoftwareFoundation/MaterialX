@@ -1,55 +1,63 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
-  <nodedef name="ND_brick_02_surfaceshader" node="brick_02" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
-     <parameter name="ao_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_ao_2k_raw.png" />
-     <parameter name="color_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_basecolor_2k_acescg.png" colorspace="acescg" />
-     <parameter name="normalmap_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_normal_2k_raw.png" />
-     <parameter name="roughness_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_roughness_2k_raw.png" />
-     <output name="out" type="surfaceshader" value="" />
-  </nodedef>
-  <nodegraph name="NG_brick_02_surfaceshader" nodedef="adsk:ND_brick_02_surfaceshader" namespace="adsk">
-    <add name="aiColorCorrect_baseColor29" type="color3">
-      <input name="in1" type="color3" nodename="bricks_02_basecolor" />
-    </add>
-    <add name="aiColorToFloat_roughness29" type="float">
-      <input name="in1" type="float" nodename="aiRange_roughness29" />
-    </add>
-    <normalmap name="aiNormalMap_normal29" type="vector3">
-      <input name="in" type="vector3" nodename="bricks_02_normal" />
-    </normalmap>
-    <range name="aiRange_ao29" type="float">
-      <input name="in" type="float" nodename="bricks_02_ao" />
-    </range>
-    <range name="aiRange_roughness29" type="float">
-      <input name="in" type="float" nodename="smoothstep" />
-      <input name="outhigh" type="float" value="0.7" />
-    </range>
-    <tiledimage name="bricks_02_ao" type="float">
-      <parameter name="file" type="filename" interfacename="ao_image"/>
-      <input name="uvtiling" type="vector2" value="2, 2" />
-    </tiledimage>
-    <tiledimage name="bricks_02_basecolor" type="color3">
-      <parameter name="file" type="filename" interfacename="color_image" />
-      <input name="uvtiling" type="vector2" value="2, 2" />
-    </tiledimage>
-    <tiledimage name="bricks_02_normal" type="vector3">
-      <parameter name="file" type="filename" interfacename="normalmap_image" />
-      <input name="uvtiling" type="vector2" value="2, 2" />
-    </tiledimage>
-    <tiledimage name="bricks_02_roughness" type="float">
-      <parameter name="file" type="filename" interfacename="roughness_image" />
-      <input name="uvtiling" type="vector2" value="2, 2" />
-    </tiledimage>
-    <standard_surface name="node1" type="surfaceshader" version="1.0.1">
-      <input name="base" type="float" nodename="aiRange_ao29" />
-      <input name="base_color" type="color3" nodename="aiColorCorrect_baseColor29" />
-      <input name="specular_roughness" type="float" nodename="aiColorToFloat_roughness29" />
-      <input name="normal" type="vector3" nodename="aiNormalMap_normal29" />
-    </standard_surface>
-    <smoothstep name="smoothstep" type="float">
-      <input name="in" type="float" nodename="bricks_02_roughness" />
-      <input name="low" type="float" value="0.2" />
-    </smoothstep>
-    <output name="out" type="surfaceshader" nodename="node1" />
-  </nodegraph>
+   <nodedef name="ND_bricks_02_surfaceshader" node="brick_02" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
+      <parameter name="color_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_basecolor_2k_acescg.exr" colorspace="acescg" />
+      <parameter name="normalmap_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_normal_2k_raw.exr" />
+      <parameter name="roughness_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_roughness_2k_raw.exr" />
+      <output name="out" type="surfaceshader" value="" />
+   </nodedef>
+   <nodegraph name="NG_brick_02_surfaceshader_template" nodedef="adsk:ND_bricks_02_surfaceshader" version="1.0" namespace="adsk">
+      <normalmap name="bricks_02_normalmap" type="vector3">
+         <input name="in" type="vector3" nodename="bricks_02_normal" />
+      </normalmap>
+      <tiledimage name="bricks_02_basecolor" type="color3">
+         <parameter name="file" type="filename" interfacename="color_image" />
+         <input name="uvtiling" type="vector2" value="3, 3" />
+      </tiledimage>
+      <tiledimage name="bricks_02_normal" type="vector3">
+         <parameter name="file" type="filename" interfacename="normalmap_image" />
+         <input name="uvtiling" type="vector2" value="3, 3" />
+      </tiledimage>
+      <tiledimage name="bricks_02_roughness" type="float">
+         <parameter name="file" type="filename" interfacename="roughness_image" />
+         <input name="uvtiling" type="vector2" value="3, 3" />
+      </tiledimage>
+      <standard_surface name="bricks_02_sts" type="surfaceshader" version="1.0.1">
+         <input name="base_color" type="color3" nodename="bricks_02_basecolor" />
+         <input name="specular_roughness" type="float" nodename="bricks_02_roughness" />
+         <input name="normal" type="vector3" nodename="bricks_02_normalmap" />
+      </standard_surface>
+      <output name="out" type="surfaceshader" nodename="bricks_02_sts" />
+   </nodegraph>
+
+   <nodedef name="ND_bricks_02_displacementshader" node="brick_02_displacement" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
+      <parameter name="displacement_image" type="filename" value="adsk/textures/bricks_02/2k/bricks_02_height_2k_raw.exr" />
+      <input name="displacement_scale" type="float" value="1.0" />
+      <input name="scalar_zero_value" type="float" value="0.0" />
+      <output name="out" type="displacementshader" value=""/>
+   </nodedef>
+   <nodegraph name="NG_brick_02_displacementshader_graph" nodedef="adsk:ND_bricks_02_displacementshader" version="1.0" namespace="adsk">      
+      <subtract name="bricks_02_disp_subtract" type="float">
+         <input name="in1" type="float" nodename="bricks_02_displacement" />
+         <input name="in2" type="float" interfacename="scalar_zero_value"/>
+      </subtract>
+      <normalize name="bricks_02_disp_normalize" type="vector3">
+         <input name="in" type="vector3" nodename="bricks_02_disp_normal" />
+      </normalize>
+      <displacement name="bricks_02_disp_displacement" type="displacementshader">
+         <input name="displacement" type="vector3" nodename="bricks_02_disp_multiply" />
+         <input name="scale" type="float" interfacename="displacement_scale" />
+      </displacement>
+      <multiply name="bricks_02_disp_multiply" type="vector3">
+         <input name="in1" type="vector3" nodename="bricks_02_disp_normalize" />
+         <input name="in2" type="float" nodename="bricks_02_disp_subtract" />
+      </multiply>
+      <tiledimage name="bricks_02_displacement" type="float">
+         <parameter name="file" type="filename" interfacename="displacement_image" />
+         <input name="uvtiling" type="vector2" value="3, 3" />
+      </tiledimage>
+      <normal name="bricks_02_disp_normal" type="vector3" />
+      <output name="out" type="displacementshader" nodename="bricks_02_disp_displacement" />
+   </nodegraph>
+
 </materialx>
