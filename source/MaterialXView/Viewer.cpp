@@ -206,7 +206,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeTextures(false),
     _bakeHdr(false),
     _bakeTextureRes(DEFAULT_TEXTURE_RES),
-    _translateShader(false),
     _outlineSelection(false),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
@@ -1396,9 +1395,6 @@ void Viewer::loadStandardLibraries()
         int location = _distanceUnitConverter->getUnitAsInteger(unitScale.first);
         _distanceUnitOptions[location] = unitScale.first;
     }
-
-    // Update available shader translations
-    _shaderTranslator = mx::ShaderTranslator::create(_stdLib);
 }
 
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
@@ -1508,33 +1504,6 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             }
         }
         return true;
-    }
-
-    // Just for testing shader translation
-    if (key == GLFW_KEY_T && action == GLFW_PRESS)
-    {
-        if (!_translateShader)
-        {
-            mx::ElementPtr matElement = getSelectedMaterial()->getElement();
-            _shaderTranslator = mx::ShaderTranslator::create(_stdLib);
-            mx::StringSet translations = _shaderTranslator->getAvailableTranslations(matElement->getAttribute("node"));
-            // grabbing the first available translation
-            _destinationShadingModel = *translations.begin();
-
-            _shaderTranslator->translateShader(matElement->asA<mx::ShaderRef>(), _destinationShadingModel);
-            _translateShader = true;
-        }
-        else
-        {
-            _destinationShadingModel = mx::EMPTY_STRING;
-            _translateShader = false;
-
-            // reload the original document
-            MaterialPtr material = getSelectedMaterial();
-            mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
-            mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
-            loadDocument(filename, _stdLib);
-        }
     }
 
     return false;

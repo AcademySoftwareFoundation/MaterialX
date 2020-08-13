@@ -981,4 +981,11 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
     offsetUV[1] = -minUV[1];
 }
 
+bool connectsToNormalMapNode(OutputPtr output)
+{
+    ElementPtr normalMapNode = (output) ? output->getParent()->getChild(output->getNodeName()) : nullptr;
+
+    return normalMapNode && normalMapNode->getCategory() == "normalmap";
+}
+
 } // namespace MaterialX
