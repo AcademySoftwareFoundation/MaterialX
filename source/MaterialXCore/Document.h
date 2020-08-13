@@ -58,8 +58,6 @@ class Document : public GraphElement
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    ///    If provided, then the given options will affect the behavior of the
-    ///    import function.  Defaults to a null pointer.
     void importLibrary(const ConstDocumentPtr& library);
 
     /// Get a list of source URI's referenced by the document
