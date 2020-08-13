@@ -51,8 +51,6 @@ class Viewer : public ng::Screen
     mx::ImagePtr renderWedge();
     void bakeTextures();
 
-    void translateShader();
-
     ng::Window* getWindow() const
     {
         return _window;

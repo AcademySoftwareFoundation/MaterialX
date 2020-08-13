@@ -11,7 +11,6 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderTranslator.h>
 
 #include <MaterialXFormat/Util.h>
 
@@ -1738,32 +1737,6 @@ void Viewer::bakeTextures()
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
-}
-
-void Viewer::translateShader()
-{
-    MaterialPtr material = getSelectedMaterial();
-    mx::FileSearchPath searchPath = _searchPath;
-    mx::DocumentPtr doc = material->getDocument();
-    if (!doc)
-    {
-        return;
-    }
-
-    /*for (mx::MaterialPtr material : doc->getMaterials())
-    {
-        for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
-        {
-            _shaderTranslator->translateShader(shaderRef, _destinationShadingModel);
-
-        }
-    }*/
-
-
-
-
-
-
 }
 
 void Viewer::drawContents()
