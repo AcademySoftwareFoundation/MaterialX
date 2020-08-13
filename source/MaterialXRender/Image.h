@@ -98,6 +98,14 @@ class Image
     Color4 getTexelColor(unsigned int x, unsigned int y) const;
 
     /// @}
+    /// @name Image Analysis
+    /// @{
+
+    /// Return true if all texels of this image are identical in color.
+    /// @param uniformColor Return the uniform color of the image, if any.
+    bool isUniformColor(Color4* uniformColor = nullptr);
+
+    /// @}
     /// @name Image Processing
     /// @{
 
@@ -178,7 +186,7 @@ class Image
 };
 
 /// Create a uniform-color image with the given properties.
-ImagePtr createUniformImage(unsigned int width, unsigned int height, const Color4& color);
+ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType, const Color4& color);
 
 /// Create a horizontal image strip from a vector of images with identical resolutions and formats.
 ImagePtr createImageStrip(vector<ImagePtr> imageVec);

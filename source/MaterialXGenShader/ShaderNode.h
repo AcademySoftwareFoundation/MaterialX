@@ -69,7 +69,7 @@ class ShaderMetadataRegistry : public GenUserData
         if (_entryIndex.count(name) == 0)
         {
             _entryIndex[name] = _entries.size();
-            _entries.push_back(ShaderMetadata(name, type, value));
+            _entries.emplace_back(name, type, value);
         }
     }
 

@@ -137,7 +137,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// current element is returned.  If no element is found at the given path,
     /// then an empty shared pointer is returned.
     /// @param namePath The relative name path of the specified element.
-    ElementPtr getDescendant(const string& namePath);
+    ElementPtr getDescendant(const string& namePath) const;
 
     /// @}
     /// @name File Prefix
@@ -452,14 +452,10 @@ class Element : public std::enable_shared_from_this<Element>
     /// @param name The name of the new child element.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
-    /// @param registerChild If true, then the child will be registered as
-    ///     belonging to this element tree.  Defaults to true.
     /// @throws Exception if a child of this element already possesses the
     ///     given name.
     /// @return A shared pointer to the new child element.
-    ElementPtr addChildOfCategory(const string& category,
-                                  string name = EMPTY_STRING,
-                                  bool registerChild = true);
+    ElementPtr addChildOfCategory(const string& category, string name = EMPTY_STRING);
 
     /// Return the child element, if any, with the given name.
     ElementPtr getChild(const string& name) const

@@ -14,7 +14,7 @@ void GeometryHandler::addLoader(GeometryLoaderPtr loader)
     const StringSet& extensions = loader->supportedExtensions();
     for (const auto& extension : extensions)
     {
-        _geometryLoaders.insert(std::pair<string, GeometryLoaderPtr>(extension, loader));
+        _geometryLoaders.emplace(extension, loader);
     }
 }
 

@@ -408,15 +408,15 @@ void OslRenderer::render()
     }
 }
 
-void OslRenderer::save(const FilePath& /*filePath*/)
+ImagePtr OslRenderer::captureImage()
 {
-    // No-op: image save is done as part of rendering.
+    // No-op: image capture is done as part of rendering.
+    return nullptr;
 }
 
-ImagePtr OslRenderer::saveImage()
+void OslRenderer::saveImage(const FilePath& /*filePath*/)
 {
     // No-op: image save is done as part of rendering.
-    return nullptr;
 }
 
 } // namespace MaterialX

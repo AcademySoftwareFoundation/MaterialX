@@ -501,7 +501,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     {
                         RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.languageTimes.imageSaveTime, "GLSL image save time");
                         std::string fileName = shaderPath + "_glsl.png";
-                        _renderer->save(fileName);
+                        _renderer->saveImage(fileName);
                     }
                 }
 

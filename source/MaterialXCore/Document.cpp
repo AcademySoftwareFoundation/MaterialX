@@ -212,9 +212,7 @@ class Document::Cache
                     PortElementPtr portElem = elem->asA<PortElement>();
                     if (portElem)
                     {
-                        portElementMap.insert(std::pair<string, PortElementPtr>(
-                            portElem->getQualifiedName(nodeName),
-                            portElem));
+                        portElementMap.emplace(portElem->getQualifiedName(nodeName), portElem);
                     }
                 }
                 if (!nodeString.empty())
@@ -222,9 +220,7 @@ class Document::Cache
                     NodeDefPtr nodeDef = elem->asA<NodeDef>();
                     if (nodeDef)
                     {
-                        nodeDefMap.insert(std::pair<string, NodeDefPtr>(
-                            nodeDef->getQualifiedName(nodeString),
-                            nodeDef));
+                        nodeDefMap.emplace(nodeDef->getQualifiedName(nodeString), nodeDef);
                     }
                 }
                 if (!nodeDefString.empty())
@@ -232,9 +228,7 @@ class Document::Cache
                     InterfaceElementPtr interface = elem->asA<InterfaceElement>();
                     if (interface && (interface->isA<Implementation>() || interface->isA<NodeGraph>()))
                     {
-                        implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                            interface->getQualifiedName(nodeDefString),
-                            interface));
+                        implementationMap.emplace(interface->getQualifiedName(nodeDefString), interface);
                     }
                 }
             }
@@ -347,7 +341,7 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
         }
 
         // Create the imported element.
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName, !previous);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
         childCopy->copyContentFrom(child, copyOptions);
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {

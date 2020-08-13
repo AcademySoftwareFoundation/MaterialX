@@ -9,6 +9,7 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
+#include <iterator>
 #include <stdexcept>
 
 namespace MaterialX
@@ -123,10 +124,10 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     return res;
 }
 
-ElementPtr Element::getDescendant(const string& namePath)
+ElementPtr Element::getDescendant(const string& namePath) const
 {
     const StringVec nameVec = splitString(namePath, NAME_PATH_SEPARATOR);
-    ElementPtr elem = getSelf();
+    ElementPtr elem = getSelfNonConst();
     for (const string& name : nameVec)
     {
         elem = elem->getChild(name);
@@ -269,15 +270,13 @@ template<class T> shared_ptr<const T> Element::asA() const
     return std::dynamic_pointer_cast<const T>(getSelf());
 }
 
-ElementPtr Element::addChildOfCategory(const string& category,
-                                       string name,
-                                       bool registerChild)
+ElementPtr Element::addChildOfCategory(const string& category, string name)
 {
     if (name.empty())
     {
         name = createValidChildName(category + "1");
     }
-    if (registerChild && _childMap.count(name))
+    if (_childMap.count(name))
     {
         throw Exception("Child name is not unique: " + name);
     }
@@ -305,10 +304,7 @@ ElementPtr Element::addChildOfCategory(const string& category,
         child->setCategory(category);
     }
 
-    if (registerChild)
-    {
-        registerChildElement(child);
-    }
+    registerChildElement(child);
 
     return child;
 }
@@ -408,7 +404,7 @@ void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* 
         }
 
         // Create the copied element.
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name, !previous);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
         childCopy->copyContentFrom(child);
 
         // Check for conflicting elements.
