@@ -62,7 +62,7 @@ bool elementRequiresShading(ConstTypedElementPtr element);
 ///        string which inidates to include shaders which match any type.
 /// @param target Target attribute of shader to return. The default argument value is an empty string
 ///        which indicates to include shaders which match any target.
-vector<NodePtr> getShaderNodes(const NodePtr materialNode, 
+vector<NodePtr> getShaderNodes(ConstNodePtr materialNode, 
                                const string& shaderType = EMPTY_STRING,
                                const string& target = EMPTY_STRING);
 
