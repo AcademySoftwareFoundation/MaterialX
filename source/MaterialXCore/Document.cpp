@@ -362,12 +362,6 @@ void Document::importLibrary(const ConstDocumentPtr& library)
         {
             childCopy->setSourceUri(library->getSourceUri());
         }
-
-        // Check for conflicting elements.
-        if (previous && *previous != *childCopy)
-        {
-            throw Exception("Duplicate element with conflicting content: " + childName);
-        }
     }
 }
 

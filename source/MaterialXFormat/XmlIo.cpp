@@ -61,12 +61,6 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         // Create the new element.
         ElementPtr child = elem->addChildOfCategory(category, name);
         elementFromXml(xmlChild, child, readOptions);
-
-        // Check for conflicting elements.
-        if (previous && *previous != *child)
-        {
-            throw Exception("Duplicate element with conflicting content: " + name);
-        }
     }
 }
 

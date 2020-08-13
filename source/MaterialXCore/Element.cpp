@@ -405,12 +405,6 @@ void Element::copyContentFrom(const ConstElementPtr& source)
         // Create the copied element.
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
         childCopy->copyContentFrom(child);
-
-        // Check for conflicting elements.
-        if (previous && *previous != *childCopy)
-        {
-            throw Exception("Duplicate element with conflicting content: " + name);
-        }
     }
 }
 
