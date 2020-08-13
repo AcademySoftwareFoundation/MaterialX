@@ -659,8 +659,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     filenameRemap[":"] = "_";
 
     size_t documentIndex = 0;
-    mx::CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
     for (const auto& doc : _documents)
     {
         // For each new file clear the implementation cache.
@@ -679,7 +677,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         bool importedLibrary = false;
         try
         {
-            doc->importLibrary(_dependLib, &copyOptions);
+            doc->importLibrary(_dependLib);
             importedLibrary = true;
         }
         catch (mx::Exception& e)

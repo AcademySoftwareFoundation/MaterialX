@@ -75,19 +75,8 @@ void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* se
 {
     DocumentPtr libDoc = createDocument();
     XmlReadOptions localOptions;
-    localOptions.skipConflictingElements = true;
-    if (!readOptions)
-    {
-        readOptions = &localOptions;
-    }
-    else
-    {
-        readOptions->skipConflictingElements = true;
-    }
     readFromXmlFile(libDoc, file, searchPath ? *searchPath : FileSearchPath(), readOptions);
-    CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
-    doc->importLibrary(libDoc, &copyOptions);
+    doc->importLibrary(libDoc);
 }
 
 StringSet loadLibraries(const FilePathVec& libraryFolders,

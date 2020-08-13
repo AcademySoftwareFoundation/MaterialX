@@ -317,14 +317,13 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     return nodeDef;
 }
 
-void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
+void Document::importLibrary(const ConstDocumentPtr& library)
 {
     if (!library)
     {
         return;
     }
 
-    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
@@ -335,14 +334,14 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);
-        if (previous && skipConflictingElements)
+        if (previous)
         {
             continue;
         }
 
         // Create the imported element.
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
-        childCopy->copyContentFrom(child, copyOptions);
+        childCopy->copyContentFrom(child);
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {
             childCopy->setFilePrefix(library->getFilePrefix());

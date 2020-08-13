@@ -216,9 +216,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     mx::StringSet usedImpls;
 
-    mx::CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
-
     const std::string MTLX_EXTENSION("mtlx");
     for (const auto& dir : dirs)
     {
@@ -264,7 +261,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             // colliding with implementations in previous test cases.
             context.clearNodeImplementations();
 
-            doc->importLibrary(dependLib, &copyOptions);
+            doc->importLibrary(dependLib);
             ioTimer.endTimer();
 
             validateTimer.startTimer();
