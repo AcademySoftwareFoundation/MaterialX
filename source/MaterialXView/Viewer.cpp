@@ -234,12 +234,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
     // Initialize image handler.
+    _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
 #if MATERIALX_BUILD_OIIO
-    mx::ImageLoaderPtr imageLoader = mx::OiioImageLoader::create();
-#else
-    mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
+    _imageHandler->addLoader(mx::OiioImageLoader::create());
 #endif
-    _imageHandler = mx::GLTextureHandler::create(imageLoader);
     _imageHandler->setSearchPath(_searchPath);
 
     // Initialize user interfaces.

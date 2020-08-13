@@ -76,13 +76,12 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     }
 
     string extension = foundFilePath.getExtension();
-    ImageLoaderMap::reverse_iterator iter;
-    for (iter = _imageLoaders.rbegin(); iter != _imageLoaders.rend(); ++iter)
+    for (const auto& pair : _imageLoaders)
     {
-        ImageLoaderPtr loader = iter->second;
+        ImageLoaderPtr loader = pair.second;
         if (loader && loader->supportedExtensions().count(extension))
         {
-            bool saved = iter->second->saveImage(foundFilePath, image, verticalFlip);
+            bool saved = pair.second->saveImage(foundFilePath, image, verticalFlip);
             if (saved)
             {
                 return true;
@@ -97,9 +96,9 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
     FilePath foundFilePath = _searchPath.find(filePath);
     string extension = stringToLower(foundFilePath.getExtension());
     bool extensionSupported = false;
-    for (ImageLoaderMap::reverse_iterator iter = _imageLoaders.rbegin(); iter != _imageLoaders.rend(); ++iter)
+    for (const auto& pair : _imageLoaders)
     {
-        ImageLoaderPtr loader = iter->second;
+        ImageLoaderPtr loader = pair.second;
         if (loader && loader->supportedExtensions().count(extension))
         {
             extensionSupported = true;
