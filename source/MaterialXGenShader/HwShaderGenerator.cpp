@@ -120,6 +120,7 @@ namespace HW
     const string VERTEX_DATA_INSTANCE             = "vd";
     const string LIGHT_DATA_INSTANCE              = "u_lightData";
     const string LIGHT_DATA_MAX_LIGHT_SOURCES     = "MAX_LIGHT_SOURCES";
+    const string ENV_RADIANCE_MAX_SAMPLES         = "MAX_ENV_RADIANCE_SAMPLES";
 
     const string VERTEX_INPUTS                    = "VertexInputs";
     const string VERTEX_DATA                      = "VertexData";

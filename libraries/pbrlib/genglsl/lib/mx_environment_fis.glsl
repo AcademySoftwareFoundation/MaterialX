@@ -1,5 +1,10 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
+int numRadianceSamples()
+{
+    return min($envRadianceSamples, MAX_ENV_RADIANCE_SAMPLES) ;
+}
+
 // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
 // Section 20.4 Equation 13
 float mx_latlong_compute_lod(vec3 dir, float pdf, float maxMipLevel, int envSamples)
@@ -28,9 +33,10 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
     // Integrate outgoing radiance using filtered importance sampling.
     // http://cgg.mff.cuni.cz/~jaroslav/papers/2008-egsr-fis/2008-egsr-fis-final-embedded.pdf
     vec3 radiance = vec3(0.0);
-    for (int i = 0; i < $envRadianceSamples; i++)
+    int envRadianceSamples = numRadianceSamples();
+    for (int i = 0; i < envRadianceSamples; i++)
     {
-        vec2 Xi = mx_spherical_fibonacci(i, $envRadianceSamples);
+        vec2 Xi = mx_spherical_fibonacci(i, envRadianceSamples);
 
         // Compute the half vector and incoming light direction.
         vec3 H = mx_ggx_importance_sample_NDF(Xi, X, Y, N, roughness.x, roughness.y);
@@ -44,7 +50,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
 
         // Sample the environment light from the given direction.
         float pdf = mx_ggx_PDF(X, Y, H, NdotH, LdotH, roughness.x, roughness.y);
-        float lod = mx_latlong_compute_lod(L, pdf, $envRadianceMips - 1, $envRadianceSamples);
+        float lod = mx_latlong_compute_lod(L, pdf, $envRadianceMips - 1, envRadianceSamples);
         vec3 sampleColor = mx_latlong_map_lookup(L, $envMatrix, lod, $envRadiance);
 
         // Compute the Fresnel term.
@@ -63,7 +69,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
     }
 
     // Normalize and return the final radiance.
-    radiance /= float($envRadianceSamples);
+    radiance /= float(envRadianceSamples);
     return radiance;
 }
 

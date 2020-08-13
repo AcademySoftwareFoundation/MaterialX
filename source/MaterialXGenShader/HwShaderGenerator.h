@@ -185,6 +185,7 @@ namespace HW
     extern const string VERTEX_DATA_INSTANCE;
     extern const string LIGHT_DATA_INSTANCE;
     extern const string LIGHT_DATA_MAX_LIGHT_SOURCES;
+    extern const string ENV_RADIANCE_MAX_SAMPLES;
 
     /// Variable blocks names.
     extern const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.

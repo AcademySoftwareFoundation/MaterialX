@@ -115,6 +115,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
 
     const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
     emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), pixelStage, false);
+    emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), pixelStage, false);
     emitLineBreak(pixelStage);
     emitTypeDefinitions(context, pixelStage);
 
