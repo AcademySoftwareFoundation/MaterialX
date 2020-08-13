@@ -50,6 +50,11 @@ const RtToken& RtStage::getName() const
     return _cast(_ptr)->getName();
 }
 
+void RtStage::addSourceUri(const RtToken& uri)
+{
+    return _cast(_ptr)->addSourceUri(uri);
+}
+
 const RtTokenVec& RtStage::getSourceUri() const
 {
     return _cast(_ptr)->getSourceUri();
