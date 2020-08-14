@@ -19,7 +19,7 @@ using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
 /// @class ShaderTranslator
 class ShaderTranslator
 {
-public:
+  public:
     static ShaderTranslatorPtr create(ConstDocumentPtr doc)
     {
         return ShaderTranslatorPtr(new ShaderTranslator(doc));
