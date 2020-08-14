@@ -3,8 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Util.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
+
+#include <MaterialXCore/Util.h>
+
 #include <iostream>
 
 namespace MaterialX
