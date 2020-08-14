@@ -34,7 +34,8 @@ namespace
     static const RtTokenSet nodedefMetadata     = { RtToken("name"), RtToken("type"), RtToken("node") };
     static const RtTokenSet attrMetadata        = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output") };
     static const RtTokenSet inputMetadata       = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"),
-                                                    RtToken("doc"), RtToken("uiname"), RtToken("uifolder"), RtToken("uimin"), RtToken("uimax") };
+                                                    RtToken("doc"), RtToken("uiname"), RtToken("uifolder"), RtToken("uimin"), RtToken("uimax"),
+                                                    RtToken("nodegraph") };
     static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node") };
     static const RtTokenSet nodegraphMetadata   = { RtToken("name") };
     static const RtTokenSet genericMetadata     = { RtToken("name"), RtToken("kind") };
