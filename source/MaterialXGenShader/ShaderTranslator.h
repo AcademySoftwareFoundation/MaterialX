@@ -29,7 +29,7 @@ public:
     void translateShader(ShaderRefPtr shaderRef, string destShader);
 
     /// Translates all the materials to the destShader shading model if translation exists.
-    static void translateAllMaterials(DocumentPtr doc, string destShader);
+    static bool translateAllMaterials(DocumentPtr doc, string destShader);
 
     /// Returns set of all the available potential translations
     StringSet getAvailableTranslations(string start)

@@ -54,12 +54,15 @@ void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef)
         OutputPtr output = bindInput->getConnectedOutput();
         if (output)
         {
-            NodeGraphPtr translationGraph = output->getDocument()->getNodeGraph("NG_" + _translationNode->getCategory());
-            OutputPtr translationOutput = translationGraph->getOutput(bindInput->getName() + "_out");
             InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
             input->setConnectedNode(_graph->getNode(output->getNodeName()));
 
             _graph->removeOutput(output->getName());
+        }
+        else if (bindInput->getValueString() != EMPTY_STRING)
+        { 
+            InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
+            input->setValueString(bindInput->getValueString());
         }
         else
         {
@@ -173,7 +176,7 @@ void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader
     connectTranslationOutputs(shaderRef);
 }
 
-void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destShader)
+bool ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destShader)
 {
     ShaderTranslatorPtr translator = ShaderTranslator::create(doc);
     vector<TypedElementPtr> renderableShaderRefs;
@@ -190,7 +193,13 @@ void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destShader)
             std::cout << "Successfully translated " << startName << " from " << startShader << 
                 " to " << destShader << std::endl;
         }
+        else
+        {
+            std::cerr << "No valid translation from " << startShader << " to " << destShader << std::endl;
+            return false;
+        }
     }
+    return true;
 }
 
 } // namespace MaterialX
