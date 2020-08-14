@@ -13,7 +13,7 @@
 namespace MaterialX
 {
 
-/// A shared pointer to a TextureBaker
+/// A shared pointer to a ShaderTranslator
 using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
 
 /// @class ShaderTranslator
