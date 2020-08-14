@@ -1,5 +1,5 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -13,5 +13,6 @@ namespace mx = MaterialX;
 void bindPyShaderTranslator(py::module& mod)
 {
     py::class_<mx::ShaderTranslator, mx::ShaderTranslatorPtr>(mod, "ShaderTranslator")
+        .def_static("create", &mx::ShaderTranslator::create)
         .def_static("translateAllMaterials", &mx::ShaderTranslator::translateAllMaterials);
 }

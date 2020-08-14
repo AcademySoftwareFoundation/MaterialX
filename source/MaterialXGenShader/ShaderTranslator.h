@@ -1,5 +1,5 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -19,7 +19,12 @@ using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
 /// @class ShaderTranslator
 class ShaderTranslator
 {
-  public:
+public:
+    static ShaderTranslatorPtr create(ConstDocumentPtr doc)
+    {
+        return ShaderTranslatorPtr(new ShaderTranslator(doc));
+    }
+
     /// Translates shaderRef to the destShader shading model
     void translateShader(ShaderRefPtr shaderRef, string destShader);
 
@@ -33,12 +38,6 @@ class ShaderTranslator
     }
 
   protected:
-    /// Constructor.
-    static ShaderTranslatorPtr create(ConstDocumentPtr doc)
-    {
-        return ShaderTranslatorPtr(new ShaderTranslator(doc));
-    }
-
     ShaderTranslator(ConstDocumentPtr doc);
 
     /// Reads shading translation nodes from the document
@@ -68,7 +67,7 @@ class ShaderTranslator
     NodePtr _translationNode;
 
     /// The nodegraph where translation node will be inserted
-    NodeGraphPtr _ng;
+    NodeGraphPtr _graph;
 };
 
 } // namespace MaterialX

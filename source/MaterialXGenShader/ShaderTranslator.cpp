@@ -1,5 +1,5 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -54,12 +54,12 @@ void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef)
         OutputPtr output = bindInput->getConnectedOutput();
         if (output)
         {
-            NodeGraphPtr translationNg = output->getDocument()->getNodeGraph("NG_" + _translationNode->getCategory());
-            OutputPtr translationOutput = translationNg->getOutput(bindInput->getName() + "_out");
+            NodeGraphPtr translationGraph = output->getDocument()->getNodeGraph("NG_" + _translationNode->getCategory());
+            OutputPtr translationOutput = translationGraph->getOutput(bindInput->getName() + "_out");
             InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
-            input->setConnectedNode(_ng->getNode(output->getNodeName()));
+            input->setConnectedNode(_graph->getNode(output->getNodeName()));
 
-            _ng->removeOutput(output->getName());
+            _graph->removeOutput(output->getName());
         }
         else
         {
@@ -70,9 +70,9 @@ void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef)
     }
 }
 
-void ShaderTranslator::insertOutputNgUpstreamElems(OutputPtr translatedOutput, OutputPtr ngOutput)
+void ShaderTranslator::insertOutputNgUpstreamElems(OutputPtr translatedOutput, OutputPtr graphOutput)
 {
-    ElementPtr top = ngOutput->asA<Element>();
+    ElementPtr top = graphOutput->asA<Element>();
     vector<ElementPtr> upstreamElements;
     while (top)
     {
@@ -83,7 +83,7 @@ void ShaderTranslator::insertOutputNgUpstreamElems(OutputPtr translatedOutput, O
     // rebuilding upstream node dependencies from translation output to input
     for (ElementPtr upstreamElem : upstreamElements)
     {
-        if (upstreamElem == ngOutput->asA<Element>())
+        if (upstreamElem == graphOutput->asA<Element>())
         {
             // connecting output to the upstream node (that will be copied over)
             translatedOutput->setNodeName(upstreamElem->asA<Output>()->getNodeName());
@@ -92,7 +92,7 @@ void ShaderTranslator::insertOutputNgUpstreamElems(OutputPtr translatedOutput, O
         {
             NodePtr node = upstreamElem->asA<Node>();
             // copy upstream node over
-            NodePtr nodeCopy = _ng->addNode(node->getCategory(), node->getName(), node->getType());
+            NodePtr nodeCopy = _graph->addNode(node->getCategory(), node->getName(), node->getType());
 
             // copying over input information
             for (InputPtr origInput : node->getInputs())
@@ -117,31 +117,31 @@ void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
 {
     DocumentPtr doc = shaderRef->getDocument();
     vector<OutputPtr> outputs = doc->getNodeGraph("NG_" + _translationNode->getCategory())->getOutputs();
-    for (OutputPtr translationNgOutput : outputs)
+    for (OutputPtr translationGraphOutput : outputs)
     {
         // Updating the shaderref sockets
-        string outputName = translationNgOutput->getName();
+        string outputName = translationGraphOutput->getName();
         outputName = outputName.substr(0, outputName.find("_out"));
-        OutputPtr translatedOutput = _ng->addOutput(outputName + "_out", translationNgOutput->getType());
-        BindInputPtr translatedBindInput = shaderRef->addBindInput(outputName, translationNgOutput->getType());
+        OutputPtr translatedOutput = _graph->addOutput(outputName + "_out", translationGraphOutput->getType());
+        BindInputPtr translatedBindInput = shaderRef->addBindInput(outputName, translationGraphOutput->getType());
         translatedBindInput->setConnectedOutput(translatedOutput);
         // if normals need to be transformed into world space
-        if (connectsToNormalMapNode(translationNgOutput))
+        if (connectsToNormalMapNode(translationGraphOutput))
         {
-            insertOutputNgUpstreamElems(translatedOutput, translationNgOutput);
+            insertOutputNgUpstreamElems(translatedOutput, translationGraphOutput);
         }
         else
         {
             // registering outputs from translation node
-            NodePtr outNode = _ng->addNode("dot", outputName + "_dot", translationNgOutput->getType());
+            NodePtr outNode = _graph->addNode("dot", outputName + "_dot", translationGraphOutput->getType());
             translatedOutput->setConnectedNode(outNode);
 
-            InputPtr dotNodeInput = outNode->addInput("in", translationNgOutput->getType());
+            InputPtr dotNodeInput = outNode->addInput("in", translationGraphOutput->getType());
 
             // if value does not need to be computed
-            if (translationNgOutput->getNodeName() == EMPTY_STRING)
+            if (translationGraphOutput->getNodeName() == EMPTY_STRING)
             {
-                dotNodeInput->setValueString(translationNgOutput->getValueString());
+                dotNodeInput->setValueString(translationGraphOutput->getValueString());
             }
             else
             {
@@ -165,8 +165,8 @@ void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader
     {
         return;
     }
-    _ng = doc->getNodeGraph(shaderRef->getBindInputs()[0]->getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE));
-    _translationNode = _ng->addNode(translateNodeString, "translation", MULTI_OUTPUT_TYPE_STRING);
+    _graph = doc->getNodeGraph(shaderRef->getBindInputs()[0]->getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE));
+    _translationNode = _graph->addNode(translateNodeString, "translation", MULTI_OUTPUT_TYPE_STRING);
 
     connectToTranslationInputs(shaderRef);
     shaderRef->setNodeString(destShader);
