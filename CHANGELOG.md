@@ -3,7 +3,12 @@
 ## [1.37.2] - Development
 
 ### Added
+- Added support for texture baking from Python, including new example script [baketextures.py](python/Scripts/baketextures.py).
+- Added support for floating-point render targets in ShaderRenderer and its subclasses, allowing for HDR texture baking with TextureBaker.
 - Added support for displacement shaders in generated OSL.
+
+### Fixed
+- Fixed the alignment of environment backgrounds in the viewer.
 
 ### Removed
 - Removed the CopyOptions class, making it the default behavior of Document\:\:importLibrary to skip conflicting elements.
