@@ -19,8 +19,8 @@ void mx_conductor_brdf_reflection(vec3 L, vec3 V, float weight, vec3 reflectivit
 
     vec3 ior_n, ior_k;
     mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
-    FresnelData f = mx_init_fresnel_conductor(ior_n, ior_k);
-    vec3 F = mx_compute_fresnel(VdotH, f);
+    FresnelData fd = mx_init_fresnel_conductor(ior_n, ior_k);
+    vec3 F = mx_compute_fresnel(VdotH, fd);
 
     float avgRoughness = mx_average_roughness(roughness);
     float D = mx_ggx_NDF(X, Y, H, NdotH, roughness.x, roughness.y);
@@ -45,10 +45,10 @@ void mx_conductor_brdf_indirect(vec3 V, float weight, vec3 reflectivity, vec3 ed
     vec3 ior_n, ior_k;
     mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
 
-    FresnelData f = mx_init_fresnel_conductor(ior_n, ior_k);
-    vec3 F = mx_compute_fresnel(NdotV, f);
+    FresnelData fd = mx_init_fresnel_conductor(ior_n, ior_k);
+    vec3 F = mx_compute_fresnel(NdotV, fd);
 
-    vec3 Li = mx_environment_radiance(N, V, X, roughness, distribution, f);
+    vec3 Li = mx_environment_radiance(N, V, X, roughness, distribution, fd);
 
     float avgRoughness = mx_average_roughness(roughness);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
