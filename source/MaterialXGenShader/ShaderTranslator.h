@@ -49,7 +49,7 @@ class ShaderTranslator
     /// Copies translation nodegraph upstream node dependencies over to the working nodegraph.
     /// Used when normals need to be baked in tangent space but shaderref expects normals to 
     /// be in world space.
-    void insertOutputNgUpstreamElems(OutputPtr translatedOutput, OutputPtr ngOutput);
+    void insertUpstreamDependencies(OutputPtr translatedOutput, OutputPtr ngOutput);
 
     /// Connects translation node outputs to finalize shaderRef translation
     void connectTranslationOutputs(ShaderRefPtr shaderRef);

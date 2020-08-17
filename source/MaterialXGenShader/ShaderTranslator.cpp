@@ -3,10 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/ShaderTranslator.h>
-
 #include <MaterialXCore/Util.h>
-
+#include <MaterialXGenShader/ShaderTranslator.h>
 #include <iostream>
 
 namespace MaterialX
@@ -75,46 +73,46 @@ void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef)
     }
 }
 
-void ShaderTranslator::insertOutputNgUpstreamElems(OutputPtr translatedOutput, OutputPtr graphOutput)
+void ShaderTranslator::insertUpstreamDependencies(OutputPtr translatedOutput, OutputPtr graphOutput)
 {
-    ElementPtr top = graphOutput->asA<Element>();
-    vector<ElementPtr> upstreamElements;
-    while (top)
+    vector<NodePtr> upstreamElements;
+
+    for (Edge edge : graphOutput->traverseGraph())
     {
-        upstreamElements.push_back(top);
-        top = top->getUpstreamElement();
+
+        ElementPtr upstreamElem = edge.getUpstreamElement();
+        ElementPtr connectingElem = edge.getConnectingElement();
+        ElementPtr downstreamElem = edge.getDownstreamElement();
+
+        if (upstreamElem->isA<Node>())
+        {
+            upstreamElements.push_back(upstreamElem->asA<Node>());
+        }
     }
 
-    // rebuilding upstream node dependencies from translation output to input
-    for (ElementPtr upstreamElem : upstreamElements)
-    {
-        if (upstreamElem == graphOutput->asA<Element>())
-        {
-            // connecting output to the upstream node (that will be copied over)
-            translatedOutput->setNodeName(upstreamElem->asA<Output>()->getNodeName());
-        }
-        else
-        {
-            NodePtr node = upstreamElem->asA<Node>();
-            // copy upstream node over
-            NodePtr nodeCopy = _graph->addNode(node->getCategory(), node->getName(), node->getType());
+    translatedOutput->setNodeName(graphOutput->getNodeName());
 
-            // copying over input information
-            for (InputPtr origInput : node->getInputs())
+    // rebuilding upstream node dependencies from translation output to input
+    for (NodePtr node : upstreamElements)
+    {
+        // copy upstream node over
+        NodePtr nodeCopy = _graph->addNode(node->getCategory(), node->getName(), node->getType());
+
+        // copying over input information
+        for (InputPtr origInput : node->getInputs())
+        {
+            InputPtr inputCopy = nodeCopy->addInput(origInput->getName(), origInput->getType());
+            if (origInput->getInterfaceName() != EMPTY_STRING)
             {
-                InputPtr inputCopy = nodeCopy->addInput(origInput->getName(), origInput->getType());
-                if (origInput->getInterfaceName() != EMPTY_STRING)
-                {
-                    // directly connecting node to what would have been interface input
-                    InputPtr interfaceInput = _translationNode->getInput(origInput->getInterfaceName());
-                    inputCopy->setNodeName(interfaceInput->getNodeName());
-                }
-                else
-                {
-                    inputCopy->setNodeName(origInput->getNodeName());
-                }
+                // directly connecting node to what would have been interface input
+                InputPtr interfaceInput = _translationNode->getInput(origInput->getInterfaceName());
+                inputCopy->setNodeName(interfaceInput->getNodeName());
             }
-        }
+            else
+            {
+                inputCopy->setNodeName(origInput->getNodeName());
+            }
+        }   
     }
 }
 
@@ -133,7 +131,7 @@ void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
         // if normals need to be transformed into world space
         if (connectsToNormalMapNode(translationGraphOutput))
         {
-            insertOutputNgUpstreamElems(translatedOutput, translationGraphOutput);
+            insertUpstreamDependencies(translatedOutput, translationGraphOutput);
         }
         else
         {
@@ -187,17 +185,21 @@ bool ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destShader)
     for (TypedElementPtr elem : renderableShaderRefs)
     {
         ShaderRefPtr sr = elem ? elem->asA<ShaderRef>() : nullptr;
-        string startShader = sr->getNodeString();
-        string startName = sr->getName();
-        if (translator->getAvailableTranslations(startShader).count(destShader))
+        string sourceShader = sr->getNodeString();
+        string sourceName = sr->getName();
+        if (translator->getAvailableTranslations(sourceShader).count(destShader))
         {
             translator->translateShader(sr, destShader);
-            std::cout << "Successfully translated " << startName << " from " << startShader << 
+            std::cout << "Successfully translated " << sourceName << " from " << sourceShader << 
                 " to " << destShader << std::endl;
+        }
+        else if (sourceShader == destShader)
+        {
+            std::cout << sourceName << " source and destination shaders are both " << destShader << std::endl;
         }
         else
         {
-            std::cerr << "No valid translation from " << startShader << " to " << destShader << std::endl;
+            std::cerr << "No valid translation from " << sourceShader << " to " << destShader << std::endl;
             return false;
         }
     }
