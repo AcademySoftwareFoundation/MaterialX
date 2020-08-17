@@ -19,12 +19,14 @@ find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    add_custom_target(MaterialXDocs ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+    file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR}/MaterialXDocs)
+    add_custom_target(MaterialXDocs ALL ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                       COMMENT "Generating HTML documentation: ${DOXYGEN_HTML_OUTPUT_DIR}/index.html")
     add_custom_command(TARGET MaterialXDocs PRE_BUILD
                        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/resources/Images ${CMAKE_CURRENT_BINARY_DIR})
+                       ${CMAKE_SOURCE_DIR}/resources/Images ${CMAKE_CURRENT_BINARY_DIR}
+                       COMMENT "Copy directory Images to ${CMAKE_CURRENT_BINARY_DIR}")
     install(DIRECTORY ${DOXYGEN_HTML_OUTPUT_DIR}
             DESTINATION "${CMAKE_INSTALL_PREFIX}/documents" MESSAGE_NEVER)
 endif(DOXYGEN_FOUND)
