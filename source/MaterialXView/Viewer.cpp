@@ -587,8 +587,7 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
     envButton->setCallback([this]()
     {
         mProcessEvents = false;
-        mx::StringSet extensions;
-        _imageHandler->supportedExtensions(extensions);
+        mx::StringSet extensions = _imageHandler->supportedExtensions();
         std::vector<std::pair<std::string, std::string>> filetypes;
         for (const auto& extension : extensions)
         {
