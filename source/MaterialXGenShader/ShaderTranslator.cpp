@@ -3,8 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Util.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
+
+#include <MaterialXCore/Util.h>
+
 #include <iostream>
 
 namespace MaterialX
@@ -50,7 +52,6 @@ void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef)
 {
     for (BindInputPtr bindInput : shaderRef->getBindInputs())
     {
-
         OutputPtr output = bindInput->getConnectedOutput();
         if (output)
         {
@@ -79,11 +80,7 @@ void ShaderTranslator::insertUpstreamDependencies(OutputPtr translatedOutput, Ou
 
     for (Edge edge : graphOutput->traverseGraph())
     {
-
         ElementPtr upstreamElem = edge.getUpstreamElement();
-        ElementPtr connectingElem = edge.getConnectingElement();
-        ElementPtr downstreamElem = edge.getDownstreamElement();
-
         if (upstreamElem->isA<Node>())
         {
             upstreamElements.push_back(upstreamElem->asA<Node>());
