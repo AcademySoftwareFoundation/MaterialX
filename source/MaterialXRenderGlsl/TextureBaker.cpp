@@ -53,12 +53,6 @@ StringVec getRenderablePaths(ConstDocumentPtr doc)
     return renderablePaths;
 } 
 
-bool connectsToNormalMapNode(OutputPtr output)
-{
-    ElementPtr connectedNode = output ? output->getConnectedNode() : nullptr;
-    return connectedNode && connectedNode->getCategory() == "normalmap";
-}
-
 void setValueStringFromColor(ValueElementPtr elem, const Color4& color)
 {
     if (elem->getType() == "color4" || elem->getType() == "vector4")
