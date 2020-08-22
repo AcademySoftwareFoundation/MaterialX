@@ -21,33 +21,10 @@ StringVec getRenderablePaths(ConstDocumentPtr doc)
 {
     StringVec renderablePaths;
     std::vector<TypedElementPtr> elems;
-    std::vector<TypedElementPtr> materials;
     findRenderableElements(doc, elems);
-
-    if (elems.empty())
-    {
-        return StringVec();
-    }
     for (TypedElementPtr elem : elems)
     {
-        TypedElementPtr renderableElem = elem;
-        NodePtr node = elem->asA<Node>();
-        if (node && node->getType() == MATERIAL_TYPE_STRING)
-        {
-            std::vector<NodePtr> shaderNodes = getShaderNodes(node, SURFACE_SHADER_TYPE_STRING);
-            if (!shaderNodes.empty())
-            {
-                renderableElem = shaderNodes[0];
-            }
-            materials.push_back(node);
-        }
-        else
-        {
-            ShaderRefPtr shaderRef = elem->asA<ShaderRef>();
-            TypedElementPtr materialRef = (shaderRef ? shaderRef->getParent()->asA<TypedElement>() : nullptr);
-            materials.push_back(materialRef);
-        }
-        renderablePaths.push_back(renderableElem->getNamePath());
+        renderablePaths.push_back(elem->getNamePath());
     }
     return renderablePaths;
 } 

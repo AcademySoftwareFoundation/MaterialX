@@ -7,6 +7,7 @@
 
 #include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 #include <sstream>
 
@@ -250,6 +251,7 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
 } // anonymous namespace
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
+const string OslSyntax::SOURCE_FILE_EXTENSION = ".osl";
 const StringVec OslSyntax::VECTOR_MEMBERS  = { "[0]", "[1]", "[2]" };
 const StringVec OslSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
 const StringVec OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
@@ -494,6 +496,17 @@ OslSyntax::OslSyntax()
             "null_closure",
             "0",
             "closure color")
+    );
+
+    registerTypeSyntax
+    (
+        Type::THINFILM,
+        std::make_shared<AggregateTypeSyntax>(
+            "thinfilm",
+            "thinfilm(0.0, 1.5)",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "struct thinfilm { float thickness; float ior; };")
     );
 }
 

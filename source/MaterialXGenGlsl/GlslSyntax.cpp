@@ -7,6 +7,7 @@
 
 #include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 namespace MaterialX
 {
@@ -101,6 +102,7 @@ const string GlslSyntax::INPUT_QUALIFIER = "in";
 const string GlslSyntax::OUTPUT_QUALIFIER = "out";
 const string GlslSyntax::UNIFORM_QUALIFIER = "uniform";
 const string GlslSyntax::CONSTANT_QUALIFIER = "const";
+const string GlslSyntax::SOURCE_FILE_EXTENSION = ".glsl";
 const StringVec GlslSyntax::VEC2_MEMBERS = { ".x", ".y" };
 const StringVec GlslSyntax::VEC3_MEMBERS = { ".x", ".y", ".z" };
 const StringVec GlslSyntax::VEC4_MEMBERS = { ".x", ".y", ".z", ".w" };
@@ -388,11 +390,60 @@ GlslSyntax::GlslSyntax()
             EMPTY_STRING,
             "struct lightshader { vec3 intensity; vec3 direction; };")
     );
+
+    registerTypeSyntax
+    (
+        Type::THINFILM,
+        std::make_shared<AggregateTypeSyntax>(
+            "thinfilm",
+            "thinfilm(0.0,1.5)",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "struct thinfilm { float thickness; float ior; };")
+    );
 }
 
 bool GlslSyntax::typeSupported(const TypeDesc* type) const
 {
     return type != Type::STRING;
+}
+
+
+bool GlslSyntax::remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const
+{
+    // Early out if not an enum input.
+    if (enumNames.empty())
+    {
+        return false;
+    }
+
+    // Don't convert already supported types
+    // or filenames and arrays.
+    if (typeSupported(type) ||
+        type == Type::FILENAME || (type && type->isArray()))
+    {
+        return false;
+    }
+
+    // For GLSL we always convert to integer,
+    // with the integer value being an index into the enumeration.
+    result.first = Type::INTEGER;
+    result.second = nullptr;
+
+    // Try remapping to an enum value.
+    if (!value.empty())
+    {
+        StringVec valueElemEnumsVec = splitString(enumNames, ",");
+        auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), value);
+        if (pos == valueElemEnumsVec.end())
+        {
+            throw ExceptionShaderGenError("Given value '" + value + "' is not a valid enum value for input.");
+        }
+        const int index = static_cast<int>(std::distance(valueElemEnumsVec.begin(), pos));
+        result.second = Value::createValue<int>(index);
+    }
+
+    return true;
 }
 
 } // namespace MaterialX

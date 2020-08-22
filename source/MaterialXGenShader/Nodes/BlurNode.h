@@ -17,6 +17,7 @@ class BlurNode : public ConvolutionNode
   public:
     static ShaderNodeImplPtr create();
 
+    void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
@@ -30,6 +31,14 @@ class BlurNode : public ConvolutionNode
     void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                     unsigned int filterWidth, StringVec& offsetStrings) const override;
 
+    /// Output sample array
+    virtual void outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType,
+                                   const string& sampleName, const StringVec& sampleStrings) const;
+
+    static const string _sampleSizeFunctionUV;
+    static const float _filterSize;
+    static const float _filterOffset;
+
     /// Box filter option on blur
     static const string BOX_FILTER;
     /// Box filter weights variable name
@@ -39,6 +48,9 @@ class BlurNode : public ConvolutionNode
     static const string GAUSSIAN_FILTER;
     /// Gaussian filter weights variable name
     static const string GAUSSIAN_WEIGHTS_VARIABLE;
+
+    /// List of filters
+    static const string FILTER_LIST;
 
     /// String constants
     static const string IN_STRING;

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<materialx version="1.37">
+
+  <!-- ======================================================================== -->
+  <!-- Color Management System Implementations -->
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_gamma18_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_gamma18_to_linear_color3({{in}})" language="genmdl" />
+  <implementation name="IM_gamma18_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_gamma18_to_linear_color4({{in}})" language="genmdl" />
+  <implementation name="IM_gamma22_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_gamma22_to_linear_color3({{in}})" language="genmdl" />
+  <implementation name="IM_gamma22_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_gamma22_to_linear_color4({{in}})" language="genmdl" />
+  <implementation name="IM_gamma24_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_gamma24_to_linear_color3({{in}})" language="genmdl" />
+  <implementation name="IM_gamma24_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_gamma24_to_linear_color4({{in}})" language="genmdl" />
+
+  <implementation name="IM_acescg_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_acescg_to_linear_color3({{in}})" language="genmdl" />
+  <implementation name="IM_acescg_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_acescg_to_linear_color4({{in}})" language="genmdl" />
+
+  <implementation name="IM_srgb_texture_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_srgb_texture_to_linear_color3({{in}})" language="genmdl" />
+  <implementation name="IM_srgb_texture_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_srgb_texture_to_linear_color4({{in}})" language="genmdl" />
+
+</materialx>

@@ -65,12 +65,22 @@ class Syntax
     /// Multiple calls will add to the internal set of tokens.
     void registerInvalidTokens(const StringMap& tokens);
 
+    /// Returns a set of names that are reserved words for this language syntax.
+    const StringSet& getReservedWords() const { return _reservedWords; }
+
+    /// Returns a mapping from disallowed tokens to replacement strings for this language syntax.
+    const StringMap& getInvalidTokens() const { return _invalidTokens; }
+
     /// Returns the type syntax object for a named type.
     /// Throws an exception if a type syntax is not defined for the given type.
     const TypeSyntax& getTypeSyntax(const TypeDesc* type) const;
 
     /// Returns an array of all registered type syntax objects
     const vector<TypeSyntaxPtr>& getTypeSyntaxes() const { return _typeSyntaxes; }
+
+    /// Returns a type description given a type syntax. Throws an exception
+    /// if the type syntax has not been registered
+    const TypeDesc* getTypeDescription(const TypeSyntaxPtr& typeSyntax) const;
 
     /// Returns the name syntax of the given type
     const string& getTypeName(const TypeDesc* type) const;
@@ -90,21 +100,15 @@ class Syntax
     const string& getDefaultValue(const TypeDesc* type, bool uniform = false) const;
 
     /// Returns the value string for a given type and value object
-    string getValue(const TypeDesc* type, const Value& value, bool uniform = false) const;
+    virtual string getValue(const TypeDesc* type, const Value& value, bool uniform = false) const;
 
     /// Get syntax for a swizzled variable
-    string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
+    virtual string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
 
     /// Get swizzled value
-    ValuePtr getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
+    virtual ValuePtr getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
 
-    /// Returns a set of names that are reserved words for this language syntax.
-    const StringSet& getReservedWords() const { return _reservedWords; }
-
-    /// Returns a mapping from disallowed tokens to replacement strings for this language syntax.
-    const StringMap& getInvalidTokens() const { return _invalidTokens; }
-
-    /// Returns a type qualifier to be used when declaring types for output variables.
+    /// Returns a type qualifier to be used when declaring types for input variables.
     /// Default implementation returns empty string and derived syntax classes should
     /// override this method.
     virtual const string& getInputQualifier() const { return EMPTY_STRING; };
@@ -144,8 +148,14 @@ class Syntax
     /// Return the characters used to end a multi line comments block.
     virtual const string& getEndMultiLineComment() const { return END_MULTI_LINE_COMMENT; };
 
+    /// Return the file extension used for source code files in this language.
+    virtual const string& getSourceFileExtension() const = 0;
+
+    /// Return the array suffix to use for declaring an array type.
+    virtual string getArrayTypeSuffix(const TypeDesc*, const Value&) const { return EMPTY_STRING; };
+
     /// Return the array suffix to use for declaring an array variable.
-    virtual string getArraySuffix(const TypeDesc* type, const Value& value) const;
+    virtual string getArrayVariableSuffix(const TypeDesc* type, const Value& value) const;
 
     /// Query if given type is suppored in the syntax.
     /// By default all types are assumed to be supported.
@@ -165,24 +175,39 @@ class Syntax
     /// on the name string if there is a name collision.
     virtual string getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const;
 
+    /// Given an input specification attempt to remap this to an enumeration which is accepted by
+    /// the shader generator. The enumeration may be converted to a different type than the input.
+    /// @param value The value string to remap.
+    /// @param type The type of the value to remap,
+    /// @param enumNames Type enumeration names
+    /// @param result Enumeration type and value (returned).
+    /// @return Return true if the remapping was successful.
+    virtual bool remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames,
+                                  std::pair<const TypeDesc*, ValuePtr>& result) const;
+
+    /// Constants with commonly used strings.
+    static const string NEWLINE;
+    static const string SEMICOLON;
+    static const string COMMA;
+
   protected:
     /// Protected constructor
     Syntax();
 
-  private:
     vector<TypeSyntaxPtr> _typeSyntaxes;
     std::unordered_map<const TypeDesc*, size_t> _typeSyntaxByType;
 
     StringSet _reservedWords;
     StringMap _invalidTokens;
 
-    static const string NEWLINE;
     static const string INDENTATION;
     static const string STRING_QUOTE;
     static const string INCLUDE_STATEMENT;
     static const string SINGLE_LINE_COMMENT;
     static const string BEGIN_MULTI_LINE_COMMENT;
     static const string END_MULTI_LINE_COMMENT;
+
+    static const std::unordered_map<char, size_t> CHANNELS_MAPPING;
 };
 
 /// @class TypeSyntax

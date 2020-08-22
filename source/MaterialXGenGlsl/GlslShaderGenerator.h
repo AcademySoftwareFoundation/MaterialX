@@ -48,10 +48,6 @@ class GlslShaderGenerator : public HwShaderGenerator
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                  bool assignValue = true) const override;
 
-    /// Given an input specification attempt to remap this to an enumeration which is accepted by
-    /// the shader generator. The enumeration may be converted to a different type than the input.
-    bool remapEnumeration(const ValueElement& input, const string& value, std::pair<const TypeDesc*, ValuePtr>& result) const override;
-
   public:
     /// Unique identifier for the glsl language
     static const string LANGUAGE;

@@ -157,6 +157,18 @@ TEST_CASE("Load content", "[xmlio]")
         }
         REQUIRE(libDoc->validate());
 
+        // Read document with conflicting elements.
+        mx::DocumentPtr conflictDoc = doc->copy();
+        for (mx::ElementPtr elem : conflictDoc->traverseTree())
+        {
+            if (elem->isA<mx::Node>("image"))
+            {
+                elem->setFilePrefix("differentFolder/");
+            }
+        }
+        mx::readFromXmlFile(conflictDoc, filename, searchPath, &readOptions);
+        REQUIRE(conflictDoc->validate());
+
         // Reread in clean document
         doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
