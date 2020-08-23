@@ -101,6 +101,10 @@ vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers);
 /// 0..1 space.
 void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scaleUV, Vector2& offsetUV);
 
+/// Checks if graph output requires normals to be transformed from tangent 
+/// space to world space.
+bool connectsToNormalMapNode(OutputPtr output);
+
 } // namespace MaterialX
 
 #endif

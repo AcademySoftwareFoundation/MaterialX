@@ -19,6 +19,7 @@ const string NodeDef::GEOMETRIC_NODE_GROUP = "geometric";
 const string NodeDef::ADJUSTMENT_NODE_GROUP = "adjustment";
 const string NodeDef::CONDITIONAL_NODE_GROUP = "conditional";
 const string NodeDef::ORGANIZATION_NODE_GROUP = "organization";
+const string NodeDef::TRANSLATION_NODE_GROUP = "translation";
 
 const string NodeDef::NODE_ATTRIBUTE = "node";
 const string NodeDef::NODE_GROUP_ATTRIBUTE = "nodegroup";

@@ -5,6 +5,7 @@
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
+#include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/Util.h>
 
@@ -28,12 +29,6 @@ StringVec getRenderablePaths(ConstDocumentPtr doc)
     }
     return renderablePaths;
 } 
-
-bool connectsToNormalMapNode(OutputPtr output)
-{
-    ElementPtr connectedNode = output ? output->getConnectedNode() : nullptr;
-    return connectedNode && connectedNode->getCategory() == "normalmap";
-}
 
 void setValueStringFromColor(ValueElementPtr elem, const Color4& color)
 {
@@ -268,6 +263,9 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
     genContext.getShaderGenerator().setColorManagementSystem(cms);
     StringResolverPtr resolver = StringResolver::create();
     ImageHandlerPtr imageHandler = GLTextureHandler::create(StbImageLoader::create());
+#if MATERIALX_BUILD_OIIO
+    imageHandler->addLoader(OiioImageLoader::create());
+#endif
     StringVec renderablePaths = getRenderablePaths(doc);
 
     for (const string& renderablePath : renderablePaths)

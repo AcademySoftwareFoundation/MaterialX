@@ -15,8 +15,6 @@
 
 #include <MaterialXCore/Element.h>
 
-#include <map>
-
 namespace MaterialX
 {
 
@@ -36,8 +34,8 @@ using ImageHandlerPtr = std::shared_ptr<ImageHandler>;
 /// Shared pointer to an ImageLoader
 using ImageLoaderPtr = std::shared_ptr<ImageLoader>;
 
-/// Map from strings to image loaders
-using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
+/// Map from strings to vectors of image loaders
+using ImageLoaderMap = std::unordered_map< string, std::vector<ImageLoaderPtr> >;
 
 /// @class ImageSamplingProperties
 /// Interface to describe sampling properties for images.
@@ -160,7 +158,7 @@ class ImageHandler
     void addLoader(ImageLoaderPtr loader);
 
     /// Get a list of extensions supported by the handler.
-    void supportedExtensions(StringSet& extensions);
+    StringSet supportedExtensions();
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
