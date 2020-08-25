@@ -46,7 +46,7 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
     }
 
     bool written = false;
-    auto imageOutput = OIIO::ImageOutput::create(filePath);
+    auto imageOutput = OIIO::ImageOutput::create(filePath.asString());
     if (imageOutput)
     {
         if (imageOutput->open(filePath, imageSpec))
