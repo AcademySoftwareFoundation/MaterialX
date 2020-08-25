@@ -15,6 +15,9 @@
 
   <implementation name="IM_acescg_to_lin_rec709_color3_genglsl" file="stdlib/genglsl/mx_acescg_to_linear_color3.glsl" function="mx_acescg_to_linear_color3" language="genglsl" />
   <implementation name="IM_acescg_to_lin_rec709_color4_genglsl" file="stdlib/genglsl/mx_acescg_to_linear_color4.glsl" function="mx_acescg_to_linear_color4" language="genglsl" />
+  
+  <implementation name="IM_g22_ap1_to_lin_rec709_color3_genglsl" file="stdlib/genglsl/mx_g22_ap1_to_lin_rec709_color3.glsl" function="mx_g22_ap1_to_lin_rec709_color3" language="genglsl" />
+  <implementation name="IM_g22_ap1_to_lin_rec709_color4_genglsl" file="stdlib/genglsl/mx_g22_ap1_to_lin_rec709_color4.glsl" function="mx_g22_ap1_to_lin_rec709_color4" language="genglsl" />
 
   <implementation name="IM_srgb_texture_to_lin_rec709_color3_genglsl" file="stdlib/genglsl/mx_srgb_texture_to_linear_color3.glsl" function="mx_srgb_texture_to_linear_color3" language="genglsl" />
   <implementation name="IM_srgb_texture_to_lin_rec709_color4_genglsl" file="stdlib/genglsl/mx_srgb_texture_to_linear_color4.glsl" function="mx_srgb_texture_to_linear_color4" language="genglsl" />

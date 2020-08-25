@@ -15,5 +15,11 @@ void bindPyTextureBaker(py::module& mod)
 {
     py::class_<mx::TextureBaker, mx::GlslRenderer, mx::TextureBakerPtr>(mod, "TextureBaker")
         .def_static("create", &mx::TextureBaker::create)
+        .def("setExtension", &mx::TextureBaker::setExtension)
+        .def("getExtension", &mx::TextureBaker::getExtension)
+        .def("setColorSpace", &mx::TextureBaker::setColorSpace)
+        .def("getColorSpace", &mx::TextureBaker::getColorSpace)
+        .def("setOptimizeConstants", &mx::TextureBaker::setOptimizeConstants)
+        .def("getOptimizeConstants", &mx::TextureBaker::getOptimizeConstants)
         .def("bakeAllMaterials", &mx::TextureBaker::bakeAllMaterials);
 }

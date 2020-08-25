@@ -44,6 +44,35 @@ class TextureBaker : public GlslRenderer
         return _extension;
     }
 
+    /// Set the color space in which color textures are encoded.
+    ///
+    /// By default, this color space is srgb_texture, and color inputs are
+    /// automatically transformed to this space by the baker.  If another color
+    /// space is set, then the input graph is responsible for transforming
+    /// colors to this space.
+    void setColorSpace(const string& colorSpace)
+    {
+        _colorSpace = colorSpace;
+    }
+
+    /// Return the color space in which color textures are encoded.
+    const string& getColorSpace()
+    {
+        return _colorSpace;
+    }
+
+    /// Set whether uniform textures should be stored as constants.  Defaults to true.
+    void setOptimizeConstants(bool enable)
+    {
+        _optimizeConstants = enable;
+    }
+
+    /// Return whether uniform textures should be stored as constants.
+    bool getOptimizeConstants()
+    {
+        return _optimizeConstants;
+    }
+
     /// Bake textures for all graph inputs of the given shader reference.
     void bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string& udim = EMPTY_STRING);
 
@@ -78,12 +107,14 @@ class TextureBaker : public GlslRenderer
     using BakedImageMap = std::unordered_map<OutputPtr, BakedImageVec>;
 
   protected:
-    ShaderGeneratorPtr _generator;
-    string _udim;
     string _extension;
+    string _colorSpace;
+    bool _optimizeConstants;
+
+    ShaderGeneratorPtr _generator;
     ConstShaderRefPtr _shaderRef;
     StringSet _worldSpaceShaderInputs;
-    std::set<OutputPtr> _uniformOutputs;
+    std::set<OutputPtr> _constantOutputs;
     BakedImageMap _bakedImageMap;
 };
 
