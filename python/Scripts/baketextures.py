@@ -39,7 +39,7 @@ def main():
         for path_list in opts.paths:
             for path in path_list:
                 search_path.append(path)
-    search_path.append(os.path.join(os.path.abspath(__file__), '..', '..'))
+    search_path.append(os.path.join(os.getcwd(), '../..'))
     if opts.libraries:
         for library_list in opts.libraries:
             for library in library_list:
