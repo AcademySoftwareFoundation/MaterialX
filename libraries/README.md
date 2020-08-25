@@ -40,7 +40,7 @@ The following is the layout of the definitions and implementations provided as p
 - GLSL language support is for version 4.0 or higher.
 - OSL language support is for version 1.9.10 or higher.
 - "default" color management support includes OSL and GLSL implementations for the following non-LUT transforms:
-    - lin_rec709, gamma18, gamma22, gamma24, acescg, srgb_texture
+    - lin_rec709, gamma18, gamma22, gamma24, acescg, g22_acescg, srgb_texture
 - Basic GLSL `lightshader` node definitions and implementations are provided for the following light types:
     - point, directional, spot
 - Code generation is not currently supported for:
