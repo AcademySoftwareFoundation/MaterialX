@@ -32,7 +32,9 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
                    const XmlReadOptions& readOptions, StringVec& errors);
 
 /// Load a given MaterialX library into a document
-void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath = nullptr, 
+void loadLibrary(const FilePath& file,
+                 DocumentPtr doc,
+                 const FileSearchPath& searchPath = FileSearchPath(), 
                  XmlReadOptions* readOptions = nullptr);
 
 /// Load all MaterialX files with given library names in given search paths.
@@ -40,7 +42,7 @@ void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* se
 StringSet loadLibraries(const FilePathVec& libraryNames,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
-                        const StringSet* excludeFiles = nullptr,
+                        const StringSet& excludeFiles = StringSet(),
                         XmlReadOptions* readOptions = nullptr);
 
 } // namespace MaterialX
