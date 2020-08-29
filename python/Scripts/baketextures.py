@@ -44,7 +44,7 @@ def main():
         for library_list in opts.libraries:
             for library in library_list:
                 library_folders.append(library)
-    mx.loadLibraries(library_folders, search_path, stdlib, set(), None)
+    mx.loadLibraries(library_folders, search_path, stdlib)
     doc.importLibrary(stdlib)
 
     valid, msg = doc.validate()
