@@ -33,18 +33,19 @@ def main():
         sys.exit(0)
 
     stdlib = mx.createDocument()
-    search_path = mx.FileSearchPath()
-    library_folders = [ mx.FilePath("libraries") ]
+    filePath = os.path.dirname(os.path.abspath(__file__))
+    searchPath = mx.FileSearchPath(os.path.join(filePath, '..', '..'))
+    searchPath.append(os.path.dirname(opts.input_filename))
+    libraryFolders = [ "libraries" ]
     if opts.paths:
         for path_list in opts.paths:
             for path in path_list:
-                search_path.append(path)
-    search_path.append(os.path.join(os.path.abspath(__file__), '..', '..'))
+                searchPath.append(path)
     if opts.libraries:
-        for library_list in opts.libraries:
-            for library in library_list:
-                library_folders.append(library)
-    mx.loadLibraries(library_folders, search_path, stdlib)
+        for libraryList in opts.libraries:
+            for library in libraryList:
+                libraryFolders.append(library)
+    mx.loadLibraries(libraryFolders, searchPath, stdlib)
     doc.importLibrary(stdlib)
 
     valid, msg = doc.validate()
@@ -52,10 +53,9 @@ def main():
         print("Validation warnings for input document:")
         print(msg)
 
-    image_search_path = mx.FileSearchPath(os.path.dirname(opts.input_filename))
     base_type = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
     baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, base_type)
-    baker.bakeAllMaterials(doc, image_search_path, opts.output_filename)
+    baker.bakeAllMaterials(doc, searchPath, opts.output_filename)
 
 if __name__ == '__main__':
     main()
