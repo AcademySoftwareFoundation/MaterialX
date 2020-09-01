@@ -3,13 +3,10 @@
 Generate a baked version of each material in the input document, using the TextureBaker class in the MaterialXRenderGlsl library.
 '''
 
-import sys, os, string
-import argparse
-import struct
+import sys, os, argparse
 import MaterialX as mx
 from MaterialX import PyMaterialXRender as mx_render
 from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
-from MaterialX import PyMaterialXGenShader as ms_gen_shader
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a baked version of each material in the input document.")
@@ -53,8 +50,8 @@ def main():
         print("Validation warnings for input document:")
         print(msg)
 
-    base_type = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
-    baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, base_type)
+    baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
+    baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, baseType)
     baker.bakeAllMaterials(doc, searchPath, opts.output_filename)
 
 if __name__ == '__main__':
