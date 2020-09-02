@@ -71,17 +71,17 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
     }
 }
 
-void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath, XmlReadOptions* readOptions)
+void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath& searchPath, XmlReadOptions* readOptions)
 {
     DocumentPtr libDoc = createDocument();
-    readFromXmlFile(libDoc, file, searchPath ? *searchPath : FileSearchPath(), readOptions);
+    readFromXmlFile(libDoc, file, searchPath, readOptions);
     doc->importLibrary(libDoc);
 }
 
 StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
-                        const StringSet* excludeFiles,
+                        const StringSet& excludeFiles,
                         XmlReadOptions* readOptions)
 {
     // Append environment path to the specified search path.
@@ -98,12 +98,12 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
             {
                 for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
                 {
-                    if (!excludeFiles || !excludeFiles->count(filename))
+                    if (!excludeFiles.count(filename))
                     {
                         const FilePath& file = path / filename;
                         if (loadedLibraries.count(file) == 0)
                         {
-                            loadLibrary(file, doc, &searchPath, readOptions);
+                            loadLibrary(file, doc, searchPath, readOptions);
                             loadedLibraries.insert(file.asString());
                         }
                     }
@@ -121,12 +121,12 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
             {
                 for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
                 {
-                    if (!excludeFiles || !excludeFiles->count(filename))
+                    if (!excludeFiles.count(filename))
                     {
                         const FilePath& file = path / filename;
                         if (loadedLibraries.count(file) == 0)
                         {
-                            loadLibrary(file, doc, &searchPath, readOptions);
+                            loadLibrary(file, doc, searchPath, readOptions);
                             loadedLibraries.insert(file.asString());
                         }
                     }

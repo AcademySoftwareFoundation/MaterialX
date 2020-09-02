@@ -3,13 +3,10 @@
 Generate a baked version of each material in the input document, using the TextureBaker class in the MaterialXRenderGlsl library.
 '''
 
-import sys, os, string
-import argparse
-import struct
+import sys, os, argparse
 import MaterialX as mx
 from MaterialX import PyMaterialXRender as mx_render
 from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
-from MaterialX import PyMaterialXGenShader as ms_gen_shader
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a baked version of each material in the input document.")
@@ -33,18 +30,19 @@ def main():
         sys.exit(0)
 
     stdlib = mx.createDocument()
-    search_path = mx.FileSearchPath()
-    library_folders = [ mx.FilePath("libraries") ]
+    filePath = os.path.dirname(os.path.abspath(__file__))
+    searchPath = mx.FileSearchPath(os.path.join(filePath, '..', '..'))
+    searchPath.append(os.path.dirname(opts.input_filename))
+    libraryFolders = [ "libraries" ]
     if opts.paths:
         for path_list in opts.paths:
             for path in path_list:
-                search_path.append(path)
-    search_path.append(os.path.join(os.getcwd(), '../..'))
+                searchPath.append(path)
     if opts.libraries:
-        for library_list in opts.libraries:
-            for library in library_list:
-                library_folders.append(library)
-    mx.loadLibraries(library_folders, search_path, stdlib, set(), None)
+        for libraryList in opts.libraries:
+            for library in libraryList:
+                libraryFolders.append(library)
+    mx.loadLibraries(libraryFolders, searchPath, stdlib)
     doc.importLibrary(stdlib)
 
     valid, msg = doc.validate()
@@ -52,10 +50,9 @@ def main():
         print("Validation warnings for input document:")
         print(msg)
 
-    image_search_path = mx.FileSearchPath(os.path.dirname(opts.input_filename))
-    base_type = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
-    baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, base_type)
-    baker.bakeAllMaterials(doc, image_search_path, opts.output_filename)
+    baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
+    baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, baseType)
+    baker.bakeAllMaterials(doc, searchPath, opts.output_filename)
 
 if __name__ == '__main__':
     main()
