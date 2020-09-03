@@ -411,7 +411,7 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
     // are no inputs/parameters specified on the node itself
     //
     const string& nodePath = node.getNamePath();
-    for (const ValueElementPtr& nodeInput : nodeDef.getActiveInputs())
+    for (auto nodeInput : nodeDef.getActiveInputs())
     {
         ShaderInput* input = getInput(nodeInput->getName());
         if (input && input->getPath().empty())
@@ -419,7 +419,7 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             input->setPath(nodePath + NAME_PATH_SEPARATOR + nodeInput->getName());
         }
     }
-    for (const ParameterPtr& nodeParameter : nodeDef.getActiveParameters())
+    for (auto nodeParameter : nodeDef.getActiveParameters())
     {
         ShaderInput* input = getInput(nodeParameter->getName());
         if (input && input->getPath().empty())

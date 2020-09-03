@@ -212,9 +212,7 @@ class Document::Cache
                     PortElementPtr portElem = elem->asA<PortElement>();
                     if (portElem)
                     {
-                        portElementMap.insert(std::pair<string, PortElementPtr>(
-                            portElem->getQualifiedName(nodeName),
-                            portElem));
+                        portElementMap.emplace(portElem->getQualifiedName(nodeName), portElem);
                     }
                 }
                 if (!nodeString.empty())
@@ -222,9 +220,7 @@ class Document::Cache
                     NodeDefPtr nodeDef = elem->asA<NodeDef>();
                     if (nodeDef)
                     {
-                        nodeDefMap.insert(std::pair<string, NodeDefPtr>(
-                            nodeDef->getQualifiedName(nodeString),
-                            nodeDef));
+                        nodeDefMap.emplace(nodeDef->getQualifiedName(nodeString), nodeDef);
                     }
                 }
                 if (!nodeDefString.empty())
@@ -232,9 +228,7 @@ class Document::Cache
                     InterfaceElementPtr interface = elem->asA<InterfaceElement>();
                     if (interface && (interface->isA<Implementation>() || interface->isA<NodeGraph>()))
                     {
-                        implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                            interface->getQualifiedName(nodeDefString),
-                            interface));
+                        implementationMap.emplace(interface->getQualifiedName(nodeDefString), interface);
                     }
                 }
             }
@@ -323,15 +317,14 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     return nodeDef;
 }
 
-void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
+void Document::importLibrary(const ConstDocumentPtr& library)
 {
     if (!library)
     {
         return;
     }
 
-    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
-    for (const ConstElementPtr& child : library->getChildren())
+    for (auto child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
         if (child->getCategory().empty())
@@ -341,14 +334,14 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);
-        if (previous && skipConflictingElements)
+        if (previous)
         {
             continue;
         }
 
         // Create the imported element.
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName, !previous);
-        childCopy->copyContentFrom(child, copyOptions);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
+        childCopy->copyContentFrom(child);
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {
             childCopy->setFilePrefix(library->getFilePrefix());
@@ -368,12 +361,6 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
         if (!childCopy->hasSourceUri() && library->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
-        }
-
-        // Check for conflicting elements.
-        if (previous && *previous != *childCopy)
-        {
-            throw Exception("Duplicate element with conflicting content: " + childName);
         }
     }
 }
@@ -966,7 +953,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             {
                 const string& nodeName = node->getName();
                 BackdropPtr backdrop = addBackdrop(nodeName);
-                for (const ParameterPtr param : node->getParameters())
+                for (auto param : node->getParameters())
                 {
                     ValuePtr value = param ? param->getValue() : nullptr;
                     if (value)
@@ -995,131 +982,126 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         minorVersion = 37;
     }
 
-    // Apply latest updates on top of the current library version.
-    // When the next version become official, the update check
-    // will be moved and applied the that library version.
-    if (applyFutureUpdates)
+    // Upgrade from 1.37 to 1.38
+    if (majorVersion == 1 && minorVersion == 37)
     {
-        convertMaterialsToNodes(getDocument());
+        convertMaterialsToNodes(asA<Document>());
 
-        if (majorVersion == 1 && minorVersion == 37)
+        // Update atan2 interface and rotate3d interface
+        const string ATAN2 = "atan2";
+        const string IN1 = "in1";
+        const string IN2 = "in2";
+        const string ROTATE3D = "rotate3d";
+        const string AXIS = "axis";
+
+        // Update nodedefs
+        for (auto nodedef : getMatchingNodeDefs(ATAN2))
         {
-            // Update atan2 interface and rotate3d interface
-            const string ATAN2 = "atan2";
-            const string IN1 = "in1";
-            const string IN2 = "in2";
-            const string ROTATE3D = "rotate3d";
-            const string AXIS = "axis";
-
-            // Update nodedefs
-            for (auto nodedef : getMatchingNodeDefs(ATAN2))
+            InputPtr input = nodedef->getInput(IN1);
+            InputPtr input2 = nodedef->getInput(IN2);
+            string inputValue = input->getValueString();
+            input->setValueString(input2->getValueString());
+            input2->setValueString(inputValue);
+        }
+        for (auto nodedef : getMatchingNodeDefs(ROTATE3D))
+        {
+            ParameterPtr param = nodedef->getParameter(AXIS);
+            if (param)
             {
-                InputPtr input = nodedef->getInput(IN1);
-                InputPtr input2 = nodedef->getInput(IN2);
-                string inputValue = input->getValueString();
-                input->setValueString(input2->getValueString());
-                input2->setValueString(inputValue);
+                nodedef->removeParameter(AXIS);
+                nodedef->addInput(AXIS, "vector3");
             }
-            for (auto nodedef : getMatchingNodeDefs(ROTATE3D))
-            {
-                ParameterPtr param = nodedef->getParameter(AXIS);
-                if (param)
-                {
-                    nodedef->removeParameter(AXIS);
-                    nodedef->addInput(AXIS, "vector3");
-                }
-            }
+        }
 
-            // Update nodes
-            for (ElementPtr elem : traverseTree())
+        // Update nodes
+        for (ElementPtr elem : traverseTree())
+        {
+            NodePtr node = elem->asA<Node>();
+            if (!node)
             {
-                NodePtr node = elem->asA<Node>();
-                if (!node)
+                continue;
+            }
+            const string& nodeCategory = node->getCategory();
+            if (nodeCategory == ATAN2)
+            {
+                InputPtr input = node->getInput(IN1);
+                InputPtr input2 = node->getInput(IN2);
+                if (input && input2)
                 {
-                    continue;
+                    input->setName(EMPTY_STRING);
+                    input2->setName(IN1);
+                    input->setName(IN2);
                 }
-                const string& nodeCategory = node->getCategory();
-                if (nodeCategory == ATAN2)
+                else
                 {
-                    InputPtr input = node->getInput(IN1);
-                    InputPtr input2 = node->getInput(IN2);
-                    if (input && input2)
+                    if (input)
                     {
-                        input->setName(EMPTY_STRING);
-                        input2->setName(IN1);
                         input->setName(IN2);
                     }
-                    else
+                    if (input2)
                     {
-                        if (input)
-                        {
-                            input->setName(IN2);
-                        }
-                        if (input2)
-                        {
-                            input2->setName(IN1);
-                        }
-                    }
-                }
-                else if (nodeCategory == ROTATE3D)
-                {
-                    ParameterPtr param = node->getParameter(AXIS);
-                    if (param)
-                    {
-                        const string v = param->getValueString();
-                        node->removeParameter(AXIS);
-                        InputPtr input = node->addInput(AXIS, "vector3");
-                        input->setValueString(v);
+                        input2->setName(IN1);
                     }
                 }
             }
-
-            // Make it so that interface names and nodes in a nodegraph are not duplicates
-            // If they are, rename the nodes.
-            for (NodeGraphPtr nodegraph : getNodeGraphs())
+            else if (nodeCategory == ROTATE3D)
             {
-                StringSet interfaceNames;
-                for (ElementPtr child : nodegraph->getChildren())
+                ParameterPtr param = node->getParameter(AXIS);
+                if (param)
                 {
-                    NodePtr node = child->asA<Node>();
-                    if (node)
-                    {
-                        for (ValueElementPtr elem : node->getChildrenOfType<ValueElement>())
-                        {
-                            const string& interfaceName = elem->getInterfaceName();
-                            if (!interfaceName.empty())
-                            {
-                                interfaceNames.insert(interfaceName);
-                            }
-                        }
-                    }
+                    const string v = param->getValueString();
+                    node->removeParameter(AXIS);
+                    InputPtr input = node->addInput(AXIS, "vector3");
+                    input->setValueString(v);
                 }
-                for (string interfaceName : interfaceNames)
+            }
+        }
+
+        // Make it so that interface names and nodes in a nodegraph are not duplicates
+        // If they are, rename the nodes.
+        for (NodeGraphPtr nodegraph : getNodeGraphs())
+        {
+            StringSet interfaceNames;
+            for (auto child : nodegraph->getChildren())
+            {
+                NodePtr node = child->asA<Node>();
+                if (node)
                 {
-                    NodePtr node = nodegraph->getNode(interfaceName);
-                    if (node)
+                    for (ValueElementPtr elem : node->getChildrenOfType<ValueElement>())
                     {
-                        string newNodeName = nodegraph->createValidChildName(interfaceName);
-                        vector<MaterialX::PortElementPtr> downstreamPorts = node->getDownstreamPorts();
-                        for (MaterialX::PortElementPtr downstreamPort : downstreamPorts)
+                        const string& interfaceName = elem->getInterfaceName();
+                        if (!interfaceName.empty())
                         {
-                            if (downstreamPort->getNodeName() == interfaceName)
-                            {
-                                downstreamPort->setNodeName(newNodeName);
-                            }
+                            interfaceNames.insert(interfaceName);
                         }
-                        node->setName(newNodeName);
                     }
                 }
             }
-            minorVersion = 38;
+            for (string interfaceName : interfaceNames)
+            {
+                NodePtr node = nodegraph->getNode(interfaceName);
+                if (node)
+                {
+                    string newNodeName = nodegraph->createValidChildName(interfaceName);
+                    vector<MaterialX::PortElementPtr> downstreamPorts = node->getDownstreamPorts();
+                    for (MaterialX::PortElementPtr downstreamPort : downstreamPorts)
+                    {
+                        if (downstreamPort->getNodeName() == interfaceName)
+                        {
+                            downstreamPort->setNodeName(newNodeName);
+                        }
+                    }
+                    node->setName(newNodeName);
+                }
+            }
         }
+        minorVersion = 38;
     }
 
-    if (majorVersion >= MATERIALX_MAJOR_VERSION &&
-        minorVersion >= MATERIALX_MINOR_VERSION)
+    if (majorVersion == MATERIALX_MAJOR_VERSION &&
+        minorVersion == MATERIALX_MINOR_VERSION)
     {
-        setVersionString(makeVersionString(majorVersion, minorVersion));
+        setVersionString(DOCUMENT_VERSION_STRING);
     }
 }
 

@@ -4,7 +4,6 @@ addWrapper(function(Module, api) {
     api.createDocument = wrapperFunction(Module.createDocument);
 
     api.Document = wrapperFactory(Module.Document, {
-        importLibrary: [REQUIRED, null],
         addNodeGraph: [''],
         getMatchingPorts: [REQUIRED],
         addMaterial: [''],

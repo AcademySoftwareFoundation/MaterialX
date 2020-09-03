@@ -20,7 +20,6 @@ extern "C"
     {
         ems::function("getVersionString", &mx::getVersionString);
         ems::function("createValidName", &mx::createValidName); // arg0 === {std::string}, arg1 === {unicode representing character}
-        ems::function("makeVersionString", &mx::makeVersionString);
         ems::function("isValidName", &mx::isValidName);
         ems::function("incrementName", &mx::incrementName);
 

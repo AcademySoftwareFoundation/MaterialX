@@ -778,7 +778,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
         }
 
         // Set all parameters. Note that upstream connections are not currently handled.
-        for (const auto& param : light->getParameters())
+        for (auto param : light->getParameters())
         {
             // Make sure we have a value to set
             if (param->hasValue())

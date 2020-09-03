@@ -38,11 +38,19 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         ParentClass::addSkipNodeDefs();
     }
 
-    // Arnold specific files are ignored in vanilla osl target
-    void addSkipLibraryFiles() override
+    // Ignore files using derivatives
+    void addSkipFiles() override
     {
-        _skipLibraryFiles.insert( "pbrlib_genosl_arnold_impl.mtlx" );
+        std::string renderExec(MATERIALX_MDL_RENDER_EXECUTABLE);
+        if (std::string::npos != renderExec.find("df_cuda"))
+        {
+            // df_cuda will currently hang on rendering one of the shaders in this file
+            _skipFiles.insert("heighttonormal_in_nodegraph.mtlx");
+        }
+        ShaderGeneratorTester::addSkipFiles();
     }
+
+
     // Ignore light shaders in the document for MDL
     void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
     {

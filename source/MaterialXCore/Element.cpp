@@ -9,6 +9,7 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
+#include <iterator>
 #include <stdexcept>
 
 namespace MaterialX
@@ -269,15 +270,13 @@ template<class T> shared_ptr<const T> Element::asA() const
     return std::dynamic_pointer_cast<const T>(getSelf());
 }
 
-ElementPtr Element::addChildOfCategory(const string& category,
-                                       string name,
-                                       bool registerChild)
+ElementPtr Element::addChildOfCategory(const string& category, string name)
 {
     if (name.empty())
     {
         name = createValidChildName(category + "1");
     }
-    if (registerChild && _childMap.count(name))
+    if (_childMap.count(name))
     {
         throw Exception("Child name is not unique: " + name);
     }
@@ -305,10 +304,7 @@ ElementPtr Element::addChildOfCategory(const string& category,
         child->setCategory(category);
     }
 
-    if (registerChild)
-    {
-        registerChildElement(child);
-    }
+    registerChildElement(child);
 
     return child;
 }
@@ -383,10 +379,9 @@ InheritanceIterator Element::traverseInheritance() const
     return InheritanceIterator(getSelf());
 }
 
-void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* copyOptions)
+void Element::copyContentFrom(const ConstElementPtr& source)
 {
     DocumentPtr doc = getDocument();
-    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
 
     // Handle change notifications.
     ScopedUpdate update(doc);
@@ -396,26 +391,20 @@ void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* 
     _attributeMap = source->_attributeMap;
     _attributeOrder = source->_attributeOrder;
 
-    for (const ConstElementPtr& child : source->getChildren())
+    for (auto child : source->getChildren())
     {
         const string& name = child->getName();
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(name);
-        if (previous && skipConflictingElements)
+        if (previous)
         {
             continue;
         }
 
         // Create the copied element.
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name, !previous);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
         childCopy->copyContentFrom(child);
-
-        // Check for conflicting elements.
-        if (previous && *previous != *childCopy)
-        {
-            throw Exception("Duplicate element with conflicting content: " + name);
-        }
     }
 }
 
@@ -447,7 +436,7 @@ bool Element::validate(string* message) const
         bool validInherit = getInheritsFrom() && getInheritsFrom()->getCategory() == getCategory();
         validateRequire(validInherit, res, message, "Invalid element inheritance");
     }
-    for (ElementPtr child : getChildren())
+    for (auto child : getChildren())
     {
         res = child->validate(message) && res;
     }

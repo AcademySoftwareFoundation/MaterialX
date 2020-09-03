@@ -588,7 +588,7 @@ namespace
 
     void validateNodesHaveNodedefs(DocumentPtr doc)
     {
-        for (const ElementPtr& elem : doc->getChildren())
+        for (auto elem : doc->getChildren())
         {
             if (elem->isA<Node>())
             {
@@ -632,7 +632,7 @@ namespace
         PvtRenamingMapper mapper;
 
         // Load all other elements.
-        for (const ElementPtr& elem : doc->getChildren())
+        for (auto elem : doc->getChildren())
         {
             if (!filter || filter(elem))
             {
@@ -1246,10 +1246,10 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
     {
         DocumentPtr document = createDocument();
         XmlReadOptions xmlReadOptions;
-        xmlReadOptions.skipConflictingElements = true;
+        //xmlReadOptions.skipConflictingElements = true;
         if (readOptions)
         {
-            xmlReadOptions.skipConflictingElements = true;
+            //xmlReadOptions.skipConflictingElements = true;
             xmlReadOptions.applyFutureUpdates = readOptions->applyFutureUpdates;
         }
         readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
@@ -1269,10 +1269,10 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* readOptions)
     {
         DocumentPtr document = createDocument();
         XmlReadOptions xmlReadOptions;
-        xmlReadOptions.skipConflictingElements = true;
+        //xmlReadOptions.skipConflictingElements = true;
         if (readOptions)
         {
-            xmlReadOptions.skipConflictingElements = true;
+            //xmlReadOptions.skipConflictingElements = true;
             xmlReadOptions.applyFutureUpdates = readOptions->applyFutureUpdates;
         }
         readFromXmlStream(document, stream, &xmlReadOptions);
@@ -1293,7 +1293,7 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
     // Load all content into a document.
     DocumentPtr doc = createDocument();
     XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
+    //readOptions.skipConflictingElements = true;
     readOptions.applyFutureUpdates = true;
     MaterialX::loadLibraries(libraryPaths, searchPaths, doc, nullptr, &readOptions);
 
@@ -1323,7 +1323,7 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
     PvtRenamingMapper mapper;
 
     // Second, load all other elements.
-    for (const ElementPtr& elem : doc->getChildren())
+    for (auto elem : doc->getChildren())
     {
         PvtPath path(stage->getPath());
         path.push(RtToken(elem->getName()));
@@ -1359,11 +1359,11 @@ void RtFileIo::write(const FilePath& documentPath, const RtWriteOptions* options
     if (options)
     {
         xmlWriteOptions.writeXIncludeEnable = options->writeIncludes;
-        document->setVersionString(makeVersionString(options->desiredMajorVersion, options->desiredMinorVersion));
+        //document->setVersionString(makeVersionString(options->desiredMajorVersion, options->desiredMinorVersion));
     }
     else
     {
-        document->setVersionString(makeVersionString(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION + 1));
+        //document->setVersionString(makeVersionString(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION + 1));
     }
     writeToXmlFile(document, documentPath, &xmlWriteOptions);
 }
@@ -1379,11 +1379,11 @@ void RtFileIo::write(std::ostream& stream, const RtWriteOptions* options)
     if (options)
     {
         xmlWriteOptions.writeXIncludeEnable = options->writeIncludes;
-        document->setVersionString(makeVersionString(options->desiredMajorVersion, options->desiredMinorVersion));
+        //document->setVersionString(makeVersionString(options->desiredMajorVersion, options->desiredMinorVersion));
     }
     else
     {
-        document->setVersionString(makeVersionString(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION + 1));
+        //document->setVersionString(makeVersionString(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION + 1));
     }
     writeToXmlStream(document, stream, &xmlWriteOptions);
 }

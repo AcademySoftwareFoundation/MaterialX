@@ -108,8 +108,8 @@ describe('Code Examples', () => {
             }
             elem = elements.next();
         }
-        expect(elementCount).to.equal(22);
-        expect(nodeCount).to.equal(3);
+        expect(elementCount).to.equal(23);
+        expect(nodeCount).to.equal(5);
         expect(fileCount).to.equal(1);
     });
 
@@ -124,7 +124,7 @@ describe('Code Examples', () => {
         let materialCount = 0;
         let shaderParamCount = 0;
         let shaderInputCount = 0;
-        // Iterate through materials.
+        // Iterate through 1.37 materials for which there should be none
         const materials = doc.getMaterials();
         materials.forEach((material) => {
             materialCount++;
@@ -150,8 +150,8 @@ describe('Code Examples', () => {
             });
         });
 
-        expect(materialCount).to.equal(2);
-        expect(shaderParamCount).to.equal(2);
-        expect(shaderInputCount).to.equal(5);
+        expect(materialCount).to.equal(0);
+        expect(shaderParamCount).to.equal(0);
+        expect(shaderInputCount).to.equal(0);
     });
 });

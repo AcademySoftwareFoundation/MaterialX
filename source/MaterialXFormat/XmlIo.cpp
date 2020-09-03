@@ -28,8 +28,6 @@ const string XINCLUDE_URL = "http://www.w3.org/2001/XInclude";
 
 void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions)
 {
-    bool skipConflictingElements = readOptions && readOptions->skipConflictingElements;
-
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
     {
@@ -55,20 +53,14 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
 
         // Check for duplicate elements.
         ConstElementPtr previous = elem->getChild(name);
-        if (previous && skipConflictingElements)
+        if (previous)
         {
             continue;
         }
 
         // Create the new element.
-        ElementPtr child = elem->addChildOfCategory(category, name, !previous);
+        ElementPtr child = elem->addChildOfCategory(category, name);
         elementFromXml(xmlChild, child, readOptions);
-
-        // Check for conflicting elements.
-        if (previous && *previous != *child)
-        {
-            throw Exception("Duplicate element with conflicting content: " + name);
-        }
     }
 }
 
@@ -90,7 +82,7 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
 
     // Create child nodes and recurse.
     StringSet writtenSourceFiles;
-    for (const ConstElementPtr& child : elem->getChildren())
+    for (auto child : elem->getChildren())
     {
         if (elementPredicate && !elementPredicate(child))
         {
@@ -208,7 +200,7 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const FileSearchPath& 
                 readXIncludeFunction(library, filename, includeSearchPath, &xiReadOptions);
 
                 // Import the library document.
-                doc->importLibrary(library, readOptions);
+                doc->importLibrary(library);
             }
 
             // Remove include directive.

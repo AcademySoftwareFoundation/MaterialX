@@ -2,7 +2,7 @@
 
 int numRadianceSamples()
 {
-    return min($envRadianceSamples, MAX_ENV_RADIANCE_SAMPLES) ;
+    return min($envRadianceSamples, MAX_ENV_RADIANCE_SAMPLES);
 }
 
 // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
@@ -22,7 +22,7 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D sample
     return textureLod(sampler, uv, lod).rgb;
 }
 
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData f)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)
 {
     vec3 Y = normalize(cross(N, X));
     X = cross(Y, N);
@@ -33,7 +33,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
     // Integrate outgoing radiance using filtered importance sampling.
     // http://cgg.mff.cuni.cz/~jaroslav/papers/2008-egsr-fis/2008-egsr-fis-final-embedded.pdf
     vec3 radiance = vec3(0.0);
-    int envRadianceSamples = numRadianceSamples();
+    int envRadianceSamples = numRadianceSamples();	
     for (int i = 0; i < envRadianceSamples; i++)
     {
         vec2 Xi = mx_spherical_fibonacci(i, envRadianceSamples);
@@ -54,7 +54,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
         vec3 sampleColor = mx_latlong_map_lookup(L, $envMatrix, lod, $envRadiance);
 
         // Compute the Fresnel term.
-        vec3 F = mx_compute_fresnel(VdotH, f);
+        vec3 F = mx_compute_fresnel(VdotH, fd);
 
         // Compute the geometric term.
         float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));

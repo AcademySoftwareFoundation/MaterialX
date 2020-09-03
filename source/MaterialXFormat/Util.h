@@ -24,7 +24,7 @@ namespace MaterialX
 string readFile(const FilePath& file);
 
 /// Get all subdirectories for a given set of directories and search paths
-void getSubdirectories(const FilePathVec rootDirectories, const FileSearchPath& searchPath, FilePathVec& subdirectories);
+void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories);
 
 /// Scans for all documents under a root path and returns documents which can be loaded
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,

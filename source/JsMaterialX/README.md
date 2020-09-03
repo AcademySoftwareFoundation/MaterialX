@@ -30,13 +30,30 @@ The Emscripten toolchain is documented [here](https://emscripten.org/docs/buildi
 ### Build
 In the root of directory of this repository run the following:
 
+#### Docker
+It is recommended to build the project with [docker](https://docs.docker.com/) here are the required steps:
+
+  1. For Windows make sure to use Linux containers and that File Sharing is set up to allow local directories on Windows to be shared with Linux containers. 
+  
+     For example, if the path to MaterialX is ```"c:\git\MaterialXrepo"``` then the ```"c"``` drive should be set. (See https://docs.docker.com/docker-for-windows/#file-sharing for more details)
+
+  2. Get the `emscripten` docker image
+     ```sh
+     docker run -dit --name emscripten -v {path_to_MaterialX}:/src trzeci/emscripten:1.39.7-upstream bash
+     ```
+
+  3. Build the JavaScript bindings.
+     ```sh
+     docker exec -it emscripten sh -c "cd build && cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_EMSDK_PATH=/emsdk_portable/ && cmake --build . --target install"
+     ```
+
 #### CMake
 The JavasScript library can be built using cmake and make.
 
-1. Create the `build` folder from in the *root* of the repository.
+1. Create a build folder from in the *root* of the repository.
 ```sh
-mkdir -p ./build
-cd ./build
+mkdir -p ./<build_folder>
+cd ./<build_folder>
 ```
 
 2. Run cmake and make
@@ -56,37 +73,33 @@ cmake --build .
 ```
 
 
-#### Docker
-It is also possible to build the project with [docker](https://docs.docker.com/) here are the required steps:
-
-1. Get the emscripten docker image
-```sh
-docker run -dit --name emscripten -v {path_to_MaterialX}:/src trzeci/emscripten:1.39.7-upstream bash
-```
-
-2. Build the JavaScript bindings.
-```sh
-docker exec -it emscripten sh -c "cd build && cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_EMSDK_PATH=/emsdk_portable/ && cmake --build . --target install"
-```
-
 ### Output
-After building the project the `JsMaterialX.wasm` and `JsMaterialX.js` files can be found in `./_build/source/JsMaterialX/`.
+After building the project the `JsMaterialX.wasm` and `JsMaterialX.js` files can be found in `./<build_folder>/source/JsMaterialX/`.
+
+### Install
+To install the results into the install directory run
+```sh
+cmake --build --target install
+```
+from the build directory.
 
 ### Testing
-The JavaScript tests are located in `./test` folder and are defined with the `.spec.js` suffix.
-Most of these tests were copied over from the Python [main.py tests](../../python/MaterialXTest/main.py).
+The JavaScript tests are located in `<root_dir>/source/JsMaterialX/test` folder and are defined with the `.spec.js` suffix.
+Most of these tests are the same as the Python [main.py tests](../../python/MaterialXTest/main.py).
 
 #### Setup
-These tests require node.js. This is a part of the emscripten environment. So make sure to call `emsdk_env` before running the steps described below.
+These tests require `node.js`. This is a part of the emscripten environment. So make sure to call `emsdk_env` before running the steps described below.
 
-1. Install the npm packages.
+1. From the test directory, install the npm packages.
 ```sh
-cd ./test && npm install
+npm install
 ```
 
-2. Run the tests
+2. Run the tests from the test directory.
 ```sh
 npm run test
 ```
 
+#### CI
+Note that a sample build, install and test configuration can be found in the `.travis.yml` file. 
 

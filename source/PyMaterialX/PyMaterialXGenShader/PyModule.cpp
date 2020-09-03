@@ -17,6 +17,7 @@ void bindPyHwResourceBindingContext(py::module &mod);
 void bindPyGenUserData(py::module& mod);
 void bindPyGenOptions(py::module& mod);
 void bindPyShaderStage(py::module& mod);
+void bindPyShaderTranslator(py::module& mod);
 void bindPyUtil(py::module& mod);
 void bindPyTypeDesc(py::module& mod);
 void bindPyUnitSystem(py::module& mod);
@@ -34,6 +35,7 @@ PYBIND11_MODULE(PyMaterialXGenShader, mod)
     bindPyGenOptions(mod);
     bindPyGenUserData(mod);
     bindPyShaderStage(mod);
+    bindPyShaderTranslator(mod);
     bindPyUtil(mod);
     bindPyTypeDesc(mod);
     bindPyUnitSystem(mod);

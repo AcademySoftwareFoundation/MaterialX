@@ -666,8 +666,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     filenameRemap[":"] = "_";
 
     size_t documentIndex = 0;
-    mx::CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
     for (const auto& doc : _documents)
     {
         // For each new file clear the implementation cache.
@@ -686,7 +684,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         bool importedLibrary = false;
         try
         {
-            doc->importLibrary(_dependLib, &copyOptions);
+            doc->importLibrary(_dependLib);
             importedLibrary = true;
         }
         catch (mx::Exception& e)
@@ -746,7 +744,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         bool docValid = doc->validate(&message);
         if (!docValid)
         {
-            _logFile << "Document is invalid: [" << doc->getSourceUri() << "] " << message;
+            std::string msg = "Document is invalid: [" + doc->getSourceUri() + "] " + message;
+            _logFile << msg;
+            WARN(msg);
         }
         CHECK(docValid);
 
@@ -996,7 +996,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
         {
-            for (MaterialX::ParameterPtr p : optionDefs->getParameters())
+            for (auto p : optionDefs->getParameters())
             {
                 const std::string& name = p->getName();
                 MaterialX::ValuePtr val = p->getValue();

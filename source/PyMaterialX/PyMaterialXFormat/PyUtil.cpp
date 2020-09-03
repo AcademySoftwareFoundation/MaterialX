@@ -6,9 +6,8 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXCore/Node.h>
-#include <MaterialXFormat/Util.h>
-
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;

@@ -25,10 +25,6 @@ extern "C"
 {
     EMSCRIPTEN_BINDINGS(element)
     {
-        ems::class_<mx::CopyOptions>("CopyOptions")
-            .constructor<>()
-            .property("skipConflictingElements", &mx::CopyOptions::skipConflictingElements);
-
         ems::class_<mx::Element>("Element")
             .smart_ptr<std::shared_ptr<mx::Element>>("Element")
             .smart_ptr<std::shared_ptr<const mx::Element>>("Element") // mx::ConstElementPtr
@@ -117,10 +113,9 @@ extern "C"
                           bool res = self.mx::Element::validate(&message);
                           return res;
                       }))
-            .function("copyContentFrom", ems::optional_override([](mx::Element &self, mx::ConstElementPtr source, mx::CopyOptions copyOptions) {
+            .function("copyContentFrom", ems::optional_override([](mx::Element &self, mx::ConstElementPtr source) {
                           const mx::ConstElementPtr &source1 = source;
-                          const mx::CopyOptions *str1 = &copyOptions;
-                          return self.mx::Element::copyContentFrom(source1, str1);
+                          return self.mx::Element::copyContentFrom(source1);
                       }))
             .function("clearContent", &mx::Element::clearContent)
             .function("createValidChildName", &mx::Element::createValidChildName)

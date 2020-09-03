@@ -25,7 +25,6 @@ class Token;
 class StringResolver;
 class Document;
 class Material;
-class CopyOptions;
 
 /// A shared pointer to an Element
 using ElementPtr = shared_ptr<Element>;
@@ -452,14 +451,10 @@ class Element : public std::enable_shared_from_this<Element>
     /// @param name The name of the new child element.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
-    /// @param registerChild If true, then the child will be registered as
-    ///     belonging to this element tree.  Defaults to true.
     /// @throws Exception if a child of this element already possesses the
     ///     given name.
     /// @return A shared pointer to the new child element.
-    ElementPtr addChildOfCategory(const string& category,
-                                  string name = EMPTY_STRING,
-                                  bool registerChild = true);
+    ElementPtr addChildOfCategory(const string& category, string name = EMPTY_STRING);
 
     /// Return the child element, if any, with the given name.
     ElementPtr getChild(const string& name) const
@@ -783,10 +778,7 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Copy all attributes and descendants from the given element to this one.
     /// @param source The element from which content is copied.
-    /// @param copyOptions An optional pointer to a CopyOptions object.
-    ///    If provided, then the given options will affect the behavior of the
-    ///    copy function.  Defaults to a null pointer.
-    void copyContentFrom(const ConstElementPtr& source, const CopyOptions* copyOptions = nullptr);
+    void copyContentFrom(const ConstElementPtr& source);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();
@@ -1354,22 +1346,6 @@ class StringResolver
     string _geomPrefix;
     StringMap _filenameMap;
     StringMap _geomNameMap;
-};
-
-/// @class CopyOptions
-/// A set of options for controlling the behavior of element copy operations.
-class CopyOptions
-{
-  public:
-    CopyOptions() :
-        skipConflictingElements(false)
-    {
-    }
-    ~CopyOptions() { }
-
-    /// If true, duplicate elements with non-identical content will be skipped;
-    /// otherwise they will trigger an exception.  Defaults to false.
-    bool skipConflictingElements;
 };
 
 /// @class ExceptionOrphanedElement

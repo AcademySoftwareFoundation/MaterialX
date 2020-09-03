@@ -217,6 +217,9 @@ export material mx_conductor_brdf(
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
     uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx
+    [[
+        anno::unused()
+    ]]
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
@@ -276,11 +279,11 @@ export material mx_generalized_schlick_brdf(
 );
 
 export material mx_subsurface_brdf(
-    float  mxp_weight    = 1.0,
-    color  mxp_color     = color(0.18),
-    float3 mxp_radius    = float3(1.0), // TODO: should probably be a color in MTLX Spec
-    float  mxp_anisotropy = 0.0,
-    float3 mxp_normal    = state::normal()
+    float  mxp_weight    = 1.0 [[ anno::unused() ]],
+    color  mxp_color     = color(0.18) [[ anno::unused() ]],
+    float3 mxp_radius    = float3(1.0) [[ anno::unused() ]], // TODO: should probably be a color in MTLX Spec
+    float  mxp_anisotropy = 0.0 [[ anno::unused() ]],
+    float3 mxp_normal    = state::normal() [[ anno::unused() ]]
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
@@ -296,7 +299,7 @@ export material mx_sheen_brdf(
     color  mxp_color     = color(1.0),
     float  mxp_roughness = 0.2,
     float3 mxp_normal    = state::normal(),
-    material mxp_base = material() [[ anno::usage( "materialx:bsdf"), anno::unused() ]],
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]],
     color  mxp_diffuse_color     = color(1.0) // color of the base layer, MDL supports only diffuse
 ) [[ 
     anno::usage( "materialx:bsdf") 
@@ -351,7 +354,10 @@ export material mx_uniform_edf(
 
 export material mx_conical_edf(
     color mxp_color = color(1.0),
-    float3 mxp_normal = state::normal(),
+    float3 mxp_normal = state::normal()
+    [[
+        anno::unused()
+    ]],
     uniform float mxp_inner_angle = 60.0, 
     uniform float mxp_outer_angle = 0.0
 ) [[ 
@@ -371,7 +377,10 @@ export material mx_conical_edf(
 
 export material mx_measured_edf(
     color mxp_color = color(1.0),
-    float3 mxp_normal = state::normal(),
+    float3 mxp_normal = state::normal()
+    [[
+        anno::unused()
+    ]],
     uniform light_profile mxp_file  = light_profile()
 ) [[ 
     anno::usage( "materialx:edf") 
@@ -572,8 +581,8 @@ export material mx_mix_bsdf(
 
 export material mx_mix_edf(
     material mxp_fg = material() [[ anno::usage( "materialx:edf") ]],
-    material mxp_bg = material() [[ anno::usage( "materialx:edf") ]],
-    float    mxp_mix = 0.0
+    material mxp_bg = material() [[ anno::usage( "materialx:edf"), anno::unused() ]],
+    float    mxp_mix = 0.0 [[ anno::unused() ]]
 ) [[ 
     anno::usage( "materialx:edf") 
 ]]

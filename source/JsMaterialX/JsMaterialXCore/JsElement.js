@@ -1,13 +1,11 @@
 // jsElement
 addWrapper(function (Module, api) {
-    /** Setup the CopyOptions class */
-    api.CopyOptions = Module.CopyOptions;
 
     /** Setup the Element class */
     api.Element = wrapperFactory(Module.Element, {
         getNamePath: [null],
         addChildOfCategory: [REQUIRED, '', true],
-        copyContentFrom: [REQUIRED, api.CopyOptions],
+        copyContentFrom: [REQUIRED, null],
         getUpstreamEdge: [null, 0],
         getUpstreamElement: [null, 0],
         validate: [''],

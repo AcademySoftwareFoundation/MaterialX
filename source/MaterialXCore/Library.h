@@ -19,7 +19,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <iterator>
 
 namespace MaterialX
 {

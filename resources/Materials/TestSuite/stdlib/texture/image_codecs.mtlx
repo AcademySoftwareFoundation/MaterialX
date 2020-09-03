@@ -3,72 +3,72 @@
   <output name="image4_output_bmp" type="color4" nodename="image4_bmp" xpos="6.01379" ypos="-0.64" />
   <image name="image4_bmp" type="color4" xpos="6.57241" ypos="21.64">
     <parameter name="file" type="filename" value="resources/Images/cloth.bmp" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
   <output name="image4_output_gif" type="color4" nodename="image4_gif" xpos="6.14483" ypos="8.16" />
   <image name="image4_gif" type="color4" xpos="6.57931" ypos="27.28">
     <parameter name="file" type="filename" value="resources/Images/cloth.gif" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
   <output name="image4_output_jpg" type="color4" nodename="image4_jpg" xpos="6.10345" ypos="5.96" />
   <image name="image4_jpg" type="color4" xpos="6.57931" ypos="32.92">
     <parameter name="file" type="filename" value="resources/Images/cloth.jpg" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
   <output name="image4_output_png" type="color4" nodename="image4_png" xpos="6.06207" ypos="1.56" />
   <image name="image4_png" type="color4" xpos="6.57931" ypos="30.1">
     <parameter name="file" type="filename" value="resources/Images/cloth.png" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
   <output name="image4_output_tga" type="color4" nodename="image4_tga" xpos="6.09655" ypos="3.76" />
   <image name="image4_tga" type="color4" xpos="6.57931" ypos="24.46">
     <parameter name="file" type="filename" value="resources/Images/cloth.tga" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
   <output name="image4_output_exr" type="color4" nodename="image4_clothexr1" xpos="5.84828" ypos="-5.04" />
   <image name="image4_clothexr1" type="color4" xpos="6.4069" ypos="13.18">
     <parameter name="file" type="filename" value="resources/Images/cloth.exr" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
   <output name="image4_output_wood_png" type="color4" nodename="image4_wood1" xpos="5.84828" ypos="-7.24" />
   <image name="image4_wood1" type="color4" xpos="6.4069" ypos="10.36">
     <parameter name="file" type="filename" value="resources/Images/wood_color.jpg" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
   <output name="image4_output_bridge3_hdr" type="color4" nodename="image4_bridge3" xpos="5.84828" ypos="-9.44" />
   <image name="image4_bridge3" type="color4" xpos="6.4069" ypos="18.82">
     <parameter name="file" type="filename" value="resources/Lights/irradiance/san_giuseppe_bridge.hdr" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
   <output name="image4_output_bridge4_hdr" type="color4" nodename="image4_bridge4" xpos="5.84828" ypos="-2.84" />
   <image name="image4_bridge4" type="color4" xpos="6.4069" ypos="16">
     <parameter name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
-    <parameter name="uaddressmode" type="string" value="constant" />
-    <parameter name="vaddressmode" type="string" value="clamp" />
+    <parameter name="uaddressmode" type="string" value="periodic" />
+    <parameter name="vaddressmode" type="string" value="periodic" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>

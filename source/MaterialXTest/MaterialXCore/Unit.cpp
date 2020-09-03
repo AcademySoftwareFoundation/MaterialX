@@ -187,12 +187,14 @@ TEST_CASE("UnitDocument", "[unit]")
                     }
                 }
 
-                if (pNode->getParameterCount()) {
-                    for (mx::ParameterPtr param: pNode->getParameters()) {
+                if (pNode->getParameterCount()) 
+                {
+                    for (auto param: pNode->getParameters()) 
+                    {
                         const std::string type = param->getType();
                         const mx::ValuePtr value = param->getValue();
-                        if (param->hasUnit() && value) {
-
+                        if (param->hasUnit() && value) 
+                        {
                             if (type == "float")
                             {
                                 float originalval = value->asA<float>();

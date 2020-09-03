@@ -598,7 +598,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
 
     // Add shader node paths and unit value
     const string& nodePath = node->getNamePath();
-    for (const ValueElementPtr& nodeInput : nodeDef->getActiveInputs())
+    for (auto nodeInput : nodeDef->getActiveInputs())
     {
         const string& inputName = nodeInput->getName();
         const string path = nodePath + NAME_PATH_SEPARATOR + inputName;
@@ -941,7 +941,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
 
         // Add shaderRef nodedef paths
         const string& nodePath = shaderRef->getNamePath();
-        for (const ValueElementPtr& nodeInput : nodeDef->getActiveInputs())
+        for (auto nodeInput : nodeDef->getActiveInputs())
         {
             const string& inputName = nodeInput->getName();
             const string path = nodePath + NAME_PATH_SEPARATOR + inputName;
@@ -1073,7 +1073,7 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
             ShaderInput* shaderInput = newNode->getInput(input->getName());
             populateColorTransformMap(colorManagementSystem, shaderInput, input, targetColorSpace, true);
         }
-        for (ParameterPtr parameter : node.getParameters())
+        for (auto parameter : node.getParameters())
         {
             if (parameter->getType() == FILENAME_TYPE_STRING)
             {
@@ -1101,7 +1101,7 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
             ShaderInput* inputPort = newNode->getInput(input->getName());
             populateUnitTransformMap(unitSystem, inputPort, input, targetDistanceUnit, true);
         }
-        for (ParameterPtr parameter : node.getParameters())
+        for (auto parameter : node.getParameters())
         {
             ShaderInput* inputPort = newNode->getInput(parameter->getName());
             if (parameter->getType() == FILENAME_TYPE_STRING)

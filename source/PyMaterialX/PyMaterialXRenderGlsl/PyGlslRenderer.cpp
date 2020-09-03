@@ -20,7 +20,7 @@ void bindPyGlslRenderer(py::module& mod)
         .def("validateInputs", &mx::GlslRenderer::validateInputs)
         .def("render", &mx::GlslRenderer::render)
         .def("renderTextureSpace", &mx::GlslRenderer::renderTextureSpace)
-        .def("save", &mx::GlslRenderer::save)
+        .def("captureImage", &mx::GlslRenderer::captureImage)
         .def("saveImage", &mx::GlslRenderer::saveImage)
         .def("getProgram", &mx::GlslRenderer::getProgram);
 }

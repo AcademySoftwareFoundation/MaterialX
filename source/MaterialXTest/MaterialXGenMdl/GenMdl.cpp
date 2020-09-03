@@ -114,12 +114,6 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
     if (sourceCodePaths.empty() || sourceCodePaths[0].isEmpty())
         return;
     
-    std::string mdlcExec(MATERIALX_MDLC_EXECUTABLE);
-    if (mdlcExec.empty())
-    {
-        return;
-    }
-
     mx::FilePath moduleToTestPath = sourceCodePaths[0].getParentPath();
     mx::FilePath module = sourceCodePaths[0];
     std::string moduleToTest = module[module.size()-1];
@@ -127,40 +121,119 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
 
     mx::StringVec extraModulePaths = mx::splitString(MATERIALX_MDL_MODULE_PATHS, ",");
 
-    std::string mdlcCommand = mdlcExec;
-    for (const std::string& extraPath : extraModulePaths)
+    std::string renderExec(MATERIALX_MDL_RENDER_EXECUTABLE);
+    bool testMDLC = renderExec.empty();
+    if (testMDLC)
     {
-        mdlcCommand += " -p\"" + extraPath + "\"";
-    }
-    // Note: These paths are based on
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FilePath coreModulePath = currentPath / std::string(MATERIALX_INSTALL_MDL_MODULE_PATH) / "mdl";
-    mx::FilePath coreModulePath2 = coreModulePath / mx::FilePath("materialx");
-    mdlcCommand += " -p \"" + currentPath.asString() + "\"";
-    mdlcCommand += " -p \"" + coreModulePath.asString() + "\"";
-    mdlcCommand += " -p \"" + coreModulePath2.asString() + "\"";
-    mdlcCommand += " -p \"" + moduleToTestPath.asString() + "\"";
-    mdlcCommand += " -p \"" + moduleToTestPath.getParentPath().asString() + "\"";
-    mdlcCommand += " -p \"" + _libSearchPath.asString() + "\"";
-    mdlcCommand += " -W \"181=off\" -W \"183=off\"  -W \"225=off\"";
-    mdlcCommand += " " + moduleToTest;
-    mx::FilePath errorFile = moduleToTestPath / (moduleToTest + ".mdl_errors.txt");
-    mdlcCommand += " > " + errorFile.asString() + " 2>&1";
-
-    int returnValue = std::system(mdlcCommand.c_str());
-    std::ifstream errorStream(errorFile);
-    mx::StringVec result;
-    std::string line;
-    bool writeErrorCode = false;
-    while (std::getline(errorStream, line))
-    {
-        if (!writeErrorCode)
+        std::string mdlcExec(MATERIALX_MDLC_EXECUTABLE);
+        if (mdlcExec.empty())
         {
-            _logFile << mdlcCommand << std::endl;
-            _logFile << "\tReturn code: " << std::to_string(returnValue) << std::endl;
-            writeErrorCode = true;
+            return;
         }
-        _logFile << "\tError: " << line << std::endl;
+
+        std::string mdlcCommand = mdlcExec;
+        for (const std::string& extraPath : extraModulePaths)
+        {
+            mdlcCommand += " -p\"" + extraPath + "\"";
+        }
+
+        // Note: These paths are based on
+        mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+        mx::FilePath coreModulePath = currentPath / std::string(MATERIALX_INSTALL_MDL_MODULE_PATH) / "mdl";
+        mx::FilePath coreModulePath2 = coreModulePath / mx::FilePath("materialx");
+        mdlcCommand += " -p \"" + currentPath.asString() + "\"";
+        mdlcCommand += " -p \"" + coreModulePath.asString() + "\"";
+        mdlcCommand += " -p \"" + coreModulePath2.asString() + "\"";
+        mdlcCommand += " -p \"" + moduleToTestPath.asString() + "\"";
+        mdlcCommand += " -p \"" + moduleToTestPath.getParentPath().asString() + "\"";
+        mdlcCommand += " -p \"" + _libSearchPath.asString() + "\"";
+        mdlcCommand += " -W \"181=off\" -W \"183=off\"  -W \"225=off\"";
+        mdlcCommand += " " + moduleToTest;
+        mx::FilePath errorFile = moduleToTestPath / (moduleToTest + ".mdl_compile_errors.txt");
+        mdlcCommand += " > " + errorFile.asString() + " 2>&1";
+
+        int returnValue = std::system(mdlcCommand.c_str());
+        std::ifstream errorStream(errorFile);
+        mx::StringVec result;
+        std::string line;
+        bool writeErrorCode = false;
+        while (std::getline(errorStream, line))
+        {
+            if (!writeErrorCode)
+            {
+                _logFile << mdlcCommand << std::endl;
+                _logFile << "\tReturn code: " << std::to_string(returnValue) << std::endl;
+                writeErrorCode = true;
+            }
+            _logFile << "\tError: " << line << std::endl;
+        }
+    }
+    else
+    {
+        // Make this a build option
+        //std::string renderExec("D:/Work/materialx/df_cuda_rel_325000.1814/df_cuda.exe");
+        //if (renderExec.empty())
+        //{
+        //    return;
+        //}
+
+        std::string renderCommand = renderExec;
+        for (const std::string& extraPath : extraModulePaths)
+        {
+            renderCommand += " --mdl_path\"" + extraPath + "\"";
+        }
+
+        // Note: These paths are based on
+        mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+        mx::FilePath coreModulePath = currentPath / std::string(MATERIALX_INSTALL_MDL_MODULE_PATH) / "mdl";
+        mx::FilePath coreModulePath2 = coreModulePath / mx::FilePath("materialx");
+        renderCommand += " --mdl_path \"" + currentPath.asString() + "\"";
+        renderCommand += " --mdl_path \"" + coreModulePath.asString() + "\"";
+        renderCommand += " --mdl_path \"" + coreModulePath2.asString() + "\"";
+        renderCommand += " --mdl_path \"" + moduleToTestPath.asString() + "\"";
+        renderCommand += " --mdl_path \"" + moduleToTestPath.getParentPath().asString() + "\"";
+        renderCommand += " --mdl_path \"" + _libSearchPath.asString() + "\"";
+        // This must be a render args option. Rest are consistent between dxr and cuda example renderers.
+        std::string renderArgs(MATERIALX_MDL_RENDER_ARGUMENTS);
+        if (renderArgs.empty())
+        {
+            // Assume df_cuda is being used and set reasonable arguments automatically
+            renderCommand += " --nogl --res 512 512 -p 2.0 0 0.5 -f 70 --spi 1 --spp 16";
+        }
+        else
+        {
+            renderCommand += " " + renderArgs;
+        }
+        renderCommand += " --noaux";
+        std::string iblFile = (currentPath / "resources/lights/san_giuseppe_bridge.hdr").asString();
+        renderCommand += " --hdr \"" + iblFile + "\"";
+        renderCommand += " ::" + moduleToTest + "::*";
+
+        std::string extension("_mdl.png");
+#if defined(MATERIALX_BUILD_OIIO)
+        extension = "_mdl.exr";
+#endif
+        mx::FilePath outputImageName = moduleToTestPath / (moduleToTest + extension);
+
+        renderCommand += " -o " + outputImageName.asString();
+        mx::FilePath logFile = moduleToTestPath / (moduleToTest + ".mdl_render_errors.txt");
+        renderCommand += " > " + logFile.asString() + " 2>&1";
+
+        int returnValue = std::system(renderCommand.c_str());
+        std::ifstream logStream(logFile);
+        mx::StringVec result;
+        std::string line;
+        bool writeLogCode = false;
+        while (std::getline(logStream, line))
+        {
+            if (!writeLogCode)
+            {
+                _logFile << renderCommand << std::endl;
+                _logFile << "\tReturn code: " << std::to_string(returnValue) << std::endl;
+                writeLogCode = true;
+            }
+            _logFile << "\tLog: " << line << std::endl;
+        }
     }
 }
 

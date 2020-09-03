@@ -255,12 +255,12 @@ Viewer::Viewer(const std::string& materialFilename,
 #endif
 
     // Initialize image handler.
-#if MATERIALX_BUILD_OIIO
-    mx::ImageLoaderPtr imageLoader = mx::OiioImageLoader::create();
-#else
     mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
-#endif
     _imageHandler = mx::GLTextureHandler::create(imageLoader);
+#if MATERIALX_BUILD_OIIO
+    mx::ImageLoaderPtr imageLoader2 = mx::OiioImageLoader::create();
+    _imageHandler->addLoader(imageLoader2);
+#endif
     _imageHandler->setSearchPath(_searchPath);
 
     // Initialize user interfaces.
@@ -488,9 +488,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
 {
     if (_lightRigDoc)
     {
-        mx::CopyOptions copyOptions;
-        copyOptions.skipConflictingElements = true;
-        doc->importLibrary(_lightRigDoc, &copyOptions);
+        doc->importLibrary(_lightRigDoc);
         _xincludeFiles.insert(_lightRigFilename);
     }
 
@@ -612,8 +610,7 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
     envButton->setCallback([this]()
     {
         mProcessEvents = false;
-        mx::StringSet extensions;
-        _imageHandler->supportedExtensions(extensions);
+        mx::StringSet extensions = _imageHandler->supportedExtensions();
         std::vector<std::pair<std::string, std::string>> filetypes;
         for (const auto& extension : extensions)
         {
@@ -1002,7 +999,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
     readOptions.applyFutureUpdates = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
@@ -1042,9 +1038,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
 
         // Import libraries.
-        mx::CopyOptions copyOptions; 
-        copyOptions.skipConflictingElements = true;
-        doc->importLibrary(libraries, &copyOptions);
+        doc->importLibrary(libraries);
 
         // Apply direct lights.
         applyDirectLights(doc);
@@ -1442,7 +1436,6 @@ void Viewer::loadStandardLibraries()
     try
     {
         mx::XmlReadOptions readOptions;
-        readOptions.skipConflictingElements = true;
         readOptions.applyFutureUpdates = true;
         _stdLib = mx::createDocument();
         _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib, nullptr, &readOptions);
@@ -1810,7 +1803,6 @@ void Viewer::bakeTextures()
     else
     {
         materialsToBake.push_back(material);
-        udimSet.push_back("");
     }
 
     {
@@ -1832,11 +1824,6 @@ void Viewer::bakeTextures()
                 {
                     baker->setImageHandler(imageHandler);
                     baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath(), mat->getUdim());
-
-                    if (mat->getUdim() == udimSet.back())
-                    {
-                        baker->writeBakedDocument(shaderRef, _bakeFilename, udimSetValue);
-                    }
                 }
                 catch (mx::Exception& e)
                 {
@@ -1844,6 +1831,12 @@ void Viewer::bakeTextures()
                 }
             }
         }
+
+        // Optimize baked textures.
+        baker->optimizeBakedTextures();
+
+        // Write the baked document and textures.
+        baker->writeBakedMaterial(_bakeFilename, udimSet);
     }
 
     // Restore state for scene rendering.
