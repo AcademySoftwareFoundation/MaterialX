@@ -1641,7 +1641,12 @@ mx::ImagePtr Viewer::renderWedge()
 {
     MaterialPtr material = getSelectedMaterial();
     mx::ShaderPort* uniform = material ? material->findUniform(_wedgePropertyName) : nullptr;
-    float origPropertyValue = uniform && uniform->getValue()->isA<float>() ? uniform->getValue()->asA<float>() : 0.0f;
+    mx::ValuePtr origValue = uniform->getValue();
+    if (!origValue->isA<float>() && !origValue->isA<mx::Color3>())
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to render wedge", "Unsupported property type");
+        return nullptr;
+    }
 
     std::vector<mx::ImagePtr> imageVec;
     float wedgePropertyStep = (_wedgePropertyMax - _wedgePropertyMin) / (_wedgeImageCount - 1);
@@ -1649,8 +1654,15 @@ mx::ImagePtr Viewer::renderWedge()
     {
         if (material)
         {
-            float propertyValue = (i == _wedgeImageCount - 1) ? _wedgePropertyMax : _wedgePropertyMin + wedgePropertyStep * i;
-            material->setUniformFloat(_wedgePropertyName, propertyValue);
+            float renderValue = (i == _wedgeImageCount - 1) ? _wedgePropertyMax : _wedgePropertyMin + wedgePropertyStep * i;
+            if (origValue->isA<float>())
+            {
+                material->setUniformFloat(_wedgePropertyName, renderValue);
+            }
+            else if (origValue->isA<mx::Color3>())
+            {
+                material->setUniformVec3(_wedgePropertyName, ng::Vector3f(renderValue, renderValue, renderValue));
+            }
         }
         renderFrame();
         imageVec.push_back(getFrameImage());
@@ -1658,7 +1670,14 @@ mx::ImagePtr Viewer::renderWedge()
 
     if (material)
     {
-        material->setUniformFloat(_wedgePropertyName, origPropertyValue);
+        if (origValue->isA<float>())
+        {
+            material->setUniformFloat(_wedgePropertyName, origValue->asA<float>());
+        }
+        else if (origValue->isA<mx::Color3>())
+        {
+            material->setUniformVec3(_wedgePropertyName, ng::Vector3f(origValue->asA<mx::Color3>().data()));
+        }
     }
 
     return mx::createImageStrip(imageVec);
