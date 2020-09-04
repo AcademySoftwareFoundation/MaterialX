@@ -32,7 +32,7 @@ ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned in
     return image;
 }
 
-ImagePtr createImageStrip(vector<ImagePtr> imageVec)
+ImagePtr createImageStrip(const vector<ImagePtr>& imageVec)
 {
     if (imageVec.empty())
     {
