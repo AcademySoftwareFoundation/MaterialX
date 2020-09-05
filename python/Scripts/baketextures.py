@@ -21,8 +21,6 @@ def main():
     opts = parser.parse_args()
 
     doc = mx.createDocument()
-    mxversion = mx.getVersionString()
-
     try:
         mx.readFromXmlFile(doc, opts.input_filename)
     except mx.ExceptionFileMissing as err:
@@ -35,8 +33,8 @@ def main():
     searchPath.append(os.path.dirname(opts.input_filename))
     libraryFolders = [ "libraries" ]
     if opts.paths:
-        for path_list in opts.paths:
-            for path in path_list:
+        for pathList in opts.paths:
+            for path in pathList:
                 searchPath.append(path)
     if opts.libraries:
         for libraryList in opts.libraries:
@@ -46,7 +44,7 @@ def main():
     doc.importLibrary(stdlib)
 
     valid, msg = doc.validate()
-    if (not valid):
+    if not valid:
         print("Validation warnings for input document:")
         print(msg)
 
