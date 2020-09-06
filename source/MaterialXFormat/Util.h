@@ -37,9 +37,9 @@ void loadLibrary(const FilePath& file,
                  const FileSearchPath& searchPath = FileSearchPath(), 
                  XmlReadOptions* readOptions = nullptr);
 
-/// Load all MaterialX files with given library names in given search paths.
-/// Note that all library files will have a URI set on them.
-StringSet loadLibraries(const FilePathVec& libraryNames,
+/// Load all MaterialX files within the given library folders into a document,
+/// using the given search path to locate the folders on the file system.
+StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
                         const StringSet& excludeFiles = StringSet(),
