@@ -13,21 +13,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Ubuntu
+        - name: Ubuntu_Latest
           os: ubuntu-latest
           test_render: OFF
           python: python3
-          cmake_config: -DMATERIALX_PYTHON_VERSION=3 
-        - name: MacOS
+          cmake_config: -DMATERIALX_PYTHON_VERSION=3
+
+        - name: MacOS_Latest
           os: macos-latest
           test_render: OFF
           python: python3
-          cmake_config: -DMATERIALX_PYTHON_VERSION=3 
+          cmake_config: -DMATERIALX_PYTHON_VERSION=3
+
         - name: Windows_VS2017_x64
           os: windows-2016
           test_render: OFF
           python: python
           cmake_config: -G "Visual Studio 15 2017" -A "x64"
+
         - name: Windows_VS2019_x64
           os: windows-2019
           test_render: OFF
@@ -40,34 +43,39 @@ jobs:
       config: Release
 
     steps:
-    - run: sudo apt-get install libgl-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libx11-dev
-      if: ${{matrix.os == 'ubuntu-latest'}}
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install libgl-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libx11-dev
+      if: ${{startsWith(matrix.os, 'ubuntu')}}
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: build dir
+
+    - name: Create Build Directory
       run: mkdir build
-    - name: cmake
+      
+    - name: CMake Build
       run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=${{matrix.test_render}} -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
       working-directory: build
-    - name: build
+
+    - name: CMake Install
       run: cmake --build . --target install --config ${{env.config}}
       working-directory: build
     - uses: actions/upload-artifact@v2
       with:
         name: MaterialX_${{matrix.name}}
         path: build/installed/
-    - name: unit tests
+
+    - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config ${{env.config}}
       working-directory: build
-    - uses: actions/upload-artifact@v2
-      if: ${{ always() }}
-      with:
-        name: MaterialX_${{matrix.name}}_logs
-        path: build/source/MaterialXTest/*.txt
-    - run: echo ::set-env name=PYTHONPATH::"$GITHUB_WORKSPACE/build/installed/python"
+
+    - name: Set Python Path
+      run: echo ::set-env name=PYTHONPATH::"$GITHUB_WORKSPACE/build/installed/python"
       if: ${{!contains(matrix.os, 'windows-')}}
-    - name: test html
+
+    - name: Generate HTML
       if: ${{matrix.test_render == 'ON'}}
       run: cmake -E chdir ../python/MaterialXTest ${{matrix.python}} tests_to_html.py
       working-directory: build
@@ -81,9 +89,9 @@ jobs:
       with:
         name: MaterialX_${{matrix.name}}_test_images
         path: build/source/MaterialXTest/**/*.png
-    - name: main tests
-      run: cmake -E chdir ../python/MaterialXTest ${{matrix.python}} main.py
-      working-directory: build
-    - name: genshader tests
-      run: cmake -E chdir ../python/MaterialXTest ${{matrix.python}} genshader.py
+
+    - name: Python Tests
+      run: |
+        cmake -E chdir ../python/MaterialXTest ${{matrix.python}} main.py
+        cmake -E chdir ../python/MaterialXTest ${{matrix.python}} genshader.py
       working-directory: build
