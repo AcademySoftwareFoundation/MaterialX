@@ -72,6 +72,12 @@ void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef)
 
         shaderRef->removeBindInput(bindInput->getName());
     }
+
+    if (_metalMap != EMPTY_STRING)
+    {
+        InputPtr input = _translationNode->addInput("metalMap", "filename");
+        input->setValueString(_metalMap);
+    }
 }
 
 void ShaderTranslator::insertUpstreamDependencies(OutputPtr translatedOutput, OutputPtr graphOutput)
@@ -161,6 +167,7 @@ void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader
 
     DocumentPtr doc = shaderRef->getDocument();
     string translateNodeString = shaderRef->getNodeString() + "_to_" + destShader;
+    if (_metalMap != EMPTY_STRING) translateNodeString += "_MetalMap";
     if (!_translationNodes.count(translateNodeString))
     {
         return;
@@ -173,9 +180,10 @@ void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader
     connectTranslationOutputs(shaderRef);
 }
 
-bool ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destShader)
+bool ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destShader, string metalMap)
 {
     ShaderTranslatorPtr translator = ShaderTranslator::create(doc);
+    translator->setMetalMap(metalMap);
     vector<TypedElementPtr> renderableShaderRefs;
     std::unordered_set<OutputPtr> outputs;
     findRenderableShaderRefs(doc, renderableShaderRefs, false, outputs);

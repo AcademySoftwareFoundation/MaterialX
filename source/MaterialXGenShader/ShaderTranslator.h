@@ -29,7 +29,13 @@ class ShaderTranslator
     void translateShader(ShaderRefPtr shaderRef, string destShader);
 
     /// Translates all the materials to the destShader shading model if translation exists.
-    static bool translateAllMaterials(DocumentPtr doc, string destShader);
+    static bool translateAllMaterials(DocumentPtr doc, string destShader, string metalMap = EMPTY_STRING);
+
+    /// Translates all the materials to the destShader shading model if translation exists.
+    void setMetalMap(string metalMap)
+    {
+        _metalMap = metalMap;
+    }
 
     /// Returns set of all the available potential translations
     StringSet getAvailableTranslations(string start)
@@ -59,6 +65,9 @@ class ShaderTranslator
 
     /// Map that stores all the potential destination shading models for given shading model
     std::unordered_map<string, StringSet> _shadingTranslations;
+
+    /// Filepath to the metal map
+    string _metalMap;
 
     /// Saved document that contains library for shading translation
     ConstDocumentPtr _doc;
