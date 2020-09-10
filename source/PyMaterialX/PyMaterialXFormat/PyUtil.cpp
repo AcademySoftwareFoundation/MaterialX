@@ -18,6 +18,8 @@ void bindPyUtil(py::module& mod)
     mod.def("readFile", &mx::readFile);
     mod.def("getSubdirectories", &mx::getSubdirectories);
     mod.def("loadDocuments", &mx::loadDocuments);
-    mod.def("loadLibrary", &mx::loadLibrary);
-    mod.def("loadLibraries", &mx::loadLibraries);
+    mod.def("loadLibrary", &mx::loadLibrary,
+        py::arg("file"), py::arg("doc"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
+    mod.def("loadLibraries", &mx::loadLibraries,
+        py::arg("libraryFolders"), py::arg("searchPath"), py::arg("doc"), py::arg("excludeFiles") = mx::StringSet(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
 }

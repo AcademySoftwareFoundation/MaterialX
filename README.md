@@ -68,4 +68,4 @@ The following binaries are automatically generated from the latest GitHub revisi
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
 - The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
-- Presentations at the [Autodesk Vision Series](https://area.autodesk.com/blogs/thebuzz/open-source-at-autodesk-materialx/) provide details on the roadmap for MaterialX development.
+- Presentations at the [Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) and [MaterialX Birds of a Feather](http://www.materialx.org/assets/MaterialX_Sig2020_BOF_slides.pdf) provide details on the roadmap for MaterialX development.

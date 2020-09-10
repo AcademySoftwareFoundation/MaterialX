@@ -591,7 +591,7 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
         std::vector<std::pair<std::string, std::string>> filetypes;
         for (const auto& extension : extensions)
         {
-            filetypes.push_back(std::make_pair(extension, extension));
+            filetypes.emplace_back(extension, extension);
         }
         std::string filename = ng::file_dialog(filetypes, false);
         if (!filename.empty())
@@ -1351,7 +1351,7 @@ void Viewer::loadStandardLibraries()
     try
     {
         _stdLib = mx::createDocument();
-        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib, nullptr);
+        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
         if (_xincludeFiles.empty())
         {
             std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
@@ -1641,7 +1641,18 @@ mx::ImagePtr Viewer::renderWedge()
 {
     MaterialPtr material = getSelectedMaterial();
     mx::ShaderPort* uniform = material ? material->findUniform(_wedgePropertyName) : nullptr;
-    float origPropertyValue = uniform && uniform->getValue()->isA<float>() ? uniform->getValue()->asA<float>() : 0.0f;
+    if (!uniform)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Material property not found", _wedgePropertyName);
+        return nullptr;
+    }
+
+    mx::ValuePtr origValue = uniform->getValue();
+    if (!origValue->isA<float>() && !origValue->isA<mx::Color3>())
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Material property type not supported", _wedgePropertyName);
+        return nullptr;
+    }
 
     std::vector<mx::ImagePtr> imageVec;
     float wedgePropertyStep = (_wedgePropertyMax - _wedgePropertyMin) / (_wedgeImageCount - 1);
@@ -1649,8 +1660,15 @@ mx::ImagePtr Viewer::renderWedge()
     {
         if (material)
         {
-            float propertyValue = (i == _wedgeImageCount - 1) ? _wedgePropertyMax : _wedgePropertyMin + wedgePropertyStep * i;
-            material->setUniformFloat(_wedgePropertyName, propertyValue);
+            float renderValue = (i == _wedgeImageCount - 1) ? _wedgePropertyMax : _wedgePropertyMin + wedgePropertyStep * i;
+            if (origValue->isA<float>())
+            {
+                material->setUniformFloat(_wedgePropertyName, renderValue);
+            }
+            else if (origValue->isA<mx::Color3>())
+            {
+                material->setUniformVec3(_wedgePropertyName, ng::Vector3f(renderValue, renderValue, renderValue));
+            }
         }
         renderFrame();
         imageVec.push_back(getFrameImage());
@@ -1658,7 +1676,14 @@ mx::ImagePtr Viewer::renderWedge()
 
     if (material)
     {
-        material->setUniformFloat(_wedgePropertyName, origPropertyValue);
+        if (origValue->isA<float>())
+        {
+            material->setUniformFloat(_wedgePropertyName, origValue->asA<float>());
+        }
+        else if (origValue->isA<mx::Color3>())
+        {
+            material->setUniformVec3(_wedgePropertyName, ng::Vector3f(origValue->asA<mx::Color3>().data()));
+        }
     }
 
     return mx::createImageStrip(imageVec);
@@ -1752,10 +1777,9 @@ void Viewer::drawContents()
     {
         _wedgeRequested = false;
         mx::ImagePtr wedgeImage = renderWedge();
-        if (!wedgeImage || !_imageHandler->saveImage(_wedgeFilename, wedgeImage, true))
+        if (wedgeImage)
         {
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
-                "Failed to save wedge to disk: ", _wedgeFilename.asString());
+            _imageHandler->saveImage(_wedgeFilename, wedgeImage, true);
         }
     }
 
@@ -1767,10 +1791,9 @@ void Viewer::drawContents()
     {
         _captureRequested = false;
         mx::ImagePtr frameImage = getFrameImage();
-        if (!frameImage || !_imageHandler->saveImage(_captureFilename, frameImage, true))
+        if (frameImage)
         {
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
-                "Failed to save frame to disk: ", _captureFilename.asString());
+            _imageHandler->saveImage(_captureFilename, frameImage, true);
         }
     }
 

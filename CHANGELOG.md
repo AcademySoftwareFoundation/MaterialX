@@ -1,11 +1,14 @@
 # Change Log
 
-## [1.37.2] - Development
+## [1.37.2] - 2020-09-06
 
 ### Added
 - Added support for texture baking from Python, including new example script [baketextures.py](python/Scripts/baketextures.py).
-- Added support for floating-point render targets in ShaderRenderer and its subclasses, allowing for HDR texture baking with TextureBaker.
+- Added support for texture baking of materials with multiple UDIMs.
+- Added support for floating-point render targets in ShaderRenderer and its subclasses, allowing for HDR texture baking.
 - Added support for displacement shaders in generated OSL.
+- Added the ShaderTranslator class, laying the groundwork for support of shader translation graphs.
+- Added Python bindings for the Image class.
 
 ### Fixed
 - Fixed the alignment of environment backgrounds in the viewer.
