@@ -33,7 +33,9 @@ void bindPyInterface(py::module& mod)
         .def("setChannels", &mx::PortElement::setChannels)
         .def("getChannels", &mx::PortElement::getChannels)
         .def("setConnectedNode", &mx::PortElement::setConnectedNode)
-        .def("getConnectedNode", &mx::PortElement::getConnectedNode);
+        .def("getConnectedNode", &mx::PortElement::getConnectedNode)
+        .def("setConnectedOutput", &mx::PortElement::setConnectedOutput)
+        .def("getConnectedOutput", &mx::PortElement::getConnectedOutput);
 
     py::class_<mx::Input, mx::InputPtr, mx::PortElement>(mod, "Input")
         .def("setDefaultGeomPropString", &mx::Input::setDefaultGeomPropString)

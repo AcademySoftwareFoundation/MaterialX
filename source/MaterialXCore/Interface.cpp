@@ -67,6 +67,38 @@ NodePtr PortElement::getConnectedNode() const
     return graph ? graph->getNode(getNodeName()) : nullptr;
 }
 
+void PortElement::setConnectedOutput(ConstOutputPtr output)
+{
+    if (output)
+    {
+        setOutputString(output->getName());
+        ConstElementPtr parent = output->getParent();
+        if (parent->isA<NodeGraph>())
+        {
+            setNodeGraphString(parent->getName());
+        }
+        else
+        {
+            removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        }
+    }
+    else
+    {
+        removeAttribute(OUTPUT_ATTRIBUTE);
+        removeAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+}
+
+OutputPtr PortElement::getConnectedOutput() const
+{
+    if (hasNodeGraphString())
+    {
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+        return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
+    }
+    return getDocument()->getOutput(getOutputString());
+}
+
 bool PortElement::validate(string* message) const
 {
     bool res = true;

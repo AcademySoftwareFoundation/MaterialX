@@ -222,6 +222,13 @@ class PortElement : public ValueElement
     /// Return the node, if any, to which this element is connected.
     virtual NodePtr getConnectedNode() const;
 
+    /// Set the output to which this element is connected.  If the output
+    /// argument is null, then any existing output connection will be cleared.
+    void setConnectedOutput(ConstOutputPtr output);
+
+    /// Return the output, if any, to which this element is connected.
+    OutputPtr getConnectedOutput() const;
+
     /// @}
     /// @name Validation
     /// @{
