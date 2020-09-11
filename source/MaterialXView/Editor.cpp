@@ -724,7 +724,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         mx::UIPropertyGroup unnamedGroups;
         const std::string pathSeparator(":");
         mx::createUIPropertyGroups(*publicUniforms, doc, material->getElement(),
-                                    pathSeparator, groups, unnamedGroups); 
+                                    pathSeparator, groups, unnamedGroups, true); 
 
         std::string previousFolder;
         // Make all inputs editable for now. Could make this read-only as well.
@@ -820,6 +820,67 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
     box->setCallback([slider, callback](float value)
     {
         slider->setValue(value);
+        callback(value);
+    });
+
+    return box;
+}
+
+
+ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, unsigned int value,
+    const mx::UIProperties* ui, std::function<void(int)> callback)
+{
+    new ng::Label(parent, label);
+
+    ng::Slider *slider = new ng::Slider(parent);
+    slider->setValue((float)value);
+
+    ng::IntBox<int>* box = new ng::IntBox<int>(parent, value);
+    box->setFixedWidth(60);
+    box->setFontSize(15);
+    box->setAlignment(ng::TextBox::Alignment::Right);
+    if (ui)
+    {
+        std::pair<int, int> range(0, 1);
+        if (ui->uiMin)
+        {
+            box->setMinValue(ui->uiMin->asA<int>());
+            range.first = ui->uiMin->asA<int>();
+        }
+        if (ui->uiMax)
+        {
+            box->setMaxValue(ui->uiMax->asA<int>());
+            range.second = ui->uiMax->asA<int>();
+        }
+        if (ui->uiSoftMin)
+        {
+            range.first = ui->uiSoftMin->asA<int>();
+        }
+        if (ui->uiSoftMax)
+        {
+            range.second = ui->uiSoftMax->asA<int>();
+        }
+        if (range.first != range.second)
+        {
+            std::pair<float, float> float_range((float)range.first, (float)range.second);
+            slider->setRange(float_range);
+        }
+        if (ui->uiStep)
+        {
+            box->setValueIncrement(ui->uiStep->asA<int>());
+            box->setSpinnable(true);
+            box->setEditable(true);
+        }
+    }
+
+    slider->setCallback([box, callback](float value)
+    {
+        box->setValue((int)value);
+        callback((int)value);
+    });
+    box->setCallback([slider, callback](int value)
+    {
+        slider->setValue((float)value);
         callback(value);
     });
 

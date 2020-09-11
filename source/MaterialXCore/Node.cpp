@@ -486,13 +486,20 @@ ValueElementPtr Node::addInputFromNodeDef(const string& name)
     if (elemNodeDef)
     {
         ValueElementPtr nodeDefElem = elemNodeDef->getChildOfType<ValueElement>(name);
+        const string& inputName = nodeDefElem->getName();
+        ElementPtr existingElement = getChild(inputName);
+        if (existingElement && existingElement->isA<ValueElement>())
+        {
+            return existingElement->asA<ValueElement>();
+        }
+
         if (nodeDefElem->isA<Input>())
         {
-            newChild = addInput(nodeDefElem->getName());
+            newChild = addInput(inputName);
         }
         else if (nodeDefElem->isA<Parameter>())
         {
-            newChild = addParameter(nodeDefElem->getName());
+            newChild = addParameter(inputName);
         }
         if (newChild)
         {
