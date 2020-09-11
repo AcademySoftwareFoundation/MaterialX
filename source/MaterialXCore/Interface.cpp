@@ -96,9 +96,9 @@ bool PortElement::validate(string* message) const
                         "Multi-output type expected in port connection");
                 }
             }
-            else if (hasNodeGraphName())
+            else if (hasNodeGraphString())
             {
-                NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphName());
+                NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
                 if (nodeGraph)
                 {
                     output = nodeGraph->getOutput(outputString);
@@ -275,9 +275,9 @@ OutputPtr Input::getConnectedOutput() const
     OutputPtr result = nullptr;
 
     // Look for an output in a nodegraph
-    if (hasNodeGraphName())
+    if (hasNodeGraphString())
     {
-        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphName());
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
         if (nodeGraph)
         {
             std::vector<OutputPtr> outputs = nodeGraph->getOutputs();
