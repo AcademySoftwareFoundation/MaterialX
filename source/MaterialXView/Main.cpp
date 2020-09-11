@@ -13,8 +13,10 @@ const std::string options =
 "    --cameraPosition [VECTOR3]     The position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
 "    --cameraTarget [VECTOR3]       The position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
 "    --cameraViewAngle [FLOAT]      The view angle of the camera (defaults to 45)\n"
+"    --cameraZoom [FLOAT]           The amount to zoom the camera. (defaults to 1.0)\n"
 "    --envRad [FILENAME]            The filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format\n"
 "    --envMethod [INTEGER]          The environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
+"    --envSampleCount [INTEGER]     The environment sample count (defaults to 16)\n"
 "    --lightRotation [FLOAT]        The rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
 "    --path [FILEPATH]              An additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
 "    --library [FILEPATH]           An additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
@@ -66,8 +68,10 @@ int main(int argc, char* const argv[])
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
+    float cameraZoom(DEFAULT_CAMERA_ZOOM);
     std::string envRadiancePath = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
+    int envSampleCount = DEFAULT_ENV_SAMPLES;
     float lightRotation = 0.0f;
     DocumentModifiers modifiers;
     int screenWidth = 1280;
@@ -108,6 +112,10 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "float", cameraViewAngle);
         }
+        else if (token == "--cameraZoom")
+        {
+            parseToken(nextToken, "float", cameraZoom);
+        }
         else if (token == "--envRad")
         {
             envRadiancePath = nextToken;
@@ -119,6 +127,10 @@ int main(int argc, char* const argv[])
                 specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_PREFILTER;
             }
         }
+        else if (token == "--envSampleCount")
+        {
+            parseToken(nextToken, "integer", envSampleCount);
+        }       
         else if (token == "--lightRotation")
         {
             parseToken(nextToken, "float", lightRotation);
@@ -204,8 +216,10 @@ int main(int argc, char* const argv[])
                                                 cameraPosition,
                                                 cameraTarget,
                                                 cameraViewAngle,
+                                                cameraZoom,
                                                 envRadiancePath,
                                                 specularEnvironmentMethod,
+                                                envSampleCount,
                                                 lightRotation,
                                                 libraryFolders,
                                                 searchPath,

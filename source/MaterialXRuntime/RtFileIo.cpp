@@ -708,7 +708,7 @@ namespace
         }
     }
 
-    NodePtr writeNode(const PvtPrim* src, GraphElementPtr dest)
+    NodePtr writeNode(const PvtPrim* src, GraphElementPtr dest, const RtWriteOptions* writeOptions)
     {
         RtNode node(src->hnd());
         RtNodeDef nodedef(node.getNodeDef());
@@ -727,6 +727,8 @@ namespace
             outputType = attr.getType();
         }
 
+        bool writeDefaultValues = writeOptions ? writeOptions->writeDefaultValues : false;
+
         NodePtr destNode = dest->addNode(nodedef.getNamespacedNode(), node.getName(), numOutputs > 1 ? "multioutput" : outputType);
 
         for (RtAttribute attrDef : nodedef.getPrim().getAttributes())
@@ -736,7 +738,8 @@ namespace
             if (input)
             {
                 // Write input if it's connected or different from default value.
-                if (input.isConnected() || !RtValue::compare(input.getType(), input.getValue(), attrDef.getValue()))
+                if (writeDefaultValues || 
+                    input.isConnected() || !RtValue::compare(input.getType(), input.getValue(), attrDef.getValue()))
                 {
                     ValueElementPtr valueElem;
                     if (input.isUniform())
@@ -923,7 +926,7 @@ namespace
         // Write nodes.
         for (RtPrim node : nodegraph.getNodes())
         {
-            writeNode(PvtObject::ptr<PvtPrim>(node), destNodeGraph);
+            writeNode(PvtObject::ptr<PvtPrim>(node), destNodeGraph, writeOptions);
         }
 
         // Write outputs.
@@ -1111,7 +1114,7 @@ namespace
             }
             else if (typeName == RtNode::typeName())
             {
-                NodePtr mxNode = writeNode(prim, doc);
+                NodePtr mxNode = writeNode(prim, doc, writeOptions);
                 RtNode node(prim->hnd());
                 const RtOutput& output = node.getOutput(DEFAULT_OUTPUT);
                 if (output && output.getType() == MATERIAL_TYPE_STRING && writeOptions &&
@@ -1233,6 +1236,7 @@ RtReadOptions::RtReadOptions() :
 RtWriteOptions::RtWriteOptions() :
     writeIncludes(true),
     writeNodeGraphInputs(false),
+    writeDefaultValues(false),
     writeFilter(nullptr),
     materialWriteOp(NONE),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),

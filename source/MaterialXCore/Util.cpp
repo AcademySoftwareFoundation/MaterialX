@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXCore/Util.h>
+#include <MaterialXCore/Types.h>
 
 #include <cctype>
 
@@ -124,6 +125,33 @@ bool stringEndsWith(const string& str, const string& suffix)
         return !str.compare(str.length() - suffix.length(), suffix.length(), suffix);
     }
     return false;
+}
+
+StringVec splitNamePath(const string& namePath)
+{
+    StringVec nameVec = splitString(namePath, NAME_PATH_SEPARATOR);
+    return nameVec;
+}
+
+string createNamePath(const StringVec& nameVec)
+{
+    string res;
+    for (const string& name : nameVec)
+    {
+        res = res.empty() ? name: res + NAME_PATH_SEPARATOR + name;
+    }
+    return res;
+}
+
+string parentNamePath(const string& namePath)
+{
+    StringVec nameVec = splitNamePath(namePath);
+    if (!nameVec.empty())
+    {
+        nameVec.pop_back();
+        return createNamePath(nameVec);
+    }
+    return EMPTY_STRING;
 }
 
 } // namespace MaterialX
