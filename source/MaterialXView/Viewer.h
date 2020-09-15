@@ -282,5 +282,4 @@ extern const float DEFAULT_CAMERA_VIEW_ANGLE;
 extern const float DEFAULT_CAMERA_ZOOM;
 extern const int DEFAULT_ENV_SAMPLES;
 
-
 #endif // MATERIALXVIEW_VIEWER_H
