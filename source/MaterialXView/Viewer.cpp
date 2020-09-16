@@ -1605,6 +1605,10 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             _captureFilename = ng::file_dialog(filetypes, true);
             if (!_captureFilename.isEmpty())
             {
+                if (_captureFilename.getExtension().empty())
+                {
+                    _captureFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
+                }
                 _captureRequested = true;
             }
         }
@@ -1613,6 +1617,18 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             _wedgeFilename = ng::file_dialog(filetypes, true);
             if (!_wedgeFilename.isEmpty())
             {
+                // There are issues with using the STB loader and png files
+                // so use another format if PNG specified or if no extension specified
+                const std::string extension = _wedgeFilename.getExtension();
+                if (extension.empty())
+                {                    
+                    _wedgeFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
+                }
+                else if (extension == mx::ImageLoader::PNG_EXTENSION)
+                {
+                    _wedgeFilename.removeExtension();
+                    _wedgeFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
+                }
                 _wedgeRequested = true;
             }
         }
