@@ -32,7 +32,7 @@ matrix:
     - os: linux
       dist: bionic
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6 && PY=2"
+      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6 && SHARED=ON && PY=2"
       addons:
         apt:
           packages: [*packages_base, g++-6]
@@ -54,15 +54,17 @@ matrix:
           packages: [*packages_base, clang-9]
 
 before_install:
+  - export SHARED=OFF
   - export PY=3
   - eval "${MATRIX_EVAL}"
 
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_PYTHON_VERSION=$PY -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_BUILD_SHARED_LIBS=$SHARED -DMATERIALX_PYTHON_VERSION=$PY -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
   - cmake --build . --target install -- -j2
   - ctest -VV --output-on-failure
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/installed/lib
   - cmake -E chdir ../python/MaterialXTest python$PY main.py
   - cmake -E chdir ../python/MaterialXTest python$PY genshader.py
