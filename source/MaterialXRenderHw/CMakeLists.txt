@@ -13,7 +13,7 @@ endif()
 assign_source_group("Source Files" ${materialx_source})
 assign_source_group("Header Files" ${materialx_headers})
 
-add_library(MaterialXRenderHw STATIC ${materialx_source} ${materialx_headers})
+add_library(MaterialXRenderHw ${materialx_source} ${materialx_headers})
 
 if(MSVC)
     target_link_libraries(
@@ -50,12 +50,12 @@ target_include_directories(MaterialXRenderHw
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
         $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
     PRIVATE
-        ${EXTERNAL_INCLUDE_DIRS}
-)
+        ${EXTERNAL_INCLUDE_DIRS})
 
 install(TARGETS MaterialXRenderHw
     EXPORT MaterialX
-    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderHw/ MESSAGE_NEVER

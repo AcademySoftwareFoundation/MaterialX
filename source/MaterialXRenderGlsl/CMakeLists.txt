@@ -26,7 +26,7 @@ elseif(UNIX)
     include_directories(${X11_INCLUDE_DIR})
 endif()
 
-add_library(MaterialXRenderGlsl STATIC ${materialx_source} ${materialx_headers})
+add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
 
 if(MSVC)
     target_link_libraries(
@@ -66,12 +66,12 @@ target_include_directories(MaterialXRenderGlsl
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
         $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
     PRIVATE
-        ${EXTERNAL_INCLUDE_DIRS}
-)
+        ${EXTERNAL_INCLUDE_DIRS})
 
 install(TARGETS MaterialXRenderGlsl
     EXPORT MaterialX
-    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderGlsl/ MESSAGE_NEVER
