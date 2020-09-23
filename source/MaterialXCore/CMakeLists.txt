@@ -1,7 +1,7 @@
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
-add_library(MaterialXCore STATIC ${materialx_source} ${materialx_headers})
+add_library(MaterialXCore ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION})
 add_definitions(-DMATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION})
@@ -25,12 +25,12 @@ target_include_directories(MaterialXCore
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
         $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
     PRIVATE
-        ${EXTERNAL_INCLUDE_DIRS}
-)
+        ${EXTERNAL_INCLUDE_DIRS})
 
 install(TARGETS MaterialXCore
     EXPORT MaterialX
-    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
 
 install(FILES ${materialx_headers}
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXCore/)
