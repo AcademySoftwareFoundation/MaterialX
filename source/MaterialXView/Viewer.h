@@ -27,8 +27,10 @@ class Viewer : public ng::Screen
            const mx::Vector3& cameraPosition,
            const mx::Vector3& cameraTarget,
            float cameraViewAngle,
+           float cameraZoom,
            const std::string& envRadiancePath,
            mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
+           int envSampleCount,
            float lightRotation,
            const mx::FilePathVec& libraryFolders,
            const mx::FileSearchPath& searchPath,
@@ -122,6 +124,7 @@ class Viewer : public ng::Screen
     void createLoadMaterialsInterface(Widget* parent, const std::string& label);
     void createLoadEnvironmentInterface(Widget* parent, const std::string& label);
     void createSaveMaterialsInterface(Widget* parent, const std::string& label);
+    void createWedgeParameterInterface(Widget* parent, const std::string& label);
     void createPropertyEditorInterface(Widget* parent, const std::string& label);
     void createAdvancedSettings(Widget* parent);
 
@@ -267,6 +270,7 @@ class Viewer : public ng::Screen
     float _wedgePropertyMin;
     float _wedgePropertyMax;
     unsigned int _wedgeImageCount;
+    ng::ComboBox* _wedgeSelectionBox;
 
     // Texture baking
     bool _bakeRequested;
@@ -275,5 +279,7 @@ class Viewer : public ng::Screen
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
 extern const float DEFAULT_CAMERA_VIEW_ANGLE;
+extern const float DEFAULT_CAMERA_ZOOM;
+extern const int DEFAULT_ENV_SAMPLES;
 
 #endif // MATERIALXVIEW_VIEWER_H

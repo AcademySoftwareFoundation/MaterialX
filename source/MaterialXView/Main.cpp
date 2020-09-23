@@ -6,27 +6,29 @@ NANOGUI_FORCE_DISCRETE_GPU();
 
 const std::string options = 
 " Options: \n"
-"    --material [FILENAME]          The filename of the MTLX document to be displayed in the viewer\n"
-"    --mesh [FILENAME]              The filename of the OBJ mesh to be displayed in the viewer\n"
-"    --meshRotation [VECTOR3]       The rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
-"    --meshScale [FLOAT]            The uniform scale of the displayed mesh\n"
-"    --cameraPosition [VECTOR3]     The position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
-"    --cameraTarget [VECTOR3]       The position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
-"    --cameraViewAngle [FLOAT]      The view angle of the camera (defaults to 45)\n"
-"    --envRad [FILENAME]            The filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format\n"
-"    --envMethod [INTEGER]          The environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
-"    --lightRotation [FLOAT]        The rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
-"    --path [FILEPATH]              An additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
-"    --library [FILEPATH]           An additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
-"    --screenWidth [INTEGER]        The width of the screen image in pixels (defaults to 1280)\n"
-"    --screenHeight [INTEGER]       The height of the screen image in pixels (defaults to 960)\n"
-"    --screenColor [VECTOR3]        The background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
-"    --msaa [INTEGER]               The multisampling count for screen anti-aliasing (defaults to 0)\n"
-"    --refresh [INTEGER]            The refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
-"    --remap [TOKEN1:TOKEN2]        Remap one token to another when MaterialX document is loaded\n"
-"    --skip [NAME]                  Skip elements matching the given name attribute\n"
-"    --terminator [STRING]          Enforce the given terminator string for file prefixes\n"
-"    --help                         Print this list\n";
+"    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the viewer\n"
+"    --mesh [FILENAME]              Specify the filename of the OBJ mesh to be displayed in the viewer\n"
+"    --meshRotation [VECTOR3]       Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
+"    --meshScale [FLOAT]            Specify the uniform scale of the displayed mesh\n"
+"    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
+"    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
+"    --cameraViewAngle [FLOAT]      Specify the view angle of the camera (defaults to 45)\n"
+"    --cameraZoom [FLOAT]           Specify the amount to zoom the camera. (defaults to 1.0)\n"
+"    --envRad [FILENAME]            Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format\n"
+"    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
+"    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
+"    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
+"    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
+"    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
+"    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
+"    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
+"    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
+"    --msaa [INTEGER]               Specify the multisampling count for screen anti-aliasing (defaults to 0)\n"
+"    --refresh [INTEGER]            Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
+"    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
+"    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
+"    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
+"    --help                         Display the complete list of command-line options\n";
 
 template<class T> void parseToken(std::string token, std::string type, T& res)
 {
@@ -66,8 +68,10 @@ int main(int argc, char* const argv[])
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
+    float cameraZoom(DEFAULT_CAMERA_ZOOM);
     std::string envRadiancePath = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
+    int envSampleCount = DEFAULT_ENV_SAMPLES;
     float lightRotation = 0.0f;
     DocumentModifiers modifiers;
     int screenWidth = 1280;
@@ -108,6 +112,10 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "float", cameraViewAngle);
         }
+        else if (token == "--cameraZoom")
+        {
+            parseToken(nextToken, "float", cameraZoom);
+        }
         else if (token == "--envRad")
         {
             envRadiancePath = nextToken;
@@ -119,6 +127,10 @@ int main(int argc, char* const argv[])
                 specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_PREFILTER;
             }
         }
+        else if (token == "--envSampleCount")
+        {
+            parseToken(nextToken, "integer", envSampleCount);
+        }       
         else if (token == "--lightRotation")
         {
             parseToken(nextToken, "float", lightRotation);
@@ -204,8 +216,10 @@ int main(int argc, char* const argv[])
                                                 cameraPosition,
                                                 cameraTarget,
                                                 cameraViewAngle,
+                                                cameraZoom,
                                                 envRadiancePath,
                                                 specularEnvironmentMethod,
+                                                envSampleCount,
                                                 lightRotation,
                                                 libraryFolders,
                                                 searchPath,

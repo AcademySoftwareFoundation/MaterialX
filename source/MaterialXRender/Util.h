@@ -119,7 +119,7 @@ void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocume
 /// Returns a list of named and unnamed groups.
 void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
                             const string& pathSeparator, UIPropertyGroup& groups,
-                            UIPropertyGroup& unnamedGroups);
+                            UIPropertyGroup& unnamedGroups, bool addFromDefinition);
 
 /// @}
 

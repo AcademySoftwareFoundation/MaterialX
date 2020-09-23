@@ -7,21 +7,21 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 <p float="left">
   <img src="/documents/Images/MaterialXView_Marble.png" width="213" />
-  <img src="/documents/Images/MaterialXView_Copper.png" width="213" /> 
-  <img src="/documents/Images/MaterialXView_Plastic.png" width="213" /> 
-  <img src="/documents/Images/MaterialXView_Carpaint.png" width="213" /> 
+  <img src="/documents/Images/MaterialXView_Copper.png" width="213" />
+  <img src="/documents/Images/MaterialXView_Plastic.png" width="213" />
+  <img src="/documents/Images/MaterialXView_Carpaint.png" width="213" />
 </p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 <p float="left">
   <img src="/documents/Images/MaterialXView_TiledBrass.png" width="430" />
-  <img src="/documents/Images/MaterialXView_TiledWood.png" width="430" /> 
+  <img src="/documents/Images/MaterialXView_TiledWood.png" width="430" />
 </p>
 
 **Figure 3:** Droid character materials in the MaterialX viewer. © & TM Lucasfilm Ltd. Used with permission.
 <p float="left">
   <img src="/documents/Images/MaterialXView_BB8.png" width="430" />
-  <img src="/documents/Images/MaterialXView_R2D2.png" width="430" /> 
+  <img src="/documents/Images/MaterialXView_R2D2.png" width="430" />
 </p>
 
 ## Building The MaterialX Viewer
@@ -64,17 +64,41 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 ### Keyboard Shortcuts
 
 - `R`: Reload the current material from file.  Hold `SHIFT` to reload all standard libraries as well.
-- `S`: Save the current shader source to file.
+- `S`: Save the current GLSL shader source to file.
+- `O`: Save the current OSL shader source to file.
+- `M`: Save the current MDL shader source to file.
 - `L`: Load shader source from file.  Editing the source files before loading provides a way to debug and experiment with shader source code.
 - `D`: Save each node graph in the current material as a DOT file.  See www.graphviz.org for more details on this format.
 - `F`: Capture the current frame and save to file.
+- `W`: Create a wedge rendering and save to file.
+- `RIGHT` : Switch to next material
+- `LEFT` : Switch to previous material  
+- `UP` : Zoom in with the camera.  
+- `DOWN` : Zoom out with the camera.
 
 ### Command-Line Options
 
 The following are common command-line options for MaterialXView, and a complete list can be displayed with the `--help` option.
-- `--material [FILENAME]`: Specify the displayed material
-- `--mesh [FILENAME]`: Specify the displayed geometry
-- `--envRad [FILENAME]`: Specify the displayed environment light, stored as HDR environment radiance in the latitude-longitude format
-- `--path [FILEPATH]`: Specify an additional absolute search path location
-- `--library [FILEPATH]`: Specify an additional relative path to a custom data library folder
-- `--help`: Display the complete list of command-line options
+- `--material [FILENAME]` : Specify the filename of the MTLX document to be displayed in the viewer
+- `--mesh [FILENAME]` : Specify the filename of the OBJ mesh to be displayed in the viewer
+- `--meshRotation [VECTOR3]` : Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)
+- `--meshScale [FLOAT]` : Specify the uniform scale of the displayed mesh
+- `--cameraPosition [VECTOR3]` : Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)
+- `--cameraTarget [VECTOR3]` : Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)
+- `--cameraViewAngle [FLOAT]` : Specify the view angle of the camera (defaults to 45)
+- `--cameraZoom [FLOAT]` : Specify the amount to zoom the camera. (defaults to 1.0)
+- `--envRad [FILENAME]` : Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format
+- `--envMethod [INTEGER]` : Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)
+- `--envSampleCount [INTEGER]` :  Specify the environment sample count (defaults to 16)
+- `--lightRotation [FLOAT]` : Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)
+- `--path [FILEPATH]` : Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.
+- `--library [FILEPATH]` : Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.
+- `--screenWidth [INTEGER]` : Specify the width of the screen image in pixels (defaults to 1280)
+- `--screenHeight [INTEGER]` : Specify the height of the screen image in pixels (defaults to 960)
+- `--screenColor [VECTOR3]` : Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)
+- `--msaa [INTEGER]` : Specify the multisampling count for screen anti-aliasing (defaults to 0)
+- `--refresh [INTEGER]` : Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)
+- `--remap [TOKEN1:TOKEN2]` : Specify the remapping from one token to another when MaterialX document is loaded
+- `--skip [NAME]` : Specify to skip elements matching the given name attribute
+- `--terminator [STRING]` : Specify to enforce the given terminator string for file prefixes
+- `--help` : Display the complete list of command-line options
