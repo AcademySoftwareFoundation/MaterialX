@@ -973,8 +973,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
 
         // Write out nodegraphs only.
         mx::RtWriteOptions writeOptions;
-
-        writeOptions.writeFilter = mx::RtSchemaPredicate<mx::RtNodeGraph>();
+        writeOptions.objectFilter = mx::RtSchemaPredicate<mx::RtNodeGraph>();
         stageIo.write(stage->getName().str() + "_nodegraph_export.mtlx", &writeOptions);
     }
 

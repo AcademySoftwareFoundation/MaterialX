@@ -24,7 +24,7 @@ namespace MaterialX
 class RtReadOptions
 {
   public:
-    using ReadFilter = std::function<bool(const ElementPtr& elem)>;
+    using ElementFilter = std::function<bool(const ElementPtr& elem)>;
 
   public:
     RtReadOptions();
@@ -32,7 +32,7 @@ class RtReadOptions
 
     /// Filter function type used for filtering elements during read.
     /// If the filter returns false the element will not be read.
-    ReadFilter readFilter;
+    ElementFilter elementFilter;
 
     /// Read look information. The default value is false.
     bool readLookInformation;
@@ -46,7 +46,11 @@ class RtReadOptions
 class RtWriteOptions
 {
   public:
-    using WriteFilter = std::function<bool(const RtObject& obj)>;
+    /// Filter function type for filtering objects during write.
+    using ObjectFilter = std::function<bool(const RtObject& obj)>;
+
+    /// Filter function type for filtering metadata on object during write.
+    using MetadataFilter = std::function<bool(const RtObject& obj, const RtToken& name, const RtTypedValue* value)>;
 
   public:
     RtWriteOptions();
@@ -62,9 +66,13 @@ class RtWriteOptions
     /// Write out default input values. The default value is false.
     bool writeDefaultValues;
 
-    /// Filter function type used for filtering objects during write.
+    /// Filter function used for filtering objects during write.
     /// If the filter returns false the object will not be written.
-    WriteFilter writeFilter;
+    ObjectFilter objectFilter;
+
+    /// Filter function used for filtering metadata during write.
+    /// If the filter returns false the metadata will not be written.
+    MetadataFilter metadataFilter;
 
     /// Enum that specifies how to generate material elements.
     ///
@@ -119,7 +127,7 @@ public:
     /// Write all stage contents to stream.
     /// If a filter is used only elements accepted by the filter
     /// will be written to the document.
-    void write(std::ostream& stream, const RtWriteOptions* writeOptions = nullptr);
+    void write(std::ostream& stream, const RtWriteOptions* options = nullptr);
 
     /// Read contents from a file path.
     /// If a filter is used only elements accepted by the filter
@@ -129,10 +137,10 @@ public:
     /// Write all stage contents to a document.
     /// If a filter is used only elements accepted by the filter
     /// will be written to the document.
-    void write(const FilePath& documentPath, const RtWriteOptions* writeOptions = nullptr);
+    void write(const FilePath& documentPath, const RtWriteOptions* options = nullptr);
 
-    void writeDefinitions(std::ostream& stream, const RtTokenVec& names, const RtWriteOptions* writeOptions = nullptr);
-    void writeDefinitions(const FilePath& documentPath, const RtTokenVec& names, const RtWriteOptions* writeOptions = nullptr);
+    void writeDefinitions(std::ostream& stream, const RtTokenVec& names, const RtWriteOptions* options = nullptr);
+    void writeDefinitions(const FilePath& documentPath, const RtTokenVec& names, const RtWriteOptions* options = nullptr);
 
 protected:
     /// Read all contents from one or more libraries.
