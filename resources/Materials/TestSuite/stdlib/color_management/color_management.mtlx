@@ -6,186 +6,116 @@ Basic image unit test with one image node for each variation in input type.
 -->
 <materialx version="1.37" colorspace="lin_rec709">
    <nodegraph name="ng1">
-        <output name="image_lin_rec709_output" type="surfaceshader" nodename="image_lin_rec709_standard_surface" />
-        <standard_surface name="image_lin_rec709_standard_surface" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_lin_rec709" />
-        </standard_surface>
         <image name="image_lin_rec709" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="lin_rec709" />
-          <parameter name="uaddressmode" type="string" value="periodic"/>
-          <parameter name="vaddressmode" type="string" value="periodic"/>
-          <parameter name="filtertype" type="string" value="linear"/>
-          <parameter name="frameendaction" type="string" value="periodic"/>
         </image>
-
-        <output name="image4_lin_rec709_output" type="color4" nodename="image4_lin_rec709" />
-        <image name="image4_lin_rec709" type="color4">
-          <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="lin_rec709" />
-        </image>
-
-        <output name="image_gamma18_output" type="surfaceshader" nodename="image_gamma18_standard_surface2" />
-        <standard_surface name="image_gamma18_standard_surface2" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma18" />
+        <standard_surface name="image_lin_rec709_standard_surface" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_lin_rec709" />
         </standard_surface>
+        <output name="image_lin_rec709_output" type="surfaceshader" nodename="image_lin_rec709_standard_surface" />
+
         <image name="image_gamma18" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma18" />
-          <parameter name="uaddressmode" type="string" value="periodic"/>
-          <parameter name="vaddressmode" type="string" value="periodic"/>
-          <parameter name="filtertype" type="string" value="linear"/>
-          <parameter name="frameendaction" type="string" value="periodic"/>
         </image>
-
-        <output name="image4_gamma18_output" type="color4" nodename="image4_gamma18" />
-        <image name="image4_gamma18" type="color4">
-          <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma18" />
-        </image>
-
-        <output name="image_gamma22_output" type="surfaceshader" nodename="image_gamma22_standard_surface3" />
-        <standard_surface name="image_gamma22_standard_surface3" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma22" />
+        <standard_surface name="image_gamma18_standard_surface2" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma18" />
         </standard_surface>
+        <output name="image_gamma18_output" type="surfaceshader" nodename="image_gamma18_standard_surface2" />
+
         <image name="image_gamma22" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma22" />
-          <parameter name="uaddressmode" type="string" value="periodic"/>
-          <parameter name="vaddressmode" type="string" value="periodic"/>
-          <parameter name="filtertype" type="string" value="linear"/>
-          <parameter name="frameendaction" type="string" value="periodic"/>
         </image>
-
-        <output name="image4_gamma22_output" type="color4" nodename="image4_gamma22" />
-        <image name="image4_gamma22" type="color4">
-          <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma22" />
-        </image>
-
-        <output name="image_gamma24_output" type="surfaceshader" nodename="image_gamma24_standard_surface4" />
-        <standard_surface name="image_gamma24_standard_surface4" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma24" />
+        <standard_surface name="image_gamma22_standard_surface3" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma22" />
         </standard_surface>
+        <output name="image_gamma22_output" type="surfaceshader" nodename="image_gamma22_standard_surface3" />
+
         <image name="image_gamma24" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma24" />
-          <parameter name="uaddressmode" type="string" value="periodic"/>
-          <parameter name="vaddressmode" type="string" value="periodic"/>
-          <parameter name="filtertype" type="string" value="linear"/>
-          <parameter name="frameendaction" type="string" value="periodic"/>
         </image>
-
-        <output name="image4_gamma24_output" type="color4" nodename="image4_gamma24" />
-        <image name="image4_gamma24" type="color4">
-          <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma24" />
-        </image>
-
-        <output name="image_acescg_output" type="surfaceshader" nodename="image_acescg_standard_surface5" />
-        <standard_surface name="image_acescg_standard_surface5" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_acescg" />
+        <standard_surface name="image_gamma24_standard_surface4" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma24" />
         </standard_surface>
+        <output name="image_gamma24_output" type="surfaceshader" nodename="image_gamma24_standard_surface4" />
+
         <image name="image_acescg" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="acescg" />
-          <parameter name="uaddressmode" type="string" value="periodic"/>
-          <parameter name="vaddressmode" type="string" value="periodic"/>
-          <parameter name="filtertype" type="string" value="linear"/>
-          <parameter name="frameendaction" type="string" value="periodic"/>
         </image>
-
-        <output name="image4_acescg_output" type="color4" nodename="image4_acescg" />
-        <image name="image4_acescg" type="color4">
-          <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="acescg" />
-        </image>
-
-        <output name="image_srgb_texture_output" type="surfaceshader" nodename="image_srgb_texture_standard_surface6" />
-        <standard_surface name="image_srgb_texture_standard_surface6" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_srgb_texture" />
+        <standard_surface name="image_acescg_standard_surface5" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_acescg" />
         </standard_surface>
+        <output name="image_acescg_output" type="surfaceshader" nodename="image_acescg_standard_surface5" />
+
+        <image name="image_g22_ap1" type="color3">
+          <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="g22_ap1" />
+        </image>
+        <standard_surface name="image_g22_ap1_standard_surface5" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_g22_ap1" />
+        </standard_surface>
+        <output name="image_g22_ap1_output" type="surfaceshader" nodename="image_g22_ap1_standard_surface5" />
+
         <image name="image_srgb_texture" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
-          <parameter name="uaddressmode" type="string" value="periodic"/>
-          <parameter name="vaddressmode" type="string" value="periodic"/>
-          <parameter name="filtertype" type="string" value="linear"/>
-          <parameter name="frameendaction" type="string" value="periodic"/>
         </image>
-
-        <output name="image4_srgb_texture_output" type="color4" nodename="image4_srgb_texture" />
-        <image name="image4_srgb_texture" type="color4">
-          <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
-        </image>
-
-        <output name="color_lin_rec709_output" type="surfaceshader" nodename="color_lin_rec709_standard_surface" />
-        <standard_surface name="color_lin_rec709_standard_surface" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_lin_rec709" />
+        <standard_surface name="image_srgb_texture_standard_surface6" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_srgb_texture" />
         </standard_surface>
-        <constant name="color_lin_rec709" type="color3">
-          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="lin_rec709"/>
-        </constant>
+        <output name="image_srgb_texture_output" type="surfaceshader" nodename="image_srgb_texture_standard_surface6" />
 
-        <output name="color4_lin_rec709_output" type="color4" nodename="color4_lin_rec709" />
-        <constant name="color4_lin_rec709" type="color4">
+        <constant name="color_lin_rec709" type="color4">
           <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="lin_rec709"/>
         </constant>
-
-        <output name="color_gamma18_output" type="surfaceshader" nodename="color_gamma18_standard_surface2" />
-        <standard_surface name="color_gamma18_standard_surface2" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_gamma18" />
+        <standard_surface name="color_lin_rec709_standard_surface" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_lin_rec709" channels="rgb" />
         </standard_surface>
-        <constant name="color_gamma18" type="color3">
-          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="gamma18" />
-        </constant>
+        <output name="color_lin_rec709_output" type="surfaceshader" nodename="color_lin_rec709_standard_surface" />
 
-        <output name="color4_gamma18_output" type="color4" nodename="color4_gamma18" />
-        <constant name="color4_gamma18" type="color4">
+        <constant name="color_gamma18" type="color4">
           <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma18" />
         </constant>
-
-        <output name="color_gamma22_output" type="surfaceshader" nodename="color_gamma22_standard_surface3" />
-        <standard_surface name="color_gamma22_standard_surface3" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_gamma22" />
+        <standard_surface name="color_gamma18_standard_surface2" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_gamma18" channels="rgb" />
         </standard_surface>
-        <constant name="color_gamma22" type="color3">
-          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="gamma22" />
-        </constant>
+        <output name="color_gamma18_output" type="surfaceshader" nodename="color_gamma18_standard_surface2" />
 
-        <output name="color4_gamma22_output" type="color4" nodename="color4_gamma22" />
-        <constant name="color4_gamma22" type="color4">
+        <constant name="color_gamma22" type="color4">
           <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma22" />
         </constant>
-
-        <output name="color_gamma24_output" type="surfaceshader" nodename="color_gamma24_standard_surface4" />
-        <standard_surface name="color_gamma24_standard_surface4" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_gamma24" />
+        <standard_surface name="color_gamma22_standard_surface3" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_gamma22" channels="rgb" />
         </standard_surface>
-        <constant name="color_gamma24" type="color3">
-          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="gamma24" />
-        </constant>
+        <output name="color_gamma22_output" type="surfaceshader" nodename="color_gamma22_standard_surface3" />
 
-        <output name="color4_gamma24_output" type="color4" nodename="color4_gamma24" />
-        <constant name="color4_gamma24" type="color4">
+        <constant name="color_gamma24" type="color4">
           <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma24" />
         </constant>
-
-        <output name="color_acescg_output_standard_surface" type="surfaceshader" nodename="color_acescg_standard_surface5" />
-        <standard_surface name="color_acescg_standard_surface5" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_acescg" />
+        <standard_surface name="color_gamma24_standard_surface4" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_gamma24" channels="rgb" />
         </standard_surface>
-        <constant name="color_acescg" type="color3">
-          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="acescg" />
-        </constant>
+        <output name="color_gamma24_output" type="surfaceshader" nodename="color_gamma24_standard_surface4" />
 
-        <output name="color_acescg_output" type="color3" nodename="color_acescg" />
-
-        <output name="color4_acescg_output" type="color4" nodename="color4_acescg" />
-        <constant name="color4_acescg" type="color4">
+        <constant name="color_acescg" type="color4">
           <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="acescg" />
         </constant>
-
-        <output name="color_srgb_texture_output" type="surfaceshader" nodename="color_srgb_texture_standard_surface6" />
-        <standard_surface name="color_srgb_texture_standard_surface6" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_srgb_texture" />
+        <standard_surface name="color_acescg_standard_surface5" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_acescg" channels="rgb" />
         </standard_surface>
-        <constant name="color_srgb_texture" type="color3">
-          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="srgb_texture" />
-        </constant>
+        <output name="color_acescg_output" type="surfaceshader" nodename="color_acescg_standard_surface5" />
 
-        <output name="color4_srgb_texture_output" type="color4" nodename="color4_srgb_texture" />
-        <constant name="color4_srgb_texture" type="color4">
+        <constant name="color_g22_ap1" type="color4">
+          <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="g22_ap1" />
+        </constant>
+        <standard_surface name="color_g22_ap1_standard_surface5" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_g22_ap1" channels="rgb" />
+        </standard_surface>
+        <output name="color_g22_ap1_output" type="surfaceshader" nodename="color_g22_ap1_standard_surface5" />
+
+        <constant name="color_srgb_texture" type="color4">
           <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="srgb_texture" />
         </constant>
+        <standard_surface name="color_srgb_texture_standard_surface6" type="surfaceshader">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_srgb_texture" channels="rgb" />
+        </standard_surface>
+        <output name="color_srgb_texture_output" type="surfaceshader" nodename="color_srgb_texture_standard_surface6" />
    </nodegraph>
 </materialx>

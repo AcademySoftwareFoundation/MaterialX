@@ -16,7 +16,7 @@ if(UNIX)
     add_compile_options(-Wno-unused-function)
 endif()
 
-add_library(MaterialXRender STATIC ${materialx_source} ${materialx_headers})
+add_library(MaterialXRender ${materialx_source} ${materialx_headers})
 
 target_link_libraries(
     MaterialXRender
@@ -48,10 +48,10 @@ set_target_properties(
     SOVERSION "${MATERIALX_MAJOR_VERSION}"
     DEBUG_POSTFIX "${MATERIALX_DEBUG_POSTFIX}")
 
-
 install(TARGETS MaterialXRender
     EXPORT MaterialX
-    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRender/ MESSAGE_NEVER

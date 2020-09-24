@@ -1,10 +1,9 @@
 # Change Log
 
-## [1.37.2] - Development
+## [1.37.3] - Development
 
-- ILM : General
-  - Load standard libraries for MaterialXView regardless of build folder location (#922)
-  - Python Texture Bake and Multiple Udims Texture Bake Support (#943)
+## [1.37.2] - 2020-09-06
+
 - ADSK : General
   - Add definition searching for shader nodes for <material> instances (#919)
   - Add in new ADSK shaderball + rectangle geometries (#943)
@@ -41,6 +40,20 @@
 - ADSK : Javascript Bindings
   - Fix JavaScript security issues from the Codacy scan (#925)
   - Part I : Basic setup MaterialX and parts of MaterialXFormat modules. CI on Travis. (#879)
+
+### ILM Added
+- Added support for texture baking from Python, including new example script [baketextures.py](python/Scripts/baketextures.py).
+- Added support for texture baking of materials with multiple UDIMs.
+- Added support for floating-point render targets in ShaderRenderer and its subclasses, allowing for HDR texture baking.
+- Added support for displacement shaders in generated OSL.
+- Added the ShaderTranslator class, laying the groundwork for support of shader translation graphs.
+- Added Python bindings for the Image class.
+
+### ILM Fixed
+- Fixed the alignment of environment backgrounds in the viewer.
+
+### ILM Removed
+- Removed the CopyOptions class, making it the default behavior of Document\:\:importLibrary to skip conflicting elements.
 
 ## [1.37.1] - 2020-06-04
 

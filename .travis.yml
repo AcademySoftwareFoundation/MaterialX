@@ -46,7 +46,7 @@ matrix:
     - os: linux
       dist: bionic
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6 && PY=2"
+      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6 && SHARED=ON && PY=2"
       addons:
         apt:
           packages: [*packages_base, g++-6]
@@ -86,6 +86,7 @@ matrix:
 
 
 before_install:
+  - export SHARED=OFF
   - export PY=3
   - eval "${MATRIX_EVAL}"
 
@@ -96,6 +97,7 @@ script:
   - cmake --build . --target install --config "${CONFIG}" -- -j4
   - ctest -VV --output-on-failure --build-config "${CONFIG}" -j4
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/installed/lib
   - cmake -E chdir ../python/MaterialXTest python$PY main.py
   - cmake -E chdir ../python/MaterialXTest python$PY genshader.py
 

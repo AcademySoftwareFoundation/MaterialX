@@ -67,6 +67,38 @@ NodePtr PortElement::getConnectedNode() const
     return graph ? graph->getNode(getNodeName()) : nullptr;
 }
 
+void PortElement::setConnectedOutput(ConstOutputPtr output)
+{
+    if (output)
+    {
+        setOutputString(output->getName());
+        ConstElementPtr parent = output->getParent();
+        if (parent->isA<NodeGraph>())
+        {
+            setNodeGraphString(parent->getName());
+        }
+        else
+        {
+            removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        }
+    }
+    else
+    {
+        removeAttribute(OUTPUT_ATTRIBUTE);
+        removeAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+}
+
+OutputPtr PortElement::getConnectedOutput() const
+{
+    if (hasNodeGraphString())
+    {
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+        return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
+    }
+    return getDocument()->getOutput(getOutputString());
+}
+
 bool PortElement::validate(string* message) const
 {
     bool res = true;
@@ -96,9 +128,9 @@ bool PortElement::validate(string* message) const
                         "Multi-output type expected in port connection");
                 }
             }
-            else if (hasNodeGraphName())
+            else if (hasNodeGraphString())
             {
-                NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphName());
+                NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
                 if (nodeGraph)
                 {
                     output = nodeGraph->getOutput(outputString);
@@ -275,9 +307,9 @@ OutputPtr Input::getConnectedOutput() const
     OutputPtr result = nullptr;
 
     // Look for an output in a nodegraph
-    if (hasNodeGraphName())
+    if (hasNodeGraphString())
     {
-        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphName());
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
         if (nodeGraph)
         {
             std::vector<OutputPtr> outputs = nodeGraph->getOutputs();

@@ -135,24 +135,24 @@ class PortElement : public ValueElement
         return getAttribute(NODE_NAME_ATTRIBUTE);
     }
 
+    /// @}
     /// @name Node Graph
     /// @{
 
-    /// Set the node name string of this element, creating a connection to
-    /// the Node with the given name within the same NodeGraph.
-    void setNodeGraphName(const string& node)
+    /// Set the node graph string of this element.
+    void setNodeGraphString(const string& node)
     {
         setAttribute(NODE_GRAPH_ATTRIBUTE, node);
     }
 
-    /// Return true if this element has a node graph name string.
-    bool hasNodeGraphName() const
+    /// Return true if this element has a node graph string.
+    bool hasNodeGraphString() const
     {
         return hasAttribute(NODE_GRAPH_ATTRIBUTE);
     }
 
-    /// Return the node graph name string of this element.
-    const string& getNodeGraphName() const
+    /// Return the node graph string of this element.
+    const string& getNodeGraphString() const
     {
         return getAttribute(NODE_GRAPH_ATTRIBUTE);
     }
@@ -221,6 +221,13 @@ class PortElement : public ValueElement
 
     /// Return the node, if any, to which this element is connected.
     virtual NodePtr getConnectedNode() const;
+
+    /// Set the output to which this element is connected.  If the output
+    /// argument is null, then any existing output connection will be cleared.
+    void setConnectedOutput(ConstOutputPtr output);
+
+    /// Return the output, if any, to which this element is connected.
+    OutputPtr getConnectedOutput() const;
 
     /// @}
     /// @name Validation

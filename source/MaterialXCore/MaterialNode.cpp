@@ -91,7 +91,7 @@ std::unordered_set<NodePtr> getShaderNodes(const NodePtr& materialNode, const st
         //
         else
         {
-            const string& inputGraph = input->getNodeGraphName();
+            const string& inputGraph = input->getNodeGraphString();
             if (!inputGraph.empty())
             {
                 NodeGraphPtr nodeGraph = parent->getChildOfType<NodeGraph>(inputGraph);

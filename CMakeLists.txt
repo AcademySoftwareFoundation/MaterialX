@@ -51,6 +51,7 @@ if(MATERIALX_DISABLE_BUILD_RENDER)
     set(MATERIALX_BUILD_RENDER OFF)
 endif()
 
+option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 
@@ -229,6 +230,17 @@ function(assign_source_group prefix)
         source_group("${prefix}\\${_source_path_msvc}" FILES "${_source}")
     endforeach()
 endfunction(assign_source_group)
+
+# Adjust settings for shared libraries if requested
+if(MATERIALX_BUILD_SHARED_LIBS)
+    if(MSVC)
+        message(FATAL_ERROR "Only static libraries are currently supported on Windows.")
+    endif()
+    add_definitions(-DMATERIALX_BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS "ON")
+else()
+    set(BUILD_SHARED_LIBS "OFF")
+endif()
 
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)

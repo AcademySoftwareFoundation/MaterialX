@@ -3,7 +3,6 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Util.h>
 #include <MaterialXCore/Types.h>
 
 #include <cctype>

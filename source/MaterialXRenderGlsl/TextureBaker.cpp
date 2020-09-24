@@ -18,6 +18,9 @@ namespace MaterialX
 
 namespace {
 
+string SRGB_TEXTURE = "srgb_texture";
+string LIN_REC709 = "lin_rec709";
+
 StringVec getRenderablePaths(ConstDocumentPtr doc)
 {
     StringVec renderablePaths;
@@ -54,11 +57,19 @@ void setValueStringFromColor(ValueElementPtr elem, const Color4& color)
 
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
     GlslRenderer(width, height, baseType),
+    _optimizeConstants(true),
     _generator(GlslShaderGenerator::create())
 {
-    _extension = (baseType == Image::BaseType::UINT8) ?
-                 ImageLoader::PNG_EXTENSION :
-                 ImageLoader::HDR_EXTENSION;
+    if (baseType == Image::BaseType::UINT8)
+    {
+        _extension = ImageLoader::PNG_EXTENSION;
+        _colorSpace = SRGB_TEXTURE;
+    }
+    else
+    {
+        _extension = ImageLoader::HDR_EXTENSION;
+        _colorSpace = LIN_REC709;
+    }
     initialize();
 }
 
@@ -109,7 +120,8 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     ShaderPtr shader = _generator->generate("BakingShader", output, context);
     createProgram(shader);
 
-    bool encodeSrgb = output->getType() == "color3" || output->getType() == "color4";
+    bool encodeSrgb = _colorSpace == SRGB_TEXTURE &&
+                      (output->getType() == "color3" || output->getType() == "color4");
     getFrameBuffer()->setEncodeSrgb(encodeSrgb);
 
     renderTextureSpace();
@@ -141,7 +153,17 @@ void TextureBaker::optimizeBakedTextures()
             }
             if (outputIsUniform)
             {
-                _uniformOutputs.insert(pair.first);
+                if (_optimizeConstants)
+                {
+                    _constantOutputs.insert(pair.first);
+                }
+                else
+                {
+                    for (BakedImage& baked : pair.second)
+                    {
+                        baked.image = createUniformImage(1, 1, baked.image->getChannelCount(), baked.image->getBaseType(), baked.uniformColor);
+                    }
+                }
             }
         }
     }
@@ -166,10 +188,7 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
     }
     MaterialPtr bakedMaterial = bakedTextureDoc->addMaterial("M_baked");
     ShaderRefPtr bakedShaderRef = bakedMaterial->addShaderRef(_shaderRef->getName() + "_baked", _shaderRef->getAttribute("node"));
-    if (_baseType == Image::BaseType::UINT8)
-    {
-        bakedNodeGraph->setColorSpace("srgb_texture");
-    }
+    bakedNodeGraph->setColorSpace(_colorSpace);
 
     // Create bind elements on the baked shader reference.
     for (ValueElementPtr valueElem : _shaderRef->getChildrenOfType<ValueElement>())
@@ -183,16 +202,13 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
             BindInputPtr bakedBindInput = bakedShaderRef->addBindInput(bindInput->getName(), bindInput->getType());
 
             // Store a constant value for uniform outputs.
-            if (_uniformOutputs.count(output))
+            if (_constantOutputs.count(output))
             {
                 Color4 uniformColor = _bakedImageMap[output][0].uniformColor;
                 setValueStringFromColor(bakedBindInput, uniformColor);
-                if (_baseType == Image::BaseType::UINT8)
+                if (bakedBindInput->getType() == "color4" || bakedBindInput->getType() == "color3")
                 {
-                    if (bakedBindInput->getType() == "color4" || bakedBindInput->getType() == "color3")
-                    {
-                        bakedBindInput->setColorSpace("srgb_texture");
-                    }
+                    bakedBindInput->setColorSpace(_colorSpace);
                 }
                 continue;
             }
@@ -226,7 +242,7 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
     // Write referenced baked images.
     for (const auto& pair : _bakedImageMap)
     {
-        if (_uniformOutputs.count(pair.first))
+        if (_constantOutputs.count(pair.first))
         {
             continue;
         }
@@ -254,7 +270,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
     genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
     genContext.getOptions().hwDirectionalAlbedoMethod = DIRECTIONAL_ALBEDO_TABLE;
     genContext.getOptions().hwShadowMap = true;
-    genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
+    genContext.getOptions().targetColorSpaceOverride = LIN_REC709;
     genContext.getOptions().fileTextureVerticalFlip = true;
 
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getLanguage());

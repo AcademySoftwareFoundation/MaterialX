@@ -656,7 +656,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                                 std::vector<std::pair<std::string, std::string>> filetypes;
                                 for (const auto& extension : extensions)
                                 {
-                                    filetypes.push_back(std::make_pair(extension, extension));
+                                    filetypes.emplace_back(extension, extension);
                                 }
                                 std::string filename = ng::file_dialog(filetypes, false);
                                 if (!filename.empty())
@@ -825,7 +825,6 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
 
     return box;
 }
-
 
 ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, unsigned int value,
     const mx::UIProperties* ui, std::function<void(int)> callback)

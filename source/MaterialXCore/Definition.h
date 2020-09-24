@@ -525,7 +525,6 @@ class AttributeDef : public TypedElement
     }
     virtual ~AttributeDef() { }
 
-    /// @}
     /// @name Attribute name
     /// @{
 

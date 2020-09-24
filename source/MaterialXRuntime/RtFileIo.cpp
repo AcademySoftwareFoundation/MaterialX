@@ -212,7 +212,7 @@ namespace
                 string connectedNodeName = elemInput->getNodeName();
                 if (connectedNodeName.empty())
                 {
-                    connectedNodeName = elemInput->getNodeGraphName();
+                    connectedNodeName = elemInput->getNodeGraphString();
                 }
                 if (!connectedNodeName.empty())
                 {
@@ -825,7 +825,7 @@ namespace
                                 InputPtr inputElem = valueElem->asA<Input>();
                                 if (sourcePrim.hasApi<RtNodeGraph>())
                                 {
-                                    inputElem->setNodeGraphName(sourcePrim.getName());
+                                    inputElem->setNodeGraphString(sourcePrim.getName());
                                 }
                                 else
                                 {
@@ -874,9 +874,9 @@ namespace
             for (InputPtr input : surfaceShader->getActiveInputs())
             {
                 BindInputPtr bindInput = shaderRef->addBindInput(input->getName(), input->getType());
-                if (input->hasNodeGraphName() && doc->getNodeGraph(input->getNodeGraphName()))
+                if (input->hasNodeGraphString() && doc->getNodeGraph(input->getNodeGraphString()))
                 {
-                    bindInput->setNodeGraphString(input->getNodeGraphName());
+                    bindInput->setNodeGraphString(input->getNodeGraphString());
                     if (input->hasOutputString())
                     {
                         bindInput->setOutputString(input->getOutputString());
@@ -1340,10 +1340,7 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
 
     // Load all content into a document.
     DocumentPtr doc = createDocument();
-    XmlReadOptions options;
-    //options.skipConflictingElements = true;
-    options.applyFutureUpdates = true;
-    MaterialX::loadLibraries(libraryPaths, searchPaths, doc, nullptr, &options);
+    MaterialX::loadLibraries(libraryPaths, searchPaths, doc);
 
     StringSet uris = doc->getReferencedSourceUris();
     for (const string& uri : uris)

@@ -163,12 +163,10 @@ TEST_CASE("Version", "[document]")
 
     // 1.37 to 1.38
     {
-        mx::XmlReadOptions options;
-        options.applyFutureUpdates = true;
         doc = mx::createDocument();
-        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc, nullptr, &options);
-        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc, nullptr, &options);
-        mx::readFromXmlFile(doc, "1_37_to_1_38.mtlx", searchPath, &options);
+        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
+        mx::readFromXmlFile(doc, "1_37_to_1_38.mtlx", searchPath);
         REQUIRE(doc->validate());
 
         mx::XmlWriteOptions writeOptions;

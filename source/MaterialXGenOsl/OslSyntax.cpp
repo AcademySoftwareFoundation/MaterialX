@@ -31,7 +31,7 @@ public:
 
     string getValue(const StringVec& values, bool /*uniform*/) const override
     {
-        return values.size() && values[0] == "true" ? "1" : 0;
+        return values.size() && values[0] == "true" ? "1" : "0";
     }
 };
 
