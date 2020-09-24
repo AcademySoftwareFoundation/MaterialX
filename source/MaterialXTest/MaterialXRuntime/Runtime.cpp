@@ -614,7 +614,7 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtPrim add1Prim = stage->createPrim("/add1", nodedef.getName());
     mx::RtPrim add2Prim = stage->createPrim("/add2", nodedef.getName());
     REQUIRE(add1Prim);
-    REQUIRE(add1Prim);
+    REQUIRE(add2Prim);
 
     // Attach the node API schema to these objects
     mx::RtNode add1(add1Prim);
@@ -667,9 +667,6 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add1_out.isConnected());
     REQUIRE(add2_in1.isConnected());
 
-    // Try connecting already connected ports
-    REQUIRE_THROWS(add1_out.connect(add2_in1));
-
     // Break port connections
     add1_out.disconnect(add2_in1);
     REQUIRE(!add1_out.isConnected());
@@ -701,6 +698,13 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtPrim prim1 = stage->getPrimAtPath("/add3");
     REQUIRE(prim1);
     REQUIRE(mx::RtNode(prim1).isValid());
+
+    // Try making a connection that already exists
+    REQUIRE_NOTHROW(add1_out.connect(add2_in1));
+
+    // Try connecting another port to an already connected input
+    mx::RtOutput add4_out = add4.getOutput(OUT);
+    REQUIRE_THROWS(add4_out.connect(add2_in1));
 }
 
 TEST_CASE("Runtime: NodeGraphs", "[runtime]")
