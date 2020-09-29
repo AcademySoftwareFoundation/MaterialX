@@ -13,7 +13,6 @@ MaterialX is an open standard for transfer of rich material and look-development
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
 - Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.
-- See [OPTIONS.md](OPTIONS.md) for all CMake configuration options.
 
 ### Supported Platforms
 
@@ -30,7 +29,7 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 The MaterialX repository consists of the following folders:
 
 - [documents](documents) - MaterialX documentation, including the specification and developer guide.
-- [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the standard and physically-based-shading nodes.
+- [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the pattern and shading nodes.
 - [python](python) - Support modules and example scripts for MaterialX Python.
 - [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
 - [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
@@ -41,33 +40,33 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 <p float="left">
-  <img src="/documents/Images/MaterialXView_Marble.png" width="213" />
-  <img src="/documents/Images/MaterialXView_Copper.png" width="213" /> 
-  <img src="/documents/Images/MaterialXView_Plastic.png" width="213" /> 
-  <img src="/documents/Images/MaterialXView_Carpaint.png" width="213" /> 
+  <img src="/documents/Images/MaterialXView_Marble.png" width="206" />
+  <img src="/documents/Images/MaterialXView_Copper.png" width="206" /> 
+  <img src="/documents/Images/MaterialXView_Plastic.png" width="206" /> 
+  <img src="/documents/Images/MaterialXView_Carpaint.png" width="206" /> 
 </p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 <p float="left">
-  <img src="/documents/Images/MaterialXView_TiledBrass.png" width="430" />
-  <img src="/documents/Images/MaterialXView_TiledWood.png" width="430" /> 
+  <img src="/documents/Images/MaterialXView_TiledBrass.png" width="416" />
+  <img src="/documents/Images/MaterialXView_TiledWood.png" width="416" /> 
 </p>
 
 **Figure 3:** Droid character materials in the MaterialX viewer. © & TM Lucasfilm Ltd. Used with permission.
 <p float="left">
-  <img src="/documents/Images/MaterialXView_BB8.png" width="430" />
-  <img src="/documents/Images/MaterialXView_R2D2.png" width="430" /> 
+  <img src="/documents/Images/MaterialXView_BB8.png" width="416" />
+  <img src="/documents/Images/MaterialXView_R2D2.png" width="416" /> 
 </p>
 
 ### Pre-Built Binaries
 
-The following binaries are automatically generated from the latest GitHub revision:
+The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2017, 64-bit)](https://ci.appveyor.com/api/projects/jstone-lucasfilm/materialx/artifacts/build%2FMaterialX_Windows_VS2017_x64_Python37.zip?job=Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202017%2C%20GENERATOR%3DVisual%20Studio%2015%202017%2C%20TOOLSET_NAME%3DVS2017%2C%20ARCH%3Dx64%2C%20PYTHON%3DC%3A%5CPython37-x64%2C%20PYTHON_NAME%3DPython37)
-- [Microsoft Windows (Visual Studio 2019, 64-bit)](https://ci.appveyor.com/api/projects/jstone-lucasfilm/materialx/artifacts/build%2FMaterialX_Windows_VS2019_x64_Python38.zip?job=Environment%3A%20APPVEYOR_BUILD_WORKER_IMAGE%3DVisual%20Studio%202019%2C%20GENERATOR%3DVisual%20Studio%2016%202019%2C%20TOOLSET_NAME%3DVS2019%2C%20ARCH%3Dx64%2C%20PYTHON%3DC%3A%5CPython38-x64%2C%20PYTHON_NAME%3DPython38)
+- [Microsoft Windows (Visual Studio 2017, 64-bit, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2017_x64_Python37.zip)
+- [Microsoft Windows (Visual Studio 2019, 64-bit, Python 3.8)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2019_x64_Python38.zip)
 
 ### Additional Resources
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
-- The [Python Scripts](python/Scripts/README.md) folder contains standalone examples of MaterialX Python code.
-- Presentations at the [Autodesk Vision Series](https://area.autodesk.com/blogs/thebuzz/open-source-at-autodesk-materialx/) provide details on the roadmap for MaterialX development.
+- The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
+- Presentations at the [Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) and [MaterialX Birds of a Feather](http://www.materialx.org/assets/MaterialX_Sig2020_BOF_slides.pdf) provide details on the roadmap for MaterialX development.

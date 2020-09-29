@@ -212,9 +212,7 @@ class Document::Cache
                     PortElementPtr portElem = elem->asA<PortElement>();
                     if (portElem)
                     {
-                        portElementMap.insert(std::pair<string, PortElementPtr>(
-                            portElem->getQualifiedName(nodeName),
-                            portElem));
+                        portElementMap.emplace(portElem->getQualifiedName(nodeName), portElem);
                     }
                 }
                 if (!nodeString.empty())
@@ -222,9 +220,7 @@ class Document::Cache
                     NodeDefPtr nodeDef = elem->asA<NodeDef>();
                     if (nodeDef)
                     {
-                        nodeDefMap.insert(std::pair<string, NodeDefPtr>(
-                            nodeDef->getQualifiedName(nodeString),
-                            nodeDef));
+                        nodeDefMap.emplace(nodeDef->getQualifiedName(nodeString), nodeDef);
                     }
                 }
                 if (!nodeDefString.empty())
@@ -232,9 +228,7 @@ class Document::Cache
                     InterfaceElementPtr interface = elem->asA<InterfaceElement>();
                     if (interface && (interface->isA<Implementation>() || interface->isA<NodeGraph>()))
                     {
-                        implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                            interface->getQualifiedName(nodeDefString),
-                            interface));
+                        implementationMap.emplace(interface->getQualifiedName(nodeDefString), interface);
                     }
                 }
             }
@@ -277,28 +271,27 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
+void Document::importLibrary(const ConstDocumentPtr& library)
 {
     if (!library)
     {
         return;
     }
 
-    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);
-        if (previous && skipConflictingElements)
+        if (previous)
         {
             continue;
         }
 
         // Create the imported element.
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName, !previous);
-        childCopy->copyContentFrom(child, copyOptions);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
+        childCopy->copyContentFrom(child);
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {
             childCopy->setFilePrefix(library->getFilePrefix());
@@ -318,12 +311,6 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
         if (!childCopy->hasSourceUri() && library->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
-        }
-
-        // Check for conflicting elements.
-        if (previous && *previous != *childCopy)
-        {
-            throw Exception("Duplicate element with conflicting content: " + childName);
         }
     }
 }
@@ -838,17 +825,17 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             else if (nodeCategory == "compare")
             {
                 node->setCategory("ifgreatereq");
-                ParameterPtr cutoff = node->getParameter("cutoff");
-                if (cutoff)
-                {
-                    InputPtr value1 = node->addInput("value1");
-                    value1->copyContentFrom(cutoff);
-                    node->removeChild(cutoff->getName());
-                }
                 InputPtr intest = node->getInput("intest");
                 if (intest)
                 {
-                    intest->setName("value2");
+                    intest->setName("value1");
+                }
+                ParameterPtr cutoff = node->getParameter("cutoff");
+                if (cutoff)
+                {
+                    InputPtr value2 = node->addInput("value2");
+                    value2->copyContentFrom(cutoff);
+                    node->removeChild(cutoff->getName());
                 }
                 InputPtr in1 = node->getInput("in1");
                 InputPtr in2 = node->getInput("in2");

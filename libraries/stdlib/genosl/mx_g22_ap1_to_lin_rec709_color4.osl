@@ -1,0 +1,11 @@
+void mx_g22_ap1_to_lin_rec709_color4(color4 _in, output color4 result)
+{
+    color4 gamma = color4(color(2.2, 2.2, 2.2), 1.);
+    color4 linearColor = pow( max( color4(color(0., 0., 0.), 0.), _in ), gamma );
+
+    vector4 linearVector = vector4(linearColor.rgb[0], linearColor.rgb[1], linearColor.rgb[2], linearColor.a);
+    matrix m = transpose(matrix(1.705079555511475, -0.1297005265951157, -0.02416634373366833, 0., -0.6242334842681885, 1.138468623161316, -0.1246141716837883, 0., -0.0808461606502533, -0.008768022060394287, 1.148780584335327, 0., 0., 0., 0., 1.));
+    vector4 resultVector = transform(m, linearVector);
+
+    result = color4(color(resultVector.x, resultVector.y, resultVector.z), resultVector.w);
+}

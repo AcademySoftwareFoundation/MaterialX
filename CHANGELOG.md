@@ -1,22 +1,45 @@
 # Change Log
 
-## [1.37.1] - Development
+## [1.37.3] - Development
+
+- Added a Render Transparency option to the Advanced Settings panel of the viewer.
+- Added a CMake option for building shared libraries on Linux and MacOS.
+
+## [1.37.2] - 2020-09-06
 
 ### Added
-- Added command-line options '--meshRotation' and '--lightRotation' to the viewer.
+- Added support for texture baking from Python, including new example script [baketextures.py](python/Scripts/baketextures.py).
+- Added support for texture baking of materials with multiple UDIMs.
+- Added support for floating-point render targets in ShaderRenderer and its subclasses, allowing for HDR texture baking.
+- Added support for displacement shaders in generated OSL.
+- Added the ShaderTranslator class, laying the groundwork for support of shader translation graphs.
+- Added Python bindings for the Image class.
+
+### Fixed
+- Fixed the alignment of environment backgrounds in the viewer.
+
+### Removed
+- Removed the CopyOptions class, making it the default behavior of Document\:\:importLibrary to skip conflicting elements.
+
+## [1.37.1] - 2020-06-04
+
+### Added
+- Added command-line options for mesh, light, and camera transforms to the viewer.
+- Added command-line options for screen dimensions and background color to the viewer.
 - Added a Light Rotation slider to the Advanced Settings panel of the viewer.
-- Added initial support for wedge rendering in the viewer.
 - Added utility methods Backdrop\:\:setContainsElements and Backdrop\:\:getContainsElements.
 - Added backwards compatibility for OpenImageIO 1.x.
+- Added support for GCC 10.
 
 ### Changed
-- Improved energy compensation and preservation computations in generated GLSL.
+- Improved energy conservation and preservation computations in generated GLSL.
 - Upgraded Smith masking-shadowing to height-correlated form in generated GLSL.
 - Improved the robustness of tangent frame computations in MaterialXRender.
 - Renamed Backdrop\:\:setContains and getContains to Backdrop\:\:setContainsString and getContainsString for consistency.
 
 ### Fixed
-- Fixed comparison order in the upgrade path for compare nodes in v1.36 documents.
+- Fixed the GLSL implementation of Burley diffuse for punctual lights.
+- Fixed the upgrade path for compare nodes in v1.36 documents.
 
 ## [1.37.0] - 2020-03-20
 

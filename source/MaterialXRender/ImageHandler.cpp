@@ -40,7 +40,7 @@ const string ImageLoader::TXR_EXTENSION = "txr";
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
     addLoader(imageLoader);
-    _zeroImage = createUniformImage(1, 1, Color4(0.0f));
+    _zeroImage = createUniformImage(1, 1, 4, Image::BaseType::UINT8, Color4(0.0f));
 }
 
 void ImageHandler::addLoader(ImageLoaderPtr loader)
@@ -50,25 +50,30 @@ void ImageHandler::addLoader(ImageLoaderPtr loader)
         const StringSet& extensions = loader->supportedExtensions();
         for (const auto& extension : extensions)
         {
-            _imageLoaders.insert(std::pair<string, ImageLoaderPtr>(extension, loader));
+            _imageLoaders[extension].push_back(loader);
         }
     }
 }
 
-void ImageHandler::supportedExtensions(StringSet& extensions)
+StringSet ImageHandler::supportedExtensions()
 {
-    extensions.clear();
-    for (const auto& loader : _imageLoaders)
+    StringSet extensions;
+    for (const auto& pair : _imageLoaders)
     {
-        const StringSet& loaderExtensions = loader.second->supportedExtensions();
-        extensions.insert(loaderExtensions.begin(), loaderExtensions.end());
+        extensions.insert(pair.first);
     }
+    return extensions;
 }
 
 bool ImageHandler::saveImage(const FilePath& filePath,
                              ConstImagePtr image,
                              bool verticalFlip)
 {
+    if (!image)
+    {
+        return false;
+    }
+
     FilePath foundFilePath =  _searchPath.find(filePath);
     if (foundFilePath.isEmpty())
     {
@@ -76,17 +81,12 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     }
 
     string extension = foundFilePath.getExtension();
-    ImageLoaderMap::reverse_iterator iter;
-    for (iter = _imageLoaders.rbegin(); iter != _imageLoaders.rend(); ++iter)
+    for (ImageLoaderPtr loader : _imageLoaders[extension])
     {
-        ImageLoaderPtr loader = iter->second;
-        if (loader && loader->supportedExtensions().count(extension))
+        bool saved = loader->saveImage(foundFilePath, image, verticalFlip);
+        if (saved)
         {
-            bool saved = iter->second->saveImage(foundFilePath, image, verticalFlip);
-            if (saved)
-            {
-                return true;
-            }
+            return true;
         }
     }
     return false;
@@ -97,18 +97,21 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
     FilePath foundFilePath = _searchPath.find(filePath);
     string extension = stringToLower(foundFilePath.getExtension());
     bool extensionSupported = false;
-    for (ImageLoaderMap::reverse_iterator iter = _imageLoaders.rbegin(); iter != _imageLoaders.rend(); ++iter)
+    for (ImageLoaderPtr loader : _imageLoaders[extension])
     {
-        ImageLoaderPtr loader = iter->second;
-        if (loader && loader->supportedExtensions().count(extension))
+        extensionSupported = true;
+        ImagePtr image = loader->loadImage(foundFilePath);
+        if (image)
         {
-            extensionSupported = true;
-            ImagePtr image = loader->loadImage(foundFilePath);
-            if (image)
+            // Workaround for sampling issues with 1x1 textures.
+            if (image->getWidth() == 1 && image->getHeight() == 1)
             {
-                cacheImage(foundFilePath, image);
-                return image;
+                image = createUniformImage(2, 2, image->getChannelCount(),
+                                            image->getBaseType(), image->getTexelColor(0, 0));
             }
+
+            cacheImage(foundFilePath, image);
+            return image;
         }
     }
 
@@ -129,7 +132,7 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
     }
     if (fallbackColor)
     {
-        ImagePtr image = createUniformImage(1, 1, *fallbackColor);
+        ImagePtr image = createUniformImage(2, 2, 4, Image::BaseType::UINT8, *fallbackColor);
         if (image)
         {
             cacheImage(filePath, image);

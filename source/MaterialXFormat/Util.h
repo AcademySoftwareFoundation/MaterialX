@@ -23,26 +23,27 @@ namespace MaterialX
 /// successful, then the empty string is returned.
 string readFile(const FilePath& file);
 
+/// Get all subdirectories for a given set of directories and search paths
+void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subdirectories);
+
 /// Scans for all documents under a root path and returns documents which can be loaded
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
                    const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
                    const XmlReadOptions& readOptions, StringVec& errors);
 
 /// Load a given MaterialX library into a document
-void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath* searchPath = nullptr);
+void loadLibrary(const FilePath& file,
+                 DocumentPtr doc,
+                 const FileSearchPath& searchPath = FileSearchPath(), 
+                 XmlReadOptions* readOptions = nullptr);
 
-/// Load all MaterialX files with given library names in given search paths.
-/// Note that all library files will have a URI set on them.
-StringVec loadLibraries(const StringVec& libraryNames,
+/// Load all MaterialX files within the given library folders into a document,
+/// using the given search path to locate the folders on the file system.
+StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
-                        const StringSet* excludeFiles = nullptr);
-
-/// Load all MaterialX files with given library names in a given path.
-StringVec loadLibraries(const StringVec& libraryNames,
-                        const FilePath& filePath,
-                        DocumentPtr doc,
-                        const StringSet* excludeFiles = nullptr);
+                        const StringSet& excludeFiles = StringSet(),
+                        XmlReadOptions* readOptions = nullptr);
 
 } // namespace MaterialX
 

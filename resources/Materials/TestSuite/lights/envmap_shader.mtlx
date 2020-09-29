@@ -1,26 +1,53 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
    <nodegraph name="environmentDraw">
-      <texcoord name="envUvs" type="vector2">
-         <parameter name="index" type="integer" value="0" />
-      </texcoord>
-      <invert name="flipU" type="float">
-         <input name="in" type="float" nodename="envUvs" channels="x" />
-         <parameter name="amount" type="float" value="1.0000" />
-      </invert>
-      <combine2 name="combineUvs" type="vector2">
-         <input name="in1" type="float" nodename="flipU" />
-         <input name="in2" type="float" nodename="envUvs" channels="y"/>
-      </combine2>
-      <image name="envImage" type="color3">
-         <parameter name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
-         <parameter name="layer" type="string" value="" />
-         <parameter name="default" type="color3" value="0.0, 0.0, 0.0" />
-         <input name="texcoord" type="vector2" nodename="combineUvs" />
-         <parameter name="uaddressmode" type="string" value="periodic" />
-         <parameter name="vaddressmode" type="string" value="clamp" />
-         <parameter name="filtertype" type="string" value="linear" />
-      </image>
-      <output name="out" type="color3" nodename="envImage" />
+
+     <!-- Get view direction -->
+     <viewdirection name="viewDir" type="vector3">
+       <parameter name="space" type="string" value="world" />
+     </viewdirection>
+
+     <!-- Compute longitude coordinate -->
+     <atan2 name="angleXZ" type="float">
+       <input name="in1" type="float" nodename="viewDir" channels="x" />
+       <input name="in2" type="float" nodename="viewDir" channels="z" />
+     </atan2>
+     <multiply name="scaleXZ" type="float">
+       <input name="in1" type="float" nodename="angleXZ" />
+       <input name="in2" type="float" value="-0.15915494" />
+     </multiply>
+     <add name="longitude" type="float">
+       <input name="in1" type="float" nodename="scaleXZ" />
+       <input name="in2" type="float" value="0.5" />
+     </add>
+
+     <!-- Compute latitude coordinate -->
+     <asin name="angleY" type="float">
+       <input name="in" type="float" nodename="viewDir" channels="y" />
+     </asin>
+     <multiply name="scaleY" type="float">
+       <input name="in1" type="float" nodename="angleY" />
+       <input name="in2" type="float" value="0.31830989" />
+     </multiply>
+     <add name="latitude" type="float">
+       <input name="in1" type="float" nodename="scaleY" />
+       <input name="in2" type="float" value="0.5" />
+     </add>
+
+     <!-- Sample the latitude-longitude map -->
+     <combine2 name="mapUvs" type="vector2">
+       <input name="in1" type="float" nodename="longitude" />
+       <input name="in2" type="float" nodename="latitude" />
+     </combine2>
+     <image name="envImage" type="color3">
+       <parameter name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
+       <input name="texcoord" type="vector2" nodename="mapUvs" />
+       <parameter name="uaddressmode" type="string" value="periodic" />
+       <parameter name="vaddressmode" type="string" value="clamp" />
+       <parameter name="filtertype" type="string" value="linear" />
+     </image>
+
+     <!-- Return the resulting color -->
+     <output name="out" type="color3" nodename="envImage" />
    </nodegraph>
 </materialx>

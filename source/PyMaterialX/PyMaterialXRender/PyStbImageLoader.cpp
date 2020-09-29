@@ -14,7 +14,6 @@ void bindPyStbImageLoader(py::module& mod)
 {
     py::class_<mx::StbImageLoader, mx::ImageLoader, mx::StbImageLoaderPtr>(mod, "StbImageLoader")
         .def_static("create", &mx::StbImageLoader::create)
-        .def(py::init<>())
         .def("saveImage", &mx::StbImageLoader::saveImage)
         .def("loadImage", &mx::StbImageLoader::loadImage);
 }

@@ -68,12 +68,12 @@ void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
     //}
 }
 
-void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FilePath searchPath, mx::DocumentPtr& dependLib)
+void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath, mx::DocumentPtr& dependLib)
 {
     dependLib = mx::createDocument();
 
-    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
-    mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
+    const mx::FilePathVec libraries = { "stdlib", "pbrlib", "lights" };
+    mx::loadLibraries(libraries, searchPath, dependLib);
     for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
     {
         const mx::FilePath& libraryPath = options.externalLibraryPaths[i];
@@ -161,7 +161,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     addSkipFiles();
 
     // Library search path
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
     // Load in the library dependencies once
     // This will be imported in each test document below
@@ -197,6 +198,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";
 
+    // Register shader metadata defined in the libraries.
+    _shaderGenerator->registerShaderMetadata(dependLib, context);
+
     setupTime.endTimer();
 
     registerLights(dependLib, options, context);
@@ -209,9 +213,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");
 
     mx::StringSet usedImpls;
-
-    mx::CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
 
     const std::string MTLX_EXTENSION("mtlx");
     for (const auto& dir : dirs)
@@ -253,7 +254,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");
             }
 
-            doc->importLibrary(dependLib, &copyOptions);
+            doc->importLibrary(dependLib);
             ioTimer.endTimer();
 
             validateTimer.startTimer();
@@ -289,40 +290,57 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             outputPath.removeExtension();
             for (const auto& element : elements)
             {
-                mx::TypedElementPtr targetElement = element;
-                mx::OutputPtr output = targetElement->asA<mx::Output>();
-                mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
-                mx::NodePtr outputNode = targetElement->asA<mx::Node>();
-                mx::NodeDefPtr nodeDef = nullptr;
+                std::vector<mx::TypedElementPtr> targetElements;
+                std::vector<mx::NodeDefPtr> nodeDefs;
+
+                mx::OutputPtr output = element->asA<mx::Output>();
+                mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
+                mx::NodePtr outputNode = element->asA<mx::Node>();
+
                 if (output)
                 {
                     outputNode = output->getConnectedNode();
                     // Handle connected upstream material nodes later on.
                     if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
                     {
-                        nodeDef = outputNode->getNodeDef();
+                        mx::NodeDefPtr nodeDef = outputNode->getNodeDef();
+                        if (nodeDef)
+                        {
+                            nodeDefs.push_back(nodeDef);
+                            targetElements.push_back(output);
+                        }
                     }
                 }
                 else if (shaderRef)
                 {
-                    nodeDef = shaderRef->getNodeDef();
-                }
-
-                // Handle material node checking. For now only check first surface shader if any
-                if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
-                {
-                    std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
-                    if (!shaderNodes.empty())
+                    mx::NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                    if (nodeDef)
                     {
-                        nodeDef = shaderNodes[0]->getNodeDef();
-                        targetElement = shaderNodes[0];
+                        nodeDefs.push_back(nodeDef);
+                        targetElements.push_back(shaderRef);
                     }
                 }
 
-                if (nodeDef)
+                // Get connected shader nodes if a material node.
+                if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
                 {
-                    mx::string elementName = mx::replaceSubstrings(targetElement->getNamePath(), pathMap);
-                    elementName = mx::createValidName(elementName);
+                    std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
+                    for (auto node : shaderNodes)
+                    {
+                        mx::NodeDefPtr nodeDef = node->getNodeDef();
+                        if (nodeDef)
+                        {
+                            nodeDefs.push_back(nodeDef);
+                            targetElements.push_back(node);
+                        }
+                    }
+                }
+
+                for (size_t i=0; i < nodeDefs.size(); ++i)
+                {
+                    const mx::NodeDefPtr& nodeDef = nodeDefs[i];
+                    const mx::TypedElementPtr& targetElement = targetElements[i];
+                    const mx::string elementName = mx::createValidName(mx::replaceSubstrings(targetElement->getNamePath(), pathMap));
                     {
                         renderableSearchTimer.startTimer();
                         mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());

@@ -23,5 +23,4 @@ void bindPyUtil(py::module& mod)
     mod.def("splitString", &mx::splitString);
     mod.def("replaceSubstrings", &mx::replaceSubstrings);
     mod.def("stringEndsWith", &mx::stringEndsWith);
-    mod.def("prettyPrint", &mx::prettyPrint);
 }

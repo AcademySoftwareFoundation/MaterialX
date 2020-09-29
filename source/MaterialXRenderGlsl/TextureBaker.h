@@ -10,6 +10,7 @@
 /// Texture baking functionality
 
 #include <MaterialXRenderGlsl/GlslRenderer.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
@@ -21,12 +22,14 @@ using TextureBakerPtr = shared_ptr<class TextureBaker>;
 
 /// @class TextureBaker
 /// A helper class for baking procedural material content to textures.
+/// TODO: Add support for graphs containing geometric nodes such as position
+///       and normal.
 class TextureBaker : public GlslRenderer
 {
   public:
-    static TextureBakerPtr create(unsigned int width = 1024, unsigned int height = 1024)
+    static TextureBakerPtr create(unsigned int width = 1024, unsigned int height = 1024, Image::BaseType baseType = Image::BaseType::UINT8)
     {
-        return TextureBakerPtr(new TextureBaker(width, height));
+        return TextureBakerPtr(new TextureBaker(width, height, baseType));
     }
 
     /// Set the file extension for baked textures.
@@ -41,31 +44,78 @@ class TextureBaker : public GlslRenderer
         return _extension;
     }
 
-    /// Bake textures for all graph inputs of the given shader reference.
-    void bakeShaderInputs(ShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder);
+    /// Set the color space in which color textures are encoded.
+    ///
+    /// By default, this color space is srgb_texture, and color inputs are
+    /// automatically transformed to this space by the baker.  If another color
+    /// space is set, then the input graph is responsible for transforming
+    /// colors to this space.
+    void setColorSpace(const string& colorSpace)
+    {
+        _colorSpace = colorSpace;
+    }
 
-    /// Bake textures for all graph inputs of the given shader node.
-    void bakeShaderInputs(NodePtr shader, GenContext& context, const FilePath& outputFolder);
+    /// Return the color space in which color textures are encoded.
+    const string& getColorSpace()
+    {
+        return _colorSpace;
+    }
+
+    /// Set whether uniform textures should be stored as constants.  Defaults to true.
+    void setOptimizeConstants(bool enable)
+    {
+        _optimizeConstants = enable;
+    }
+
+    /// Return whether uniform textures should be stored as constants.
+    bool getOptimizeConstants()
+    {
+        return _optimizeConstants;
+    }
+
+    /// Bake textures for all graph inputs of the given shader reference.
+    void bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string& udim = EMPTY_STRING);
 
     /// Bake a texture for the given graph output.
-    void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder);
+    void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& filename);
 
-    /// Write out the baked material document based on a shader reference
-    void writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename);
+    /// Optimize baked textures before writing.
+    void optimizeBakedTextures();
 
-    /// Write out the baked material document based on a shader node
-    void writeBakedDocument(NodePtr shader, const FilePath& filename);
+    /// Write out the baked material and textures.
+    void writeBakedMaterial(const FilePath& filename, const StringVec& udimSet);
+
+    /// Generate a baked version of each material in the input document.
+    void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFilename);
 
   protected:
-    TextureBaker(unsigned int width, unsigned int height);
+    TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
     // Generate a texture filename for the given graph output.
-    FilePath generateTextureFilename(OutputPtr output);
+    FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);
 
   protected:
-    ShaderGeneratorPtr _generator;
-    string _udim;
+    class BakedImage
+    {
+      public:
+        ImagePtr image;
+        bool isUniform = false;
+        Color4 uniformColor;
+        FilePath filename;
+    };
+    using BakedImageVec = vector<BakedImage>;
+    using BakedImageMap = std::unordered_map<OutputPtr, BakedImageVec>;
+
+  protected:
     string _extension;
+    string _colorSpace;
+    bool _optimizeConstants;
+
+    ShaderGeneratorPtr _generator;
+    ConstShaderRefPtr _shaderRef;
+    StringSet _worldSpaceShaderInputs;
+    std::set<OutputPtr> _constantOutputs;
+    BakedImageMap _bakedImageMap;
 };
 
 } // namespace MaterialX

@@ -88,7 +88,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     glBindTexture(GL_TEXTURE_2D, image->getResourceId());
 
     // Set up texture properties
-    GLint minFilterType = mapFilterTypeToGL(samplingProperties.filterType);
+    GLint minFilterType = mapFilterTypeToGL(samplingProperties.filterType, samplingProperties.enableMipmaps);
     GLint magFilterType = GL_LINEAR; // Magnification filters are more restrictive than minification
     GLint uaddressMode = mapAddressModeToGL(samplingProperties.uaddressMode);
     GLint vaddressMode = mapAddressModeToGL(samplingProperties.vaddressMode);
@@ -124,7 +124,6 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
         unsigned int resourceId;
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glGenTextures(1, &resourceId);
         image->setResourceId(resourceId);
     }
@@ -141,6 +140,7 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     int glType, glFormat, glInternalFormat;
     mapTextureFormatToGL(image->getBaseType(), image->getChannelCount(), false,
         glType, glFormat, glInternalFormat);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
         0, glFormat, glType, image->getResourceBuffer());
 
@@ -216,12 +216,12 @@ int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode ad
     return addressMode;
 }
 
-int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum)
+int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum, bool enableMipmaps)
 {
-    int filterType = GL_LINEAR_MIPMAP_LINEAR;
+    int filterType = enableMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
     if (filterTypeEnum == ImageSamplingProperties::FilterType::CLOSEST)
     {
-        filterType = GL_NEAREST_MIPMAP_NEAREST;
+        filterType = enableMipmaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
     }
     return filterType;
 }

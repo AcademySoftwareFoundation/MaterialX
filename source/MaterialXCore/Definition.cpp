@@ -19,6 +19,7 @@ const string NodeDef::GEOMETRIC_NODE_GROUP = "geometric";
 const string NodeDef::ADJUSTMENT_NODE_GROUP = "adjustment";
 const string NodeDef::CONDITIONAL_NODE_GROUP = "conditional";
 const string NodeDef::ORGANIZATION_NODE_GROUP = "organization";
+const string NodeDef::TRANSLATION_NODE_GROUP = "translation";
 
 const string NodeDef::NODE_ATTRIBUTE = "node";
 const string NodeDef::NODE_GROUP_ATTRIBUTE = "nodegroup";
@@ -28,6 +29,10 @@ const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::LANGUAGE_ATTRIBUTE = "language";
 const string UnitDef::UNITTYPE_ATTRIBUTE = "unittype";
+const string AttributeDef::ATTRNAME_ATTRIBUTE = "attrname";
+const string AttributeDef::VALUE_ATTRIBUTE = "value";
+const string AttributeDef::ELEMENTS_ATTRIBUTE = "elements";
+const string AttributeDef::EXPORTABLE_ATTRIBUTE = "exportable";
 
 //
 // NodeDef methods

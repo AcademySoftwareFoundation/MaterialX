@@ -23,13 +23,13 @@ string OslRenderer::OSL_CLOSURE_COLOR_STRING("closure color");
 // OslRenderer methods
 //
 
-OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height)
+OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height, Image::BaseType baseType)
 {
-    return std::shared_ptr<OslRenderer>(new OslRenderer(width, height));
+    return std::shared_ptr<OslRenderer>(new OslRenderer(width, height, baseType));
 }
 
-OslRenderer::OslRenderer(unsigned int width, unsigned int height) :
-    ShaderRenderer(width, height),
+OslRenderer::OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
+    ShaderRenderer(width, height, baseType),
     _useTestRender(true) // By default use testrender
 {
 }
@@ -408,15 +408,15 @@ void OslRenderer::render()
     }
 }
 
-void OslRenderer::save(const FilePath& /*filePath*/)
+ImagePtr OslRenderer::captureImage()
 {
-    // No-op: image save is done as part of rendering.
+    // No-op: image capture is done as part of rendering.
+    return nullptr;
 }
 
-ImagePtr OslRenderer::saveImage()
+void OslRenderer::saveImage(const FilePath& /*filePath*/)
 {
     // No-op: image save is done as part of rendering.
-    return nullptr;
 }
 
 } // namespace MaterialX

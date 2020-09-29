@@ -14,7 +14,6 @@ namespace mx = MaterialX;
 TEST_CASE("Load content", "[xmlio]")
 {
     mx::XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
     std::vector<bool> applyUpdates = { false, true };
     for (auto applyUpdate : applyUpdates)
     {
@@ -151,29 +150,12 @@ TEST_CASE("Load content", "[xmlio]")
         // Import libraries twice and verify that duplicate elements are
         // skipped.
         mx::DocumentPtr libDoc = doc->copy();
-        mx::CopyOptions copyOptions;
-        copyOptions.skipConflictingElements = true;
         for (mx::DocumentPtr lib : libs)
         {
-            libDoc->importLibrary(lib, &copyOptions);
-            libDoc->importLibrary(lib, &copyOptions);
+            libDoc->importLibrary(lib);
+            libDoc->importLibrary(lib);
         }
         REQUIRE(libDoc->validate());
-
-        // Read document with conflicting elements.
-        mx::DocumentPtr conflictDoc = doc->copy();
-        for (mx::ElementPtr elem : conflictDoc->traverseTree())
-        {
-            if (elem->isA<mx::Node>("image"))
-            {
-                elem->setFilePrefix("differentFolder/");
-            }
-        }
-        readOptions.skipConflictingElements = false;
-        REQUIRE_THROWS_AS(mx::readFromXmlFile(conflictDoc, filename, searchPath, &readOptions), mx::Exception&);
-        readOptions.skipConflictingElements = true;
-        mx::readFromXmlFile(conflictDoc, filename, searchPath, &readOptions);
-        REQUIRE(conflictDoc->validate());
 
         // Reread in clean document
         doc = mx::createDocument();

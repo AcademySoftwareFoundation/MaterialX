@@ -45,6 +45,9 @@ class OslShaderGenerator : public ShaderGenerator
     /// Unique identifier for this generator target
     static const string TARGET;
 
+    /// Register metadata that should be exported to the generated shaders.
+    void registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const override;
+
 protected:
 
     /// Create and initialize a new OSL shader for shader generation.

@@ -9,6 +9,9 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
+#include <iterator>
+#include <stdexcept>
+
 namespace MaterialX
 {
 
@@ -121,10 +124,10 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     return res;
 }
 
-ElementPtr Element::getDescendant(const string& namePath)
+ElementPtr Element::getDescendant(const string& namePath) const
 {
     const StringVec nameVec = splitString(namePath, NAME_PATH_SEPARATOR);
-    ElementPtr elem = getSelf();
+    ElementPtr elem = getSelfNonConst();
     for (const string& name : nameVec)
     {
         elem = elem->getChild(name);
@@ -267,15 +270,13 @@ template<class T> shared_ptr<const T> Element::asA() const
     return std::dynamic_pointer_cast<const T>(getSelf());
 }
 
-ElementPtr Element::addChildOfCategory(const string& category,
-                                       string name,
-                                       bool registerChild)
+ElementPtr Element::addChildOfCategory(const string& category, string name)
 {
     if (name.empty())
     {
         name = createValidChildName(category + "1");
     }
-    if (registerChild && _childMap.count(name))
+    if (_childMap.count(name))
     {
         throw Exception("Child name is not unique: " + name);
     }
@@ -303,10 +304,7 @@ ElementPtr Element::addChildOfCategory(const string& category,
         child->setCategory(category);
     }
 
-    if (registerChild)
-    {
-        registerChildElement(child);
-    }
+    registerChildElement(child);
 
     return child;
 }
@@ -381,10 +379,9 @@ InheritanceIterator Element::traverseInheritance() const
     return InheritanceIterator(getSelf());
 }
 
-void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* copyOptions)
+void Element::copyContentFrom(const ConstElementPtr& source)
 {
     DocumentPtr doc = getDocument();
-    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
 
     // Handle change notifications.
     ScopedUpdate update(doc);
@@ -400,20 +397,14 @@ void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* 
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(name);
-        if (previous && skipConflictingElements)
+        if (previous)
         {
             continue;
         }
 
         // Create the copied element.
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name, !previous);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
         childCopy->copyContentFrom(child);
-
-        // Check for conflicting elements.
-        if (previous && *previous != *childCopy)
-        {
-            throw Exception("Duplicate element with conflicting content: " + name);
-        }
     }
 }
 
@@ -751,6 +742,17 @@ bool targetStringsMatch(const string& target1, const string& target2)
     return !matches.empty();
 }
 
+string prettyPrint(ConstElementPtr elem)
+{
+    string text;
+    for (TreeIterator it = elem->traverseTree().begin(); it != TreeIterator::end(); ++it)
+    {
+        string indent(it.getElementDepth() * 2, ' ');
+        text += indent + it.getElement()->asString() + "\n";
+    }
+    return text;
+}
+
 //
 // Element registry class
 //
@@ -786,6 +788,7 @@ const string T::CATEGORY(category);                     \
 ElementRegistry<T> registry##T;                         \
 INSTANTIATE_SUBCLASS(T)
 
+INSTANTIATE_CONCRETE_SUBCLASS(AttributeDef, "attributedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Backdrop, "backdrop")
 INSTANTIATE_CONCRETE_SUBCLASS(BindParam, "bindparam")
 INSTANTIATE_CONCRETE_SUBCLASS(BindInput, "bindinput")

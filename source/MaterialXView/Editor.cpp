@@ -644,12 +644,11 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                             mx::ImageHandlerPtr handler = viewer->getImageHandler();
                             if (handler)
                             {
-                                mx::StringSet extensions;
-                                handler->supportedExtensions(extensions);
+                                mx::StringSet extensions = handler->supportedExtensions();
                                 std::vector<std::pair<std::string, std::string>> filetypes;
                                 for (const auto& extension : extensions)
                                 {
-                                    filetypes.push_back(std::make_pair(extension, extension));
+                                    filetypes.emplace_back(extension, extension);
                                 }
                                 std::string filename = ng::file_dialog(filetypes, false);
                                 if (!filename.empty())

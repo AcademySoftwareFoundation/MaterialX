@@ -25,13 +25,13 @@ const float FAR_PLANE_PERSP = 100.0f;
 // GlslRenderer methods
 //
 
-GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height)
+GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Image::BaseType baseType)
 {
-    return GlslRendererPtr(new GlslRenderer(width, height));
+    return GlslRendererPtr(new GlslRenderer(width, height, baseType));
 }
 
-GlslRenderer::GlslRenderer(unsigned int width, unsigned int height) :
-    ShaderRenderer(width, height),
+GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
+    ShaderRenderer(width, height, baseType),
     _initialized(false),
     _eye(0.0f, 0.0f, 4.0f),
     _center(0.0f, 0.0f, 0.0f),
@@ -126,7 +126,7 @@ void GlslRenderer::initialize()
             glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
             glClearStencil(0);
 
-            _frameBuffer = GLFramebuffer::create(_width, _height, 4, Image::BaseType::UINT8);
+            _frameBuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
 
             _initialized = true;
         }
@@ -312,25 +312,10 @@ void GlslRenderer::render()
     _frameBuffer->unbind();
 }
 
-void GlslRenderer::save(const FilePath& filePath)
+ImagePtr GlslRenderer::captureImage()
 {
     StringVec errors;
-    const string errorType("GLSL image save error.");
-
-    ImagePtr image = saveImage();
-
-    // Save using the handler.
-    if (!_imageHandler->saveImage(filePath, image, true))
-    {
-        errors.push_back("Failed to save to file:" + filePath.asString());
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-}
-
-ImagePtr GlslRenderer::saveImage()
-{
-    StringVec errors;
-    const string errorType("GLSL image save error.");
+    const string errorType("GLSL image capture error.");
 
     if (!_imageHandler)
     {
@@ -350,6 +335,19 @@ ImagePtr GlslRenderer::saveImage()
         throw ExceptionShaderRenderError(errorType, errors);
     }
     return result;
+}
+
+void GlslRenderer::saveImage(const FilePath& filePath)
+{
+    StringVec errors;
+    const string errorType("GLSL image save error.");
+
+    ImagePtr image = captureImage();
+    if (!_imageHandler->saveImage(filePath, image, true))
+    {
+        errors.push_back("Failed to save to file:" + filePath.asString());
+        throw ExceptionShaderRenderError(errorType, errors);
+    }
 }
 
 void GlslRenderer::checkErrors()

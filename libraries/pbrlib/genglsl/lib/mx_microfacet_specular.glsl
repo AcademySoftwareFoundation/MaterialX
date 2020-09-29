@@ -66,7 +66,7 @@ vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
 vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
-    NdotV = clamp(NdotV, 1e-8, 1.0);
+    NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
     vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
 
     vec2 AB = vec2(0.0);
@@ -80,9 +80,9 @@ vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, v
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
-        float NdotL = clamp(L.z, 1e-8, 1.0);
-        float NdotH = clamp(H.z, 1e-8, 1.0);
-        float VdotH = clamp(dot(V, H), 1e-8, 1.0);
+        float NdotL = clamp(L.z, M_FLOAT_EPS, 1.0);
+        float NdotH = clamp(H.z, M_FLOAT_EPS, 1.0);
+        float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
         // Compute the Fresnel term.
         float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);

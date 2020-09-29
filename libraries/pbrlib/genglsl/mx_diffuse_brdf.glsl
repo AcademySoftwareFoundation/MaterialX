@@ -2,17 +2,18 @@
 
 void mx_diffuse_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float roughness, vec3 normal, out BSDF result)
 {
-    float NdotL = dot(L, normal);
-    if (NdotL <= 0.0 || weight < M_FLOAT_EPS)
+    if (weight < M_FLOAT_EPS)
     {
         result = BSDF(0.0);
         return;
     }
 
+    float NdotL = clamp(dot(normal, L), M_FLOAT_EPS, 1.0);
+
     result = color * weight * NdotL * M_PI_INV;
     if (roughness > 0.0)
     {
-        result *= mx_orennayar(L, V, normal, NdotL, roughness);
+        result *= mx_oren_nayar_diffuse(L, V, normal, NdotL, roughness);
     }
 }
 
@@ -20,7 +21,7 @@ void mx_diffuse_brdf_indirect(vec3 V, float weight, vec3 color, float roughness,
 {
     if (weight < M_FLOAT_EPS)
     {
-        result = vec3(0.0);
+        result = BSDF(0.0);
         return;
     }
 

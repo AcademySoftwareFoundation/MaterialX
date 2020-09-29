@@ -19,9 +19,15 @@
 #include <nanogui/label.h>
 #include <nanogui/layout.h>
 #include <nanogui/messagedialog.h>
+#include <nanogui/vscrollpanel.h>
 
 #include <fstream>
 #include <iostream>
+
+const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
+const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
+
+namespace {
 
 const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
@@ -32,6 +38,10 @@ const int ALBEDO_TABLE_SIZE = 64;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
 
+const int MIN_TEXTURE_RES = 256;
+const int MAX_TEXTURE_RES = 8192;
+const int DEFAULT_TEXTURE_RES = 1024;
+
 const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
 
@@ -39,11 +49,9 @@ const float ENV_MAP_SPLIT_RADIANCE = 16.0f;
 const float MAX_ENV_TEXEL_RADIANCE = 100000.0f;
 const float IDEAL_ENV_MAP_RADIANCE = 6.0f;
 
-const float MODEL_SPHERE_RADIUS = 2.0f;
+const float IDEAL_MESH_SPHERE_RADIUS = 2.0f;
 
 const float PI = std::acos(-1.0f);
-
-namespace {
 
 void writeTextFile(const std::string& text, const std::string& filePath)
 {
@@ -51,28 +59,6 @@ void writeTextFile(const std::string& text, const std::string& filePath)
     file.open(filePath);
     file << text;
     file.close();
-}
-
-mx::DocumentPtr loadLibraries(const mx::FilePathVec& libraryFolders, const mx::FileSearchPath& searchPath)
-{
-    mx::DocumentPtr doc = mx::createDocument();
-    for (const std::string& libraryFolder : libraryFolders)
-    {
-        mx::CopyOptions copyOptions;
-        copyOptions.skipConflictingElements = true;
-
-        mx::XmlReadOptions readOptions;
-        readOptions.skipConflictingElements = true;
-
-        mx::FilePath libraryPath = searchPath.find(libraryFolder);
-        for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
-        {
-            mx::DocumentPtr libDoc = mx::createDocument();
-            mx::readFromXmlFile(libDoc, libraryPath / filename, mx::FileSearchPath(), &readOptions);
-            doc->importLibrary(libDoc, &copyOptions);
-        }
-    }
-    return doc;
 }
 
 void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
@@ -162,28 +148,36 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 Viewer::Viewer(const std::string& materialFilename,
                const std::string& meshFilename,
                const mx::Vector3& meshRotation,
+               float meshScale,
+               const mx::Vector3& cameraPosition,
+               const mx::Vector3& cameraTarget,
+               float cameraViewAngle,
+               const std::string& envRadiancePath,
+               mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
+               float lightRotation,
                const mx::FilePathVec& libraryFolders,
                const mx::FileSearchPath& searchPath,
                const DocumentModifiers& modifiers,
-               mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
-               const std::string& envRadiancePath,
-               float lightRotation,
+               int screenWidth,
+               int screenHeight,
+               const mx::Color3& screenColor,
                int multiSampleCount) :
-    ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
+    ng::Screen(ng::Vector2i(screenWidth, screenHeight), "MaterialXView",
         true, false,
         8, 8, 24, 8,
         multiSampleCount),
-    _eye(0.0f, 0.0f, 5.0f),
-    _up(0.0f, 1.0f, 0.0f),
-    _viewAngle(45.0f),
-    _nearDist(0.05f),
-    _farDist(5000.0f),
-    _cameraYaw(0.0f),
-    _meshZoom(1.0f),
     _meshRotation(meshRotation),
-    _userZoom(1.0f),
+    _meshScale(meshScale),
+    _cameraPosition(cameraPosition),
+    _cameraTarget(cameraTarget),
+    _cameraUp(0.0f, 1.0f, 0.0f),
+    _cameraViewAngle(cameraViewAngle),
+    _cameraNearDist(0.05f),
+    _cameraFarDist(5000.0f),
+    _userCameraEnabled(true),
     _userTranslationActive(false),
     _userTranslationPixel(0, 0),
+    _userScale(1.0f),
     _libraryFolders(libraryFolders),
     _searchPath(searchPath),
     _materialFilename(materialFilename),
@@ -209,6 +203,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _splitByUdims(false),
     _mergeMaterials(false),
     _bakeTextures(false),
+    _bakeHdr(false),
+    _bakeTextureRes(DEFAULT_TEXTURE_RES),
     _outlineSelection(false),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
@@ -224,30 +220,25 @@ Viewer::Viewer(const std::string& materialFilename,
     _window->setPosition(ng::Vector2i(15, 15));
     _window->setLayout(new ng::GroupLayout());
 
+    // Set the requested background color.
+    setBackground(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
+
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
-    if (_stdLib)
-    {
-        for (std::string sourceUri : _stdLib->getReferencedSourceUris())
-        {
-            _xincludeFiles.insert(sourceUri);
-        }
-    }
 
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
     _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
+    _genContext.getOptions().hwTransparency = true;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
     // Initialize image handler.
+    _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
 #if MATERIALX_BUILD_OIIO
-    mx::ImageLoaderPtr imageLoader = mx::OiioImageLoader::create();
-#else
-    mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
+    _imageHandler->addLoader(mx::OiioImageLoader::create());
 #endif
-    _imageHandler = mx::GLTextureHandler::create(imageLoader);
     _imageHandler->setSearchPath(_searchPath);
 
     // Initialize user interfaces.
@@ -475,9 +466,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
 {
     if (_lightRigDoc)
     {
-        mx::CopyOptions copyOptions;
-        copyOptions.skipConflictingElements = true;
-        doc->importLibrary(_lightRigDoc, &copyOptions);
+        doc->importLibrary(_lightRigDoc);
         _xincludeFiles.insert(_lightRigFilename);
     }
 
@@ -556,6 +545,10 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
                 }
 
                 _meshRotation = mx::Vector3();
+                _meshScale = 1.0f;
+                _cameraPosition = DEFAULT_CAMERA_POSITION;
+                _cameraTarget = mx::Vector3();
+                _cameraViewAngle = DEFAULT_CAMERA_VIEW_ANGLE;
                 initCamera();
 
                 _imageHandler->releaseRenderResources(_shadowMap);
@@ -595,12 +588,11 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
     envButton->setCallback([this]()
     {
         mProcessEvents = false;
-        mx::StringSet extensions;
-        _imageHandler->supportedExtensions(extensions);
+        mx::StringSet extensions = _imageHandler->supportedExtensions();
         std::vector<std::pair<std::string, std::string>> filetypes;
         for (const auto& extension : extensions)
         {
-            filetypes.push_back(std::make_pair(extension, extension));
+            filetypes.emplace_back(extension, extension);
         }
         std::string filename = ng::file_dialog(filetypes, false);
         if (!filename.empty())
@@ -679,10 +671,17 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ng::PopupButton* advancedButton = new ng::PopupButton(parent, "Advanced Settings");
     advancedButton->setIcon(ENTYPO_ICON_TOOLS);
     advancedButton->setChevronIcon(-1);
-    ng::Popup* advancedPopup = advancedButton->popup();
-    advancedPopup->setLayout(new ng::GroupLayout());
+    ng::Popup* advancedPopupParent = advancedButton->popup();
+    advancedPopupParent->setLayout(new ng::GroupLayout());
 
-    new ng::Label(advancedPopup, "Mesh Options");
+    ng::VScrollPanel* scrollPanel = new ng::VScrollPanel(advancedPopupParent);
+    scrollPanel->setFixedHeight(400);
+    ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
+    advancedPopup->setLayout(new ng::GroupLayout(13));
+
+    ng::Label* meshLabel = new ng::Label(advancedPopup, "Mesh Options");
+    meshLabel->setFontSize(20);
+    meshLabel->setFont("sans-bold");
 
     ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
     splitUdimsBox->setChecked(_splitByUdims);
@@ -691,20 +690,15 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _splitByUdims = enable;
     });
 
-    new ng::Label(advancedPopup, "Material Options");
+    ng::Label* materialLabel = new ng::Label(advancedPopup, "Material Options");
+    materialLabel->setFontSize(20);
+    materialLabel->setFont("sans-bold");
 
     ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
     mergeMaterialsBox->setChecked(_mergeMaterials);
     mergeMaterialsBox->setCallback([this](bool enable)
     {
         _mergeMaterials = enable;
-    });    
-
-    ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
-    bakeTexturesBox->setChecked(_bakeTextures);
-    bakeTexturesBox->setCallback([this](bool enable)
-    {
-        _bakeTextures = enable;
     });    
 
     Widget* unitGroup = new Widget(advancedPopup);
@@ -728,7 +722,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
         mProcessEvents = true;
     });
 
-    new ng::Label(advancedPopup, "Lighting Options");
+    ng::Label* lightingLabel = new ng::Label(advancedPopup, "Lighting Options");
+    lightingLabel->setFontSize(20);
+    lightingLabel->setFont("sans-bold");
 
     ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
     directLightingBox->setChecked(_directLighting);
@@ -772,7 +768,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
     lightRotationBox->setEditable(true);
 
-    new ng::Label(advancedPopup, "Shadowing Options");
+    ng::Label* shadowingLabel = new ng::Label(advancedPopup, "Shadowing Options");
+    shadowingLabel->setFontSize(20);
+    shadowingLabel->setFont("sans-bold");
 
     ng::CheckBox* shadowMapBox = new ng::CheckBox(advancedPopup, "Shadow Map");
     shadowMapBox->setChecked(_genContext.getOptions().hwShadowMap);
@@ -799,7 +797,17 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
     ambientOcclusionGainBox->setEditable(true);
 
-    new ng::Label(advancedPopup, "Render Options");
+    ng::Label* renderLabel = new ng::Label(advancedPopup, "Render Options");
+    renderLabel->setFontSize(20);
+    renderLabel->setFont("sans-bold");
+
+    ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
+    transparencyBox->setChecked(_genContext.getOptions().hwTransparency);
+    transparencyBox->setCallback([this](bool enable)
+    {
+        _genContext.getOptions().hwTransparency = enable;
+        reloadShaders();
+    });
 
     ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
     outlineSelectedGeometryBox->setChecked(_outlineSelection);
@@ -843,6 +851,42 @@ void Viewer::createAdvancedSettings(Widget* parent)
             _envSamples = MIN_ENV_SAMPLES * (int) std::pow(4, index);
         });
     }
+
+    ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options");
+    textureLabel->setFontSize(20);
+    textureLabel->setFont("sans-bold");
+
+    ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
+    bakeTexturesBox->setChecked(_bakeTextures);
+    bakeTexturesBox->setCallback([this](bool enable)
+    {
+        _bakeTextures = enable;
+    });
+
+    ng::CheckBox* bakeHdrBox = new ng::CheckBox(advancedPopup, "Bake HDR Textures");
+    bakeHdrBox->setChecked(_bakeTextures);
+    bakeHdrBox->setCallback([this](bool enable)
+    {
+        _bakeHdr = enable;
+    });
+
+    Widget* textureResGroup = new Widget(advancedPopup);
+    textureResGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(textureResGroup, "Texture Res:");
+    mx::StringVec textureResOptions;
+    for (int i = MIN_TEXTURE_RES; i <= MAX_TEXTURE_RES; i *= 2)
+    {
+        mProcessEvents = false;
+        textureResOptions.push_back(std::to_string(i));
+        mProcessEvents = true;
+    }
+    ng::ComboBox* textureResBox = new ng::ComboBox(textureResGroup, textureResOptions);
+    textureResBox->setChevronIcon(-1);
+    textureResBox->setSelectedIndex((int)std::log2(DEFAULT_TEXTURE_RES / MIN_TEXTURE_RES));
+    textureResBox->setCallback([this](int index)
+    {
+        _bakeTextureRes = MIN_TEXTURE_RES * (int) std::pow(2, index);
+    });
 }
 
 void Viewer::updateGeometrySelections()
@@ -934,7 +978,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
     {
@@ -973,9 +1016,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
 
         // Import libraries.
-        mx::CopyOptions copyOptions; 
-        copyOptions.skipConflictingElements = true;
-        doc->importLibrary(libraries, &copyOptions);
+        doc->importLibrary(libraries);
 
         // Apply direct lights.
         applyDirectLights(doc);
@@ -996,6 +1037,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         std::vector<mx::TypedElementPtr> elems;
         std::vector<mx::TypedElementPtr> materials;
         mx::findRenderableElements(doc, elems);
+        if (elems.empty())
+        {
+            throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
+        }
         for (mx::TypedElementPtr elem : elems)
         {
             mx::TypedElementPtr renderableElem = elem;
@@ -1314,16 +1359,17 @@ void Viewer::loadStandardLibraries()
     // Initialize the standard library.
     try
     {
-        _stdLib = loadLibraries(_libraryFolders, _searchPath);
+        _stdLib = mx::createDocument();
+        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
+        if (_xincludeFiles.empty())
+        {
+            std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
+        }
     }
     catch (std::exception& e)
     {
         std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
         return;
-    }
-    if (_stdLib->getChildren().empty())
-    {
-        std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
     }
 
     // Initialize color management.
@@ -1363,13 +1409,16 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     }
 
     // Adjust camera zoom.
-    if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
+    if (_userCameraEnabled)
     {
-        _userZoom *= 1.1f;
-    }
-    if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
-    {
-        _userZoom = std::max(0.1f, _userZoom * 0.9f);
+        if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
+        {
+            _userScale *= 1.1f;
+        }
+        if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
+        {
+            _userScale = std::max(0.1f, _userScale * 0.9f);
+        }
     }
 
     // Reload the current document, and optionally the standard libraries, from
@@ -1509,17 +1558,17 @@ void Viewer::renderFrame()
     {
         auto meshes = _envGeometryHandler->getMeshes();
         auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
-        mx::Matrix44 envMatrix = mx::Matrix44::createScale(mx::Vector3(300.0f)) *
-                                 mx::Matrix44::createRotationY(PI / 2.0f) *
-                                 lightingState.lightTransform;
+        mx::Matrix44 envWorld = mx::Matrix44::createScale(mx::Vector3(300.0f));
+        float longitudeOffset = (_lightRotation / 360.0f) + 0.5f;
+        _envMaterial->setUniformFloat("longitude/in2", longitudeOffset);
 
         if (envPart)
         {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
             _envMaterial->bindShader();
-            _envMaterial->bindViewInformation(envMatrix, view, proj);
-            _envMaterial->bindImages(_imageHandler, _searchPath);
+            _envMaterial->bindViewInformation(envWorld, view, proj);
+            _envMaterial->bindImages(_imageHandler, _searchPath, false);
             _envMaterial->drawPartition(envPart);
             glDisable(GL_CULL_FACE);
             glCullFace(GL_BACK);
@@ -1560,7 +1609,7 @@ void Viewer::renderFrame()
 
         material->bindShader();
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, ShadowState());
+        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
@@ -1601,7 +1650,18 @@ mx::ImagePtr Viewer::renderWedge()
 {
     MaterialPtr material = getSelectedMaterial();
     mx::ShaderPort* uniform = material ? material->findUniform(_wedgePropertyName) : nullptr;
-    float origPropertyValue = uniform && uniform->getValue()->isA<float>() ? uniform->getValue()->asA<float>() : 0.0f;
+    if (!uniform)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Material property not found", _wedgePropertyName);
+        return nullptr;
+    }
+
+    mx::ValuePtr origValue = uniform->getValue();
+    if (!origValue->isA<float>() && !origValue->isA<mx::Color3>())
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Material property type not supported", _wedgePropertyName);
+        return nullptr;
+    }
 
     std::vector<mx::ImagePtr> imageVec;
     float wedgePropertyStep = (_wedgePropertyMax - _wedgePropertyMin) / (_wedgeImageCount - 1);
@@ -1609,8 +1669,15 @@ mx::ImagePtr Viewer::renderWedge()
     {
         if (material)
         {
-            float propertyValue = (i == _wedgeImageCount - 1) ? _wedgePropertyMax : _wedgePropertyMin + wedgePropertyStep * i;
-            material->setUniformFloat(_wedgePropertyName, propertyValue);
+            float renderValue = (i == _wedgeImageCount - 1) ? _wedgePropertyMax : _wedgePropertyMin + wedgePropertyStep * i;
+            if (origValue->isA<float>())
+            {
+                material->setUniformFloat(_wedgePropertyName, renderValue);
+            }
+            else if (origValue->isA<mx::Color3>())
+            {
+                material->setUniformVec3(_wedgePropertyName, ng::Vector3f(renderValue, renderValue, renderValue));
+            }
         }
         renderFrame();
         imageVec.push_back(getFrameImage());
@@ -1618,7 +1685,14 @@ mx::ImagePtr Viewer::renderWedge()
 
     if (material)
     {
-        material->setUniformFloat(_wedgePropertyName, origPropertyValue);
+        if (origValue->isA<float>())
+        {
+            material->setUniformFloat(_wedgePropertyName, origValue->asA<float>());
+        }
+        else if (origValue->isA<mx::Color3>())
+        {
+            material->setUniformVec3(_wedgePropertyName, ng::Vector3f(origValue->asA<mx::Color3>().data()));
+        }
     }
 
     return mx::createImageStrip(imageVec);
@@ -1627,38 +1701,73 @@ mx::ImagePtr Viewer::renderWedge()
 void Viewer::bakeTextures()
 {
     MaterialPtr material = getSelectedMaterial();
-    mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
-    mx::FileSearchPath searchPath = _searchPath;
-    if (material->getDocument())
+    mx::DocumentPtr doc = material->getDocument();
+    if (!doc)
     {
-        mx::FilePath documentFilename = material->getDocument()->getSourceUri();
-        searchPath.append(documentFilename.getParentPath());
+        return;
     }
 
+    // Create a unique image handler for baking.
+    mx::FilePath documentFilename = doc->getSourceUri();
+    mx::FileSearchPath searchPath = _searchPath;
+    searchPath.append(documentFilename.getParentPath());
     mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
     imageHandler->setSearchPath(searchPath);
-    if (!material->getUdim().empty())
+
+    // Compute material and UDIM lists.
+    std::vector<MaterialPtr> materialsToBake;
+    std::vector<std::string> udimSet;
+    mx::ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+    if (!material->getUdim().empty() && udimSetValue && _materials.size() > 1)
     {
-        mx::StringResolverPtr resolver = mx::StringResolver::create();
-        resolver->setUdimString(material->getUdim());
-        imageHandler->setFilenameResolver(resolver);
+        materialsToBake = _materials;
+        udimSet = udimSetValue->asA<std::vector<std::string>>();
+    }
+    else
+    {
+        materialsToBake.push_back(material);
     }
 
-    try
     {
-        mx::TextureBakerPtr baker = mx::TextureBaker::create();
-        baker->setImageHandler(imageHandler);
-        baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath());
-        baker->writeBakedDocument(shaderRef, _bakeFilename);
-    }
-    catch (mx::Exception& e)
-    {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+        // Construct a texture baker.
+        mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
+        mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
+
+        // Bake each material in the list.
+        for (MaterialPtr mat : materialsToBake)
+        {
+            mx::ShaderRefPtr shaderRef = mat->getElement()->asA<mx::ShaderRef>();
+            if (shaderRef)
+            {
+                mx::StringResolverPtr resolver = mx::StringResolver::create();
+                resolver->setUdimString(mat->getUdim());
+                imageHandler->setFilenameResolver(resolver);
+
+                try
+                {
+                    baker->setImageHandler(imageHandler);
+                    baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath(), mat->getUdim());
+                }
+                catch (mx::Exception& e)
+                {
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+                }
+            }
+        }
+
+        // Optimize baked textures.
+        baker->optimizeBakedTextures();
+
+        // Write the baked document and textures.
+        baker->writeBakedMaterial(_bakeFilename, udimSet);
     }
 
+    // Restore state for scene rendering.
     glfwMakeContextCurrent(mGLFWWindow);
     glfwGetFramebufferSize(mGLFWWindow, &mFBSize[0], &mFBSize[1]);
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
 }
 
 void Viewer::drawContents()
@@ -1677,10 +1786,9 @@ void Viewer::drawContents()
     {
         _wedgeRequested = false;
         mx::ImagePtr wedgeImage = renderWedge();
-        if (!wedgeImage || !_imageHandler->saveImage(_wedgeFilename, wedgeImage, true))
+        if (wedgeImage)
         {
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
-                "Failed to save wedge to disk: ", _wedgeFilename.asString());
+            _imageHandler->saveImage(_wedgeFilename, wedgeImage, true);
         }
     }
 
@@ -1692,10 +1800,9 @@ void Viewer::drawContents()
     {
         _captureRequested = false;
         mx::ImagePtr frameImage = getFrameImage();
-        if (!frameImage || !_imageHandler->saveImage(_captureFilename, frameImage, true))
+        if (frameImage)
         {
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
-                "Failed to save frame to disk: ", _captureFilename.asString());
+            _imageHandler->saveImage(_captureFilename, frameImage, true);
         }
     }
 
@@ -1711,11 +1818,18 @@ void Viewer::drawContents()
 
 bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
 {
-    if (!Screen::scrollEvent(p, rel))
+    if (Screen::scrollEvent(p, rel))
     {
-        _userZoom = std::max(0.1f, _userZoom * ((rel.y() > 0) ? 1.1f : 0.9f));
+        return true;
     }
-    return true;
+
+    if (_userCameraEnabled)
+    {
+        _userScale = std::max(0.1f, _userScale * ((rel.y() > 0) ? 1.1f : 0.9f));
+        return true;
+    }
+
+    return false;
 }
 
 bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
@@ -1806,6 +1920,10 @@ void Viewer::initCamera()
     _arcball = ng::Arcball();
     _arcball.setSize(mSize);
 
+    // Disable user camera controls when non-centered views are requested.
+    _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
+                         _meshScale == 1.0f;
+
     if (_geometryHandler->getMeshes().empty())
     {
         return;
@@ -1815,45 +1933,48 @@ void Viewer::initCamera()
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
 
-    mx::Vector3 boxMin = mesh->getMinimumBounds();
-    mx::Vector3 boxMax = mesh->getMaximumBounds();
-    mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
-    float sphereRadius = (sphereCenter - boxMin).getMagnitude();
-    _meshZoom = MODEL_SPHERE_RADIUS / sphereRadius;
-    _meshTranslation = -meshRotation.transformPoint(sphereCenter);
+    if (_userCameraEnabled)
+    {
+        _meshTranslation = -meshRotation.transformPoint(mesh->getSphereCenter());
+        _meshScale = IDEAL_MESH_SPHERE_RADIUS / mesh->getSphereRadius();
+    }
 }
 
 void Viewer::updateViewHandlers()
 {
-    float fH = std::tan(_viewAngle / 360.0f * PI) * _nearDist;
+    float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
     float fW = fH * (float) mSize.x() / (float) mSize.y();
 
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
-    mx::Matrix44 cameraYaw = mx::Matrix44::createRotationY(_cameraYaw / 180.0f * PI);
-    ng::Matrix4f ngArcball = _arcball.matrix();
-    mx::Matrix44 arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
+
+    mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
+    if (_userCameraEnabled)
+    {
+        ng::Matrix4f ngArcball = _arcball.matrix();
+        arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
+    }
 
     _cameraViewHandler->worldMatrix = meshRotation *
                                       mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
-                                      mx::Matrix44::createScale(mx::Vector3(_meshZoom * _userZoom));
-    _cameraViewHandler->viewMatrix = cameraYaw * arcball * mx::ViewHandler::createViewMatrix(_eye, _center, _up);
-    _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
+                                      mx::Matrix44::createScale(mx::Vector3(_meshScale * _userScale));
+    _cameraViewHandler->viewMatrix = arcball * mx::ViewHandler::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp);
+    _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist);
 
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
-        const float r = MODEL_SPHERE_RADIUS;
+        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+        float r = mesh->getSphereRadius();
         _shadowViewHandler->worldMatrix = meshRotation *
-                                          mx::Matrix44::createTranslation(_meshTranslation) *
-                                          mx::Matrix44::createScale(mx::Vector3(_meshZoom));
+                                          mx::Matrix44::createTranslation(-mesh->getSphereCenter());
         _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
         mx::ValuePtr value = dirLight->getInputValue("direction");
         if (value->isA<mx::Vector3>())
         {
             mx::Vector3 dir = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI).transformVector(value->asA<mx::Vector3>());
-            _shadowViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(dir * -r, mx::Vector3(0.0f), _up);
+            _shadowViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp);
         }
     }
 }

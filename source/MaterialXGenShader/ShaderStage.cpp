@@ -206,10 +206,14 @@ void ShaderStage::beginScope(Syntax::Punctuation punc)
         beginLine();
         _code += "[" + _syntax->getNewline();
         break;
+    case Syntax::DOUBLE_SQUARE_BRACKETS:
+        beginLine();
+        _code += "[[" + _syntax->getNewline();
+        break;
     }
 
     ++_indentations;
-    _scopes.push(punc);
+    _scopes.push_back(punc);
 }
 
 void ShaderStage::endScope(bool semicolon, bool newline)
@@ -220,7 +224,7 @@ void ShaderStage::endScope(bool semicolon, bool newline)
     }
 
     Syntax::Punctuation punc = _scopes.back();
-    _scopes.pop();
+    _scopes.pop_back();
     --_indentations;
 
     switch (punc) {
@@ -235,6 +239,10 @@ void ShaderStage::endScope(bool semicolon, bool newline)
     case Syntax::SQUARE_BRACKETS:
         beginLine();
         _code += "]";
+        break;
+    case Syntax::DOUBLE_SQUARE_BRACKETS:
+        beginLine();
+        _code += "]]";
         break;
     }
     if (semicolon)
@@ -320,7 +328,7 @@ void ShaderStage::addInclude(const string& file, GenContext& context)
 {
     string modifiedFile = file;
     tokenSubstitution(context.getShaderGenerator().getTokenSubstitutions(), modifiedFile);
-    FilePath resolvedFile = context.resolveSourceFile(FilePath("libraries") / modifiedFile);
+    FilePath resolvedFile = context.resolveSourceFile(modifiedFile);
 
     if (!_includes.count(resolvedFile))
     {

@@ -12,9 +12,7 @@
 #include <MaterialXCore/Library.h>
 
 #include <MaterialXCore/Look.h>
-#include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
-#include <MaterialXCore/Variant.h>
 
 namespace MaterialX
 {
@@ -60,10 +58,7 @@ class Document : public GraphElement
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    /// @param copyOptions An optional pointer to a CopyOptions object.
-    ///    If provided, then the given options will affect the behavior of the
-    ///    import function.  Defaults to a null pointer.
-    void importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions = nullptr);
+    void importLibrary(const ConstDocumentPtr& library);
 
     /// Get a list of source URI's referenced by the document
     StringSet getReferencedSourceUris() const;
@@ -400,6 +395,38 @@ class Document : public GraphElement
 
     /// Return a vector of all NodeDef elements that match the given node name.
     vector<NodeDefPtr> getMatchingNodeDefs(const string& nodeName) const;
+
+    /// @}
+    /// @name AttributeDef Elements
+    /// @{
+
+    /// Add an AttributeDef to the document.
+    /// @param name The name of the new AttributeDef.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new AttributeDef.
+    AttributeDefPtr addAttributeDef(const string& name = EMPTY_STRING)
+    {
+        return addChild<AttributeDef>(name);
+    }
+
+    /// Return the AttributeDef, if any, with the given name.
+    AttributeDefPtr getAttributeDef(const string& name) const
+    {
+        return getChildOfType<AttributeDef>(name);
+    }
+
+    /// Return a vector of all AttributeDef elements in the document.
+    vector<AttributeDefPtr> getAttributeDefs() const
+    {
+        return getChildrenOfType<AttributeDef>();
+    }
+
+    /// Remove the AttributeDef, if any, with the given name.
+    void removeAttributeDef(const string& name)
+    {
+        removeChildOfType<AttributeDef>(name);
+    }
 
     /// @}
     /// @name PropertySet Elements

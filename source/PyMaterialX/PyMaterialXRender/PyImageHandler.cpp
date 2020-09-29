@@ -42,51 +42,6 @@ class PyImageLoader : public mx::ImageLoader
 
 };
 
-class PyImageHandler : public mx::ImageHandler
-{
-  public:
-    explicit PyImageHandler(mx::ImageLoaderPtr imageLoader) :
-        mx::ImageHandler(imageLoader)
-    {
-    }
-
-    bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip = false) override
-    {
-        PYBIND11_OVERLOAD(
-            bool,
-            mx::ImageHandler,
-            saveImage,
-            filePath,
-            image,
-            verticalFlip
-        );
-    }
-
-    mx::ImagePtr acquireImage(const mx::FilePath& filePath, bool generateMipMaps, const mx::Color4* fallbackColor, std::string* message) override
-    {
-        PYBIND11_OVERLOAD(
-            mx::ImagePtr,
-            mx::ImageHandler,
-            acquireImage,
-            filePath,
-            generateMipMaps,
-            fallbackColor,
-            message
-        );
-    }
-
-    bool bindImage(mx::ImagePtr image, const mx::ImageSamplingProperties& samplingProperties) override
-    {
-        PYBIND11_OVERLOAD(
-            bool,
-            mx::ImageHandler,
-            bindImage,
-            image,
-            samplingProperties
-        );
-    }
-};
-
 void bindPyImageHandler(py::module& mod)
 {
     py::class_<mx::ImageSamplingProperties>(mod, "ImageSamplingProperties")
@@ -109,16 +64,15 @@ void bindPyImageHandler(py::module& mod)
         .def_readonly_static("TIF_EXTENSION", &mx::ImageLoader::TIF_EXTENSION)
         .def_readonly_static("TIFF_EXTENSION", &mx::ImageLoader::TIFF_EXTENSION)
         .def_readonly_static("TXT_EXTENSION", &mx::ImageLoader::TXT_EXTENSION)
-        .def(py::init<>())
         .def("supportedExtensions", &mx::ImageLoader::supportedExtensions)
         .def("saveImage", &mx::ImageLoader::saveImage)
         .def("loadImage", &mx::ImageLoader::loadImage);
 
-    py::class_<mx::ImageHandler, PyImageHandler, mx::ImageHandlerPtr>(mod, "ImageHandler")
-        .def(py::init<mx::ImageLoaderPtr>())
+    py::class_<mx::ImageHandler, mx::ImageHandlerPtr>(mod, "ImageHandler")
         .def_static("create", &mx::ImageHandler::create)
         .def("addLoader", &mx::ImageHandler::addLoader)
-        .def("saveImage", &mx::ImageHandler::saveImage)
+        .def("saveImage", &mx::ImageHandler::saveImage,
+            py::arg("filePath"), py::arg("image"), py::arg("verticalFlip") = false)
         .def("acquireImage", &mx::ImageHandler::acquireImage)
         .def("bindImage", &mx::ImageHandler::bindImage)
         .def("unbindImage", &mx::ImageHandler::unbindImage)

@@ -52,6 +52,9 @@ class Image
 
     ~Image();
 
+    /// @name Property Accessors
+    /// @{
+
     /// Return the width of the image.
     unsigned int getWidth() const
     {
@@ -82,6 +85,44 @@ class Image
     /// Return the maximum number of mipmaps for this image.
     unsigned int getMaxMipCount() const;
 
+    /// @}
+    /// @name Texel Accessors
+    /// @{
+
+    /// Set the texel color at the given coordinates.  If the coordinates
+    /// or image resource buffer are invalid, then an exception is thrown.
+    void setTexelColor(unsigned int x, unsigned int y, const Color4& color);
+
+    /// Return the texel color at the given coordinates.  If the coordinates
+    /// or image resource buffer are invalid, then an exception is thrown.
+    Color4 getTexelColor(unsigned int x, unsigned int y) const;
+
+    /// @}
+    /// @name Image Analysis
+    /// @{
+
+    /// Return true if all texels of this image are identical in color.
+    /// @param uniformColor Return the uniform color of the image, if any.
+    bool isUniformColor(Color4* uniformColor = nullptr);
+
+    /// @}
+    /// @name Image Processing
+    /// @{
+
+    /// Apply a 3x3 box blur to this image, returning a new blurred image.
+    ImagePtr applyBoxBlur();
+
+    /// Apply a 7x7 Gaussian blur to this image, returning a new blurred image.
+    ImagePtr applyGaussianBlur();
+
+    /// Split this image by the given luminance threshold, returning the
+    /// resulting underflow and overflow images.
+    ImagePair splitByLuminance(float luminance);
+
+    /// @}
+    /// @name Resource Buffers
+    /// @{
+
     /// Set the resource buffer for this image.
     void setResourceBuffer(void* buffer)
     {
@@ -93,6 +134,12 @@ class Image
     {
         return _resourceBuffer;
     }
+
+    /// Allocate a resource buffer for this image that matches its properties.
+    void createResourceBuffer();
+
+    /// Release the resource buffer for this image.
+    void releaseResourceBuffer();
 
     /// Set the resource buffer deallocator for this image.
     void setResourceBufferDeallocator(ImageBufferDeallocator deallocator)
@@ -106,6 +153,10 @@ class Image
         return _resourceBufferDeallocator;
     }
 
+    /// @}
+    /// @name Resource IDs
+    /// @{
+
     /// Set the resource ID for this image.
     void setResourceId(unsigned int id)
     {
@@ -118,29 +169,7 @@ class Image
         return _resourceId;
     }
 
-    /// Set the texel color at the given coordinates.  If the coordinates
-    /// or image resource buffer are invalid, then an exception is thrown.
-    void setTexelColor(unsigned int x, unsigned int y, const Color4& color);
-
-    /// Return the texel color at the given coordinates.  If the coordinates
-    /// or image resource buffer are invalid, then an exception is thrown.
-    Color4 getTexelColor(unsigned int x, unsigned int y) const;
-
-    /// Apply a 3x3 box blur to this image, returning a new blurred image.
-    ImagePtr applyBoxBlur();
-
-    /// Apply a 7x7 Gaussian blur to this image, returning a new blurred image.
-    ImagePtr applyGaussianBlur();
-
-    /// Split this image by the given luminance threshold, returning the
-    /// resulting underflow and overflow images.
-    ImagePair splitByLuminance(float luminance);
-
-    /// Allocate a resource buffer for this image that matches its properties.
-    void createResourceBuffer();
-
-    /// Release the resource buffer for this image.
-    void releaseResourceBuffer();
+    /// @}
 
   protected:
     Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType);
@@ -157,10 +186,10 @@ class Image
 };
 
 /// Create a uniform-color image with the given properties.
-ImagePtr createUniformImage(unsigned int width, unsigned int height, const Color4& color);
+ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType, const Color4& color);
 
 /// Create a horizontal image strip from a vector of images with identical resolutions and formats.
-ImagePtr createImageStrip(vector<ImagePtr> imageVec);
+ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
 
 } // namespace MaterialX
 

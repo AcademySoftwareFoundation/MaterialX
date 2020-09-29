@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+  <nodegraph name="test_conductor">
+    <roughness_anisotropy name="roughness1" type="vector2">
+      <input name="roughness" type="float" value="0.2" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </roughness_anisotropy>
+    <conductor_brdf name="conductor_brdf1" type="BSDF">
+      <input name="reflectivity" type="color3" value="1, 1, 1"/>
+      <input name="edge_color" type="color3" value="1, 1, 1"/>
+      <input name="roughness" type="vector2" nodename="roughness1" />
+    </conductor_brdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="conductor_brdf1" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+</materialx>

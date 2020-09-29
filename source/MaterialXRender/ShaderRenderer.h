@@ -113,12 +113,12 @@ class ShaderRenderer
     /// @name Utilities
     /// @{
 
-    /// Save the current contents of the offscreen hardware buffer to disk.
-    /// @param filePath Path to file to save rendered image to.
-    virtual void save(const FilePath& filePath) = 0;
+    /// Capture the current contents of the off-screen hardware buffer as an image.
+    virtual ImagePtr captureImage() = 0;
 
-    /// Save the current contents of the offscreen hardware buffer to an image.
-    virtual ImagePtr saveImage() = 0;
+    /// Save the current contents of the off-screen hardware buffer to disk.
+    /// @param filePath Path to file to save rendered image to.
+    virtual void saveImage(const FilePath& filePath) = 0;
 
     /// @}
 
@@ -126,17 +126,20 @@ class ShaderRenderer
     // Protected constructor
     ShaderRenderer() :
         _width(0),
-        _height(0)
+        _height(0),
+        _baseType(Image::BaseType::UINT8)
     { }
 
-    ShaderRenderer(unsigned int width, unsigned int height) :
+    ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
         _width(width),
-        _height(height)
+        _height(height),
+        _baseType(baseType)
     { }
 
   protected:
     unsigned int _width;
     unsigned int _height;
+    Image::BaseType _baseType;
 
     ImageHandlerPtr _imageHandler;
     GeometryHandlerPtr _geometryHandler;
