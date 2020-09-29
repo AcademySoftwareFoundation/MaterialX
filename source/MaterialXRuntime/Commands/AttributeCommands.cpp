@@ -18,10 +18,20 @@ namespace MaterialX
 namespace RtCommand
 {
 
-void setAttribute(const RtAttribute& attr, const RtValue& value, RtCommandResult& result)
+void setAttributeFromString(const RtAttribute& attr, const string& valueString, RtCommandResult& result)
 {
-    PvtCommandPtr cmd = PvtSetAttributeCmd::create(attr, value);
-    PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
+    // Use try/catch since the conversion from string might fail and throw.
+    try
+    {
+        RtValue v = RtValue::createNew(attr.getType(), attr.getParent());
+        RtValue::fromString(attr.getType(), valueString, v);
+        PvtCommandPtr cmd = PvtSetAttributeCmd::create(attr, v);
+        PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
+    }
+    catch (Exception& e)
+    {
+        result = RtCommandResult(false, e.what());
+    }
 }
 
 void setAttribute(const RtAttribute& attr, bool value, RtCommandResult& result)

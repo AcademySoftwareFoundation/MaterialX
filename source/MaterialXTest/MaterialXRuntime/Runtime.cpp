@@ -1115,7 +1115,7 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
         ++numAfter;
         ++stageTraverser;
     }
-    std::cout << std::endl;
+
     // Everything duplicated except the nodedef ND_default_shader and its
     // nodegraph implementation NG_default_shader
     REQUIRE(numBefore * 2 - 2 == numAfter);
@@ -2184,7 +2184,14 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     REQUIRE(in1.getValue().asFloat() == 3.0f);
     REQUIRE(in2.getValue().asFloat() == 7.0f);
 
-    REQUIRE(setAttrCount == 6);
+    mx::RtCommand::setAttributeFromString(in2, "42.0", result);
+    REQUIRE(result);
+    REQUIRE(in2.getValue().asFloat() == 42.0f);
+
+    mx::RtCommand::setAttributeFromString(in2, "nonsense", result);
+    REQUIRE(!result);
+
+    REQUIRE(setAttrCount == 7);
 
     //
     // Test making and breaking connections

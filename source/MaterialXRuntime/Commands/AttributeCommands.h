@@ -17,8 +17,8 @@ namespace MaterialX
 
 namespace RtCommand
 {
-    /// Set value on an attribute.
-    void setAttribute(const RtAttribute& attr, const RtValue& value, RtCommandResult& result);
+    /// Set an attribute value from data given as a value string.
+    void setAttributeFromString(const RtAttribute& attr, const string& valueString, RtCommandResult& result);
 
     /// Set value on a bool attribute.
     void setAttribute(const RtAttribute& attr, bool value, RtCommandResult& result);
