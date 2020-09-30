@@ -977,6 +977,11 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
     const std::string APPLY_LATEST_UPDATES("applyFutureUpdates");
+    const std::string WEDGE_FILES("wedgeFiles");
+    const std::string WEDGE_PARAMETERS("wedgeParameters");
+    const std::string WEDGE_RANGE_MIN("wedgeRangeMin");
+    const std::string WEDGE_RANGE_MAX("wedgeRangeMax");
+    const std::string WEDGE_STEPS("wedgeSteps");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -1105,6 +1110,27 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                         {
                             externalTestPaths.append(mx::FilePath(l));
                         }
+                    }
+
+                    else if (name == WEDGE_FILES)
+                    {
+                        wedgeFiles = mx::splitString(p->getValueString(), ",");
+                    }
+                    else if (name == WEDGE_PARAMETERS)
+                    {
+                        wedgeParameters = mx::splitString(p->getValueString(), ",");
+                    }
+                    else if (name == WEDGE_STEPS)
+                    {
+                        wedgeSteps = val->asA<mx::IntVec>();
+                    }
+                    else if (name == WEDGE_RANGE_MIN)
+                    {
+                        wedgeRangeMin = val->asA<mx::FloatVec>();
+                    }
+                    else if (name == WEDGE_RANGE_MAX)
+                    {
+                        wedgeRangeMax = val->asA<mx::FloatVec>();
                     }
                     else if (name == APPLY_LATEST_UPDATES)
                     {

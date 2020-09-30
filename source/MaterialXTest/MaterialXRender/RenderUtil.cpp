@@ -362,7 +362,119 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath);
+
+                            const mx::StringVec& wedgeFiles = options.wedgeFiles;
+                            const mx::StringVec& wedgeParameters = options.wedgeParameters;
+                            const mx::FloatVec& wedgeRangeMin = options.wedgeRangeMin;
+                            const mx::FloatVec& wedgeRangeMax = options.wedgeRangeMax;
+                            const mx::IntVec& wedgeSteps = options.wedgeSteps;
+                            bool performWedge = (!wedgeFiles.empty()) &&
+                                wedgeFiles.size() == wedgeParameters.size() &&
+                                wedgeFiles.size() == wedgeRangeMin.size() &&
+                                wedgeFiles.size() == wedgeRangeMax.size() &&
+                                wedgeFiles.size() == wedgeSteps.size();
+
+                            if (!performWedge)
+                            {
+                                runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
+                            }
+                            else
+                            {
+                                mx::ImageVec imageVec;
+                                for (size_t f = 0; f < wedgeFiles.size(); f++)
+                                {
+                                    const std::string& wedgeFile = wedgeFiles[f];
+                                    if (wedgeFile != file)
+                                    {
+                                        continue;
+                                    }
+
+                                    // Make this a utility
+                                    std::string parameterPath = wedgeParameters[f];
+                                    mx::ElementPtr uniformElement = doc->getDescendant(parameterPath);
+                                    if (!uniformElement)
+                                    {
+                                        std::string nodePath = mx::parentNamePath(parameterPath);
+                                        mx::ElementPtr uniformParent = doc->getDescendant(nodePath);
+                                        if (uniformParent)
+                                        {
+                                            mx::NodePtr uniformNode = uniformParent->asA<mx::Node>();
+                                            if (uniformNode)
+                                            {
+                                                mx::StringVec pathVec = mx::splitNamePath(parameterPath);
+                                                uniformNode->addInputFromNodeDef(pathVec[pathVec.size() - 1]);
+                                            }
+                                        }
+                                    }
+                                    uniformElement = doc->getDescendant(parameterPath);
+                                    mx::ValueElementPtr valueElement = uniformElement ? uniformElement->asA<mx::ValueElement>() : nullptr;
+                                    if (!valueElement)
+                                    {
+                                        continue;
+                                    }
+
+                                    mx::ValuePtr origPropertyValue(valueElement ? valueElement->getValue() : nullptr);
+                                    mx::ValuePtr newValue = valueElement->getValue();
+
+                                    float wedgePropertyMin = wedgeRangeMin[f];
+                                    float wedgePropertyMax = wedgeRangeMax[f];
+                                    int wedgeImageCount = std::max(wedgeSteps[f], 2);
+
+                                    float wedgePropertyStep = (wedgePropertyMax - wedgePropertyMin) / (wedgeImageCount - 1);
+                                    for (int w = 0; w < wedgeImageCount; w++)
+                                    {
+                                        bool setValue = false;
+                                        float propertyValue = (w == wedgeImageCount - 1) ? wedgePropertyMax : wedgePropertyMin + wedgePropertyStep * w;
+                                        if (origPropertyValue->isA<int>())
+                                        {
+                                            valueElement->setValue(static_cast<int>(propertyValue));
+                                            setValue = true;
+                                        }
+                                        else if (origPropertyValue->isA<float>())
+                                        {
+                                            valueElement->setValue(propertyValue);
+                                            setValue = true;
+                                        }
+                                        else if (origPropertyValue->isA<mx::Vector2>())
+                                        {
+                                            mx::Vector2 val(propertyValue, propertyValue);
+                                            valueElement->setValue(val);
+                                            setValue = true;
+                                        }
+                                        else if (origPropertyValue->isA<mx::Color3>() ||
+                                            origPropertyValue->isA<mx::Vector3>())
+                                        {
+                                            mx::Vector3 val(propertyValue, propertyValue, propertyValue);
+                                            valueElement->setValue(val);
+                                            setValue = true;
+                                        }
+                                        else if (origPropertyValue->isA<mx::Color4>() ||
+                                            origPropertyValue->isA<mx::Vector4>())
+                                        {
+                                            mx::Vector4 val(propertyValue, propertyValue, propertyValue, origPropertyValue->isA<mx::Color4>() ? 1.0f : propertyValue);
+                                            valueElement->setValue(val);
+                                            setValue = true;
+                                        }
+
+                                        if (setValue)
+                                        {
+                                            runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath, &imageVec);
+                                        }
+                                    }
+
+                                    if (!imageVec.empty())
+                                    {
+                                        mx::ImagePtr wedgeImage = mx::createImageStrip(imageVec);
+                                        if (wedgeImage)
+                                        {
+                                            std::string wedgeFileName = mx::createValidName(mx::replaceSubstrings(parameterPath, pathMap));
+                                            wedgeFileName += "_" + _languageTargetString + ".bmp";
+                                            mx::FilePath wedgePath = outputPath / wedgeFileName;
+                                            saveImage(wedgePath, wedgeImage, true);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

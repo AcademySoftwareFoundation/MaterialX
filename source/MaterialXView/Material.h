@@ -227,7 +227,7 @@ class Material
     bool _hasTransparency;
     mx::StringSet _uniformVariable;
 
-    std::vector<mx::ImagePtr> _boundImages;
+    mx::ImageVec _boundImages;
 };
 
 #endif // MATERIALXVIEW_MATERIAL_H

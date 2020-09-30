@@ -13,6 +13,11 @@
 
 #include <MaterialXRenderOsl/OslRenderer.h>
 
+#include <MaterialXRender/StbImageLoader.h>
+#if defined(MATERIALX_BUILD_OIIO)
+#include <MaterialXRender/OiioImageLoader.h>
+#endif
+
 namespace mx = MaterialX;
 
 class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
@@ -44,8 +49,15 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
                      const GenShaderUtil::TestSuiteOptions& testOptions,
                      RenderUtil::RenderProfileTimes& profileTimes,
                      const mx::FileSearchPath& imageSearchPath,
-                     const std::string& outputPath = ".") override;
+                     const std::string& outputPath = ".",
+                     mx::ImageVec* imageVec = nullptr) override;
 
+    bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool /*verticalFlip*/) const override
+    {
+        return _renderer->getImageHandler()->saveImage(filePath, image, false);
+    }
+
+    mx::ImageLoaderPtr _imageLoader;
     mx::OslRendererPtr _renderer;
 };
 
@@ -55,6 +67,7 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
     bool initialized = false;
 
     _renderer = mx::OslRenderer::create();
+    _imageLoader = mx::StbImageLoader::create();
 
     // Set up additional utilities required to run OSL testing including
     // oslc and testrender paths and OSL include path
@@ -68,7 +81,14 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
     try
     {
         _renderer->initialize();
-        _renderer->setImageHandler(nullptr);
+
+        mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
+        mx::ImageHandlerPtr imageHandler = mx::ImageHandler::create(stbLoader);
+#if defined(MATERIALX_BUILD_OIIO)
+        mx::OiioImageLoaderPtr oiioLoader = mx::OiioImageLoader::create();
+        imageHandler->addLoader(oiioLoader);
+#endif
+        _renderer->setImageHandler(imageHandler);
         _renderer->setLightHandler(nullptr);
         initialized = true;
 
@@ -107,7 +127,8 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                                          const GenShaderUtil::TestSuiteOptions& testOptions,
                                          RenderUtil::RenderProfileTimes& profileTimes,
                                          const mx::FileSearchPath& imageSearchPath,
-                                         const std::string& outputPath)
+                                         const std::string& outputPath,
+                                         mx::ImageVec* imageVec)
 {
     RenderUtil::AdditiveScopedTimer totalOSLTime(profileTimes.languageTimes.totalTime, "OSL total time");
 
@@ -244,7 +265,9 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                         }
                     }
                     // Bind IBL image name overrides.
-                    std::string envmap_filename("string envmap_filename \"resources/Lights/san_giuseppe_bridge.hdr\";\n");
+                    std::string envmap_filename("string envmap_filename \"");
+                    envmap_filename += testOptions.radianceIBLPath;
+                    envmap_filename += "\";\n";                    
                     envOverrides.push_back(envmap_filename);
 
                     _renderer->setShaderParameterOverrides(overrides);
@@ -275,6 +298,10 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                         {
                             RenderUtil::AdditiveScopedTimer renderTimer(profileTimes.languageTimes.renderTime, "OSL render time");
                             _renderer->render();
+                            if (imageVec)
+                            {
+                                imageVec->push_back(_renderer->captureImage());
+                            }
                         }
                     }
                     else

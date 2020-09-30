@@ -67,7 +67,7 @@
       <parameter name="geometryScale" type="float" value="40.0" />
 
       <!-- Enable direct lighting. Default is true. -->
-      <parameter name="enableDirectLighting" type="boolean" value="true" />
+      <parameter name="enableDirectLighting" type="boolean" value="false" />
 
       <!-- Enable indirect lighting. Default is true. -->
       <parameter name="enableIndirectLighting" type="boolean" value="true" />
@@ -97,6 +97,13 @@
 
       <!-- Test prototype functionality for future versions of MaterialX -->
       <parameter name="applyFutureUpdates" type="boolean" value="true" />
+      
+      <!-- Wedge rendering options -->
+      <parameter name="wedgeFiles" type="string" value="conductor.mtlx" />
+      <parameter name="wedgeParameters" type="string" value="test_conductor/roughness1/roughness" />
+      <parameter name="wedgeRangeMin" type="floatarray" value="0.0" />
+      <parameter name="wedgeRangeMax" type="floatarray" value="1.0" />
+      <parameter name="wedgeSteps" type="integerarray" value="8" />
 
    </nodedef>
 </materialx>

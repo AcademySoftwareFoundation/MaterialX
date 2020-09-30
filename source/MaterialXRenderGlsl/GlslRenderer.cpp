@@ -340,13 +340,12 @@ ImagePtr GlslRenderer::captureImage()
     return result;
 }
 
-void GlslRenderer::saveImage(const FilePath& filePath)
+void GlslRenderer::saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip)
 {
     StringVec errors;
     const string errorType("GLSL image save error.");
 
-    ImagePtr image = captureImage();
-    if (!_imageHandler->saveImage(filePath, image, true))
+    if (!_imageHandler->saveImage(filePath, image, verticalFlip))
     {
         errors.push_back("Failed to save to file:" + filePath.asString());
         throw ExceptionShaderRenderError(errorType, errors);
