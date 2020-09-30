@@ -2,9 +2,11 @@ name: Build CI
 
 on:
   push:
-    branches: [ master ]
+    paths-ignore:
+      - '**.md'
   pull_request:
-    branches: [ master ]
+    paths-ignore:
+      - '**.md'
 
 jobs:
   build:
@@ -13,27 +15,47 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Ubuntu_Latest
+        - name: Linux_GCC_5
           os: ubuntu-latest
-          python-version: 3.7
-          test_render: OFF
+          compiler: gcc
+          compiler_version: "5"
+          python: 3.7
 
-        - name: MacOS_Latest
+        - name: Linux_GCC_6
+          os: ubuntu-latest
+          compiler: gcc
+          compiler_version: "6"
+          python: 3.7
+
+        - name: Linux_GCC_10
+          os: ubuntu-latest
+          compiler: gcc
+          compiler_version: "10"
+          python: 3.7
+
+        - name: MacOS_Xcode_11
           os: macos-latest
-          python-version: 3.7
-          test_render: OFF
+          compiler: xcode
+          compiler_version: "11"
+          python: 3.7
+
+        - name: Windows_VS2017_Win32_Python27
+          os: windows-2016
+          architecture: x86
+          python: 2.7
+          cmake_config: -G "Visual Studio 15 2017" -A "Win32"
 
         - name: Windows_VS2017_x64_Python37
           os: windows-2016
-          python-version: 3.7
+          architecture: x64
+          python: 3.7
           cmake_config: -G "Visual Studio 15 2017" -A "x64"
-          test_render: OFF
 
         - name: Windows_VS2019_x64_Python38
           os: windows-2019
-          python-version: 3.8
+          architecture: x64
+          python: 3.8
           cmake_config: -G "Visual Studio 16 2019" -A "x64"
-          test_render: OFF
 
     runs-on: ${{matrix.os}}
 
@@ -46,22 +68,47 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install C++ Dependencies
+    - name: Install Dependencies (Linux)
+      if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get install libgl-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libx11-dev
-      if: ${{startsWith(matrix.os, 'ubuntu')}}
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+          echo "::set-env name=CC::gcc-${{ matrix.compiler_version }}"
+          echo "::set-env name=CXX::g++-${{ matrix.compiler_version }}"
+        else
+          sudo apt-get install -y clang-${{ matrix.compiler_version }} g++-multilib
+          echo "::set-env name=CC::clang-${{ matrix.compiler_version }}"
+          echo "::set-env name=CXX::clang++-${{ matrix.compiler_version }}"
+        fi
 
-    - name: Install Python ${{ matrix.python-version }}
+    - name: Install Dependencies (MacOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install cmake ninja
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          brew install gcc@${{ matrix.compiler_version }}
+          echo "::set-env name=CC::gcc-${{ matrix.compiler_version }}"
+          echo "::set-env name=CXX::g++-${{ matrix.compiler_version }}"
+        else
+          ls -ls /Applications/
+          sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
+          echo "::set-env name=CC::clang"
+          echo "::set-env name=CXX::clang++"
+        fi
+
+    - name: Install Python ${{ matrix.python }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{ matrix.python }}
+        architecture: ${{ matrix.architecture }}
 
     - name: Create Build Directory
       run: mkdir build
       
     - name: CMake Generate
-      run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=${{matrix.test_render}} -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
+      run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
       working-directory: build
 
     - name: CMake Build
@@ -80,23 +127,23 @@ jobs:
 
     - name: Set Python Path
       run: echo ::set-env name=PYTHONPATH::"$GITHUB_WORKSPACE/build/installed/python"
-      if: ${{!contains(matrix.os, 'windows-')}}
+      if: runner.os != 'Windows'
 
     - name: Generate Test HTML
-      if: ${{matrix.test_render == 'ON'}}
+      if: ${{matrix.generate_html == 'ON'}}
       run: cmake -E chdir ../python/MaterialXTest python tests_to_html.py
       working-directory: build
 
     - name: Upload Test HTML
       uses: actions/upload-artifact@v2
-      if: ${{matrix.test_render == 'ON'}}
+      if: ${{matrix.generate_html == 'ON'}}
       with:
         name: MaterialX_${{matrix.name}}_test_html
         path: build/source/MaterialXTest/tests.html
 
     - name: Upload Test Images
       uses: actions/upload-artifact@v2
-      if: ${{matrix.test_render == 'ON'}}
+      if: ${{matrix.generate_html == 'ON'}}
       with:
         name: MaterialX_${{matrix.name}}_test_images
         path: build/source/MaterialXTest/**/*.png
