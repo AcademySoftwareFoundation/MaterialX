@@ -62,7 +62,8 @@ void bindPyInterface(py::module& mod)
         .def("getActiveParameter", &mx::InterfaceElement::getActiveParameter)
         .def("getActiveParameters", &mx::InterfaceElement::getActiveParameters)
         .def("addInput", &mx::InterfaceElement::addInput,
-            py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
+            py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING,
+            py::arg("isUniform") = false)
         .def("getInput", &mx::InterfaceElement::getInput)
         .def("getInputs", &mx::InterfaceElement::getInputs)
         .def("getInputCount", &mx::InterfaceElement::getInputCount)

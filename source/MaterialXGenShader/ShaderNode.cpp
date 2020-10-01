@@ -258,7 +258,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
                     input->setValue(port->getResolvedValue());
                 }
             }
-            if (port->isA<Parameter>())
+            if (port->getIsUniform())
             {
                 input->setUniform();
             }

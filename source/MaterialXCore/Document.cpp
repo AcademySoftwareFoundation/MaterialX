@@ -109,7 +109,7 @@ bool convertMaterialsToNodes(DocumentPtr doc)
                 }
                 else if (valueElement->isA<BindParam>())
                 {
-                    portChild = shaderNode->addParameter(valueElement->getName(), valueElement->getType());
+                    portChild = shaderNode->addInput(valueElement->getName(), valueElement->getType());
                 }
                 if (portChild)
                 {
@@ -883,7 +883,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                 ParameterPtr cutoff = node->getParameter("cutoff");
                 if (cutoff)
                 {
-                    InputPtr value2 = node->addInput("value2");
+                    InputPtr value2 = node->addInput("value2", DEFAULT_TYPE_STRING);
                     value2->copyContentFrom(cutoff);
                     node->removeChild(cutoff->getName());
                 }
@@ -983,7 +983,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     }
 
     // Upgrade from 1.37 to 1.38
-    if (majorVersion == 1 && minorVersion == 37)
+    if (majorVersion == 1 && (minorVersion == 37 || applyFutureUpdates))
     {
         convertMaterialsToNodes(asA<Document>());
 
@@ -993,15 +993,22 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         const string IN2 = "in2";
         const string ROTATE3D = "rotate3d";
         const string AXIS = "axis";
+        const string INPUT_ONE = "1.0";
 
         // Update nodedefs
+        bool upgradeAtan2Instances = false;
         for (auto nodedef : getMatchingNodeDefs(ATAN2))
         {
             InputPtr input = nodedef->getInput(IN1);
             InputPtr input2 = nodedef->getInput(IN2);
             string inputValue = input->getValueString();
-            input->setValueString(input2->getValueString());
-            input2->setValueString(inputValue);
+            // Only flip value if nodedef value is the previous versions.
+            if (inputValue == INPUT_ONE)
+            {
+                input->setValueString(input2->getValueString());
+                input2->setValueString(inputValue);
+                upgradeAtan2Instances = true;
+            }
         }
         for (auto nodedef : getMatchingNodeDefs(ROTATE3D))
         {
@@ -1022,7 +1029,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                 continue;
             }
             const string& nodeCategory = node->getCategory();
-            if (nodeCategory == ATAN2)
+            if (upgradeAtan2Instances && nodeCategory == ATAN2)
             {
                 InputPtr input = node->getInput(IN1);
                 InputPtr input2 = node->getInput(IN2);
@@ -1094,8 +1101,40 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     node->setName(newNodeName);
                 }
             }
+        }   
+
+        // Convert all parameters to be inputs. If needed set them to be "uniform".
+        const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
+        const string PARAMETER_CATEGORY_STRING("parameter");
+        for (ElementPtr e : traverseTree())
+        {
+            InterfaceElementPtr elem = e->asA<InterfaceElement>();
+            if (!elem)
+            {
+                continue;
+            }
+            vector<ElementPtr> children = elem->getChildren();
+            for (ElementPtr child : children)
+            {
+                if (child->getCategory() == PARAMETER_CATEGORY_STRING)
+                {
+                    InputPtr newInput = updateChildSubclass<Input>(elem, child);
+                    if (uniformTypes.count(child->getAttribute(TYPE_ATTRIBUTE)))
+                    {
+                        newInput->setIsUniform(true);
+                    }
+                    else
+                    {
+                        // TODO: Determine based on usage whether to make
+                        // the input a uniform. 
+                        newInput->setIsUniform(false);
+                    }
+                }
+            }
         }
-        minorVersion = 38;
+
+        // While we are in the process of supporting 1.38. Leave files as 1.37
+        minorVersion = 37;
     }
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&

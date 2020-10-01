@@ -201,25 +201,25 @@ class TestMaterialX(unittest.TestCase):
 
         # Set constant node color.
         color = mx.Color3(0.1, 0.2, 0.3)
-        constant.setParameterValue('value', color)
-        self.assertTrue(constant.getParameterValue('value') == color)
+        constant.setInputValue('value', color)
+        self.assertTrue(constant.getInputValue('value') == color)
 
         # Set image node file.
         file = 'image1.tif'
-        image.setParameterValue('file', file, 'filename')
-        self.assertTrue(image.getParameterValue('file') == file)
+        image.setInputValue('file', file, 'filename')
+        self.assertTrue(image.getInputValue('file') == file)
 
         # Create a custom nodedef.
         nodeDef = doc.addNodeDef('nodeDef1', 'float', 'turbulence3d')
-        nodeDef.setParameterValue('octaves', 3)
-        nodeDef.setParameterValue('lacunarity', 2.0)
-        nodeDef.setParameterValue('gain', 0.5)
+        nodeDef.setInputValue('octaves', 3)
+        nodeDef.setInputValue('lacunarity', 2.0)
+        nodeDef.setInputValue('gain', 0.5)
 
         # Reference the custom nodedef.
         custom = nodeGraph.addNode('turbulence3d', 'turbulence1', 'float')
-        self.assertTrue(custom.getParameterValue('octaves') == 3)
-        custom.setParameterValue('octaves', 5)
-        self.assertTrue(custom.getParameterValue('octaves') == 5)
+        self.assertTrue(custom.getInputValue('octaves') == 3)
+        custom.setInputValue('octaves', 5)
+        self.assertTrue(custom.getInputValue('octaves') == 5)
 
         # Validate the document.
         valid, message = doc.validate()
@@ -228,29 +228,31 @@ class TestMaterialX(unittest.TestCase):
         # Test scoped attributes.
         nodeGraph.setFilePrefix('folder/')
         nodeGraph.setColorSpace('lin_rec709')
-        self.assertTrue(image.getParameter('file').getResolvedValueString() == 'folder/image1.tif')
+        self.assertTrue(image.getInput('file').getResolvedValueString() == 'folder/image1.tif')
         self.assertTrue(constant.getActiveColorSpace() == 'lin_rec709')
 
         # Create a simple shader interface.
         shaderDef = doc.addNodeDef('shader1', 'surfaceshader', 'simpleSrf')
         diffColor = shaderDef.setInputValue('diffColor', mx.Color3(1.0))
         specColor = shaderDef.setInputValue('specColor', mx.Color3(0.0))
-        roughness = shaderDef.setParameterValue('roughness', 0.25)
+        roughness = shaderDef.setInputValue('roughness', 0.25)
         texId = shaderDef.setTokenValue('texId', '01')
         self.assertTrue(roughness.getValue() == 0.25)
+        self.assertTrue(roughness.getIsUniform() == False)
+        roughness.setIsUniform(True);
+        self.assertTrue(roughness.getIsUniform() == True)
 
         # Create a material that instantiates the shader.
         material = doc.addMaterial()
         shaderRef = material.addShaderRef('shaderRef1', 'simpleSrf')
         self.assertTrue(material.getPrimaryShaderName() == 'simpleSrf')
-        self.assertTrue(len(material.getPrimaryShaderParameters()) == 1)
-        self.assertTrue(len(material.getPrimaryShaderInputs()) == 2)
+        self.assertTrue(len(material.getPrimaryShaderInputs()) == 3)
         self.assertTrue(len(material.getPrimaryShaderTokens()) == 1)
         self.assertTrue(roughness.getBoundValue(material) == 0.25)
 
-        # Bind a shader parameter to a value.
-        bindParam = shaderRef.addBindParam('roughness')
-        bindParam.setValue(0.5)
+        # Bind a shader input to a float value.
+        bindInput = shaderRef.addBindInput('roughness')
+        bindInput.setValue(0.5)
         self.assertTrue(roughness.getBoundValue(material) == 0.5)
         self.assertTrue(roughness.getDefaultValue() == 0.25)
 
@@ -484,11 +486,6 @@ class TestMaterialX(unittest.TestCase):
             for material in doc.getMaterials():
                 self.assertTrue(material.getPrimaryShaderNodeDef())
                 edgeCount = 0
-                for param in material.getPrimaryShaderParameters():
-                    boundValue = param.getBoundValue(material)
-                    self.assertTrue(boundValue is not None)
-                    for _ in param.traverseGraph(material):
-                        edgeCount += 1
                 for shaderInput in material.getPrimaryShaderInputs():
                     boundValue = shaderInput.getBoundValue(material)
                     upstreamElement = shaderInput.getUpstreamElement(material)

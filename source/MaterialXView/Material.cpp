@@ -163,7 +163,7 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
     {
         return false;
     }
-    image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
+    image->setInputValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
     mx::OutputPtr output = envGraph->getOutput("out");
     if (!output)
     {
@@ -512,20 +512,6 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
                         {
                             bindUniform(inputName, input->getValue());
                         }
-                    }
-                }
-            }
-
-            // Set all parameters. Note that upstream node connections are not currently supported.
-            for (mx::ParameterPtr param : light->getParameters())
-            {
-                // Make sure we have a value to set
-                if (param->hasValue())
-                {
-                    std::string paramName(prefix + "." + param->getName());
-                    if (_glShader->uniform(paramName, false) != -1)
-                    {
-                        bindUniform(paramName, param->getValue());
                     }
                 }
             }
