@@ -6,7 +6,6 @@ addWrapper(function(Module, api) {
         getShaderNodeDefs: ['', ''],
         getPrimaryShaderNodeDef: ['', ''],
         getPrimaryShaderName: ['', ''],
-        getPrimaryShaderParameters: ['', ''],
         getPrimaryShaderInputs: ['', ''],
         getPrimaryShaderTokens: ['', ''],
         getGeometryBindings: [api.UNIVERSAL_GEOM_NAME]

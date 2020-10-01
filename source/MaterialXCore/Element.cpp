@@ -42,6 +42,7 @@ const string ValueElement::UI_STEP_ATTRIBUTE = "uistep";
 const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
 const string ValueElement::UNIT_ATTRIBUTE = "unit";
 const string ValueElement::UNITTYPE_ATTRIBUTE = "unittype";
+const string ValueElement::UNIFORM_ATTRIBUTE = "uniform";
 
 Element::CreatorMap Element::_creatorMap;
 

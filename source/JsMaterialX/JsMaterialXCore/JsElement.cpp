@@ -188,6 +188,8 @@ extern "C"
             .function("setUnitType", &mx::ValueElement::setUnitType)
             .function("hasUnitType", &mx::ValueElement::hasUnitType)
             .function("getUnitType", &mx::ValueElement::getUnitType)
+            .function("setIsUniform", &mx::ValueElement::setIsUniform)
+            .function("getIsUniform", &mx::ValueElement::getIsUniform)
             .class_property("VALUE_ATTRIBUTE", &mx::ValueElement::VALUE_ATTRIBUTE)
             .class_property("INTERFACE_NAME_ATTRIBUTE", &mx::ValueElement::INTERFACE_NAME_ATTRIBUTE)
             .class_property("IMPLEMENTATION_NAME_ATTRIBUTE", &mx::ValueElement::IMPLEMENTATION_NAME_ATTRIBUTE)

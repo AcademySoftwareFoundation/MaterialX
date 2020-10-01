@@ -23,7 +23,6 @@ extern "C"
             .function("getShaderNodeDefs", &mx::Material::getShaderNodeDefs)
             .function("getPrimaryShaderNodeDef", &mx::Material::getPrimaryShaderNodeDef)
             .function("getPrimaryShaderName", &mx::Material::getPrimaryShaderName)
-            .function("getPrimaryShaderParameters", &mx::Material::getPrimaryShaderParameters)
             .function("getPrimaryShaderInputs", &mx::Material::getPrimaryShaderInputs)
             .function("getPrimaryShaderTokens", &mx::Material::getPrimaryShaderTokens)
             .function("getGeometryBindings", &mx::Material::getGeometryBindings)

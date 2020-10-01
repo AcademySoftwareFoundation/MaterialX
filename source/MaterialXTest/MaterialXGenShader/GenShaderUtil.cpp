@@ -1001,7 +1001,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
         {
-            for (auto p : optionDefs->getParameters())
+            for (auto p : optionDefs->getInputs())
             {
                 const std::string& name = p->getName();
                 MaterialX::ValuePtr val = p->getValue();

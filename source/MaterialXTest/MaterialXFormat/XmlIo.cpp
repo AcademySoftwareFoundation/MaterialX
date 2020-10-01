@@ -68,14 +68,6 @@ TEST_CASE("Load content", "[xmlio]")
             {
                 REQUIRE(material->getPrimaryShaderNodeDef());
                 int edgeCount = 0;
-                for (mx::ParameterPtr param : material->getPrimaryShaderParameters())
-                {
-                    REQUIRE(param->getBoundValue(material));
-                    for (mx::Edge edge : param->traverseGraph(material))
-                    {
-                        edgeCount++;
-                    }
-                }
                 for (mx::InputPtr input : material->getPrimaryShaderInputs())
                 {
                     REQUIRE((input->getBoundValue(material) || input->getUpstreamElement(material)));

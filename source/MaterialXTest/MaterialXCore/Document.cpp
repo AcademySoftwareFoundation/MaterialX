@@ -20,7 +20,7 @@ TEST_CASE("Document", "[document]")
     // Create a node graph with a constant color output.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     mx::NodePtr constant = nodeGraph->addNode("constant");
-    constant->setParameterValue("value", mx::Color3(0.5f));
+    constant->setInputValue("value", mx::Color3(0.5f));
     mx::OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
     REQUIRE(doc->validate());
@@ -48,8 +48,12 @@ TEST_CASE("Document", "[document]")
     // Create a simple shader interface.
     mx::NodeDefPtr shader = doc->addNodeDef("", "surfaceshader", "simpleSrf");
     mx::InputPtr diffColor = shader->addInput("diffColor", "color3");
-    shader->addInput("specColor", "color3");
-    mx::ParameterPtr roughness = shader->addParameter("roughness", "float");
+    REQUIRE(!diffColor->getIsUniform());
+    mx::InputPtr specColor = shader->addInput("specColor", "color3", true);
+    REQUIRE(specColor->getIsUniform());
+    specColor->setIsUniform(false);
+    REQUIRE(!specColor->getIsUniform());
+    mx::InputPtr roughness = shader->addInput("roughness", "float");
 
     // Create a material that instantiates the shader.
     mx::MaterialPtr material = doc->addMaterial();
@@ -61,14 +65,14 @@ TEST_CASE("Document", "[document]")
     REQUIRE(diffColor->getUpstreamElement(material) == output);
 
     // Bind the roughness parameter to a value.
-    mx::BindParamPtr bindParam = shaderRef->addBindParam("roughness");
-    bindParam->setValue(0.5f);
+    bindInput = shaderRef->addBindInput("roughness");
+    bindInput->setValue(0.5f);
     REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
 
     // Create and test a type mismatch in a data binding.
-    bindParam->setValue(5);
+    bindInput->setValue(5);
     REQUIRE(!doc->validate());
-    bindParam->setValue(0.5f);
+    bindInput->setValue(0.5f);
     REQUIRE(doc->validate());
 
     // Create a collection 
@@ -170,7 +174,7 @@ TEST_CASE("Version", "[document]")
         REQUIRE(doc->validate());
 
         mx::XmlWriteOptions writeOptions;
-        writeOptions.writeXIncludeEnable = true;
+        writeOptions.writeXIncludeEnable = false;
         mx::writeToXmlFile(doc, "1_37_to_1_38_updated.mtlx", &writeOptions);
 
         mx::DocumentPtr doc2 = mx::createDocument();

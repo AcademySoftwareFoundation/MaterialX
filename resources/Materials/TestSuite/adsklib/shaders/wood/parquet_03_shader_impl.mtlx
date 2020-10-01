@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.37">
    <nodegraph name="parquet_03_surfaceshader_graph">
       <normalmap name="parquet_03_normalmap" type="vector3">
          <input name="in" type="vector3" nodename="parquet_03_normal" />

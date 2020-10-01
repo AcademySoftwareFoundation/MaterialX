@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.37">
   <nodegraph name="brick_10_surfaceshader_graph">
     <normalmap name="bricks_10_normalmap" type="vector3">
       <input name="in" type="vector3" nodename="bricks_10_normal" />

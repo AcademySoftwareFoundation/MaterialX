@@ -18,17 +18,17 @@ TEST_CASE("Material", "[material]")
     mx::NodeDefPtr simpleSrf = doc->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
     simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     mx::InputPtr specColor = simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
-    mx::ParameterPtr roughness = simpleSrf->setParameterValue("roughness", 0.25f);
+    mx::InputPtr roughness = simpleSrf->setInputValue("roughness", 0.25f);
     mx::TokenPtr texId = simpleSrf->setTokenValue("texId", "01");
     REQUIRE(simpleSrf->getInputValue("diffColor")->asA<mx::Color3>() == mx::Color3(1.0f));
     REQUIRE(simpleSrf->getInputValue("specColor")->asA<mx::Color3>() == mx::Color3(0.0f));
-    REQUIRE(simpleSrf->getParameterValue("roughness")->asA<float>() == 0.25f);
+    REQUIRE(simpleSrf->getInputValue("roughness")->asA<float>() == 0.25f);
     REQUIRE(simpleSrf->getTokenValue("texId") == "01");
 
     // Create an inherited shader nodedef.
     mx::NodeDefPtr anisoSrf = doc->addNodeDef("ND_anisoSrf", "surfaceshader", "anisoSrf");
     anisoSrf->setInheritsFrom(simpleSrf);
-    anisoSrf->setParameterValue("anisotropy", 0.0f);
+    anisoSrf->setInputValue("anisotropy", 0.0f);
     REQUIRE(anisoSrf->getInheritsFrom() == simpleSrf);
 
     // Create a material.
@@ -40,8 +40,7 @@ TEST_CASE("Material", "[material]")
     REQUIRE(anisoSrf->getInstantiatingShaderRefs()[0] == refAnisoSrf);
     REQUIRE(refAnisoSrf->getNodeDef() == anisoSrf);
     REQUIRE(material->getPrimaryShaderName() == refAnisoSrf->getNodeString());
-    REQUIRE(material->getPrimaryShaderParameters().size() == 2);
-    REQUIRE(material->getPrimaryShaderInputs().size() == 2);
+    REQUIRE(material->getPrimaryShaderInputs().size() == 4);
     REQUIRE(material->getPrimaryShaderTokens().size() == 1);
 
     // Set nodedef and shader reference qualifiers.
@@ -55,13 +54,13 @@ TEST_CASE("Material", "[material]")
     REQUIRE(refAnisoSrf->getNodeDef() == anisoSrf);
 
     // Bind a shader parameter to a value.
-    mx::BindParamPtr bindParam = refAnisoSrf->addBindParam("roughness");
-    bindParam->setValue(0.5f);
+    mx::BindInputPtr bindInput = refAnisoSrf->addBindInput("roughness");
+    bindInput->setValue(0.5f);
     REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
     REQUIRE(roughness->getDefaultValue()->asA<float>() == 0.25f);
 
     // Bind a shader input to a value.
-    mx::BindInputPtr bindInput = refAnisoSrf->addBindInput("specColor");
+    bindInput = refAnisoSrf->addBindInput("specColor");
     bindInput->setValue(mx::Color3(0.5f));
     REQUIRE(specColor->getBoundValue(material)->asA<mx::Color3>() == mx::Color3(0.5f));
     REQUIRE(specColor->getDefaultValue()->asA<mx::Color3>() == mx::Color3(0.0f));
@@ -84,8 +83,7 @@ TEST_CASE("Material", "[material]")
     mx::MaterialPtr material2 = doc->addMaterial();
     material2->setInheritsFrom(material);
     REQUIRE(material2->getPrimaryShaderName() == refAnisoSrf->getNodeString());
-    REQUIRE(material2->getPrimaryShaderParameters().size() == 2);
-    REQUIRE(material2->getPrimaryShaderInputs().size() == 2);
+    REQUIRE(material2->getPrimaryShaderInputs().size() == 4);
     REQUIRE(material2->getPrimaryShaderTokens().size() == 1);
     REQUIRE(roughness->getBoundValue(material2)->asA<float>() == 0.5f);
 
@@ -98,7 +96,6 @@ TEST_CASE("Material", "[material]")
     // Disconnect the inherited material.
     material2->setInheritsFrom(nullptr);
     REQUIRE(material2->getPrimaryShaderName().empty());
-    REQUIRE(material2->getPrimaryShaderParameters().empty());
     REQUIRE(material2->getPrimaryShaderInputs().empty());
     REQUIRE(material2->getPrimaryShaderTokens().empty());
     REQUIRE(roughness->getBoundValue(material2)->asA<float>() == 0.25f);
@@ -107,7 +104,6 @@ TEST_CASE("Material", "[material]")
     material->removeShaderRef(refAnisoSrf->getName());
     REQUIRE(anisoSrf->getInstantiatingShaderRefs().empty());
     REQUIRE(material->getPrimaryShaderName().empty());
-    REQUIRE(material->getPrimaryShaderParameters().empty());
     REQUIRE(material->getPrimaryShaderInputs().empty());
     REQUIRE(material->getPrimaryShaderTokens().empty());
 }

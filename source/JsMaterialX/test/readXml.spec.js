@@ -60,14 +60,6 @@ describe('Build Document', () => {
             materials.forEach((material) => {
                 expect(material.getPrimaryShaderNodeDef()).to.exist;
                 let edgeCount = 0;
-                const primaryShaderParams = material.getPrimaryShaderParameters();
-                primaryShaderParams.forEach((param) => {
-                    const boundValue = param.getBoundValue(material);
-                    expect(boundValue).to.be.not.null;
-                    traverse(param.traverseGraph(material), () => {
-                        edgeCount++;
-                    });
-                });
 
                 const primaryShaderInputs = material.getPrimaryShaderInputs();
                 primaryShaderInputs.forEach((shaderInput) => {

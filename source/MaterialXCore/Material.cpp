@@ -86,22 +86,6 @@ vector<MaterialAssignPtr> Material::getGeometryBindings(const string& geom) cons
     return matAssigns;
 }
 
-vector<ParameterPtr> Material::getPrimaryShaderParameters(const string& target, const string& type) const
-{
-    NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
-    vector<ParameterPtr> res;
-    if (nodeDef)
-    {
-        InterfaceElementPtr implement = nodeDef->getImplementation();
-        for (ParameterPtr nodeDefParam : nodeDef->getActiveParameters())
-        {
-            ParameterPtr implementParam = implement ? implement->getParameter(nodeDefParam->getName()) : nullptr;
-            res.push_back(implementParam ? implementParam : nodeDefParam);
-        }
-    }
-    return res;
-}
-
 vector<InputPtr> Material::getPrimaryShaderInputs(const string& target, const string& type) const
 {
     NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);

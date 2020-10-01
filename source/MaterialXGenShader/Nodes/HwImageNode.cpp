@@ -36,7 +36,7 @@ void HwImageNode::setValues(const Node& node, ShaderNode& shaderNode, GenContext
     // have been mapped to a single texture atlas which must be accessed in 0..1 space.
     if (context.getOptions().hwNormalizeUdimTexCoords)
     {
-        ParameterPtr file = node.getParameter("file");
+        InputPtr file = node.getInput("file");
         if (file)
         {
             // set the uv scale and offset properly.

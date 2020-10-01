@@ -155,17 +155,6 @@ class Material : public Element
         return nodeDef ? nodeDef->getNodeString() : EMPTY_STRING;
     }
 
-    /// Return the parameters of the first shader referenced by this material,
-    /// optionally filtered by the given target and shader type.
-    /// @param target An optional target name, which will be used to filter
-    ///    the shader nodedefs that are considered.
-    /// @param type An optional shader type (e.g. "surfaceshader"), which will
-    ///    be used to filter the shader nodedefs that are considered.
-    /// @return The parameters of the first matching shader referenced by this
-    ///    material, or an empty vector if no matching shader was found.
-    vector<ParameterPtr> getPrimaryShaderParameters(const string& target = EMPTY_STRING,
-                                                    const string& type = EMPTY_STRING) const;
-
     /// Return the inputs of the first shader referenced by this material,
     /// optionally filtered by the given target and shader type.
     /// @param target An optional target name, which will be used to filter

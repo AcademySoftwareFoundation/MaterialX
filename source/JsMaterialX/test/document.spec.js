@@ -42,25 +42,25 @@ describe('Build Document', () => {
 
     it('Set constant node color', () => {
         const color = new mx.Color3(0.1, 0.2, 0.3);
-        constant.setParameterValuecolor3('value', color);
-        expect(constant.getParameterValue('value').getData()).to.eql(color);
+        constant.setInputValuecolor3('value', color);
+        expect(constant.getInputValue('value').getData()).to.eql(color);
     });
 
     it('Set image node file', () => {
         const file = 'image1.tif';
-        image.setParameterValuestring('file', file, 'filename');
-        expect(image.getParameterValue('file').getData()).to.eql(file);
+        image.setInputValuestring('file', file, 'filename');
+        expect(image.getInputValue('file').getData()).to.eql(file);
     });
 
     it('Create a custom nodedef', () => {
         const nodeDef = doc.addNodeDef('nodeDef1', 'float', 'turbulence3d');
-        nodeDef.setParameterValueinteger('octaves', 3);
-        nodeDef.setParameterValuefloat('lacunarity', 2.0);
-        nodeDef.setParameterValuefloat('gain', 0.5);
+        nodeDef.setInputValueinteger('octaves', 3);
+        nodeDef.setInputValuefloat('lacunarity', 2.0);
+        nodeDef.setInputValuefloat('gain', 0.5);
         const custom = nodeGraph.addNode('turbulence3d', 'turbulence1', 'float');
-        expect(custom.getParameterValue('octaves').getData()).to.equal(3);
-        custom.setParameterValueinteger('octaves', 5);
-        expect(custom.getParameterValue('octaves').getData()).to.equal(5);
+        expect(custom.getInputValue('octaves').getData()).to.equal(3);
+        custom.setInputValueinteger('octaves', 5);
+        expect(custom.getInputValue('octaves').getData()).to.equal(5);
     });
 
     it('Validate the document', () => {
@@ -70,7 +70,7 @@ describe('Build Document', () => {
     it('Test scoped attributes', () => {
         nodeGraph.setFilePrefix('folder/');
         nodeGraph.setColorSpace('lin_rec709');
-        expect(image.getParameter('file').getResolvedValueString()).to.equal('folder/image1.tif');
+        expect(image.getInput('file').getResolvedValueString()).to.equal('folder/image1.tif');
         expect(constant.getActiveColorSpace()).to.equal('lin_rec709');
     });
 
@@ -79,8 +79,11 @@ describe('Build Document', () => {
         const shaderDef = doc.addNodeDef('shader1', 'surfaceshader', 'simpleSrf');
         diffColor = shaderDef.setInputValuecolor3('diffColor', new mx.Color3(1.0, 1.0, 1.0));
         specColor = shaderDef.setInputValuecolor3('specColor', new mx.Color3(0.0, 0.0, 0.0));
-        roughness = shaderDef.setParameterValuefloat('roughness', 0.25);
+        roughness = shaderDef.setInputValuefloat('roughness', 0.25);
         texId = shaderDef.setTokenValue('texId', '01');
+        expect(roughness.getIsUniform()).to.equal(false);
+        roughness.setIsUniform(true);
+        expect(roughness.getIsUniform()).to.equal(true);
         expect(roughness.getValue().getData()).to.equal(0.25);
     });
 
@@ -89,21 +92,20 @@ describe('Build Document', () => {
         material = doc.addMaterial();
         shaderRef = material.addShaderRef('shaderRef1', 'simpleSrf');
         expect(material.getPrimaryShaderName()).to.equal('simpleSrf');
-        expect(material.getPrimaryShaderParameters().length).to.equal(1);
-        expect(material.getPrimaryShaderInputs().length).to.equal(2);
+        expect(material.getPrimaryShaderInputs().length).to.equal(3);
         expect(material.getPrimaryShaderTokens().length).to.equal(1);
         expect(roughness.getBoundValue(material).getData()).to.equal(0.25);
     });
 
-    it('Bind a shader parameter to a value', () => {
-        const bindParam = shaderRef.addBindParam('roughness');
-        bindParam.setValuefloat(0.5);
+    it('Bind a shader input to a float value', () => {
+        const bindInput = shaderRef.addBindInput('roughness');
+        bindInput.setValuefloat(0.5);
         expect(roughness.getBoundValue(material).getData()).to.equal(0.5);
         expect(roughness.getDefaultValue().getData()).to.equal(0.25);
     });
 
     let bindInput;
-    it('Bind a shader input to a value', () => {
+    it('Bind a shader input to a color value', () => {
         bindInput = shaderRef.addBindInput('specColor');
         bindInput.setValuecolor3(new mx.Color3(0.5, 0.5, 0.5));
         expect(specColor.getBoundValue(material).getData()).to.eql(new mx.Color3(0.5, 0.5, 0.5));

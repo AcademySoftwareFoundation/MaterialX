@@ -9,18 +9,12 @@ namespace ems = emscripten;
 namespace mx = MaterialX;
 
 #define BIND_INTERFACE_TYPE_INSTANCE(NAME, T)                                 \
-.function("setParameterValue" #NAME, &mx::InterfaceElement::setParameterValue<T>) \
 .function("setInputValue" #NAME, &mx::InterfaceElement::setInputValue<T>)
 
 extern "C"
 {
     EMSCRIPTEN_BINDINGS(interface)
     {
-
-        ems::class_<mx::Parameter, ems::base<mx::ValueElement>>("Parameter")
-            .smart_ptr_constructor("Parameter", &std::make_shared<mx::Parameter, mx::ElementPtr, const std::string &>)
-            .smart_ptr<std::shared_ptr<const mx::Parameter>>("Parameter")
-            .class_property("CATEGORY", &mx::Parameter::CATEGORY);
 
         ems::class_<mx::PortElement, ems::base<mx::ValueElement>>("PortElement")
             .smart_ptr<std::shared_ptr<mx::PortElement>>("PortElement")
@@ -54,14 +48,7 @@ extern "C"
             .function("setNodeDefString", &mx::InterfaceElement::setNodeDefString)
             .function("hasNodeDefString", &mx::InterfaceElement::hasNodeDefString)
             .function("getNodeDefString", &mx::InterfaceElement::getNodeDefString)
-            .function("addParameter", &mx::InterfaceElement::addParameter)
 
-            .function("getParameter", &mx::InterfaceElement::getParameter)
-            .function("getParameters", &mx::InterfaceElement::getParameters)
-            .function("getParameterCount", &mx::InterfaceElement::getParameterCount)
-            .function("removeParameter", &mx::InterfaceElement::removeParameter)
-            .function("getActiveParameter", &mx::InterfaceElement::getActiveParameter)
-            .function("getActiveParameters", &mx::InterfaceElement::getActiveParameters)
             .function("addInput", &mx::InterfaceElement::addInput)
             .function("getInput", &mx::InterfaceElement::getInput)
             .function("getInputs", &mx::InterfaceElement::getInputs)
@@ -86,7 +73,6 @@ extern "C"
 
             .function("getActiveValueElement", &mx::InterfaceElement::getActiveValueElement)
             .function("getActiveValueElements", &mx::InterfaceElement::getActiveValueElements)
-            .function("getParameterValue", &mx::InterfaceElement::getParameterValue)
             .function("getInputValue", &mx::InterfaceElement::getInputValue)
 
             .function("setTokenValue", &mx::InterfaceElement::setTokenValue)

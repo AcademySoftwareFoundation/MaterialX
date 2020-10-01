@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" xmlns:xi="http://www.w3.org/2001/XInclude">
+<materialx version="1.37" xmlns:xi="http://www.w3.org/2001/XInclude">
 
    <!-- Sample color correct interface. Versioned and namespaced -->
    <nodedef name="ND_colorcorrect" node="colorcorrect" nodegroup="adjustment" version="1.0" isdefaultversion="true" namespace="adsk">
