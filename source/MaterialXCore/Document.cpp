@@ -278,7 +278,7 @@ void Document::importLibrary(const ConstDocumentPtr& library)
         return;
     }
 
-    for (const ConstElementPtr& child : library->getChildren())
+    for (const ElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
 
@@ -903,7 +903,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             {
                 const string& nodeName = node->getName();
                 BackdropPtr backdrop = addBackdrop(nodeName);
-                for (const ParameterPtr param : node->getParameters())
+                for (const ParameterPtr& param : node->getParameters())
                 {
                     ValuePtr value = param ? param->getValue() : nullptr;
                     if (value)
