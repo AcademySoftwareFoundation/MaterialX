@@ -594,7 +594,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
 
     // Add shader node paths and unit value
     const string& nodePath = node->getNamePath();
-    for (const ValueElementPtr& nodeInput : nodeDef->getActiveInputs())
+    for (const InputPtr& nodeInput : nodeDef->getActiveInputs())
     {
         const string& inputName = nodeInput->getName();
         const string path = nodePath + NAME_PATH_SEPARATOR + inputName;
@@ -948,7 +948,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
 
         // Add shaderRef nodedef paths
         const string& nodePath = shaderRef->getNamePath();
-        for (const ValueElementPtr& nodeInput : nodeDef->getActiveInputs())
+        for (const InputPtr& nodeInput : nodeDef->getActiveInputs())
         {
             const string& inputName = nodeInput->getName();
             const string path = nodePath + NAME_PATH_SEPARATOR + inputName;
