@@ -1,4 +1,4 @@
-name: Build CI
+name: build
 
 on:
   push:
@@ -15,28 +15,36 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_5
+        - name: Linux_GCC_5_Python27
           os: ubuntu-latest
           compiler: gcc
           compiler_version: "5"
-          python: 3.7
+          python: 2.7
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2
 
-        - name: Linux_GCC_6
+        - name: Linux_GCC_6_Python37
           os: ubuntu-latest
           compiler: gcc
           compiler_version: "6"
           python: 3.7
 
-        - name: Linux_GCC_10
+        - name: Linux_GCC_10_Python37
           os: ubuntu-latest
           compiler: gcc
           compiler_version: "10"
           python: 3.7
 
-        - name: MacOS_Xcode_11
+        - name: MacOS_Xcode_10_Python27
           os: macos-latest
           compiler: xcode
-          compiler_version: "11"
+          compiler_version: "10.3"
+          python: 2.7
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2
+
+        - name: MacOS_Xcode_11_Python37
+          os: macos-latest
+          compiler: xcode
+          compiler_version: "11.7"
           python: 3.7
 
         - name: Windows_VS2017_Win32_Python27
@@ -124,10 +132,6 @@ jobs:
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config ${{env.config}}
       working-directory: build
-
-    - name: Set Python Path
-      run: echo ::set-env name=PYTHONPATH::"$GITHUB_WORKSPACE/build/installed/python"
-      if: runner.os != 'Windows'
 
     - name: Generate Test HTML
       if: ${{matrix.generate_html == 'ON'}}
