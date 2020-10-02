@@ -1,8 +1,8 @@
 # MaterialX
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/materialx/MaterialX/blob/master/LICENSE.txt)
-[![CI Build Status](https://github.com/MaterialX/MaterialX/workflows/Build%20CI/badge.svg?branch=master)](https://github.com/MaterialX/MaterialX/actions?query=branch%3Amaster)
-[![Travis Build Status](https://travis-ci.com/materialx/MaterialX.svg?branch=master)](https://travis-ci.com/materialx/MaterialX)
+[![Version](https://badge.fury.io/gh/materialx%2FMaterialX.svg)](https://github.com/materialx/MaterialX/releases/latest)
+[![Build Status](https://github.com/MaterialX/MaterialX/workflows/build/badge.svg?branch=master)](https://github.com/MaterialX/MaterialX/actions?query=branch%3Amaster)
 
 MaterialX is an open standard for transfer of rich material and look-development content between applications and renderers.  Originated at Lucasfilm in 2012, MaterialX has been used by Industrial Light & Magic (ILM) in feature films such as _Star Wars: The Force Awakens_ and real-time experiences such as _Trials on Tatooine_, and it remains the central material format for new ILM productions.
 
