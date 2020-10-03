@@ -114,7 +114,7 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     else
     {
         // Look for specific library folders in the search paths
-        for (const string& libraryName : libraryFolders)
+        for (const FilePath& libraryName : libraryFolders)
         {
             FilePath libraryPath = librarySearchPath.find(libraryName);
             for (const FilePath& path : libraryPath.getSubDirectories())

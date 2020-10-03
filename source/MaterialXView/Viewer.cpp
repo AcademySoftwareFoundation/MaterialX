@@ -243,6 +243,7 @@ Viewer::Viewer(const std::string& materialFilename,
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
     _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
+    _genContext.getOptions().hwTransparency = true;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
@@ -829,6 +830,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ng::Label* renderLabel = new ng::Label(advancedPopup, "Render Options");
     renderLabel->setFontSize(20);
     renderLabel->setFont("sans-bold");
+
+    ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
+    transparencyBox->setChecked(_genContext.getOptions().hwTransparency);
+    transparencyBox->setCallback([this](bool enable)
+    {
+        _genContext.getOptions().hwTransparency = enable;
+        reloadShaders();
+    });
 
     ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
     outlineSelectedGeometryBox->setChecked(_outlineSelection);
@@ -1765,7 +1774,7 @@ void Viewer::renderFrame()
 
         material->bindShader();
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, ShadowState());
+        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
