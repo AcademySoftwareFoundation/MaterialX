@@ -177,13 +177,10 @@ class ImageHandler
     /// @param fallbackColor Optional uniform color of a fallback texture
     ///    to create when the image cannot be loaded from the file system.
     ///    By default, no fallback texture is created.
-    /// @param message Optional pointer to a message string, where any warning
-    ///    or error messages from the acquire operation will be stored.
     /// @return On success, a shared pointer to the acquired Image.
     virtual ImagePtr acquireImage(const FilePath& filePath,
-                                  bool generateMipMaps,
-                                  const Color4* fallbackColor = nullptr,
-                                  string* message = nullptr);
+                                  bool generateMipMaps = true,
+                                  const Color4* fallbackColor = nullptr);
 
     /// Bind an image for rendering.
     /// @param image The image to bind.

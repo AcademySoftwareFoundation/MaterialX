@@ -312,11 +312,7 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
 
     // Acquire the given image.
     std::string error;
-    mx::ImagePtr image = imageHandler->acquireImage(filePath, true, fallbackColor, &error);
-    if (!error.empty())
-    {
-        std::cerr << error << std::endl;
-    }
+    mx::ImagePtr image = imageHandler->acquireImage(filePath, true, fallbackColor);
     if (!image)
     {
         return nullptr;

@@ -358,13 +358,11 @@ Viewer::Viewer(const std::string& materialFilename,
 
 void Viewer::loadEnvironmentLight()
 {
-    std::string message;
-
     // Load the requested radiance map.
-    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadiancePath, true, nullptr, &message);
+    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadiancePath);
     if (!envRadianceMap)
     {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light", message);
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light");
         return;
     }
 
@@ -394,7 +392,7 @@ void Viewer::loadEnvironmentLight()
     if (!_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadiancePath.getBaseName();
-        envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath, true, nullptr, &message);
+        envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath);
     }
 
     // If not found, then generate an irradiance map via spherical harmonics.
