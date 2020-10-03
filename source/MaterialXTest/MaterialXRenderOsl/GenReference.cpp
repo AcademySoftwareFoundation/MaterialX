@@ -234,11 +234,6 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
                         mx::InputPtr input = impl->addInput(elem->getName(), elem->getType());
                         input->setImplementationName(port->getVariable());
                     }
-                    else
-                    {
-                        mx::ParameterPtr param = impl->addParameter(elem->getName(), elem->getType());
-                        param->setImplementationName(port->getVariable());
-                    }
                 }
             }
         }

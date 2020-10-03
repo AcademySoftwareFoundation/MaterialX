@@ -27,8 +27,6 @@ void bindPyMaterial(py::module& mod)
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getPrimaryShaderName", &mx::Material::getPrimaryShaderName,
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
-        .def("getPrimaryShaderParameters", &mx::Material::getPrimaryShaderParameters,
-            py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getPrimaryShaderInputs", &mx::Material::getPrimaryShaderInputs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getPrimaryShaderTokens", &mx::Material::getPrimaryShaderTokens,

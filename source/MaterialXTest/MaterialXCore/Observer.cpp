@@ -120,7 +120,7 @@ TEST_CASE("Observer", "[observer]")
     // Create a node graph with a constant color output.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     mx::NodePtr constant = nodeGraph->addNode("constant");
-    constant->setParameterValue("value", mx::Color3(0.1f, 0.2f, 0.3f));
+    constant->setInputValue("value", mx::Color3(0.1f, 0.2f, 0.3f));
     mx::OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
 
@@ -128,7 +128,7 @@ TEST_CASE("Observer", "[observer]")
     mx::NodeDefPtr shader = doc->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
     shader->addInput("diffColor", "color3");
     shader->addInput("specColor", "color3");
-    shader->addParameter("roughness", "float");
+    shader->addInput("roughness", "float");
 
     // Create a material that uses a shader instance.
     mx::NodePtr materialNode = doc->addNode("surfacematerial");

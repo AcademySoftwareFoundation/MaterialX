@@ -1151,6 +1151,22 @@ class ValueElement : public TypedElement
     }
 
     /// @}
+    /// @name Uniform attribute
+    /// @{
+
+    /// Set the uniform attribute flag on this element.
+    void setIsUniform(bool value)
+    {
+        setTypedAttribute<bool>(UNIFORM_ATTRIBUTE, value);
+    }
+
+    /// The the uniform attribute flag for this element.
+    bool getIsUniform() const
+    {
+        return getTypedAttribute<bool>(UNIFORM_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -1177,6 +1193,7 @@ class ValueElement : public TypedElement
     static const string UI_ADVANCED_ATTRIBUTE;
     static const string UNIT_ATTRIBUTE;
     static const string UNITTYPE_ATTRIBUTE;
+    static const string UNIFORM_ATTRIBUTE;
 };
 
 /// @class Token

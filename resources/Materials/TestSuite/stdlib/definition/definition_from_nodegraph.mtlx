@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.37">
   <nodegraph name="test_colorcorrect">
     <range name="AlphaClampAndGamma" type="float">
       <input name="in" type="float" nodename="AlphaOffset" />
