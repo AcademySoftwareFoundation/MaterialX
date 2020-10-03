@@ -82,7 +82,7 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
 
     // Create child nodes and recurse.
     StringSet writtenSourceFiles;
-    for (const ConstElementPtr& child : elem->getChildren())
+    for (const ElementPtr& child : elem->getChildren())
     {
         if (elementPredicate && !elementPredicate(child))
         {

@@ -224,7 +224,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             impl->setLanguage("osl");
 
             mx::ShaderStage stage = shader->getStage(mx::Stage::PIXEL);
-            for (const mx::ValueElementPtr elem : nodedef->getActiveValueElements())
+            for (const mx::ValueElementPtr& elem : nodedef->getActiveValueElements())
             {
                 const mx::ShaderPort* port = getShaderPort(stage, elem->getName());
                 if (port && port->getName() != port->getVariable())

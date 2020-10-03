@@ -392,7 +392,7 @@ void Element::copyContentFrom(const ConstElementPtr& source)
     _attributeMap = source->_attributeMap;
     _attributeOrder = source->_attributeOrder;
 
-    for (const ConstElementPtr& child : source->getChildren())
+    for (const ElementPtr& child : source->getChildren())
     {
         const string& name = child->getName();
 
