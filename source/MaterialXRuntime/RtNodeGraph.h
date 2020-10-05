@@ -16,6 +16,14 @@ namespace MaterialX
 
 class RtPrimIterator;
 
+/// @struct RtNodeLayout
+/// Container for node layout information.
+struct RtNodeLayout
+{
+    RtTokenVec order;
+    RtTokenMap<RtToken> uifolder;
+};
+
 /// @class RtNodeGraph
 /// Schema for nodegraph prims.
 class RtNodeGraph : public RtNode
@@ -54,6 +62,14 @@ public:
     /// Return the internal socket that corresponds
     /// to the named output attribute.
     RtInput getOutputSocket(const RtToken& name) const;
+
+    /// Return a node layout struct for this graph.
+    /// Containing its input ordering and uifolder hierarchy.
+    RtNodeLayout getNodeLayout();
+
+    /// Set the node layout for this graph, reordering its inputs
+    /// and uifolder hierarchy according to the given layout struct.
+    void setNodeLayout(const RtNodeLayout& layout);
 
     /// Return a node by name.
     RtPrim getNode(const RtToken& name) const;

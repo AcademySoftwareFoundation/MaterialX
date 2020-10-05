@@ -65,6 +65,7 @@ namespace
     const mx::RtToken IN("in");
     const mx::RtToken REFLECTIVITY("reflectivity");
     const mx::RtToken SURFACESHADER("surfaceshader");
+    const mx::RtToken UIFOLDER("uifolder");
     const mx::RtToken FOO("foo");
     const mx::RtToken FOO1("foo1");
     const mx::RtToken BAR("bar");
@@ -764,6 +765,34 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(!graph1.getInputSocket(FOO));
     REQUIRE(graph1.getInput(X));
     REQUIRE(graph1.getInputSocket(X));
+
+    // Test reordering the node inputs
+    mx::RtNodeLayout oldLayout = graph1.getNodeLayout();
+    mx::RtNodeLayout layout = oldLayout;
+    REQUIRE(layout.order.size() == 3);
+    std::swap(layout.order[0], layout.order[2]);
+    mx::RtToken path1("path1");
+    mx::RtToken path2("path1/path2");
+    layout.uifolder[A] = layout.uifolder[B] = path1;
+    layout.uifolder[X] = path2;
+    graph1.setNodeLayout(layout);
+    mx::RtAttrIterator orderIt = graph1.getInputs();
+    REQUIRE((*orderIt).getName() == X);
+    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asToken() == path2);
+    ++orderIt;
+    REQUIRE((*orderIt).getName() == B);
+    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asToken() == path1);
+    ++orderIt;
+    REQUIRE((*orderIt).getName() == A);
+    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asToken() == path1);
+    // Reset the old order
+    graph1.setNodeLayout(oldLayout);
+    orderIt = graph1.getInputs();
+    REQUIRE((*orderIt).getName() == A);
+    ++orderIt;
+    REQUIRE((*orderIt).getName() == B);
+    ++orderIt;
+    REQUIRE((*orderIt).getName() == X);
 
     // Test deleting an input.
     graph1.removeInput(X);
