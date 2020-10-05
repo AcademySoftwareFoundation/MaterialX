@@ -141,8 +141,6 @@ TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
         }
     }
 
-    std::string nodeDefNode;
-    std::string nodeDefType;
     unsigned int count = 0;
     unsigned int missing = 0;
     std::string missing_str;
