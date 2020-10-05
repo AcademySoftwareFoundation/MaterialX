@@ -28,8 +28,6 @@ void ShaderTranslator::loadShadingTranslations()
     {
         if (node->getNodeGroup() == NodeDef::TRANSLATION_NODE_GROUP)
         {
-            _translationNodes.insert(node->getNodeString());
-
             // Parsing translation nodes
             size_t pos = node->getNodeString().find("_to_");
             string start = node->getNodeString().substr(0, pos);
@@ -48,26 +46,30 @@ void ShaderTranslator::loadShadingTranslations()
     }
 }
 
-void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef)
+void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef, NodeDefPtr translationNodeDef)
 {
-    for (BindInputPtr bindInput : shaderRef->getBindInputs())
+    vector<BindInputPtr> origBindInputs = shaderRef->getBindInputs();
+    for (BindInputPtr bindInput : origBindInputs)
     {
-        OutputPtr output = bindInput->getConnectedOutput();
-        if (output)
+        if (translationNodeDef->getInput(bindInput->getName()))
         {
-            InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
-            input->setConnectedNode(_graph->getNode(output->getNodeName()));
+            OutputPtr output = bindInput->getConnectedOutput();
+            if (output)
+            {
+                InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
+                input->setConnectedNode(_graph->getNode(output->getNodeName()));
 
-            _graph->removeOutput(output->getName());
-        }
-        else if (bindInput->getValueString() != EMPTY_STRING)
-        { 
-            InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
-            input->setValueString(bindInput->getValueString());
-        }
-        else
-        {
-            std::cerr << "No associated output with " << bindInput->getName() << std::endl;
+                _graph->removeOutput(output->getName());
+            }
+            else if (bindInput->getValueString() != EMPTY_STRING)
+            { 
+                InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
+                input->setValueString(bindInput->getValueString());
+            }
+            else
+            {
+                std::cerr << "No associated output with " << bindInput->getName() << std::endl;
+            }
         }
 
         shaderRef->removeBindInput(bindInput->getName());
@@ -161,14 +163,25 @@ void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader
 
     DocumentPtr doc = shaderRef->getDocument();
     string translateNodeString = shaderRef->getNodeString() + "_to_" + destShader;
-    if (!_translationNodes.count(translateNodeString))
+
+    vector<OutputPtr> referencedOutputs = shaderRef->getReferencedOutputs();
+    if (!referencedOutputs.empty())
+    {
+        _graph = referencedOutputs[0]->getParent()->asA<NodeGraph>();
+    }
+    if (!_graph)
+    {
+        _graph = doc->addNodeGraph();
+    }
+
+    _translationNode = _graph->addNode(translateNodeString, "translation", MULTI_OUTPUT_TYPE_STRING);
+    NodeDefPtr translationNodeDef = _translationNode->getNodeDef();
+    if (!translationNodeDef)
     {
         return;
     }
-    _graph = doc->getNodeGraph(shaderRef->getBindInputs()[0]->getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE));
-    _translationNode = _graph->addNode(translateNodeString, "translation", MULTI_OUTPUT_TYPE_STRING);
 
-    connectToTranslationInputs(shaderRef);
+    connectToTranslationInputs(shaderRef, translationNodeDef);
     shaderRef->setNodeString(destShader);
     connectTranslationOutputs(shaderRef);
 }

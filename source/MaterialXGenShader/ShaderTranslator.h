@@ -44,7 +44,7 @@ class ShaderTranslator
     void loadShadingTranslations();
 
     /// Connects translation node inputs from the original shaderRef
-    void connectToTranslationInputs(ShaderRefPtr shaderRef);
+    void connectToTranslationInputs(ShaderRefPtr shaderRef, NodeDefPtr translationNodeDef);
 
     /// Copies translation nodegraph upstream node dependencies over to the working nodegraph.
     /// Used when normals need to be baked in tangent space but shaderref expects normals to 
@@ -53,9 +53,6 @@ class ShaderTranslator
 
     /// Connects translation node outputs to finalize shaderRef translation
     void connectTranslationOutputs(ShaderRefPtr shaderRef);
-
-    /// Set that stores all the translation nodes in the document library
-    StringSet _translationNodes;
 
     /// Map that stores all the potential destination shading models for given shading model
     std::unordered_map<string, StringSet> _shadingTranslations;
