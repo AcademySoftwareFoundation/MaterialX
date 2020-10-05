@@ -311,7 +311,6 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
     imageHandler->setFilenameResolver(resolver);
 
     // Acquire the given image.
-    std::string error;
     mx::ImagePtr image = imageHandler->acquireImage(filePath, true, fallbackColor);
     if (!image)
     {
