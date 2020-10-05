@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXRuntime/Private/Commands/PvtRemovePrimCmd.h>
-#include <MaterialXRuntime/Private/Commands/PvtBreakConnectionCmd.h>
+#include <MaterialXRuntime/Private/Commands/PvtConnectionCmd.h>
 
 namespace MaterialX
 {
@@ -35,7 +35,7 @@ void PvtRemovePrimCmd::execute(RtCommandResult& result)
             if (input.isConnected())
             {
                 RtOutput output = input.getConnection();
-                addCommand(PvtBreakConnectionCmd::create(output, input));
+                addCommand(PvtConnectionCmd::create(output, input, ConnectionChange::BREAK_CONNECTION));
             }
         }
 
@@ -49,7 +49,7 @@ void PvtRemovePrimCmd::execute(RtCommandResult& result)
                 for (RtObject inputObj : output.getConnections())
                 {
                     RtInput input = inputObj.asA<RtInput>();
-                    addCommand(PvtBreakConnectionCmd::create(output, input));
+                    addCommand(PvtConnectionCmd::create(output, input, ConnectionChange::BREAK_CONNECTION));
                 }
             }
         }

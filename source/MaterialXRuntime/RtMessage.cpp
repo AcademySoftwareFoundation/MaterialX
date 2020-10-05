@@ -35,14 +35,14 @@ RtCallbackId RtMessage::addSetAttributeCallback(RtSetAttributeCallbackFunc callb
     return PvtApi::cast(RtApi::get())->getMessageHandler().addSetAttributeCallback(callback, userData);
 }
 
-RtCallbackId RtMessage::addMakeConnectionCallback(RtMakeConnectionCallbackFunc callback, void* userData)
+RtCallbackId RtMessage::addConnectionCallback(RtConnectionCallbackFunc callback, void* userData)
 {
-    return PvtApi::cast(RtApi::get())->getMessageHandler().addMakeConnectionCallback(callback, userData);
+    return PvtApi::cast(RtApi::get())->getMessageHandler().addConnectionCallback(callback, userData);
 }
 
-RtCallbackId RtMessage::addBreakConnectionCallback(RtBreakConnectionCallbackFunc callback, void* userData)
+RtCallbackId RtMessage::addRelationshipCallback(RtRelationshipCallbackFunc callback, void* userData)
 {
-    return PvtApi::cast(RtApi::get())->getMessageHandler().addBreakConnectionCallback(callback, userData);
+    return PvtApi::cast(RtApi::get())->getMessageHandler().addRelationshipCallback(callback, userData);
 }
 
 void RtMessage::removeCallback(RtCallbackId id)

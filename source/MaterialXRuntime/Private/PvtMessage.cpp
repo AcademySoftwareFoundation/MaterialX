@@ -52,18 +52,18 @@ RtCallbackId PvtMessageHandler::addSetAttributeCallback(RtSetAttributeCallbackFu
     return _callbackIdCounter++;
 }
 
-RtCallbackId PvtMessageHandler::addMakeConnectionCallback(RtMakeConnectionCallbackFunc callback, void* userData)
+RtCallbackId PvtMessageHandler::addConnectionCallback(RtConnectionCallbackFunc callback, void* userData)
 {
-    PvtMakeConnectionObserver observer = PvtMakeConnectionObserver(callback, userData);
-    _makeConnectionObservers[_callbackIdCounter] = observer;
+    PvtConnectionObserver observer = PvtConnectionObserver(callback, userData);
+    _connectionObservers[_callbackIdCounter] = observer;
     _callbackIdToType[_callbackIdCounter] = observer.type;
     return _callbackIdCounter++;
 }
 
-RtCallbackId PvtMessageHandler::addBreakConnectionCallback(RtBreakConnectionCallbackFunc callback, void* userData)
+RtCallbackId PvtMessageHandler::addRelationshipCallback(RtRelationshipCallbackFunc callback, void* userData)
 {
-    PvtBreakConnectionObserver observer = PvtBreakConnectionObserver(callback, userData);
-    _breakConnectionObservers[_callbackIdCounter] = observer;
+    PvtRelationshipObserver observer = PvtRelationshipObserver(callback, userData);
+    _relationshipObservers[_callbackIdCounter] = observer;
     _callbackIdToType[_callbackIdCounter] = observer.type;
     return _callbackIdCounter++;
 }
@@ -91,11 +91,11 @@ void PvtMessageHandler::removeCallback(RtCallbackId id)
         case PvtMessageType::SET_ATTRIBUTE:
             _setAttrObservers.erase(id);
             break;
-        case PvtMessageType::MAKE_CONNECTION:
-            _makeConnectionObservers.erase(id);
+        case PvtMessageType::CHANGE_CONNECTION:
+            _connectionObservers.erase(id);
             break;
-        case PvtMessageType::BREAK_CONNECTION:
-            _breakConnectionObservers.erase(id);
+        case PvtMessageType::CHANGE_RELATIONSHIP:
+            _relationshipObservers.erase(id);
             break;
         default:
             throw ExceptionRuntimeError("Removal of callback faild! Message type '" + std::to_string(size_t(it->second)) + "' has not been implemented properly.");
@@ -146,21 +146,20 @@ void PvtMessageHandler::sendSetAttributeMessage(const RtAttribute& attr, const R
     }
 }
 
-void PvtMessageHandler::sendMakeConnectionMessage(const RtOutput& src, const RtInput& dest)
+void PvtMessageHandler::sendConnectionMessage(const RtOutput& src, const RtInput& dest, ConnectionChange change)
 {
-    for (auto observer : _makeConnectionObservers)
+    for (auto observer : _connectionObservers)
     {
-        observer.second.callback(src, dest, observer.second.userData);
+        observer.second.callback(src, dest, change, observer.second.userData);
     }
 }
 
-void PvtMessageHandler::sendBreakConnectionMessage(const RtOutput& src, const RtInput& dest)
+void PvtMessageHandler::sendRelationshipMessage(const RtRelationship& rel, const RtObject& target, ConnectionChange change)
 {
-    for (auto observer : _breakConnectionObservers)
+    for (auto observer : _relationshipObservers)
     {
-        observer.second.callback(src, dest, observer.second.userData);
+        observer.second.callback(rel, target, change, observer.second.userData);
     }
 }
-
 
 }

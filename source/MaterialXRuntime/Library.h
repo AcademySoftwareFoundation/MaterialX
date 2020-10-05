@@ -35,6 +35,13 @@ class RtRelationship;
 /// Predicate for filtering objects during traversal.
 using RtObjectPredicate = std::function<bool(const RtObject& obj)>;
 
+/// Connection change type
+enum class ConnectionChange
+{
+    MAKE_CONNECTION,
+    BREAK_CONNECTION
+};
+
 /// @class ExceptionRuntimeError
 /// An exception that is thrown when a runtime operation fails.
 class ExceptionRuntimeError : public Exception

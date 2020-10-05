@@ -9,8 +9,7 @@
 #include <MaterialXRuntime/Private/PvtApi.h>
 #include <MaterialXRuntime/Private/PvtCommand.h>
 #include <MaterialXRuntime/Private/Commands/PvtSetAttributeCmd.h>
-#include <MaterialXRuntime/Private/Commands/PvtMakeConnectionCmd.h>
-#include <MaterialXRuntime/Private/Commands/PvtBreakConnectionCmd.h>
+#include <MaterialXRuntime/Private/Commands/PvtConnectionCmd.h>
 
 namespace MaterialX
 {
@@ -137,13 +136,13 @@ void setAttribute(const RtAttribute& attr, const string& value, RtCommandResult&
 
 void makeConnection(const RtOutput& src, const RtInput& dest, RtCommandResult& result)
 {
-    PvtCommandPtr cmd = PvtMakeConnectionCmd::create(src, dest);
+    PvtCommandPtr cmd = PvtConnectionCmd::create(src, dest, ConnectionChange::MAKE_CONNECTION);
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
 void breakConnection(const RtOutput& src, const RtInput& dest, RtCommandResult& result)
 {
-    PvtCommandPtr cmd = PvtBreakConnectionCmd::create(src, dest);
+    PvtCommandPtr cmd = PvtConnectionCmd::create(src, dest, ConnectionChange::BREAK_CONNECTION);
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 

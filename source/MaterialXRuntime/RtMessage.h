@@ -41,11 +41,11 @@ using RtReparentPrimCallbackFunc = std::function<void(RtStagePtr stage, const Rt
 /// Function type for callback notifying when an attribute valus is set.
 using RtSetAttributeCallbackFunc = std::function<void(const RtAttribute& attr, const RtValue& value, void* userData)>;
 
-/// Function type for callback notifying when a connection is made.
-using RtMakeConnectionCallbackFunc = std::function<void(const RtOutput& src, const RtInput& dest, void* userData)>;
+/// Function type for callback notifying when a connection is changed.
+using RtConnectionCallbackFunc = std::function<void(const RtOutput& src, const RtInput& dest, ConnectionChange change, void* userData)>;
 
-/// Function type for callback notifying when a connection is broken.
-using RtBreakConnectionCallbackFunc = std::function<void(const RtOutput& src, const RtInput& dest, void* userData)>;
+/// Function type for callback notifying when a relationship is changed.
+using RtRelationshipCallbackFunc = std::function<void(const RtRelationship& rel, const RtObject& target, ConnectionChange change, void* userData)>;
 
 /// @class RtMessage
 class RtMessage
@@ -66,11 +66,11 @@ public:
     /// Register a callback to get notified when an attribute value is set.
     static RtCallbackId addSetAttributeCallback(RtSetAttributeCallbackFunc callback, void* userData = nullptr);
 
-    /// Register a callback to get notified when a connection is made.
-    static RtCallbackId addMakeConnectionCallback(RtMakeConnectionCallbackFunc callback, void* userData = nullptr);
+    /// Register a callback to get notified when a connection is changed.
+    static RtCallbackId addConnectionCallback(RtConnectionCallbackFunc callback, void* userData = nullptr);
 
-    /// Register a callback to get notified when a connection is broken.
-    static RtCallbackId addBreakConnectionCallback(RtBreakConnectionCallbackFunc callback, void* userData = nullptr);
+    /// Register a callback to get notified when a relationship is changed.
+    static RtCallbackId addRelationshipCallback(RtRelationshipCallbackFunc callback, void* userData = nullptr);
 
     /// Remove the callback with given id.
     static void removeCallback(RtCallbackId id);

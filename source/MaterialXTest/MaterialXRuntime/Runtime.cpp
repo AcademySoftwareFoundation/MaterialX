@@ -36,6 +36,7 @@
 
 #include <MaterialXRuntime/Commands/PrimCommands.h>
 #include <MaterialXRuntime/Commands/AttributeCommands.h>
+#include <MaterialXRuntime/Commands/RelationshipCommands.h>
 #include <MaterialXRuntime/Commands/UndoCommands.h>
 
 #include <cstdlib>
@@ -2054,11 +2055,11 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     {
         ++(*reinterpret_cast<size_t*>(userData));
     };
-    auto makeConnectionCB = [](const mx::RtOutput&, const mx::RtInput&, void* userData)
+    auto connectionCB = [](const mx::RtOutput&, const mx::RtInput&, mx::ConnectionChange, void* userData)
     {
         ++(*reinterpret_cast<size_t*>(userData));
     };
-    auto breakConnectionCB = [](const mx::RtOutput&, const mx::RtInput&, void* userData)
+    auto relationshipCB = [](const mx::RtRelationship&, const mx::RtObject&, mx::ConnectionChange, void* userData)
     {
         ++(*reinterpret_cast<size_t*>(userData));
     };
@@ -2068,16 +2069,16 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     size_t renamePrimCount = 0;
     size_t reparentPrimCount = 0;
     size_t setAttrCount = 0;
-    size_t makeConnectionCount = 0;
-    size_t breakConnectionCount = 0;
+    size_t connectionChangeCount = 0;
+    size_t relationshipChangeCount = 0;
 
     mx::RtCallbackId createPrimCB_id = mx::RtMessage::addCreatePrimCallback(createPrimCB, &createPrimCount);
     mx::RtCallbackId removePrimCB_id = mx::RtMessage::addRemovePrimCallback(removePrimCB, &removePrimCount);
     mx::RtCallbackId renamePrimCB_id = mx::RtMessage::addRenamePrimCallback(renamePrimCB, &renamePrimCount);
     mx::RtCallbackId reparentPrimCB_id = mx::RtMessage::addReparentPrimCallback(reparentPrimCB, &reparentPrimCount);
     mx::RtCallbackId setAttrCB_id = mx::RtMessage::addSetAttributeCallback(setAttrCB, &setAttrCount);
-    mx::RtCallbackId makeConnectionCB_id = mx::RtMessage::addMakeConnectionCallback(makeConnectionCB, &makeConnectionCount);
-    mx::RtCallbackId breakConnectionCB_id = mx::RtMessage::addBreakConnectionCallback(breakConnectionCB, &breakConnectionCount);
+    mx::RtCallbackId connectionCB_id = mx::RtMessage::addConnectionCallback(connectionCB, &connectionChangeCount);
+    mx::RtCallbackId relationshipCB_id = mx::RtMessage::addRelationshipCallback(relationshipCB, &relationshipChangeCount);
 
     mx::RtCommandResult result;
 
@@ -2196,8 +2197,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     //
     // Test making and breaking connections
     //
-    makeConnectionCount = 0;
-    breakConnectionCount = 0;
+    connectionChangeCount = 0;
 
     mx::RtCommand::makeConnection(add1.getOutput(OUT), add2.getInput(IN1), result);
     REQUIRE(result);
@@ -2222,8 +2222,33 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtCommand::undo(result);
     REQUIRE(result);
 
-    REQUIRE(makeConnectionCount == 6);
-    REQUIRE(breakConnectionCount == 2);
+    REQUIRE(connectionChangeCount == 8);
+
+
+    //
+    // Test adding and removing relationship targets
+    //
+
+    mx::RtCommand::createPrim(stage, mx::RtGeneric::typeName(), result);
+    REQUIRE(result);
+    REQUIRE(result.getObject().isA<mx::RtPrim>());
+    mx::RtPrim bob(result.getObject().asA<mx::RtPrim>());
+    mx::RtRelationship rel1 = bob.createRelationship(mx::RtToken("rel1"));
+
+    mx::RtCommand::makeRelationship(rel1, add1, result);
+    REQUIRE(result);
+    mx::RtCommand::makeRelationship(rel1, add2, result);
+    REQUIRE(result);
+    REQUIRE(rel1.targetCount() == 2);
+
+    mx::RtCommand::undo(result);
+    REQUIRE(result);
+    REQUIRE(rel1.targetCount() == 1);
+    mx::RtCommand::redo(result);
+    REQUIRE(result);
+    REQUIRE(rel1.targetCount() == 2);
+
+    REQUIRE(relationshipChangeCount == 4);
 
     //
     // Test prim copy
@@ -2264,8 +2289,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     //
     // Test node deletion
     //
-    makeConnectionCount = 0;
-    breakConnectionCount = 0;
+    connectionChangeCount = 0;
 
     mx::RtCommand::removePrim(stage, add2.getPath(), result);
     REQUIRE(result);
@@ -2280,8 +2304,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     REQUIRE(add2.getInput(IN1).getConnection() == add1.getOutput(OUT));
     REQUIRE(ng1.getOutputSocket(OUT).getConnection() == add2.getOutput(OUT));
 
-    REQUIRE(makeConnectionCount == 2);
-    REQUIRE(breakConnectionCount == 2);
+    REQUIRE(connectionChangeCount == 4);
 
     //
     // Test node reparenting
@@ -2362,8 +2385,8 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtMessage::removeCallback(renamePrimCB_id);
     mx::RtMessage::removeCallback(reparentPrimCB_id);
     mx::RtMessage::removeCallback(setAttrCB_id);
-    mx::RtMessage::removeCallback(makeConnectionCB_id);
-    mx::RtMessage::removeCallback(breakConnectionCB_id);
+    mx::RtMessage::removeCallback(connectionCB_id);
+    mx::RtMessage::removeCallback(relationshipCB_id);
 
     //
     // Test failing to create special case prims

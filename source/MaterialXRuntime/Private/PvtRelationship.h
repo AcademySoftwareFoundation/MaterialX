@@ -34,10 +34,7 @@ public:
         return _targets.size();
     }
 
-    void addTarget(const PvtObject* target)
-    {
-        _targets.push_back(target->hnd());
-    }
+    void addTarget(const PvtObject* target);
 
     void removeTarget(const PvtObject* target);
 
