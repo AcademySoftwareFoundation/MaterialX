@@ -74,27 +74,6 @@ class RtWriteOptions
     /// If the filter returns false the metadata will not be written.
     MetadataFilter metadataFilter;
 
-    /// Enum that specifies how to generate material elements.
-    ///
-    /// NONE: don't generate material elements or material nodes
-    ///
-    /// WRITE_MATERIALS_AS_ELEMENTS: writes out equivalent material
-    /// elements for the material nodes present in a MaterialX
-    /// document. If not set, writes out just the material nodes.
-    ///
-    /// CREATE_LOOKS: generate a look for the material elements (implies
-    ///               WRITE_LOOKS)
-    ///
-    /// WRITE_LOOKS: Write equivalent of RtReadOptions::readLookInformation
-    ///
-    /// TODO: Look into removing this once Material nodes are supported
-    enum MaterialWriteOp{ NONE                           = 0,
-                          WRITE_MATERIALS_AS_ELEMENTS    = 1 << 0,
-                          CREATE_LOOKS                   = 1 << 1,
-                          WRITE_LOOKS                    = 1 << 2 };
-
-    int materialWriteOp;
-
     /// The desired major version
     unsigned int desiredMajorVersion;
 

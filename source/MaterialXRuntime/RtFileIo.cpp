@@ -856,72 +856,6 @@ namespace
         return destNode;
     }
 
-    void writeMaterialElement(NodePtr mxNode, DocumentPtr doc, const RtWriteOptions* options)
-    {
-        string uniqueName = doc->createValidChildName(mxNode->getName() + "_Material");
-        string materialName = mxNode->getName();
-        mxNode->setName(uniqueName);
-
-        InputPtr materialNodeSurfaceShaderInput = mxNode->getInput(RtType::SURFACESHADER);
-        NodePtr surfaceShader = materialNodeSurfaceShaderInput->getConnectedNode();
-        if (surfaceShader)
-        {
-            MaterialPtr material = doc->addMaterial(materialName);
-            ShaderRefPtr shaderRef =
-                material->addShaderRef(surfaceShader->getName(), surfaceShader->getCategory());
-
-            for (InputPtr input : surfaceShader->getActiveInputs())
-            {
-                BindInputPtr bindInput = shaderRef->addBindInput(input->getName(), input->getType());
-                if (input->hasNodeGraphString() && doc->getNodeGraph(input->getNodeGraphString()))
-                {
-                    bindInput->setNodeGraphString(input->getNodeGraphString());
-                    if (input->hasOutputString())
-                    {
-                        bindInput->setOutputString(input->getOutputString());
-                    }
-                }
-                else if(input->hasNodeName())
-                {
-                    const auto outputName = std::string(OUTPUT_ELEMENT_PREFIX.c_str()) +
-                                            input->getNodeName() + "_out";
-                    if (!doc->getOutput(outputName)) {
-                        auto output = doc->addOutput(outputName, input->getType());
-                        output->setNodeName(input->getNodeName());
-                        auto srcNode = input->getConnectedNode();
-                        if (srcNode->getOutputs().size() > 1)
-                        {
-                            output->setOutputString(input->getOutputString());
-                        }
-                    }
-                    bindInput->setOutputString(outputName);
-                }
-                else
-                {
-                    bindInput->setValueString(input->getValueString());
-                }
-            }
-            for (ParameterPtr param : surfaceShader->getActiveParameters())
-            {
-                BindParamPtr bindParam = shaderRef->addBindParam(param->getName(), param->getType());
-                bindParam->setValueString(param->getValueString());
-            }
-
-            // Should we create a look for the material element?
-            if (options->materialWriteOp & RtWriteOptions::MaterialWriteOp::CREATE_LOOKS)
-            {
-                LookPtr look = doc->addLook();
-                MaterialAssignPtr materialAssign = look->addMaterialAssign();
-                materialAssign->setMaterial(materialName);
-                CollectionPtr collection = doc->addCollection();
-                collection->setIncludeGeom("/*");
-                materialAssign->setCollection(collection);
-            }
-        }
-
-        doc->removeChild(uniqueName);
-    }
-
     void writeNodeGraph(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
     {
         NodeGraphPtr destNodeGraph = dest->addNodeGraph(src->getName());
@@ -1156,14 +1090,7 @@ namespace
             }
             else if (typeName == RtNode::typeName())
             {
-                NodePtr mxNode = writeNode(prim, doc, options);
-                RtNode node(prim->hnd());
-                const RtOutput& output = node.getOutput(DEFAULT_OUTPUT);
-                if (output && output.getType() == MATERIAL_TYPE_STRING && options &&
-                    options->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE_MATERIALS_AS_ELEMENTS)
-                {
-                    materialElements.push_back(mxNode);
-                }
+                writeNode(prim, doc, options);
             }
             else if (typeName == RtNodeGraph::typeName())
             {
@@ -1183,18 +1110,9 @@ namespace
         }
 
         // Write the existing look information
-        if (!options || 
-            (options->materialWriteOp & RtWriteOptions::MaterialWriteOp::WRITE_LOOKS) ||
-            (options->materialWriteOp & RtWriteOptions::MaterialWriteOp::CREATE_LOOKS))
-        {
-            writeCollections(stage, *doc, options);
-            writeLooks(stage, *doc, options);
-            writeLookGroups(stage, *doc, options);
-        }
-
-        for (auto & mxNode: materialElements) {
-            writeMaterialElement(mxNode, doc, options);
-        }
+        writeCollections(stage, *doc, options);
+        writeLooks(stage, *doc, options);
+        writeLookGroups(stage, *doc, options);
     }
 
     void readUnitDefinitions(DocumentPtr doc)
@@ -1281,9 +1199,8 @@ RtWriteOptions::RtWriteOptions() :
     writeDefaultValues(false),
     objectFilter(nullptr),
     metadataFilter(nullptr),
-    materialWriteOp(NONE),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),
-    desiredMinorVersion(MATERIALX_MINOR_VERSION + 1)
+    desiredMinorVersion(MATERIALX_MINOR_VERSION)
 {
 }
 
