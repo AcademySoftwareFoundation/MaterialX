@@ -30,7 +30,7 @@ public:
 
     /// Set the kind for this generic prim,
     /// giving its custom typename.
-    void setKind(const RtToken& kind) const;
+    void setKind(const RtToken& kind);
 };
 
 }

@@ -14,6 +14,7 @@ namespace
 {
     static const RtToken KIND("kind");
     static const RtToken GENERIC1("generic1");
+    static const RtToken UNKNOWN("unknown");
 }
 
 DEFINE_TYPED_SCHEMA(RtGeneric, "generic");
@@ -37,12 +38,22 @@ RtPrim RtGeneric::createPrim(const RtToken& typeName, const RtToken& name, RtPri
 const RtToken& RtGeneric::getKind() const
 {
     RtTypedValue* v = prim()->getMetadata(KIND);
-    return v->getValue().asToken();
+    return v && v->getType() == RtType::TOKEN ? v->getValue().asToken() : UNKNOWN;
 }
 
-void RtGeneric::setKind(const RtToken& kind) const
+void RtGeneric::setKind(const RtToken& kind)
 {
-    RtTypedValue* v = prim()->getMetadata(KIND);
+    PvtPrim* p = prim();
+    RtTypedValue* v = p->getMetadata(KIND);
+    if (!v)
+    {
+        v = p->addMetadata(KIND, RtType::TOKEN);
+    }
+    else if (v->getType() != RtType::TOKEN)
+    {
+        p->removeMetadata(KIND);
+        v = p->addMetadata(KIND, RtType::TOKEN);
+    }
     v->getValue().asToken() = kind;
 }
 
