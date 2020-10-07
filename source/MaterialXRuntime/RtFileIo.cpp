@@ -33,7 +33,8 @@ namespace
     // Lists of known metadata which are handled explicitly by import/export.
     static const RtTokenSet nodedefMetadata     = { RtToken("name"), RtToken("type"), RtToken("node") };
     static const RtTokenSet attrMetadata        = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels") };
-    static const RtTokenSet inputMetadata       = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels"), RtToken("nodegraph") };
+    static const RtTokenSet inputMetadata       = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels"), 
+                                                    RtToken("nodegraph"), RtToken("interfacename") };
     static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node") };
     static const RtTokenSet nodegraphMetadata   = { RtToken("name") };
     static const RtTokenSet genericMetadata     = { RtToken("name"), RtToken("kind") };
