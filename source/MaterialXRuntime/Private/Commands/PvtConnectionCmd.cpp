@@ -42,15 +42,12 @@ void PvtConnectionCmd::makeConnection(RtCommandResult& result)
 {
     try
     {
-        // Validate the operation
+        // Validate the operation.
+        // Note: Connectability is validated inside the connect method below,
+        // so here we only need to check that the operands are valid.
         if (!(_src && _dest))
         {
             result = RtCommandResult(false, string("PvtConnectionCmd: Command operands are no longer valid"));
-            return;
-        }
-        if (!_src.isConnectable(_dest))
-        {
-            result = RtCommandResult(false, "Output '" + _src.getPath().asString() + "' is not connectable to input '" + _dest.getPath().asString() + "'");
             return;
         }
 

@@ -48,6 +48,24 @@ bool PvtOutput::isConnectable(const PvtInput* other) const
         // instead of strictly an exact match.
         return false;
     }
+    // If this is a nodegraph socket being connected to a uniform make sure
+    // the corresponding input on the outer nodegraph is also uniform.
+    // 
+    //  TODO: Enabled this check when the uniform flag has been implemented properly
+    /*
+    if (isSocket() && other->isUniform())
+    {
+        PvtPrim* graphPrim = _parent->getParent();
+        if (graphPrim)
+        {
+            PvtInput* graphInput = graphPrim->getInput(getName());
+            if (graphInput && !graphInput->isUniform())
+            {
+                return false;
+            }
+        }
+    }
+    */
     return true;
 }
 

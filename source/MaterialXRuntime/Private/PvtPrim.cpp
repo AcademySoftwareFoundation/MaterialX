@@ -148,6 +148,12 @@ PvtAttribute* PvtPrim::createAttribute(const RtToken& name, const RtToken& type,
 
 PvtInput* PvtPrim::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
+    // Inputs with type filename, token or string must always be uniform.
+    if (type == RtType::FILENAME || type == RtType::TOKEN || type == RtType::STRING)
+    {
+        flags |= RtAttrFlag::UNIFORM;
+    }
+
     RtToken uniqueName = makeUniqueChildName(name);
     PvtDataHandle attrH(new PvtInput(uniqueName, type, flags, this));
     _attrOrder.push_back(attrH);

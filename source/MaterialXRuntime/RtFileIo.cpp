@@ -158,7 +158,8 @@ namespace
             }
             else if (elem->isA<Input>())
             {
-                attr = schema.createInput(attrName, attrType);
+                const uint32_t flags = elem->asA<Input>()->getIsUniform() ? RtAttrFlag::UNIFORM : 0;
+                attr = schema.createInput(attrName, attrType, flags);
             }
             else
             {

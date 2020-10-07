@@ -105,6 +105,13 @@ public:
         return getPrim().getMetadata(name);
     }
 
+    /// Return metadata from the prim.
+    /// Shorthand for calling getPrim().getMetadata().
+    const RtTypedValue* getMetadata(const RtToken& name) const
+    {
+        return getPrim().getMetadata(name);
+    }
+
     // Accessors.
     PvtPrim* prim() const;
     PvtAttribute* attr(const RtToken& name) const;
