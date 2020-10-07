@@ -86,16 +86,13 @@ bool Element::operator!=(const Element& rhs) const
 
 void Element::setName(const string& name)
 {
-    DocumentPtr doc = getDocument();
     ElementPtr parent = getParent();
     if (parent && parent->_childMap.count(name) && name != getName())
     {
         throw Exception("Element name is not unique at the given scope: " + name);
     }
 
-    // Handle change notifications.
-    ScopedUpdate update(doc);
-    doc->onSetAttribute(getSelf(), NAME_ATTRIBUTE, name);
+    getDocument()->invalidateCache();
 
     if (parent)
     {
@@ -165,11 +162,7 @@ std::pair<int, int> Element::getVersionIntegers() const
 
 void Element::registerChildElement(ElementPtr child)
 {
-    DocumentPtr doc = getDocument();
-
-    // Handle change notifications.
-    ScopedUpdate update(doc);
-    doc->onAddElement(getSelf(), child);
+    getDocument()->invalidateCache();
 
     _childMap[child->getName()] = child;
     _childOrder.push_back(child);
@@ -177,11 +170,7 @@ void Element::registerChildElement(ElementPtr child)
 
 void Element::unregisterChildElement(ElementPtr child)
 {
-    DocumentPtr doc = getDocument();
-
-    // Handle change notifications.
-    ScopedUpdate update(doc);
-    doc->onRemoveElement(getSelf(), child);
+    getDocument()->invalidateCache();
 
     _childMap.erase(child->getName());
     _childOrder.erase(
@@ -230,11 +219,7 @@ void Element::removeChild(const string& name)
 
 void Element::setAttribute(const string& attrib, const string& value)
 {
-    DocumentPtr doc = getDocument();
-
-    // Handle change notifications.
-    ScopedUpdate update(doc);
-    doc->onSetAttribute(getSelf(), attrib, value);
+    getDocument()->invalidateCache();
 
     if (!_attributeMap.count(attrib))
     {
@@ -248,11 +233,7 @@ void Element::removeAttribute(const string& attrib)
     StringMap::iterator it = _attributeMap.find(attrib);
     if (it != _attributeMap.end())
     {
-        DocumentPtr doc = getDocument();
-
-        // Handle change notifications.
-        ScopedUpdate update(doc);
-        doc->onRemoveAttribute(getSelf(), attrib);
+        getDocument()->invalidateCache();
 
         _attributeMap.erase(it);
         _attributeOrder.erase(
@@ -381,11 +362,7 @@ InheritanceIterator Element::traverseInheritance() const
 
 void Element::copyContentFrom(const ConstElementPtr& source)
 {
-    DocumentPtr doc = getDocument();
-
-    // Handle change notifications.
-    ScopedUpdate update(doc);
-    doc->onCopyContent(getSelf());
+    getDocument()->invalidateCache();
 
     _sourceUri = source->_sourceUri;
     _attributeMap = source->_attributeMap;
@@ -410,21 +387,13 @@ void Element::copyContentFrom(const ConstElementPtr& source)
 
 void Element::clearContent()
 {
-    DocumentPtr doc = getDocument();
+    getDocument()->invalidateCache();
 
-    // Handle change notifications.
-    ScopedUpdate update(doc);
-    doc->onClearContent(getSelf());
-
-    _sourceUri = EMPTY_STRING;
+    _sourceUri.clear();
     _attributeMap.clear();
     _attributeOrder.clear();
-
-    vector<ElementPtr> children = getChildren();
-    for (ElementPtr child : children)
-    {
-        removeChild(child->getName());
-    }
+    _childMap.clear();
+    _childOrder.clear();
 }
 
 bool Element::validate(string* message) const
