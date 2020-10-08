@@ -10,19 +10,12 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/RtNode.h>
+#include <MaterialXRuntime/RtNodeDef.h>
 
 namespace MaterialX
 {
 
 class RtPrimIterator;
-
-/// @struct RtNodeLayout
-/// Container for node layout information.
-struct RtNodeLayout
-{
-    RtTokenVec order;
-    RtTokenMap<RtToken> uifolder;
-};
 
 /// @class RtNodeGraph
 /// Schema for nodegraph prims.

@@ -14,6 +14,14 @@
 namespace MaterialX
 {
 
+/// @struct RtNodeLayout
+/// Container for node layout information.
+struct RtNodeLayout
+{
+    RtTokenVec order;
+    RtTokenMap<RtToken> uifolder;
+};
+
 /// @class RtNodeDef
 /// Schema for nodedef prims.
 class RtNodeDef : public RtTypedSchema
@@ -107,6 +115,10 @@ public:
     /// Return an iterator traversing all output attributes.
     RtAttrIterator getOutputs() const;
 
+    /// Return a node layout struct for this nodedef.
+    /// Containing its input ordering and uifolder hierarchy.
+    RtNodeLayout getNodeLayout();
+
     /// Register this nodedef as a master prim
     /// to make it instantiable for node creation.
     void registerMasterPrim() const;
@@ -118,12 +130,14 @@ public:
     bool isMasterPrim() const;
 
     static RtToken NODE;
+    static RtToken NODEDEF;
     static RtToken NODEGROUP;
     static RtToken INHERIT;
     static RtToken TARGET;
     static RtToken VERSION;
     static RtToken IS_DEFAULT_VERSION;
     static RtToken NAMESPACE;
+    static RtToken UIFOLDER;
 };
 
 }

@@ -13,12 +13,14 @@ namespace MaterialX
 {
 
 RtToken RtNodeDef::NODE("node");
+RtToken RtNodeDef::NODEDEF("nodedef");
 RtToken RtNodeDef::NODEGROUP("nodegroup");
 RtToken RtNodeDef::INHERIT("inherit");
 RtToken RtNodeDef::TARGET("target");
 RtToken RtNodeDef::VERSION("version");
 RtToken RtNodeDef::IS_DEFAULT_VERSION("isdefaultversion");
 RtToken RtNodeDef::NAMESPACE("namespace");
+RtToken RtNodeDef::UIFOLDER("uifolder");
 
 DEFINE_TYPED_SCHEMA(RtNodeDef, "nodedef");
 
@@ -210,6 +212,21 @@ RtAttrIterator RtNodeDef::getOutputs() const
 {
     RtObjTypePredicate<RtOutput> filter;
     return RtAttrIterator(getPrim(), filter);
+}
+
+RtNodeLayout RtNodeDef::getNodeLayout()
+{
+    RtNodeLayout layout;
+    for (RtAttribute input : getInputs())
+    {
+        layout.order.push_back(input.getName());
+        RtTypedValue* data = input.getMetadata(UIFOLDER);
+        if (data && data->getType() == RtType::TOKEN)
+        {
+            layout.uifolder[input.getName()] = data->getValue().asToken();
+        }
+    }
+    return layout;
 }
 
 void RtNodeDef::registerMasterPrim() const

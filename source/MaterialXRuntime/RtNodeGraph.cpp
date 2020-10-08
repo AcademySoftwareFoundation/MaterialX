@@ -17,9 +17,6 @@ namespace
     static const RtTypeInfo SOCKETS_TYPE_INFO("_nodegraph_internal_sockets");
     static const RtToken SOCKETS("_nodegraph_internal_sockets");
     static const RtToken NODEGRAPH1("nodegraph1");
-    static const RtToken NODEDEF("nodedef");
-    static const RtToken VERSION("version");
-    static const RtToken UIFOLDER("uifolder");
 }
 
 DEFINE_TYPED_SCHEMA(RtNodeGraph, "node:nodegraph");
@@ -131,7 +128,7 @@ RtNodeLayout RtNodeGraph::getNodeLayout()
     for (RtAttribute input : getInputs())
     {
         layout.order.push_back(input.getName());
-        RtTypedValue* data = input.getMetadata(UIFOLDER);
+        RtTypedValue* data = input.getMetadata(RtNodeDef::RtNodeDef::UIFOLDER);
         if (data && data->getType() == RtType::TOKEN)
         {
             layout.uifolder[input.getName()] = data->getValue().asToken();
@@ -185,21 +182,21 @@ void RtNodeGraph::setNodeLayout(const RtNodeLayout& layout)
         auto it = layout.uifolder.find(input.getName());
         if (it != layout.uifolder.end() && it->second != EMPTY_TOKEN)
         {
-            RtTypedValue* data = input.getMetadata(UIFOLDER);
+            RtTypedValue* data = input.getMetadata(RtNodeDef::UIFOLDER);
             if (!data)
             {
-                data = input.addMetadata(UIFOLDER, RtType::TOKEN);
+                data = input.addMetadata(RtNodeDef::UIFOLDER, RtType::TOKEN);
             }
             else if (data->getType() != RtType::TOKEN)
             {
-                input.removeMetadata(UIFOLDER);
-                data = input.addMetadata(UIFOLDER, RtType::TOKEN);
+                input.removeMetadata(RtNodeDef::UIFOLDER);
+                data = input.addMetadata(RtNodeDef::UIFOLDER, RtType::TOKEN);
             }
             data->getValue().asToken() = it->second;
         }
         else
         {
-            input.removeMetadata(UIFOLDER);
+            input.removeMetadata(RtNodeDef::UIFOLDER);
         }
     }
 
@@ -219,25 +216,25 @@ RtPrimIterator RtNodeGraph::getNodes() const
 
 const RtToken& RtNodeGraph::getVersion() const
 {
-    RtTypedValue* v = prim()->getMetadata(VERSION);
+    RtTypedValue* v = prim()->getMetadata(RtNodeDef::VERSION);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeGraph::setVersion(const RtToken& value)
 {
-    RtTypedValue* v = prim()->addMetadata(VERSION, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(RtNodeDef::VERSION, RtType::TOKEN);
     v->getValue().asToken() = value;
 }
 
 const RtToken& RtNodeGraph::getDefinition() const
 {
-    RtTypedValue* v = prim()->getMetadata(NODEDEF);
+    RtTypedValue* v = prim()->getMetadata(RtNodeDef::NODEDEF);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeGraph::setDefinition(const RtToken& value)
 {
-    RtTypedValue* v = prim()->addMetadata(NODEDEF, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(RtNodeDef::NODEDEF, RtType::TOKEN);
     v->getValue().asToken() = value;
 }
 
