@@ -54,19 +54,17 @@ void PvtRemovePrimCmd::execute(RtCommandResult& result)
             }
         }
 
-        // Send message that the prim is about to be removed.
-        msg().sendRemovePrimMessage(_stage, _prim);
-
         // Execute all the break connection commands.
         PvtCommandList::execute(result);
 
-        // Dispose the prim.
         if (result.success())
         {
+            // Send message that the prim is about to be removed.
+            msg().sendRemovePrimMessage(_stage, _prim);
+
+            // Dispose the prim.
             _stage->disposePrim(_path);
         }
-
-        result = RtCommandResult(true);
     }
     catch (const ExceptionRuntimeError& e)
     {
@@ -83,12 +81,12 @@ void PvtRemovePrimCmd::undo(RtCommandResult& result)
         parentPath.pop();
         _stage->restorePrim(parentPath, _prim);
 
+        // Send message that the prim has been created/restored.
+        msg().sendCreatePrimMessage(_stage, _prim);
+
         // Undo all the break connection commands.
         PvtCommandList::undo(result);
         clearCommands();
-
-        // Send message that the prim has been created/restored.
-        msg().sendCreatePrimMessage(_stage, _prim);
 
         result = RtCommandResult(true);
     }

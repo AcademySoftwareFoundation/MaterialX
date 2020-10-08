@@ -36,6 +36,9 @@ public:
     /// Construct from a data handle.
     RtPrim(PvtDataHandle hnd);
 
+    /// Construct from an object.
+    RtPrim(RtObject obj);
+
     /// Return the typeinfo for this prim.
     const RtTypeInfo* getTypeInfo() const;
 

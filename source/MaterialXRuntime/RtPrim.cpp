@@ -19,6 +19,11 @@ RtPrim::RtPrim(PvtDataHandle hnd) :
 {
 }
 
+RtPrim::RtPrim(RtObject obj) :
+    RtObject(obj)
+{
+}
+
 const RtTypeInfo* RtPrim::getTypeInfo() const
 {
     return hnd()->asA<PvtPrim>()->getTypeInfo();

@@ -26,6 +26,10 @@ void PvtCommandList::clearCommands()
 
 void PvtCommandList::execute(RtCommandResult& result)
 {
+    // Initialize to success in case the list is empty.
+    result = RtCommandResult(true);
+
+    // Execute all commands.
     for (PvtCommandPtr cmd : _commands)
     {
         cmd->execute(result);
@@ -38,6 +42,10 @@ void PvtCommandList::execute(RtCommandResult& result)
 
 void PvtCommandList::undo(RtCommandResult& result)
 {
+    // Initialize to success in case the list is empty.
+    result = RtCommandResult(true);
+
+    // Undo all commands.
     for (PvtCommandPtr cmd : _commands)
     {
         cmd->undo(result);
@@ -50,6 +58,10 @@ void PvtCommandList::undo(RtCommandResult& result)
 
 void PvtCommandList::redo(RtCommandResult& result)
 {
+    // Initialize to success in case the list is empty.
+    result = RtCommandResult(true);
+
+    // Redo all commands.
     for (PvtCommandPtr cmd : _commands)
     {
         cmd->redo(result);

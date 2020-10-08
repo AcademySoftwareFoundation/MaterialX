@@ -2179,6 +2179,15 @@ TEST_CASE("Runtime: Commands", "[runtime]")
 
     REQUIRE(connectionChangeCount == 4);
 
+    // Test deleting a prim without connections
+    mx::RtCommand::createPrim(stage, mx::RtGeneric::typeName(), result);
+    REQUIRE(result);
+    mx::RtPrim blob(result.getObject());
+    result = mx::RtCommandResult(false);
+    mx::RtCommand::removePrim(stage, blob.getPath(), result);
+    REQUIRE(result);
+    REQUIRE(!blob.isValid());
+
     //
     // Test node reparenting
     //
