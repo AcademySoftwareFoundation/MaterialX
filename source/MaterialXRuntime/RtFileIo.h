@@ -79,6 +79,9 @@ class RtWriteOptions
 
     /// The desired minor version
     unsigned int desiredMinorVersion;
+
+    /// Write uniforms as parameters
+    bool writeUniformsAsParameters;
 };
 
 /// API for read and write of data from MaterialX files
@@ -124,7 +127,7 @@ public:
 protected:
     /// Read all contents from one or more libraries.
     /// All MaterialX files found inside the given libraries will be read.
-    void readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths);
+    void readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths, const RtReadOptions& options);
     friend class PvtApi;
 
 private:

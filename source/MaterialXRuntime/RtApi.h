@@ -13,6 +13,7 @@
 #include <MaterialXRuntime/RtLogger.h>
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtTypeDef.h>
+#include <MaterialXRuntime/RtFileIo.h>
 
 #include <MaterialXFormat/File.h>
 
@@ -121,7 +122,7 @@ public:
     void createLibrary(const RtToken& name);
 
     /// Load a library.
-    void loadLibrary(const RtToken& name);
+    void loadLibrary(const RtToken& name, const RtReadOptions& options);
 
     /// Unload a library.
     void unloadLibrary(const RtToken& name);

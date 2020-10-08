@@ -94,9 +94,11 @@ TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
     mx::RtScopedApiHandle api;
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
-    api->loadLibrary(BXDFLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
+    api->loadLibrary(PBRLIB, options);
+    api->loadLibrary(BXDFLIB, options);
     mx::FileSearchPath testSearchPath(mx::FilePath::getCurrentPath() /
         "resources" /
         "Materials" /
@@ -105,8 +107,6 @@ TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
         "upgrade" );
     mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
     mx::RtFileIo fileIo(defaultStage);
-    mx::RtReadOptions options;
-    options.applyFutureUpdates = true;
     fileIo.read("material_element_to_surface_material.mtlx", testSearchPath, &options);
     mx::RtPrim mixNodeGraphPrim = defaultStage->getPrimAtPath("NG_aiMixColor31");
     REQUIRE(mixNodeGraphPrim);
@@ -964,7 +964,9 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
 
         // Load in stdlib
         api->setSearchPath(searchPath);
-        api->loadLibrary(STDLIB);
+        mx::RtReadOptions readOptions;
+        readOptions.applyFutureUpdates = true;
+        api->loadLibrary(STDLIB, readOptions);
 
         // Create a stage.
         mx::RtStagePtr stage = api->createStage(MAIN);
@@ -1012,7 +1014,9 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
 
         // Load in stdlib
         api->setSearchPath(searchPath);
-        api->loadLibrary(STDLIB);
+        mx::RtReadOptions options;
+        options.applyFutureUpdates = true;
+        api->loadLibrary(STDLIB, options);
 
         // Create a new working space stage
         mx::RtStagePtr stage = api->createStage(MAIN);
@@ -1064,9 +1068,11 @@ TEST_CASE("Runtime: DefaultLook", "[runtime]")
 
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
-    api->loadLibrary(BXDFLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
+    api->loadLibrary(PBRLIB, options);
+    api->loadLibrary(BXDFLIB, options);
 
     mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
     defaultStage->addReference(api->getLibrary());
@@ -1094,10 +1100,12 @@ TEST_CASE("Runtime: Namespaced definitions", "[runtime]")
         searchPath.append(childFolder);
     }
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
-    api->loadLibrary(BXDFLIB);
-    api->loadLibrary(ADSKLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
+    api->loadLibrary(PBRLIB, options);
+    api->loadLibrary(BXDFLIB, options);
+    api->loadLibrary(ADSKLIB, options);
 
     mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
     defaultStage->addReference(api->getLibrary());
@@ -1119,9 +1127,11 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
 
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
-    api->loadLibrary(BXDFLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
+    api->loadLibrary(PBRLIB, options);
+    api->loadLibrary(BXDFLIB, options);
 
     mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
     defaultStage->addReference(api->getLibrary());
@@ -1203,7 +1213,9 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     // Load in stdlib
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
+    mx::RtReadOptions readOptions;
+    readOptions.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, readOptions);
 
     // Create a main stage
     mx::RtStagePtr stage = api->createStage(MAIN);
@@ -1264,7 +1276,9 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     // Load in stdlib
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
 
     // Create a main stage
     mx::RtStagePtr stage = api->createStage(MAIN);
@@ -1305,9 +1319,11 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
 
     // Load in stdlib
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::RtReadOptions readOptions;
+    readOptions.applyFutureUpdates = true;
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
+    api->loadLibrary(STDLIB, readOptions);
+    api->loadLibrary(PBRLIB, readOptions);
 
     // Create a main stage
     mx::RtStagePtr stage = api->createStage(MAIN);
@@ -1352,9 +1368,12 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
 
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+
     // Load in the standard libraries.
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
+    api->loadLibrary(STDLIB, options);
+    api->loadLibrary(PBRLIB, options);
 
     // Count elements traversing the loaded libraries.
     size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
@@ -1512,8 +1531,10 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     // Load in library so we can create a material
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
+    mx::RtReadOptions libReadOptions;
+    libReadOptions.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, libReadOptions);
+    api->loadLibrary(PBRLIB, libReadOptions);
     const mx::RtToken matDef("ND_surfacematerial");
     mx::RtPrim sm1 = stage->createPrim(mx::RtPath("/surfacematerial1"), matDef);
     assign1.getMaterial().addTarget(sm1);
@@ -1804,9 +1825,11 @@ TEST_CASE("Runtime: libraries", "[runtime]")
     // Load in all libraries required for materials
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
-    api->loadLibrary(BXDFLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
+    api->loadLibrary(PBRLIB, options);
+    api->loadLibrary(BXDFLIB, options);
 
     // Set and test search paths
     api->clearSearchPath();
@@ -1832,12 +1855,14 @@ TEST_CASE("Runtime: units", "[runtime]")
     // Load in all libraries required for materials
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
     // Load in stdlib twice on purpose to ensure no exception is thrown when trying to add a duplicate unit 
     // definition 
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
-    api->loadLibrary(BXDFLIB);
+    api->loadLibrary(STDLIB, options);
+    api->loadLibrary(PBRLIB, options);
+    api->loadLibrary(BXDFLIB, options);
 
     // Read in test document with units
     mx::FileSearchPath testSearchPath(mx::FilePath::getCurrentPath() /
@@ -1851,8 +1876,6 @@ TEST_CASE("Runtime: units", "[runtime]")
                          "standard_surface_unit.mtlx",
                          "texture_units.mtlx",
                          "tiledimage_unit.mtlx" };
-    mx::RtReadOptions options;
-    options.applyFutureUpdates = true;
     for (auto test : tests)
     {
         mx::RtStagePtr stage = api->createStage(mx::RtToken("stage: " + test));
@@ -1901,7 +1924,9 @@ TEST_CASE("Runtime: Commands", "[runtime]")
 
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
 
     mx::RtStagePtr stage = api->createStage(MAIN);
 
@@ -2305,9 +2330,11 @@ TEST_CASE("Runtime: graph output connection", "[runtime]")
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() /
                                   mx::FilePath("libraries"));
     api->setSearchPath(searchPath);
-    api->loadLibrary(STDLIB);
-    api->loadLibrary(PBRLIB);
-    api->loadLibrary(BXDFLIB);
+    mx::RtReadOptions options;
+    options.applyFutureUpdates = true;
+    api->loadLibrary(STDLIB, options);
+    api->loadLibrary(PBRLIB, options);
+    api->loadLibrary(BXDFLIB, options);
 
     const std::string mtlxDoc =
         "<?xml version=\"1.0\"?>\n"
@@ -2321,8 +2348,6 @@ TEST_CASE("Runtime: graph output connection", "[runtime]")
         "</materialx>";
     mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));
     mx::RtFileIo   fileIo(defaultStage);
-    mx::RtReadOptions options;
-    options.applyFutureUpdates = true;
     std::stringstream ss;
     ss << mtlxDoc;
     REQUIRE_NOTHROW(fileIo.read(ss, &options));

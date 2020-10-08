@@ -171,9 +171,9 @@ void RtApi::createLibrary(const RtToken& name)
     _cast(_ptr)->createLibrary(name);
 }
 
-void RtApi::loadLibrary(const RtToken& name)
+void RtApi::loadLibrary(const RtToken& name, const RtReadOptions& options)
 {
-    _cast(_ptr)->loadLibrary(name);
+    _cast(_ptr)->loadLibrary(name, options);
 }
 
 void RtApi::unloadLibrary(const RtToken& name)

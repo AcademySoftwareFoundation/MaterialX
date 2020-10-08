@@ -983,7 +983,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     }
 
     // Upgrade from 1.37 to 1.38
-    if (majorVersion == 1 && (minorVersion == 37 || applyFutureUpdates))
+    if (majorVersion == 1 && minorVersion == 37)
     {
         convertMaterialsToNodes(asA<Document>());
 
@@ -1101,8 +1101,14 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     node->setName(newNodeName);
                 }
             }
-        }   
+        }       
 
+        // While we are in the process of supporting 1.38. Leave files as 1.37
+        minorVersion = 37;
+    }
+
+    if (applyFutureUpdates)
+    {
         // Convert all parameters to be inputs. If needed set them to be "uniform".
         const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
         const string PARAMETER_CATEGORY_STRING("parameter");
@@ -1132,9 +1138,6 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                 }
             }
         }
-
-        // While we are in the process of supporting 1.38. Leave files as 1.37
-        minorVersion = 37;
     }
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&

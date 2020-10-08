@@ -44,7 +44,7 @@ void PvtApi::createLibrary(const RtToken& name)
     _libraryRoot->addReference(lib);
 }
 
-void PvtApi::loadLibrary(const RtToken& name)
+void PvtApi::loadLibrary(const RtToken& name, const RtReadOptions& options)
 {
     // If already loaded unload the old first,
     // to support reloading of updated libraries.
@@ -57,7 +57,7 @@ void PvtApi::loadLibrary(const RtToken& name)
     _libraries[name] = lib;
 
     RtFileIo file(lib);
-    file.readLibraries({ name.str() }, _searchPaths);
+    file.readLibraries({ name.str() }, _searchPaths, options);
 
     _libraryRoot->addReference(lib);
 }

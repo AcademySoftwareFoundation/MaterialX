@@ -169,7 +169,7 @@ public:
 
     void createLibrary(const RtToken& name);
 
-    void loadLibrary(const RtToken& name);
+    void loadLibrary(const RtToken& name, const RtReadOptions& options);
 
     void unloadLibrary(const RtToken& name);
 

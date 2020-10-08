@@ -84,7 +84,9 @@ describe('Code Examples', () => {
 
         // Read a document from disk.
         const doc = mx.createDocument();
-        mx.readFromXmlString(doc, xmlStr);
+        const readOptions = new mx.XmlReadOptions();
+        readOptions.applyFutureUpdates = true;
+        mx.readFromXmlString(doc, xmlStr, readOptions);
 
         // Traverse the document tree in depth-first order.
         const elements = doc.traverseTree();

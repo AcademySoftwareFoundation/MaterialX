@@ -725,6 +725,7 @@ namespace
         NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName(), EMPTY_STRING, nodedef.getNode());
         writeMetadata(src, destNodeDef, nodedefMetadata, options);
 
+        bool writeUniformsAsParameters = options ? options->writeUniformsAsParameters : false;
         for (const PvtDataHandle attrH : src->getAllAttributes())
         {
             const PvtAttribute* attr = attrH->asA<PvtAttribute>();
@@ -735,7 +736,15 @@ namespace
                 const PvtInput* input = attr->asA<PvtInput>();
                 if (input->isUniform())
                 {
-                    destPort = destNodeDef->addInput(attr->getName(), attr->getType().str());
+                    if (writeUniformsAsParameters)
+                    {
+                        destPort = destNodeDef->addParameter(attr->getName(), attr->getType().str());
+                    }
+                    else
+                    {
+                        destPort = destNodeDef->addInput(attr->getName(), attr->getType().str());
+                        destPort->setIsUniform(true);
+                    }
                 }
                 else
                 {
@@ -772,6 +781,7 @@ namespace
         }
 
         bool writeDefaultValues = options ? options->writeDefaultValues : false;
+        bool writeUniformsAsParameters = options ? options->writeUniformsAsParameters : false;
 
         NodePtr destNode = dest->addNode(nodedef.getNamespacedNode(), node.getName(), numOutputs > 1 ? "multioutput" : outputType);
 
@@ -788,7 +798,15 @@ namespace
                     ValueElementPtr valueElem;
                     if (input.isUniform())
                     {
-                        valueElem = destNode->addInput(input.getName(), input.getType());
+                        if (writeUniformsAsParameters)
+                        {
+                            valueElem = destNode->addParameter(input.getName(), input.getType());
+                        }
+                        else
+                        {
+                            valueElem = destNode->addInput(input.getName(), input.getType());
+                            valueElem->setIsUniform(true);
+                        }
                         if (input.isConnected())
                         {
                             RtOutput source = input.getConnection();
@@ -867,6 +885,8 @@ namespace
 
         if (!options || options->writeNodeGraphInputs)
         {
+            bool writeUniformsAsParameters = options ? options->writeUniformsAsParameters : false;
+
             // Write inputs/parameters.
             RtObjTypePredicate<RtInput> inputsFilter;
             for (RtAttribute attr : src->getAttributes(inputsFilter))
@@ -875,7 +895,15 @@ namespace
                 ValueElementPtr v = nullptr;
                 if (nodegraphInput.isUniform())
                 {
-                    v = destNodeGraph->addInput(nodegraphInput.getName(), nodegraphInput.getType());
+                    if (writeUniformsAsParameters)
+                    {
+                        v = destNodeGraph->addParameter(nodegraphInput.getName(), nodegraphInput.getType());
+                    }
+                    else
+                    {
+                        v = destNodeGraph->addInput(nodegraphInput.getName(), nodegraphInput.getType());
+                        v->setIsUniform(true);
+                    }
                 }
                 else
                 {
@@ -1202,7 +1230,8 @@ RtWriteOptions::RtWriteOptions() :
     objectFilter(nullptr),
     metadataFilter(nullptr),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),
-    desiredMinorVersion(MATERIALX_MINOR_VERSION)
+    desiredMinorVersion(MATERIALX_MINOR_VERSION),
+    writeUniformsAsParameters(false)
 {
 }
 
@@ -1248,13 +1277,15 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* options)
     }
 }
 
-void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths)
+void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths, const RtReadOptions& options)
 {
     PvtStage* stage = PvtStage::ptr(_stage);
 
     // Load all content into a document.
     DocumentPtr doc = createDocument();
-    MaterialX::loadLibraries(libraryPaths, searchPaths, doc);
+    MaterialX::XmlReadOptions readOptions;
+    readOptions.applyFutureUpdates = options.applyFutureUpdates;
+    MaterialX::loadLibraries(libraryPaths, searchPaths, doc, MaterialX::StringSet(), &readOptions);
 
     StringSet uris = doc->getReferencedSourceUris();
     for (const string& uri : uris)
