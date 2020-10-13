@@ -124,7 +124,11 @@ void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& con
             if (connectsToNormalMapNode(output))
             {
                 NodePtr normalMapNode = output->getParent()->getChild(output->getNodeName())->asA<Node>();
-                output->setNodeName(normalMapNode->getInput("in")->getNodeName());
+                InputPtr nodeInput = normalMapNode->getInput("in");
+                if (nodeInput)
+                {
+                    output->setNodeName(nodeInput->getNodeName());
+                }
                 _worldSpaceShaderInputs.insert(bindInput->getName());
             }
             FilePath filename = FilePath(outputFolder / generateTextureFilename(output, _shaderRef->getName(), udim));
