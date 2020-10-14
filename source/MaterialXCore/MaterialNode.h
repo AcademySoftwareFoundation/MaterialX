@@ -20,6 +20,11 @@
 namespace MaterialX
 {
 
+/// Convert usage of Material Elements to Material nodes
+/// @param doc Document to convert
+/// @return If any conversion occurred.
+bool convertMaterialsToNodes(DocumentPtr doc);
+
 /// Return a vector of all nodes connected to a Material node's inputs. The default behavior
 /// is to return connected surface shader nodes.
 /// @param materialNode Node to examine.

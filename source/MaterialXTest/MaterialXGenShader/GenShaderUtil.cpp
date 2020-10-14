@@ -996,6 +996,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
         mx::XmlReadOptions readOptions;
+        readOptions.applyFutureUpdates = true;
         MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath(), &readOptions);
 
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);

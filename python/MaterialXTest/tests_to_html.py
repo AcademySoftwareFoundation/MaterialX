@@ -14,6 +14,11 @@ try:
 except Exception:
     DIFF_ENABLED = False
 
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
+
 def createDiff(image1Path, image2Path, imageDiffPath):
     try:
         image1 = Image.open(image1Path).convert('RGB')
@@ -63,10 +68,10 @@ def main(args=None):
             print ("Number of glsl files " + str(len(glslFiles)) + " does not match number of osl files " +  str(len(oslFiles)) + " in dir: " + subdir)
             print ("GLSL list: " + str(glslFiles))
             print ("OSL files: " + str(oslFiles))
-        if len(glslFiles) > 0 or len(oslFiles) > 0:
+        if len(glslFiles) > 0 and len(oslFiles) > 0:
             fh.write("<h2>" + subdir + ":</h2><br>\n")
             fh.write("<table>\n")
-            for glslFile, oslFile in itertools.zip_longest(glslFiles, oslFiles):
+            for glslFile, oslFile in zip_longest(glslFiles, oslFiles):
                 fullGlslPath = os.path.join(subdir, glslFile) if glslFile else None
                 fullOslPath = os.path.join(subdir, oslFile) if glslFile else None
                 if glslFile and oslFile and DIFF_ENABLED and args.CREATE_DIFF:
@@ -75,20 +80,20 @@ def main(args=None):
                 else:
                     diffPath = None
                 fh.write("    <tr>\n")
-                if glslFile:
+                if fullGlslPath:
                     fh.write("        <td class='td_image'><img src='" + fullGlslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
-                if oslFile:
+                if fullOslPath:
                     fh.write("        <td class='td_image'><img src='" + fullOslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
                 if diffPath:
                     fh.write("        <td class='td_image'><img src='" + diffPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
                 fh.write("    </tr>\n")
                 fh.write("    <tr>\n")
-                if glslFile:
+                if fullGlslPath:
                     if args.ENABLE_TIMESTAMPS:
                         fh.write("        <td align='center'><p>" + glslFile + "</p>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullGlslPath))) + ")</td>\n")
                     else:
                         fh.write("        <td align='center'>" + glslFile + "</td>\n")
-                if oslFile:
+                if fullOslPath:
                     if args.ENABLE_TIMESTAMPS:
                         fh.write("        <td align='center'><p>" + oslFile + "</p>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullOslPath))) + ")</td>\n")
                     else:

@@ -77,6 +77,7 @@ void bindPyMaterial(py::module& mod)
         .def("getReferencedOutputs", &mx::ShaderRef::getReferencedOutputs)
         .def_readonly_static("CATEGORY", &mx::ShaderRef::CATEGORY);
 
+    mod.def("convertMaterialsToNodes", &mx::convertMaterialsToNodes);
     mod.def("getShaderNodes", &mx::getShaderNodes);
     mod.def("getGeometryBindings", &mx::getGeometryBindings);
 

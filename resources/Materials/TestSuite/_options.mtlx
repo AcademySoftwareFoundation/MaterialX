@@ -99,11 +99,11 @@
       <parameter name="applyFutureUpdates" type="boolean" value="true" />
       
       <!-- Wedge rendering options -->
-      <parameter name="wedgeFiles" type="string" value="conductor.mtlx" />
-      <parameter name="wedgeParameters" type="string" value="test_conductor/roughness1/roughness" />
-      <parameter name="wedgeRangeMin" type="floatarray" value="0.0" />
-      <parameter name="wedgeRangeMax" type="floatarray" value="1.0" />
-      <parameter name="wedgeSteps" type="integerarray" value="8" />
+      <parameter name="wedgeFiles" type="string" value="wedge_conductor.mtlx,wedge_conductor.mtlx" />
+      <parameter name="wedgeParameters" type="string" value="test_conductor/roughness1/roughness,test_conductor/roughness1/anisotropy" />
+      <parameter name="wedgeRangeMin" type="floatarray" value="0.0, 0.3" />
+      <parameter name="wedgeRangeMax" type="floatarray" value="1.0, 0.9" />
+      <parameter name="wedgeSteps" type="integerarray" value="4, 3" />
 
    </nodedef>
 </materialx>
