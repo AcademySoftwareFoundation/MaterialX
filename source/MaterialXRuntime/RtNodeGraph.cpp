@@ -199,7 +199,6 @@ void RtNodeGraph::setNodeLayout(const RtNodeLayout& layout)
             input.removeMetadata(RtNodeDef::UIFOLDER);
         }
     }
-
 }
 
 RtPrim RtNodeGraph::getNode(const RtToken& name) const
