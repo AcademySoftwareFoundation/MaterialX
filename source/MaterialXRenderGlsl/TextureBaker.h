@@ -105,6 +105,7 @@ class TextureBaker : public GlslRenderer
     };
     using BakedImageVec = vector<BakedImage>;
     using BakedImageMap = std::unordered_map<OutputPtr, BakedImageVec>;
+    using BakedConstantMap = std::unordered_map<OutputPtr, Color4>;
 
   protected:
     string _extension;
@@ -114,8 +115,8 @@ class TextureBaker : public GlslRenderer
     ShaderGeneratorPtr _generator;
     ConstShaderRefPtr _shaderRef;
     StringSet _worldSpaceShaderInputs;
-    std::set<OutputPtr> _constantOutputs;
     BakedImageMap _bakedImageMap;
+    BakedConstantMap _bakedConstantMap;
 };
 
 } // namespace MaterialX
