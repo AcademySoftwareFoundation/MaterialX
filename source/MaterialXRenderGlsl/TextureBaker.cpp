@@ -54,26 +54,27 @@ StringVec getRenderablePaths(ConstDocumentPtr doc)
         renderablePaths.push_back(renderableElem->getNamePath());
     }
     return renderablePaths;
-} 
+}
 
-void setValueStringFromColor(ValueElementPtr elem, const Color4& color)
+string getValueStringFromColor(const Color4& color, const string& type)
 {
-    if (elem->getType() == "color4" || elem->getType() == "vector4")
+    if (type == "color4" || type == "vector4")
     {
-        elem->setValueString(toValueString(color));
+        return toValueString(color);
     }
-    else if (elem->getType() == "color3" || elem->getType() == "vector3")
+    if (type == "color3" || type == "vector3")
     {
-        elem->setValueString(toValueString(Vector3(color[0], color[1], color[2])));
+        return toValueString(Vector3(color[0], color[1], color[2]));
     }
-    else if (elem->getType() == "color2" || elem->getType() == "vector2")
+    if (type == "color2" || type == "vector2")
     {
-        elem->setValueString(toValueString(Vector2(color[0], color[1])));
+        return toValueString(Vector2(color[0], color[1]));
     }
-    else if (elem->getType() == "float")
+    if (type == "float")
     {
-        elem->setValue(color[0]);
+        return toValueString(color[0]);
     }
+    return EMPTY_STRING;
 }
 
 } // anonymous namespace
@@ -85,12 +86,20 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
 {
     if (baseType == Image::BaseType::UINT8)
     {
+#if MATERIALX_BUILD_OIIO
+        _extension = ImageLoader::TIFF_EXTENSION;
+#else
         _extension = ImageLoader::PNG_EXTENSION;
+#endif
         _colorSpace = SRGB_TEXTURE;
     }
     else
     {
+#if MATERIALX_BUILD_OIIO
+        _extension = ImageLoader::EXR_EXTENSION;
+#else
         _extension = ImageLoader::HDR_EXTENSION;
+#endif
         _colorSpace = LIN_REC709;
     }
     initialize();
@@ -180,11 +189,8 @@ void TextureBaker::optimizeBakedTextures()
             }
             if (outputIsUniform)
             {
-                if (_optimizeConstants)
-                {
-                    _constantOutputs.insert(pair.first);
-                }
-                else
+                _bakedConstantMap[pair.first] = pair.second[0].uniformColor;
+                if (!_optimizeConstants)
                 {
                     for (BakedImage& baked : pair.second)
                     {
@@ -202,9 +208,11 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
     {
         return;
     }
+    NodeDefPtr shaderNodeDef = _shaderRef->getNodeDef();
 
     // Create document.
     DocumentPtr bakedTextureDoc = createDocument();
+    bakedTextureDoc->setColorSpace(_colorSpace);
 
     // Create top-level elements.
     NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph("NG_baked");
@@ -215,28 +223,39 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
     }
     MaterialPtr bakedMaterial = bakedTextureDoc->addMaterial("M_baked");
     ShaderRefPtr bakedShaderRef = bakedMaterial->addShaderRef(_shaderRef->getName() + "_baked", _shaderRef->getAttribute("node"));
-    bakedNodeGraph->setColorSpace(_colorSpace);
 
     // Create bind elements on the baked shader reference.
     for (ValueElementPtr valueElem : _shaderRef->getChildrenOfType<ValueElement>())
     {
         BindInputPtr bindInput = valueElem->asA<BindInput>();
-        if (bindInput && bindInput->getConnectedOutput())
+        OutputPtr output = bindInput ? bindInput->getConnectedOutput() : nullptr;
+        if (output)
         {
-            OutputPtr output = bindInput->getConnectedOutput();
+            // Check for a constant default value.
+            if (_bakedConstantMap.count(output) && shaderNodeDef)
+            {
+                InputPtr input = shaderNodeDef->getActiveInput(bindInput->getName());
+                if (input)
+                {
+                    Color4 uniformColor = _bakedConstantMap[output];
+                    string uniformColorString = getValueStringFromColor(uniformColor, input->getType());
+                    if (uniformColorString == input->getValueString())
+                    {
+                        _bakedImageMap.erase(output);
+                        continue;
+                    }
+                }
+            }
 
             // Create the baked bindinput.
             BindInputPtr bakedBindInput = bakedShaderRef->addBindInput(bindInput->getName(), bindInput->getType());
 
             // Store a constant value for uniform outputs.
-            if (_constantOutputs.count(output))
+            if (_optimizeConstants && _bakedConstantMap.count(output))
             {
-                Color4 uniformColor = _bakedImageMap[output][0].uniformColor;
-                setValueStringFromColor(bakedBindInput, uniformColor);
-                if (bakedBindInput->getType() == "color4" || bakedBindInput->getType() == "color3")
-                {
-                    bakedBindInput->setColorSpace(_colorSpace);
-                }
+                Color4 uniformColor = _bakedConstantMap[output];
+                string uniformColorString = getValueStringFromColor(uniformColor, bakedBindInput->getType());
+                bakedBindInput->setValueString(uniformColorString);
                 continue;
             }
 
@@ -269,7 +288,7 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
     // Write referenced baked images.
     for (const auto& pair : _bakedImageMap)
     {
-        if (_constantOutputs.count(pair.first))
+        if (_optimizeConstants && _bakedConstantMap.count(pair.first))
         {
             continue;
         }
