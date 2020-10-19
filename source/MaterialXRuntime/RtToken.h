@@ -69,20 +69,6 @@ public:
         return *this;
     }
 
-    /// Assignment operator from std::string.
-    const RtToken& operator=(const string& other)
-    {
-        assign(RtToken(other));
-        return *this;
-    }
-
-    /// Assignment operator from raw string.
-    const RtToken& operator=(const char* other)
-    {
-        assign(RtToken(other));
-        return *this;
-    }
-
     /// Equality operator
     /// Fast compare of the token pointers.
     bool operator==(const RtToken& other) const

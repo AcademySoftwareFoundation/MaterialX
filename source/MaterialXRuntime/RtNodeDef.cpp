@@ -221,9 +221,9 @@ RtNodeLayout RtNodeDef::getNodeLayout()
     {
         layout.order.push_back(input.getName());
         RtTypedValue* data = input.getMetadata(UIFOLDER);
-        if (data && data->getType() == RtType::TOKEN)
+        if (data && data->getType() == RtType::STRING)
         {
-            layout.uifolder[input.getName()] = data->getValue().asToken();
+            layout.uifolder[input.getName()] = data->getValue().asString();
         }
     }
     return layout;

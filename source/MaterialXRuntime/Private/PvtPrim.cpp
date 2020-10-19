@@ -245,7 +245,7 @@ RtToken PvtPrim::makeUniqueChildName(const RtToken& name) const
         }
         // Iterate until there is no other child with the resulting name.
         do {
-            newName = baseName + std::to_string(i++);
+            newName = RtToken(baseName + std::to_string(i++));
             otherChild = getChild(newName);
 	    otherAttr = getAttribute(newName);
         } while (otherChild || otherAttr);

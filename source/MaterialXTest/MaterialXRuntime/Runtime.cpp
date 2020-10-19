@@ -771,20 +771,20 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     mx::RtNodeLayout layout = oldLayout;
     REQUIRE(layout.order.size() == 3);
     std::swap(layout.order[0], layout.order[2]);
-    mx::RtToken path1("path1");
-    mx::RtToken path2("path1/path2");
+    std::string path1("path1");
+    std::string path2("path1/path2");
     layout.uifolder[A] = layout.uifolder[B] = path1;
     layout.uifolder[X] = path2;
     graph1.setNodeLayout(layout);
     mx::RtAttrIterator orderIt = graph1.getInputs();
     REQUIRE((*orderIt).getName() == X);
-    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asToken() == path2);
+    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asString() == path2);
     ++orderIt;
     REQUIRE((*orderIt).getName() == B);
-    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asToken() == path1);
+    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asString() == path1);
     ++orderIt;
     REQUIRE((*orderIt).getName() == A);
-    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asToken() == path1);
+    REQUIRE((*orderIt).getMetadata(UIFOLDER)->getValue().asString() == path1);
     // Reset the old order
     graph1.setNodeLayout(oldLayout);
     orderIt = graph1.getInputs();
@@ -1768,17 +1768,13 @@ TEST_CASE("Runtime: Looks", "[runtime]")
 mx::RtToken toTestResolver(const mx::RtToken& str, const mx::RtToken& type)
 {
     mx::StringResolverPtr resolver = mx::StringResolver::create();
-    mx::RtToken resolvedName = mx::RtToken(resolver->resolve(str, type).c_str());
-    resolvedName = resolvedName.str() + "_toTestResolver";
-    return resolvedName;
+    return mx::RtToken(resolver->resolve(str, type) + "_toTestResolver");
 }
 
 mx::RtToken fromTestResolver(const mx::RtToken& str, const mx::RtToken& type)
 {
     mx::StringResolverPtr resolver = mx::StringResolver::create();
-    mx::RtToken resolvedName = mx::RtToken(resolver->resolve(str, type).c_str());
-    resolvedName = resolvedName.str() + "_fromTestResolver";
-    return resolvedName;
+    return mx::RtToken(resolver->resolve(str, type) + "_fromTestResolver");
 }
 
 TEST_CASE("Runtime: NameResolvers", "[runtime]")

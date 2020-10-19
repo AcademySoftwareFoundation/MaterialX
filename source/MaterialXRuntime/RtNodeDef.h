@@ -19,7 +19,7 @@ namespace MaterialX
 struct RtNodeLayout
 {
     RtTokenVec order;
-    RtTokenMap<RtToken> uifolder;
+    RtTokenMap<string> uifolder;
 };
 
 /// @class RtNodeDef
