@@ -180,6 +180,7 @@ TEST_CASE("Version", "[document]")
         mx::DocumentPtr doc2 = mx::createDocument();
         mx::readFromXmlFile(doc2, "1_37_to_1_38_updated.mtlx");
         REQUIRE(doc2->validate());
+        std::string doc2String = mx::writeToXmlString(doc2);
 
         // atan2 test
         const std::string ATAN2 = "atan2";
@@ -216,6 +217,19 @@ TEST_CASE("Version", "[document]")
         REQUIRE(testNodeGraph->getNode("add2"));
         REQUIRE(testNodeGraph->getNode("add2")->getInput("in1")->getInterfaceName() == "add");
         REQUIRE(testNodeGraph->getNode("add1")->getInput("in1")->getNodeName() == "add2");
+
+        // Convert back and forth between parameters and inputs
+        REQUIRE(doc2->convertUniformInputsToParameters());
+        REQUIRE(doc2->validate());
+        mx::writeToXmlFile(doc2, "1_38_to_1_37_parameters.mtlx", &writeOptions);
+        mx::DocumentPtr doc3 = mx::createDocument();
+        mx::XmlReadOptions noParamUpdateOptions;
+        noParamUpdateOptions.applyFutureUpdates = false;
+        mx::readFromXmlFile(doc3, "1_38_to_1_37_parameters.mtlx", mx::FileSearchPath(), &noParamUpdateOptions);
+        REQUIRE(doc3->validate());
+        REQUIRE(doc3->convertParametersToInputs());
+        std::string doc3String = mx::writeToXmlString(doc3);
+        REQUIRE(doc2String == doc3String);
     }
 }
 

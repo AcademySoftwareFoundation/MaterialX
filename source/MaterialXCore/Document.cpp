@@ -331,12 +331,14 @@ bool Document::validate(string* message) const
     return GraphElement::validate(message) && res;
 }
 
-void convertParameterToInput(DocumentPtr doc)
+bool Document::convertParametersToInputs()
 {
+    bool anyConverted = false;
+
     // Convert all parameters to be inputs. If needed set them to be "uniform".
     const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
     const string PARAMETER_CATEGORY_STRING("parameter");
-    for (ElementPtr e : doc->traverseTree())
+    for (ElementPtr e : traverseTree())
     {
         InterfaceElementPtr elem = e->asA<InterfaceElement>();
         if (!elem)
@@ -357,11 +359,40 @@ void convertParameterToInput(DocumentPtr doc)
                 {
                     // TODO: Determine based on usage whether to make
                     // the input a uniform. 
-                    newInput->setIsUniform(false);
+                    newInput->setIsUniform(true);
                 }
+                anyConverted = true;
             }
         }
     }
+    return anyConverted;
+}
+
+bool Document::convertUniformInputsToParameters()
+{
+    bool anyConverted = false;
+
+    const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
+    for (ElementPtr e : traverseTree())
+    {
+        InterfaceElementPtr elem = e->asA<InterfaceElement>();
+        if (!elem)
+        {
+            continue;
+        }
+        vector<ElementPtr> children = elem->getChildren();
+        for (ElementPtr child : children)
+        {
+            InputPtr input = child->asA<Input>();
+            if (input && input->getIsUniform())
+            {
+                ParameterPtr newParameter = updateChildSubclass<Parameter>(elem, child);
+                newParameter->removeAttribute(ValueElement::UNIFORM_ATTRIBUTE);
+                anyConverted = true;
+            }
+        }
+    }
+    return anyConverted;
 }
 
 void Document::upgradeVersion(bool applyFutureUpdates)
@@ -1010,7 +1041,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
 
     if (applyFutureUpdates)
     {
-        convertParameterToInput(asA<Document>());
+        convertParametersToInputs();
     }
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&
