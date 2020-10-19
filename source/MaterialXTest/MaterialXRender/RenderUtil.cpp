@@ -363,12 +363,15 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
 
-                            const mx::StringVec& wedgeFiles = options.wedgeFiles;
                             const mx::StringVec& wedgeParameters = options.wedgeParameters;
                             const mx::FloatVec& wedgeRangeMin = options.wedgeRangeMin;
                             const mx::FloatVec& wedgeRangeMax = options.wedgeRangeMax;
                             const mx::IntVec& wedgeSteps = options.wedgeSteps;
+                            const mx::StringVec& wedgeFiles = options.wedgeFiles;
+                            mx::StringSet wedgeFileSet(wedgeFiles.begin(), wedgeFiles.end());
+
                             bool performWedge = (!wedgeFiles.empty()) &&
+                                wedgeFileSet.count(file) &&
                                 wedgeFiles.size() == wedgeParameters.size() &&
                                 wedgeFiles.size() == wedgeRangeMin.size() &&
                                 wedgeFiles.size() == wedgeRangeMax.size() &&
@@ -380,9 +383,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                             }
                             else
                             {
-                                mx::ImageVec imageVec;
                                 for (size_t f = 0; f < wedgeFiles.size(); f++)
                                 {
+                                    mx::ImageVec imageVec;
+
                                     const std::string& wedgeFile = wedgeFiles[f];
                                     if (wedgeFile != file)
                                     {

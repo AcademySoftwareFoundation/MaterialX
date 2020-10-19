@@ -100,7 +100,7 @@ RtToken PvtApi::makeUniqueName(const RtToken& name) const
         }
         // Iterate until there is no other stage with the resulting name.
         do {
-            newName = baseName + std::to_string(i++);
+            newName = RtToken(baseName + std::to_string(i++));
             otherStage = getStage(newName);
         } while (otherStage);
     }

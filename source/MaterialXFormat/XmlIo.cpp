@@ -230,7 +230,7 @@ void documentFromXml(DocumentPtr doc,
         elementFromXml(xmlRoot, doc, readOptions);
     }
 
-    bool applyFutureUpdates = readOptions ? readOptions->applyFutureUpdates : false;
+    bool applyFutureUpdates = readOptions ? readOptions->applyFutureUpdates : true;
     doc->upgradeVersion(applyFutureUpdates);
 }
 
@@ -242,7 +242,7 @@ void documentFromXml(DocumentPtr doc,
 
 XmlReadOptions::XmlReadOptions() :
     readXIncludeFunction(readFromXmlFile),
-    applyFutureUpdates(false)
+    applyFutureUpdates(true)
 {
 }
 

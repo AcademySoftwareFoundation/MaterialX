@@ -73,7 +73,7 @@ TEST_CASE("Observer", "[observer]")
             REQUIRE(_beginUpdateCount == 4);
             REQUIRE(_endUpdateCount == 4);
             REQUIRE(_addElementCount == 12);
-            REQUIRE(_setAttributeCount == 16);
+            REQUIRE(_setAttributeCount == 17);
             REQUIRE(_removeElementCount == 4);
             REQUIRE(_removeAttributeCount == 0);
             REQUIRE(_copyContentCount == 0);

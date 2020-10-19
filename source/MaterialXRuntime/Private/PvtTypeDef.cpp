@@ -293,7 +293,7 @@ template<> void fromStringValue<string>(const string& str, RtValue& dest)
 }
 template<> void fromStringValue<RtToken>(const string& str, RtValue& dest)
 {
-    dest.asToken() = str;
+    dest.asToken() = RtToken(str);
 }
 void fromStringNoneValue(const string&, RtValue& dest)
 {

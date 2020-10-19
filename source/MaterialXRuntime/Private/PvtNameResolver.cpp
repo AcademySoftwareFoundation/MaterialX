@@ -150,7 +150,7 @@ RtToken PvtNameResolverRegistry::resolveIdentifier(const RtToken& valueToResolve
     RtToken type(GEOMNAME_TYPE_STRING);
     if (elementType == RtNameResolverInfo::ElementType::FILENAME_TYPE)
     {
-        type = FILENAME_TYPE_STRING;
+        type = RtToken(FILENAME_TYPE_STRING);
     }
     
     RtToken result = valueToResolve;
@@ -165,7 +165,7 @@ RtToken PvtNameResolverRegistry::resolveIdentifier(const RtToken& valueToResolve
                     PvtUserStringResolverPtr resolverPtr = std::dynamic_pointer_cast<PvtUserStringResolver>(resolverPair.second->getToMaterialXResolver());
                     if (resolverPtr)
                     {
-                        result = resolverPtr->resolve(result, type);
+                        result = RtToken(resolverPtr->resolve(result, type));
                     }
                 }
             }
@@ -176,7 +176,7 @@ RtToken PvtNameResolverRegistry::resolveIdentifier(const RtToken& valueToResolve
                     PvtUserStringResolverPtr resolverPtr = std::dynamic_pointer_cast<PvtUserStringResolver>(resolverPair.second->getFromMaterialXResolver());
                     if (resolverPtr)
                     {
-                        result = resolverPtr->resolve(result, type);
+                        result = RtToken(resolverPtr->resolve(result, type));
                     }
                 }
             }

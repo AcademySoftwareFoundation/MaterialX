@@ -116,7 +116,7 @@ namespace
             {
                 // Store all generic metadata as strings.
                 RtTypedValue* md = dest->addMetadata(mdName, RtType::STRING);
-                md->getValue().asToken() = src->getAttribute(name);
+                md->getValue().asString() = src->getAttribute(name);
             }
         }
     }
