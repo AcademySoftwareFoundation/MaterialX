@@ -103,9 +103,15 @@ class TextureBaker : public GlslRenderer
         Color4 uniformColor;
         FilePath filename;
     };
+    class BakedConstant
+    {
+      public:
+        Color4 color;
+        bool isDefault = false;
+    };
     using BakedImageVec = vector<BakedImage>;
     using BakedImageMap = std::unordered_map<OutputPtr, BakedImageVec>;
-    using BakedConstantMap = std::unordered_map<OutputPtr, Color4>;
+    using BakedConstantMap = std::unordered_map<OutputPtr, BakedConstant>;
 
   protected:
     string _extension;
