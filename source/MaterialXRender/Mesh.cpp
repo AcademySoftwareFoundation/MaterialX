@@ -219,10 +219,13 @@ void Mesh::splitByUdims()
         }
     }
 
-    _partitions.clear();
-    for (const auto& pair : udimMap)
+    if (udimMap.size() >= 2)
     {
-        addPartition(pair.second);
+        _partitions.clear();
+        for (const auto& pair : udimMap)
+        {
+            addPartition(pair.second);
+        }
     }
 }
 

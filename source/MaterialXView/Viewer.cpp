@@ -200,11 +200,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _shadowViewHandler(mx::ViewHandler::create()),
     _genContext(mx::GlslShaderGenerator::create()),
     _unitRegistry(mx::UnitConverterRegistry::create()),
-    _splitByUdims(false),
+    _splitByUdims(true),
     _mergeMaterials(false),
-    _bakeTextures(false),
-    _bakeHdr(false),
-    _bakeTextureRes(DEFAULT_TEXTURE_RES),
+    _renderTransparency(true),
     _outlineSelection(false),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
@@ -214,6 +212,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _wedgePropertyMin(0.0f),
     _wedgePropertyMax(1.0f),
     _wedgeImageCount(8),
+    _bakeTextures(false),
+    _bakeHdr(false),
+    _bakeOptimize(true),
+    _bakeTextureRes(DEFAULT_TEXTURE_RES),
     _bakeRequested(false)
 {
     _window = new ng::Window(this, "Viewer Options");
@@ -229,7 +231,6 @@ Viewer::Viewer(const std::string& materialFilename,
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
     _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
-    _genContext.getOptions().hwTransparency = true;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
@@ -800,10 +801,10 @@ void Viewer::createAdvancedSettings(Widget* parent)
     renderLabel->setFont("sans-bold");
 
     ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
-    transparencyBox->setChecked(_genContext.getOptions().hwTransparency);
+    transparencyBox->setChecked(_renderTransparency);
     transparencyBox->setCallback([this](bool enable)
     {
-        _genContext.getOptions().hwTransparency = enable;
+        _renderTransparency = enable;
         reloadShaders();
     });
 
@@ -1579,12 +1580,16 @@ void Viewer::renderFrame()
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
         shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
-        if (!material || material->hasTransparency())
+        if (!material)
         {
             continue;
         }
 
         material->bindShader();
+        if (material->getShader()->uniform(mx::HW::ALPHA_THRESHOLD, false) != -1)
+        {
+            material->getShader()->setUniform(mx::HW::ALPHA_THRESHOLD, 0.99f);
+        }
         material->bindViewInformation(world, view, proj);
         material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
         material->bindImages(_imageHandler, _searchPath);
@@ -1593,27 +1598,34 @@ void Viewer::renderFrame()
     }
 
     // Transparent pass
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    for (const auto& assignment : _materialAssignments)
+    if (_renderTransparency)
     {
-        mx::MeshPartitionPtr geom = assignment.first;
-        MaterialPtr material = assignment.second;
-        shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
-        if (!material || !material->hasTransparency())
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        for (const auto& assignment : _materialAssignments)
         {
-            continue;
-        }
+            mx::MeshPartitionPtr geom = assignment.first;
+            MaterialPtr material = assignment.second;
+            shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
+            if (!material || !material->hasTransparency())
+            {
+                continue;
+            }
 
-        material->bindShader();
-        material->bindViewInformation(world, view, proj);
-        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
-        material->bindImages(_imageHandler, _searchPath);
-        material->drawPartition(geom);
-        material->unbindImages(_imageHandler);
+            material->bindShader();
+            if (material->getShader()->uniform(mx::HW::ALPHA_THRESHOLD, false) != -1)
+            {
+                material->getShader()->setUniform(mx::HW::ALPHA_THRESHOLD, 0.001f);
+            }
+            material->bindViewInformation(world, view, proj);
+            material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
+            material->bindImages(_imageHandler, _searchPath);
+            material->drawPartition(geom);
+            material->unbindImages(_imageHandler);
+        }
+        glDisable(GL_BLEND);
     }
 
-    glDisable(GL_BLEND);
     glDisable(GL_FRAMEBUFFER_SRGB);
 
     // Wireframe pass
@@ -1710,6 +1722,9 @@ void Viewer::bakeTextures()
     mx::FileSearchPath searchPath = _searchPath;
     searchPath.append(documentFilename.getParentPath());
     mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
+#if MATERIALX_BUILD_OIIO
+    imageHandler->addLoader(mx::OiioImageLoader::create());
+#endif
     imageHandler->setSearchPath(searchPath);
 
     // Compute material and UDIM lists.
@@ -1730,6 +1745,7 @@ void Viewer::bakeTextures()
         // Construct a texture baker.
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
+        baker->setOptimizeConstants(_bakeOptimize);
 
         // Bake each material in the list.
         for (MaterialPtr mat : materialsToBake)

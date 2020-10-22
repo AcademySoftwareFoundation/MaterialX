@@ -118,6 +118,7 @@ namespace HW
     extern const string T_FRAME;
     extern const string T_TIME;
     extern const string T_GEOMPROP;
+    extern const string T_ALPHA_THRESHOLD;
     extern const string T_NUM_ACTIVE_LIGHT_SOURCES;
     extern const string T_ENV_MATRIX;
     extern const string T_ENV_RADIANCE;
@@ -170,6 +171,7 @@ namespace HW
     extern const string FRAME;
     extern const string TIME;
     extern const string GEOMPROP;
+    extern const string ALPHA_THRESHOLD;
     extern const string NUM_ACTIVE_LIGHT_SOURCES;
     extern const string ENV_MATRIX;
     extern const string ENV_RADIANCE;
