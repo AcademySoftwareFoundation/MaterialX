@@ -79,7 +79,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     }
     if (textureUnit < 0)
     {
-        return false;
+        throw Exception("Exceeded maximum number of bound textures in GLTextureHandler::bindImage");
     }      
     _boundTextureLocations[textureUnit] = image->getResourceId();
 

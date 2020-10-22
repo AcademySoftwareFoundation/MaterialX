@@ -107,11 +107,9 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
 
 FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& shaderRefName, const string& udim)
 {
-    string outputName = createValidName(output->getNamePath());
-    string shaderRefSuffix = shaderRefName.empty() ? EMPTY_STRING : "_" + shaderRefName;
     string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
 
-    return FilePath(outputName + shaderRefSuffix + "_baked" + udimSuffix + "." + _extension);
+    return FilePath(shaderRefName + "_" + output->getName() + udimSuffix + "." + _extension);
 }
 
 void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string& udim)
@@ -144,6 +142,9 @@ void TextureBaker::bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& con
             bakeGraphOutput(output, context, filename);
         }
     }
+
+    // Unbind all images used to generate this set of shader inputs.
+    _imageHandler->unbindImages();
 }
 
 void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& filename)
@@ -170,31 +171,55 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
 
 void TextureBaker::optimizeBakedTextures()
 {
+    if (!_shaderRef)
+    {
+        return;
+    }
+    NodeDefPtr shaderNodeDef = _shaderRef->getNodeDef();
+
+    // Check for uniform images.
     for (auto& pair : _bakedImageMap)
     {
+        bool outputIsUniform = true;
         for (BakedImage& baked : pair.second)
         {
-            baked.isUniform = baked.image->isUniformColor(&baked.uniformColor);
-        }
-        if (!pair.second.empty())
-        {
-            bool outputIsUniform = true;
-            for (BakedImage& baked : pair.second)
+            if (baked.image->isUniformColor(&baked.uniformColor))
             {
-                if (!baked.isUniform || baked.uniformColor != pair.second[0].uniformColor)
-                {
-                    outputIsUniform = false;
-                    break;
-                }
+                baked.image = createUniformImage(4, 4, baked.image->getChannelCount(), baked.image->getBaseType(), baked.uniformColor);
+                baked.isUniform = true;
             }
-            if (outputIsUniform)
+            else
             {
-                _bakedConstantMap[pair.first] = pair.second[0].uniformColor;
-                if (!_optimizeConstants)
+                outputIsUniform = false;
+            }
+        }
+
+        // Check for uniform outputs.
+        if (outputIsUniform)
+        {
+            BakedConstant bakedConstant;
+            bakedConstant.color = pair.second[0].uniformColor;
+            _bakedConstantMap[pair.first] = bakedConstant;
+        }
+    }
+
+    // Check for uniform outputs at their default values.
+    for (BindInputPtr bindInput : _shaderRef->getBindInputs())
+    {
+        OutputPtr output = bindInput->getConnectedOutput();
+        if (output && _bakedConstantMap.count(output))
+        {
+            if (_bakedConstantMap.count(output) && shaderNodeDef)
+            {
+                InputPtr input = shaderNodeDef->getActiveInput(bindInput->getName());
+                if (input)
                 {
-                    for (BakedImage& baked : pair.second)
+                    Color4 uniformColor = _bakedConstantMap[output].color;
+                    string uniformColorString = getValueStringFromColor(uniformColor, input->getType());
+                    if (uniformColorString == input->getValueString())
                     {
-                        baked.image = createUniformImage(1, 1, baked.image->getChannelCount(), baked.image->getBaseType(), baked.uniformColor);
+                        _bakedConstantMap[output].isDefault = true;
+                        _bakedImageMap.erase(output);
                     }
                 }
             }
@@ -231,20 +256,10 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
         OutputPtr output = bindInput ? bindInput->getConnectedOutput() : nullptr;
         if (output)
         {
-            // Check for a constant default value.
-            if (_bakedConstantMap.count(output) && shaderNodeDef)
+            // Skip uniform outputs at their default values.
+            if (_bakedConstantMap.count(output) && _bakedConstantMap[output].isDefault)
             {
-                InputPtr input = shaderNodeDef->getActiveInput(bindInput->getName());
-                if (input)
-                {
-                    Color4 uniformColor = _bakedConstantMap[output];
-                    string uniformColorString = getValueStringFromColor(uniformColor, input->getType());
-                    if (uniformColorString == input->getValueString())
-                    {
-                        _bakedImageMap.erase(output);
-                        continue;
-                    }
-                }
+                continue;
             }
 
             // Create the baked bindinput.
@@ -253,7 +268,7 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
             // Store a constant value for uniform outputs.
             if (_optimizeConstants && _bakedConstantMap.count(output))
             {
-                Color4 uniformColor = _bakedConstantMap[output];
+                Color4 uniformColor = _bakedConstantMap[output].color;
                 string uniformColorString = getValueStringFromColor(uniformColor, bakedBindInput->getType());
                 bakedBindInput->setValueString(uniformColorString);
                 continue;
