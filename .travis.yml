@@ -14,35 +14,29 @@ addons:
 
 matrix:
   include:
-    # Standard builds
+    # Standard builds (push + prs)
     - os: linux
       dist: xenial
-      compiler: gcc
-      env: CONFIG=Release
+      compiler: clang
+      env: CONFIG=RelWithDebInfo
+    - os: osx
+      osx_image: xcode11
+      compiler: clang
+      env: CONFIG=RelWithDebInfo
+
+    # Standard builds (prs only)
     - os: linux
       dist: xenial
       compiler: gcc
       env: CONFIG=RelWithDebInfo
-      if: tag IS present
-    - os: linux
-      dist: xenial
-      compiler: clang
-      env: CONFIG=Release
-    - os: osx
-      osx_image: xcode11
-      compiler: gcc
-      env: CONFIG=Release
+      if: type = pull_request
     - os: osx
       osx_image: xcode11
       compiler: gcc
       env: CONFIG=RelWithDebInfo
-      if: tag IS present
-    - os: osx
-      osx_image: xcode11
-      compiler: clang
-      env: CONFIG=Release
+      if: type = pull_request
  
-    # Custom builds
+    # Custom builds (push + prs)
     - os: linux
       dist: bionic
       compiler: gcc
@@ -50,6 +44,16 @@ matrix:
       addons:
         apt:
           packages: [*packages_base, g++-6]
+
+    # Custom builds (prs only)
+    - os: linux
+      dist: bionic
+      compiler: clang
+      env: MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
+      addons:
+        apt:
+          packages: [*packages_base, clang-9]
+      if: type = pull_request
     - os: linux
       dist: bionic
       compiler: gcc
@@ -59,13 +63,8 @@ matrix:
           sources:
             sourceline: "ppa:ubuntu-toolchain-r/test"
           packages: [*packages_base, g++-10]
-    - os: linux
-      dist: bionic
-      compiler: clang
-      env: MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
-      addons:
-        apt:
-          packages: [*packages_base, clang-9]
+      if: type = pull_request
+
     # WASM build
     - os: linux
       dist: bionic
@@ -82,8 +81,6 @@ matrix:
       script:
         - mkdir build
         - docker exec -it emscripten sh -c "cd build && cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_GLSL=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_OGSXML=OFF -DMATERIALX_BUILD_GEN_OGSFX=OFF -DMATERIALX_BUILD_GEN_ARNOLD=OFF -DMATERIALX_BUILD_CROSS=OFF -DMATERIALX_BUILD_RUNTIME=OFF -DMATERIALX_BUILD_PYTHON=OFF -DMATERIALX_BUILD_DOCS=OFF -DCMAKE_CXX_FLAGS='-std=c++17' -DMATERIALX_EMSDK_PATH=/emsdk_portable/ && cmake --build . --target install && cd ../source/JsMaterialX/test && npm install && npm run test"
-
-
 
 before_install:
   - export SHARED=OFF
