@@ -67,7 +67,6 @@ class GLTextureHandler : public ImageHandler
     int getNextAvailableTextureLocation();
 
   protected:
-    int _maxImageUnits;
     std::vector<unsigned int> _boundTextureLocations;
 };
 
