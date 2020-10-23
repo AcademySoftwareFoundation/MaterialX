@@ -11,12 +11,6 @@
 
 #include <sstream>
 
-#ifndef _WIN32
-// Disable warnings for breaking strict aliasing.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#endif
-
 namespace MaterialX
 {
 
@@ -24,7 +18,7 @@ RtValue::RtValue(const Matrix33& v, RtPrim& prim)
 {
     // Allocate storage for the value.
     PvtAllocator& allocator = PvtObject::ptr<PvtPrim>(prim)->getAllocator();
-    *reinterpret_cast<Matrix33**>(&_data) = allocator.allocType<Matrix33>();
+    *_reinterpret_cast<Matrix33**>(&_data) = allocator.allocType<Matrix33>();
 
     // Copy the value.
     asMatrix33() = v;
@@ -34,7 +28,7 @@ RtValue::RtValue(const Matrix44& v, RtPrim& prim)
 {
     // Allocate storage for the value.
     PvtAllocator& allocator = PvtObject::ptr<PvtPrim>(prim)->getAllocator();
-    *reinterpret_cast<Matrix44**>(&_data) = allocator.allocType<Matrix44>();
+    *_reinterpret_cast<Matrix44**>(&_data) = allocator.allocType<Matrix44>();
 
     // Copy the value.
     asMatrix44() = v;
@@ -44,7 +38,7 @@ RtValue::RtValue(const string& v, RtPrim& prim)
 {
     // Allocate storage for the value.
     PvtAllocator& allocator = PvtObject::ptr<PvtPrim>(prim)->getAllocator();
-    *reinterpret_cast<string**>(&_data) = allocator.allocType<string>();
+    *_reinterpret_cast<string**>(&_data) = allocator.allocType<string>();
 
     // Copy the value.
     asString() = v;
@@ -108,7 +102,3 @@ void RtValue::fromString(const RtToken& type, const string& src, RtValue& dest)
 }
 
 }
-
-#ifndef _WIN32
-#pragma GCC diagnostic pop
-#endif
