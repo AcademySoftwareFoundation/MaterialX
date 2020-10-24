@@ -183,7 +183,12 @@ void TextureBaker::optimizeBakedTextures()
         bool outputIsUniform = true;
         for (BakedImage& baked : pair.second)
         {
-            if (baked.image->isUniformColor(&baked.uniformColor))
+            if (_averageImages)
+            {
+                baked.uniformColor = baked.image->getAverageColor();
+                baked.isUniform = true;
+            }
+            else if (baked.image->isUniformColor(&baked.uniformColor))
             {
                 baked.image = createUniformImage(4, 4, baked.image->getChannelCount(), baked.image->getBaseType(), baked.uniformColor);
                 baked.isUniform = true;
