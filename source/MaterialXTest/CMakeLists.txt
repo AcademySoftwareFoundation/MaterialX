@@ -110,6 +110,28 @@ if(MATERIALX_BUILD_RENDER) # MATERIALX_BUILD_GEN is implied; can assume relevant
   endif()
 endif()
 
+# TODO: Only do this stuff when it's relevant
+
+add_custom_command(TARGET MaterialXTest POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
+
+if(MATERIALX_BUILD_GEN_OSL)
+    install(DIRECTORY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stdlib/osl/"
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl
+        FILES_MATCHING PATTERN "*.h")
+endif()
+
+if(MATERIALX_BUILD_GEN_MDL)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
+endif()
+
+add_custom_command(TARGET MaterialXTest POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
+
 set_target_properties(
     MaterialXTest PROPERTIES
     OUTPUT_NAME MaterialXTest
@@ -122,28 +144,3 @@ set_target_properties(
 target_link_libraries(
     MaterialXTest
     ${CMAKE_DL_LIBS})
-
-# Dependent file installs
-
-add_custom_command(TARGET MaterialXTest POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
-
-if(MATERIALX_BUILD_GEN_OSL)
-    install(DIRECTORY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl MESSAGE_NEVER)
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stdlib/osl/"
-        MESSAGE_NEVER
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl
-        FILES_MATCHING PATTERN "*.h")
-endif()
-
-if(MATERIALX_BUILD_GEN_MDL)
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl MESSAGE_NEVER)
-endif()
-
-# TODO : Reduce the places to install the resources to. Currently needed in multiple places.
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../resources"
-    DESTINATION ${CMAKE_INSTALL_PREFIX} MESSAGE_NEVER )
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../resources"
-	DESTINATION ${CMAKE_CURRENT_BINARY_DIR} MESSAGE_NEVER )
