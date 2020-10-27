@@ -337,9 +337,12 @@ string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions)
 
 void prependXInclude(DocumentPtr doc, const FilePath& filename)
 {
-    ElementPtr elem = doc->addChildOfCategory("xinclude");
-    elem->setSourceUri(filename.asString());
-    doc->setChildIndex(elem->getName(), 0);
+    if (!filename.isEmpty())
+    {
+        ElementPtr elem = doc->addChildOfCategory("xinclude");
+        elem->setSourceUri(filename.asString());
+        doc->setChildIndex(elem->getName(), 0);
+    }
 }
 
 } // namespace MaterialX
