@@ -37,6 +37,7 @@ namespace
                                                     RtToken("nodegraph"), RtToken("interfacename") };
     static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node") };
     static const RtTokenSet nodegraphMetadata   = { RtToken("name") };
+    static const RtTokenSet lookMetadata        = { RtToken("name") };
     static const RtTokenSet genericMetadata     = { RtToken("name"), RtToken("kind") };
     static const RtTokenSet stageMetadata       = {};
 
@@ -487,6 +488,8 @@ namespace
         collection.getIncludeGeom().setValueString(src->getIncludeGeom());
         collection.getExcludeGeom().setValueString(src->getExcludeGeom());
 
+        readMetadata(src, collectionPrim, lookMetadata);
+
         return collectionPrim;
     }
 
@@ -543,8 +546,13 @@ namespace
 
             rtMatAssign.getGeom().getValue().asString() = matAssign->getActiveGeom();
 
+            readMetadata(matAssign, assignPrim, lookMetadata);
+
             look.getMaterialAssigns().addTarget(assignPrim->hnd());
         }
+
+        readMetadata(src, lookPrim, lookMetadata);
+
         return lookPrim;
     }
 
@@ -589,6 +597,8 @@ namespace
         }
         const string& activeLook = src->getActiveLook();
         lookGroup.getActiveLook().setValueString(activeLook);
+
+        readMetadata(src, prim, lookMetadata);
 
         return prim;
     }
@@ -982,13 +992,17 @@ namespace
                 {
                     continue;
                 }
+
                 CollectionPtr collection = dest.addCollection(name);
+
                 collection->setExcludeGeom(rtCollection.getExcludeGeom().getValueString());
                 collection->setIncludeGeom(rtCollection.getIncludeGeom().getValueString());
 
                 RtRelationship rtIncludeCollection = rtCollection.getIncludeCollection();
                 string includeList = rtIncludeCollection.getTargetsAsString();                
                 collection->setIncludeCollectionString(includeList);
+
+                writeMetadata(prim, collection, lookMetadata, options);
             }
         }
     }
@@ -1008,6 +1022,7 @@ namespace
                 {
                     continue;
                 }
+
                 LookPtr look = dest.addLook(name);
 
                 // Add inherit
@@ -1021,7 +1036,6 @@ namespace
                 {
                     PvtPrim* pprim = PvtObject::ptr<PvtPrim>(obj);
                     RtMaterialAssign rtMatAssign(pprim->hnd());
-
                     const string& assignName = rtMatAssign.getName();
                     if (look->getMaterialAssign(assignName))
                     {
@@ -1029,21 +1043,23 @@ namespace
                     }
 
                     MaterialAssignPtr massign = look->addMaterialAssign(assignName);
-                    if (massign)
-                    {
-                        massign->setExclusive(rtMatAssign.getExclusive().getValue().asBool());
-                        auto iter = rtMatAssign.getCollection().getTargets();
-                        if (!iter.isDone()) {
-                            massign->setCollectionString((*iter).getName());
-                        }
 
-                        iter = rtMatAssign.getMaterial().getTargets();
-                        if (!iter.isDone()) {
-                            massign->setMaterial((*iter).getName());
-                        }
-                        massign->setGeom(rtMatAssign.getGeom().getValueString());
+                    massign->setExclusive(rtMatAssign.getExclusive().getValue().asBool());
+                    auto iter = rtMatAssign.getCollection().getTargets();
+                    if (!iter.isDone()) {
+                        massign->setCollectionString((*iter).getName());
                     }
+
+                    iter = rtMatAssign.getMaterial().getTargets();
+                    if (!iter.isDone()) {
+                        massign->setMaterial((*iter).getName());
+                    }
+                    massign->setGeom(rtMatAssign.getGeom().getValueString());
+
+                    writeMetadata(pprim, massign, lookMetadata, options);
                 }
+
+                writeMetadata(prim, look, lookMetadata, options);
             }
         }
     }
@@ -1063,10 +1079,14 @@ namespace
                 {
                     continue;
                 }
+
                 LookGroupPtr lookGroup = dest.addLookGroup(name);
+
                 string lookList = rtLookGroup.getLooks().getTargetsAsString();
                 lookGroup->setLooks(lookList);
                 lookGroup->setActiveLook(rtLookGroup.getActiveLook().getValueString());
+
+                writeMetadata(prim, lookGroup, lookMetadata, options);
             }
         }
     }
