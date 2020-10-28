@@ -100,7 +100,8 @@ bool Material::generateShader(mx::GenContext& context)
         return false;
     }
 
-    _hasTransparency = mx::isTransparentSurface(_elem, context.getShaderGenerator());
+    _hasTransparency = context.getOptions().hwTransparency &&
+                       mx::isTransparentSurface(_elem, context.getShaderGenerator());
 
     mx::GenContext materialContext = context;
     materialContext.getOptions().hwTransparency = _hasTransparency;
@@ -327,12 +328,7 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
     imageHandler->setFilenameResolver(resolver);
 
     // Acquire the given image.
-    std::string error;
-    mx::ImagePtr image = imageHandler->acquireImage(filePath, true, fallbackColor, &error);
-    if (!error.empty())
-    {
-        std::cerr << error << std::endl;
-    }
+    mx::ImagePtr image = imageHandler->acquireImage(filePath, true, fallbackColor);
     if (!image)
     {
         return nullptr;

@@ -30,7 +30,7 @@ class GLTextureHandler : public ImageHandler
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
     ImagePtr acquireImage(const FilePath& filePath,
-                          bool generateMipMaps,
+                          bool generateMipMaps = true,
                           const Color4* fallbackColor = nullptr,
                           string* message = nullptr) override;
 

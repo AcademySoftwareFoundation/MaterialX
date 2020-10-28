@@ -220,9 +220,6 @@ void documentFromXml(DocumentPtr doc,
                      const FileSearchPath& searchPath = FileSearchPath(),
                      const XmlReadOptions* readOptions = nullptr)
 {
-    ScopedUpdate update(doc);
-    doc->onRead();
-
     xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
     if (xmlRoot)
     {
@@ -313,9 +310,6 @@ void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions*
 
 void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptions* writeOptions)
 {
-    ScopedUpdate update(doc);
-    doc->onWrite();
-
     xml_document xmlDoc;
     xml_node xmlRoot = xmlDoc.append_child("materialx");
     elementToXml(doc, xmlRoot, writeOptions);

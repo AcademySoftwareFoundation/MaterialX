@@ -1051,32 +1051,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     }
 }
 
-void Document::onAddElement(ElementPtr, ElementPtr)
-{
-    _cache->valid = false;
-}
-
-void Document::onRemoveElement(ElementPtr, ElementPtr)
-{
-    _cache->valid = false;
-}
-
-void Document::onSetAttribute(ElementPtr, const string&, const string&)
-{
-    _cache->valid = false;
-}
-
-void Document::onRemoveAttribute(ElementPtr, const string&)
-{
-    _cache->valid = false;
-}
-
-void Document::onCopyContent(ElementPtr)
-{
-    _cache->valid = false;
-}
-
-void Document::onClearContent(ElementPtr)
+void Document::invalidateCache()
 {
     _cache->valid = false;
 }

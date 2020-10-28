@@ -168,7 +168,8 @@ class ImageHandler
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
                            ConstImagePtr image,
-                           bool verticalFlip = false);
+                           bool verticalFlip = false,
+                           string* message = nullptr);
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
@@ -181,7 +182,7 @@ class ImageHandler
     ///    or error messages from the acquire operation will be stored.
     /// @return On success, a shared pointer to the acquired Image.
     virtual ImagePtr acquireImage(const FilePath& filePath,
-                                  bool generateMipMaps,
+                                  bool generateMipMaps = true,
                                   const Color4* fallbackColor = nullptr,
                                   string* message = nullptr);
 

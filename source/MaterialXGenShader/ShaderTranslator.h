@@ -20,54 +20,35 @@ using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
 class ShaderTranslator
 {
   public:
-    static ShaderTranslatorPtr create(ConstDocumentPtr doc)
+    static ShaderTranslatorPtr create()
     {
-        return ShaderTranslatorPtr(new ShaderTranslator(doc));
+        return ShaderTranslatorPtr(new ShaderTranslator());
     }
 
-    /// Translates shaderRef to the destShader shading model
+    /// Translate a shader reference to the destination shading model.
     void translateShader(ShaderRefPtr shaderRef, string destShader);
 
-    /// Translates all the materials to the destShader shading model if translation exists.
-    static bool translateAllMaterials(DocumentPtr doc, string destShader);
-
-    /// Returns set of all the available potential translations
-    StringSet getAvailableTranslations(string start)
-    {
-        return _shadingTranslations[start];
-    }
+    /// Translate each material in the input document to the destination
+    /// shading model.
+    void translateAllMaterials(DocumentPtr doc, string destShader);
 
   protected:
-    ShaderTranslator(ConstDocumentPtr doc);
+    ShaderTranslator();
 
-    /// Reads shading translation nodes from the document
-    void loadShadingTranslations();
+    // Connect translation node inputs from the original shaderRef
+    void connectToTranslationInputs(ShaderRefPtr shaderRef, NodeDefPtr translationNodeDef);
 
-    /// Connects translation node inputs from the original shaderRef
-    void connectToTranslationInputs(ShaderRefPtr shaderRef);
-
-    /// Copies translation nodegraph upstream node dependencies over to the working nodegraph.
-    /// Used when normals need to be baked in tangent space but shaderref expects normals to 
-    /// be in world space.
+    // Copy translation nodegraph upstream node dependencies over to the working nodegraph.
+    // Used when normals need to be baked in tangent space but shaderref expects normals to 
+    // be in world space.
     void insertUpstreamDependencies(OutputPtr translatedOutput, OutputPtr ngOutput);
 
-    /// Connects translation node outputs to finalize shaderRef translation
+    // Connect translation node outputs to finalize shaderref translation
     void connectTranslationOutputs(ShaderRefPtr shaderRef);
 
-    /// Set that stores all the translation nodes in the document library
-    StringSet _translationNodes;
-
-    /// Map that stores all the potential destination shading models for given shading model
-    std::unordered_map<string, StringSet> _shadingTranslations;
-
-    /// Saved document that contains library for shading translation
-    ConstDocumentPtr _doc;
-
-    /// The inserted translation node
-    NodePtr _translationNode;
-
-    /// The nodegraph where translation node will be inserted
+  protected:
     NodeGraphPtr _graph;
+    NodePtr _translationNode;
 };
 
 } // namespace MaterialX

@@ -14,5 +14,6 @@ void bindPyShaderTranslator(py::module& mod)
 {
     py::class_<mx::ShaderTranslator, mx::ShaderTranslatorPtr>(mod, "ShaderTranslator")
         .def_static("create", &mx::ShaderTranslator::create)
-        .def_static("translateAllMaterials", &mx::ShaderTranslator::translateAllMaterials);
+        .def("translateShader", &mx::ShaderTranslator::translateShader)
+        .def("translateAllMaterials", &mx::ShaderTranslator::translateAllMaterials);
 }

@@ -67,7 +67,8 @@ StringSet ImageHandler::supportedExtensions()
 
 bool ImageHandler::saveImage(const FilePath& filePath,
                              ConstImagePtr image,
-                             bool verticalFlip)
+                             bool verticalFlip,
+                             string* message)
 {
     if (!image)
     {
@@ -83,7 +84,18 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     string extension = foundFilePath.getExtension();
     for (ImageLoaderPtr loader : _imageLoaders[extension])
     {
-        bool saved = loader->saveImage(foundFilePath, image, verticalFlip);
+        bool saved = false;
+        try
+        {
+            saved = loader->saveImage(foundFilePath, image, verticalFlip);
+        }
+        catch (std::exception& e)
+        {
+            if (message)
+            {
+                *message = "Exception in image I/O library: " + string(e.what());
+            }
+        }
         if (saved)
         {
             return true;
@@ -100,7 +112,15 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
     for (ImageLoaderPtr loader : _imageLoaders[extension])
     {
         extensionSupported = true;
-        ImagePtr image = loader->loadImage(foundFilePath);
+        ImagePtr image;
+        try
+        {
+            image = loader->loadImage(foundFilePath);
+        }
+        catch (std::exception& e)
+        {
+            *message = "Exception in image I/O library: " + string(e.what());
+        }
         if (image)
         {
             // Workaround for sampling issues with 1x1 textures.

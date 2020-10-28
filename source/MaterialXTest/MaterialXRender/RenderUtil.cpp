@@ -224,7 +224,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
         files = dir.getFilesInDirectory(MTLX_EXTENSION);
         ioTimer.endTimer();
 
-        for (const std::string& file : files)
+        for (const mx::FilePath& file : files)
         {
             if (_skipFiles.count(file))
             {
@@ -388,7 +388,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                     mx::ImageVec imageVec;
 
                                     const std::string& wedgeFile = wedgeFiles[f];
-                                    if (wedgeFile != file)
+                                    if (wedgeFile != file.asString())
                                     {
                                         continue;
                                     }

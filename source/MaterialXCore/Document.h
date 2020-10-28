@@ -683,44 +683,11 @@ class Document : public GraphElement
     bool convertUniformInputsToParameters();
 
     /// @}
-    /// @name Callbacks
+    /// @name Utility
     /// @{
 
-    /// Called when an element is added to the element tree.
-    virtual void onAddElement(ElementPtr parent, ElementPtr elem);
-
-    /// Called when an element is removed from the element tree.
-    virtual void onRemoveElement(ElementPtr parent, ElementPtr elem);
-
-    /// Called when an attribute of an element is set to a new value.
-    virtual void onSetAttribute(ElementPtr elem, const string& attrib, const string& value);
-
-    /// Called when an attribute of an element is removed.
-    virtual void onRemoveAttribute(ElementPtr elem, const string& attrib);
-
-    /// Called when content is copied into an element.
-    virtual void onCopyContent(ElementPtr elem);
-
-    /// Called when content is cleared from an element.
-    virtual void onClearContent(ElementPtr elem);
-
-    /// Called when data is read into the current document.
-    virtual void onRead() { }
-
-    /// Called when data is written from the current document.
-    virtual void onWrite() { }
-
-    /// Called before a set of document updates is performed.
-    virtual void onBeginUpdate() { }
-
-    /// Called after a set of document updates is performed.
-    virtual void onEndUpdate() { }
-
-    /// Enable observer callbacks		
-    virtual void enableCallbacks() { }
-    
-    /// Disable observer callbacks
-    virtual void disableCallbacks() { }
+    /// Invalidate cached data for optimized lookups within the given document.
+    void invalidateCache();
 
     /// @}
 
@@ -732,50 +699,6 @@ class Document : public GraphElement
   private:
     class Cache;
     std::unique_ptr<Cache> _cache;
-};
-
-/// @class ScopedUpdate
-/// An RAII class for Document updates.
-///
-/// A ScopedUpdate instance calls Document::onBeginUpdate when created, and
-/// Document::onEndUpdate when destroyed.
-class ScopedUpdate
-{
-  public:
-    explicit ScopedUpdate(DocumentPtr doc) :
-        _doc(doc)
-    {
-        _doc->onBeginUpdate();
-    }
-    ~ScopedUpdate()
-    {
-        _doc->onEndUpdate();
-    }
-
-  private:
-    DocumentPtr _doc;
-};
-
-/// @class ScopedDisableCallbacks
-/// An RAII class for disabling Document callbacks.
-///
-/// A ScopedDisableCallbacks instance calls Document::disableCallbacks() when
-/// created, and Document::enableCallbacks when destroyed.
-class ScopedDisableCallbacks
-{
-  public:
-    explicit ScopedDisableCallbacks(DocumentPtr doc) :
-        _doc(doc)
-    {
-        _doc->disableCallbacks();
-    }
-    ~ScopedDisableCallbacks()
-    {
-        _doc->enableCallbacks();
-    }
-
-  private:
-    DocumentPtr _doc;
 };
 
 /// Create a new Document.

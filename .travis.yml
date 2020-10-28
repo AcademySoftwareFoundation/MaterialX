@@ -14,29 +14,31 @@ addons:
 
 matrix:
   include:
-    # Standard builds (push + prs)
+    # Standard builds (push)
     - os: linux
       dist: xenial
       compiler: clang
       env: CONFIG=RelWithDebInfo
+      if: type == push OR tag IS present
     - os: osx
       osx_image: xcode11
       compiler: clang
       env: CONFIG=RelWithDebInfo
+      if: type == push OR tag IS present
 
-    # Standard builds (prs only)
+    # Standard builds (PR only)
     - os: linux
       dist: xenial
       compiler: gcc
       env: CONFIG=RelWithDebInfo
-      if: type = pull_request
+      if: type = pull_request OR tag IS present
     - os: osx
       osx_image: xcode11
       compiler: gcc
       env: CONFIG=RelWithDebInfo
-      if: type = pull_request
+      if: type = pull_request OR tag IS present
  
-    # Custom builds (push + prs)
+    # Custom builds (push)
     - os: linux
       dist: bionic
       compiler: gcc
@@ -44,6 +46,7 @@ matrix:
       addons:
         apt:
           packages: [*packages_base, g++-6]
+      if: type == push OR tag IS present
 
     # Custom builds (prs only)
     - os: linux
@@ -53,7 +56,7 @@ matrix:
       addons:
         apt:
           packages: [*packages_base, clang-9]
-      if: type = pull_request
+      if: type = pull_request OR tag IS present
     - os: linux
       dist: bionic
       compiler: gcc
@@ -63,7 +66,7 @@ matrix:
           sources:
             sourceline: "ppa:ubuntu-toolchain-r/test"
           packages: [*packages_base, g++-10]
-      if: type = pull_request
+      if: type = pull_request OR tag IS present
 
     # WASM build
     - os: linux
@@ -81,6 +84,7 @@ matrix:
       script:
         - mkdir build
         - docker exec -it emscripten sh -c "cd build && cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_GLSL=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_OGSXML=OFF -DMATERIALX_BUILD_GEN_OGSFX=OFF -DMATERIALX_BUILD_GEN_ARNOLD=OFF -DMATERIALX_BUILD_CROSS=OFF -DMATERIALX_BUILD_RUNTIME=OFF -DMATERIALX_BUILD_PYTHON=OFF -DMATERIALX_BUILD_DOCS=OFF -DCMAKE_CXX_FLAGS='-std=c++17' -DMATERIALX_EMSDK_PATH=/emsdk_portable/ && cmake --build . --target install && cd ../source/JsMaterialX/test && npm install && npm run test"
+      if: type == push OR tag IS present
 
 before_install:
   - export SHARED=OFF

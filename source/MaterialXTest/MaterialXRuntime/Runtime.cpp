@@ -8,7 +8,6 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Observer.h>
 
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/File.h>

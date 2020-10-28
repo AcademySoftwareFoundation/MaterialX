@@ -2,6 +2,9 @@
 
 ## [1.37.3] - Development
 
+- Added a Render Transparency option to the Advanced Settings panel of the viewer.
+- Added a CMake option for building shared libraries on Linux and MacOS.
+
 ## [1.37.2] - 2020-09-06
 
 - ADSK : General
