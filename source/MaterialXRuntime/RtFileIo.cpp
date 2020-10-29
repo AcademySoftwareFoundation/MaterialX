@@ -15,6 +15,7 @@
 #include <MaterialXRuntime/RtTypeDef.h>
 #include <MaterialXRuntime/RtTraversal.h>
 #include <MaterialXRuntime/RtApi.h>
+#include <MaterialXRuntime/RtLogger.h>
 
 #include <MaterialXRuntime/Private/PvtStage.h>
 
@@ -1353,17 +1354,24 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
             continue;
         }
 
-        if (elem->isA<Node>())
+        try
         {
-            readNode(elem->asA<Node>(), stage->getRootPrim(), stage, mapper);
+            if (elem->isA<Node>())
+            {
+                readNode(elem->asA<Node>(), stage->getRootPrim(), stage, mapper); 
+            }
+            else if (elem->isA<NodeGraph>())
+            {
+                readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage, mapper);
+            }
+            else
+            {
+                readGenericPrim(elem, stage->getRootPrim(), stage, mapper);
+            }
         }
-        else if (elem->isA<NodeGraph>())
+        catch(const ExceptionRuntimeError &e)
         {
-            readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage, mapper);
-        }
-        else
-        {
-            readGenericPrim(elem, stage->getRootPrim(), stage, mapper);
+            RtApi::get().log(RtLogger::ERROR, e.what());
         }
     }
 }
