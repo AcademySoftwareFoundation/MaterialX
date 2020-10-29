@@ -39,7 +39,7 @@ public:
         return _enabled.test(bit);
     }
 
-    void log(RtLogger::MessageType type, const RtToken& msg) {
+    void log(RtLogger::MessageType type, const string& msg) {
         if (isEnabled(type)) {
             _logger->logImpl(type, msg);
         }

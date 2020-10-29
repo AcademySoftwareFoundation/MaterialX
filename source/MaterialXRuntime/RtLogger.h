@@ -6,7 +6,7 @@
 #ifndef MATERIALX_RTLOGGER_H
 #define MATERIALX_RTLOGGER_H
 
-#include <MaterialXRuntime/RtToken.h>
+#include <MaterialXRuntime/Library.h>
 
 /// @file RtLogger.h
 /// Base class for logging messages. Derived classes can be used to route messages to various locations.
@@ -38,11 +38,11 @@ public:
     bool isEnabled(MessageType type);
 
     /// Logs a message of the provided type if the provided message type is enabled.
-    void log(MessageType type, const RtToken& msg);
+    void log(MessageType type, const string& msg);
 
 protected:
     /// Logs a message of the provided type.
-    virtual void logImpl(MessageType type, const RtToken& msg) = 0;
+    virtual void logImpl(MessageType type, const string& msg) = 0;
 
     RtLogger();
 

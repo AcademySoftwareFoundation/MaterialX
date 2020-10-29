@@ -2357,7 +2357,7 @@ protected:
     {
     }
 
-    void logImpl(mx::RtLogger::MessageType type, const mx::RtToken& msg) override
+    void logImpl(mx::RtLogger::MessageType type, const std::string& msg) override
     {
         if (type == mx::RtLogger::MessageType::ERROR)
         {
@@ -2372,7 +2372,7 @@ protected:
             result = "Info: ";
         }
 
-        result += msg.str();
+        result += msg;
     }
 
 public:
@@ -2389,7 +2389,7 @@ TEST_CASE("Runtime: logging", "[runtime]")
     TestLoggerPtr logger = TestLogger::get();
     mx::RtApi& api = mx::RtApi::get();
     api.registerLogger(logger);
-    mx::RtToken testMsg("Test");
+    std::string testMsg("Test");
     api.log(mx::RtLogger::MessageType::ERROR, testMsg);
     REQUIRE("Error: Test" == logger->result);
     api.log(mx::RtLogger::MessageType::WARNING, testMsg);

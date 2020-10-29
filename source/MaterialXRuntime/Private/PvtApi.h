@@ -50,7 +50,7 @@ public:
         static_cast<void>(std::remove(_loggers.begin(), _loggers.end(), logger));
     }
 
-    void log(RtLogger::MessageType type, const RtToken& msg)
+    void log(RtLogger::MessageType type, const string& msg)
     {
         for (RtLoggerPtr logger : _loggers)
         {

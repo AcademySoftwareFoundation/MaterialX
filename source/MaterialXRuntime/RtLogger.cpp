@@ -35,7 +35,7 @@ bool RtLogger::isEnabled(MessageType type) {
     return _cast(_ptr)->isEnabled(type);
 }
 
-void RtLogger::log(MessageType type, const RtToken& msg) {
+void RtLogger::log(MessageType type, const string& msg) {
     _cast(_ptr)->log(type, msg);
 }
 

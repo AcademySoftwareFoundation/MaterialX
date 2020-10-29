@@ -40,7 +40,7 @@ public:
     void unregisterLogger(RtLoggerPtr logger);
 
     /// Logs a message with the registered loggers
-    void log(RtLogger::MessageType type, const RtToken& msg);
+    void log(RtLogger::MessageType type, const string& msg);
 
     /// Register a create function for a typename.
     void registerCreateFunction(const RtToken& typeName, RtPrimCreateFunc func);

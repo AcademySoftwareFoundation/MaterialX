@@ -71,7 +71,7 @@ void RtApi::unregisterLogger(RtLoggerPtr logger)
     _cast(_ptr)->unregisterLogger(logger);
 }
 
-void RtApi::log(RtLogger::MessageType type, const RtToken& msg)
+void RtApi::log(RtLogger::MessageType type, const string& msg)
 {
     _cast(_ptr)->log(type, msg);
 }
