@@ -8,8 +8,6 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 
-#include <iostream>
-
 namespace MaterialX
 {
 
@@ -69,7 +67,8 @@ StringSet ImageHandler::supportedExtensions()
 
 bool ImageHandler::saveImage(const FilePath& filePath,
                              ConstImagePtr image,
-                             bool verticalFlip)
+                             bool verticalFlip,
+                             string* message)
 {
     if (!image)
     {
@@ -92,7 +91,10 @@ bool ImageHandler::saveImage(const FilePath& filePath,
         }
         catch (std::exception& e)
         {
-            std::cerr << "Exception in image I/O library: " << e.what() << std::endl;
+            if (message)
+            {
+                *message = "Exception in image I/O library: " + string(e.what());
+            }
         }
         if (saved)
         {
@@ -102,7 +104,7 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     return false;
 }
 
-ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4* fallbackColor)
+ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4* fallbackColor, string* message)
 {
     FilePath foundFilePath = _searchPath.find(filePath);
     string extension = stringToLower(foundFilePath.getExtension());
@@ -117,7 +119,7 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
         }
         catch (std::exception& e)
         {
-            std::cerr << "Exception in image I/O library: " << e.what() << std::endl;
+            *message = "Exception in image I/O library: " + string(e.what());
         }
         if (image)
         {
@@ -133,19 +135,19 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
         }
     }
 
-    if (!filePath.isEmpty())
+    if (message && !filePath.isEmpty())
     {
         if (!foundFilePath.exists())
         {
-            std::cerr << string("Image file not found: ") + filePath.asString() << std::endl;
+            *message = string("Image file not found: ") + filePath.asString();
         }
         else if (!extensionSupported)
         {
-            std::cerr << string("Unsupported image extension: ") + filePath.asString() << std::endl;
+            *message = string("Unsupported image extension: ") + filePath.asString();
         }
         else
         {
-            std::cerr << string("Image loader failed to parse image: ") + filePath.asString() << std::endl;
+            *message = string("Image loader failed to parse image: ") + filePath.asString();
         }
     }
     if (fallbackColor)

@@ -96,6 +96,8 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
 
     // Set output image name.
     string outputFileName = shaderPath + "_osl.png";
+    // Cache the output file name
+    _oslOutputFileName = outputFileName;
 
     // Use a known error file name to check
     string errorFile(shaderPath + "_render_errors.txt");
@@ -225,6 +227,8 @@ void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, co
 
     // Set output image name.
     string outputFileName = shaderPath + ".testshade.png";
+    // Cache the output file name
+    _oslOutputFileName = outputFileName;
 
     // Use a known error file name to check
     string errorFile(shaderPath + "_shade_errors.txt");
@@ -312,7 +316,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     }
 }
 
-void OslRenderer::createProgram(ShaderPtr shader)
+void OslRenderer::createProgram(const ShaderPtr shader)
 {
     StageMap stages = { {Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode()} };
     createProgram(stages);
@@ -390,6 +394,8 @@ void OslRenderer::render()
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
+    _oslOutputFileName.assign(EMPTY_STRING);
+
     // Use testshade
     if (!_useTestRender)
     {
@@ -410,13 +416,38 @@ void OslRenderer::render()
 
 ImagePtr OslRenderer::captureImage()
 {
-    // No-op: image capture is done as part of rendering.
-    return nullptr;
+    // As rendering goes to disk need to read the image back from disk
+    StringVec errors;
+    const string errorType("OSL image save error.");
+
+    if (!_imageHandler || _oslOutputFileName.isEmpty())
+    {
+        errors.push_back("Failed to read image: " + _oslOutputFileName.asString());
+        throw ExceptionShaderRenderError(errorType, errors);
+    }
+
+    string error;
+    ImagePtr returnImage = _imageHandler->acquireImage(_oslOutputFileName, false, nullptr, &error);
+    if (!returnImage)
+    {
+        errors.push_back("Failed to save to file: " + _oslOutputFileName.asString());
+        errors.push_back(error);            
+        throw ExceptionShaderRenderError(errorType, errors);
+    }
+
+    return returnImage;
 }
 
-void OslRenderer::saveImage(const FilePath& /*filePath*/)
+void OslRenderer::saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip)
 {
-    // No-op: image save is done as part of rendering.
+    StringVec errors;
+    const string errorType("GLSL image save error.");
+
+    if (!_imageHandler->saveImage(filePath, image, verticalFlip))
+    {
+        errors.push_back("Failed to save to file: " + filePath.asString());
+        throw ExceptionShaderRenderError(errorType, errors);
+    }
 }
 
 } // namespace MaterialX

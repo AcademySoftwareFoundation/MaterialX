@@ -168,7 +168,8 @@ class ImageHandler
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
                            ConstImagePtr image,
-                           bool verticalFlip = false);
+                           bool verticalFlip = false,
+                           string* message = nullptr);
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
@@ -177,10 +178,13 @@ class ImageHandler
     /// @param fallbackColor Optional uniform color of a fallback texture
     ///    to create when the image cannot be loaded from the file system.
     ///    By default, no fallback texture is created.
+    /// @param message Optional pointer to a message string, where any warning
+    ///    or error messages from the acquire operation will be stored.
     /// @return On success, a shared pointer to the acquired Image.
     virtual ImagePtr acquireImage(const FilePath& filePath,
                                   bool generateMipMaps = true,
-                                  const Color4* fallbackColor = nullptr);
+                                  const Color4* fallbackColor = nullptr,
+                                  string* message = nullptr);
 
     /// Bind an image for rendering.
     /// @param image The image to bind.

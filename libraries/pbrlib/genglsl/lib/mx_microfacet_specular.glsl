@@ -301,17 +301,17 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 // Parameters for Fresnel calculations.
 struct FresnelData
 {
-    int model;
     vec3 ior;        // In Schlick Fresnel mode these two
     vec3 extinction; // hold F0 and F90 reflectance values
     float exponent;
     float tf_thickness;
     float tf_ior;
+    int model;
 };
 
 FresnelData mx_init_fresnel_dielectric(float ior)
 {
-    FresnelData fd;
+    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
     fd.model = 0;
     fd.ior = vec3(ior);
     fd.tf_thickness = 0.0f;
@@ -320,7 +320,7 @@ FresnelData mx_init_fresnel_dielectric(float ior)
 
 FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction)
 {
-    FresnelData fd;
+    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
     fd.model = 1;
     fd.ior = ior;
     fd.extinction = extinction;
@@ -330,7 +330,7 @@ FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction)
 
 FresnelData mx_init_fresnel_schlick(vec3 F0)
 {
-    FresnelData fd;
+    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
     fd.model = 2;
     fd.ior = F0;
     fd.extinction = vec3(1.0);
@@ -341,7 +341,7 @@ FresnelData mx_init_fresnel_schlick(vec3 F0)
 
 FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F90, float exponent)
 {
-    FresnelData fd;
+    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
     fd.model = 2;
     fd.ior = F0;
     fd.extinction = F90;
@@ -352,7 +352,7 @@ FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F90, float exponent)
 
 FresnelData mx_init_fresnel_dielectric_airy(float ior, float tf_thickness, float tf_ior)
 {
-    FresnelData fd;
+    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
     fd.model = 3;
     fd.ior = vec3(ior);
     fd.extinction = vec3(0.0);
@@ -363,7 +363,7 @@ FresnelData mx_init_fresnel_dielectric_airy(float ior, float tf_thickness, float
 
 FresnelData mx_init_fresnel_conductor_airy(vec3 ior, vec3 extinction, float tf_thickness, float tf_ior)
 {
-    FresnelData fd;
+    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
     fd.model = 3;
     fd.ior = ior;
     fd.extinction = extinction;
