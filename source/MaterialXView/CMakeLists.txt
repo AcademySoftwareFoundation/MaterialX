@@ -36,8 +36,6 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
-set_target_properties(MaterialXView PROPERTIES)
-
 target_link_libraries(
     MaterialXView
     MaterialXFormat
