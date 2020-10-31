@@ -203,6 +203,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _splitByUdims(true),
     _mergeMaterials(false),
     _renderTransparency(true),
+    _renderDoubleSided(true),
     _outlineSelection(false),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
@@ -214,6 +215,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _wedgeImageCount(8),
     _bakeTextures(false),
     _bakeHdr(false),
+    _bakeAverage(false),
     _bakeOptimize(true),
     _bakeTextureRes(DEFAULT_TEXTURE_RES),
     _bakeRequested(false)
@@ -805,7 +807,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
     transparencyBox->setCallback([this](bool enable)
     {
         _renderTransparency = enable;
-        reloadShaders();
+    });
+
+    ng::CheckBox* doubleSidedBox = new ng::CheckBox(advancedPopup, "Render Double-Sided");
+    doubleSidedBox->setChecked(_renderDoubleSided);
+    doubleSidedBox->setCallback([this](bool enable)
+    {
+        _renderDoubleSided = enable;
     });
 
     ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
@@ -937,10 +945,10 @@ void Viewer::updateMaterialSelections()
     std::vector<std::string> items;
     for (const auto& material : _materials)
     {
-        mx::ElementPtr displayElem = material->getMaterialElement();
-        if (!displayElem)
-            displayElem = material->getElement();
-        std::string displayName = displayElem->getNamePath();
+        mx::ElementPtr displayElem = material->getMaterialElement() ?
+                                     material->getMaterialElement() :
+                                     material->getElement();
+        std::string displayName = displayElem->getName();
         if (!material->getUdim().empty())
         {
             displayName += " (" + material->getUdim() + ")";
@@ -971,6 +979,7 @@ void Viewer::updateMaterialSelectionUI()
             }
         }
     }
+    performLayout();
 }
 
 void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries)
@@ -1485,27 +1494,41 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         }
     }
 
-    // Allow left and right keys to cycle through the renderable elements
-    if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && action == GLFW_PRESS)
+    // Up and down keys cycle through selected geometries.
+    if ((key == GLFW_KEY_UP || key == GLFW_KEY_DOWN) && action == GLFW_PRESS)
     {
-        size_t materialCount = _materials.size();
-        size_t materialIndex = _selectedMaterial;
-        if (materialCount > 1)
+        if (_geometryList.size() > 1)
         {
-            if (key == GLFW_KEY_RIGHT)
+            if (key == GLFW_KEY_DOWN)
             {
-                _selectedMaterial = (materialIndex < materialCount - 1) ? materialIndex + 1 : 0;
+                _selectedGeom = (_selectedGeom < _geometryList.size() - 1) ? _selectedGeom + 1 : 0;
             }
             else
             {
-                _selectedMaterial = (materialIndex > 0) ? materialIndex - 1 : materialCount - 1;
-            }
-            if (!_geometryList.empty())
-            {
-                assignMaterial(getSelectedGeometry(), getSelectedMaterial());
-                updateMaterialSelectionUI();
+                _selectedGeom = (_selectedGeom > 0) ? _selectedGeom - 1 : _geometryList.size() - 1;
             }
         }
+        _geometrySelectionBox->setSelectedIndex((int) _selectedGeom);
+        updateMaterialSelectionUI();
+        return true;
+    }
+
+    // Left and right keys cycle through selected materials.
+    if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT) && action == GLFW_PRESS)
+    {
+        if (_materials.size() > 1)
+        {
+            if (key == GLFW_KEY_RIGHT)
+            {
+                _selectedMaterial = (_selectedMaterial < _materials.size() - 1) ? _selectedMaterial + 1 : 0;
+            }
+            else
+            {
+                _selectedMaterial = (_selectedMaterial > 0) ? _selectedMaterial - 1 : _materials.size() - 1;
+            }
+            assignMaterial(getSelectedGeometry(), getSelectedMaterial());
+            updateMaterialSelectionUI();
+       }
         return true;
     }
 
@@ -1525,7 +1548,7 @@ void Viewer::renderFrame()
     // Update shading tables
     updateAlbedoTable();
 
-    // Update lighting tate.
+    // Update lighting state.
     LightingState lightingState;
     lightingState.lightTransform = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI);
     lightingState.directLighting = _directLighting;
@@ -1572,6 +1595,13 @@ void Viewer::renderFrame()
             glDisable(GL_CULL_FACE);
             glCullFace(GL_BACK);
         }
+    }
+
+    // Enable backface culling if requested.
+    if (!_renderDoubleSided)
+    {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
     }
 
     // Opaque pass
@@ -1626,6 +1656,10 @@ void Viewer::renderFrame()
         glDisable(GL_BLEND);
     }
 
+    if (!_renderDoubleSided)
+    {
+        glDisable(GL_CULL_FACE);
+    }
     glDisable(GL_FRAMEBUFFER_SRGB);
 
     // Wireframe pass
@@ -1731,7 +1765,10 @@ void Viewer::bakeTextures()
     std::vector<MaterialPtr> materialsToBake;
     std::vector<std::string> udimSet;
     mx::ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
-    if (!material->getUdim().empty() && udimSetValue && _materials.size() > 1)
+    if (_materials.size() > 1 &&
+        !material->getUdim().empty() &&
+        udimSetValue &&
+        !_bakeAverage)
     {
         materialsToBake = _materials;
         udimSet = udimSetValue->asA<std::vector<std::string>>();
@@ -1745,6 +1782,7 @@ void Viewer::bakeTextures()
         // Construct a texture baker.
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
+        baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
 
         // Bake each material in the list.
