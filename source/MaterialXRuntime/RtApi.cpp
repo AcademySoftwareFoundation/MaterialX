@@ -14,6 +14,7 @@
 #include <MaterialXRuntime/RtFileIo.h>
 #include <MaterialXRuntime/RtLook.h>
 #include <MaterialXRuntime/RtCollection.h>
+#include <MaterialXRuntime/RtConnectableApi.h>
 
 #include <MaterialXRuntime/Private/PvtApi.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
@@ -50,15 +51,35 @@ void RtApi::initialize()
     registerTypedSchema<RtNodeDef>();
     registerTypedSchema<RtNodeGraph>();
     registerTypedSchema<RtBackdrop>();
-    registerTypedSchema<RtLookGroup>();
-    registerTypedSchema<RtLook>();
-    registerTypedSchema<RtMaterialAssign>();
-    registerTypedSchema<RtCollection>();
+    registerTypedSchema<RtBindElement>();
+    registerTypedSchema<RtLookGroup, RtLookGroupConnectableApi>();
+    registerTypedSchema<RtLook, RtLookConnectableApi>();
+    registerTypedSchema<RtMaterialAssign, RtMaterialAssignConnectableApi>();
+    registerTypedSchema<RtCollection, RtCollectionConnectableApi>();
+
+    // Register connectable API for nodegraph internal sockets.
+    // This is not a typed schemas so need explicit registration.
+    RtConnectableApi::registerApi(RtNodeGraph::SOCKETS_TYPE_INFO.getShortTypeName(), RtConnectableApiPtr(new RtConnectableApi));
 }
 
 void RtApi::shutdown()
 {
     _cast(_ptr)->reset();
+
+    // Unregister built in schemas
+    unregisterTypedSchema<RtGeneric>();
+    unregisterTypedSchema<RtNode>();
+    unregisterTypedSchema<RtNodeDef>();
+    unregisterTypedSchema<RtNodeGraph>();
+    unregisterTypedSchema<RtBackdrop>();
+    unregisterTypedSchema<RtBindElement>();
+    unregisterTypedSchema<RtLookGroup>();
+    unregisterTypedSchema<RtLook>();
+    unregisterTypedSchema<RtMaterialAssign>();
+    unregisterTypedSchema<RtCollection>();
+
+    // Unregister connectable API for nodegraph internal sockets.
+    RtConnectableApi::unregisterApi(RtNodeGraph::SOCKETS_TYPE_INFO.getShortTypeName());
 }
 
 void RtApi::registerLogger(RtLoggerPtr logger)

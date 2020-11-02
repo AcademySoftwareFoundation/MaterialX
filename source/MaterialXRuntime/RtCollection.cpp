@@ -22,7 +22,7 @@ namespace
     static const string MSG_NONE_ROOT_COLLECTION("A collection can only be created at the top / root level");
 }
 
-DEFINE_TYPED_SCHEMA(RtCollection, "collection");
+DEFINE_TYPED_SCHEMA(RtCollection, "bindelement:collection");
 
 RtPrim RtCollection::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
@@ -66,6 +66,16 @@ void RtCollection::removeCollection(const RtObject& collection)
 RtRelationship RtCollection::getIncludeCollection() const
 {
     return prim()->getRelationship(INCLUDE_COLLECTION)->hnd();
+}
+
+bool RtCollectionConnectableApi::acceptRelationship(const RtRelationship& rel, const RtObject& target) const
+{
+    if (rel.getName() == INCLUDE_COLLECTION)
+    {
+        // 'includecollection' only accepts other collection prims as target.
+        return target.isA<RtPrim>() && target.asA<RtPrim>().hasApi<RtCollection>();
+    }
+    return false;
 }
 
 }

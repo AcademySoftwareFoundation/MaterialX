@@ -7,26 +7,27 @@
 #define MATERIALX_RTLOOK_H
 
 /// @file RtLook.h
-/// Specifications for a set of classes related to material assignment. 
+/// Specifications for a set of classes related to material binding.
 /// This includes:
 ///     1. Material Assignments: which associate collections of geometry with materials
 ///     2. Looks: which contain one or more material assignments.
 ///     3. Look Groups: which reference a collection of looks with one look being active.
 
-#include <MaterialXRuntime/RtSchema.h>
+#include <MaterialXRuntime/RtBindElement.h>
+#include <MaterialXRuntime/RtConnectableApi.h>
 
 namespace MaterialX
 {
 
 /// @class RtLookGroup
-/// Schema for lookgroup prims.
-class RtLookGroup : public RtTypedSchema
+/// Schema for 'lookgroup' prims.
+class RtLookGroup : public RtBindElement
 {
     DECLARE_TYPED_SCHEMA(RtLookGroup)
 
 public:
     /// Constructor.
-    RtLookGroup(const RtPrim& prim) : RtTypedSchema(prim) {}
+    RtLookGroup(const RtPrim& prim) : RtBindElement(prim) {}
 
     /// Return the active look.
     RtAttribute getActiveLook() const;
@@ -41,16 +42,24 @@ public:
     RtRelationship getLooks() const;
 };
 
+/// @class RtLookGroupConnectableApi
+/// API for validating connections and relationships for the 'lookgroup' prim type.
+class RtLookGroupConnectableApi : public RtConnectableApi
+{
+public:
+    bool acceptRelationship(const RtRelationship& rel, const RtObject& target) const override;
+};
+
 
 /// @class RtLook
-/// Schema for look prims.
-class RtLook : public RtTypedSchema
+/// Schema for 'look' prims.
+class RtLook : public RtBindElement
 {
     DECLARE_TYPED_SCHEMA(RtLook)
 
 public:
     /// Constructor.
-    RtLook(const RtPrim& prim) : RtTypedSchema(prim) {}
+    RtLook(const RtPrim& prim) : RtBindElement(prim) {}
 
     /// Return the inherit relationship.
     RtRelationship getInherit() const;
@@ -65,18 +74,27 @@ public:
     RtRelationship getMaterialAssigns() const;
 };
 
+/// @class RtLookConnectableApi
+/// API for validating connections and relationships for the 'look' prim type.
+class RtLookConnectableApi : public RtConnectableApi
+{
+public:
+    bool acceptRelationship(const RtRelationship& rel, const RtObject& target) const override;
+};
+
+
 /// @class RtMaterialAssign
-/// Schema for materialassign prims.
-class RtMaterialAssign : public RtTypedSchema
+/// Schema for 'materialassign' prims.
+class RtMaterialAssign : public RtBindElement
 {
     DECLARE_TYPED_SCHEMA(RtMaterialAssign)
 
 public:
     /// Constructor.
-    RtMaterialAssign(const RtPrim& prim) : RtTypedSchema(prim) {}
+    RtMaterialAssign(const RtPrim& prim) : RtBindElement(prim) {}
 
-    /// Return the material relationship.
-    RtRelationship getMaterial() const;
+    /// Return the material input.
+    RtInput getMaterial() const;
 
     /// Return the collection relationship.
     RtRelationship getCollection() const;
@@ -86,6 +104,14 @@ public:
 
     /// Return the exclusive flag attribute.
     RtAttribute getExclusive() const;
+};
+
+/// @class RtMaterialAssignConnectableApi
+/// API for validating connections and relationships for the 'materialssign' prim type.
+class RtMaterialAssignConnectableApi : public RtConnectableApi
+{
+public:
+    bool acceptRelationship(const RtRelationship& rel, const RtObject& target) const override;
 };
 
 }

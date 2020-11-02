@@ -4,6 +4,10 @@
 //
 
 #include <MaterialXRuntime/Private/PvtRelationship.h>
+#include <MaterialXRuntime/Private/PvtPrim.h>
+#include <MaterialXRuntime/Private/PvtPath.h>
+
+#include <MaterialXRuntime/RtConnectableApi.h>
 
 namespace MaterialX
 {
@@ -18,10 +22,10 @@ PvtRelationship::PvtRelationship(const RtToken& name, PvtPrim* parent) :
 
 void PvtRelationship::addTarget(const PvtObject* target)
 {
-    // Linear search not ideal for performance, but we need the relationship ordering
-    // so must maintain a vector here.
-    // If performance ever gets noticable we could add and extra set/map, 
-    // if we can affor the extra storage.
+    // Check if this relationship exists already.
+    // Linear search here not ideal for performance, but we need the relationship ordering
+    // so must maintain a vector here. If performance ever gets noticable we could add an
+    // extra set/map if we can affor the storage.
     for (auto it = _targets.begin(); it != _targets.end(); ++it)
     {
         if (it->get() == target)
@@ -30,6 +34,15 @@ void PvtRelationship::addTarget(const PvtObject* target)
             return;
         }
     }
+
+    // Validate the relationship with this prims connectable API.
+    RtConnectableApi* connectableApi = RtConnectableApi::get(getParent()->prim());
+    if (!(connectableApi && connectableApi->acceptRelationship(hnd(), target->hnd())))
+    {
+        throw ExceptionRuntimeError("'" + getPath().asString() + "' rejected the relationship");
+    }
+
+    // Create the relationship.
     _targets.push_back(target->hnd());
 }
 

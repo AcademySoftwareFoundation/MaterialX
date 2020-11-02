@@ -133,39 +133,8 @@ protected:
     friend class RtConnectionIterator;
 };
 
-class PvtInput;
 
-class PvtOutput : public PvtAttribute
-{
-    RT_DECLARE_RUNTIME_OBJECT(PvtOutput)
-
-public:
-    PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
-
-    bool isConnected() const
-    {
-        return !_connections.empty();
-    }
-
-    bool isConnectable(const PvtInput* input) const;
-
-    void connect(PvtInput* input);
-
-    void disconnect(PvtInput* input);
-
-    RtConnectionIterator getConnections() const
-    {
-        return RtConnectionIterator(this->obj());
-    }
-
-    void clearConnections();
-
-protected:
-    PvtDataHandleVec _connections;
-    friend class PvtInput;
-    friend class RtConnectionIterator;
-};
-
+class PvtOutput;
 
 class PvtInput : public PvtAttribute
 {
@@ -196,25 +165,16 @@ public:
         return _connection != nullptr;
     }
 
-    bool isConnectable(const PvtOutput* output) const
-    {
-        return output->isConnectable(this);
-    }
-
-    void connect(PvtOutput* output)
-    {
-        return output->connect(this);
-    }
-
-    void disconnect(PvtOutput* output)
-    {
-        return output->disconnect(this);
-    }
-
     PvtOutput* getConnection() const
     {
         return _connection ? _connection->asA<PvtOutput>() : nullptr;
     }
+
+    bool isConnectable(const PvtOutput* output) const;
+
+    void connect(PvtOutput* output);
+
+    void disconnect(PvtOutput* output);
 
     void clearConnection();
 
@@ -222,6 +182,49 @@ protected:
     PvtDataHandle _connection;
     friend class PvtOutput;
 };
+
+
+class PvtOutput : public PvtAttribute
+{
+    RT_DECLARE_RUNTIME_OBJECT(PvtOutput)
+
+public:
+    PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent);
+
+    bool isConnected() const
+    {
+        return !_connections.empty();
+    }
+
+    bool isConnectable(const PvtInput* input) const
+    {
+        return input->isConnectable(this);
+    }
+
+    void connect(PvtInput* input)
+    {
+        return input->connect(this);
+    }
+
+    void disconnect(PvtInput* input)
+    {
+        return input->disconnect(this);
+    }
+
+    RtConnectionIterator getConnections() const
+    {
+        return RtConnectionIterator(this->obj());
+    }
+
+    void clearConnections();
+
+protected:
+    PvtDataHandleVec _connections;
+    friend class PvtInput;
+    friend class RtConnectionIterator;
+};
+
+
 
 }
 

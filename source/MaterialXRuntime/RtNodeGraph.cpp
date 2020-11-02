@@ -6,6 +6,7 @@
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtNode.h>
+#include <MaterialXRuntime/RtConnectableApi.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
@@ -14,12 +15,13 @@ namespace MaterialX
 
 namespace
 {
-    static const RtTypeInfo SOCKETS_TYPE_INFO("_nodegraph_internal_sockets");
     static const RtToken SOCKETS("_nodegraph_internal_sockets");
     static const RtToken NODEGRAPH1("nodegraph1");
 }
 
 DEFINE_TYPED_SCHEMA(RtNodeGraph, "node:nodegraph");
+
+const RtTypeInfo RtNodeGraph::SOCKETS_TYPE_INFO("_nodegraph_internal_sockets");
 
 RtPrim RtNodeGraph::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {

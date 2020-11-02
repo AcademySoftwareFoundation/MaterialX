@@ -52,7 +52,7 @@ void PvtConnectionCmd::makeConnection(RtCommandResult& result)
         }
 
         // Make the connection
-        _src.connect(_dest);
+        _dest.connect(_src);
 
         // Send message that the connection has been made.
         msg().sendConnectionMessage(_src, _dest, ConnectionChange::MAKE_CONNECTION);
@@ -77,7 +77,7 @@ void PvtConnectionCmd::breakConnection(RtCommandResult& result)
         }
 
         // Break the connection
-        _src.disconnect(_dest);
+        _dest.disconnect(_src);
 
         // Send message that the connection has been broken.
         msg().sendConnectionMessage(_src, _dest, ConnectionChange::BREAK_CONNECTION);

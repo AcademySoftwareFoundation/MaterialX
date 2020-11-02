@@ -7,6 +7,8 @@
 #include <MaterialXRuntime/Private/PvtPrim.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
 
+#include <MaterialXRuntime/RtConnectableApi.h>
+
 namespace MaterialX
 {
 
@@ -26,109 +28,70 @@ PvtAttribute::PvtAttribute(const RtToken& name, const RtToken& type, uint32_t fl
 }
 
 
-RT_DEFINE_RUNTIME_OBJECT(PvtOutput, RtObjType::OUTPUT, "PvtOutput")
-
-PvtOutput::PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
-    PvtAttribute(name, type, flags, parent)
-{
-    setTypeBit<PvtOutput>();
-}
-
-bool PvtOutput::isConnectable(const PvtInput* other) const
-{
-    // We cannot connect to ourselves.
-    if (_parent == other->_parent)
-    {
-        return false;
-    }
-    // We must have matching types.
-    if (getType() != other->getType())
-    {
-        // TODO: Check if the data types are compatible/castable
-        // instead of strictly an exact match.
-        return false;
-    }
-    // If this is a nodegraph socket being connected to a uniform make sure
-    // the corresponding input on the outer nodegraph is also uniform.
-    // 
-    //  TODO: Enabled this check when the uniform flag has been implemented properly
-    /*
-    if (isSocket() && other->isUniform())
-    {
-        PvtPrim* graphPrim = _parent->getParent();
-        if (graphPrim)
-        {
-            PvtInput* graphInput = graphPrim->getInput(getName());
-            if (graphInput && !graphInput->isUniform())
-            {
-                return false;
-            }
-        }
-    }
-    */
-    return true;
-}
-
-void PvtOutput::connect(PvtInput* input)
-{
-    // Check if the connection exists already.
-    if (input->_connection == hnd())
-    {
-        return;
-    }
-
-    // Validate the connection.
-    if (input->isConnected())
-    {
-        throw ExceptionRuntimeError("Input '" + input->getPath().asString() + "' is already connected");
-    }
-    if (!isConnectable(input))
-    {
-        throw ExceptionRuntimeError("Output '" + getPath().asString() + "' is not connectable to input '" + input->getPath().asString() + "'");
-    }
-
-    // Make the connection.
-    _connections.push_back(input->hnd());
-    input->_connection = hnd();
-}
-
-void PvtOutput::disconnect(PvtInput* input)
-{
-    // Check if the connection exists.
-    if (!input->_connection || input->_connection.get() != this)
-    {
-        return;
-    }
-
-    // Break the connection.
-    input->_connection = nullptr;
-    for (auto it = _connections.begin(); it != _connections.end(); ++it)
-    {
-        if (it->get() == input)
-        {
-            _connections.erase(it);
-            break;
-        }
-    }
-}
-
-void PvtOutput::clearConnections()
-{
-    // Break connections to all destination inputs.
-    for (PvtDataHandle destH : _connections)
-    {
-        destH->asA<PvtInput>()->_connection = nullptr;
-    }
-    _connections.clear();
-}
-
-
 RT_DEFINE_RUNTIME_OBJECT(PvtInput, RtObjType::INPUT, "PvtInput")
 
 PvtInput::PvtInput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
     PvtAttribute(name, type, flags, parent)
 {
     setTypeBit<PvtInput>();
+}
+
+bool PvtInput::isConnectable(const PvtOutput* output) const
+{
+    // We cannot connect to ourselves.
+    if (_parent == output->_parent)
+    {
+        return false;
+    }
+
+    // Use the connectable API of this prim to validate the connection.
+    RtConnectableApi* connectableApi = RtConnectableApi::get(_parent->prim());
+    return connectableApi && connectableApi->acceptConnection(hnd(), output->hnd());
+}
+
+void PvtInput::connect(PvtOutput* output)
+{
+    // Check if this connection exists already.
+    if (_connection == output->hnd())
+    {
+        return;
+    }
+
+    // Check if another connection exists already.
+    if (isConnected())
+    {
+        throw ExceptionRuntimeError("'" + getPath().asString() + "' is already connected");
+    }
+
+    // Make sure the connection is valid.
+    if (!isConnectable(output))
+    {
+        throw ExceptionRuntimeError("'" + getPath().asString() + "' rejected the connection");
+    }
+
+    // Make the connection.
+    _connection = output->hnd();
+    output->_connections.push_back(hnd());
+}
+
+void PvtInput::disconnect(PvtOutput* output)
+{
+    // Make sure the connection exists, otherwise we can't break it.
+    if (_connection != output->hnd())
+    {
+        return;
+    }
+
+    // Break the connection.
+    _connection = nullptr;
+    for (auto it = output->_connections.begin(); it != output->_connections.end(); ++it)
+    {
+        if (it->get() == this)
+        {
+            output->_connections.erase(it);
+            break;
+        }
+    }
 }
 
 void PvtInput::clearConnection()
@@ -148,5 +111,25 @@ void PvtInput::clearConnection()
         _connection = nullptr;
     }
 }
+
+
+RT_DEFINE_RUNTIME_OBJECT(PvtOutput, RtObjType::OUTPUT, "PvtOutput")
+
+PvtOutput::PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, PvtPrim* parent) :
+    PvtAttribute(name, type, flags, parent)
+{
+    setTypeBit<PvtOutput>();
+}
+
+void PvtOutput::clearConnections()
+{
+    // Break connections to all destination inputs.
+    for (PvtDataHandle destH : _connections)
+    {
+        destH->asA<PvtInput>()->_connection = nullptr;
+    }
+    _connections.clear();
+}
+
 
 }
