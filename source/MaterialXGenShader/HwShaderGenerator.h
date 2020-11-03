@@ -195,10 +195,12 @@ namespace HW
     extern const string LIGHT_DATA;       // Uniform inputs for light sources.
     extern const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
-    /// Variable names for direction vectors.
+    /// Variable names for lighting parameters.
     extern const string DIR_N;
     extern const string DIR_L;
     extern const string DIR_V;
+    extern const string WORLD_POSITION;
+    extern const string OCCLUSION;
 
     /// Attribute names.
     extern const string ATTR_TRANSPARENT;
