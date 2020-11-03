@@ -1,6 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
-void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_dielectric_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -27,8 +27,8 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, floa
     float dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
 
     // Note: NdotL is cancelled out
-    result = D * F * G * comp * tint * weight / (4 * NdotV) // Top layer reflection
-           + base * (1.0 - dirAlbedo * weight);             // Base layer reflection attenuated by top layer
+    result = D * F * G * comp * tint * occlusion * weight / (4 * NdotV) // Top layer reflection
+           + base * (1.0 - dirAlbedo * weight);                         // Base layer reflection attenuated by top layer
 }
 
 void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)

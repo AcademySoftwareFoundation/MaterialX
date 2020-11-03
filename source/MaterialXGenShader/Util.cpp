@@ -346,24 +346,6 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             }
         }
 
-        // Check subsurface
-        InputPtr subsurface = shaderNode->getActiveInput("subsurface");
-        if (subsurface)
-        {
-            if (subsurface->getConnectedOutput())
-            {
-                return true;
-            }
-            else
-            {
-                ValuePtr value = subsurface->getValue();
-                if (value && !isZero(value))
-                {
-                    return true;
-                }
-            }
-        }
-
         // Check for a transparent graph.
         InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
         if (!impl)
@@ -476,24 +458,6 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             else
             {
                 ValuePtr value = transmission->getValue();
-                if (value && !isZero(value))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // Check subsurface
-        BindInputPtr subsurface = shaderRef->getBindInput("subsurface");
-        if (subsurface)
-        {
-            if (subsurface->getConnectedOutput())
-            {
-                return true;
-            }
-            else
-            {
-                ValuePtr value = subsurface->getValue();
                 if (value && !isZero(value))
                 {
                     return true;
