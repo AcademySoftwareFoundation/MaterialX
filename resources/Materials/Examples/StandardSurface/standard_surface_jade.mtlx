@@ -3,13 +3,12 @@
   <material name="Jade">
     <shaderref name="SR_jade" node="standard_surface">
       <bindinput name="base" type="float" value="0.5" />
-      <bindinput name="base_color" type="color3" value="0.0603, 0.43979999, 0.19159999" />
+      <bindinput name="base_color" type="color3" value="0.0603, 0.4398, 0.1916" />
       <bindinput name="specular_roughness" type="float" value="0.25" />
-      <bindinput name="specular_IOR" type="float" value="2.4179999828338623" />
+      <bindinput name="specular_IOR" type="float" value="2.418" />
       <bindinput name="specular_anisotropy" type="float" value="0.5" />
       <bindinput name="subsurface" type="float" value="0.4" />
-      <bindinput name="subsurface_color" type="color3" value="0.0603, 0.43979999, 0.19159999" />
-      <bindinput name="subsurface_scale" type="float" value="0.10000000149011612" />
+      <bindinput name="subsurface_color" type="color3" value="0.0603, 0.4398, 0.1916" />
     </shaderref>
   </material>
 </materialx>

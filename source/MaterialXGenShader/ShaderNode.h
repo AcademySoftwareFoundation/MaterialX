@@ -309,9 +309,9 @@ class ShaderNode
         static const unsigned int CONDITIONAL = 1 << 4;  /// A conditional node
         static const unsigned int CONSTANT    = 1 << 5;  /// A constant node
         // Specific closure types
-        static const unsigned int BSDF        = 1 << 6;  /// A BDFS node
-        static const unsigned int BSDF_R      = 1 << 7;  /// A BDFS node only for reflection
-        static const unsigned int BSDF_T      = 1 << 8;  /// A BDFS node only for transmission
+        static const unsigned int BSDF        = 1 << 6;  /// A BSDF node
+        static const unsigned int BSDF_R      = 1 << 7;  /// A BSDF node only for reflection
+        static const unsigned int BSDF_T      = 1 << 8;  /// A BSDF node only for transmission
         static const unsigned int EDF         = 1 << 9;  /// A EDF node
         static const unsigned int VDF         = 1 << 10; /// A VDF node
         // Specific shader types
