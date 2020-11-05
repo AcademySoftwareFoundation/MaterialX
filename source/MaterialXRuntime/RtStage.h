@@ -49,14 +49,14 @@ public:
     /// If an empty name is given a name will be generated.
     RtPrim createPrim(const RtPath& parentPath, const RtToken& name, const RtToken& typeName);
 
-    /// Create a node definition based on a nodegraph
-    RtPrim createNodeDef(RtNodeGraph& nodeGraph, 
-                         const RtToken& nodeDefName, const RtToken& nodeName, const RtToken& version, bool isDefaultVersion, const RtToken& nodeGroup = EMPTY_TOKEN);
+    /// Create a nodedef based on a nodegraph
+    RtPrim createNodeDef(RtNodeGraph& nodeGraph, const RtToken& nodeDefName, const RtToken& nodeName,
+                         const RtToken& version, bool isDefaultVersion, const RtToken& nodeGroup = EMPTY_TOKEN);
 
-    /// Return the implementation for a given definition if it exists.
-    /// Currently only nodegraph implemenations are considered. If the implementaiton is not a nodegraph
-    /// an invalid RtPrim will be returned.
-    RtPrim getImplementation(const RtNodeDef& definition) const;
+    /// Return the implementation for a given nodedef if it exists.
+    /// Currently only nodegraph implemenations are considered.
+    /// If no implementation is found an invalid RtPrim will be returned.
+    RtPrim getImplementation(const RtNodeDef& nodedef) const;
 
     /// Remove a prim from the stage.
     void removePrim(const RtPath& path);

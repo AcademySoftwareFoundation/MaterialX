@@ -303,16 +303,15 @@ namespace
             return nodedefName;
         }
 
-        // Third, try resolving among existing registered master prim nodedefs.
+        // Third, try resolving among existing registered nodedefs.
         const RtToken nodeName(node->getCategory());
         const RtToken nodeType(node->getType());
         const vector<ValueElementPtr> nodePorts = node->getActiveValueElements();
-        RtSchemaPredicate<RtNodeDef> nodedefFilter;
-        for (RtPrim masterPrim : RtApi::get().getMasterPrims(nodedefFilter))
+        for (RtPrim prim : RtApi::get().getNodeDefs())
         {
-            RtNodeDef candidate(masterPrim);
+            RtNodeDef candidate(prim);
             if (candidate.getNamespacedNode() == nodeName && 
-                matchingSignature(PvtObject::ptr<PvtPrim>(masterPrim), nodeType, nodePorts))
+                matchingSignature(PvtObject::ptr<PvtPrim>(prim), nodeType, nodePorts))
             {
                 return candidate.getName();
             }
@@ -681,10 +680,10 @@ namespace
         {
             if (!filter || filter(nodedef))
             {
-                if (!RtApi::get().hasMasterPrim(RtToken(nodedef->getName())))
+                if (!RtApi::get().hasNodeDef(RtToken(nodedef->getName())))
                 {
                     PvtPrim* prim = readNodeDef(nodedef, stage);
-                    RtNodeDef(prim->hnd()).registerMasterPrim();
+                    RtApi::get().registerNodeDef(prim->hnd());
                 }
             }
         }
@@ -1184,8 +1183,7 @@ namespace
 
     void readUnitDefinitions(DocumentPtr doc)
     {
-        RtApi& api = RtApi::get();
-        UnitConverterRegistryPtr unitDefinitions = api.getUnitDefinitions();
+        UnitConverterRegistryPtr unitDefinitions = RtApi::get().getUnitDefinitions();
         for (UnitTypeDefPtr unitTypeDef : doc->getUnitTypeDefs())
         {
             LinearUnitConverterPtr unitConvert = LinearUnitConverter::create(unitTypeDef);
@@ -1193,17 +1191,17 @@ namespace
         }
     }
 
-    void writeMasterPrim(DocumentPtr document, PvtStage* stage, PvtPrim* prim, const RtWriteOptions* options)
+    void writeNodeDefAndImplementation(DocumentPtr document, PvtStage* stage, PvtPrim* prim, const RtWriteOptions* options)
     {
         if (!prim || prim->isDisposed())
         {
-            throw ExceptionRuntimeError("Trying to write invalid definition" +  (prim ? (": '" + prim->getName().str() + "'") :  EMPTY_STRING));
+            throw ExceptionRuntimeError("Trying to write invalid nodedef" +  (prim ? (": '" + prim->getName().str() + "'") :  EMPTY_STRING));
         }
 
         // Write the definition
         writeNodeDef(prim, document, options);
 
-        // Write the corresponding nodegraph if any.
+        // Write the corresponding nodegraph implementation if any.
         // Currently there is no "implementation" association kept other than
         // on the node graph referencing the definition it represents.
         //
@@ -1229,24 +1227,25 @@ namespace
 
     void writeNodeDefs(DocumentPtr document, PvtStage* stage, const RtTokenVec& names, const RtWriteOptions* options)
     {
-        // Write all definitions if no names provided
-        RtApi& rtApi = RtApi::get();
+        RtApi& api = RtApi::get();
         if (names.empty())
         {
-            RtSchemaPredicate<RtNodeDef> nodedefFilter;
-            for (RtPrim masterPrim : rtApi.getMasterPrims(nodedefFilter))
+            // Write all nodedefs.
+            for (const RtPrim& prim : api.getNodeDefs())
             {
-                PvtPrim* prim = PvtObject::ptr<PvtPrim>(masterPrim);
-                writeMasterPrim(document, stage, prim, options);
+                writeNodeDefAndImplementation(document, stage, PvtObject::ptr<PvtPrim>(prim), options);
             }
         }
         else
         {
+            // Write only the specified nodedefs.
             for (const RtToken& name : names)
             {
-                RtPrim masterPrim = rtApi.getMasterPrim(name);
-                PvtPrim* prim = PvtObject::ptr<PvtPrim>(masterPrim);
-                writeMasterPrim(document, stage, prim, options);
+                RtPrim prim = api.getNodeDef(name);
+                if (prim)
+                {
+                    writeNodeDefAndImplementation(document, stage, PvtObject::ptr<PvtPrim>(prim), options);
+                }
             }
         }      
     }
@@ -1316,6 +1315,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* options)
 
 void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths, const RtReadOptions& options)
 {
+    RtApi& api = RtApi::get();
     PvtStage* stage = PvtStage::ptr(_stage);
 
     // Load all content into a document.
@@ -1337,10 +1337,10 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
     // when node instances are loaded later.
     for (const NodeDefPtr& nodedef : doc->getNodeDefs())
     {
-        if (!RtApi::get().hasMasterPrim(RtToken(nodedef->getName())))
+        if (!api.hasNodeDef(RtToken(nodedef->getName())))
         {
             PvtPrim* prim = readNodeDef(nodedef, stage);
-            RtNodeDef(prim->hnd()).registerMasterPrim();
+            api.registerNodeDef(prim->hnd());
         }
     }
 
@@ -1377,7 +1377,7 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
         }
         catch(const ExceptionRuntimeError &e)
         {
-            RtApi::get().log(RtLogger::ERROR, e.what());
+            api.log(RtLogger::ERROR, e.what());
         }
     }
 }

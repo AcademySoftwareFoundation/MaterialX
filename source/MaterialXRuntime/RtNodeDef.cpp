@@ -49,14 +49,13 @@ RtToken RtNodeDef::getNamespacedNode() const
 {
     const RtToken& nodeToken = getNode();
     string nodeString = nodeToken.c_str();
-    string namespaceString = getNamespace().c_str();;
+    string namespaceString = getNamespace().c_str();
     if (!namespaceString.empty())
     {
         return RtToken(namespaceString + NAME_PREFIX_SEPARATOR + nodeString);
     }
     return nodeToken;
 }
-
 
 void RtNodeDef::setNode(const RtToken& node)
 {
@@ -227,21 +226,6 @@ RtNodeLayout RtNodeDef::getNodeLayout()
         }
     }
     return layout;
-}
-
-void RtNodeDef::registerMasterPrim() const
-{
-    RtApi::get().registerMasterPrim(prim()->hnd());
-}
-
-void RtNodeDef::unregisterMasterPrim() const
-{
-    RtApi::get().unregisterMasterPrim(prim()->getName());
-}
-
-bool RtNodeDef::isMasterPrim() const
-{
-    return RtApi::get().hasMasterPrim(prim()->getName());
 }
 
 }

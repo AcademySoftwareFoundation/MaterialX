@@ -107,39 +107,39 @@ void RtApi::unregisterCreateFunction(const RtToken& typeName)
     _cast(_ptr)->unregisterCreateFunction(typeName);
 }
 
-bool RtApi::hasCreateFunction(const RtToken& typeName)
+bool RtApi::hasCreateFunction(const RtToken& typeName) const
 {
     return _cast(_ptr)->hasCreateFunction(typeName);
 }
 
-RtPrimCreateFunc RtApi::getCreateFunction(const RtToken& typeName)
+RtPrimCreateFunc RtApi::getCreateFunction(const RtToken& typeName) const
 {
     return _cast(_ptr)->getCreateFunction(typeName);
 }
 
-void RtApi::registerMasterPrim(const RtPrim& prim)
+void RtApi::registerNodeDef(const RtPrim& prim)
 {
-    _cast(_ptr)->registerMasterPrim(prim);
+    _cast(_ptr)->registerNodeDef(prim);
 }
 
-void RtApi::unregisterMasterPrim(const RtToken& name)
+void RtApi::unregisterNodeDef(const RtToken& name)
 {
-    _cast(_ptr)->unregisterMasterPrim(name);
+    _cast(_ptr)->unregisterNodeDef(name);
 }
 
-bool RtApi::hasMasterPrim(const RtToken& name)
+bool RtApi::hasNodeDef(const RtToken& name) const
 {
-    return _cast(_ptr)->hasMasterPrim(name);
+    return _cast(_ptr)->hasNodeDef(name);
 }
 
-RtPrim RtApi::getMasterPrim(const RtToken& name)
+RtPrim RtApi::getNodeDef(const RtToken& name) const
 {
-    return _cast(_ptr)->getMasterPrim(name);
+    return _cast(_ptr)->getNodeDef(name);
 }
 
-RtPrimIterator RtApi::getMasterPrims(RtObjectPredicate predicate)
+RtPrimIterator RtApi::getNodeDefs() const
 {
-    return RtPrimIterator(_cast(_ptr)->_masterPrimRoot, predicate);
+    return _cast(_ptr)->getNodeDefs();
 }
 
 void RtApi::clearSearchPath()

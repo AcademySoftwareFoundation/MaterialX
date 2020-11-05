@@ -472,7 +472,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     nodedef.setNode(FOO);
     REQUIRE(nodedef.getNode() == FOO);
     REQUIRE_THROWS(stage->createPrim(nodedef.getName()));
-    nodedef.registerMasterPrim();
+    api->registerNodeDef(nodedefPrim);
     REQUIRE(stage->createPrim(nodedef.getName()));
 
     mx::RtPrim nodePrim = stage->createPrim(nodedefPrim.getName());
@@ -608,8 +608,8 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     // Node creation without a valid nodedef should throw.
     REQUIRE_THROWS(stage->createPrim("/add1", FOO));
 
-    // Register as a master prim so we can create node instance from it.
-    nodedef.registerMasterPrim();
+    // Register so we can create node instance from it.
+    api->registerNodeDef(nodedef.getPrim());
 
     // Create two new node instances from the add nodedef
     mx::RtPrim add1Prim = stage->createPrim("/add1", nodedef.getName());
@@ -720,7 +720,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     addFloat.createInput(IN1, mx::RtType::FLOAT);
     addFloat.createInput(IN2, mx::RtType::FLOAT);
     addFloat.createOutput(OUT, mx::RtType::FLOAT);
-    addFloat.registerMasterPrim();
+    api->registerNodeDef(addFloat.getPrim());
 
     // Create a nodegraph object.
     mx::RtNodeGraph graph1 = stage->createPrim("/graph1", mx::RtNodeGraph::typeName());
@@ -829,7 +829,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 
     REQUIRE(graph1.getDefinition() == ND_ADDGRAPH);
     REQUIRE(graph1.getVersion() == ADDGRAPH_VERSION);
-    REQUIRE(addgraphDef.isMasterPrim());
+    REQUIRE(api->hasNodeDef(addgraphDef.getName()));
     REQUIRE(addgraphDef.numInputs() == 2);
     REQUIRE(addgraphDef.numOutputs() == 1);
     REQUIRE(addgraphDef.getOutput().getName() == OUT);
@@ -2420,7 +2420,7 @@ TEST_CASE("Runtime: duplicate name", "[runtime]")
     addFloat.createInput(IN1, mx::RtType::FLOAT);
     addFloat.createInput(IN2, mx::RtType::FLOAT);
     addFloat.createOutput(OUT, mx::RtType::FLOAT);
-    addFloat.registerMasterPrim();
+    api->registerNodeDef(addFloat.getPrim());
 
     // Create a nodegraph object.
     mx::RtNodeGraph graph1 = stage->createPrim("/graph1", mx::RtNodeGraph::typeName());

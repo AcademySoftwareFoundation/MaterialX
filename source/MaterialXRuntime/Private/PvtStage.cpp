@@ -60,11 +60,11 @@ PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, co
     }
     else
     {
-        // Second, try finding a registered master prim.
-        const RtPrim master = RtApi::get().getMasterPrim(typeName);
-        if (master && master.getTypeInfo()->getShortTypeName() == RtNodeDef::typeName())
+        // Second, try finding a registered nodedef.
+        const RtPrim nodedef = RtApi::get().getNodeDef(typeName);
+        if (nodedef)
         {
-            // This is a nodedef, so create a node instance from it.
+            // A nodedef exists with this name, so create a node instance.
             RtPrimCreateFunc nodeCreator = RtApi::get().getCreateFunction(RtNode::typeName());
             primH = PvtObject::hnd(nodeCreator(typeName, name, parent->hnd()));
         }

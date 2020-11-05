@@ -119,16 +119,6 @@ public:
     /// Containing its input ordering and uifolder hierarchy.
     RtNodeLayout getNodeLayout();
 
-    /// Register this nodedef as a master prim
-    /// to make it instantiable for node creation.
-    void registerMasterPrim() const;
-
-    /// Unregister this nodedef as a master prim.
-    void unregisterMasterPrim() const;
-
-    /// Return true if this nodedef is registerd as a master prim.
-    bool isMasterPrim() const;
-
     static RtToken NODE;
     static RtToken NODEDEF;
     static RtToken NODEGROUP;

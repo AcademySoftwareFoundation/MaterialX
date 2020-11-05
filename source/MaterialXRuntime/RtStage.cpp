@@ -8,6 +8,7 @@
 #include <MaterialXRuntime/RtPath.h>
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
+#include <MaterialXRuntime/RtApi.h>
 
 #include <MaterialXRuntime/Private/PvtStage.h>
 
@@ -177,21 +178,29 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
                               const RtToken& nodeGroup)
 {
     // Must have a nodedef name and a node name
-    if (nodeDefName == EMPTY_TOKEN ||
-        nodeName == EMPTY_TOKEN)
+    if (nodeDefName == EMPTY_TOKEN || nodeName == EMPTY_TOKEN)
     {
-        throw ExceptionRuntimeError("Cannot create nodedef with definition name'" + nodeDefName.str() 
-                                    + "', and node name: '" + nodeName.str() + "'");
+        throw ExceptionRuntimeError("Cannot create nodedef '" + nodeDefName.str() + "', with node name: '" + nodeName.str() + "'");
+    }
+
+    // Make sure a nodedef with this name in not already registered.
+    if (RtApi::get().hasNodeDef(nodeDefName))
+    {
+        throw ExceptionRuntimeError("A nodedef named '" + nodeDefName.str() + "' is already registered");
     }
 
     PvtStage* stage = _cast(_ptr);
-    PvtPrim* prim = stage->createPrim(stage->getPath(), nodeDefName, RtNodeDef::typeName());
 
-    RtNodeDef nodedef(prim->hnd());
-    if (nodedef.isMasterPrim())
+    // Make sure the nodedef name is unique among all prims.
+    PvtPath path(PvtPath::ROOT_NAME);
+    path.push(nodeDefName);
+    if (stage->getPrimAtPath(path))
     {
-        throw ExceptionRuntimeError("Definition to create already exists '" + nodeDefName.str() + "'");
+        throw ExceptionRuntimeError("The nodedef named '" + nodeDefName.str() + "' is not unique");
     }
+
+    PvtPrim* prim = stage->createPrim(stage->getPath(), nodeDefName, RtNodeDef::typeName());
+    RtNodeDef nodedef(prim->hnd());
 
     // Set node, version and optional node group
     nodedef.setNode(nodeName);
@@ -258,10 +267,10 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
     // Set the definition on the nodegraph
     nodeGraph.setDefinition(nodeDefName);
 
-    // Add definiion
-    nodedef.registerMasterPrim();
+    // Register this nodedef.
+    RtApi::get().registerNodeDef(nodedef.getPrim());
 
-    return prim->hnd();
+    return nodedef.getPrim();
 }
 
 }

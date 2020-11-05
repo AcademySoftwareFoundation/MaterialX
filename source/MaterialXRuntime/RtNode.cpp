@@ -22,41 +22,39 @@ DEFINE_TYPED_SCHEMA(RtNode, "node");
 
 RtPrim RtNode::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    const RtPrim master = RtApi::get().getMasterPrim(typeName);
-    if (!master)
+    const RtPrim prim = RtApi::get().getNodeDef(typeName);
+    if (!prim)
     {
-        throw ExceptionRuntimeError("No master prim registered for typeName '" + typeName.str() + "'");
+        throw ExceptionRuntimeError("No nodedef registered with name '" + typeName.str() + "'");
     }
 
     // Make sure this is a valid nodedef.
-    RtNodeDef nodedefSchema(master);
-    if (!nodedefSchema)
+    RtNodeDef nodedef(prim);
+    if (!nodedef)
     {
-        throw ExceptionRuntimeError("Master prim with typeName '" + typeName.str() + "' is not a valid nodedef");
+        throw ExceptionRuntimeError("Nodedef with name '" + typeName.str() + "' is not valid");
     }
 
-    const PvtPrim* nodedef = PvtObject::ptr<PvtPrim>(master);
+    const PvtPrim* nodedefPrim = PvtObject::ptr<PvtPrim>(prim);
 
-    const RtToken nodeName = (name == EMPTY_TOKEN ?
-        RtToken(nodedefSchema.getNode().str()) : name);
-
+    const RtToken nodeName = name == EMPTY_TOKEN ? nodedef.getNode() : name;
     PvtDataHandle nodeH = PvtPrim::createNew(&_typeInfo, nodeName, PvtObject::ptr<PvtPrim>(parent));
     PvtPrim* node = nodeH->asA<PvtPrim>();
 
     // Save the nodedef in a relationship.
     PvtRelationship* nodedefRelation = node->createRelationship(NODEDEF);
-    nodedefRelation->addTarget(nodedef);
+    nodedefRelation->addTarget(nodedefPrim);
 
     // Copy over meta-data from nodedef to node. 
     // TODO: Checks with ILM need to be made to make sure that the appropriate
     // meta-data set. TBD if target should be set.
     RtTokenSet copyList = { RtNodeDef::VERSION };
-    const vector<RtToken>& metadata = nodedef->getMetadataOrder();
-    for (const RtToken dataName : metadata)
+    const vector<RtToken>& metadata = nodedefPrim->getMetadataOrder();
+    for (const RtToken& dataName : metadata)
     { 
         if (copyList.count(dataName))
         {
-            const RtTypedValue* src = nodedef->getMetadata(dataName);
+            const RtTypedValue* src = nodedefPrim->getMetadata(dataName);
             RtTypedValue* v = src ? node->addMetadata(dataName, src->getType()) : nullptr;
             if (v)
             {
@@ -67,7 +65,7 @@ RtPrim RtNode::createPrim(const RtToken& typeName, const RtToken& name, RtPrim p
     }
 
     // Create the interface according to nodedef.
-    for (const PvtDataHandle& attrH : nodedef->getAllAttributes())
+    for (const PvtDataHandle& attrH : nodedefPrim->getAllAttributes())
     {
         const PvtAttribute* attr = attrH->asA<PvtAttribute>();
         if (attr->isA<PvtInput>())

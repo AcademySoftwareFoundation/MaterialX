@@ -15,16 +15,16 @@ namespace MaterialX
 
 void PvtApi::reset()
 {
-    static const RtTypeInfo masterPrimRootType("api_masterprimroot");
-    static const RtToken libRootName("api_libroot");
+    static const RtTypeInfo defRootType("api_def_root");
+    static const RtToken libRootName("api_lib_root");
 
-    _masterPrimRoot.reset(new PvtPrim(&masterPrimRootType, masterPrimRootType.getShortTypeName(), nullptr));
+    _definitionsRootPrim.reset(new PvtPrim(&defRootType, defRootType.getShortTypeName(), nullptr));
     _createFunctions.clear();
     _stages.clear();
 
-    _libraryRoot.reset();
+    _libraryRootStage.reset();
     _libraries.clear();
-    _libraryRoot = RtStage::createNew(libRootName);
+    _libraryRootStage = RtStage::createNew(libRootName);
 
     _unitDefinitions = UnitConverterRegistry::create();
 }
@@ -41,7 +41,7 @@ void PvtApi::createLibrary(const RtToken& name)
     RtStagePtr lib = RtStage::createNew(name);
     _libraries[name] = lib;
 
-    _libraryRoot->addReference(lib);
+    _libraryRootStage->addReference(lib);
 }
 
 void PvtApi::loadLibrary(const RtToken& name, const RtReadOptions& options)
@@ -59,7 +59,7 @@ void PvtApi::loadLibrary(const RtToken& name, const RtReadOptions& options)
     RtFileIo file(lib);
     file.readLibraries({ name.str() }, _searchPaths, options);
 
-    _libraryRoot->addReference(lib);
+    _libraryRootStage->addReference(lib);
 }
 
 void PvtApi::unloadLibrary(const RtToken& name)
@@ -71,7 +71,7 @@ void PvtApi::unloadLibrary(const RtToken& name)
         RtSchemaPredicate<RtNodeDef> nodedefFilter;
         for (RtPrim nodedef : lib->getRootPrim().getChildren(nodedefFilter))
         {
-            unregisterMasterPrim(nodedef.getName());
+            unregisterNodeDef(nodedef.getName());
         }
 
         // Delete the library.
@@ -79,7 +79,7 @@ void PvtApi::unloadLibrary(const RtToken& name)
     }
 }
 
-RtToken PvtApi::makeUniqueName(const RtToken& name) const
+RtToken PvtApi::makeUniqueStageName(const RtToken& name) const
 {
     RtToken newName = name;
 

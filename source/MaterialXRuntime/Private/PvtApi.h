@@ -11,6 +11,8 @@
 
 #include <MaterialXRuntime/RtApi.h>
 #include <MaterialXRuntime/RtStage.h>
+#include <MaterialXRuntime/RtSchema.h>
+#include <MaterialXRuntime/RtNodeDef.h>
 
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
@@ -86,39 +88,40 @@ public:
         return it != _createFunctions.end() ? it->second : nullptr;
     }
 
-    void registerMasterPrim(const RtPrim& prim)
+    void registerNodeDef(const RtPrim& prim)
     {
-        if (getMasterPrim(prim.getName()))
+        if (getNodeDef(prim.getName()))
         {
-            throw ExceptionRuntimeError("A master prim with name '" + prim.getName().str() + "' is already registered");
+            throw ExceptionRuntimeError("A nodedef with name '" + prim.getName().str() + "' is already registered");
         }
-        _masterPrimRoot->asA<PvtPrim>()->addChildPrim(PvtObject::ptr<PvtPrim>(prim));
+        _definitionsRootPrim->asA<PvtPrim>()->addChildPrim(PvtObject::ptr<PvtPrim>(prim));
     }
 
-    void unregisterMasterPrim(const RtToken& name)
+    void unregisterNodeDef(const RtToken& name)
     {
-        PvtPrim* prim = _masterPrimRoot->asA<PvtPrim>()->getChild(name);
+        RtPrim prim = getNodeDef(name);
         if (prim)
         {
-            _masterPrimRoot->asA<PvtPrim>()->removeChildPrim(prim);
+            _definitionsRootPrim->asA<PvtPrim>()->removeChildPrim(PvtObject::ptr<PvtPrim>(prim));
         }
     }
 
-    bool hasMasterPrim(const RtToken& name)
+    bool hasNodeDef(const RtToken& name)
     {
-        PvtPrim* prim = _masterPrimRoot->asA<PvtPrim>()->getChild(name);
-        return prim != nullptr;
+        PvtPrim* prim = _definitionsRootPrim->asA<PvtPrim>()->getChild(name);
+        return prim && prim->hasApi<RtNodeDef>();
     }
 
-    RtPrim getMasterPrim(const RtToken& name)
+    RtPrim getNodeDef(const RtToken& name)
     {
-        PvtPrim* prim = _masterPrimRoot->asA<PvtPrim>()->getChild(name);
-        return prim ? prim->hnd() : RtPrim();
+        PvtPrim* prim = _definitionsRootPrim->asA<PvtPrim>()->getChild(name);
+        return prim && prim->hasApi<RtNodeDef>() ? prim->hnd() : RtPrim();
     }
 
-    RtPrimIterator getMasterPrims(RtObjectPredicate predicate = nullptr)
+    RtPrimIterator getNodeDefs()
     {
-        return RtPrimIterator(_masterPrimRoot, predicate);
+        RtSchemaPredicate<RtNodeDef> filter;
+        return RtPrimIterator(_definitionsRootPrim, filter);
     }
 
     void clearSearchPath()
@@ -181,7 +184,7 @@ public:
 
     RtStagePtr getLibraryRoot()
     {
-        return _libraryRoot;
+        return _libraryRootStage;
     }
 
     RtTokenVec getLibraryNames() const
@@ -204,11 +207,11 @@ public:
         _userDefinitionPath = path;
     }
 
-    RtToken makeUniqueName(const RtToken& name) const;
+    RtToken makeUniqueStageName(const RtToken& name) const;
 
     RtStagePtr createStage(const RtToken& name)
     {
-        const RtToken newName = makeUniqueName(name);
+        const RtToken newName = makeUniqueStageName(name);
         RtStagePtr stage = RtStage::createNew(newName);
         _stages[newName] = stage;
         return stage;
@@ -232,7 +235,7 @@ public:
         {
             throw ExceptionRuntimeError("Can't find a stage named '" + name.str() + "' to rename");
         }
-        const RtToken uniqueName = makeUniqueName(newName);
+        const RtToken uniqueName = makeUniqueStageName(newName);
         stage->setName(uniqueName);
         _stages[uniqueName] = stage;
         _stages.erase(name);
@@ -268,11 +271,11 @@ public:
     FileSearchPath _implementationSearchPaths;
     FileSearchPath _textureSearchPaths;
     FilePath _userDefinitionPath;
-    RtStagePtr _libraryRoot;
+    RtStagePtr _libraryRootStage;
     RtTokenMap<RtStagePtr> _libraries;
     UnitConverterRegistryPtr  _unitDefinitions;
 
-    PvtDataHandle _masterPrimRoot;
+    PvtDataHandle _definitionsRootPrim;
     RtTokenMap<RtPrimCreateFunc> _createFunctions;
     RtTokenMap<RtStagePtr> _stages;
 };
