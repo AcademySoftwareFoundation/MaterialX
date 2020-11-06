@@ -1930,14 +1930,25 @@ mx::ImagePtr Viewer::renderWedge()
 void Viewer::bakeTextures()
 {
     MaterialPtr material = getSelectedMaterial();
-    mx::DocumentPtr doc = material->getDocument();
-    if (!doc)
+    if (!material->getMaterialElement())
     {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
+            "There are no material nodes to bake.");
         return;
     }
 
+    mx::DocumentPtr origDoc = material->getDocument();
+    if (!origDoc)
+    {
+        return;
+    }
+    // Make a copy before baking as baking process can change the document
+    // layout.
+    mx::DocumentPtr bakeDoc = mx::createDocument();
+    bakeDoc->copyContentFrom(origDoc);
+    
     // Create a unique image handler for baking.
-    mx::FilePath documentFilename = doc->getSourceUri();
+    mx::FilePath documentFilename = origDoc->getSourceUri();
     mx::FileSearchPath searchPath = _searchPath;
     searchPath.append(documentFilename.getParentPath());
     mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
@@ -1946,7 +1957,7 @@ void Viewer::bakeTextures()
     // Compute material and UDIM lists.
     std::vector<MaterialPtr> materialsToBake;
     std::vector<std::string> udimSet;
-    mx::ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+    mx::ValuePtr udimSetValue = bakeDoc->getGeomPropValue("udimset");
     if (!material->getUdim().empty() && udimSetValue && _materials.size() > 1)
     {
         materialsToBake = _materials;
@@ -1961,25 +1972,34 @@ void Viewer::bakeTextures()
         // Construct a texture baker.
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
+        baker->setupUnitSystem(_stdLib);
+        baker->setTargetUnitSpace(_genContext.getOptions().targetDistanceUnit);
+
+        mx::StringResolverPtr resolver = mx::StringResolver::create();
 
         // Bake each material in the list.
         for (MaterialPtr mat : materialsToBake)
         {
-            mx::ShaderRefPtr shaderRef = mat->getElement()->asA<mx::ShaderRef>();
-            if (shaderRef)
+            mx::NodePtr origMaterialNode = mat->getMaterialElement()->asA<mx::Node>();
+            mx::ElementPtr materialElement = bakeDoc->getDescendant(origMaterialNode->getNamePath());
+            mx::NodePtr materialNode = materialElement ? materialElement->asA<mx::Node>() : nullptr;
+            if (materialNode)
             {
-                mx::StringResolverPtr resolver = mx::StringResolver::create();
-                resolver->setUdimString(mat->getUdim());
-                imageHandler->setFilenameResolver(resolver);
-
-                try
+                std::unordered_set<mx::NodePtr> shaderNodes = mx::getShaderNodes(materialNode, mx::SURFACE_SHADER_TYPE_STRING);
+                if (!shaderNodes.empty())
                 {
-                    baker->setImageHandler(imageHandler);
-                    baker->bakeShaderInputs(shaderRef, _genContext, _bakeFilename.getParentPath(), mat->getUdim());
-                }
-                catch (mx::Exception& e)
-                {
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+                    resolver->setUdimString(mat->getUdim());
+                    imageHandler->setFilenameResolver(resolver);
+                    try
+                    {
+                        baker->setImageHandler(imageHandler);
+                        // TODO: Only bake first shader for now
+                        baker->bakeShaderInputs(materialNode, *shaderNodes.begin(), _genContext, _bakeFilename.getParentPath(), mat->getUdim());
+                    }
+                    catch (mx::Exception& e)
+                    {
+                        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
+                    }
                 }
             }
         }

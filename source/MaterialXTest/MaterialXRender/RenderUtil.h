@@ -233,6 +233,10 @@ class ShaderRenderTester
                      std::ostream& stream,
                      mx::DocumentPtr dependLib);
 
+    virtual bool canBake() const { return false; }
+    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*imageSearchPath*/, const mx::FilePath& /*outputFilename*/,
+                         unsigned int /*bakeWidth*/, unsigned int /*bakeHeight*/, bool /*bakeHdr*/, std::ostream& /*log*/) {};
+
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
     const std::string _languageTargetString;

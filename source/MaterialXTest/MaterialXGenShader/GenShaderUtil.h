@@ -148,6 +148,11 @@ class TestSuiteOptions
     mx::FloatVec wedgeRangeMax;
     mx::IntVec wedgeSteps;
 
+    // Bake parameters
+    mx::StringVec bakeFiles;
+    mx::BoolVec bakeHdrs;
+    mx::IntVec bakeResolutions;
+
     // Apply updates for future versions
     bool applyFutureUpdates;
 };

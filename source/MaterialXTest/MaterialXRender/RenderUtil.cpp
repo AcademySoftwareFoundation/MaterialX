@@ -216,6 +216,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     mx::StringSet usedImpls;
 
+    const mx::StringVec& bakeFiles = options.bakeFiles;
+    const mx::IntVec& bakeResolution = options.bakeResolutions;
+    const mx::BoolVec& bakeHdr = options.bakeHdrs;
+
     const std::string MTLX_EXTENSION("mtlx");
     for (const auto& dir : dirs)
     {
@@ -241,6 +245,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             }
 
             const mx::FilePath filename = mx::FilePath(dir) / mx::FilePath(file);
+
             mx::DocumentPtr doc = mx::createDocument();
             try
             {
@@ -279,6 +284,29 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             validateTimer.endTimer();
             CHECK(validDoc);
 
+            mx::FileSearchPath imageSearchPath(dir);
+            imageSearchPath.append(searchPath);
+
+            mx::FilePath outputPath = mx::FilePath(dir) / file;
+            outputPath.removeExtension();
+
+            // Perform bake and use that file for rendering
+            if (canBake() && (bakeFiles.size() == bakeResolution.size()) && 
+                (bakeFiles.size() == bakeHdr.size()))
+            {
+                for (size_t i = 0; i < bakeFiles.size(); i++)
+                {
+                    mx::FilePath outputBakeFile = file;
+                    if (bakeFiles[i] == outputBakeFile.asString())
+                    {
+                        outputBakeFile.removeExtension();
+                        outputBakeFile = outputPath / (outputBakeFile.asString() + "_baked.mtlx");
+                        runBake(doc, imageSearchPath, outputBakeFile, bakeResolution[i], bakeResolution[i], bakeHdr[i], log);
+                        break;
+                    }
+                }
+            }
+
             renderableSearchTimer.startTimer();
             std::vector<mx::TypedElementPtr> elements;
             try
@@ -292,11 +320,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             }
             renderableSearchTimer.endTimer();
 
-            mx::FileSearchPath imageSearchPath(dir);
-            imageSearchPath.append(searchPath);
-
-            mx::FilePath outputPath = mx::FilePath(dir) / file;
-            outputPath.removeExtension();
             for (const auto& element : elements)
             {
                 std::vector<mx::TypedElementPtr> targetElements;

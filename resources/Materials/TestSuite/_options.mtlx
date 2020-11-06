@@ -105,5 +105,10 @@
       <parameter name="wedgeRangeMax" type="floatarray" value="1.0, 0.9" />
       <parameter name="wedgeSteps" type="integerarray" value="4, 3" />
 
+      <!-- Bake rendering options: Currently only suppoers the genglsl_glsl400 shader generator -->
+      <parameter name="bakeFiles" type="string" value="mapped_surfaceshader.mtlx,normalmapped_surfaceshader.mtlx" />
+      <parameter name="bakeHdrs" type="booleanarray" value="false,false" />
+      <parameter name="bakeResolutions" type="integerarray" value="1024,1024" />
+
    </nodedef>
 </materialx>

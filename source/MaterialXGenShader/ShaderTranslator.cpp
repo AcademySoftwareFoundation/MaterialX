@@ -89,6 +89,9 @@ void ShaderTranslator::insertUpstreamDependencies(OutputPtr translatedOutput, Ou
 
 void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
 {
+    StringSet categories;
+    categories.insert("normalmap");
+
     DocumentPtr doc = shaderRef->getDocument();
     vector<OutputPtr> outputs = doc->getNodeGraph("NG_" + _translationNode->getCategory())->getOutputs();
     for (OutputPtr translationGraphOutput : outputs)
@@ -105,7 +108,7 @@ void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
         BindInputPtr translatedBindInput = shaderRef->addBindInput(inputName, translationGraphOutput->getType());
         translatedBindInput->setConnectedOutput(translatedOutput);
         // if normals need to be transformed into world space
-        if (connectsToNormalMapNode(translationGraphOutput))
+        if (connectsToNodeOfCategory(translationGraphOutput, categories))
         {
             insertUpstreamDependencies(translatedOutput, translationGraphOutput);
         }

@@ -951,10 +951,79 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
     offsetUV[1] = -minUV[1];
 }
 
-bool connectsToNormalMapNode(OutputPtr output)
+NodePtr connectsToNodeOfCategory(OutputPtr output, const StringSet& categories)
 {
-    ElementPtr connectedNode = output ? output->getConnectedNode() : nullptr;
-    return connectedNode && connectedNode->getCategory() == "normalmap";
+    ElementPtr connectedElement = output ? output->getConnectedNode() : nullptr;
+    NodePtr connectedNode = connectedElement->asA<Node>();
+    if (!connectedNode)
+    {
+        return nullptr;
+    }
+    
+    // Check the direct node type
+    if (categories.count(connectedNode->getCategory()))
+    {
+        return connectedNode;
+    }
+
+    // Check if it's a definition which has a root which of the node type
+    NodeDefPtr nodedef = connectedNode->getNodeDef();
+    if (nodedef)
+    {
+        InterfaceElementPtr inter = nodedef->getImplementation();
+        if (inter)
+        {
+            NodeGraphPtr graph = inter->asA<NodeGraph>();
+            if (graph)
+            {
+                for (OutputPtr outputPtr : graph->getOutputs())
+                {
+                    NodePtr outputNode = outputPtr->getConnectedNode();
+                    if (outputNode && categories.count(outputNode->getCategory()))
+                    {
+                        return outputNode;
+                    }
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
+bool hasElementAttributes(OutputPtr output, const StringVec& attributes)
+{
+    if (!output || attributes.empty())
+    {
+        return false;
+    }
+
+    for (GraphIterator it = output->traverseGraph().begin(); it != GraphIterator::end(); ++it)
+    {
+        ElementPtr upstreamElem = it.getUpstreamElement();
+        NodePtr upstreamNode = upstreamElem ? upstreamElem->asA<Node>() : nullptr;
+        if (!upstreamNode)
+        {
+            it.setPruneSubgraph(true);
+            continue;
+        }
+        NodeDefPtr nodeDef = upstreamNode->getNodeDef();
+        for (ValueElementPtr nodeDefElement : nodeDef->getActiveValueElements())
+        {
+            ValueElementPtr testElement = upstreamNode->getActiveValueElement(nodeDefElement->getName());
+            if (!testElement)
+            {
+                testElement = nodeDefElement;
+            }
+            for (auto attr : attributes)
+            {
+                if (testElement->hasAttribute(attr))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 } // namespace MaterialX

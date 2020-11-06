@@ -982,6 +982,9 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string WEDGE_RANGE_MIN("wedgeRangeMin");
     const std::string WEDGE_RANGE_MAX("wedgeRangeMax");
     const std::string WEDGE_STEPS("wedgeSteps");
+    const std::string BAKE_FILES("bakeFiles");
+    const std::string BAKE_HDRS("bakeHdrs");
+    const std::string BAKE_RESOLUTIONS("bakeResolutions");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -1112,7 +1115,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                             externalTestPaths.append(mx::FilePath(l));
                         }
                     }
-
                     else if (name == WEDGE_FILES)
                     {
                         wedgeFiles = mx::splitString(p->getValueString(), ",");
@@ -1133,9 +1135,21 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         wedgeRangeMax = val->asA<mx::FloatVec>();
                     }
+                    else if (name == BAKE_FILES)
+                    {
+                        bakeFiles = mx::splitString(p->getValueString(), ",");
+                    }
+                    else if (name == BAKE_RESOLUTIONS)
+                    {
+                        bakeResolutions = val->asA<mx::IntVec>();
+                    }
+                    else if (name == BAKE_HDRS)
+                    {
+                        bakeHdrs = val->asA<mx::BoolVec>();
+                    }
                     else if (name == APPLY_LATEST_UPDATES)
                     {
-                        applyFutureUpdates = p->getValue()->asA<bool>();
+                    applyFutureUpdates = p->getValue()->asA<bool>();
                     }
                 }
             }
