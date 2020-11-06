@@ -1,0 +1,113 @@
+name: build_linux
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build_linux:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - name: Linux_GCC_5_Python27
+          os: ubuntu-latest
+          compiler: gcc
+          compiler_version: "5"
+          python: 2.7
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2
+
+        - name: Linux_GCC_6_Python37
+          os: ubuntu-latest
+          compiler: gcc
+          compiler_version: "6"
+          python: 3.7
+
+        - name: Linux_GCC_10_Python37
+          os: ubuntu-latest
+          compiler: gcc
+          compiler_version: "10"
+          python: 3.7
+
+    runs-on: ${{matrix.os}}
+
+    env:
+      config: Release
+
+    steps:
+    - name: Sync Repository
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Install Dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install libgl-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libx11-dev
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+          echo "::set-env name=CC::gcc-${{ matrix.compiler_version }}"
+          echo "::set-env name=CXX::g++-${{ matrix.compiler_version }}"
+        else
+          sudo apt-get install -y clang-${{ matrix.compiler_version }} g++-multilib
+          echo "::set-env name=CC::clang-${{ matrix.compiler_version }}"
+          echo "::set-env name=CXX::clang++-${{ matrix.compiler_version }}"
+        fi
+
+    - name: Install Python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+        architecture: ${{ matrix.architecture }}
+
+    - name: Create Build Directory
+      run: mkdir build
+      
+    - name: CMake Generate
+      run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
+      working-directory: build
+
+    - name: CMake Build
+      run: cmake --build . --target install --config ${{env.config}}
+      working-directory: build
+
+    - name: Upload Installed Package
+      uses: actions/upload-artifact@v2
+      with:
+        name: MaterialX_${{matrix.name}}
+        path: build/installed/
+
+    - name: CMake Unit Tests
+      run: ctest -VV --output-on-failure --build-config ${{env.config}}
+      working-directory: build
+
+    - name: Generate Test HTML
+      if: ${{matrix.generate_html == 'ON'}}
+      run: cmake -E chdir ../python/MaterialXTest python tests_to_html.py
+      working-directory: build
+
+    - name: Upload Test HTML
+      uses: actions/upload-artifact@v2
+      if: ${{matrix.generate_html == 'ON'}}
+      with:
+        name: MaterialX_${{matrix.name}}_test_html
+        path: build/source/MaterialXTest/tests.html
+
+    - name: Upload Test Images
+      uses: actions/upload-artifact@v2
+      if: ${{matrix.generate_html == 'ON'}}
+      with:
+        name: MaterialX_${{matrix.name}}_test_images
+        path: build/source/MaterialXTest/**/*.png
+
+    - name: Python Tests
+      run: |
+        cmake -E chdir ../python/MaterialXTest python main.py
+        cmake -E chdir ../python/MaterialXTest python genshader.py
+      working-directory: build
