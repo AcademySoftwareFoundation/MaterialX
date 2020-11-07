@@ -138,6 +138,11 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
         0, glFormat, glType, image->getResourceBuffer());
+    if (image->getChannelCount() == 1)
+    {
+        GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+    }
 
     if (generateMipMaps)
     {
