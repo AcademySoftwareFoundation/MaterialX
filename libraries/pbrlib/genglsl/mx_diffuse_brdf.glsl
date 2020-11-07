@@ -8,6 +8,8 @@ void mx_diffuse_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float w
         return;
     }
 
+    normal = mx_forward_facing_normal(normal, V);
+
     float NdotL = clamp(dot(normal, L), M_FLOAT_EPS, 1.0);
 
     result = color * occlusion * weight * NdotL * M_PI_INV;
@@ -24,6 +26,8 @@ void mx_diffuse_brdf_indirect(vec3 V, float weight, vec3 color, float roughness,
         result = BSDF(0.0);
         return;
     }
+
+    normal = mx_forward_facing_normal(normal, V);
 
     vec3 Li = mx_environment_irradiance(normal);
     result = Li * color * weight;

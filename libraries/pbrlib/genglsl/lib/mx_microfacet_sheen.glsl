@@ -4,8 +4,7 @@
 // Equation 2
 float mx_imageworks_sheen_NDF(float cosTheta, float roughness)
 {
-    // Given roughness is assumed to be clamped to [M_FLOAT_EPS, 1.0]
-    float invRoughness = 1.0 / roughness;
+    float invRoughness = 1.0 / max(roughness, 0.0001);
     float cos2 = cosTheta * cosTheta;
     float sin2 = 1.0 - cos2;
     return (2.0 + invRoughness) * pow(sin2, invRoughness * 0.5) / (2.0 * M_PI);

@@ -62,3 +62,15 @@ vec2 mx_latlong_projection(vec3 dir)
     float longitude = atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
     return vec2(longitude, latitude);
 }
+
+vec3 mx_forward_facing_normal(vec3 N, vec3 V)
+{
+    if (dot(N, V) < 0.0)
+    {
+        return -N;
+    }
+    else
+    {
+        return N;
+    }
+}
