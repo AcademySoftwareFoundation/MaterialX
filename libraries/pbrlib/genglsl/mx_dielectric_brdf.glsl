@@ -8,6 +8,8 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
         return;
     }
 
+    N = mx_forward_facing_normal(N, V);
+
     vec3 Y = normalize(cross(N, X));
     vec3 H = normalize(L + V);
 
@@ -43,8 +45,9 @@ void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     // attenuate the base layer transmission by the
     // inverse of top layer reflectance.
 
-    // Abs here to allow transparency through backfaces
-    float NdotV = abs(dot(N, V));
+    N = mx_forward_facing_normal(N, V);
+
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     float avgRoughness = mx_average_roughness(roughness);
     float F0 = mx_ior_to_f0(ior);
@@ -64,11 +67,9 @@ void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
         return;
     }
 
+    N = mx_forward_facing_normal(N, V);
+
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
-    if (NdotV == M_FLOAT_EPS)
-    {
-        weight = 0.0;
-    }
 
     float avgRoughness = mx_average_roughness(roughness);
     float F0 = mx_ior_to_f0(ior);

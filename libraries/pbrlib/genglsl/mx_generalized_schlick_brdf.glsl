@@ -8,6 +8,8 @@ void mx_generalized_schlick_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
         return;
     }
 
+    N = mx_forward_facing_normal(N, V);
+
     vec3 Y = normalize(cross(N, X));
     vec3 H = normalize(L + V);
 
@@ -43,8 +45,9 @@ void mx_generalized_schlick_brdf_transmission(vec3 V, float weight, vec3 color0,
     // attenuate the base layer transmission by the 
     // inverse of top layer reflectance.
 
-    // Abs here to allow transparency through backfaces
-    float NdotV = abs(dot(N, V));
+    N = mx_forward_facing_normal(N, V);
+
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     float avgRoughness = mx_average_roughness(roughness);
     vec3 F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
@@ -63,6 +66,8 @@ void mx_generalized_schlick_brdf_indirect(vec3 V, float weight, vec3 color0, vec
         result = base;
         return;
     }
+
+    N = mx_forward_facing_normal(N, V);
 
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
