@@ -426,12 +426,10 @@ ImagePtr OslRenderer::captureImage()
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    string error;
-    ImagePtr returnImage = _imageHandler->acquireImage(_oslOutputFileName, false, nullptr, &error);
+    ImagePtr returnImage = _imageHandler->acquireImage(_oslOutputFileName, false, nullptr);
     if (!returnImage)
     {
         errors.push_back("Failed to save to file: " + _oslOutputFileName.asString());
-        errors.push_back(error);            
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
