@@ -328,6 +328,24 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             }
         }
 
+        // Check existence
+        InputPtr existence = shaderNode->getActiveInput("existence");
+        if (existence)
+        {
+            if (existence->getConnectedOutput())
+            {
+                return true;
+            }
+            else
+            {
+                ValuePtr value = existence->getValue();
+                if (value && !isOne(value))
+                {
+                    return true;
+                }
+            }
+        }
+
         // Check transmission
         InputPtr transmission = shaderNode->getActiveInput("transmission");
         if (transmission)
@@ -440,6 +458,24 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             else
             {
                 ValuePtr value = opacity->getValue();
+                if (value && !isOne(value))
+                {
+                    return true;
+                }
+            }
+        }
+
+        // Check existence
+        BindInputPtr existence = shaderRef->getBindInput("existence");
+        if (existence)
+        {
+            if (existence->getConnectedOutput())
+            {
+                return true;
+            }
+            else
+            {
+                ValuePtr value = existence->getValue();
                 if (value && !isOne(value))
                 {
                     return true;

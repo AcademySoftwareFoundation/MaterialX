@@ -131,8 +131,8 @@ class Viewer : public ng::Screen
     /// returning a new indirect map and directional light document.
     void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
 
-    /// Update the current shadow map.
     void updateShadowMap();
+    void invalidateShadowMap();
 
     /// Update the directional albedo table.
     void updateAlbedoTable();
