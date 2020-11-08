@@ -2,8 +2,18 @@
 
 ## [1.37.3] - Development
 
+### Added
 - Added Render Transparency and Render Double-Sided options to the Advanced Settings panel of the viewer.
+- Added viewer support for partially-transparent mesh partitions.
+- Added a subsurface scattering approximation to MaterialX GLSL.
 - Added a CMake option for building shared libraries on Linux and MacOS.
+
+### Changed
+- Improved the robustness of texture baking and shader translation.
+- Moved CI builds from Travis and Appveyor to GitHub Actions.
+
+### Fixed
+- Fixed rendering of single-channel textures in MaterialXRenderGlsl.
 
 ## [1.37.2] - 2020-09-06
 
