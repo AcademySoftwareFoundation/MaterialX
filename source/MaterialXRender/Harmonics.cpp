@@ -201,6 +201,14 @@ void computeDominantLight(ConstImagePtr env, Vector3& lightDir, Color3& lightCol
     // Project the environment to spherical harmonics.
     Sh3ColorCoeffs shEnv = projectEnvironment(env);
 
+    // Handle empty environments.
+    if (shEnv == Sh3ColorCoeffs())
+    {
+        lightDir = Vector3(0.0f, -1.0f, 0.0f);
+        lightColor = Color3(0.0f);
+        return;
+    }
+
     // Compute the dominant light direction.
     Vector3d dir = Vector3d(shEnv[3].dot(LUMA_COEFFS_REC709),
                             shEnv[1].dot(LUMA_COEFFS_REC709),
