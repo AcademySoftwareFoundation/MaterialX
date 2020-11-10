@@ -54,7 +54,7 @@ vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
     vec2 res = textureSize($albedoTable, 0);
-    if (res.x > 0)
+    if (res.x > 1)
     {
         vec2 AB = texture($albedoTable, vec2(NdotV, roughness)).rg;
         return F0 * AB.x + F90 * AB.y;

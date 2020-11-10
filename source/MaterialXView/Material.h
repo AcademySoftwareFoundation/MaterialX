@@ -100,7 +100,6 @@ class Material
         _material = val;
     }
 
-
     /// Get any associated udim identifier
     const std::string& getUdim()
     {
@@ -165,7 +164,7 @@ class Material
 
     /// Bind a single image.
     mx::ImagePtr bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-                           const mx::ImageSamplingProperties& samplingProperties, const mx::Color4* fallbackColor = nullptr);
+                           const mx::ImageSamplingProperties& samplingProperties);
 
     /// Bind lights to shader.
     void bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,

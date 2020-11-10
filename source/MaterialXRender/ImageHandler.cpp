@@ -42,7 +42,10 @@ const string ImageLoader::TXR_EXTENSION = "txr";
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
     addLoader(imageLoader);
-    _zeroImage = createUniformImage(1, 1, 4, Image::BaseType::UINT8, Color4(0.0f));
+    _zeroImage = createUniformImage(2, 2, 4, Image::BaseType::UINT8, Color4(0.0f));
+
+    // Generated shaders use a 1x1 texture to represent invalid images.
+    _invalidImage = createUniformImage(1, 1, 4, Image::BaseType::UINT8, Color4(0.0f));
 }
 
 void ImageHandler::addLoader(ImageLoaderPtr loader)
@@ -102,7 +105,7 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     return false;
 }
 
-ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4* fallbackColor)
+ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool)
 {
     FilePath foundFilePath = _searchPath.find(filePath);
     string extension = stringToLower(foundFilePath.getExtension());
@@ -121,7 +124,8 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
         }
         if (image)
         {
-            // Workaround for sampling issues with 1x1 textures.
+            // Generated shaders use a 1x1 texture to represent invalid images, so valid 1x1
+            // images must be resized.
             if (image->getWidth() == 1 && image->getHeight() == 1)
             {
                 image = createUniformImage(2, 2, image->getChannelCount(),
@@ -148,17 +152,9 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool, const Color4
             std::cerr << string("Image loader failed to parse image: ") + filePath.asString() << std::endl;
         }
     }
-    if (fallbackColor)
-    {
-        ImagePtr image = createUniformImage(2, 2, 4, Image::BaseType::UINT8, *fallbackColor);
-        if (image)
-        {
-            cacheImage(filePath, image);
-            return image;
-        }
-    }
 
-    return nullptr;
+    cacheImage(filePath, _invalidImage);
+    return _invalidImage;
 }
 
 bool ImageHandler::bindImage(ImagePtr, const ImageSamplingProperties&)

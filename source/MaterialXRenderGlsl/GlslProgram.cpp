@@ -545,7 +545,7 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
     {
         // Acquire the image.
         string error;
-        ImagePtr image = imageHandler->acquireImage(filePath, generateMipMaps, &(samplingProperties.defaultColor));
+        ImagePtr image = imageHandler->acquireImage(filePath, generateMipMaps);
         if (imageHandler->bindImage(image, samplingProperties))
         {
             GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
