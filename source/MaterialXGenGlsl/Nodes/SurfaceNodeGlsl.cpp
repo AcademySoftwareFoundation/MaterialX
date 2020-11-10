@@ -20,6 +20,8 @@ SurfaceNodeGlsl::SurfaceNodeGlsl()
     _callReflection->setSuffix("_reflection");
     _callReflection->addArgument(Type::VECTOR3, HW::DIR_L);
     _callReflection->addArgument(Type::VECTOR3, HW::DIR_V);
+    _callReflection->addArgument(Type::VECTOR3, HW::WORLD_POSITION);
+    _callReflection->addArgument(Type::FLOAT, HW::OCCLUSION);
     // Transmission context
     _callTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
     _callTransmission->setSuffix("_transmission");
@@ -112,11 +114,6 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitString("float surfaceOpacity = ", stage);
             shadergen.emitInput(node.getInput("opacity"), context, stage);
             shadergen.emitLineEnd(stage);
-            // Early out for 100% cutout transparency
-            shadergen.emitLine("if (surfaceOpacity < 0.001)", stage, false);
-            shadergen.emitScopeBegin(stage);
-            shadergen.emitLine("discard", stage);
-            shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
         }
 
@@ -134,16 +131,17 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitLine("vec3 shadowCoord = (" + HW::T_SHADOW_MATRIX + " * vec4(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
             shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
             shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
-            shadergen.emitLine("float shadowOcc = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
+            shadergen.emitLine("float occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
         }
         else
         {
-            shadergen.emitLine("float shadowOcc = 1.0", stage);
+            shadergen.emitLine("float occlusion = 1.0", stage);
         }
         shadergen.emitLineBreak(stage);
 
         shadergen.emitLine("vec3 N = normalize(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_NORMAL_WORLD + ")", stage);
         shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ")", stage);
+        shadergen.emitLine("vec3 P = " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD, stage);
 
         // 
         // Generate Light loop if requested
@@ -167,7 +165,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitLineBreak(stage);
 
             shadergen.emitComment("Accumulate the light's contribution", stage);
-            shadergen.emitLine(outColor + " += lightShader.intensity * shadowOcc * " + bsdf, stage);
+            shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf, stage);
 
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
@@ -182,11 +180,11 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         {
             ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
             shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
-            shadergen.emitLine("float ambOcc = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+            shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
         }
         else
         {
-            shadergen.emitLine("float ambOcc = 1.0", stage);
+            shadergen.emitLine("occlusion = 1.0", stage);
         }
         shadergen.emitLineBreak(stage);
 
@@ -203,7 +201,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         string bsdf;
         shadergen.emitBsdfNodes(graph, node, _callIndirect, context, stage, bsdf);
         shadergen.emitLineBreak(stage);
-        shadergen.emitLine(outColor + " += ambOcc * " + bsdf, stage);
+        shadergen.emitLine(outColor + " += occlusion * " + bsdf, stage);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
 

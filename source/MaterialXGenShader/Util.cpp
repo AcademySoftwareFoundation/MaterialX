@@ -332,6 +332,24 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             }
         }
 
+        // Check existence
+        InputPtr existence = shaderNode->getActiveInput("existence");
+        if (existence)
+        {
+            if (existence->getConnectedOutput())
+            {
+                return true;
+            }
+            else
+            {
+                ValuePtr value = existence->getValue();
+                if (value && !isOne(value))
+                {
+                    return true;
+                }
+            }
+        }
+
         // Check transmission
         InputPtr transmission = shaderNode->getActiveInput("transmission");
         if (transmission)
@@ -343,24 +361,6 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             else
             {
                 ValuePtr value = transmission->getValue();
-                if (value && !isZero(value))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // Check subsurface
-        InputPtr subsurface = shaderNode->getActiveInput("subsurface");
-        if (subsurface)
-        {
-            if (subsurface->getConnectedOutput())
-            {
-                return true;
-            }
-            else
-            {
-                ValuePtr value = subsurface->getValue();
                 if (value && !isZero(value))
                 {
                     return true;
@@ -469,6 +469,24 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             }
         }
 
+        // Check existence
+        BindInputPtr existence = shaderRef->getBindInput("existence");
+        if (existence)
+        {
+            if (existence->getConnectedOutput())
+            {
+                return true;
+            }
+            else
+            {
+                ValuePtr value = existence->getValue();
+                if (value && !isOne(value))
+                {
+                    return true;
+                }
+            }
+        }
+
         // Check transmission
         BindInputPtr transmission = shaderRef->getBindInput("transmission");
         if (transmission)
@@ -480,24 +498,6 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             else
             {
                 ValuePtr value = transmission->getValue();
-                if (value && !isZero(value))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // Check subsurface
-        BindInputPtr subsurface = shaderRef->getBindInput("subsurface");
-        if (subsurface)
-        {
-            if (subsurface->getConnectedOutput())
-            {
-                return true;
-            }
-            else
-            {
-                ValuePtr value = subsurface->getValue();
                 if (value && !isZero(value))
                 {
                     return true;

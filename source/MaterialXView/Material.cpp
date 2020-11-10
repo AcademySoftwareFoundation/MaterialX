@@ -100,12 +100,10 @@ bool Material::generateShader(mx::GenContext& context)
         return false;
     }
 
-    _hasTransparency = context.getOptions().hwTransparency &&
-                       mx::isTransparentSurface(_elem, context.getShaderGenerator());
+    _hasTransparency = mx::isTransparentSurface(_elem, context.getShaderGenerator());
 
     mx::GenContext materialContext = context;
     materialContext.getOptions().hwTransparency = _hasTransparency;
-    materialContext.getOptions().hwShadowMap = materialContext.getOptions().hwShadowMap && !_hasTransparency;
 
     // Initialize in case creation fails and throws an exception
     clearShader();

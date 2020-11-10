@@ -1,12 +1,14 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
-void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, thinfilm tf, out BSDF result)
+void mx_dielectric_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, thinfilm tf, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
         result = base;
         return;
     }
+
+    N = mx_forward_facing_normal(N, V);
 
     vec3 Y = normalize(cross(N, X));
     vec3 H = normalize(L + V);
@@ -28,8 +30,8 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, floa
     vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
 
     // Note: NdotL is cancelled out
-    result = D * F * G * comp * tint * weight / (4 * NdotV) // Top layer reflection
-           + base * (1.0 - dirAlbedo * weight);             // Base layer reflection attenuated by top layer
+    result = D * F * G * comp * tint * occlusion * weight / (4 * NdotV) // Top layer reflection
+           + base * (1.0 - dirAlbedo * weight);                         // Base layer reflection attenuated by top layer
 }
 
 void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, thinfilm tf, out BSDF result)
@@ -44,8 +46,9 @@ void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     // attenuate the base layer transmission by the
     // inverse of top layer reflectance.
 
-    // Abs here to allow transparency through backfaces
-    float NdotV = abs(dot(N, V));
+    N = mx_forward_facing_normal(N, V);
+
+    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     FresnelData fd = tf.thickness > 0.0 ? mx_init_fresnel_dielectric_airy(ior, tf.thickness, tf.ior) : mx_init_fresnel_dielectric(ior);
     vec3 F = mx_compute_fresnel(NdotV, fd);
@@ -66,11 +69,9 @@ void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
         return;
     }
 
+    N = mx_forward_facing_normal(N, V);
+
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
-    if (NdotV == M_FLOAT_EPS)
-    {
-        weight = 0.0;
-    }
 
     FresnelData fd = tf.thickness > 0.0 ? mx_init_fresnel_dielectric_airy(ior, tf.thickness, tf.ior) : mx_init_fresnel_dielectric(ior);
     vec3 F = mx_compute_fresnel(NdotV, fd);

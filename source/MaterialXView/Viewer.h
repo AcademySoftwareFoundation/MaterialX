@@ -135,8 +135,8 @@ class Viewer : public ng::Screen
     /// returning a new indirect map and directional light document.
     void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
 
-    /// Update the current shadow map.
     void updateShadowMap();
+    void invalidateShadowMap();
 
     /// Update the directional albedo table.
     void updateAlbedoTable();
@@ -245,9 +245,6 @@ class Viewer : public ng::Screen
 
     // Material options
     bool _mergeMaterials;
-    bool _bakeTextures;
-    bool _bakeHdr;
-    int _bakeTextureRes;
 
     // Unit options
     mx::StringVec _distanceUnitOptions;
@@ -255,6 +252,8 @@ class Viewer : public ng::Screen
     mx::LinearUnitConverterPtr _distanceUnitConverter;
 
     // Render options
+    bool _renderTransparency;
+    bool _renderDoubleSided;
     bool _outlineSelection;
     int _envSamples;
     bool _drawEnvironment;
@@ -273,6 +272,11 @@ class Viewer : public ng::Screen
     ng::ComboBox* _wedgeSelectionBox;
 
     // Texture baking
+    bool _bakeTextures;
+    bool _bakeHdr;
+    bool _bakeAverage;
+    bool _bakeOptimize;
+    int _bakeTextureRes;
     bool _bakeRequested;
     mx::FilePath _bakeFilename;
 };

@@ -61,6 +61,18 @@ class TextureBaker : public GlslRenderer
         return _colorSpace;
     }
 
+    /// Set whether images should be averaged to generate constants.
+    void setAverageImages(bool enable)
+    {
+        _averageImages = enable;
+    }
+
+    /// Return whether images should be averaged to generate constants.
+    bool getAverageImages()
+    {
+        return _averageImages;
+    }
+
     /// Set whether uniform textures should be stored as constants.  Defaults to true.
     void setOptimizeConstants(bool enable)
     {
@@ -103,19 +115,27 @@ class TextureBaker : public GlslRenderer
         Color4 uniformColor;
         FilePath filename;
     };
+    class BakedConstant
+    {
+      public:
+        Color4 color;
+        bool isDefault = false;
+    };
     using BakedImageVec = vector<BakedImage>;
     using BakedImageMap = std::unordered_map<OutputPtr, BakedImageVec>;
+    using BakedConstantMap = std::unordered_map<OutputPtr, BakedConstant>;
 
   protected:
     string _extension;
     string _colorSpace;
+    bool _averageImages;
     bool _optimizeConstants;
 
     ShaderGeneratorPtr _generator;
     ConstShaderRefPtr _shaderRef;
     StringSet _worldSpaceShaderInputs;
-    std::set<OutputPtr> _constantOutputs;
     BakedImageMap _bakedImageMap;
+    BakedConstantMap _bakedConstantMap;
 };
 
 } // namespace MaterialX

@@ -1,4 +1,4 @@
-void mx_add_bsdf_reflection(vec3 L, vec3 V, BSDF in1, BSDF in2, out BSDF result)
+void mx_add_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, BSDF in1, BSDF in2, out BSDF result)
 {
     result = in1 + in2;
 }

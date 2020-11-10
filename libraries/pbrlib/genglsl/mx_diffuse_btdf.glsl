@@ -1,6 +1,6 @@
 // We fake diffuse transmission by using diffuse reflection from the opposite side.
 // So this BTDF is really a BRDF.
-void mx_diffuse_btdf_reflection(vec3 L, vec3 V, float weight, vec3 color, vec3 normal, out BSDF result)
+void mx_diffuse_btdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, vec3 normal, out BSDF result)
 {
     // Invert normal since we're transmitting light from the other side
     float NdotL = dot(L, -normal);

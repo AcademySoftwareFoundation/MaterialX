@@ -10,12 +10,13 @@
 
 #include <MaterialXRender/ShaderRenderer.h>
 
+#include <iostream>
+
 namespace MaterialX
 {
 
 GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
-    ImageHandler(imageLoader),
-    _maxImageUnits(-1)
+    ImageHandler(imageLoader)
 {
     if (!glActiveTexture)
     {
@@ -60,17 +61,6 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
         }
     }
 
-    // Bind a texture to the next available slot
-    if (_maxImageUnits < 0)
-    {
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxImageUnits);
-    }
-    if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID ||
-        image->getResourceId() == static_cast<unsigned int>(_maxImageUnits))
-    {
-        return false;
-    }
-
     // Update bound location if not already bound
     int textureUnit = getBoundTextureLocation(image->getResourceId());
     if (textureUnit < 0)
@@ -79,6 +69,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     }
     if (textureUnit < 0)
     {
+        std::cerr << "Exceeded maximum number of bound textures in GLTextureHandler::bindImage" << std::endl;
         return false;
     }      
     _boundTextureLocations[textureUnit] = image->getResourceId();
@@ -124,6 +115,11 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     {
         unsigned int resourceId;
         glGenTextures(1, &resourceId);
+        if (resourceId == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
+        {
+            std::cerr << "Failed to generate render resource for texture" << std::endl;
+            return false;
+        }
         image->setResourceId(resourceId);
     }
 
@@ -142,6 +138,11 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
         0, glFormat, glType, image->getResourceBuffer());
+    if (image->getChannelCount() == 1)
+    {
+        GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+    }
 
     if (generateMipMaps)
     {
