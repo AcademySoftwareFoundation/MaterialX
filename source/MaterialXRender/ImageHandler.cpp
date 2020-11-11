@@ -44,7 +44,7 @@ ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
     addLoader(imageLoader);
     _zeroImage = createUniformImage(2, 2, 4, Image::BaseType::UINT8, Color4(0.0f));
 
-    // Generated shaders use a 1x1 texture to represent invalid images.
+    // Generated shaders interpret 1x1 textures as invalid images.
     _invalidImage = createUniformImage(1, 1, 4, Image::BaseType::UINT8, Color4(0.0f));
 }
 
@@ -124,7 +124,7 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool)
         }
         if (image)
         {
-            // Generated shaders use a 1x1 texture to represent invalid images, so valid 1x1
+            // Generated shaders interpret 1x1 textures as invalid images, so valid 1x1
             // images must be resized.
             if (image->getWidth() == 1 && image->getHeight() == 1)
             {
