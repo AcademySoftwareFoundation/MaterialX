@@ -29,8 +29,7 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
 }
 
 ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
-                                        bool generateMipMaps,
-                                        const Color4* fallbackColor)
+                                        bool generateMipMaps)
 {
     // Resolve the input filepath.
     FilePath resolvedFilePath = filePath;
@@ -40,14 +39,14 @@ ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
     }
 
     // Return a cached image if available.
-    ImagePtr cachedDesc = getCachedImage(resolvedFilePath);
-    if (cachedDesc)
+    ImagePtr cachedImage = getCachedImage(resolvedFilePath);
+    if (cachedImage)
     {
-        return cachedDesc;
+        return cachedImage;
     }
 
     // Call the base acquire method.
-    return ImageHandler::acquireImage(resolvedFilePath, generateMipMaps, fallbackColor);
+    return ImageHandler::acquireImage(resolvedFilePath, generateMipMaps);
 }
 
 bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)

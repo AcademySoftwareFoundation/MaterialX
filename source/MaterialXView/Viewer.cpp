@@ -2042,7 +2042,6 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
 {
     const mx::string AO_FILENAME_SUFFIX = "_ao";
     const mx::string AO_FILENAME_EXTENSION = "png";
-    const mx::Color4 AO_FALLBACK_COLOR(1.0f);
 
     if (!material || !_genContext.getOptions().hwAmbientOcclusion)
     {
@@ -2054,7 +2053,7 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     aoFilename.removeExtension();
     aoFilename = aoFilename.asString() + aoSuffix;
     aoFilename.addExtension(AO_FILENAME_EXTENSION);
-    return _imageHandler->acquireImage(aoFilename, true, &AO_FALLBACK_COLOR);
+    return _imageHandler->acquireImage(aoFilename, true);
 }
 
 void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc)
