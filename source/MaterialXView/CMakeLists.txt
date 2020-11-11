@@ -36,10 +36,6 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
-set_target_properties(
-    MaterialXView PROPERTIES
-    DEBUG_POSTFIX "${MATERIALX_DEBUG_POSTFIX}")
-
 set(LIBS
     MaterialXView
     MaterialXFormat
