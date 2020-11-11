@@ -74,11 +74,11 @@ void bindPyImageHandler(py::module& mod)
         .def("saveImage", &mx::ImageHandler::saveImage,
             py::arg("filePath"), py::arg("image"), py::arg("verticalFlip") = false)
         .def("acquireImage", &mx::ImageHandler::acquireImage,
-            py::arg("filePath"), py::arg("generateMipMaps") = true, py::arg("fallbackColor") = (mx::Color4*) nullptr)
-        .def("acquireImage", [](mx::ImageHandler& handler, const mx::FilePath& filePath, bool generateMipMaps, const mx::Color4* fallbackColor, const std::string*)
+            py::arg("filePath"), py::arg("generateMipMaps") = true)
+        .def("acquireImage", [](mx::ImageHandler& handler, const mx::FilePath& filePath, bool generateMipMaps, const mx::Color4*, const std::string*)
             {
                 // Convert from v1.37.2 function signature.
-                return handler.acquireImage(filePath, generateMipMaps, fallbackColor);
+                return handler.acquireImage(filePath, generateMipMaps);
             })
         .def("bindImage", &mx::ImageHandler::bindImage)
         .def("unbindImage", &mx::ImageHandler::unbindImage)
