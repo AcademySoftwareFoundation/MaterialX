@@ -36,10 +36,6 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
     "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
 
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
-if (DEFINED MATERIALX_DEBUG_POSTFIX)
-	message(DEPRECATION "MATERIALX_DEBUG_POSTFIX is deprecated. Use CMAKE_DEBUG_POSTFIX instead.")
-	set(CMAKE_DEBUG_POSTFIX ${MATERIALX_DEBUG_POSTFIX}) #backwards compat
-endif()
 
 # Helpers for OSL validation
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
