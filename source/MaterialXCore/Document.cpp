@@ -194,11 +194,12 @@ void Document::importLibrary(const ConstDocumentPtr& library)
 
     for (auto child : library->getChildren())
     {
-        string childName = child->getQualifiedName(child->getName());
         if (child->getCategory().empty())
         {
             throw Exception("Trying to import child without a category: " + child->getName());
         }
+
+        const string childName = child->getQualifiedName(child->getName());
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);

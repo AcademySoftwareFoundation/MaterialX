@@ -344,9 +344,18 @@ class Element : public std::enable_shared_from_this<Element>
     {
         for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
-            if (elem->hasNamespace())
+            const string& namespaceStr = elem->getNamespace();
+            if (!namespaceStr.empty())
             {
-                return elem->getNamespace() + NAME_PREFIX_SEPARATOR + name;
+                // Check if the name is qualified already.
+                const size_t i = name.find_first_of(NAME_PREFIX_SEPARATOR);
+                if (i != string::npos && name.substr(0, i) == namespaceStr)
+                {
+                    // The name is already qualified with this namespace,
+                    // so just return it as is.
+                    return name;
+                }
+                return namespaceStr + NAME_PREFIX_SEPARATOR + name;
             }
         }
         return name;
