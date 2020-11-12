@@ -12,6 +12,8 @@ namespace mx = MaterialX;
 
 void bindPyNode(py::module& mod)
 {
+    py::class_<mx::NodePredicate>(mod, "NodePredicate");
+
     py::class_<mx::Node, mx::NodePtr, mx::InterfaceElement>(mod, "Node")
         .def("setConnectedNode", &mx::Node::setConnectedNode)
         .def("getConnectedNode", &mx::Node::getConnectedNode)
@@ -40,7 +42,7 @@ void bindPyNode(py::module& mod)
         .def("getBackdrops", &mx::GraphElement::getBackdrops)
         .def("removeBackdrop", &mx::GraphElement::removeBackdrop)
         .def("flattenSubgraphs", &mx::GraphElement::flattenSubgraphs,
-            py::arg("target") = mx::EMPTY_STRING)
+            py::arg("target") = mx::EMPTY_STRING, py::arg("filter") = nullptr)
         .def("topologicalSort", &mx::GraphElement::topologicalSort)
         .def("asStringDot", &mx::GraphElement::asStringDot);
 

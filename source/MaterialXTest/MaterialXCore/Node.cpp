@@ -183,6 +183,30 @@ TEST_CASE("Flatten", "[nodegraph]")
         }
     }
     REQUIRE(totalNodeCount == 15);
+
+    // Test filtered flattening. Leave one node unflattened
+    flatGraph->copyContentFrom(graph);
+    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [] (mx::NodePtr node)
+    {
+        return (node->getCategory() != "color_checker");
+    });
+    totalNodeCount = 0;
+    for (mx::ElementPtr elem : flatGraph->traverseTree())
+    {
+        if (elem->isA<mx::Node>())
+        {
+            totalNodeCount++;
+
+            // Make sure it's an atomic node.
+            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
+            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
+            if (elem->getCategory() != "color_checker")
+            {
+                REQUIRE(isAtomic);
+            }
+        }
+    }
+    REQUIRE(totalNodeCount == 16);
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")

@@ -137,4 +137,62 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     return loadedLibraries;
 }
 
+void resolveFileNames(DocumentPtr doc, const FileSearchPath& searchPath, StringResolverPtr customResolver)
+{
+    for (ElementPtr elem : doc->traverseTree())
+    {
+        ValueElementPtr valueElem = elem->asA<ValueElement>();
+        if (!valueElem || valueElem->getType() != FILENAME_TYPE_STRING)
+        {
+            continue;
+        }
+
+        FilePath unresolvedValue(valueElem->getValueString());
+        StringResolverPtr elementResolver = elem->createStringResolver();
+        // If the path is already absolute then don't allow an additional prefix
+        // as this would make the path invalid.
+        if (unresolvedValue.isAbsolute())
+        {
+            elementResolver->setFilePrefix(EMPTY_STRING);
+        }
+        string resolvedString = valueElem->getResolvedValueString(elementResolver);
+
+        // Convert relative to absolute pathing if the file is not alrady found
+        if (!searchPath.isEmpty())
+        {
+            FilePath resolvedValue(resolvedString);
+            if (!resolvedValue.isAbsolute())
+            {
+                for (size_t i = 0; i < searchPath.size(); i++)
+                {
+                    FilePath testPath = searchPath[i] / resolvedValue;
+                    if (testPath.exists())
+                    {
+                        resolvedString = testPath.asString();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Apply any custom filename resolver
+        if (customResolver && customResolver->isResolvedType(FILENAME_TYPE_STRING))
+        {
+            resolvedString = customResolver->resolve(resolvedString, FILENAME_TYPE_STRING);
+        }
+
+        valueElem->setValueString(resolvedString);
+    }
+
+    // Remove any file prefix attributes
+    for (ElementPtr elem : doc->traverseTree())
+    {
+        if (elem->hasFilePrefix())
+        {
+            elem->removeAttribute(Element::FILE_PREFIX_ATTRIBUTE);
+        }
+    }
+}
+
+
 } // namespace MaterialX

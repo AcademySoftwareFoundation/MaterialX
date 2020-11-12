@@ -1,20 +1,40 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
-   <standard_surface name="MappedShader" type="surfaceshader">
+   <standard_surface name="MappedShader" type="surfaceshader" >
       <input name="base" type="float" value="1" />
       <input name="base_color" type="color3" nodegraph="RedRamp" />
       <input name="metalness" type="float" value="1" />
       <input name="specular" type="float" value="0" />
+      <input name="specular_color" type="color3" nodegraph="GreenRamp" />
+      <input name="specular_roughness" type="float" nodegraph="UnitGraph" />
       <input name="coat" type="float" value="1" />
    </standard_surface>
    <nodegraph name="RedRamp">
-      <ramp4 name="ramp4" type="color3">
-         <parameter name="valuetl" type="color3" value="1, 0, 0" />
+      <ramp4 name="ramp4" type="color3" >
+         <input name="valuetl" type="color3" value="1, 0, 0" />
+         <input name="valuetr" type="color3" value="0, 0, 0" />
+         <input name="valuebl" type="color3" value="1, 0, 0" />
+         <input name="valuebr" type="color3" value="0, 0, 0" />
       </ramp4>
       <output name="out" type="color3" nodename="ramp4" />
    </nodegraph>
-   <surfacematerial name="MappedShaderMaterial" type="material">
+   <nodegraph name="GreenRamp">
+      <ramp4 name="ramp4" type="color3" >
+         <input name="valuetl" type="color3" value="0, 1, 0" />
+         <input name="valuetr" type="color3" value="0, 0, 0" />
+         <input name="valuebl" type="color3" value="0, 1, 0" />
+         <input name="valuebr" type="color3" value="0, 0, 0" />
+      </ramp4>
+      <output name="out" type="color3" nodename="ramp4" />
+   </nodegraph>
+   <nodegraph name="UnitGraph">
+      <constant name="realscale" type="float">
+         <parameter name="value" type="float" value="100" unit="centimeter" unittype="distance" />
+      </constant>
+      <output name="out" type="float" nodename="realscale" />
+   </nodegraph>
+   <surfacematerial name="MappedShaderMaterial" type="material" >
       <input name="surfaceshader" type="surfaceshader" nodename="MappedShader" />
-      <input name="displacementshader" type="displacementshader" />
+      <input name="displacementshader" type="displacementshader" value="" />
    </surfacematerial>
 </materialx>

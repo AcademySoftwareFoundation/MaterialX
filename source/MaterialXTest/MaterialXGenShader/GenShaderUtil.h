@@ -141,6 +141,18 @@ class TestSuiteOptions
     // Additional testPaths paths
     mx::FileSearchPath externalTestPaths;
 
+    // Wedge parameters
+    mx::StringVec wedgeFiles;
+    mx::StringVec wedgeParameters;
+    mx::FloatVec wedgeRangeMin;
+    mx::FloatVec wedgeRangeMax;
+    mx::IntVec wedgeSteps;
+
+    // Bake parameters
+    mx::StringVec bakeFiles;
+    mx::BoolVec bakeHdrs;
+    mx::IntVec bakeResolutions;
+
     // Apply updates for future versions
     bool applyFutureUpdates;
 };

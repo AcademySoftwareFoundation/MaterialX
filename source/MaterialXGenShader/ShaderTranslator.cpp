@@ -50,6 +50,9 @@ void ShaderTranslator::connectTranslationInputs(ShaderRefPtr shaderRef, NodeDefP
 
 void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
 {
+    StringSet categories;
+    categories.insert("normalmap");
+
     DocumentPtr doc = shaderRef->getDocument();
     vector<OutputPtr> outputs = doc->getNodeGraph("NG_" + _translationNode->getCategory())->getOutputs();
     for (OutputPtr translationGraphOutput : outputs)
@@ -64,7 +67,7 @@ void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
 
         // Create the translated node, handling both normal map and simple dot cases.
         NodePtr translatedNode;
-        if (connectsToNormalMapNode(translationGraphOutput))
+        if (connectsToNodeOfCategory(translationGraphOutput, categories))
         {
             NodePtr normalMapNode = translationGraphOutput->getConnectedNode();
             translatedNode = _graph->addNode(normalMapNode->getCategory(), normalMapNode->getName(), normalMapNode->getType());
@@ -161,8 +164,8 @@ void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader
 void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destShader)
 {
     vector<TypedElementPtr> renderableShaderRefs;
-    std::unordered_set<ElementPtr> processedSources;
-    findRenderableShaderRefs(doc, renderableShaderRefs, false, processedSources);
+    std::unordered_set<ElementPtr> outputs;
+    findRenderableShaderRefs(doc, renderableShaderRefs, false, outputs);
     for (TypedElementPtr elem : renderableShaderRefs)
     {
         ShaderRefPtr shaderRef = elem ? elem->asA<ShaderRef>() : nullptr;

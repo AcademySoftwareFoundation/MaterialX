@@ -19,14 +19,14 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-#include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/GeometryHandler.h>
+#include <MaterialXRender/StbImageLoader.h>
 #if defined(MATERIALX_BUILD_OIIO)
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
 
 #include <MaterialXRenderGlsl/GlslRenderer.h>
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
+#include <MaterialXRenderGlsl/TextureBaker.h>
 
 namespace mx = MaterialX;
 
@@ -60,7 +60,19 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
                      const GenShaderUtil::TestSuiteOptions& testOptions,
                      RenderUtil::RenderProfileTimes& profileTimes,
                      const mx::FileSearchPath& imageSearchPath,
-                     const std::string& outputPath = ".") override;
+                     const std::string& outputPath = ".",
+                     mx::ImageVec* imageVec = nullptr) override;
+
+    bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip) const override;
+
+
+    bool canBake() const override
+    {
+        return true;
+    }
+
+    void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFilename,
+                 unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log) override;
 
     mx::GlslRendererPtr _renderer;
     mx::LightHandlerPtr _lightHandler;
@@ -119,12 +131,12 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
         _renderer->initialize();
 
         // Set image handler on renderer
-#if defined(MATERIALX_BUILD_OIIO)
-        mx::OiioImageLoaderPtr stbLoader = mx::OiioImageLoader::create();
-#else
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
-#endif
         mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
+#if defined(MATERIALX_BUILD_OIIO)
+        mx::OiioImageLoaderPtr oiioLoader = mx::OiioImageLoader::create();
+        imageHandler->addLoader(oiioLoader);
+#endif
         _renderer->setImageHandler(imageHandler);
 
         // Set light handler.
@@ -144,6 +156,11 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
         log << e.what() << std::endl;
     }
     REQUIRE(initialized);
+}
+
+bool GlslShaderRenderTester::saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip) const
+{
+    return _renderer->getImageHandler()->saveImage(filePath, image, verticalFlip);
 }
 
 // If these streams don't exist add them for testing purposes
@@ -258,7 +275,8 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const GenShaderUtil::TestSuiteOptions& testOptions,
                                           RenderUtil::RenderProfileTimes& profileTimes,
                                           const mx::FileSearchPath& imageSearchPath,
-                                          const std::string& outputPath)
+                                          const std::string& outputPath,
+                                          mx::ImageVec* imageVec)
 {
     RenderUtil::AdditiveScopedTimer totalGLSLTime(profileTimes.languageTimes.totalTime, "GLSL total time");
 
@@ -501,7 +519,15 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     {
                         RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.languageTimes.imageSaveTime, "GLSL image save time");
                         std::string fileName = shaderPath + "_glsl.png";
-                        _renderer->saveImage(fileName);
+                        mx::ImagePtr image = _renderer->captureImage();
+                        if (image)
+                        {
+                            _renderer->saveImage(fileName, image, true);
+                            if (imageVec)
+                            {
+                                imageVec->push_back(image);
+                            }
+                        }
                     }
                 }
 
@@ -532,6 +558,34 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
         }
     }
     return true;
+}
+
+void  GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
+                                           unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log)
+{
+    if (bakeWidth < 2)
+    {
+        bakeWidth = 2;
+    }
+    if (bakeHeight < 2)
+    {
+        bakeHeight = 2;
+    }
+    mx::Image::BaseType baseType = bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
+    mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
+    baker->setupUnitSystem(doc);
+    baker->setTargetUnitSpace("meter");
+    baker->setImageHandler(_renderer->getImageHandler());
+
+    try
+    {
+        baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
+    }
+    catch (mx::Exception& e)
+    {
+        const mx::FilePath& sourceUri = doc->getSourceUri();
+        log << sourceUri.asString() + " failed baking process: " + e.what() << std::endl;
+    }
 }
 
 TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")

@@ -30,7 +30,8 @@ class GLTextureHandler : public ImageHandler
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
     ImagePtr acquireImage(const FilePath& filePath,
-                          bool generateMipMaps = true) override;
+                          bool generateMipMaps = true,
+                          string* message = nullptr) override;
 
     /// Bind an image. This method will bind the texture to an active texture
     /// unit as defined by the corresponding image description. The method

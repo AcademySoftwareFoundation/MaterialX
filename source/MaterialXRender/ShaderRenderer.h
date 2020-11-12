@@ -118,7 +118,7 @@ class ShaderRenderer
 
     /// Save the current contents of the off-screen hardware buffer to disk.
     /// @param filePath Path to file to save rendered image to.
-    virtual void saveImage(const FilePath& filePath) = 0;
+    virtual void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) = 0;
 
     /// @}
 

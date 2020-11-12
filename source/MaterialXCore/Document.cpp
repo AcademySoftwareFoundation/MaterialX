@@ -324,13 +324,14 @@ void Document::importLibrary(const ConstDocumentPtr& library)
         return;
     }
 
-    for (const ElementPtr& child : library->getChildren())
+    for (auto child : library->getChildren())
     {
-        string childName = child->getQualifiedName(child->getName());
         if (child->getCategory().empty())
         {
             throw Exception("Trying to import child without a category: " + child->getName());
         }
+
+        const string childName = child->getQualifiedName(child->getName());
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);
@@ -962,7 +963,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             {
                 const string& nodeName = node->getName();
                 BackdropPtr backdrop = addBackdrop(nodeName);
-                for (const ParameterPtr& param : node->getParameters())
+                for (auto param : node->getParameters())
                 {
                     ValuePtr value = param ? param->getValue() : nullptr;
                     if (value)
@@ -992,7 +993,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     }
 
     // Upgrade from 1.37 to 1.38
-    if (majorVersion == 1 && (minorVersion == 37 || applyFutureUpdates))
+    if (majorVersion == 1 && minorVersion >= 37)
     {
         convertMaterialsToNodes(asA<Document>());
 
@@ -1078,7 +1079,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         for (NodeGraphPtr nodegraph : getNodeGraphs())
         {
             StringSet interfaceNames;
-            for (ElementPtr child : nodegraph->getChildren())
+            for (auto child : nodegraph->getChildren())
             {
                 NodePtr node = child->asA<Node>();
                 if (node)

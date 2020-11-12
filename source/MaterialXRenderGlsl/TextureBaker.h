@@ -9,6 +9,8 @@
 /// @file
 /// Texture baking functionality
 
+#include <MaterialXCore/Unit.h>
+
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
@@ -39,7 +41,7 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Return the file extension for baked textures.
-    const string& getExtension()
+    const string& getExtension() const
     {
         return _extension;
     }
@@ -56,12 +58,27 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Return the color space in which color textures are encoded.
-    const string& getColorSpace()
+    const string& getColorSpace() const
     {
         return _colorSpace;
     }
 
-    /// Set whether images should be averaged to generate constants.
+    /// Set the real unit conversion system used during baking
+    void setupUnitSystem(DocumentPtr unitDefinitions);
+
+    /// Set the target unit space. The default unit space is "meter" for distance.
+    void setTargetUnitSpace(const string& unitSpace)
+    {
+        _targetUnitSpace = unitSpace;
+    }
+
+    /// Return the target unit space 
+    const string& getTargetUnitSpace() const
+    {
+        return _targetUnitSpace;
+    }
+
+    /// Set whether images should be averaged to generate constants.   void setAverageImages(bool enable)
     void setAverageImages(bool enable)
     {
         _averageImages = enable;
@@ -85,8 +102,8 @@ class TextureBaker : public GlslRenderer
         return _optimizeConstants;
     }
 
-    /// Bake textures for all graph inputs of the given shader reference.
-    void bakeShaderInputs(ConstShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder, const string& udim = EMPTY_STRING);
+    /// Bake textures for all graph inputs of the given shader.
+    void bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const FilePath& outputFolder, const string& udim = EMPTY_STRING);
 
     /// Bake a texture for the given graph output.
     void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& filename);
@@ -125,15 +142,19 @@ class TextureBaker : public GlslRenderer
     using BakedImageMap = std::unordered_map<OutputPtr, BakedImageVec>;
     using BakedConstantMap = std::unordered_map<OutputPtr, BakedConstant>;
 
+    using WorldSpaceInputs = std::unordered_map<string, NodePtr>;
+
   protected:
     string _extension;
     string _colorSpace;
+    string _targetUnitSpace;
     bool _averageImages;
     bool _optimizeConstants;
 
     ShaderGeneratorPtr _generator;
-    ConstShaderRefPtr _shaderRef;
-    StringSet _worldSpaceShaderInputs;
+    ConstNodePtr _shader;
+    ConstNodePtr _material;
+    WorldSpaceInputs _worldSpaceShaderInputs;
     BakedImageMap _bakedImageMap;
     BakedConstantMap _bakedConstantMap;
 };

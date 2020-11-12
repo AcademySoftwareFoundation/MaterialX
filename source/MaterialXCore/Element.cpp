@@ -369,7 +369,7 @@ void Element::copyContentFrom(const ConstElementPtr& source)
     _attributeMap = source->_attributeMap;
     _attributeOrder = source->_attributeOrder;
 
-    for (const ElementPtr& child : source->getChildren())
+    for (auto child : source->getChildren())
     {
         const string& name = child->getName();
 
@@ -406,7 +406,7 @@ bool Element::validate(string* message) const
         bool validInherit = getInheritsFrom() && getInheritsFrom()->getCategory() == getCategory();
         validateRequire(validInherit, res, message, "Invalid element inheritance");
     }
-    for (ElementPtr child : getChildren())
+    for (auto child : getChildren())
     {
         res = child->validate(message) && res;
     }

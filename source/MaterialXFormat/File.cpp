@@ -41,6 +41,11 @@ const string PATH_LIST_SEPARATOR = ":";
 #endif
 const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
 
+inline bool hasWindowsDriveSpecifier(const string& val)
+{
+    return (val.length() > 1 && std::isalpha(val[0]) && (val[1] == ':'));
+}
+
 //
 // FilePath methods
 //
@@ -57,7 +62,7 @@ void FilePath::assign(const string& str)
         }
         else if (str.size() >= 2)
         {
-            if (std::isalpha(str[0]) && str[1] == ':')
+            if (hasWindowsDriveSpecifier(str))
             {
                 _type = TypeAbsolute;
             }
@@ -75,7 +80,11 @@ string FilePath::asString(Format format) const
 
     if (format == FormatPosix && isAbsolute())
     {
-        str += "/";
+        // Don't prepend a POSIX separator on a Windows absolute path
+        if (_vec.empty() || !hasWindowsDriveSpecifier(_vec[0]))
+        {
+            str += "/";
+        }
     }
     else if (format == FormatWindows && _type == TypeNetwork)
     {

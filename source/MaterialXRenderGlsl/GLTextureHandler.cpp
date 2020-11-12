@@ -29,7 +29,8 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
 }
 
 ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
-                                        bool generateMipMaps)
+                                        bool generateMipMaps,
+                                        string* message)
 {
     // Resolve the input filepath.
     FilePath resolvedFilePath = filePath;
@@ -46,7 +47,7 @@ ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
     }
 
     // Call the base acquire method.
-    return ImageHandler::acquireImage(resolvedFilePath, generateMipMaps);
+    return ImageHandler::acquireImage(resolvedFilePath, generateMipMaps, message);
 }
 
 bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
