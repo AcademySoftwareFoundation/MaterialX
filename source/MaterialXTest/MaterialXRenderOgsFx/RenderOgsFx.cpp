@@ -181,7 +181,7 @@ bool OgsFxShaderRenderTester::runRenderer(const std::string& shaderName,
     return true;
 }
 
-TEST_CASE("Render: OgsFx TestSuite", "[renderglsl]")
+TEST_CASE("Render: OgsFx TestSuite", "[renderogsfx]")
 {
     // Use the Maya version of the OgsFx generator,
     // so we can render the shaders in Maya's viewport.

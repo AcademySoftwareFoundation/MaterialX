@@ -5,6 +5,7 @@
 #include "MaterialXNode.h"
 #include "ShadingNodeOverrides.h"
 
+#include <MaterialXFormat/Util.h>
 #ifdef MATERIALX_BUILD_CROSS
 #include <MaterialXCross/Cross.h>
 #endif
@@ -23,9 +24,8 @@ namespace
 {
 class SearchPathBuilder
 {
-  public:
-    explicit SearchPathBuilder(mx::FileSearchPath& searchPath)
-        : _searchPath(searchPath)
+public:
+    explicit SearchPathBuilder(mx::FileSearchPath& searchPath) : _searchPath(searchPath)
     {
         _searchPath = mx::FileSearchPath();
     }
@@ -60,7 +60,7 @@ void setIntermediateDumpPath()
     bool optionVarExists = false;
     MString path = MGlobal::optionVarStringValue("materialXIntermediateDumpPath", &optionVarExists);
 
-    if ( !optionVarExists || path.length() == 0 )
+    if (!optionVarExists || path.length() == 0)
     {
         return;
     }
@@ -118,7 +118,9 @@ mx::FileSearchPath Plugin::getResourceSearchPath() const
     // Search in standard installed resources directories and plug-in relative resources
     builder.append(_pluginLoadPath);
     builder.append(_pluginLoadPath / mx::FilePath("../../resources"));
+    builder.append(_pluginLoadPath / mx::FilePath("../../libraries"));
     builder.append(_pluginLoadPath / mx::FilePath("../resources"));
+    builder.append(_pluginLoadPath / mx::FilePath("../libraries"));
     builder.append(_pluginLoadPath / mx::FilePath(".."));
 
     builder.appendFromOptionVar("materialXResourceSearchPaths");
@@ -139,7 +141,7 @@ void Plugin::loadLibraries()
     }
 
     std::unordered_set<std::string> uniqueLibraryNames{
-        "stdlib", "pbrlib", "bxdf", "stdlib/genglsl", "pbrlib/genglsl", "lights", "lights/genglsl"
+        "adsklib", "stdlib", "pbrlib", "bxdf", "stdlib/genglsl", "pbrlib/genglsl", "lights", "lights/genglsl"
     };
 
     {
@@ -153,7 +155,7 @@ void Plugin::loadLibraries()
     }
 
     mx::loadLibraries(
-        mx::StringVec(uniqueLibraryNames.begin(), uniqueLibraryNames.end()),
+        mx::FilePathVec(uniqueLibraryNames.begin(), uniqueLibraryNames.end()),
         _librarySearchPath,
         _libraryDocument
     );

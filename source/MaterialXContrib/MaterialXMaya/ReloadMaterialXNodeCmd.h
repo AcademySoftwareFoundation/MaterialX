@@ -22,7 +22,10 @@ public:
     ~ReloadMaterialXNodeCmd() override;
 
     MStatus doIt(const MArgList&) override;
-    bool isUndoable() { return false; }
+    bool isUndoable() const override
+    {
+        return false;
+    }
 
     static MSyntax newSyntax();
     static void* creator();

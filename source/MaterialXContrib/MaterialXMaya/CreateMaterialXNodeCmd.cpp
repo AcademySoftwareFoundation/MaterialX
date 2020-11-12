@@ -6,6 +6,7 @@
 
 #include <MaterialXGenOgsXml/OgsFragment.h>
 #include <MaterialXFormat/XmlIo.h>
+#include <MaterialXCore/MaterialNode.h>
 
 #include <maya/MArgParser.h>
 #include <maya/MSelectionList.h>
@@ -30,14 +31,14 @@ namespace MaterialXMaya
 
 namespace
 {
-const char* const kDocumentFlag     = "d";
-const char* const kElementFlag      = "e";
+const char* const kDocumentFlag = "d";
+const char* const kElementFlag = "e";
 
-const char* const kAsTextureFlag      = "t";
-const char* const kAsTextureFlagLong  = "asTexture";
+const char* const kAsTextureFlag = "t";
+const char* const kAsTextureFlagLong = "asTexture";
 
-const char* const kOgsXmlFlag       = "x";
-const char* const kOgsXmlFlagLong   = "ogsXml";
+const char* const kOgsXmlFlag = "x";
+const char* const kOgsXmlFlagLong = "ogsXml";
 
 const char* const kEnvRadianceFlag = "er";
 const char* const kEnvRadianceFlagLong = "envRadiance";
@@ -53,7 +54,7 @@ void registerDebugFragment(const mx::FilePath& ogsXmlFilePath)
     {
         throw mx::Exception("Provided an empty path to the debug fragment");
     }
-    
+
     MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
     if (!theRenderer)
     {
@@ -87,28 +88,23 @@ CreateMaterialXNodeCmd::~CreateMaterialXNodeCmd()
 {
 }
 
-std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
-                                                mx::TypedElementPtr renderableElement,
-                                                NodeTypeToCreate nodeTypeToCreate,
-                                                const MString& documentFilePath,
-                                                const mx::FileSearchPath& searchPath,
-                                                const MString& envRadianceFileName,
-                                                const MString& envIrradianceFileName )
+std::string CreateMaterialXNodeCmd::createNode(mx::TypedElementPtr renderableElement,
+                                               NodeTypeToCreate nodeTypeToCreate,
+                                               const MString& documentFilePath,
+                                               const mx::FileSearchPath& searchPath,
+                                               const MString& envRadianceFileName,
+                                               const MString& envIrradianceFileName)
 {
-    std::unique_ptr<OgsFragment> ogsFragment{ new OgsFragment(renderableElement, searchPath) };
+    std::unique_ptr<OgsFragment> ogsFragment{new OgsFragment(renderableElement, searchPath)};
 
-    MayaUtil::registerFragment(
-        ogsFragment->getFragmentName(), ogsFragment->getFragmentSource()
-    );
+    MayaUtil::registerFragment(ogsFragment->getFragmentName(), ogsFragment->getFragmentSource());
 
-    const bool createAsTexture = nodeTypeToCreate == NodeTypeToCreate::TEXTURE
-        || (nodeTypeToCreate == NodeTypeToCreate::AUTO && !ogsFragment->isElementAShader());
+    const bool createAsTexture = nodeTypeToCreate == NodeTypeToCreate::TEXTURE ||
+                                 (nodeTypeToCreate == NodeTypeToCreate::AUTO && !ogsFragment->isElementAShader());
 
     // Create the MaterialX node
-    MObject nodeObj = _dgModifier.createNode(
-        createAsTexture ? MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPEID
-        : MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID
-    );
+    MObject nodeObj = _dgModifier.createNode(createAsTexture ? MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPEID
+                                                             : MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID);
 
     const std::string renderableElementPath = renderableElement->getNamePath();
 
@@ -123,13 +119,13 @@ std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
         throw mx::Exception("Unexpected DG node type.");
     }
 
-    materialXNode->setData( documentFilePath, renderableElementPath.c_str(),
-                            envRadianceFileName, envIrradianceFileName, std::move(ogsFragment) );
+    materialXNode->setData(documentFilePath, renderableElementPath.c_str(), envRadianceFileName, envIrradianceFileName,
+                           std::move(ogsFragment));
 
     return nodeName;
 }
 
-MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
+MStatus CreateMaterialXNodeCmd::doIt(const MArgList& args)
 {
     // Parse the shader node
     //
@@ -147,7 +143,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         MString documentFilePath;
         if (parser.isFlagSet(kDocumentFlag))
         {
-            CHECK_MSTATUS(argData.getFlagArgument(kDocumentFlag, 0, documentFilePath));
+            CHECK_MSTATUS(argData.getFlagArgument(kDocumentFlag, 0, documentFilePath))
         }
 
         if (documentFilePath.length() == 0)
@@ -155,13 +151,29 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             throw mx::Exception("MaterialX document file path is empty.");
         }
 
-        mx::DocumentPtr document = MaterialXUtil::loadDocument(
-            documentFilePath.asChar(), Plugin::instance().getLibraryDocument()
-        );
+        mx::DocumentPtr document =
+            MaterialXUtil::loadDocument(documentFilePath.asChar(), Plugin::instance().getLibraryDocument());
 
         // Find renderables in the document
         std::vector<mx::TypedElementPtr> renderableElements;
-        mx::findRenderableElements(document, renderableElements);
+        std::vector<mx::TypedElementPtr> targetElements;
+        mx::findRenderableElements(document, targetElements);
+        for (auto targetElement : targetElements)
+        {
+            mx::NodePtr outputNode = targetElement->asA<mx::Node>();
+            if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
+            {
+                std::unordered_set<mx::NodePtr> shaderNodes = mx::getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                if (!shaderNodes.empty())
+                {
+                    renderableElements.push_back(*shaderNodes.begin());
+                }
+            }
+            else
+            {
+                renderableElements.push_back(targetElement);
+            }
+        }
         if (renderableElements.empty())
         {
             throw mx::Exception("There are no renderable elements in the document.");
@@ -172,7 +184,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         MString elementPath;
         if (parser.isFlagSet(kElementFlag))
         {
-            CHECK_MSTATUS(argData.getFlagArgument(kElementFlag, 0, elementPath));
+            CHECK_MSTATUS(argData.getFlagArgument(kElementFlag, 0, elementPath))
             if (elementPath.length() > 0)
             {
                 mx::TypedElementPtr desiredElement =
@@ -189,7 +201,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         MString ogsXmlFilePath;
         if (parser.isFlagSet(kOgsXmlFlag))
         {
-            CHECK_MSTATUS(argData.getFlagArgument(kOgsXmlFlag, 0, ogsXmlFilePath));
+            CHECK_MSTATUS(argData.getFlagArgument(kOgsXmlFlag, 0, ogsXmlFilePath))
         }
 
         if (ogsXmlFilePath.length() > 0)
@@ -201,33 +213,38 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         if (parser.isFlagSet(kAsTextureFlag))
         {
             bool createAsTexture = false;
-            CHECK_MSTATUS(argData.getFlagArgument(kAsTextureFlag, 0, createAsTexture));
+            CHECK_MSTATUS(argData.getFlagArgument(kAsTextureFlag, 0, createAsTexture))
             nodeTypeToCreate = createAsTexture ? NodeTypeToCreate::TEXTURE : NodeTypeToCreate::SURFACE;
         }
 
         MString envRadianceFileName;
         if (parser.isFlagSet(kEnvRadianceFlagLong))
         {
-            CHECK_MSTATUS(argData.getFlagArgument(kEnvRadianceFlagLong, 0, envRadianceFileName));
+            CHECK_MSTATUS(argData.getFlagArgument(kEnvRadianceFlagLong, 0, envRadianceFileName))
         }
 
         MString envIrradianceFileName;
         if (parser.isFlagSet(kEnvIrradianceFlagLong))
         {
-            CHECK_MSTATUS(argData.getFlagArgument(kEnvIrradianceFlagLong, 0, envIrradianceFileName));
+            CHECK_MSTATUS(argData.getFlagArgument(kEnvIrradianceFlagLong, 0, envIrradianceFileName))
         }
 
         MStringArray createdNodeNames;
         for (const auto& renderableElement : renderableElements)
         {
-            std::string nodeName = createNode(  document,
-                                                renderableElement,
-                                                nodeTypeToCreate,
-                                                documentFilePath,
-                                                Plugin::instance().getLibrarySearchPath(),
-                                                envRadianceFileName,
-                                                envIrradianceFileName );
-            createdNodeNames.append(nodeName.c_str());
+            try
+            {
+                std::string nodeName =
+                    createNode(renderableElement, nodeTypeToCreate, documentFilePath,
+                               Plugin::instance().getLibrarySearchPath(), envRadianceFileName, envIrradianceFileName);
+                createdNodeNames.append(nodeName.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                std::string smessage("Failed to create MaterialX node for element: " + renderableElement->getNamePath() + ": " +  e.what());
+                MString message(smessage.c_str());
+                MGlobal::displayWarning(message);
+            }
         }
 
         status = _dgModifier.doIt();
@@ -255,7 +272,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         MGlobal::displayError(message);
         return MS::kFailure;
     }
- }
+}
 
 MSyntax CreateMaterialXNodeCmd::newSyntax()
 {

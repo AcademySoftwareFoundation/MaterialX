@@ -40,7 +40,6 @@ public:
             writeShadersToDisk
         )
     {
-        dumpMaterials = { "Tiled_Brass", "Brass_Wire_Mesh" };
     }
 
     void setTestStages() override
@@ -56,10 +55,8 @@ public:
     }
 
     // Generate source code for a given element and check that code was produced.
-    bool generateCode(
-        mx::GenContext& context, const std::string& /*shaderName*/, mx::TypedElementPtr element,
-        std::ostream& log, mx::StringVec /*testStages*/, mx::StringVec& /*sourceCode*/
-    ) override
+    bool generateCode(mx::GenContext& context, const std::string& /*shaderName*/, mx::TypedElementPtr element,
+                      std::ostream& log, mx::StringVec /*testStages*/, mx::StringVec& sourceCode ) override
     {
         std::unique_ptr<MaterialXMaya::OgsFragment> fragment;
         try
@@ -77,16 +74,7 @@ public:
             return false;
         }
 
-        if (mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>())
-        {
-            mx::MaterialPtr material = shaderRef->getParent()->asA<mx::Material>();
-            if (material && dumpMaterials.count(material->getName()))
-            {
-                std::ofstream file(material->getName() + ".xml");
-                file << fragment->getFragmentSource();
-                file.close();
-            }
-        }
+        sourceCode.push_back(fragment->getFragmentSource());
 
         return true;
     }
@@ -101,8 +89,6 @@ protected:
             "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl", "IM_angle", "material", "ND_material"
         };
     }
-
-    mx::StringSet dumpMaterials;
 };
 
 static void generateXmlCode()
@@ -118,7 +104,7 @@ static void generateXmlCode()
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genogsxml_generate_test.txt");
 
-    bool writeShadersToDisk = false;
+    bool writeShadersToDisk = true;
     OgsXmlShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
     const mx::GenOptions genOptions;

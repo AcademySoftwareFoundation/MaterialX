@@ -111,18 +111,18 @@ MStatus MaterialXNode::initialize()
     MObject outColorB = nAttr.create(outColorName + "B", "ocb", MFnNumericData::kFloat, 0.0);
     OUT_ATTRIBUTE = nAttr.create(outColorName, "oc", outColorR, outColorG, outColorB);
 
-    CHECK_MSTATUS(nAttr.setKeyable(false));
-    CHECK_MSTATUS(nAttr.setStorable(false));
-    CHECK_MSTATUS(nAttr.setReadable(true));
-    CHECK_MSTATUS(nAttr.setWritable(false));
-    CHECK_MSTATUS(nAttr.setUsedAsColor(true));
+    CHECK_MSTATUS(nAttr.setKeyable(false))
+    CHECK_MSTATUS(nAttr.setStorable(false))
+    CHECK_MSTATUS(nAttr.setReadable(true))
+    CHECK_MSTATUS(nAttr.setWritable(false))
+    CHECK_MSTATUS(nAttr.setUsedAsColor(true))
 
-    CHECK_MSTATUS(addAttribute(OUT_ATTRIBUTE));
+    CHECK_MSTATUS(addAttribute(OUT_ATTRIBUTE))
 
-    CHECK_MSTATUS(attributeAffects(DOCUMENT_ATTRIBUTE, OUT_ATTRIBUTE));
-    CHECK_MSTATUS(attributeAffects(ELEMENT_ATTRIBUTE, OUT_ATTRIBUTE));
-    CHECK_MSTATUS(attributeAffects(ENV_RADIANCE_ATTRIBUTE, OUT_ATTRIBUTE));
-    CHECK_MSTATUS(attributeAffects(ENV_IRRADIANCE_ATTRIBUTE, OUT_ATTRIBUTE));
+    CHECK_MSTATUS(attributeAffects(DOCUMENT_ATTRIBUTE, OUT_ATTRIBUTE))
+    CHECK_MSTATUS(attributeAffects(ELEMENT_ATTRIBUTE, OUT_ATTRIBUTE))
+    CHECK_MSTATUS(attributeAffects(ENV_RADIANCE_ATTRIBUTE, OUT_ATTRIBUTE))
+    CHECK_MSTATUS(attributeAffects(ENV_IRRADIANCE_ATTRIBUTE, OUT_ATTRIBUTE))
 
     return MS::kSuccess;
 }
@@ -148,10 +148,9 @@ void MaterialXNode::createAndRegisterFragment()
 
         if (!_document)
         {
-            _document = MaterialXUtil::loadDocument(
-                _documentFilePath.asChar(), Plugin::instance().getLibraryDocument()
-            );
-        };
+            _document =
+                MaterialXUtil::loadDocument(_documentFilePath.asChar(), Plugin::instance().getLibraryDocument());
+        }
 
         if (_elementPath.length() == 0)
         {
@@ -161,14 +160,10 @@ void MaterialXNode::createAndRegisterFragment()
             return;
         }
 
-        _ogsFragment.reset(new OgsFragment(
-            _document->getDescendant(_elementPath.asChar()),
-            Plugin::instance().getLibrarySearchPath()
-        ));
+        _ogsFragment.reset(new OgsFragment(_document->getDescendant(_elementPath.asChar()),
+                                           Plugin::instance().getLibrarySearchPath()));
 
-        MayaUtil::registerFragment(
-            _ogsFragment->getFragmentName(), _ogsFragment->getFragmentSource()
-        );
+        MayaUtil::registerFragment(_ogsFragment->getFragmentName(), _ogsFragment->getFragmentSource());
     }
     catch (std::exception& e)
     {
@@ -208,7 +203,7 @@ bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataH
         _documentFilePath = value;
         _document.reset();
         _ogsFragment.reset();
-        
+
         createAndRegisterFragment();
     }
     else if (plug == ELEMENT_ATTRIBUTE)
@@ -307,7 +302,7 @@ void* MaterialXTextureNode::creator()
 
 MStatus MaterialXTextureNode::initialize()
 {
-    CHECK_MSTATUS(inheritAttributesFrom(MATERIALX_NODE_TYPENAME));
+    CHECK_MSTATUS(inheritAttributesFrom(MATERIALX_NODE_TYPENAME))
     return MS::kSuccess;
 }
 
@@ -323,31 +318,26 @@ void* MaterialXSurfaceNode::creator()
 
 MStatus MaterialXSurfaceNode::initialize()
 {
-    CHECK_MSTATUS(inheritAttributesFrom(MATERIALX_NODE_TYPENAME));
+    CHECK_MSTATUS(inheritAttributesFrom(MATERIALX_NODE_TYPENAME))
 
     MFnNumericAttribute nAttr;
-    VP2_TRANSPARENCY_ATTRIBUTE = nAttr.create(
-        mx::OgsXmlGenerator::VP_TRANSPARENCY_NAME.c_str(),
-        "vp2t",
-        MFnNumericData::kFloat,
-        0.0
-    );
+    VP2_TRANSPARENCY_ATTRIBUTE =
+        nAttr.create(mx::OgsXmlGenerator::VP_TRANSPARENCY_NAME.c_str(), "vp2t", MFnNumericData::kFloat, 0.0);
 
-    CHECK_MSTATUS(nAttr.setInternal(true));
-    CHECK_MSTATUS(nAttr.setKeyable(false));
+    CHECK_MSTATUS(nAttr.setInternal(true))
+    CHECK_MSTATUS(nAttr.setKeyable(false))
 
     // otherwise Maya refuses to map it to the eponymous fragment input
-    CHECK_MSTATUS(nAttr.setWritable(true));
+    CHECK_MSTATUS(nAttr.setWritable(true))
 
-    CHECK_MSTATUS(nAttr.setHidden(true));
-    CHECK_MSTATUS(nAttr.setAffectsAppearance(true));
-    CHECK_MSTATUS(addAttribute(VP2_TRANSPARENCY_ATTRIBUTE));
+    CHECK_MSTATUS(nAttr.setHidden(true))
+    CHECK_MSTATUS(nAttr.setAffectsAppearance(true))
+    CHECK_MSTATUS(addAttribute(VP2_TRANSPARENCY_ATTRIBUTE))
 
     return MS::kSuccess;
 }
 
-bool
-MaterialXSurfaceNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandle)
+bool MaterialXSurfaceNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandle)
 {
     if (plug == VP2_TRANSPARENCY_ATTRIBUTE)
     {

@@ -121,7 +121,7 @@ static void generateOgsFxCode()
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_ogsfx_generate_test.txt");
 
-    bool writeShadersToDisk = false;
+    bool writeShadersToDisk = true;
     OgsFxShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
     const mx::GenOptions genOptions;

@@ -4,11 +4,10 @@
 /// @file
 /// Maya command for creating MaterialX shading nodes.
 
-#include <maya/MPxCommand.h>
-#include <maya/MDGModifier.h>
-
 #include <MaterialXCore/Document.h>
 #include <MaterialXRender/Util.h>
+#include <maya/MDGModifier.h>
+#include <maya/MPxCommand.h>
 
 #include <vector>
 
@@ -29,7 +28,10 @@ class CreateMaterialXNodeCmd : MPxCommand
     /// @name Maya API methods
     /// @{
     MStatus doIt(const MArgList&) override;
-    bool isUndoable() const override { return false; }
+    bool isUndoable() const override
+    {
+        return false;
+    }
 
     static MSyntax newSyntax();
     static void* creator();
@@ -42,13 +44,12 @@ class CreateMaterialXNodeCmd : MPxCommand
     /// Specifies the type of shading node to create
     enum class NodeTypeToCreate
     {
-        AUTO,       ///< Determined by the type of the MaterialX element
-        SURFACE,    ///< A surface shading node
-        TEXTURE     ///< A texture shading node
+        AUTO,    ///< Determined by the type of the MaterialX element
+        SURFACE, ///< A surface shading node
+        TEXTURE  ///< A texture shading node
     };
 
     /// Create a new Maya node for a given renderable element.
-    /// @param document The document containing the element.
     /// @param renderableElement The element to use.
     /// @param nodeTypeToCreate The type of shading node to create.
     /// @param documentFilePath Path to the document.
@@ -57,14 +58,12 @@ class CreateMaterialXNodeCmd : MPxCommand
     /// @param envIrradianceFileName The file name of the environment map to use for diffuse shading.
     /// @return Name of Maya node created.
     ///
-    std::string createNode(
-        mx::DocumentPtr document,
-        mx::TypedElementPtr renderableElement,
-        NodeTypeToCreate nodeTypeToCreate,
-        const MString& documentFilePath,
-        const mx::FileSearchPath& searchPath,
-        const MString& envRadianceFileName,
-        const MString& envIrradianceFileName );
+    std::string createNode(mx::TypedElementPtr renderableElement,
+                           NodeTypeToCreate nodeTypeToCreate,
+                           const MString& documentFilePath,
+                           const mx::FileSearchPath& searchPath,
+                           const MString& envRadianceFileName,
+                           const MString& envIrradianceFileName);
 
     /// Used to make the necessary changes to Maya's dependency graph.
     MDGModifier _dgModifier;

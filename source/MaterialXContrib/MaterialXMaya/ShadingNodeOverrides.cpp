@@ -34,9 +34,9 @@ const MString
 namespace
 {
 // This should be a shared utility
-MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance, 
+MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance,
                         const std::string& parameterName,
-                        const mx::FileSearchPath& searchPath, 
+                        const mx::FileSearchPath& searchPath,
                         const std::string& fileName,
                         const MHWRender::MSamplerStateDesc& samplerDescription,
                         MHWRender::MTextureDescription& textureDescription,
@@ -46,15 +46,14 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance,
 
     // Bind file texture
     MHWRender::MRenderer* const renderer = MHWRender::MRenderer::theRenderer();
-    MHWRender::MTextureManager* const textureManager =
-        renderer ? renderer->getTextureManager() : nullptr;
+    MHWRender::MTextureManager* const textureManager = renderer ? renderer->getTextureManager() : nullptr;
 
     if (textureManager)
     {
         MayaUtil::TextureUniquePtr texturePtr;
         if (udimIdentifiers && !udimIdentifiers->empty())
         {
-            const std::vector<mx::Vector2> udimCoordinates{ mx::getUdimCoordinates(*udimIdentifiers) };
+            const std::vector<mx::Vector2> udimCoordinates{mx::getUdimCoordinates(*udimIdentifiers)};
 
             // Make sure we have 1:1 match of paths to coordinates.
             if (udimCoordinates.size() != udimIdentifiers->size())
@@ -71,8 +70,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance,
                 resolver->setUdimString((*udimIdentifiers)[i]);
 
                 mx::FilePath resolvedPath = MaterialXUtil::findInSubdirectories(
-                    searchPath, resolver->resolve(fileName, mx::FILENAME_TYPE_STRING)
-                );
+                    searchPath, resolver->resolve(fileName, mx::FILENAME_TYPE_STRING));
                 mTilePaths.append(resolvedPath.asString().c_str());
                 mTilePositions.append(udimCoordinates[i][0]);
                 mTilePositions.append(udimCoordinates[i][1]);
@@ -98,8 +96,9 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance,
             MStringArray failedTilePaths;
             MFloatArray uvScaleOffset;
 
-            // Note: we do not use the uv scale and offset. Ideally this should be used for the texture lookup code
-            // but at this point the shader code has already been generated.
+            // Note: we do not use the uv scale and offset. Ideally this should
+            // be used for the texture lookup code but at this point the shader
+            // code has already been generated.
             texturePtr.reset(textureManager->acquireTiledTexture(fileName.c_str(), mTilePaths, mTilePositions,
                                                                  undefinedColor, udimBakeWidth, udimBakeHeight,
                                                                  failedTilePaths, uvScaleOffset));
@@ -109,7 +108,8 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance,
             const mx::FilePath imagePath = MaterialXUtil::findInSubdirectories(searchPath, fileName);
             if (!imagePath.isEmpty())
             {
-                texturePtr.reset(textureManager->acquireTexture(imagePath.asString().c_str(), mx::EMPTY_STRING.c_str()));
+                texturePtr.reset(
+                    textureManager->acquireTexture(imagePath.asString().c_str(), mx::EMPTY_STRING.c_str()));
             }
         }
 
@@ -138,9 +138,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance,
     }
 
     // Bind the sampler
-    if (MayaUtil::SamplerUniquePtr samplerState{
-        MHWRender::MStateManager::acquireSamplerState(samplerDescription)
-    })
+    if (MayaUtil::SamplerUniquePtr samplerState{MHWRender::MStateManager::acquireSamplerState(samplerDescription)})
     {
         const std::string samplerParameterName = mx::OgsXmlGenerator::textureToSamplerName(parameterName);
         status = shaderInstance.setParameter(samplerParameterName.c_str(), *samplerState);
@@ -151,9 +149,9 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shaderInstance,
 
 // This should be a shared utility
 void bindEnvironmentLighting(MHWRender::MShaderInstance& shaderInstance,
-                            const MStringArray& parameterList,
-                            const mx::FileSearchPath& imageSearchPath,
-                            const MaterialXNode& node)
+                             const MStringArray& parameterList,
+                             const mx::FileSearchPath& imageSearchPath,
+                             const MaterialXNode& node)
 {
     MHWRender::MSamplerStateDesc samplerDescription;
     samplerDescription.filter = MHWRender::MSamplerState::kAnisotropic;
@@ -272,7 +270,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shaderI
     // Set up image file name search path.
     mx::FilePath documentPath(node->getDocumentFilePath().asChar());
     documentPath = documentPath.getParentPath();
-    mx::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath(); 
+    mx::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath();
     imageSearchPath.prepend(documentPath);
 
     bindEnvironmentLighting(shaderInstance, parameterList, imageSearchPath, *node);
@@ -280,7 +278,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shaderI
     mx::DocumentPtr document = ogsFragment->getDocument();
 
     // Look for any udimset on the document to use for texture binding.
-    mx::ValuePtr udimSetValue = document->getGeomAttrValue("udimset");
+    mx::ValuePtr udimSetValue = document->getGeomPropValue("udimset");
     const mx::StringVec* udimIdentifiers = nullptr;
     if (udimSetValue && udimSetValue->isA<mx::StringVec>())
     {
@@ -402,7 +400,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shaderI
                     }
 
                     status = bindFileTexture(shaderInstance, textureParameterName, imageSearchPath, valueString,
-                        samplerDescription, textureDescription, udimIdentifiers);
+                                             samplerDescription, textureDescription, udimIdentifiers);
                 }
             }
         }
@@ -412,15 +410,13 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shaderI
 template class ShadingNodeOverride<MHWRender::MPxShadingNodeOverride>;
 template class ShadingNodeOverride<MHWRender::MPxSurfaceShadingNodeOverride>;
 
-MHWRender::MPxSurfaceShadingNodeOverride*
-SurfaceOverride::creator(const MObject& obj)
+MHWRender::MPxSurfaceShadingNodeOverride* SurfaceOverride::creator(const MObject& obj)
 {
     std::cout.rdbuf(std::cerr.rdbuf());
     return new SurfaceOverride(obj);
 }
 
-MString
-SurfaceOverride::transparencyParameter() const
+MString SurfaceOverride::transparencyParameter() const
 {
     return mx::OgsXmlGenerator::VP_TRANSPARENCY_NAME.c_str();
 }

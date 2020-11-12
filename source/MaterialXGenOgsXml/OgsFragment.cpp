@@ -31,7 +31,8 @@ class GlslGeneratorWrapperBase
         if (!_element)
             throw mx::Exception("No element specified");
 
-        if (element->asA<mx::ShaderRef>())
+        mx::TypedElementPtr typeElement = element->asA<mx::TypedElement>();
+        if (typeElement && typeElement->getType() == mx::SURFACE_SHADER_TYPE_STRING)
         {
             _isSurface = true;
         }
@@ -124,6 +125,23 @@ public:
             static const std::string MATERIALX_LINEAR_WORKING_SPACE("lin_rec709");
             genOptions.targetColorSpaceOverride =
                 documentColorSpace.empty() ? MATERIALX_LINEAR_WORKING_SPACE : documentColorSpace;
+        }
+
+        // Set up unit system. We assume default distance unit of 1 meter:
+        if (mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(generator->getLanguage()))
+        {
+            generator->setUnitSystem(unitSystem);
+            mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
+            mx::DocumentPtr document = _element->getDocument();
+            mx::UnitTypeDefPtr distanceTypeDef = document->getUnitTypeDef("distance");
+            registry->addUnitConverter(distanceTypeDef, mx::LinearUnitConverter::create(distanceTypeDef));
+            mx::UnitTypeDefPtr angleTypeDef = document->getUnitTypeDef("angle");
+            registry->addUnitConverter(angleTypeDef, mx::LinearUnitConverter::create(angleTypeDef));
+            generator->getUnitSystem()->loadLibrary(document);
+            generator->getUnitSystem()->setUnitConverterRegistry(registry);
+
+            // Set target unit space
+            genOptions.targetDistanceUnit = "meter";
         }
 
         genContext.registerSourceCodeSearchPath(_librarySearchPath);
@@ -340,7 +358,8 @@ const mx::StringMap& OgsFragment::getPathInputMap() const
 
 bool OgsFragment::isElementAShader() const
 {
-    return _element && _element->isA<mx::ShaderRef>();
+    mx::TypedElementPtr typeElement = _element ? _element->asA<mx::TypedElement>() : nullptr;
+    return typeElement && typeElement->getType() == mx::SURFACE_SHADER_TYPE_STRING;
 }
 
 bool OgsFragment::isTransparent() const

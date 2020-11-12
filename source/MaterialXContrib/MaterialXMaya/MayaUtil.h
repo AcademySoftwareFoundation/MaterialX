@@ -4,8 +4,8 @@
 /// @file
 /// Maya Viewport 2.0 utilities.
 
-#include <maya/MTextureManager.h>
 #include <maya/MStateManager.h>
+#include <maya/MTextureManager.h>
 
 #include <string>
 #include <memory>
@@ -27,10 +27,7 @@ struct TextureDeleter
     void operator()(MHWRender::MTexture* texture);
 };
 
-using TextureUniquePtr = std::unique_ptr<
-    MHWRender::MTexture,
-    TextureDeleter
->;
+using TextureUniquePtr = std::unique_ptr<MHWRender::MTexture, TextureDeleter>;
 
 struct SamplerDeleter
 {
@@ -38,10 +35,7 @@ struct SamplerDeleter
     void operator()(const MHWRender::MSamplerState* sampler);
 };
 
-using SamplerUniquePtr = std::unique_ptr<
-    const MHWRender::MSamplerState,
-    SamplerDeleter
->;
+using SamplerUniquePtr = std::unique_ptr<const MHWRender::MSamplerState, SamplerDeleter>;
 
 } // namespace MayaUtil
 } // namespace MaterialXMaya

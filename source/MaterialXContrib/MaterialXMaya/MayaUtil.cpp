@@ -23,8 +23,7 @@ void registerFragment(const std::string& fragmentName, const std::string& fragme
     }
 
     MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
-    MHWRender::MFragmentManager* const fragmentManager =
-        theRenderer ? theRenderer->getFragmentManager() : nullptr;
+    MHWRender::MFragmentManager* const fragmentManager = theRenderer ? theRenderer->getFragmentManager() : nullptr;
 
     if (!fragmentManager)
     {
@@ -34,8 +33,7 @@ void registerFragment(const std::string& fragmentName, const std::string& fragme
     if (!fragmentManager->hasFragment(fragmentName.c_str()))
     {
         constexpr bool hidden = false;
-        const MString registeredFragment =
-            fragmentManager->addShadeFragmentFromBuffer(fragmentSource.c_str(), hidden);
+        const MString registeredFragment = fragmentManager->addShadeFragmentFromBuffer(fragmentSource.c_str(), hidden);
 
         if (registeredFragment.length() == 0)
         {
@@ -57,8 +55,7 @@ void TextureDeleter::operator()(MHWRender::MTexture* texture)
         return;
     }
 
-    MHWRender::MTextureManager* const
-        textureMgr = renderer->getTextureManager();
+    MHWRender::MTextureManager* const textureMgr = renderer->getTextureManager();
 
     if (!textureMgr)
     {
@@ -68,7 +65,7 @@ void TextureDeleter::operator()(MHWRender::MTexture* texture)
     textureMgr->releaseTexture(texture);
 };
 
-void SamplerDeleter::operator () (const MHWRender::MSamplerState* sampler)
+void SamplerDeleter::operator()(const MHWRender::MSamplerState* sampler)
 {
     if (sampler)
     {
