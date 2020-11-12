@@ -36,12 +36,7 @@ class ShaderTranslator
     ShaderTranslator();
 
     // Connect translation node inputs from the original shaderRef
-    void connectToTranslationInputs(ShaderRefPtr shaderRef, NodeDefPtr translationNodeDef);
-
-    // Copy translation nodegraph upstream node dependencies over to the working nodegraph.
-    // Used when normals need to be baked in tangent space but shaderref expects normals to 
-    // be in world space.
-    void insertUpstreamDependencies(OutputPtr translatedOutput, OutputPtr ngOutput);
+    void connectTranslationInputs(ShaderRefPtr shaderRef, NodeDefPtr translationNodeDef);
 
     // Connect translation node outputs to finalize shaderref translation
     void connectTranslationOutputs(ShaderRefPtr shaderRef);

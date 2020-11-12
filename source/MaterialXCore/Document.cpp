@@ -505,6 +505,14 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                         nodeDef->removeAttribute("shaderprogram");
                     }
                 }
+                else if (child->getCategory() == "shaderref")
+                {
+                    if (child->hasAttribute("shadertype"))
+                    {
+                        child->setAttribute(TypedElement::TYPE_ATTRIBUTE, SURFACE_SHADER_TYPE_STRING);
+                        child->removeAttribute("shadertype");
+                    }
+                }
                 else if (child->isA<Parameter>())
                 {
                     ParameterPtr param = child->asA<Parameter>();
@@ -548,6 +556,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     if (nodeDef)
                     {
                         shaderRef->setNodeDefString(nodeDef->getName());
+                        shaderRef->setNodeString(nodeDef->getNodeString());
                     }
                 }
             }

@@ -427,7 +427,7 @@ ImagePtr OslRenderer::captureImage()
     }
 
     string error;
-    ImagePtr returnImage = _imageHandler->acquireImage(_oslOutputFileName, false, nullptr, &error);
+    ImagePtr returnImage = _imageHandler->acquireImage(_oslOutputFileName, false, &error);
     if (!returnImage)
     {
         errors.push_back("Failed to save to file: " + _oslOutputFileName.asString());

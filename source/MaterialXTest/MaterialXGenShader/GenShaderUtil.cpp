@@ -1149,7 +1149,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     }
                     else if (name == APPLY_LATEST_UPDATES)
                     {
-                    applyFutureUpdates = p->getValue()->asA<bool>();
+                        applyFutureUpdates = p->getValue()->asA<bool>();
                     }
                 }
             }

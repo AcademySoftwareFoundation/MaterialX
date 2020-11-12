@@ -104,6 +104,9 @@ class Image
     /// @name Image Analysis
     /// @{
 
+    /// Compute the average color of the image.
+    Color4 getAverageColor();
+
     /// Return true if all texels of this image are identical in color.
     /// @param uniformColor Return the uniform color of the image, if any.
     bool isUniformColor(Color4* uniformColor = nullptr);

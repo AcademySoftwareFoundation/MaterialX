@@ -245,7 +245,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             }
 
             const mx::FilePath filename = mx::FilePath(dir) / mx::FilePath(file);
-
             mx::DocumentPtr doc = mx::createDocument();
             try
             {

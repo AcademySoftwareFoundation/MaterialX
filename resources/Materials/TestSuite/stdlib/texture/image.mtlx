@@ -4,67 +4,47 @@
 Basic image unit test with one image node for each variation in input type.
 
 -->
-<materialx version="1.37">
-   <output name="image4_output" type="color4" nodename="image4" />
-   <image name="image4" type="color4">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" value="linear"/>
-      <parameter name="frameendaction" type="string" value="periodic"/>
-   </image>
+<materialx version="1.37" colorspace="srgb_texture">
 
-   <output name="image3_output" type="color3" nodename="image3" />
-   <image name="image3" type="color3">
-        <parameter name="file" type="filename" value="resources/Images/grid.png" />
-        <parameter name="uaddressmode" type="string" value="periodic"/>
-        <parameter name="vaddressmode" type="string" value="periodic"/>
-        <parameter name="filtertype" type="string" value="linear"/>
-        <parameter name="frameendaction" type="string" value="periodic"/>
-   </image>
+  <image name="image_color4" type="color4">
+    <parameter name="file" type="filename" value="resources/Images/grid.png" />
+  </image>
+  <output name="image_color4_output" type="color4" nodename="image_color4" />
 
-   <output name="image2_output" type="color2" nodename="image2" />
-   <image name="image2" type="color2">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" value="linear"/>
-      <parameter name="frameendaction" type="string" value="periodic"/>
-   </image>
+  <image name="image_color3" type="color3">
+    <parameter name="file" type="filename" value="resources/Images/grid.png" />
+  </image>
+  <output name="image_color3_output" type="color3" nodename="image_color3" />
 
-   <output name="image1_output" type="float" nodename="image1" />
-   <image name="image1" type="float">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" value="linear"/>
-      <parameter name="frameendaction" type="string" value="periodic"/>
-   </image>
+  <image name="image_color2" type="color2">
+    <parameter name="file" type="filename" value="resources/Images/grid.png" />
+  </image>
+  <output name="image_color2_output" type="color2" nodename="image_color2" />
 
-   <output name="image4v_output" type="vector4" nodename="image4v" />
-   <image name="image4v" type="vector4">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" value="linear"/>
-      <parameter name="frameendaction" type="string" value="periodic"/>
-   </image>
+  <image name="image_vector4" type="vector4">
+    <parameter name="file" type="filename" value="resources/Images/grid.png" />
+  </image>
+  <output name="image_vector4_output" type="vector4" nodename="image_vector4" />
 
-   <output name="image3v_output" type="vector3" nodename="image3v" />
-   <image name="image3v" type="vector3">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" value="linear"/>
-      <parameter name="frameendaction" type="string" value="periodic"/>
-   </image>
+  <image name="image_vector3" type="vector3">
+    <parameter name="file" type="filename" value="resources/Images/grid.png" />
+  </image>
+  <output name="image_vector3_output" type="vector3" nodename="image_vector3" />
 
-   <output name="image2v_output" type="vector2" nodename="image2v" />
-   <image name="image2v" type="vector2">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" value="linear"/>
-      <parameter name="frameendaction" type="string" value="periodic"/>
-   </image>
+  <image name="image_vector2" type="vector2">
+    <parameter name="file" type="filename" value="resources/Images/grid.png" />
+  </image>
+  <output name="image_vector2_output" type="vector2" nodename="image_vector2" />
+
+  <image name="image_float" type="float">
+    <parameter name="file" type="filename" value="resources/Images/grid.png" />
+  </image>
+  <output name="image_float_output" type="float" nodename="image_float" />
+
+   <image name="image_default" type="color3">
+    <parameter name="file" type="filename" value="resources/Images/invalid.png" />
+    <parameter name="default" type="color3" value="0.2, 0.2, 0.8" />
+  </image>
+  <output name="image_default_output" type="color3" nodename="image_default" />
+
 </materialx>

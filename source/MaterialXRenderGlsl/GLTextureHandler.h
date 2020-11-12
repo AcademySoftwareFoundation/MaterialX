@@ -31,7 +31,6 @@ class GLTextureHandler : public ImageHandler
     /// found in the cache, then each image loader will be applied in turn.
     ImagePtr acquireImage(const FilePath& filePath,
                           bool generateMipMaps = true,
-                          const Color4* fallbackColor = nullptr,
                           string* message = nullptr) override;
 
     /// Bind an image. This method will bind the texture to an active texture
@@ -68,7 +67,6 @@ class GLTextureHandler : public ImageHandler
     int getNextAvailableTextureLocation();
 
   protected:
-    int _maxImageUnits;
     std::vector<unsigned int> _boundTextureLocations;
 };
 
