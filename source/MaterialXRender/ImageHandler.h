@@ -168,19 +168,15 @@ class ImageHandler
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
                            ConstImagePtr image,
-                           bool verticalFlip = false,
-                           string* message = nullptr);
+                           bool verticalFlip = false);
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
     /// @param filePath File path of the image.
     /// @param generateMipMaps Generate mip maps if supported.
-    /// @param message Optional pointer to a message string, where any warning
-    ///    or error messages from the acquire operation will be stored.
     /// @return On success, a shared pointer to the acquired Image.
     virtual ImagePtr acquireImage(const FilePath& filePath,
-                                  bool generateMipMaps = true,
-                                  string* message = nullptr);
+                                  bool generateMipMaps = true);
 
     /// Bind an image for rendering.
     /// @param image The image to bind.
