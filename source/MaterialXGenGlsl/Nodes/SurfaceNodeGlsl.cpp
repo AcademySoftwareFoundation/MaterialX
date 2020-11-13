@@ -17,23 +17,23 @@ SurfaceNodeGlsl::SurfaceNodeGlsl()
     //
     // Reflection context
     _callReflection = HwClosureContext::create(HwClosureContext::REFLECTION);
-    _callReflection->setSuffix("_reflection");
-    _callReflection->addArgument(Type::VECTOR3, HW::DIR_L);
-    _callReflection->addArgument(Type::VECTOR3, HW::DIR_V);
-    _callReflection->addArgument(Type::VECTOR3, HW::WORLD_POSITION);
-    _callReflection->addArgument(Type::FLOAT, HW::OCCLUSION);
+    _callReflection->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
+    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
+    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
+    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
     // Transmission context
     _callTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
-    _callTransmission->setSuffix("_transmission");
-    _callTransmission->addArgument(Type::VECTOR3, HW::DIR_V);
+    _callTransmission->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION);
+    _callTransmission->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Indirect context
     _callIndirect = HwClosureContext::create(HwClosureContext::INDIRECT);
-    _callIndirect->setSuffix("_indirect");
-    _callIndirect->addArgument(Type::VECTOR3, HW::DIR_V);
+    _callIndirect->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT);
+    _callIndirect->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Emission context
     _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _callEmission->addArgument(Type::VECTOR3, HW::DIR_N);
-    _callEmission->addArgument(Type::VECTOR3, HW::DIR_V);
+    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
+    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
 }
 
 ShaderNodeImplPtr SurfaceNodeGlsl::create()
