@@ -23,8 +23,8 @@ LightNodeGlsl::LightNodeGlsl()
 {
     // Emission context
     _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _callEmission->addArgument(Type::VECTOR3, "light.direction");
-    _callEmission->addArgument(Type::VECTOR3, "-L");
+    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, "light.direction"));
+    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, "-L"));
 }
 
 ShaderNodeImplPtr LightNodeGlsl::create()

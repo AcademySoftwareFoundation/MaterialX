@@ -41,11 +41,15 @@ void HwSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& cont
 
             if (ccx)
             {
+                // Use the first output for classifying node type for the closure context.
+                // This is only relevent for closures, and they only have a single output.
+                const TypeDesc* nodeType = node.getOutput()->getType();
+
                 // Emit function name.
-                shadergen.emitString(_functionName + ccx->getSuffix() + "(", stage);
+                shadergen.emitString(_functionName + ccx->getSuffix(nodeType) + "(", stage);
 
                 // Emit extra argument.
-                for (const HwClosureContext::Argument& arg : ccx->getArguments())
+                for (const HwClosureContext::Argument& arg : ccx->getArguments(nodeType))
                 {
                     shadergen.emitString(delim + arg.second, stage);
                     delim = ", ";
