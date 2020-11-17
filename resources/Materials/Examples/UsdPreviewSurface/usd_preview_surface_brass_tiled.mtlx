@@ -18,7 +18,7 @@
       <bindinput name="diffuseColor" type="color3" nodegraph="NG_brass1" output="out_color" />
       <bindinput name="useSpecularWorkflow" type="integer" value="0" />
       <bindinput name="specularColor" type="color3" value="0, 0, 0" />
-      <bindinput name="metalness" type="float" value="1" />
+      <bindinput name="metallic" type="float" value="1" />
       <bindinput name="roughness" type="float" nodegraph="NG_brass1" output="out_roughness" />
       <bindinput name="ior" type="float" value="50" />
     </shaderref>

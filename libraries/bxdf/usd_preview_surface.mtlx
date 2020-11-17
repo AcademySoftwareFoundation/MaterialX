@@ -12,7 +12,7 @@
     <input name="emissiveColor" type="color3" value="0, 0, 0" />
     <input name="useSpecularWorkflow" type="integer" value="0" />
     <input name="specularColor" type="color3" value="0, 0, 0" />
-    <input name="metalness" type="float" value="0" />
+    <input name="metallic" type="float" value="0" />
     <input name="roughness" type="float" value="0.01" />
     <input name="clearcoat" type="float" value="0" />
     <input name="clearcoatRoughness" type="float" value="0.01" />
@@ -185,7 +185,7 @@
     <mix name="metalness_workflow_bsdf" type="BSDF">
       <input name="fg" type="BSDF" nodename="metalness_metal_bsdf" />
       <input name="bg" type="BSDF" nodename="metalness_specular_bsdf" />
-      <input name="mix" type="float" interfacename="metalness" />
+      <input name="mix" type="float" interfacename="metallic" />
     </mix>
 
     <!-- Select Specular/Metalness workflow -->
