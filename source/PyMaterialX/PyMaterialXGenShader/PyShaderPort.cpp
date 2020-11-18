@@ -31,6 +31,5 @@ void bindPyShaderPort(py::module& mod)
         .def("setUnit", &mx::ShaderPort::setUnit)
         .def("getUnit", &mx::ShaderPort::getUnit)
         .def("isUniform", &mx::ShaderPort::isUniform)
-        .def("isEmitted", &mx::ShaderPort::isEmitted)
-        .def("isBindInput", &mx::ShaderPort::isBindInput);
+        .def("isEmitted", &mx::ShaderPort::isEmitted);
 }
