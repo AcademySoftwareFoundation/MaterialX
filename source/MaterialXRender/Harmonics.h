@@ -30,6 +30,16 @@ template <class C, size_t B> class ShCoeffs
     explicit ShCoeffs(const std::array<C, NUM_COEFFS>& arr) : _arr(arr) { }
     ~ShCoeffs() { }
 
+    /// @name Comparison Operators
+    /// @{
+
+    /// Return true if the given vector is identical to this one.
+    bool operator==(const ShCoeffs& rhs) const { return _arr == rhs._arr; }
+
+    /// Return true if the given vector differs from this one.
+    bool operator!=(const ShCoeffs& rhs) const { return _arr != rhs._arr; }
+
+    /// @}
     /// @name Indexing Operators
     /// @{
 

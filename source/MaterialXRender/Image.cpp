@@ -247,6 +247,21 @@ Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
     }
 }
 
+Color4 Image::getAverageColor()
+{
+    Color4 averageColor;
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            averageColor += getTexelColor(x, y);
+        }
+    }
+    unsigned int sampleCount = getWidth() * getHeight();
+    averageColor /= (float) sampleCount;
+    return averageColor;
+}
+
 bool Image::isUniformColor(Color4* uniformColor)
 {
     Color4 refColor = getTexelColor(0, 0);

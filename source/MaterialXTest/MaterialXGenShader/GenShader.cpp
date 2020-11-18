@@ -12,6 +12,7 @@
 #include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/ShaderTranslator.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -163,7 +164,7 @@ TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
         if (!inter)
         {
             missing++;
-            missing_str += "Missing nodeDef implemenation: " + nodeDefName + ", Node: " + nodeName + ".\n";
+            missing_str += "Missing nodeDef implementation: " + nodeDefName + ", Node: " + nodeName + ".\n";
         }
         else
         {
@@ -205,5 +206,25 @@ TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
 
     // To enable once this is true
     //REQUIRE(missing == 0);
+}
+
+TEST_CASE("GenShader: Shader Translation", "[translate]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::FileSearchPath searchPath;
+    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    loadLibraries({ "stdlib", "pbrlin", "bxdf", "translation" }, searchPath, doc);
+    const mx::FilePath mtlxFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx");
+    mx::readFromXmlFile(doc, mtlxFile, searchPath);
+    mx::ShaderTranslatorPtr shaderTranslator = mx::ShaderTranslator::create();
+    shaderTranslator->translateAllMaterials(doc, "UsdPreviewSurface");
+
+    std::string validationErrors;
+    bool valid = doc->validate(&validationErrors);
+    if (!valid)
+    {
+        std::cout << validationErrors << std::endl;
+    }
+    REQUIRE(valid);
 }
 

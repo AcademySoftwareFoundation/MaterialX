@@ -52,12 +52,12 @@ jobs:
         sudo apt-get install libgl-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libx11-dev
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
           sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
-          echo "::set-env name=CC::gcc-${{ matrix.compiler_version }}"
-          echo "::set-env name=CXX::g++-${{ matrix.compiler_version }}"
+          echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         else
           sudo apt-get install -y clang-${{ matrix.compiler_version }} g++-multilib
-          echo "::set-env name=CC::clang-${{ matrix.compiler_version }}"
-          echo "::set-env name=CXX::clang++-${{ matrix.compiler_version }}"
+          echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         fi
 
     - name: Install Python ${{ matrix.python }}

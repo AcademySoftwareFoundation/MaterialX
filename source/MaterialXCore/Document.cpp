@@ -194,11 +194,12 @@ void Document::importLibrary(const ConstDocumentPtr& library)
 
     for (auto child : library->getChildren())
     {
-        string childName = child->getQualifiedName(child->getName());
         if (child->getCategory().empty())
         {
             throw Exception("Trying to import child without a category: " + child->getName());
         }
+
+        const string childName = child->getQualifiedName(child->getName());
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);
@@ -504,6 +505,14 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                         nodeDef->removeAttribute("shaderprogram");
                     }
                 }
+                else if (child->getCategory() == "shaderref")
+                {
+                    if (child->hasAttribute("shadertype"))
+                    {
+                        child->setAttribute(TypedElement::TYPE_ATTRIBUTE, SURFACE_SHADER_TYPE_STRING);
+                        child->removeAttribute("shadertype");
+                    }
+                }
                 else if (child->isA<Parameter>())
                 {
                     ParameterPtr param = child->asA<Parameter>();
@@ -547,6 +556,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     if (nodeDef)
                     {
                         shaderRef->setNodeDefString(nodeDef->getName());
+                        shaderRef->setNodeString(nodeDef->getNodeString());
                     }
                 }
             }

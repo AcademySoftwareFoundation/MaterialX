@@ -10,12 +10,13 @@
 
 #include <MaterialXRender/ShaderRenderer.h>
 
+#include <iostream>
+
 namespace MaterialX
 {
 
 GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
-    ImageHandler(imageLoader),
-    _maxImageUnits(-1)
+    ImageHandler(imageLoader)
 {
     if (!glActiveTexture)
     {
@@ -28,9 +29,7 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
 }
 
 ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
-                                        bool generateMipMaps,
-                                        const Color4* fallbackColor,
-                                        string* message)
+                                        bool generateMipMaps)
 {
     // Resolve the input filepath.
     FilePath resolvedFilePath = filePath;
@@ -40,14 +39,14 @@ ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
     }
 
     // Return a cached image if available.
-    ImagePtr cachedDesc = getCachedImage(resolvedFilePath);
-    if (cachedDesc)
+    ImagePtr cachedImage = getCachedImage(resolvedFilePath);
+    if (cachedImage)
     {
-        return cachedDesc;
+        return cachedImage;
     }
 
     // Call the base acquire method.
-    return ImageHandler::acquireImage(resolvedFilePath, generateMipMaps, fallbackColor, message);
+    return ImageHandler::acquireImage(resolvedFilePath, generateMipMaps);
 }
 
 bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
@@ -61,17 +60,6 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
         }
     }
 
-    // Bind a texture to the next available slot
-    if (_maxImageUnits < 0)
-    {
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxImageUnits);
-    }
-    if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID ||
-        image->getResourceId() == static_cast<unsigned int>(_maxImageUnits))
-    {
-        return false;
-    }
-
     // Update bound location if not already bound
     int textureUnit = getBoundTextureLocation(image->getResourceId());
     if (textureUnit < 0)
@@ -80,6 +68,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     }
     if (textureUnit < 0)
     {
+        std::cerr << "Exceeded maximum number of bound textures in GLTextureHandler::bindImage" << std::endl;
         return false;
     }      
     _boundTextureLocations[textureUnit] = image->getResourceId();
@@ -125,6 +114,11 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     {
         unsigned int resourceId;
         glGenTextures(1, &resourceId);
+        if (resourceId == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
+        {
+            std::cerr << "Failed to generate render resource for texture" << std::endl;
+            return false;
+        }
         image->setResourceId(resourceId);
     }
 
@@ -143,6 +137,11 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
         0, glFormat, glType, image->getResourceBuffer());
+    if (image->getChannelCount() == 1)
+    {
+        GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+    }
 
     if (generateMipMaps)
     {

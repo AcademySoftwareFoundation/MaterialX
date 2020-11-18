@@ -861,7 +861,10 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                         }
                         else
                         {
-                            path = path / (elementName + "." + getFileExtensionForLanguage(_shaderGenerator->getLanguage()));
+                            path = path / (elementName + "."  
+                                + _shaderGenerator->getTarget() 
+                                + "." + getFileExtensionForLanguage(_shaderGenerator->getLanguage())
+                                );
                             sourceCodePaths.push_back(path);
                             std::ofstream file(path.asString());
                             _logFile << "Write source code: " << path.asString() << std::endl;
@@ -1149,7 +1152,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     }
                     else if (name == APPLY_LATEST_UPDATES)
                     {
-                    applyFutureUpdates = p->getValue()->asA<bool>();
+                        applyFutureUpdates = p->getValue()->asA<bool>();
                     }
                 }
             }

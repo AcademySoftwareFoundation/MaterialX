@@ -6,6 +6,8 @@
 #include <MaterialXGenShader/ShaderTranslator.h>
 
 #include <MaterialXCore/Util.h>
+#include <MaterialXCore/MaterialNode.h>
+
 
 namespace MaterialX
 {
@@ -18,85 +20,45 @@ ShaderTranslator::ShaderTranslator()
 {
 }
 
-void ShaderTranslator::connectToTranslationInputs(ShaderRefPtr shaderRef, NodeDefPtr translationNodeDef)
+void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr translationNodeDef)
 {
-    vector<BindInputPtr> origBindInputs = shaderRef->getBindInputs();
-    for (BindInputPtr bindInput : origBindInputs)
+    vector<InputPtr> origShaderInput = shader->getInputs();
+    for (InputPtr shaderInput : origShaderInput)
     {
-        if (translationNodeDef->getInput(bindInput->getName()))
+        if (translationNodeDef->getInput(shaderInput->getName()))
         {
-            OutputPtr output = bindInput->getConnectedOutput();
+            OutputPtr output = shaderInput->getConnectedOutput();
             if (output)
             {
-                InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
+                InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
                 input->setConnectedNode(_graph->getNode(output->getNodeName()));
 
                 _graph->removeOutput(output->getName());
             }
-            else if (bindInput->getValueString() != EMPTY_STRING)
+            else if (shaderInput->getValueString() != EMPTY_STRING)
             { 
-                InputPtr input = _translationNode->addInput(bindInput->getName(), bindInput->getType());
-                input->setValueString(bindInput->getValueString());
+                InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
+                input->setValueString(shaderInput->getValueString());
             }
             else
             {
-                throw Exception("No associated output with " + bindInput->getName());
+                throw Exception("No associated output with " + shaderInput->getName());
             }
         }
 
-        shaderRef->removeBindInput(bindInput->getName());
+        shader->removeInput(shaderInput->getName());
     }
 }
 
-void ShaderTranslator::insertUpstreamDependencies(OutputPtr translatedOutput, OutputPtr graphOutput)
-{
-    vector<NodePtr> upstreamElements;
-
-    for (Edge edge : graphOutput->traverseGraph())
-    {
-        ElementPtr upstreamElem = edge.getUpstreamElement();
-        if (upstreamElem->isA<Node>())
-        {
-            upstreamElements.push_back(upstreamElem->asA<Node>());
-        }
-    }
-
-    translatedOutput->setNodeName(graphOutput->getNodeName());
-
-    // rebuilding upstream node dependencies from translation output to input
-    for (NodePtr node : upstreamElements)
-    {
-        // copy upstream node over
-        NodePtr nodeCopy = _graph->addNode(node->getCategory(), node->getName(), node->getType());
-
-        // copying over input information
-        for (InputPtr origInput : node->getInputs())
-        {
-            InputPtr inputCopy = nodeCopy->addInput(origInput->getName(), origInput->getType());
-            if (origInput->getInterfaceName() != EMPTY_STRING)
-            {
-                // directly connecting node to what would have been interface input
-                InputPtr interfaceInput = _translationNode->getInput(origInput->getInterfaceName());
-                inputCopy->setNodeName(interfaceInput->getNodeName());
-            }
-            else
-            {
-                inputCopy->setNodeName(origInput->getNodeName());
-            }
-        }   
-    }
-}
-
-void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
+void ShaderTranslator::connectTranslationOutputs(NodePtr shader)
 {
     StringSet categories;
     categories.insert("normalmap");
 
-    DocumentPtr doc = shaderRef->getDocument();
+    DocumentPtr doc = shader->getDocument();
     vector<OutputPtr> outputs = doc->getNodeGraph("NG_" + _translationNode->getCategory())->getOutputs();
     for (OutputPtr translationGraphOutput : outputs)
     {
-        // Updating the shaderref sockets
         string outputName = translationGraphOutput->getName();
         size_t pos = outputName.find("_out");
         if (pos == string::npos)
@@ -104,23 +66,44 @@ void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
             throw Exception("Translation graph output " + outputName + " does not end with '_out'");
         }
         string inputName = outputName.substr(0, pos);
-        OutputPtr translatedOutput = _graph->addOutput(outputName, translationGraphOutput->getType());
-        BindInputPtr translatedBindInput = shaderRef->addBindInput(inputName, translationGraphOutput->getType());
-        translatedBindInput->setConnectedOutput(translatedOutput);
-        // if normals need to be transformed into world space
+
+        // Create the translated node, handling both normal map and simple dot cases.
+        NodePtr translatedNode;
         if (connectsToNodeOfCategory(translationGraphOutput, categories))
         {
-            insertUpstreamDependencies(translatedOutput, translationGraphOutput);
+            NodePtr normalMapNode = translationGraphOutput->getConnectedNode();
+            translatedNode = _graph->addNode(normalMapNode->getCategory(), normalMapNode->getName(), normalMapNode->getType());
+            for (InputPtr input : normalMapNode->getInputs())
+            {
+                string inputNodeName;
+                if (input->getInterfaceName() != EMPTY_STRING)
+                {
+                    InputPtr interfaceInput = _translationNode->getInput(input->getInterfaceName());
+                    if (interfaceInput)
+                    {
+                        inputNodeName = interfaceInput->getNodeName();
+                    }
+                }
+                else
+                {
+                    inputNodeName = input->getNodeName();
+                }
+                if (!inputNodeName.empty())
+                {
+                    InputPtr inputCopy = translatedNode->addInput(input->getName(), input->getType());
+                    inputCopy->setNodeName(inputNodeName);
+                }
+            }
+            if (!translatedNode->getInputCount())
+            {
+                _graph->removeNode(translatedNode->getName());
+                continue;
+            }
         }
         else
         {
-            // registering outputs from translation node
-            NodePtr outNode = _graph->addNode("dot", inputName + "_dot", translationGraphOutput->getType());
-            translatedOutput->setConnectedNode(outNode);
-
-            InputPtr dotNodeInput = outNode->addInput("in", translationGraphOutput->getType());
-
-            // if value does not need to be computed
+            translatedNode = _graph->addNode("dot", inputName + "_dot", translationGraphOutput->getType());
+            InputPtr dotNodeInput = translatedNode->addInput("in", translationGraphOutput->getType());
             if (translationGraphOutput->getNodeName() == EMPTY_STRING)
             {
                 dotNodeInput->setValueString(translationGraphOutput->getValueString());
@@ -131,22 +114,32 @@ void ShaderTranslator::connectTranslationOutputs(ShaderRefPtr shaderRef)
                 dotNodeInput->setOutputString(outputName);
             }
         }
+
+        // Create translated output.
+        OutputPtr translatedOutput = _graph->addOutput(outputName, translationGraphOutput->getType());
+        translatedOutput->setConnectedNode(translatedNode);
+
+        // Add translated shaderInput.
+        InputPtr translatedshaderInput = shader->addInput(inputName, translationGraphOutput->getType());
+        translatedshaderInput->setConnectedOutput(translatedOutput);
     }
 }
 
-void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader)
+void ShaderTranslator::translateShader(NodePtr shader, const string& destCategory)
 {
-    if (!shaderRef)
+    if (!shader)
     {
         return;
     }
-    if (shaderRef->getNodeString() == destShader)
+
+    string sourceCategory = shader->getCategory();
+    if (sourceCategory == destCategory)
     {
-        throw Exception("Both source and destination shader in translation are " + destShader);
+        throw Exception("The source shader category is already \"" + destCategory + "\"");
     }
 
-    DocumentPtr doc = shaderRef->getDocument();
-    vector<OutputPtr> referencedOutputs = shaderRef->getReferencedOutputs();
+    DocumentPtr doc = shader->getDocument();
+    vector<OutputPtr> referencedOutputs = shader->getOutputs();
     if (!referencedOutputs.empty())
     {
         _graph = referencedOutputs[0]->getParent()->asA<NodeGraph>();
@@ -156,8 +149,7 @@ void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader
         _graph = doc->addNodeGraph();
     }
 
-    string sourceShader = shaderRef->getNodeString();
-    string translateNodeString = sourceShader + "_to_" + destShader;
+    string translateNodeString = sourceCategory + "_to_" + destCategory;
     vector<NodeDefPtr> matchingNodeDefs = doc->getMatchingNodeDefs(translateNodeString);
     if (matchingNodeDefs.empty())
     {
@@ -166,21 +158,29 @@ void ShaderTranslator::translateShader(ShaderRefPtr shaderRef, string destShader
     NodeDefPtr translationNodeDef = matchingNodeDefs[0];
     _translationNode = _graph->addNodeInstance(translationNodeDef);
 
-    connectToTranslationInputs(shaderRef, translationNodeDef);
-    shaderRef->setNodeString(destShader);
-    shaderRef->removeAttribute(ShaderRef::NODE_DEF_ATTRIBUTE);
-    connectTranslationOutputs(shaderRef);
+    connectTranslationInputs(shader, translationNodeDef);
+    shader->setCategory(destCategory);
+    shader->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
+    connectTranslationOutputs(shader);
 }
 
-void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destShader)
+void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destCategory)
 {
-    vector<TypedElementPtr> renderableShaderRefs;
-    std::unordered_set<ElementPtr> processedSources;
-    findRenderableShaderRefs(doc, renderableShaderRefs, false, processedSources);
-    for (TypedElementPtr elem : renderableShaderRefs)
+    vector<TypedElementPtr> materialNodes;
+    std::unordered_set<ElementPtr> shaderOutputs;
+    findRenderableMaterialNodes(doc, materialNodes, false, shaderOutputs);
+    for (auto elem : materialNodes)
     {
-        ShaderRefPtr shaderRef = elem ? elem->asA<ShaderRef>() : nullptr;
-        translateShader(shaderRef, destShader);
+        NodePtr materialNode = elem->asA<Node>();
+        if (!materialNode)
+        {
+            continue;
+        }
+        std::unordered_set<NodePtr> shaderNodes = getShaderNodes(materialNode);
+        for (auto shaderNode : shaderNodes)
+        {
+            translateShader(shaderNode, destCategory);
+        }
     }
 }
 

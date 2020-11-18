@@ -25,7 +25,7 @@ ReloadMaterialXNodeCmd::~ReloadMaterialXNodeCmd()
 {
 }
 
-MStatus ReloadMaterialXNodeCmd::doIt(const MArgList &args)
+MStatus ReloadMaterialXNodeCmd::doIt(const MArgList& args)
 {
     MArgParser parser(syntax(), args);
 
@@ -39,13 +39,13 @@ MStatus ReloadMaterialXNodeCmd::doIt(const MArgList &args)
     try
     {
         MString materialXNodeName;
-        CHECK_MSTATUS(argData.getCommandArgument(0, materialXNodeName));
+        CHECK_MSTATUS(argData.getCommandArgument(0, materialXNodeName))
 
         MSelectionList list;
-        CHECK_MSTATUS(list.add(materialXNodeName));
+        CHECK_MSTATUS(list.add(materialXNodeName))
 
         MObject node;
-        CHECK_MSTATUS(list.getDependNode(0, node));
+        CHECK_MSTATUS(list.getDependNode(0, node))
 
         MFnDependencyNode depNode(node);
         auto materialXNode = dynamic_cast<MaterialXNode*>(depNode.userNode());

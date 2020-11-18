@@ -31,7 +31,8 @@ class GlslGeneratorWrapperBase
         if (!_element)
             throw mx::Exception("No element specified");
 
-        if (element->asA<mx::ShaderRef>())
+        mx::TypedElementPtr typeElement = element->asA<mx::TypedElement>();
+        if (typeElement && typeElement->getType() == mx::SURFACE_SHADER_TYPE_STRING)
         {
             _isSurface = true;
         }
@@ -361,7 +362,8 @@ const mx::StringMap& OgsFragment::getPathInputMap() const
 
 bool OgsFragment::isElementAShader() const
 {
-    return _element && _element->isA<mx::ShaderRef>();
+    mx::TypedElementPtr typeElement = _element ? _element->asA<mx::TypedElement>() : nullptr;
+    return typeElement && typeElement->getType() == mx::SURFACE_SHADER_TYPE_STRING;
 }
 
 bool OgsFragment::isTransparent() const

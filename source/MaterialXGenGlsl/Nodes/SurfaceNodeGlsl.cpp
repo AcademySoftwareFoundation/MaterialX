@@ -112,11 +112,6 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitString("float surfaceOpacity = ", stage);
             shadergen.emitInput(node.getInput("opacity"), context, stage);
             shadergen.emitLineEnd(stage);
-            // Early out for 100% cutout transparency
-            shadergen.emitLine("if (surfaceOpacity < 0.001)", stage, false);
-            shadergen.emitScopeBegin(stage);
-            shadergen.emitLine("discard", stage);
-            shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
         }
 

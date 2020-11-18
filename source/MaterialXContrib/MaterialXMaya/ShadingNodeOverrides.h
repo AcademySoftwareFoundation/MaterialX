@@ -13,8 +13,7 @@ namespace MaterialXMaya
 /// Base class for surface and texture shading node overrides, templated since
 /// they need to derive from different Maya API classes.
 ///
-template <class BASE>
-class ShadingNodeOverride : public BASE
+template <class BASE> class ShadingNodeOverride : public BASE
 {
   public:
     MHWRender::DrawAPI supportedDrawAPIs() const override
@@ -31,10 +30,7 @@ class ShadingNodeOverride : public BASE
 
     /// Set VP2 shader parameters based on MaterialX values and bind texture
     /// resources.
-    void updateShader(
-        MHWRender::MShaderInstance&,
-        const MHWRender::MAttributeParameterMappingList&
-    ) override;
+    void updateShader(MHWRender::MShaderInstance&, const MHWRender::MAttributeParameterMappingList&) override;
 
     /// Determine if changing the value of the specified plug should refresh
     /// the shader in the viewport.
@@ -52,8 +48,7 @@ class ShadingNodeOverride : public BASE
 /// VP2 surface shading node override.
 /// Implements shading for a MaterialXSurfaceNode.
 //
-class SurfaceOverride
-    : public ShadingNodeOverride<MHWRender::MPxSurfaceShadingNodeOverride>
+class SurfaceOverride : public ShadingNodeOverride<MHWRender::MPxSurfaceShadingNodeOverride>
 {
 public:
     static MHWRender::MPxSurfaceShadingNodeOverride* creator(const MObject&);
@@ -72,8 +67,7 @@ private:
 /// VP2 texture shading node override.
 /// Implements shading for a MaterialXTextureNode
 ///
-class TextureOverride
-    : public ShadingNodeOverride<MHWRender::MPxShadingNodeOverride>
+class TextureOverride : public ShadingNodeOverride<MHWRender::MPxShadingNodeOverride>
 {
 public:
     static MHWRender::MPxShadingNodeOverride* creator(const MObject&);

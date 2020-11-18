@@ -45,13 +45,13 @@ jobs:
         brew install cmake ninja
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
           brew install gcc@${{ matrix.compiler_version }}
-          echo "::set-env name=CC::gcc-${{ matrix.compiler_version }}"
-          echo "::set-env name=CXX::g++-${{ matrix.compiler_version }}"
+          echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         else
           ls -ls /Applications/
           sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
-          echo "::set-env name=CC::clang"
-          echo "::set-env name=CXX::clang++"
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CXX=clang++" >> $GITHUB_ENV
         fi
 
     - name: Install Python ${{ matrix.python }}
