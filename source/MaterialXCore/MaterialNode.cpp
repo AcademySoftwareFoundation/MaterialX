@@ -289,4 +289,20 @@ vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const
     return matAssigns;
 }
 
+vector<OutputPtr> getConnectedOutputs(const NodePtr& node)
+{
+    vector<OutputPtr> outputVec;
+    std::set<OutputPtr> outputSet;
+    for (InputPtr bindInput : node->getInputs())
+    {
+        OutputPtr output = bindInput->getConnectedOutput();
+        if (output && !outputSet.count(output))
+        {
+            outputVec.push_back(output);
+            outputSet.insert(output);
+        }
+    }
+    return outputVec;
+}
+
 } // namespace MaterialX

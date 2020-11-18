@@ -80,6 +80,6 @@ void bindPyMaterial(py::module& mod)
     mod.def("convertMaterialsToNodes", &mx::convertMaterialsToNodes);
     mod.def("getShaderNodes", &mx::getShaderNodes);
     mod.def("getGeometryBindings", &mx::getGeometryBindings);
-
+    mod.def("getConnectedOutputs", &mx::getConnectedOutputs);
 }
 

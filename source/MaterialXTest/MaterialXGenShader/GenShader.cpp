@@ -214,8 +214,10 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     loadLibraries({ "stdlib", "pbrlin", "bxdf", "translation" }, searchPath, doc);
-    const mx::FilePath mtlxFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx");
+    const mx::FilePath mtlxFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface/standard_surface_wood_tiled.mtlx");
     mx::readFromXmlFile(doc, mtlxFile, searchPath);
+    mx::writeToXmlFile(doc, "standard_surface_wood_tiled_untranslated.mtlx");
+
     mx::ShaderTranslatorPtr shaderTranslator = mx::ShaderTranslator::create();
     shaderTranslator->translateAllMaterials(doc, "UsdPreviewSurface");
 
@@ -226,5 +228,7 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
         std::cout << validationErrors << std::endl;
     }
     REQUIRE(valid);
+
+    mx::writeToXmlFile(doc, "standard_surface_wood_tiled_translated.mtlx");
 }
 

@@ -139,10 +139,10 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
     }
 
     DocumentPtr doc = shader->getDocument();
-    vector<OutputPtr> referencedOutputs = shader->getOutputs();
+    vector<OutputPtr> referencedOutputs = getConnectedOutputs(shader);
     if (!referencedOutputs.empty())
     {
-        _graph = referencedOutputs[0]->getParent()->asA<NodeGraph>();
+        _graph = referencedOutputs[0]->getParent() ? referencedOutputs[0]->getParent()->asA<NodeGraph>() : nullptr;
     }
     if (!_graph)
     {
