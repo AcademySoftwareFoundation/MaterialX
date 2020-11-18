@@ -20,22 +20,29 @@ namespace MaterialX
 
 namespace
 {
-    // Data types used by OGS
-    static const std::unordered_map<const TypeDesc*, const pugi::char_t*> OGS_TYPE_MAP =
-    {
-        { Type::BOOLEAN, "bool" },
-        { Type::FLOAT, "float" },
-        { Type::INTEGER, "int" },
-        { Type::STRING, "int" },
-        { Type::COLOR2, "float2" },
-        { Type::COLOR3, "float3" },
-        { Type::COLOR4, "float4" },
-        { Type::VECTOR2, "float2" },
-        { Type::VECTOR3, "float3" },
-        { Type::VECTOR4, "float4" },
-        { Type::MATRIX33, "float4x4" },
-        { Type::MATRIX44, "float4x4" }
-    };
+	typedef std::unordered_map<string, const pugi::char_t*> OGS_TYPE_MAP_T;
+
+	const OGS_TYPE_MAP_T& getOgsTypeMap() {
+		// Data types used by OGS
+		// Delayed initialization to survive C++ init order fiasco.
+		// Keyed by string to survive multiple redinitions of global symbols.
+		static const OGS_TYPE_MAP_T OGS_TYPE_MAP =
+		{
+			{ Type::BOOLEAN->getName(), "bool" },
+			{ Type::FLOAT->getName(), "float" },
+			{ Type::INTEGER->getName(), "int" },
+			{ Type::STRING->getName(), "int" },
+			{ Type::COLOR2->getName(), "float2" },
+			{ Type::COLOR3->getName(), "float3" },
+			{ Type::COLOR4->getName(), "float4" },
+			{ Type::VECTOR2->getName(), "float2" },
+			{ Type::VECTOR3->getName(), "float3" },
+			{ Type::VECTOR4->getName(), "float4" },
+			{ Type::MATRIX33->getName(), "float4x4" },
+			{ Type::MATRIX44->getName(), "float4x4" }
+		};
+		return OGS_TYPE_MAP;
+	}
 
     // Semantics used by OGS
     static const std::unordered_map<string, const pugi::char_t*> OGS_SEMANTICS_MAP =
@@ -162,8 +169,8 @@ namespace
             }
             else
             {
-                const auto type = OGS_TYPE_MAP.find(shaderPort->getType());
-                if (type != OGS_TYPE_MAP.end())
+                const auto type = getOgsTypeMap().find(shaderPort->getType()->getName());
+                if (type != getOgsTypeMap().end())
                 {
                     pugi::xml_node prop = parent.append_child(type->second);
                     if (shaderPort->getType() == Type::MATRIX33)
@@ -187,8 +194,8 @@ namespace
             const ShaderPort* p = block[i];
             if (p->getValue())
             {
-                auto type = OGS_TYPE_MAP.find(p->getType());
-                if (type != OGS_TYPE_MAP.end())
+                auto type = getOgsTypeMap().find(p->getType()->getName());
+                if (type != getOgsTypeMap().end())
                 {
                     pugi::xml_node val = parent.append_child(type->second);
                     if (p->getType() == Type::MATRIX33)
@@ -299,7 +306,7 @@ string OgsXmlGenerator::generate(
         throw ExceptionShaderGenError("Shader stage has no output");
     }
     pugi::xml_node xmlOutputs = xmlRoot.append_child(OUTPUTS);
-    pugi::xml_node xmlOut = xmlOutputs.append_child(OGS_TYPE_MAP.at(hwTransparency ? Type::COLOR4 : Type::COLOR3));
+    pugi::xml_node xmlOut = xmlOutputs.append_child(getOgsTypeMap().at(hwTransparency ? Type::COLOR4->getName() : Type::COLOR3->getName()));
     xmlOut.append_attribute(NAME) = OUTPUT_NAME.c_str();
 
     // Add implementations

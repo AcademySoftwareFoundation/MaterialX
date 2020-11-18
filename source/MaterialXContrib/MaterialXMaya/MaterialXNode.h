@@ -128,8 +128,8 @@ class MaterialXNode : public MPxNode
     /// @{
     MString _documentFilePath, _elementPath;
 
-    MString _envRadianceFileName = "goegap_4k_dim.hdr";
-    MString _envIrradianceFileName = "goegap_4k_dim.convolved.hdr";
+    MString _envRadianceFileName = "piazza_bologni.hdr";
+    MString _envIrradianceFileName = "piazza_bologni_diffuse.hdr";
     /// @}
 
     /// The OgsFragment keeps a shared pointer to the document it was created

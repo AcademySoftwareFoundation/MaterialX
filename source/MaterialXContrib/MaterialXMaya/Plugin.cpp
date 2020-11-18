@@ -5,6 +5,7 @@
 #include "MaterialXNode.h"
 #include "ShadingNodeOverrides.h"
 
+#include <MaterialXFormat/Util.h>
 #ifdef MATERIALX_BUILD_CROSS
 #include <MaterialXCross/Cross.h>
 #endif
@@ -125,6 +126,21 @@ mx::FileSearchPath Plugin::getResourceSearchPath() const
     return searchPath;
 }
 
+mx::FileSearchPath Plugin::getLightSearchPath() const
+{
+    mx::FileSearchPath searchPath;
+    SearchPathBuilder builder(searchPath);
+
+    // Search in standard installed resources directories and plug-in relative resources
+    builder.append(_pluginLoadPath / mx::FilePath("Lights"));
+    builder.append(_pluginLoadPath / mx::FilePath("../../resources/Lights"));
+    builder.append(_pluginLoadPath / mx::FilePath("../resources/Lights"));
+    builder.append(_pluginLoadPath / mx::FilePath("../Lights"));
+
+    builder.appendFromOptionVar("materialXResourceSearchPaths");
+    return searchPath;
+}
+
 void Plugin::loadLibraries()
 {
     _libraryDocument = mx::createDocument();
@@ -152,11 +168,11 @@ void Plugin::loadLibraries()
         }
     }
 
-    mx::loadLibraries(
-        mx::StringVec(uniqueLibraryNames.begin(), uniqueLibraryNames.end()),
-        _librarySearchPath,
-        _libraryDocument
-    );
+    mx::FilePathVec libraryPaths;
+    libraryPaths.insert(std::end(libraryPaths), uniqueLibraryNames.begin(), uniqueLibraryNames.end());
+    mx::XmlReadOptions opts;
+    opts.applyFutureUpdates = false;
+    mx::loadLibraries(libraryPaths, _librarySearchPath, _libraryDocument, mx::StringSet(), &opts);
 }
 
 } // namespace MaterialXMaya

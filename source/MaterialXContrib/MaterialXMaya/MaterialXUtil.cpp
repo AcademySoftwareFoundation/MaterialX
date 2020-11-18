@@ -44,13 +44,10 @@ mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
     }
 
     // Import libraries.
-    mx::CopyOptions copyOptions;
-    copyOptions.skipConflictingElements = true;
-    document->importLibrary(libraryDocument, &copyOptions);
+    document->importLibrary(libraryDocument);
 
     // Read document contents from disk
     mx::XmlReadOptions readOptions;
-    readOptions.skipConflictingElements = true;
     mx::readFromXmlFile(document, materialXDocumentPath, mx::EMPTY_STRING, &readOptions);
 
     return document;

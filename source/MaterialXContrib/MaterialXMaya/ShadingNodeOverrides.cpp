@@ -272,15 +272,17 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shaderI
     // Set up image file name search path.
     mx::FilePath documentPath(node->getDocumentFilePath().asChar());
     documentPath = documentPath.getParentPath();
-    mx::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath(); 
+    mx::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath();
+    mx::FileSearchPath lightSearchPath = Plugin::instance().getLightSearchPath();
     imageSearchPath.prepend(documentPath);
+    lightSearchPath.prepend(documentPath);
 
-    bindEnvironmentLighting(shaderInstance, parameterList, imageSearchPath, *node);
+    bindEnvironmentLighting(shaderInstance, parameterList, lightSearchPath, *node);
 
     mx::DocumentPtr document = ogsFragment->getDocument();
 
     // Look for any udimset on the document to use for texture binding.
-    mx::ValuePtr udimSetValue = document->getGeomAttrValue("udimset");
+    mx::ValuePtr udimSetValue = document->getGeomPropValue("udimset");
     const mx::StringVec* udimIdentifiers = nullptr;
     if (udimSetValue && udimSetValue->isA<mx::StringVec>())
     {

@@ -29,6 +29,9 @@ class Plugin
     /// Get the search paths for resources such as texture files.
     mx::FileSearchPath getResourceSearchPath() const;
 
+    /// Get the search paths for resources such as environment maps.
+    mx::FileSearchPath getLightSearchPath() const;
+
     /// Load or reload MaterialX libraries.
     /// Reconfigures library search paths based on option variables and
     /// recreates the library document.
