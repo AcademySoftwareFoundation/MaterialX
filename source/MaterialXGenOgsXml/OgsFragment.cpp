@@ -49,6 +49,10 @@ class GlslGeneratorWrapperBase
                     _isSurface = true;
                 }
             }
+            else if (outputNode->getType() == mx::SURFACE_SHADER_TYPE_STRING)
+            {
+                _isSurface = true;
+            }
         }
         else if (!element->asA<mx::Output>())
         {

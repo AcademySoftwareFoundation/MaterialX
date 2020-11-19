@@ -127,6 +127,21 @@ mx::FileSearchPath Plugin::getResourceSearchPath() const
     return searchPath;
 }
 
+mx::FileSearchPath Plugin::getLightSearchPath() const
+{
+    mx::FileSearchPath searchPath;
+    SearchPathBuilder builder(searchPath);
+
+    // Search in standard installed resources directories and plug-in relative resources
+    builder.append(_pluginLoadPath / mx::FilePath("Lights"));
+    builder.append(_pluginLoadPath / mx::FilePath("../../resources/Lights"));
+    builder.append(_pluginLoadPath / mx::FilePath("../resources/Lights"));
+    builder.append(_pluginLoadPath / mx::FilePath("../Lights"));
+
+    builder.appendFromOptionVar("materialXResourceSearchPaths");
+    return searchPath;
+}
+
 void Plugin::loadLibraries()
 {
     _libraryDocument = mx::createDocument();

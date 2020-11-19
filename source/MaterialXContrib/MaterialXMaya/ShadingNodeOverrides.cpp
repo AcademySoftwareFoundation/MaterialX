@@ -271,9 +271,11 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shaderI
     mx::FilePath documentPath(node->getDocumentFilePath().asChar());
     documentPath = documentPath.getParentPath();
     mx::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath();
+    mx::FileSearchPath lightSearchPath = Plugin::instance().getLightSearchPath();
     imageSearchPath.prepend(documentPath);
+    lightSearchPath.prepend(documentPath);
 
-    bindEnvironmentLighting(shaderInstance, parameterList, imageSearchPath, *node);
+    bindEnvironmentLighting(shaderInstance, parameterList, lightSearchPath, *node);
 
     mx::DocumentPtr document = ogsFragment->getDocument();
 
