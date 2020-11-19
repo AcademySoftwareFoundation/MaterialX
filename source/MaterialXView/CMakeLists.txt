@@ -6,8 +6,7 @@ if (MATERIALX_NANOGUI_EXTERNAL)
             nanogui/nanogui.h
         HINTS
             "${NANOGUI_ROOT}/include"
-            "$ENV{NANOGUI_ROOT}/include"
-        )
+            "$ENV{NANOGUI_ROOT}/include")
     find_library(NANOGUI_LIBRARIES
         NAMES
             nanogui
@@ -15,11 +14,10 @@ if (MATERIALX_NANOGUI_EXTERNAL)
             "${NANOGUI_ROOT}/lib"
             "$ENV{NANOGUI_ROOT}/lib"
             "${NANOGUI_ROOT}/lib64"
-            "$ENV{NANOGUI_ROOT}/lib64"
-        )
+            "$ENV{NANOGUI_ROOT}/lib64")
 
     if (NOT NANOGUI_INCLUDE_DIRS OR NOT NANOGUI_LIBRARIES)
-        message(FATAL_ERROR "Could not find external NanoGUI instalation, is NANOGUI_ROOT set?")
+        message(FATAL_ERROR "Could not find external NanoGUI installation, is NANOGUI_ROOT set?")
     endif()
 else()
     if (NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI/ext/glfw/src")
