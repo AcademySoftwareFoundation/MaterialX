@@ -32,13 +32,22 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
             {
                 InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
                 input->setConnectedNode(_graph->getNode(output->getNodeName()));
-
+                if (shaderInput->getColorSpace() != EMPTY_STRING) {
+                  input->setColorSpace(shaderInput->getColorSpace());
+                }
                 _graph->removeOutput(output->getName());
             }
             else if (shaderInput->getValueString() != EMPTY_STRING)
             { 
                 InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
                 input->setValueString(shaderInput->getValueString());
+                if (shaderInput->getColorSpace() != EMPTY_STRING) {
+                    input->setColorSpace(shaderInput->getColorSpace());
+                }
+                if (shaderInput->getUnit() != EMPTY_STRING) {
+                    input->setUnit(shaderInput->getUnit());
+                    input->setUnitType(shaderInput->getUnitType());
+                }
             }
             else
             {
@@ -104,6 +113,13 @@ void ShaderTranslator::connectTranslationOutputs(NodePtr shader)
         {
             translatedNode = _graph->addNode("dot", inputName + "_dot", translationGraphOutput->getType());
             InputPtr dotNodeInput = translatedNode->addInput("in", translationGraphOutput->getType());
+            if (translationGraphOutput->getColorSpace() != EMPTY_STRING) {
+                dotNodeInput->setColorSpace(translationGraphOutput->getColorSpace());
+            }
+            if (translationGraphOutput->getUnit() != EMPTY_STRING) {
+                dotNodeInput->setUnit(translationGraphOutput->getUnit());
+                dotNodeInput->setUnitType(translationGraphOutput->getUnitType());
+            }
             if (translationGraphOutput->getNodeName() == EMPTY_STRING)
             {
                 dotNodeInput->setValueString(translationGraphOutput->getValueString());
