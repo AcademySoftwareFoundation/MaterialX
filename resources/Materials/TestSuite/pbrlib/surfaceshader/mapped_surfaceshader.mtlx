@@ -68,4 +68,24 @@
       <input name="surfaceshader" type="surfaceshader" nodename="MappedShader2" />
       <input name="displacementshader" type="displacementshader" value="" />
    </surfacematerial>
+
+   <nodegraph name="ColorSpaceGraph">
+      <constant name="color_gamma22" type="color4">
+         <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma22" />
+      </constant>
+      <output name="out" type="color4" nodename="color_gamma22" />
+   </nodegraph>
+   <standard_surface name="ColorSpaceShader" type="surfaceshader" >
+      <input name="base" type="float" value="0.5" />
+      <input name="base_color" type="color3" nodegraph="ColorSpaceGraph" channels="rgb"/>
+      <input name="metalness" type="float" value="0" />
+      <input name="specular" type="float" value="1" />
+      <input name="specular_color" type="color3" value="0.2,0.6,0.8" colorspace="g22_ap1"/>
+      <input name="specular_roughness" type="float" value="0.2" />
+      <input name="coat" type="float" value="0" />
+   </standard_surface>
+   <surfacematerial name="ColorSpaceShaderMaterial" type="material" >
+      <input name="surfaceshader" type="surfaceshader" nodename="ColorSpaceShader" />
+      <input name="displacementshader" type="displacementshader" value="" />
+   </surfacematerial>
 </materialx>

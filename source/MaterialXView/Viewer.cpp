@@ -2051,6 +2051,8 @@ void Viewer::bakeTextures()
                         mx::NodePtr shader = *shaderNodes.begin();
                         baker->setImageHandler(imageHandler);
                         baker->setOutputResourcePath(_bakeFilename.getParentPath());
+                        baker->setBakedGraphName("NG_" + shader->getName());
+                        baker->setBakedGeomInfoName("GI_" + shader->getName());
                         baker->bakeShaderInputs(materialNode, shader, _genContext, mat->getUdim());
                         // Optimize baked textures.
                         baker->optimizeBakedTextures(shader);

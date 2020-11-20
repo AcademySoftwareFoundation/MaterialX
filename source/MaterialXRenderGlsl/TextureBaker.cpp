@@ -61,6 +61,8 @@ string getValueStringFromColor(const Color4& color, const string& type)
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
     GlslRenderer(width, height, baseType),
     _targetUnitSpace("meter"),
+    _bakedGraphName("NG_baked"),
+    _bakedGeomInfoName("GI_baked"),
     _averageImages(false),
     _optimizeConstants(true),
     _generator(GlslShaderGenerator::create())
@@ -251,11 +253,12 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
     DocumentPtr bakedTextureDoc = createDocument();
     bakedTextureDoc->setColorSpace(_colorSpace);
 
-    // Create top-level elements.
-    const string bakedNodeGraphName = bakedTextureDoc->createValidChildName("NG_baked");
-    NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph(bakedNodeGraphName);
-    const string bakedGeomName = bakedTextureDoc->createValidChildName("GI_baked");
-    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(bakedGeomName) : nullptr;
+    // Create top-level elements. Note that the child names may not be what
+    // was requested so member names must be updated here to reflect that.
+    _bakedGraphName = bakedTextureDoc->createValidChildName(_bakedGraphName);
+    NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph(_bakedGraphName);
+    _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
+    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
         bakedGeom->setGeomPropValue("udimset", udimSet, "stringarray");

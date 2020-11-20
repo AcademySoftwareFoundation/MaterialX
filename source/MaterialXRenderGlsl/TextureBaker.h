@@ -82,6 +82,30 @@ class TextureBaker : public GlslRenderer
         return _targetUnitSpace;
     }
 
+    /// Set baked graph name. The default name is "NG_baked"
+    void setBakedGraphName(const string& name)
+    {
+        _bakedGraphName= name;
+    }
+
+    /// Return the baked graph name.
+    const string& getBakedGraphName() const
+    {
+        return _bakedGraphName;
+    }
+
+    /// Set baked geom info name. The default name is "GI_baked"
+    void setBakedGeomInfoName(const string& name)
+    {
+        _bakedGeomInfoName = name;
+    }
+
+    /// Return the baked geom info name.
+    const string& getBakedGeomInfoName() const
+    {
+        return _bakedGeomInfoName;
+    }
+
     /// Set whether images should be averaged to generate constants.   void setAverageImages(bool enable)
     void setAverageImages(bool enable)
     {
@@ -165,6 +189,8 @@ class TextureBaker : public GlslRenderer
     string _extension;
     string _colorSpace;
     string _targetUnitSpace;
+    string _bakedGraphName;
+    string _bakedGeomInfoName;
     bool _averageImages;
     bool _optimizeConstants;
     FilePath _outputImagePath;
