@@ -171,6 +171,13 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
         return;
     }
 
+    // Early exist if not optimizing
+    if (!_optimizeConstants)
+    {
+        _bakedConstantMap.clear();
+        return;
+    }
+
     // If the graph used to create the texture has any of the following attributes
     // then it's value has changed from the original, and even if the image is a constant
     // it must not be optmized away.
@@ -379,9 +386,11 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
         }
     }
 
-    // Clear image cache
+    // Clear cached information after each material bake
     _bakedImageMap.clear();
     _bakedConstantMap.clear();
+    _worldSpaceShaderInputs.clear();
+    _material = nullptr;
 
     if (bakingSuccessful)
         return bakedTextureDoc;
@@ -450,6 +459,9 @@ ListofBakedDocuments TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileS
         // Iterate over material tags.
         for (const string& tag : materialTags)
         {
+            // Always clear any cached implementations before generation.
+            genContext.clearNodeImplementations();
+
             ShaderPtr hwShader = createShader("Shader", genContext, shaderNode);
             if (!hwShader)
             {

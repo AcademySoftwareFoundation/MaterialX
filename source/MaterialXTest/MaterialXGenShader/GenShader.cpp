@@ -210,25 +210,40 @@ TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
 
 TEST_CASE("GenShader: Shader Translation", "[translate]")
 {
-    mx::DocumentPtr doc = mx::createDocument();
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "stdlib", "pbrlin", "bxdf", "translation" }, searchPath, doc);
-    const mx::FilePath mtlxFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface/standard_surface_wood_tiled.mtlx");
-    mx::readFromXmlFile(doc, mtlxFile, searchPath);
-    mx::writeToXmlFile(doc, "standard_surface_wood_tiled_untranslated.mtlx");
 
     mx::ShaderTranslatorPtr shaderTranslator = mx::ShaderTranslator::create();
-    shaderTranslator->translateAllMaterials(doc, "UsdPreviewSurface");
 
-    std::string validationErrors;
-    bool valid = doc->validate(&validationErrors);
-    if (!valid)
+    const std::string USD_PREVIEW_SURFACE_NAME("UsdPreviewSurface");
+
+    mx::FilePath testPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    for (mx::FilePath& mtlxFile : testPath.getFilesInDirectory("mtlx"))
     {
-        std::cout << validationErrors << std::endl;
-    }
-    REQUIRE(valid);
+        mx::DocumentPtr doc = mx::createDocument();
+        mx::StringSet libFiles = loadLibraries({ "stdlib", "pbrlin", "bxdf", "translation" }, searchPath, doc);
 
-    mx::writeToXmlFile(doc, "standard_surface_wood_tiled_translated.mtlx");
+        mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
+        mtlxFile.removeExtension();
+        mx::writeToXmlFile(doc, mtlxFile.asString() + "_untranslated.mtlx");
+
+        try {
+            shaderTranslator->translateAllMaterials(doc, USD_PREVIEW_SURFACE_NAME);
+        }
+        catch (mx::Exception &e)
+        {
+            std::cout << "Failed translating: " << (testPath / mtlxFile).asString() << ": " << e.what() << std::endl;
+        }
+
+        mx::writeToXmlFile(doc, mtlxFile.asString() + "_translated.mtlx");
+        std::string validationErrors;
+        bool valid = doc->validate(&validationErrors);
+        std::cout << "SHader translation of : " << (testPath / mtlxFile).asString() << (valid ?  ": passed"  : ": falied") << std::endl;
+        if (!valid)
+        {
+            std::cout << "Validation errors: " << validationErrors << std::endl;
+        }
+        CHECK(valid);
+    }
 }
 

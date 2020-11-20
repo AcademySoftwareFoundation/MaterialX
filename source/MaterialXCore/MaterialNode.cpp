@@ -293,9 +293,9 @@ vector<OutputPtr> getConnectedOutputs(const NodePtr& node)
 {
     vector<OutputPtr> outputVec;
     std::set<OutputPtr> outputSet;
-    for (InputPtr bindInput : node->getInputs())
+    for (InputPtr input : node->getInputs())
     {
-        OutputPtr output = bindInput->getConnectedOutput();
+        OutputPtr output = input->getConnectedOutput();
         if (output && !outputSet.count(output))
         {
             outputVec.push_back(output);
