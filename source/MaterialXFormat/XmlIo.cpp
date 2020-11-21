@@ -82,7 +82,7 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
 
     // Create child nodes and recurse.
     StringSet writtenSourceFiles;
-    for (const ElementPtr& child : elem->getChildren())
+    for (auto child : elem->getChildren())
     {
         if (elementPredicate && !elementPredicate(child))
         {
@@ -227,7 +227,7 @@ void documentFromXml(DocumentPtr doc,
         elementFromXml(xmlRoot, doc, readOptions);
     }
 
-    bool applyFutureUpdates = readOptions ? readOptions->applyFutureUpdates : false;
+    bool applyFutureUpdates = readOptions ? readOptions->applyFutureUpdates : true;
     doc->upgradeVersion(applyFutureUpdates);
 }
 
@@ -239,7 +239,7 @@ void documentFromXml(DocumentPtr doc,
 
 XmlReadOptions::XmlReadOptions() :
     readXIncludeFunction(readFromXmlFile),
-    applyFutureUpdates(false)
+    applyFutureUpdates(true)
 {
 }
 
@@ -331,9 +331,12 @@ string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions)
 
 void prependXInclude(DocumentPtr doc, const FilePath& filename)
 {
-    ElementPtr elem = doc->addChildOfCategory("xinclude");
-    elem->setSourceUri(filename.asString());
-    doc->setChildIndex(elem->getName(), 0);
+    if (!filename.isEmpty())
+    {
+        ElementPtr elem = doc->addChildOfCategory("xinclude");
+        elem->setSourceUri(filename.asString());
+        doc->setChildIndex(elem->getName(), 0);
+    }
 }
 
 } // namespace MaterialX

@@ -170,13 +170,6 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
     }
     else
     {
-        // Make this a build option
-        //std::string renderExec("D:/Work/materialx/df_cuda_rel_325000.1814/df_cuda.exe");
-        //if (renderExec.empty())
-        //{
-        //    return;
-        //}
-
         std::string renderCommand = renderExec;
         for (const std::string& extraPath : extraModulePaths)
         {

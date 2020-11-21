@@ -19,6 +19,7 @@
 
 #include <MaterialXRender/Util.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/ImageHandler.h>
 
 #include <chrono>
 #include <ctime>
@@ -214,7 +215,11 @@ class ShaderRenderTester
         const GenShaderUtil::TestSuiteOptions& testOptions,
         RenderUtil::RenderProfileTimes& profileTimes,
         const mx::FileSearchPath& imageSearchPath,
-        const std::string& outputPath = ".") = 0;
+        const std::string& outputPath = ".",
+        mx::ImageVec* imageVec = nullptr) = 0;
+
+    // Save an image
+    virtual bool saveImage(const mx::FilePath&, mx::ConstImagePtr, bool) const { return false;  };
 
     // Create a list of generation options based on unit test options
     // These options will override the original generation context options.
@@ -227,6 +232,10 @@ class ShaderRenderTester
                      const GenShaderUtil::TestSuiteOptions& options,
                      std::ostream& stream,
                      mx::DocumentPtr dependLib);
+
+    virtual bool canBake() const { return false; }
+    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*imageSearchPath*/, const mx::FilePath& /*outputFilename*/,
+                         unsigned int /*bakeWidth*/, unsigned int /*bakeHeight*/, bool /*bakeHdr*/, std::ostream& /*log*/) {};
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;

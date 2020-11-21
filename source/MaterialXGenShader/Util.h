@@ -101,9 +101,17 @@ vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers);
 /// 0..1 space.
 void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scaleUV, Vector2& offsetUV);
 
-/// Checks if graph output requires normals to be transformed from tangent 
-/// space to world space.
-bool connectsToNormalMapNode(OutputPtr output);
+/// Check if an output is connected to nodes of a given category.
+/// @param output Output to check
+/// @param categories Categories to check
+/// @return Return the node if found.
+NodePtr connectsToNodeOfCategory(OutputPtr output, const StringSet& categories);
+
+/// Returns true if there is are any value elements with a given set of attributes either on the
+/// starting node or any graph upsstream of that node.
+/// @param output Starting node 
+/// @param attributes Attributes to test for
+bool hasElementAttributes(OutputPtr output, const StringVec& attributes);
 
 } // namespace MaterialX
 

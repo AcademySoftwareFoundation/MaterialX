@@ -98,7 +98,7 @@ class OslRenderer : public ShaderRenderer
     /// does not perform any action as render() produces images as part if it's
     /// execution.
     /// @param filePath Name of file to save rendered image to.
-    void saveImage(const FilePath& filePath) override;
+    void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) override;
 
     /// @}
     /// @name Compilation settings
@@ -235,6 +235,8 @@ class OslRenderer : public ShaderRenderer
     FilePath _oslIncludePath;
     /// Output file path. File name does not include an extension
     FilePath _oslOutputFilePath;
+    /// Output image file name
+    FilePath _oslOutputFileName;
 
     /// Path to "testshade" executable
     FilePath _oslTestShadeExecutable;

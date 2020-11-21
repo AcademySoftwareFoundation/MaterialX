@@ -68,7 +68,7 @@ def main(args=None):
             print ("Number of glsl files " + str(len(glslFiles)) + " does not match number of osl files " +  str(len(oslFiles)) + " in dir: " + subdir)
             print ("GLSL list: " + str(glslFiles))
             print ("OSL files: " + str(oslFiles))
-        if len(glslFiles) > 0 or len(oslFiles) > 0:
+        if len(glslFiles) > 0 and len(oslFiles) > 0:
             fh.write("<h2>" + subdir + ":</h2><br>\n")
             fh.write("<table>\n")
             for glslFile, oslFile in zip_longest(glslFiles, oslFiles):

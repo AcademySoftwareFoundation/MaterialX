@@ -25,6 +25,9 @@ using ConstImagePtr = shared_ptr<const Image>;
 /// A map from strings to images.
 using ImageMap = std::unordered_map<string, ImagePtr>;
 
+/// A vetor of images.
+using ImageVec = std::vector<ImagePtr>;
+
 /// A pair of images.
 using ImagePair = std::pair<ImagePtr, ImagePtr>;
 

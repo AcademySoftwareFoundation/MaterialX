@@ -1,22 +1,21 @@
 <World>
   <Camera eye="0, 0, 4"  dir="0,0,-1"  fov="70" />
 
-   <!-- Background clear. Uncomment this use flat color
-   %background_color% : is the background color
-   -->
-   <!--
-   <ShaderGroup>
-      color Cin %background_color%;
-      shader constant_color_background layer1;
-   </ShaderGroup>
-   <Background resolution="1024" />
-   -->
-   <!-- Background environment map. Comment this out to use flat color  -->
+   <!-- Background environment map. -->
    <ShaderGroup>
       %environment_shader_parameter_overrides%
       shader envmap layer1;
    </ShaderGroup>
    <Background resolution="1024" />
+
+   <!-- Background quad. 
+   %background_color% : is the background color
+   -->
+   <ShaderGroup>
+      color Cin %background_color%;
+      shader constant_color layer1;
+   </ShaderGroup>
+   <Quad corner="-400,-400,-800" edge_x="800,0,0" edge_y="0,800,0" />
 
    <!-- Shader graph for routing to output layer:
    input_shader_parameter_overrides : are parameter overrides for the input shader

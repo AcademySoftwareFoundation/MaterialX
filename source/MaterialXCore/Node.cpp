@@ -194,7 +194,7 @@ bool Node::validate(string* message) const
 // GraphElement methods
 //
 
-void GraphElement::flattenSubgraphs(const string& target)
+void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
 {
     vector<NodePtr> processNodeVec = getNodes();
     while (!processNodeVec.empty())
@@ -220,10 +220,20 @@ void GraphElement::flattenSubgraphs(const string& target)
         }
         processNodeVec.clear();
 
+        // Attributes in addition to value to copy over
+        StringVec copyAttributes = { ValueElement::UNIT_ATTRIBUTE,
+                                     ValueElement::UNITTYPE_ATTRIBUTE,
+                                     ValueElement::COLOR_SPACE_ATTRIBUTE };
+
         // Iterate through nodes with graph implementations.
         for (const auto& pair : graphImplMap)
         {
             NodePtr processNode = pair.first;
+            if (filter && !filter(processNode))
+            {
+                continue;
+            }
+
             NodeGraphPtr sourceSubGraph = pair.second;
             std::unordered_map<NodePtr, NodePtr> subNodeMap;
 
@@ -249,6 +259,13 @@ void GraphElement::flattenSubgraphs(const string& target)
                         if (refValue->hasValueString())
                         {
                             destValue->setValueString(refValue->getValueString());
+                        }
+                        for (auto copyAttribute : copyAttributes)
+                        {
+                            if (refValue->hasAttribute(copyAttribute))
+                            {
+                                destValue->setAttribute(copyAttribute, refValue->getAttribute(copyAttribute));
+                            }
                         }
                         if (destValue->isA<Input>() && refValue->isA<Input>())
                         {
