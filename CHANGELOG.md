@@ -7,12 +7,15 @@
 - Added viewer support for partially-transparent mesh partitions.
 - Added a subsurface scattering approximation to MaterialX GLSL.
 - Added a CMake option for building shared libraries on Linux and MacOS.
+- Added support for the latest OpenImageIO interface.
 
 ### Changed
 - Improved the robustness of texture baking and shader translation.
+- Unified the handling of missing images in generated GLSL.
 - Moved CI builds from Travis and Appveyor to GitHub Actions.
 
 ### Fixed
+- Fixed a bug in code generation for custom BSDF/EDF graphs.
 - Fixed rendering of single-channel textures in MaterialXRenderGlsl.
 
 ## [1.37.2] - 2020-09-06
