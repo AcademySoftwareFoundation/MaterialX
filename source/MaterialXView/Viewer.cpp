@@ -1153,7 +1153,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             {
                 continue;
             }
-            if (udimSetValue && udimSetValue->isA<mx::StringVec>())
+            if (typedElem->isA<mx::ShaderRef>() && udimSetValue && udimSetValue->isA<mx::StringVec>())
             {
                 for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
                 {

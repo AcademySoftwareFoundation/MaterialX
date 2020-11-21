@@ -60,6 +60,7 @@ string getValueStringFromColor(const Color4& color, const string& type)
 
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
     GlslRenderer(width, height, baseType),
+    _averageImages(false),
     _optimizeConstants(true),
     _generator(GlslShaderGenerator::create())
 {
