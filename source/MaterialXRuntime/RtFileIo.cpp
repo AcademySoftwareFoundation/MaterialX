@@ -1135,6 +1135,35 @@ namespace
         }
     }
 
+    void writePrimData(DocumentPtr& doc, const RtPrim& prim, const RtWriteOptions* options)
+    {
+        const PvtPrim* p = PvtObject::ptr<PvtPrim>(prim);
+        const RtToken typeName = prim.getTypeInfo()->getShortTypeName();
+        if (typeName == RtNodeDef::typeName())
+        {
+            writeNodeDef(p, doc, options);
+        }
+        else if (typeName == RtNode::typeName())
+        {
+            writeNode(p, doc, options);
+        }
+        else if (typeName == RtNodeGraph::typeName())
+        {
+            writeNodeGraph(p, doc, options);
+        }
+        else if (typeName == RtBackdrop::typeName())
+        {
+            //writeBackdrop(prim, doc)
+        }
+        else if (typeName != RtLook::typeName() &&
+                    typeName != RtLookGroup::typeName() &&
+                    typeName != RtMaterialAssign::typeName() &&
+                    typeName != RtCollection::typeName())
+        {
+            writeGenericPrim(p, doc->asA<Element>(), options);
+        }
+    }
+
     void writeDocument(DocumentPtr& doc, PvtStage* stage, const RtWriteOptions* options)
     {
         writeMetadata(stage->getRootPrim(), doc, RtTokenSet(), options);
@@ -1148,31 +1177,7 @@ namespace
         std::vector<NodePtr> materialElements;
         for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
         {
-            const PvtPrim* prim = PvtObject::ptr<PvtPrim>(child);
-            const RtToken typeName = child.getTypeInfo()->getShortTypeName();
-            if (typeName == RtNodeDef::typeName())
-            {
-                writeNodeDef(prim, doc, options);
-            }
-            else if (typeName == RtNode::typeName())
-            {
-                writeNode(prim, doc, options);
-            }
-            else if (typeName == RtNodeGraph::typeName())
-            {
-                writeNodeGraph(prim, doc, options);
-            }
-            else if (typeName == RtBackdrop::typeName())
-            {
-                //writeBackdrop(prim, doc)
-            }
-            else if (typeName != RtLook::typeName() &&
-                     typeName != RtLookGroup::typeName() &&
-                     typeName != RtMaterialAssign::typeName() &&
-                     typeName != RtCollection::typeName())
-            {
-                writeGenericPrim(prim, doc->asA<Element>(), options);
-            }
+            writePrimData(doc, child, options);
         }
 
         // Write the existing look information
@@ -1436,4 +1441,17 @@ void RtFileIo::writeDefinitions(const FilePath& documentPath, const RtTokenVec& 
     writeDefinitions(ofs, names, options);
 }
 
+void RtFileIo::writePrim(std::ostream& stream, const RtPath& primPath, const RtWriteOptions* options)
+{
+    RtPrim prim = _stage->getPrimAtPath(primPath);
+    if (!prim)
+    {
+        throw ExceptionRuntimeError("Can't find prim for path: '" + primPath.asString() + "' in stage: '" + _stage->getName().str() + "'");
+    }
+    DocumentPtr document = createDocument();
+    writePrimData(document, prim, options);
+    writeToXmlStream(document, stream);
 }
+
+}
+
