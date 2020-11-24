@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.37.3] - Development
+## [1.37.3] - 2020-11-24
 
 ### Added
 - Added Render Transparency and Render Double-Sided options to the Advanced Settings panel of the viewer.
