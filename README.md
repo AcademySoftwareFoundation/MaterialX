@@ -1,7 +1,7 @@
 # MaterialX
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/materialx/MaterialX/blob/master/LICENSE.txt)
-[![Version](https://badge.fury.io/gh/materialx%2FMaterialX.svg)](https://github.com/materialx/MaterialX/releases/latest)
+[![Version](https://badge.fury.io/gh/materialx%2Fmaterialx.svg)](https://github.com/materialx/MaterialX/releases/latest)
 [![Build Status](https://github.com/MaterialX/MaterialX/workflows/build/badge.svg?branch=master)](https://github.com/MaterialX/MaterialX/actions?query=branch%3Amaster)
 
 MaterialX is an open standard for transfer of rich material and look-development content between applications and renderers.  Originated at Lucasfilm in 2012, MaterialX has been used by Industrial Light & Magic (ILM) in feature films such as _Star Wars: The Force Awakens_ and real-time experiences such as _Trials on Tatooine_, and it remains the central material format for new ILM productions.
@@ -61,8 +61,9 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2017, 64-bit, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2017_x64_Python37.zip)
-- [Microsoft Windows (Visual Studio 2019, 64-bit, Python 3.8)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2019_x64_Python38.zip)
+- [Microsoft Windows (Visual Studio 2017, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2017_x64_Python37.zip)
+- [MacOS (Xcode 11, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_11_Python37.zip)
+- [Linux (GCC 10, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Linux_GCC_10_Python37.zip)
 
 ### Additional Resources
 
