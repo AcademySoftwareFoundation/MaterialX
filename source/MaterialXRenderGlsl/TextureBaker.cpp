@@ -60,6 +60,9 @@ string getValueStringFromColor(const Color4& color, const string& type)
 
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
     GlslRenderer(width, height, baseType),
+    _targetUnitSpace("meter"),
+    _bakedGraphName("NG_baked"),
+    _bakedGeomInfoName("GI_baked"),
     _averageImages(false),
     _optimizeConstants(true),
     _generator(GlslShaderGenerator::create())
@@ -82,7 +85,6 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
 #endif
         _colorSpace = LIN_REC709;
     }
-    _targetUnitSpace = "meter";
     initialize();
 }
 
@@ -95,11 +97,11 @@ FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& s
     return FilePath(outputName + shaderSuffix + BAKED_POSTFIX + udimSuffix + "." + _extension);
 }
 
-void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const FilePath& outputFolder, const string& udim)
+void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const string& udim)
 {
     _material = material;
-    _shader = shader;
-    if (!_shader)
+    
+    if (!shader)
     {
         return;
     }
@@ -108,7 +110,7 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
     StringSet categories;
     categories.insert("normalmap");
 
-    for (InputPtr input : _shader->getInputs())
+    for (InputPtr input : shader->getInputs())
     {
         OutputPtr output = input->getConnectedOutput();
         if (output && !bakedOutputs.count(output))
@@ -131,8 +133,8 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
                 }
                 _worldSpaceShaderInputs[input->getName()] = sampleNode;
             }
-            FilePath filename = FilePath(outputFolder / generateTextureFilename(output, _shader->getName(), udim));
-            bakeGraphOutput(output, context, filename);
+            FilePath texturefilepath = FilePath(_outputImagePath / generateTextureFilename(output, shader->getName(), udim));
+            bakeGraphOutput(output, context, texturefilepath);
         }
     }
 
@@ -140,7 +142,7 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
     _imageHandler->unbindImages();
 }
 
-void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& filename)
+void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& texturefilepath)
 {
     if (!output)
     {
@@ -158,14 +160,21 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
 
     BakedImage baked;
     baked.image = captureImage();
-    baked.filename = filename;
+    baked.filename = texturefilepath;
     _bakedImageMap[output].push_back(baked);
 }
 
-void TextureBaker::optimizeBakedTextures()
+void TextureBaker::optimizeBakedTextures(NodePtr shader)
 {
-    if (!_shader)
+    if (!shader)
     {
+        return;
+    }
+
+    // Early exist if not optimizing
+    if (!_optimizeConstants)
+    {
+        _bakedConstantMap.clear();
         return;
     }
 
@@ -215,8 +224,8 @@ void TextureBaker::optimizeBakedTextures()
 
 
     // Check for uniform outputs at their default values.
-    NodeDefPtr shaderNodeDef = _shader->getNodeDef();
-    for (InputPtr shaderInput : _shader->getInputs())
+    NodeDefPtr shaderNodeDef = shader->getNodeDef();
+    for (InputPtr shaderInput : shader->getInputs())
     {
         OutputPtr output = shaderInput->getConnectedOutput();
         if (output && _bakedConstantMap.count(output))
@@ -239,28 +248,29 @@ void TextureBaker::optimizeBakedTextures()
     }
 }
 
-void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec& udimSet)
+DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udimSet)
 {
-    if (!_shader)
+    if (!shader)
     {
-        return;
+        return nullptr;
     }
-    NodeDefPtr shaderNodeDef = _shader->getNodeDef();
+    NodeDefPtr shaderNodeDef = shader->getNodeDef();
 
     // Create document.
     DocumentPtr bakedTextureDoc = createDocument();
     bakedTextureDoc->setColorSpace(_colorSpace);
 
-    // Create top-level elements.
-    const string bakedNodeGraphName = bakedTextureDoc->createValidChildName("NG_baked");
-    NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph(bakedNodeGraphName);
-    const string bakedGeomName = bakedTextureDoc->createValidChildName("GI_baked");
-    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(bakedGeomName) : nullptr;
+    // Create top-level elements. Note that the child names may not be what
+    // was requested so member names must be updated here to reflect that.
+    _bakedGraphName = bakedTextureDoc->createValidChildName(_bakedGraphName);
+    NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph(_bakedGraphName);
+    _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
+    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
         bakedGeom->setGeomPropValue("udimset", udimSet, "stringarray");
     }
-    NodePtr bakedShader = bakedTextureDoc->addNode(_shader->getCategory(), _shader->getName() + BAKED_POSTFIX, _shader->getType());
+    NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + BAKED_POSTFIX, shader->getType());
     bakedNodeGraph->setColorSpace(_colorSpace);
 
     // Add a material node if any specified and connect it to the new shader node
@@ -271,7 +281,7 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
         {
             const string& sourceMaterialInputName = sourceMaterialInput->getName();
             NodePtr upstreamShader = sourceMaterialInput->getConnectedNode();
-            if (upstreamShader && (upstreamShader->getNamePath() == _shader->getNamePath()))
+            if (upstreamShader && (upstreamShader->getNamePath() == shader->getNamePath()))
             {
                 InputPtr bakedMaterialInput = bakedMaterial->getInput(sourceMaterialInputName);
                 if (!bakedMaterialInput)
@@ -284,7 +294,7 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
     }
 
     // Create inputs on baked shader and connected to baked images as required.
-    for (ValueElementPtr valueElem : _shader->getChildrenOfType<ValueElement>())
+    for (ValueElementPtr valueElem : shader->getChildrenOfType<ValueElement>())
     {
         // Get source and destination inputs
         InputPtr sourceInput = valueElem->asA<Input>();
@@ -311,8 +321,8 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
 
             // Store a constant value for uniform outputs.
             if (_optimizeConstants && _bakedConstantMap.count(output))
-	         {
- 	            Color4 uniformColor = _bakedConstantMap[output].color;
+            {
+                Color4 uniformColor = _bakedConstantMap[output].color;
                 string uniformColorString = getValueStringFromColor(uniformColor, bakedInput->getType());
                 bakedInput->setValueString(uniformColorString);
             }
@@ -321,7 +331,7 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
                 // Add the image node.
                 NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName + BAKED_POSTFIX, sourceType);
                 InputPtr input = bakedImage->addInput("file", "filename");
-                input->setValueString(generateTextureFilename(output, _shader->getName(), udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN));
+                input->setValueString(generateTextureFilename(output, shader->getName(), udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN));
 
                 // Check if is a normal node and transform normals into world space
                 auto worldSpaceShaderInput = _worldSpaceShaderInputs.find(sourceInput->getName());
@@ -355,6 +365,7 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
     }
 
     // Write referenced baked images.
+    bool bakingSuccessful = true;
     for (const auto& pair : _bakedImageMap)
     {
         if (_optimizeConstants && _bakedConstantMap.count(pair.first))
@@ -363,23 +374,32 @@ void TextureBaker::writeBakedMaterial(const FilePath& filename, const StringVec&
         }
         for (const BakedImage& baked : pair.second)
         {
-            if (_imageHandler->saveImage(baked.filename, baked.image, true))
+            if (!_imageHandler->saveImage(baked.filename, baked.image, true))
             {
-                std::cout << "Wrote baked image: " << baked.filename.asString() << std::endl;
+                bakingSuccessful = false;
+                std::cerr << "Failed to write baked image: " << baked.filename.asString() << std::endl;
             }
             else
             {
-                std::cout << "Failed to write baked image: " << baked.filename.asString() << std::endl;
+                std::cout << "Wrote baked image:" << baked.filename.asString() << std::endl;
             }
         }
     }
 
-    // Write baked document.
-    writeToXmlFile(bakedTextureDoc, filename);
-    std::cout << "Wrote baked document: " << filename.asString() << std::endl;
+    // Clear cached information after each material bake
+    _bakedImageMap.clear();
+    _bakedConstantMap.clear();
+    _worldSpaceShaderInputs.clear();
+    _material = nullptr;
+
+    if (bakingSuccessful)
+        return bakedTextureDoc;
+    else
+        return nullptr;
 }
 
-void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFilename)
+
+ListofBakedDocuments TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath)
 {
     GenContext genContext = GlslShaderGenerator::create();
     genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
@@ -401,6 +421,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
     StringVec renderablePaths = getRenderablePaths(doc);
     std::vector<NodePtr> renderableShaderNodes;
 
+    ListofBakedDocuments bakedDocuments;
     for (const string& renderablePath : renderablePaths)
     {
         ElementPtr elem = doc->getDescendant(renderablePath);
@@ -418,14 +439,6 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
         if (!shaderNode)
         {
             continue;
-        }
-
-        FilePath writeFilename = outputFilename;
-        if (renderablePaths.size() > 1)
-        {
-            string extension = writeFilename.getExtension();
-            writeFilename.removeExtension();
-            writeFilename = FilePath(writeFilename.asString() + "_" + shaderNode->getName() + "." + extension);
         }
 
         // Compute the UDIM set.
@@ -446,6 +459,9 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
         // Iterate over material tags.
         for (const string& tag : materialTags)
         {
+            // Always clear any cached implementations before generation.
+            genContext.clearNodeImplementations();
+
             ShaderPtr hwShader = createShader("Shader", genContext, shaderNode);
             if (!hwShader)
             {
@@ -455,15 +471,18 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
             resolver->setUdimString(tag);
             imageHandler->setFilenameResolver(resolver);
             setImageHandler(imageHandler);
-            bakeShaderInputs(materialPtr, shaderNode, genContext, writeFilename.getParentPath(), tag);
+            bakeShaderInputs(materialPtr, shaderNode, genContext, tag);
+
+            // Optimize baked textures.
+            optimizeBakedTextures(shaderNode);
+
+            // Write the baked material and textures.
+            DocumentPtr bakedMaterialDoc = getBakedMaterial(shaderNode, udimSet);
+            bakedDocuments.push_back(std::make_pair(shaderNode->getName(), bakedMaterialDoc));
         }
-
-        // Optimize baked textures.
-        optimizeBakedTextures();
-
-        // Write the baked material and textures.
-        writeBakedMaterial(writeFilename, udimSet);
     }
+
+    return bakedDocuments;
 }
 
 void TextureBaker::setupUnitSystem(DocumentPtr unitDefinitions)

@@ -434,9 +434,10 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     if (context.getOptions().hwMaxActiveLightSources > 0)
     {
         const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
-        emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), stage, false);
+        emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
     }
     emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
+    emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), stage, false);
     emitLineBreak(stage);
     emitTypeDefinitions(context, stage);
 
@@ -478,12 +479,22 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     if (lighting && context.getOptions().hwMaxActiveLightSources > 0)
     {
         const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
-        emitLine("struct " + lightData.getName(), stage, false);
-        emitScopeBegin(stage);
-        emitVariableDeclarations(lightData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
-        emitScopeEnd(stage, true);
-        emitLineBreak(stage);
-        emitLine("uniform " + lightData.getName() + " " + lightData.getInstance() + "[MAX_LIGHT_SOURCES]", stage);
+        const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
+        const string structName        = lightData.getInstance();
+        if (resourceBindingCtx)
+        {
+            resourceBindingCtx->emitStructuredResourceBindings(
+                context, lightData, stage, structName, structArraySuffix);
+        }
+        else
+        {
+            emitLine("struct " + lightData.getName(), stage, false);
+            emitScopeBegin(stage);
+            emitVariableDeclarations(lightData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+            emitScopeEnd(stage, true);
+            emitLineBreak(stage);
+            emitLine("uniform " + lightData.getName() + " " + structName + structArraySuffix, stage);
+        }
         emitLineBreak(stage);
     }
 

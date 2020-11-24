@@ -25,8 +25,8 @@ class ShaderTranslator
         return ShaderTranslatorPtr(new ShaderTranslator());
     }
 
-    /// Translate a shader reference to the destination shading model.
-    void translateShader(ShaderRefPtr shaderRef, string destShader);
+    /// Translate a shader  to the destination shading model.
+    void translateShader(NodePtr shader, const string& destCategory);
 
     /// Translate each material in the input document to the destination
     /// shading model.
@@ -35,11 +35,11 @@ class ShaderTranslator
   protected:
     ShaderTranslator();
 
-    // Connect translation node inputs from the original shaderRef
-    void connectTranslationInputs(ShaderRefPtr shaderRef, NodeDefPtr translationNodeDef);
+    // Connect translation node inputs from the original shader
+    void connectTranslationInputs(NodePtr shader, NodeDefPtr translationNodeDef);
 
-    // Connect translation node outputs to finalize shaderref translation
-    void connectTranslationOutputs(ShaderRefPtr shaderRef);
+    // Connect translation node outputs to finalize shader translation
+    void connectTranslationOutputs(NodePtr shader);
 
   protected:
     NodeGraphPtr _graph;

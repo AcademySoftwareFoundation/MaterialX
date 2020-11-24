@@ -9,6 +9,15 @@
       <input name="specular_roughness" type="float" nodegraph="UnitGraph" />
       <input name="coat" type="float" value="1" />
    </standard_surface>
+   <standard_surface name="MappedShader2" type="surfaceshader" >
+      <input name="base" type="float" value="1" />
+      <input name="base_color" type="color3" nodegraph="YellowRamp" />
+      <input name="metalness" type="float" value="0" />
+      <input name="specular" type="float" value="1" />
+      <input name="specular_color" type="color3" nodegraph="BlueRamp" />
+      <input name="specular_roughness" type="float" nodegraph="UnitGraph" />
+      <input name="coat" type="float" value="0" />
+   </standard_surface>
    <nodegraph name="RedRamp">
       <ramp4 name="ramp4" type="color3" >
          <input name="valuetl" type="color3" value="1, 0, 0" />
@@ -27,6 +36,24 @@
       </ramp4>
       <output name="out" type="color3" nodename="ramp4" />
    </nodegraph>
+   <nodegraph name="BlueRamp">
+      <ramp4 name="ramp4" type="color3" >
+         <input name="valuetl" type="color3" value="0, 0, 1" />
+         <input name="valuetr" type="color3" value="0, 0, 0" />
+         <input name="valuebl" type="color3" value="0, 0, 1" />
+         <input name="valuebr" type="color3" value="0, 0, 0" />
+      </ramp4>
+      <output name="out" type="color3" nodename="ramp4" />
+   </nodegraph>
+   <nodegraph name="YellowRamp">
+      <ramp4 name="ramp4" type="color3" >
+         <input name="valuetl" type="color3" value="1, 1, 0" />
+         <input name="valuetr" type="color3" value="0, 0, 0" />
+         <input name="valuebl" type="color3" value="1, 1, 0" />
+         <input name="valuebr" type="color3" value="0, 0, 0" />
+      </ramp4>
+      <output name="out" type="color3" nodename="ramp4" />
+   </nodegraph>
    <nodegraph name="UnitGraph">
       <constant name="realscale" type="float">
          <parameter name="value" type="float" value="100" unit="centimeter" unittype="distance" />
@@ -35,6 +62,30 @@
    </nodegraph>
    <surfacematerial name="MappedShaderMaterial" type="material" >
       <input name="surfaceshader" type="surfaceshader" nodename="MappedShader" />
+      <input name="displacementshader" type="displacementshader" value="" />
+   </surfacematerial>
+   <surfacematerial name="MappedShaderMaterial2" type="material" >
+      <input name="surfaceshader" type="surfaceshader" nodename="MappedShader2" />
+      <input name="displacementshader" type="displacementshader" value="" />
+   </surfacematerial>
+
+   <nodegraph name="ColorSpaceGraph">
+      <constant name="color_gamma22" type="color4">
+         <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma22" />
+      </constant>
+      <output name="out" type="color4" nodename="color_gamma22" />
+   </nodegraph>
+   <standard_surface name="ColorSpaceShader" type="surfaceshader" >
+      <input name="base" type="float" value="0.5" />
+      <input name="base_color" type="color3" nodegraph="ColorSpaceGraph" channels="rgb"/>
+      <input name="metalness" type="float" value="0" />
+      <input name="specular" type="float" value="1" />
+      <input name="specular_color" type="color3" value="0.2,0.6,0.8" colorspace="g22_ap1"/>
+      <input name="specular_roughness" type="float" value="0.2" />
+      <input name="coat" type="float" value="0" />
+   </standard_surface>
+   <surfacematerial name="ColorSpaceShaderMaterial" type="material" >
+      <input name="surfaceshader" type="surfaceshader" nodename="ColorSpaceShader" />
       <input name="displacementshader" type="displacementshader" value="" />
    </surfacematerial>
 </materialx>
