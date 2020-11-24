@@ -1441,6 +1441,74 @@ void RtFileIo::writeDefinitions(const FilePath& documentPath, const RtTokenVec& 
     writeDefinitions(ofs, names, options);
 }
 
+RtPrim RtFileIo::readPrim(std::istream& stream, const RtReadOptions* options)
+{
+    try
+    {
+        DocumentPtr document = createDocument();
+        XmlReadOptions xmlReadOptions;
+        if (options)
+        {
+            xmlReadOptions.applyFutureUpdates = options->applyFutureUpdates;
+        }
+        readFromXmlStream(document, stream, &xmlReadOptions);
+
+        PvtStage* stage = PvtStage::ptr(_stage);
+
+        RtReadOptions::ElementFilter filter = options ? options->elementFilter : nullptr;
+
+        // Keep track of renamed nodes:
+        ElementPtr elem = document->getChildren().size() > 0 ? document->getChildren()[0] : nullptr;
+        PvtRenamingMapper mapper;
+        if (elem && (!filter || filter(elem)))
+        {
+            if (elem->isA<NodeDef>())
+            {
+                PvtPrim* p = readNodeDef(elem->asA<NodeDef>(), stage);
+                return p ? p->prim() : RtPrim();
+            }
+            else if (elem->isA<Node>())
+            {
+                PvtPrim* p = readNode(elem->asA<Node>(), stage->getRootPrim(), stage, mapper);
+                return p ? p->prim() : RtPrim();
+            }
+            else if (elem->isA<NodeGraph>())
+            {
+                // Always skip if the nodegraph implements a nodedef
+                PvtPath path(PvtPath::ROOT_NAME.str() + elem->getName());
+                if (stage->getPrimAtPath(path) && elem->asA<NodeGraph>()->getNodeDef())
+                {
+                    throw ExceptionRuntimeError("Cannot read node graphs that implement a nodedef.");
+                }
+                PvtPrim* p = readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage, mapper);
+                return p ? p->prim() : RtPrim();
+            }
+            else if (elem->isA<Backdrop>())
+            {
+                // TODO: Do something here!
+                return RtPrim();
+            }
+            else
+            {
+                const RtToken category(elem->getCategory());
+                if (category != RtLook::typeName() &&
+                    category != RtLookGroup::typeName() &&
+                    category != RtMaterialAssign::typeName() &&
+                    category != RtCollection::typeName() &&
+                    category != RtNodeDef::typeName()) {
+                    PvtPrim* p = readGenericPrim(elem, stage->getRootPrim(), stage, mapper);
+                    return p ? p->prim() : RtPrim();
+                }
+            }
+        }
+    }
+    catch (Exception& e)
+    {
+        throw ExceptionRuntimeError(string("Could not read from stream. Error: ") + e.what());
+    }
+    return RtPrim();
+}
+
 void RtFileIo::writePrim(std::ostream& stream, const RtPath& primPath, const RtWriteOptions* options)
 {
     RtPrim prim = _stage->getPrimAtPath(primPath);
