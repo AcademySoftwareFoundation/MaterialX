@@ -6,8 +6,8 @@
   <!-- ======================================================================== -->
 
   <!-- Node: UsdPreviewSurface -->
-  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface">
-    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" />
+  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr"
+            doc="USD preview surface shader" version="2.3" isdefaultversion="true">
     <input name="emissiveColor" type="color3" value="0, 0, 0" />
     <input name="useSpecularWorkflow" type="integer" value="0" />
     <input name="specularColor" type="color3" value="0, 0, 0" />
