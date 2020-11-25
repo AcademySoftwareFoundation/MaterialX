@@ -518,6 +518,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
             if (nodeInputValue)
             {
                 inputSocket->setValue(nodeInputValue);
+                input->setBindInput();
                 graph->populateColorTransformMap(colorManagementSystem, input, nodeInput, targetColorSpace, true);
                 graph->populateUnitTransformMap(unitSystem, input, nodeInput, targetDistanceUnit, true);
             }

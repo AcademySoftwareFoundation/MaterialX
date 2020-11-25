@@ -41,6 +41,9 @@ std::unordered_set<NodePtr> getShaderNodes(const NodePtr& materialNode,
 vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
 
 
+/// Return a vector of all outputs that this nodes inputs are connected to.
+vector<OutputPtr> getConnectedOutputs(const NodePtr& node);
+
 } // namespace MaterialX
 
 #endif
