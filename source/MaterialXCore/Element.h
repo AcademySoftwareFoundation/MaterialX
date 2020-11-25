@@ -566,12 +566,15 @@ class Element : public std::enable_shared_from_this<Element>
     /// type, then the zero value for the data type is returned.
     template<class T> T getTypedAttribute(const string& attrib) const
     {
-        try
+        if (hasAttribute(attrib))
         {
-            return fromValueString<T>(getAttribute(attrib));
-        }
-        catch (ExceptionTypeError&)
-        {
+            try
+            {
+                return fromValueString<T>(getAttribute(attrib));
+            }
+            catch (ExceptionTypeError&)
+            {
+            }
         }
         return {};
     }

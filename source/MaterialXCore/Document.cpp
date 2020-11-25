@@ -581,14 +581,13 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                         child->removeAttribute("shadertype");
                     }
                 }
-                else if (child->isA<Parameter>())
+                else if (child->getCategory() == "parameter")
                 {
-                    ParameterPtr param = child->asA<Parameter>();
-                    if (param->getType() == "opgraphnode")
+                    if (child->getAttribute(TypedElement::TYPE_ATTRIBUTE) == "opgraphnode")
                     {
                         if (elem->isA<Node>())
                         {
-                            InputPtr input = updateChildSubclass<Input>(elem, param);
+                            InputPtr input = updateChildSubclass<Input>(elem, child);
                             input->setNodeName(input->getAttribute("value"));
                             input->removeAttribute("value");
                             if (input->getConnectedNode())
@@ -890,12 +889,11 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                 {
                     intest->setName("value1");
                 }
-                ParameterPtr cutoff = node->getParameter("cutoff");
+                ElementPtr cutoff = node->getChild("cutoff");
                 if (cutoff)
                 {
-                    InputPtr value2 = node->addInput("value2", DEFAULT_TYPE_STRING);
-                    value2->copyContentFrom(cutoff);
-                    node->removeChild(cutoff->getName());
+                    cutoff = updateChildSubclass<Input>(node, cutoff);
+                    cutoff->setName("value2");
                 }
                 InputPtr in1 = node->getInput("in1");
                 InputPtr in2 = node->getInput("in2");
@@ -1022,11 +1020,10 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         }
         for (auto nodedef : getMatchingNodeDefs(ROTATE3D))
         {
-            ParameterPtr param = nodedef->getParameter(AXIS);
-            if (param)
+            ElementPtr axis = nodedef->getChild(AXIS);
+            if (axis)
             {
-                nodedef->removeParameter(AXIS);
-                nodedef->addInput(AXIS, "vector3");
+                updateChildSubclass<Input>(nodedef, axis);
             }
         }
 
@@ -1063,13 +1060,10 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             }
             else if (nodeCategory == ROTATE3D)
             {
-                ParameterPtr param = node->getParameter(AXIS);
-                if (param)
+                ElementPtr axis = node->getChild(AXIS);
+                if (axis)
                 {
-                    const string v = param->getValueString();
-                    node->removeParameter(AXIS);
-                    InputPtr input = node->addInput(AXIS, "vector3");
-                    input->setValueString(v);
+                    updateChildSubclass<Input>(node, axis);
                 }
             }
         }
