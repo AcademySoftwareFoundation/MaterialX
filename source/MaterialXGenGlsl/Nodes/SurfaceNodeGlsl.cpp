@@ -17,21 +17,23 @@ SurfaceNodeGlsl::SurfaceNodeGlsl()
     //
     // Reflection context
     _callReflection = HwClosureContext::create(HwClosureContext::REFLECTION);
-    _callReflection->setSuffix("_reflection");
-    _callReflection->addArgument(Type::VECTOR3, HW::DIR_L);
-    _callReflection->addArgument(Type::VECTOR3, HW::DIR_V);
+    _callReflection->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
+    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
+    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
+    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
     // Transmission context
     _callTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
-    _callTransmission->setSuffix("_transmission");
-    _callTransmission->addArgument(Type::VECTOR3, HW::DIR_V);
+    _callTransmission->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION);
+    _callTransmission->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Indirect context
     _callIndirect = HwClosureContext::create(HwClosureContext::INDIRECT);
-    _callIndirect->setSuffix("_indirect");
-    _callIndirect->addArgument(Type::VECTOR3, HW::DIR_V);
+    _callIndirect->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT);
+    _callIndirect->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Emission context
     _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _callEmission->addArgument(Type::VECTOR3, HW::DIR_N);
-    _callEmission->addArgument(Type::VECTOR3, HW::DIR_V);
+    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
+    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
 }
 
 ShaderNodeImplPtr SurfaceNodeGlsl::create()
@@ -129,16 +131,17 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitLine("vec3 shadowCoord = (" + HW::T_SHADOW_MATRIX + " * vec4(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
             shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
             shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
-            shadergen.emitLine("float shadowOcc = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
+            shadergen.emitLine("float occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
         }
         else
         {
-            shadergen.emitLine("float shadowOcc = 1.0", stage);
+            shadergen.emitLine("float occlusion = 1.0", stage);
         }
         shadergen.emitLineBreak(stage);
 
         shadergen.emitLine("vec3 N = normalize(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_NORMAL_WORLD + ")", stage);
         shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ")", stage);
+        shadergen.emitLine("vec3 P = " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD, stage);
 
         // 
         // Generate Light loop if requested
@@ -162,7 +165,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitLineBreak(stage);
 
             shadergen.emitComment("Accumulate the light's contribution", stage);
-            shadergen.emitLine(outColor + " += lightShader.intensity * shadowOcc * " + bsdf, stage);
+            shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf, stage);
 
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
@@ -177,11 +180,11 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         {
             ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
             shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
-            shadergen.emitLine("float ambOcc = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+            shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
         }
         else
         {
-            shadergen.emitLine("float ambOcc = 1.0", stage);
+            shadergen.emitLine("occlusion = 1.0", stage);
         }
         shadergen.emitLineBreak(stage);
 
@@ -198,7 +201,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         string bsdf;
         shadergen.emitBsdfNodes(graph, node, _callIndirect, context, stage, bsdf);
         shadergen.emitLineBreak(stage);
-        shadergen.emitLine(outColor + " += ambOcc * " + bsdf, stage);
+        shadergen.emitLine(outColor + " += occlusion * " + bsdf, stage);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
 

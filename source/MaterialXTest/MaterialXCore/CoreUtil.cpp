@@ -10,7 +10,7 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("String utilities", "[util]")
+TEST_CASE("String utilities", "[coreutil]")
 {
     std::string invalidName("test.name");
     REQUIRE(mx::isValidName(invalidName) == false);
@@ -30,7 +30,7 @@ TEST_CASE("String utilities", "[util]")
     REQUIRE(mx::splitString("[one...two...three]", "[.]") == (std::vector<std::string>{"one", "two", "three"}));
 }
 
-TEST_CASE("Print utilities", "[util]")
+TEST_CASE("Print utilities", "[coreutil]")
 {
     // Create a document.
     mx::DocumentPtr doc = mx::createDocument();

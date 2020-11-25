@@ -133,6 +133,8 @@ namespace HW
     const string DIR_N                            = "N";
     const string DIR_L                            = "L";
     const string DIR_V                            = "V";
+    const string WORLD_POSITION                   = "P";
+    const string OCCLUSION                        = "occlusion";
     const string ATTR_TRANSPARENT                 = "transparent";
     const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
     const string USER_DATA_LIGHT_SHADERS          = "udls";
@@ -144,9 +146,16 @@ namespace Stage
     const string VERTEX = "vertex";
 }
 
+const HwClosureContext::Arguments HwClosureContext::EMPTY_ARGUMENTS;
+
+
 //
 // HwShaderGenerator methods
 //
+
+const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION("_reflection");
+const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION("_transmission");
+const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT("_indirect");
 
 HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     ShaderGenerator(syntax)
@@ -208,21 +217,23 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     //
     // Reflection context
     _defReflection = HwClosureContext::create(HwClosureContext::REFLECTION);
-    _defReflection->setSuffix("_reflection");
-    _defReflection->addArgument(Type::VECTOR3, HW::DIR_L);
-    _defReflection->addArgument(Type::VECTOR3, HW::DIR_V);
+    _defReflection->setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_REFLECTION);
+    _defReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
+    _defReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    _defReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
+    _defReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
     // Transmission context
     _defTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
-    _defTransmission->setSuffix("_transmission");
-    _defTransmission->addArgument(Type::VECTOR3, HW::DIR_V);
+    _defTransmission->setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION);
+    _defTransmission->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Indirect context
     _defIndirect = HwClosureContext::create(HwClosureContext::INDIRECT);
-    _defIndirect->setSuffix("_indirect");
-    _defIndirect->addArgument(Type::VECTOR3, HW::DIR_V);
+    _defIndirect->setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_INDIRECT);
+    _defIndirect->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Emission context
     _defEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _defEmission->addArgument(Type::VECTOR3, HW::DIR_N);
-    _defEmission->addArgument(Type::VECTOR3, HW::DIR_L);
+    _defEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
+    _defEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const

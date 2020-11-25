@@ -201,6 +201,8 @@ namespace HW
     extern const string DIR_N;
     extern const string DIR_L;
     extern const string DIR_V;
+    extern const string WORLD_POSITION;
+    extern const string OCCLUSION;
 
     /// Attribute names.
     extern const string ATTR_TRANSPARENT;
@@ -234,7 +236,7 @@ using HwResourceBindingContextPtr = shared_ptr<class HwResourceBindingContext>;
 /// @class HwClosureContext
 /// Class representing a context for closure evaluation on hardware targets.
 /// On hardware BSDF closures are evaluated differently in reflection, transmission
-/// or environment/indirect contexts. This class represents with context we are in
+/// or environment/indirect contexts. This class represents the context we are in
 /// and if extra arguments and function decorators are needed for that context.
 class HwClosureContext : public GenUserData
 {
@@ -267,25 +269,37 @@ public:
     /// Return the identifier for this context.
     int getType() const { return _type; }
 
-    /// Add an extra argument to be used for functions in this context.
-    void addArgument(const TypeDesc* type, const string& name)
+    /// For the given node type add an extra argument to be used for the function in this context.
+    void addArgument(const TypeDesc* nodeType, const Argument& arg)
     {
-        _arguments.emplace_back(type, name);
+        _arguments[nodeType].push_back(arg);
     }
 
-    /// Return a list of extra argument to be used for functions in this context.
-    const Arguments& getArguments() const { return _arguments; }
+    /// Return a list of extra argument to be used for the given node in this context.
+    const Arguments& getArguments(const TypeDesc* nodeType) const
+    {
+        auto it = _arguments.find(nodeType);
+        return it != _arguments.end() ? it->second : EMPTY_ARGUMENTS;
+    }
 
-    /// Set a function name suffix to be used for the function in this context.
-    void setSuffix(const string& suffix) { _suffix = suffix; }
+    /// For the given node type set a function name suffix to be used for the function in this context.
+    void setSuffix(const TypeDesc* nodeType, const string& suffix)
+    {
+        _suffix[nodeType] = suffix;
+    }
 
-    /// Return the function name suffix to be used for the function in this context.
-    const string& getSuffix() const { return _suffix; }
+    /// Return the function name suffix to be used for the given node in this context.
+    const string& getSuffix(const TypeDesc* nodeType) const
+    {
+        auto it = _suffix.find(nodeType);
+        return it != _suffix.end() ? it->second : EMPTY_STRING;
+    }
 
 protected:
     const int _type;
-    Arguments _arguments;
-    string _suffix;
+    std::unordered_map<const TypeDesc*, Arguments> _arguments;
+    std::unordered_map<const TypeDesc*, string> _suffix;
+    static const Arguments EMPTY_ARGUMENTS;
 };
 
 /// @class HwLightShaders 
@@ -377,6 +391,11 @@ public:
 
     /// Unbind all light shaders previously bound.
     static void unbindLightShaders(GenContext& context);
+
+    /// String constants for closure context suffixes.
+    static const string CLOSURE_CONTEXT_SUFFIX_REFLECTION;
+    static const string CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION;
+    static const string CLOSURE_CONTEXT_SUFFIX_INDIRECT;
 
 protected:
     HwShaderGenerator(SyntaxPtr syntax);
