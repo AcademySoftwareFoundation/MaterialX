@@ -213,6 +213,10 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
     endif()
 endif()
 
+# Install root-level documents
+install(FILES CHANGELOG.md README.md
+        DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
                                  VERSION ${CMAKE_VERSION}
