@@ -419,14 +419,6 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             input->setPath(nodePath + NAME_PATH_SEPARATOR + nodeInput->getName());
         }
     }
-    for (auto nodeParameter : nodeDef.getActiveParameters())
-    {
-        ShaderInput* input = getInput(nodeParameter->getName());
-        if (input && input->getPath().empty())
-        {
-            input->setPath(nodePath + NAME_PATH_SEPARATOR + nodeParameter->getName());
-        }
-    }
 }
 
 void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)

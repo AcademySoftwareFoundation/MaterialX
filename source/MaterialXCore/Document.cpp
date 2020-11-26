@@ -766,7 +766,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                                 if (activeValue->getAttribute("publicname") == child->getName() &&
                                     !shaderRef->getChild(child->getName()))
                                 {
-                                    if (activeValue->isA<Parameter>())
+                                    if (activeValue->getCategory() == "parameter")
                                     {
                                         BindParamPtr bindParam = shaderRef->addBindParam(activeValue->getName(), activeValue->getType());
                                         bindParam->setValueString(child->getAttribute("value"));
@@ -959,24 +959,16 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             // Convert backdrop nodes to backdrop elements
             else if (nodeCategory == "backdrop")
             {
-                const string& nodeName = node->getName();
-                BackdropPtr backdrop = addBackdrop(nodeName);
-                for (auto param : node->getParameters())
+                BackdropPtr backdrop = addBackdrop(node->getName());
+                for (ElementPtr child : node->getChildren())
                 {
-                    ValuePtr value = param ? param->getValue() : nullptr;
-                    if (value)
+                    if (child->getCategory() == "parameter" &&
+                        child->hasAttribute(ValueElement::VALUE_ATTRIBUTE))
                     {
-                        if (value->isA<string>())
-                        {
-                            backdrop->setAttribute(param->getName(), value->asA<string>());
-                        }
-                        else if (value->isA<float>())
-                        {
-                            backdrop->setTypedAttribute(param->getName(), value->asA<float>());
-                        }
+                        backdrop->setAttribute(child->getName(), child->getAttribute(ValueElement::VALUE_ATTRIBUTE));
                     }
                 }
-                removeNode(nodeName);
+                removeNode(node->getName());
             }
         }
 

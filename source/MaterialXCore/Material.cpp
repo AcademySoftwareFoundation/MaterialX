@@ -129,28 +129,6 @@ bool Material::validate(string* message) const
 }
 
 //
-// BindParam methods
-//
-
-bool BindParam::validate(string* message) const
-{
-    bool res = true;
-    ConstElementPtr parent = getParent();
-    ConstShaderRefPtr shaderRef = parent ? parent->asA<ShaderRef>() : nullptr;
-    NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
-    if (nodeDef)
-    {
-        ParameterPtr param = nodeDef->getActiveParameter(getName());
-        validateRequire(param != nullptr, res, message, "BindParam does not match a Parameter in the referenced NodeDef");
-        if (param)
-        {
-            validateRequire(getType() == param->getType(), res, message, "Type mismatch between BindParam and Parameter");
-        }
-    }
-    return ValueElement::validate(message) && res;
-}
-
-//
 // BindInput methods
 //
 

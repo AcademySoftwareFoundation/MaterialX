@@ -16,18 +16,12 @@
 namespace MaterialX
 {
 
-class Parameter;
 class PortElement;
 class Input;
 class Output;
 class InterfaceElement;
 class Node;
 class NodeDef;
-
-/// A shared pointer to a Parameter
-using ParameterPtr = shared_ptr<Parameter>;
-/// A shared pointer to a const Parameter
-using ConstParameterPtr = shared_ptr<const Parameter>;
 
 /// A shared pointer to a PortElement
 using PortElementPtr = shared_ptr<PortElement>;
@@ -50,50 +44,6 @@ using InterfaceElementPtr = shared_ptr<InterfaceElement>;
 using ConstInterfaceElementPtr = shared_ptr<const InterfaceElement>;
 
 using CharSet = std::set<char>;
-
-/// @class Parameter
-/// A parameter element within a Node or NodeDef.
-///
-/// A Parameter holds a single uniform value, which may be modified within the
-/// scope of a Material.
-class Parameter : public ValueElement
-{
-  public:
-    Parameter(ElementPtr parent, const string& name) :
-        ValueElement(parent, CATEGORY, name)
-    {
-    }
-    virtual ~Parameter() { }
-
-  protected:
-    using NodePtr = shared_ptr<Node>;
-
-  public:
-    /// @name Traversal
-    /// @{
-
-    /// Return the Edge with the given index that lies directly upstream from
-    /// this element in the dataflow graph.
-    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
-                         size_t index = 0) const override;
-
-    /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() const override
-    {
-        return 1;
-    }
-
-    /// Return the output, if any, to which this element is connected.
-    OutputPtr getConnectedOutput() const;
-
-    /// Return the node, if any, to which this element is connected.
-    NodePtr getConnectedNode() const;
-
-    /// @}
-
-  public:
-    static const string CATEGORY;
-};
 
 /// @class PortElement
 /// The base class for port elements such as Input and Output.
@@ -379,7 +329,6 @@ class InterfaceElement : public TypedElement
   protected:
     InterfaceElement(ElementPtr parent, const string& category, const string& name) :
         TypedElement(parent, category, name),
-        _parameterCount(0),
         _inputCount(0),
         _outputCount(0)
     {
@@ -412,56 +361,6 @@ class InterfaceElement : public TypedElement
     {
         return getAttribute(NODE_DEF_ATTRIBUTE);
     }
-
-    /// @}
-    /// @name Parameters
-    /// @{
-
-    /// Add a Parameter to this interface.
-    /// @param name The name of the new Parameter.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @param type An optional type string.
-    /// @return A shared pointer to the new Parameter.
-    ParameterPtr addParameter(const string& name = DEFAULT_TYPE_STRING,
-                              const string& type = DEFAULT_TYPE_STRING)
-    {
-        ParameterPtr child = addChild<Parameter>(name);
-        child->setType(type);
-        return child;
-    }
-
-    /// Return the Parameter, if any, with the given name.
-    ParameterPtr getParameter(const string& name) const
-    {
-        return getChildOfType<Parameter>(name);
-    }
-
-    /// Return a vector of all Parameter elements.
-    vector<ParameterPtr> getParameters() const
-    {
-        return getChildrenOfType<Parameter>();
-    }
-
-    /// Return the number of Parameter elements.
-    size_t getParameterCount() const
-    {
-        return _parameterCount;
-    }
-
-    /// Remove the Parameter, if any, with the given name.
-    void removeParameter(const string& name)
-    {
-        removeChildOfType<Parameter>(name);
-    }
-
-    /// Return the first Parameter with the given name that belongs to this
-    /// interface, taking interface inheritance into account.
-    ParameterPtr getActiveParameter(const string& name) const;
-
-    /// Return a vector of all Parameter elements that belong to this interface,
-    /// taking interface inheritance into account.
-    vector<ParameterPtr> getActiveParameters() const;
 
     /// @}
     /// @name Inputs
@@ -636,22 +535,6 @@ class InterfaceElement : public TypedElement
     /// @name Values
     /// @{
 
-    /// Set the typed value of a parameter by its name, creating a child element
-    /// to hold the parameter if needed.
-    template<class T> ParameterPtr setParameterValue(const string& name,
-                                                     const T& value,
-                                                     const string& type = EMPTY_STRING);
-
-    /// Return the typed value of a parameter by its name, taking both the
-    /// calling element and its declaration into account.
-    /// @param name The name of the parameter to be evaluated.
-    /// @param target An optional target name, which will be used to filter
-    ///    the declarations that are considered.
-    /// @return If the given parameter is found in this interface or its
-    ///    declaration, then a shared pointer to its value is returned;
-    ///    otherwise, an empty shared pointer is returned.
-    ValuePtr getParameterValue(const string& name, const string& target = EMPTY_STRING) const;
-
     /// Set the typed value of an input by its name, creating a child element
     /// to hold the input if needed.
     template<class T> InputPtr setInputValue(const string& name,
@@ -719,21 +602,9 @@ class InterfaceElement : public TypedElement
     void unregisterChildElement(ElementPtr child) override;
 
   private:
-    size_t _parameterCount;
     size_t _inputCount;
     size_t _outputCount;
 };
-
-template<class T> ParameterPtr InterfaceElement::setParameterValue(const string& name,
-                                                                   const T& value,
-                                                                   const string& type)
-{
-    ParameterPtr param = getChildOfType<Parameter>(name);
-    if (!param)
-        param = addParameter(name);
-    param->setValue(value, type);
-    return param;
-}
 
 template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
                                                            const T& value,

@@ -580,7 +580,7 @@ bool ValueElement::validate(string* message) const
     }
     if (hasInterfaceName())
     {
-        validateRequire(isA<Parameter>() || isA<Input>(), res, message, "Only parameter and input elements support interface names");
+        validateRequire(isA<Input>(), res, message, "Only input elements support interface names");
         ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
         NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
         if (nodeDef)
@@ -780,7 +780,6 @@ INSTANTIATE_CONCRETE_SUBCLASS(Node, "node")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeDef, "nodedef")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeGraph, "nodegraph")
 INSTANTIATE_CONCRETE_SUBCLASS(Output, "output")
-INSTANTIATE_CONCRETE_SUBCLASS(Parameter, "parameter")
 INSTANTIATE_CONCRETE_SUBCLASS(Property, "property")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertyAssign, "propertyassign")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySet, "propertyset")
