@@ -1,9 +1,36 @@
 # Change Log
 
+## [1.38] - Development
+
+### Highlights ("v1.37.3_parameters_as_inputs" to "v1.38_adsk_development1")
+ - Up-to-date with ILM v1.38 branch @3900415.
+ - Finished API support for Material Nodes (from Material Elements)
+ - Baker support for v1.38, CM and units.
+ - Shader Translator support for v1.38, CM and units.
+ - Parameter -> input upgrade and downgrade added
+ - GLSL fidelity enhancements include SSS
+ - USDPreviewSurface v2.3 support (Fresnel input fix)
+ - Import of namespaced documents fix (no double namespacing)
+ - Graph flattening enhancement
+ - Update of WASM to 1.38. (new APIS to expose)
+ - Filename resolver utilities
+ - Github actions support.
+ - Plus changes up to 1.37.3.
+
 ## [1.37.3] - Development
 
+### Added
 - Added Render Transparency and Render Double-Sided options to the Advanced Settings panel of the viewer.
+- Added viewer support for partially-transparent mesh partitions.
+- Added a subsurface scattering approximation to MaterialX GLSL.
 - Added a CMake option for building shared libraries on Linux and MacOS.
+
+### Changed
+- Improved the robustness of texture baking and shader translation.
+- Moved CI builds from Travis and Appveyor to GitHub Actions.
+
+### Fixed
+- Fixed rendering of single-channel textures in MaterialXRenderGlsl.
 
 ## [1.37.2] - 2020-09-06
 
@@ -27,7 +54,7 @@
   - Improve layering in OSL (#901)
   - Fix regression with search paths in MaterialXView (#894)
   - Test case and python bindings (#898)
-  - Enable GlslShaderGenerator to add `layout` in generated code. (#896) 
+  - Enable GlslShaderGenerator to add `layout` in generated code. (#896)
   - Use mod() vs fmod() logic for OSL and MDL codegen (#871). Only for 1.38
 - ADSK : Render general changes
   - Environment rendering improvements (#945)
