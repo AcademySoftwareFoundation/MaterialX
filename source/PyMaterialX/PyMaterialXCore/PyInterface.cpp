@@ -13,14 +13,10 @@ namespace py = pybind11;
 namespace mx = MaterialX;
 
 #define BIND_INTERFACE_TYPE_INSTANCE(NAME, T)                                                                                                           \
-.def("_setParameterValue" #NAME, &mx::InterfaceElement::setParameterValue<T>, py::arg("name"), py::arg("value"), py::arg("type") = mx::EMPTY_STRING)    \
 .def("_setInputValue" #NAME, &mx::InterfaceElement::setInputValue<T>, py::arg("name"), py::arg("value"), py::arg("type") = mx::EMPTY_STRING)
 
 void bindPyInterface(py::module& mod)
 {
-    py::class_<mx::Parameter, mx::ParameterPtr, mx::ValueElement>(mod, "Parameter")
-        .def_readonly_static("CATEGORY", &mx::Parameter::CATEGORY);
-
     py::class_<mx::PortElement, mx::PortElementPtr, mx::ValueElement>(mod, "PortElement")
         .def("setNodeName", &mx::PortElement::setNodeName)
         .def("getNodeName", &mx::PortElement::getNodeName)
@@ -53,14 +49,6 @@ void bindPyInterface(py::module& mod)
         .def("setNodeDefString", &mx::InterfaceElement::setNodeDefString)
         .def("hasNodeDefString", &mx::InterfaceElement::hasNodeDefString)
         .def("getNodeDefString", &mx::InterfaceElement::getNodeDefString)
-        .def("addParameter", &mx::InterfaceElement::addParameter,
-            py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
-        .def("getParameter", &mx::InterfaceElement::getParameter)
-        .def("getParameters", &mx::InterfaceElement::getParameters)
-        .def("getParameterCount", &mx::InterfaceElement::getParameterCount)
-        .def("removeParameter", &mx::InterfaceElement::removeParameter)
-        .def("getActiveParameter", &mx::InterfaceElement::getActiveParameter)
-        .def("getActiveParameters", &mx::InterfaceElement::getActiveParameters)
         .def("addInput", &mx::InterfaceElement::addInput,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING,
             py::arg("isUniform") = false)
@@ -87,7 +75,6 @@ void bindPyInterface(py::module& mod)
         .def("getActiveTokens", &mx::InterfaceElement::getActiveTokens)
         .def("getActiveValueElement", &mx::InterfaceElement::getActiveValueElement)
         .def("getActiveValueElements", &mx::InterfaceElement::getActiveValueElements)
-        .def("_getParameterValue", &mx::InterfaceElement::getParameterValue)
         .def("_getInputValue", &mx::InterfaceElement::getInputValue)
         .def("setTokenValue", &mx::InterfaceElement::setTokenValue)
         .def("getTokenValue", &mx::InterfaceElement::getTokenValue)

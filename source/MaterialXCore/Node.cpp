@@ -590,8 +590,7 @@ ValueElementPtr NodeGraph::getChildWithInterface(const string& childPath)
     ElementPtr elem = getDescendant(childPath);
     ValueElementPtr valueElem = elem->asA<ValueElement>();
     InputPtr input = valueElem ? valueElem->asA<Input>() : nullptr;
-    ParameterPtr param = valueElem ? valueElem->asA<Parameter>() : nullptr;
-    if (!input && !param)
+    if (!input)
     {
         throw Exception("Child not found in node graph:  " + childPath);
     }

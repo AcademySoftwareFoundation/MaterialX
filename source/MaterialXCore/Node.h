@@ -325,16 +325,16 @@ class NodeGraph : public GraphElement
     ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
 
     /// Add a new interface to an existing NodeDef associated with this NodeGraph.
-    /// @param inputPath Path to Input or Parameter to declare as an interface.
+    /// @param inputPath Path to Input to declare as an interface.
     /// @param interfaceName Name of interface.
     void addInterface(const string& inputPath, const string& interfaceName);
 
     /// Remove an interface from an existing NodeDef associated with this NodeGraph.
-    /// @param inputPath Path to Input or Parameter to remove interface from.
+    /// @param inputPath Path to Input to remove interface from.
     void removeInterface(const string& inputPath);
 
     /// Rename an interface on an existing NodeDef associated with this NodeGraph.
-    /// @param inputPath Path to Input or Parameter to reinterface.
+    /// @param inputPath Path to Input to reinterface.
     /// @param interfaceName Name of interface.
     void renameInterface(const string& inputPath, const string& interfaceName);
 
