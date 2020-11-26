@@ -3,9 +3,9 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Types.h>
-
 #include <cctype>
+#include <MaterialXCore/Types.h>
+#include <MaterialXCore/Element.h>
 
 namespace MaterialX
 {
@@ -126,6 +126,17 @@ bool stringEndsWith(const string& str, const string& suffix)
     return false;
 }
 
+string trimSpaces(const string& str)
+{
+    const string SPACE(" ");
+
+    size_t start = str.find_first_not_of(SPACE);
+    string result = (start == std::string::npos) ? EMPTY_STRING : str.substr(start);
+    size_t end = result.find_last_not_of(SPACE);
+    result = (end == std::string::npos) ? EMPTY_STRING : result.substr(0, end + 1);
+    return result;
+}
+
 StringVec splitNamePath(const string& namePath)
 {
     StringVec nameVec = splitString(namePath, NAME_PATH_SEPARATOR);
@@ -151,6 +162,17 @@ string parentNamePath(const string& namePath)
         return createNamePath(nameVec);
     }
     return EMPTY_STRING;
+}
+
+ElementPtr changeChildCategory(ElementPtr parent, ElementPtr origChild, const string& category)
+{
+    string childName = origChild->getName();
+    int childIndex = parent->getChildIndex(childName);
+    parent->removeChild(childName);
+    ElementPtr newChild = parent->addChildOfCategory(category, childName);
+    parent->setChildIndex(childName, childIndex);
+    newChild->copyContentFrom(origChild);
+    return newChild;
 }
 
 } // namespace MaterialX

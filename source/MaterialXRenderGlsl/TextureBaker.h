@@ -189,6 +189,7 @@ class TextureBaker : public GlslRenderer
     string _extension;
     string _colorSpace;
     string _targetUnitSpace;
+    string _targetColorSpace;
     string _bakedGraphName;
     string _bakedGeomInfoName;
     bool _averageImages;

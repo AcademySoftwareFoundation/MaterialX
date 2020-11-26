@@ -596,6 +596,10 @@ bool MdlSyntax::remapEnumeration(const string& value, const TypeDesc* type, cons
         }
 
         StringVec valueElemEnumsVec = splitString(enumNames, ",");
+        for (size_t i = 0; i < valueElemEnumsVec.size(); i++)
+        {
+            valueElemEnumsVec[i] = trimSpaces(valueElemEnumsVec[i]);
+        }
         auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), value);
         if (pos == valueElemEnumsVec.end())
         {

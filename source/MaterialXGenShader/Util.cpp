@@ -990,7 +990,7 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
 NodePtr connectsToNodeOfCategory(OutputPtr output, const StringSet& categories)
 {
     ElementPtr connectedElement = output ? output->getConnectedNode() : nullptr;
-    NodePtr connectedNode = connectedElement->asA<Node>();
+    NodePtr connectedNode = connectedElement ? connectedElement->asA<Node>() : nullptr;
     if (!connectedNode)
     {
         return nullptr;

@@ -61,6 +61,7 @@ string getValueStringFromColor(const Color4& color, const string& type)
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
     GlslRenderer(width, height, baseType),
     _targetUnitSpace("meter"),
+    _targetColorSpace(LIN_REC709),
     _bakedGraphName("NG_baked"),
     _bakedGeomInfoName("GI_baked"),
     _averageImages(false),
@@ -100,6 +101,7 @@ FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& s
 void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const string& udim)
 {
     _material = material;
+    _targetColorSpace = context.getOptions().targetColorSpaceOverride;
     
     if (!shader)
     {
@@ -310,6 +312,10 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
             bakedInput = bakedShader->addInput(sourceName, sourceType, sourceInput->getIsUniform());
         }
 
+        // Check for non-image inputs whether to keep in target color space
+        bool wantLinearInput = (_colorSpace != _targetColorSpace &&
+            (bakedInput->getType() == "color3" || bakedInput->getType() == "color4"));
+
         OutputPtr output = sourceInput->getConnectedOutput();
         if (output)
         {
@@ -325,6 +331,10 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
                 Color4 uniformColor = _bakedConstantMap[output].color;
                 string uniformColorString = getValueStringFromColor(uniformColor, bakedInput->getType());
                 bakedInput->setValueString(uniformColorString);
+                if (wantLinearInput)
+                {
+                    bakedInput->setColorSpace(_targetColorSpace);
+                }
             }
             else
             {
@@ -361,6 +371,10 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
         else
         {
             bakedInput->copyContentFrom(sourceInput);
+            if (wantLinearInput && bakedInput->getColorSpace() == EMPTY_STRING)
+            {
+                bakedInput->setColorSpace(_targetColorSpace);
+            }
         }
     }
 
@@ -401,11 +415,11 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
 
 ListofBakedDocuments TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath)
 {
-    GenContext genContext = GlslShaderGenerator::create();
+    GenContext genContext(_generator);
     genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
     genContext.getOptions().hwDirectionalAlbedoMethod = DIRECTIONAL_ALBEDO_TABLE;
     genContext.getOptions().hwShadowMap = true;
-    genContext.getOptions().targetColorSpaceOverride = LIN_REC709;
+    genContext.getOptions().targetColorSpaceOverride = _targetColorSpace;
     genContext.getOptions().fileTextureVerticalFlip = true;
     genContext.getOptions().targetDistanceUnit = _targetUnitSpace;
 

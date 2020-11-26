@@ -21,17 +21,6 @@ namespace {
 const string DOCUMENT_VERSION_STRING = std::to_string(MATERIALX_MAJOR_VERSION) + "." +
                                        std::to_string(MATERIALX_MINOR_VERSION);
 
-template<class T> shared_ptr<T> updateChildSubclass(ElementPtr parent, ElementPtr origChild)
-{
-    string childName = origChild->getName();
-    int childIndex = parent->getChildIndex(childName);
-    parent->removeChild(childName);
-    shared_ptr<T> newChild = parent->addChild<T>(childName);
-    parent->setChildIndex(childName, childIndex);
-    newChild->copyContentFrom(origChild);
-    return newChild;
-}
-
 } // anonymous namespace
 
 //
@@ -351,7 +340,7 @@ bool Document::convertParametersToInputs()
         {
             if (child->getCategory() == PARAMETER_CATEGORY_STRING)
             {
-                InputPtr newInput = updateChildSubclass<Input>(elem, child);
+                InputPtr newInput = changeChildCategory(elem, child, Input::CATEGORY)->asA<Input>();
                 if (uniformTypes.count(child->getAttribute(TypedElement::TYPE_ATTRIBUTE)))
                 {
                     newInput->setIsUniform(true);
@@ -387,7 +376,7 @@ bool Document::convertUniformInputsToParameters()
             InputPtr input = child->asA<Input>();
             if (input && input->getIsUniform())
             {
-                ParameterPtr newParameter = updateChildSubclass<Parameter>(elem, child);
+                ParameterPtr newParameter = changeChildCategory(elem, child, Parameter::CATEGORY)->asA<Parameter>();
                 newParameter->removeAttribute(ValueElement::UNIFORM_ATTRIBUTE);
                 anyConverted = true;
             }
@@ -440,7 +429,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             {
                 if (child->getCategory() == "assign")
                 {
-                    updateChildSubclass<MaterialAssign>(elem, child);
+                    changeChildCategory(elem, child, MaterialAssign::CATEGORY);
                 }
             }
         }
@@ -489,11 +478,11 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             {
                 if (child->getCategory() == "opgraph")
                 {
-                    updateChildSubclass<NodeGraph>(elem, child);
+                    changeChildCategory(elem, child, NodeGraph::CATEGORY);
                 }
                 else if (child->getCategory() == "shader")
                 {
-                    NodeDefPtr nodeDef = updateChildSubclass<NodeDef>(elem, child);
+                    NodeDefPtr nodeDef = changeChildCategory(elem, child, NodeDef::CATEGORY)->asA<NodeDef>();
                     if (nodeDef->hasAttribute("shadertype"))
                     {
                         nodeDef->setType(SURFACE_SHADER_TYPE_STRING);
@@ -520,7 +509,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     {
                         if (elem->isA<Node>())
                         {
-                            InputPtr input = updateChildSubclass<Input>(elem, param);
+                            InputPtr input = changeChildCategory(elem, param, Input::CATEGORY)->asA<Input>();
                             input->setNodeName(input->getAttribute("value"));
                             input->removeAttribute("value");
                             if (input->getConnectedNode())
@@ -595,7 +584,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             {
                 if (child->getCategory() == "geomattr")
                 {
-                    updateChildSubclass<GeomProp>(geomInfo, child);
+                    changeChildCategory(geomInfo, child, GeomProp::CATEGORY);
                 }
             }
         }
@@ -768,7 +757,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             {
                 if (child->getCategory() == "geomattr")
                 {
-                    updateChildSubclass<GeomProp>(geomInfo, child);
+                    changeChildCategory(geomInfo, child, GeomProp::CATEGORY);
                 }
             }
         }
