@@ -172,37 +172,8 @@ def _setOverrideValue(self, name, value, typeString = ''):
     method = getattr(self.__class__, "_setOverrideValue" + getTypeString(value))
     return method(self, name, value, typeString)
 
-def _addShaderRef(self, name = '', node = ''):
-    "Add a shader ref to the material."
-    return self._addShaderRef(name, node)
-
-def _getReferencedShaderDefs(self):
-    "(Deprecated) Return a list of all shader nodedefs referenced by this material."
-    warnings.warn("This function is deprecated; call Material.getShaderNodeDefs instead.", DeprecationWarning, stacklevel = 2)
-    return self.getShaderNodeDefs()
-
-def _getReferencingMaterialAssigns(self):
-    "(Deprecated) Return a list of all material assigns that reference this material."
-    warnings.warn("This function is deprecated; call Material.getGeometryBindings instead.", DeprecationWarning, stacklevel = 2)
-    return self.getGeometryBindings()
-
 Material.addOverride = _addOverride
 Material.setOverrideValue = _setOverrideValue
-Material.addShaderRef = _addShaderRef
-Material.getReferencedShaderDefs = _getReferencedShaderDefs
-Material.getReferencingMaterialAssigns = _getReferencingMaterialAssigns
-
-
-#
-# ShaderRef
-#
-
-def _getReferencedShaderDef(self):
-    "(Deprecated) Return the NodeDef that this element references."
-    warnings.warn("This function is deprecated; call ShaderRef.getNodeDef instead.", DeprecationWarning, stacklevel = 2)
-    return self.getNodeDef()
-
-ShaderRef.getReferencedShaderDef = _getReferencedShaderDef
 
 
 #

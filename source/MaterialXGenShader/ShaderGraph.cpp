@@ -81,8 +81,7 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
 void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
                                        const ElementPtr& upstreamElement,
                                        ElementPtr connectingElement,
-                                       GenContext& context,
-                                       ShaderNode* rootNode)
+                                       GenContext& context)
 {
     // Create the node if it doesn't exists
     NodePtr upstreamNode = upstreamElement->asA<Node>();
@@ -119,59 +118,40 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
             "' on upstream node '" + upstreamNode->getName() + "'");
     }
 
-    // First check if this was a bind input connection
-    // In this case we must have a root node as well
-    if (rootNode && connectingElement && connectingElement->isA<BindInput>())
+    // Check if it was a node downstream
+    NodePtr downstreamNode = downstreamElement->asA<Node>();
+    if (downstreamNode)
     {
-        // Connect to the corresponding input on the root node
-        ShaderInput* input = rootNode->getInput(connectingElement->getName());
-        if (input)
+        // We have a node downstream
+        ShaderNode* downstream = getNode(downstreamNode->getName());
+        if (downstream && connectingElement)
         {
-            input->breakConnection();
+            ShaderInput* input = downstream->getInput(connectingElement->getName());
+            if (!input)
+            {
+                throw ExceptionShaderGenError("Could not find an input named '" + connectingElement->getName() +
+                    "' on downstream node '" + downstream->getName() + "'");
+            }
             input->makeConnection(output);
+        }
+        else
+        {
+            throw ExceptionShaderGenError("Could not find downstream node ' " + downstreamNode->getName() + "'");
         }
     }
     else
     {
-        // Check if it was a node downstream
-        NodePtr downstreamNode = downstreamElement->asA<Node>();
-        if (downstreamNode)
+        // Not a node, then it must be an output
+        ShaderGraphOutputSocket* outputSocket = getOutputSocket(downstreamElement->getName());
+        if (outputSocket)
         {
-            // We have a node downstream
-            ShaderNode* downstream = getNode(downstreamNode->getName());
-            if (downstream && connectingElement)
-            {
-                ShaderInput* input = downstream->getInput(connectingElement->getName());
-                if (!input)
-                {
-                    throw ExceptionShaderGenError("Could not find an input named '" + connectingElement->getName() +
-                        "' on downstream node '" + downstream->getName() + "'");
-                }
-                input->makeConnection(output);
-            }
-            else
-            {
-                throw ExceptionShaderGenError("Could not find downstream node ' " + downstreamNode->getName() + "'");
-            }
-        }
-        else
-        {
-            // Not a node, then it must be an output
-            ShaderGraphOutputSocket* outputSocket = getOutputSocket(downstreamElement->getName());
-            if (outputSocket)
-            {
-                outputSocket->makeConnection(output);
-            }
+            outputSocket->makeConnection(output);
         }
     }
 }
 
 void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, GenContext& context)
 {
-    // Keep track of our root node in the graph.
-    // This is needed when the graph is a shader graph and we need
-    // to make connections for BindInputs during traversal below.
-    ShaderNode* rootNode = getNode(root.getName());
     std::set<ElementPtr> processedOutputs;
 
     for (Edge edge : root.traverseGraph(material))
@@ -209,8 +189,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
         createConnectedNodes(downstreamElement,
                              upstreamElement,
                              edge.getConnectingElement(),
-                             context,
-                             rootNode);
+                             context);
     }
 }
 

@@ -218,17 +218,6 @@ class Input : public PortElement
     /// @name Traversal
     /// @{
 
-    /// Return the Edge with the given index that lies directly upstream from
-    /// this element in the dataflow graph.
-    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
-                         size_t index = 0) const override;
-
-    /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() const override
-    {
-        return 1;
-    }
-
     /// Return the output, if any, to which this element is connected.
     OutputPtr getConnectedOutput() const;
 

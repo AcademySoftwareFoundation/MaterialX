@@ -414,10 +414,7 @@ bool Element::validate(string* message) const
     return res;
 }
 
-StringResolverPtr Element::createStringResolver(const string& geom,
-                                                ConstMaterialPtr material,
-                                                const string& target,
-                                                const string& type) const
+StringResolverPtr Element::createStringResolver(const string& geom) const
 {
     StringResolverPtr resolver = StringResolver::create();
 
@@ -436,21 +433,6 @@ StringResolverPtr Element::createStringResolver(const string& geom,
             {
                 string key = "<" + token->getName() + ">";
                 string value = token->getResolvedValueString();
-                resolver->setFilenameSubstitution(key, value);
-            }
-        }
-    }
-
-    // If a material is specified, then apply it to the filename map.
-    if (material)
-    {
-        for (TokenPtr token : material->getPrimaryShaderTokens(target, type))
-        {
-            ValuePtr boundValue = token->getBoundValue(material);
-            if (boundValue->isA<string>())
-            {
-                string key = "[" + token->getName() + "]";
-                string value = boundValue->asA<string>();
                 resolver->setFilenameSubstitution(key, value);
             }
         }
@@ -510,20 +492,6 @@ string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
         resolver = createStringResolver();
     }
     return resolver->resolve(getValueString(), getType());
-}
-
-ValuePtr ValueElement::getBoundValue(ConstMaterialPtr material) const
-{
-    ElementPtr upstreamElem = getUpstreamElement(material);
-    if (!upstreamElem)
-    {
-        return getDefaultValue();
-    }
-    if (upstreamElem->isA<ValueElement>())
-    {
-        return upstreamElem->asA<ValueElement>()->getValue();
-    }
-    return ValuePtr();
 }
 
 ValuePtr ValueElement::getDefaultValue() const
@@ -633,39 +601,6 @@ bool ValueElement::validate(string* message) const
 }
 
 //
-// Token methods
-//
-
-Edge Token::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
-{
-    if (material && index < getUpstreamEdgeCount())
-    {
-        ConstElementPtr parent = getParent();
-        ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
-        ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
-        if (nodeDef)
-        {
-            // Apply BindToken elements to the Token.
-            for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
-            {
-                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
-                {
-                    for (BindTokenPtr bindToken : shaderRef->getBindTokens())
-                    {
-                        if (bindToken->getName() == getName() && bindToken->hasValue())
-                        {
-                            return Edge(getSelfNonConst(), nullptr, bindToken);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return NULL_EDGE;
-}
-
-//
 // StringResolver methods
 //
 
@@ -760,9 +695,6 @@ INSTANTIATE_SUBCLASS(T)
 
 INSTANTIATE_CONCRETE_SUBCLASS(AttributeDef, "attributedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Backdrop, "backdrop")
-INSTANTIATE_CONCRETE_SUBCLASS(BindParam, "bindparam")
-INSTANTIATE_CONCRETE_SUBCLASS(BindInput, "bindinput")
-INSTANTIATE_CONCRETE_SUBCLASS(BindToken, "bindtoken")
 INSTANTIATE_CONCRETE_SUBCLASS(Collection, "collection")
 INSTANTIATE_CONCRETE_SUBCLASS(Document, "materialx")
 INSTANTIATE_CONCRETE_SUBCLASS(GenericElement, "generic")
@@ -784,7 +716,6 @@ INSTANTIATE_CONCRETE_SUBCLASS(Property, "property")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertyAssign, "propertyassign")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySet, "propertyset")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySetAssign, "propertysetassign")
-INSTANTIATE_CONCRETE_SUBCLASS(ShaderRef, "shaderref")
 INSTANTIATE_CONCRETE_SUBCLASS(Token, "token")
 INSTANTIATE_CONCRETE_SUBCLASS(TypeDef, "typedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Unit, "unit")
