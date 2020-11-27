@@ -98,22 +98,6 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
     return InterfaceElementPtr();
 }
 
-vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
-{
-    vector<ShaderRefPtr> shaderRefs;
-    for (MaterialPtr mat : getDocument()->getMaterials())
-    {
-        for (ShaderRefPtr shaderRef : mat->getShaderRefs())
-        {
-            if (shaderRef->getNodeDef()->hasInheritedBase(getSelf()))
-            {
-                shaderRefs.push_back(shaderRef);
-            }
-        }
-    }
-    return shaderRefs;
-}
-
 bool NodeDef::validate(string* message) const
 {
     bool res = true;

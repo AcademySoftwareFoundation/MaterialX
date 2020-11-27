@@ -128,31 +128,6 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
             }
         }
     }
-    else
-    {
-        const BindInputPtr bindInput = connectingElement->asA<BindInput>();
-        if (bindInput)
-        {
-            // Handle the case where the edge involves a bindinput.
-            const OutputPtr output = bindInput->getConnectedOutput();
-            if (output)
-            {
-                if (output->getParent()->isA<NodeGraph>())
-                {
-                    // The bindinput connects to a graph output,
-                    // so this is the output we're looking for.
-                    outputName = &output->getName();
-                }
-                else
-                {
-                    // The bindinput connects to a free floating output,
-                    // so we have an extra level of indirection. Hence 
-                    // get its connected output.
-                    outputName = &output->getOutputString();
-                }
-            }
-        }
-    }
     if (outputName && !outputName->empty())
     {
         // Find this output on our nodedef.

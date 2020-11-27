@@ -62,23 +62,6 @@ TEST_CASE("Load content", "[xmlio]")
             }
             REQUIRE(valueElementCount > 0);
 
-            // Traverse the dataflow graph from each shader parameter and input
-            // to its source nodes.
-            for (mx::MaterialPtr material : doc->getMaterials())
-            {
-                REQUIRE(material->getPrimaryShaderNodeDef());
-                int edgeCount = 0;
-                for (mx::InputPtr input : material->getPrimaryShaderInputs())
-                {
-                    REQUIRE((input->getBoundValue(material) || input->getUpstreamElement(material)));
-                    for (mx::Edge edge : input->traverseGraph(material))
-                    {
-                        edgeCount++;
-                    }
-                }
-                REQUIRE(edgeCount > 0);
-            }
-
             // Serialize to XML.
             mx::XmlWriteOptions writeOptions;
             writeOptions.writeXIncludeEnable = false;

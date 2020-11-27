@@ -120,12 +120,10 @@ class ShaderGraph : public ShaderNode
     /// @param upstreamElement Element representing the node to connect from
     /// @param connectingElement If non-null, specifies the element on on the downstream node to connect to.
     /// @param context Context for generation.
-    /// @param rootNode Root node for downstream element. Only required for handing ShaderRef elements.
     void createConnectedNodes(const ElementPtr& downstreamElement,
                               const ElementPtr& upstreamElement,
                               ElementPtr connectingElement,
-                              GenContext& context,
-                              ShaderNode* rootNode = nullptr);
+                              GenContext& context);
 
     /// Add a node to the graph
     void addNode(ShaderNodePtr node);

@@ -242,65 +242,9 @@ class TestMaterialX(unittest.TestCase):
         roughness.setIsUniform(True);
         self.assertTrue(roughness.getIsUniform() == True)
 
-        # Create a material that instantiates the shader.
-        material = doc.addMaterial()
-        shaderRef = material.addShaderRef('shaderRef1', 'simpleSrf')
-        self.assertTrue(material.getPrimaryShaderName() == 'simpleSrf')
-        self.assertTrue(len(material.getPrimaryShaderInputs()) == 3)
-        self.assertTrue(len(material.getPrimaryShaderTokens()) == 1)
-        self.assertTrue(roughness.getBoundValue(material) == 0.25)
-
-        # Bind a shader input to a float value.
-        bindInput = shaderRef.addBindInput('roughness')
-        bindInput.setValue(0.5)
-        self.assertTrue(roughness.getBoundValue(material) == 0.5)
-        self.assertTrue(roughness.getDefaultValue() == 0.25)
-
-        # Bind a shader input to a value.
-        bindInput = shaderRef.addBindInput('specColor')
-        bindInput.setValue(mx.Color3(0.5))
-        self.assertTrue(specColor.getBoundValue(material) == mx.Color3(0.5))
-        self.assertTrue(specColor.getDefaultValue() == mx.Color3(0.0))
-
-        # Bind a shader input to a graph output.
-        bindInput = shaderRef.addBindInput('diffColor')
-        bindInput.setConnectedOutput(output2)
-        self.assertTrue(diffColor.getUpstreamElement(material) == output2)
-        self.assertTrue(diffColor.getBoundValue(material) is None)
-        self.assertTrue(diffColor.getDefaultValue() == mx.Color3(1.0))
-
-        # Bind a shader token to a value.
-        bindToken = shaderRef.addBindToken('texId')
-        bindToken.setValue('02')
-        self.assertTrue(texId.getBoundValue(material) == '02')
-        self.assertTrue(texId.getDefaultValue() == '01')
-
-        # Create an inherited material.
-        material2 = doc.addMaterial()
-        material2.setInheritsFrom(material)
-        self.assertTrue(roughness.getBoundValue(material2) == 0.5)
-        self.assertTrue(diffColor.getUpstreamElement(material2) == output2)
-
-        # Create a look for the material.
+        # Create a look.
         look = doc.addLook()
         self.assertTrue(len(doc.getLooks()) == 1)
-
-        # Bind the material to a geometry string.
-        matAssign1 = look.addMaterialAssign("matAssign1", material.getName())
-        matAssign1.setGeom("/robot1")
-        self.assertTrue(matAssign1.getReferencedMaterial() == material)
-        self.assertTrue(len(material.getGeometryBindings("/robot1")) == 1)
-        self.assertTrue(len(material.getGeometryBindings("/robot2")) == 0)
-
-        # Bind the material to a collection.
-        matAssign2 = look.addMaterialAssign("matAssign2", material.getName())
-        collection = doc.addCollection()
-        collection.setIncludeGeom("/robot2")
-        collection.setExcludeGeom("/robot2/left_arm")
-        matAssign2.setCollection(collection)
-        self.assertTrue(len(material.getGeometryBindings("/robot2")) == 1)
-        self.assertTrue(len(material.getGeometryBindings("/robot2/right_arm")) == 1)
-        self.assertTrue(len(material.getGeometryBindings("/robot2/left_arm")) == 0)
 
         # Create a property assignment.
         propertyAssign = look.addPropertyAssign()
@@ -481,18 +425,6 @@ class TestMaterialX(unittest.TestCase):
                 if elem.isA(mx.ValueElement):
                     valueElementCount += 1
             self.assertTrue(valueElementCount > 0)
-
-            # Traverse upstream from each shader input.
-            for material in doc.getMaterials():
-                self.assertTrue(material.getPrimaryShaderNodeDef())
-                edgeCount = 0
-                for shaderInput in material.getPrimaryShaderInputs():
-                    boundValue = shaderInput.getBoundValue(material)
-                    upstreamElement = shaderInput.getUpstreamElement(material)
-                    self.assertTrue(boundValue is not None or upstreamElement is not None)
-                    for _ in shaderInput.traverseGraph(material):
-                        edgeCount += 1
-                self.assertTrue(edgeCount > 0)
 
             # Serialize to XML.
             writeOptions = mx.XmlWriteOptions()

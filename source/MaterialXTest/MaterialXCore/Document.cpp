@@ -55,26 +55,6 @@ TEST_CASE("Document", "[document]")
     REQUIRE(!specColor->getIsUniform());
     mx::InputPtr roughness = shader->addInput("roughness", "float");
 
-    // Create a material that instantiates the shader.
-    mx::MaterialPtr material = doc->addMaterial();
-    mx::ShaderRefPtr shaderRef = material->addShaderRef("", "simpleSrf");
-
-    // Bind the diffuse color input to the constant color output.
-    mx::BindInputPtr bindInput = shaderRef->addBindInput("diffColor");
-    bindInput->setConnectedOutput(output);
-    REQUIRE(diffColor->getUpstreamElement(material) == output);
-
-    // Bind the roughness parameter to a value.
-    bindInput = shaderRef->addBindInput("roughness");
-    bindInput->setValue(0.5f);
-    REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
-
-    // Create and test a type mismatch in a data binding.
-    bindInput->setValue(5);
-    REQUIRE(!doc->validate());
-    bindInput->setValue(0.5f);
-    REQUIRE(doc->validate());
-
     // Create a collection 
     mx::CollectionPtr collection = doc->addCollection();
     REQUIRE(doc->getCollections().size() == 1);

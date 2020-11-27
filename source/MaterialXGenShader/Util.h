@@ -65,16 +65,6 @@ void findRenderableMaterialNodes(ConstDocumentPtr doc,
                                  bool includeReferencedGraphs,
                                  std::unordered_set<ElementPtr>& processedSources);
 
-/// Find any shaderrefs elements which are renderable
-/// @param doc Document to examine
-/// @param elements List of renderable elements (returned)
-/// @param includeReferencedGraphs Whether to check for outputs on referenced graphs
-/// @param processedSources List of elements examined. 
-void findRenderableShaderRefs(ConstDocumentPtr doc,
-                              vector<TypedElementPtr>& elements, 
-                              bool includeReferencedGraphs,
-                              std::unordered_set<ElementPtr>& processedSources);
-
 /// Find any elements which may be renderable from within a document.
 /// This includes all outputs on node graphs and shader references which are not
 /// part of any included library. Light shaders are not considered to be renderable.

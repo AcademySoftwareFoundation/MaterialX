@@ -285,44 +285,6 @@ NodePtr Input::getConnectedNode() const
     return PortElement::getConnectedNode();
 }
 
-Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
-{
-    if (material && index < getUpstreamEdgeCount())
-    {
-        ConstElementPtr parent = getParent();
-        ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
-        ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
-        if (nodeDef)
-        {
-            // Apply BindInput elements to the Input.
-            for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
-            {
-                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
-                {
-                    for (BindInputPtr bindInput : shaderRef->getBindInputs())
-                    {
-                        if (bindInput->getName() != getName())
-                        {
-                            continue;
-                        }
-                        OutputPtr output = bindInput->getConnectedOutput();
-                        if (output)
-                        {
-                            return Edge(getSelfNonConst(), bindInput, output);
-                        }
-                        if (bindInput->hasValue())
-                        {
-                            return Edge(getSelfNonConst(), nullptr, bindInput);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return NULL_EDGE;
-}
-
 GeomPropDefPtr Input::getDefaultGeomProp() const
 {
     const string& defaultGeomProp = getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);

@@ -814,30 +814,15 @@ class Element : public std::enable_shared_from_this<Element>
     ///    applicable set of geometry token substitutions.  By default, no
     ///    geometry token substitutions are applied.  If the universal geometry
     ///    name "/" is given, then all geometry token substitutions are applied,
-    /// @param material An optional material element, which will be used to
-    ///    select the applicable set of interface token substitutions.
-    /// @param target An optional target name, which will be used to filter
-    ///    the shader references within the material that are considered.
-    /// @param type An optional shader type (e.g. "surfaceshader"), which will
-    ///    be used to filter the shader references within the material that are
-    ///    considered.
     /// @return A shared pointer to a StringResolver.
-    /// @todo The StringResolver returned by this method doesn't yet take
-    ///    variant assignments into account.
-    StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING,
-                                           ConstMaterialPtr material = nullptr,
-                                           const string& target = EMPTY_STRING,
-                                           const string& type = EMPTY_STRING) const;
+    StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING) const;
 
     /// Return a single-line description of this element, including its category,
     /// name, and attributes.
     string asString() const;
 
-    /// @}
-
-  protected:
-    // Resolve a reference to a named element at the root scope of this document,
-    // taking the namespace at the scope of this element into account.
+    /// Resolve a reference to a named element at the root scope of this document,
+    /// taking the namespace at the scope of this element into account.
     template<class T> shared_ptr<T> resolveRootNameReference(const string& name) const
     {
         ConstElementPtr root = getRoot();
@@ -845,6 +830,9 @@ class Element : public std::enable_shared_from_this<Element>
         return child ? child : root->getChildOfType<T>(name);
     }
 
+    /// @}
+
+  protected:
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.
     void validateRequire(bool expression, bool& res, string* message, string errorDesc) const;
@@ -1090,29 +1078,7 @@ class ValueElement : public TypedElement
         return Value::createValueFromStrings(getResolvedValueString(resolver), getType());
     }
 
-    /// @}
-    /// @name Bound Value
-    /// @{
-
-    /// Return the value that is bound to this element within the context of a
-    /// given material.  For example, a BindParam within the material will
-    /// affect the value of its correponding Parameter, and a BindInput will
-    /// affect the value of its corresponding Input.
-    ///
-    /// If this element is bound to an Output of a NodeGraph, rather than to a
-    /// uniform value, then an empty shared pointer is returned.
-    ///
-    /// If no data binding is applied by the material, then the default value for
-    /// this element is returned.
-    ///
-    /// @param material The material whose data bindings will be applied to
-    ///    the evaluation.
-    /// @return A shared pointer to a typed value, or an empty shared pointer if
-    ///    no bound or default value was found.
-    ValuePtr getBoundValue(ConstMaterialPtr material) const;
-
-    /// Return the default value for this element, which will be used as its bound
-    /// value when no external binding from a material is present.
+    /// Return the default value for this element.
     ///
     /// @return A shared pointer to a typed value, or an empty shared pointer if
     ///    no default value was found.
@@ -1222,21 +1188,6 @@ class Token : public ValueElement
     }
     virtual ~Token() { }
 
-    /// @name Traversal
-    /// @{
-
-    /// Return the Edge with the given index that lies directly upstream from
-    /// this element in the dataflow graph.
-    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
-                         size_t index = 0) const override;
-
-    /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() const override
-    {
-        return 1;
-    }
-
-    /// @}
   public:
     static const string CATEGORY;
 };

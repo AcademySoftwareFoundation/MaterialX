@@ -15,7 +15,6 @@ TEST_CASE("Look", "[look]")
 
     // Create a material and look.
     mx::MaterialPtr material = doc->addMaterial();
-    material->addShaderRef();
     mx::LookPtr look = doc->addLook();
     REQUIRE(doc->getMaterials().size() == 1);
     REQUIRE(doc->getLooks().size() == 1);
