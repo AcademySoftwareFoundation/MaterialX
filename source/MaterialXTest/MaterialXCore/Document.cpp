@@ -46,14 +46,28 @@ TEST_CASE("Document", "[document]")
     REQUIRE(nodeGraph->getDescendant("missingNode") == mx::ElementPtr());
 
     // Create a simple shader interface.
-    mx::NodeDefPtr shader = doc->addNodeDef("", "surfaceshader", "simpleSrf");
-    mx::InputPtr diffColor = shader->addInput("diffColor", "color3");
-    REQUIRE(!diffColor->getIsUniform());
-    mx::InputPtr specColor = shader->addInput("specColor", "color3", true);
-    REQUIRE(specColor->getIsUniform());
-    specColor->setIsUniform(false);
-    REQUIRE(!specColor->getIsUniform());
-    mx::InputPtr roughness = shader->addInput("roughness", "float");
+    mx::NodeDefPtr simpleSrf = doc->addNodeDef("", "surfaceshader", "simpleSrf");
+    simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
+    simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
+    mx::InputPtr roughness = simpleSrf->setInputValue("roughness", 0.25f);
+    REQUIRE(!roughness->getIsUniform());
+    roughness->setIsUniform(true);
+    REQUIRE(roughness->getIsUniform());
+
+    // Instantiate the interface as shader and material nodes.
+    mx::NodePtr shaderNode = doc->addNodeInstance(simpleSrf);
+    mx::NodePtr materialNode = doc->addMaterialNode("", shaderNode);
+    REQUIRE(materialNode->getUpstreamElement() == shaderNode);
+
+    // Bind the diffuse color input to the constant color output.
+    shaderNode->setConnectedOutput("diffColor", output);
+    REQUIRE(shaderNode->getUpstreamElement() == constant);
+    REQUIRE(doc->validate());
+
+    // Bind the roughness input to a value.
+    mx::InputPtr instanceRoughness = shaderNode->setInputValue("roughness", 0.5f);
+    REQUIRE(instanceRoughness->getValue()->asA<float>() == 0.5f);
+    REQUIRE(instanceRoughness->getDefaultValue()->asA<float>() == 0.25f);
 
     // Create a collection 
     mx::CollectionPtr collection = doc->addCollection();

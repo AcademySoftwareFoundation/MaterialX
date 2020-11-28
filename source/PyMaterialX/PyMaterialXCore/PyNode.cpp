@@ -19,6 +19,8 @@ void bindPyNode(py::module& mod)
         .def("getConnectedNode", &mx::Node::getConnectedNode)
         .def("setConnectedNodeName", &mx::Node::setConnectedNodeName)
         .def("getConnectedNodeName", &mx::Node::getConnectedNodeName)
+        .def("setConnectedOutput", &mx::Node::setConnectedOutput)
+        .def("getConnectedOutput", &mx::Node::getConnectedOutput)
         .def("getNodeDef", &mx::Node::getNodeDef,
             py::arg("target") = mx::EMPTY_STRING)
         .def("getImplementation", &mx::Node::getImplementation,
@@ -36,7 +38,7 @@ void bindPyNode(py::module& mod)
         .def("getNodes", &mx::GraphElement::getNodes,
             py::arg("category") = mx::EMPTY_STRING)
         .def("removeNode", &mx::GraphElement::removeNode)
-        .def("getMaterialNode", &mx::GraphElement::getMaterialNode)
+        .def("addMaterialNode", &mx::GraphElement::addMaterialNode)
         .def("getMaterialNodes", &mx::GraphElement::getMaterialNodes)
         .def("addBackdrop", &mx::GraphElement::addBackdrop,
             py::arg("name") = mx::EMPTY_STRING)

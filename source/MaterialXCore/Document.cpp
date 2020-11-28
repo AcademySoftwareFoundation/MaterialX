@@ -141,22 +141,21 @@ void convertMaterialsToNodes(DocumentPtr doc)
             // add a reference from the material node to the new shader node
             if (!materialNode)
             {
-                // Set the type of material based on current assumption that
-                // surfaceshaders + displacementshaders result in a surfacematerial
-                // while a volumeshader means a volumematerial needs to be created.
-                string materialNodeCategory =
-                    (shaderNodeType != VOLUME_SHADER_TYPE_STRING) ? SURFACE_MATERIAL_NODE_STRING
-                    : VOLUME_MATERIAL_NODE_STRING;
-                materialNode = doc->addNode(materialNodeCategory, materialName, MATERIAL_TYPE_STRING);
+                materialNode = doc->addMaterialNode(materialName, shaderNode);
                 materialNode->setSourceUri(mat->getSourceUri());
                 // Note: Inheritance does not get transfered to the node we do
                 // not perform the following:
                 //      - materialNode->setInheritString(mat->getInheritString());
             }
+
             // Create input to replace each shaderref. Use shaderref name as unique
             // input name.
-            InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
-            shaderInput->setNodeName(shaderNode->getName());
+            InputPtr shaderInput = materialNode->getInput(shaderNodeType);
+            if (!shaderInput)
+            {
+                shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
+                shaderInput->setNodeName(shaderNode->getName());
+            }
             // Make sure to copy over any target and version information from the shaderref.
             if (!shaderRef->getTarget().empty())
             {

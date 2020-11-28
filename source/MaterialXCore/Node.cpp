@@ -65,6 +65,30 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
+void Node::setConnectedOutput(const string& inputName, OutputPtr output)
+{
+    InputPtr input = getInput(inputName);
+    if (!input)
+    {
+        input = addInput(inputName, DEFAULT_TYPE_STRING);
+    }
+    if (output)
+    {
+        input->setType(output->getType());
+    }
+    input->setConnectedOutput(output);
+}
+
+OutputPtr Node::getConnectedOutput(const string& inputName) const
+{
+    InputPtr input = getInput(inputName);
+    if (!input)
+    {
+        return OutputPtr();
+    }
+    return input->getConnectedOutput();    
+}
+
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
     if (hasNodeDefString())
@@ -168,6 +192,25 @@ bool Node::validate(string* message) const
 //
 // GraphElement methods
 //
+
+NodePtr GraphElement::addMaterialNode(const string& name, ConstNodePtr shaderNode)
+{
+    string category = SURFACE_MATERIAL_NODE_STRING;
+    if (shaderNode)
+    {
+        if (shaderNode->getType() == VOLUME_MATERIAL_NODE_STRING)
+        {
+            category = VOLUME_SHADER_TYPE_STRING;
+        }
+    }
+    NodePtr materialNode = addNode(category, name, MATERIAL_TYPE_STRING);
+    if (shaderNode)
+    {
+        InputPtr input = materialNode->addInput(shaderNode->getType(), shaderNode->getType());
+        input->setNodeName(shaderNode->getName());
+    }
+    return materialNode;
+}
 
 void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
 {
