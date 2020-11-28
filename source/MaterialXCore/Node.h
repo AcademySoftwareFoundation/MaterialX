@@ -79,6 +79,15 @@ class Node : public InterfaceElement
     /// input is not present, then an empty string is returned.
     string getConnectedNodeName(const string& inputName) const;
 
+    /// Set the output to which the given input is connected, creating a
+    /// child input if needed.  If the node argument is null, then any
+    /// existing output connection on the input will be cleared.
+    void setConnectedOutput(const string& inputName, OutputPtr output);
+
+    /// Return the output connected to the given input.  If the given input is
+    /// not present, then an empty OutputPtr is returned.
+    OutputPtr getConnectedOutput(const string& inputName) const;
+
     /// @}
     /// @name NodeDef References
     /// @{
@@ -242,11 +251,9 @@ class GraphElement : public InterfaceElement
     /// @name Material Nodes
     /// @{
 
-    /// Return the material node, if any, with the given name.
-    NodePtr getMaterialNode(const string& name) const
-    {
-        return getNode(name);
-    }
+    /// Add a material node to the graph, optionally connecting it to the given
+    /// shader node.
+    NodePtr addMaterialNode(const string& name = EMPTY_STRING, ConstNodePtr shaderNode = nullptr);
 
     /// Return a vector of all material nodes.
     vector<NodePtr> getMaterialNodes() const

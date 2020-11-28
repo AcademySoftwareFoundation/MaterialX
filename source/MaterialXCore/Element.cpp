@@ -496,12 +496,6 @@ string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
 
 ValuePtr ValueElement::getDefaultValue() const
 {
-    if (hasValue())
-    {
-        return getValue();
-    }
-
-    // Return the value, if any, stored in our declaration.
     ConstElementPtr parent = getParent();
     ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
     if (interface)

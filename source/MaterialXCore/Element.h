@@ -1070,7 +1070,8 @@ class ValueElement : public TypedElement
         return Value::createValueFromStrings(getResolvedValueString(resolver), getType());
     }
 
-    /// Return the default value for this element.
+    /// Return the default value for this element as a generic value object, which
+    /// may be queried to access its data.
     ///
     /// @return A shared pointer to a typed value, or an empty shared pointer if
     ///    no default value was found.
