@@ -150,11 +150,11 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
     }
 }
 
-void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, GenContext& context)
+void ShaderGraph::addUpstreamDependencies(const Element& root, GenContext& context)
 {
     std::set<ElementPtr> processedOutputs;
 
-    for (Edge edge : root.traverseGraph(material))
+    for (Edge edge : root.traverseGraph())
     {
         ElementPtr upstreamElement = edge.getUpstreamElement();
         if (!upstreamElement)
@@ -418,7 +418,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     // Traverse all outputs and create all internal nodes
     for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
     {
-        graph->addUpstreamDependencies(*graphOutput, nullptr, context);
+        graph->addUpstreamDependencies(*graphOutput, context);
     }
 
     // Add classification according to last node
@@ -437,8 +437,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
     const ShaderGraph* parent,
     NodePtr node,
     GenContext& context,
-    ElementPtr& root,
-    MaterialPtr& material)
+    ElementPtr& root)
 {
     NodeDefPtr nodeDef = node->getNodeDef();
     if (!nodeDef)
@@ -575,7 +574,6 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
 
     // Start traversal from this shader node
     root = node;    
-    material = nullptr; // node->getParent()->asA<Material>(); -- send over material node instead?
     
     return graph;
 }
@@ -584,7 +582,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
 {
     ShaderGraphPtr graph;
     ElementPtr root;
-    MaterialPtr material;
 
     if (element->isA<Output>())
     {
@@ -646,8 +643,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Handle shader nodes different from other nodes
         if (node->getType() == SURFACE_SHADER_TYPE_STRING)
         {
-            graph = createSurfaceShader(name, parent, node, context,
-                root, material);
+            graph = createSurfaceShader(name, parent, node, context, root);
         }
         else
         {
@@ -743,7 +739,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
     // Traverse and create all dependencies upstream
     if (root && context.getOptions().addUpstreamDependencies)
     {
-        graph->addUpstreamDependencies(*root, material, context);
+        graph->addUpstreamDependencies(*root, context);
     }
 
     // Add classification according to root node

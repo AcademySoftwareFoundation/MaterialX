@@ -5,9 +5,8 @@
 
 #include <MaterialXGenShader/ShaderTranslator.h>
 
+#include <MaterialXCore/Material.h>
 #include <MaterialXCore/Util.h>
-#include <MaterialXCore/MaterialNode.h>
-
 
 namespace MaterialX
 {

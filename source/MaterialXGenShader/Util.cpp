@@ -5,8 +5,6 @@
 
 #include <MaterialXGenShader/Util.h>
 
-#include <MaterialXCore/MaterialNode.h>
-
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>

@@ -310,7 +310,7 @@ bool Input::validate(string* message) const
 // Output methods
 //
 
-Edge Output::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
+Edge Output::getUpstreamEdge(size_t index) const
 {
     if (index < getUpstreamEdgeCount())
     {

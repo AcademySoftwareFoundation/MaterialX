@@ -194,9 +194,8 @@ class TreeIterator
 class GraphIterator
 {
   public:
-    explicit GraphIterator(ElementPtr elem, ConstMaterialPtr material = nullptr):
+    explicit GraphIterator(ElementPtr elem):
         _upstreamElem(elem),
-        _material(material),
         _prune(false),
         _holdCount(0)
     {
@@ -212,7 +211,6 @@ class GraphIterator
     bool operator==(const GraphIterator& rhs) const
     {
         return _upstreamElem == rhs._upstreamElem &&
-               _material == rhs._material &&
                _stack == rhs._stack &&
                _prune == rhs._prune;
     }
@@ -326,7 +324,6 @@ class GraphIterator
     ElementPtr _upstreamElem;
     ElementPtr _connectingElem;
     ElementSet _pathElems;
-    ConstMaterialPtr _material;
     vector<StackFrame> _stack;
     bool _prune;
     size_t _holdCount;

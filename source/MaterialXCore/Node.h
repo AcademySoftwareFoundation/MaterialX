@@ -117,8 +117,7 @@ class Node : public InterfaceElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
-                         size_t index = 0) const override;
+    Edge getUpstreamEdge(size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
     size_t getUpstreamEdgeCount() const override
@@ -237,6 +236,22 @@ class GraphElement : public InterfaceElement
     void removeNode(const string& name)
     {
         removeChildOfType<Node>(name);
+    }
+
+    /// @}
+    /// @name Material Nodes
+    /// @{
+
+    /// Return the material node, if any, with the given name.
+    NodePtr getMaterialNode(const string& name) const
+    {
+        return getNode(name);
+    }
+
+    /// Return a vector of all material nodes.
+    vector<NodePtr> getMaterialNodes() const
+    {
+        return getNodesOfType(MATERIAL_TYPE_STRING);
     }
 
     /// @}

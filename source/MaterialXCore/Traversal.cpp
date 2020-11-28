@@ -13,7 +13,7 @@ namespace MaterialX
 const Edge NULL_EDGE(nullptr, nullptr, nullptr);
 
 const TreeIterator NULL_TREE_ITERATOR(nullptr);
-const GraphIterator NULL_GRAPH_ITERATOR(nullptr, nullptr);
+const GraphIterator NULL_GRAPH_ITERATOR(nullptr);
 const InheritanceIterator NULL_INHERITANCE_ITERATOR(nullptr);
 
 //
@@ -113,7 +113,7 @@ GraphIterator& GraphIterator::operator++()
     {
         // Traverse to the first upstream edge of this element.
         _stack.emplace_back(_upstreamElem, 0);
-        Edge nextEdge = _upstreamElem->getUpstreamEdge(_material, 0);
+        Edge nextEdge = _upstreamElem->getUpstreamEdge(0);
         if (nextEdge && nextEdge.getUpstreamElement())
         {
             extendPathUpstream(nextEdge.getUpstreamElement(), nextEdge.getConnectingElement());
@@ -140,7 +140,7 @@ GraphIterator& GraphIterator::operator++()
         StackFrame& parentFrame = _stack.back();
         if (parentFrame.second + 1 < parentFrame.first->getUpstreamEdgeCount())
         {
-            Edge nextEdge = parentFrame.first->getUpstreamEdge(_material, ++parentFrame.second);
+            Edge nextEdge = parentFrame.first->getUpstreamEdge(++parentFrame.second);
             if (nextEdge && nextEdge.getUpstreamElement())
             {
                 extendPathUpstream(nextEdge.getUpstreamElement(), nextEdge.getConnectingElement());

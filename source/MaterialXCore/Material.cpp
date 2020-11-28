@@ -5,72 +5,145 @@
 
 #include <MaterialXCore/Material.h>
 
-#include <MaterialXCore/Document.h>
-
 namespace MaterialX
 {
 
-vector<NodeDefPtr> Material::getShaderNodeDefs(const string&, const string&) const
+std::unordered_set<NodePtr> getShaderNodes(const NodePtr& materialNode, const string& nodeType, const string& target)
 {
-    return {};
-}
-
-vector<MaterialAssignPtr> Material::getGeometryBindings(const string& geom) const
-{
-    vector<MaterialAssignPtr> matAssigns;
-    for (LookPtr look : getDocument()->getLooks())
+    ElementPtr parent = materialNode->getParent();
+    if (!parent)
     {
-        for (MaterialAssignPtr matAssign : look->getMaterialAssigns())
+        throw Exception("Could not find a parent for material node '" + (materialNode ? materialNode->getNamePath() : EMPTY_STRING) + "'");
+    }
+
+    std::unordered_set<NodePtr> shaderNodes;
+
+    std::vector<InputPtr> inputs = materialNode->getActiveInputs();
+    if (inputs.empty())
+    {
+        // Try to find material nodes in the implementation graph if any.
+        // If a target is specified the nodedef for the given target is searched for.
+        NodeDefPtr materialNodeDef = materialNode->getNodeDef(target);
+        if (materialNodeDef)
         {
-            if (matAssign->getReferencedMaterial() == getSelf())
+            InterfaceElementPtr impl = materialNodeDef->getImplementation();
+            if (impl->isA<NodeGraph>())
             {
-                if (geomStringsMatch(geom, matAssign->getActiveGeom()))
+                NodeGraphPtr implGraph = impl->asA<NodeGraph>();
+                for (auto defOutput : materialNodeDef->getOutputs())
                 {
-                    matAssigns.push_back(matAssign);
-                    continue;
-                }
-                CollectionPtr coll = matAssign->getCollection();
-                if (coll && coll->matchesGeomString(geom))
-                {
-                    matAssigns.push_back(matAssign);
-                    continue;
+                    if (defOutput->getType() == MATERIAL_TYPE_STRING)
+                    {
+                        OutputPtr implGraphOutput = implGraph->getOutput(defOutput->getName());
+                        for (GraphIterator it = implGraphOutput->traverseGraph().begin(); it != GraphIterator::end(); ++it)
+                        {
+                            ElementPtr upstreamElem = it.getUpstreamElement();
+                            if (!upstreamElem)
+                            {
+                                it.setPruneSubgraph(true);
+                                continue;
+                            }
+                            NodePtr upstreamNode = upstreamElem->asA<Node>();
+                            if (upstreamNode && upstreamNode->getType() == MATERIAL_TYPE_STRING)
+                            {
+                                std::unordered_set<NodePtr> newShaderNodes = getShaderNodes(upstreamNode, nodeType, target);
+                                if (!newShaderNodes.empty())
+                                {
+                                    shaderNodes.insert(newShaderNodes.begin(), newShaderNodes.end());
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-    return matAssigns;
-}
 
-vector<InputPtr> Material::getPrimaryShaderInputs(const string& target, const string& type) const
-{
-    NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
-    vector<InputPtr> res;
-    if (nodeDef)
+    for (const InputPtr& input : inputs) 
     {
-        InterfaceElementPtr implement = nodeDef->getImplementation();
-        for (InputPtr nodeDefInput : nodeDef->getActiveInputs())
+        // Scan for a node directly connected to the input.
+        //
+        const string& inputShader = input->getNodeName();
+        if (!inputShader.empty())
         {
-            InputPtr implementInput = implement ? implement->getInput(nodeDefInput->getName()) : nullptr;
-            res.push_back(implementInput ? implementInput : nodeDefInput);
+            NodePtr shaderNode = parent->getChildOfType<Node>(inputShader);
+            if (shaderNode)
+            {
+                if (!nodeType.empty() && shaderNode->getType() != nodeType)
+                {
+                    continue;
+                }
+                
+                if (!target.empty())
+                {
+                    NodeDefPtr nodeDef = shaderNode->getNodeDef(target);
+                    if (!nodeDef)
+                    {
+                        continue;
+                    }
+                }
+                shaderNodes.insert(shaderNode);
+            }
+        }
+
+        // Check upstream nodegraph connected to the input.
+        // If no explicit output name given then scan all outputs on the nodegraph.
+        //
+        else
+        {
+            const string& inputGraph = input->getNodeGraphString();
+            if (!inputGraph.empty())
+            {
+                NodeGraphPtr nodeGraph = parent->getChildOfType<NodeGraph>(inputGraph);
+                if (nodeGraph)
+                {
+                    const string& nodeGraphOutput = input->getOutputString();
+                    std::vector<OutputPtr> outputs;
+                    if (!nodeGraphOutput.empty())
+                    {
+                        outputs.push_back(nodeGraph->getOutput(nodeGraphOutput));
+                    }
+                    else
+                    {
+                        outputs = nodeGraph->getOutputs();
+                    }
+                    for (OutputPtr output : outputs)
+                    {
+                        NodePtr upstreamNode = output->getConnectedNode();
+                        if (upstreamNode)
+                        {
+                            if (!target.empty())
+                            {
+                                NodeDefPtr nodeDef = upstreamNode->getNodeDef(target);
+                                if (!nodeDef)
+                                {
+                                    continue;
+                                }
+                            }
+                            shaderNodes.insert(upstreamNode);
+                        }
+                    }
+                }
+            }
         }
     }
-    return res;
+    return shaderNodes;
 }
 
-vector<TokenPtr> Material::getPrimaryShaderTokens(const string& target, const string& type) const
+vector<OutputPtr> getConnectedOutputs(const NodePtr& node)
 {
-    NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
-    vector<TokenPtr> res;
-    if (nodeDef)
+    vector<OutputPtr> outputVec;
+    std::set<OutputPtr> outputSet;
+    for (InputPtr input : node->getInputs())
     {
-        InterfaceElementPtr implement = nodeDef->getImplementation();
-        for (TokenPtr nodeDefToken : nodeDef->getActiveTokens())
+        OutputPtr output = input->getConnectedOutput();
+        if (output && !outputSet.count(output))
         {
-            TokenPtr implementToken = implement ? implement->getToken(nodeDefToken->getName()) : nullptr;
-            res.push_back(implementToken ? implementToken : nodeDefToken);
+            outputVec.push_back(output);
+            outputSet.insert(output);
         }
     }
-    return res;
+    return outputVec;
 }
 
 } // namespace MaterialX
