@@ -112,8 +112,7 @@ class ShaderGraph : public ShaderNode
         const ShaderGraph* parent,
         NodePtr node,
         GenContext& context,
-        ElementPtr& root,
-        MaterialPtr& material);
+        ElementPtr& root);
 
     /// Create node connections corresponding to the connection between a pair of elements.
     /// @param downstreamElement Element representing the node to connect to.
@@ -137,7 +136,7 @@ class ShaderGraph : public ShaderNode
     /// Traverse from the given root element and add all dependencies upstream.
     /// The traversal is done in the context of a material, if given, to include
     /// bind input elements in the traversal.
-    void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, GenContext& context);
+    void addUpstreamDependencies(const Element& root, GenContext& context);
 
     /// Add a default geometric node and connect to the given input.
     void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, GenContext& context);

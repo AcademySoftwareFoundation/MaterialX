@@ -333,9 +333,6 @@ class MaterialAssign : public GeomElement
     /// @name Material References
     /// @{
 
-    /// Return the Material, if any, referenced by the MaterialAssign.
-    MaterialPtr getReferencedMaterial() const;
-
     /// Return the Material node, if any, referenced by the MaterialAssign.
     NodePtr getReferencedMaterialNode() const;
 
@@ -487,6 +484,15 @@ class Visibility : public GeomElement
     static const string VISIBILITY_TYPE_ATTRIBUTE;
     static const string VISIBLE_ATTRIBUTE;
 };
+
+/// Return a vector of all MaterialAssign elements that bind this material node
+/// to the given geometry string
+/// @param materialNode Node to examine
+/// @param geom The geometry for which material bindings should be returned.
+///             By default, this argument is the universal geometry string "/",
+///             and all material bindings are returned.
+/// @return Vector of MaterialAssign elements
+vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
 
 } // namespace MaterialX
 

@@ -60,16 +60,9 @@ NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
 
 void convertMaterialsToNodes(DocumentPtr doc)
 {
-    for (MaterialPtr mat : doc->getMaterials())
+    for (ElementPtr mat : doc->getChildrenOfType<Element>("material"))
     {
-        // See if a node of this name has already been created.
-        // Should not occur otherwise there are duplicate existing
-        // Material elements.
         string materialName = mat->getName();
-        if (doc->getNode(materialName))
-        {
-            throw Exception("Material node already exists: " + materialName);
-        }
 
         // Create a temporary name for the material element
         // so the new node can reuse the existing name.
@@ -175,7 +168,7 @@ void convertMaterialsToNodes(DocumentPtr doc)
             }
         }
 
-        // Remove existing material element
+        // Remove the original material element
         doc->removeChild(mat->getName());
     }
 }
@@ -625,7 +618,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         }
 
         // Assign nodedef names to shaderrefs.
-        for (MaterialPtr mat : getMaterials())
+        for (ElementPtr mat : getChildrenOfType<Element>("material"))
         {
             for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
             {
@@ -642,13 +635,14 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         }
 
         // Move connections from nodedef inputs to bindinputs.
+        vector<ElementPtr> materials = getChildrenOfType<Element>("material");
         for (NodeDefPtr nodeDef : getNodeDefs())
         {
             for (InputPtr input : nodeDef->getActiveInputs())
             {
                 if (input->hasAttribute("opgraph") && input->hasAttribute("graphoutput"))
                 {
-                    for (MaterialPtr mat : getMaterials())
+                    for (ElementPtr mat : materials)
                     {
                         for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
                         {
@@ -738,7 +732,6 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     {
         for (ElementPtr elem : traverseTree())
         {
-            MaterialPtr material = elem->asA<Material>();
             LookPtr look = elem->asA<Look>();
             GeomInfoPtr geomInfo = elem->asA<GeomInfo>();
 
@@ -758,9 +751,9 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             vector<ElementPtr> origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
             {
-                if (material && child->getCategory() == "override")
+                if (elem->getCategory() == "material" && child->getCategory() == "override")
                 {
-                    for (ElementPtr shaderRef : material->getChildrenOfType<Element>("shaderref"))
+                    for (ElementPtr shaderRef : elem->getChildrenOfType<Element>("shaderref"))
                     {
                         NodeDefPtr nodeDef = getShaderNodeDef(shaderRef);
                         if (nodeDef)
@@ -788,7 +781,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     }
                     elem->removeChild(child->getName());
                 }
-                else if (material && child->getCategory() == "materialinherit")
+                else if (elem->getCategory() == "material" && child->getCategory() == "materialinherit")
                 {
                     elem->setInheritString(child->getAttribute("material"));
                     elem->removeChild(child->getName());

@@ -24,7 +24,6 @@ class ValueElement;
 class Token;
 class StringResolver;
 class Document;
-class Material;
 
 /// A shared pointer to an Element
 using ElementPtr = shared_ptr<Element>;
@@ -78,7 +77,6 @@ class Element : public std::enable_shared_from_this<Element>
   protected:
     using DocumentPtr = shared_ptr<Document>;
     using ConstDocumentPtr = shared_ptr<const Document>;
-    using ConstMaterialPtr = shared_ptr<const Material>;
 
     template <class T> friend class ElementRegistry;
 
@@ -669,8 +667,6 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Traverse the dataflow graph from the given element to each of its
     /// upstream sources in depth-first order, using pre-order visitation.
-    /// @param material An optional material element, whose data bindings will
-    ///    be applied to the traversal.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     /// @return A GraphIterator object.
     /// @details Example usage with an implicit iterator:
@@ -692,7 +688,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// @endcode
     /// @sa getUpstreamEdge
     /// @sa getUpstreamElement
-    GraphIterator traverseGraph(ConstMaterialPtr material = nullptr) const;
+    GraphIterator traverseGraph() const;
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
@@ -701,8 +697,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// @param index An optional index of the edge to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Edge, if valid, or an empty Edge object.
-    virtual Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
-                                 size_t index = 0) const;
+    virtual Edge getUpstreamEdge(size_t index = 0) const;
 
     /// Return the number of queriable upstream edges for this element.
     virtual size_t getUpstreamEdgeCount() const
@@ -712,13 +707,10 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the Element with the given index that lies directly upstream
     /// from this one in the dataflow graph.
-    /// @param material An optional material element, whose data bindings will
-    ///    be applied to the query.
     /// @param index An optional index of the element to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Element, if valid, or an empty ElementPtr.
-    ElementPtr getUpstreamElement(ConstMaterialPtr material = nullptr,
-                                  size_t index = 0) const;
+    ElementPtr getUpstreamElement(size_t index = 0) const;
 
     /// Traverse the inheritance chain from the given element to each element
     /// from which it inherits.

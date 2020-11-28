@@ -341,19 +341,19 @@ TreeIterator Element::traverseTree() const
     return TreeIterator(getSelfNonConst());
 }
 
-GraphIterator Element::traverseGraph(ConstMaterialPtr material) const
+GraphIterator Element::traverseGraph() const
 {
-    return GraphIterator(getSelfNonConst(), material);
+    return GraphIterator(getSelfNonConst());
 }
 
-Edge Element::getUpstreamEdge(ConstMaterialPtr, size_t) const
+Edge Element::getUpstreamEdge(size_t) const
 {
     return NULL_EDGE;
 }
 
-ElementPtr Element::getUpstreamElement(ConstMaterialPtr material, size_t index) const
+ElementPtr Element::getUpstreamElement(size_t index) const
 {
-    return getUpstreamEdge(material, index).getUpstreamElement();
+    return getUpstreamEdge(index).getUpstreamElement();
 }
 
 InheritanceIterator Element::traverseInheritance() const
@@ -705,7 +705,6 @@ INSTANTIATE_CONCRETE_SUBCLASS(Implementation, "implementation")
 INSTANTIATE_CONCRETE_SUBCLASS(Input, "input")
 INSTANTIATE_CONCRETE_SUBCLASS(Look, "look")
 INSTANTIATE_CONCRETE_SUBCLASS(LookGroup, "lookgroup")
-INSTANTIATE_CONCRETE_SUBCLASS(Material, "material")
 INSTANTIATE_CONCRETE_SUBCLASS(MaterialAssign, "materialassign")
 INSTANTIATE_CONCRETE_SUBCLASS(Member, "member")
 INSTANTIATE_CONCRETE_SUBCLASS(Node, "node")

@@ -63,7 +63,6 @@ void bindPyLook(py::module& mod)
         .def("getMaterial", &mx::MaterialAssign::getMaterial)
         .def("setExclusive", &mx::MaterialAssign::setExclusive)
         .def("getExclusive", &mx::MaterialAssign::getExclusive)
-        .def("getReferencedMaterial", &mx::MaterialAssign::getReferencedMaterial)
         .def("getReferencedMaterialNode", &mx::MaterialAssign::getReferencedMaterialNode)
         .def_readonly_static("CATEGORY", &mx::MaterialAssign::CATEGORY);
 
@@ -80,4 +79,6 @@ void bindPyLook(py::module& mod)
         .def("setVisible", &mx::Visibility::setVisible)
         .def("getVisible", &mx::Visibility::getVisible)
         .def_readonly_static("CATEGORY", &mx::Visibility::CATEGORY);
+
+    mod.def("getGeometryBindings", &mx::getGeometryBindings);
 }

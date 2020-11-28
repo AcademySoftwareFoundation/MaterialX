@@ -86,7 +86,7 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     return NodeDefPtr();
 }
 
-Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
+Edge Node::getUpstreamEdge(size_t index) const
 {
     if (index < getUpstreamEdgeCount())
     {
@@ -314,7 +314,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         size_t connectionCount = 0;
         for (size_t i = 0; i < child->getUpstreamEdgeCount(); ++i)
         {
-            if (child->getUpstreamEdge(nullptr, i))
+            if (child->getUpstreamEdge(i))
             {
                 connectionCount++;
             }

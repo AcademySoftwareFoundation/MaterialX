@@ -7,7 +7,6 @@
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXCore/Unit.h>
-#include <MaterialXCore/MaterialNode.h>
 
 #include <MaterialXFormat/Util.h>
 

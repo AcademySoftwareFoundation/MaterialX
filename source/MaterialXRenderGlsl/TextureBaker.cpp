@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
-#include <MaterialXCore/MaterialNode.h>
 
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -425,17 +424,14 @@ ListofBakedDocuments TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileS
     for (const string& renderablePath : renderablePaths)
     {
         ElementPtr elem = doc->getDescendant(renderablePath);
-        if (!elem)
+        if (!elem || !elem->isA<Node>())
         {
             continue;
         }
-        NodePtr materialPtr = elem->asA<Node>();
-        NodePtr shaderNode = nullptr;
-        if (materialPtr)
-        {
-            std::unordered_set<NodePtr> shaderNodes = getShaderNodes(materialPtr);
-            shaderNode = shaderNodes.empty() ? nullptr : *shaderNodes.begin();
-        }
+        NodePtr materialNode = elem->asA<Node>();
+
+        std::unordered_set<NodePtr> shaderNodes = getShaderNodes(materialNode);
+        NodePtr shaderNode = shaderNodes.empty() ? nullptr : *shaderNodes.begin();
         if (!shaderNode)
         {
             continue;
@@ -471,7 +467,7 @@ ListofBakedDocuments TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileS
             resolver->setUdimString(tag);
             imageHandler->setFilenameResolver(resolver);
             setImageHandler(imageHandler);
-            bakeShaderInputs(materialPtr, shaderNode, genContext, tag);
+            bakeShaderInputs(materialNode, shaderNode, genContext, tag);
 
             // Optimize baked textures.
             optimizeBakedTextures(shaderNode);

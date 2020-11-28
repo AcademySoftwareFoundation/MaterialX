@@ -23,7 +23,7 @@ bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
     {
         for (size_t i = 0; i < elem->getUpstreamEdgeCount(); i++)
         {
-            mx::ElementPtr upstreamElem = elem->getUpstreamElement(nullptr, i);
+            mx::ElementPtr upstreamElem = elem->getUpstreamElement(i);
             if (upstreamElem && !prevElems.count(upstreamElem))
             {
                 return false;

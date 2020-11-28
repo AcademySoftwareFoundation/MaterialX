@@ -15,7 +15,6 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 
-#include <MaterialXCore/MaterialNode.h>
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
