@@ -66,6 +66,8 @@ void bindPyInterface(py::module& mod)
         .def("removeOutput", &mx::InterfaceElement::removeOutput)
         .def("getActiveOutput", &mx::InterfaceElement::getActiveOutput)
         .def("getActiveOutputs", &mx::InterfaceElement::getActiveOutputs)
+        .def("setConnectedOutput", &mx::InterfaceElement::setConnectedOutput)
+        .def("getConnectedOutput", &mx::InterfaceElement::getConnectedOutput)
         .def("addToken", &mx::InterfaceElement::addToken,
             py::arg("name") = mx::DEFAULT_TYPE_STRING)
         .def("getToken", &mx::InterfaceElement::getToken)

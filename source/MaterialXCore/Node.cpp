@@ -65,30 +65,6 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
-void Node::setConnectedOutput(const string& inputName, OutputPtr output)
-{
-    InputPtr input = getInput(inputName);
-    if (!input)
-    {
-        input = addInput(inputName, DEFAULT_TYPE_STRING);
-    }
-    if (output)
-    {
-        input->setType(output->getType());
-    }
-    input->setConnectedOutput(output);
-}
-
-OutputPtr Node::getConnectedOutput(const string& inputName) const
-{
-    InputPtr input = getInput(inputName);
-    if (!input)
-    {
-        return OutputPtr();
-    }
-    return input->getConnectedOutput();    
-}
-
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
     if (hasNodeDefString())
@@ -556,21 +532,18 @@ void NodeGraph::addInterface(const string& childPath, const string& interfaceNam
     ElementPtr elem = getDescendant(childPath);
     ValueElementPtr valueElem = elem->asA<ValueElement>();
     InputPtr input = valueElem ? valueElem->asA<Input>() : nullptr;
-    if (!input || (input && input->getConnectedNode()))
+    if (!input || input->getConnectedNode())
     {
         throw Exception("Invalid nodegraph child to create interface for:  " + childPath);
     }
 
     valueElem->setInterfaceName(interfaceName);
 
+    InputPtr nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
     ValuePtr value = valueElem->getValue();
-    if (input)
+    if (value)
     {
-        InputPtr nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
-        if (value)
-        {
-            nodeDefInput->setValueString(value->getValueString());
-        }
+        nodeDefInput->setValueString(value->getValueString());
     }
 }
 
