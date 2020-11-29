@@ -30,4 +30,26 @@ TEST_CASE("Material", "[material]")
     anisoSrf->setInheritsFrom(simpleSrf);
     anisoSrf->setInputValue("anisotropy", 0.0f);
     REQUIRE(anisoSrf->getInheritsFrom() == simpleSrf);
+
+    // Instantiate shader and material nodes.
+    mx::NodePtr shaderNode = doc->addNode(anisoSrf->getNodeString(), "", anisoSrf->getType());
+    mx::NodePtr materialNode = doc->addMaterialNode("", shaderNode);
+    REQUIRE(materialNode->getUpstreamElement() == shaderNode);
+    REQUIRE(shaderNode->getNodeDef() == anisoSrf);
+
+    // Set nodedef and shader node qualifiers.
+    shaderNode->setVersionString("2.0");
+    REQUIRE(shaderNode->getNodeDef() == nullptr);
+    anisoSrf->setVersionString("2");
+    REQUIRE(shaderNode->getNodeDef() == anisoSrf);
+    shaderNode->setType("volumeshader");
+    REQUIRE(shaderNode->getNodeDef() == nullptr);
+    shaderNode->setType("surfaceshader");
+    REQUIRE(shaderNode->getNodeDef() == anisoSrf);
+
+    // Bind a shader input to a value.
+    mx::InputPtr instanceSpecColor = shaderNode->setInputValue("specColor", mx::Color3(1.0f));
+    REQUIRE(instanceSpecColor->getValue()->asA<mx::Color3>() == mx::Color3(1.0f));
+    REQUIRE(instanceSpecColor->getDefaultValue()->asA<mx::Color3>() == mx::Color3(0.0f));
+    REQUIRE(doc->validate());
 }

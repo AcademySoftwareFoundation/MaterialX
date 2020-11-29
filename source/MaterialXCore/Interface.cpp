@@ -407,6 +407,30 @@ vector<OutputPtr> InterfaceElement::getActiveOutputs() const
     return activeOutputs;
 }
 
+void InterfaceElement::setConnectedOutput(const string& inputName, OutputPtr output)
+{
+    InputPtr input = getInput(inputName);
+    if (!input)
+    {
+        input = addInput(inputName, DEFAULT_TYPE_STRING);
+    }
+    if (output)
+    {
+        input->setType(output->getType());
+    }
+    input->setConnectedOutput(output);
+}
+
+OutputPtr InterfaceElement::getConnectedOutput(const string& inputName) const
+{
+    InputPtr input = getInput(inputName);
+    if (!input)
+    {
+        return OutputPtr();
+    }
+    return input->getConnectedOutput();    
+}
+
 TokenPtr InterfaceElement::getActiveToken(const string& name) const
 {
     for (ConstElementPtr elem : traverseInheritance())

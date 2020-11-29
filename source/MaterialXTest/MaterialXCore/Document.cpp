@@ -54,7 +54,7 @@ TEST_CASE("Document", "[document]")
     roughness->setIsUniform(true);
     REQUIRE(roughness->getIsUniform());
 
-    // Instantiate the interface as shader and material nodes.
+    // Instantiate shader and material nodes.
     mx::NodePtr shaderNode = doc->addNodeInstance(simpleSrf);
     mx::NodePtr materialNode = doc->addMaterialNode("", shaderNode);
     REQUIRE(materialNode->getUpstreamElement() == shaderNode);

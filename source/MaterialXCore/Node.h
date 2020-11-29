@@ -79,15 +79,6 @@ class Node : public InterfaceElement
     /// input is not present, then an empty string is returned.
     string getConnectedNodeName(const string& inputName) const;
 
-    /// Set the output to which the given input is connected, creating a
-    /// child input if needed.  If the node argument is null, then any
-    /// existing output connection on the input will be cleared.
-    void setConnectedOutput(const string& inputName, OutputPtr output);
-
-    /// Return the output connected to the given input.  If the given input is
-    /// not present, then an empty OutputPtr is returned.
-    OutputPtr getConnectedOutput(const string& inputName) const;
-
     /// @}
     /// @name NodeDef References
     /// @{
