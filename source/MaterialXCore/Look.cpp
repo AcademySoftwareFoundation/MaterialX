@@ -28,7 +28,7 @@ vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const
     {
         for (MaterialAssignPtr matAssign : look->getMaterialAssigns())
         {
-            if (matAssign->getReferencedMaterialNode() == materialNode)
+            if (matAssign->getReferencedMaterial() == materialNode)
             {
                 if (geomStringsMatch(geom, matAssign->getActiveGeom()))
                 {
@@ -120,7 +120,7 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
 // MaterialAssign methods
 //
 
-NodePtr MaterialAssign::getReferencedMaterialNode() const
+NodePtr MaterialAssign::getReferencedMaterial() const
 {
     return resolveRootNameReference<Node>(getMaterial());
 }
