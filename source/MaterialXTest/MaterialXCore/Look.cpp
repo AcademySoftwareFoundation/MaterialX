@@ -13,14 +13,27 @@ TEST_CASE("Look", "[look]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Create a look.
+    // Create a material and look.
+    mx::NodePtr shaderNode = doc->addNode("standard_surface", "", "surfaceshader");
+    mx::NodePtr materialNode = doc->addMaterialNode("", shaderNode);
     mx::LookPtr look = doc->addLook();
-    REQUIRE(doc->getLooks().size() == 1);
 
-    // Create a geometric collection.
+    // Bind the material to a geometry string.
+    mx::MaterialAssignPtr matAssign1 = look->addMaterialAssign("matAssign1", materialNode->getName());
+    matAssign1->setGeom("/robot1");
+    REQUIRE(matAssign1->getReferencedMaterial() == materialNode);
+    REQUIRE(getGeometryBindings(materialNode, "/robot1").size() == 1);
+    REQUIRE(getGeometryBindings(materialNode, "/robot2").size() == 0);
+
+    // Bind the material to a geometric collection.
+    mx::MaterialAssignPtr matAssign2 = look->addMaterialAssign("matAssign2", materialNode->getName());
     mx::CollectionPtr collection = doc->addCollection();
     collection->setIncludeGeom("/robot2");
     collection->setExcludeGeom("/robot2/left_arm");
+    matAssign2->setCollection(collection);
+    REQUIRE(getGeometryBindings(materialNode, "/robot2").size() == 1);
+    REQUIRE(getGeometryBindings(materialNode, "/robot2/right_arm").size() == 1);
+    REQUIRE(getGeometryBindings(materialNode, "/robot2/left_arm").size() == 0);
 
     // Create a property assignment.
     mx::PropertyAssignPtr propertyAssign = look->addPropertyAssign();

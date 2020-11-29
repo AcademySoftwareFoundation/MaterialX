@@ -63,7 +63,7 @@ class Look : public Element
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
     /// @param material An optional material string, which should match the
-    ///     name of the Material element to be assigned.
+    ///     name of the material node to be assigned.
     /// @return A shared pointer to the new MaterialAssign.
     MaterialAssignPtr addMaterialAssign(const string& name = EMPTY_STRING,
                                         const string& material = EMPTY_STRING);
@@ -333,8 +333,8 @@ class MaterialAssign : public GeomElement
     /// @name Material References
     /// @{
 
-    /// Return the Material node, if any, referenced by the MaterialAssign.
-    NodePtr getReferencedMaterialNode() const;
+    /// Return the material node, if any, referenced by the MaterialAssign.
+    NodePtr getReferencedMaterial() const;
 
     /// @}
     /// @name VariantAssign Elements

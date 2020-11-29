@@ -62,7 +62,6 @@ TEST_CASE("Document", "[document]")
     // Bind the diffuse color input to the constant color output.
     shaderNode->setConnectedOutput("diffColor", output);
     REQUIRE(shaderNode->getUpstreamElement() == constant);
-    REQUIRE(doc->validate());
 
     // Bind the roughness input to a value.
     mx::InputPtr instanceRoughness = shaderNode->setInputValue("roughness", 0.5f);
