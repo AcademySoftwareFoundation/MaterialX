@@ -20,6 +20,8 @@ public:
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
+
+    bool isEditable(const ShaderInput& /*input*/) const override { return false; }
 };
 
 } // namespace MaterialX

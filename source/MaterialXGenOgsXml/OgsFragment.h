@@ -48,6 +48,12 @@ class OgsFragment
         return _element ? _element->getDocument() : mx::DocumentPtr();
     }
 
+    /// Get the GLSL shader generated for this fragment
+    mx::ShaderPtr getShader() const
+    {
+        return _glslShader;
+    }
+
     /// Return the source of the OGS fragment as a string.
     const std::string& getFragmentSource() const;
 
