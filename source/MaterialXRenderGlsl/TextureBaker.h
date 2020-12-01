@@ -142,6 +142,11 @@ class TextureBaker : public GlslRenderer
         return _outputImagePath;
     }
 
+    string getBakingReport() const
+    {
+         return (_bakingReport.str());
+    }
+
     /// Bake textures for all graph inputs of the given shader.
     void bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const string& udim = EMPTY_STRING);
 
@@ -195,6 +200,7 @@ class TextureBaker : public GlslRenderer
     bool _averageImages;
     bool _optimizeConstants;
     FilePath _outputImagePath;
+    std::stringstream _bakingReport;
 
     ShaderGeneratorPtr _generator;
     ConstNodePtr _material;

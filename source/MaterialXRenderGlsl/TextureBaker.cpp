@@ -117,13 +117,6 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
         OutputPtr output = input->getConnectedOutput();
         if (output && !bakedOutputs.count(output))
         {
-            ElementPtr outputNode = output->getParent();
-            if (outputNode && outputNode->isA<NodeGraph>())
-            {
-                NodeGraphPtr outputGraph = outputNode->asA<NodeGraph>();
-                outputGraph->flattenSubgraphs();
-            }
-
             bakedOutputs.insert(output);
             NodePtr normalMapNode = connectsToNodeOfCategory(output, categories);
             if (normalMapNode)
@@ -386,16 +379,18 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
         {
             continue;
         }
+
+        _bakingReport.clear();
         for (const BakedImage& baked : pair.second)
         {
             if (!_imageHandler->saveImage(baked.filename, baked.image, true))
             {
                 bakingSuccessful = false;
-                std::cerr << "Failed to write baked image: " << baked.filename.asString() << std::endl;
+                _bakingReport << "Failed to write baked image: " << baked.filename.asString() << std::endl;
             }
             else
             {
-                std::cout << "Write baked image:" << baked.filename.asString() << std::endl;
+                _bakingReport << "Write baked image:" << baked.filename.asString() << std::endl;
             }
         }
     }

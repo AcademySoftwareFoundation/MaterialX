@@ -223,7 +223,7 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
     for (mx::FilePath& mtlxFile : testPath.getFilesInDirectory("mtlx"))
     {
         mx::DocumentPtr doc = mx::createDocument();
-        mx::StringSet libFiles = loadLibraries({ "stdlib", "pbrlin", "bxdf", "translation" }, searchPath, doc);
+        mx::StringSet libFiles = loadLibraries({ "stdlib", "pbrlib", "bxdf", "translation" }, searchPath, doc);
 
         mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
         mtlxFile.removeExtension();
@@ -240,7 +240,7 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
         mx::writeToXmlFile(doc, mtlxFile.asString() + "_translated.mtlx");
         std::string validationErrors;
         bool valid = doc->validate(&validationErrors);
-        std::cout << "SHader translation of : " << (testPath / mtlxFile).asString() << (valid ?  ": passed"  : ": falied") << std::endl;
+        std::cout << "SHader translation of : " << (testPath / mtlxFile).asString() << (valid ?  ": passed"  : ": failed") << std::endl;
         if (!valid)
         {
             std::cout << "Validation errors: " << validationErrors << std::endl;
