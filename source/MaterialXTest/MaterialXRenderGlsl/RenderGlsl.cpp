@@ -65,6 +65,11 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip) const override;
 
+    void addSkipNodeDefs() override
+    {
+        _skipNodeDefs.insert("ND_geompropvalue_boolean");
+        _skipNodeDefs.insert("ND_geompropvalue_string");
+    }
 
     bool canBake() const override
     {
