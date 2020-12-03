@@ -20,7 +20,7 @@ jobs:
           compiler: gcc
           compiler_version: "5"
           python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_GCC_6_Python37
           os: ubuntu-latest
@@ -123,6 +123,10 @@ jobs:
       run: cmake --build . --target install --config ${{env.config}}
       working-directory: build
 
+    - name: Update Library Path
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+      run: echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/installed/lib" >> $GITHUB_ENV
+
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2
       with:
@@ -154,6 +158,6 @@ jobs:
 
     - name: Python Tests
       run: |
-        cmake -E chdir ../python/MaterialXTest python main.py
-        cmake -E chdir ../python/MaterialXTest python genshader.py
-      working-directory: build
+        python main.py
+        python genshader.py
+      working-directory: python/MaterialXTest
