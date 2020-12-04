@@ -20,7 +20,7 @@ void GeomPropValueNodeGlsl::createVariables(const ShaderNode& node, GenContext&,
     const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
     if (!geomPropInput || !geomPropInput->getValue())
     {
-        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "', don't know what property to bind");
+        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
     }
     const string geomProp = geomPropInput->getValue()->getValueString();
     const ShaderOutput* output = node.getOutput();
@@ -39,7 +39,7 @@ void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext&
     const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
     if (!geomPropInput)
     {
-        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "', don't know what property to bind");
+        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
     }
     const string geomname = geomPropInput->getValue()->getValueString();
     const string variable = HW::T_GEOMPROP + "_" + geomname;
@@ -76,7 +76,7 @@ void GeomPropValueNodeGlsl_asUniform::createVariables(const ShaderNode& node, Ge
     const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
     if (!geomPropInput || !geomPropInput->getValue())
     {
-        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "', don't know what property to bind");
+        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
     }
     const string geomProp = geomPropInput->getValue()->getValueString();
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
@@ -91,7 +91,7 @@ void GeomPropValueNodeGlsl_asUniform::emitFunctionCall(const ShaderNode& node, G
         const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
         if (!geomPropInput)
         {
-            throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "', don't know what property to bind");
+            throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
         }
         const string attrName = geomPropInput->getValue()->getValueString();
         shadergen.emitLineBegin(stage);
