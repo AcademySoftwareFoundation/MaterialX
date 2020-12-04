@@ -28,6 +28,8 @@
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
+#include <cmath>
+
 namespace mx = MaterialX;
 
 //
@@ -298,10 +300,10 @@ void addAdditionalTestStreams(mx::MeshPtr mesh)
         mesh->addStream(geomColor4Stream);
     }
 
-    const float PI = std::acosf(-1.0f);
-    auto sineData = [&](auto uv, auto freq){
+    auto sineData = [](float uv, float freq){
+        const float PI = std::acos(-1.0f);
         float angle = uv * 2 * PI * freq;
-        return std::sinf(angle) / 2.0f + 1.0f;
+        return std::sin(angle) / 2.0f + 1.0f;
     };
     if (!uv.empty())
     {
