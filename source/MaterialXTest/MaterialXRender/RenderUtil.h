@@ -179,8 +179,6 @@ class ShaderRenderTester
         _skipFiles.insert("light_compound_test.mtlx");
     }
 
-    virtual void addSkipNodeDefs() {};
-
     // Load dependencies
     void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath,
                              mx::DocumentPtr& dependLib);
@@ -245,9 +243,6 @@ class ShaderRenderTester
 
     // Files to skip
     mx::StringSet _skipFiles;
-
-    // Nodedefs to skip
-    mx::StringSet _skipNodeDefs;
 };
 
 } // namespace RenderUtil

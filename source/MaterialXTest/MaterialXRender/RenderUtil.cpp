@@ -161,9 +161,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Add files to skip
     addSkipFiles();
 
-    // Add nodedefs to skip
-    addSkipNodeDefs();
-
     // Library search path
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
@@ -330,28 +327,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 mx::OutputPtr output = element->asA<mx::Output>();
                 mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
                 mx::NodePtr outputNode = element->asA<mx::Node>();
-
-                if (output) {
-                    // Checks for unimplementable nodes:
-                    bool containsNodedefToSkip = false;
-                    for (mx::Edge edge : output->traverseGraph())
-                    {
-                        mx::NodePtr upstreamNode = edge.getUpstreamElement()->asA<mx::Node>();
-                        mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
-                        const std::string upstreamNodeDefName = upstreamNodeDef->getName();
-                        if (_skipNodeDefs.count(upstreamNodeDefName))
-                        {
-                            docValidLog << ">> Contains unimplementable nodedef: " << upstreamNodeDefName << std::endl;
-                            containsNodedefToSkip = true;
-                            break;
-                        }
-                    }
-
-                    if (containsNodedefToSkip) {
-                        docValidLog << ">> Skipping: " << output->getName() << std::endl;
-                        continue;
-                    }
-                }
 
                 if (output)
                 {

@@ -24,9 +24,6 @@ void GeomPropValueNodeGlsl::createVariables(const ShaderNode& node, GenContext&,
     }
     const string geomProp = geomPropInput->getValue()->getValueString();
     const ShaderOutput* output = node.getOutput();
-    if (output->getType() == Type::BOOLEAN || output->getType() == Type::STRING) {
-        throw ExceptionShaderGenError("GLSL: unsupported type for geompropvalue node '" + node.getName() + "', can not generate code.");
-    }
 
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
@@ -65,6 +62,41 @@ void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext&
             shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + prefix + geomprop->getVariable(), stage);
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(shader, Stage::PIXEL)
+}
+
+ShaderNodeImplPtr GeomPropValueNodeGlsl_asUniform::create()
+{
+    return std::make_shared<GeomPropValueNodeGlsl_asUniform>();
+}
+
+void GeomPropValueNodeGlsl_asUniform::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+{
+    const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
+    if (!geomPropInput || !geomPropInput->getValue())
+    {
+        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "', don't know what property to bind");
+    }
+    const string geomProp = geomPropInput->getValue()->getValueString();
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
+    ShaderPort* uniform = addStageUniform(HW::PRIVATE_UNIFORMS, node.getOutput()->getType(), HW::T_GEOMPROP + "_" + geomProp, ps);
+    uniform->setPath(geomPropInput->getPath());
+}
+
+void GeomPropValueNodeGlsl_asUniform::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+{
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
+        if (!geomPropInput)
+        {
+            throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "', don't know what property to bind");
+        }
+        const string attrName = geomPropInput->getValue()->getValueString();
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitString(" = " + HW::T_GEOMPROP + "_" + attrName, stage);
         shadergen.emitLineEnd(stage);
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }

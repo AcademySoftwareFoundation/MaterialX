@@ -219,8 +219,9 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_geomcolor_color3_" + GlslShaderGenerator::LANGUAGE, GeomColorNodeGlsl::create);
     registerImplementation("IM_geomcolor_color4_" + GlslShaderGenerator::LANGUAGE, GeomColorNodeGlsl::create);
     // <!-- <geompropvalue> -->
-    // String and boolean are invalid as varying parameters.
     registerImplementation("IM_geompropvalue_integer_" + GlslShaderGenerator::LANGUAGE, GeomPropValueNodeGlsl::create);
+    registerImplementation("IM_geompropvalue_boolean_" + GlslShaderGenerator::LANGUAGE, GeomPropValueNodeGlsl_asUniform::create);
+    registerImplementation("IM_geompropvalue_string_" + GlslShaderGenerator::LANGUAGE, GeomPropValueNodeGlsl_asUniform::create);
     registerImplementation("IM_geompropvalue_float_" + GlslShaderGenerator::LANGUAGE, GeomPropValueNodeGlsl::create);
     registerImplementation("IM_geompropvalue_color2_" + GlslShaderGenerator::LANGUAGE, GeomPropValueNodeGlsl::create);
     registerImplementation("IM_geompropvalue_color3_" + GlslShaderGenerator::LANGUAGE, GeomPropValueNodeGlsl::create);

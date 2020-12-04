@@ -8,7 +8,6 @@
 
 #include <MaterialXCore/MaterialNode.h>
 //#include <MaterialXCore/Util.h>
-#include <MaterialXCore/Traversal.h>
 #include <MaterialXCore/Unit.h>
 
 #include <MaterialXFormat/File.h>
@@ -762,7 +761,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
             mx::NodePtr outputNode = targetElement->asA<mx::Node>();
             mx::NodeDefPtr nodeDef = nullptr;
-            bool containsNodedefToSkip = false;
             if (output)
             {
                 outputNode = output->getConnectedNode();
@@ -770,21 +768,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                 if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
                 {
                     nodeDef = outputNode->getNodeDef();
-
-                    // We sometimes have complex graph where the node we want to skip is upstream:
-
-                    for (mx::Edge edge : output->traverseGraph())
-                    {
-                        mx::NodePtr upstreamNode = edge.getUpstreamElement()->asA<mx::Node>();
-                        mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
-                        const std::string upstreamNodeDefName = upstreamNodeDef->getName();
-                        if (_skipNodeDefs.count(upstreamNodeDefName))
-                        {
-                            _logFile << ">> Contains skipped nodedef: " << upstreamNodeDefName << std::endl;
-                            containsNodedefToSkip = true;
-                            break;
-                        }
-                    }
                 }
             }
             else if (shaderRef)
@@ -808,7 +791,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             {
                 // Allow to skip nodedefs to test if specified
                 const std::string nodeDefName = nodeDef->getName();
-                if (containsNodedefToSkip || _skipNodeDefs.count(nodeDefName))
+                if (_skipNodeDefs.count(nodeDefName))
                 {
                     _logFile << ">> Skipped testing nodedef: " << nodeDefName << std::endl;
                     continue;
