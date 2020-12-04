@@ -87,7 +87,7 @@ namespace
     {
         { "texcoord_", "mayaUvCoordSemantic" },
         { "color_", "colorset" },
-        { "u_geomprop_", "mayaUvCoordSemantic" }
+        { "i_geomprop_", "mayaUvCoordSemantic" }
     };
 
     namespace OgsParameterFlags

@@ -29,7 +29,7 @@ void GeomPropValueNodeGlsl::createVariables(const ShaderNode& node, GenContext&,
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
     addStageInput(HW::VERTEX_INPUTS, output->getType(), HW::T_IN_GEOMPROP + "_" + geomProp, vs);
-    addStageConnector(HW::VERTEX_DATA, output->getType(), HW::T_GEOMPROP + "_" + geomProp, vs, ps);
+    addStageConnector(HW::VERTEX_DATA, output->getType(), HW::T_IN_GEOMPROP + "_" + geomProp, vs, ps);
 }
 
 void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
@@ -42,7 +42,7 @@ void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext&
         throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
     }
     const string geomname = geomPropInput->getValue()->getValueString();
-    const string variable = HW::T_GEOMPROP + "_" + geomname;
+    const string variable = HW::T_IN_GEOMPROP + "_" + geomname;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);

@@ -755,7 +755,7 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         // Varying parameters of type int must be flat qualified on output from vertex stage and
         // input to pixel stage. The only way to get these is with geompropvalue_integer nodes.
-        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_GEOMPROP, 0) == 0) {
+        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0) {
             str += GlslSyntax::FLAT_QUALIFIER + " ";
         }
         str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
