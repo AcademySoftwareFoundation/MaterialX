@@ -142,6 +142,13 @@ class TextureBaker : public GlslRenderer
         return _outputImagePath;
     }
 
+
+    /// Set the "libraries" search path location. Otherwise will use getDefaultSearchPath()
+    void setCodeSearchPath(const FileSearchPath& codesearchPath)
+    {
+        _codeSearchPath = codesearchPath;
+    }
+
     string getBakingReport() const
     {
          return (_bakingReport.str());
@@ -200,6 +207,7 @@ class TextureBaker : public GlslRenderer
     bool _averageImages;
     bool _optimizeConstants;
     FilePath _outputImagePath;
+    FileSearchPath _codeSearchPath;
     std::stringstream _bakingReport;
 
     ShaderGeneratorPtr _generator;

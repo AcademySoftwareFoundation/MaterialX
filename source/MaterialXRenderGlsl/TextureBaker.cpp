@@ -420,7 +420,10 @@ ListofBakedDocuments TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileS
 
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(doc);
-    genContext.registerSourceCodeSearchPath(getDefaultSearchPath());
+    if (_codeSearchPath.isEmpty())
+        genContext.registerSourceCodeSearchPath(getDefaultSearchPath());
+    else
+        genContext.registerSourceCodeSearchPath(_codeSearchPath);
     genContext.getShaderGenerator().setColorManagementSystem(cms);
     StringResolverPtr resolver = StringResolver::create();
     ImageHandlerPtr imageHandler = GLTextureHandler::create(StbImageLoader::create());
