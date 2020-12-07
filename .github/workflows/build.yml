@@ -16,33 +16,34 @@ jobs:
       matrix:
         include:
         - name: Linux_GCC_5_Python27
-          os: ubuntu-latest
+          os: ubuntu-18.04
           compiler: gcc
           compiler_version: "5"
           python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_GCC_6_Python37
-          os: ubuntu-latest
+          os: ubuntu-18.04
           compiler: gcc
           compiler_version: "6"
           python: 3.7
 
         - name: Linux_GCC_10_Python37
-          os: ubuntu-latest
+          os: ubuntu-18.04
           compiler: gcc
           compiler_version: "10"
           python: 3.7
+          test_render: ON
 
         - name: MacOS_Xcode_10_Python27
-          os: macos-latest
+          os: macos-10.15
           compiler: xcode
           compiler_version: "10.3"
           python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2
 
         - name: MacOS_Xcode_11_Python37
-          os: macos-latest
+          os: macos-10.15
           compiler: xcode
           compiler_version: "11.7"
           python: 3.7
@@ -90,6 +91,12 @@ jobs:
           echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         fi
+        if [ "${{ matrix.test_render }}" = "ON" ]; then
+          sudo apt-get install xvfb
+          echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
+          echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
+          echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+        fi
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
@@ -127,37 +134,50 @@ jobs:
       if: runner.os == 'Linux' || runner.os == 'macOS'
       run: echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/installed/lib" >> $GITHUB_ENV
 
-    - name: Upload Installed Package
-      uses: actions/upload-artifact@v2
-      with:
-        name: MaterialX_${{matrix.name}}
-        path: build/installed/
-
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config ${{env.config}}
       working-directory: build
-
-    - name: Generate Test HTML
-      if: ${{matrix.generate_html == 'ON'}}
-      run: cmake -E chdir ../python/MaterialXTest python tests_to_html.py
-      working-directory: build
-
-    - name: Upload Test HTML
-      uses: actions/upload-artifact@v2
-      if: ${{matrix.generate_html == 'ON'}}
-      with:
-        name: MaterialX_${{matrix.name}}_test_html
-        path: build/source/MaterialXTest/tests.html
-
-    - name: Upload Test Images
-      uses: actions/upload-artifact@v2
-      if: ${{matrix.generate_html == 'ON'}}
-      with:
-        name: MaterialX_${{matrix.name}}_test_images
-        path: build/source/MaterialXTest/**/*.png
 
     - name: Python Tests
       run: |
         python main.py
         python genshader.py
       working-directory: python/MaterialXTest
+
+    - name: Material Baking Tests
+      if: matrix.test_render == 'ON'
+      run: |
+        mkdir build/baked
+        xvfb-run python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/baked/brass_tiled_baked.mtlx --path .
+
+    - name: Generate Test HTML
+      if: matrix.generate_html == 'ON'
+      run: cmake -E chdir ../python/MaterialXTest python tests_to_html.py
+      working-directory: build
+
+    - name: Upload Installed Package
+      uses: actions/upload-artifact@v2
+      with:
+        name: MaterialX_${{matrix.name}}
+        path: build/installed/
+
+    - name: Upload Baked Materials
+      uses: actions/upload-artifact@v2
+      if: matrix.test_render == 'ON'
+      with:
+        name: BakedMaterials
+        path: build/baked/
+
+    - name: Upload Test HTML
+      uses: actions/upload-artifact@v2
+      if: matrix.generate_html == 'ON'
+      with:
+        name: MaterialX_${{matrix.name}}_test_html
+        path: build/source/MaterialXTest/tests.html
+
+    - name: Upload Test Images
+      uses: actions/upload-artifact@v2
+      if: matrix.generate_html == 'ON'
+      with:
+        name: MaterialX_${{matrix.name}}_test_images
+        path: build/source/MaterialXTest/**/*.png
