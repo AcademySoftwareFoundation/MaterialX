@@ -368,7 +368,11 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
 
         glEnableVertexAttribArray(location);
         _enabledStreamLocations.insert(location);
-        glVertexAttribPointer(location, stride, GL_FLOAT, GL_FALSE, 0, nullptr);
+        if (input.second->gltype != GL_INT) {
+            glVertexAttribPointer(location, stride, GL_FLOAT, GL_FALSE, 0, nullptr);
+        } else {
+            glVertexAttribIPointer(location, stride, GL_INT, 0, nullptr);
+        }
     }
 }
 
@@ -463,7 +467,14 @@ void GlslProgram::bindStreams(MeshPtr mesh)
         bindAttribute(foundList, mesh);
     }
 
-    // Bind any named geometric property information
+    // Bind any named varying geometric property information
+    findInputs(HW::IN_GEOMPROP + "_", attributeList, foundList, false);
+    if (foundList.size())
+    {
+        bindAttribute(foundList, mesh);
+    }
+
+    // Bind any named uniform geometric property information
     const GlslProgram::InputMap& uniformList = getUniformsList();
     findInputs(HW::GEOMPROP + "_", uniformList, foundList, false);
     for (const auto& input : foundList)
