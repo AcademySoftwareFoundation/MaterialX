@@ -3,11 +3,11 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_GLUTILITYCONTEXT_H
-#define MATERIALX_GLUTILITYCONTEXT_H
+#ifndef MATERIALX_GLCONTEXT_H
+#define MATERIALX_GLCONTEXT_H
 
 /// @file
-/// OpenGL utility context
+/// OpenGL context class
 
 #include <MaterialXRenderHw/WindowWrapper.h>
 #include <memory>
@@ -33,23 +33,23 @@ using HardwareContextHandle = void*;
 using HardwareContextHandle = void*;
 #endif
 
-/// GLUtilityContext shared pointer
-using GLUtilityContextPtr = std::shared_ptr<class GLUtilityContext>;
+/// GLContext shared pointer
+using GLContextPtr = std::shared_ptr<class GLContext>;
 
-/// @class GLUtilityContext
+/// @class GLContext
 /// Base OpenGL context singleton.
 /// Used as a utility context to perform OpenGL operations from,
 /// and context for resource sharing between contexts.
 ///
-class GLUtilityContext
+class GLContext
 {
   public:
 
     /// Create a utility context
-    static GLUtilityContextPtr create(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
+    static GLContextPtr create(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
 
     /// Default destructor
-    virtual ~GLUtilityContext();
+    virtual ~GLContext();
 
     /// Return OpenGL context handle
     HardwareContextHandle contextHandle() const
@@ -78,7 +78,7 @@ class GLUtilityContext
 
   protected:
     /// Create the base context. A OpenGL context to share with can be passed in.
-    GLUtilityContext(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
+    GLContext(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
 
 #if defined(_WIN32)
     /// Offscreen window required for context operations
