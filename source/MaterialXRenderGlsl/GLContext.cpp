@@ -18,7 +18,7 @@
 #endif
 
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
-#include <MaterialXRenderGlsl/GLUtilityContext.h>
+#include <MaterialXRenderGlsl/GLContext.h>
 
 namespace MaterialX
 {
@@ -26,7 +26,7 @@ namespace MaterialX
 //
 // Windows implementation
 //
-GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle sharedWithContext) :
+GLContext::GLContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle sharedWithContext) :
     _contextHandle(nullptr),
     _isValid(false)
 {
@@ -74,7 +74,7 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, Hardw
     }
 }
 
-void GLUtilityContext::shareLists(HardwareContextHandle context)
+void GLContext::shareLists(HardwareContextHandle context)
 {
     if (_isValid)
     {
@@ -86,7 +86,7 @@ void GLUtilityContext::shareLists(HardwareContextHandle context)
 //
 // Linux context implementation
 //
-GLUtilityContext::GLUtilityContext(const WindowWrapper& windowWrapper,
+GLContext::GLContext(const WindowWrapper& windowWrapper,
     HardwareContextHandle sharedWithContext)
 {
     _isValid = false;
@@ -230,7 +230,7 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& windowWrapper,
 //
 #elif defined(__APPLE__)
 
-GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle sharedWithContext)
+GLContext::GLContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle sharedWithContext)
 {
     _isValid = false;
 
@@ -253,7 +253,7 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, Hardw
 #endif
 
 // Destroy the startup context.
-GLUtilityContext::~GLUtilityContext()
+GLContext::~GLContext()
 {
     // Only do this portion if the context is valid
     if (_isValid)
@@ -287,7 +287,7 @@ GLUtilityContext::~GLUtilityContext()
     }
 }
 
-int GLUtilityContext::makeCurrent()
+int GLContext::makeCurrent()
 {
     if (!_isValid)
     {
@@ -314,9 +314,9 @@ int GLUtilityContext::makeCurrent()
 //
 // Creator
 //
-GLUtilityContextPtr GLUtilityContext::create(const WindowWrapper& windowWrapper, HardwareContextHandle context)
+GLContextPtr GLContext::create(const WindowWrapper& windowWrapper, HardwareContextHandle context)
 {
-    return std::shared_ptr<GLUtilityContext>(new GLUtilityContext(windowWrapper, context));
+    return std::shared_ptr<GLContext>(new GLContext(windowWrapper, context));
 }
 
 }

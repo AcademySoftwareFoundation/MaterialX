@@ -17,7 +17,7 @@
 namespace MaterialX
 {
 
-using GLUtilityContextPtr = std::shared_ptr<class GLUtilityContext>;
+using GLContextPtr = std::shared_ptr<class GLContext>;
 using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
 
 /// Shared pointer to a GlslRenderer
@@ -114,9 +114,6 @@ class GlslRenderer : public ShaderRenderer
     virtual void updateWorldInformation();
 
   private:
-    void checkErrors();
-
-  private:
     GlslProgramPtr _program;
 
     GLFrameBufferPtr _frameBuffer;
@@ -129,7 +126,7 @@ class GlslRenderer : public ShaderRenderer
     float _objectScale;
 
     SimpleWindowPtr _window;
-    GLUtilityContextPtr _context;
+    GLContextPtr _context;
 };
 
 } // namespace MaterialX
