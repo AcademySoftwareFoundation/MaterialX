@@ -3,8 +3,6 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifdef MATERIALX_BUILD_RUNTIME
-
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
@@ -2525,5 +2523,3 @@ TEST_CASE("Runtime: duplicate name", "[runtime]")
     REQUIRE(graph1.getOutputSocket(add5));
     REQUIRE(duplicateCount(add5) == 1);
 }
-
-#endif // MATERIALX_BUILD_RUNTIME

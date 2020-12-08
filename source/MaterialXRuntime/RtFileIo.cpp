@@ -37,7 +37,7 @@ namespace
     static const RtTokenSet inputMetadata       = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels"), 
                                                     RtToken("nodegraph"), RtToken("interfacename") };
     static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node") };
-    static const RtTokenSet nodegraphMetadata   = { RtToken("name") };
+    static const RtTokenSet nodegraphMetadata   = { RtToken("name"), RtToken("nodedef") };
     static const RtTokenSet lookMetadata        = { RtToken("name"), RtToken("inherit") };
     static const RtTokenSet lookGroupMetadata   = { RtToken("name"), RtToken("looks"), RtToken("default") };
     static const RtTokenSet mtrlAssignMetadata  = { RtToken("name"), RtToken("geom"), RtToken("collection"), RtToken("material"), RtToken("exclusive") };
@@ -375,6 +375,7 @@ namespace
         if (srcNodeDef)
         {
             createInterface(srcNodeDef, schema);
+            schema.setDefinition(RtToken(srcNodeDef->getName()));
         }
         else
         {
@@ -907,6 +908,12 @@ namespace
         writeMetadata(src, destNodeGraph, nodegraphMetadata, options);
 
         RtNodeGraph nodegraph(src->hnd());
+
+        const RtToken& nodedef = nodegraph.getDefinition();
+        if (nodedef != EMPTY_TOKEN)
+        {
+            destNodeGraph->setNodeDefString(nodedef.str());
+        }
 
         if (!options || options->writeNodeGraphInputs)
         {
