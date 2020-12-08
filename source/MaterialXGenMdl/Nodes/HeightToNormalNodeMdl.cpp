@@ -104,15 +104,9 @@ void HeightToNormalNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext&
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-const string& HeightToNormalNodeMdl::getLanguage() const
-{
-    return MdlShaderGenerator::LANGUAGE;
-}
-
 const string& HeightToNormalNodeMdl::getTarget() const
 {
     return MdlShaderGenerator::TARGET;
 }
-
 
 } // namespace MaterialX

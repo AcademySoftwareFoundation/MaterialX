@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenArnold/ArnoldShaderGenerator.h>
+#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 namespace MaterialX
 {
@@ -19,6 +20,9 @@ ArnoldShaderGenerator::ArnoldShaderGenerator()
                                       "volume_matte" };
 
     _syntax->registerReservedWords(reservedWords);
+
+    // <!-- <dielectric_brdf> -->
+    registerImplementation("IM_dielectric_brdf_" + ArnoldShaderGenerator::TARGET, ThinFilmSupport::create);
 }
 
 }

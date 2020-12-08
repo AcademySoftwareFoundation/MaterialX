@@ -42,15 +42,11 @@ extern "C"
             .function("setFunction", &mx::Implementation::setFunction)
             .function("hasFunction", &mx::Implementation::hasFunction)
             .function("getFunction", &mx::Implementation::getFunction)
-            .function("setLanguage", &mx::Implementation::setLanguage)
-            .function("hasLanguage", &mx::Implementation::hasLanguage)
-            .function("getLanguage", &mx::Implementation::getLanguage)
             .function("setNodeDef", &mx::Implementation::setNodeDef)
             .function("getNodeDef", &mx::Implementation::getNodeDef)
             .class_property("CATEGORY", &mx::Implementation::CATEGORY)
             .class_property("FILE_ATTRIBUTE", &mx::Implementation::FILE_ATTRIBUTE)
-            .class_property("FUNCTION_ATTRIBUTE", &mx::Implementation::FUNCTION_ATTRIBUTE)
-            .class_property("LANGUAGE_ATTRIBUTE", &mx::Implementation::LANGUAGE_ATTRIBUTE);
+            .class_property("FUNCTION_ATTRIBUTE", &mx::Implementation::FUNCTION_ATTRIBUTE);
 
         ems::class_<mx::TypeDef, ems::base<mx::Element>>("TypeDef")
             .smart_ptr_constructor("TypeDef", &std::make_shared<mx::TypeDef, mx::ElementPtr, const std::string &>)

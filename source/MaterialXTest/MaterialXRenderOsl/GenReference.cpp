@@ -59,22 +59,22 @@ TEST_CASE("GenReference: Reference implementation file test", "[genreference]")
     mx::DocumentPtr stdlibDoc = mx::createDocument();
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ LIBRARY }, searchPath, stdlibDoc);    
+    loadLibraries({ "targets", LIBRARY }, searchPath, stdlibDoc);
 
     const std::string DEFINITION_PREFIX = "ND_";
     const std::string IMPLEMENTATION_PREFIX = "IM_";
     const std::string IMPLEMENTATION_STRING = "impl";
 
-    const mx::StringVec genlanguage = { "genglsl", "genosl" };
+    const mx::StringVec gentarget = { "genglsl", "genosl" };
     const mx::StringVec language = { "glsl", "osl" };
     const std::vector<bool> outputFunction = { false, false };
     const std::vector<bool> outputFile = { false, false };
 
-    for (size_t i = 0; i < genlanguage.size(); i++)
+    for (size_t i = 0; i < gentarget.size(); i++)
     {
         mx::FilePath librariesPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-        mx::FilePath outputPathRel = LIBRARY + "/" + "reference/" + genlanguage[i];
-        mx::FilePath implPath = LIBRARY + "/" + genlanguage[i];
+        mx::FilePath outputPathRel = LIBRARY + "/" + "reference/" + gentarget[i];
+        mx::FilePath implPath = LIBRARY + "/" + gentarget[i];
 
         mx::FilePath outputPath = librariesPath / outputPathRel;
 
@@ -84,7 +84,7 @@ TEST_CASE("GenReference: Reference implementation file test", "[genreference]")
 
         // Create an implementation per nodedef
         //
-        const std::string logFilename = genlanguage[i] + "_impl_file_test.txt";
+        const std::string logFilename = gentarget[i] + "_impl_file_test.txt";
         const mx::FilePath logPath(logFilename);
         std::ofstream logFile;
 
@@ -113,7 +113,7 @@ TEST_CASE("GenReference: Reference implementation file test", "[genreference]")
             try
             {
                 mx::ImplementationPtr impl = implDoc->addImplementation(
-                    IMPLEMENTATION_PREFIX + nodeName + "_" + genlanguage[i]);
+                    IMPLEMENTATION_PREFIX + nodeName + "_" + gentarget[i]);
                 impl->setNodeDef(nodedef);
                 if (outputFile[i])
                 {
@@ -123,7 +123,7 @@ TEST_CASE("GenReference: Reference implementation file test", "[genreference]")
                 {
                     impl->setFunction("mx_" + nodeName);
                 }
-                impl->setLanguage(genlanguage[i]);
+                impl->setTarget(gentarget[i]);
             }
             catch (mx::ExceptionShaderGenError& e)
             {
@@ -154,7 +154,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
 
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "stdlib" }, searchPath, stdlibDoc);
+    loadLibraries({ "targets", "stdlib" }, searchPath, stdlibDoc);
 
     mx::FilePath librariesPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FilePath outputPathRel = "stdlib/reference/osl";
@@ -221,7 +221,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             impl->setNodeDef(nodedef);
             impl->setFile((outputPathRel / filename).asString(mx::FilePath::FormatPosix));
             impl->setFunction(node->getName());
-            impl->setLanguage("osl");
+            impl->setTarget("osl");
 
             mx::ShaderStage stage = shader->getStage(mx::Stage::PIXEL);
             for (const mx::ValueElementPtr& elem : nodedef->getActiveValueElements())

@@ -205,7 +205,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Find the implementation for this nodedef
-    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget());
     if (impl)
     {
         newNode->_impl = shadergen.getImplementation(*impl, context);
@@ -213,7 +213,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     if (!newNode->_impl)
     {
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
-            "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
+            "' matching target '" + shadergen.getTarget() + "'");
     }
 
     // Check for classification based on group name

@@ -17,13 +17,14 @@ class BlurNodeMdl : public BlurNode
   public:
     static ShaderNodeImplPtr create();
 
-    void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
     /// Constructor
     BlurNodeMdl();
-      
+
+    void emitSamplingFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
+
     /// Output sample array
     void outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType,
                            const string& sampleName, const StringVec& sampleStrings) const override;

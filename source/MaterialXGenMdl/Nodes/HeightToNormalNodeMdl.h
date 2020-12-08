@@ -19,7 +19,6 @@ class HeightToNormalNodeMdl : public ConvolutionNode
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-    const string& getLanguage() const override;
     const string& getTarget() const override;
 
   protected:

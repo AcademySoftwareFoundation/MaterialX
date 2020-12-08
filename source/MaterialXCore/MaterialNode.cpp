@@ -159,8 +159,8 @@ std::unordered_set<NodePtr> getShaderNodes(const NodePtr& materialNode, const st
         NodeDefPtr materialNodeDef = materialNode->getNodeDef(target);
         if (materialNodeDef)
         {
-            InterfaceElementPtr impl = materialNodeDef->getImplementation();
-            if (impl->isA<NodeGraph>())
+            InterfaceElementPtr impl = materialNodeDef->getImplementation(target);
+            if (impl && impl->isA<NodeGraph>())
             {
                 NodeGraphPtr implGraph = impl->asA<NodeGraph>();
                 for (auto defOutput : materialNodeDef->getOutputs())

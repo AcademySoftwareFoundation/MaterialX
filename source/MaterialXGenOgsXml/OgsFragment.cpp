@@ -117,7 +117,7 @@ public:
         // if not found in the document. Currently the default system has no other color space targets.
         //
         if ( mx::DefaultColorManagementSystemPtr colorManagementSystem =
-            mx::DefaultColorManagementSystem::create(generator->getLanguage())
+            mx::DefaultColorManagementSystem::create(generator->getTarget())
         )
         {
             generator->setColorManagementSystem(colorManagementSystem);
@@ -132,7 +132,7 @@ public:
         }
 
         // Set up unit system. We assume default distance unit of 1 meter:
-        if (mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(generator->getLanguage()))
+        if (mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(generator->getTarget()))
         {
             generator->setUnitSystem(unitSystem);
             mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();

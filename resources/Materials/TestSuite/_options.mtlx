@@ -18,10 +18,10 @@
       <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
       <parameter name="lightFiles" type="string" value="light_rig_test_2.mtlx" />
 
-      <!-- Comma separated list of "language"_"target" specifiers to indicate which
+      <!-- Comma separated list of target" specifiers to indicate which
            code generators to use.
        -->
-      <parameter name="languageAndTargets" type="string" value="genglsl_glsl400,genosl_vanilla,genmdl_mdl,genglsl_ogsfx,genglsl_ogsxml" />
+      <parameter name="targets" type="string" value="genglsl,genosl,genmdl,arnold,ogsfx,ogsxml" />
 
       <!-- Check the count of number of implementations used for a given generator
         -->

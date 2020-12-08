@@ -73,6 +73,7 @@ namespace
     const mx::RtToken MAIN("main");
     const mx::RtToken LIBS("libs");
     const mx::RtToken NONAME("");
+    const mx::RtToken TARGETS("targets");
     const mx::RtToken STDLIB("stdlib");
     const mx::RtToken PBRLIB("pbrlib");
     const mx::RtToken BXDFLIB("bxdf");
@@ -95,6 +96,7 @@ TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
     api->loadLibrary(PBRLIB, options);
     api->loadLibrary(BXDFLIB, options);
@@ -965,6 +967,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         api->setSearchPath(searchPath);
         mx::RtReadOptions readOptions;
         readOptions.applyFutureUpdates = true;
+        api->loadLibrary(TARGETS, readOptions);
         api->loadLibrary(STDLIB, readOptions);
 
         // Create a stage.
@@ -1015,6 +1018,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         api->setSearchPath(searchPath);
         mx::RtReadOptions options;
         options.applyFutureUpdates = true;
+        api->loadLibrary(TARGETS, options);
         api->loadLibrary(STDLIB, options);
 
         // Create a new working space stage
@@ -1069,6 +1073,7 @@ TEST_CASE("Runtime: DefaultLook", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
     api->loadLibrary(PBRLIB, options);
     api->loadLibrary(BXDFLIB, options);
@@ -1101,6 +1106,7 @@ TEST_CASE("Runtime: Namespaced definitions", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
     api->loadLibrary(PBRLIB, options);
     api->loadLibrary(BXDFLIB, options);
@@ -1128,6 +1134,7 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
     api->loadLibrary(PBRLIB, options);
     api->loadLibrary(BXDFLIB, options);
@@ -1211,6 +1218,7 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions readOptions;
     readOptions.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, readOptions);
     api->loadLibrary(STDLIB, readOptions);
 
     // Create a main stage
@@ -1274,6 +1282,7 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
 
     // Create a main stage
@@ -1318,6 +1327,7 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     mx::RtReadOptions readOptions;
     readOptions.applyFutureUpdates = true;
     api->setSearchPath(searchPath);
+    api->loadLibrary(TARGETS, readOptions);
     api->loadLibrary(STDLIB, readOptions);
     api->loadLibrary(PBRLIB, readOptions);
 
@@ -1368,6 +1378,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     options.applyFutureUpdates = true;
 
     // Load in the standard libraries.
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
     api->loadLibrary(PBRLIB, options);
 
@@ -1393,7 +1404,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     // Loading the same libraries into a MaterialX document
     // and tests the same element counts.
     mx::DocumentPtr doc = mx::createDocument();
-    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+    loadLibraries({ "targets", "stdlib", "pbrlib" }, searchPath, doc);
     const size_t libNodeCount = doc->getNodes().size();
     const size_t libNodeDefCount = doc->getNodeDefs().size();
     const size_t libNodeGraphCount = doc->getNodeGraphs().size();
@@ -1538,6 +1549,7 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions libReadOptions;
     libReadOptions.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, libReadOptions);
     api->loadLibrary(STDLIB, libReadOptions);
     api->loadLibrary(PBRLIB, libReadOptions);
 
@@ -1821,6 +1833,7 @@ TEST_CASE("Runtime: libraries", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
     api->loadLibrary(PBRLIB, options);
     api->loadLibrary(BXDFLIB, options);
@@ -1851,6 +1864,7 @@ TEST_CASE("Runtime: units", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
     // Load in stdlib twice on purpose to ensure no exception is thrown when trying to add a duplicate unit 
     // definition 
@@ -1920,6 +1934,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
 
     mx::RtStagePtr stage = api->createStage(MAIN);
@@ -2326,6 +2341,7 @@ TEST_CASE("Runtime: graph output connection", "[runtime]")
     api->setSearchPath(searchPath);
     mx::RtReadOptions options;
     options.applyFutureUpdates = true;
+    api->loadLibrary(TARGETS, options);
     api->loadLibrary(STDLIB, options);
     api->loadLibrary(PBRLIB, options);
     api->loadLibrary(BXDFLIB, options);

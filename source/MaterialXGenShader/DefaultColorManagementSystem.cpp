@@ -18,18 +18,18 @@ const string DefaultColorManagementSystem::CMS_NAME = "default_cms";
 
 string DefaultColorManagementSystem::getImplementationName(const ColorSpaceTransform& transform) const
 {
-    return "IM_" + transform.sourceSpace + "_to_" + transform.targetSpace + "_" + transform.type->getName() + "_" + _language;
+    return "IM_" + transform.sourceSpace + "_to_" + transform.targetSpace + "_" + transform.type->getName() + "_" + _target;
 }
 
-DefaultColorManagementSystemPtr DefaultColorManagementSystem::create(const string& language)
+DefaultColorManagementSystemPtr DefaultColorManagementSystem::create(const string& target)
 {
-    DefaultColorManagementSystemPtr result(new DefaultColorManagementSystem(language));
+    DefaultColorManagementSystemPtr result(new DefaultColorManagementSystem(target));
     return result;
 }
 
-DefaultColorManagementSystem::DefaultColorManagementSystem(const string& language)
+DefaultColorManagementSystem::DefaultColorManagementSystem(const string& target)
 {
-    _language = createValidName(language);
+    _target = createValidName(target);
 }
 
 } // namespace MaterialX

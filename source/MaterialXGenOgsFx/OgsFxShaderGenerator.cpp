@@ -114,7 +114,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     emitLineBreak(fx);
 
     // Add global constants and type definitions
-    emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context, fx);
+    emitInclude("pbrlib/genglsl/lib/mx_defines.glsl", context, fx);
     emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), fx, false);
     emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(context.getOptions().hwMaxActiveLightSources), fx, false);
     emitLineBreak(fx);
@@ -205,13 +205,13 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         emitLineBreak(fx);
 
         // Emit OGS lighting uniforms
-        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_uniforms.glsl", context, fx);
+        emitInclude("pbrlib/genglsl/ogsfx/mx_lighting_uniforms.glsl", context, fx);
         emitLineBreak(fx);
 
         // Emit lighting functions
         emitLine("GLSLShader LightingFunctions", fx, false);
         emitScopeBegin(fx);
-        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl", context, fx);
+        emitInclude("pbrlib/genglsl/ogsfx/mx_lighting_functions.glsl", context, fx);
         emitLineBreak(fx);
 
         emitScopeEnd(fx);
@@ -302,18 +302,18 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
     }
 
     // Emit common math functions
-    emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context, stage);
+    emitInclude("pbrlib/genglsl/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.glsl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/genglsl/lib/mx_transform_uv_vflip.glsl";
     }
     else
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/genglsl/lib/mx_transform_uv.glsl";
     }
 
     // Emit environment lighting functions

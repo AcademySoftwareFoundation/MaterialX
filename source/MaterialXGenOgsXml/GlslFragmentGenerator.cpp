@@ -111,7 +111,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     }
 
     // Add global constants and type definitions
-    emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context, pixelStage);
+    emitInclude("pbrlib/genglsl/lib/mx_defines.glsl", context, pixelStage);
 
     const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
     emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), pixelStage, false);
@@ -144,7 +144,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     }
 
     // Emit common math functions
-    emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context, pixelStage);
+    emitInclude("pbrlib/genglsl/lib/mx_math.glsl", context, pixelStage);
     emitLineBreak(pixelStage);
 
     if (lighting)
@@ -154,7 +154,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
 
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
-    _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE +
+    _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = string("stdlib/genglsl") +
         (context.getOptions().fileTextureVerticalFlip ? "/lib/mx_transform_uv_vflip.glsl": "/lib/mx_transform_uv.glsl");
 
     // Add all functions for node implementations

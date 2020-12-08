@@ -1,6 +1,6 @@
 #include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
-void mx_dielectric_brdf(float weight, color reflectance, float ior, vector2 roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
+void mx_dielectric_brdf(float weight, color reflectance, float ior, vector2 roughness, normal N, vector U, string distribution, BSDF base, thinfilm tf, output BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {

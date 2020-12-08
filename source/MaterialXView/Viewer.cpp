@@ -1345,7 +1345,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
             {
                 const std::string path = mx::getEnviron("MATERIALX_VIEW_OUTPUT_PATH");
                 const std::string baseName = (path.empty() ? _searchPath[0] : mx::FilePath(path)) / elem->getName();
-                if (context.getShaderGenerator().getLanguage() == mx::GlslShaderGenerator::LANGUAGE && context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
+                if (context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
                 {
                     const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
@@ -1354,7 +1354,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                     new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ", baseName);
                 }
 #if MATERIALX_BUILD_GEN_OSL
-                else if (context.getShaderGenerator().getLanguage() == mx::OslShaderGenerator::LANGUAGE)
+                else if (context.getShaderGenerator().getTarget() == mx::OslShaderGenerator::TARGET)
                 {
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
                     writeTextFile(pixelShader, baseName + ".osl");
@@ -1362,7 +1362,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                 }
 #endif
 #if MATERIALX_BUILD_GEN_MDL
-                else if (context.getShaderGenerator().getLanguage() == mx::MdlShaderGenerator::LANGUAGE)
+                else if (context.getShaderGenerator().getTarget() == mx::MdlShaderGenerator::TARGET)
                 {
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
                     writeTextFile(pixelShader, baseName + ".mdl");
@@ -1478,12 +1478,12 @@ void Viewer::initContext(mx::GenContext& context)
     context.registerSourceCodeSearchPath(_searchPath);
 
     // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getLanguage());
+    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
     cms->loadLibrary(_stdLib);
     context.getShaderGenerator().setColorManagementSystem(cms);
 
     // Initialize unit management.
-    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getLanguage());
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getTarget());
     unitSystem->loadLibrary(_stdLib);
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);

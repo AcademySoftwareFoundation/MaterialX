@@ -242,7 +242,7 @@ namespace
                         const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
                         if (nodeDefType == Type::BSDF)
                         {
-                            InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+                            InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
                             if (impl && impl->isA<NodeGraph>())
                             {
                                 NodeGraphPtr graph = impl->asA<NodeGraph>();
@@ -387,11 +387,11 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
         }
 
         // Check for a transparent graph.
-        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
         if (!impl)
         {
             throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef->getNodeString() +
-                "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
+                "' matching target '" + shadergen.getTarget() + "'");
         }
         if (impl->isA<NodeGraph>())
         {
@@ -542,11 +542,11 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
         }
 
         // Check for a transparent graph.
-        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
         if (!impl)
         {
             throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef->getNodeString() +
-                "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
+                "' matching target '" + shadergen.getTarget() + "'");
         }
         if (impl->isA<NodeGraph>())
         {

@@ -62,7 +62,7 @@ void BlurNodeMdl::outputSampleArray(const ShaderGenerator& shadergen, ShaderStag
 }
 
 // No definitions needed for blur in MDL so override the base class with an empty function definition emitter.
-void BlurNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext&, ShaderStage&) const
+void BlurNodeMdl::emitSamplingFunctionDefinition(const ShaderNode&, GenContext&, ShaderStage&) const
 {
 }
 

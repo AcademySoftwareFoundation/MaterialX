@@ -119,5 +119,5 @@
            doc="Opacity of the material. In the vast majority of cases, if you want to see through your material you should be using transmission. Opacity can be useful for doing cut out effects such as a leaf texture on a card."  />
     <output name="out" type="surfaceshader"/>
   </nodedef>
-  <implementation name="IM_alSurface_surface_arnold4" nodedef="ND_alSurface_surface" target="arnold4" language="cpp" file="https://bitbucket.org/anderslanglands/alshaders/src"/>
+  <implementation name="IM_alSurface_surface_arnold4" nodedef="ND_alSurface_surface" target="arnold4" file="https://bitbucket.org/anderslanglands/alshaders/src"/>
 </materialx>

@@ -2,79 +2,79 @@
 <materialx version="1.37">
 
   <!-- <diffuse_brdf> -->
-  <implementation name="IM_diffuse_brdf_genglsl" nodedef="ND_diffuse_brdf" file="pbrlib/genglsl/mx_diffuse_brdf.glsl" function="mx_diffuse_brdf" language="genglsl"/>
+  <implementation name="IM_diffuse_brdf_genglsl" nodedef="ND_diffuse_brdf" file="pbrlib/genglsl/mx_diffuse_brdf.glsl" function="mx_diffuse_brdf" target="genglsl"/>
 
   <!-- <diffuse_btdf> -->
-  <implementation name="IM_diffuse_btdf_genglsl" nodedef="ND_diffuse_btdf" file="pbrlib/genglsl/mx_diffuse_btdf.glsl" function="mx_diffuse_btdf" language="genglsl"/>
+  <implementation name="IM_diffuse_btdf_genglsl" nodedef="ND_diffuse_btdf" file="pbrlib/genglsl/mx_diffuse_btdf.glsl" function="mx_diffuse_btdf" target="genglsl"/>
 
   <!-- <dielectric_brdf> -->
-  <implementation name="IM_dielectric_brdf_genglsl" nodedef="ND_dielectric_brdf" file="pbrlib/genglsl/mx_dielectric_brdf.glsl" function="mx_dielectric_brdf" language="genglsl"/>
+  <implementation name="IM_dielectric_brdf_genglsl" nodedef="ND_dielectric_brdf" file="pbrlib/genglsl/mx_dielectric_brdf.glsl" function="mx_dielectric_brdf" target="genglsl"/>
 
   <!-- <dielectric_btdf> -->
-  <implementation name="IM_dielectric_btdf_genglsl" nodedef="ND_dielectric_btdf" file="pbrlib/genglsl/mx_dielectric_btdf.glsl" function="mx_dielectric_btdf" language="genglsl"/>
+  <implementation name="IM_dielectric_btdf_genglsl" nodedef="ND_dielectric_btdf" file="pbrlib/genglsl/mx_dielectric_btdf.glsl" function="mx_dielectric_btdf" target="genglsl"/>
 
   <!-- <conductor_brdf> -->
-  <implementation name="IM_conductor_brdf_genglsl" nodedef="ND_conductor_brdf" file="pbrlib/genglsl/mx_conductor_brdf.glsl" function="mx_conductor_brdf" language="genglsl"/>
+  <implementation name="IM_conductor_brdf_genglsl" nodedef="ND_conductor_brdf" file="pbrlib/genglsl/mx_conductor_brdf.glsl" function="mx_conductor_brdf" target="genglsl"/>
 
   <!-- <burley_diffuse_brdf> -->
-  <implementation name="IM_burley_diffuse_brdf_genglsl" nodedef="ND_burley_diffuse_brdf" file="pbrlib/genglsl/mx_burley_diffuse_brdf.glsl" function="mx_burley_diffuse_brdf" language="genglsl"/>
+  <implementation name="IM_burley_diffuse_brdf_genglsl" nodedef="ND_burley_diffuse_brdf" file="pbrlib/genglsl/mx_burley_diffuse_brdf.glsl" function="mx_burley_diffuse_brdf" target="genglsl"/>
 
   <!-- <generalized_schlick_brdf> -->
-  <implementation name="IM_generalized_schlick_brdf_genglsl" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genglsl/mx_generalized_schlick_brdf.glsl" function="mx_generalized_schlick_brdf" language="genglsl"/>
+  <implementation name="IM_generalized_schlick_brdf_genglsl" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genglsl/mx_generalized_schlick_brdf.glsl" function="mx_generalized_schlick_brdf" target="genglsl"/>
 
   <!-- <subsurface_brdf> -->
-  <implementation name="IM_subsurface_brdf_genglsl" nodedef="ND_subsurface_brdf" file="pbrlib/genglsl/mx_subsurface_brdf.glsl" function="mx_subsurface_brdf" language="genglsl"/>
+  <implementation name="IM_subsurface_brdf_genglsl" nodedef="ND_subsurface_brdf" file="pbrlib/genglsl/mx_subsurface_brdf.glsl" function="mx_subsurface_brdf" target="genglsl"/>
 
   <!-- <sheen_brdf> -->
-  <implementation name="IM_sheen_brdf_genglsl" nodedef="ND_sheen_brdf" file="pbrlib/genglsl/mx_sheen_brdf.glsl" function="mx_sheen_brdf" language="genglsl"/>
+  <implementation name="IM_sheen_brdf_genglsl" nodedef="ND_sheen_brdf" file="pbrlib/genglsl/mx_sheen_brdf.glsl" function="mx_sheen_brdf" target="genglsl"/>
 
   <!-- <thin_film_brdf> -->
-  <implementation name="IM_thin_film_brdf_genglsl" nodedef="ND_thin_film_brdf" language="genglsl"/>
+  <implementation name="IM_thin_film_brdf_genglsl" nodedef="ND_thin_film_brdf" target="genglsl"/>
 
   <!-- <layer> -->
-  <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" language="genglsl"/>
+  <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" target="genglsl"/>
 
   <!-- <mix> -->
-  <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="pbrlib/genglsl/mx_mix_bsdf.glsl" function="mx_mix_bsdf" language="genglsl"/>
-  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" file="pbrlib/genglsl/mx_mix_edf.glsl" function="mx_mix_edf" language="genglsl"/>
+  <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="pbrlib/genglsl/mx_mix_bsdf.glsl" function="mx_mix_bsdf" target="genglsl"/>
+  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" file="pbrlib/genglsl/mx_mix_edf.glsl" function="mx_mix_edf" target="genglsl"/>
 
   <!-- <add> -->
-  <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" file="pbrlib/genglsl/mx_add_bsdf.glsl" function="mx_add_bsdf" language="genglsl"/>
-  <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" file="pbrlib/genglsl/mx_add_edf.glsl" function="mx_add_edf" language="genglsl"/>
+  <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" file="pbrlib/genglsl/mx_add_bsdf.glsl" function="mx_add_bsdf" target="genglsl"/>
+  <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" file="pbrlib/genglsl/mx_add_edf.glsl" function="mx_add_edf" target="genglsl"/>
 
   <!-- <multiply> -->
-  <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" file="pbrlib/genglsl/mx_multiply_bsdf_color.glsl" function="mx_multiply_bsdf_color" language="genglsl"/>
-  <implementation name="IM_multiply_bsdfF_genglsl" nodedef="ND_multiply_bsdfF" file="pbrlib/genglsl/mx_multiply_bsdf_float.glsl" function="mx_multiply_bsdf_float" language="genglsl"/>
-  <implementation name="IM_multiply_edfC_genglsl" nodedef="ND_multiply_edfC" file="pbrlib/genglsl/mx_multiply_edf_color.glsl" function="mx_multiply_edf_color" language="genglsl"/>
-  <implementation name="IM_multiply_edfF_genglsl" nodedef="ND_multiply_edfF" file="pbrlib/genglsl/mx_multiply_edf_float.glsl" function="mx_multiply_edf_float" language="genglsl"/>
+  <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" file="pbrlib/genglsl/mx_multiply_bsdf_color.glsl" function="mx_multiply_bsdf_color" target="genglsl"/>
+  <implementation name="IM_multiply_bsdfF_genglsl" nodedef="ND_multiply_bsdfF" file="pbrlib/genglsl/mx_multiply_bsdf_float.glsl" function="mx_multiply_bsdf_float" target="genglsl"/>
+  <implementation name="IM_multiply_edfC_genglsl" nodedef="ND_multiply_edfC" file="pbrlib/genglsl/mx_multiply_edf_color.glsl" function="mx_multiply_edf_color" target="genglsl"/>
+  <implementation name="IM_multiply_edfF_genglsl" nodedef="ND_multiply_edfF" file="pbrlib/genglsl/mx_multiply_edf_float.glsl" function="mx_multiply_edf_float" target="genglsl"/>
 
   <!-- <uniform_edf> -->
-  <implementation name="IM_uniform_edf_genglsl" nodedef="ND_uniform_edf" file="pbrlib/genglsl/mx_uniform_edf.glsl" function="mx_uniform_edf" language="genglsl"/>
+  <implementation name="IM_uniform_edf_genglsl" nodedef="ND_uniform_edf" file="pbrlib/genglsl/mx_uniform_edf.glsl" function="mx_uniform_edf" target="genglsl"/>
 
   <!-- <surface> -->
-  <implementation name="IM_surface_genglsl" nodedef="ND_surface" language="genglsl"/>
+  <implementation name="IM_surface_genglsl" nodedef="ND_surface" target="genglsl"/>
 
   <!-- <light> -->
-  <implementation name="IM_light_genglsl" nodedef="ND_light" language="genglsl"/>
+  <implementation name="IM_light_genglsl" nodedef="ND_light" target="genglsl"/>
 
   <!-- <backfacing> -->
-  <implementation name="IM_backfacing_boolean_genglsl" nodedef="ND_backfacing_boolean" file="pbrlib/genglsl/mx_backfacing_boolean.inline" language="genglsl"/>
-  <implementation name="IM_backfacing_integer_genglsl" nodedef="ND_backfacing_integer" file="pbrlib/genglsl/mx_backfacing_integer.inline" language="genglsl"/>
-  <implementation name="IM_backfacing_float_genglsl" nodedef="ND_backfacing_float" file="pbrlib/genglsl/mx_backfacing_float.inline" language="genglsl"/>
+  <implementation name="IM_backfacing_boolean_genglsl" nodedef="ND_backfacing_boolean" file="pbrlib/genglsl/mx_backfacing_boolean.inline" target="genglsl"/>
+  <implementation name="IM_backfacing_integer_genglsl" nodedef="ND_backfacing_integer" file="pbrlib/genglsl/mx_backfacing_integer.inline" target="genglsl"/>
+  <implementation name="IM_backfacing_float_genglsl" nodedef="ND_backfacing_float" file="pbrlib/genglsl/mx_backfacing_float.inline" target="genglsl"/>
 
   <!-- <roughness_anisotropy> -->
-  <implementation name="IM_roughness_anisotropy_genglsl" nodedef="ND_roughness_anisotropy" file="pbrlib/genglsl/mx_roughness_anisotropy.glsl" function="mx_roughness_anisotropy" language="genglsl"/>
+  <implementation name="IM_roughness_anisotropy_genglsl" nodedef="ND_roughness_anisotropy" file="pbrlib/genglsl/mx_roughness_anisotropy.glsl" function="mx_roughness_anisotropy" target="genglsl"/>
 
    <!-- <roughness_dual> -->
-  <implementation name="IM_roughness_dual_genglsl" nodedef="ND_roughness_dual" file="pbrlib/genglsl/mx_roughness_dual.glsl" function="mx_roughness_dual" language="genglsl"/>
+  <implementation name="IM_roughness_dual_genglsl" nodedef="ND_roughness_dual" file="pbrlib/genglsl/mx_roughness_dual.glsl" function="mx_roughness_dual" target="genglsl"/>
 
   <!-- <complex_ior> -->
-  <implementation name="IM_complex_ior_genglsl" nodedef="ND_complex_ior" file="pbrlib/genglsl/mx_complex_ior.glsl" function="mx_complex_ior" language="genglsl"/>
+  <implementation name="IM_complex_ior_genglsl" nodedef="ND_complex_ior" file="pbrlib/genglsl/mx_complex_ior.glsl" function="mx_complex_ior" target="genglsl"/>
 
   <!-- <artistic_ior> -->
-  <implementation name="IM_artistic_ior_genglsl" nodedef="ND_artistic_ior" file="pbrlib/genglsl/mx_artistic_ior.glsl" function="mx_artistic_ior" language="genglsl"/>
+  <implementation name="IM_artistic_ior_genglsl" nodedef="ND_artistic_ior" file="pbrlib/genglsl/mx_artistic_ior.glsl" function="mx_artistic_ior" target="genglsl"/>
 
   <!-- <fresnel> -->
-  <implementation name="IM_fresnel_ior_genglsl" nodedef="ND_fresnel_ior" file="pbrlib/genglsl/mx_fresnel_ior.glsl" function="mx_fresnel_ior" language="genglsl"/>
+  <implementation name="IM_fresnel_ior_genglsl" nodedef="ND_fresnel_ior" file="pbrlib/genglsl/mx_fresnel_ior.glsl" function="mx_fresnel_ior" target="genglsl"/>
 
 </materialx>
