@@ -22,20 +22,21 @@
 
 namespace MaterialX
 {
+
 #if defined(_WIN32)
-//
-// Windows implementation
-//
-GLContext::GLContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle sharedWithContext) :
+
+GLContext::GLContext(const SimpleWindowPtr window, HardwareContextHandle sharedWithContext) :
+    _window(window),
     _contextHandle(nullptr),
     _isValid(false)
 {
     // For windows, we need a HDC to create an OpenGL context.
-    // Create a dummy 1x1 window and use it' HDC.
-    _dummyWindow.initialize("__GL_BASE_CONTEXT_DUMMY_WINDOW__", 1, 1, nullptr);
-    WindowWrapper dummyWindowWrapper = _dummyWindow.windowWrapper();
+    // Create a dummy 1x1 window and use its HDC.
+    _window = SimpleWindow::create();
+    _window->initialize("__GL_BASE_CONTEXT_DUMMY_WINDOW__", 1, 1, nullptr);
+    WindowWrapperPtr windowWrapper = _window->getWindowWrapper();
 
-    if (dummyWindowWrapper.isValid())
+    if (windowWrapper->isValid())
     {
         // Use a generic pixel format to create the context
         static PIXELFORMATDESCRIPTOR pfd =
@@ -50,12 +51,12 @@ GLContext::GLContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHand
             16, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
         };
 
-        int chosenPixelFormat = ChoosePixelFormat(dummyWindowWrapper.internalHandle(), &pfd);
+        int chosenPixelFormat = ChoosePixelFormat(windowWrapper->internalHandle(), &pfd);
         if (chosenPixelFormat)
         {
-            if (SetPixelFormat(dummyWindowWrapper.internalHandle(), chosenPixelFormat, &pfd))
+            if (SetPixelFormat(windowWrapper->internalHandle(), chosenPixelFormat, &pfd))
             {
-                _contextHandle = wglCreateContext(dummyWindowWrapper.internalHandle());
+                _contextHandle = wglCreateContext(windowWrapper->internalHandle());
                 if (_contextHandle)
                 {
                     if (sharedWithContext)
@@ -63,7 +64,7 @@ GLContext::GLContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHand
                         shareLists(sharedWithContext);
                     }
 
-                    int makeCurrentOk = wglMakeCurrent(dummyWindowWrapper.internalHandle(), _contextHandle);
+                    int makeCurrentOk = wglMakeCurrent(windowWrapper->internalHandle(), _contextHandle);
                     if (makeCurrentOk)
                     {
                         _isValid = true;
@@ -83,21 +84,14 @@ void GLContext::shareLists(HardwareContextHandle context)
 }
 
 #elif defined(__linux__)
-//
-// Linux context implementation
-//
-GLContext::GLContext(const WindowWrapper& windowWrapper,
-    HardwareContextHandle sharedWithContext)
+
+GLContext::GLContext(const SimpleWindowPtr window, HardwareContextHandle sharedWithContext) :
+    _window(window),
+    _contextHandle(nullptr),
+    _isValid(false)
 {
-    _isValid = false;
-
-    //
-    // Unix implementation
-    //
-    _windowWrapper = windowWrapper;
-
     // Get connection to X Server
-    _display = windowWrapper.getDisplay();
+    _xDisplay = _window->getWindowWrapper()->getXDisplay();
 
     // Load in OpenGL library
     void *libHandle = dlopen("libGL.so", RTLD_LAZY);
@@ -161,7 +155,7 @@ GLContext::GLContext(const WindowWrapper& windowWrapper,
     list[i++] = GLX_STENCIL_SIZE; list[i++] = 8;
 
     list[i++] = None;
-    XVisualInfo *vinfo = ChooseVisualFuncPtr(_display, DefaultScreen(_display), list);
+    XVisualInfo *vinfo = ChooseVisualFuncPtr(_xDisplay, DefaultScreen(_xDisplay), list);
     if (vinfo == 0)
     {
         _contextHandle = 0;
@@ -171,11 +165,11 @@ GLContext::GLContext(const WindowWrapper& windowWrapper,
     // Create context that shares display lists and texture objects across contexts
     if (sharedWithContext)
     {
-        _contextHandle = CreateContextFuncPtr(_display, vinfo, sharedWithContext, GL_TRUE);
+        _contextHandle = CreateContextFuncPtr(_xDisplay, vinfo, sharedWithContext, GL_TRUE);
     }
     else
     {
-        _contextHandle = CreateContextFuncPtr(_display, vinfo, 0, GL_TRUE);
+        _contextHandle = CreateContextFuncPtr(_xDisplay, vinfo, 0, GL_TRUE);
     }
 
     if (_contextHandle == 0)
@@ -185,9 +179,8 @@ GLContext::GLContext(const WindowWrapper& windowWrapper,
 
     // For glX need a window to make the context created above current, creating
     // minimal requirements for an OpenGL window
-
-    Window root = RootWindow(_display, DefaultScreen(_display));
-    Colormap cmap = XCreateColormap(_display, root, vinfo->visual, AllocNone);
+    Window root = RootWindow(_xDisplay, DefaultScreen(_xDisplay));
+    Colormap cmap = XCreateColormap(_xDisplay, root, vinfo->visual, AllocNone);
     XSetWindowAttributes wa;
     unsigned long attribMask;
     attribMask = CWBackPixmap | CWBorderPixel | CWColormap;
@@ -196,9 +189,9 @@ GLContext::GLContext(const WindowWrapper& windowWrapper,
     wa.colormap = cmap;
 
     // Create an X window with the visual requested above
-    _dummyWindow = XCreateWindow(_display, root, 0, 0, 10, 10, 0, vinfo->depth, InputOutput,
+    _xWindow = XCreateWindow(_xDisplay, root, 0, 0, 10, 10, 0, vinfo->depth, InputOutput,
         vinfo->visual, attribMask, &wa);
-    if (_dummyWindow == 0)
+    if (_xWindow == 0)
     {
         _contextHandle = 0;
         return;
@@ -210,30 +203,27 @@ GLContext::GLContext(const WindowWrapper& windowWrapper,
     bool haveOldContext = (NULL != oldContext);
     bool haveOldDrawable = (None != oldDrawable);
 
-    MakeCurrentFuncPtr(_display, _dummyWindow, _contextHandle);
+    MakeCurrentFuncPtr(_xDisplay, _xWindow, _contextHandle);
 
-    if (_display)
+    if (_xDisplay)
     {
         _isValid = true;
 
-        //	Restore the previous context
+        // Restore the previous context.
         if (haveOldContext && haveOldDrawable)
         {
-            MakeCurrentFuncPtr(_display, oldDrawable, oldContext);
-
+            MakeCurrentFuncPtr(_xDisplay, oldDrawable, oldContext);
         }
     }
 }
 
-//
-// OSX implementation
-//
 #elif defined(__APPLE__)
 
-GLContext::GLContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle sharedWithContext)
+GLContext::GLContext(const SimpleWindowPtr window, HardwareContextHandle sharedWithContext) :
+    _window(window),
+    _contextHandle(nullptr),
+    _isValid(false)
 {
-    _isValid = false;
-
     void* pixelFormat = NSOpenGLChoosePixelFormatWrapper(true, 0, 32, 24, 8, 0, 0, false,
         false, false, false, false);
     if (!pixelFormat)
@@ -243,46 +233,49 @@ GLContext::GLContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHand
 
     // Create the context, but do not share against other contexts.
     // (Instead, all other contexts will share against this one.)
-    //
     _contextHandle = NSOpenGLCreateContextWrapper(pixelFormat, sharedWithContext);
     NSOpenGLReleasePixelFormat(pixelFormat);
     NSOpenGLMakeCurrent(_contextHandle);
 
     _isValid = true;
 }
+
 #endif
 
-// Destroy the startup context.
 GLContext::~GLContext()
 {
     // Only do this portion if the context is valid
     if (_isValid)
     {
 #if defined(_WIN32)
+
         // Release the dummy context.
         wglDeleteContext(_contextHandle);
 
 #elif defined(__linux__)
-        glXMakeCurrent(_display, None, NULL);
+
+        glXMakeCurrent(_xDisplay, None, NULL);
 
         // This needs to be done after all the GL object
         // created with this context are destroyed.
         if (_contextHandle != 0)
         {
-            glXDestroyContext(_display, _contextHandle);
+            glXDestroyContext(_xDisplay, _contextHandle);
         }
-        if (_dummyWindow != 0)
+        if (_xWindow != 0)
         {
-            XDestroyWindow(_display, _dummyWindow);
+            XDestroyWindow(_xDisplay, _xWindow);
         }
 
 #elif defined(__APPLE__)
-        // This needs to be done after all the GL object
-        // created with this context are destroyed.
+
+        // This needs to be done after all the GL objects created with this
+        // context are destroyed.
         if (_contextHandle != 0)
         {
             NSOpenGLDestroyCurrentContext(&_contextHandle);
         }
+
 #endif
     }
 }
@@ -295,28 +288,20 @@ int GLContext::makeCurrent()
     }
 
     int makeCurrentOk = 0;
+
 #if defined(_WIN32)
-    makeCurrentOk = wglMakeCurrent(_dummyWindow.windowWrapper().internalHandle(), _contextHandle);
+    makeCurrentOk = wglMakeCurrent(_window->getWindowWrapper()->internalHandle(), _contextHandle);
 #elif defined(__linux__)
-    makeCurrentOk = glXMakeCurrent(_display, _dummyWindow, _contextHandle);
+    makeCurrentOk = glXMakeCurrent(_xDisplay, _xWindow, _contextHandle);
 #elif defined(__APPLE__)
     NSOpenGLMakeCurrent(_contextHandle);
     if (NSOpenGLGetCurrentContextWrapper() == _contextHandle)
     {
         makeCurrentOk = 1;
     }
-#else
-    ;
 #endif
+
     return makeCurrentOk;
 }
 
-//
-// Creator
-//
-GLContextPtr GLContext::create(const WindowWrapper& windowWrapper, HardwareContextHandle context)
-{
-    return std::shared_ptr<GLContext>(new GLContext(windowWrapper, context));
-}
-
-}
+} // namespace MaterialX

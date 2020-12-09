@@ -16,7 +16,7 @@ void* NSUtilGetView(void* pWindow)
 	return (void*)view;
 }
 
-void* NSUtilCreateWindow(unsigned int width, unsigned int height, char* title, bool batchMode)
+void* NSUtilCreateWindow(unsigned int width, unsigned int height, const char* title, bool batchMode)
 {
 	// In batch mode, ensure that Cocoa is initialized
 	if (batchMode)

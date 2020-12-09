@@ -15,6 +15,8 @@
 using Widget = struct _WidgetRec*;
 #endif
 
+#include <memory>
+
 namespace MaterialX
 {
 /// OS specific type windowing definitions
@@ -48,34 +50,23 @@ using InternalWindowHandle = void*;
 using DisplayHandle = void*;
 #endif
 
-///
+/// WindowWrapper shared pointer
+using WindowWrapperPtr = std::shared_ptr<class WindowWrapper>;
+
 /// @class WindowWrapper
-/// Generic wrapper for encapsulating a "window" construct.
-/// Each supported platform will have specific storage and management logic.
+/// Generic wrapper for encapsulating a "window" construct
 ///
+/// Each supported platform will have specific storage and management logic.
 class WindowWrapper
 {
   public:
-    /// Default constructor
-    WindowWrapper();
+    /// Create a new WindowWrapper
+    static WindowWrapperPtr create(ExternalWindowHandle externalHandle = {},
+                                   InternalWindowHandle internalHandle = {},
+                                   DisplayHandle display = {});
 
-    /// Default destructor
+    // Default destructor
     virtual ~WindowWrapper();
-
-    /// Construct a wrapper using windowing information
-#if defined(__linux__)
-    WindowWrapper(ExternalWindowHandle externalHandle, InternalWindowHandle internalHandle = 0,
-                  DisplayHandle display = 0);
-#else
-    WindowWrapper(ExternalWindowHandle externalHandle, InternalWindowHandle internalHandle = nullptr,
-                  DisplayHandle display = 0);
-#endif
-
-    /// Copy constructor
-    WindowWrapper(const WindowWrapper& other);
-
-    /// Assignment operator
-    const WindowWrapper& operator=(const WindowWrapper& other);
 
     /// Return "external" handle
     ExternalWindowHandle externalHandle() const
@@ -90,33 +81,27 @@ class WindowWrapper
     }
 
     /// Check that there is a valid OS handle set.
-    /// It is sufficient to just check the internal handle
+    /// It is sufficient to just check the internal handle.
     bool isValid() const
     {
         return _internalHandle != 0;
     }
 
-#if defined(__linux__)
-    /// Return frame buffer X window
-    Window getFrameBufferWindow() const
-    {
-        return _framebufferWindow;
-    }
-
-    /// Set frame buffer X window
-    void setFrameBufferWindow(Window window)
-    {
-        _framebufferWindow = window;
-    }
-
-    /// Rreturn X display
-    Display* getDisplay() const
-    {
-        return _display;
-    }
-#endif
     /// Release resources stored in wrapper
     void release();
+
+#if defined(__linux__)
+    /// Return X display
+    Display* getXDisplay() const
+    {
+        return _xDisplay;
+    }
+#endif
+
+  protected:
+    WindowWrapper(ExternalWindowHandle externalHandle,
+                  InternalWindowHandle internalHandle,
+                  DisplayHandle display);
 
   protected:
     ExternalWindowHandle _externalHandle;
@@ -126,9 +111,8 @@ class WindowWrapper
     /// Window ID of framebuffer instance created in the wrapper
     Window _framebufferWindow;
     /// X Display
-    Display* _display;
+    Display* _xDisplay;
 #endif
-
 };
 
 } // namespace MaterialX

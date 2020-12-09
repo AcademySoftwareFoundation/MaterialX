@@ -9,12 +9,9 @@
 /// @file
 /// OpenGL context class
 
-#include <MaterialXRenderHw/WindowWrapper.h>
-#include <memory>
-
-#if defined(_WIN32)
 #include <MaterialXRenderHw/SimpleWindow.h>
-#elif defined(__APPLE__)
+
+#if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #elif defined(__linux__)
 #include <MaterialXRenderGlsl/External/GLew/glxew.h>
@@ -22,31 +19,32 @@
 
 namespace MaterialX
 {
+
 /// Platform dependent definition of a hardware context
 #if defined(_WIN32)
 using HardwareContextHandle = HGLRC;
 #elif defined(__linux__)
 using HardwareContextHandle = GLXContext;
-#elif defined(__APPLE__)
-using HardwareContextHandle = void*;
 #else
 using HardwareContextHandle = void*;
 #endif
+
+/// SimpleWindow shared pointer
+using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
 
 /// GLContext shared pointer
 using GLContextPtr = std::shared_ptr<class GLContext>;
 
 /// @class GLContext
-/// Base OpenGL context singleton.
-/// Used as a utility context to perform OpenGL operations from,
-/// and context for resource sharing between contexts.
-///
+/// An OpenGL context singleton
 class GLContext
 {
   public:
-
-    /// Create a utility context
-    static GLContextPtr create(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
+    /// Create a new context
+    static GLContextPtr create(SimpleWindowPtr window, HardwareContextHandle context = {})
+    {
+        return GLContextPtr(new GLContext(window, context));
+    }
 
     /// Default destructor
     virtual ~GLContext();
@@ -56,11 +54,6 @@ class GLContext
     {
         return _contextHandle;
     }
-
-#if defined(__linux__)
-    /// Return X display associated with context
-    Display *display() const { return _display; }
-#endif
 
     /// Return if context is valid
     bool isValid() const
@@ -77,26 +70,25 @@ class GLContext
 #endif
 
   protected:
-    /// Create the base context. A OpenGL context to share with can be passed in.
-    GLContext(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
+    // Create the base context. A OpenGL context to share with can be passed in.
+    GLContext(SimpleWindowPtr window, HardwareContextHandle context = 0);
 
-#if defined(_WIN32)
-    /// Offscreen window required for context operations
-    SimpleWindow _dummyWindow;
-#elif defined(__linux__)
-    /// Offscreen window required for context operations
-    Window _dummyWindow;
-    /// X Display used by context operations
-    Display *_display;
-    /// Window wrapper used by context operations
-    WindowWrapper _windowWrapper;
-#endif
+    // Simple window
+    SimpleWindowPtr _window;
 
-    /// Context handle
+    // Context handle
     HardwareContextHandle _contextHandle;
 
-    /// Flag to indicate validity
+    // Flag to indicate validity
     bool _isValid;
+
+#if defined(__linux__)
+    // An X window used by context operations
+    Window _xWindow;
+
+    // An X display used by context operations
+    Display* _xDisplay;
+#endif
 };
 
 } // namespace MaterialX

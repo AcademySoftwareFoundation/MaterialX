@@ -81,7 +81,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install libgl-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libx11-dev
+        sudo apt-get install libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
           sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
           echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
@@ -92,10 +92,10 @@ jobs:
           echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         fi
         if [ "${{ matrix.test_render }}" = "ON" ]; then
-          sudo apt-get install xvfb
           echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
           echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
           echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+          echo "RENDER_ENVIRONMENT=xvfb-run" >> $GITHUB_ENV
         fi
 
     - name: Install Dependencies (MacOS)
@@ -148,7 +148,7 @@ jobs:
       if: matrix.test_render == 'ON'
       run: |
         mkdir build/baked
-        xvfb-run python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/baked/brass_tiled_baked.mtlx --path .
+        $RENDER_ENVIRONMENT python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/baked/brass_tiled_baked.mtlx --path .
 
     - name: Generate Test HTML
       if: matrix.generate_html == 'ON'
