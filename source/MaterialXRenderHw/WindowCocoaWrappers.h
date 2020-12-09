@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 void* NSUtilGetView(void* pWindow);
-void* NSUtilCreateWindow(unsigned int width, unsigned int height, char* title, bool batchMode);
+void* NSUtilCreateWindow(unsigned int width, unsigned int height, const char* title, bool batchMode);
 void NSUtilShowWindow(void* pWindow);
 void NSUtilHideWindow(void* pWindow);
 void NSUtilSetFocus(void* pWindow);

@@ -21,7 +21,7 @@ SimpleWindow::SimpleWindow()
     windowCount++;
 }
 
-bool SimpleWindow::initialize(char* title,
+bool SimpleWindow::initialize(const char* title,
                               unsigned int width, unsigned int height,
                               void* /*applicationShell*/)
 {
@@ -30,13 +30,13 @@ bool SimpleWindow::initialize(char* title,
     {
         return false;
     }
-    _windowWrapper = WindowWrapper(win);
+    _windowWrapper = WindowWrapper::create(win);
     return true;
 }
 
 SimpleWindow::~SimpleWindow()
 {
-    void* hWnd = _windowWrapper.externalHandle();
+    void* hWnd = _windowWrapper->externalHandle();
     NSUtilDisposeWindow(hWnd);
 }
 
