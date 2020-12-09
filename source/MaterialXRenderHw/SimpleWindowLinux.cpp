@@ -26,7 +26,7 @@ SimpleWindow::SimpleWindow()
     windowCount++;
 }
 
-bool SimpleWindow::initialize(char* title,
+bool SimpleWindow::initialize(const char* title,
                               unsigned int width, unsigned int height,
                               void *applicationShell)
 {
@@ -74,14 +74,14 @@ bool SimpleWindow::initialize(char* title,
     }
 
     XtRealizeWidget(widget);
-    _windowWrapper = WindowWrapper(widget, XtWindow(widget), XtDisplay(widget));
+    _windowWrapper = WindowWrapper::create(widget, XtWindow(widget), XtDisplay(widget));
 
     return true;
 }
 
 SimpleWindow::~SimpleWindow()
 {
-    Widget widget = _windowWrapper.externalHandle();
+    Widget widget = _windowWrapper->externalHandle();
     if (widget)
     {
         // Unrealize the widget first to avoid X calls to it

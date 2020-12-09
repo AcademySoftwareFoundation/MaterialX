@@ -98,15 +98,14 @@ void GlslRenderer::initialize()
         // Create window
         _window = SimpleWindow::create();
 
-        const char* windowName = "Renderer Window";
-        if (!_window->initialize(const_cast<char *>(windowName), _width, _height, nullptr))
+        if (!_window->initialize("Renderer Window", _width, _height, nullptr))
         {
             errors.push_back("Failed to create window for testing.");
             throw ExceptionShaderRenderError(errorType, errors);
         }
 
         // Create offscreen context
-        _context = GLContext::create(_window->windowWrapper(), nullptr);
+        _context = GLContext::create(_window);
         if (!_context)
         {
             errors.push_back("Failed to create OpenGL context for testing.");

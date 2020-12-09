@@ -41,7 +41,7 @@ LRESULT CALLBACK NoOpProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-bool SimpleWindow::initialize(char* title,
+bool SimpleWindow::initialize(const char* title,
                               unsigned int width, unsigned int height,
                               void * /*applicationShell*/)
 {
@@ -101,16 +101,18 @@ bool SimpleWindow::initialize(char* title,
         return false;
     }
 
-    _windowWrapper = WindowWrapper(hWnd, nullptr, nullptr);
+    _windowWrapper = WindowWrapper::create(hWnd);
 
     return true;
 }
 
 SimpleWindow::~SimpleWindow()
 {
-    HWND hWnd = _windowWrapper.externalHandle();
+    HWND hWnd = _windowWrapper->externalHandle();
     if (hWnd)
-        _windowWrapper.release();
+    {
+        _windowWrapper->release();
+    }
 
     DestroyWindow(hWnd);
     UnregisterClass(_windowClassName, GetModuleHandle(NULL));
