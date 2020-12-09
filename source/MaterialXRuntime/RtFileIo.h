@@ -125,7 +125,7 @@ public:
     void writeDefinitions(const FilePath& documentPath, const RtTokenVec& names, const RtWriteOptions* options = nullptr);
 
     /// Read a prim from a stream.
-    RtPrim readPrim(std::istream& stream, const RtReadOptions* options = nullptr);
+    RtPrim readPrim(std::istream& stream, const RtPath& parentPrimPath, std::string& outOriginalPrimName, const RtReadOptions* options = nullptr);
 
     /// Write a prim to a stream.
     void writePrim(std::ostream& stream, const RtPath& primPath, const RtWriteOptions* options = nullptr);
