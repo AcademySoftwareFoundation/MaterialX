@@ -48,9 +48,6 @@ class ConvolutionNode : public ShaderNodeImpl
                             const string& sampleSizeFunctionUV,
                             GenContext& context, ShaderStage& stage,
                             StringVec& sampleStrings) const;
-
-    static const string SAMPLE2D_INPUT;
-    static const string SAMPLE3D_INPUT;
 };
 
 } // namespace MaterialX
