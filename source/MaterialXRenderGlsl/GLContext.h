@@ -64,11 +64,6 @@ class GLContext
     /// Make the context "current" before execution of OpenGL operations
     int makeCurrent();
 
-#if defined(_WIN32)
-    /// Share this context with an external one
-    void shareLists(HardwareContextHandle context);
-#endif
-
   protected:
     // Create the base context. A OpenGL context to share with can be passed in.
     GLContext(SimpleWindowPtr window, HardwareContextHandle context = 0);

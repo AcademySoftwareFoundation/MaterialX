@@ -20,7 +20,6 @@ SimpleWindow::SimpleWindow()
     clearInternalState();
 
     // Give a unique ID to this window.
-    //
     static unsigned int windowCount = 1;
     _id = windowCount;
     windowCount++;
@@ -81,6 +80,11 @@ bool SimpleWindow::initialize(const char* title,
 
 SimpleWindow::~SimpleWindow()
 {
+    if (!_windowWrapper)
+    {
+        return;
+    }
+
     Widget widget = _windowWrapper->externalHandle();
     if (widget)
     {
