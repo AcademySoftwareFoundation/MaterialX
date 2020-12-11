@@ -41,9 +41,8 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
 {
     _program = GlslProgram::create();
 
-    TinyObjLoaderPtr loader = TinyObjLoader::create();
     _geometryHandler = GeometryHandler::create();
-    _geometryHandler->addLoader(loader);
+    _geometryHandler->addLoader(TinyObjLoader::create());
 
     _viewHandler = ViewHandler::create();
 }
@@ -52,39 +51,7 @@ GlslRenderer::~GlslRenderer()
 {
     if (_program->geometryBound())
     {
-        if (_context->makeCurrent())
-        {
-            _program->unbindGeometry();
-        }
-    }
-
-    // Clean up the program
-    _program = nullptr;
-
-    // Clean up frame buffer
-    _frameBuffer = nullptr;
-
-    // Clean up the context
-    _context = nullptr;
-
-    // Clean up the window
-    _window = nullptr;
-}
-
-void GlslRenderer::setSize(unsigned int width, unsigned int height)
-{
-    if (_context->makeCurrent())
-    {
-        if (_frameBuffer)
-        {
-            _frameBuffer->resize(width, height);
-        }
-        else
-        {
-            _frameBuffer = GLFramebuffer::create(width, height, 4, Image::BaseType::UINT8);
-        }
-        _width = width;
-        _height = height;
+        _program->unbindGeometry();
     }
 }
 
@@ -209,6 +176,23 @@ void GlslRenderer::validateInputs()
     // Check that the generated uniforms and attributes are valid
     _program->getUniformsList();
     _program->getAttributesList();
+}
+
+void GlslRenderer::setSize(unsigned int width, unsigned int height)
+{
+    if (_context->makeCurrent())
+    {
+        if (_frameBuffer)
+        {
+            _frameBuffer->resize(width, height);
+        }
+        else
+        {
+            _frameBuffer = GLFramebuffer::create(width, height, 4, Image::BaseType::UINT8);
+        }
+        _width = width;
+        _height = height;
+    }
 }
 
 void GlslRenderer::updateViewInformation()

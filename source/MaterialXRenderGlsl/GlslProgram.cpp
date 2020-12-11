@@ -27,22 +27,16 @@ int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 // GlslProgram methods
 //
 
-GlslProgramPtr GlslProgram::create()
-{
-    return std::shared_ptr<GlslProgram>(new GlslProgram());
-}
-
 GlslProgram::GlslProgram() :
     _programId(UNDEFINED_OPENGL_RESOURCE_ID),
     _shader(nullptr),
-    _vertexArray(0),
+    _vertexArray(UNDEFINED_OPENGL_RESOURCE_ID),
     _lastGeometryName(EMPTY_STRING)
 {
 }
 
 GlslProgram::~GlslProgram()
 {
-    // Clean up the program and offscreen target
     deleteProgram();
 }
 
