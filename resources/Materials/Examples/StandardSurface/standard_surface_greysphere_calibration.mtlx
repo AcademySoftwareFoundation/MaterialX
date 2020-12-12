@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<materialx version="1.37" colorspace="srgb_texture" fileprefix="resources/Images/">
-  <nodegraph name="NG_Greysphere_Calibration">
+<materialx version="1.37" fileprefix="resources/Images/">
+  <nodegraph name="NG_Greysphere_Calibration" colorspace="srgb_texture">
     <texcoord name="texcoord1" type="vector2" />
     <place2d name="place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1"/>
