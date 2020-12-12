@@ -6,6 +6,7 @@
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
+#include <MaterialXRenderGlsl/GLUtil.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
 
@@ -26,22 +27,16 @@ int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 // GlslProgram methods
 //
 
-GlslProgramPtr GlslProgram::create()
-{
-    return std::shared_ptr<GlslProgram>(new GlslProgram());
-}
-
 GlslProgram::GlslProgram() :
     _programId(UNDEFINED_OPENGL_RESOURCE_ID),
     _shader(nullptr),
-    _vertexArray(0),
+    _vertexArray(UNDEFINED_OPENGL_RESOURCE_ID),
     _lastGeometryName(EMPTY_STRING)
 {
 }
 
 GlslProgram::~GlslProgram()
 {
-    // Clean up the program and offscreen target
     deleteProgram();
 }
 
@@ -248,7 +243,7 @@ bool GlslProgram::bind()
     if (_programId > UNDEFINED_OPENGL_RESOURCE_ID)
     {
         glUseProgram(_programId);
-        checkErrors();
+        checkGlErrors("after program bind");
         return true;
     }
     return false;
@@ -268,7 +263,7 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    checkErrors();
+    checkGlErrors("after program bind inputs");
 
     // Parse for uniforms and attributes
     getUniformsList();
@@ -491,7 +486,7 @@ void GlslProgram::bindStreams(MeshPtr mesh)
         }
     }
 
-    checkErrors();
+    checkGlErrors("after program bind streams");
 }
 
 void GlslProgram::unbindGeometry()
@@ -533,7 +528,7 @@ void GlslProgram::unbindGeometry()
     glDeleteVertexArrays(1, &_vertexArray);
     _vertexArray = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
 
-    checkErrors();
+    checkGlErrors("after program unbind geometry");
 }
 
 ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
@@ -555,7 +550,7 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
                 glUniform1i(uniformLocation, textureLocation);
             }
         }
-        checkErrors();
+        checkGlErrors("after program bind texture");
         return image;
     }
 
@@ -617,9 +612,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
             }
         }
     }
-    checkErrors();
 }
-
 
 void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imageHandler)
 {
@@ -1028,8 +1021,6 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
             glUniformMatrix4fv(location, 1, false, viewProjWorld.data());
         }
     } 
-
-    checkErrors();
 }
 
 void GlslProgram::bindTimeAndFrame()
@@ -1482,21 +1473,6 @@ void GlslProgram::printAttributes(std::ostream& outputStream)
         if (!value.empty())
             outputStream << ". Value: " << value;
         outputStream << "." << std::endl;
-    }
-}
-
-void GlslProgram::checkErrors()
-{
-    StringVec errors;
-
-    GLenum error;
-    while ((error = glGetError()) != GL_NO_ERROR)
-    {
-        errors.push_back("OpenGL error: " + std::to_string(error));
-    }
-    if (!errors.empty())
-    {
-        throw ExceptionShaderRenderError("OpenGL context error.", errors);
     }
 }
 

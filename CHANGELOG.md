@@ -1,5 +1,16 @@
 # Change Log
 
+## [1.37.4] - Development
+
+### Added
+- Added software rendering tests for MaterialXRenderGlsl to GitHub Actions.
+
+### Changed
+- Improved the robustness of context management in MaterialXRenderGlsl.
+
+### Fixed
+- Added a missing VAO binding to GlslRenderer\:\:drawScreenSpaceQuad.
+
 ## [1.37.3] - 2020-11-24
 
 ### Added

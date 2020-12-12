@@ -253,18 +253,23 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
     {
         return nullptr;
     }
-    NodeDefPtr shaderNodeDef = shader->getNodeDef();
 
     // Create document.
     DocumentPtr bakedTextureDoc = createDocument();
-    bakedTextureDoc->setColorSpace(_colorSpace);
+    if (shader->getDocument()->hasColorSpace())
+    {
+        bakedTextureDoc->setColorSpace(shader->getDocument()->getColorSpace());
+    }
 
     // Create top-level elements. Note that the child names may not be what
     // was requested so member names must be updated here to reflect that.
-    _bakedGraphName = bakedTextureDoc->createValidChildName(_bakedGraphName);
-    NodeGraphPtr bakedNodeGraph = bakedTextureDoc->addNodeGraph(_bakedGraphName);
-    _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
-    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
+    NodeGraphPtr bakedNodeGraph;
+    if (!_bakedImageMap.empty())
+    {
+        _bakedGraphName = bakedTextureDoc->createValidChildName(_bakedGraphName);
+        bakedNodeGraph = bakedTextureDoc->addNodeGraph(_bakedGraphName);
+    }
+    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo("GI_baked") : nullptr;
     if (bakedGeom)
     {
         bakedGeom->setGeomPropValue("udimset", udimSet, "stringarray");
@@ -325,7 +330,7 @@ DocumentPtr TextureBaker::getBakedMaterial(NodePtr shader, const StringVec& udim
                 string uniformColorString = getValueStringFromColor(uniformColor, bakedInput->getType());
                 bakedInput->setValueString(uniformColorString);
             }
-            else
+            if (bakedNodeGraph)
             {
                 // Add the image node.
                 NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName + BAKED_POSTFIX, sourceType);

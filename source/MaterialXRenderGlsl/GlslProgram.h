@@ -36,7 +36,10 @@ class GlslProgram
 {
   public:
     /// Create a GLSL program instance
-    static GlslProgramPtr create();
+    static GlslProgramPtr create()
+    {
+        return GlslProgramPtr(new GlslProgram());
+    }
 
     /// Destructor
     virtual ~GlslProgram();
@@ -233,11 +236,6 @@ class GlslProgram
     /// Bind an individual texture to a program uniform location
     ImagePtr bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
                          ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
-
-    /// Utility to check for OpenGL context errors.
-    /// Will throw an ExceptionShaderRenderError exception which will list of the errors found
-    /// if any errors encountered.
-    void checkErrors();
 
     /// Delete any currently created shader program
     void deleteProgram();

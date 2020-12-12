@@ -13,6 +13,7 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <iostream>
 #include <queue>
 
 namespace MaterialX
@@ -1343,7 +1344,7 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
     const string& sourceColorSpace = input->getActiveColorSpace();
     if (shaderPort && !sourceColorSpace.empty())
     {
-        if(shaderPort->getType() == Type::COLOR3 || shaderPort->getType() == Type::COLOR4)
+        if (shaderPort->getType() == Type::COLOR3 || shaderPort->getType() == Type::COLOR4)
         {
             // If we're converting between two identical color spaces than we have no work to do.
             if (sourceColorSpace != targetColorSpace)
@@ -1359,6 +1360,11 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
                     {
                         _outputColorTransformMap.emplace(static_cast<ShaderOutput*>(shaderPort), transform);
                     }
+                }
+                else
+                {
+                    std::cerr << "Unsupported color space transform from " <<
+                        sourceColorSpace << " to " << targetColorSpace << std::endl;
                 }
             }
         }

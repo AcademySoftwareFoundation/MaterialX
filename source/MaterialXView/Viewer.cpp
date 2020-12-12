@@ -1,6 +1,7 @@
 #include <MaterialXView/Viewer.h>
 
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
+#include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
 #include <MaterialXRender/Harmonics.h>
@@ -2024,7 +2025,7 @@ void Viewer::drawContents()
 
     updateViewHandlers();
 
-    checkGlErrors("before viewer render");
+    mx::checkGlErrors("before viewer render");
 
     // Render a wedge for the current material.
     if (_wedgeRequested)
@@ -2060,7 +2061,7 @@ void Viewer::drawContents()
         bakeTextures();
     }
 
-    checkGlErrors("after viewer render");
+    mx::checkGlErrors("after viewer render");
 }
 
 bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
@@ -2461,12 +2462,4 @@ void Viewer::updateAlbedoTable()
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
-}
-
-void Viewer::checkGlErrors(const std::string& context)
-{
-    for (GLenum error = glGetError(); error; error = glGetError())
-    {
-        std::cerr << "OpenGL error " << context << ": " << std::to_string(error) << std::endl;
-    }
 }

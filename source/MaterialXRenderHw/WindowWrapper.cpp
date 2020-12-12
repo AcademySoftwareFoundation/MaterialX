@@ -15,15 +15,6 @@ namespace MaterialX
 {
 
 #if defined(_WIN32)
-//
-// Window platform code
-//
-
-WindowWrapper::WindowWrapper() :
-    _externalHandle(0),
-    _internalHandle(0)
-{
-}
 
 WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
                              InternalWindowHandle internalHandle,
@@ -39,43 +30,6 @@ WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
     {
         _internalHandle = internalHandle;
     }
-}
-
-WindowWrapper::WindowWrapper(const WindowWrapper& other)
-{
-    _externalHandle = other._externalHandle;
-    if (_externalHandle && !other._internalHandle)
-    {
-        // Cache a HDC that corresponds to the window handle
-        _internalHandle = GetDC(_externalHandle);
-    }
-    else
-    {
-        _internalHandle = other._internalHandle;
-    }
-}
-
-const WindowWrapper& WindowWrapper::operator=(const WindowWrapper& other)
-{
-    if (this == &other)
-    {
-        return *this;
-    }
-
-    release();
-
-    _externalHandle = other._externalHandle;
-    if (_externalHandle && !other._internalHandle)
-    {
-        // Cache a HDC that corresponds to the window handle
-        _internalHandle = GetDC(_externalHandle);
-    }
-    else
-    {
-        _internalHandle = other._internalHandle;
-    }
-
-    return *this;
 }
 
 WindowWrapper::~WindowWrapper()
@@ -95,24 +49,12 @@ void WindowWrapper::release()
 }
 
 #elif defined(__linux__)
-//
-// Linux (X-specific) code
-//
-
-// Default constructor.
-WindowWrapper::WindowWrapper() :
-    _externalHandle(0),
-    _internalHandle(0),
-    _framebufferWindow(0),
-    _display(0)
-{
-}
 
 WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
                              InternalWindowHandle internalHandle,
                              DisplayHandle display)
 {
-    _display = display;
+    _xDisplay = display;
     _framebufferWindow = 0;
     _externalHandle = externalHandle;
     // Cache a pointer to the window.
@@ -120,23 +62,6 @@ WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
         _internalHandle = internalHandle;
     else
         _internalHandle = XtWindow(externalHandle);
-}
-
-WindowWrapper::WindowWrapper(const WindowWrapper& other)
-{
-    _framebufferWindow = other._framebufferWindow;
-    _externalHandle = other._externalHandle;
-    _internalHandle = other._internalHandle;
-    _display = other._display;
-}
-
-const WindowWrapper& WindowWrapper::operator=(const WindowWrapper& other)
-{
-    _framebufferWindow = other._framebufferWindow;
-    _externalHandle = other._externalHandle;
-    _internalHandle = other._internalHandle;
-    _display = other._display;
-    return *this;
 }
 
 WindowWrapper::~WindowWrapper()
@@ -150,19 +75,10 @@ void WindowWrapper::release()
     _externalHandle = 0;
     _internalHandle = 0;
     _framebufferWindow = 0;
-    _display = 0;
+    _xDisplay = 0;
 }
 
 #elif defined(__APPLE__)
-//
-// OSX (Apple) specific code
-//
-
-WindowWrapper::WindowWrapper() :
-    _externalHandle(0),
-    _internalHandle(0)
-{
-}
 
 WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
                              InternalWindowHandle internalHandle,
@@ -173,19 +89,6 @@ WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
     _internalHandle = NSUtilGetView(externalHandle);
 }
 
-WindowWrapper::WindowWrapper(const WindowWrapper& other)
-{
-    _externalHandle = other._externalHandle;
-    _internalHandle = NSUtilGetView(_externalHandle);
-}
-
-const WindowWrapper& WindowWrapper::operator=(const WindowWrapper& other)
-{
-    _externalHandle = other._externalHandle;
-    _internalHandle = NSUtilGetView(_externalHandle);
-    return *this;
-}
-
 WindowWrapper::~WindowWrapper()
 {
     release();
@@ -197,6 +100,18 @@ void WindowWrapper::release()
     _externalHandle = 0;
     _internalHandle = 0;
 }
+
 #endif
+
+//
+// Creator
+//
+
+WindowWrapperPtr WindowWrapper::create(ExternalWindowHandle externalHandle,
+                                       InternalWindowHandle internalHandle,
+                                       DisplayHandle display)
+{
+    return std::shared_ptr<WindowWrapper>(new WindowWrapper(externalHandle, internalHandle, display));
+}
 
 } // namespace MaterialX
