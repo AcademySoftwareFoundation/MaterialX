@@ -91,12 +91,6 @@ jobs:
           echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         fi
-        if [ "${{ matrix.test_render }}" = "ON" ]; then
-          echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
-          echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
-          echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
-          echo "RENDER_ENVIRONMENT=xvfb-run" >> $GITHUB_ENV
-        fi
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
@@ -144,11 +138,21 @@ jobs:
         python genshader.py
       working-directory: python/MaterialXTest
 
+    - name: Initialize Virtual Framebuffer
+      if: matrix.test_render == 'ON' && runner.os == 'Linux'
+      run: |
+        Xvfb :99 -screen 0 1280x960x24 &
+        echo "DISPLAY=:99" >> $GITHUB_ENV
+        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
+        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
+        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+
     - name: Material Baking Tests
       if: matrix.test_render == 'ON'
       run: |
         mkdir build/baked
-        $RENDER_ENVIRONMENT python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/baked/brass_tiled_baked.mtlx --path .
+        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/baked/brass_tiled_baked.mtlx --path .
+        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/baked/carpaint_baked.mtlx --path .
 
     - name: Generate Test HTML
       if: matrix.generate_html == 'ON'
@@ -165,7 +169,7 @@ jobs:
       uses: actions/upload-artifact@v2
       if: matrix.test_render == 'ON'
       with:
-        name: BakedMaterials
+        name: BakedMaterials_${{matrix.name}}
         path: build/baked/
 
     - name: Upload Test HTML
