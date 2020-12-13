@@ -33,7 +33,6 @@ jobs:
           compiler: gcc
           compiler_version: "10"
           python: 3.7
-          test_render: ON
 
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
