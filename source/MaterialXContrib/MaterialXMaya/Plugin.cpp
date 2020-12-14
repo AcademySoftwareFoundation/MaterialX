@@ -148,15 +148,15 @@ void Plugin::loadLibraries()
 
     {
         SearchPathBuilder builder(_librarySearchPath);
-        builder.append(_pluginLoadPath);
         builder.append(_pluginLoadPath / mx::FilePath("../libraries"));
         builder.append(_pluginLoadPath / mx::FilePath("../../libraries"));
+        builder.append(_pluginLoadPath);
 
         builder.appendFromOptionVar("materialXLibrarySearchPaths");
     }
 
     std::unordered_set<std::string> uniqueLibraryNames{
-        "adsklib", "stdlib", "pbrlib", "bxdf", "stdlib/genglsl", "pbrlib/genglsl", "lights", "lights/genglsl"
+        "targets", "adsk", "stdlib", "pbrlib", "bxdf", "stdlib/genglsl", "pbrlib/genglsl", "lights", "lights/genglsl"
     };
 
     {
