@@ -10,12 +10,6 @@ color overlay(color fg, color bg)
                  overlay(fg[2], bg[2]));
 }
 
-color2 overlay(color2 fg, color2 bg)
-{
-    return color2(overlay(fg.r, bg.r),
-                  overlay(fg.a, bg.a));
-}
-
 color4 overlay(color4 fg, color4 bg)
 {
     return color4(overlay(fg.rgb, bg.rgb),

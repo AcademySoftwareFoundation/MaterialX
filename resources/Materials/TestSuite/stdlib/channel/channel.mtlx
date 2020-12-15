@@ -70,13 +70,6 @@ Basic channel function tests each test is in a separate graph for each variation
       </combine2>
       <output name="out" type="vector4" nodename="combine1" />
    </nodegraph>
-   <nodegraph name="combine_color4CC" type="" xpos="8.36207" ypos="52.08">
-      <combine2 name="combine1" type="color4" xpos="5.74483" ypos="4.58">
-         <input name="in1" type="color2" value="0.5000, 1.0" />
-         <input name="in2" type="color2" value="0.2500, 0.7500" />
-      </combine2>
-      <output name="out" type="color4" nodename="combine1" />
-   </nodegraph>
    <nodegraph name="combine_vector4VV" type="" xpos="9.4069" ypos="52.06">
       <combine2 name="combine1" type="vector4" xpos="5.74483" ypos="4.58">
          <input name="in1" type="vector2" value="0.5000, 1.0000" />

@@ -5,7 +5,6 @@
 // http://www.materialx.org/
 
 #pragma once
-#include "color2.h"
 #include "color4.h"
 #include "vector2.h"
 #include "vector4.h"
@@ -21,17 +20,14 @@
 // Define mx_convert_type
 //   float -> colvecN
 color mx_convert (float a) { return color(a); }
-color2 mx_convert (float a) { return color2(a,a); }
 color4 mx_convert (float a) { return color4(a,a); }
 vector mx_convert (float a) { return vector(a); }
 vector2 mx_convert (float a) { return vector2(a,a); }
 vector4 mx_convert (float a) { return vector4(a,a,a,a); }
 //   colN <-> vecN
 vector mx_convert (color a) { return (vector)a; }
-vector2 mx_convert (color2 a) { return vector2 (a.r, a.a); }
 vector4 mx_convert (color4 a) { return vector4 (a.rgb[0], a.rgb[1], a.rgb[2], a.a); }
 color mx_convert (vector a) { return (color)a; }
-color2 mx_convert (vector2 a) { return color2 (a.x, a.y); }
 color4 mx_convert (vector4 a) { return color4 (color(a.x,a.y,a.z), a.w); }
 //   col3 <-> col4
 color mx_convert (color4 a) { return a.rgb; }
@@ -49,8 +45,6 @@ vector4 mx_add (vector4 a, vector4 b) { return a+b; }
 vector4 mx_add (vector4 a, float b) { return a+b; }
 color mx_add (color a, color b) { return a+b; }
 color mx_add (color a, float b) { return a+b; }
-color2 mx_add (color2 a, color2 b) { return a+b; }
-color2 mx_add (color2 a, float b) { return a+b; }
 color4 mx_add (color4 a, color4 b) { return a+b; }
 color4 mx_add (color4 a, float b) { return a+b; }
 closure color mx_add (closure color a, closure color b) { return a+b; }
@@ -101,8 +95,6 @@ vector4 mx_sub (vector4 a, vector4 b) { return a-b; }
 vector4 mx_sub (vector4 a, float b) { return a-b; }
 color mx_sub (color a, color b) { return a-b; }
 color mx_sub (color a, float b) { return a-b; }
-color2 mx_sub (color2 a, color2 b) { return a-b; }
-color2 mx_sub (color2 a, float b) { return a-b; }
 color4 mx_sub (color4 a, color4 b) { return a-b; }
 color4 mx_sub (color4 a, float b) { return a-b; }
 
@@ -172,17 +164,6 @@ color remap(color in, float inLow, float inHigh, float outLow, float outHigh, in
       return outLow + (outHigh - outLow) * x;
 }
 
-color2 remap(color2 c, color2 inLow, color2 inHigh, color2 outLow, color2 outHigh, int doClamp)
-{
-      return color2(remap(c.r, inLow.r, inHigh.r, outLow.r, outHigh.r, doClamp),
-                    remap(c.a, inLow.a, inHigh.a, outLow.a, outHigh.a, doClamp));
-}
-
-color2 remap(color2 c, float inLow, float inHigh, float outLow, float outHigh, int doClamp)
-{
-    return remap(c, color2(inLow, inLow), color2(inHigh, inHigh), color2(outLow, outLow), color2(outHigh, outHigh), doClamp);
-}
-
 color4 remap(color4 c, color4 inLow, color4 inHigh, color4 outLow, color4 outHigh, int doClamp)
 {
       return color4(remap(c.rgb, inLow.rgb, inHigh.rgb, outLow.rgb, outHigh.rgb, doClamp),
@@ -241,16 +222,6 @@ color fgamma(color in, color g)
 color fgamma(color in, float g)
 {
     return sign(in) * pow(abs(in), g);
-}
-
-color2 fgamma(color2 c, color2 a)
-{
-    return color2(fgamma(c.r, a.r), fgamma(c.a, a.a));
-}
-
-color2 fgamma(color2 c, float a)
-{
-    return fgamma(c, color2(a, a));
 }
 
 color4 fgamma(color4 a, color4 b)
@@ -318,17 +289,6 @@ color contrast(color in, float amount, float pivot)
     return out;
 }
 
-color2 contrast(color2 c, color2 amount, color2 pivot)
-{
-    return color2(contrast(c.r, amount.r, pivot.r),
-                  contrast(c.a, amount.a, pivot.a));
-}
-
-color2 contrast(color2 c, float amount, float pivot)
-{
-    return contrast(c, color2(amount, amount), color2(pivot, pivot));
-}
-
 color4 contrast(color4 c, color4 amount, color4 pivot)
 {
     return color4(contrast(c.rgb, amount.rgb, pivot.rgb),
@@ -369,12 +329,6 @@ vector4 contrast(vector4 in, float amount, float pivot)
 
 
 
-color2 noise (string noisetype, float x, float y)
-{
-    color cnoise = (color) noise (noisetype, x, y);
-    return color2 (cnoise[0], cnoise[1]);
-}
-
 vector2 noise (string noisetype, float x, float y)
 {
     color cnoise = (color) noise (noisetype, x, y);
@@ -395,12 +349,6 @@ vector4 noise (string noisetype, float x, float y)
     return vector4 (cnoise[0], cnoise[1], cnoise[2], fnoise);
 }
 
-
-color2 noise (string noisetype, point position)
-{
-    color cnoise = (color) noise (noisetype, position);
-    return color2 (cnoise[0], cnoise[1]);
-}
 
 vector2 noise (string noisetype, point position)
 {
@@ -424,12 +372,6 @@ vector4 noise (string noisetype, point position)
 
 
 
-color2 cellnoise (float x, float y)
-{
-    color cnoise = (color) cellnoise (x, y);
-    return color2 (cnoise[0], cnoise[1]);
-}
-
 vector2 cellnoise (float x, float y)
 {
     color cnoise = (color) cellnoise (x, y);
@@ -451,12 +393,6 @@ vector4 cellnoise (float x, float y)
 }
 
 
-
-color2 cellnoise (point position)
-{
-    color cnoise = (color) cellnoise (position);
-    return color2 (cnoise[0], cnoise[1]);
-}
 
 vector2 cellnoise (point position)
 {
@@ -509,12 +445,6 @@ color fBm( point position, int octaves, float lacunarity, float diminish, string
         p *= lacunarity;
     }
     return out;
-}
-
-color2 fBm( point position, int octaves, float lacunarity, float diminish, string noisetype)
-{
-    return color2 ((float) fBm (position, octaves, lacunarity, diminish, noisetype),
-                   (float) fBm (position+point(19, 193, 17), octaves, lacunarity, diminish, noisetype));
 }
 
 vector2 fBm( point position, int octaves, float lacunarity, float diminish, string noisetype)
@@ -617,35 +547,6 @@ vector swizzle_vector (float in[4], string channels)
             outF[i] = 0;
     }
     return vector(outF[0],outF[1],outF[2]);
-}
-
-
-
-color2 swizzle_color2 (float in[4], string channels)
-{
-    color2  out;
-    float outF[4];
-    int c_len = strlen(channels);
-
-    for (int i=0; i<c_len; i++) {
-        string ch = substr(channels, i, 1);
-        if (ch == "r" || ch == "x")
-            outF[i] = in[0];
-        else if (ch == "g" || ch == "y")
-            outF[i] = in[1];
-        else if (ch == "b" || ch == "z")
-            outF[i] = in[2];
-        else if (ch == "a")
-            outF[i] = in[1];
-        else if(ch == "1")
-            outF[i] = 1;
-        else
-            outF[i] = 0;
-    }
-    out.r = outF[0];
-    out.a = outF[1];
-
-    return out;
 }
 
 
@@ -764,13 +665,6 @@ void setup_missing_color_alpha (vector default_value,
     missingAlpha = 1;
 }
 
-void setup_missing_color_alpha (color2 default_value,
-              output color missingColor, output float missingAlpha)
-{
-    missingColor = color (default_value.r, default_value.a, 0);
-    missingAlpha = 1;
-}
-
 void setup_missing_color_alpha (vector2 default_value,
               output color missingColor, output float missingAlpha)
 {
@@ -813,11 +707,6 @@ vector combine (float a, float b, float c, float d)
     return vector (a, b, c);
 }
 
-color2 combine (float a, float b, float c, float d)
-{
-    return color2 (a, b);
-}
-
 vector2 combine (float a, float b, float c, float d)
 {
     return vector2 (a, b);
@@ -849,11 +738,6 @@ vector combine (color rgb, float alpha)
     return (vector)rgb;
 }
 
-color2 combine (color rgb, float alpha)
-{
-    return color2 (rgb[0], rgb[1]);
-}
-
 vector2 combine (color rgb, float alpha)
 {
     return vector2 (rgb[0], rgb[1]);
@@ -873,11 +757,6 @@ vector4 combine (color rgb, float alpha)
 //
 // extract(in,index) returns one indexed float from the aggregate.
 //
-
-float extract (color2 in, int index)
-{
-    return index == 0 ? in.r : in.a;
-}
 
 float extract (vector2 in, int index)
 {

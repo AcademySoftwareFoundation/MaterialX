@@ -1,5 +1,0 @@
-void mx_noise2d_color2(vector2 amplitude, float pivot, vector2 texcoord, output color2 result)
-{
-    color2 value = noise("snoise", texcoord.x, texcoord.y);
-    result = value * color2(amplitude.x, amplitude.y) + pivot;
-}

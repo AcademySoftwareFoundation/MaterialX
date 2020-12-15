@@ -99,11 +99,6 @@
   </geomcolor>
   <output name="color_float_output" type="vector3" nodename="color_float" channels="x00" />
 
-  <geomcolor name="color_vec2" type="color2">
-    <parameter name="index" type="integer" value="0" />
-  </geomcolor>
-  <output name="color_vec2_output" type="vector3" nodename="color_vec2" channels="ra0" />
-
   <geomcolor name="color_vec3" type="color3">
     <parameter name="index" type="integer" value="0" />
   </geomcolor>
