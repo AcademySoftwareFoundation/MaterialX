@@ -6,8 +6,7 @@
 #include <MaterialXTest/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
-#include <MaterialXCore/MaterialNode.h>
-//#include <MaterialXCore/Util.h>
+#include <MaterialXCore/Material.h>
 #include <MaterialXCore/Unit.h>
 
 #include <MaterialXFormat/File.h>
@@ -744,7 +743,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         {
             mx::TypedElementPtr targetElement = element;
             mx::OutputPtr output = targetElement->asA<mx::Output>();
-            mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
             mx::NodePtr outputNode = targetElement->asA<mx::Node>();
             mx::NodeDefPtr nodeDef = nullptr;
             if (output)
@@ -755,10 +753,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                 {
                     nodeDef = outputNode->getNodeDef();
                 }
-            }
-            else if (shaderRef)
-            {
-                nodeDef = shaderRef->getNodeDef();
             }
 
             // Handle material node checking. For now only check first surface shader if any

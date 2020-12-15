@@ -24,7 +24,6 @@ class Implementation;
 class TypeDef;
 class TargetDef;
 class Member;
-class ShaderRef;
 class Unit;
 class UnitDef;
 class UnitTypeDef;
@@ -79,7 +78,7 @@ using AttributeDefDefPtr = shared_ptr<const AttributeDef>;
 /// A node definition element within a Document.
 ///
 /// A NodeDef provides the declaration of a node interface, which may then
-/// be instantiated as a Node or a ShaderRef.
+/// be instantiated as a Node.
 class NodeDef : public InterfaceElement
 {
   public:
@@ -88,8 +87,6 @@ class NodeDef : public InterfaceElement
     {
     }
     virtual ~NodeDef() { }
-
-    using ShaderRefPtr = shared_ptr<ShaderRef>;
 
     /// @name Node String
     /// @{
@@ -149,13 +146,6 @@ class NodeDef : public InterfaceElement
     ///    if none was found.  Note that a node implementation may be either
     ///    an Implementation element or a NodeGraph element.
     InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const;
-
-    /// @}
-    /// @name Shader References
-    /// @{
-
-    /// Return all ShaderRef elements that instantiate this NodeDef.
-    vector<ShaderRefPtr> getInstantiatingShaderRefs() const;
 
     /// @}
     /// @name Validation

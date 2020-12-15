@@ -207,97 +207,6 @@ bool PortElement::validChannelsString(const string& channels, const string& sour
 }
 
 //
-// Parameter methods
-//
-
-Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
-{
-    if (material && index < getUpstreamEdgeCount())
-    {
-        ConstElementPtr parent = getParent();
-        ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
-        ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
-        if (nodeDef)
-        {
-            // Apply BindParam elements to the Parameter.
-            for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
-            {
-                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
-                {
-                    for (BindParamPtr bindParam : shaderRef->getBindParams())
-                    {
-                        if (bindParam->getName() == getName() && bindParam->hasValue())
-                        {
-                            return Edge(getSelfNonConst(), nullptr, bindParam);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return NULL_EDGE;
-}
-
-OutputPtr Parameter::getConnectedOutput() const
-{
-    OutputPtr output = OutputPtr();
-
-    const string& outputString = getAttribute(PortElement::OUTPUT_ATTRIBUTE);
-    if (!outputString.empty())
-    {
-        const string connectedGraph = getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
-        const string connectedNode = getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
-
-        // Look for an output in a nodegraph
-        if (!connectedGraph.empty())
-        {
-            NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(connectedGraph);
-            if (nodeGraph)
-            {
-                output = nodeGraph->getOutput(outputString);
-            }
-        }
-        // Look for output on a node within a nodegraph
-        else if (!connectedNode.empty())
-        {
-            ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
-            NodePtr node = graph ? graph->getNode(connectedNode) : nullptr;
-            if (node)
-            {
-                output = node->getOutput(outputString);
-            }
-        }
-        // Look for a document level output
-        else
-        {
-            output = getDocument()->getOutput(outputString);
-        }
-    }
-    return output;
-}
-
-NodePtr Parameter::getConnectedNode() const
-{
-    OutputPtr output = getConnectedOutput();
-    if (output)
-    {
-        return output->getConnectedNode();
-    }
-    const string connectedNode = getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
-    if (!connectedNode.empty())
-    {
-        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
-        NodePtr node = graph ? graph->getNode(connectedNode) : nullptr;
-        if (node)
-        {
-            return node;
-        }
-    }
-    return nullptr;
-}
-
-//
 // Input methods
 //
 
@@ -376,44 +285,6 @@ NodePtr Input::getConnectedNode() const
     return PortElement::getConnectedNode();
 }
 
-Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
-{
-    if (material && index < getUpstreamEdgeCount())
-    {
-        ConstElementPtr parent = getParent();
-        ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
-        ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
-        if (nodeDef)
-        {
-            // Apply BindInput elements to the Input.
-            for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
-            {
-                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
-                {
-                    for (BindInputPtr bindInput : shaderRef->getBindInputs())
-                    {
-                        if (bindInput->getName() != getName())
-                        {
-                            continue;
-                        }
-                        OutputPtr output = bindInput->getConnectedOutput();
-                        if (output)
-                        {
-                            return Edge(getSelfNonConst(), bindInput, output);
-                        }
-                        if (bindInput->hasValue())
-                        {
-                            return Edge(getSelfNonConst(), nullptr, bindInput);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return NULL_EDGE;
-}
-
 GeomPropDefPtr Input::getDefaultGeomProp() const
 {
     const string& defaultGeomProp = getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
@@ -439,7 +310,7 @@ bool Input::validate(string* message) const
 // Output methods
 //
 
-Edge Output::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
+Edge Output::getUpstreamEdge(size_t index) const
 {
     if (index < getUpstreamEdgeCount())
     {
@@ -472,30 +343,6 @@ bool Output::validate(string* message) const
 //
 // InterfaceElement methods
 //
-
-ParameterPtr InterfaceElement::getActiveParameter(const string& name) const
-{
-    for (ConstElementPtr elem : traverseInheritance())
-    {
-        ParameterPtr param = elem->asA<InterfaceElement>()->getParameter(name);
-        if (param)
-        {
-            return param;
-        }
-    }
-    return nullptr;
-}
-
-vector<ParameterPtr> InterfaceElement::getActiveParameters() const
-{
-    vector<ParameterPtr> activeParams;
-    for (ConstElementPtr elem : traverseInheritance())
-    {
-        vector<ParameterPtr> params = elem->asA<InterfaceElement>()->getParameters();
-        activeParams.insert(activeParams.end(), params.begin(), params.end());
-    }
-    return activeParams;
-}
 
 InputPtr InterfaceElement::getActiveInput(const string& name) const
 {
@@ -615,28 +462,6 @@ vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
     return activeValueElems;
 }
 
-ValuePtr InterfaceElement::getParameterValue(const string& name, const string& target) const
-{
-    ParameterPtr param = getParameter(name);
-    if (param)
-    {
-        return param->getValue();
-    }
-
-    // Return the value, if any, stored in our declaration.
-    ConstNodeDefPtr decl = getDeclaration(target);
-    if (decl)
-    {
-        param = decl->getParameter(name);
-        if (param)
-        {
-            return param->getValue();
-        }
-    }
-
-    return ValuePtr();
-}
-
 ValuePtr InterfaceElement::getInputValue(const string& name, const string& target) const
 {
     InputPtr input = getInput(name);
@@ -662,11 +487,7 @@ ValuePtr InterfaceElement::getInputValue(const string& name, const string& targe
 void InterfaceElement::registerChildElement(ElementPtr child)
 {
     TypedElement::registerChildElement(child);
-    if (child->isA<Parameter>())
-    {
-        _parameterCount++;
-    }
-    else if (child->isA<Input>())
+    if (child->isA<Input>())
     {
         _inputCount++;
     }
@@ -679,11 +500,7 @@ void InterfaceElement::registerChildElement(ElementPtr child)
 void InterfaceElement::unregisterChildElement(ElementPtr child)
 {
     TypedElement::unregisterChildElement(child);
-    if (child->isA<Parameter>())
-    {
-        _parameterCount--;
-    }
-    else if (child->isA<Input>())
+    if (child->isA<Input>())
     {
         _inputCount--;
     }

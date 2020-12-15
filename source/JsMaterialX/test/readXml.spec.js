@@ -55,23 +55,23 @@ describe('Build Document', () => {
             }
             expect(valueElementCount).to.be.greaterThan(0);
 
-            // Traverse upstream from each shader input.
-            const materials = doc.getMaterials();
-            materials.forEach((material) => {
-                expect(material.getPrimaryShaderNodeDef()).to.exist;
-                let edgeCount = 0;
+            // // Traverse upstream from each shader input.
+            // const materials = doc.getMaterials();
+            // materials.forEach((material) => {
+            //     expect(material.getPrimaryShaderNodeDef()).to.exist;
+            //     let edgeCount = 0;
 
-                const primaryShaderInputs = material.getPrimaryShaderInputs();
-                primaryShaderInputs.forEach((shaderInput) => {
-                    const boundValue = shaderInput.getBoundValue(material);
-                    const upstreamElement = shaderInput.getUpstreamElement(material);
-                    expect(boundValue !== null || upstreamElement !== null).to.be.true;
-                    traverse(shaderInput.traverseGraph(material), () => {
-                        edgeCount++;
-                    });
-                });
-                expect(edgeCount).to.be.greaterThan(0);
-            });
+            //     const primaryShaderInputs = material.getPrimaryShaderInputs();
+            //     primaryShaderInputs.forEach((shaderInput) => {
+            //         const boundValue = shaderInput.getBoundValue(material);
+            //         const upstreamElement = shaderInput.getUpstreamElement(material);
+            //         expect(boundValue !== null || upstreamElement !== null).to.be.true;
+            //         traverse(shaderInput.traverseGraph(material), () => {
+            //             edgeCount++;
+            //         });
+            //     });
+            //     expect(edgeCount).to.be.greaterThan(0);
+            // });
 
             // Serialize to XML.
             const writeOptions = new mx.XmlWriteOptions();

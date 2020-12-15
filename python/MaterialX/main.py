@@ -73,21 +73,13 @@ def _getValue(self):
     value = self._getValue()
     return value.getData() if value else None
 
-def _getBoundValue(self, material):
-    """Return the value that is bound to this element within the context of a
-       given material, taking the entire dataflow graph into account."""
-    value = self._getBoundValue(material)
-    return value.getData() if value else None
-
 def _getDefaultValue(self):
-    """Return the default value for this element, which will be used as its bound
-       value when no external binding from a material is present."""
+    """Return the default value for this element."""
     value = self._getDefaultValue()
     return value.getData() if value else None
 
 ValueElement.setValue = _setValue
 ValueElement.getValue = _getValue
-ValueElement.getBoundValue = _getBoundValue
 ValueElement.getDefaultValue = _getDefaultValue
 
 
@@ -156,53 +148,6 @@ def _addNode(self, category, name = '', typeString = DEFAULT_TYPE_STRING):
     return self._addNode(category, name, typeString)
 
 GraphElement.addNode = _addNode
-
-
-#
-# Material
-#
-
-def _addOverride(self, name):
-    "Add an override to the material."
-    return self._addOverride(name)
-
-def _setOverrideValue(self, name, value, typeString = ''):
-    """Set the value of an override by its name, creating a child element
-       to hold the override if needed."""
-    method = getattr(self.__class__, "_setOverrideValue" + getTypeString(value))
-    return method(self, name, value, typeString)
-
-def _addShaderRef(self, name = '', node = ''):
-    "Add a shader ref to the material."
-    return self._addShaderRef(name, node)
-
-def _getReferencedShaderDefs(self):
-    "(Deprecated) Return a list of all shader nodedefs referenced by this material."
-    warnings.warn("This function is deprecated; call Material.getShaderNodeDefs instead.", DeprecationWarning, stacklevel = 2)
-    return self.getShaderNodeDefs()
-
-def _getReferencingMaterialAssigns(self):
-    "(Deprecated) Return a list of all material assigns that reference this material."
-    warnings.warn("This function is deprecated; call Material.getGeometryBindings instead.", DeprecationWarning, stacklevel = 2)
-    return self.getGeometryBindings()
-
-Material.addOverride = _addOverride
-Material.setOverrideValue = _setOverrideValue
-Material.addShaderRef = _addShaderRef
-Material.getReferencedShaderDefs = _getReferencedShaderDefs
-Material.getReferencingMaterialAssigns = _getReferencingMaterialAssigns
-
-
-#
-# ShaderRef
-#
-
-def _getReferencedShaderDef(self):
-    "(Deprecated) Return the NodeDef that this element references."
-    warnings.warn("This function is deprecated; call ShaderRef.getNodeDef instead.", DeprecationWarning, stacklevel = 2)
-    return self.getNodeDef()
-
-ShaderRef.getReferencedShaderDef = _getReferencedShaderDef
 
 
 #

@@ -13,6 +13,13 @@
 namespace MaterialX
 {
 
+namespace {
+
+const string SAMPLE2D_INPUT = "texcoord";
+const string SAMPLE3D_INPUT = "position";
+
+} // anonymous namespace
+
 const std::array<float, 3> GAUSSIAN_KERNEL_3 =
 {
     0.27901f, 0.44198f, 0.27901f // Sigma 1
@@ -25,9 +32,6 @@ const std::array<float, 7> GAUSSIAN_KERNEL_7 =
 {
     0.00598f, 0.060626f, 0.241843f, 0.383103f, 0.241843f, 0.060626f, 0.00598f // Sigma 1
 };
-
-const string ConvolutionNode::SAMPLE2D_INPUT = "texcoord";
-const string ConvolutionNode::SAMPLE3D_INPUT = "position";
 
 ConvolutionNode::ConvolutionNode()
 {

@@ -1,6 +1,5 @@
 #include "OgsFragment.h"
 
-#include <MaterialXCore/MaterialNode.h>
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>

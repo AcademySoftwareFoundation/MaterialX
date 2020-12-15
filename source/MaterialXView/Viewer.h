@@ -141,9 +141,6 @@ class Viewer : public ng::Screen
     /// Update the directional albedo table.
     void updateAlbedoTable();
 
-    /// Check for any OpenGL errors that have been encountered.
-    void checkGlErrors(const std::string& context);
-
   private:
     ng::Window* _window;
     ng::Arcball _arcball;

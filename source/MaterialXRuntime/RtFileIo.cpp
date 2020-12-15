@@ -744,7 +744,6 @@ namespace
         NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName(), EMPTY_STRING, nodedef.getNode());
         writeMetadata(src, destNodeDef, nodedefMetadata, options);
 
-        bool writeUniformsAsParameters = options ? options->writeUniformsAsParameters : false;
         for (const PvtDataHandle attrH : src->getAllAttributes())
         {
             const PvtAttribute* attr = attrH->asA<PvtAttribute>();
@@ -753,21 +752,10 @@ namespace
             if (attr->isA<PvtInput>())
             {
                 const PvtInput* input = attr->asA<PvtInput>();
+                destPort = destNodeDef->addInput(attr->getName(), attr->getType().str());
                 if (input->isUniform())
                 {
-                    if (writeUniformsAsParameters)
-                    {
-                        destPort = destNodeDef->addParameter(attr->getName(), attr->getType().str());
-                    }
-                    else
-                    {
-                        destPort = destNodeDef->addInput(attr->getName(), attr->getType().str());
-                        destPort->setIsUniform(true);
-                    }
-                }
-                else
-                {
-                    destPort = destNodeDef->addInput(attr->getName(), attr->getType().str());
+                    destPort->setIsUniform(true);
                 }
             }
             else
@@ -800,7 +788,6 @@ namespace
         }
 
         bool writeDefaultValues = options ? options->writeDefaultValues : false;
-        bool writeUniformsAsParameters = options ? options->writeUniformsAsParameters : false;
 
         NodePtr destNode = dest->addNode(nodedef.getNamespacedNode(), node.getName(), numOutputs > 1 ? "multioutput" : outputType);
 
@@ -824,15 +811,8 @@ namespace
                     ValueElementPtr valueElem;
                     if (input.isUniform())
                     {
-                        if (writeUniformsAsParameters)
-                        {
-                            valueElem = destNode->addParameter(input.getName(), input.getType());
-                        }
-                        else
-                        {
-                            valueElem = destNode->addInput(input.getName(), input.getType());
-                            valueElem->setIsUniform(true);
-                        }
+                        valueElem = destNode->addInput(input.getName(), input.getType());
+                        valueElem->setIsUniform(true);
                         if (input.isConnected())
                         {
                             RtOutput source = input.getConnection();
@@ -917,8 +897,6 @@ namespace
 
         if (!options || options->writeNodeGraphInputs)
         {
-            bool writeUniformsAsParameters = options ? options->writeUniformsAsParameters : false;
-
             // Write inputs/parameters.
             RtObjTypePredicate<RtInput> inputsFilter;
             for (RtAttribute attr : src->getAttributes(inputsFilter))
@@ -927,15 +905,8 @@ namespace
                 ValueElementPtr v = nullptr;
                 if (nodegraphInput.isUniform())
                 {
-                    if (writeUniformsAsParameters)
-                    {
-                        v = destNodeGraph->addParameter(nodegraphInput.getName(), nodegraphInput.getType());
-                    }
-                    else
-                    {
-                        v = destNodeGraph->addInput(nodegraphInput.getName(), nodegraphInput.getType());
-                        v->setIsUniform(true);
-                    }
+                    v = destNodeGraph->addInput(nodegraphInput.getName(), nodegraphInput.getType());
+                    v->setIsUniform(true);
                 }
                 else
                 {
@@ -1278,8 +1249,7 @@ RtWriteOptions::RtWriteOptions() :
     objectFilter(nullptr),
     metadataFilter(nullptr),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),
-    desiredMinorVersion(MATERIALX_MINOR_VERSION),
-    writeUniformsAsParameters(false)
+    desiredMinorVersion(MATERIALX_MINOR_VERSION)
 {
 }
 

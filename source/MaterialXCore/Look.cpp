@@ -5,6 +5,8 @@
 
 #include <MaterialXCore/Look.h>
 
+#include <MaterialXCore/Document.h>
+
 namespace MaterialX
 {
 
@@ -18,6 +20,32 @@ const string Visibility::VISIBLE_ATTRIBUTE = "visible";
 
 const string LookGroup::LOOKS_ATTRIBUTE = "looks";
 const string LookGroup::ACTIVE_ATTRIBUTE = "active";
+
+vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom)
+{
+    vector<MaterialAssignPtr> matAssigns;
+    for (LookPtr look : materialNode->getDocument()->getLooks())
+    {
+        for (MaterialAssignPtr matAssign : look->getMaterialAssigns())
+        {
+            if (matAssign->getReferencedMaterial() == materialNode)
+            {
+                if (geomStringsMatch(geom, matAssign->getActiveGeom()))
+                {
+                    matAssigns.push_back(matAssign);
+                    continue;
+                }
+                CollectionPtr coll = matAssign->getCollection();
+                if (coll && coll->matchesGeomString(geom))
+                {
+                    matAssigns.push_back(matAssign);
+                    continue;
+                }
+            }
+        }
+    }
+    return matAssigns;
+}
 
 //
 // Look methods
@@ -92,12 +120,7 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
 // MaterialAssign methods
 //
 
-MaterialPtr MaterialAssign::getReferencedMaterial() const
-{
-    return resolveRootNameReference<Material>(getMaterial());   
-}
-
-NodePtr MaterialAssign::getReferencedMaterialNode() const
+NodePtr MaterialAssign::getReferencedMaterial() const
 {
     return resolveRootNameReference<Node>(getMaterial());
 }

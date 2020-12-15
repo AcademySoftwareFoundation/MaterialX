@@ -1,6 +1,7 @@
 #include <MaterialXView/Viewer.h>
 
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
+#include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
 #include <MaterialXRender/Harmonics.h>
@@ -15,7 +16,6 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 
-#include <MaterialXCore/MaterialNode.h>
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
@@ -107,24 +107,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
     }
 
     // Remap references to unimplemented shader nodedefs.
-    for (mx::MaterialPtr material : doc->getMaterials())
-    {
-        for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
-        {
-            mx::NodeDefPtr nodeDef = shaderRef->getNodeDef();
-            if (nodeDef && !nodeDef->getImplementation())
-            {
-                std::vector<mx::NodeDefPtr> altNodeDefs = doc->getMatchingNodeDefs(nodeDef->getNodeString());
-                for (mx::NodeDefPtr altNodeDef : altNodeDefs)
-                {
-                    if (altNodeDef->getImplementation())
-                    {
-                        shaderRef->setNodeDefString(altNodeDef->getName());
-                    }
-                }
-            }
-        }
-    }
     for (mx::NodePtr materialNode : doc->getMaterialNodes())
     {
         for (mx::NodePtr shader : getShaderNodes(materialNode))
@@ -1133,9 +1115,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             }
             else
             {
-                mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-                mx::TypedElementPtr materialRef = (shaderRef ? shaderRef->getParent()->asA<mx::TypedElement>() : nullptr);
-                materials.push_back(materialRef);
+                materials.push_back(nullptr);
             }
             renderablePaths.push_back(renderableElem->getNamePath());
         }
@@ -1239,20 +1219,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
 
                 // Apply geometric assignments specified in the document, if any.
-                mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-                mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
-                if (materialRef)
-                {
-                    for (mx::MeshPartitionPtr part : _geometryList)
-                    {
-                        std::string partGeomName = part->getIdentifier();
-                        if (!materialRef->getGeometryBindings(partGeomName).empty())
-                        {
-                            assignMaterial(part, mat);
-                        }
-                    }
-                }
-                else if (mat && mat->getMaterialElement())
+                if (mat && mat->getMaterialElement())
                 {
                     mx::NodePtr materialNode = mat->getMaterialElement()->asA<mx::Node>();
                     if (materialNode)
@@ -1411,12 +1378,12 @@ void Viewer::saveDotFiles()
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-            if (shaderRef)
+            mx::NodePtr shaderNode = elem->asA<mx::Node>();
+            if (shaderNode && material->getMaterialElement())
             {
-                for (mx::BindInputPtr bindInput : shaderRef->getBindInputs())
+                for (mx::InputPtr input : shaderNode->getInputs())
                 {
-                    mx::OutputPtr output = bindInput->getConnectedOutput();
+                    mx::OutputPtr output = input->getConnectedOutput();
                     mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
                     if (nodeGraph)
                     {
@@ -1426,7 +1393,7 @@ void Viewer::saveDotFiles()
                     }
                 }
 
-                mx::NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                mx::NodeDefPtr nodeDef = shaderNode->getNodeDef();
                 mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
                 mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
                 if (nodeGraph)
@@ -1434,34 +1401,6 @@ void Viewer::saveDotFiles()
                     std::string dot = nodeGraph->asStringDot();
                     std::string baseName = _searchPath[0] / nodeDef->getName();
                     writeTextFile(dot, baseName + ".dot");
-                }
-            }
-            else
-            {
-                mx::NodePtr shaderNode = elem->asA<mx::Node>();
-                if (shaderNode && material->getMaterialElement())
-                {
-                    for (mx::InputPtr input : shaderNode->getInputs())
-                    {
-                        mx::OutputPtr output = input->getConnectedOutput();
-                        mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
-                        if (nodeGraph)
-                        {
-                            std::string dot = nodeGraph->asStringDot();
-                            std::string baseName = _searchPath[0] / nodeGraph->getName();
-                            writeTextFile(dot, baseName + ".dot");
-                        }
-                    }
-
-                    mx::NodeDefPtr nodeDef = shaderNode->getNodeDef();
-                    mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
-                    mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
-                    if (nodeGraph)
-                    {
-                        std::string dot = nodeGraph->asStringDot();
-                        std::string baseName = _searchPath[0] / nodeDef->getName();
-                        writeTextFile(dot, baseName + ".dot");
-                    }
                 }
             }
         }
@@ -2090,7 +2029,7 @@ void Viewer::drawContents()
 
     updateViewHandlers();
 
-    checkGlErrors("before viewer render");
+    mx::checkGlErrors("before viewer render");
 
     // Render a wedge for the current material.
     if (_wedgeRequested)
@@ -2126,7 +2065,7 @@ void Viewer::drawContents()
         bakeTextures();
     }
 
-    checkGlErrors("after viewer render");
+    mx::checkGlErrors("after viewer render");
 }
 
 bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
@@ -2527,12 +2466,4 @@ void Viewer::updateAlbedoTable()
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
-}
-
-void Viewer::checkGlErrors(const std::string& context)
-{
-    for (GLenum error = glGetError(); error; error = glGetError())
-    {
-        std::cerr << "OpenGL error " << context << ": " << std::to_string(error) << std::endl;
-    }
 }

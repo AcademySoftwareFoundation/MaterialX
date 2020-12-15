@@ -79,6 +79,15 @@ class Node : public InterfaceElement
     /// input is not present, then an empty string is returned.
     string getConnectedNodeName(const string& inputName) const;
 
+    /// Set the output to which the given input is connected, creating a
+    /// child input if needed.  If the node argument is null, then any
+    /// existing output connection on the input will be cleared.
+    void setConnectedOutput(const string& inputName, OutputPtr output);
+
+    /// Return the output connected to the given input.  If the given input is
+    /// not present, then an empty OutputPtr is returned.
+    OutputPtr getConnectedOutput(const string& inputName) const;
+
     /// @}
     /// @name NodeDef References
     /// @{
@@ -116,8 +125,7 @@ class Node : public InterfaceElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
-                         size_t index = 0) const override;
+    Edge getUpstreamEdge(size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
     size_t getUpstreamEdgeCount() const override
@@ -125,7 +133,7 @@ class Node : public InterfaceElement
         return getInputCount();
     }
 
-    /// Given a connecting element (Input/Output/BindInput) return the NodeDef output
+    /// Given a connecting element (Input or Output) return the NodeDef output
     /// corresponding to the output the element is connected to. This is only valid if
     /// the NodeDef has explicit outputs defined, e.g. multiple outputs or an explicitly 
     /// named output. If this is not the case, nullptr is returned, which implies the
@@ -239,6 +247,20 @@ class GraphElement : public InterfaceElement
     }
 
     /// @}
+    /// @name Material Nodes
+    /// @{
+
+    /// Add a material node to the graph, optionally connecting it to the given
+    /// shader node.
+    NodePtr addMaterialNode(const string& name = EMPTY_STRING, ConstNodePtr shaderNode = nullptr);
+
+    /// Return a vector of all material nodes.
+    vector<NodePtr> getMaterialNodes() const
+    {
+        return getNodesOfType(MATERIAL_TYPE_STRING);
+    }
+
+    /// @}
     /// @name Backdrop Elements
     /// @{
 
@@ -324,16 +346,16 @@ class NodeGraph : public GraphElement
     ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
 
     /// Add a new interface to an existing NodeDef associated with this NodeGraph.
-    /// @param inputPath Path to Input or Parameter to declare as an interface.
+    /// @param inputPath Path to Input to declare as an interface.
     /// @param interfaceName Name of interface.
     void addInterface(const string& inputPath, const string& interfaceName);
 
     /// Remove an interface from an existing NodeDef associated with this NodeGraph.
-    /// @param inputPath Path to Input or Parameter to remove interface from.
+    /// @param inputPath Path to Input to remove interface from.
     void removeInterface(const string& inputPath);
 
     /// Rename an interface on an existing NodeDef associated with this NodeGraph.
-    /// @param inputPath Path to Input or Parameter to reinterface.
+    /// @param inputPath Path to Input to reinterface.
     /// @param interfaceName Name of interface.
     void renameInterface(const string& inputPath, const string& interfaceName);
 

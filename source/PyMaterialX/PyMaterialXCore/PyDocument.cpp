@@ -25,12 +25,6 @@ void bindPyDocument(py::module& mod)
         .def("getNodeGraphs", &mx::Document::getNodeGraphs)
         .def("removeNodeGraph", &mx::Document::removeNodeGraph)
         .def("getMatchingPorts", &mx::Document::getMatchingPorts)
-        .def("addMaterial", &mx::Document::addMaterial,
-            py::arg("name") = mx::EMPTY_STRING)
-        .def("getMaterial", &mx::Document::getMaterial)
-        .def("getMaterials", &mx::Document::getMaterials)
-        .def("removeMaterial", &mx::Document::removeMaterial)
-        .def("getMaterialNode", &mx::Document::getMaterialNode)
         .def("getMaterialNodes", &mx::Document::getMaterialNodes)
         .def("addGeomInfo", &mx::Document::addGeomInfo,
             py::arg("name") = mx::EMPTY_STRING, py::arg("geom") = mx::UNIVERSAL_GEOM_NAME)
@@ -102,6 +96,5 @@ void bindPyDocument(py::module& mod)
         .def("setColorManagementConfig", &mx::Document::setColorManagementConfig)
         .def("hasColorManagementConfig", &mx::Document::hasColorManagementConfig)
         .def("getColorManagementConfig", &mx::Document::getColorManagementConfig)
-        .def("convertParametersToInputs", &mx::Document::convertParametersToInputs)
-        .def("convertUniformInputsToParameters", &mx::Document::convertUniformInputsToParameters);
+        .def("convertParametersToInputs", &mx::Document::convertParametersToInputs);
 }

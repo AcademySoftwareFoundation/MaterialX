@@ -6,7 +6,6 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXCore/Util.h>
-#include <MaterialXCore/MaterialNode.h>
 
 #include <mutex>
 
@@ -20,6 +19,159 @@ namespace {
 
 const string DOCUMENT_VERSION_STRING = std::to_string(MATERIALX_MAJOR_VERSION) + "." +
                                        std::to_string(MATERIALX_MINOR_VERSION);
+
+template<class T> shared_ptr<T> updateChildSubclass(ElementPtr parent, ElementPtr origChild)
+{
+    string childName = origChild->getName();
+    int childIndex = parent->getChildIndex(childName);
+    parent->removeChild(childName);
+    shared_ptr<T> newChild = parent->addChild<T>(childName);
+    parent->setChildIndex(childName, childIndex);
+    newChild->copyContentFrom(origChild);
+    return newChild;
+}
+
+NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
+{
+    if (shaderRef->hasAttribute(NodeDef::NODE_DEF_ATTRIBUTE))
+    {
+        string nodeDefString = shaderRef->getAttribute(NodeDef::NODE_DEF_ATTRIBUTE);
+        return shaderRef->resolveRootNameReference<NodeDef>(nodeDefString);
+    }
+    if (shaderRef->hasAttribute(NodeDef::NODE_ATTRIBUTE))
+    {
+        string nodeString = shaderRef->getAttribute(NodeDef::NODE_ATTRIBUTE);
+        string type = shaderRef->getAttribute(TypedElement::TYPE_ATTRIBUTE);
+        vector<NodeDefPtr> nodeDefs = shaderRef->getDocument()->getMatchingNodeDefs(shaderRef->getQualifiedName(nodeString));
+        vector<NodeDefPtr> secondary = shaderRef->getDocument()->getMatchingNodeDefs(nodeString);
+        nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
+        for (NodeDefPtr nodeDef : nodeDefs)
+        {
+            if (targetStringsMatch(nodeDef->getTarget(), shaderRef->getTarget()) &&
+                nodeDef->isVersionCompatible(shaderRef) &&
+                (type.empty() || nodeDef->getType() == type))
+            {
+                return nodeDef;
+            }
+        }
+    }
+    return NodeDefPtr();
+}
+
+void convertMaterialsToNodes(DocumentPtr doc)
+{
+    for (ElementPtr mat : doc->getChildrenOfType<Element>("material"))
+    {
+        string materialName = mat->getName();
+
+        // Create a temporary name for the material element
+        // so the new node can reuse the existing name.
+        string validName = doc->createValidChildName(materialName + "1");
+        mat->setName(validName);
+
+        // Create a new material node
+        NodePtr materialNode = nullptr;
+
+        // Only include the shader refs explicitly specified on the material instance
+        for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
+        {
+            // See if shader has been created already.
+            // Should not occur as the shaderref is a uniquely named
+            // child of a uniquely named material element, but the two combined
+            // may have been used for another node instance which not a shader node.
+            string shaderNodeName = materialName + "_" + shaderRef->getName();
+            NodePtr existingShaderNode = doc->getNode(shaderNodeName);
+            if (existingShaderNode)
+            {
+                const string& existingType = existingShaderNode->getType();
+                if (existingType == VOLUME_SHADER_TYPE_STRING ||
+                    existingType == SURFACE_SHADER_TYPE_STRING ||
+                    existingType == DISPLACEMENT_SHADER_TYPE_STRING)
+                {
+                    throw Exception("Shader node already exists: " + shaderNodeName);
+                }
+                else
+                {
+                    shaderNodeName = doc->createValidChildName(shaderNodeName);
+                }
+            }
+
+            // Find the shader type if defined
+            string shaderNodeType = SURFACE_SHADER_TYPE_STRING;
+            NodeDefPtr nodeDef = getShaderNodeDef(shaderRef);
+            if (nodeDef)
+            {
+                shaderNodeType = nodeDef->getType();
+            }
+
+            // Add in a new shader node
+            const string shaderNodeCategory = shaderRef->getAttribute("node");
+            NodePtr shaderNode = doc->addNode(shaderNodeCategory, shaderNodeName, shaderNodeType);
+            shaderNode->setSourceUri(shaderRef->getSourceUri());
+
+            for (ElementPtr child : shaderRef->getChildren())
+            {
+                ElementPtr port = nullptr;
+
+                // Copy over bindinputs as inputs, and bindparams as params
+                if (child->getCategory() == "bindinput")
+                {
+                    port = shaderNode->addInput(child->getName(), child->getAttribute(TypedElement::TYPE_ATTRIBUTE));
+                }
+                else if (child->getCategory() == "bindparam")
+                {
+                    port = shaderNode->addChildOfCategory("parameter", child->getName());
+                    port->setAttribute(TypedElement::TYPE_ATTRIBUTE, child->getAttribute(TypedElement::TYPE_ATTRIBUTE));
+                }
+                else if (child->getCategory() == "bindtoken")
+                {
+                    TokenPtr token = shaderNode->addToken(child->getName());
+                    token->copyContentFrom(child);
+                }
+                if (port)
+                {
+                    // Copy over attributes.
+                    // Note: We preserve inputs which have nodegraph connections,
+                    // as well as top level output connections.
+                    port->copyContentFrom(child);
+                }
+            }
+
+            // Create a new material node if not already created and
+            // add a reference from the material node to the new shader node
+            if (!materialNode)
+            {
+                materialNode = doc->addMaterialNode(materialName, shaderNode);
+                materialNode->setSourceUri(mat->getSourceUri());
+                // Note: Inheritance does not get transfered to the node we do
+                // not perform the following:
+                //      - materialNode->setInheritString(mat->getInheritString());
+            }
+
+            // Create input to replace each shaderref. Use shaderref name as unique
+            // input name.
+            InputPtr shaderInput = materialNode->getInput(shaderNodeType);
+            if (!shaderInput)
+            {
+                shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
+                shaderInput->setNodeName(shaderNode->getName());
+            }
+            // Make sure to copy over any target and version information from the shaderref.
+            if (!shaderRef->getTarget().empty())
+            {
+                shaderInput->setTarget(shaderRef->getTarget());
+            }
+            if (!shaderRef->getVersionString().empty())
+            {
+                shaderInput->setVersionString(shaderRef->getVersionString());
+            }
+        }
+
+        // Remove the original material element
+        doc->removeChild(mat->getName());
+    }
+}
+
 
 } // anonymous namespace
 
@@ -358,33 +510,6 @@ bool Document::convertParametersToInputs()
     return anyConverted;
 }
 
-bool Document::convertUniformInputsToParameters()
-{
-    bool anyConverted = false;
-
-    const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
-    for (ElementPtr e : traverseTree())
-    {
-        InterfaceElementPtr elem = e->asA<InterfaceElement>();
-        if (!elem)
-        {
-            continue;
-        }
-        vector<ElementPtr> children = elem->getChildren();
-        for (ElementPtr child : children)
-        {
-            InputPtr input = child->asA<Input>();
-            if (input && input->getIsUniform())
-            {
-                ParameterPtr newParameter = changeChildCategory(elem, child, Parameter::CATEGORY)->asA<Parameter>();
-                newParameter->removeAttribute(ValueElement::UNIFORM_ATTRIBUTE);
-                anyConverted = true;
-            }
-        }
-    }
-    return anyConverted;
-}
-
 void Document::upgradeVersion(bool applyFutureUpdates)
 {
     std::pair<int, int> versions = getVersionIntegers();
@@ -502,14 +627,13 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                         child->removeAttribute("shadertype");
                     }
                 }
-                else if (child->isA<Parameter>())
+                else if (child->getCategory() == "parameter")
                 {
-                    ParameterPtr param = child->asA<Parameter>();
-                    if (param->getType() == "opgraphnode")
+                    if (child->getAttribute(TypedElement::TYPE_ATTRIBUTE) == "opgraphnode")
                     {
                         if (elem->isA<Node>())
                         {
-                            InputPtr input = changeChildCategory(elem, param, Input::CATEGORY)->asA<Input>();
+                            InputPtr input = updateChildSubclass<Input>(elem, child);
                             input->setNodeName(input->getAttribute("value"));
                             input->removeAttribute("value");
                             if (input->getConnectedNode())
@@ -535,38 +659,40 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         }
 
         // Assign nodedef names to shaderrefs.
-        for (MaterialPtr mat : getMaterials())
+        for (ElementPtr mat : getChildrenOfType<Element>("material"))
         {
-            for (ShaderRefPtr shaderRef : mat->getShaderRefs())
+            for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
             {
-                if (!shaderRef->getNodeDef())
+                if (!getShaderNodeDef(shaderRef))
                 {
                     NodeDefPtr nodeDef = getNodeDef(shaderRef->getName());
                     if (nodeDef)
                     {
-                        shaderRef->setNodeDefString(nodeDef->getName());
-                        shaderRef->setNodeString(nodeDef->getNodeString());
+                        shaderRef->setAttribute(NodeDef::NODE_DEF_ATTRIBUTE, nodeDef->getName());
+                        shaderRef->setAttribute(NodeDef::NODE_ATTRIBUTE, nodeDef->getNodeString());
                     }
                 }
             }
         }
 
         // Move connections from nodedef inputs to bindinputs.
+        vector<ElementPtr> materials = getChildrenOfType<Element>("material");
         for (NodeDefPtr nodeDef : getNodeDefs())
         {
             for (InputPtr input : nodeDef->getActiveInputs())
             {
                 if (input->hasAttribute("opgraph") && input->hasAttribute("graphoutput"))
                 {
-                    for (MaterialPtr mat : getMaterials())
+                    for (ElementPtr mat : materials)
                     {
-                        for (ShaderRefPtr shaderRef : mat->getShaderRefs())
+                        for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
                         {
-                            if (shaderRef->getNodeDef() == nodeDef && !shaderRef->getChild(input->getName()))
+                            if (getShaderNodeDef(shaderRef) == nodeDef && !shaderRef->getChild(input->getName()))
                             {
-                                BindInputPtr bind = shaderRef->addBindInput(input->getName(), input->getType());
-                                bind->setNodeGraphString(input->getAttribute("opgraph"));
-                                bind->setOutputString(input->getAttribute("graphoutput"));
+                                ElementPtr bindInput = shaderRef->addChildOfCategory("bindinput", input->getName());
+                                bindInput->setAttribute(TypedElement::TYPE_ATTRIBUTE, input->getType());
+                                bindInput->setAttribute("nodegraph", input->getAttribute("opgraph"));
+                                bindInput->setAttribute("output", input->getAttribute("graphoutput"));
                             }
                         }
                     }
@@ -579,13 +705,9 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         // Combine udim assignments into udim sets.
         for (GeomInfoPtr geomInfo : getGeomInfos())
         {
-            vector<ElementPtr> origChildren = geomInfo->getChildren();
-            for (ElementPtr child : origChildren)
+            for (ElementPtr child : geomInfo->getChildrenOfType<Element>("geomattr"))
             {
-                if (child->getCategory() == "geomattr")
-                {
-                    changeChildCategory(geomInfo, child, GeomProp::CATEGORY);
-                }
+                changeChildCategory(geomInfo, child, GeomProp::CATEGORY);
             }
         }
         if (getGeomPropValue("udim") && !getGeomPropValue("udimset"))
@@ -627,18 +749,17 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     {
         for (ElementPtr elem : traverseTree())
         {
-            TypedElementPtr typedElem = elem->asA<TypedElement>();
-            ValueElementPtr valueElem = elem->asA<ValueElement>();
+            if (elem->getAttribute(TypedElement::TYPE_ATTRIBUTE) == "matrix")
+            {
+                elem->setAttribute(TypedElement::TYPE_ATTRIBUTE, getTypeString<Matrix44>());
+            }
+            if (elem->hasAttribute("default") && !elem->hasAttribute(ValueElement::VALUE_ATTRIBUTE))
+            {
+                elem->setAttribute(ValueElement::VALUE_ATTRIBUTE, elem->getAttribute("default"));
+                elem->removeAttribute("default");
+            }
+
             MaterialAssignPtr matAssign = elem->asA<MaterialAssign>();
-            if (typedElem && typedElem->getType() == "matrix")
-            {
-                typedElem->setType(getTypeString<Matrix44>());
-            }
-            if (valueElem && valueElem->hasAttribute("default"))
-            {
-                valueElem->setValueString(elem->getAttribute("default"));
-                valueElem->removeAttribute("default");
-            }
             if (matAssign)
             {
                 matAssign->setMaterial(matAssign->getName());
@@ -652,35 +773,30 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     {
         for (ElementPtr elem : traverseTree())
         {
-            ValueElementPtr valueElem = elem->asA<ValueElement>();
-            MaterialPtr material = elem->asA<Material>();
             LookPtr look = elem->asA<Look>();
             GeomInfoPtr geomInfo = elem->asA<GeomInfo>();
 
-            if (valueElem)
+            if (elem->getAttribute(TypedElement::TYPE_ATTRIBUTE) == GEOMNAME_TYPE_STRING &&
+                elem->getAttribute(ValueElement::VALUE_ATTRIBUTE) == "*")
             {
-                if (valueElem->getType() == GEOMNAME_TYPE_STRING &&
-                    valueElem->getValueString() == "*")
-                {
-                    valueElem->setValueString(UNIVERSAL_GEOM_NAME);
-                }
-                if (valueElem->getType() == FILENAME_TYPE_STRING)
-                {
-                    StringMap stringMap;
-                    stringMap["%UDIM"] = UDIM_TOKEN;
-                    stringMap["%UVTILE"] = UV_TILE_TOKEN;
-                    valueElem->setValueString(replaceSubstrings(valueElem->getValueString(), stringMap));
-                }
+                elem->setAttribute(ValueElement::VALUE_ATTRIBUTE, UNIVERSAL_GEOM_NAME);
+            }
+            if (elem->getAttribute(TypedElement::TYPE_ATTRIBUTE) == FILENAME_TYPE_STRING)
+            {
+                StringMap stringMap;
+                stringMap["%UDIM"] = UDIM_TOKEN;
+                stringMap["%UVTILE"] = UV_TILE_TOKEN;
+                elem->setAttribute(ValueElement::VALUE_ATTRIBUTE, replaceSubstrings(elem->getAttribute(ValueElement::VALUE_ATTRIBUTE), stringMap));
             }
 
             vector<ElementPtr> origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
             {
-                if (material && child->getCategory() == "override")
+                if (elem->getCategory() == "material" && child->getCategory() == "override")
                 {
-                    for (ShaderRefPtr shaderRef : material->getShaderRefs())
+                    for (ElementPtr shaderRef : elem->getChildrenOfType<Element>("shaderref"))
                     {
-                        NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                        NodeDefPtr nodeDef = getShaderNodeDef(shaderRef);
                         if (nodeDef)
                         {
                             for (ValueElementPtr activeValue : nodeDef->getActiveValueElements())
@@ -688,15 +804,17 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                                 if (activeValue->getAttribute("publicname") == child->getName() &&
                                     !shaderRef->getChild(child->getName()))
                                 {
-                                    if (activeValue->isA<Parameter>())
+                                    if (activeValue->getCategory() == "parameter")
                                     {
-                                        BindParamPtr bindParam = shaderRef->addBindParam(activeValue->getName(), activeValue->getType());
-                                        bindParam->setValueString(child->getAttribute("value"));
+                                        ElementPtr bindParam = shaderRef->addChildOfCategory("bindparam", activeValue->getName());
+                                        bindParam->setAttribute(TypedElement::TYPE_ATTRIBUTE, activeValue->getType());
+                                        bindParam->setAttribute(ValueElement::VALUE_ATTRIBUTE, child->getAttribute("value"));
                                     }
                                     else if (activeValue->isA<Input>())
                                     {
-                                        BindInputPtr bindInput = shaderRef->addBindInput(activeValue->getName(), activeValue->getType());
-                                        bindInput->setValueString(child->getAttribute("value"));
+                                        ElementPtr bindInput = shaderRef->addChildOfCategory("bindinput", activeValue->getName());
+                                        bindInput->setAttribute(TypedElement::TYPE_ATTRIBUTE, activeValue->getType());
+                                        bindInput->setAttribute(ValueElement::VALUE_ATTRIBUTE, child->getAttribute("value"));
                                     }
                                 }
                             }
@@ -704,7 +822,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     }
                     elem->removeChild(child->getName());
                 }
-                else if (material && child->getCategory() == "materialinherit")
+                else if (elem->getCategory() == "material" && child->getCategory() == "materialinherit")
                 {
                     elem->setInheritString(child->getAttribute("material"));
                     elem->removeChild(child->getName());
@@ -752,13 +870,9 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         // Convert geometric attributes to geometric properties.
         for (GeomInfoPtr geomInfo : getGeomInfos())
         {
-            vector<ElementPtr> origChildren = geomInfo->getChildren();
-            for (ElementPtr child : origChildren)
+            for (ElementPtr child : geomInfo->getChildrenOfType<Element>("geomattr"))
             {
-                if (child->getCategory() == "geomattr")
-                {
-                    changeChildCategory(geomInfo, child, GeomProp::CATEGORY);
-                }
+                changeChildCategory(geomInfo, child, GeomProp::CATEGORY);
             }
         }
         for (ElementPtr elem : traverseTree())
@@ -811,12 +925,11 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                 {
                     intest->setName("value1");
                 }
-                ParameterPtr cutoff = node->getParameter("cutoff");
+                ElementPtr cutoff = node->getChild("cutoff");
                 if (cutoff)
                 {
-                    InputPtr value2 = node->addInput("value2", DEFAULT_TYPE_STRING);
-                    value2->copyContentFrom(cutoff);
-                    node->removeChild(cutoff->getName());
+                    cutoff = updateChildSubclass<Input>(node, cutoff);
+                    cutoff->setName("value2");
                 }
                 InputPtr in1 = node->getInput("in1");
                 InputPtr in2 = node->getInput("in2");
@@ -882,24 +995,15 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             // Convert backdrop nodes to backdrop elements
             else if (nodeCategory == "backdrop")
             {
-                const string& nodeName = node->getName();
-                BackdropPtr backdrop = addBackdrop(nodeName);
-                for (auto param : node->getParameters())
+                BackdropPtr backdrop = addBackdrop(node->getName());
+                for (ElementPtr child : node->getChildrenOfType<Element>("parameter"))
                 {
-                    ValuePtr value = param ? param->getValue() : nullptr;
-                    if (value)
+                    if (child->hasAttribute(ValueElement::VALUE_ATTRIBUTE))
                     {
-                        if (value->isA<string>())
-                        {
-                            backdrop->setAttribute(param->getName(), value->asA<string>());
-                        }
-                        else if (value->isA<float>())
-                        {
-                            backdrop->setTypedAttribute(param->getName(), value->asA<float>());
-                        }
+                        backdrop->setAttribute(child->getName(), child->getAttribute(ValueElement::VALUE_ATTRIBUTE));
                     }
                 }
-                removeNode(nodeName);
+                removeNode(node->getName());
             }
         }
 
@@ -943,11 +1047,10 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         }
         for (auto nodedef : getMatchingNodeDefs(ROTATE3D))
         {
-            ParameterPtr param = nodedef->getParameter(AXIS);
-            if (param)
+            ElementPtr axis = nodedef->getChild(AXIS);
+            if (axis)
             {
-                nodedef->removeParameter(AXIS);
-                nodedef->addInput(AXIS, "vector3");
+                updateChildSubclass<Input>(nodedef, axis);
             }
         }
 
@@ -984,13 +1087,10 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             }
             else if (nodeCategory == ROTATE3D)
             {
-                ParameterPtr param = node->getParameter(AXIS);
-                if (param)
+                ElementPtr axis = node->getChild(AXIS);
+                if (axis)
                 {
-                    const string v = param->getValueString();
-                    node->removeParameter(AXIS);
-                    InputPtr input = node->addInput(AXIS, "vector3");
-                    input->setValueString(v);
+                    updateChildSubclass<Input>(node, axis);
                 }
             }
         }
@@ -1038,10 +1138,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         minorVersion = 37;
     }
 
-    if (applyFutureUpdates)
-    {
-        convertParametersToInputs();
-    }
+    convertParametersToInputs();
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&
         minorVersion == MATERIALX_MINOR_VERSION)

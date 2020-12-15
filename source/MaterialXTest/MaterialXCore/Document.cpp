@@ -46,34 +46,27 @@ TEST_CASE("Document", "[document]")
     REQUIRE(nodeGraph->getDescendant("missingNode") == mx::ElementPtr());
 
     // Create a simple shader interface.
-    mx::NodeDefPtr shader = doc->addNodeDef("", "surfaceshader", "simpleSrf");
-    mx::InputPtr diffColor = shader->addInput("diffColor", "color3");
-    REQUIRE(!diffColor->getIsUniform());
-    mx::InputPtr specColor = shader->addInput("specColor", "color3", true);
-    REQUIRE(specColor->getIsUniform());
-    specColor->setIsUniform(false);
-    REQUIRE(!specColor->getIsUniform());
-    mx::InputPtr roughness = shader->addInput("roughness", "float");
+    mx::NodeDefPtr simpleSrf = doc->addNodeDef("", "surfaceshader", "simpleSrf");
+    simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
+    simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
+    mx::InputPtr roughness = simpleSrf->setInputValue("roughness", 0.25f);
+    REQUIRE(!roughness->getIsUniform());
+    roughness->setIsUniform(true);
+    REQUIRE(roughness->getIsUniform());
 
-    // Create a material that instantiates the shader.
-    mx::MaterialPtr material = doc->addMaterial();
-    mx::ShaderRefPtr shaderRef = material->addShaderRef("", "simpleSrf");
+    // Instantiate the interface as shader and material nodes.
+    mx::NodePtr shaderNode = doc->addNodeInstance(simpleSrf);
+    mx::NodePtr materialNode = doc->addMaterialNode("", shaderNode);
+    REQUIRE(materialNode->getUpstreamElement() == shaderNode);
 
     // Bind the diffuse color input to the constant color output.
-    mx::BindInputPtr bindInput = shaderRef->addBindInput("diffColor");
-    bindInput->setConnectedOutput(output);
-    REQUIRE(diffColor->getUpstreamElement(material) == output);
+    shaderNode->setConnectedOutput("diffColor", output);
+    REQUIRE(shaderNode->getUpstreamElement() == constant);
 
-    // Bind the roughness parameter to a value.
-    bindInput = shaderRef->addBindInput("roughness");
-    bindInput->setValue(0.5f);
-    REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
-
-    // Create and test a type mismatch in a data binding.
-    bindInput->setValue(5);
-    REQUIRE(!doc->validate());
-    bindInput->setValue(0.5f);
-    REQUIRE(doc->validate());
+    // Bind the roughness input to a value.
+    mx::InputPtr instanceRoughness = shaderNode->setInputValue("roughness", 0.5f);
+    REQUIRE(instanceRoughness->getValue()->asA<float>() == 0.5f);
+    REQUIRE(instanceRoughness->getDefaultValue()->asA<float>() == 0.25f);
 
     // Create a collection 
     mx::CollectionPtr collection = doc->addCollection();
@@ -217,19 +210,6 @@ TEST_CASE("Version", "[document]")
         REQUIRE(testNodeGraph->getNode("add2"));
         REQUIRE(testNodeGraph->getNode("add2")->getInput("in1")->getInterfaceName() == "add");
         REQUIRE(testNodeGraph->getNode("add1")->getInput("in1")->getNodeName() == "add2");
-
-        // Convert back and forth between parameters and inputs
-        REQUIRE(doc2->convertUniformInputsToParameters());
-        REQUIRE(doc2->validate());
-        mx::writeToXmlFile(doc2, "1_38_to_1_37_parameters.mtlx", &writeOptions);
-        mx::DocumentPtr doc3 = mx::createDocument();
-        mx::XmlReadOptions noParamUpdateOptions;
-        noParamUpdateOptions.applyFutureUpdates = false;
-        mx::readFromXmlFile(doc3, "1_38_to_1_37_parameters.mtlx", mx::FileSearchPath(), &noParamUpdateOptions);
-        REQUIRE(doc3->validate());
-        REQUIRE(doc3->convertParametersToInputs());
-        std::string doc3String = mx::writeToXmlString(doc3);
-        REQUIRE(doc2String == doc3String);
     }
 }
 

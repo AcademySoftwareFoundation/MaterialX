@@ -6,7 +6,6 @@
 
 #include <MaterialXGenOgsXml/OgsFragment.h>
 #include <MaterialXFormat/XmlIo.h>
-#include <MaterialXCore/MaterialNode.h>
 
 #include <maya/MArgParser.h>
 #include <maya/MSelectionList.h>

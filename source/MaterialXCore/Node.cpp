@@ -65,6 +65,30 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
+void Node::setConnectedOutput(const string& inputName, OutputPtr output)
+{
+    InputPtr input = getInput(inputName);
+    if (!input)
+    {
+        input = addInput(inputName, DEFAULT_TYPE_STRING);
+    }
+    if (output)
+    {
+        input->setType(output->getType());
+    }
+    input->setConnectedOutput(output);
+}
+
+OutputPtr Node::getConnectedOutput(const string& inputName) const
+{
+    InputPtr input = getInput(inputName);
+    if (!input)
+    {
+        return OutputPtr();
+    }
+    return input->getConnectedOutput();    
+}
+
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
     if (hasNodeDefString())
@@ -86,7 +110,7 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     return NodeDefPtr();
 }
 
-Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
+Edge Node::getUpstreamEdge(size_t index) const
 {
     if (index < getUpstreamEdgeCount())
     {
@@ -125,31 +149,6 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
             if (output->getParent() == output->getDocument())
             {
                 outputName = &output->getOutputString();
-            }
-        }
-    }
-    else
-    {
-        const BindInputPtr bindInput = connectingElement->asA<BindInput>();
-        if (bindInput)
-        {
-            // Handle the case where the edge involves a bindinput.
-            const OutputPtr output = bindInput->getConnectedOutput();
-            if (output)
-            {
-                if (output->getParent()->isA<NodeGraph>())
-                {
-                    // The bindinput connects to a graph output,
-                    // so this is the output we're looking for.
-                    outputName = &output->getName();
-                }
-                else
-                {
-                    // The bindinput connects to a free floating output,
-                    // so we have an extra level of indirection. Hence 
-                    // get its connected output.
-                    outputName = &output->getOutputString();
-                }
             }
         }
     }
@@ -193,6 +192,25 @@ bool Node::validate(string* message) const
 //
 // GraphElement methods
 //
+
+NodePtr GraphElement::addMaterialNode(const string& name, ConstNodePtr shaderNode)
+{
+    string category = SURFACE_MATERIAL_NODE_STRING;
+    if (shaderNode)
+    {
+        if (shaderNode->getType() == VOLUME_MATERIAL_NODE_STRING)
+        {
+            category = VOLUME_SHADER_TYPE_STRING;
+        }
+    }
+    NodePtr materialNode = addNode(category, name, MATERIAL_TYPE_STRING);
+    if (shaderNode)
+    {
+        InputPtr input = materialNode->addInput(shaderNode->getType(), shaderNode->getType());
+        input->setNodeName(shaderNode->getName());
+    }
+    return materialNode;
+}
 
 void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
 {
@@ -339,7 +357,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         size_t connectionCount = 0;
         for (size_t i = 0; i < child->getUpstreamEdgeCount(); ++i)
         {
-            if (child->getUpstreamEdge(nullptr, i))
+            if (child->getUpstreamEdge(i))
             {
                 connectionCount++;
             }
@@ -590,8 +608,7 @@ ValueElementPtr NodeGraph::getChildWithInterface(const string& childPath)
     ElementPtr elem = getDescendant(childPath);
     ValueElementPtr valueElem = elem->asA<ValueElement>();
     InputPtr input = valueElem ? valueElem->asA<Input>() : nullptr;
-    ParameterPtr param = valueElem ? valueElem->asA<Parameter>() : nullptr;
-    if (!input && !param)
+    if (!input)
     {
         throw Exception("Child not found in node graph:  " + childPath);
     }
