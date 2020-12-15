@@ -15,11 +15,6 @@ color unpremult (color in, float alpha)
     return in / alpha;
 }
 
-color2 unpremult (color2 in, float alpha)
-{
-    return color2 (in.r / in.a, in.a);
-}
-
 color4 unpremult (color4 in, float alpha)
 {
     return color4 (in.rgb / in.a, in.a);
@@ -31,7 +26,7 @@ shader mx_unpremult_color4
     [[ string help = "Color4"" Divide the R or RGB channels of the input by the Alpha channel of the input." ]]
   (
     color4 in = {color(0,0,0), 0},
-    float alpha = 1,   // Note: unused when 'in' is a color2 or color4
+    float alpha = 1,   // Note: unused when 'in' is a color4
     output color4 out = {color(0,0,0), 0}
   )
 {

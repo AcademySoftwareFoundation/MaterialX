@@ -1113,6 +1113,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
                 materials.push_back(node);
             }
+            else
+            {
+                materials.push_back(nullptr);
+            }
             renderablePaths.push_back(renderableElem->getNamePath());
         }
 
