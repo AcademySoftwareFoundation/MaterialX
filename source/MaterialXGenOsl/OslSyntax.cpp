@@ -107,7 +107,7 @@ class OslIntegerArrayTypeSyntax : public OslArrayTypeSyntax
     }
 };
 
-// In OSL vector2, vector4, color2 and color4 are custom struct types and require a different
+// In OSL vector2, vector4, and color4 are custom struct types and require a different
 // value syntax for uniforms. So override the aggregate type syntax to support this.
 class OslStructTypeSyntax : public AggregateTypeSyntax
 {
@@ -255,7 +255,6 @@ const string OslSyntax::SOURCE_FILE_EXTENSION = ".osl";
 const StringVec OslSyntax::VECTOR_MEMBERS  = { "[0]", "[1]", "[2]" };
 const StringVec OslSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
 const StringVec OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
-const StringVec OslSyntax::COLOR2_MEMBERS  = { ".r", ".a" };
 const StringVec OslSyntax::COLOR4_MEMBERS  = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
 
 //
@@ -320,18 +319,6 @@ OslSyntax::OslSyntax()
     (
         Type::BOOLEAN,
         std::make_shared<OslBooleanTypeSyntax>()
-    );
-
-    registerTypeSyntax
-    (
-        Type::COLOR2,
-        std::make_shared<OslStructTypeSyntax>(
-            "color2",
-            "color2(0.0, 0.0)",
-            "{0.0, 0.0}",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            COLOR2_MEMBERS)
     );
 
     registerTypeSyntax

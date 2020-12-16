@@ -100,9 +100,8 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     const size_t baseAlignment = 16;
     std::unordered_map<const TypeDesc*, size_t> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
         { Type::INTEGER, baseAlignment / 4 }, { Type::BOOLEAN, baseAlignment / 4 },
-        { Type::COLOR2, baseAlignment }, { Type::COLOR3, baseAlignment },
-        { Type::COLOR4, baseAlignment }, { Type::VECTOR2, baseAlignment },
-        { Type::VECTOR3, baseAlignment }, { Type::VECTOR4, baseAlignment },
+        { Type::COLOR3, baseAlignment }, { Type::COLOR4, baseAlignment },
+        { Type::VECTOR2, baseAlignment }, { Type::VECTOR3, baseAlignment }, { Type::VECTOR4, baseAlignment },
         { Type::MATRIX33, baseAlignment * 4 }, { Type::MATRIX44, baseAlignment * 4 } });
 
     //Get struct alignment and size

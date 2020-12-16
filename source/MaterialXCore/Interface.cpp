@@ -25,7 +25,6 @@ const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
 const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =
 {
     { "float", { '0', '1', 'r', 'x' } },
-    { "color2", { '0', '1', 'r', 'a' } },
     { "color3", { '0', '1', 'r', 'g', 'b' } },
     { "color4", { '0', '1', 'r', 'g', 'b', 'a' } },
     { "vector2", { '0', '1', 'x', 'y' } },
@@ -37,7 +36,6 @@ const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =
 const std::unordered_map<string, size_t> PortElement::CHANNELS_PATTERN_LENGTH =
 {
     { "float", 1 },
-    { "color2", 2 },
     { "color3", 3 },
     { "color4", 4 },
     { "vector2", 2 },

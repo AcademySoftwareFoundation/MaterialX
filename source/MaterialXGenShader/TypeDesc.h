@@ -132,7 +132,6 @@ namespace Type
     extern const TypeDesc* VECTOR2;
     extern const TypeDesc* VECTOR3;
     extern const TypeDesc* VECTOR4;
-    extern const TypeDesc* COLOR2;
     extern const TypeDesc* COLOR3;
     extern const TypeDesc* COLOR4;
     extern const TypeDesc* MATRIX33;

@@ -46,7 +46,7 @@ class VectorBase { };
 class Uninit { };
 
 /// The class template for vectors of scalar values.  Inherited by Vector2,
-/// Vector3, Vector4, Color2, Color3, and Color4.
+/// Vector3, Vector4, Color3, and Color4.
 ///
 /// Template parameter V is the vector subclass, S is the scalar element type,
 /// and N is the number of scalar elements in the vector.
@@ -328,19 +328,6 @@ class Vector4 : public VectorN<Vector4, float, 4>
     Vector4(float x, float y, float z, float w) : VectorN(Uninit{})
     {
         _arr = {x, y, z, w};
-    }
-};
-
-/// @class Color2
-/// A two-component color value
-class Color2 : public VectorN<Color2, float, 2>
-{
-  public:
-    using VectorN<Color2, float, 2>::VectorN;
-    Color2() { }
-    Color2(float r, float a) : VectorN(Uninit{})
-    {
-        _arr = {r, a};
     }
 };
 

@@ -44,8 +44,7 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen);
 
 /// Maps a value to a four channel color if it is of the appropriate type.
 /// Supported types include float, Vector2, Vector3, Vector4,
-/// Color2, and Color4. Note that for Color2 the second channel
-/// maps to alpha. If not mapping is possible the color value is
+/// and Color4. If not mapping is possible the color value is
 /// set to opaque black.
 void mapValueToColor(ConstValuePtr value, Color4& color);
 
