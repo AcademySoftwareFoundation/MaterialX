@@ -15,7 +15,6 @@
   <typedef name="boolean"/>
   <typedef name="integer"/>
   <typedef name="float"/>
-  <typedef name="color2"/>
   <typedef name="color3" semantic="color"/>
   <typedef name="color4" semantic="color"/>
   <typedef name="vector2"/>
@@ -35,7 +34,6 @@
 
   <typedef name="integerarray"/>
   <typedef name="floatarray"/>
-  <typedef name="color2array"/>
   <typedef name="color3array" semantic="color"/>
   <typedef name="color4array" semantic="color"/>
   <typedef name="vector2array"/>

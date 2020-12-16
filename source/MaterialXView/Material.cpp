@@ -366,11 +366,6 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
         bool v = value->asA<bool>();
         _glShader->setUniform(name, v);
     }
-    else if (value->isA<mx::Color2>())
-    {
-        mx::Color2 v = value->asA<mx::Color2>();
-        _glShader->setUniform(name, ng::Vector2f(v.data()));
-    }
     else if (value->isA<mx::Color3>())
     {
         mx::Color3 v = value->asA<mx::Color3>();

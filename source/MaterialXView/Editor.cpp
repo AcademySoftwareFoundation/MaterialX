@@ -295,39 +295,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         });
     }
 
-    // Color2 input
-    else if (value->isA<mx::Color2>())
-    {
-        ng::Widget* twoColumns = new ng::Widget(container);
-        twoColumns->setLayout(_gridLayout2);
-
-        new ng::Label(twoColumns, label);
-        mx::Color2 v = value->asA<mx::Color2>();
-        ng::Color c;
-        c.r() = v[0];
-        c.g() = v[1];
-        c.b() = 0.0f;
-        c.w() = 1.0f;
-        auto colorVar = new EditorColorPicker(twoColumns, c);
-        colorVar->setFixedSize({ 100, 20 });
-        colorVar->setFontSize(15);
-        colorVar->setFinalCallback([path, viewer, colorVar](const ng::Color &c)
-        {
-            MaterialPtr material = viewer->getSelectedMaterial();
-            if (material)
-            {
-                ng::Vector2f v;
-                v.x() = c.r();
-                v.y() = c.g();
-                material->setUniformVec2(path, v);
-                ng::Color c2 = c;
-                c2.b() = 0.0f;
-                c2.w() = 1.0f;
-                colorVar->setColor(c2);
-            }
-        });
-    }
-
     // Color3 input. Can map to a combo box if an enumeration
     else if (value->isA<mx::Color3>())
     {

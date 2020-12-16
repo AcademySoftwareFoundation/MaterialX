@@ -44,7 +44,7 @@ string getValueStringFromColor(const Color4& color, const string& type)
     {
         return toValueString(Vector3(color[0], color[1], color[2]));
     }
-    if (type == "color2" || type == "vector2")
+    if (type == "vector2")
     {
         return toValueString(Vector2(color[0], color[1]));
     }

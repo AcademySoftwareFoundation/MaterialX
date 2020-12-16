@@ -46,7 +46,6 @@ public:
     static const StringVec VECTOR2_MEMBERS;
     static const StringVec VECTOR3_MEMBERS;
     static const StringVec VECTOR4_MEMBERS;
-    static const StringVec COLOR2_MEMBERS;
     static const StringVec COLOR3_MEMBERS;
     static const StringVec COLOR4_MEMBERS;
     static const StringVec ADDRESSMODE_MEMBERS;

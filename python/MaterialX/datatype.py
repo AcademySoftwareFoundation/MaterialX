@@ -8,7 +8,6 @@ from .PyMaterialXCore import *
 _typeToName = { int         : 'integer',
                 float       : 'float',
                 bool        : 'boolean',
-                Color2      : 'color2',
                 Color3      : 'color3',
                 Color4      : 'color4',
                 Vector2     : 'vector2',
@@ -83,7 +82,7 @@ def createValueFromStrings(valueString, typeString):
 #--------------------------------------------------------------------------------
 def isColorType(t):
     "Return True if the given type is a MaterialX color."
-    return t in (Color2, Color3, Color4)
+    return t in (Color3, Color4)
 
 
 #--------------------------------------------------------------------------------

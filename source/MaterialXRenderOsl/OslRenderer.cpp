@@ -76,8 +76,8 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    static const StringSet RENDERABLE_TYPES = { "float", "color", "vector", "closure color", "color2", "color4", "vector2", "vector4" };
-    static const StringSet REMAPPABLE_TYPES = { "color2", "color4", "vector2", "vector4" };
+    static const StringSet RENDERABLE_TYPES = { "float", "color", "vector", "closure color", "color4", "vector2", "vector4" };
+    static const StringSet REMAPPABLE_TYPES = { "color4", "vector2", "vector4" };
 
     // If the output type is not which can be supported for rendering then skip testing.
     if (RENDERABLE_TYPES.count(_oslShaderOutputType) == 0)

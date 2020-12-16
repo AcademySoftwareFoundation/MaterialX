@@ -92,11 +92,6 @@ void bindPyTypes(py::module& mod)
         .def(py::init<float, float, float, float>())
         .def("asTuple", [](const mx::Vector4& v) { return std::make_tuple(v[0], v[1], v[2], v[3]); });
 
-    py::class_<mx::Color2, mx::VectorBase>(mod, "Color2")
-        BIND_VECTOR_SUBCLASS(mx::Color2, 2)
-        .def(py::init<float, float>())
-        .def("asTuple", [](const mx::Vector2& v) { return std::make_tuple(v[0], v[1]); });
-
     py::class_<mx::Color3, mx::VectorBase>(mod, "Color3")
         BIND_VECTOR_SUBCLASS(mx::Color3, 3)
         .def(py::init<float, float, float>())

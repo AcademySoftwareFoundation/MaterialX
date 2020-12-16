@@ -292,7 +292,6 @@ ValueRegistry<T> registry##T;
 INSTANTIATE_TYPE(int, "integer")
 INSTANTIATE_TYPE(bool, "boolean")
 INSTANTIATE_TYPE(float, "float")
-INSTANTIATE_TYPE(Color2, "color2")
 INSTANTIATE_TYPE(Color3, "color3")
 INSTANTIATE_TYPE(Color4, "color4")
 INSTANTIATE_TYPE(Vector2, "vector2")

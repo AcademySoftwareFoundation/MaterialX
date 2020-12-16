@@ -10,7 +10,6 @@ import MaterialX as mx
 _testValues = (1,
                True,
                1.0,
-               mx.Color2(0.1, 0.2),
                mx.Color3(0.1, 0.2, 0.3),
                mx.Color4(0.1, 0.2, 0.3, 0.4),
                mx.Vector2(1.0, 2.0),
