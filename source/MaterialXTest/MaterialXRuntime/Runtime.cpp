@@ -223,8 +223,6 @@ TEST_CASE("Runtime: Values", "[runtime]")
     REQUIRE(value.asInt() == 23);
     mx::RtValue::fromString(mx::RtType::FLOAT, "1234.5678", value);
     REQUIRE(fabs(value.asFloat() - 1234.5678f) < 1e-3f);
-    mx::RtValue::fromString(mx::RtType::COLOR2, "1.0, 2.0", value);
-    REQUIRE(value.asColor2() == mx::Color2(1.0, 2.0));
     mx::RtValue::fromString(mx::RtType::COLOR3, "1.0, 2.0, 3.0", value);
     REQUIRE(value.asColor3() == mx::Color3(1.0, 2.0, 3.0));
     mx::RtValue::fromString(mx::RtType::COLOR4, "1.0, 2.0, 3.0, 4.0", value);
@@ -258,9 +256,6 @@ TEST_CASE("Runtime: Types", "[runtime]")
     const mx::RtTypeDef* booleanType = mx::RtTypeDef::findType(mx::RtType::BOOLEAN);
     REQUIRE(booleanType != nullptr);
     REQUIRE(booleanType->getBaseType() == mx::RtTypeDef::BASETYPE_BOOLEAN);
-    const mx::RtTypeDef* color2Type = mx::RtTypeDef::findType(mx::RtType::COLOR2);
-    REQUIRE(color2Type != nullptr);
-    REQUIRE(color2Type->getBaseType() == mx::RtTypeDef::BASETYPE_FLOAT);
     const mx::RtTypeDef* color3Type = mx::RtTypeDef::findType(mx::RtType::COLOR3);
     REQUIRE(color3Type != nullptr);
     REQUIRE(color3Type->getBaseType() == mx::RtTypeDef::BASETYPE_FLOAT);
@@ -2349,10 +2344,10 @@ TEST_CASE("Runtime: graph output connection", "[runtime]")
         "<?xml version=\"1.0\"?>\n"
         "<materialx version=\"1.38\">\n"
         "  <nodegraph name=\"Compound\">\n"
-        "    <output name=\"in\" type=\"color2\" />\n"
+        "    <output name=\"in\" type=\"color3\" />\n"
         "  </nodegraph>\n"
-        "  <clamp name=\"clamp\" type=\"color2\">\n"
-        "    <input name=\"in\" type=\"color2\" nodegraph=\"Compound\" />\n"
+        "  <clamp name=\"clamp\" type=\"color3\">\n"
+        "    <input name=\"in\" type=\"color3\" nodegraph=\"Compound\" />\n"
         "  </clamp>\n"
         "</materialx>";
     mx::RtStagePtr defaultStage = api->createStage(mx::RtToken("defaultStage"));

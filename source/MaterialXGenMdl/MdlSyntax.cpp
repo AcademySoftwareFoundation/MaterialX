@@ -184,7 +184,6 @@ const string MdlSyntax::SOURCE_FILE_EXTENSION = ".mdl";
 const StringVec MdlSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
 const StringVec MdlSyntax::VECTOR3_MEMBERS = { ".x", ".y", ".z" };
 const StringVec MdlSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
-const StringVec MdlSyntax::COLOR2_MEMBERS = { ".x", ".y" };
 const StringVec MdlSyntax::COLOR3_MEMBERS = { ".x", ".y", ".z" };
 const StringVec MdlSyntax::COLOR4_MEMBERS = { ".x", ".y", ".z", ".a" };
 
@@ -268,18 +267,6 @@ MdlSyntax::MdlSyntax()
             "bool",
             "false",
             "false")
-    );
-
-    registerTypeSyntax
-    (
-        Type::COLOR2,
-        std::make_shared<AggregateTypeSyntax>(
-            "float2",
-            "float2(0.0)",
-            "float2(0.0)",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            COLOR2_MEMBERS)
     );
 
     registerTypeSyntax

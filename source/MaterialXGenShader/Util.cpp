@@ -476,12 +476,6 @@ void mapValueToColor(ConstValuePtr value, Color4& color)
     {
         color[0] = value->asA<float>();
     }
-    else if (value->isA<Color2>())
-    {
-        Color2 v = value->asA<Color2>();
-        color[0] = v[0];
-        color[3] = v[1]; // Component 2 maps to alpha
-    }
     else if (value->isA<Color3>())
     {
         Color3 v = value->asA<Color3>();

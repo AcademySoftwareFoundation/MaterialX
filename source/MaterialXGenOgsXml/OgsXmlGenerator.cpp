@@ -32,7 +32,6 @@ namespace
 			{ Type::FLOAT->getName(), "float" },
 			{ Type::INTEGER->getName(), "int" },
 			{ Type::STRING->getName(), "int" },
-			{ Type::COLOR2->getName(), "float2" },
 			{ Type::COLOR3->getName(), "float3" },
 			{ Type::COLOR4->getName(), "float4" },
 			{ Type::VECTOR2->getName(), "float2" },

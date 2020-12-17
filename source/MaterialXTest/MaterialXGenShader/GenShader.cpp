@@ -71,11 +71,6 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     const mx::TypeDesc* booleanType = mx::TypeDesc::get("boolean");
     REQUIRE(booleanType != nullptr);
     REQUIRE(booleanType->getBaseType() == mx::TypeDesc::BASETYPE_BOOLEAN);
-    const mx::TypeDesc* color2Type = mx::TypeDesc::get("color2");
-    REQUIRE(color2Type != nullptr);
-    REQUIRE(color2Type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);
-    REQUIRE(color2Type->getSemantic() == mx::TypeDesc::SEMANTIC_COLOR);
-    REQUIRE(color2Type->isFloat2());
     const mx::TypeDesc* color3Type = mx::TypeDesc::get("color3");
     REQUIRE(color3Type != nullptr);
     REQUIRE(color3Type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);

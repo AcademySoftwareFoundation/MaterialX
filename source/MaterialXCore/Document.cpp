@@ -527,13 +527,9 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     {
         for (ElementPtr elem : traverseTree())
         {
-            if (elem->isA<TypedElement>())
+            if (elem->getAttribute(TypedElement::TYPE_ATTRIBUTE) == "vector")
             {
-                TypedElementPtr typedElem = elem->asA<TypedElement>();
-                if (typedElem->getType() == "vector")
-                {
-                    typedElem->setType(getTypeString<Vector3>());
-                }
+                elem->setAttribute(TypedElement::TYPE_ATTRIBUTE, getTypeString<Vector3>());
             }
         }
         minorVersion = 23;
@@ -1021,6 +1017,45 @@ void Document::upgradeVersion(bool applyFutureUpdates)
     if (majorVersion == 1 && minorVersion >= 37)
     {
         convertMaterialsToNodes(asA<Document>());
+
+        // Convert color2 types to vector2
+        const StringMap COLOR2_CHANNEL_MAP = { { "r", "x" }, { "a", "y" } };
+        for (ElementPtr elem : traverseTree())
+        {
+            if (elem->getAttribute(TypedElement::TYPE_ATTRIBUTE) == "color2")
+            {
+                elem->setAttribute(TypedElement::TYPE_ATTRIBUTE, getTypeString<Vector2>());
+                NodePtr parentNode = elem->getParent()->asA<Node>();
+                if (!parentNode)
+                {
+                    continue;
+                }
+
+                for (PortElementPtr port : parentNode->getDownstreamPorts())
+                {
+                    if (port->hasChannels())
+                    {
+                        string channels = port->getChannels();
+                        channels = replaceSubstrings(channels, COLOR2_CHANNEL_MAP);
+                        port->setChannels(channels);
+                    }
+                    if (port->hasOutputString())
+                    {
+                        string output = port->getOutputString();
+                        output = replaceSubstrings(output, COLOR2_CHANNEL_MAP);
+                        port->setOutputString(output);
+                    }
+                }
+
+                ElementPtr channels = parentNode->getChild("channels");
+                if (channels && channels->hasAttribute(ValueElement::VALUE_ATTRIBUTE))
+                {
+                    string value = channels->getAttribute(ValueElement::VALUE_ATTRIBUTE);
+                    value = replaceSubstrings(value, COLOR2_CHANNEL_MAP);
+                    channels->setAttribute(ValueElement::VALUE_ATTRIBUTE, value);
+                }
+            }
+        }
 
         // Update atan2 interface and rotate3d interface
         const string ATAN2 = "atan2";

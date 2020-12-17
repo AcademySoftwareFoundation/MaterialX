@@ -45,7 +45,6 @@ export const float FLOAT_EPS = 0.000001;
 //       integer   --> int
 //       boolean   --> bool
 //       float     --> float
-//       color2    --> float2
 //       color3    --> color
 //       color4    --> struct color4 (see below)
 //       vector2   --> float2
@@ -177,7 +176,6 @@ export state::coordinate_space mx_map_space( string space) {
 }
 
 // Support return type structures for the separate[234] types
-export struct mx_separate2_color2_type  { float outr = 0.0; float outg = 0.0; };
 export struct mx_separate2_vector2_type { float outx = 0.0; float outy = 0.0; };
 export struct mx_separate3_color3_type  { float outr = 0.0; float outg = 0.0; float outb = 0.0; };
 export struct mx_separate3_vector3_type { float outx = 0.0; float outy = 0.0; float outz = 0.0; };

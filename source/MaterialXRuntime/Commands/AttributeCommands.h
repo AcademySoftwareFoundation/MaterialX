@@ -29,9 +29,6 @@ namespace RtCommand
     /// Set value on a float attribute.
     void setAttribute(const RtAttribute& attr, float value, RtCommandResult& result);
 
-    /// Set value on a color2 attribute.
-    void setAttribute(const RtAttribute& attr, const Color2& value, RtCommandResult& result);
-
     /// Set value on a color3 attribute.
     void setAttribute(const RtAttribute& attr, const Color3& value, RtCommandResult& result);
 

@@ -26,7 +26,6 @@ public:
     static const RtToken VECTOR2;
     static const RtToken VECTOR3;
     static const RtToken VECTOR4;
-    static const RtToken COLOR2;
     static const RtToken COLOR3;
     static const RtToken COLOR4;
     static const RtToken MATRIX33;
@@ -36,7 +35,6 @@ public:
     static const RtToken FILENAME;
     static const RtToken INTEGERARRAY;
     static const RtToken FLOATARRAY;
-    static const RtToken COLOR2ARRAY;
     static const RtToken COLOR3ARRAY;
     static const RtToken COLOR4ARRAY;
     static const RtToken VECTOR2ARRAY;

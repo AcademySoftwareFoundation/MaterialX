@@ -84,10 +84,10 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
             // Get component from in2
             valueComponents[memberSize] = shadergen.getUpstreamResult(in2, context);
         }
-        else if (in1->getType() == Type::COLOR2 || in1->getType() == Type::VECTOR2)
+        else if (in1->getType() == Type::VECTOR2)
         {
             const ShaderInput* in2 = node.getInput(1);
-            if (!in2 || (in2->getType() != Type::COLOR2 && in2->getType() != Type::VECTOR2))
+            if (!in2 || (in2->getType() != Type::VECTOR2))
             {
                 throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid convert node");
             }

@@ -216,7 +216,6 @@ void checkImplementations(mx::GenContext& context,
                     missing_str += msg + ".\n";
                 }
             }
-
         }
         else
         {

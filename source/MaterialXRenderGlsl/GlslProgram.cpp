@@ -808,11 +808,6 @@ void GlslProgram::bindUniform(int location, const Value& value)
             bool v = value.asA<bool>();
             glUniform1i(location, v ? 1 : 0);
         }
-        else if (value.getTypeString() == "color2")
-        {
-            Color2 v = value.asA<Color2>();
-            glUniform2f(location, v[0], v[1]);
-        }
         else if (value.getTypeString() == "color3")
         {
             Color3 v = value.asA<Color3>();

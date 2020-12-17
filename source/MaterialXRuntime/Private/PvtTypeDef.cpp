@@ -153,10 +153,6 @@ void toStringMatrix(const T& src, string& dest)
     }
     dest = ss.str();
 }
-template <> void toStringValue<Color2>(const RtValue& src, string& dest)
-{
-    toStringVector(src.asColor2(), dest);
-}
 template <> void toStringValue<Color3>(const RtValue& src, string& dest)
 {
     toStringVector(src.asColor3(), dest);
@@ -255,10 +251,6 @@ template<> void fromStringValue<bool>(const string& str, RtValue& dest)
     else
         throw ExceptionRuntimeError("Failed setting value from string: " + str);
 }
-template<> void fromStringValue<Color2>(const string& str, RtValue& dest)
-{
-    fromStringVector(str, dest.asColor2());
-}
 template<> void fromStringValue<Color3>(const string& str, RtValue& dest)
 {
     fromStringVector(str, dest.asColor3());
@@ -342,11 +334,6 @@ PvtTypeDefRegistry::PvtTypeDefRegistry()
     RtValueFuncs floatFuncs = { createValue<float>, copyValue<float>, compareValue<float>, toStringValue<float>, fromStringValue<float> };
     newType(RtType::FLOAT, RtTypeDef::BASETYPE_FLOAT, floatFuncs);
 
-    RtValueFuncs color2Funcs = { createValue<Color2>, copyValue<Color2>, compareValue<Color2>, toStringValue<Color2> , fromStringValue<Color2> };
-    RtTypeDef* color2 = newType(RtType::COLOR2, RtTypeDef::BASETYPE_FLOAT, color2Funcs, RtTypeDef::SEMANTIC_NONE, 2);
-    color2->setComponent(0, R, RtTypeDef::BASETYPE_FLOAT);
-    color2->setComponent(1, A, RtTypeDef::BASETYPE_FLOAT);
-
     RtValueFuncs color3Funcs = { createValue<Color3>, copyValue<Color3>, compareValue<Color3>, toStringValue<Color3> , fromStringValue<Color3> };
     RtTypeDef* color3 = newType(RtType::COLOR3, RtTypeDef::BASETYPE_FLOAT, color3Funcs, RtTypeDef::SEMANTIC_COLOR, 3);
     color3->setComponent(0, R, RtTypeDef::BASETYPE_FLOAT);
@@ -393,7 +380,6 @@ PvtTypeDefRegistry::PvtTypeDefRegistry()
 
     newType(RtType::INTEGERARRAY, RtTypeDef::BASETYPE_INTEGER, intFuncs, RtTypeDef::SEMANTIC_NONE, 0);
     newType(RtType::FLOATARRAY, RtTypeDef::BASETYPE_FLOAT, floatFuncs, RtTypeDef::SEMANTIC_NONE, 0);
-    newType(RtType::COLOR2ARRAY, RtTypeDef::BASETYPE_FLOAT, color2Funcs, RtTypeDef::SEMANTIC_NONE, 0);
     newType(RtType::COLOR3ARRAY, RtTypeDef::BASETYPE_FLOAT, color3Funcs, RtTypeDef::SEMANTIC_COLOR, 0);
     newType(RtType::COLOR4ARRAY, RtTypeDef::BASETYPE_FLOAT, color4Funcs, RtTypeDef::SEMANTIC_COLOR, 0);
     newType(RtType::VECTOR2ARRAY, RtTypeDef::BASETYPE_FLOAT, vector2Funcs, RtTypeDef::SEMANTIC_VECTOR, 0);

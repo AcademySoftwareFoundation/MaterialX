@@ -1,4 +1,0 @@
-void mx_premult_color2(color2 in, output color2 result)
-{
-    result = color2(in.r * in.a, in.a);
-}

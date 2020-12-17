@@ -214,18 +214,6 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        Type::COLOR2,
-        std::make_shared<AggregateTypeSyntax>(
-            "vec2",
-            "vec2(0.0)",
-            "vec2(0.0)",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            VEC2_MEMBERS)
-    );
-
-    registerTypeSyntax
-    (
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
             "vec3",

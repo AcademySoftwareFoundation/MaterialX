@@ -7,13 +7,6 @@
 #include "mx_funcs.h"
 
 
-void sep (color2 in,
-          output float a, output float b, output float c, output float d)
-{
-    a = in.r;
-    b = in.a;
-}
-
 void sep (vector2 in,
           output float a, output float b, output float c, output float d)
 {

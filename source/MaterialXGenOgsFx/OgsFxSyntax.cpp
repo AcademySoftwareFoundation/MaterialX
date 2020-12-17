@@ -65,18 +65,6 @@ OgsFxSyntax::OgsFxSyntax()
 
     registerTypeSyntax
     (
-        Type::COLOR2,
-        std::make_shared<OgsFxAggregateTypeSyntax>(
-            "vec2", 
-            "vec2(0.0)", 
-            "{0.0, 0.0}", 
-            EMPTY_STRING,
-            EMPTY_STRING,
-            VEC2_MEMBERS)
-    );
-
-    registerTypeSyntax
-    (
         Type::COLOR3,
         std::make_shared<OgsFxAggregateTypeSyntax>(
             "vec3", 

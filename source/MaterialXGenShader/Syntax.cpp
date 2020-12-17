@@ -231,11 +231,6 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
                 bool v = value->asA<bool>();
                 ss << std::to_string(v);
             }
-            else if (srcType == Type::COLOR2)
-            {
-                Color2 v = value->asA<Color2>();
-                ss << std::to_string(v[channelIndex]);
-            }
             else if (srcType == Type::COLOR3)
             {
                 Color3 v = value->asA<Color3>();

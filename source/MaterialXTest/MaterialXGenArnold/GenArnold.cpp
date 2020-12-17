@@ -23,7 +23,7 @@ TEST_CASE("GenShader: Arnold Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 67);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 63);
 }
 
 TEST_CASE("GenShader: Arnold Unique Names", "[genosl]")

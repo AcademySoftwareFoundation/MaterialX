@@ -54,13 +54,6 @@ void setAttribute(const RtAttribute& attr, float value, RtCommandResult& result)
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
-void setAttribute(const RtAttribute& attr, const Color2& value, RtCommandResult& result)
-{
-    RtValue v(value);
-    PvtCommandPtr cmd = PvtSetAttributeCmd::create(attr, v);
-    PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
-}
-
 void setAttribute(const RtAttribute& attr, const Color3& value, RtCommandResult& result)
 {
     RtValue v(value);

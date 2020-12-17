@@ -7,7 +7,7 @@
 #include "mx_funcs.h"
 
 shader mx_in_color4
-    [[ string help = "Color4"" Take two color2 or two color4 inputs and use the built-in alpha \
+    [[ string help = "Color4"" Take two color4 inputs and use the built-in alpha \
                      channel(s) to control the compositing of the fg and bg inputs: Fb  (alpha: fb)" ]]
   (
     color4 fg = {color(0,0,0), 0},

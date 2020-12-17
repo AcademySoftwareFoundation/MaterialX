@@ -24,12 +24,6 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
     static const ConvertTable CONVERT_TABLE({
         {
-            Type::COLOR2,
-            {
-                { Type::VECTOR2, string("ra") }
-            }
-        },
-        {
             Type::COLOR3,
             {
                 { Type::VECTOR3, string("rgb") },
@@ -46,7 +40,6 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         {
             Type::VECTOR2,
             {
-                { Type::COLOR2, string("xy") },
                 { Type::VECTOR3, string("xy0") }
             }
         },
@@ -68,7 +61,6 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         {
             Type::FLOAT,
             {
-                { Type::COLOR2, string("rr") },
                 { Type::COLOR3, string("rrr") },
                 { Type::COLOR4, string("rrrr") },
                 { Type::VECTOR2, string("rr") },

@@ -32,7 +32,6 @@ public:
     explicit RtValue(bool v) { asBool() = v; }
     explicit RtValue(int v) { asInt() = v; }
     explicit RtValue(float v) { asFloat() = v; }
-    explicit RtValue(const Color2& v) { asColor2() = v; }
     explicit RtValue(const Color3& v) { asColor3() = v; }
     explicit RtValue(const Color4& v) { asColor4() = v; }
     explicit RtValue(const Vector2& v) { asVector2() = v; }
@@ -79,18 +78,7 @@ public:
     {
         return *_reinterpret_cast<float*>(&_data);
     }
-
-    /// Return Color2 value.
-    const Color2& asColor2() const
-    {
-        return *_reinterpret_cast<const Color2*>(&_data);
-    }
-    /// Return reference to Color2 value.
-    Color2& asColor2()
-    {
-        return *_reinterpret_cast<Color2*>(&_data);
-    }
-
+  
     /// Return Color3 value.
     const Color3& asColor3() const
     {

@@ -15,7 +15,6 @@
   <typedef name="boolean"/>
   <typedef name="integer"/>
   <typedef name="float"/>
-  <typedef name="color2"/>
   <typedef name="color3" semantic="color"/>
   <typedef name="color4" semantic="color"/>
   <typedef name="vector2"/>
@@ -35,7 +34,6 @@
 
   <typedef name="integerarray"/>
   <typedef name="floatarray"/>
-  <typedef name="color2array"/>
   <typedef name="color3array" semantic="color"/>
   <typedef name="color4array" semantic="color"/>
   <typedef name="vector2array"/>
@@ -119,19 +117,6 @@
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
     <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uiname="Frame End Action"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_image_color2" node="image" nodegroup="texture2d">
-    <parameter name="file" type="filename" value="" uiname="Filename"/>
-    <parameter name="layer" type="string" value="" uiname="Layer"/>
-    <parameter name="default" type="color2" value="0.0, 0.0" uiname="Default Color"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates"/>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
-    <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
-    <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
-    <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uiname="Frame End Action"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_image_color3" node="image" nodegroup="texture2d">
     <parameter name="file" type="filename" value="" uiname="Filename"/>
@@ -217,20 +202,6 @@
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_tiledimage_color2" node="tiledimage" nodegroup="texture2d">
-    <parameter name="file" type="filename" value=""/>
-    <parameter name="default" type="color2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
-    <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
-    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
-    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_tiledimage_color3" node="tiledimage" nodegroup="texture2d">
     <parameter name="file" type="filename" value=""/>
@@ -324,22 +295,6 @@
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_triplanarprojection_color2" node="triplanarprojection" nodegroup="texture3d">
-    <parameter name="filex" type="filename" value=""/>
-    <parameter name="filey" type="filename" value=""/>
-    <parameter name="filez" type="filename" value=""/>
-    <parameter name="layerx" type="string" value=""/>
-    <parameter name="layery" type="string" value=""/>
-    <parameter name="layerz" type="string" value=""/>
-    <parameter name="default" type="color2" value="0.0, 0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="Pobject"/>
-    <input name="normal" type="vector3" defaultgeomprop="Nobject"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_triplanarprojection_color3" node="triplanarprojection" nodegroup="texture3d">
     <parameter name="filex" type="filename" value=""/>
@@ -436,10 +391,6 @@
     <parameter name="value" type="float" value="0.0"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_constant_color2" node="constant" nodegroup="procedural">
-    <parameter name="value" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_constant_color3" node="constant" nodegroup="procedural">
     <parameter name="value" type="color3" value="0.0, 0.0, 0.0"/>
     <output name="out" type="color3" default="0.0, 0.0, 0.0"/>
@@ -495,12 +446,6 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_ramplr_color2" node="ramplr" nodegroup="procedural2d">
-    <parameter name="valuel" type="color2" value="0.0, 0.0"/>
-    <parameter name="valuer" type="color2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_ramplr_color3" node="ramplr" nodegroup="procedural2d">
     <parameter name="valuel" type="color3" value="0.0, 0.0, 0.0"/>
     <parameter name="valuer" type="color3" value="0.0, 0.0, 0.0"/>
@@ -541,12 +486,6 @@
     <parameter name="valueb" type="float" value="0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_ramptb_color2" node="ramptb" nodegroup="procedural2d">
-    <parameter name="valuet" type="color2" value="0.0, 0.0"/>
-    <parameter name="valueb" type="color2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_ramptb_color3" node="ramptb" nodegroup="procedural2d">
     <parameter name="valuet" type="color3" value="0.0, 0.0, 0.0"/>
@@ -590,14 +529,6 @@
     <parameter name="valuebr" type="float" value="0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_ramp4_color2" node="ramp4" nodegroup="procedural2d">
-    <parameter name="valuetl" type="color2" value="0.0, 0.0"/>
-    <parameter name="valuetr" type="color2" value="0.0, 0.0"/>
-    <parameter name="valuebl" type="color2" value="0.0, 0.0"/>
-    <parameter name="valuebr" type="color2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_ramp4_color3" node="ramp4" nodegroup="procedural2d">
     <parameter name="valuetl" type="color3" value="0.0, 0.0, 0.0"/>
@@ -651,13 +582,6 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_splitlr_color2" node="splitlr" nodegroup="procedural2d">
-    <parameter name="valuel" type="color2" value="0.0, 0.0" uiname="Left"/>
-    <parameter name="valuer" type="color2" value="0.0, 0.0" uiname="Right"/>
-    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_splitlr_color3" node="splitlr" nodegroup="procedural2d">
     <parameter name="valuel" type="color3" value="0.0, 0.0, 0.0" uiname="Left"/>
     <parameter name="valuer" type="color3" value="0.0, 0.0, 0.0" uiname="Right"/>
@@ -705,13 +629,6 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_splittb_color2" node="splittb" nodegroup="procedural2d">
-    <parameter name="valuet" type="color2" value="0.0, 0.0" uiname="Top"/>
-    <parameter name="valueb" type="color2" value="0.0, 0.0" uiname="Bottom"/>
-    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_splittb_color3" node="splittb" nodegroup="procedural2d">
     <parameter name="valuet" type="color3" value="0.0, 0.0, 0.0" uiname="Top"/>
     <parameter name="valueb" type="color3" value="0.0, 0.0, 0.0" uiname="Bottom"/>
@@ -758,12 +675,6 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_noise2d_color2" node="noise2d" nodegroup="procedural2d">
-    <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
-    <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_noise2d_color3" node="noise2d" nodegroup="procedural2d">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
@@ -793,12 +704,6 @@
     <parameter name="pivot" type="float" value="0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_noise2d_color2FA" node="noise2d" nodegroup="procedural2d">
-    <parameter name="amplitude" type="float" value="1.0"/>
-    <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_noise2d_color3FA" node="noise2d" nodegroup="procedural2d">
     <parameter name="amplitude" type="float" value="1.0"/>
@@ -841,12 +746,6 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_noise3d_color2" node="noise3d" nodegroup="procedural3d">
-    <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
-    <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="Pobject"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_noise3d_color3" node="noise3d" nodegroup="procedural3d">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
@@ -876,12 +775,6 @@
     <parameter name="pivot" type="float" value="0.0"/>
     <input name="position" type="vector3" defaultgeomprop="Pobject"/>
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_noise3d_color2FA" node="noise3d" nodegroup="procedural3d">
-    <parameter name="amplitude" type="float" value="1.0"/>
-    <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="Pobject"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_noise3d_color3FA" node="noise3d" nodegroup="procedural3d">
     <parameter name="amplitude" type="float" value="1.0"/>
@@ -926,14 +819,6 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_fractal3d_color2" node="fractal3d" nodegroup="procedural3d">
-    <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
-    <parameter name="octaves" type="integer" value="3"/>
-    <parameter name="lacunarity" type="float" value="2.0"/>
-    <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="Pobject"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_fractal3d_color3" node="fractal3d" nodegroup="procedural3d">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
@@ -973,14 +858,6 @@
     <parameter name="diminish" type="float" value="0.5"/>
     <input name="position" type="vector3" defaultgeomprop="Pobject"/>
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_fractal3d_color2FA" node="fractal3d" nodegroup="procedural3d">
-    <parameter name="amplitude" type="float" value="1.0"/>
-    <parameter name="octaves" type="integer" value="3"/>
-    <parameter name="lacunarity" type="float" value="2.0"/>
-    <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="Pobject"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_fractal3d_color3FA" node="fractal3d" nodegroup="procedural3d">
     <parameter name="amplitude" type="float" value="1.0"/>
@@ -1150,10 +1027,6 @@
     <parameter name="index" type="integer" value="0"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_geomcolor_color2" node="geomcolor" nodegroup="geometric">
-    <parameter name="index" type="integer" value="0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_geomcolor_color3" node="geomcolor" nodegroup="geometric">
     <parameter name="index" type="integer" value="0"/>
     <output name="out" type="color3" default="0.0, 0.0, 0.0"/>
@@ -1186,11 +1059,6 @@
     <parameter name="geomprop" type="string" value=""/>
     <parameter name="default" type="float" value="0.0"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_geompropvalue_color2" node="geompropvalue" nodegroup="geometric">
-    <parameter name="geomprop" type="string" value=""/>
-    <parameter name="default" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_geompropvalue_color3" node="geompropvalue" nodegroup="geometric">
     <parameter name="geomprop" type="string" value=""/>
@@ -1280,11 +1148,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_add_color2" node="add" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_add_color3" node="add" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
@@ -1335,11 +1198,6 @@
     <input name="in2" type="volumeshader" value=""/>
     <output name="out" type="volumeshader" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_add_color2FA" node="add" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="float" value="0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_add_color3FA" node="add" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="float" value="0.0"/>
@@ -1385,11 +1243,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_subtract_color2" node="subtract" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_subtract_color3" node="subtract" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
@@ -1424,11 +1277,6 @@
     <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
     <input name="in2" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0"/>
     <output name="out" type="matrix44" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_subtract_color2FA" node="subtract" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="float" value="0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_subtract_color3FA" node="subtract" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -1476,11 +1324,6 @@
     <input name="in2" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_multiply_color2" node="multiply" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="1.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_multiply_color3" node="multiply" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="1.0, 1.0, 1.0"/>
@@ -1515,11 +1358,6 @@
     <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
     <input name="in2" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
     <output name="out" type="matrix44" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_multiply_color2FA" node="multiply" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_multiply_color3FA" node="multiply" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -1588,11 +1426,6 @@
     <input name="in2" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_divide_color2" node="divide" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="1.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_divide_color3" node="divide" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="1.0, 1.0, 1.0"/>
@@ -1627,11 +1460,6 @@
     <input name="in1" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
     <input name="in2" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
     <output name="out" type="matrix44" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_divide_color2FA" node="divide" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_divide_color3FA" node="divide" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -1669,11 +1497,6 @@
     <input name="in2" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_modulo_color2" node="modulo" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="1.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_modulo_color3" node="modulo" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="1.0, 1.0, 1.0"/>
@@ -1698,11 +1521,6 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <output name="out" type="vector4" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_modulo_color2FA" node="modulo" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_modulo_color3FA" node="modulo" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -1740,11 +1558,6 @@
     <parameter name="amount" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_invert_color2" node="invert" nodegroup="math">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="amount" type="color2" value="1.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_invert_color3" node="invert" nodegroup="math">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <parameter name="amount" type="color3" value="1.0, 1.0, 1.0"/>
@@ -1769,11 +1582,6 @@
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <parameter name="amount" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <output name="out" type="vector4" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_invert_color2FA" node="invert" nodegroup="math">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="amount" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_invert_color3FA" node="invert" nodegroup="math">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -1809,10 +1617,6 @@
     <input name="in" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_absval_color2" node="absval" nodegroup="math">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_absval_color3" node="absval" nodegroup="math">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <output name="out" type="color3" defaultinput="in"/>
@@ -1842,10 +1646,6 @@
     <input name="in" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_floor_color2" node="floor" nodegroup="math">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_floor_color3" node="floor" nodegroup="math">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <output name="out" type="color3" defaultinput="in"/>
@@ -1874,10 +1674,6 @@
   <nodedef name="ND_ceil_float" node="ceil" nodegroup="math">
     <input name="in" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_ceil_color2" node="ceil" nodegroup="math">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_ceil_color3" node="ceil" nodegroup="math">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -1909,11 +1705,6 @@
     <input name="in2" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_power_color2" node="power" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="1.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_power_color3" node="power" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="1.0, 1.0, 1.0"/>
@@ -1938,11 +1729,6 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <output name="out" type="vector4" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_power_color2FA" node="power" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_power_color3FA" node="power" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2136,10 +1922,6 @@
     <input name="in" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_sign_color2" node="sign" nodegroup="math">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_sign_color3" node="sign" nodegroup="math">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <output name="out" type="color3" defaultinput="in"/>
@@ -2171,12 +1953,6 @@
     <parameter name="high" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_clamp_color2" node="clamp" nodegroup="math">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="low" type="color2" value="0.0, 0.0"/>
-    <parameter name="high" type="color2" value="1.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_clamp_color3" node="clamp" nodegroup="math">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <parameter name="low" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2206,12 +1982,6 @@
     <parameter name="low" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <parameter name="high" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <output name="out" type="vector4" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_clamp_color2FA" node="clamp" nodegroup="math">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="low" type="float" value="0.0"/>
-    <parameter name="high" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_clamp_color3FA" node="clamp" nodegroup="math">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2253,11 +2023,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_min_color2" node="min" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_min_color3" node="min" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2282,11 +2047,6 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <output name="out" type="vector4" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_min_color2FA" node="min" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="float" value="0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_min_color3FA" node="min" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2323,11 +2083,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_max_color2" node="max" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_max_color3" node="max" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2352,11 +2107,6 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <output name="out" type="vector4" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_max_color2FA" node="max" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="float" value="0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_max_color3FA" node="max" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2617,16 +2367,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="floatarray" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_arrayappend_color2_color2array" node="arrayappend" nodegroup="math">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2array" default="[]"/>
-  </nodedef>
-  <nodedef name="ND_arrayappend_color2array_color2array" node="arrayappend" nodegroup="math">
-    <input name="in1" type="color2array" value=""/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2array" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_arrayappend_color3_color3array" node="arrayappend" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2705,14 +2445,6 @@
     <input name="outhigh" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_remap_color2" node="remap" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="inlow" type="color2" value="0.0, 0.0"/>
-    <input name="inhigh" type="color2" value="1.0, 1.0"/>
-    <input name="outlow" type="color2" value="0.0, 0.0"/>
-    <input name="outhigh" type="color2" value="1.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_remap_color3" node="remap" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2752,14 +2484,6 @@
     <input name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <output name="out" type="vector4" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_remap_color2FA" node="remap" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="inlow" type="float" value="0.0"/>
-    <input name="inhigh" type="float" value="1.0"/>
-    <input name="outlow" type="float" value="0.0"/>
-    <input name="outhigh" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_remap_color3FA" node="remap" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2813,12 +2537,6 @@
     <input name="high" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_smoothstep_color2" node="smoothstep" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="low" type="color2" value="0.0, 0.0"/>
-    <input name="high" type="color2" value="1.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_smoothstep_color3" node="smoothstep" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="low" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2848,12 +2566,6 @@
     <input name="low" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="high" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <output name="out" type="vector4" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_smoothstep_color2FA" node="smoothstep" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="low" type="float" value="0.0"/>
-    <input name="high" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_smoothstep_color3FA" node="smoothstep" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2897,11 +2609,6 @@
     <input name="in" type="float" value="0.0"/>
     <parameter name="knots" type="vector2array" value=""/>
     <output name="out" type="float" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_curveadjust_color2" node="curveadjust" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="knots" type="vector2array" value=""/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_curveadjust_color3" node="curveadjust" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -2980,12 +2687,6 @@
     <parameter name="pivot" type="float" value="0.5"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_contrast_color2" node="contrast" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="amount" type="color2" value="1.0, 1.0"/>
-    <parameter name="pivot" type="color2" value="0.5, 0.5"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_contrast_color3" node="contrast" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="amount" type="color3" value="1.0, 1.0, 1.0"/>
@@ -3015,12 +2716,6 @@
     <input name="amount" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="vector4" value="0.5, 0.5, 0.5, 0.5"/>
     <output name="out" type="vector4" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_contrast_color2FA" node="contrast" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="amount" type="float" value="1.0"/>
-    <parameter name="pivot" type="float" value="0.5"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_contrast_color3FA" node="contrast" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3067,16 +2762,6 @@
     <input name="outhigh" type="float" value="1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
     <output name="out" type="float" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_range_color2" node="range" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="inlow" type="color2" value="0.0, 0.0"/>
-    <input name="inhigh" type="color2" value="1.0, 1.0"/>
-    <input name="gamma" type="color2" value="1.0, 1.0"/>
-    <input name="outlow" type="color2" value="0.0, 0.0"/>
-    <input name="outhigh" type="color2" value="1.0, 1.0"/>
-    <parameter name="doclamp" type="boolean" value="false"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_range_color3" node="range" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3127,16 +2812,6 @@
     <input name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
     <output name="out" type="vector4" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_range_color2FA" node="range" nodegroup="adjustment">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="inlow" type="float" value="0.0"/>
-    <input name="inhigh" type="float" value="1.0"/>
-    <input name="gamma" type="float" value="1.0"/>
-    <input name="outlow" type="float" value="0.0"/>
-    <input name="outhigh" type="float" value="1.0"/>
-    <parameter name="doclamp" type="boolean" value="false"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_range_color3FA" node="range" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3238,10 +2913,6 @@
     Node: <premult>
     Multiply the R or RGB channels of the input by the Alpha channel of the input.
   -->
-  <nodedef name="ND_premult_color2" node="premult" nodegroup="compositing">
-    <input name="in" type="color2" value="0.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_premult_color4" node="premult" nodegroup="compositing">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0"/>
     <output name="out" type="color4" defaultinput="in"/>
@@ -3252,10 +2923,6 @@
     Divide the R or RGB channels of the input by the Alpha channel of the input.
     If the Alpha value is zero, it is passed through unchanged.
   -->
-  <nodedef name="ND_unpremult_color2" node="unpremult" nodegroup="compositing">
-    <input name="in" type="color2" value="0.0, 1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_unpremult_color4" node="unpremult" nodegroup="compositing">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0"/>
     <output name="out" type="color4" defaultinput="in"/>
@@ -3270,12 +2937,6 @@
     <input name="bg" type="float" value="0.0"/>
     <input name="mix" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="bg"/>
-  </nodedef>
-  <nodedef name="ND_plus_color2" node="plus" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
   </nodedef>
   <nodedef name="ND_plus_color3" node="plus" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3299,12 +2960,6 @@
     <input name="bg" type="float" value="0.0"/>
     <input name="mix" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="bg"/>
-  </nodedef>
-  <nodedef name="ND_minus_color2" node="minus" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
   </nodedef>
   <nodedef name="ND_minus_color3" node="minus" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3330,12 +2985,6 @@
     <input name="mix" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="bg"/>
   </nodedef>
-  <nodedef name="ND_difference_color2" node="difference" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_difference_color3" node="difference" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="bg" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3358,12 +3007,6 @@
     <input name="bg" type="float" value="0.0"/>
     <input name="mix" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="bg"/>
-  </nodedef>
-  <nodedef name="ND_burn_color2" node="burn" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
   </nodedef>
   <nodedef name="ND_burn_color3" node="burn" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3388,12 +3031,6 @@
     <input name="mix" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="bg"/>
   </nodedef>
-  <nodedef name="ND_dodge_color2" node="dodge" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_dodge_color3" node="dodge" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="bg" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3416,12 +3053,6 @@
     <input name="bg" type="float" value="0.0"/>
     <input name="mix" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="bg"/>
-  </nodedef>
-  <nodedef name="ND_screen_color2" node="screen" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
   </nodedef>
   <nodedef name="ND_screen_color3" node="screen" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3448,12 +3079,6 @@
     <input name="mix" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="bg"/>
   </nodedef>
-  <nodedef name="ND_overlay_color2" node="overlay" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_overlay_color3" node="overlay" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="bg" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3469,18 +3094,12 @@
 
   <!--
     Node: <disjointover>
-    Take two color2 or two color4 inputs and use the built-in alpha
+    Take two color4 inputs and use the built-in alpha
     channel(s) to control the compositing of the fg and bg inputs:
       F+B         if f+b<=1
       F+B(1-f)/b  if f+b>1
       alpha: min(f+b,1)
   -->
-  <nodedef name="ND_disjointover_color2" node="disjointover" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_disjointover_color4" node="disjointover" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
@@ -3490,15 +3109,9 @@
 
   <!--
     Node: <in>
-    Take two color2 or two color4 inputs and use the built-in alpha
+    Take two color4 inputs and use the built-in alpha
     channel(s) to control the compositing of the fg and bg inputs: Fb  (alpha: fb)
   -->
-  <nodedef name="ND_in_color2" node="in" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_in_color4" node="in" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
@@ -3508,15 +3121,9 @@
 
   <!--
     Node: <mask>
-    Take two color2 or two color4 inputs and use the built-in alpha
+    Take two color4 inputs and use the built-in alpha
     channel(s) to control the compositing of the fg and bg inputs: Bf  (alpha: bf)
   -->
-  <nodedef name="ND_mask_color2" node="mask" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_mask_color4" node="mask" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
@@ -3526,15 +3133,9 @@
 
   <!--
     Node: <matte>
-    Take two color2 or two color4 inputs and use the built-in alpha
+    Take two color4 inputs and use the built-in alpha
     channel(s) to control the compositing of the fg and bg inputs: Ff+B(1-f)  (alpha: f+b(1-f))
   -->
-  <nodedef name="ND_matte_color2" node="matte" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_matte_color4" node="matte" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
@@ -3544,15 +3145,9 @@
 
   <!--
     Node: <out>
-    Take two color2 or two color4 inputs and use the built-in alpha
+    Take two color4 inputs and use the built-in alpha
     channel(s) to control the compositing of the fg and bg inputs: F(1-b)  (alpha: f(1-b))
   -->
-  <nodedef name="ND_out_color2" node="out" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_out_color4" node="out" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
@@ -3562,15 +3157,9 @@
 
   <!--
     Node: <over>
-    Take two color2 or two color4 inputs and use the built-in alpha
+    Take two color4 inputs and use the built-in alpha
     channel(s) to control the compositing of the fg and bg inputs: F+B(1-f)  (alpha: f+b(1-f))
   -->
-  <nodedef name="ND_over_color2" node="over" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
-  </nodedef>
   <nodedef name="ND_over_color4" node="over" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
@@ -3587,11 +3176,6 @@
     <input name="in" type="float" value="0.0"/>
     <input name="mask" type="float" value="1.0"/>
     <output name="out" type="float" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_inside_color2" node="inside" nodegroup="compositing">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="mask" type="float" value="1.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_inside_color3" node="inside" nodegroup="compositing">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3614,11 +3198,6 @@
     <input name="mask" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in"/>
   </nodedef>
-  <nodedef name="ND_outside_color2" node="outside" nodegroup="compositing">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <input name="mask" type="float" value="0.0"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
   <nodedef name="ND_outside_color3" node="outside" nodegroup="compositing">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="mask" type="float" value="0.0"/>
@@ -3639,12 +3218,6 @@
     <input name="bg" type="float" value="0.0"/>
     <input name="mix" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="bg"/>
-  </nodedef>
-  <nodedef name="ND_mix_color2" node="mix" nodegroup="compositing">
-    <input name="fg" type="color2" value="0.0, 0.0"/>
-    <input name="bg" type="color2" value="0.0, 0.0"/>
-    <input name="mix" type="float" value="0.0"/>
-    <output name="out" type="color2" defaultinput="bg"/>
   </nodedef>
   <nodedef name="ND_mix_color3" node="mix" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0"/>
@@ -3711,13 +3284,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_ifgreater_color2" node="ifgreater" nodegroup="conditional">
-    <input name="value1" type="float" value="1.0"/>
-    <input name="value2" type="float" value="0.0"/>
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_ifgreater_color3" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="float" value="1.0"/>
     <input name="value2" type="float" value="0.0"/>
@@ -3759,13 +3325,6 @@
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_ifgreater_color2I" node="ifgreater" nodegroup="conditional">
-    <input name="value1" type="integer" value="1"/>
-    <input name="value2" type="integer" value="0"/>
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_ifgreater_color3I" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="integer" value="1"/>
@@ -3814,13 +3373,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_ifgreatereq_color2" node="ifgreatereq" nodegroup="conditional">
-    <input name="value1" type="float" value="1.0"/>
-    <input name="value2" type="float" value="0.0"/>
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_ifgreatereq_color3" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="float" value="1.0"/>
     <input name="value2" type="float" value="0.0"/>
@@ -3862,13 +3414,6 @@
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_ifgreatereq_color2I" node="ifgreatereq" nodegroup="conditional">
-    <input name="value1" type="integer" value="1"/>
-    <input name="value2" type="integer" value="0"/>
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_ifgreatereq_color3I" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="integer" value="1"/>
@@ -3917,13 +3462,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_ifequal_color2" node="ifequal" nodegroup="conditional">
-    <input name="value1" type="float" value="0.0"/>
-    <input name="value2" type="float" value="0.0"/>
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_ifequal_color3" node="ifequal" nodegroup="conditional">
     <input name="value1" type="float" value="0.0"/>
     <input name="value2" type="float" value="0.0"/>
@@ -3966,13 +3504,6 @@
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
   </nodedef>
-  <nodedef name="ND_ifequal_color2I" node="ifequal" nodegroup="conditional">
-    <input name="value1" type="integer" value="0"/>
-    <input name="value2" type="integer" value="0"/>
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
-  </nodedef>
   <nodedef name="ND_ifequal_color3I" node="ifequal" nodegroup="conditional">
     <input name="value1" type="integer" value="0"/>
     <input name="value2" type="integer" value="0"/>
@@ -4014,13 +3545,6 @@
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_ifequal_color2B" node="ifequal" nodegroup="conditional">
-    <input name="value1" type="boolean" value="false"/>
-    <input name="value2" type="boolean" value="false"/>
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_ifequal_color3B" node="ifequal" nodegroup="conditional">
     <input name="value1" type="boolean" value="false"/>
@@ -4070,15 +3594,6 @@
     <input name="in5" type="float" value="0.0"/>
     <parameter name="which" type="float" value="0.0"/>
     <output name="out" type="float" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_switch_color2" node="switch" nodegroup="conditional">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <input name="in3" type="color2" value="0.0, 0.0"/>
-    <input name="in4" type="color2" value="0.0, 0.0"/>
-    <input name="in5" type="color2" value="0.0, 0.0"/>
-    <parameter name="which" type="float" value="0.0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_switch_color3" node="switch" nodegroup="conditional">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -4133,15 +3648,6 @@
     <input name="in5" type="float" value="0.0"/>
     <parameter name="which" type="integer" value="0"/>
     <output name="out" type="float" defaultinput="in1"/>
-  </nodedef>
-  <nodedef name="ND_switch_color2I" node="switch" nodegroup="conditional">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <input name="in3" type="color2" value="0.0, 0.0"/>
-    <input name="in4" type="color2" value="0.0, 0.0"/>
-    <input name="in5" type="color2" value="0.0, 0.0"/>
-    <parameter name="which" type="integer" value="0"/>
-    <output name="out" type="color2" defaultinput="in1"/>
   </nodedef>
   <nodedef name="ND_switch_color3I" node="switch" nodegroup="conditional">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
@@ -4199,10 +3705,6 @@
     Convert a stream from one type to another; only certain unambiguous conversion
     types are supported.
   -->
-  <nodedef name="ND_convert_float_color2" node="convert" nodegroup="channel">
-    <input name="in" type="float" value="0.0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_convert_float_color3" node="convert" nodegroup="channel">
     <input name="in" type="float" value="0.0"/>
     <output name="out" type="color3" default="0.0, 0.0, 0.0"/>
@@ -4222,10 +3724,6 @@
   <nodedef name="ND_convert_float_vector4" node="convert" nodegroup="channel">
     <input name="in" type="float" value="0.0"/>
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_convert_vector2_color2" node="convert" nodegroup="channel">
-    <input name="in" type="vector2" value="0.0, 0.0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_convert_vector2_vector3" node="convert" nodegroup="channel">
     <input name="in" type="vector2" value="0.0, 0.0"/>
@@ -4250,10 +3748,6 @@
   <nodedef name="ND_convert_vector4_vector3" node="convert" nodegroup="channel">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <output name="out" type="vector3" default="0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_convert_color2_vector2" node="convert" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="vector2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_convert_color3_vector3" node="convert" nodegroup="channel">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -4287,11 +3781,6 @@
     stream may have a different number of channels than the input.
   -->
   <!-- from type: float -->
-  <nodedef name="ND_swizzle_float_color2" node="swizzle" nodegroup="channel">
-    <input name="in" type="float" value="0.0"/>
-    <parameter name="channels" type="string" value="rr"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_swizzle_float_color3" node="swizzle" nodegroup="channel">
     <input name="in" type="float" value="0.0"/>
     <parameter name="channels" type="string" value="rrr"/>
@@ -4317,52 +3806,11 @@
     <parameter name="channels" type="string" value="xxxx"/>
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
   </nodedef>
-  <!-- from type: color2 -->
-  <nodedef name="ND_swizzle_color2_float" node="swizzle" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="channels" type="string" value="r"/>
-    <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_color2_color2" node="swizzle" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="channels" type="string" value="rr"/>
-    <output name="out" type="color2" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_color2_color3" node="swizzle" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="channels" type="string" value="rrr"/>
-    <output name="out" type="color3" default="0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_color2_color4" node="swizzle" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="channels" type="string" value="rrrr"/>
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_color2_vector2" node="swizzle" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="channels" type="string" value="rr"/>
-    <output name="out" type="vector2" default="0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_color2_vector3" node="swizzle" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="channels" type="string" value="rrr"/>
-    <output name="out" type="vector3" default="0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_color2_vector4" node="swizzle" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="channels" type="string" value="rrrr"/>
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
   <!-- from type: color3 -->
   <nodedef name="ND_swizzle_color3_float" node="swizzle" nodegroup="channel">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <parameter name="channels" type="string" value="r"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_color3_color2" node="swizzle" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="channels" type="string" value="rr"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_swizzle_color3_color3" node="swizzle" nodegroup="channel">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -4395,11 +3843,6 @@
     <parameter name="channels" type="string" value="r"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_swizzle_color4_color2" node="swizzle" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="channels" type="string" value="rr"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_swizzle_color4_color3" node="swizzle" nodegroup="channel">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <parameter name="channels" type="string" value="rrr"/>
@@ -4430,11 +3873,6 @@
     <input name="in" type="vector2" value="0.0, 0.0"/>
     <parameter name="channels" type="string" value="x"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_vector2_color2" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="channels" type="string" value="xx"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_swizzle_vector2_color3" node="swizzle" nodegroup="channel">
     <input name="in" type="vector2" value="0.0, 0.0"/>
@@ -4467,11 +3905,6 @@
     <parameter name="channels" type="string" value="x"/>
     <output name="out" type="float" default="0.0"/>
   </nodedef>
-  <nodedef name="ND_swizzle_vector3_color2" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="channels" type="string" value="xx"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_swizzle_vector3_color3" node="swizzle" nodegroup="channel">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
     <parameter name="channels" type="string" value="xxx"/>
@@ -4502,11 +3935,6 @@
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <parameter name="channels" type="string" value="x"/>
     <output name="out" type="float" default="0.0"/>
-  </nodedef>
-  <nodedef name="ND_swizzle_vector4_color2" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="channels" type="string" value="xx"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_swizzle_vector4_color3" node="swizzle" nodegroup="channel">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
@@ -4539,11 +3967,6 @@
     Combine the channels from two streams into the same number of channels of a
     single output stream of a specified compatible type.
   -->
-  <nodedef name="ND_combine2_color2" node="combine2" nodegroup="channel">
-    <input name="in1" type="float" value="0.0"/>
-    <input name="in2" type="float" value="0.0"/>
-    <output name="out" type="color2" default="0.0, 0.0"/>
-  </nodedef>
   <nodedef name="ND_combine2_vector2" node="combine2" nodegroup="channel">
     <input name="in1" type="float" value="0.0"/>
     <input name="in2" type="float" value="0.0"/>
@@ -4558,11 +3981,6 @@
     <input name="in1" type="vector3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="float" value="0.0"/>
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0"/>
-  </nodedef>
-  <nodedef name="ND_combine2_color4CC" node="combine2" nodegroup="channel">
-    <input name="in1" type="color2" value="0.0, 0.0"/>
-    <input name="in2" type="color2" value="0.0, 0.0"/>
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0"/>
   </nodedef>
   <nodedef name="ND_combine2_vector4VV" node="combine2" nodegroup="channel">
     <input name="in1" type="vector2" value="0.0, 0.0"/>
@@ -4610,11 +4028,6 @@
     Node: <extract> Supplemental Node
     Extract a single channel from a colorN or vectorN stream, outputting a float.
   -->
-  <nodedef name="ND_extract_color2" node="extract" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="index" type="integer" value="0" uimin="0" uimax="1"/>
-    <output name="out" type="float" default="0.0"/>
-  </nodedef>
   <nodedef name="ND_extract_color3" node="extract" nodegroup="channel">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <parameter name="index" type="integer" value="0" uimin="0" uimax="2"/>
@@ -4645,11 +4058,6 @@
     Node: <separate2>, <separate3>, <separate4> Supplemental Nodes
     Output each of the channels of a color/vector stream as a separate float output.
   -->
-  <nodedef name="ND_separate2_color2" node="separate2" nodegroup="channel">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <output name="outr" type="float" default="0.0"/>
-    <output name="outa" type="float" default="0.0"/>
-  </nodedef>
   <nodedef name="ND_separate2_vector2" node="separate2" nodegroup="channel">
     <input name="in" type="vector2" value="0.0, 0.0"/>
     <output name="outx" type="float" default="0.0"/>
@@ -4696,12 +4104,6 @@
     <parameter name="size" type="float" value="0.0"/>
     <parameter name="filtertype" type="string" value="box" enum="box,gaussian"/>
     <output name="out" type="float" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_blur_color2" node="blur" nodegroup="convolution2d">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="size" type="float" value="0.0"/>
-    <parameter name="filtertype" type="string" value="box" enum="box,gaussian"/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_blur_color3" node="blur" nodegroup="convolution2d">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
@@ -4757,11 +4159,6 @@
     <input name="in" type="float" value="0.0"/>
     <parameter name="note" type="string" value=""/>
     <output name="out" type="float" defaultinput="in"/>
-  </nodedef>
-  <nodedef name="ND_dot_color2" node="dot" nodegroup="organization">
-    <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="note" type="string" value=""/>
-    <output name="out" type="color2" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_dot_color3" node="dot" nodegroup="organization">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>

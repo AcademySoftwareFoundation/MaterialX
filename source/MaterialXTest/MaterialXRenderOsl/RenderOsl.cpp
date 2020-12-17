@@ -343,7 +343,7 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
     if (std::string(MATERIALX_OSLC_EXECUTABLE).empty() &&
         std::string(MATERIALX_TESTRENDER_EXECUTABLE).empty())
     {
-        WARN("Skipping the OSL test suite as its executable locations haven't been set.");
+        INFO("Skipping the OSL test suite as its executable locations haven't been set.");
         return;
     }
 

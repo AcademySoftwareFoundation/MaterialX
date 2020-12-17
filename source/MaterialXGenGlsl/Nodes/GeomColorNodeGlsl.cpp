@@ -52,10 +52,6 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
         {
             suffix = ".r";
         }
-        else if (output->getType() == Type::COLOR2)
-        {
-            suffix = ".rg";
-        }
         else if (output->getType() == Type::COLOR3)
         {
             suffix = ".rgb";

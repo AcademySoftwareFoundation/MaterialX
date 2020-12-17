@@ -267,7 +267,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             ioTimer.endTimer();
 
             validateTimer.startTimer();
-            std::cout << "- Validating MTLX file: " << filename.asString() << std::endl;
+            std::cout << "- Validating rendering for: " << filename.asString() << std::endl;
             log << "MTLX Filename: " << filename.asString() << std::endl;
 
             // Validate the test document
@@ -313,7 +313,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             catch (mx::Exception& e)
             {
                 docValidLog << e.what() << std::endl;
-                WARN("Find renderable elements failed, see: " + docValidLogFilename + " for details.");
+                WARN("Shader generation error in " + filename.asString() + ": " + e.what());
             }
             renderableSearchTimer.endTimer();
 
