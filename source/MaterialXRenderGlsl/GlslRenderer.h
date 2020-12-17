@@ -102,8 +102,8 @@ class GlslRenderer : public ShaderRenderer
         return _program;
     }
 
-    /// Submit geometry for a screen-space quad.
-    static void drawScreenSpaceQuad();
+    /// Submit geometry for a screen-space quad
+    void drawScreenSpaceQuad();
 
     /// Sets the clear color
     void setClearColor(const Color4& clearColor);

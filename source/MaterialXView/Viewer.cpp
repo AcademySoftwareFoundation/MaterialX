@@ -2400,7 +2400,7 @@ void Viewer::updateShadowMap()
             }
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        mx::GlslRenderer::drawScreenSpaceQuad();
+        renderScreenSpaceQuad(_shadowBlurMaterial);
         _imageHandler->releaseRenderResources(_shadowMap);
         _shadowMap = framebuffer->createColorImage();
     }
@@ -2452,7 +2452,7 @@ void Viewer::updateAlbedoTable()
     {
         material->getShader()->setUniform(mx::HW::ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE);
     }
-    mx::GlslRenderer::drawScreenSpaceQuad();
+    renderScreenSpaceQuad(material);
 
     // Store albedo table image.
     _imageHandler->releaseRenderResources(_lightHandler->getAlbedoTable());
@@ -2466,4 +2466,13 @@ void Viewer::updateAlbedoTable()
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
+}
+
+void Viewer::renderScreenSpaceQuad(MaterialPtr material)
+{
+    if (!_quadMesh)
+        _quadMesh = mx::GeometryHandler::createQuadMesh();
+    
+    material->bindMesh(_quadMesh);
+    material->drawPartition(_quadMesh->getPartition(0));
 }

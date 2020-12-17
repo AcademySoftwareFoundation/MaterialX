@@ -9,7 +9,7 @@
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
-
+#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <iostream>
 
 namespace MaterialX
@@ -338,7 +338,9 @@ void GlslRenderer::drawScreenSpaceQuad()
         0, 1, 3,
         1, 2, 3
     };
-    
+   
+    const unsigned int stride = 5;
+    const unsigned int texcoord_offset = 3;
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -348,11 +350,20 @@ void GlslRenderer::drawScreenSpaceQuad()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(QUAD_VERTICES), QUAD_VERTICES, GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) 0);
+    for (auto input: _program->getAttributesList())
+    {
+        if (input.first.find(HW::IN_POSITION) != std::string::npos)
+        {
+            glEnableVertexAttribArray(input.second->location);
+            glVertexAttribPointer(input.second->location, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*) 0);
+        }
 
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
+                if (input.first.find(HW::IN_TEXCOORD + "_") != std::string::npos)
+        {
+            glEnableVertexAttribArray(input.second->location);
+            glVertexAttribPointer(input.second->location, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*) (texcoord_offset * sizeof(float)));
+        }
+    }
 
     GLuint ebo;
     glGenBuffers(1, &ebo);
