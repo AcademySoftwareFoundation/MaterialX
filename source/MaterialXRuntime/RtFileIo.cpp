@@ -1601,9 +1601,13 @@ RtPrim RtFileIo::readPrim(std::istream& stream, const RtPath& parentPrimPath, st
 
         // Keep track of renamed nodes:
         ElementPtr elem = document->getChildren().size() > 0 ? document->getChildren()[0] : nullptr;
+        if (!elem)
+        {
+            return RtPrim();
+        }
         outOriginalPrimName = elem->getName();
         PvtRenamingMapper mapper;
-        if (elem && (!filter || filter(elem)))
+        if (!filter || filter(elem))
         {
             if (elem->isA<NodeDef>())
             {
