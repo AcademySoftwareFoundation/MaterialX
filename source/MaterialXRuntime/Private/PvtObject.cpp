@@ -51,6 +51,11 @@ RtTypedValue* PvtObject::addMetadata(const RtToken& name, const RtToken& type)
     auto it = _metadataMap.find(name);
     if (it != _metadataMap.end())
     {
+        // Check if the data type is matching.
+        if (it->second.getType() != type)
+        {
+            throw ExceptionRuntimeError("Metadata '" + name.str() + "' found with an unmatching datatype on object '"+ getName().str() +"'");
+        }
         return &it->second;
     }
 
@@ -72,6 +77,21 @@ void PvtObject::removeMetadata(const RtToken& name)
         }
     }
     _metadataMap.erase(name);
+}
+
+RtTypedValue* PvtObject::getMetadata(const RtToken& name, const RtToken& type)
+{
+    auto it = _metadataMap.find(name);
+    if (it != _metadataMap.end())
+    {
+        // Check if the data type is matching.
+        if (it->second.getType() != type)
+        {
+            throw ExceptionRuntimeError("Metadata '" + name.str() + "' found with an unmatching datatype on object '" + getName().str() + "'");
+        }
+        return &it->second;
+    }
+    return nullptr;
 }
 
 }

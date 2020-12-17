@@ -13,6 +13,8 @@
 #include <MaterialXRuntime/RtStage.h>
 #include <MaterialXRuntime/RtSchema.h>
 #include <MaterialXRuntime/RtNodeDef.h>
+#include <MaterialXRuntime/RtNodeImpl.h>
+#include <MaterialXRuntime/RtTargetDef.h>
 
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
@@ -90,38 +92,101 @@ public:
 
     void registerNodeDef(const RtPrim& prim)
     {
-        if (getNodeDef(prim.getName()))
+        if (!prim.hasApi<RtNodeDef>())
+        {
+            throw ExceptionRuntimeError("Given prim '" + prim.getName().str() + "' is not a valid nodedef");
+        }
+        if (hasNodeDef(prim.getName()))
         {
             throw ExceptionRuntimeError("A nodedef with name '" + prim.getName().str() + "' is already registered");
         }
-        _definitionsRootPrim->asA<PvtPrim>()->addChildPrim(PvtObject::ptr<PvtPrim>(prim));
+        _nodedefs.add(prim.getName(), PvtObject::hnd(prim));
     }
 
     void unregisterNodeDef(const RtToken& name)
     {
-        RtPrim prim = getNodeDef(name);
-        if (prim)
-        {
-            _definitionsRootPrim->asA<PvtPrim>()->removeChildPrim(PvtObject::ptr<PvtPrim>(prim));
-        }
+        _nodedefs.remove(name);
     }
 
     bool hasNodeDef(const RtToken& name)
     {
-        PvtPrim* prim = _definitionsRootPrim->asA<PvtPrim>()->getChild(name);
-        return prim && prim->hasApi<RtNodeDef>();
+        return _nodedefs.get(name) != nullptr;
+    }
+
+    size_t numNodeDefs() const
+    {
+        return _nodedefs.size();
     }
 
     RtPrim getNodeDef(const RtToken& name)
     {
-        PvtPrim* prim = _definitionsRootPrim->asA<PvtPrim>()->getChild(name);
-        return prim && prim->hasApi<RtNodeDef>() ? prim->hnd() : RtPrim();
+        return _nodedefs.get(name);
     }
 
-    RtPrimIterator getNodeDefs()
+    RtPrim getNodeDef(size_t index)
     {
-        RtSchemaPredicate<RtNodeDef> filter;
-        return RtPrimIterator(_definitionsRootPrim, filter);
+        return _nodedefs.get(index);
+    }
+
+    void registerNodeImpl(const RtPrim& prim)
+    {
+        if (!prim.hasApi<RtNodeImpl>())
+        {
+            throw ExceptionRuntimeError("Given prim '" + prim.getName().str() + "' is not a valid nodeimpl");
+        }
+        if (hasNodeImpl(prim.getName()))
+        {
+            throw ExceptionRuntimeError("A nodeimpl with name '" + prim.getName().str() + "' is already registered");
+        }
+        _nodeimpls.add(prim.getName(), PvtObject::hnd(prim));
+    }
+
+    void unregisterNodeImpl(const RtToken& name)
+    {
+        _nodeimpls.remove(name);
+    }
+
+    bool hasNodeImpl(const RtToken& name)
+    {
+        return _nodeimpls.get(name) != nullptr;
+    }
+
+    size_t numNodeImpls() const
+    {
+        return _nodeimpls.size();
+    }
+
+    RtPrim getNodeImpl(const RtToken& name)
+    {
+        return _nodeimpls.get(name);
+    }
+
+    RtPrim getNodeImpl(size_t index)
+    {
+        return _nodeimpls.get(index);
+    }
+
+    void registerTargetDef(const RtPrim& prim)
+    {
+        if (!prim.hasApi<RtTargetDef>())
+        {
+            throw ExceptionRuntimeError("Given prim '" + prim.getName().str() + "' is not a valid targetdef");
+        }
+        if (hasTargetDef(prim.getName()))
+        {
+            throw ExceptionRuntimeError("A targetdef with name '" + prim.getName().str() + "' is already registered");
+        }
+        _targetdefs.add(prim.getName(), PvtObject::hnd(prim));
+    }
+
+    void unregisterTargetDef(const RtToken& name)
+    {
+        _targetdefs.remove(name);
+    }
+
+    bool hasTargetDef(const RtToken& name)
+    {
+        return _targetdefs.get(name) != nullptr;
     }
 
     void clearSearchPath()
@@ -138,7 +203,6 @@ public:
     {
         _implementationSearchPaths.clear();
     }
-
 
     void setSearchPath(const FileSearchPath& searchPath)
     {
@@ -271,13 +335,16 @@ public:
     FileSearchPath _implementationSearchPaths;
     FileSearchPath _textureSearchPaths;
     FilePath _userDefinitionPath;
+
     RtStagePtr _libraryRootStage;
     RtTokenMap<RtStagePtr> _libraries;
     UnitConverterRegistryPtr  _unitDefinitions;
 
-    PvtDataHandle _definitionsRootPrim;
     RtTokenMap<RtPrimCreateFunc> _createFunctions;
     RtTokenMap<RtStagePtr> _stages;
+    PvtDataHandleRecord _nodedefs;
+    PvtDataHandleRecord _nodeimpls;
+    PvtDataHandleRecord _targetdefs;
 };
 
 }

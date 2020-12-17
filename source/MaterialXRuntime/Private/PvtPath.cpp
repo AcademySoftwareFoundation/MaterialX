@@ -37,12 +37,4 @@ void PvtPath::setObject(const PvtObject* obj)
     }
 }
 
-void PvtPath::throwIfNotRoot(const RtPath& path, const std::string& msg)
-{
-    if (path.getName() != ROOT_NAME)
-    {
-        throw ExceptionRuntimeError(msg);
-    }
-}
-
 }

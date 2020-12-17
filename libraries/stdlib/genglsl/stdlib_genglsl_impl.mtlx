@@ -847,7 +847,7 @@
   <implementation name="IM_blur_vector4_genglsl" nodedef="ND_blur_vector4" target="genglsl"/>
 
   <!-- <heighttonormal> -->
-  <implementation name="IM_heighttonormal_vector3_genglsl" nodedef="ND_heighttonormal_vector3" file="stdlib/genglsl/mx_heighttonormal_vector3.glsl" function="mx_heighttonormal_vector3" target="genglsl"/>
+  <implementation name="IM_heighttonormal_vector3_genglsl" nodedef="ND_heighttonormal_vector3" target="genglsl"/>
 
   <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->

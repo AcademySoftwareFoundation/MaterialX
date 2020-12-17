@@ -79,4 +79,9 @@ bool RtPath::operator==(const RtPath& other) const
     return static_cast<PvtPath*>(_ptr)->operator==(*otherPath);
 }
 
+bool RtPath::isRoot() const
+{
+    return static_cast<PvtPath*>(_ptr)->isRoot();
+}
+
 }

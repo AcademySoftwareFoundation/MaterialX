@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtCollection.h>
+#include <MaterialXRuntime/Tokens.h>
 
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
@@ -11,46 +12,32 @@
 namespace MaterialX
 {
 
-namespace
-{
-    static const RtToken INCLUDE_GEOM("includegeom");
-    static const RtToken EXCLUDE_GEOM("excludegeom");
-    static const RtToken INCLUDE_COLLECTION("includecollection");
-
-    static const RtToken COLLECTION1("collection1");
-
-    static const string MSG_NONE_ROOT_COLLECTION("A collection can only be created at the top / root level");
-}
-
 DEFINE_TYPED_SCHEMA(RtCollection, "bindelement:collection");
 
 RtPrim RtCollection::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeInfo.getShortTypeName())
-    {
-        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
-    }
-    PvtPath::throwIfNotRoot(parent.getPath(), MSG_NONE_ROOT_COLLECTION);
+    PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
 
-    const RtToken primName = name == EMPTY_TOKEN ? COLLECTION1 : name;
+    static const RtToken DEFAULT_NAME("collection1");
+    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->createAttribute(INCLUDE_GEOM, RtType::STRING);
-    prim->createAttribute(EXCLUDE_GEOM, RtType::STRING);
-    prim->createRelationship(INCLUDE_COLLECTION);
+    prim->createAttribute(Tokens::INCLUDE_GEOM, RtType::STRING);
+    prim->createAttribute(Tokens::EXCLUDE_GEOM, RtType::STRING);
+    prim->createRelationship(Tokens::INCLUDE_COLLECTION);
 
     return primH;
 }
 
 RtAttribute RtCollection::getIncludeGeom() const
 {
-    return prim()->getAttribute(INCLUDE_GEOM)->hnd();
+    return prim()->getAttribute(Tokens::INCLUDE_GEOM)->hnd();
 }
 
 RtAttribute RtCollection::getExcludeGeom() const
 {
-    return prim()->getAttribute(EXCLUDE_GEOM)->hnd();
+    return prim()->getAttribute(Tokens::EXCLUDE_GEOM)->hnd();
 }
 
 void RtCollection::addCollection(const RtObject& collection)
@@ -65,12 +52,12 @@ void RtCollection::removeCollection(const RtObject& collection)
 
 RtRelationship RtCollection::getIncludeCollection() const
 {
-    return prim()->getRelationship(INCLUDE_COLLECTION)->hnd();
+    return prim()->getRelationship(Tokens::INCLUDE_COLLECTION)->hnd();
 }
 
 bool RtCollectionConnectableApi::acceptRelationship(const RtRelationship& rel, const RtObject& target) const
 {
-    if (rel.getName() == INCLUDE_COLLECTION)
+    if (rel.getName() == Tokens::INCLUDE_COLLECTION)
     {
         // 'includecollection' only accepts other collection prims as target.
         return target.isA<RtPrim>() && target.asA<RtPrim>().hasApi<RtCollection>();

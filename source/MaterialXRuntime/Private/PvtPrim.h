@@ -10,6 +10,7 @@
 #include <MaterialXRuntime/Private/PvtRelationship.h>
 
 #include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtPath.h>
 
 /// @file
 /// TODO: Docs
@@ -69,7 +70,13 @@ class PvtPrim : public PvtObject
     RT_DECLARE_RUNTIME_OBJECT(PvtPrim)
 
 public:
-    static PvtDataHandle createNew(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* parent);
+    template<class T = PvtPrim>
+    static PvtDataHandle createNew(const RtTypeInfo* type, const RtToken& name, PvtPrim* parent)
+    {
+        // Make the name unique.
+        const RtToken primName = parent->makeUniqueChildName(name);
+        return PvtDataHandle(new T(type, primName, parent));
+    }
 
     RtPrim prim() const
     {
@@ -209,6 +216,26 @@ public:
     }
 
     RtToken makeUniqueChildName(const RtToken& name) const;
+
+    // Validate that typenames match when creating a new prim.
+    static void validateCreation(const RtTypeInfo& typeInfo, const RtToken& typeName, const RtToken& name)
+    {
+        if (typeName != typeInfo.getShortTypeName())
+        {
+            throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
+        }
+    }
+
+    // Validate that typenames match and that parent path is at the root.
+    static void validateCreation(const RtTypeInfo& typeInfo, const RtToken& typeName, const RtToken& name, const RtPath& parentPath)
+    {
+        validateCreation(typeInfo, typeName, name);
+
+        if (!parentPath.isRoot())
+        {
+            throw ExceptionRuntimeError("A '" + typeName.str() + "' prim can only be created at the top / root level");
+        }
+    }
 
 protected:
     PvtPrim(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* parent);

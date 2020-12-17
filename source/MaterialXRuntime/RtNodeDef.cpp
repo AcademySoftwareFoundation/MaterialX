@@ -4,44 +4,34 @@
 //
 
 #include <MaterialXRuntime/RtNodeDef.h>
+#include <MaterialXRuntime/RtNodeImpl.h>
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtApi.h>
+#include <MaterialXRuntime/Tokens.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-RtToken RtNodeDef::NODE("node");
-RtToken RtNodeDef::NODEDEF("nodedef");
-RtToken RtNodeDef::NODEGROUP("nodegroup");
-RtToken RtNodeDef::INHERIT("inherit");
-RtToken RtNodeDef::TARGET("target");
-RtToken RtNodeDef::VERSION("version");
-RtToken RtNodeDef::IS_DEFAULT_VERSION("isdefaultversion");
-RtToken RtNodeDef::NAMESPACE("namespace");
-RtToken RtNodeDef::UIFOLDER("uifolder");
-
 DEFINE_TYPED_SCHEMA(RtNodeDef, "nodedef");
 
 RtPrim RtNodeDef::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeInfo.getShortTypeName())
-    {
-        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
-    }
+    PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
 
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, name, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->addMetadata(NODE, RtType::TOKEN);
+    prim->addMetadata(Tokens::NODE, RtType::TOKEN);
+    prim->createRelationship(Tokens::NODEIMPL);
 
     return primH;
 }
 
 const RtToken& RtNodeDef::getNode() const
 {
-    RtTypedValue* v = prim()->getMetadata(NODE);
+    RtTypedValue* v = prim()->getMetadata(Tokens::NODE);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
@@ -59,79 +49,79 @@ RtToken RtNodeDef::getNamespacedNode() const
 
 void RtNodeDef::setNode(const RtToken& node)
 {
-    RtTypedValue* v = prim()->addMetadata(NODE, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(Tokens::NODE, RtType::TOKEN);
     v->getValue().asToken() = node;
 }
 
 const RtToken& RtNodeDef::getNodeGroup() const
 {
-    RtTypedValue* v = prim()->getMetadata(NODEGROUP);
+    RtTypedValue* v = prim()->getMetadata(Tokens::NODEGROUP);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setNodeGroup(const RtToken& nodegroup)
 {
-    RtTypedValue* v = prim()->addMetadata(NODEGROUP, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(Tokens::NODEGROUP, RtType::TOKEN);
     v->getValue().asToken() = nodegroup;
 }
 
 const RtToken& RtNodeDef::getTarget() const
 {
-    RtTypedValue* v = prim()->getMetadata(TARGET);
+    RtTypedValue* v = prim()->getMetadata(Tokens::TARGET);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setTarget(const RtToken& nodegroup)
 {
-    RtTypedValue* v = prim()->addMetadata(TARGET, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(Tokens::TARGET, RtType::TOKEN);
     v->getValue().asToken() = nodegroup;
 }
 
 const RtToken& RtNodeDef::getIneritance() const
 {
-    RtTypedValue* v = prim()->getMetadata(INHERIT);
+    RtTypedValue* v = prim()->getMetadata(Tokens::INHERIT);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setIneritance(const RtToken& inherit)
 {
-    RtTypedValue* v = prim()->addMetadata(INHERIT, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(Tokens::INHERIT, RtType::TOKEN);
     v->getValue().asToken() = inherit;
 }
 
 const RtToken& RtNodeDef::getVersion() const
 {
-    RtTypedValue* v = prim()->getMetadata(VERSION);
+    RtTypedValue* v = prim()->getMetadata(Tokens::VERSION);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setVersion(const RtToken& version)
 {
-    RtTypedValue* v = prim()->addMetadata(VERSION, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(Tokens::VERSION, RtType::TOKEN);
     v->getValue().asToken() = version;
 }
 
 bool RtNodeDef::getIsDefaultVersion() const
 {
-    RtTypedValue* v = prim()->addMetadata(IS_DEFAULT_VERSION, RtType::BOOLEAN);
+    RtTypedValue* v = prim()->addMetadata(Tokens::IS_DEFAULT_VERSION, RtType::BOOLEAN);
     return v ? v->getValue().asBool() : false;
 }
 
 void RtNodeDef::setIsDefaultVersion(bool isDefault)
 {
-    RtTypedValue* v = prim()->addMetadata(IS_DEFAULT_VERSION, RtType::BOOLEAN);
+    RtTypedValue* v = prim()->addMetadata(Tokens::IS_DEFAULT_VERSION, RtType::BOOLEAN);
     v->getValue().asBool() = isDefault;
 }
 
 const RtToken& RtNodeDef::getNamespace() const
 {
-    RtTypedValue* v = prim()->getMetadata(NAMESPACE);
+    RtTypedValue* v = prim()->getMetadata(Tokens::NAMESPACE);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setNamespace(const RtToken& space)
 {
-    RtTypedValue* v = prim()->addMetadata(NAMESPACE, RtType::TOKEN);
+    RtTypedValue* v = prim()->addMetadata(Tokens::NAMESPACE, RtType::TOKEN);
     v->getValue().asToken() = space;
 }
 
@@ -213,13 +203,36 @@ RtAttrIterator RtNodeDef::getOutputs() const
     return RtAttrIterator(getPrim(), filter);
 }
 
+RtRelationship RtNodeDef::getNodeImpls() const
+{
+    PvtRelationship* rel = prim()->getRelationship(Tokens::NODEIMPL);
+    return rel ? rel->hnd() : RtRelationship();
+}
+
+RtPrim RtNodeDef::getNodeImpl(const RtToken& target) const
+{
+    RtRelationship rel = getNodeImpls();
+    for (RtObject obj : rel.getTargets())
+    {
+        if (obj.isA<RtPrim>())
+        {
+            RtNodeImpl impl(obj);
+            if (impl.isValid() && (target == EMPTY_TOKEN || impl.getTarget() == target))
+            {
+                return impl.getPrim();
+            }
+        }
+    }
+    return RtPrim();
+}
+
 RtNodeLayout RtNodeDef::getNodeLayout()
 {
     RtNodeLayout layout;
     for (RtAttribute input : getInputs())
     {
         layout.order.push_back(input.getName());
-        RtTypedValue* data = input.getMetadata(UIFOLDER);
+        RtTypedValue* data = input.getMetadata(Tokens::UIFOLDER);
         if (data && data->getType() == RtType::STRING)
         {
             layout.uifolder[input.getName()] = data->getValue().asString();

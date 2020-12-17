@@ -156,6 +156,14 @@ public:
     /// Return const metadata from the object.
     const RtTypedValue* getMetadata(const RtToken& name) const;
 
+    /// Return metadata from the object.
+    /// If found also perform a type check.
+    RtTypedValue* getMetadata(const RtToken& name, const RtToken& type);
+
+    /// Return const metadata from the object.
+    /// If found also perform a type check.
+    const RtTypedValue* getMetadata(const RtToken& name, const RtToken& type) const;
+
 protected:
 #ifdef NDEBUG
     /// Return the data handle.

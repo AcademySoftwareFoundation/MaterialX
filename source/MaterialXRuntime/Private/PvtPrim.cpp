@@ -22,13 +22,6 @@ PvtPrim::PvtPrim(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* paren
     setTypeBit<PvtPrim>();
 }
 
-PvtDataHandle PvtPrim::createNew(const RtTypeInfo* type, const RtToken& name, PvtPrim* parent)
-{
-    // Make the name unique.
-    const RtToken primName = parent->makeUniqueChildName(name);
-    return PvtDataHandle(new PvtPrim(type, primName, parent));
-}
-
 void PvtPrim::dispose(bool state)
 {
     for (const PvtDataHandle& hnd : _relOrder)

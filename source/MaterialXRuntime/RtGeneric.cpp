@@ -4,56 +4,39 @@
 //
 
 #include <MaterialXRuntime/RtGeneric.h>
+#include <MaterialXRuntime/Tokens.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-namespace
-{
-    static const RtToken KIND("kind");
-    static const RtToken GENERIC1("generic1");
-    static const RtToken UNKNOWN("unknown");
-}
-
 DEFINE_TYPED_SCHEMA(RtGeneric, "generic");
 
 RtPrim RtGeneric::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeInfo.getShortTypeName())
-    {
-        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
-    }
+    PvtPrim::validateCreation(_typeInfo, typeName, name);
 
-    const RtToken primName = name == EMPTY_TOKEN ? GENERIC1 : name;
+    static const RtToken DEFAULT_NAME("generic1");
+    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->addMetadata(KIND, RtType::TOKEN);
+    prim->addMetadata(Tokens::KIND, RtType::TOKEN);
 
     return primH;
 }
 
 const RtToken& RtGeneric::getKind() const
 {
-    RtTypedValue* v = prim()->getMetadata(KIND);
-    return v && v->getType() == RtType::TOKEN ? v->getValue().asToken() : UNKNOWN;
+    RtTypedValue* v = prim()->getMetadata(Tokens::KIND, RtType::TOKEN);
+    return v ? v->getValue().asToken() : Tokens::UNKNOWN;
 }
 
 void RtGeneric::setKind(const RtToken& kind)
 {
     PvtPrim* p = prim();
-    RtTypedValue* v = p->getMetadata(KIND);
-    if (!v)
-    {
-        v = p->addMetadata(KIND, RtType::TOKEN);
-    }
-    else if (v->getType() != RtType::TOKEN)
-    {
-        p->removeMetadata(KIND);
-        v = p->addMetadata(KIND, RtType::TOKEN);
-    }
+    RtTypedValue* v = p->addMetadata(Tokens::KIND, RtType::TOKEN);
     v->getValue().asToken() = kind;
 }
 

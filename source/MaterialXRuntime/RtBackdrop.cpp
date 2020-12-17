@@ -4,60 +4,50 @@
 //
 
 #include <MaterialXRuntime/RtBackdrop.h>
+#include <MaterialXRuntime/Tokens.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-namespace
-{
-    static const RtToken CONTAINS("contains");
-    static const RtToken WIDTH("width");
-    static const RtToken HEIGHT("height");
-    static const RtToken NOTE("note");
-    static const RtToken BACKDROP1("backdrop1");
-}
-
 DEFINE_TYPED_SCHEMA(RtBackdrop, "backdrop");
 
 RtPrim RtBackdrop::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    if (typeName != _typeInfo.getShortTypeName())
-    {
-        throw ExceptionRuntimeError("Type names mismatch when creating prim '" + name.str() + "'");
-    }
+    PvtPrim::validateCreation(_typeInfo, typeName, name);
 
-    const RtToken primName = name == EMPTY_TOKEN ? BACKDROP1 : name;
+    static const RtToken DEFAULT_NAME("backdrop1");
+    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->createRelationship(CONTAINS);
-    prim->createAttribute(WIDTH, RtType::FLOAT);
-    prim->createAttribute(HEIGHT, RtType::FLOAT);
-    prim->createAttribute(NOTE, RtType::STRING);
+    prim->createRelationship(Tokens::CONTAINS);
+    prim->createAttribute(Tokens::WIDTH, RtType::FLOAT);
+    prim->createAttribute(Tokens::HEIGHT, RtType::FLOAT);
+    prim->createAttribute(Tokens::NOTE, RtType::STRING);
 
     return primH;
 }
 
 RtRelationship RtBackdrop::getContains() const
 {
-    return prim()->getRelationship(CONTAINS)->hnd();
+    return prim()->getRelationship(Tokens::CONTAINS)->hnd();
 }
 
 RtAttribute RtBackdrop::getNote() const
 {
-    return prim()->getAttribute(NOTE)->hnd();
+    return prim()->getAttribute(Tokens::NOTE)->hnd();
 }
 
 RtAttribute RtBackdrop::getWidth() const
 {
-    return prim()->getAttribute(WIDTH)->hnd();
+    return prim()->getAttribute(Tokens::WIDTH)->hnd();
 }
 
 RtAttribute RtBackdrop::getHeight() const
 {
-    return prim()->getAttribute(HEIGHT)->hnd();
+    return prim()->getAttribute(Tokens::HEIGHT)->hnd();
 }
 
 }

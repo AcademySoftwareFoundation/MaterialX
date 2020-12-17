@@ -58,7 +58,7 @@ class ShaderNodeImpl
         return _hash;
     }
 
-    /// Add additional inputs on the node 
+    /// Add additional inputs on the node
     virtual void addInputs(ShaderNode& node, GenContext& context) const;
 
     /// Set values for additional inputs on the node 

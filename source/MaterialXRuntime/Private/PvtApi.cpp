@@ -13,14 +13,17 @@
 namespace MaterialX
 {
 
+namespace
+{
+    static const RtToken libRootName("api_lib_root");
+}
+
 void PvtApi::reset()
 {
-    static const RtTypeInfo defRootType("api_def_root");
-    static const RtToken libRootName("api_lib_root");
-
-    _definitionsRootPrim.reset(new PvtPrim(&defRootType, defRootType.getShortTypeName(), nullptr));
     _createFunctions.clear();
     _stages.clear();
+    _nodedefs.clear();
+    _nodeimpls.clear();
 
     _libraryRootStage.reset();
     _libraries.clear();

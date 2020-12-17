@@ -76,9 +76,13 @@ public:
         return !(*this == other);
     }
 
+    /// Return true of this path points to the root.
+    bool isRoot() const;
+
 private:
     void* _ptr;
     friend class RtStage;
+    friend class PvtPath;
 };
 
 }

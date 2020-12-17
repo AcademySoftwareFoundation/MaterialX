@@ -16,12 +16,18 @@
 #include <MaterialXRuntime/RtTraversal.h>
 #include <MaterialXRuntime/RtApi.h>
 #include <MaterialXRuntime/RtLogger.h>
+#include <MaterialXRuntime/Tokens.h>
+#include <MaterialXRuntime/RtNodeImpl.h>
+#include <MaterialXRuntime/RtTargetDef.h>
+#include <MaterialXRuntime/Codegen/RtSourceCodeImpl.h>
+#include <MaterialXRuntime/Codegen/RtSubGraphImpl.h>
 
 #include <MaterialXRuntime/Private/PvtStage.h>
 
 #include <MaterialXCore/Types.h>
 
 #include <MaterialXFormat/Util.h>
+
 #include <sstream>
 #include <fstream>
 #include <map>
@@ -38,6 +44,8 @@ namespace
                                                     RtToken("nodegraph"), RtToken("interfacename") };
     static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node") };
     static const RtTokenSet nodegraphMetadata   = { RtToken("name"), RtToken("nodedef") };
+    static const RtTokenSet targetdefMetadata   = { RtToken("name"), RtToken("inherit") };
+    static const RtTokenSet nodeimplMetadata    = { RtToken("name"), RtToken("target"), RtToken("file"), RtToken("sourcecode"), RtToken("function"), RtToken("format") };
     static const RtTokenSet lookMetadata        = { RtToken("name"), RtToken("inherit") };
     static const RtTokenSet lookGroupMetadata   = { RtToken("name"), RtToken("looks"), RtToken("default") };
     static const RtTokenSet mtrlAssignMetadata  = { RtToken("name"), RtToken("geom"), RtToken("collection"), RtToken("material"), RtToken("exclusive") };
@@ -307,8 +315,10 @@ namespace
         const RtToken nodeName(node->getCategory());
         const RtToken nodeType(node->getType());
         const vector<ValueElementPtr> nodePorts = node->getActiveValueElements();
-        for (RtPrim prim : RtApi::get().getNodeDefs())
+        const size_t numNodeDefs = RtApi::get().numNodeDefs();
+        for (size_t i=0; i<numNodeDefs; ++i)
         {
+            RtPrim prim = RtApi::get().getNodeDef(i);
             RtNodeDef candidate(prim);
             if (candidate.getNamespacedNode() == nodeName && 
                 matchingSignature(PvtObject::ptr<PvtPrim>(prim), nodeType, nodePorts))
@@ -475,6 +485,84 @@ namespace
         {
             readGenericPrim(child, prim, stage, mapper);
         }
+
+        return prim;
+    }
+
+    PvtPrim* readTargetDef(const TargetDefPtr& src, PvtPrim* parent, PvtStage* stage)
+    {
+        const RtToken name(src->getName());
+        const RtToken inherit(src->getInheritString());
+
+        PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtTargetDef::typeName());
+
+        RtTargetDef def(prim->hnd());
+        if (inherit != EMPTY_TOKEN)
+        {
+            def.setInherit(inherit);
+        }
+
+        readMetadata(src, prim, targetdefMetadata);
+
+        return prim;
+    }
+
+    PvtPrim* readImplementation(const ImplementationPtr& src, PvtPrim* parent, PvtStage* stage)
+    {
+        const RtToken target(src->getAttribute(Tokens::TARGET.str()));
+
+        // We are only interested in implementations for registered targets,
+        // so if target is set make sure this target has been registered.
+        if (target != EMPTY_TOKEN && !RtApi::get().hasTargetDef(target))
+        {
+            return nullptr;
+        }
+
+        const RtToken name(src->getName());
+        const RtToken nodedef(src->getNodeDefString());
+
+        const string& sourcecode = src->getAttribute(Tokens::SOURCECODE.str());
+        const string& file = src->getAttribute(Tokens::FILE.str());
+
+        PvtPrim* prim = nullptr;
+        if (file.empty() && sourcecode.empty())
+        {
+            // Create a generic node implementation.
+            prim = stage->createPrim(parent->getPath(), name, RtNodeImpl::typeName());
+        }
+        else
+        {
+            // Create a source code implementation.
+            prim = stage->createPrim(parent->getPath(), name, RtSourceCodeImpl::typeName());
+
+            RtSourceCodeImpl impl(prim->hnd());
+            if (!sourcecode.empty())
+            {
+                impl.setSourceCode(sourcecode);
+            }
+            else
+            {
+                impl.setFile(file);
+            }
+
+            const string& function = src->getAttribute(Tokens::FUNCTION.str());
+            if (!function.empty())
+            {
+                impl.setFunction(function);
+            }
+
+            const string& format = src->getAttribute(Tokens::FORMAT.str());
+            if (!format.empty())
+            {
+                impl.setFormat(RtToken(format));
+            }
+        }
+
+        RtNodeImpl impl(prim->hnd());
+        impl.setNodeDef(nodedef);
+        impl.setTarget(target);
+
+        readMetadata(src, prim, nodeimplMetadata);
 
         return prim;
     }
@@ -667,6 +755,8 @@ namespace
 
     void readDocument(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* options)
     {
+        RtApi& api = RtApi::get();
+
         // Set the source location 
         const std::string& uri = doc->getSourceUri();
         stage->addSourceUri(RtToken(uri));
@@ -675,16 +765,30 @@ namespace
 
         RtReadOptions::ElementFilter filter = options ? options->elementFilter : nullptr;
 
-        // First, load and register all nodedefs.
+        // Load and register all targetdefs.
+        // Having these available is needed when implementations are loaded later.
+        for (const TargetDefPtr& targetdef : doc->getTargetDefs())
+        {
+            if (!filter || filter(targetdef))
+            {
+                if (!api.hasTargetDef(RtToken(targetdef->getName())))
+                {
+                    PvtPrim* prim = readTargetDef(targetdef, stage->getRootPrim(), stage);
+                    api.registerTargetDef(prim->hnd());
+                }
+            }
+        }
+
+        // Load and register all nodedefs.
         // Having these available is needed when node instances are loaded later.
         for (const NodeDefPtr& nodedef : doc->getNodeDefs())
         {
             if (!filter || filter(nodedef))
             {
-                if (!RtApi::get().hasNodeDef(RtToken(nodedef->getName())))
+                if (!api.hasNodeDef(RtToken(nodedef->getName())))
                 {
                     PvtPrim* prim = readNodeDef(nodedef, stage);
-                    RtApi::get().registerNodeDef(prim->hnd());
+                    api.registerNodeDef(prim->hnd());
                 }
             }
         }
@@ -713,6 +817,14 @@ namespace
                     }
                     readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage, mapper);
                 }
+                else if (elem->isA<Implementation>())
+                {
+                    PvtPrim* prim = readImplementation(elem->asA<Implementation>(), stage->getRootPrim(), stage);
+                    if (prim)
+                    {
+                        api.registerNodeImpl(prim->hnd());
+                    }
+                }
                 else
                 {
                     const RtToken category(elem->getCategory());
@@ -720,7 +832,8 @@ namespace
                         category != RtLookGroup::typeName() &&
                         category != RtMaterialAssign::typeName() &&
                         category != RtCollection::typeName() &&
-                        category != RtNodeDef::typeName()) {
+                        category != RtNodeDef::typeName())
+                    {
                         readGenericPrim(elem, stage->getRootPrim(), stage, mapper);
                     }
                 }
@@ -1214,8 +1327,10 @@ namespace
         if (names.empty())
         {
             // Write all nodedefs.
-            for (const RtPrim& prim : api.getNodeDefs())
+            const size_t numNodeDefs = RtApi::get().numNodeDefs();
+            for (size_t i = 0; i < numNodeDefs; ++i)
             {
+                RtPrim prim = api.getNodeDef(i);
                 writeNodeDefAndImplementation(document, stage, PvtObject::ptr<PvtPrim>(prim), options);
             }
         }
@@ -1312,10 +1427,21 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
         stage->addSourceUri(RtToken(uri));
     }
 
+    // Load and register all targetdefs. Having these available is needed
+    // when implementations are loaded later.
+    for (const TargetDefPtr& targetdef : doc->getTargetDefs())
+    {
+        if (!api.hasTargetDef(RtToken(targetdef->getName())))
+        {
+            PvtPrim* prim = readTargetDef(targetdef, stage->getRootPrim(), stage);
+            api.registerTargetDef(prim->hnd());
+        }
+    }
+
     // Update any units found
     readUnitDefinitions(doc);
 
-    // First, load all nodedefs. Having these available is needed
+    // Load and register all nodedefs. Having these available is needed
     // when node instances are loaded later.
     for (const NodeDefPtr& nodedef : doc->getNodeDefs())
     {
@@ -1351,6 +1477,14 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
             else if (elem->isA<NodeGraph>())
             {
                 readNodeGraph(elem->asA<NodeGraph>(), stage->getRootPrim(), stage, mapper);
+            }
+            else if (elem->isA<Implementation>())
+            {
+                PvtPrim* prim = readImplementation(elem->asA<Implementation>(), stage->getRootPrim(), stage);
+                if (prim)
+                {
+                    api.registerNodeImpl(prim->hnd());
+                }
             }
             else
             {

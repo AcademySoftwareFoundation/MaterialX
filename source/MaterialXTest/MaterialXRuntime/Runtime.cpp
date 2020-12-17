@@ -30,6 +30,7 @@
 #include <MaterialXRuntime/RtLook.h>
 #include <MaterialXRuntime/RtCollection.h>
 #include <MaterialXRuntime/RtMessage.h>
+#include <MaterialXRuntime/Tokens.h>
 
 #include <MaterialXRuntime/Commands/PrimCommands.h>
 #include <MaterialXRuntime/Commands/AttributeCommands.h>
@@ -861,11 +862,11 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     mx::RtNode agNode(agPrim);
     {
         // 1. Metadata like version should be copiedbut not target or node.
-        mx::RtTypedValue* agVersion = agNode.getMetadata(mx::RtNodeDef::VERSION);
+        mx::RtTypedValue* agVersion = agNode.getMetadata(mx::Tokens::VERSION);
         REQUIRE(agVersion->getValueString() == ADDGRAPH_VERSION);
-        mx::RtTypedValue* agTarget = agNode.getMetadata(mx::RtNodeDef::TARGET);
+        mx::RtTypedValue* agTarget = agNode.getMetadata(mx::Tokens::TARGET);
         REQUIRE(!agTarget);
-        mx::RtTypedValue* agNodeValue = agNode.getMetadata(mx::RtNodeDef::NODE);
+        mx::RtTypedValue* agNodeValue = agNode.getMetadata(mx::Tokens::NODE);
         REQUIRE(!agNodeValue);
     }
 
@@ -946,11 +947,11 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
         doc->validate();
         mx::ElementPtr agInstance = doc->getChild("addgraph1");
         REQUIRE(agInstance);
-        bool instanceVersionSaved = agInstance->getAttribute(mx::RtNodeDef::VERSION.str()) == ADDGRAPH_VERSION;
+        bool instanceVersionSaved = agInstance->getAttribute(mx::Tokens::VERSION.str()) == ADDGRAPH_VERSION;
         REQUIRE(instanceVersionSaved);
-        bool instanceTargetNotSaved = agInstance->getAttribute(mx::RtNodeDef::TARGET.str()) == mx::EMPTY_STRING;
+        bool instanceTargetNotSaved = agInstance->getAttribute(mx::Tokens::TARGET.str()) == mx::EMPTY_STRING;
         REQUIRE(instanceTargetNotSaved);
-        bool instanceNodeNotSaved = agInstance->getAttribute(mx::RtNodeDef::NODE.str()) == mx::EMPTY_STRING;
+        bool instanceNodeNotSaved = agInstance->getAttribute(mx::Tokens::NODE.str()) == mx::EMPTY_STRING;
         REQUIRE(instanceNodeNotSaved);
     }
 }
