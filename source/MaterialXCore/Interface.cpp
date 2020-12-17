@@ -236,20 +236,33 @@ OutputPtr Input::getConnectedOutput() const
     // Look for output on a node
     else if (hasNodeName())
     {
-        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
-        NodePtr node = graph ? graph->getNode(getNodeName()) : nullptr;
-        if (node)
+        const string& nodeName = getNodeName();
+        ConstElementPtr startingElement = getParent();
+        if (startingElement)
         {
-            std::vector<OutputPtr> outputs = node->getOutputs();
-            if (!outputs.empty())
+            // Look for a node reference above the nodegraph if input is a direct child.
+            if (startingElement->isA<NodeGraph>())
             {
-                if (outputString.empty())
+                startingElement = startingElement->getParent();
+            }
+            if (startingElement)
+            {
+                ConstGraphElementPtr graph = startingElement->getAncestorOfType<GraphElement>();
+                NodePtr node = graph ? graph->getNode(nodeName) : nullptr;
+                if (node)
                 {
-                    result = outputs[0];
-                }
-                else
-                {
-                    result = node->getOutput(outputString);
+                    std::vector<OutputPtr> outputs = node->getOutputs();
+                    if (!outputs.empty())
+                    {
+                        if (outputString.empty())
+                        {
+                            result = outputs[0];
+                        }
+                        else
+                        {
+                            result = node->getOutput(outputString);
+                        }
+                    }
                 }
             }
         }
@@ -262,8 +275,29 @@ OutputPtr Input::getConnectedOutput() const
     return result;
 }
 
+InputPtr Input::getConnectedInterface() const
+{
+    const string& interfaceName = getInterfaceName();
+    if (!interfaceName.empty())
+    {
+        ConstNodeGraphPtr graph = getAncestorOfType<NodeGraph>();
+        if (graph)
+        {
+            return graph->getInput(interfaceName);
+        }
+    }
+    return nullptr;
+}
+
 NodePtr Input::getConnectedNode() const
 {
+    // Traverse through interface names to nodegraph input
+    InputPtr graphInput = getConnectedInterface();
+    if (graphInput && (graphInput->hasNodeName() || graphInput->hasNodeGraphString()))
+    {
+        return graphInput->getConnectedNode();
+    }
+
     OutputPtr output = getConnectedOutput();
     if (output)
     {
@@ -273,11 +307,24 @@ NodePtr Input::getConnectedNode() const
     }
     if (hasNodeName())
     {
-        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
-        NodePtr node = graph ? graph->getNode(getNodeName()) : nullptr;
-        if (node)
+        const string& nodeName = getNodeName();
+        ConstElementPtr startingElement = getParent();
+        if (startingElement)
         {
-            return node;
+            // Look for a node reference above the nodegraph if input is a direct child.
+            if (startingElement->isA<NodeGraph>())
+            {
+                startingElement = startingElement->getParent();
+            }
+            if (startingElement)
+            {
+                ConstGraphElementPtr graph = startingElement->getAncestorOfType<GraphElement>();
+                NodePtr node = graph ? graph->getNode(nodeName) : nullptr;
+                if (node)
+                {
+                    return node;
+                }
+            }
         }
     }
     return PortElement::getConnectedNode();
@@ -300,6 +347,11 @@ bool Input::validate(string* message) const
     if (hasDefaultGeomPropString())
     {
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
+    }
+    InputPtr interfaceInput = getConnectedInterface();
+    if (interfaceInput)
+    {
+        return interfaceInput->validate() && res;
     }
     return PortElement::validate(message) && res;
 }

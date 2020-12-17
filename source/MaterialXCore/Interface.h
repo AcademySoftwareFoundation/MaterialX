@@ -218,6 +218,10 @@ class Input : public PortElement
     /// @name Traversal
     /// @{
 
+    /// Return the input on the parent graph corresponding to the interface name
+    /// for the element.
+    InputPtr getConnectedInterface() const;
+
     /// Return the output, if any, to which this element is connected.
     OutputPtr getConnectedOutput() const;
 
