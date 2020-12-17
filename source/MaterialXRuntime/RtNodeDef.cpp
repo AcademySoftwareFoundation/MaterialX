@@ -55,7 +55,7 @@ void RtNodeDef::setNode(const RtToken& node)
 
 const RtToken& RtNodeDef::getNodeGroup() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::NODEGROUP);
+    RtTypedValue* v = prim()->getMetadata(Tokens::NODEGROUP, RtType::TOKEN);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
@@ -67,7 +67,7 @@ void RtNodeDef::setNodeGroup(const RtToken& nodegroup)
 
 const RtToken& RtNodeDef::getTarget() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::TARGET);
+    RtTypedValue* v = prim()->getMetadata(Tokens::TARGET, RtType::TOKEN);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
@@ -79,7 +79,7 @@ void RtNodeDef::setTarget(const RtToken& nodegroup)
 
 const RtToken& RtNodeDef::getIneritance() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::INHERIT);
+    RtTypedValue* v = prim()->getMetadata(Tokens::INHERIT, RtType::TOKEN);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 
@@ -91,7 +91,7 @@ void RtNodeDef::setIneritance(const RtToken& inherit)
 
 const RtToken& RtNodeDef::getVersion() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::VERSION);
+    RtTypedValue* v = prim()->getMetadata(Tokens::VERSION, RtType::TOKEN);
     return v ? v->getValue().asToken() : EMPTY_TOKEN;
 }
 

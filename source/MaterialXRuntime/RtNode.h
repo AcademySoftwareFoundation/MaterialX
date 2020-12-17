@@ -30,6 +30,12 @@ public:
     /// Set the nodedef for this node.
     void setNodeDef(RtPrim prim);
 
+    /// Return the version for this node.
+    const RtToken& getVersion() const;
+
+    /// Set the version for this node.
+    void setVersion(const RtToken& version);
+
     /// Return the number of inputs on the node.
     size_t numInputs() const;
 

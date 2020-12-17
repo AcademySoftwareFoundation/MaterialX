@@ -104,6 +104,18 @@ void RtNode::setNodeDef(RtPrim nodeDef)
     nodedefRel->addTarget(PvtObject::ptr<PvtPrim>(nodeDef));
 }
 
+const RtToken& RtNode::getVersion() const
+{
+    RtTypedValue* v = prim()->getMetadata(Tokens::VERSION, RtType::TOKEN);
+    return v ? v->getValue().asToken() : EMPTY_TOKEN;
+}
+
+void RtNode::setVersion(const RtToken& version)
+{
+    RtTypedValue* v = prim()->addMetadata(Tokens::VERSION, RtType::TOKEN);
+    v->getValue().asToken() = version;
+}
+
 size_t RtNode::numInputs() const
 {
     return prim()->numInputs();

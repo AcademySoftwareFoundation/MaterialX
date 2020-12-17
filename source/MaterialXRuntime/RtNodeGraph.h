@@ -70,12 +70,6 @@ public:
     /// Return an iterator over the nodes in the graph.
     RtPrimIterator getNodes() const;
 
-    /// Return the version for this nodeegraph.
-    const RtToken& getVersion() const;
-
-    /// Set the version for this nodegraph.
-    void setVersion(const RtToken& version);
-
     /// Return any associated definition name.
     const RtToken& getDefinition() const;
 

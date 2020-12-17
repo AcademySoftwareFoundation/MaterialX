@@ -54,7 +54,7 @@ RtTypedValue* PvtObject::addMetadata(const RtToken& name, const RtToken& type)
         // Check if the data type is matching.
         if (it->second.getType() != type)
         {
-            throw ExceptionRuntimeError("Metadata '" + name.str() + "' found with an unmatching datatype on object '"+ getName().str() +"'");
+            throw ExceptionRuntimeError("Metadata '" + name.str() + "' found with an unmatching datatype on object '" + getName().str() +"'");
         }
         return &it->second;
     }

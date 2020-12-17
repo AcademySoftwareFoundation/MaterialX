@@ -213,18 +213,6 @@ RtPrimIterator RtNodeGraph::getNodes() const
     return RtPrimIterator(hnd(), predicate);
 }
 
-const RtToken& RtNodeGraph::getVersion() const
-{
-    RtTypedValue* v = prim()->getMetadata(Tokens::VERSION);
-    return v ? v->getValue().asToken() : EMPTY_TOKEN;
-}
-
-void RtNodeGraph::setVersion(const RtToken& value)
-{
-    RtTypedValue* v = prim()->addMetadata(Tokens::VERSION, RtType::TOKEN);
-    v->getValue().asToken() = value;
-}
-
 const RtToken& RtNodeGraph::getDefinition() const
 {
     RtTypedValue* v = prim()->getMetadata(Tokens::NODEDEF);

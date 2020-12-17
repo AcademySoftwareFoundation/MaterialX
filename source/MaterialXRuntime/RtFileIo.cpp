@@ -42,10 +42,10 @@ namespace
     static const RtTokenSet attrMetadata        = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels") };
     static const RtTokenSet inputMetadata       = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels"), 
                                                     RtToken("nodegraph"), RtToken("interfacename") };
-    static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node") };
+    static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node"), RtToken("version") };
     static const RtTokenSet nodegraphMetadata   = { RtToken("name"), RtToken("nodedef") };
     static const RtTokenSet targetdefMetadata   = { RtToken("name"), RtToken("inherit") };
-    static const RtTokenSet nodeimplMetadata    = { RtToken("name"), RtToken("target"), RtToken("file"), RtToken("sourcecode"), RtToken("function"), RtToken("format") };
+    static const RtTokenSet nodeimplMetadata    = { RtToken("name"), RtToken("nodedef"), RtToken("target"), RtToken("file"), RtToken("sourcecode"), RtToken("function"), RtToken("format") };
     static const RtTokenSet lookMetadata        = { RtToken("name"), RtToken("inherit") };
     static const RtTokenSet lookGroupMetadata   = { RtToken("name"), RtToken("looks"), RtToken("default") };
     static const RtTokenSet mtrlAssignMetadata  = { RtToken("name"), RtToken("geom"), RtToken("collection"), RtToken("material"), RtToken("exclusive") };
@@ -352,7 +352,14 @@ namespace
         PvtPrim* node = stage->createPrim(parent->getPath(), nodeName, nodedefName);
         mapper.addMapping(parent, nodeName, node->getName());
 
-        readMetadata(src, node, attrMetadata);
+        const string& version = src->getVersionString();
+        if (!version.empty())
+        {
+            RtNode schema(node->hnd());
+            schema.setVersion(RtToken(version));
+        }
+
+        readMetadata(src, node, nodeMetadata);
 
         // Copy input values.
         for (auto elem : src->getChildrenOfType<ValueElement>())
@@ -919,9 +926,13 @@ namespace
             outputType = attr.getType();
         }
 
-        bool writeDefaultValues = options ? options->writeDefaultValues : false;
-
         NodePtr destNode = dest->addNode(nodedef.getNamespacedNode(), node.getName(), numOutputs > 1 ? "multioutput" : outputType);
+        if (node.getVersion() != EMPTY_TOKEN)
+        {
+            destNode->setVersionString(node.getVersion().str());
+        }
+
+        bool writeDefaultValues = options ? options->writeDefaultValues : false;
 
         for (RtAttribute attrDef : nodedef.getPrim().getAttributes())
         {
