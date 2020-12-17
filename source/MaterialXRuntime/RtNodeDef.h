@@ -74,11 +74,11 @@ public:
     /// Set the version for this nodedef.
     void setIsDefaultVersion(bool isDefault);
 
-    /// Return the namespacefor this nodedef.
-    const RtToken& getNamespace() const;
+    /// Return the namespace for this nodedef.
+    const string& getNamespace() const;
 
-    /// Set the namespacefor this nodedef.
-    void setNamespace(const RtToken& space);
+    /// Set the namespace for this nodedef.
+    void setNamespace(const string& space);
 
     /// Add an input attribute to the interface.
     RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);

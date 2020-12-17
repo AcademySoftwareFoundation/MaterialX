@@ -38,7 +38,7 @@ namespace MaterialX
 namespace
 {
     // Lists of known metadata which are handled explicitly by import/export.
-    static const RtTokenSet nodedefMetadata     = { RtToken("name"), RtToken("type"), RtToken("node") };
+    static const RtTokenSet nodedefMetadata     = { RtToken("name"), RtToken("type"), RtToken("node"), RtToken("version"), RtToken("isdefaultversion") };
     static const RtTokenSet attrMetadata        = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels") };
     static const RtTokenSet inputMetadata       = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels"), 
                                                     RtToken("nodegraph"), RtToken("interfacename") };
@@ -260,6 +260,16 @@ namespace
         const RtToken nodeName(src->getNodeString());
         RtNodeDef nodedef(prim->hnd());
         nodedef.setNode(nodeName);
+
+        const string& version = src->getVersionString();
+        if (!version.empty())
+        {
+            nodedef.setVersion(RtToken(version));
+            if (src->getDefaultVersion())
+            {
+                nodedef.setIsDefaultVersion(true);
+            }
+        }
 
         readMetadata(src, prim, nodedefMetadata);
 
@@ -853,8 +863,17 @@ namespace
     void writeNodeDef(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
     {
         RtNodeDef nodedef(src->hnd());
-
         NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName(), EMPTY_STRING, nodedef.getNode());
+
+        if (nodedef.getVersion() != EMPTY_TOKEN)
+        {
+            destNodeDef->setVersionString(nodedef.getVersion().str());
+            if (nodedef.getIsDefaultVersion())
+            {
+                destNodeDef->setDefaultVersion(true);
+            }
+        }
+
         writeMetadata(src, destNodeDef, nodedefMetadata, options);
 
         for (const PvtDataHandle attrH : src->getAllAttributes())
