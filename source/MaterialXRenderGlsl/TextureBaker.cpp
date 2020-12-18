@@ -172,30 +172,18 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
         return;
     }
 
-    // If the graph used to create the texture has any of the following attributes
-    // then it's value has changed from the original, and even if the image is a constant
-    // it must not be optmized away.
-    StringVec transformationAttributes;
-    transformationAttributes.push_back(Element::COLOR_SPACE_ATTRIBUTE);
-    transformationAttributes.push_back(ValueElement::UNIT_ATTRIBUTE);
-    transformationAttributes.push_back(ValueElement::UNITTYPE_ATTRIBUTE);
-
     // Check for uniform images.
     for (auto& pair : _bakedImageMap)
     {
         bool outputIsUniform = true;
-        OutputPtr outputPtr = pair.first;
         for (BakedImage& baked : pair.second)
         {
-            if (hasElementAttributes(outputPtr, transformationAttributes))
-            {
-                outputIsUniform = false;
-            }
-            else if (_averageImages)
+            if (_averageImages)
             {
                 baked.uniformColor = baked.image->getAverageColor();
                 baked.isUniform = true;
             }
+            // Extract uniform color from Image.
             else if (baked.image->isUniformColor(&baked.uniformColor))
             {
                 baked.image = createUniformImage(4, 4, baked.image->getChannelCount(), baked.image->getBaseType(), baked.uniformColor);
