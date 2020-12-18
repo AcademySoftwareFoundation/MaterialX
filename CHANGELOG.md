@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.37.4] - Development
+## [1.37.4] - 2020-12-18
 
 ### Added
 - Added software rendering tests for MaterialXRenderGlsl to GitHub Actions.
