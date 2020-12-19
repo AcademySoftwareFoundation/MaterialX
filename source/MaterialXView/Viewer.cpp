@@ -1916,48 +1916,10 @@ mx::ImagePtr Viewer::renderWedge()
 void Viewer::bakeTextures()
 {
     MaterialPtr material = getSelectedMaterial();
-    if (!material->getMaterialElement())
-    {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
-            "There are no material nodes to bake.");
-        return;
-    }
-
-    mx::DocumentPtr origDoc = material->getDocument();
-    if (!origDoc)
+    mx::DocumentPtr doc = material->getDocument();
+    if (!doc)
     {
         return;
-    }
-    // Make a copy before baking as baking process can change the document
-    // layout.
-    mx::DocumentPtr bakeDoc = mx::createDocument();
-    bakeDoc->copyContentFrom(origDoc);
-    
-    // Create a unique image handler for baking.
-    mx::FilePath documentFilename = origDoc->getSourceUri();
-    mx::FileSearchPath searchPath = _searchPath;
-    searchPath.append(documentFilename.getParentPath());
-    mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
-#if MATERIALX_BUILD_OIIO
-    imageHandler->addLoader(mx::OiioImageLoader::create());
-#endif
-    imageHandler->setSearchPath(searchPath);
-
-    // Compute material and UDIM lists.
-    std::vector<MaterialPtr> materialsToBake;
-    std::vector<std::string> udimSet;
-    mx::ValuePtr udimSetValue = origDoc->getGeomPropValue("udimset");
-    if (_materials.size() > 1 &&
-        !material->getUdim().empty() &&
-        udimSetValue &&
-        !_bakeAverage)
-    {
-        materialsToBake = _materials;
-        udimSet = udimSetValue->asA<std::vector<std::string>>();
-    }
-    else
-    {
-        materialsToBake.push_back(material);
     }
 
     {
@@ -1969,50 +1931,18 @@ void Viewer::bakeTextures()
         baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
 
-        mx::StringResolverPtr resolver = mx::StringResolver::create();
-
-        // Bake each material in the list.
-        for (MaterialPtr mat : materialsToBake)
+        // Bake all materials in the active document.
+        try
         {
-            mx::NodePtr origMaterialNode = mat->getMaterialElement()->asA<mx::Node>();
-            mx::ElementPtr materialElement = bakeDoc->getDescendant(origMaterialNode->getNamePath());
-            mx::NodePtr materialNode = materialElement ? materialElement->asA<mx::Node>() : nullptr;
-            if (materialNode)
-            {
-                std::unordered_set<mx::NodePtr> shaderNodes = mx::getShaderNodes(materialNode, mx::SURFACE_SHADER_TYPE_STRING);
-                if (!shaderNodes.empty())
-                {
-                    resolver->setUdimString(mat->getUdim());
-                    imageHandler->setFilenameResolver(resolver);
-                    try
-                    {
-                        // TODO: Only bake first surface shader 
-                        mx::NodePtr shader = *shaderNodes.begin();
-                        baker->setImageHandler(imageHandler);
-                        baker->setOutputResourcePath(_bakeFilename.getParentPath());
-                        baker->setBakedGraphName("NG_" + shader->getName());
-                        baker->setBakedGeomInfoName("GI_" + shader->getName());
-                        baker->bakeShaderInputs(materialNode, shader, _genContext, mat->getUdim());
-                        // Optimize baked textures.
-                        baker->optimizeBakedTextures(shader);
-                        // Write the baked document and textures.
-                        mx::DocumentPtr bakedDocument = baker->getBakedMaterial(shader, udimSet);
-                        if (bakedDocument)
-                        {
-                            mx::writeToXmlFile(bakedDocument, _bakeFilename);
-                            std::cout << "Write baked document: " << _bakeFilename.asString() << std::endl;
-                        }
-                    }
-                    catch (mx::Exception& e)
-                    {
-                        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
-                    }
-                }
-            }
+            baker->bakeAllMaterials(doc, _imageHandler->getSearchPath(), _bakeFilename);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Error in texture baking: " << e.what() << std::endl;
         }
     }
 
-    // Restore state for scene rendering.
+    // After the baker has been destructed, restore state for scene rendering.
     glfwMakeContextCurrent(mGLFWWindow);
     glfwGetFramebufferSize(mGLFWWindow, &mFBSize[0], &mFBSize[1]);
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
