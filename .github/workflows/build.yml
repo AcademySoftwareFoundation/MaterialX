@@ -95,7 +95,6 @@ jobs:
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
       run: |
-        brew install cmake ninja
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
           brew install gcc@${{ matrix.compiler_version }}
           echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
@@ -128,6 +127,15 @@ jobs:
       if: runner.os == 'Linux' || runner.os == 'macOS'
       run: echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/installed/lib" >> $GITHUB_ENV
 
+    - name: Initialize Virtual Framebuffer
+      if: matrix.test_render == 'ON' && runner.os == 'Linux'
+      run: |
+        Xvfb :99 -screen 0 1280x960x24 &
+        echo "DISPLAY=:99" >> $GITHUB_ENV
+        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
+        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
+        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config ${{env.config}}
       working-directory: build
@@ -137,15 +145,6 @@ jobs:
         python main.py
         python genshader.py
       working-directory: python/MaterialXTest
-
-    - name: Initialize Virtual Framebuffer
-      if: matrix.test_render == 'ON' && runner.os == 'Linux'
-      run: |
-        Xvfb :99 -screen 0 1280x960x24 &
-        echo "DISPLAY=:99" >> $GITHUB_ENV
-        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
-        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
-        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
 
     - name: Material Baking Tests
       if: matrix.test_render == 'ON'
