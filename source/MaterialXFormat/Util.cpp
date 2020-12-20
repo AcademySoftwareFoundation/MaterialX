@@ -137,7 +137,7 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     return loadedLibraries;
 }
 
-void resolveFileNames(DocumentPtr doc, const FileSearchPath& searchPath, StringResolverPtr customResolver)
+void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringResolverPtr customResolver)
 {
     for (ElementPtr elem : doc->traverseTree())
     {
@@ -193,6 +193,5 @@ void resolveFileNames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
         }
     }
 }
-
 
 } // namespace MaterialX

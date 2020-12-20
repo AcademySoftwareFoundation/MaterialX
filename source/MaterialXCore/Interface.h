@@ -356,24 +356,15 @@ class InterfaceElement : public TypedElement
 
     /// Add an Input to this interface.
     /// @param name The name of the new Input.
-    ///     If an empty string is specified, then a unique name will automatically be
+    ///     If no name is specified, then a unique name will automatically be
     ///     generated.
-    /// @param type The input type string.
-    /// @param isUniform Option to mark the input as a uniform. By default the input
-    ///     is not marked as being a uniform. "string" and "filename" types are always
-    ///     marked as being a uniform.
+    /// @param type An optional type string.
     /// @return A shared pointer to the new Input.
     InputPtr addInput(const string& name,
-                      const string& type,
-                      bool isUniform = false)
+                      const string& type = DEFAULT_TYPE_STRING)
     {
         InputPtr child = addChild<Input>(name);
         child->setType(type);
-        const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
-        if (isUniform || uniformTypes.count(type))
-        {
-            child->setIsUniform(true);
-        }
         return child;
     }
 
@@ -609,7 +600,7 @@ template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
 {
     InputPtr input = getChildOfType<Input>(name);
     if (!input)
-        input = addInput(name, type);
+        input = addInput(name);
     input->setValue(value, type);
     return input;
 }
