@@ -21,6 +21,6 @@ void bindPyUtil(py::module& mod)
         py::arg("file"), py::arg("doc"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
     mod.def("loadLibraries", &mx::loadLibraries,
         py::arg("libraryFolders"), py::arg("searchPath"), py::arg("doc"), py::arg("excludeFiles") = mx::StringSet(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
-    mod.def("resolveFileNames", &mx::resolveFileNames,
+    mod.def("flattenFilenames", &mx::flattenFilenames,
         py::arg("doc"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("customResolver") = (mx::StringResolverPtr) nullptr);
 }

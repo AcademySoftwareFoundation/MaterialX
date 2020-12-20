@@ -1931,10 +1931,15 @@ void Viewer::bakeTextures()
         baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
 
+        // Extend the image search path to include the source material folder.
+        mx::FilePath materialFilename = mx::FilePath(doc->getSourceUri());
+        mx::FileSearchPath materialSearchPath = _searchPath;
+        materialSearchPath.append(materialFilename.getParentPath());
+
         // Bake all materials in the active document.
         try
         {
-            baker->bakeAllMaterials(doc, _imageHandler->getSearchPath(), _bakeFilename);
+            baker->bakeAllMaterials(doc, materialSearchPath, _bakeFilename);
         }
         catch (std::exception& e)
         {

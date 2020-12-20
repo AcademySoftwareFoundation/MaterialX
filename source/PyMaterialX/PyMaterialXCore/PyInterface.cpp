@@ -50,8 +50,7 @@ void bindPyInterface(py::module& mod)
         .def("hasNodeDefString", &mx::InterfaceElement::hasNodeDefString)
         .def("getNodeDefString", &mx::InterfaceElement::getNodeDefString)
         .def("addInput", &mx::InterfaceElement::addInput,
-            py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING,
-            py::arg("isUniform") = false)
+            py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
         .def("getInput", &mx::InterfaceElement::getInput)
         .def("getInputs", &mx::InterfaceElement::getInputs)
         .def("getInputCount", &mx::InterfaceElement::getInputCount)

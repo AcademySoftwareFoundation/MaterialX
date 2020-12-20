@@ -291,7 +291,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
                 InputPtr bakedMaterialInput = bakedMaterial->getInput(sourceMaterialInputName);
                 if (!bakedMaterialInput)
                 {
-                    bakedMaterialInput = bakedMaterial->addInput(sourceMaterialInputName, sourceMaterialInput->getType(), sourceMaterialInput->getIsUniform());
+                    bakedMaterialInput = bakedMaterial->addInput(sourceMaterialInputName, sourceMaterialInput->getType());
                 }
                 bakedMaterialInput->setNodeName(bakedShader->getName());
             }
@@ -312,7 +312,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         InputPtr bakedInput = bakedShader->getInput(sourceName);
         if (!bakedInput)
         {
-            bakedInput = bakedShader->addInput(sourceName, sourceType, sourceInput->getIsUniform());
+            bakedInput = bakedShader->addInput(sourceName, sourceType);
         }
 
         OutputPtr output = sourceInput->getConnectedOutput();

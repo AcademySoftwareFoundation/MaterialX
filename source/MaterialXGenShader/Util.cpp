@@ -12,8 +12,6 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/PugiXML/pugixml.hpp>
 
-#include <list>
-
 namespace MaterialX
 {
 
@@ -573,7 +571,7 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
     findRenderableMaterialNodes(doc, elements, includeReferencedGraphs, processedSources);
 
     // Find node graph outputs. Skip any light shaders
-    std::list<OutputPtr> testOutputs;
+    vector<OutputPtr> testOutputs;
     for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
     {
         // Skip anything from an include file including libraries.

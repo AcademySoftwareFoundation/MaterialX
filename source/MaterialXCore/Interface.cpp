@@ -410,7 +410,7 @@ void InterfaceElement::setConnectedOutput(const string& inputName, OutputPtr out
     InputPtr input = getInput(inputName);
     if (!input)
     {
-        input = addInput(inputName, DEFAULT_TYPE_STRING);
+        input = addInput(inputName);
     }
     if (output)
     {
