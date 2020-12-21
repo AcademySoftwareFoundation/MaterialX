@@ -95,9 +95,6 @@
       <!-- External testing: extra comma separated list of test root paths -->
       <parameter name="externalTestPaths" type="string" value="" />
 
-      <!-- Test prototype functionality for future versions of MaterialX -->
-      <parameter name="applyFutureUpdates" type="boolean" value="true" />
-      
       <!-- Wedge rendering options -->
       <parameter name="wedgeFiles" type="string" value="wedge_conductor.mtlx,wedge_conductor.mtlx" />
       <parameter name="wedgeParameters" type="string" value="test_conductor/roughness1/roughness,test_conductor/roughness1/anisotropy" />
