@@ -23,9 +23,6 @@ class HeightToNormalNodeMdl : public ConvolutionNode
     const string& getTarget() const override;
 
   protected:
-    /// Constructor
-    HeightToNormalNodeMdl();
-
     /// Return if given type is an acceptible input
     bool acceptsInputType(const TypeDesc* type) const override;
 

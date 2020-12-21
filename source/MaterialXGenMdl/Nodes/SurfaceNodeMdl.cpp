@@ -4,16 +4,13 @@
 //
 
 #include <MaterialXGenMdl/Nodes/SurfaceNodeMdl.h>
+
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 
 #include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
-
-SurfaceNodeMdl::SurfaceNodeMdl()
-{
-}
 
 ShaderNodeImplPtr SurfaceNodeMdl::create()
 {

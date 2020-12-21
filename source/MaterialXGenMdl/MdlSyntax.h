@@ -7,7 +7,7 @@
 #define MATERIALX_MDLSYNTAX_H
 
 /// @file
-/// OSL syntax class
+/// MDL syntax class
 
 #include <MaterialXGenShader/Syntax.h>
 
@@ -16,14 +16,14 @@ namespace MaterialX
 
 class MdlSyntax;
 
-/// Shared pointer to a MdlSyntax
+/// Shared pointer to an MdlSyntax
 using MdlSyntaxPtr = shared_ptr<MdlSyntax>;
 
 /// @class MdlSyntax
 /// Syntax class for MDL (Material Definition Language)
 class MdlSyntax : public Syntax
 {
-public:
+  public:
     MdlSyntax();
 
     static SyntaxPtr create() { return std::make_shared<MdlSyntax>(); }

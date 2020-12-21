@@ -408,7 +408,7 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
 
     // Set element paths based on the node definition. Note that these
     // paths don't actually exist at time of shader generation since there
-    // are no inputs/parameters specified on the node itself
+    // are no inputs specified on the node itself
     //
     const string& nodePath = node.getNamePath();
     for (auto nodeInput : nodeDef.getActiveInputs())
