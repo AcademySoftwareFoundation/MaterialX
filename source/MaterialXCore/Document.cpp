@@ -358,14 +358,13 @@ bool Document::validate(string* message) const
     return GraphElement::validate(message) && res;
 }
 
-void Document::upgradeVersion(bool applyFutureUpdates)
+void Document::upgradeVersion()
 {
     std::pair<int, int> versions = getVersionIntegers();
     int majorVersion = versions.first;
     int minorVersion = versions.second;
     if (majorVersion == MATERIALX_MAJOR_VERSION &&
-        minorVersion == MATERIALX_MINOR_VERSION &&
-        !applyFutureUpdates)
+        minorVersion == MATERIALX_MINOR_VERSION)
     {
         return;
     }

@@ -51,7 +51,7 @@ class ShaderGraph : public ShaderNode
     virtual ~ShaderGraph() { }
 
     /// Create a new shader graph from an element.
-    /// Supported elements are outputs and shaderrefs.
+    /// Supported elements are outputs and shader nodes.
     static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element, 
                                  GenContext& context);
 
