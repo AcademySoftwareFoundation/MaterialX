@@ -15,8 +15,6 @@ namespace MaterialX
 class SurfaceNodeMdl : public ShaderNodeImpl
 {
   public:
-    SurfaceNodeMdl();
-
     static ShaderNodeImplPtr create();
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;

@@ -5,12 +5,11 @@
 
 #include <MaterialXGenMdl/MdlSyntax.h>
 
-#include <MaterialXFormat/File.h>
-#include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
+#include <MaterialXFormat/File.h>
+
 #include <sstream>
-#include <memory>
 
 namespace MaterialX
 {
@@ -30,7 +29,7 @@ namespace
 
 class MdlFilenameTypeSyntax : public ScalarTypeSyntax
 {
-public:
+  public:
     MdlFilenameTypeSyntax() :
         ScalarTypeSyntax("texture_2d", "texture_2d()", "texture_2d()")
     {}
@@ -123,7 +122,7 @@ class MdlIntegerArrayTypeSyntax : public MdlArrayTypeSyntax
 //
 class MdlColor4TypeSyntax : public AggregateTypeSyntax
 {
-public:
+  public:
     MdlColor4TypeSyntax() :
         AggregateTypeSyntax("color4", "mk_color4(0.0)", "mk_color4(0.0)", 
             EMPTY_STRING, EMPTY_STRING, MdlSyntax::COLOR4_MEMBERS)
@@ -164,7 +163,7 @@ public:
 
 class MdlEnumSyntax : public AggregateTypeSyntax
 {
-public:
+  public:
     MdlEnumSyntax(const string& name, const string& defaultValue, const string& defaultUniformValue, const StringVec& members) :
         AggregateTypeSyntax(name, defaultValue, defaultUniformValue, EMPTY_STRING, EMPTY_STRING, members)
     {}
@@ -174,7 +173,6 @@ public:
         return _name + "_" + value.getValueString();
     }
 };
-
 
 } // anonymous namespace
 
