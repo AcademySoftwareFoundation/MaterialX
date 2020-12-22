@@ -24,6 +24,7 @@
 #include <nanogui/label.h>
 #include <nanogui/layout.h>
 #include <nanogui/messagedialog.h>
+#include <nanogui/textbox.h>
 #include <nanogui/vscrollpanel.h>
 
 #include <fstream>
@@ -205,11 +206,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _drawEnvironment(false),
     _captureRequested(false),
     _wedgeRequested(false),
-    _wedgePropertyName("specular_roughness"),
+    _wedgePropertyName("base"),
     _wedgePropertyMin(0.0f),
     _wedgePropertyMax(1.0f),
     _wedgeImageCount(8),
-    _bakeTextures(false),
     _bakeHdr(false),
     _bakeAverage(false),
     _bakeOptimize(true),
@@ -630,27 +630,19 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 filename.addExtension(mx::MTLX_EXTENSION);
             }
 
-            if (_bakeTextures)
+            // Add element predicate to prune out writing elements from included files
+            auto skipXincludes = [this](mx::ConstElementPtr elem)
             {
-                _bakeRequested = true;
-                _bakeFilename = filename;
-            }
-            else
-            {
-                // Add element predicate to prune out writing elements from included files
-                auto skipXincludes = [this](mx::ConstElementPtr elem)
+                if (elem->hasSourceUri())
                 {
-                    if (elem->hasSourceUri())
-                    {
-                        return (_xincludeFiles.count(elem->getSourceUri()) == 0);
-                    }
-                    return true;
-                };
-                mx::XmlWriteOptions writeOptions;
-                writeOptions.writeXIncludeEnable = true;
-                writeOptions.elementPredicate = skipXincludes;
-                mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
-            }
+                    return (_xincludeFiles.count(elem->getSourceUri()) == 0);
+                }
+                return true;
+            };
+            mx::XmlWriteOptions writeOptions;
+            writeOptions.writeXIncludeEnable = true;
+            writeOptions.elementPredicate = skipXincludes;
+            mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
 
             // Update material file name
             _materialFilename = filename;
@@ -868,22 +860,29 @@ void Viewer::createAdvancedSettings(Widget* parent)
         });
     }
 
-    ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options");
+    ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options (B)");
     textureLabel->setFontSize(20);
     textureLabel->setFont("sans-bold");
-
-    ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
-    bakeTexturesBox->setChecked(_bakeTextures);
-    bakeTexturesBox->setCallback([this](bool enable)
-    {
-        _bakeTextures = enable;
-    });
 
     ng::CheckBox* bakeHdrBox = new ng::CheckBox(advancedPopup, "Bake HDR Textures");
     bakeHdrBox->setChecked(_bakeTextures);
     bakeHdrBox->setCallback([this](bool enable)
     {
         _bakeHdr = enable;
+    });
+
+    ng::CheckBox* bakeAverageBox = new ng::CheckBox(advancedPopup, "Bake Averaged Textures");
+    bakeAverageBox->setChecked(_bakeAverage);
+    bakeAverageBox->setCallback([this](bool enable)
+    {
+        _bakeAverage = enable;
+    });
+
+    ng::CheckBox* bakeOptimized = new ng::CheckBox(advancedPopup, "Optimize Baked Materials");
+    bakeOptimized->setChecked(_bakeOptimize);
+    bakeOptimized->setCallback([this](bool enable)
+    {
+        _bakeOptimize = enable;
     });
 
     Widget* textureResGroup = new Widget(advancedPopup);
@@ -904,16 +903,28 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _bakeTextureRes = MIN_TEXTURE_RES * (int) std::pow(2, index);
     });
 
-    ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Rendering Options");
+    ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Render Options (W)");
     wedgeLabel->setFontSize(20);
     wedgeLabel->setFont("sans-bold");
 
-    ng::Widget* wedgeMin = new ng::Widget(advancedPopup);
-    wedgeMin->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ng::Widget* wedgeNameGroup = new ng::Widget(advancedPopup);
+    wedgeNameGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(wedgeNameGroup, "Property Name");
+    ng::TextBox* wedgeNameBox = new ng::TextBox(wedgeNameGroup, _wedgePropertyName);
+    wedgeNameBox->setCallback([this](const std::string choice)
+    {
+        _wedgePropertyName = choice;
+        return true;
+    });
+    wedgeNameBox->setFontSize(16);
+    wedgeNameBox->setEditable(true);
+
+    ng::Widget* wedgeMinGroup = new ng::Widget(advancedPopup);
+    wedgeMinGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties wedgeProp;
     wedgeProp.uiSoftMin = mx::Value::createValue(0.0f);
     wedgeProp.uiSoftMax = mx::Value::createValue(1.0f);
-    ng::FloatBox<float>* wedgeMinBox = createFloatWidget(wedgeMin, "Wedge Minimum Value:",
+    ng::FloatBox<float>* wedgeMinBox = createFloatWidget(wedgeMinGroup, "Property Min:",
         _wedgePropertyMax, &wedgeProp, [this](float value)
     {
         _wedgePropertyMin = value;
@@ -921,9 +932,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeMinBox->setValue(0.0);
     wedgeMinBox->setEditable(true);
 
-    ng::Widget* wedgeMax = new ng::Widget(advancedPopup);
-    wedgeMax->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ng::FloatBox<float>* wedgeMaxBox = createFloatWidget(wedgeMax, "Wedge Maximum Value:",
+    ng::Widget* wedgeMaxGroup = new ng::Widget(advancedPopup);
+    wedgeMaxGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ng::FloatBox<float>* wedgeMaxBox = createFloatWidget(wedgeMaxGroup, "Property Max:",
         _wedgePropertyMax, &wedgeProp, [this](float value)
     {
         _wedgePropertyMax = value;
@@ -931,13 +942,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeMaxBox->setValue(1.0);
     wedgeMaxBox->setEditable(true);
 
-    ng::Widget* wedgeCount = new ng::Widget(advancedPopup);
-    wedgeCount->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ng::Widget* wedgeCountGroup = new ng::Widget(advancedPopup);
+    wedgeCountGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties wedgeCountProp;
     wedgeCountProp.uiMin = mx::Value::createValue(1);
     wedgeCountProp.uiSoftMax = mx::Value::createValue(8);
     wedgeCountProp.uiStep = mx::Value::createValue(1);
-    ng::IntBox<int>* wedgeCountBox = createIntWidget(wedgeCount, "Wedge Count:",
+    ng::IntBox<int>* wedgeCountBox = createIntWidget(wedgeCountGroup, "Image Count:",
         _wedgeImageCount, &wedgeCountProp, [this](int value)
     {
         _wedgeImageCount = value;
@@ -1206,15 +1217,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 else
                 {
                     // Generate a shader for the new material.
-                    try
-                    {
-                        mat->generateShader(_genContext);
-                    }
-                    catch (std::exception& e)
-                    {
-                        mat->copyShader(_wireMaterial);
-                        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
-                    }
+                    mat->generateShader(_genContext);
                 }
 
                 // Apply geometric assignments specified in the document, if any.
@@ -1548,7 +1551,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    // Capture the current frame or render wedge and save as an image file.
+    // Request a capture or wedge for the current frame.
     if ((key == GLFW_KEY_F || key == GLFW_KEY_W) && action == GLFW_PRESS)
     {
         mx::StringSet extensions = _imageHandler->supportedExtensions();
@@ -1588,6 +1591,21 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
                 }
                 _wedgeRequested = true;
             }
+        }
+    }
+
+    // Request a bake of the current material.
+    if (key == GLFW_KEY_B && action == GLFW_PRESS)
+    {
+        mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+        if (!filename.isEmpty())
+        {
+            if (filename.getExtension() != mx::MTLX_EXTENSION)
+            {
+                filename.addExtension(mx::MTLX_EXTENSION);
+            }
+            _bakeRequested = true;
+            _bakeFilename = filename;
         }
     }
 
@@ -1924,7 +1942,7 @@ void Viewer::bakeTextures()
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
         baker->setupUnitSystem(_stdLib);
-        baker->setTargetUnitSpace(_genContext.getOptions().targetDistanceUnit);
+        baker->setDistanceUnit(_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
 
@@ -2163,86 +2181,10 @@ void Viewer::updateViewHandlers()
     }
 }
 
-void Viewer::createWedgeParameterInterface(Widget* parent, const std::string& label)
-{
-    ng::Label* wedgeLabel = new ng::Label(parent, label);
-    _wedgeSelectionBox = new ng::ComboBox(parent, { "None" });
-    _wedgeSelectionBox->setChevronIcon(-1);
-    _wedgeSelectionBox->setFontSize(15);
-    _wedgeSelectionBox->setCallback([this](int choice)
-    {
-        size_t index = (size_t)choice;
-        const std::vector<std::string> &wedgeItems = this->_wedgeSelectionBox->items();
-        if (!wedgeItems.empty())
-        {
-            this->_wedgePropertyName = wedgeItems[index];
-        }
-    });
-
-    std::vector<std::string> wedgeItems;
-    MaterialPtr material = getSelectedMaterial();
-    if (material)
-    {
-        mx::DocumentPtr doc = material->getDocument();
-
-        const mx::VariableBlock* publicUniforms = material->getPublicUniforms();
-        if (publicUniforms)
-        {
-            mx::UIPropertyGroup groups;
-            mx::UIPropertyGroup unnamedGroups;
-            const std::string pathSeparator(":");
-            mx::createUIPropertyGroups(*publicUniforms, doc, material->getElement(),
-                pathSeparator, groups, unnamedGroups, true);
-
-            for (auto it = groups.begin(); it != groups.end(); ++it)
-            {
-                const mx::UIPropertyItem& item = it->second;
-                if (material->findUniform(item.variable->getPath()) &&
-                    (item.value->isA<float>() ||
-                    item.value->isA<int>() ||
-                    item.value->isA<mx::Vector2>() ||
-                    item.value->isA<mx::Vector3>() ||
-                    item.value->isA<mx::Color3>() ||
-                    item.value->isA<mx::Vector4>() ||
-                    item.value->isA<mx::Color4>()))
-                {
-                    wedgeItems.push_back(item.variable->getPath());
-                }
-            }
-            for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
-            {
-                const mx::UIPropertyItem& item = it2->second;
-                if (material->findUniform(item.variable->getPath()) &&
-                    (item.value->isA<float>() ||
-                    item.value->isA<int>() ||
-                    item.value->isA<mx::Vector2>() ||
-                    item.value->isA<mx::Vector3>() ||
-                    item.value->isA<mx::Color3>() ||
-                    item.value->isA<mx::Vector4>() ||
-                    item.value->isA<mx::Color4>()))
-                {
-                    wedgeItems.push_back(item.variable->getPath());
-                }
-            }
-            _wedgeSelectionBox->setItems(wedgeItems);
-        }
-    }
-
-    _wedgePropertyName.clear();
-    bool haveItems = !wedgeItems.empty();
-    if (haveItems)
-    {
-        _wedgePropertyName = wedgeItems[0];
-    }
-    wedgeLabel->setVisible(haveItems);
-    _wedgeSelectionBox->setVisible(haveItems);
-}
-
 void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
     createSaveMaterialsInterface(_propertyEditor.getWindow(), "Save Material");
-    createWedgeParameterInterface(_propertyEditor.getWindow(), "Wedge Parameter");
     performLayout();
 }
 

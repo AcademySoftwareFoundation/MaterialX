@@ -59,11 +59,11 @@ string getValueStringFromColor(const Color4& color, const string& type)
 
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
     GlslRenderer(width, height, baseType),
-    _targetUnitSpace("meter"),
-    _bakedGraphName("NG_baked"),
-    _bakedGeomInfoName("GI_baked"),
+    _distanceUnit("meter"),
     _averageImages(false),
     _optimizeConstants(true),
+    _bakedGraphName("NG_baked"),
+    _bakedGeomInfoName("GI_baked"),
     _generator(GlslShaderGenerator::create())
 {
     if (baseType == Image::BaseType::UINT8)
@@ -177,14 +177,6 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
         return;
     }
 
-    // If the graph used to create the texture has any of the following attributes
-    // then it's value has changed from the original, and even if the image is a constant
-    // it must not be optmized away.
-    StringVec transformationAttributes;
-    transformationAttributes.push_back(Element::COLOR_SPACE_ATTRIBUTE);
-    transformationAttributes.push_back(ValueElement::UNIT_ATTRIBUTE);
-    transformationAttributes.push_back(ValueElement::UNITTYPE_ATTRIBUTE);
-
     // Check for uniform images.
     for (auto& pair : _bakedImageMap)
     {
@@ -192,11 +184,7 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
         OutputPtr outputPtr = pair.first;
         for (BakedImage& baked : pair.second)
         {
-            if (hasElementAttributes(outputPtr, transformationAttributes))
-            {
-                outputIsUniform = false;
-            }
-            else if (_averageImages)
+            if (_averageImages)
             {
                 baked.uniformColor = baked.image->getAverageColor();
                 baked.isUniform = true;
@@ -218,9 +206,9 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
             BakedConstant bakedConstant;
             bakedConstant.color = pair.second[0].uniformColor;
             _bakedConstantMap[pair.first] = bakedConstant;
+            _bakedImageMap.erase(pair.first);
         }
     }
-
 
     // Check for uniform outputs at their default values.
     NodeDefPtr shaderNodeDef = shader->getNodeDef();
@@ -239,7 +227,6 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
                     if (uniformColorString == input->getValueString())
                     {
                         _bakedConstantMap[output].isDefault = true;
-                        _bakedImageMap.erase(output);
                     }
                 }
             }
@@ -330,8 +317,14 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
                 Color4 uniformColor = _bakedConstantMap[output].color;
                 string uniformColorString = getValueStringFromColor(uniformColor, bakedInput->getType());
                 bakedInput->setValueString(uniformColorString);
+                if (bakedInput->getType() == "color3" || bakedInput->getType() == "color4")
+                {
+                    bakedInput->setColorSpace(_colorSpace);
+                }
+                continue;
             }
-            if (bakedNodeGraph)
+
+            if (!_bakedImageMap.empty())
             {
                 // Add the image node.
                 NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName + BAKED_POSTFIX, sourceType);
@@ -409,7 +402,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
     genContext.getOptions().hwShadowMap = true;
     genContext.getOptions().targetColorSpaceOverride = LIN_REC709;
     genContext.getOptions().fileTextureVerticalFlip = true;
-    genContext.getOptions().targetDistanceUnit = _targetUnitSpace;
+    genContext.getOptions().targetDistanceUnit = _distanceUnit;
 
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(doc);

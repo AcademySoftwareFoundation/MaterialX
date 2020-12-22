@@ -904,30 +904,8 @@ void Document::upgradeVersion()
             string materialName = mat->getName();
             NodePtr materialNode = nullptr;
 
-            // Only include the shader refs explicitly specified on the material instance
             for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
             {
-                // See if shader has been created already.
-                // Should not occur as the shaderref is a uniquely named
-                // child of a uniquely named material element, but the two combined
-                // may have been used for another node instance which not a shader node.
-                string shaderNodeName = materialName + "_" + shaderRef->getName();
-                NodePtr existingShaderNode = getNode(shaderNodeName);
-                if (existingShaderNode)
-                {
-                    const string& existingType = existingShaderNode->getType();
-                    if (existingType == VOLUME_SHADER_TYPE_STRING ||
-                        existingType == SURFACE_SHADER_TYPE_STRING ||
-                        existingType == DISPLACEMENT_SHADER_TYPE_STRING)
-                    {
-                        throw Exception("Shader node already exists: " + shaderNodeName);
-                    }
-                    else
-                    {
-                        shaderNodeName = createValidChildName(shaderNodeName);
-                    }
-                }
-
                 // Find the shader type if defined
                 string shaderNodeType = SURFACE_SHADER_TYPE_STRING;
                 NodeDefPtr nodeDef = getShaderNodeDef(shaderRef);
@@ -936,8 +914,9 @@ void Document::upgradeVersion()
                     shaderNodeType = nodeDef->getType();
                 }
 
-                // Add in a new shader node
-                const string shaderNodeCategory = shaderRef->getAttribute("node");
+                // Add the shader node.
+                string shaderNodeName = createValidChildName(shaderRef->getName());
+                string shaderNodeCategory = shaderRef->getAttribute("node");
                 NodePtr shaderNode = addNode(shaderNodeCategory, shaderNodeName, shaderNodeType);
                 shaderNode->setSourceUri(shaderRef->getSourceUri());
 
