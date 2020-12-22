@@ -151,7 +151,7 @@ jobs:
       run: |
         mkdir build/baked
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/baked/brass_tiled_baked.mtlx --path .
-        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/baked/carpaint_baked.mtlx --path .
+        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/baked/brass_average_baked.mtlx --average --path .
 
     - name: Generate Test HTML
       if: matrix.generate_html == 'ON'
