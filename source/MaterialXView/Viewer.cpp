@@ -1252,7 +1252,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
             // Apply fallback assignments.
             MaterialPtr fallbackMaterial = newMaterials[0];
-            if (fallbackMaterial->getUdim().empty())
+            if (!_mergeMaterials || fallbackMaterial->getUdim().empty())
             {
                 for (mx::MeshPartitionPtr geom : _geometryList)
                 {

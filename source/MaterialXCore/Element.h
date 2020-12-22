@@ -381,6 +381,9 @@ class Element : public std::enable_shared_from_this<Element>
         return getAttribute(VERSION_ATTRIBUTE);
     }
 
+    /// Set the major and minor versions as an integer pair.
+    void setVersionIntegers(int majorVersion, int minorVersion);
+
     /// Return the major and minor versions as an integer pair.
     virtual std::pair<int, int> getVersionIntegers() const;
 
