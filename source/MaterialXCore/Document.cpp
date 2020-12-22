@@ -17,9 +17,6 @@ const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
 
 namespace {
 
-const string DOCUMENT_VERSION_STRING = std::to_string(MATERIALX_MAJOR_VERSION) + "." +
-                                       std::to_string(MATERIALX_MINOR_VERSION);
-
 template<class T> shared_ptr<T> updateChildSubclass(ElementPtr parent, ElementPtr origChild)
 {
     string childName = origChild->getName();
@@ -157,12 +154,10 @@ Document::~Document()
 void Document::initialize()
 {
     _root = getSelf();
-
-    DocumentPtr doc = getDocument();
-    _cache->doc = doc;
+    _cache->doc = getDocument();
 
     clearContent();
-    setVersionString(DOCUMENT_VERSION_STRING);
+    setVersionIntegers(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
 }
 
 NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
@@ -1114,11 +1109,7 @@ void Document::upgradeVersion()
         minorVersion = 37;
     }
 
-    if (majorVersion == MATERIALX_MAJOR_VERSION &&
-        minorVersion == MATERIALX_MINOR_VERSION)
-    {
-        setVersionString(DOCUMENT_VERSION_STRING);
-    }
+    setVersionIntegers(majorVersion, minorVersion);
 }
 
 void Document::invalidateCache()
