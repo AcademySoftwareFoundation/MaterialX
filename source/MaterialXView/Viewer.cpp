@@ -11,20 +11,15 @@
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/Shader.h>
 
-#include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
+#include <MaterialXGenOsl/OslShaderGenerator.h>
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
-#include <nanogui/button.h>
 #include <nanogui/combobox.h>
-#include <nanogui/label.h>
-#include <nanogui/layout.h>
 #include <nanogui/messagedialog.h>
-#include <nanogui/textbox.h>
 #include <nanogui/vscrollpanel.h>
 
 #include <fstream>
@@ -1551,46 +1546,31 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    // Request a capture or wedge for the current frame.
-    if ((key == GLFW_KEY_F || key == GLFW_KEY_W) && action == GLFW_PRESS)
+    // Capture the current frame and save as an image file.
+    if (key == GLFW_KEY_F && action == GLFW_PRESS)
     {
-        mx::StringSet extensions = _imageHandler->supportedExtensions();
-        std::vector<std::pair<std::string, std::string>> filetypes;
-        for (const auto& extension : extensions)
+        _captureFilename = ng::file_dialog({ { mx::ImageLoader::PNG_EXTENSION, "Image File" } }, true);
+        if (!_captureFilename.isEmpty())
         {
-            filetypes.push_back(std::make_pair(extension, extension));
-        }
-        if (key == GLFW_KEY_F)
-        {
-            _captureFilename = ng::file_dialog(filetypes, true);
-            if (!_captureFilename.isEmpty())
+            if (_captureFilename.getExtension().empty())
             {
-                if (_captureFilename.getExtension().empty())
-                {
-                    _captureFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
-                }
-                _captureRequested = true;
+                _captureFilename.addExtension(mx::ImageLoader::PNG_EXTENSION);
             }
+            _captureRequested = true;
         }
-        else
+    }
+
+    // Render a wedge for the current material.
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
+    {
+        _wedgeFilename = ng::file_dialog({ { mx::ImageLoader::PNG_EXTENSION, "Image File" } }, true);
+        if (!_wedgeFilename.isEmpty())
         {
-            _wedgeFilename = ng::file_dialog(filetypes, true);
-            if (!_wedgeFilename.isEmpty())
+            if (_wedgeFilename.getExtension().empty())
             {
-                // There are issues with using the STB loader and png files
-                // so use another format if PNG specified or if no extension specified
-                const std::string extension = _wedgeFilename.getExtension();
-                if (extension.empty())
-                {                    
-                    _wedgeFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
-                }
-                else if (extension == mx::ImageLoader::PNG_EXTENSION)
-                {
-                    _wedgeFilename.removeExtension();
-                    _wedgeFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
-                }
-                _wedgeRequested = true;
+                _wedgeFilename.addExtension(mx::ImageLoader::PNG_EXTENSION);
             }
+            _wedgeRequested = true;
         }
     }
 
@@ -1799,8 +1779,6 @@ void Viewer::renderFrame()
 mx::ImagePtr Viewer::getFrameImage()
 {
     glFlush();
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadBuffer(GL_COLOR_ATTACHMENT0);
 
     // Create an image with dimensions adjusted for device DPI.
     mx::ImagePtr image = mx::Image::create((unsigned int) (mSize.x() * mPixelRatio),
