@@ -3,7 +3,7 @@
 ## [1.38] - Development
 
 ### v1.38_adsk_development2 : WIP
-- Up-to-date with ILM v1.38 branch @53db849a
+- Up-to-date with ILM v1.38 branch @9e437e03
 - GPU testing framework setup (in progress)
 - Deprecation of Language specifier and introduction of TargetDefs
 - Deprecation of Material and ShaderRef elements.
