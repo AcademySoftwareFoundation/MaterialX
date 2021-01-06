@@ -163,8 +163,6 @@ endif()
 add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
 add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
 add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
-add_definitions(-DCMAKE_CXX_VISIBILITY_PRESET=hidden)
-add_definitions(-DCMAKE_VISIBILITY_INLINES_HIDDEN=ON)
 if(MATERIALX_BUILD_OIIO)
     add_definitions(-DMATERIALX_BUILD_OIIO)
 endif()
@@ -342,6 +340,10 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXTest)
     endif()
 endif()
+
+# Install root-level documents
+install(FILES CHANGELOG.md README.md
+        DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
