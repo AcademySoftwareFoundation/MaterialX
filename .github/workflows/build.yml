@@ -152,6 +152,7 @@ jobs:
         mkdir build/render
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_tiled_baked.mtlx --path .
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average --path .
+        build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_BrassAverage.png
 
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2

@@ -1,5 +1,7 @@
 #include <MaterialXView/Viewer.h>
 
+#include <MaterialXCore/Util.h>
+
 #include <iostream>
 
 NANOGUI_FORCE_DISCRETE_GPU();
@@ -23,6 +25,7 @@ const std::string options =
 "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
 "    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
 "    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
+"    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
 "    --msaa [INTEGER]               Specify the multisampling count for screen anti-aliasing (defaults to 0)\n"
 "    --refresh [INTEGER]            Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
 "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
@@ -55,28 +58,26 @@ int main(int argc, char* const argv[])
         tokens.emplace_back(argv[i]);
     }
 
-    mx::FilePathVec libraryFolders = 
-    {
-        "libraries",
-    };
-
-    mx::FileSearchPath searchPath = mx::getDefaultSearchPath();
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.obj";
+    std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
+    mx::FileSearchPath searchPath = mx::getDefaultSearchPath();
+    mx::FilePathVec libraryFolders = { "libraries" };
+
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
     float cameraZoom(DEFAULT_CAMERA_ZOOM);
-    std::string envRadiancePath = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    int envSampleCount = DEFAULT_ENV_SAMPLES;
+    int envSampleCount = DEFAULT_ENV_SAMPLE_COUNT;
     float lightRotation = 0.0f;
     DocumentModifiers modifiers;
     int screenWidth = 1280;
     int screenHeight = 960;
     mx::Color3 screenColor(0.3f, 0.3f, 0.32f);
+    std::string captureFilename;
     int multiSampleCount = 0;
     int refresh = 50;
 
@@ -91,6 +92,10 @@ int main(int argc, char* const argv[])
         else if (token == "--mesh")
         {
             meshFilename = nextToken;
+        }
+        else if (token == "--envRad")
+        {
+            envRadianceFilename = nextToken;
         }
         else if (token == "--meshRotation")
         {
@@ -115,10 +120,6 @@ int main(int argc, char* const argv[])
         else if (token == "--cameraZoom")
         {
             parseToken(nextToken, "float", cameraZoom);
-        }
-        else if (token == "--envRad")
-        {
-            envRadiancePath = nextToken;
         }
         else if (token == "--envMethod")
         {
@@ -155,6 +156,10 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "color3", screenColor);
         }
+        else if (token == "--captureFilename")
+        {
+            parseToken(nextToken, "string", captureFilename);
+        }
         else if (token == "--msaa")
         {
             parseToken(nextToken, "integer", multiSampleCount);
@@ -185,6 +190,7 @@ int main(int argc, char* const argv[])
         }
         else if (token == "--help")
         {
+            std::cout << " MaterialXView version " << mx::getVersionString() << std::endl;
             std::cout << options << std::endl;
             return 0;
         }
@@ -205,41 +211,36 @@ int main(int argc, char* const argv[])
         }
     }
 
-    try
+    ng::init();
     {
-        ng::init();
+        ng::ref<Viewer> viewer = new Viewer(materialFilename,
+                                            meshFilename,
+                                            envRadianceFilename,
+                                            searchPath,
+                                            libraryFolders,
+                                            screenWidth,
+                                            screenHeight,
+                                            screenColor,
+                                            multiSampleCount);
+        viewer->setMeshRotation(meshRotation);
+        viewer->setMeshScale(meshScale);
+        viewer->setCameraPosition(cameraPosition);
+        viewer->setCameraTarget(cameraTarget);
+        viewer->setCameraViewAngle(cameraViewAngle);
+        viewer->setCameraZoom(cameraZoom);
+        viewer->setSpecularEnvironmentMethod(specularEnvironmentMethod);
+        viewer->setEnvSampleCount(envSampleCount);
+        viewer->setLightRotation(lightRotation);
+        viewer->setDocumentModifiers(modifiers);
+        if (!captureFilename.empty())
         {
-            ng::ref<Viewer> viewer = new Viewer(materialFilename,
-                                                meshFilename,
-                                                meshRotation,
-                                                meshScale,
-                                                cameraPosition,
-                                                cameraTarget,
-                                                cameraViewAngle,
-                                                cameraZoom,
-                                                envRadiancePath,
-                                                specularEnvironmentMethod,
-                                                envSampleCount,
-                                                lightRotation,
-                                                libraryFolders,
-                                                searchPath,
-                                                modifiers,
-                                                screenWidth,
-                                                screenHeight,
-                                                screenColor,
-                                                multiSampleCount);
-            viewer->setVisible(true);
-            ng::mainloop(refresh);
+            viewer->requestFrameCapture(captureFilename);
+            viewer->requestExit();
         }
-    
-        ng::shutdown();
+        viewer->initialize();
+        ng::mainloop(refresh);
     }
-    catch (const std::runtime_error& e)
-    {
-        std::string error_msg = std::string("Fatal error: ") + std::string(e.what());
-        std::cerr << error_msg << std::endl;
-        return -1;
-    }
+    ng::shutdown();
 
     return 0;
 }
