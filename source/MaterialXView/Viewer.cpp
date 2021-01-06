@@ -28,7 +28,7 @@
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
 const float DEFAULT_CAMERA_ZOOM = 1.0f;
-const int DEFAULT_ENV_SAMPLES = 16;
+const int DEFAULT_ENV_SAMPLE_COUNT = 16;
 
 namespace {
 
@@ -131,19 +131,9 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 
 Viewer::Viewer(const std::string& materialFilename,
                const std::string& meshFilename,
-               const mx::Vector3& meshRotation,
-               float meshScale,
-               const mx::Vector3& cameraPosition,
-               const mx::Vector3& cameraTarget,
-               float cameraViewAngle,
-               float cameraZoom,    
-               const std::string& envRadiancePath,
-               mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
-               int envSampleCount,
-               float lightRotation,
-               const mx::FilePathVec& libraryFolders,
+               const std::string& envRadianceFilename,
                const mx::FileSearchPath& searchPath,
-               const DocumentModifiers& modifiers,
+               const mx::FilePathVec& libraryFolders,
                int screenWidth,
                int screenHeight,
                const mx::Color3& screenColor,
@@ -152,24 +142,22 @@ Viewer::Viewer(const std::string& materialFilename,
         true, false,
         8, 8, 24, 8,
         multiSampleCount),
-    _meshRotation(meshRotation),
-    _meshScale(meshScale),
-    _cameraPosition(cameraPosition),
-    _cameraTarget(cameraTarget),
+    _materialFilename(materialFilename),
+    _meshFilename(meshFilename),
+    _envRadianceFilename(envRadianceFilename),
+    _searchPath(searchPath),
+    _libraryFolders(libraryFolders),
+    _meshScale(1.0f),
+    _cameraPosition(DEFAULT_CAMERA_POSITION),
     _cameraUp(0.0f, 1.0f, 0.0f),
-    _cameraViewAngle(cameraViewAngle),
+    _cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE),
     _cameraNearDist(0.05f),
     _cameraFarDist(5000.0f),
+    _cameraZoom(DEFAULT_CAMERA_ZOOM),
     _userCameraEnabled(true),
     _userTranslationActive(false),
     _userTranslationPixel(0, 0),
-    _userScale(cameraZoom),
-    _libraryFolders(libraryFolders),
-    _searchPath(searchPath),
-    _materialFilename(materialFilename),
-    _modifiers(modifiers),
-    _envRadiancePath(envRadiancePath),
-    _lightRotation(lightRotation),
+    _lightRotation(0.0f),
     _directLighting(true),
     _indirectLighting(true),
     _normalizeEnvironment(false),
@@ -178,7 +166,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _saveGeneratedLights(false),
     _shadowSoftness(1),
     _ambientOcclusionGain(0.6f),
-    _meshFilename(meshFilename),
     _selectedGeom(0),
     _selectedMaterial(0),
     _lightHandler(mx::LightHandler::create()),
@@ -197,9 +184,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _renderTransparency(true),
     _renderDoubleSided(true),
     _outlineSelection(false),
-    _envSamples(envSampleCount),
+    _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
     _drawEnvironment(false),
     _captureRequested(false),
+    _exitRequested(false),
     _wedgeRequested(false),
     _wedgePropertyName("base"),
     _wedgePropertyMin(0.0f),
@@ -211,18 +199,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeTextureRes(DEFAULT_TEXTURE_RES),
     _bakeRequested(false)
 {
-    _window = new ng::Window(this, "Viewer Options");
-    _window->setPosition(ng::Vector2i(15, 15));
-    _window->setLayout(new ng::GroupLayout());
-
     // Set the requested background color.
     setBackground(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
 
-    // Initialize the standard libraries and color/unit management.
-    loadStandardLibraries();
-
     // Set default generator options.
-    _genContext.getOptions().hwSpecularEnvironmentMethod = specularEnvironmentMethod;
     _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
@@ -237,6 +217,16 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
+}
+
+void Viewer::initialize()
+{
+    _window = new ng::Window(this, "Viewer Options");
+    _window->setPosition(ng::Vector2i(15, 15));
+    _window->setLayout(new ng::GroupLayout());
+
+    // Initialize the standard libraries and color/unit management.
+    loadStandardLibraries();
 
     // Initialize image handler.
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
@@ -358,12 +348,13 @@ Viewer::Viewer(const std::string& materialFilename,
     // Finalize the UI.
     _propertyEditor.setVisible(false);
     performLayout();
+    setVisible(true);
 }
 
 void Viewer::loadEnvironmentLight()
 {
     // Load the requested radiance map.
-    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadiancePath);
+    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadianceFilename);
     if (!envRadianceMap)
     {
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light");
@@ -395,7 +386,7 @@ void Viewer::loadEnvironmentLight()
     mx::ImagePtr envIrradianceMap;
     if (!_normalizeEnvironment && !_splitDirectLight)
     {
-        mx::FilePath envIrradiancePath = _envRadiancePath.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadiancePath.getBaseName();
+        mx::FilePath envIrradiancePath = _envRadianceFilename.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadianceFilename.getBaseName();
         envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath);
     }
 
@@ -430,7 +421,7 @@ void Viewer::loadEnvironmentLight()
     // Look for a light rig using an expected filename convention.
     if (!_splitDirectLight)
     {
-        _lightRigFilename = _envRadiancePath;
+        _lightRigFilename = _envRadianceFilename;
         _lightRigFilename.removeExtension();
         _lightRigFilename.addExtension(mx::MTLX_EXTENSION);
         if (_searchPath.find(_lightRigFilename).exists())
@@ -453,7 +444,7 @@ void Viewer::loadEnvironmentLight()
         try
         {
             _envMaterial = Material::create();
-            _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadiancePath);
+            _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadianceFilename);
             _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
         }
         catch (std::exception& e)
@@ -598,7 +589,7 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
         std::string filename = ng::file_dialog(filetypes, false);
         if (!filename.empty())
         {
-            _envRadiancePath = filename;
+            _envRadianceFilename = filename;
             loadEnvironmentLight();
             loadDocument(_materialFilename, _stdLib);
             invalidateShadowMap();
@@ -695,14 +686,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
     Widget* unitGroup = new Widget(advancedPopup);
     unitGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(unitGroup, "Distance Unit:");
-    _distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
-    _distanceUnitBox->setFixedSize(ng::Vector2i(100, 20));
-    _distanceUnitBox->setChevronIcon(-1);
+    ng::ComboBox* distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
+    distanceUnitBox->setFixedSize(ng::Vector2i(100, 20));
+    distanceUnitBox->setChevronIcon(-1);
     if (_distanceUnitConverter)
     {
-        _distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger("meter"));
+        distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger("meter"));
     }
-    _distanceUnitBox->setCallback([this](int index)
+    distanceUnitBox->setCallback([this](int index)
     {
         mProcessEvents = false;
         _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
@@ -848,10 +839,10 @@ void Viewer::createAdvancedSettings(Widget* parent)
         }
         ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
         sampleBox->setChevronIcon(-1);
-        sampleBox->setSelectedIndex((int)std::log2(_envSamples / MIN_ENV_SAMPLES) / 2);
+        sampleBox->setSelectedIndex((int)std::log2(_envSampleCount / MIN_ENV_SAMPLES) / 2);
         sampleBox->setCallback([this](int index)
         {
-            _envSamples = MIN_ENV_SAMPLES * (int) std::pow(4, index);
+            _envSampleCount = MIN_ENV_SAMPLES * (int) std::pow(4, index);
         });
     }
 
@@ -1483,11 +1474,11 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     {
         if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
         {
-            _userScale *= 1.1f;
+            _cameraZoom *= 1.1f;
         }
         if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
         {
-            _userScale = std::max(0.1f, _userScale * 0.9f);
+            _cameraZoom = std::max(0.1f, _cameraZoom * 0.9f);
         }
     }
 
@@ -1648,7 +1639,7 @@ void Viewer::renderFrame()
     lightingState.lightTransform = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI);
     lightingState.directLighting = _directLighting;
     lightingState.indirectLighting = _indirectLighting;
-    lightingState.envSamples = _envSamples;
+    lightingState.envSamples = _envSampleCount;
 
     // Update shadow state.
     ShadowState shadowState;
@@ -1969,10 +1960,14 @@ void Viewer::drawContents()
     {
         _wedgeRequested = false;
         mx::ImagePtr wedgeImage = renderWedge();
-        if (!wedgeImage || !_imageHandler->saveImage(_wedgeFilename, wedgeImage, true))
+        if (wedgeImage && _imageHandler->saveImage(_wedgeFilename, wedgeImage, true))
+        {
+            std::cout << "Wrote wedge to disk: " << _wedgeFilename.asString() << std::endl;
+        }
+        else
         {
             new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
-                "Failed to save wedge to disk: ", _wedgeFilename.asString());
+                "Failed to write wedge to disk: ", _wedgeFilename.asString());
         }
     }
 
@@ -1984,10 +1979,14 @@ void Viewer::drawContents()
     {
         _captureRequested = false;
         mx::ImagePtr frameImage = getFrameImage();
-        if (!frameImage || !_imageHandler->saveImage(_captureFilename, frameImage, true))
+        if (frameImage && _imageHandler->saveImage(_captureFilename, frameImage, true))
+        {
+            std::cout << "Wrote frame to disk: " << _captureFilename.asString() << std::endl;
+        }
+        else
         {
             new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
-                "Failed to save frame to disk: ", _captureFilename.asString());
+                "Failed to write frame to disk: ", _captureFilename.asString());
         }
     }
 
@@ -1996,6 +1995,13 @@ void Viewer::drawContents()
     {
         _bakeRequested = false;
         bakeTextures();
+    }
+
+    // Handle exit requests.
+    if (_exitRequested)
+    {
+        ng::leave();
+        setVisible(false);
     }
 
     mx::checkGlErrors("after viewer render");
@@ -2010,7 +2016,7 @@ bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
 
     if (_userCameraEnabled)
     {
-        _userScale = std::max(0.1f, _userScale * ((rel.y() > 0) ? 1.1f : 0.9f));
+        _cameraZoom = std::max(0.1f, _cameraZoom * ((rel.y() > 0) ? 1.1f : 0.9f));
         return true;
     }
 
@@ -2143,7 +2149,7 @@ void Viewer::updateViewHandlers()
 
     _cameraViewHandler->worldMatrix = meshRotation *
                                       mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
-                                      mx::Matrix44::createScale(mx::Vector3(_meshScale * _userScale));
+                                      mx::Matrix44::createScale(mx::Vector3(_meshScale * _cameraZoom));
     _cameraViewHandler->viewMatrix = arcball * mx::ViewHandler::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp);
     _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist);
 
