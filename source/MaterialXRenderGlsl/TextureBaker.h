@@ -25,7 +25,6 @@ using TextureBakerPtr = shared_ptr<class TextureBaker>;
 /// Baked document list of shader node and it's corresponding baked Document
 using ListofBakedDocuments = std::vector<std::pair<std::string, DocumentPtr>>;
 
-
 /// @class TextureBaker
 /// A helper class for baking procedural material content to textures.
 /// TODO: Add support for graphs containing geometric nodes such as position

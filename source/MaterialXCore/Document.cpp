@@ -169,6 +169,38 @@ void convertMaterialsToNodes(DocumentPtr doc)
     }
 }
 
+void convertParametersToInputs(DocumentPtr doc)
+{
+    // Convert all parameters to be inputs. If needed set them to be "uniform".
+    const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
+    const string PARAMETER_CATEGORY_STRING("parameter");
+    for (ElementPtr e : doc->traverseTree())
+    {
+        InterfaceElementPtr elem = e->asA<InterfaceElement>();
+        if (!elem)
+        {
+            continue;
+        }
+        vector<ElementPtr> children = elem->getChildren();
+        for (ElementPtr child : children)
+        {
+            if (child->getCategory() == PARAMETER_CATEGORY_STRING)
+            {
+                InputPtr newInput = changeChildCategory(elem, child, Input::CATEGORY)->asA<Input>();
+                if (uniformTypes.count(child->getAttribute(TypedElement::TYPE_ATTRIBUTE)))
+                {
+                    newInput->setIsUniform(true);
+                }
+                else
+                {
+                    // TODO: Determine based on usage whether to make
+                    // the input a uniform. 
+                    newInput->setIsUniform(true);
+                }
+            }
+        }
+    }
+}
 
 } // anonymous namespace
 
@@ -466,43 +498,6 @@ bool Document::validate(string* message) const
     bool res = true;
     validateRequire(hasVersionString(), res, message, "Missing version string");
     return GraphElement::validate(message) && res;
-}
-
-bool Document::convertParametersToInputs()
-{
-    bool anyConverted = false;
-
-    // Convert all parameters to be inputs. If needed set them to be "uniform".
-    const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
-    const string PARAMETER_CATEGORY_STRING("parameter");
-    for (ElementPtr e : traverseTree())
-    {
-        InterfaceElementPtr elem = e->asA<InterfaceElement>();
-        if (!elem)
-        {
-            continue;
-        }
-        vector<ElementPtr> children = elem->getChildren();
-        for (ElementPtr child : children)
-        {
-            if (child->getCategory() == PARAMETER_CATEGORY_STRING)
-            {
-                InputPtr newInput = changeChildCategory(elem, child, Input::CATEGORY)->asA<Input>();
-                if (uniformTypes.count(child->getAttribute(TypedElement::TYPE_ATTRIBUTE)))
-                {
-                    newInput->setIsUniform(true);
-                }
-                else
-                {
-                    // TODO: Determine based on usage whether to make
-                    // the input a uniform. 
-                    newInput->setIsUniform(true);
-                }
-                anyConverted = true;
-            }
-        }
-    }
-    return anyConverted;
 }
 
 void Document::upgradeVersion()
@@ -1006,8 +1001,6 @@ void Document::upgradeVersion()
     // Upgrade from 1.37 to 1.38
     if (majorVersion == 1 && minorVersion >= 37)
     {
-        convertMaterialsToNodes(asA<Document>());
-
         // Convert color2 types to vector2
         const StringMap COLOR2_CHANNEL_MAP = { { "r", "x" }, { "a", "y" } };
         for (ElementPtr elem : traverseTree())
@@ -1046,6 +1039,9 @@ void Document::upgradeVersion()
                 }
             }
         }
+
+        // Convert material elements to nodes        
+        convertMaterialsToNodes(asA<Document>());
 
         // Update atan2 interface and rotate3d interface
         const string ATAN2 = "atan2";
@@ -1159,7 +1155,8 @@ void Document::upgradeVersion()
             }
         }   
 
-        convertParametersToInputs();
+        // Convert parameters to inputs, applying uniform markings as needed.
+        convertParametersToInputs(asA<Document>());
 
         // While we are in the process of supporting 1.38. Leave files as 1.37
         minorVersion = 37;
