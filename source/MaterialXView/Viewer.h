@@ -197,9 +197,9 @@ class Viewer : public ng::Screen
     void invalidateShadowMap();
 
     void renderFrame();
-    void renderScreenSpaceQuad(MaterialPtr material);
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
+    void renderScreenSpaceQuad(MaterialPtr material);
     void bakeTextures();
 
     // Update the directional albedo table.
