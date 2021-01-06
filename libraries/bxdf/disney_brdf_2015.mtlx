@@ -18,7 +18,7 @@
     <parameter name="thin" type="boolean" value="false"/>
     <output name="out" type="surfaceshader"/>
   </nodedef>
-  <implementation name="IM_disney_bsdf_2015_surface_pbrt" nodedef="ND_disney_bsdf_2015_surface" target="pbrt" language="cpp"
+  <implementation name="IM_disney_bsdf_2015_surface_pbrt" nodedef="ND_disney_bsdf_2015_surface" target="pbrt"
         file="https://github.com/mmp/pbrt-v3/blob/master/src/materials/disney.cpp" function="DisneyMaterial::DisneyMaterial">
     <input name="baseColor" type="color3" implname="color"/>
     <input name="ior" type="float" implname="eta"/>

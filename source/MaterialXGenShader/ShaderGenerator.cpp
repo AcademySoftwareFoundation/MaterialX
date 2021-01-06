@@ -457,7 +457,7 @@ void ShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
                         bsdf = top && top->getConnection() ? top->getConnection()->getNode() : nullptr;
                     }
 
-                    ShaderInput* bsdfInput = bsdf ? bsdf->getInput(ThinFilmSupport::THINFILM_INPUT) : nullptr;
+                    ShaderInput* bsdfInput = bsdf ? bsdf->getInput(ThinFilmNode::THINFILM_INPUT) : nullptr;
                     if (!bsdfInput)
                     {
                         throw ExceptionShaderGenError("No BSDF node supporting thin-film was found for '" + node->getName() + "'");

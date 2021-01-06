@@ -49,6 +49,7 @@ class Viewer : public ng::Screen
     bool mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int modifiers) override;
 
     void renderFrame();
+    void renderScreenSpaceQuad(MaterialPtr material);
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
     void bakeTextures();
@@ -224,6 +225,7 @@ class Viewer : public ng::Screen
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
     MaterialPtr _envMaterial;
+    mx::MeshPtr _quadMesh;
 
     // Shader generator contexts
     mx::GenContext _genContext;

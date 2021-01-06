@@ -38,6 +38,7 @@ class GlslSyntax : public Syntax
     static const string OUTPUT_QUALIFIER;
     static const string UNIFORM_QUALIFIER;
     static const string CONSTANT_QUALIFIER;
+    static const string FLAT_QUALIFIER;
     static const string SOURCE_FILE_EXTENSION;
 
     static const StringVec VEC2_MEMBERS;

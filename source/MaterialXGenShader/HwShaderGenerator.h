@@ -87,6 +87,7 @@ namespace HW
     extern const string T_IN_NORMAL;
     extern const string T_IN_TANGENT;
     extern const string T_IN_TEXCOORD;
+    extern const string T_IN_GEOMPROP;
     extern const string T_IN_COLOR;
     extern const string T_POSITION_WORLD;
     extern const string T_NORMAL_WORLD;
@@ -140,6 +141,7 @@ namespace HW
     extern const string IN_NORMAL;
     extern const string IN_TANGENT;
     extern const string IN_TEXCOORD;
+    extern const string IN_GEOMPROP;
     extern const string IN_COLOR;
     extern const string POSITION_WORLD;
     extern const string NORMAL_WORLD;

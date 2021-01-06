@@ -18,8 +18,9 @@ namespace Type
     const TypeDesc* THINFILM = TypeDesc::registerType("thinfilm", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1, false);
 }
 
-const string ThinFilmNode::THICKNESS = "thickness";
-const string ThinFilmNode::IOR       = "ior";
+const string ThinFilmNode::THICKNESS      = "thickness";
+const string ThinFilmNode::IOR            = "ior";
+const string ThinFilmNode::THINFILM_INPUT = "tf";
 
 ShaderNodeImplPtr ThinFilmNode::create()
 {
@@ -48,8 +49,6 @@ void ThinFilmNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
 }
 
 
-const string ThinFilmSupport::THINFILM_INPUT = "tf";
-
 ShaderNodeImplPtr ThinFilmSupport::create()
 {
     return std::make_shared<ThinFilmSupport>();
@@ -58,7 +57,19 @@ ShaderNodeImplPtr ThinFilmSupport::create()
 void ThinFilmSupport::addInputs(ShaderNode& node, GenContext&) const
 {
     // Add the input to hold thinfilm data.
-    node.addInput(THINFILM_INPUT, Type::THINFILM);
+    node.addInput(ThinFilmNode::THINFILM_INPUT, Type::THINFILM);
+}
+
+
+ShaderNodeImplPtr HwThinFilmSupport::create()
+{
+    return std::make_shared<HwThinFilmSupport>();
+}
+
+void HwThinFilmSupport::addInputs(ShaderNode& node, GenContext&) const
+{
+    // Add the input to hold thinfilm data.
+    node.addInput(ThinFilmNode::THINFILM_INPUT, Type::THINFILM);
 }
 
 } // namespace MaterialX

@@ -15,5 +15,5 @@
     <output name="out" type="surfaceshader"/>
   </nodedef>
   <implementation name="IM_disney_brdf_2012_surface_brdf_explorer" nodedef="ND_disney_brdf_2012_surface"
-        target="brdf_explorer" language="glsl" file="https://github.com/wdas/brdf/blob/master/src/brdfs/disney.brdf"/>
+        target="brdf_explorer" file="https://github.com/wdas/brdf/blob/master/src/brdfs/disney.brdf"/>
 </materialx>

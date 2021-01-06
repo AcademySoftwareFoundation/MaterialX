@@ -65,6 +65,30 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
+void Node::setConnectedOutput(const string& inputName, OutputPtr output)
+{
+    InputPtr input = getInput(inputName);
+    if (!input)
+    {
+        input = addInput(inputName, DEFAULT_TYPE_STRING);
+    }
+    if (output)
+    {
+        input->setType(output->getType());
+    }
+    input->setConnectedOutput(output);
+}
+
+OutputPtr Node::getConnectedOutput(const string& inputName) const
+{
+    InputPtr input = getInput(inputName);
+    if (!input)
+    {
+        return OutputPtr();
+    }
+    return input->getConnectedOutput();    
+}
+
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
     if (hasNodeDefString())
@@ -118,7 +142,20 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         OutputPtr output = OutputPtr();
         if (connectedInput)
         {
-            output = connectedInput->getConnectedOutput();
+            InputPtr interfaceInput = nullptr;
+            if (connectedInput->hasInterfaceName())
+            {
+                interfaceInput = connectedInput->getConnectedInterface();
+                if (interfaceInput)
+                {
+                    outputName = &(interfaceInput->getOutputString());
+                    output = interfaceInput->getConnectedOutput();
+                }
+            }
+            if (!interfaceInput)
+            {
+                output = connectedInput->getConnectedOutput();
+            }
         }
         if (output)
         {
@@ -532,18 +569,21 @@ void NodeGraph::addInterface(const string& childPath, const string& interfaceNam
     ElementPtr elem = getDescendant(childPath);
     ValueElementPtr valueElem = elem->asA<ValueElement>();
     InputPtr input = valueElem ? valueElem->asA<Input>() : nullptr;
-    if (!input || input->getConnectedNode())
+    if (!input || (input && input->getConnectedNode()))
     {
         throw Exception("Invalid nodegraph child to create interface for:  " + childPath);
     }
 
     valueElem->setInterfaceName(interfaceName);
 
-    InputPtr nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
     ValuePtr value = valueElem->getValue();
-    if (value)
+    if (input)
     {
-        nodeDefInput->setValueString(value->getValueString());
+        InputPtr nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
+        if (value)
+        {
+            nodeDefInput->setValueString(value->getValueString());
+        }
     }
 }
 
@@ -622,6 +662,33 @@ bool NodeGraph::validate(string* message) const
         if (nodeDef)
         {
             validateRequire(getOutputCount() == nodeDef->getActiveOutputs().size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+        }
+    }
+    // Check interfaces on nodegraphs which are not definitions
+    if (!hasNodeDefString())
+    {
+        for (NodePtr node : getNodes())
+        {
+            for (InputPtr input : node->getInputs())
+            {
+                const string& interfaceName = input->getInterfaceName();
+                if (!interfaceName.empty())
+                {
+                    InputPtr interfaceInput = input->getConnectedInterface();
+                    validateRequire(interfaceInput != nullptr, res, message, "NodeGraph interface input: \"" + interfaceName + "\" does not exist on nodegraph");
+                    string connectedNodeName = interfaceInput ? interfaceInput->getNodeName() : EMPTY_STRING;
+                    if (connectedNodeName.empty())
+                    {
+                        connectedNodeName = interfaceInput->getNodeGraphString();
+                    }
+                    if (interfaceInput && !connectedNodeName.empty())
+                    {
+                        NodePtr connectedNode = input->getConnectedNode();
+                        validateRequire(connectedNode != nullptr, res, message, "Nodegraph input: \"" + interfaceInput->getNamePath() +
+                            "\" specifies connection to non existent node: \"" + connectedNodeName + "\"");
+                    }
+                }
+            }
         }
     }
     return GraphElement::validate(message) && res;

@@ -22,15 +22,6 @@ class PyShaderGenerator : public mx::ShaderGenerator
     {
     }
 
-    const std::string& getLanguage() const override
-    {
-        PYBIND11_OVERLOAD_PURE(
-            const std::string&,
-            mx::ShaderGenerator,
-            getLanguage
-        );
-    }
-
     const std::string& getTarget() const override
     {
         PYBIND11_OVERLOAD_PURE(
@@ -326,7 +317,6 @@ class PyShaderGenerator : public mx::ShaderGenerator
 void bindPyShaderGenerator(py::module& mod)
 {
     py::class_<mx::ShaderGenerator, PyShaderGenerator, mx::ShaderGeneratorPtr>(mod, "ShaderGenerator")
-        .def("getLanguage", &mx::ShaderGenerator::getLanguage)
         .def("getTarget", &mx::ShaderGenerator::getTarget)
         .def("generate", &mx::ShaderGenerator::generate)
         .def("setColorManagementSystem", &mx::ShaderGenerator::setColorManagementSystem)

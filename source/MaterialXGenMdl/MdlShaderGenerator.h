@@ -26,9 +26,6 @@ class MdlShaderGenerator : public ShaderGenerator
 
     static ShaderGeneratorPtr create() { return std::make_shared<MdlShaderGenerator>(); }
 
-    /// Return a unique identifier for the language used by this generator
-    const string& getLanguage() const override { return LANGUAGE; }
-
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
@@ -38,9 +35,6 @@ class MdlShaderGenerator : public ShaderGenerator
 
     /// Return the result of an upstream connection or value for an input.
     string getUpstreamResult(const ShaderInput* input, GenContext& context) const override;
-
-    /// Unique identifier for the MDL language
-    static const string LANGUAGE;
 
     /// Unique identifier for this generator target
     static const string TARGET;

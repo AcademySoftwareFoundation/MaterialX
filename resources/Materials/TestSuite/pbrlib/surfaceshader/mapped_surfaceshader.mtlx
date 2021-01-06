@@ -1,91 +1,120 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
-   <standard_surface name="MappedShader" type="surfaceshader" >
+
+   <!-- Basic color mapped test -->
+   <nodegraph name="RedRamp" xpos="315" ypos="1129">
+      <ramp4 name="ramp4" type="color3" xpos="-79" ypos="-60">
+         <input name="valuetl" type="color3" uniform="true" value="1, 0, 0" />
+         <input name="valuetr" type="color3" uniform="true" value="0.1, 0, 0" />
+         <input name="valuebl" type="color3" uniform="true" value="1, 0, 0" />
+         <input name="valuebr" type="color3" uniform="true" value="0.1, 0, 0" />
+      </ramp4>
+      <output name="out" type="color3" nodename="ramp4" />
+   </nodegraph>
+   <nodegraph name="GreenRamp" xpos="315" ypos="1348">
+      <ramp4 name="ramp4" type="color3" xpos="-79" ypos="-60">
+         <input name="valuetl" type="color3" uniform="true" value="0, 1, 0" />
+         <input name="valuetr" type="color3" uniform="true" value="0, 0.1, 0" />
+         <input name="valuebl" type="color3" uniform="true" value="0, 1, 0" />
+         <input name="valuebr" type="color3" uniform="true" value="0, 0.1, 0" />
+      </ramp4>
+      <output name="out" type="color3" nodename="ramp4" />
+   </nodegraph>
+   <standard_surface name="MappedShader" type="surfaceshader" version="1.0.1">
       <input name="base" type="float" value="1" />
       <input name="base_color" type="color3" nodegraph="RedRamp" />
-      <input name="metalness" type="float" value="1" />
+      <input name="metalness" type="float" value="0.333" />
       <input name="specular" type="float" value="0" />
       <input name="specular_color" type="color3" nodegraph="GreenRamp" />
-      <input name="specular_roughness" type="float" nodegraph="UnitGraph" />
       <input name="coat" type="float" value="1" />
    </standard_surface>
-   <standard_surface name="MappedShader2" type="surfaceshader" >
-      <input name="base" type="float" value="1" />
-      <input name="base_color" type="color3" nodegraph="YellowRamp" />
-      <input name="metalness" type="float" value="0" />
-      <input name="specular" type="float" value="1" />
-      <input name="specular_color" type="color3" nodegraph="BlueRamp" />
-      <input name="specular_roughness" type="float" nodegraph="UnitGraph" />
-      <input name="coat" type="float" value="0" />
-   </standard_surface>
-   <nodegraph name="RedRamp">
-      <ramp4 name="ramp4" type="color3" >
-         <input name="valuetl" type="color3" value="1, 0, 0" />
-         <input name="valuetr" type="color3" value="0, 0, 0" />
-         <input name="valuebl" type="color3" value="1, 0, 0" />
-         <input name="valuebr" type="color3" value="0, 0, 0" />
-      </ramp4>
-      <output name="out" type="color3" nodename="ramp4" />
-   </nodegraph>
-   <nodegraph name="GreenRamp">
-      <ramp4 name="ramp4" type="color3" >
-         <input name="valuetl" type="color3" value="0, 1, 0" />
-         <input name="valuetr" type="color3" value="0, 0, 0" />
-         <input name="valuebl" type="color3" value="0, 1, 0" />
-         <input name="valuebr" type="color3" value="0, 0, 0" />
-      </ramp4>
-      <output name="out" type="color3" nodename="ramp4" />
-   </nodegraph>
-   <nodegraph name="BlueRamp">
-      <ramp4 name="ramp4" type="color3" >
-         <input name="valuetl" type="color3" value="0, 0, 1" />
-         <input name="valuetr" type="color3" value="0, 0, 0" />
-         <input name="valuebl" type="color3" value="0, 0, 1" />
-         <input name="valuebr" type="color3" value="0, 0, 0" />
-      </ramp4>
-      <output name="out" type="color3" nodename="ramp4" />
-   </nodegraph>
-   <nodegraph name="YellowRamp">
-      <ramp4 name="ramp4" type="color3" >
-         <input name="valuetl" type="color3" value="1, 1, 0" />
-         <input name="valuetr" type="color3" value="0, 0, 0" />
-         <input name="valuebl" type="color3" value="1, 1, 0" />
-         <input name="valuebr" type="color3" value="0, 0, 0" />
-      </ramp4>
-      <output name="out" type="color3" nodename="ramp4" />
-   </nodegraph>
-   <nodegraph name="UnitGraph">
-      <constant name="realscale" type="float">
-         <parameter name="value" type="float" value="100" unit="centimeter" unittype="distance" />
-      </constant>
-      <output name="out" type="float" nodename="realscale" />
-   </nodegraph>
-   <surfacematerial name="MappedShaderMaterial" type="material" >
+   <surfacematerial name="MappedShaderMaterial" type="material" xpos="925" ypos="1098">
       <input name="surfaceshader" type="surfaceshader" nodename="MappedShader" />
       <input name="displacementshader" type="displacementshader" value="" />
    </surfacematerial>
-   <surfacematerial name="MappedShaderMaterial2" type="material" >
-      <input name="surfaceshader" type="surfaceshader" nodename="MappedShader2" />
+
+   <!-- real world units test -->
+   <nodegraph name="UnitGraph" xpos="336.442" ypos="884.044">
+      <tiledimage name="tiledimage" type="float" xpos="-47" ypos="-72">
+         <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
+         <input name="realworldimagesize" type="vector2" value="1, 1" />
+         <input name="realworldtilesize" type="vector2" value="100, 50" unit="centimeter" unittype="distance" />
+         <input name="default" type="float" value="0.0" uniform="true" />
+         <input name="uvtiling" type="vector2" value="2, 3" />
+         <input name="uvoffset" type="vector2" value="0.2, 0.2" />
+      </tiledimage>
+      <output name="out" type="float" nodename="tiledimage" />
+   </nodegraph>
+   <nodegraph name="BlueRamp" xpos="315" ypos="657.618">
+      <ramp4 name="ramp4" type="color3" xpos="-79" ypos="-61">
+         <input name="valuetl" type="color3" uniform="true" value="0, 0, 1" />
+         <input name="valuetr" type="color3" uniform="true" value="0, 0, 0.1" />
+         <input name="valuebl" type="color3" uniform="true" value="0, 0, 1" />
+         <input name="valuebr" type="color3" uniform="true" value="0, 0, 0.1" />
+      </ramp4>
+      <output name="out" type="color3" nodename="ramp4" />
+   </nodegraph>
+   <nodegraph name="YellowRamp" xpos="315" ypos="438.871">
+      <ramp4 name="ramp4" type="color3" xpos="-79" ypos="-60">
+         <input name="valuetl" type="color3" uniform="true" value="1, 1, 0" />
+         <input name="valuetr" type="color3" uniform="true" value="0, 0, 0" />
+         <input name="valuebl" type="color3" uniform="true" value="1, 1, 0" />
+         <input name="valuebr" type="color3" value="1, 1, 1" uniform="true" />
+      </ramp4>
+      <output name="out" type="color3" nodename="ramp4" />
+   </nodegraph>
+   <standard_surface name="UnitMappedShader" type="surfaceshader" version="1.0.1">
+      <input name="base" type="float" nodegraph="UnitGraph" />
+      <input name="base_color" type="color3" nodegraph="YellowRamp" />
+      <input name="metalness" type="float" value="0.1" />
+      <input name="specular" type="float" value="1" />
+      <input name="specular_color" type="color3" nodegraph="BlueRamp" />
+   </standard_surface>
+   <surfacematerial name="UnitMappedShaderMaterial" type="material" xpos="925" ypos="494">
+      <input name="surfaceshader" type="surfaceshader" nodename="UnitMappedShader" />
       <input name="displacementshader" type="displacementshader" value="" />
    </surfacematerial>
 
-   <nodegraph name="ColorSpaceGraph">
-      <constant name="color_gamma22" type="color4">
-         <parameter name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma22" />
+   <!-- color space test -->
+   <nodegraph name="ColorSpaceGraph" xpos="10" ypos="82">
+      <constant name="color_gamma22" type="color3">
+         <input name="value" type="color3" uniform="true" value="0.5, 0, 0" colorspace="gamma22" />
       </constant>
-      <output name="out" type="color4" nodename="color_gamma22" />
+      <output name="out" type="color3" nodename="color_gamma22" />
    </nodegraph>
-   <standard_surface name="ColorSpaceShader" type="surfaceshader" >
+   <standard_surface name="ColorSpaceShader" type="surfaceshader" version="1.0.1">
       <input name="base" type="float" value="0.5" />
-      <input name="base_color" type="color3" nodegraph="ColorSpaceGraph" channels="rgb"/>
+      <input name="base_color" type="color3" nodegraph="ColorSpaceGraph" />
       <input name="metalness" type="float" value="0" />
       <input name="specular" type="float" value="1" />
-      <input name="specular_color" type="color3" value="0.2,0.6,0.8" colorspace="g22_ap1"/>
+      <input name="specular_color" type="color3" value="0.2, 0.6, 0.8" colorspace="g22_ap1" />
       <input name="specular_roughness" type="float" value="0.2" />
       <input name="coat" type="float" value="0" />
    </standard_surface>
-   <surfacematerial name="ColorSpaceShaderMaterial" type="material" >
+   <surfacematerial name="ColorSpaceShaderMaterial" type="material">
       <input name="surfaceshader" type="surfaceshader" nodename="ColorSpaceShader" />
       <input name="displacementshader" type="displacementshader" value="" />
    </surfacematerial>
+
+   <!-- normal map test -->
+   <standard_surface name="NormalMapShader" type="surfaceshader" version="1.0.1" xpos="-29.5" ypos="-184">
+      <input name="base_color" type="color3" value="0.2, 0.5, 0.9"  />
+      <input name="normal" type="vector3" nodegraph="Compound"  />
+   </standard_surface>
+   <surfacematerial name="NormalMapMaterial" type="material" xpos="160" ypos="-269">
+      <input name="surfaceshader" type="surfaceshader" nodename="NormalMapShader"  />
+      <input name="displacementshader" type="displacementshader" value=""  />
+   </surfacematerial>
+   <nodegraph name="Compound" xpos="-351.5" ypos="-41" >
+      <input name="file" type="filename" uniform="true" value="" />
+      <normalmap name="normalmap" type="vector3" xpos="20" ypos="-95">
+         <input name="in" type="vector3" nodename="tiledimage"  />
+      </normalmap>
+      <tiledimage name="tiledimage" type="vector3" xpos="-218.5" ypos="-107.905">
+         <input name="file" type="filename" uniform="true" value="resources/Images/mesh_wire_norm.png"  />
+         <input name="uvtiling" type="vector2" value="10, 10"  />
+      </tiledimage>
+      <output name="out" type="vector3" nodename="normalmap" />
+   </nodegraph>
+
 </materialx>

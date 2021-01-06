@@ -28,6 +28,8 @@
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
+#include <cmath>
+
 namespace mx = MaterialX;
 
 //
@@ -64,7 +66,6 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
                      mx::ImageVec* imageVec = nullptr) override;
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip) const override;
-
 
     bool canBake() const override
     {
@@ -210,12 +211,107 @@ void addAdditionalTestStreams(mx::MeshPtr mesh)
         mesh->addStream(colorStream2);
     }
 
+    const std::string GEOM_INT_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_integer");
+    int32_t* geomIntData = nullptr;
+    if (!mesh->getStream(GEOM_INT_STREAM_NAME))
+    {
+        mx::MeshStreamPtr geomIntStream = mx::MeshStream::create(GEOM_INT_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 0);
+        geomIntStream->setStride(1);
+        geomIntStream->getData().resize(vertexCount);
+        mesh->addStream(geomIntStream);
+        // Float and int32 have same size.
+        geomIntData = reinterpret_cast<int32_t*>(geomIntStream->getData().data());
+    }
+
+    const std::string GEOM_FLOAT_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_float");
+    mx::MeshFloatBuffer* geomFloatData = nullptr;
+    if (!mesh->getStream(GEOM_FLOAT_STREAM_NAME))
+    {
+        mx::MeshStreamPtr geomFloatStream = mx::MeshStream::create(GEOM_FLOAT_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
+        geomFloatData = &(geomFloatStream->getData());
+        geomFloatStream->setStride(1);
+        geomFloatData->resize(vertexCount);
+        mesh->addStream(geomFloatStream);
+    }
+
+    const std::string GEOM_VECTOR2_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_vector2");
+    mx::MeshFloatBuffer* geomVector2Data = nullptr;
+    if (!mesh->getStream(GEOM_VECTOR2_STREAM_NAME))
+    {
+        mx::MeshStreamPtr geomVector2Stream = mx::MeshStream::create(GEOM_VECTOR2_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
+        geomVector2Data = &(geomVector2Stream->getData());
+        geomVector2Stream->setStride(2);
+        geomVector2Data->resize(vertexCount * 2);
+        mesh->addStream(geomVector2Stream);
+    }
+
+    const std::string GEOM_VECTOR3_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_vector3");
+    mx::MeshFloatBuffer* geomVector3Data = nullptr;
+    if (!mesh->getStream(GEOM_VECTOR3_STREAM_NAME))
+    {
+        mx::MeshStreamPtr geomVector3Stream = mx::MeshStream::create(GEOM_VECTOR3_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
+        geomVector3Data = &(geomVector3Stream->getData());
+        geomVector3Stream->setStride(3);
+        geomVector3Data->resize(vertexCount * 3);
+        mesh->addStream(geomVector3Stream);
+    }
+
+    const std::string GEOM_VECTOR4_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_vector4");
+    mx::MeshFloatBuffer* geomVector4Data = nullptr;
+    if (!mesh->getStream(GEOM_VECTOR4_STREAM_NAME))
+    {
+        mx::MeshStreamPtr geomVector4Stream = mx::MeshStream::create(GEOM_VECTOR4_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
+        geomVector4Data = &(geomVector4Stream->getData());
+        geomVector4Stream->setStride(4);
+        geomVector4Data->resize(vertexCount * 4);
+        mesh->addStream(geomVector4Stream);
+    }
+
+    const std::string GEOM_COLOR2_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_color2");
+    mx::MeshFloatBuffer* geomColor2Data = nullptr;
+    if (!mesh->getStream(GEOM_COLOR2_STREAM_NAME))
+    {
+        mx::MeshStreamPtr geomColor2Stream = mx::MeshStream::create(GEOM_COLOR2_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
+        geomColor2Data = &(geomColor2Stream->getData());
+        geomColor2Stream->setStride(2);
+        geomColor2Data->resize(vertexCount * 2);
+        mesh->addStream(geomColor2Stream);
+    }
+
+    const std::string GEOM_COLOR3_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_color3");
+    mx::MeshFloatBuffer* geomColor3Data = nullptr;
+    if (!mesh->getStream(GEOM_COLOR3_STREAM_NAME))
+    {
+        mx::MeshStreamPtr geomColor3Stream = mx::MeshStream::create(GEOM_COLOR3_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
+        geomColor3Data = &(geomColor3Stream->getData());
+        geomColor3Stream->setStride(3);
+        geomColor3Data->resize(vertexCount * 3);
+        mesh->addStream(geomColor3Stream);
+    }
+
+    const std::string GEOM_COLOR4_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_color4");
+    mx::MeshFloatBuffer* geomColor4Data = nullptr;
+    if (!mesh->getStream(GEOM_COLOR4_STREAM_NAME))
+    {
+        mx::MeshStreamPtr geomColor4Stream = mx::MeshStream::create(GEOM_COLOR4_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
+        geomColor4Data = &(geomColor4Stream->getData());
+        geomColor4Stream->setStride(4);
+        geomColor4Data->resize(vertexCount * 4);
+        mesh->addStream(geomColor4Stream);
+    }
+
+    auto sineData = [](float uv, float freq){
+        const float PI = std::acos(-1.0f);
+        float angle = uv * 2 * PI * freq;
+        return std::sin(angle) / 2.0f + 1.0f;
+    };
     if (!uv.empty())
     {
         for (size_t i = 0; i < vertexCount; i++)
         {
             const size_t i2 = 2 * i;
             const size_t i21 = i2 + 1;
+            const size_t i3 = 3 * i;
             const size_t i4 = 4 * i;
 
             // Fake second set of texture coordinates
@@ -238,6 +334,51 @@ void addAdditionalTestStreams(mx::MeshPtr mesh)
                 (*colorData2)[i4 + 1] = uv[i2];
                 (*colorData2)[i4 + 2] = uv[i21];
                 (*colorData2)[i4 + 3] = 1.0f;
+            }
+            if (geomIntData)
+            {
+                geomIntData[i] = static_cast<int32_t>(uv[i21] * 5);
+            }
+            if (geomFloatData)
+            {
+                (*geomFloatData)[i] = sineData(uv[i21], 12.0f);
+            }
+            if (geomVector2Data)
+            {
+                (*geomVector2Data)[i2] = sineData(uv[i21], 6.0f);
+                (*geomVector2Data)[i21] = 0.0f;
+            }
+            if (geomVector3Data)
+            {
+                (*geomVector3Data)[i3] = 0.0f;
+                (*geomVector3Data)[i3 + 1] = sineData(uv[i21], 8.0f);
+                (*geomVector3Data)[i3 + 2] = 0.0f;
+            }
+            if (geomVector4Data)
+            {
+                (*geomVector4Data)[i4] = 0.0f;
+                (*geomVector4Data)[i4 + 1] = 0.0f;
+                (*geomVector4Data)[i4 + 2] = sineData(uv[i21], 10.0f);
+                (*geomVector4Data)[i4 + 3] = 1.0f;
+            }
+
+            if (geomColor2Data)
+            {
+                (*geomColor2Data)[i2] = sineData(uv[i2], 10.0f);
+                (*geomColor2Data)[i21] = 0.0f;
+            }
+            if (geomColor3Data)
+            {
+                (*geomColor3Data)[i3] = 0.0f;
+                (*geomColor3Data)[i3 + 1] = sineData(uv[i2], 8.0f);
+                (*geomColor3Data)[i3 + 2] = 0.0f;
+            }
+            if (geomColor4Data)
+            {
+                (*geomColor4Data)[i4] = 0.0f;
+                (*geomColor4Data)[i4 + 1] = 0.0f;
+                (*geomColor4Data)[i4 + 2] = sineData(uv[i2], 6.0f);
+                (*geomColor4Data)[i4 + 3] = 1.0f;
             }
         }
     }
@@ -560,21 +701,31 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
     return true;
 }
 
-void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
-                                      unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log)
+void  GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
+                                           unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log)
 {
-    bakeWidth = std::max(bakeWidth, (unsigned int) 2);
-    bakeHeight = std::max(bakeHeight, (unsigned int) 2);
-
+    if (bakeWidth < 2)
+    {
+        bakeWidth = 2;
+    }
+    if (bakeHeight < 2)
+    {
+        bakeHeight = 2;
+    }
     mx::Image::BaseType baseType = bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
     mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
     baker->setupUnitSystem(doc);
     baker->setImageHandler(_renderer->getImageHandler());
-    baker->setOutputImagePath(outputFileName.getParentPath());
+    baker->setOptimizeConstants(true);
+    
     try
     {
-        baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
-        log << "Wrote baked document: " << outputFileName.asString() << std::endl;
+        mx::FilePathVec bakedFileNames = baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
+        log << baker->getBakingReport();
+        for (auto bakedFileName: bakedFileNames)
+        {
+            log << "Wrote baked document: " << bakedFileName.asString() << std::endl;
+        }
     }
     catch (mx::Exception& e)
     {

@@ -238,7 +238,7 @@ namespace
                         const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
                         if (nodeDefType == Type::BSDF)
                         {
-                            InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+                            InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
                             if (impl && impl->isA<NodeGraph>())
                             {
                                 NodeGraphPtr graph = impl->asA<NodeGraph>();
@@ -383,11 +383,11 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
         }
 
         // Check for a transparent graph.
-        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
         if (!impl)
         {
             throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef->getNodeString() +
-                "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
+                "' matching target '" + shadergen.getTarget() + "'");
         }
         if (impl->isA<NodeGraph>())
         {
@@ -771,7 +771,7 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
 NodePtr connectsToNodeOfCategory(OutputPtr output, const StringSet& categories)
 {
     ElementPtr connectedElement = output ? output->getConnectedNode() : nullptr;
-    NodePtr connectedNode = connectedElement->asA<Node>();
+    NodePtr connectedNode = connectedElement ? connectedElement->asA<Node>() : nullptr;
     if (!connectedNode)
     {
         return nullptr;

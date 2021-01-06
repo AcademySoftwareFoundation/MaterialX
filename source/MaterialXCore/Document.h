@@ -394,6 +394,38 @@ class Document : public GraphElement
     }
 
     /// @}
+    /// @name TargetDef Elements
+    /// @{
+
+    /// Add an TargetDef to the document.
+    /// @param name The name of the new TargetDef.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new TargetDef.
+    TargetDefPtr addTargetDef(const string& name = EMPTY_STRING)
+    {
+        return addChild<TargetDef>(name);
+    }
+
+    /// Return the AttributeDef, if any, with the given name.
+    TargetDefPtr getTargetDef(const string& name) const
+    {
+        return getChildOfType<TargetDef>(name);
+    }
+
+    /// Return a vector of all TargetDef elements in the document.
+    vector<TargetDefPtr> getTargetDefs() const
+    {
+        return getChildrenOfType<TargetDef>();
+    }
+
+    /// Remove the TargetDef, if any, with the given name.
+    void removeTargetDef(const string& name)
+    {
+        removeChildOfType<TargetDef>(name);
+    }
+
+    /// @}
     /// @name PropertySet Elements
     /// @{
 
@@ -621,6 +653,13 @@ class Document : public GraphElement
     ///    each error will be appended.
     /// @return True if the document passes all tests, false otherwise.
     bool validate(string* message = nullptr) const override;
+
+    /// @}
+    /// @name Versioning
+    /// @{
+
+    /// Convert Parameter Elements to Input Elements
+    bool convertParametersToInputs();
 
     /// @}
     /// @name Utility

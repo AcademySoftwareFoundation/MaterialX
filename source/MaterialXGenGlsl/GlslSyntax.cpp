@@ -102,6 +102,7 @@ const string GlslSyntax::INPUT_QUALIFIER = "in";
 const string GlslSyntax::OUTPUT_QUALIFIER = "out";
 const string GlslSyntax::UNIFORM_QUALIFIER = "uniform";
 const string GlslSyntax::CONSTANT_QUALIFIER = "const";
+const string GlslSyntax::FLAT_QUALIFIER = "flat";
 const string GlslSyntax::SOURCE_FILE_EXTENSION = ".glsl";
 const StringVec GlslSyntax::VEC2_MEMBERS = { ".x", ".y" };
 const StringVec GlslSyntax::VEC3_MEMBERS = { ".x", ".y", ".z" };
@@ -422,6 +423,10 @@ bool GlslSyntax::remapEnumeration(const string& value, const TypeDesc* type, con
     if (!value.empty())
     {
         StringVec valueElemEnumsVec = splitString(enumNames, ",");
+        for (size_t i=0; i<valueElemEnumsVec.size(); i++)
+        {
+            valueElemEnumsVec[i] = trimSpaces(valueElemEnumsVec[i]);
+        }
         auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), value);
         if (pos == valueElemEnumsVec.end())
         {

@@ -79,6 +79,15 @@ class Node : public InterfaceElement
     /// input is not present, then an empty string is returned.
     string getConnectedNodeName(const string& inputName) const;
 
+    /// Set the output to which the given input is connected, creating a
+    /// child input if needed.  If the node argument is null, then any
+    /// existing output connection on the input will be cleared.
+    void setConnectedOutput(const string& inputName, OutputPtr output);
+
+    /// Return the output connected to the given input.  If the given input is
+    /// not present, then an empty OutputPtr is returned.
+    OutputPtr getConnectedOutput(const string& inputName) const;
+
     /// @}
     /// @name NodeDef References
     /// @{
@@ -104,11 +113,10 @@ class Node : public InterfaceElement
     /// @return An implementation for this node, or an empty shared pointer if
     ///    none was found.  Note that a node implementation may be either an
     ///    Implementation element or a NodeGraph element.
-    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING,
-                                          const string& language = EMPTY_STRING) const
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const
     {
         NodeDefPtr nodeDef = getNodeDef(target);
-        return nodeDef ? nodeDef->getImplementation(target, language) : InterfaceElementPtr();
+        return nodeDef ? nodeDef->getImplementation(target) : InterfaceElementPtr();
     }
 
     /// @}

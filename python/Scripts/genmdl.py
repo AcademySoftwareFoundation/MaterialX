@@ -12,12 +12,12 @@ import string; os.environ['PYTHONIOENCODING'] = 'utf-8'
 import MaterialX as mx
 
 def usage():
-    print 'genmdl.py: Generate implementation directory for mdl based on existing MaterialX nodedefs in stdlib'
-    print 'Usage:  genmdl.py <library search path> [<module name> <version>]'
-    print '- A new directory called "library/stdlib/genmdl/materialx" will be created with two files added:'
-    print '   - <module_name>.ref_mdl: Module with signature stubs for each MaterialX nodedef'
-    print '   - <module_name>_genmdl_impl.ref_mtlx: MaterialX nodedef implementation mapping file'
-    print '- By default <module_name>="mymodule" and <version>="1.6"'
+    print ('genmdl.py: Generate implementation directory for mdl based on existing MaterialX nodedefs in stdlib')
+    print ('Usage:  genmdl.py <library search path> [<module name> <version>]')
+    print ('- A new directory called "library/stdlib/genmdl/materialx" will be created with two files added:')
+    print ('   - <module_name>.ref_mdl: Module with signature stubs for each MaterialX nodedef')
+    print ('   - <module_name>_genmdl_impl.ref_mtlx: MaterialX nodedef implementation mapping file')
+    print ('- By default <module_name>="mymodule" and <version>="1.6"')
 
 def _getSubDirectories(libraryPath):
     return [name for name in os.listdir(libraryPath)
@@ -187,7 +187,7 @@ def _writeThreeArgumentFunc(file, outputType, functionName, arg1, arg2, arg3):
 def _writeTransformMatrix(file, nodeName):
     if nodeName.find('vector3M4') >= 0:
         file.write(INDENT + 'float4 returnValue = mxp_mat * float4(mxp_in.x, mxp_in.y,  mxp_in.z, 1.0);\n')
-    	file.write(INDENT + 'return float3(returnValue.x, returnValue.y, returnValue.z);\n')
+        file.write(INDENT + 'return float3(returnValue.x, returnValue.y, returnValue.z);\n')
     elif nodeName.find('vector2M3') >= 0:
         file.write(INDENT + 'float3 returnValue = mxp_mat * float3(mxp_in.x, mxp_in.y, 1.0);\n')
         file.write(INDENT + 'return float2(returnValue.x, returnValue.y);\n')
@@ -260,11 +260,11 @@ def _writeOverlay(file, outputType):
     	file.write(INDENT + 'upper = mx_multiply(mx_multiply(mk_color4(2.0),bg_),fg_);\n')
     	file.write(INDENT + 'lower = mx_subtract(mx_add(bg_,fg_),mx_multiply(bg_,fg_));\n')
     	file.write(INDENT + 'color maskRGB = color(::math::step(float3(.5), float3(fg_.rgb)));\n')
-        file.write(INDENT + 'float maskA = ::math::step(.5, fg_.a);\n')
+    	file.write(INDENT + 'float maskA = ::math::step(.5, fg_.a);\n')
     	file.write(INDENT + 'color overlayvalRGB = ::math::lerp(lower.rgb, upper.rgb, maskRGB);\n')
-        file.write(INDENT + 'float overlayvalA = ::math::lerp(lower.a, upper.a, maskA);\n')
-        file.write(INDENT + 'color returnRGB = ::math::lerp(mxp_bg.rgb, overlayvalRGB, color(mxp_mix));\n')
-        file.write(INDENT + 'float returnA = ::math::lerp(mxp_bg.a, overlayvalA, mxp_mix);\n')
+    	file.write(INDENT + 'float overlayvalA = ::math::lerp(lower.a, upper.a, maskA);\n')
+    	file.write(INDENT + 'color returnRGB = ::math::lerp(mxp_bg.rgb, overlayvalRGB, color(mxp_mix));\n')
+    	file.write(INDENT + 'float returnA = ::math::lerp(mxp_bg.a, overlayvalA, mxp_mix);\n')
     	file.write(INDENT + 'return color4(returnRGB, returnA);\n')
     else:
         file.write(INDENT + outputType + ' upper, lower, mask, overlayval;\n')

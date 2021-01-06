@@ -3,15 +3,20 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
-
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
+#include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
+
 namespace MaterialX
 {
+
+BlurNodeMdl::BlurNodeMdl() :
+    BlurNode()
+{
+}
 
 ShaderNodeImplPtr BlurNodeMdl::create()
 {
@@ -57,7 +62,7 @@ void BlurNodeMdl::outputSampleArray(const ShaderGenerator& shadergen, ShaderStag
 }
 
 // No definitions needed for blur in MDL so override the base class with an empty function definition emitter.
-void BlurNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext&, ShaderStage&) const
+void BlurNodeMdl::emitSamplingFunctionDefinition(const ShaderNode&, GenContext&, ShaderStage&) const
 {
 }
 

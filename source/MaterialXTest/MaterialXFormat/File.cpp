@@ -72,7 +72,7 @@ TEST_CASE("File search path operations", "[file]")
     }
 }
 
-TEST_CASE("File utilities", "[file]")
+TEST_CASE("Flatten filenames", "[file]")
 {
     const mx::FilePath TEST_FILE_PREFIX_STRING("resources\\Images\\");
     const mx::FilePath TEST_IMAGE_STRING1("brass_roughness.jpg");

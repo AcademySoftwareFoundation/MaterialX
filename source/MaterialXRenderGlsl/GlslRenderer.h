@@ -41,7 +41,7 @@ class GlslRenderer : public ShaderRenderer
 {
   public:
     /// Create a GLSL renderer instance
-    static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
+    static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8, const Color4& clearColor = Color4(0.4f, 0.4f, 0.4f, 1.0f));
 
     /// Destructor
     virtual ~GlslRenderer();
@@ -102,8 +102,8 @@ class GlslRenderer : public ShaderRenderer
         return _program;
     }
 
-    /// Submit geometry for a screen-space quad.
-    static void drawScreenSpaceQuad();
+    /// Submit geometry for a screen-space quad
+    void drawScreenSpaceQuad();
 
     /// Sets the clear color
     void setClearColor(const Color4& clearColor);
@@ -111,7 +111,7 @@ class GlslRenderer : public ShaderRenderer
     /// @}
 
   protected:
-    GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
+    GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType, const Color4& clearColor = Color4(0.4f, 0.4f, 0.4f, 1.0f));
 
     virtual void updateViewInformation();
     virtual void updateWorldInformation();

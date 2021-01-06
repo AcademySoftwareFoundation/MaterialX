@@ -110,7 +110,7 @@ TEST_CASE("GenShader: Metadata", "[genosl]")
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
     mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibraries({ "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
+    mx::loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
 
     //
     // Define custom attributes to be exported as shader metadata

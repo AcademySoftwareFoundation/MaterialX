@@ -12,6 +12,7 @@
 #include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/ShaderTranslator.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -47,7 +48,7 @@ TEST_CASE("GenShader: Valid Libraries", "[genshader]")
 
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+    loadLibraries({ "targets", "stdlib", "pbrlib" }, searchPath, doc);
 
     std::string validationErrors;
     bool valid = doc->validate(&validationErrors);
@@ -92,113 +93,44 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE_THROWS(mx::TypeDesc::get("bar"));
 }
 
-TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
+TEST_CASE("GenShader: Shader Translation", "[translate]")
 {
-    mx::DocumentPtr doc = mx::createDocument();
-
     mx::FileSearchPath searchPath;
-    searchPath .append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "stdlib" }, searchPath, doc);
+    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    searchPath.append(currentPath / mx::FilePath("libraries"));
+    searchPath.append(currentPath / mx::FilePath("resources/Materials/TestSuite"));
 
-    // Set source code search path
-    mx::FileSearchPath sourceCodeSearchPath;
-    sourceCodeSearchPath.append(searchPath);
+    mx::ShaderTranslatorPtr shaderTranslator = mx::ShaderTranslator::create();
 
-    std::filebuf implDumpBuffer;
-    std::string fileName = "osl_vanilla_implementation_check.txt";
-    implDumpBuffer.open(fileName, std::ios::out);
-    std::ostream implDumpStream(&implDumpBuffer);
+    const std::string USD_PREVIEW_SURFACE_NAME("UsdPreviewSurface");
 
-    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-    implDumpStream << "Scanning language: osl. Target: reference" << std::endl;
-    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-
-    const std::string language("osl");
-    const std::string target("");
-
-    std::vector<mx::ImplementationPtr> impls = doc->getImplementations();
-    implDumpStream << "Existing implementations: " << std::to_string(impls.size()) << std::endl;
-    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-    for (const auto& impl : impls)
+    mx::FilePath testPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    for (mx::FilePath& mtlxFile : testPath.getFilesInDirectory("mtlx"))
     {
-        if (language == impl->getLanguage() && impl->getTarget().empty())
-        {
-            std::string msg("Impl: ");
-            msg += impl->getName();
+        mx::DocumentPtr doc = mx::createDocument();
+        mx::StringSet libFiles = loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf", "translation" }, searchPath, doc);
 
-            mx::NodeDefPtr nodedef = impl->getNodeDef();
-            if (!nodedef)
-            {
-                std::string nodedefName = impl->getNodeDefString();
-                msg += ". Does NOT have a nodedef with name: " + nodedefName;
-            }
-            implDumpStream << msg << std::endl;
+        mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
+        mtlxFile.removeExtension();
+        mx::writeToXmlFile(doc, mtlxFile.asString() + "_untranslated.mtlx");
+
+        try {
+            shaderTranslator->translateAllMaterials(doc, USD_PREVIEW_SURFACE_NAME);
         }
+        catch (mx::Exception &e)
+        {
+            std::cout << "Failed translating: " << (testPath / mtlxFile).asString() << ": " << e.what() << std::endl;
+        }
+
+        mx::writeToXmlFile(doc, mtlxFile.asString() + "_translated.mtlx");
+        std::string validationErrors;
+        bool valid = doc->validate(&validationErrors);
+        std::cout << "Shader translation of : " << (testPath / mtlxFile).asString() << (valid ?  ": passed"  : ": failed") << std::endl;
+        if (!valid)
+        {
+            std::cout << "Validation errors: " << validationErrors << std::endl;
+        }
+        CHECK(valid);
     }
-
-    unsigned int count = 0;
-    unsigned int missing = 0;
-    std::string missing_str;
-    std::string found_str;
-
-    // Scan through every nodedef defined
-    for (mx::NodeDefPtr nodeDef : doc->getNodeDefs())
-    {
-        count++;
-
-        std::string nodeDefName = nodeDef->getName();
-        std::string nodeName = nodeDef->getNodeString();
-        if (!mx::requiresImplementation(nodeDef))
-        {
-            found_str += "No implementation required for nodedef: " + nodeDefName + ", Node: " + nodeName + ".\n";
-            continue;
-        }
-
-        mx::InterfaceElementPtr inter = nodeDef->getImplementation(target, language);
-        if (!inter)
-        {
-            missing++;
-            missing_str += "Missing nodeDef implemenation: " + nodeDefName + ", Node: " + nodeName + ".\n";
-        }
-        else
-        {
-            mx::ImplementationPtr impl = inter->asA<mx::Implementation>();
-            if (impl)
-            {
-                // Scan for file and see if we can read in the contents
-                mx::FilePath sourcePath = impl->getFile();
-                mx::FilePath resolvedPath = sourceCodeSearchPath.find(sourcePath);
-                std::string sourceContents = mx::readFile(resolvedPath.asString());
-                if (sourceContents.empty())
-                {
-                    missing++;
-                    missing_str += "Missing source code: " + sourcePath.asString() + " for nodeDef: "
-                        + nodeDefName + ". Impl: " + impl->getName() + ".\n";
-                }
-                else
-                {
-                    found_str += "Found impl and src for nodedef: " + nodeDefName + ", Node: "
-                        + nodeName + ". Impl: " + impl->getName() + ".\n";
-                }
-            }
-            else
-            {
-                mx::NodeGraphPtr graph = inter->asA<mx::NodeGraph>();
-                found_str += "Found NodeGraph impl for nodedef: " + nodeDefName + ", Node: "
-                    + nodeName + ". Impl: " + graph->getName() + ".\n";
-            }
-        }
-    }
-
-    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-    implDumpStream << "Missing: " << missing << " implementations out of: " << count << " nodedefs\n";
-    implDumpStream << missing_str << std::endl;
-    implDumpStream << found_str << std::endl;
-    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-
-    implDumpBuffer.close();
-
-    // To enable once this is true
-    //REQUIRE(missing == 0);
 }
 

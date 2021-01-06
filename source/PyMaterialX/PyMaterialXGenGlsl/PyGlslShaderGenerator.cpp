@@ -21,7 +21,6 @@ void bindPyGlslShaderGenerator(py::module& mod)
         .def_static("create", &mx::GlslShaderGenerator::create)
         .def(py::init<>())
         .def("generate", &mx::GlslShaderGenerator::generate)
-        .def("getLanguage", &mx::GlslShaderGenerator::getLanguage)
         .def("getTarget", &mx::GlslShaderGenerator::getTarget)
         .def("getVersion", &mx::GlslShaderGenerator::getVersion);
 }
