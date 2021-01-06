@@ -71,10 +71,13 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 - `D`: Save each node graph in the current material as a DOT file.  See www.graphviz.org for more details on this format.
 - `F`: Capture the current frame and save to file.
 - `W`: Create a wedge rendering and save to file.
-- `RIGHT` : Switch to next material
-- `LEFT` : Switch to previous material  
-- `UP` : Zoom in with the camera.  
-- `DOWN` : Zoom out with the camera.
+- `B`: Bake the current material to textures.
+- `UP` : Select the previous geometry.
+- `DOWN` : Select the next geometry.
+- `RIGHT` : Switch to the next material.
+- `LEFT` : Switch to the previous material.
+- `+` : Zoom in with the camera.
+- `-` : Zoom out with the camera.
 
 ### Command-Line Options
 

@@ -130,7 +130,6 @@ class GlslRenderer : public ShaderRenderer
 
     SimpleWindowPtr _window;
     GLContextPtr _context;
-
     Color4 _clearColor;
 };
 

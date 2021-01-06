@@ -22,7 +22,6 @@ class BlurNodeMdl : public BlurNode
   protected:
     /// Constructor
     BlurNodeMdl();
-
     void emitSamplingFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     /// Output sample array

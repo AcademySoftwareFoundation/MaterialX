@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
+
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 
 #include <MaterialXGenShader/Shader.h>
@@ -25,10 +26,6 @@ namespace
     const unsigned int filterWidth = 3;
     const float filterSize = 1.0;
     const float filterOffset = 0.0;
-}
-
-HeightToNormalNodeMdl::HeightToNormalNodeMdl()
-{
 }
 
 ShaderNodeImplPtr HeightToNormalNodeMdl::create()

@@ -4,10 +4,11 @@
 //
 
 #include <MaterialXGenMdl/Nodes/SourceCodeNodeMdl.h>
+
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 namespace MaterialX
@@ -62,7 +63,6 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
 
             size_t pos = 0;
             size_t i = _functionSource.find_first_of(prefix);
-            StringSet variableNames;
             StringVec code;
             while (i != string::npos)
             {

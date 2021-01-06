@@ -48,8 +48,8 @@ using NodePredicate = std::function<bool(NodePtr node)>;
 /// @class Node
 /// A node element within a NodeGraph or Document.
 ///
-/// A Node represents an instance of a NodeDef within a graph, and its Parameter
-/// and Input elements apply specific values and connections to that instance.
+/// A Node represents an instance of a NodeDef within a graph, and its Input
+/// elements apply specific values and connections to that instance.
 class Node : public InterfaceElement
 {
   public:

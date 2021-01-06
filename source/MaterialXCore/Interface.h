@@ -314,8 +314,8 @@ class Output : public PortElement
 /// @class InterfaceElement
 /// The base class for interface elements such as Node, NodeDef, and NodeGraph.
 ///
-/// An InterfaceElement supports a set of Parameter, Input, and Output elements,
-/// with an API for setting their values.
+/// An InterfaceElement supports a set of Input and Output elements, with an API
+/// for setting their values.
 class InterfaceElement : public TypedElement
 {
   protected:
@@ -360,24 +360,15 @@ class InterfaceElement : public TypedElement
 
     /// Add an Input to this interface.
     /// @param name The name of the new Input.
-    ///     If an empty string is specified, then a unique name will automatically be
+    ///     If no name is specified, then a unique name will automatically be
     ///     generated.
-    /// @param type The input type string.
-    /// @param isUniform Option to mark the input as a uniform. By default the input
-    ///     is not marked as being a uniform. "string" and "filename" types are always
-    ///     marked as being a uniform.
+    /// @param type An optional type string.
     /// @return A shared pointer to the new Input.
-    InputPtr addInput(const string& name,
-                      const string& type,
-                      bool isUniform = false)
+    InputPtr addInput(const string& name = EMPTY_STRING,
+                      const string& type = DEFAULT_TYPE_STRING)
     {
         InputPtr child = addChild<Input>(name);
         child->setType(type);
-        const StringSet uniformTypes = { FILENAME_TYPE_STRING, STRING_TYPE_STRING };
-        if (isUniform || uniformTypes.count(type))
-        {
-            child->setIsUniform(true);
-        }
         return child;
     }
 
@@ -463,6 +454,15 @@ class InterfaceElement : public TypedElement
     /// taking inheritance into account.
     vector<OutputPtr> getActiveOutputs() const;
 
+    /// Set the output to which the given input is connected, creating a
+    /// child input if needed.  If the node argument is null, then any
+    /// existing output connection on the input will be cleared.
+    void setConnectedOutput(const string& inputName, OutputPtr output);
+
+    /// Return the output connected to the given input.  If the given input is
+    /// not present, then an empty OutputPtr is returned.
+    OutputPtr getConnectedOutput(const string& inputName) const;
+
     /// @}
     /// @name Tokens
     /// @{
@@ -515,12 +515,12 @@ class InterfaceElement : public TypedElement
 
     /// Return the first value element with the given name that belongs to this
     /// interface, taking interface inheritance into account.
-    /// Examples of value elements are Parameter, Input, Output, and Token.
+    /// Examples of value elements are Input, Output, and Token.
     ValueElementPtr getActiveValueElement(const string& name) const;
 
     /// Return a vector of all value elements that belong to this interface,
     /// taking inheritance into account.
-    /// Examples of value elements are Parameter, Input, Output, and Token.
+    /// Examples of value elements are Input, Output, and Token.
     vector<ValueElementPtr> getActiveValueElements() const;
 
     /// @}
@@ -538,7 +538,7 @@ class InterfaceElement : public TypedElement
     /// @param name The name of the input to be evaluated.
     /// @param target An optional target name, which will be used to filter
     ///    the declarations that are considered.
-    /// @return If the given parameter is found in this interface or its
+    /// @return If the given input is found in this interface or its
     ///    declaration, then a shared pointer to its value is returned;
     ///    otherwise, an empty shared pointer is returned.
     ValuePtr getInputValue(const string& name, const string& target = EMPTY_STRING) const;
@@ -579,9 +579,8 @@ class InterfaceElement : public TypedElement
     /// Node is an instantiation of a given NodeDef.
     ///
     /// If the type string of the instance differs from that of the declaration,
-    /// then false is returned.  If the instance possesses a Parameter or Input
-    /// with no Parameter or Input of matching type in the declaration, then
-    /// false is returned.
+    /// then false is returned.  If the instance possesses an Input with no Input
+    /// of matching type in the declaration, then false is returned.
     bool isTypeCompatible(ConstInterfaceElementPtr declaration) const;
 
     /// @}
@@ -604,7 +603,7 @@ template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
 {
     InputPtr input = getChildOfType<Input>(name);
     if (!input)
-        input = addInput(name, type);
+        input = addInput(name);
     input->setValue(value, type);
     return input;
 }

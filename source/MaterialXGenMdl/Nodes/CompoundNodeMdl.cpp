@@ -4,13 +4,12 @@
 //
 
 #include <MaterialXGenMdl/Nodes/CompoundNodeMdl.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
-#include <MaterialXCore/Library.h>
 #include <MaterialXCore/Definition.h>
-#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {

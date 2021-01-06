@@ -36,9 +36,6 @@ class RtReadOptions
 
     /// Read look information. The default value is false.
     bool readLookInformation;
-
-    /// Apply the latest MaterialX feature updates. The default value is true.
-    bool applyFutureUpdates;
 };
     
 /// @class RtWriteOptions

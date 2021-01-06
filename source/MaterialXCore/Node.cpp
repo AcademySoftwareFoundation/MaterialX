@@ -26,7 +26,7 @@ void Node::setConnectedNode(const string& inputName, NodePtr node)
     InputPtr input = getInput(inputName);
     if (!input)
     {
-        input = addInput(inputName, DEFAULT_TYPE_STRING);
+        input = addInput(inputName);
     }
     if (node)
     {
@@ -50,7 +50,7 @@ void Node::setConnectedNodeName(const string& inputName, const string& nodeName)
     InputPtr input = getInput(inputName);
     if (!input)
     {
-        input = addInput(inputName, DEFAULT_TYPE_STRING);
+        input = addInput(inputName);
     }
     input->setNodeName(nodeName);
 }

@@ -54,7 +54,7 @@ TEST_CASE("Document", "[document]")
     roughness->setIsUniform(true);
     REQUIRE(roughness->getIsUniform());
 
-    // Instantiate the interface as shader and material nodes.
+    // Instantiate shader and material nodes.
     mx::NodePtr shaderNode = doc->addNodeInstance(simpleSrf);
     mx::NodePtr materialNode = doc->addMaterialNode("", shaderNode);
     REQUIRE(materialNode->getUpstreamElement() == shaderNode);
@@ -173,7 +173,6 @@ TEST_CASE("Version", "[document]")
         mx::DocumentPtr doc2 = mx::createDocument();
         mx::readFromXmlFile(doc2, "1_37_to_1_38_updated.mtlx");
         REQUIRE(doc2->validate());
-        std::string doc2String = mx::writeToXmlString(doc2);
 
         // atan2 test
         const std::string ATAN2 = "atan2";

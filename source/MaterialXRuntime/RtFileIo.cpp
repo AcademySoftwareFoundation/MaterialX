@@ -1405,8 +1405,7 @@ namespace
 
 RtReadOptions::RtReadOptions() :
     elementFilter(nullptr),
-    readLookInformation(false),
-    applyFutureUpdates(true)
+    readLookInformation(false)
 {
 }
 
@@ -1426,12 +1425,7 @@ void RtFileIo::read(const FilePath& documentPath, const FileSearchPath& searchPa
     try
     {
         DocumentPtr document = createDocument();
-        XmlReadOptions xmlReadOptions;
-        if (options)
-        {
-            xmlReadOptions.applyFutureUpdates = options->applyFutureUpdates;
-        }
-        readFromXmlFile(document, documentPath, searchPaths, &xmlReadOptions);
+        readFromXmlFile(document, documentPath, searchPaths);
 
         PvtStage* stage = PvtStage::ptr(_stage);
         readDocument(document, stage, options);
@@ -1447,12 +1441,7 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* options)
     try
     {
         DocumentPtr document = createDocument();
-        XmlReadOptions xmlReadOptions;
-        if (options)
-        {
-            xmlReadOptions.applyFutureUpdates = options->applyFutureUpdates;
-        }
-        readFromXmlStream(document, stream, &xmlReadOptions);
+        readFromXmlStream(document, stream);
 
         PvtStage* stage = PvtStage::ptr(_stage);
         readDocument(document, stage, options);
@@ -1463,16 +1452,14 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* options)
     }
 }
 
-void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths, const RtReadOptions& options)
+void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths, const RtReadOptions& /*options*/)
 {
     RtApi& api = RtApi::get();
     PvtStage* stage = PvtStage::ptr(_stage);
 
     // Load all content into a document.
     DocumentPtr doc = createDocument();
-    MaterialX::XmlReadOptions readOptions;
-    readOptions.applyFutureUpdates = options.applyFutureUpdates;
-    MaterialX::loadLibraries(libraryPaths, searchPaths, doc, MaterialX::StringSet(), &readOptions);
+    MaterialX::loadLibraries(libraryPaths, searchPaths, doc, MaterialX::StringSet());
 
     StringSet uris = doc->getReferencedSourceUris();
     for (const string& uri : uris)
@@ -1612,11 +1599,7 @@ RtPrim RtFileIo::readPrim(std::istream& stream, const RtPath& parentPrimPath, st
         PvtPath parentPath(parentPrimPath.asString());
         DocumentPtr document = createDocument();
         XmlReadOptions xmlReadOptions;
-        if (options)
-        {
-            xmlReadOptions.applyFutureUpdates = options->applyFutureUpdates;
-        }
-        readFromXmlStream(document, stream, &xmlReadOptions);
+        readFromXmlStream(document, stream);
 
         PvtStage* stage = PvtStage::ptr(_stage);
 

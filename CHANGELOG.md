@@ -2,12 +2,13 @@
 
 ## [1.38] - Development
 
-### v1.38_adsk_development2 : WIP
-- Up-to-date with ILM v1.38 branch @9e437e03
+### v1.38_adsk_development2 : Work-in-progress
+- Up-to-date with ILM v1.38 branch @8718c59
 - GPU testing framework setup (in progress)
 - Deprecation of Language specifier and introduction of TargetDefs
 - Deprecation of Material and ShaderRef elements.
 - Deprecation of Parameter element.
+- TextureBaker v1 completion
 
 ### v1.38_adsk_development1 : Major changes since "v1.37.3_parameters_as_inputs"
  - Up-to-date with ILM v1.38 branch @3900415.
@@ -24,7 +25,13 @@
  - Github actions support.
  - Plus changes up to 1.37.3.
 
-## [1.37.4] - Development
+## [1.37.4] - 2020-12-18
+
+### Added
+- Added software rendering tests for MaterialXRenderGlsl to GitHub Actions.
+
+### Changed
+- Improved the robustness of context management in MaterialXRenderGlsl.
 
 ## [1.37.3] - 2020-11-24
 

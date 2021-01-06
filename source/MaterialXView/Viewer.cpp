@@ -11,18 +11,14 @@
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/Shader.h>
 
-#include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
+#include <MaterialXGenOsl/OslShaderGenerator.h>
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
-#include <nanogui/button.h>
 #include <nanogui/combobox.h>
-#include <nanogui/label.h>
-#include <nanogui/layout.h>
 #include <nanogui/messagedialog.h>
 #include <nanogui/vscrollpanel.h>
 
@@ -205,11 +201,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _drawEnvironment(false),
     _captureRequested(false),
     _wedgeRequested(false),
-    _wedgePropertyName("specular_roughness"),
+    _wedgePropertyName("base"),
     _wedgePropertyMin(0.0f),
     _wedgePropertyMax(1.0f),
     _wedgeImageCount(8),
-    _bakeTextures(false),
     _bakeHdr(false),
     _bakeAverage(false),
     _bakeOptimize(true),
@@ -630,27 +625,19 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 filename.addExtension(mx::MTLX_EXTENSION);
             }
 
-            if (_bakeTextures)
+            // Add element predicate to prune out writing elements from included files
+            auto skipXincludes = [this](mx::ConstElementPtr elem)
             {
-                _bakeRequested = true;
-                _bakeFilename = filename;
-            }
-            else
-            {
-                // Add element predicate to prune out writing elements from included files
-                auto skipXincludes = [this](mx::ConstElementPtr elem)
+                if (elem->hasSourceUri())
                 {
-                    if (elem->hasSourceUri())
-                    {
-                        return (_xincludeFiles.count(elem->getSourceUri()) == 0);
-                    }
-                    return true;
-                };
-                mx::XmlWriteOptions writeOptions;
-                writeOptions.writeXIncludeEnable = true;
-                writeOptions.elementPredicate = skipXincludes;
-                mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
-            }
+                    return (_xincludeFiles.count(elem->getSourceUri()) == 0);
+                }
+                return true;
+            };
+            mx::XmlWriteOptions writeOptions;
+            writeOptions.writeXIncludeEnable = true;
+            writeOptions.elementPredicate = skipXincludes;
+            mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
 
             // Update material file name
             _materialFilename = filename;
@@ -868,22 +855,29 @@ void Viewer::createAdvancedSettings(Widget* parent)
         });
     }
 
-    ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options");
+    ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options (B)");
     textureLabel->setFontSize(20);
     textureLabel->setFont("sans-bold");
-
-    ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
-    bakeTexturesBox->setChecked(_bakeTextures);
-    bakeTexturesBox->setCallback([this](bool enable)
-    {
-        _bakeTextures = enable;
-    });
 
     ng::CheckBox* bakeHdrBox = new ng::CheckBox(advancedPopup, "Bake HDR Textures");
     bakeHdrBox->setChecked(_bakeTextures);
     bakeHdrBox->setCallback([this](bool enable)
     {
         _bakeHdr = enable;
+    });
+
+    ng::CheckBox* bakeAverageBox = new ng::CheckBox(advancedPopup, "Bake Averaged Textures");
+    bakeAverageBox->setChecked(_bakeAverage);
+    bakeAverageBox->setCallback([this](bool enable)
+    {
+        _bakeAverage = enable;
+    });
+
+    ng::CheckBox* bakeOptimized = new ng::CheckBox(advancedPopup, "Optimize Baked Materials");
+    bakeOptimized->setChecked(_bakeOptimize);
+    bakeOptimized->setCallback([this](bool enable)
+    {
+        _bakeOptimize = enable;
     });
 
     Widget* textureResGroup = new Widget(advancedPopup);
@@ -904,16 +898,28 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _bakeTextureRes = MIN_TEXTURE_RES * (int) std::pow(2, index);
     });
 
-    ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Rendering Options");
+    ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Render Options (W)");
     wedgeLabel->setFontSize(20);
     wedgeLabel->setFont("sans-bold");
 
-    ng::Widget* wedgeMin = new ng::Widget(advancedPopup);
-    wedgeMin->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ng::Widget* wedgeNameGroup = new ng::Widget(advancedPopup);
+    wedgeNameGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(wedgeNameGroup, "Property Name");
+    ng::TextBox* wedgeNameBox = new ng::TextBox(wedgeNameGroup, _wedgePropertyName);
+    wedgeNameBox->setCallback([this](const std::string& choice)
+    {
+        _wedgePropertyName = choice;
+        return true;
+    });
+    wedgeNameBox->setFontSize(16);
+    wedgeNameBox->setEditable(true);
+
+    ng::Widget* wedgeMinGroup = new ng::Widget(advancedPopup);
+    wedgeMinGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties wedgeProp;
     wedgeProp.uiSoftMin = mx::Value::createValue(0.0f);
     wedgeProp.uiSoftMax = mx::Value::createValue(1.0f);
-    ng::FloatBox<float>* wedgeMinBox = createFloatWidget(wedgeMin, "Wedge Minimum Value:",
+    ng::FloatBox<float>* wedgeMinBox = createFloatWidget(wedgeMinGroup, "Property Min:",
         _wedgePropertyMax, &wedgeProp, [this](float value)
     {
         _wedgePropertyMin = value;
@@ -921,9 +927,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeMinBox->setValue(0.0);
     wedgeMinBox->setEditable(true);
 
-    ng::Widget* wedgeMax = new ng::Widget(advancedPopup);
-    wedgeMax->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ng::FloatBox<float>* wedgeMaxBox = createFloatWidget(wedgeMax, "Wedge Maximum Value:",
+    ng::Widget* wedgeMaxGroup = new ng::Widget(advancedPopup);
+    wedgeMaxGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ng::FloatBox<float>* wedgeMaxBox = createFloatWidget(wedgeMaxGroup, "Property Max:",
         _wedgePropertyMax, &wedgeProp, [this](float value)
     {
         _wedgePropertyMax = value;
@@ -931,13 +937,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeMaxBox->setValue(1.0);
     wedgeMaxBox->setEditable(true);
 
-    ng::Widget* wedgeCount = new ng::Widget(advancedPopup);
-    wedgeCount->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ng::Widget* wedgeCountGroup = new ng::Widget(advancedPopup);
+    wedgeCountGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties wedgeCountProp;
     wedgeCountProp.uiMin = mx::Value::createValue(1);
     wedgeCountProp.uiSoftMax = mx::Value::createValue(8);
     wedgeCountProp.uiStep = mx::Value::createValue(1);
-    ng::IntBox<int>* wedgeCountBox = createIntWidget(wedgeCount, "Wedge Count:",
+    ng::IntBox<int>* wedgeCountBox = createIntWidget(wedgeCountGroup, "Image Count:",
         _wedgeImageCount, &wedgeCountProp, [this](int value)
     {
         _wedgeImageCount = value;
@@ -1036,7 +1042,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
-    readOptions.applyFutureUpdates = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
     {
@@ -1207,15 +1212,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 else
                 {
                     // Generate a shader for the new material.
-                    try
-                    {
-                        mat->generateShader(_genContext);
-                    }
-                    catch (std::exception& e)
-                    {
-                        mat->copyShader(_wireMaterial);
-                        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
-                    }
+                    mat->generateShader(_genContext);
                 }
 
                 // Apply geometric assignments specified in the document, if any.
@@ -1250,7 +1247,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
             // Apply fallback assignments.
             MaterialPtr fallbackMaterial = newMaterials[0];
-            if (fallbackMaterial->getUdim().empty())
+            if (!_mergeMaterials || fallbackMaterial->getUdim().empty())
             {
                 for (mx::MeshPartitionPtr geom : _geometryList)
                 {
@@ -1434,10 +1431,8 @@ void Viewer::loadStandardLibraries()
     // Initialize the standard library.
     try
     {
-        mx::XmlReadOptions readOptions;
-        readOptions.applyFutureUpdates = true;
         _stdLib = mx::createDocument();
-        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib, mx::StringSet(), &readOptions);
+        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib, mx::StringSet());
         if (_xincludeFiles.empty())
         {
             std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
@@ -1551,46 +1546,46 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    // Capture the current frame or render wedge and save as an image file.
-    if ((key == GLFW_KEY_F || key == GLFW_KEY_W) && action == GLFW_PRESS)
+    // Capture the current frame and save as an image file.
+    if (key == GLFW_KEY_F && action == GLFW_PRESS)
     {
-        mx::StringSet extensions = _imageHandler->supportedExtensions();
-        std::vector<std::pair<std::string, std::string>> filetypes;
-        for (const auto& extension : extensions)
+        _captureFilename = ng::file_dialog({ { mx::ImageLoader::PNG_EXTENSION, "Image File" } }, true);
+        if (!_captureFilename.isEmpty())
         {
-            filetypes.push_back(std::make_pair(extension, extension));
-        }
-        if (key == GLFW_KEY_F)
-        {
-            _captureFilename = ng::file_dialog(filetypes, true);
-            if (!_captureFilename.isEmpty())
+            if (_captureFilename.getExtension().empty())
             {
-                if (_captureFilename.getExtension().empty())
-                {
-                    _captureFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
-                }
-                _captureRequested = true;
+                _captureFilename.addExtension(mx::ImageLoader::PNG_EXTENSION);
             }
+            _captureRequested = true;
         }
-        else
+    }
+
+    // Render a wedge for the current material.
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
+    {
+        _wedgeFilename = ng::file_dialog({ { mx::ImageLoader::PNG_EXTENSION, "Image File" } }, true);
+        if (!_wedgeFilename.isEmpty())
         {
-            _wedgeFilename = ng::file_dialog(filetypes, true);
-            if (!_wedgeFilename.isEmpty())
+            if (_wedgeFilename.getExtension().empty())
             {
-                // There are issues with using the STB loader and png files
-                // so use another format if PNG specified or if no extension specified
-                const std::string extension = _wedgeFilename.getExtension();
-                if (extension.empty())
-                {                    
-                    _wedgeFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
-                }
-                else if (extension == mx::ImageLoader::PNG_EXTENSION)
-                {
-                    _wedgeFilename.removeExtension();
-                    _wedgeFilename.addExtension(mx::ImageLoader::TGA_EXTENSION);
-                }
-                _wedgeRequested = true;
+                _wedgeFilename.addExtension(mx::ImageLoader::PNG_EXTENSION);
             }
+            _wedgeRequested = true;
+        }
+    }
+
+    // Request a bake of the current material.
+    if (key == GLFW_KEY_B && action == GLFW_PRESS)
+    {
+        mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+        if (!filename.isEmpty())
+        {
+            if (filename.getExtension() != mx::MTLX_EXTENSION)
+            {
+                filename.addExtension(mx::MTLX_EXTENSION);
+            }
+            _bakeRequested = true;
+            _bakeFilename = filename;
         }
     }
 
@@ -1784,8 +1779,6 @@ void Viewer::renderFrame()
 mx::ImagePtr Viewer::getFrameImage()
 {
     glFlush();
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadBuffer(GL_COLOR_ATTACHMENT0);
 
     // Create an image with dimensions adjusted for device DPI.
     mx::ImagePtr image = mx::Image::create((unsigned int) (mSize.x() * mPixelRatio),
@@ -1916,48 +1909,10 @@ mx::ImagePtr Viewer::renderWedge()
 void Viewer::bakeTextures()
 {
     MaterialPtr material = getSelectedMaterial();
-    if (!material->getMaterialElement())
-    {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
-            "There are no material nodes to bake.");
-        return;
-    }
-
-    mx::DocumentPtr origDoc = material->getDocument();
-    if (!origDoc)
+    mx::DocumentPtr doc = material->getDocument();
+    if (!doc)
     {
         return;
-    }
-    // Make a copy before baking as baking process can change the document
-    // layout.
-    mx::DocumentPtr bakeDoc = mx::createDocument();
-    bakeDoc->copyContentFrom(origDoc);
-    
-    // Create a unique image handler for baking.
-    mx::FilePath documentFilename = origDoc->getSourceUri();
-    mx::FileSearchPath searchPath = _searchPath;
-    searchPath.append(documentFilename.getParentPath());
-    mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
-#if MATERIALX_BUILD_OIIO
-    imageHandler->addLoader(mx::OiioImageLoader::create());
-#endif
-    imageHandler->setSearchPath(searchPath);
-
-    // Compute material and UDIM lists.
-    std::vector<MaterialPtr> materialsToBake;
-    std::vector<std::string> udimSet;
-    mx::ValuePtr udimSetValue = origDoc->getGeomPropValue("udimset");
-    if (_materials.size() > 1 &&
-        !material->getUdim().empty() &&
-        udimSetValue &&
-        !_bakeAverage)
-    {
-        materialsToBake = _materials;
-        udimSet = udimSetValue->asA<std::vector<std::string>>();
-    }
-    else
-    {
-        materialsToBake.push_back(material);
     }
 
     {
@@ -1965,54 +1920,32 @@ void Viewer::bakeTextures()
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
         baker->setupUnitSystem(_stdLib);
-        baker->setTargetUnitSpace(_genContext.getOptions().targetDistanceUnit);
+        baker->setDistanceUnit(_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
 
-        mx::StringResolverPtr resolver = mx::StringResolver::create();
+        // Extend the image search path to include the source material folder.
+        mx::FilePath materialFilename = mx::FilePath(doc->getSourceUri());
+        mx::FileSearchPath materialSearchPath = _searchPath;
+        materialSearchPath.append(materialFilename.getParentPath());
 
-        // Bake each material in the list.
-        for (MaterialPtr mat : materialsToBake)
+        // Bake all materials in the active document.
+        try
         {
-            mx::NodePtr origMaterialNode = mat->getMaterialElement()->asA<mx::Node>();
-            mx::ElementPtr materialElement = bakeDoc->getDescendant(origMaterialNode->getNamePath());
-            mx::NodePtr materialNode = materialElement ? materialElement->asA<mx::Node>() : nullptr;
-            if (materialNode)
+            mx::FilePathVec outputFileNames = baker->bakeAllMaterials(doc, materialSearchPath, _bakeFilename);
+            std::cerr << baker->getBakingReport();
+            for (auto outputFileName : outputFileNames)
             {
-                std::unordered_set<mx::NodePtr> shaderNodes = mx::getShaderNodes(materialNode, mx::SURFACE_SHADER_TYPE_STRING);
-                if (!shaderNodes.empty())
-                {
-                    resolver->setUdimString(mat->getUdim());
-                    imageHandler->setFilenameResolver(resolver);
-                    try
-                    {
-                        // TODO: Only bake first surface shader 
-                        mx::NodePtr shader = *shaderNodes.begin();
-                        baker->setImageHandler(imageHandler);
-                        baker->setOutputResourcePath(_bakeFilename.getParentPath());
-                        baker->setBakedGraphName("NG_" + shader->getName());
-                        baker->setBakedGeomInfoName("GI_" + shader->getName());
-                        baker->bakeShaderInputs(materialNode, shader, _genContext, mat->getUdim());
-                        // Optimize baked textures.
-                        baker->optimizeBakedTextures(shader);
-                        // Write the baked document and textures.
-                        mx::DocumentPtr bakedDocument = baker->getBakedMaterial(shader, udimSet);
-                        if (bakedDocument)
-                        {
-                            mx::writeToXmlFile(bakedDocument, _bakeFilename);
-                            std::cout << "Write baked document: " << _bakeFilename.asString() << std::endl;
-                        }
-                    }
-                    catch (mx::Exception& e)
-                    {
-                        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to bake textures", e.what());
-                    }
-                }
+                std::cerr << "Wrote baked document: " << outputFileName.asString() << std::endl;
             }
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Error in texture baking: " << e.what() << std::endl;
         }
     }
 
-    // Restore state for scene rendering.
+    // After the baker has been destructed, restore state for scene rendering.
     glfwMakeContextCurrent(mGLFWWindow);
     glfwGetFramebufferSize(mGLFWWindow, &mFBSize[0], &mFBSize[1]);
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
@@ -2231,86 +2164,10 @@ void Viewer::updateViewHandlers()
     }
 }
 
-void Viewer::createWedgeParameterInterface(Widget* parent, const std::string& label)
-{
-    ng::Label* wedgeLabel = new ng::Label(parent, label);
-    _wedgeSelectionBox = new ng::ComboBox(parent, { "None" });
-    _wedgeSelectionBox->setChevronIcon(-1);
-    _wedgeSelectionBox->setFontSize(15);
-    _wedgeSelectionBox->setCallback([this](int choice)
-    {
-        size_t index = (size_t)choice;
-        const std::vector<std::string> &wedgeItems = this->_wedgeSelectionBox->items();
-        if (!wedgeItems.empty())
-        {
-            this->_wedgePropertyName = wedgeItems[index];
-        }
-    });
-
-    std::vector<std::string> wedgeItems;
-    MaterialPtr material = getSelectedMaterial();
-    if (material)
-    {
-        mx::DocumentPtr doc = material->getDocument();
-
-        const mx::VariableBlock* publicUniforms = material->getPublicUniforms();
-        if (publicUniforms)
-        {
-            mx::UIPropertyGroup groups;
-            mx::UIPropertyGroup unnamedGroups;
-            const std::string pathSeparator(":");
-            mx::createUIPropertyGroups(*publicUniforms, doc, material->getElement(),
-                pathSeparator, groups, unnamedGroups, true);
-
-            for (auto it = groups.begin(); it != groups.end(); ++it)
-            {
-                const mx::UIPropertyItem& item = it->second;
-                if (material->findUniform(item.variable->getPath()) &&
-                    (item.value->isA<float>() ||
-                    item.value->isA<int>() ||
-                    item.value->isA<mx::Vector2>() ||
-                    item.value->isA<mx::Vector3>() ||
-                    item.value->isA<mx::Color3>() ||
-                    item.value->isA<mx::Vector4>() ||
-                    item.value->isA<mx::Color4>()))
-                {
-                    wedgeItems.push_back(item.variable->getPath());
-                }
-            }
-            for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
-            {
-                const mx::UIPropertyItem& item = it2->second;
-                if (material->findUniform(item.variable->getPath()) &&
-                    (item.value->isA<float>() ||
-                    item.value->isA<int>() ||
-                    item.value->isA<mx::Vector2>() ||
-                    item.value->isA<mx::Vector3>() ||
-                    item.value->isA<mx::Color3>() ||
-                    item.value->isA<mx::Vector4>() ||
-                    item.value->isA<mx::Color4>()))
-                {
-                    wedgeItems.push_back(item.variable->getPath());
-                }
-            }
-            _wedgeSelectionBox->setItems(wedgeItems);
-        }
-    }
-
-    _wedgePropertyName.clear();
-    bool haveItems = !wedgeItems.empty();
-    if (haveItems)
-    {
-        _wedgePropertyName = wedgeItems[0];
-    }
-    wedgeLabel->setVisible(haveItems);
-    _wedgeSelectionBox->setVisible(haveItems);
-}
-
 void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
     createSaveMaterialsInterface(_propertyEditor.getWindow(), "Save Material");
-    createWedgeParameterInterface(_propertyEditor.getWindow(), "Wedge Parameter");
     performLayout();
 }
 

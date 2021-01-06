@@ -17,9 +17,6 @@ const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
 
 namespace {
 
-const string DOCUMENT_VERSION_STRING = std::to_string(MATERIALX_MAJOR_VERSION) + "." +
-                                       std::to_string(MATERIALX_MINOR_VERSION);
-
 template<class T> shared_ptr<T> updateChildSubclass(ElementPtr parent, ElementPtr origChild)
 {
     string childName = origChild->getName();
@@ -272,12 +269,10 @@ Document::~Document()
 void Document::initialize()
 {
     _root = getSelf();
-
-    DocumentPtr doc = getDocument();
-    _cache->doc = doc;
+    _cache->doc = getDocument();
 
     clearContent();
-    setVersionString(DOCUMENT_VERSION_STRING);
+    setVersionIntegers(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
 }
 
 NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
@@ -510,14 +505,13 @@ bool Document::convertParametersToInputs()
     return anyConverted;
 }
 
-void Document::upgradeVersion(bool applyFutureUpdates)
+void Document::upgradeVersion()
 {
     std::pair<int, int> versions = getVersionIntegers();
     int majorVersion = versions.first;
     int minorVersion = versions.second;
     if (majorVersion == MATERIALX_MAJOR_VERSION &&
-        minorVersion == MATERIALX_MINOR_VERSION &&
-        !applyFutureUpdates)
+        minorVersion == MATERIALX_MINOR_VERSION)
     {
         return;
     }
@@ -545,13 +539,9 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                 elem->setAttribute(NodeDef::NODE_ATTRIBUTE, elem->getAttribute("shadername"));
                 elem->removeAttribute("shadername");
             }
-            vector<ElementPtr> origChildren = elem->getChildren();
-            for (ElementPtr child : origChildren)
+            for (ElementPtr child : getChildrenOfType<Element>("assign"))
             {
-                if (child->getCategory() == "assign")
-                {
-                    changeChildCategory(elem, child, MaterialAssign::CATEGORY);
-                }
+                updateChildSubclass<MaterialAssign>(elem, child);
             }
         }
         minorVersion = 24;
@@ -599,11 +589,11 @@ void Document::upgradeVersion(bool applyFutureUpdates)
             {
                 if (child->getCategory() == "opgraph")
                 {
-                    changeChildCategory(elem, child, NodeGraph::CATEGORY);
+                    updateChildSubclass<NodeGraph>(elem, child);
                 }
                 else if (child->getCategory() == "shader")
                 {
-                    NodeDefPtr nodeDef = changeChildCategory(elem, child, NodeDef::CATEGORY)->asA<NodeDef>();
+                    NodeDefPtr nodeDef = updateChildSubclass<NodeDef>(elem, child);
                     if (nodeDef->hasAttribute("shadertype"))
                     {
                         nodeDef->setType(SURFACE_SHADER_TYPE_STRING);
@@ -703,7 +693,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         {
             for (ElementPtr child : geomInfo->getChildrenOfType<Element>("geomattr"))
             {
-                changeChildCategory(geomInfo, child, GeomProp::CATEGORY);
+                updateChildSubclass<GeomProp>(geomInfo, child);
             }
         }
         if (getGeomPropValue("udim") && !getGeomPropValue("udimset"))
@@ -868,7 +858,7 @@ void Document::upgradeVersion(bool applyFutureUpdates)
         {
             for (ElementPtr child : geomInfo->getChildrenOfType<Element>("geomattr"))
             {
-                changeChildCategory(geomInfo, child, GeomProp::CATEGORY);
+                updateChildSubclass<GeomProp>(geomInfo, child);
             }
         }
         for (ElementPtr elem : traverseTree())
@@ -1167,19 +1157,15 @@ void Document::upgradeVersion(bool applyFutureUpdates)
                     node->setName(newNodeName);
                 }
             }
-        }       
+        }   
+
+        convertParametersToInputs();
 
         // While we are in the process of supporting 1.38. Leave files as 1.37
         minorVersion = 37;
     }
 
-    convertParametersToInputs();
-
-    if (majorVersion == MATERIALX_MAJOR_VERSION &&
-        minorVersion == MATERIALX_MINOR_VERSION)
-    {
-        setVersionString(DOCUMENT_VERSION_STRING);
-    }
+    setVersionIntegers(majorVersion, minorVersion);
 }
 
 void Document::invalidateCache()

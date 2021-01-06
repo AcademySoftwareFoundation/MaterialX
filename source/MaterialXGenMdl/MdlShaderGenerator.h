@@ -14,6 +14,7 @@
 namespace MaterialX
 {
 
+/// Shared pointer to an MdlShaderGenerator
 using MdlShaderGeneratorPtr = shared_ptr<class MdlShaderGenerator>;
 
 /// @class MdlShaderGenerator
@@ -38,26 +39,26 @@ class MdlShaderGenerator : public ShaderGenerator
     /// Unique identifier for this generator target
     static const string TARGET;
 
-protected:
-    /// Create and initialize a new MDL shader for shader generation.
+  protected:
+    // Create and initialize a new MDL shader for shader generation.
     ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
-    /// Override the sourcecode implementation creator
+    // Override the sourcecode implementation creator
     ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const override;
 
-    /// Override the compound implementation creator.
+    // Override the compound implementation creator.
     ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
 
-    /// Override the shader graph finalization.
+    // Override the shader graph finalization.
     void finalizeShaderGraph(ShaderGraph& graph) override;
 
-    /// Emit a block of shader inputs.
+    // Emit a block of shader inputs.
     void emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const;
 };
 
 namespace MDL
 {
-    /// Identifiers for MDL variable blocks
+    // Identifiers for MDL variable blocks
     extern const string INPUTS;
     extern const string OUTPUTS;
 }

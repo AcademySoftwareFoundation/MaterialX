@@ -19,4 +19,8 @@
   <implementation name="IM_srgb_texture_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_srgb_texture_to_linear_color3({{in}})" target="genmdl" />
   <implementation name="IM_srgb_texture_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_srgb_texture_to_linear_color4({{in}})" target="genmdl" />
 
+  <implementation name="IM_g22_ap1_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_acescg_to_linear_color3(mx::cm::mx_gamma22_to_linear_color3({{in}}))" target="genmdl" />
+  <implementation name="IM_g22_ap1_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_acescg_to_linear_color4(mx::cm::mx_gamma22_to_linear_color4({{in}}))" target="genmdl" />
+
+
 </materialx>

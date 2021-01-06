@@ -607,7 +607,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     mx::StringVec errorLog;
     mx::FileSearchPath searchPath(_libSearchPath);
     mx::XmlReadOptions readOptions;
-    readOptions.applyFutureUpdates = options.applyFutureUpdates;
     for (const auto& testRoot : _testRootPaths)
     {
         mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
@@ -678,27 +677,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     << e.what() << std::endl;
             CHECK(importedLibrary);
             continue;
-        }
-
-        if (options.applyFutureUpdates &&
-            (!doc->getNodes(mx::SURFACE_MATERIAL_NODE_STRING).empty() ||
-             !doc->getNodes(mx::VOLUME_MATERIAL_NODE_STRING).empty()))
-        {
-            _logFile << "Updated version document written to: " << doc->getSourceUri() + "modified.mtlxx" << std::endl;
-
-            mx::StringSet xincludeFiles = doc->getReferencedSourceUris();
-            auto skipXincludes = [xincludeFiles](mx::ConstElementPtr elem)
-            {
-                if (elem->hasSourceUri())
-                {
-                    return (xincludeFiles.count(elem->getSourceUri()) == 0);
-                }
-                return true;
-            };
-            mx::XmlWriteOptions writeOptions;
-            writeOptions.writeXIncludeEnable = true;
-            writeOptions.elementPredicate = skipXincludes;
-            mx::writeToXmlFile(doc, doc->getSourceUri() + "_modified.mtlxx", &writeOptions);
         }
 
         // Find and register lights
@@ -890,7 +868,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 void TestSuiteOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
-    output << "\tApply future updates: " << std::to_string(applyFutureUpdates) << std::endl;
     output << "\tOverride Files: { ";
     for (const auto& overrideFile : overrideFiles) { output << overrideFile << " "; }
     output << "} " << std::endl;
@@ -954,7 +931,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
-    const std::string APPLY_LATEST_UPDATES("applyFutureUpdates");
     const std::string WEDGE_FILES("wedgeFiles");
     const std::string WEDGE_PARAMETERS("wedgeParameters");
     const std::string WEDGE_RANGE_MIN("wedgeRangeMin");
@@ -972,13 +948,11 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableDirectLighting = true;
     enableIndirectLighting = true;
     specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    applyFutureUpdates = false;
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
-    try {
-        mx::XmlReadOptions readOptions;
-        readOptions.applyFutureUpdates = true;
-        MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath(), &readOptions);
+    try
+    {
+        MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath());
 
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
@@ -1124,10 +1098,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     else if (name == BAKE_HDRS)
                     {
                         bakeHdrs = val->asA<mx::BoolVec>();
-                    }
-                    else if (name == APPLY_LATEST_UPDATES)
-                    {
-                        applyFutureUpdates = p->getValue()->asA<bool>();
                     }
                 }
             }

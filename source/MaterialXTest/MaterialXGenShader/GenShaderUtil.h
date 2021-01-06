@@ -151,9 +151,6 @@ class TestSuiteOptions
     mx::StringVec bakeFiles;
     mx::BoolVec bakeHdrs;
     mx::IntVec bakeResolutions;
-
-    // Apply updates for future versions
-    bool applyFutureUpdates;
 };
 
 // Utility class to handle testing of shader generators.

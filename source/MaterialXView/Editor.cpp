@@ -691,7 +691,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         mx::UIPropertyGroup unnamedGroups;
         const std::string pathSeparator(":");
         mx::createUIPropertyGroups(*publicUniforms, doc, material->getElement(),
-                                    pathSeparator, groups, unnamedGroups, true); 
+                                    pathSeparator, groups, unnamedGroups, false); 
 
         std::string previousFolder;
         // Make all inputs editable for now. Could make this read-only as well.

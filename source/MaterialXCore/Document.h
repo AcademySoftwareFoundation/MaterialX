@@ -597,9 +597,7 @@ class Document : public GraphElement
 
     /// Upgrade the content of this document from earlier supported versions to
     /// the library version.
-    /// @param applyFutureUpdates Apply updates that test prototype functionality
-    ///    for future versions of MaterialX
-    void upgradeVersion(bool applyFutureUpdates = true);
+    void upgradeVersion();
 
     /// @}
     /// @name Color Management System

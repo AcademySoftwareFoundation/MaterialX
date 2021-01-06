@@ -712,32 +712,19 @@ void  GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchP
     {
         bakeHeight = 2;
     }
-    const mx::FilePath bakedImagepath = outputFileName.getParentPath();
-    bakedImagepath.createDirectory();
     mx::Image::BaseType baseType = bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
     mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
     baker->setupUnitSystem(doc);
-    baker->setTargetUnitSpace("meter");
     baker->setImageHandler(_renderer->getImageHandler());
-    baker->setOutputResourcePath(bakedImagepath);
     baker->setOptimizeConstants(true);
     
     try
     {
-        mx::ListofBakedDocuments bakedDocuments = baker->bakeAllMaterials(doc, imageSearchPath);
-        for (size_t i =0; i < bakedDocuments.size(); i++)
+        mx::FilePathVec bakedFileNames = baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
+        log << baker->getBakingReport();
+        for (auto bakedFileName: bakedFileNames)
         {
-            if (bakedDocuments[i].second)
-            {
-                mx::FilePath writeFilename = outputFileName;
-                std::string extension = writeFilename.getExtension();
-                writeFilename.removeExtension();
-                writeFilename = mx::FilePath(writeFilename.asString() + "_" + bakedDocuments[i].first + "." + extension);
-                mx::writeToXmlFile(bakedDocuments[i].second, writeFilename);
-                log << "Write baked document: " << writeFilename.asString() << std::endl;
-            }
-            else
-               log << doc->getSourceUri() + " failed baking process: " << std::endl;
+            log << "Wrote baked document: " << bakedFileName.asString() << std::endl;
         }
     }
     catch (mx::Exception& e)
