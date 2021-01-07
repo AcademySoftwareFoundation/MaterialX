@@ -36,7 +36,7 @@ class ThinFilmNode : public ShaderNodeImpl
 /// Thin-film data is added as an extra input to BSDF nodes that derive from this class.
 class ThinFilmSupport : public SourceCodeNode
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;
@@ -46,7 +46,7 @@ public:
 /// Thin-film data is added as an extra input to BSDF nodes that derive from this class.
 class HwThinFilmSupport : public HwSourceCodeNode
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;

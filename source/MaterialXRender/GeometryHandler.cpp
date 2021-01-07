@@ -5,8 +5,8 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 
-#include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/Util.h>
 
 namespace MaterialX
 {
@@ -112,7 +112,6 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath)
 
 MeshPtr GeometryHandler::createQuadMesh()
 {
-    
     MeshStreamPtr quadPositions = MeshStream::create(HW::IN_POSITION, MeshStream::POSITION_ATTRIBUTE, 0);
     quadPositions->setStride(MeshStream::STRIDE_3D);
     quadPositions->getData().assign({  1.0f,  1.0f, 0.0f,

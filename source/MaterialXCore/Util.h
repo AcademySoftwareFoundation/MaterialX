@@ -45,7 +45,7 @@ string stringToLower(string str);
 /// Return true if the given string ends with the given suffix.
 bool stringEndsWith(const string& str, const string& suffix);
 
-/// Trim leading an trailing spaces from a string
+/// Trim leading and trailing spaces from a string.
 string trimSpaces(const string& str);
 
 /// Combine the hash of a value with an existing seed.
