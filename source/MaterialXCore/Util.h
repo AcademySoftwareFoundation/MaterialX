@@ -66,9 +66,6 @@ string createNamePath(const StringVec& nameVec);
 /// Given a name path, return the parent name path
 string parentNamePath(const string& namePath);
 
-/// Change the category of a child element
-ElementPtr changeChildCategory(ElementPtr parent, ElementPtr origChild, const string& category);
-
 } // namespace MaterialX
 
 #endif
