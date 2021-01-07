@@ -63,8 +63,8 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _optimizeConstants(true),
     _bakedGraphName("NG_baked"),
     _bakedGeomInfoName("GI_baked"),
-    _generator(GlslShaderGenerator::create()),
-    _outputStream(&std::cout)
+    _outputStream(&std::cout),
+    _generator(GlslShaderGenerator::create())
 {
     if (baseType == Image::BaseType::UINT8)
     {
