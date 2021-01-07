@@ -14,7 +14,7 @@ namespace MaterialX
 /// GeomPropValue node implementation for GLSL
 class GeomPropValueNodeGlsl : public GlslImplementation
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
@@ -25,9 +25,9 @@ public:
 };
 
 /// GeomPropValue node non-implementation for GLSL
-class GeomPropValueNodeGlsl_asUniform : public GlslImplementation
+class GeomPropValueNodeGlslAsUniform : public GlslImplementation
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
