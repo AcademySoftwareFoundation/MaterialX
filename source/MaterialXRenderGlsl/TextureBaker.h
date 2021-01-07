@@ -9,6 +9,8 @@
 /// @file
 /// Texture baking functionality
 
+#include <iostream>
+
 #include <MaterialXCore/Unit.h>
 
 #include <MaterialXRenderGlsl/GlslRenderer.h>
@@ -121,18 +123,6 @@ class TextureBaker : public GlslRenderer
         _codeSearchPath = codesearchPath;
     }
 
-    /// Get report of baking results
-    string getBakingReport() const
-    {
-         return (_bakingReport.str());
-    }
-
-    /// Clear report of baking results
-    void clearBakingReport()
-    {
-        _bakingReport.clear();
-    }
-
     /// Set the name of the baked graph element.
     void setBakedGraphName(const string& name)
     {
@@ -178,8 +168,21 @@ class TextureBaker : public GlslRenderer
     /// Bake all materials in a document and write to disk one document per material. The provided filename is used to create a unique output filename for each baked material.
     FilePathVec bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFileName);
 
-  protected:
-    TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
+    /// Set the output stream used for logging baking results.
+    /// By default results are sent to stdout.
+    const std::ostream* getOutputStream() const
+    {
+        return _outputStream;
+    }
+
+    /// Set the output stream for logging baking results
+    void setOutputStream(std::ostream* outputStream)
+    {
+        _outputStream = outputStream;
+    }
+
+  protected:      
+      TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
     // Generate a texture filename for the given graph output.
     FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);
@@ -216,7 +219,7 @@ class TextureBaker : public GlslRenderer
     string _bakedGraphName;
     string _bakedGeomInfoName;
     FileSearchPath _codeSearchPath;
-    std::stringstream _bakingReport;
+    std::ostream* _outputStream;
 
     ShaderGeneratorPtr _generator;
     ConstNodePtr _material;

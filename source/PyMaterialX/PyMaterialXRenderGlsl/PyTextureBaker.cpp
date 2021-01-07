@@ -34,5 +34,7 @@ void bindPyTextureBaker(py::module& mod)
         .def("setupUnitSystem", &mx::TextureBaker::setupUnitSystem)
         .def("bakeMaterial", &mx::TextureBaker::bakeMaterial)
         .def("createBakeDocuments", &mx::TextureBaker::createBakeDocuments)
-        .def("bakeAllMaterials", &mx::TextureBaker::bakeAllMaterials);
+        .def("bakeAllMaterials", &mx::TextureBaker::bakeAllMaterials)
+        .def("getOutputStream", &mx::TextureBaker::getOutputStream)
+        .def("setOutputStream", &mx::TextureBaker::setOutputStream);
 }

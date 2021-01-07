@@ -1924,7 +1924,6 @@ void Viewer::bakeTextures()
         try
         {
             mx::FilePathVec outputFileNames = baker->bakeAllMaterials(doc, materialSearchPath, _bakeFilename);
-            std::cerr << baker->getBakingReport();
             for (auto outputFileName : outputFileNames)
             {
                 std::cerr << "Wrote baked document: " << outputFileName.asString() << std::endl;

@@ -11,8 +11,6 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
-#include <iostream>
-
 namespace MaterialX
 {
 
@@ -65,7 +63,8 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _optimizeConstants(true),
     _bakedGraphName("NG_baked"),
     _bakedGeomInfoName("GI_baked"),
-    _generator(GlslShaderGenerator::create())
+    _generator(GlslShaderGenerator::create()),
+    _outputStream(&std::cout)
 {
     if (baseType == Image::BaseType::UINT8)
     {
@@ -378,11 +377,14 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
             if (!_imageHandler->saveImage(baked.filename, baked.image, true))
             {
                 bakingSuccessful = false;
-                _bakingReport << "Failed to write baked image: " << baked.filename.asString() << std::endl;
+                if (_outputStream)
+                {
+                    *_outputStream << "Failed to write baked image: " << baked.filename.asString() << std::endl;
+                }
             }
-            else
+            else if (_outputStream)
             {
-                _bakingReport << "Wrote baked image: " << baked.filename.asString() << std::endl;
+                *_outputStream << "Wrote baked image: " << baked.filename.asString() << std::endl;
             }
         }
     }
@@ -442,8 +444,6 @@ FilePathVec TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath
 
 ListofBakedDocuments TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath)
 {
-    clearBakingReport();
-
     GenContext genContext(_generator);
     genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
     genContext.getOptions().hwDirectionalAlbedoMethod = DIRECTIONAL_ALBEDO_TABLE;
