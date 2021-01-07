@@ -26,21 +26,20 @@ const float FAR_PLANE_PERSP = 100.0f;
 // GlslRenderer methods
 //
 
-GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Image::BaseType baseType, const Color4& clearColor)
+GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Image::BaseType baseType)
 {
-    return GlslRendererPtr(new GlslRenderer(width, height, baseType, clearColor));
+    return GlslRendererPtr(new GlslRenderer(width, height, baseType));
 }
 
-GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType, const Color4& clearColor) :
+GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
     _initialized(false),
     _eye(0.0f, 0.0f, 4.0f),
     _center(0.0f, 0.0f, 0.0f),
     _up(0.0f, 1.0f, 0.0f),
-    _objectScale(1.0f)
+    _objectScale(1.0f),
+    _clearColor(0.4f, 0.4f, 0.4f, 1.0f)
 {
-    setClearColor(clearColor);
-
     _program = GlslProgram::create();
 
     _geometryHandler = GeometryHandler::create();
