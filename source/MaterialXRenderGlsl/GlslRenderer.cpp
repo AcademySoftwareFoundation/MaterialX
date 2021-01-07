@@ -337,9 +337,9 @@ void GlslRenderer::drawScreenSpaceQuad()
         0, 1, 3,
         1, 2, 3
     };
-   
-    const unsigned int stride = 5;
-    const unsigned int texcoord_offset = 3;
+    const unsigned int VERTEX_STRIDE = 5;
+    const unsigned int TEXCOORD_OFFSET = 3;
+
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -349,18 +349,18 @@ void GlslRenderer::drawScreenSpaceQuad()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(QUAD_VERTICES), QUAD_VERTICES, GL_STATIC_DRAW);
 
-    for (auto input: _program->getAttributesList())
+    for (const auto& pair : _program->getAttributesList())
     {
-        if (input.first.find(HW::IN_POSITION) != std::string::npos)
+        if (pair.first.find(HW::IN_POSITION) != std::string::npos)
         {
-            glEnableVertexAttribArray(input.second->location);
-            glVertexAttribPointer(input.second->location, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*) 0);
+            glEnableVertexAttribArray(pair.second->location);
+            glVertexAttribPointer(pair.second->location, 3, GL_FLOAT, GL_FALSE, VERTEX_STRIDE * sizeof(float), (void*) 0);
         }
 
-                if (input.first.find(HW::IN_TEXCOORD + "_") != std::string::npos)
+        if (pair.first.find(HW::IN_TEXCOORD + "_") != std::string::npos)
         {
-            glEnableVertexAttribArray(input.second->location);
-            glVertexAttribPointer(input.second->location, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*) (texcoord_offset * sizeof(float)));
+            glEnableVertexAttribArray(pair.second->location);
+            glVertexAttribPointer(pair.second->location, 2, GL_FLOAT, GL_FALSE, VERTEX_STRIDE * sizeof(float), (void*) (TEXCOORD_OFFSET * sizeof(float)));
         }
     }
 
