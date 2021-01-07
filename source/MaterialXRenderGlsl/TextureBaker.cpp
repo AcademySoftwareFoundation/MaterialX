@@ -58,7 +58,6 @@ string getValueStringFromColor(const Color4& color, const string& type)
 TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType) :
     GlslRenderer(width, height, baseType),
     _distanceUnit("meter"),
-    _targetColorSpace(LIN_REC709),
     _averageImages(false),
     _optimizeConstants(true),
     _bakedGraphName("NG_baked"),
@@ -99,7 +98,6 @@ FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& s
 void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const string& udim)
 {
     _material = material;
-    _targetColorSpace = context.getOptions().targetColorSpaceOverride;
     
     if (!shader)
     {
@@ -240,8 +238,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         bakedTextureDoc->setColorSpace(shader->getDocument()->getColorSpace());
     }
 
-    // Create top-level elements. Note that the child names may not be what
-    // was requested so member names must be updated here to reflect that.
+    // Create node graph and geometry info.
     NodeGraphPtr bakedNodeGraph;
     if (!_bakedImageMap.empty())
     {
@@ -249,16 +246,17 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         bakedNodeGraph = bakedTextureDoc->addNodeGraph(_bakedGraphName);
         bakedNodeGraph->setColorSpace(_colorSpace);
     }
-
     _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
     GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
         bakedGeom->setGeomPropValue("udimset", udimSet, "stringarray");
     }
+
+    // Create a shader node.
     NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + BAKED_POSTFIX, shader->getType());
 
-    // Add a material node if any specified and connect it to the new shader node
+    // Optionally create a material node, connecting it to the new shader node.
     if (_material)
     {
         NodePtr bakedMaterial = bakedTextureDoc->addNode(_material->getCategory(), _material->getName() + BAKED_POSTFIX, _material->getType());
@@ -295,10 +293,6 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
             bakedInput = bakedShader->addInput(sourceName, sourceType);
         }
 
-        // Check for non-image inputs whether to keep in target color space
-        bool wantLinearInput = (_colorSpace != _targetColorSpace &&
-            (bakedInput->getType() == "color3" || bakedInput->getType() == "color4"));
-
         OutputPtr output = sourceInput->getConnectedOutput();
         if (output)
         {
@@ -314,9 +308,9 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
                 Color4 uniformColor = _bakedConstantMap[output].color;
                 string uniformColorString = getValueStringFromColor(uniformColor, bakedInput->getType());
                 bakedInput->setValueString(uniformColorString);
-                if (wantLinearInput)
+                if (bakedInput->getType() == "color3" || bakedInput->getType() == "color4")
                 {
-                    bakedInput->setColorSpace(_targetColorSpace);
+                    bakedInput->setColorSpace(_colorSpace);
                 }
                 continue;
             }
@@ -356,10 +350,6 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         else
         {
             bakedInput->copyContentFrom(sourceInput);
-            if (wantLinearInput && bakedInput->getColorSpace() == EMPTY_STRING)
-            {
-                bakedInput->setColorSpace(_targetColorSpace);
-            }
         }
     }
 
@@ -405,7 +395,7 @@ ListofBakedDocuments TextureBaker::createBakeDocuments(DocumentPtr doc, const Fi
     genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
     genContext.getOptions().hwDirectionalAlbedoMethod = DIRECTIONAL_ALBEDO_TABLE;
     genContext.getOptions().hwShadowMap = true;
-    genContext.getOptions().targetColorSpaceOverride = _targetColorSpace;
+    genContext.getOptions().targetColorSpaceOverride = LIN_REC709;
     genContext.getOptions().fileTextureVerticalFlip = true;
     genContext.getOptions().targetDistanceUnit = _distanceUnit;
 

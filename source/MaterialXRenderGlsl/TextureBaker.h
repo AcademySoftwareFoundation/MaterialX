@@ -211,7 +211,6 @@ class TextureBaker : public GlslRenderer
     string _extension;
     string _colorSpace;
     string _distanceUnit;
-    string _targetColorSpace;
     bool _averageImages;
     bool _optimizeConstants;
     FilePath _outputImagePath;
