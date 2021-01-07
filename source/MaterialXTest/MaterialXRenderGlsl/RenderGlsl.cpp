@@ -715,12 +715,8 @@ void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPa
     
     try
     {
-        mx::FilePathVec bakedFileNames = baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
         baker->setOutputStream(&log);
-        for (auto bakedFileName: bakedFileNames)
-        {
-            log << "Wrote baked document: " << bakedFileName.asString() << std::endl;
-        }
+        baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
     }
     catch (mx::Exception& e)
     {

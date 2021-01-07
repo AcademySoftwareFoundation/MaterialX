@@ -147,6 +147,18 @@ class TextureBaker : public GlslRenderer
         return _bakedGeomInfoName;
     }
 
+    /// Set the output stream for reporting progress and warnings.  Defaults to std::cout.
+    void setOutputStream(std::ostream* outputStream)
+    {
+        _outputStream = outputStream;
+    }
+
+    /// Return the output stream for reporting progress and warnings.
+    std::ostream* getOutputStream() const
+    {
+        return _outputStream;
+    }
+
     /// Set up the unit definitions to be used in baking.
     void setupUnitSystem(DocumentPtr unitDefinitions);
 
@@ -166,23 +178,10 @@ class TextureBaker : public GlslRenderer
     ListofBakedDocuments createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath);
 
     /// Bake all materials in a document and write to disk one document per material. The provided filename is used to create a unique output filename for each baked material.
-    FilePathVec bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFileName);
+    void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFileName);
 
-    /// Set the output stream used for logging baking results.
-    /// By default results are sent to stdout.
-    const std::ostream* getOutputStream() const
-    {
-        return _outputStream;
-    }
-
-    /// Set the output stream for logging baking results
-    void setOutputStream(std::ostream* outputStream)
-    {
-        _outputStream = outputStream;
-    }
-
-  protected:      
-      TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
+  protected:
+    TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
     // Generate a texture filename for the given graph output.
     FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);

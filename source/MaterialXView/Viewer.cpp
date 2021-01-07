@@ -1923,11 +1923,7 @@ void Viewer::bakeTextures()
         // Bake all materials in the active document.
         try
         {
-            mx::FilePathVec outputFileNames = baker->bakeAllMaterials(doc, materialSearchPath, _bakeFilename);
-            for (auto outputFileName : outputFileNames)
-            {
-                std::cerr << "Wrote baked document: " << outputFileName.asString() << std::endl;
-            }
+            baker->bakeAllMaterials(doc, materialSearchPath, _bakeFilename);
         }
         catch (std::exception& e)
         {
