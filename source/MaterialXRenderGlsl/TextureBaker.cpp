@@ -173,7 +173,6 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
                 baked.uniformColor = baked.image->getAverageColor();
                 baked.isUniform = true;
             }
-            // Extract uniform color from Image.
             else if (baked.image->isUniformColor(&baked.uniformColor))
             {
                 baked.image = createUniformImage(4, 4, baked.image->getChannelCount(), baked.image->getBaseType(), baked.uniformColor);
@@ -361,7 +360,6 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         {
             continue;
         }
-
         for (const BakedImage& baked : pair.second)
         {
             if (!_imageHandler->saveImage(baked.filename, baked.image, true))
@@ -389,7 +387,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     return bakingSuccessful ? bakedTextureDoc : nullptr;
 }
 
-ListofBakedDocuments TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath)
+BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath)
 {
     GenContext genContext(_generator);
     genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
@@ -414,7 +412,7 @@ ListofBakedDocuments TextureBaker::createBakeDocuments(DocumentPtr doc, const Fi
     StringVec renderablePaths = getRenderablePaths(doc);
     std::vector<NodePtr> renderableShaderNodes;
 
-    ListofBakedDocuments bakedDocuments;
+    BakedDocumentVec bakedDocuments;
     for (const string& renderablePath : renderablePaths)
     {
         ElementPtr elem = doc->getDescendant(renderablePath);
@@ -486,7 +484,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
         }
     }
 
-    ListofBakedDocuments bakedDocuments = createBakeDocuments(doc, imageSearchPath);
+    BakedDocumentVec bakedDocuments = createBakeDocuments(doc, imageSearchPath);
     size_t bakeCount = bakedDocuments.size();
     if (bakeCount == 1)
     {
