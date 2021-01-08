@@ -14,7 +14,7 @@ namespace MaterialX
 /// Blur node implementation for OSL
 class BlurNodeOsl : public BlurNode
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
     void emitSamplingFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };

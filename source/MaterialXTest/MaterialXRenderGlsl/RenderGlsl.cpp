@@ -701,17 +701,12 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
     return true;
 }
 
-void  GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
-                                           unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log)
+void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
+                                      unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log)
 {
-    if (bakeWidth < 2)
-    {
-        bakeWidth = 2;
-    }
-    if (bakeHeight < 2)
-    {
-        bakeHeight = 2;
-    }
+    bakeWidth = std::max(bakeWidth, (unsigned int) 2);
+    bakeHeight = std::max(bakeHeight, (unsigned int) 2);
+
     mx::Image::BaseType baseType = bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
     mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
     baker->setupUnitSystem(doc);
@@ -720,12 +715,8 @@ void  GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchP
     
     try
     {
-        mx::FilePathVec bakedFileNames = baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
-        log << baker->getBakingReport();
-        for (auto bakedFileName: bakedFileNames)
-        {
-            log << "Wrote baked document: " << bakedFileName.asString() << std::endl;
-        }
+        baker->setOutputStream(&log);
+        baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
     }
     catch (mx::Exception& e)
     {

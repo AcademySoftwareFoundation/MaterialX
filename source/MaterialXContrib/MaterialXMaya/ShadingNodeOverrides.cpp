@@ -279,7 +279,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shaderI
     bindEnvironmentLighting(shaderInstance, parameterList, lightSearchPath, *node);
 
     mx::DocumentPtr document = ogsFragment->getDocument();
-    mx::resolveFileNames(document, imageSearchPath);
+    mx::flattenFilenames(document, imageSearchPath);
 
     // Look for any udimset on the document to use for texture binding.
     mx::ValuePtr udimSetValue = document->getGeomPropValue("udimset");

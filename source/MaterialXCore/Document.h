@@ -655,13 +655,6 @@ class Document : public GraphElement
     bool validate(string* message = nullptr) const override;
 
     /// @}
-    /// @name Versioning
-    /// @{
-
-    /// Convert Parameter Elements to Input Elements
-    bool convertParametersToInputs();
-
-    /// @}
     /// @name Utility
     /// @{
 

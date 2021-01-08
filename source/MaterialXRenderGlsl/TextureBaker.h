@@ -9,6 +9,8 @@
 /// @file
 /// Texture baking functionality
 
+#include <iostream>
+
 #include <MaterialXCore/Unit.h>
 
 #include <MaterialXRenderGlsl/GlslRenderer.h>
@@ -22,9 +24,8 @@ namespace MaterialX
 /// A shared pointer to a TextureBaker
 using TextureBakerPtr = shared_ptr<class TextureBaker>;
 
-/// Baked document list of shader node and it's corresponding baked Document
-using ListofBakedDocuments = std::vector<std::pair<std::string, DocumentPtr>>;
-
+/// A vector of baked documents with their associated names.
+using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
 
 /// @class TextureBaker
 /// A helper class for baking procedural material content to textures.
@@ -122,18 +123,6 @@ class TextureBaker : public GlslRenderer
         _codeSearchPath = codesearchPath;
     }
 
-    /// Get report of baking results
-    string getBakingReport() const
-    {
-         return (_bakingReport.str());
-    }
-
-    /// Clear report of baking results
-    void clearBakingReport()
-    {
-        _bakingReport.clear();
-    }
-
     /// Set the name of the baked graph element.
     void setBakedGraphName(const string& name)
     {
@@ -158,6 +147,18 @@ class TextureBaker : public GlslRenderer
         return _bakedGeomInfoName;
     }
 
+    /// Set the output stream for reporting progress and warnings.  Defaults to std::cout.
+    void setOutputStream(std::ostream* outputStream)
+    {
+        _outputStream = outputStream;
+    }
+
+    /// Return the output stream for reporting progress and warnings.
+    std::ostream* getOutputStream() const
+    {
+        return _outputStream;
+    }
+
     /// Set up the unit definitions to be used in baking.
     void setupUnitSystem(DocumentPtr unitDefinitions);
 
@@ -173,11 +174,12 @@ class TextureBaker : public GlslRenderer
     /// Write the baked material with textures to a document.
     DocumentPtr bakeMaterial(NodePtr shader, const StringVec& udimSet);
 
-    /// Utility which returns a list of baked documents for each material in the input document.
-    ListofBakedDocuments createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath);
+    /// Bake all materials in the given document and return them as a vector.
+    BakedDocumentVec createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath);
 
-    /// Bake all materials in a document and write to disk one document per material. The provided filename is used to create a unique output filename for each baked material.
-    FilePathVec bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFileName);
+    /// Bake all materials in the given document and write them to disk.  If multiple documents are written,
+    /// then the given output filename will be used as a template.
+    void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFileName);
 
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
@@ -210,14 +212,13 @@ class TextureBaker : public GlslRenderer
     string _extension;
     string _colorSpace;
     string _distanceUnit;
-    string _targetColorSpace;
     bool _averageImages;
     bool _optimizeConstants;
     FilePath _outputImagePath;
     string _bakedGraphName;
     string _bakedGeomInfoName;
     FileSearchPath _codeSearchPath;
-    std::stringstream _bakingReport;
+    std::ostream* _outputStream;
 
     ShaderGeneratorPtr _generator;
     ConstNodePtr _material;

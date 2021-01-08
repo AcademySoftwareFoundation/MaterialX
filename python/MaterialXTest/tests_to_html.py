@@ -69,7 +69,7 @@ def main(args=None):
             print ("GLSL list: " + str(glslFiles))
             print ("OSL files: " + str(oslFiles))
         if len(glslFiles) > 0 and len(oslFiles) > 0:
-            fh.write("<h2>" + subdir + ":</h2><br>\n")
+            fh.write("<h3>" + subdir + ":</h3>\n")
             fh.write("<table>\n")
             for glslFile, oslFile in zip_longest(glslFiles, oslFiles):
                 fullGlslPath = os.path.join(subdir, glslFile) if glslFile else None
@@ -90,18 +90,18 @@ def main(args=None):
                 fh.write("    <tr>\n")
                 if fullGlslPath:
                     if args.ENABLE_TIMESTAMPS:
-                        fh.write("        <td align='center'><p>" + glslFile + "</p>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullGlslPath))) + ")</td>\n")
+                        fh.write("        <td align='center'>" + glslFile + "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullGlslPath))) + ")</td>\n")
                     else:
                         fh.write("        <td align='center'>" + glslFile + "</td>\n")
                 if fullOslPath:
                     if args.ENABLE_TIMESTAMPS:
-                        fh.write("        <td align='center'><p>" + oslFile + "</p>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullOslPath))) + ")</td>\n")
+                        fh.write("        <td align='center'>" + oslFile + "<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullOslPath))) + ")</td>\n")
                     else:
                         fh.write("        <td align='center'>" + oslFile + "</td>\n")
                 if diffPath:
                     fh.write("        <td align='center'>" + glslFile[0:-8] + "diff.png" + "</td>\n")
                 fh.write("    </tr>\n")
-            fh.write("</table><br><br>\n")
+            fh.write("</table>\n")
 
     fh.write("</body>\n")
     fh.write("</html>\n")

@@ -22,42 +22,143 @@ class Viewer : public ng::Screen
   public:
     Viewer(const std::string& materialFilename,
            const std::string& meshFilename,
-           const mx::Vector3& meshRotation,
-           float meshScale,
-           const mx::Vector3& cameraPosition,
-           const mx::Vector3& cameraTarget,
-           float cameraViewAngle,
-           float cameraZoom,
-           const std::string& envRadiancePath,
-           mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
-           int envSampleCount,
-           float lightRotation,
-           const mx::FilePathVec& libraryFolders,
+           const std::string& envRadianceFilename,
            const mx::FileSearchPath& searchPath,
-           const DocumentModifiers& modifiers,
+           const mx::FilePathVec& libraryFolders,
            int screenWidth,
            int screenHeight,
            const mx::Color3& screenColor,
            int multiSampleCount);
     ~Viewer() { }
 
-    void drawContents() override;
-    bool keyboardEvent(int key, int scancode, int action, int modifiers) override;
+    // Initialize the viewer for rendering.
+    void initialize();
 
-    bool scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel) override;
-    bool mouseMotionEvent(const ng::Vector2i& p, const ng::Vector2i& rel, int button, int modifiers) override;
-    bool mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int modifiers) override;
+    // Set the rotation of the current mesh as Euler angles.
+    void setMeshRotation(const mx::Vector3& rotation)
+    {
+        _meshRotation = rotation;
+    }
 
-    void renderFrame();
-    void renderScreenSpaceQuad(MaterialPtr material);
-    mx::ImagePtr getFrameImage();
-    mx::ImagePtr renderWedge();
-    void bakeTextures();
+    // Set the scale of the current mesh.
+    void setMeshScale(float scale)
+    {
+        _meshScale = scale;
+    }
 
+    // Set the world-space position of the camera.
+    void setCameraPosition(const mx::Vector3& position)
+    {
+        _cameraPosition = position;
+    }
+
+    // Set the world-space target of the camera.
+    void setCameraTarget(const mx::Vector3& target)
+    {
+        _cameraTarget = target;
+    }
+
+    // Set the view angle of the camera.
+    void setCameraViewAngle(float angle)
+    {
+        _cameraViewAngle = angle;
+    }
+
+    // Set the zoom scale of the camera.
+    void setCameraZoom(float zoom)
+    {
+        _cameraZoom = zoom;
+    }
+
+    // Set the method for specular environment rendering.
+    void setSpecularEnvironmentMethod(mx::HwSpecularEnvironmentMethod method)
+    {
+        _genContext.getOptions().hwSpecularEnvironmentMethod = method;
+    }
+
+    // Set the number of environment samples.
+    void setEnvSampleCount(int count)
+    {
+        _envSampleCount = count;
+    }
+
+    // Set the rotation of the lighting environment about the Y axis.
+    void setLightRotation(float rotation)
+    {
+        _lightRotation = rotation;
+    }
+
+    // Set the modifiers to be applied to loaded documents.
+    void setDocumentModifiers(const DocumentModifiers& modifiers)
+    {
+        _modifiers = modifiers;
+    }
+
+    // Return the underlying NanoGUI window.
     ng::Window* getWindow() const
     {
         return _window;
     }
+
+    // Return the active image handler.
+    mx::ImageHandlerPtr getImageHandler() const
+    {
+        return _imageHandler;
+    }
+
+    // Return the selected material.
+    MaterialPtr getSelectedMaterial() const
+    {
+        if (_selectedMaterial < _materials.size())
+        {
+            return _materials[_selectedMaterial];
+        }
+        return nullptr;
+    }
+
+    // Return the selected mesh partition.
+    mx::MeshPartitionPtr getSelectedGeometry() const
+    {
+        if (_selectedGeom < _geometryList.size())
+        {
+            return _geometryList[_selectedGeom];
+        }
+        return nullptr;
+    }
+
+    // Request a capture of the current frame, writing it to the given filename.
+    void requestFrameCapture(const mx::FilePath filename)
+    {
+        _captureRequested = true;
+        _captureFilename = filename;
+    }
+
+    // Request that the viewer be closed after the next frame is rendered.
+    void requestExit()
+    {
+        _exitRequested = true;
+    }
+
+  private:
+    void drawContents() override;
+    bool keyboardEvent(int key, int scancode, int action, int modifiers) override;
+    bool scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel) override;
+    bool mouseMotionEvent(const ng::Vector2i& p, const ng::Vector2i& rel, int button, int modifiers) override;
+    bool mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int modifiers) override;
+    void initContext(mx::GenContext& context);
+
+    void loadEnvironmentLight();
+    void applyDirectLights(mx::DocumentPtr doc);
+    void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
+    void reloadShaders();
+    void loadStandardLibraries();
+    void saveShaderSource(mx::GenContext& context);
+    void loadShaderSource();
+    void saveDotFiles();
+
+    // Assign the given material to the given geometry, or remove any
+    // existing assignment if the given material is nullptr.
+    void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
 
     void setSelectedMaterial(MaterialPtr material)
     {
@@ -71,49 +172,6 @@ class Viewer : public ng::Screen
         }
     }
 
-    MaterialPtr getSelectedMaterial() const
-    {
-        if (_selectedMaterial < _materials.size())
-        {
-            return _materials[_selectedMaterial];
-        }
-        return nullptr;
-    }
-
-    mx::MeshPartitionPtr getSelectedGeometry() const
-    {
-        if (_selectedGeom < _geometryList.size())
-        {
-            return _geometryList[_selectedGeom];
-        }
-        return nullptr;
-    }
-
-    const mx::FileSearchPath& getSearchPath() const
-    {
-        return _searchPath;
-    }
-
-    mx::ImageHandlerPtr getImageHandler() const
-    {
-        return _imageHandler;
-    }
-
-  private:
-    void initContext(mx::GenContext& context);
-    void loadEnvironmentLight();
-    void applyDirectLights(mx::DocumentPtr doc);
-    void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
-    void reloadShaders();
-    void loadStandardLibraries();
-    void saveShaderSource(mx::GenContext& context);
-    void loadShaderSource();
-    void saveDotFiles();
-
-    /// Assign the given material to the given geometry, or remove any
-    /// existing assignment if the given material is nullptr.
-    void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
-
     void initCamera();
     void updateViewHandlers();
     void updateGeometrySelections();
@@ -125,26 +183,38 @@ class Viewer : public ng::Screen
     void createLoadMaterialsInterface(Widget* parent, const std::string& label);
     void createLoadEnvironmentInterface(Widget* parent, const std::string& label);
     void createSaveMaterialsInterface(Widget* parent, const std::string& label);
-    void createWedgeParameterInterface(Widget* parent, const std::string& label);
     void createPropertyEditorInterface(Widget* parent, const std::string& label);
     void createAdvancedSettings(Widget* parent);
 
-    /// Return the ambient occlusion image, if any, associated with the given material.
+    // Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
     
-    /// Split the given radiance map into indirect and direct components,
-    /// returning a new indirect map and directional light document.
+    // Split the given radiance map into indirect and direct components,
+    // returning a new indirect map and directional light document.
     void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
 
     void updateShadowMap();
     void invalidateShadowMap();
 
-    /// Update the directional albedo table.
+    void renderFrame();
+    mx::ImagePtr getFrameImage();
+    mx::ImagePtr renderWedge();
+    void renderScreenSpaceQuad(MaterialPtr material);
+    void bakeTextures();
+
+    // Update the directional albedo table.
     void updateAlbedoTable();
 
   private:
     ng::Window* _window;
     ng::Arcball _arcball;
+
+    mx::FilePath _materialFilename;
+    mx::FilePath _meshFilename;
+    mx::FilePath _envRadianceFilename;
+
+    mx::FileSearchPath _searchPath;
+    mx::FilePathVec _libraryFolders;
 
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;
@@ -156,24 +226,20 @@ class Viewer : public ng::Screen
     float _cameraViewAngle;
     float _cameraNearDist;
     float _cameraFarDist;
+    float _cameraZoom;
 
     bool _userCameraEnabled;
     mx::Vector3 _userTranslation;
     mx::Vector3 _userTranslationStart;
     bool _userTranslationActive;
     ng::Vector2i _userTranslationPixel;
-    float _userScale;
 
     // Document management
-    mx::FilePathVec _libraryFolders;
-    mx::FileSearchPath _searchPath;
     mx::DocumentPtr _stdLib;
-    mx::FilePath _materialFilename;
     DocumentModifiers _modifiers;
     mx::StringSet _xincludeFiles;
 
     // Lighting information
-    mx::FilePath _envRadiancePath;
     mx::FilePath _lightRigFilename;
     mx::DocumentPtr _lightRigDoc;
     float _lightRotation;
@@ -196,7 +262,6 @@ class Viewer : public ng::Screen
     float _ambientOcclusionGain;
 
     // Geometry selections
-    mx::FilePath _meshFilename;
     std::vector<mx::MeshPartitionPtr> _geometryList;
     size_t _selectedGeom;
     ng::Label* _geomLabel;
@@ -247,19 +312,19 @@ class Viewer : public ng::Screen
 
     // Unit options
     mx::StringVec _distanceUnitOptions;
-    ng::ComboBox* _distanceUnitBox;
     mx::LinearUnitConverterPtr _distanceUnitConverter;
 
     // Render options
     bool _renderTransparency;
     bool _renderDoubleSided;
     bool _outlineSelection;
-    int _envSamples;
+    int _envSampleCount;
     bool _drawEnvironment;
 
     // Frame capture
     bool _captureRequested;
     mx::FilePath _captureFilename;
+    bool _exitRequested;
 
     // Wedge rendering
     bool _wedgeRequested;
@@ -268,7 +333,6 @@ class Viewer : public ng::Screen
     float _wedgePropertyMin;
     float _wedgePropertyMax;
     unsigned int _wedgeImageCount;
-    ng::ComboBox* _wedgeSelectionBox;
 
     // Texture baking
     bool _bakeTextures;
@@ -283,6 +347,6 @@ class Viewer : public ng::Screen
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
 extern const float DEFAULT_CAMERA_VIEW_ANGLE;
 extern const float DEFAULT_CAMERA_ZOOM;
-extern const int DEFAULT_ENV_SAMPLES;
+extern const int DEFAULT_ENV_SAMPLE_COUNT;
 
 #endif // MATERIALXVIEW_VIEWER_H
