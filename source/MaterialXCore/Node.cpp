@@ -553,92 +553,58 @@ ValueElementPtr Node::addInputFromNodeDef(const string& name)
     return newChild;
 }
 
-void NodeGraph::addInterface(const string& childPath, const string& interfaceName)
+void NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)
 {
     NodeDefPtr nodeDef = getNodeDef();
     if (!nodeDef)
     {
         throw Exception("Cannot declare an interface for a nodegraph which is not associated with a node definition: " + getName());
     }
-
     if (nodeDef->getChild(interfaceName))
     {
         throw Exception("Interface: " + interfaceName + " has already been declared on the node definition: " + nodeDef->getName());
     }
 
-    ElementPtr elem = getDescendant(childPath);
-    ValueElementPtr valueElem = elem->asA<ValueElement>();
-    InputPtr input = valueElem ? valueElem->asA<Input>() : nullptr;
-    if (!input || (input && input->getConnectedNode()))
+    ElementPtr elem = getDescendant(inputPath);
+    InputPtr input = elem ? elem->asA<Input>() : nullptr;
+    if (input && !input->getConnectedNode())
     {
-        throw Exception("Invalid nodegraph child to create interface for:  " + childPath);
-    }
-
-    valueElem->setInterfaceName(interfaceName);
-
-    ValuePtr value = valueElem->getValue();
-    if (input)
-    {
-        InputPtr nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
+        input->setInterfaceName(interfaceName);
+        ValuePtr value = input->getValue();
         if (value)
         {
+            InputPtr nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
             nodeDefInput->setValueString(value->getValueString());
         }
     }
 }
 
-void NodeGraph::removeInterface(const string& childPath)
+void NodeGraph::removeInterfaceName(const string& inputPath)
 {
-    ValueElementPtr valueElem = getChildWithInterface(childPath);
-    if (valueElem)
+    ElementPtr desc = getDescendant(inputPath);
+    InputPtr input = desc ? desc->asA<Input>() : nullptr;
+    if (input)
     {
-        const string& interfaceName = valueElem->getInterfaceName();
+        const string& interfaceName = input->getInterfaceName();
         getNodeDef()->removeChild(interfaceName);
-        valueElem->setInterfaceName(EMPTY_STRING);
+        input->setInterfaceName(EMPTY_STRING);
     }   
 }
 
-void NodeGraph::renameInterface(const string& childPath, const string& interfaceName)
+void NodeGraph::modifyInterfaceName(const string& inputPath, const string& interfaceName)
 {
-    ValueElementPtr valueElem = getChildWithInterface(childPath);
-    if (valueElem)
+    ElementPtr desc = getDescendant(inputPath);
+    InputPtr input = desc ? desc->asA<Input>() : nullptr;
+    if (input)
     {
-        const string& previousName = valueElem->getInterfaceName();
+        const string& previousName = input->getInterfaceName();
         ElementPtr previousChild = getNodeDef()->getChild(previousName);
-        previousChild->setName(interfaceName);
-        valueElem->setInterfaceName(interfaceName);
+        if (previousChild)
+        {
+            previousChild->setName(interfaceName);
+        }
+        input->setInterfaceName(interfaceName);
     }
-}
-
-ValueElementPtr NodeGraph::getChildWithInterface(const string& childPath)
-{
-    NodeDefPtr nodeDef = getNodeDef();
-    if (!nodeDef)
-    {
-        throw Exception("Nodegraph has no not associated node definition: " + getName());
-    }
-
-    ElementPtr elem = getDescendant(childPath);
-    ValueElementPtr valueElem = elem->asA<ValueElement>();
-    InputPtr input = valueElem ? valueElem->asA<Input>() : nullptr;
-    if (!input)
-    {
-        throw Exception("Child not found in node graph:  " + childPath);
-    }
-
-    const string& interfaceName = valueElem->getInterfaceName();
-    if (interfaceName.empty())
-    {
-        throw Exception("Interface: " + interfaceName + " is not been declared on the input: " + valueElem->getNamePath());
-    }
-
-    ElementPtr interfaceElem = nodeDef->getChild(interfaceName);
-    if (!interfaceElem)
-    {
-        throw Exception("Interface: " + interfaceName + " is not been declared on the node definition: " + nodeDef->getName());
-    }
-
-    return valueElem;
 }
 
 NodeDefPtr NodeGraph::getNodeDef() const
