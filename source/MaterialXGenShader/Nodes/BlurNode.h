@@ -15,14 +15,15 @@ namespace MaterialX
 class BlurNode : public ConvolutionNode
 {
   public:
-    static ShaderNodeImplPtr create();
-
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
     /// Constructor
     BlurNode();
+
+    /// Emit function definitions for sampling functions used by this node.
+    virtual void emitSamplingFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const = 0;
 
     /// Return if given type is an acceptible input
     bool acceptsInputType(const TypeDesc* type) const override;

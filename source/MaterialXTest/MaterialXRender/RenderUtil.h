@@ -161,7 +161,7 @@ class ShaderRenderTester
 #if defined(MATERIALX_TEST_RENDER)
     virtual bool runTest(const GenShaderUtil::TestSuiteOptions& testOptions)
     {
-        return (testOptions.languageAndTargets.count(_languageTargetString) > 0);
+        return (testOptions.targets.count(_shaderGenerator->getTarget()) > 0);
     }
 #else
     virtual bool runTest(const GenShaderUtil::TestSuiteOptions& /*testOptions*/)
@@ -239,7 +239,6 @@ class ShaderRenderTester
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
-    const std::string _languageTargetString;
 
     // Files to skip
     mx::StringSet _skipFiles;

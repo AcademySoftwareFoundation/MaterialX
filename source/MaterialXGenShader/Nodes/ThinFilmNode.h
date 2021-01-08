@@ -29,20 +29,27 @@ class ThinFilmNode : public ShaderNodeImpl
     /// String constants
     static const string THICKNESS;
     static const string IOR;
+    static const string THINFILM_INPUT;
 };
 
-/// Base class for microfacet BSDF nodes that support layering with thin-film.
-/// Thin-film data is added as an extra input to BSDF nodes that derive from
-/// this class.
-class ThinFilmSupport : public HwSourceCodeNode
+/// Base class for source code driven BSDF nodes that support layering with thin-film.
+/// Thin-film data is added as an extra input to BSDF nodes that derive from this class.
+class ThinFilmSupport : public SourceCodeNode
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;
+};
 
-    /// String constants
-    static const string THINFILM_INPUT;
+/// Base class for HW source code driven BSDF nodes that support layering with thin-film.
+/// Thin-film data is added as an extra input to BSDF nodes that derive from this class.
+class HwThinFilmSupport : public HwSourceCodeNode
+{
+  public:
+    static ShaderNodeImplPtr create();
+
+    void addInputs(ShaderNode& node, GenContext&) const override;
 };
 
 } // namespace MaterialX

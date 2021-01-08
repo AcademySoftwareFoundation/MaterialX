@@ -33,5 +33,6 @@ void bindPyTextureBaker(py::module& mod)
         .def("getBakedGeomInfoName", &mx::TextureBaker::getBakedGeomInfoName)
         .def("setupUnitSystem", &mx::TextureBaker::setupUnitSystem)
         .def("bakeMaterial", &mx::TextureBaker::bakeMaterial)
+        .def("createBakeDocuments", &mx::TextureBaker::createBakeDocuments)
         .def("bakeAllMaterials", &mx::TextureBaker::bakeAllMaterials);
 }

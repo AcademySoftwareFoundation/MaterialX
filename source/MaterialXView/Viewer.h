@@ -199,6 +199,7 @@ class Viewer : public ng::Screen
     void renderFrame();
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
+    void renderScreenSpaceQuad(MaterialPtr material);
     void bakeTextures();
 
     // Update the directional albedo table.
@@ -289,6 +290,7 @@ class Viewer : public ng::Screen
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
     MaterialPtr _envMaterial;
+    mx::MeshPtr _quadMesh;
 
     // Shader generator contexts
     mx::GenContext _genContext;

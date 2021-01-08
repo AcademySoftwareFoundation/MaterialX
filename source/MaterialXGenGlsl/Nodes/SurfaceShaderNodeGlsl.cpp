@@ -16,11 +16,6 @@ ShaderNodeImplPtr SurfaceShaderNodeGlsl::create()
     return std::make_shared<SurfaceShaderNodeGlsl>();
 }
 
-const string& SurfaceShaderNodeGlsl::getLanguage() const
-{
-    return GlslShaderGenerator::LANGUAGE;
-}
-
 const string& SurfaceShaderNodeGlsl::getTarget() const
 {
     return GlslShaderGenerator::TARGET;

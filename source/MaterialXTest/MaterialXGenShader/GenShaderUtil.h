@@ -68,9 +68,8 @@ class TestSuiteOptions
     // Filter list of files to only run validation on.
     mx::StringVec overrideFiles;
 
-    // List of language,target pair identifier storage as
-    // strings in the form <language>_<target>.
-    mx::StringSet languageAndTargets;
+    // List of target identifiers
+    mx::StringSet targets;
 
     // Comma separated list of light setup files
     mx::StringVec lightFiles;
@@ -163,7 +162,7 @@ class ShaderGeneratorTester
                             const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
                             const mx::FilePath& logFilePath, bool writeShadersToDisk) :
         _shaderGenerator(shaderGenerator),
-        _languageTargetString(shaderGenerator ? (shaderGenerator->getLanguage() + "_" + shaderGenerator->getTarget()) : "NULL"),
+        _targetString(shaderGenerator ? shaderGenerator->getTarget() : "NULL"),
         _testRootPaths(testRootPaths),
         _libSearchPath(libSearchPath),
         _srcSearchPath(srcSearchPath),
@@ -179,7 +178,7 @@ class ShaderGeneratorTester
     // Check if testing should be performed based in input options
     virtual bool runTest(const TestSuiteOptions& testOptions)
     {
-        return (testOptions.languageAndTargets.count(_languageTargetString) > 0);
+        return (testOptions.targets.count(_targetString) > 0);
     }
 
     // Stages to test is required from derived class
@@ -242,7 +241,7 @@ class ShaderGeneratorTester
     virtual void getImplementationWhiteList(mx::StringSet& whiteList) = 0;
 
     mx::ShaderGeneratorPtr _shaderGenerator;
-    const std::string _languageTargetString;
+    const std::string _targetString;
     mx::DefaultColorManagementSystemPtr _colorManagementSystem;
 
     // Unit system 

@@ -897,7 +897,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeNameGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(wedgeNameGroup, "Property Name");
     ng::TextBox* wedgeNameBox = new ng::TextBox(wedgeNameGroup, _wedgePropertyName);
-    wedgeNameBox->setCallback([this](const std::string choice)
+    wedgeNameBox->setCallback([this](const std::string& choice)
     {
         _wedgePropertyName = choice;
         return true;
@@ -1300,7 +1300,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
             {
                 const std::string path = mx::getEnviron("MATERIALX_VIEW_OUTPUT_PATH");
                 const std::string baseName = (path.empty() ? _searchPath[0] : mx::FilePath(path)) / elem->getName();
-                if (context.getShaderGenerator().getLanguage() == mx::GlslShaderGenerator::LANGUAGE && context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
+                if (context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
                 {
                     const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
@@ -1309,7 +1309,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                     new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ", baseName);
                 }
 #if MATERIALX_BUILD_GEN_OSL
-                else if (context.getShaderGenerator().getLanguage() == mx::OslShaderGenerator::LANGUAGE)
+                else if (context.getShaderGenerator().getTarget() == mx::OslShaderGenerator::TARGET)
                 {
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
                     writeTextFile(pixelShader, baseName + ".osl");
@@ -1317,7 +1317,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                 }
 #endif
 #if MATERIALX_BUILD_GEN_MDL
-                else if (context.getShaderGenerator().getLanguage() == mx::MdlShaderGenerator::LANGUAGE)
+                else if (context.getShaderGenerator().getTarget() == mx::MdlShaderGenerator::TARGET)
                 {
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
                     writeTextFile(pixelShader, baseName + ".mdl");
@@ -1405,12 +1405,12 @@ void Viewer::initContext(mx::GenContext& context)
     context.registerSourceCodeSearchPath(_searchPath);
 
     // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getLanguage());
+    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
     cms->loadLibrary(_stdLib);
     context.getShaderGenerator().setColorManagementSystem(cms);
 
     // Initialize unit management.
-    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getLanguage());
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getTarget());
     unitSystem->loadLibrary(_stdLib);
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
@@ -2258,7 +2258,7 @@ void Viewer::updateShadowMap()
             }
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        mx::GlslRenderer::drawScreenSpaceQuad();
+        renderScreenSpaceQuad(_shadowBlurMaterial);
         _imageHandler->releaseRenderResources(_shadowMap);
         _shadowMap = framebuffer->createColorImage();
     }
@@ -2310,7 +2310,7 @@ void Viewer::updateAlbedoTable()
     {
         material->getShader()->setUniform(mx::HW::ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE);
     }
-    mx::GlslRenderer::drawScreenSpaceQuad();
+    renderScreenSpaceQuad(material);
 
     // Store albedo table image.
     _imageHandler->releaseRenderResources(_lightHandler->getAlbedoTable());
@@ -2324,4 +2324,13 @@ void Viewer::updateAlbedoTable()
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
+}
+
+void Viewer::renderScreenSpaceQuad(MaterialPtr material)
+{
+    if (!_quadMesh)
+        _quadMesh = mx::GeometryHandler::createQuadMesh();
+    
+    material->bindMesh(_quadMesh);
+    material->drawPartition(_quadMesh->getPartition(0));
 }

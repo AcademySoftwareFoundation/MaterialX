@@ -29,9 +29,6 @@ class GlslShaderGenerator : public HwShaderGenerator
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
-    /// Return a unique identifier for the language used by this generator
-    const string& getLanguage() const override { return LANGUAGE; }
-
     /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
@@ -49,9 +46,6 @@ class GlslShaderGenerator : public HwShaderGenerator
                                  bool assignValue = true) const override;
 
   public:
-    /// Unique identifier for the glsl language
-    static const string LANGUAGE;
-
     /// Unique identifier for this generator target
     static const string TARGET;
 
@@ -79,7 +73,6 @@ class GlslShaderGenerator : public HwShaderGenerator
 class GlslImplementation : public ShaderNodeImpl
 {
   public:
-    const string& getLanguage() const override;
     const string& getTarget() const override;
 
     bool isEditable(const ShaderInput& input) const override;

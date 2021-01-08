@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+   <nodegraph name="upstream3" xpos="10" ypos="153" >
+      <input name="file" type="filename" uniform="true" value="resources/Images/cloth.png" />
+      <input name="file1" type="filename" uniform="true" value="resources/Images/grid.png" />
+      <image name="upstream_image" type="color3" xpos="10" ypos="8.86024">
+         <input name="file" type="filename" uniform="true" interfacename="file" value="resources/Images/cloth.png" />
+         <input name="frameoffset" type="integer" uniform="true" value="0" />
+      </image>
+      <image name="upstream_image1" type="color3" xpos="19.1695" ypos="421">
+         <input name="file" type="filename" uniform="true" interfacename="file1" value="resources/Images/grid.png" />
+         <input name="frameoffset" type="integer" uniform="true" value="0" />
+      </image>
+      <output name="out" type="color3" nodename="upstream_image" />
+      <output name="out1" type="color3" nodename="upstream_image1" />
+   </nodegraph>
+
+
+   <nodegraph name="upstream2" xpos="315" ypos="82" >
+      <input name="upstream2_in1" type="color3" nodegraph="upstream3" output="out" value="0, 1, 0" />
+      <input name="upstream2_in2" type="color3" nodegraph="upstream3" output="out1" value="0, 1, 0" />
+      <multiply name="multiply_by_image" type="color3" xpos="333.028" ypos="-27.8587">
+         <input name="in1" type="color3" interfacename="upstream2_in1" value="0, 1, 0" />
+         <input name="in2" type="color3" nodename="image" />
+      </multiply>
+      <multiply name="make_red" type="color3" xpos="361.069" ypos="248.883">
+         <input name="in1" type="color3" interfacename="upstream2_in2" value="0, 1, 0" />
+         <input name="in2" type="color3" value="1, 0.1, 0.1" />
+      </multiply>
+      <image name="image" type="color3" xpos="-30.4805" ypos="-249.603">
+         <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
+      </image>
+      <output name="upstream2_out1" type="color3" nodename="multiply_by_image" />
+      <output name="upstream2_out2" type="color3" nodename="make_red" />
+   </nodegraph>
+
+   <nodegraph name="upstream1" xpos="620" ypos="10" >
+      <input name="upstream1_in1" type="color3" nodegraph="upstream2" output="upstream2_out1" value="0, 1, 0" />
+      <input name="upstream1_in2" type="color3" nodegraph="upstream2" output="upstream2_out2" value="0, 1, 0" />
+      <multiply name="make_yellow" type="color3" xpos="-77.0636" ypos="-139.845">
+         <input name="in1" type="color3" interfacename="upstream1_in1" value="0, 1, 0" />
+         <input name="in2" type="color3" value="1, 1, 0" />
+      </multiply>
+      <multiply name="remove_red" type="color3" xpos="-75.6416" ypos="242.103">
+         <input name="in1" type="color3" interfacename="upstream1_in2" value="0, 1, 0" />
+         <input name="in2" type="color3" value="0, 1, 1" />
+      </multiply>
+      <output name="upstream1_out1" type="color3" nodename="make_yellow" />
+      <output name="upstream1_out2" type="color3" nodename="remove_red" />
+   </nodegraph>
+
+   <output name="top_upstream1_out1" type="color3" nodename="upstream1" output="upstream1_out1"/>
+   <output name="top_upstream1_out2" type="color3" nodename="upstream1" output="upstream1_out2"/>
+
+   <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="949.876" ypos="-189.576">
+      <input name="base_color" type="color3" nodegraph="upstream1" output="upstream1_out1" />
+   </standard_surface>
+   <standard_surface name="standard_surface1" type="surfaceshader" version="1.0.1" xpos="940.476" ypos="307.63">
+      <input name="base_color" type="color3" nodegraph="upstream1" output="upstream1_out2" />
+   </standard_surface>
+   <surfacematerial name="surfacematerial" type="material" xpos="1303.4" ypos="-234.282">
+      <input name="surfaceshader" type="surfaceshader" nodename="standard_surface" />
+      <input name="displacementshader" type="displacementshader" value="" />
+   </surfacematerial>
+   <surfacematerial name="surfacematerial1" type="material" xpos="1325.2" ypos="245.001">
+      <input name="surfaceshader" type="surfaceshader" nodename="standard_surface1" />
+      <input name="displacementshader" type="displacementshader" value="" />
+   </surfacematerial>
+</materialx>

@@ -11,8 +11,6 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
-#include <iostream>
-
 namespace MaterialX
 {
 
@@ -64,6 +62,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _optimizeConstants(true),
     _bakedGraphName("NG_baked"),
     _bakedGeomInfoName("GI_baked"),
+    _outputStream(&std::cout),
     _generator(GlslShaderGenerator::create())
 {
     if (baseType == Image::BaseType::UINT8)
@@ -167,7 +166,6 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
     for (auto& pair : _bakedImageMap)
     {
         bool outputIsUniform = true;
-        OutputPtr outputPtr = pair.first;
         for (BakedImage& baked : pair.second)
         {
             if (_averageImages)
@@ -247,7 +245,8 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         bakedNodeGraph = bakedTextureDoc->addNodeGraph(_bakedGraphName);
         bakedNodeGraph->setColorSpace(_colorSpace);
     }
-    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo("GI_baked") : nullptr;
+    _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
+    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
         bakedGeom->setGeomPropValue("udimset", udimSet, "stringarray");
@@ -366,11 +365,14 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
             if (!_imageHandler->saveImage(baked.filename, baked.image, true))
             {
                 bakingSuccessful = false;
-                std::cerr << "Failed to write baked image: " << baked.filename.asString() << std::endl;
+                if (_outputStream)
+                {
+                    *_outputStream << "Failed to write baked image: " << baked.filename.asString() << std::endl;
+                }
             }
-            else
+            else if (_outputStream)
             {
-                std::cout << "Wrote baked image:" << baked.filename.asString() << std::endl;
+                *_outputStream << "Wrote baked image: " << baked.filename.asString() << std::endl;
             }
         }
     }
@@ -385,9 +387,9 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     return bakingSuccessful ? bakedTextureDoc : nullptr;
 }
 
-void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFilename)
+BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath)
 {
-    GenContext genContext = GlslShaderGenerator::create();
+    GenContext genContext(_generator);
     genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
     genContext.getOptions().hwDirectionalAlbedoMethod = DIRECTIONAL_ALBEDO_TABLE;
     genContext.getOptions().hwShadowMap = true;
@@ -395,9 +397,12 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
     genContext.getOptions().fileTextureVerticalFlip = true;
     genContext.getOptions().targetDistanceUnit = _distanceUnit;
 
-    DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getLanguage());
+    DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
     cms->loadLibrary(doc);
-    genContext.registerSourceCodeSearchPath(getDefaultSearchPath());
+    if (_codeSearchPath.isEmpty())
+        genContext.registerSourceCodeSearchPath(getDefaultSearchPath());
+    else
+        genContext.registerSourceCodeSearchPath(_codeSearchPath);
     genContext.getShaderGenerator().setColorManagementSystem(cms);
     StringResolverPtr resolver = StringResolver::create();
     ImageHandlerPtr imageHandler = GLTextureHandler::create(StbImageLoader::create());
@@ -407,11 +412,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
     StringVec renderablePaths = getRenderablePaths(doc);
     std::vector<NodePtr> renderableShaderNodes;
 
-    if (_outputImagePath.isEmpty())
-    {
-        _outputImagePath = outputFilename.getParentPath();
-    }
-
+    BakedDocumentVec bakedDocuments;
     for (const string& renderablePath : renderablePaths)
     {
         ElementPtr elem = doc->getDescendant(renderablePath);
@@ -426,14 +427,6 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
         if (!shaderNode)
         {
             continue;
-        }
-
-        FilePath writeFilename = outputFilename;
-        if (renderablePaths.size() > 1)
-        {
-            string extension = writeFilename.getExtension();
-            writeFilename.removeExtension();
-            writeFilename = FilePath(writeFilename.asString() + "_" + shaderNode->getName() + "." + extension);
         }
 
         // Compute the UDIM set.
@@ -467,17 +460,60 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
             imageHandler->setFilenameResolver(resolver);
             setImageHandler(imageHandler);
             bakeShaderInputs(materialNode, shaderNode, genContext, tag);
+
+            // Optimize baked textures.
+            optimizeBakedTextures(shaderNode);
+
+            // Write the baked material and textures.
+            DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimSet);
+            bakedDocuments.push_back(std::make_pair(shaderNode->getName(), bakedMaterialDoc));
         }
+    }
 
-        // Optimize baked textures.
-        optimizeBakedTextures(shaderNode);
+    return bakedDocuments;
+}
 
-        // Write the baked material and textures.
-        DocumentPtr bakedDocument = bakeMaterial(shaderNode, udimSet);
-        if (bakedDocument)
+void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFilename)
+{
+    if (_outputImagePath.isEmpty())
+    {
+        _outputImagePath = outputFilename.getParentPath();
+        if (!_outputImagePath.exists())
         {
-            writeToXmlFile(bakedDocument, writeFilename);
-            std::cout << "Wrote baked document: " << writeFilename.asString() << std::endl;
+            _outputImagePath.createDirectory();
+        }
+    }
+
+    BakedDocumentVec bakedDocuments = createBakeDocuments(doc, imageSearchPath);
+    size_t bakeCount = bakedDocuments.size();
+    if (bakeCount == 1)
+    {
+        if (bakedDocuments[0].second)
+        {
+            writeToXmlFile(bakedDocuments[0].second, outputFilename);
+            if (_outputStream)
+            {
+                *_outputStream << "Wrote baked document: " << outputFilename.asString() << std::endl;
+            }
+        }
+    }
+    else
+    {
+        // Add additional filename decorations if there are multiple documents.
+        for (size_t i = 0; i < bakeCount; i++)
+        {
+            if (bakedDocuments[i].second)
+            {
+                FilePath writeFilename = outputFilename;
+                const std::string extension = writeFilename.getExtension();
+                writeFilename.removeExtension();
+                writeFilename = FilePath(writeFilename.asString() + "_" + bakedDocuments[i].first + "." + extension);
+                writeToXmlFile(bakedDocuments[i].second, writeFilename);
+                if (_outputStream)
+                {
+                    *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
+                }
+            }
         }
     }
 }
@@ -491,7 +527,7 @@ void TextureBaker::setupUnitSystem(DocumentPtr unitDefinitions)
         return;
     }
 
-    UnitSystemPtr unitSystem = UnitSystem::create(_generator->getLanguage());
+    UnitSystemPtr unitSystem = UnitSystem::create(_generator->getTarget());
     if (!unitSystem)
     {
         return;

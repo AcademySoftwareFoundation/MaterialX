@@ -33,11 +33,6 @@ BlurNode::BlurNode() :
 {
 }
 
-ShaderNodeImplPtr BlurNode::create()
-{
-    return std::shared_ptr<BlurNode>(new BlurNode());
-}
-
 void BlurNode::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                           unsigned int filterWidth, StringVec& offsetStrings) const
 {
@@ -74,13 +69,10 @@ void BlurNode::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& 
     }
 }
 
-void BlurNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+void BlurNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-        // Emit sampling functions
-        const ShaderGenerator& shadergen = context.getShaderGenerator();
-        shadergen.emitInclude("stdlib/" + shadergen.getLanguage() + "/lib/mx_sampling" + shadergen.getSyntax().getSourceFileExtension(), context, stage);
-        shadergen.emitLineBreak(stage);
+        emitSamplingFunctionDefinition(node, context, stage);
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 

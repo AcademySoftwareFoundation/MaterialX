@@ -117,74 +117,6 @@ export float mx_image_float(
 	return returnValue;
 }
 
-export float2 mx_image_color2(
-	uniform texture_2d mxp_file = texture_2d()	
-	[[
-		anno::display_name("Filename")
-	]],
-	uniform string mxp_layer = string("")	
-	[[
-		anno::display_name("Layer"), anno::unused()
-	]],
-	float2 mxp_default = float2(0.0, 0.0)	
-	[[
-		anno::display_name("Default Color")
-	]],
-	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))	
-	[[
-		anno::display_name("Texture Coordinates")
-	]],
-	uniform mx_addressmode_type mxp_uaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
-	[[
-		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Address Mode U")
-	]],
-	uniform mx_addressmode_type mxp_vaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
-	[[
-		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Address Mode V")
-	]],
-	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
-	[[
-		anno::description("Enumeration {closest,linear,cubic}."),
-		anno::display_name("Filter Type"),
-        anno::unused()
-	]],
-	uniform string mxp_framerange = string("")	
-	[[
-		anno::display_name("Frame Range"),
-        anno::unused()
-	]],
-	uniform int mxp_frameoffset = int(0)	
-	[[
-		anno::display_name("Frame Offset"),
-        anno::unused()
-	]],
-	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
-	[[
-		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
-		anno::display_name("Frame End Action"),
-        anno::unused()
-	]]
-)
-	[[
-		anno::description("Node Group: texture2d")
-	]]
-{
-	if ( mxp_uaddressmode == mx_addressmode_type_constant
-	     && ( mxp_texcoord.x < 0.0 || mxp_texcoord.x > 1.0))
-		return mxp_default;
-	if ( mxp_vaddressmode == mx_addressmode_type_constant
-	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
-		return mxp_default;
-
-	float2 returnValue = ::tex::lookup_float2(tex: mxp_file, 
-						coord: mxp_texcoord,
-						wrap_u: map_addressmode(mxp_uaddressmode),
-						wrap_v: map_addressmode(mxp_vaddressmode));
-	return returnValue;
-}
-
 export color mx_image_color3(
 	uniform texture_2d mxp_file = texture_2d()	
 	[[
@@ -526,14 +458,12 @@ export float4 mx_image_vector4(
 }
 
 // Nodedef: ND_tiledimage_float is represented by a nodegraph: NG_tiledimage_float
-// Nodedef: ND_tiledimage_color2 is represented by a nodegraph: NG_tiledimage_color2
 // Nodedef: ND_tiledimage_color3 is represented by a nodegraph: NG_tiledimage_color3
 // Nodedef: ND_tiledimage_color4 is represented by a nodegraph: NG_tiledimage_color4
 // Nodedef: ND_tiledimage_vector2 is represented by a nodegraph: NG_tiledimage_vector2
 // Nodedef: ND_tiledimage_vector3 is represented by a nodegraph: NG_tiledimage_vector3
 // Nodedef: ND_tiledimage_vector4 is represented by a nodegraph: NG_tiledimage_vector4
 // Nodedef: ND_triplanarprojection_float is represented by a nodegraph: NG_triplanarprojection_float
-// Nodedef: ND_triplanarprojection_color2 is represented by a nodegraph: NG_triplanarprojection_color2
 // Nodedef: ND_triplanarprojection_color3 is represented by a nodegraph: NG_triplanarprojection_color3
 // Nodedef: ND_triplanarprojection_color4 is represented by a nodegraph: NG_triplanarprojection_color4
 // Nodedef: ND_triplanarprojection_vector2 is represented by a nodegraph: NG_triplanarprojection_vector2
@@ -542,16 +472,6 @@ export float4 mx_image_vector4(
 
 export float mx_constant_float(
 	uniform float mxp_value = float(0.0)
-)
-	[[
-		anno::description("Node Group: procedural")
-	]]
-{
-	return mxp_value;
-}
-
-export float2 mx_constant_color2(
-	uniform float2 mxp_value = float2(0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -682,18 +602,6 @@ export float mx_ramplr_float(
 	return math::lerp(mxp_valuel, mxp_valuer, math::clamp(mxp_texcoord.x, 0.0, 1.0));
 }
 
-export float2 mx_ramplr_color2(
-	uniform float2 mxp_valuel = float2(0.0, 0.0),
-	uniform float2 mxp_valuer = float2(0.0, 0.0),
-	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
-)
-	[[
-		anno::description("Node Group: procedural2d")
-	]]
-{
-	return math::lerp(mxp_valuel, mxp_valuer, math::clamp(mxp_texcoord.x, 0.0, 1.0));
-}
-
 export color mx_ramplr_color3(
 	uniform color mxp_valuel = color(0.0, 0.0, 0.0),
 	uniform color mxp_valuer = color(0.0, 0.0, 0.0),
@@ -767,18 +675,6 @@ export float mx_ramptb_float(
 	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
-export float2 mx_ramptb_color2(
-	uniform float2 mxp_valuet = float2(0.0, 0.0),
-	uniform float2 mxp_valueb = float2(0.0, 0.0),
-	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
-)
-	[[
-		anno::description("Node Group: procedural2d")
-	]]
-{
-	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
-}
-
 export color mx_ramptb_color3(
 	uniform color mxp_valuet = color(0.0, 0.0, 0.0),
 	uniform color mxp_valueb = color(0.0, 0.0, 0.0),
@@ -841,7 +737,6 @@ export float4 mx_ramptb_vector4(
 }
 
 // Nodedef: ND_ramp4_float is represented by a nodegraph: NG_ramp4_float
-// Nodedef: ND_ramp4_color2 is represented by a nodegraph: NG_ramp4_color2
 // Nodedef: ND_ramp4_color3 is represented by a nodegraph: NG_ramp4_color3
 // Nodedef: ND_ramp4_color4 is represented by a nodegraph: NG_ramp4_color4
 // Nodedef: ND_ramp4_vector2 is represented by a nodegraph: NG_ramp4_vector2
@@ -854,28 +749,6 @@ export float mx_splitlr_float(
 		anno::display_name("Left")
 	]],
 	uniform float mxp_valuer = float(0.0)	
-	[[
-		anno::display_name("Right")
-	]],
-	uniform float mxp_center = float(0.5)	
-	[[
-		anno::display_name("Center")
-	]],
-	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
-)
-	[[
-		anno::description("Node Group: procedural2d")
-	]]
-{
-	return math::lerp(mxp_valuel, mxp_valuer, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
-}
-
-export float2 mx_splitlr_color2(
-	uniform float2 mxp_valuel = float2(0.0, 0.0)	
-	[[
-		anno::display_name("Left")
-	]],
-	uniform float2 mxp_valuer = float2(0.0, 0.0)	
 	[[
 		anno::display_name("Right")
 	]],
@@ -1010,28 +883,6 @@ export float mx_splittb_float(
 		anno::display_name("Top")
 	]],
 	uniform float mxp_valueb = float(0.0)	
-	[[
-		anno::display_name("Bottom")
-	]],
-	uniform float mxp_center = float(0.5)	
-	[[
-		anno::display_name("Center")
-	]],
-	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
-)
-	[[
-		anno::description("Node Group: procedural2d")
-	]]
-{
-	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
-}
-
-export float2 mx_splittb_color2(
-	uniform float2 mxp_valuet = float2(0.0, 0.0)	
-	[[
-		anno::display_name("Top")
-	]],
-	uniform float2 mxp_valueb = float2(0.0, 0.0)	
 	[[
 		anno::display_name("Bottom")
 	]],
@@ -1252,18 +1103,6 @@ export float mx_geomcolor_float(
 	return defaultValue;
 }
 
-export float2 mx_geomcolor_color2(
-	uniform int mxp_index = int(0) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-	// Not implemented: mx_geomcolor_color2
-	float2 defaultValue = float2(0.0, 0.0);
-	return defaultValue;
-}
-
 export color mx_geomcolor_color3(
 	uniform int mxp_index = int(0) [[ anno::unused() ]]
 )
@@ -1337,19 +1176,6 @@ export float mx_geompropvalue_float(
 {
 	// Not implemented: mx_geompropvalue_float
 	float defaultValue = float(0.0);
-	return defaultValue;
-}
-
-export float2 mx_geompropvalue_color2(
-	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform float2 mxp_default = float2(0.0, 0.0) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: geometric")
-	]]
-{
-	// Not implemented: mx_geompropvalue_color2
-	float2 defaultValue = float2(0.0, 0.0);
 	return defaultValue;
 }
 
@@ -2415,20 +2241,6 @@ export float mx_remap_float(
 	return mxp_outlow + (mxp_in - mxp_inlow) * (mxp_outhigh - mxp_outlow) / (mxp_inhigh - mxp_inlow);
 }
 
-export float2 mx_remap_color2(
-	float2 mxp_in = float2(0.0, 0.0),
-	float2 mxp_inlow = float2(0.0, 0.0),
-	float2 mxp_inhigh = float2(1.0, 1.0),
-	float2 mxp_outlow = float2(0.0, 0.0),
-	float2 mxp_outhigh = float2(1.0, 1.0)
-)
-	[[
-		anno::description("Node Group: adjustment")
-	]]
-{
-	return mxp_outlow + (mxp_in - mxp_inlow) * (mxp_outhigh - mxp_outlow) / (mxp_inhigh - mxp_inlow);
-}
-
 export color mx_remap_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
 	color mxp_inlow = color(0.0, 0.0, 0.0),
@@ -2494,20 +2306,6 @@ export float4 mx_remap_vector4(
 	float4 mxp_inhigh = float4(1.0, 1.0, 1.0, 1.0),
 	float4 mxp_outlow = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_outhigh = float4(1.0, 1.0, 1.0, 1.0)
-)
-	[[
-		anno::description("Node Group: adjustment")
-	]]
-{
-	return mxp_outlow + (mxp_in - mxp_inlow) * (mxp_outhigh - mxp_outlow) / (mxp_inhigh - mxp_inlow);
-}
-
-export float2 mx_remap_color2FA(
-	float2 mxp_in = float2(0.0, 0.0),
-	float mxp_inlow = float(0.0),
-	float mxp_inhigh = float(1.0),
-	float mxp_outlow = float(0.0),
-	float mxp_outhigh = float(1.0)
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2601,18 +2399,6 @@ export float mx_smoothstep_float(
 	return ::math::smoothstep(float(mxp_low), float(mxp_high), float(mxp_in));
 }
 
-export float2 mx_smoothstep_color2(
-	float2 mxp_in = float2(0.0, 0.0),
-	float2 mxp_low = float2(0.0, 0.0),
-	float2 mxp_high = float2(1.0, 1.0)
-)
-	[[
-		anno::description("Node Group: adjustment")
-	]]
-{
-	return ::math::smoothstep(float2(mxp_low), float2(mxp_high), float2(mxp_in));
-}
-
 export color mx_smoothstep_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
 	color mxp_low = color(0.0, 0.0, 0.0),
@@ -2671,18 +2457,6 @@ export float4 mx_smoothstep_vector4(
 	]]
 {
 	return ::math::smoothstep(float4(mxp_low), float4(mxp_high), float4(mxp_in));
-}
-
-export float2 mx_smoothstep_color2FA(
-	float2 mxp_in = float2(0.0, 0.0),
-	float mxp_low = float(0.0),
-	float mxp_high = float(1.0)
-)
-	[[
-		anno::description("Node Group: adjustment")
-	]]
-{
-	return ::math::smoothstep(float2(mxp_in), float2(mxp_low), float2(mxp_high));
 }
 
 export color mx_smoothstep_color3FA(
@@ -2755,19 +2529,6 @@ export float mx_curveadjust_float(
 {
 	// Not implemented: mx_curveadjust_float
 	float defaultValue = mxp_in;
-	return defaultValue;
-}
-
-export float2 mx_curveadjust_color2(
-	float2 mxp_in = float2(0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: adjustment")
-	]]
-{
-	// Not implemented: mx_curveadjust_color2
-	float2 defaultValue = mxp_in;
 	return defaultValue;
 }
 
@@ -2911,18 +2672,6 @@ export color4 mx_hsvtorgb_color4(
     return color4(color(rgb), mxp_in.a);
 }
 
-export float2 mx_premult_color2(
-	float2 mxp_in = float2(0.0, 1.0)
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	// Not implemented: mx_premult_color2
-	float2 defaultValue = mxp_in;
-	return defaultValue;
-}
-
 export color4 mx_premult_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 1.0)
 )
@@ -2932,18 +2681,6 @@ export color4 mx_premult_color4(
 {
 	// Not implemented: mx_premult_color4
 	color4 defaultValue = mxp_in;
-	return defaultValue;
-}
-
-export float2 mx_unpremult_color2(
-	float2 mxp_in = float2(0.0, 1.0)
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	// Not implemented: mx_unpremult_color2
-	float2 defaultValue = mxp_in;
 	return defaultValue;
 }
 
@@ -3017,21 +2754,6 @@ export float mx_burn_float(
 	return mxp_mix*(1.0 - ((1.0 - mxp_bg) / mxp_fg)) + ((1.0 - mxp_mix)*mxp_bg);
 }
 
-export float2 mx_burn_color2(
-	float2 mxp_fg = float2(0.0),
-	float2 mxp_bg = float2(0.0),
-	float mxp_mix = 1.0
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return float2(
-		mx_burn_float(mxp_fg.x, mxp_bg.x, mxp_mix),
-		mx_burn_float(mxp_fg.y, mxp_bg.y, mxp_mix)
-	);
-}
-
 export color mx_burn_color3(
 	color mxp_fg = color(0.0),
 	color mxp_bg = color(0.0),
@@ -3079,21 +2801,6 @@ export float mx_dodge_float(
 		return 0.0;
 	}
 	return mxp_mix*(mxp_bg / (1.0 - mxp_fg)) + ((1.0-mxp_mix)*mxp_bg);
-}
-
-export float2 mx_dodge_color2(
-	float2 mxp_fg = float2(0.0),
-	float2 mxp_bg = float2(0.0),
-	float mxp_mix = 1.0
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return float2(
-		mx_dodge_float(mxp_fg.x, mxp_bg.x, mxp_mix),
-		mx_dodge_float(mxp_fg.y, mxp_bg.y, mxp_mix)
-	);
 }
 
 export color mx_dodge_color3(
@@ -3177,18 +2884,6 @@ export float mx_overlay_float(
 	return mxp_mix * mx_overlay(mxp_fg, mxp_bg) + (1-mxp_mix) * mxp_bg;
 }
 
-export float2 mx_overlay_color2(
-	float2 mxp_fg = float2(0.0),
-	float2 mxp_bg = float2(0.0),
-	float mxp_mix = 1.0
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return mxp_mix * mx_overlay(mxp_fg, mxp_bg) + (1-mxp_mix) * mxp_bg;
-}
-
 export color mx_overlay_color3(
 	color mxp_fg = color(0.0),
 	color mxp_bg = color(0.0),
@@ -3213,38 +2908,6 @@ export color4 mx_overlay_color4(
 	color rgb = mxp_mix * mx_overlay(mxp_fg.rgb, mxp_bg.rgb) + (1-mxp_mix) * mxp_bg.rgb;
 	float   a = mxp_mix * mx_overlay(mxp_fg.a  , mxp_bg.a  ) + (1-mxp_mix) * mxp_bg.a;
 	return color4(rgb,a);
-}
-
-export float2 mx_disjointover_color2(
-	float2 mxp_fg = float2(0.0, 0.0),
-	float2 mxp_bg = float2(0.0, 0.0),
-	float mxp_mix = float(1.0)
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	float2 result;
-	float summedAlpha = mxp_fg.y + mxp_bg.y;
-	if (summedAlpha <= 1)
-	{
-		result.x = mxp_fg.x + mxp_bg.x;
-	}
-	else
-	{
-		if (math::abs(mxp_bg.y) < FLOAT_EPS)
-		{
-			result.x = 0.0;
-		}
-		else
-		{
-			result.x = mxp_fg.x + ((mxp_bg.x * (1-mxp_fg.y)) / mxp_bg.y);
-		}
-	}
-	result.y = math::min(summedAlpha, 1.0);
-	result.x = result.x * mxp_mix + (1.0 - mxp_mix) * mxp_bg.x;
-	result.y = result.y * mxp_mix + (1.0 - mxp_mix) * mxp_bg.y;
-	return result;
 }
 
 export color4 mx_disjointover_color4(
@@ -3280,18 +2943,6 @@ export color4 mx_disjointover_color4(
 	return result;
 }
 
-export float2 mx_in_color2(
-	float2 mxp_fg = float2(0.0, 0.0),
-	float2 mxp_bg = float2(0.0, 0.0),
-	float mxp_mix = float(1.0)
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return (mxp_fg*mxp_bg.y * mxp_mix) + (mxp_bg * (1.0-mxp_mix));
-}
-
 export color4 mx_in_color4(
 	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
@@ -3304,18 +2955,6 @@ export color4 mx_in_color4(
 	color rgb = mxp_fg.rgb*mxp_bg.a * mxp_mix + mxp_bg.rgb * (1.0-mxp_mix);
 	float   a = mxp_fg.a  *mxp_bg.a * mxp_mix + mxp_bg.a   * (1.0-mxp_mix);
 	return color4(rgb,a);
-}
-
-export float2 mx_mask_color2(
-	float2 mxp_fg = float2(0.0, 0.0),
-	float2 mxp_bg = float2(0.0, 0.0),
-	float mxp_mix = float(1.0)
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return (mxp_bg*mxp_fg.y * mxp_mix) + (mxp_bg * (1.0-mxp_mix));
 }
 
 export color4 mx_mask_color4(
@@ -3332,19 +2971,6 @@ export color4 mx_mask_color4(
 	return color4(rgb,a);
 }
 
-export float2 mx_matte_color2(
-	float2 mxp_fg = float2(0.0),
-	float2 mxp_bg = float2(0.0),
-	float mxp_mix = 1.0
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	float2 v = float2(mxp_fg.x*mxp_fg.y + mxp_bg.x*(1.0-mxp_fg.y), mxp_fg.y + mxp_bg.y*(1.0-mxp_fg.y));
-	return v * mxp_mix + mxp_bg * (1.0-mxp_mix);
-}
-
 export color4 mx_matte_color4(
 	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
@@ -3359,18 +2985,6 @@ export color4 mx_matte_color4(
 	return color4(rgb, a);
 }
 
-export float2 mx_out_color2(
-	float2 mxp_fg = float2(0.0, 0.0),
-	float2 mxp_bg = float2(0.0, 0.0),
-	float mxp_mix = float(1.0)
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return (mxp_fg*(1.0 - mxp_bg.y) * mxp_mix) + (mxp_bg * (1.0-mxp_mix));
-}
-
 export color4 mx_out_color4(
 	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
@@ -3383,18 +2997,6 @@ export color4 mx_out_color4(
 	color rgb = (mxp_fg.rgb*(1.0 - mxp_bg.a) * mxp_mix) + (mxp_bg.rgb * (1.0-mxp_mix));
 	float   a = (mxp_fg.a  *(1.0 - mxp_bg.a) * mxp_mix) + (mxp_bg.a   * (1.0-mxp_mix));
 	return color4(rgb,a);
-}
-
-export float2 mx_over_color2(
-	float2 mxp_fg = float2(0.0, 0.0),
-	float2 mxp_bg = float2(0.0, 0.0),
-	float mxp_mix = float(1.0)
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return (mxp_fg + (mxp_bg*(1.0-mxp_fg.y))) * mxp_mix + mxp_bg * (1.0-mxp_mix);
 }
 
 export color4 mx_over_color4(
@@ -3458,19 +3060,6 @@ export float mx_ifgreater_float(
 	float mxp_value2 = float(0.0),
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
-}
-
-export float2 mx_ifgreater_color2(
-	float mxp_value1 = float(1.0),
-	float mxp_value2 = float(0.0),
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3557,19 +3146,6 @@ export float mx_ifgreater_floatI(
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export float2 mx_ifgreater_color2I(
-	int mxp_value1 = int(1),
-	int mxp_value2 = int(0),
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
-}
-
 export color mx_ifgreater_color3I(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
@@ -3640,19 +3216,6 @@ export float mx_ifgreatereq_float(
 	float mxp_value2 = float(0.0),
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
-}
-
-export float2 mx_ifgreatereq_color2(
-	float mxp_value1 = float(1.0),
-	float mxp_value2 = float(0.0),
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3739,19 +3302,6 @@ export float mx_ifgreatereq_floatI(
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export float2 mx_ifgreatereq_color2I(
-	int mxp_value1 = int(1),
-	int mxp_value2 = int(0),
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
-}
-
 export color mx_ifgreatereq_color3I(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
@@ -3822,19 +3372,6 @@ export float mx_ifequal_float(
 	float mxp_value2 = float(0.0),
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
-}
-
-export float2 mx_ifequal_color2(
-	float mxp_value1 = float(0.0),
-	float mxp_value2 = float(0.0),
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3921,19 +3458,6 @@ export float mx_ifequal_floatI(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export float2 mx_ifequal_color2I(
-	int mxp_value1 = int(0),
-	int mxp_value2 = int(0),
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
-}
-
 export color mx_ifequal_color3I(
 	int mxp_value1 = int(0),
 	int mxp_value2 = int(0),
@@ -4004,19 +3528,6 @@ export float mx_ifequal_floatB(
 	bool mxp_value2 = bool(false),
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
-}
-
-export float2 mx_ifequal_color2B(
-	bool mxp_value1 = bool(false),
-	bool mxp_value2 = bool(false),
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -4103,30 +3614,6 @@ export float mx_switch_float(
 	]]
 {
 	float returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float2 mx_switch_color2(
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0),
-	float2 mxp_in3 = float2(0.0, 0.0),
-	float2 mxp_in4 = float2(0.0, 0.0),
-	float2 mxp_in5 = float2(0.0, 0.0),
-	uniform float mxp_which = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float2 returnValue;
 	switch (int(mxp_which)) {
 		case 0: returnValue=mxp_in1; break;
 		case 1: returnValue=mxp_in2; break;
@@ -4282,30 +3769,6 @@ export float mx_switch_floatI(
 	return returnValue;
 }
 
-export float2 mx_switch_color2I(
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0),
-	float2 mxp_in3 = float2(0.0, 0.0),
-	float2 mxp_in4 = float2(0.0, 0.0),
-	float2 mxp_in5 = float2(0.0, 0.0),
-	uniform int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float2 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
 export color mx_switch_color3I(
 	color mxp_in1 = color(0.0, 0.0, 0.0),
 	color mxp_in2 = color(0.0, 0.0, 0.0),
@@ -4426,16 +3889,6 @@ export float4 mx_switch_vector4I(
 	return returnValue;
 }
 
-export float2 mx_convert_float_color2(
-	float mxp_in = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float2(mxp_in);
-}
-
 export color mx_convert_float_color3(
 	float mxp_in = float(0.0)
 )
@@ -4484,16 +3937,6 @@ export float4 mx_convert_float_vector4(
 	]]
 {
 	return float4(mxp_in);
-}
-
-export float2 mx_convert_vector2_color2(
-	float2 mxp_in = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return mxp_in;
 }
 
 export float3 mx_convert_vector2_vector3(
@@ -4556,16 +3999,6 @@ export float3 mx_convert_vector4_vector3(
 	return float3(mxp_in.x, mxp_in.y, mxp_in.z);
 }
 
-export float2 mx_convert_color2_vector2(
-	float2 mxp_in = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return mxp_in;
-}
-
 export float3 mx_convert_color3_vector3(
 	color mxp_in = color(0.0, 0.0, 0.0)
 )
@@ -4624,17 +4057,6 @@ export float mx_convert_integer_float(
 	]]
 {
 	return float(mxp_in);
-}
-
-export float2 mx_combine2_color2(
-	float mxp_in1 = float(0.0),
-	float mxp_in2 = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float2(mxp_in1, mxp_in2);
 }
 
 export float2 mx_combine2_vector2(
@@ -4742,13 +4164,11 @@ export float4 mx_combine4_vector4(
 	return float4(mxp_in1, mxp_in2, mxp_in3, mxp_in4);
 }
 
-// Nodedef: ND_extract_color2 is represented by a nodegraph: NG_extract_color2
 // Nodedef: ND_extract_color3 is represented by a nodegraph: NG_extract_color3
 // Nodedef: ND_extract_color4 is represented by a nodegraph: NG_extract_color4
 // Nodedef: ND_extract_vector2 is represented by a nodegraph: NG_extract_vector2
 // Nodedef: ND_extract_vector3 is represented by a nodegraph: NG_extract_vector3
 // Nodedef: ND_extract_vector4 is represented by a nodegraph: NG_extract_vector4
-// Nodedef: ND_separate2_color2 is represented by a nodegraph: NG_separate2_color2
 // Nodedef: ND_separate2_vector2 is represented by a nodegraph: NG_separate2_vector2
 // Nodedef: ND_separate3_color3 is represented by a nodegraph: NG_separate3_color3
 // Nodedef: ND_separate3_vector3 is represented by a nodegraph: NG_separate3_vector3
@@ -4773,27 +4193,6 @@ export float mx_blur_float(
 {
 	// Not implemented: mx_blur_float
 	float defaultValue = mxp_in;
-	return defaultValue;
-}
-
-export float2 mx_blur_color2(
-	float2 mxp_in = float2(0.0, 0.0),
-	uniform float mxp_size = float(0.0)
-    [[
-        anno::unused()
-    ]],
-	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
-	[[
-		anno::description("Enumeration {box,gaussian}."),
-        anno::unused()
-	]]
-)
-	[[
-		anno::description("Node Group: convolution2d")
-	]]
-{
-	// Not implemented: mx_blur_color2
-	float2 defaultValue = mxp_in;
 	return defaultValue;
 }
 

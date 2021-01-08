@@ -6,7 +6,7 @@
   <!-- ======================================================================== -->
 
   <!-- Node: UsdPreviewSurface -->
-   <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr"
+  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr"
             doc="USD preview surface shader" version="2.3" isdefaultversion="true">
     <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" />
     <input name="emissiveColor" type="color3" value="0, 0, 0" />

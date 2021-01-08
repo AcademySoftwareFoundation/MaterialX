@@ -32,10 +32,7 @@ class ShaderGenerator
     /// Destructor
     virtual ~ShaderGenerator() { }
 
-    /// Return a unique identifier for the language used by this generator
-    virtual const string& getLanguage() const = 0;
-
-    /// Return a unique identifier for the target this generator is for
+    /// Return the name of the target this generator is for.
     virtual const string& getTarget() const = 0;
 
     /// Generate a shader starting from the given element, translating

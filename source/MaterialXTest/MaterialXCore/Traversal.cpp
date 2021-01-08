@@ -6,10 +6,12 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
+#include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
 
-TEST_CASE("Traversal", "[traversal]")
+TEST_CASE("IntraGraph Traversal", "[traversal]")
 {
     // Test null iterators.
     mx::TreeIterator nullTree = mx::NULL_TREE_ITERATOR;
@@ -170,4 +172,29 @@ TEST_CASE("Traversal", "[traversal]")
     contrast->setConnectedNode("in", image2);
     REQUIRE(!output->hasUpstreamCycle());
     REQUIRE(doc->validate());
+}
+
+TEST_CASE("InterGraph Tranversal", "[traversal]")
+{
+    mx::FileSearchPath searchPath;
+    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    searchPath.append(currentPath / mx::FilePath("libraries"));
+
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
+
+    mx::FilePath testFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/stdlib/nodegraph_inputs/nodegraph_nodegraph.mtlx");
+    mx::readFromXmlFile(doc, testFile, searchPath);
+    REQUIRE(doc->validate());
+
+    for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
+    {
+        for (mx::InputPtr interfaceInput : graph->getInputs())
+        {
+            if (!interfaceInput->getNodeName().empty() || !interfaceInput->getNodeGraphString().empty())
+            {
+                REQUIRE(interfaceInput->getConnectedNode() != nullptr);                    
+            }
+        }
+    }
 }

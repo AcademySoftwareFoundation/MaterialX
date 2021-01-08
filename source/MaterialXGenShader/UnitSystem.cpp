@@ -118,9 +118,9 @@ UnitTransform::UnitTransform(const string& ss, const string& ts, const TypeDesc*
 
 const string UnitSystem::UNITSYTEM_NAME = "default_unit_system";
 
-UnitSystem::UnitSystem(const string& language)
+UnitSystem::UnitSystem(const string& target)
 {
-    _language = createValidName(language);
+    _target = createValidName(target);
 }
 
 void UnitSystem::loadLibrary(DocumentPtr document)
@@ -145,7 +145,7 @@ UnitSystemPtr UnitSystem::create(const string& language)
 
 string UnitSystem::getImplementationName(const UnitTransform& transform, const string& unitname) const
 {
-    return "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + _language;
+    return "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + _target;
 }
 
 bool UnitSystem::supportsTransform(const UnitTransform& transform) const

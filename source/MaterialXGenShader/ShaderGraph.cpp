@@ -1283,7 +1283,7 @@ void ShaderGraph::calculateScopes()
                 {
                     newScopeInfo.adjustAtConditionalInput(node, int(inputIndex), 0x12);
                 }
-                else if (isSwitch)
+                else if (isSwitch && inputIndex != node->numInputs() - 1)
                 {
                     const uint32_t fullMask = (1 << node->numInputs()) - 1;
                     newScopeInfo.adjustAtConditionalInput(node, int(inputIndex), fullMask);

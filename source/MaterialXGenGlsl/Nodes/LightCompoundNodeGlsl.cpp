@@ -21,11 +21,6 @@ ShaderNodeImplPtr LightCompoundNodeGlsl::create()
     return std::make_shared<LightCompoundNodeGlsl>();
 }
 
-const string& LightCompoundNodeGlsl::getLanguage() const
-{
-    return GlslShaderGenerator::LANGUAGE;
-}
-
 const string& LightCompoundNodeGlsl::getTarget() const
 {
     return GlslShaderGenerator::TARGET;
