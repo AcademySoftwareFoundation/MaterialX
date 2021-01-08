@@ -663,14 +663,13 @@ void PropertyEditor::updateContents(Viewer* viewer)
     create(*viewer);
 
     MaterialPtr material = viewer->getSelectedMaterial();
-    mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
-    if (!doc)
+    if (!material)
     {
         return;
     }
 
     // Shading model display
-    mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
+    mx::TypedElementPtr elem = material->getElement();
     std::string shaderName = elem ? elem->getAttribute("node") : mx::EMPTY_STRING;
     if (!shaderName.empty())
     {
@@ -690,7 +689,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         mx::UIPropertyGroup groups;
         mx::UIPropertyGroup unnamedGroups;
         const std::string pathSeparator(":");
-        mx::createUIPropertyGroups(*publicUniforms, doc, material->getElement(),
+        mx::createUIPropertyGroups(*publicUniforms, material->getDocument(), elem,
                                     pathSeparator, groups, unnamedGroups, false); 
 
         std::string previousFolder;
