@@ -46,7 +46,7 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     include(CheckCXXCompilerFlag)
-    add_compile_options(-Wno-deprecated-register)
+    add_compile_options(-Wno-deprecated-register -Wno-range-loop-analysis -Wno-unused-value)
     CHECK_CXX_COMPILER_FLAG(-Wno-undefined-var-template UNDEFINED_VAR_TEMPLATE_FLAG)
     if(UNDEFINED_VAR_TEMPLATE_FLAG)
         add_compile_options(-Wno-undefined-var-template)
