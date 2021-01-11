@@ -61,6 +61,20 @@ jobs:
           echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         fi
 
+    - name: Install Dependencies (MacOS)
+      if: runner.os == 'macOS'
+      run: |
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          brew install gcc@${{ matrix.compiler_version }}
+          echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+        else
+          ls -ls /Applications/
+          sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CXX=clang++" >> $GITHUB_ENV
+        fi
+
     - name: Install Python ${{ matrix.python }}
       uses: actions/setup-python@v2
       with:
@@ -77,10 +91,6 @@ jobs:
     - name: CMake Build
       run: cmake --build . --target install --config ${{env.config}} --parallel 2
       working-directory: build
-
-    - name: Update Library Path
-      if: runner.os == 'Linux' || runner.os == 'macOS'
-      run: echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/installed/lib" >> $GITHUB_ENV
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'

@@ -417,7 +417,6 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
     imageHandler->addLoader(OiioImageLoader::create());
 #endif
     StringVec renderablePaths = getRenderablePaths(doc);
-    std::vector<NodePtr> renderableShaderNodes;
 
     BakedDocumentVec bakedDocuments;
     for (const string& renderablePath : renderablePaths)

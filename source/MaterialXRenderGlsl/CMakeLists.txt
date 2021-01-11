@@ -32,12 +32,14 @@ if(MSVC)
     target_link_libraries(
         MaterialXRenderGlsl
         MaterialXRenderHw
+        MaterialXGenGlsl
         Opengl32
         ${CMAKE_DL_LIBS})
 elseif(APPLE)
     target_link_libraries(
         MaterialXRenderGlsl
         MaterialXRenderHw
+        MaterialXGenGlsl
         ${CMAKE_DL_LIBS}
         ${OPENGL_LIBRARIES}
         "-framework Foundation"
@@ -46,6 +48,7 @@ elseif(UNIX)
     target_link_libraries(
         MaterialXRenderGlsl
         MaterialXRenderHw
+        MaterialXGenGlsl
         ${CMAKE_DL_LIBS}
         ${OPENGL_LIBRARIES}
         ${X11_LIBRARIES}
