@@ -1209,7 +1209,16 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 else
                 {
                     // Generate a shader for the new material.
-                    mat->generateShader(_genContext);
+                    try
+                    {
+                        mat->generateShader(_genContext);
+
+                    }
+                    catch(std::exception& e)
+                    {
+                        mat->copyShader(_wireMaterial);
+                        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
+                    }
                 }
 
                 // Apply geometric assignments specified in the document, if any.
