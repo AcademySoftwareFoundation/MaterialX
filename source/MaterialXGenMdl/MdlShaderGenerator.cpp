@@ -20,6 +20,7 @@
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/LayerNode.h>
+#include <MaterialXGenShader/Nodes/DielectricBsdfNode.h>
 
 namespace MaterialX
 {
@@ -50,10 +51,10 @@ namespace
         "import ::anno::*",
         "import ::tex::*",
         "import ::mx::swizzle::*",
-        "import ::mx::pbrlib::*",
         "import ::mx::cm::*",
-        "using ::mx::stdlib import *",
         "using ::mx::core import *",
+        "using ::mx::stdlib import *",
+        "using ::mx::pbrlib import *",
         "using ::mx::sampling import *",
     };
 }
@@ -180,6 +181,9 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <layer> -->
     registerImplementation("IM_layer_bsdf_" + MdlShaderGenerator::TARGET, LayerNode::create);
+
+    // <!-- <dielectric_bsdf> -->
+    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNode::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

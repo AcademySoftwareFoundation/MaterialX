@@ -38,6 +38,7 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/LayerNode.h>
 #include <MaterialXGenShader/Nodes/ThinFilmNode.h>
+#include <MaterialXGenShader/Nodes/DielectricBsdfNode.h>
 
 namespace MaterialX
 {
@@ -257,8 +258,8 @@ GlslShaderGenerator::GlslShaderGenerator() :
 
     // <!-- <thin_film_brdf> -->
     registerImplementation("IM_thin_film_brdf_" + GlslShaderGenerator::TARGET, ThinFilmNode::create);
-    // <!-- <dielectric_brdf> -->
-    registerImplementation("IM_dielectric_brdf_" + GlslShaderGenerator::TARGET, HwThinFilmSupport::create);
+    // <!-- <dielectric_bsdf> -->
+    registerImplementation("IM_dielectric_bsdf_" + GlslShaderGenerator::TARGET, HwDielectricBsdfNode::create);
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));

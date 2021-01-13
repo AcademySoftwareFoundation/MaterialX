@@ -59,11 +59,11 @@
   </nodedef>
 
   <!--
-    Node: <dielectric_brdf>
-    A reflection BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
+    Node: <dielectric_bsdf>
+    A reflection/transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
   -->
-  <nodedef name="ND_dielectric_brdf" node="dielectric_brdf" nodegroup="pbr"
-           doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for dielectrics.">
+  <nodedef name="ND_dielectric_bsdf" node="dielectric_bsdf" nodegroup="pbr"
+           doc="A reflection/transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.5"/>
@@ -71,24 +71,7 @@
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
-    <input name="base" type="BSDF" value=""/>
-    <output name="out" type="BSDF"/>
-  </nodedef>
-
-  <!--
-    Node: <dielectric_btdf>
-    A transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
-  -->
-  <nodedef name="ND_dielectric_btdf" node="dielectric_btdf" bsdf="T" nodegroup="pbr"
-           doc="A BSDF node for specular to glossy transmission.">
-    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
-    <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="ior" type="float" value="1.5"/>
-    <input name="roughness" type="vector2" value="0.05, 0.05"/>
-    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
-    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
-    <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
-    <input name="interior" type="VDF" value=""/>
+    <parameter name="scatter_mode" type="string" value="R" enum="R,T,RT"/>
     <output name="out" type="BSDF"/>
   </nodedef>
 

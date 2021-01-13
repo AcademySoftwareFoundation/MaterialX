@@ -19,6 +19,7 @@
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/LayerNode.h>
 #include <MaterialXGenShader/Nodes/ThinFilmNode.h>
+#include <MaterialXGenShader/Nodes/DielectricBsdfNode.h>
 
 namespace MaterialX
 {
@@ -170,9 +171,9 @@ OslShaderGenerator::OslShaderGenerator() :
 
     // <!-- <thin_film_brdf> -->
     registerImplementation("IM_thin_film_brdf_" + OslShaderGenerator::TARGET, ThinFilmNode::create);
-    // <!-- <dielectric_brdf> -->
-    registerImplementation("IM_dielectric_brdf_" + OslShaderGenerator::TARGET, ThinFilmSupport::create);
 
+    // <!-- <dielectric_bsdf> -->
+    registerImplementation("IM_dielectric_bsdf_" + OslShaderGenerator::TARGET, DielectricBsdfNode::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

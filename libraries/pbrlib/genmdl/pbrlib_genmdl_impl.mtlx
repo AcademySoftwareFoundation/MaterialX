@@ -7,11 +7,8 @@
   <!-- <diffuse_btdf> -->
   <implementation name="IM_diffuse_btdf_genmdl" nodedef="ND_diffuse_btdf" sourcecode="mx::pbrlib::mx_diffuse_btdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_normal:{{normal}})" target="genmdl"/>
 
-  <!-- <dielectric_brdf> -->
-  <implementation name="IM_dielectric_brdf_genmdl" nodedef="ND_dielectric_brdf" sourcecode="mx::pbrlib::mx_dielectric_brdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_base:{{base}})" target="genmdl"/>
-
-  <!-- <dielectric_btdf> -->
-  <implementation name="IM_dielectric_btdf_genmdl" nodedef="ND_dielectric_btdf" sourcecode="mx::pbrlib::mx_dielectric_btdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_interior:{{interior}})" target="genmdl"/>
+  <!-- <dielectric_bsdf> -->
+  <implementation name="IM_dielectric_bsdf_genmdl" nodedef="ND_dielectric_bsdf" sourcecode="mx::pbrlib::mx_dielectric_bsdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl"/>
 
   <!-- <conductor_brdf> -->
   <implementation name="IM_conductor_brdf_genmdl" nodedef="ND_conductor_brdf" sourcecode="mx::pbrlib::mx_conductor_brdf(mxp_weight:{{weight}}, mxp_reflectivity:{{reflectivity}}, mxp_edge_color:{{edge_color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl"/>

@@ -7,11 +7,8 @@
   <!-- <diffuse_btdf> -->
   <implementation name="IM_diffuse_btdf_genglsl" nodedef="ND_diffuse_btdf" file="pbrlib/genglsl/mx_diffuse_btdf.glsl" function="mx_diffuse_btdf" target="genglsl"/>
 
-  <!-- <dielectric_brdf> -->
-  <implementation name="IM_dielectric_brdf_genglsl" nodedef="ND_dielectric_brdf" file="pbrlib/genglsl/mx_dielectric_brdf.glsl" function="mx_dielectric_brdf" target="genglsl"/>
-
-  <!-- <dielectric_btdf> -->
-  <implementation name="IM_dielectric_btdf_genglsl" nodedef="ND_dielectric_btdf" file="pbrlib/genglsl/mx_dielectric_btdf.glsl" function="mx_dielectric_btdf" target="genglsl"/>
+  <!-- <dielectric_bsdf> -->
+  <implementation name="IM_dielectric_bsdf_genglsl" nodedef="ND_dielectric_bsdf" file="pbrlib/genglsl/mx_dielectric_bsdf.glsl" function="mx_dielectric_bsdf" target="genglsl"/>
 
   <!-- <conductor_brdf> -->
   <implementation name="IM_conductor_brdf_genglsl" nodedef="ND_conductor_brdf" file="pbrlib/genglsl/mx_conductor_brdf.glsl" function="mx_conductor_brdf" target="genglsl"/>

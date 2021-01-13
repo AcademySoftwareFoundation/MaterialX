@@ -57,6 +57,26 @@ import ::anno::*;
 //       of volumetric properties in the BSDF components as well. Since IOR 
 //       is uniform in MDL, some nodes have a limitation on how IOR works.
 
+
+// Enum selecting scatter mode, instead of string
+export enum mx_scatter_mode {
+    mx_scatter_mode_R,
+    mx_scatter_mode_T,
+    mx_scatter_mode_RT
+};
+
+// Helper function mapping MaterialX scatter mode to MDL scatter_mode enum
+export df::scatter_mode mx_map_scatter_mode( mx_scatter_mode mode) {
+    switch (mode) {
+    case mx_scatter_mode_R:
+        return df::scatter_reflect;
+    case mx_scatter_mode_T:
+        return df::scatter_transmit;
+    default:
+        return df::scatter_reflect_transmit;
+    }
+}
+
 export material mx_diffuse_brdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(0.18),
@@ -119,24 +139,27 @@ export material mx_burley_diffuse_brdf(
     )
 );
 
-export material mx_dielectric_brdf(
+export material mx_dielectric_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_tint      = color(1.0),
     float  mxp_ior       = 1.5,
     float2 mxp_roughness = float2(0.0),
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
-    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx, 
+    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx,
+    uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
     material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
 = let {
+    df::scatter_mode mode = ::mx_map_scatter_mode(mxp_scatter_mode);
     bsdf ggx_model = df::microfacet_ggx_smith_bsdf(
         roughness_u: mxp_roughness.x,
         roughness_v: mxp_roughness.y,
         tint: mxp_tint,
-        tangent_u: mxp_tangent);
+        tangent_u: mxp_tangent,
+        mode: mode);
     bsdf distribution_model =  (mxp_distribution == mx_distribution_type_ggx) 
                                    ? ggx_model : bsdf();
 } in material(
@@ -533,20 +556,18 @@ export material mx_light(
 export float3 mx_displacement_float(
     float mxp_displacement = 0.0,
     float mxp_scale        = 1.0
-) [[ 
-    anno::usage( "materialx:displacementshader") 
-]] {
+)
+{
     return mxp_displacement * mxp_scale * state::normal();
 }
 
 export float3 mx_displacement_vector3(
     float3 mxp_displacement = float3(0.0),
     float  mxp_scale        = 1.0
-) [[ 
-    anno::usage( "materialx:displacementshader") 
-]] {
+)
+{
     return mxp_scale * ( mxp_displacement.x * state::texture_tangent_u(0)
-                       + mxp_displacement.y * state::texture_tangent_v(0)   
+                       + mxp_displacement.y * state::texture_tangent_v(0)
                        + mxp_displacement.z * state::normal());
 }
 
