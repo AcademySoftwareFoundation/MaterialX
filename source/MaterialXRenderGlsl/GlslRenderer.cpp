@@ -52,7 +52,10 @@ GlslRenderer::~GlslRenderer()
 {
     if (_program->geometryBound())
     {
-        _program->unbindGeometry();
+        if (_context->makeCurrent())
+        {
+            _program->unbindGeometry();
+        }
     }
 }
 
