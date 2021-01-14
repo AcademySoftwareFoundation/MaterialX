@@ -221,9 +221,15 @@ class ImageHandler
     virtual void releaseRenderResources(ImagePtr image);
 
     /// Return a fallback image with zeroes in all channels.
-    ImagePtr getZeroImage()
+    ImagePtr getZeroImage() const
     {
         return _zeroImage;
+    }
+
+    /// Return a reference to the "invalid" image returned when a image cannot be loaded.
+    ImagePtr getInvalidImage() const
+    {
+        return _invalidImage;
     }
 
   protected:
