@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXCore/Types.h>
+#include <MaterialXCore/Element.h>
 
 #include <cctype>
 
@@ -162,6 +163,17 @@ string parentNamePath(const string& namePath)
         return createNamePath(nameVec);
     }
     return EMPTY_STRING;
+}
+
+ElementPtr changeChildCategory(ElementPtr parent, ElementPtr origChild, const string& category)
+{
+    string childName = origChild->getName();
+    int childIndex = parent->getChildIndex(childName);
+    parent->removeChild(childName);
+    ElementPtr newChild = parent->addChildOfCategory(category, childName);
+    parent->setChildIndex(childName, childIndex);
+    newChild->copyContentFrom(origChild);
+    return newChild;
 }
 
 } // namespace MaterialX

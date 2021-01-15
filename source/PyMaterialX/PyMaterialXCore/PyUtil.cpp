@@ -26,4 +26,5 @@ void bindPyUtil(py::module& mod)
     mod.def("splitNamePath", &mx::splitNamePath);
     mod.def("createNamePath", &mx::createNamePath);
     mod.def("parentNamePath", &mx::parentNamePath);
+    mod.def("changeChildCategory", &mx::changeChildCategory);    
 }
