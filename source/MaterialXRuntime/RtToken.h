@@ -157,12 +157,6 @@ public:
         return _entry->_str.c_str();
     }
 
-    /// Conversion to std::string.
-    operator const string& () const
-    {
-        return _entry->_str;
-    }
-
     /// Explicit conversion to bool.
     /// Returning false if the token is empty.
     explicit operator bool() const

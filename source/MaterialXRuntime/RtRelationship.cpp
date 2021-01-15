@@ -66,7 +66,7 @@ string RtRelationship::getTargetsAsString(const string& sep) const
     string str;
     while (!iter.isDone())
     {
-        str += (*iter).getName();
+        str += (*iter).getName().str();
         iter.operator++();
         if (!iter.isDone())
         {

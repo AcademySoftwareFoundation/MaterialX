@@ -1760,13 +1760,13 @@ TEST_CASE("Runtime: Looks", "[runtime]")
 mx::RtToken toTestResolver(const mx::RtToken& str, const mx::RtToken& type)
 {
     mx::StringResolverPtr resolver = mx::StringResolver::create();
-    return mx::RtToken(resolver->resolve(str, type) + "_toTestResolver");
+    return mx::RtToken(resolver->resolve(str.str(), type.str()) + "_toTestResolver");
 }
 
 mx::RtToken fromTestResolver(const mx::RtToken& str, const mx::RtToken& type)
 {
     mx::StringResolverPtr resolver = mx::StringResolver::create();
-    return mx::RtToken(resolver->resolve(str, type) + "_fromTestResolver");
+    return mx::RtToken(resolver->resolve(str.str(), type.str()) + "_fromTestResolver");
 }
 
 TEST_CASE("Runtime: NameResolvers", "[runtime]")

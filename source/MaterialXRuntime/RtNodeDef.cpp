@@ -116,7 +116,7 @@ void RtNodeDef::setIsDefaultVersion(bool isDefault)
 const string& RtNodeDef::getNamespace() const
 {
     RtTypedValue* v = prim()->getMetadata(Tokens::NAMESPACE, RtType::STRING);
-    return v ? v->getValue().asString() : EMPTY_TOKEN;
+    return v ? v->getValue().asString() : EMPTY_STRING;
 }
 
 void RtNodeDef::setNamespace(const string& space)

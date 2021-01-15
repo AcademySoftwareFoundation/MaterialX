@@ -192,7 +192,7 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
     PvtStage* stage = _cast(_ptr);
 
     // Make sure the nodedef name is unique among all prims.
-    PvtPath path(PvtPath::ROOT_NAME);
+    PvtPath path(PvtPath::ROOT_NAME.str());
     path.push(nodeDefName);
     if (stage->getPrimAtPath(path))
     {

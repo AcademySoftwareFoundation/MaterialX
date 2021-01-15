@@ -109,11 +109,11 @@ void PvtNameResolverRegistry::registerNameResolvers(RtNameResolverInfo& info)
         {
             if (info.elementType == RtNameResolverInfo::FILENAME_TYPE)
             {
-                toResolver->setFilenameSubstitution(toSubsitution.first, toSubsitution.second);
+                toResolver->setFilenameSubstitution(toSubsitution.first.str(), toSubsitution.second.str());
             }
             else if (info.elementType == RtNameResolverInfo::GEOMNAME_TYPE)
             {
-                toResolver->setGeomNameSubstitution(toSubsitution.first, toSubsitution.second);
+                toResolver->setGeomNameSubstitution(toSubsitution.first.str(), toSubsitution.second.str());
             }
         }
     }
@@ -127,11 +127,11 @@ void PvtNameResolverRegistry::registerNameResolvers(RtNameResolverInfo& info)
         {
             if (info.elementType == RtNameResolverInfo::FILENAME_TYPE)
             {
-                fromResolver->setFilenameSubstitution(fromSubstitution.first, fromSubstitution.second);
+                fromResolver->setFilenameSubstitution(fromSubstitution.first.str(), fromSubstitution.second.str());
             }
             else if (info.elementType == RtNameResolverInfo::GEOMNAME_TYPE)
             {
-                fromResolver->setGeomNameSubstitution(fromSubstitution.first, fromSubstitution.second);
+                fromResolver->setGeomNameSubstitution(fromSubstitution.first.str(), fromSubstitution.second.str());
             }
         }
     }
@@ -165,7 +165,7 @@ RtToken PvtNameResolverRegistry::resolveIdentifier(const RtToken& valueToResolve
                     PvtUserStringResolverPtr resolverPtr = std::dynamic_pointer_cast<PvtUserStringResolver>(resolverPair.second->getToMaterialXResolver());
                     if (resolverPtr)
                     {
-                        result = RtToken(resolverPtr->resolve(result, type));
+                        result = RtToken(resolverPtr->resolve(result.str(), type.str()));
                     }
                 }
             }
@@ -176,7 +176,7 @@ RtToken PvtNameResolverRegistry::resolveIdentifier(const RtToken& valueToResolve
                     PvtUserStringResolverPtr resolverPtr = std::dynamic_pointer_cast<PvtUserStringResolver>(resolverPair.second->getFromMaterialXResolver());
                     if (resolverPtr)
                     {
-                        result = RtToken(resolverPtr->resolve(result, type));
+                        result = RtToken(resolverPtr->resolve(result.str(), type.str()));
                     }
                 }
             }

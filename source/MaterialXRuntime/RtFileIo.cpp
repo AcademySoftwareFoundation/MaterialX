@@ -886,7 +886,7 @@ namespace
     void writeNodeDef(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
     {
         RtNodeDef nodedef(src->hnd());
-        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName(), EMPTY_STRING, nodedef.getNode());
+        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName().str(), EMPTY_STRING, nodedef.getNode().str());
 
         if (nodedef.getVersion() != EMPTY_TOKEN)
         {
@@ -907,7 +907,7 @@ namespace
             if (attr->isA<PvtInput>())
             {
                 const PvtInput* input = attr->asA<PvtInput>();
-                destPort = destNodeDef->addInput(attr->getName(), attr->getType().str());
+                destPort = destNodeDef->addInput(attr->getName().str(), attr->getType().str());
                 if (input->isUniform())
                 {
                     destPort->setIsUniform(true);
@@ -915,7 +915,7 @@ namespace
             }
             else
             {
-                destPort = destNodeDef->addOutput(attr->getName(), attr->getType().str());
+                destPort = destNodeDef->addOutput(attr->getName().str(), attr->getType().str());
             }
 
             destPort->setValueString(attr->getValueString());
@@ -939,10 +939,10 @@ namespace
         for (RtAttribute attr : nodedef.getPrim().getAttributes(outputFilter))
         {
             numOutputs++;
-            outputType = attr.getType();
+            outputType = attr.getType().str();
         }
 
-        NodePtr destNode = dest->addNode(nodedef.getNamespacedNode(), node.getName(), numOutputs > 1 ? "multioutput" : outputType);
+        NodePtr destNode = dest->addNode(nodedef.getNamespacedNode().str(), node.getName().str(), numOutputs > 1 ? "multioutput" : outputType);
         if (node.getVersion() != EMPTY_TOKEN)
         {
             destNode->setVersionString(node.getVersion().str());
@@ -970,7 +970,7 @@ namespace
                     ValueElementPtr valueElem;
                     if (input.isUniform())
                     {
-                        valueElem = destNode->addInput(input.getName(), input.getType());
+                        valueElem = destNode->addInput(input.getName().str(), input.getType().str());
                         valueElem->setIsUniform(true);
                         if (input.isConnected())
                         {
@@ -978,7 +978,7 @@ namespace
                             if (source.isSocket())
                             {
                                 // This is a connection to the internal socket of a graph
-                                valueElem->setInterfaceName(source.getName());
+                                valueElem->setInterfaceName(source.getName().str());
                             }
                         }
                         const string& inputValueString = input.getValueString(); 
@@ -989,14 +989,14 @@ namespace
                     }
                     else
                     {
-                        valueElem = destNode->addInput(input.getName(), input.getType());
+                        valueElem = destNode->addInput(input.getName().str(), input.getType().str());
                         if (input.isConnected())
                         {
                             RtOutput source = input.getConnection();
                             if (source.isSocket())
                             {
                                 // This is a connection to the internal socket of a graph                                
-                                valueElem->setInterfaceName(source.getName());
+                                valueElem->setInterfaceName(source.getName().str());
                                 const string& inputValueString = input.getValueString();
                                 if (!inputValueString.empty())
                                 {
@@ -1009,15 +1009,15 @@ namespace
                                 InputPtr inputElem = valueElem->asA<Input>();
                                 if (sourcePrim.hasApi<RtNodeGraph>())
                                 {
-                                    inputElem->setNodeGraphString(sourcePrim.getName());
+                                    inputElem->setNodeGraphString(sourcePrim.getName().str());
                                 }
                                 else
                                 {
-                                    inputElem->setNodeName(sourcePrim.getName());
+                                    inputElem->setNodeName(sourcePrim.getName().str());
                                 }
                                 if (sourcePrim.numOutputs() > 1)
                                 {
-                                    inputElem->setOutputString(source.getName());
+                                    inputElem->setOutputString(source.getName().str());
                                 }
                             }
                         }
@@ -1032,7 +1032,7 @@ namespace
             }
             else if(numOutputs > 1)
             {
-                destNode->addOutput(attr.getName(), attr.getType());
+                destNode->addOutput(attr.getName().str(), attr.getType().str());
             }
         }
 
@@ -1043,7 +1043,7 @@ namespace
 
     void writeNodeGraph(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
     {
-        NodeGraphPtr destNodeGraph = dest->addNodeGraph(src->getName());
+        NodeGraphPtr destNodeGraph = dest->addNodeGraph(src->getName().str());
         writeMetadata(src, destNodeGraph, nodegraphMetadata, options);
 
         RtNodeGraph nodegraph(src->hnd());
@@ -1064,12 +1064,12 @@ namespace
                 ValueElementPtr v = nullptr;
                 if (nodegraphInput.isUniform())
                 {
-                    v = destNodeGraph->addInput(nodegraphInput.getName(), nodegraphInput.getType());
+                    v = destNodeGraph->addInput(nodegraphInput.getName().str(), nodegraphInput.getType().str());
                     v->setIsUniform(true);
                 }
                 else
                 {
-                    InputPtr input = destNodeGraph->addInput(nodegraphInput.getName(), nodegraphInput.getType());
+                    InputPtr input = destNodeGraph->addInput(nodegraphInput.getName().str(), nodegraphInput.getType().str());
                     v = input->asA<ValueElement>();
 
                     if (nodegraphInput.isConnected())
@@ -1079,15 +1079,15 @@ namespace
                         RtPrim sourcePrim = source.getParent();
                         if (sourcePrim.hasApi<RtNodeGraph>())
                         {
-                            input->setNodeGraphString(sourcePrim.getName());
+                            input->setNodeGraphString(sourcePrim.getName().str());
                         }
                         else
                         {
-                            input->setNodeName(sourcePrim.getName());
+                            input->setNodeName(sourcePrim.getName().str());
                         }
                         if (sourcePrim.numOutputs() > 1)
                         {
-                            input->setOutputString(source.getName());
+                            input->setOutputString(source.getName().str());
                         }
                     }
                 }
@@ -1110,21 +1110,21 @@ namespace
         for (RtAttribute attr : src->getAttributes(outputsFilter))
         {
             RtInput nodegraphOutput = nodegraph.getOutputSocket(attr.getName());
-            OutputPtr output = destNodeGraph->addOutput(nodegraphOutput.getName(), nodegraphOutput.getType());
+            OutputPtr output = destNodeGraph->addOutput(nodegraphOutput.getName().str(), nodegraphOutput.getType().str());
             if (nodegraphOutput.isConnected())
             {
                 RtOutput source = nodegraphOutput.getConnection();
                 if (source.isSocket())
                 {
-                    output->setInterfaceName(source.getName());
+                    output->setInterfaceName(source.getName().str());
                 }
                 else
                 {
                     RtNode sourceNode = source.getParent();
-                    output->setNodeName(sourceNode.getName());
+                    output->setNodeName(sourceNode.getName().str());
                     if (sourceNode.numOutputs() > 1)
                     {
-                        output->setOutputString(source.getName());
+                        output->setOutputString(source.getName().str());
                     }
                 }
             }
@@ -1140,7 +1140,7 @@ namespace
             if (typeName == RtCollection::typeName())
             {
                 RtCollection rtCollection(prim->hnd());
-                const string name(prim->getName());
+                const string name(prim->getName().str());
 
                 if (dest.getCollection(name))
                 {
@@ -1170,7 +1170,7 @@ namespace
             if (typeName == RtLook::typeName())
             {
                 RtLook rtLook(prim->hnd());
-                const string name(prim->getName());
+                const string name(prim->getName().str());
 
                 if (dest.getCollection(name))
                 {
@@ -1190,7 +1190,7 @@ namespace
                 {
                     PvtPrim* pprim = PvtObject::ptr<PvtPrim>(obj);
                     RtMaterialAssign rtMatAssign(pprim->hnd());
-                    const string& assignName = rtMatAssign.getName();
+                    const string& assignName = rtMatAssign.getName().str();
                     if (look->getMaterialAssign(assignName))
                     {
                         continue;
@@ -1203,12 +1203,12 @@ namespace
                     auto iter = rtMatAssign.getCollection().getTargets();
                     if (!iter.isDone())
                     {
-                        massign->setCollectionString((*iter).getName());
+                        massign->setCollectionString((*iter).getName().str());
                     }
 
                     if (rtMatAssign.getMaterial().isConnected())
                     {
-                        massign->setMaterial(rtMatAssign.getMaterial().getConnection().getParent().getName());
+                        massign->setMaterial(rtMatAssign.getMaterial().getConnection().getParent().getName().str());
                     }
 
                     writeMetadata(pprim, massign, mtrlAssignMetadata, options);
@@ -1228,7 +1228,7 @@ namespace
             if (typeName == RtLookGroup::typeName())
             {
                 RtLookGroup rtLookGroup(prim->hnd());
-                const string name(rtLookGroup.getName());
+                const string name(rtLookGroup.getName().str());
 
                 if (dest.getLookGroup(name))
                 {
@@ -1250,7 +1250,7 @@ namespace
     {
         RtGeneric generic(src->hnd());
 
-        ElementPtr elem = dest->addChildOfCategory(generic.getKind(), generic.getName());
+        ElementPtr elem = dest->addChildOfCategory(generic.getKind().str(), generic.getName().str());
         writeMetadata(src, elem, genericMetadata, options);
 
         for (auto child : src->getChildren())

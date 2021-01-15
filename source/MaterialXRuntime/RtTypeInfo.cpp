@@ -24,7 +24,7 @@ RtTypeInfo::RtTypeInfo(const char* typeNameHierachy) :
     PvtTypeNameInfo* info = new PvtTypeNameInfo();
 
     const RtToken longName(typeNameHierachy);
-    StringVec names = splitString(longName, ":");
+    StringVec names = splitString(longName.str(), ":");
     info->shortName = RtToken(names.back());
     info->longName = longName;
     for (size_t i = 0; i < names.size() - 1; ++i)
