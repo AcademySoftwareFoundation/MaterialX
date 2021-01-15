@@ -10,6 +10,7 @@
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
+
 #include <iostream>
 
 namespace MaterialX
@@ -46,14 +47,6 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _geometryHandler->addLoader(TinyObjLoader::create());
 
     _viewHandler = ViewHandler::create();
-}
-
-GlslRenderer::~GlslRenderer()
-{
-    if (_program->geometryBound())
-    {
-        _program->unbindGeometry();
-    }
 }
 
 void GlslRenderer::initialize()
@@ -258,7 +251,7 @@ void GlslRenderer::render()
         {
             // Check if we have any attributes to bind. If not then
             // there is nothing to draw
-            if (!_program->haveActiveAttributes())
+            if (!_program->hasActiveAttributes())
             {
                 errors.push_back("Program has no input vertex data.");
                 throw ExceptionShaderRenderError(errorType, errors);
@@ -275,7 +268,7 @@ void GlslRenderer::render()
                     for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                     {
                         auto part = mesh->getPartition(i);
-                        _program->bindPartition(mesh->getIdentifier(), part);
+                        _program->bindPartition(part);
                         MeshIndexBuffer& indexData = part->getIndices();
                         glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
                     }
