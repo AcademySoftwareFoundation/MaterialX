@@ -799,27 +799,32 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
-    if (_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+    ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
+    importanceSampleBox->setChecked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
+    importanceSampleBox->setCallback([this](bool enable)
     {
-        Widget* sampleGroup = new Widget(advancedPopup);
-        sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-        new ng::Label(sampleGroup, "Environment Samples:");
-        mx::StringVec sampleOptions;
-        _genContext.getOptions().hwMaxRadianceSamples = MAX_ENV_SAMPLES;
-        for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
-        {
-            mProcessEvents = false;
-            sampleOptions.push_back(std::to_string(i));
-            mProcessEvents = true;
-        }
-        ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
-        sampleBox->setChevronIcon(-1);
-        sampleBox->setSelectedIndex((int)std::log2(_envSampleCount / MIN_ENV_SAMPLES) / 2);
-        sampleBox->setCallback([this](int index)
-        {
-            _envSampleCount = MIN_ENV_SAMPLES * (int) std::pow(4, index);
-        });
+        _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
+        reloadShaders();
+    });
+
+    Widget* sampleGroup = new Widget(advancedPopup);
+    sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(sampleGroup, "Environment Samples:");
+    mx::StringVec sampleOptions;
+    _genContext.getOptions().hwMaxRadianceSamples = MAX_ENV_SAMPLES;
+    for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
+    {
+        mProcessEvents = false;
+        sampleOptions.push_back(std::to_string(i));
+        mProcessEvents = true;
     }
+    ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
+    sampleBox->setChevronIcon(-1);
+    sampleBox->setSelectedIndex((int)std::log2(_envSampleCount / MIN_ENV_SAMPLES) / 2);
+    sampleBox->setCallback([this](int index)
+    {
+        _envSampleCount = MIN_ENV_SAMPLES * (int) std::pow(4, index);
+    });
 
     ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options (B)");
     textureLabel->setFontSize(20);
