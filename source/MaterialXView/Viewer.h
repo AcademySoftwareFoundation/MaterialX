@@ -147,6 +147,7 @@ class Viewer : public ng::Screen
     bool mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int modifiers) override;
     void initContext(mx::GenContext& context);
 
+    void loadMesh(const mx::FilePath& filename);
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
