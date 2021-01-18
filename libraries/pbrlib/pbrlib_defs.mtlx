@@ -124,10 +124,10 @@
   </nodedef>
 
   <!--
-    Node: <sheen_brdf>
+    Node: <sheen_bsdf>
     A microfacet BSDF for the back-scattering properties of cloth-like materials.
   -->
-  <nodedef name="ND_sheen_brdf" node="sheen_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_sheen_bsdf" node="sheen_bsdf" bsdf="R" nodegroup="pbr"
            doc="A microfacet BSDF for the back-scattering properties of cloth-like materials.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>

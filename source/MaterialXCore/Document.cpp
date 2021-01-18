@@ -1016,12 +1016,13 @@ void Document::upgradeVersion()
         const string GENERALIZED_SCHLICK_BRDF = "generalized_schlick_brdf";
         const string GENERALIZED_SCHLICK_BSDF = "generalized_schlick_bsdf";
         const string SHEEN_BRDF = "sheen_brdf";
-        const string SHEEN_BSDF = "sheen_brdf";
+        const string SHEEN_BSDF = "sheen_bsdf";
         const string SCATTER_MODE = "scatter_mode";
         const string BSDF = "BSDF";
         const string LAYER = "layer";
         const string TOP = "top";
         const string BASE = "base";
+        const string INTERIOR = "interior";
 
         // Function for upgrading BSDF nodedef, 
         // adding scattering mode input.
@@ -1041,7 +1042,7 @@ void Document::upgradeVersion()
         };
 
         // Function for upgrading old nested layering setup
-        // to new setup with a layer operator.
+        // to new setup with layer operators.
         auto upgradeBsdfLayering = [TOP, BASE, LAYER, BSDF](NodePtr node)
         {
             InputPtr base = node->getInput(BASE);
@@ -1118,8 +1119,10 @@ void Document::upgradeVersion()
             else if (nodeCategory == DIELECTRIC_BTDF)
             {
                 node->setCategory(DIELECTRIC_BSDF);
+                node->removeInput(INTERIOR);
                 InputPtr mode = node->addInput(SCATTER_MODE, STRING_TYPE_STRING);
                 mode->setValueString("T");
+
             }
             else if (nodeCategory == GENERALIZED_SCHLICK_BRDF)
             {

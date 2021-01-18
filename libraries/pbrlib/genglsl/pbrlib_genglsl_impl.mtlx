@@ -22,8 +22,8 @@
   <!-- <subsurface_brdf> -->
   <implementation name="IM_subsurface_brdf_genglsl" nodedef="ND_subsurface_brdf" file="pbrlib/genglsl/mx_subsurface_brdf.glsl" function="mx_subsurface_brdf" target="genglsl"/>
 
-  <!-- <sheen_brdf> -->
-  <implementation name="IM_sheen_brdf_genglsl" nodedef="ND_sheen_brdf" file="pbrlib/genglsl/mx_sheen_brdf.glsl" function="mx_sheen_brdf" target="genglsl"/>
+  <!-- <sheen_bsdf> -->
+  <implementation name="IM_sheen_bsdf_genglsl" nodedef="ND_sheen_bsdf" file="pbrlib/genglsl/mx_sheen_bsdf.glsl" function="mx_sheen_bsdf" target="genglsl"/>
 
   <!-- <thin_film_brdf> -->
   <implementation name="IM_thin_film_brdf_genglsl" nodedef="ND_thin_film_brdf" target="genglsl"/>

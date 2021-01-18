@@ -278,11 +278,11 @@ export material mx_subsurface_brdf(
 // TODO: add proper implementation
 = material();
 
-// TODO: MDL's sheen BRDF has no possibility to configure the base BSDF, it is
+// TODO: MDL's sheen BSDF has no possibility to configure the base BSDF, it is
 //       always a diffuse BSDF. Its color is configurable through the multiscatter
 //       tint and can be fed through the extra mxp_diffuse_tint input. A context
 //       analysis in the generator can map the color of the base to this input.
-export material mx_sheen_brdf(
+export material mx_sheen_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(1.0),
     float  mxp_roughness = 0.2,

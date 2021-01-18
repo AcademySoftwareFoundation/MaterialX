@@ -26,8 +26,8 @@
   <!-- <subsurface_brdf> -->
   <implementation name="IM_subsurface_brdf_genmdl" nodedef="ND_subsurface_brdf" sourcecode="mx::pbrlib::mx_subsurface_brdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_radius:{{radius}}, mxp_anisotropy:{{anisotropy}}, mxp_normal:{{normal}})" target="genmdl"/>
 
-  <!-- <sheen_brdf> -->
-  <implementation name="IM_sheen_brdf_genmdl" nodedef="ND_sheen_brdf" sourcecode="mx::pbrlib::mx_sheen_brdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl"/>
+  <!-- <sheen_bsdf> -->
+  <implementation name="IM_sheen_bsdf_genmdl" nodedef="ND_sheen_bsdf" sourcecode="mx::pbrlib::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl"/>
 
   <!-- <thin_film_brdf> -->
   <implementation name="IM_thin_film_brdf_genmdl" nodedef="ND_thin_film_brdf" sourcecode="mx::pbrlib::mx_thin_film_brdf(mxp_thickness:{{thickness}}, mxp_ior:{{ior}}, mxp_base:{{base}})" target="genmdl"/>
