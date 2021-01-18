@@ -1009,6 +1009,40 @@ void Document::upgradeVersion()
             }
         }
 
+        // Update dielectric BSDF interfaces
+        const string DIELECTRIC_BRDF = "dielectric_brdf";
+        const string DIELECTRIC_BTDF = "dielectric_btdf";
+        const string DIELECTRIC_BSDF = "dielectric_bsdf";
+        const string GENERALIZED_SCHLICK_BRDF = "generalized_schlick_brdf";
+        const string GENERALIZED_SCHLICK_BSDF = "generalized_schlick_bsdf";
+        const string SCATTER_MODE = "scatter_mode";
+        const string LAYER = "layer";
+        const string BSDF = "BSDF";
+        const string BASE = "base";
+        const string TOP = "top";
+
+        auto nodedef = getNodeDef(DIELECTRIC_BRDF);
+        if (nodedef)
+        {
+            nodedef->setName(DIELECTRIC_BSDF);
+            InputPtr mode = nodedef->addInput(SCATTER_MODE, STRING_TYPE_STRING);
+            mode->setIsUniform(true);
+            mode->setValueString("R");
+            mode->setAttribute("enum", "R,T,RT");
+        }
+
+        removeNodeDef(DIELECTRIC_BTDF);
+
+        nodedef = getNodeDef(GENERALIZED_SCHLICK_BRDF);
+        if (nodedef)
+        {
+            nodedef->setName(GENERALIZED_SCHLICK_BSDF);
+            InputPtr mode = nodedef->addInput(SCATTER_MODE, STRING_TYPE_STRING);
+            mode->setIsUniform(true);
+            mode->setValueString("R");
+            mode->setAttribute("enum", "R,T,RT");
+        }
+
         // Update nodes
         for (ElementPtr elem : traverseTree())
         {
@@ -1047,6 +1081,44 @@ void Document::upgradeVersion()
                 {
                     updateChildSubclass<Input>(node, axis);
                 }
+            }
+            else if (nodeCategory == DIELECTRIC_BRDF)
+            {
+                node->setCategory(DIELECTRIC_BSDF);
+
+                InputPtr base = node->getInput(BASE);
+                NodePtr baseNode = base ? base->getConnectedNode() : nullptr;
+                if (baseNode)
+                {
+                    NodePtr layer = addNode(LAYER, node->getName() + "_layer", BSDF);
+                    InputPtr layerTop = layer->addInput(TOP, BSDF);
+                    InputPtr layerBase = layer->addInput(BASE, BSDF);
+                    layerTop->setConnectedNode(node);
+                    layerBase->setConnectedNode(baseNode);
+                }
+                node->removeInput(BASE);
+            }
+            else if (nodeCategory == DIELECTRIC_BTDF)
+            {
+                node->setCategory(DIELECTRIC_BSDF);
+                InputPtr mode = node->addInput(SCATTER_MODE, STRING_TYPE_STRING);
+                mode->setValueString("T");
+            }
+            else if (nodeCategory == GENERALIZED_SCHLICK_BRDF)
+            {
+                node->setCategory(GENERALIZED_SCHLICK_BSDF);
+
+                InputPtr base = node->getInput(BASE);
+                NodePtr baseNode = base ? base->getConnectedNode() : nullptr;
+                if (baseNode)
+                {
+                    NodePtr layer = addNode(LAYER, node->getName() + "_layer", BSDF);
+                    InputPtr layerTop = layer->addInput(TOP, BSDF);
+                    InputPtr layerBase = layer->addInput(BASE, BSDF);
+                    layerTop->setConnectedNode(node);
+                    layerBase->setConnectedNode(baseNode);
+                }
+                node->removeInput(BASE);
             }
         }
 
