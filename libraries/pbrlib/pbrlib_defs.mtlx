@@ -92,11 +92,11 @@
   </nodedef>
 
   <!--
-    Node: <generalized_schlick_brdf>
-    A reflection BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.
+    Node: <generalized_schlick_bsdf>
+    A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.
   -->
-  <nodedef name="ND_generalized_schlick_brdf" node="generalized_schlick_brdf" nodegroup="pbr"
-           doc="A reflection BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.">
+  <nodedef name="ND_generalized_schlick_bsdf" node="generalized_schlick_bsdf" nodegroup="pbr"
+           doc="A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color0" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="color90" type="color3" value="1.0, 1.0, 1.0"/>
@@ -105,7 +105,7 @@
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
-    <input name="base" type="BSDF" value=""/>
+    <parameter name="scatter_mode" type="string" value="R" enum="R,T,RT"/>
     <output name="out" type="BSDF"/>
   </nodedef>
 

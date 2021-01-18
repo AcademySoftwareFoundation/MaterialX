@@ -258,8 +258,12 @@ GlslShaderGenerator::GlslShaderGenerator() :
 
     // <!-- <thin_film_brdf> -->
     registerImplementation("IM_thin_film_brdf_" + GlslShaderGenerator::TARGET, ThinFilmNode::create);
+
     // <!-- <dielectric_bsdf> -->
     registerImplementation("IM_dielectric_bsdf_" + GlslShaderGenerator::TARGET, HwDielectricBsdfNode::create);
+
+    // <!-- <generalized_schlick_bsdf> -->
+    registerImplementation("IM_generalized_schlick_bsdf_" + GlslShaderGenerator::TARGET, HwDielectricBsdfNode::create);
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));

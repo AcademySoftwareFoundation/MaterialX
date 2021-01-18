@@ -17,7 +17,7 @@
   <implementation name="IM_burley_diffuse_brdf_genglsl" nodedef="ND_burley_diffuse_brdf" file="pbrlib/genglsl/mx_burley_diffuse_brdf.glsl" function="mx_burley_diffuse_brdf" target="genglsl"/>
 
   <!-- <generalized_schlick_brdf> -->
-  <implementation name="IM_generalized_schlick_brdf_genglsl" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genglsl/mx_generalized_schlick_brdf.glsl" function="mx_generalized_schlick_brdf" target="genglsl"/>
+  <implementation name="IM_generalized_schlick_bsdf_genglsl" nodedef="ND_generalized_schlick_bsdf" file="pbrlib/genglsl/mx_generalized_schlick_bsdf.glsl" function="mx_generalized_schlick_bsdf" target="genglsl"/>
 
   <!-- <subsurface_brdf> -->
   <implementation name="IM_subsurface_brdf_genglsl" nodedef="ND_subsurface_brdf" file="pbrlib/genglsl/mx_subsurface_brdf.glsl" function="mx_subsurface_brdf" target="genglsl"/>

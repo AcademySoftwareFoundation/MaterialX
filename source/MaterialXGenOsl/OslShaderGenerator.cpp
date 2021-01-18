@@ -174,6 +174,9 @@ OslShaderGenerator::OslShaderGenerator() :
 
     // <!-- <dielectric_bsdf> -->
     registerImplementation("IM_dielectric_bsdf_" + OslShaderGenerator::TARGET, DielectricBsdfNode::create);
+
+    // <!-- <generalized_schlick_bsdf> -->
+    registerImplementation("IM_generalized_schlick_bsdf_" + OslShaderGenerator::TARGET, DielectricBsdfNode::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

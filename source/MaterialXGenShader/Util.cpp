@@ -123,43 +123,47 @@ namespace
                         ++numOpaque;
                     }
                 }
-                else if (nodetype == "dielectricbtdf")
+                else if (nodetype == "dielectric_bsdf" || nodetype == "generalized_schlick_bsdf")
                 {
-                    // This is a candidate for transparency
-                    ++numCandidates;
-
-                    bool opaque = false;
-
-                    // First check the weight
-                    InputPtr weight = node->getInput("weight");
-                    if (weight && weight->getNodeName() == EMPTY_STRING && weight->getInterfaceName() == EMPTY_STRING)
+                    InputPtr mode = node->getInput("scatter_mode");
+                    if (mode && mode->getValueString() != "R")
                     {
-                        // Unconnected, check the value
-                        ValuePtr value = weight->getValue();
-                        if (value && isZero(value))
-                        {
-                            opaque = true;
-                        }
-                    }
+                        // This is a candidate for transparency
+                        ++numCandidates;
 
-                    if (!opaque)
-                    {
-                        // Second check the tint
-                        InputPtr tint = node->getInput("tint");
-                        if (tint && tint->getNodeName() == EMPTY_STRING && tint->getInterfaceName() == EMPTY_STRING)
+                        bool opaque = false;
+
+                        // First check the weight
+                        InputPtr weight = node->getInput("weight");
+                        if (weight && weight->getNodeName() == EMPTY_STRING && weight->getInterfaceName() == EMPTY_STRING)
                         {
                             // Unconnected, check the value
-                            ValuePtr value = tint->getValue();
-                            if (!value || isZero(value))
+                            ValuePtr value = weight->getValue();
+                            if (value && isZero(value))
                             {
                                 opaque = true;
                             }
                         }
-                    }
 
-                    if (opaque)
-                    {
-                        ++numOpaque;
+                        if (!opaque)
+                        {
+                            // Second check the tint
+                            InputPtr tint = node->getInput("tint");
+                            if (tint && tint->getNodeName() == EMPTY_STRING && tint->getInterfaceName() == EMPTY_STRING)
+                            {
+                                // Unconnected, check the value
+                                ValuePtr value = tint->getValue();
+                                if (!value || isZero(value))
+                                {
+                                    opaque = true;
+                                }
+                            }
+                        }
+
+                        if (opaque)
+                        {
+                            ++numOpaque;
+                        }
                     }
                 }
                 else if (nodetype == "standard_surface")
@@ -401,45 +405,45 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
                 {
                     StringSet opacityInterfaceNames;
                     StringSet transmissionInterfaceNames;
-                    bool isTransparent = isTransparentShaderGraph(output, shadergen, opacityInterfaceNames, transmissionInterfaceNames);
-
-                    if (!isTransparent)
+                    if (isTransparentShaderGraph(output, shadergen, opacityInterfaceNames, transmissionInterfaceNames))
                     {
-                        for (const string& opacityInterfaceName : opacityInterfaceNames)
+                        return true;
+                    }
+
+                    for (const string& opacityInterfaceName : opacityInterfaceNames)
+                    {
+                        opacity = shaderNode->getActiveInput(opacityInterfaceName);
+                        if (opacity)
                         {
-                            opacity = shaderNode->getActiveInput(opacityInterfaceName);
-                            if (opacity)
+                            if (!opacity->getOutputString().empty())
                             {
-                                if (!opacity->getOutputString().empty())
+                                return true;
+                            }
+                            else
+                            {
+                                ValuePtr value = opacity->getValue();
+                                if (value && !isOne(value))
                                 {
                                     return true;
-                                }
-                                else
-                                {
-                                    ValuePtr value = opacity->getValue();
-                                    if (value && !isOne(value))
-                                    {
-                                        return true;
-                                    }
                                 }
                             }
                         }
-                        for (const string& transmissionInterfaceName : transmissionInterfaceNames)
+                    }
+                    for (const string& transmissionInterfaceName : transmissionInterfaceNames)
+                    {
+                        transmission = shaderNode->getActiveInput(transmissionInterfaceName);
+                        if (transmission)
                         {
-                            transmission = shaderNode->getActiveInput(transmissionInterfaceName);
-                            if (transmission)
+                            if (!transmission->getOutputString().empty())
                             {
-                                if (!transmission->getOutputString().empty())
+                                return true;
+                            }
+                            else
+                            {
+                                ValuePtr value = transmission->getValue();
+                                if (value && !isZero(value))
                                 {
                                     return true;
-                                }
-                                else
-                                {
-                                    ValuePtr value = transmission->getValue();
-                                    if (value && !isZero(value))
-                                    {
-                                        return true;
-                                    }
                                 }
                             }
                         }

@@ -16,8 +16,8 @@
   <!-- <burley_diffuse_brdf> -->
   <implementation name="IM_burley_diffuse_brdf_genosl" nodedef="ND_burley_diffuse_brdf" file="pbrlib/genosl/mx_burley_diffuse_brdf.osl" function="mx_burley_diffuse_brdf" target="genosl"/>
 
-  <!-- <generalized_schlick_brdf> -->
-  <implementation name="IM_generalized_schlick_brdf_genosl" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genosl/mx_generalized_schlick_brdf.osl" function="mx_generalized_schlick_brdf" target="genosl"/>
+  <!-- <generalized_schlick_bsdf> -->
+  <implementation name="IM_generalized_schlick_bsdf_genosl" nodedef="ND_generalized_schlick_bsdf" file="pbrlib/genosl/mx_generalized_schlick_bsdf.osl" function="mx_generalized_schlick_bsdf" target="genosl"/>
 
   <!-- <subsurface_brdf> -->
   <implementation name="IM_subsurface_brdf_genosl" nodedef="ND_subsurface_brdf" file="pbrlib/genosl/mx_subsurface_brdf.osl" function="mx_subsurface_brdf" target="genosl"/>

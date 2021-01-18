@@ -184,6 +184,9 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <dielectric_bsdf> -->
     registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNode::create);
+
+    // <!-- <generalized_schlick_bsdf> -->
+    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNode::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

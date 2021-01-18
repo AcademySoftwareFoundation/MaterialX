@@ -36,8 +36,16 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
 
 void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, BSDF base, thinfilm tf, out BSDF result)
 {
-    if (scatter_mode != 0)
+    if (scatter_mode == 1)
     {
+        result = tint * weight;
+        return;
+    }
+
+    if (scatter_mode == 2)
+    {
+        // No external layering in RT mode,
+        // the base is always T in this case.
         base = tint * weight;
     }
 
