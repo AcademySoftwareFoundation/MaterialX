@@ -1015,35 +1015,63 @@ void Document::upgradeVersion()
         const string DIELECTRIC_BSDF = "dielectric_bsdf";
         const string GENERALIZED_SCHLICK_BRDF = "generalized_schlick_brdf";
         const string GENERALIZED_SCHLICK_BSDF = "generalized_schlick_bsdf";
+        const string SHEEN_BRDF = "sheen_brdf";
+        const string SHEEN_BSDF = "sheen_brdf";
         const string SCATTER_MODE = "scatter_mode";
-        const string LAYER = "layer";
         const string BSDF = "BSDF";
-        const string BASE = "base";
+        const string LAYER = "layer";
         const string TOP = "top";
+        const string BASE = "base";
 
-        auto nodedef = getNodeDef(DIELECTRIC_BRDF);
-        if (nodedef)
+        // Function for upgrading BSDF nodedef, 
+        // adding scattering mode input.
+        auto upgradeBsdfNodeDef = [SCATTER_MODE](NodeDefPtr nodedef, const string& newCategory, bool addScatterMode)
         {
-            nodedef->setName(DIELECTRIC_BSDF);
-            InputPtr mode = nodedef->addInput(SCATTER_MODE, STRING_TYPE_STRING);
-            mode->setIsUniform(true);
-            mode->setValueString("R");
-            mode->setAttribute("enum", "R,T,RT");
-        }
+            if (nodedef)
+            {
+                nodedef->setName(newCategory);
+                if (addScatterMode)
+                {
+                    InputPtr mode = nodedef->addInput(SCATTER_MODE, STRING_TYPE_STRING);
+                    mode->setIsUniform(true);
+                    mode->setValueString("R");
+                    mode->setAttribute("enum", "R,T,RT");
+                }
+            }
+        };
 
+        // Function for upgrading old nested layering setup
+        // to new setup with a layer operator.
+        auto upgradeBsdfLayering = [TOP, BASE, LAYER, BSDF](NodePtr node)
+        {
+            InputPtr base = node->getInput(BASE);
+            if (base)
+            {
+                NodePtr baseNode = base->getConnectedNode();
+                if (baseNode)
+                {
+                    GraphElementPtr parent = node->getParent()->asA<GraphElement>();
+                    // Rename the top bsdf node, and give its old name to the layer operator
+                    // so we don't need to update any connection references.
+                    const string oldName = node->getName();
+                    node->setName(oldName + "__layer_top");
+                    NodePtr layer = parent->addNode(LAYER, oldName, BSDF);
+                    InputPtr layerTop = layer->addInput(TOP, BSDF);
+                    InputPtr layerBase = layer->addInput(BASE, BSDF);
+                    layerTop->setConnectedNode(node);
+                    layerBase->setConnectedNode(baseNode);
+                }
+                node->removeInput(BASE);
+            }
+        };
+
+        // Update BSDF nodedefs.
+        upgradeBsdfNodeDef(getNodeDef(DIELECTRIC_BRDF), DIELECTRIC_BSDF, true);
+        upgradeBsdfNodeDef(getNodeDef(GENERALIZED_SCHLICK_BRDF), GENERALIZED_SCHLICK_BSDF, true);
+        upgradeBsdfNodeDef(getNodeDef(SHEEN_BRDF), SHEEN_BSDF, false);
         removeNodeDef(DIELECTRIC_BTDF);
 
-        nodedef = getNodeDef(GENERALIZED_SCHLICK_BRDF);
-        if (nodedef)
-        {
-            nodedef->setName(GENERALIZED_SCHLICK_BSDF);
-            InputPtr mode = nodedef->addInput(SCATTER_MODE, STRING_TYPE_STRING);
-            mode->setIsUniform(true);
-            mode->setValueString("R");
-            mode->setAttribute("enum", "R,T,RT");
-        }
-
-        // Update nodes
+        // Update all nodes.
         for (ElementPtr elem : traverseTree())
         {
             NodePtr node = elem->asA<Node>();
@@ -1085,18 +1113,7 @@ void Document::upgradeVersion()
             else if (nodeCategory == DIELECTRIC_BRDF)
             {
                 node->setCategory(DIELECTRIC_BSDF);
-
-                InputPtr base = node->getInput(BASE);
-                NodePtr baseNode = base ? base->getConnectedNode() : nullptr;
-                if (baseNode)
-                {
-                    NodePtr layer = addNode(LAYER, node->getName() + "_layer", BSDF);
-                    InputPtr layerTop = layer->addInput(TOP, BSDF);
-                    InputPtr layerBase = layer->addInput(BASE, BSDF);
-                    layerTop->setConnectedNode(node);
-                    layerBase->setConnectedNode(baseNode);
-                }
-                node->removeInput(BASE);
+                upgradeBsdfLayering(node);
             }
             else if (nodeCategory == DIELECTRIC_BTDF)
             {
@@ -1107,18 +1124,12 @@ void Document::upgradeVersion()
             else if (nodeCategory == GENERALIZED_SCHLICK_BRDF)
             {
                 node->setCategory(GENERALIZED_SCHLICK_BSDF);
-
-                InputPtr base = node->getInput(BASE);
-                NodePtr baseNode = base ? base->getConnectedNode() : nullptr;
-                if (baseNode)
-                {
-                    NodePtr layer = addNode(LAYER, node->getName() + "_layer", BSDF);
-                    InputPtr layerTop = layer->addInput(TOP, BSDF);
-                    InputPtr layerBase = layer->addInput(BASE, BSDF);
-                    layerTop->setConnectedNode(node);
-                    layerBase->setConnectedNode(baseNode);
-                }
-                node->removeInput(BASE);
+                upgradeBsdfLayering(node);
+            }
+            else if (nodeCategory == SHEEN_BRDF)
+            {
+                node->setCategory(SHEEN_BSDF);
+                upgradeBsdfLayering(node);
             }
         }
 
