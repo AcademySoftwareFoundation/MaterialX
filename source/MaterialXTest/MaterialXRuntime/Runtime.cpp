@@ -823,7 +823,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     mx::RtNodeDef addgraphDef(addgraphPrim);    
 
     REQUIRE(graph1.getDefinition() == ND_ADDGRAPH);
-    REQUIRE(graph1.getVersion() == ADDGRAPH_VERSION);
+    REQUIRE(graph1.getVersion() == mx::EMPTY_TOKEN);
     REQUIRE(api->hasNodeDef(addgraphDef.getName()));
     REQUIRE(addgraphDef.numInputs() == 2);
     REQUIRE(addgraphDef.numOutputs() == 1);
@@ -836,19 +836,9 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     addgraphDef.setTarget(ADDGRAPH_TARGET);
     REQUIRE(addgraphDef.getTarget() == ADDGRAPH_TARGET);
 
-    // Check implementation search based on nodegraph.
+    // Check nodegraph implementation search based on nodedef name.
     mx::RtPrim addGraphImpl = stage->getImplementation(addgraphDef);
-    // Exact version check
-    {
-        REQUIRE(addGraphImpl.getPath() == graph1.getPath());
-    }
-    // Bad version check
-    {
-        graph1.setVersion(mx::RtToken("badVersion")); 
-        addGraphImpl = stage->getImplementation(addgraphDef);
-        REQUIRE_FALSE(addGraphImpl.isValid());
-        graph1.setVersion(ADDGRAPH_VERSION);
-    }
+    REQUIRE(addGraphImpl.getPath() == graph1.getPath());
 
     // Check instance creation:
     mx::RtPrim agPrim = stage->createPrim("addgraph1", ND_ADDGRAPH);

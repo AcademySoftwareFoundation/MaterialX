@@ -41,6 +41,7 @@ TEST_CASE("Material", "[material]")
     shaderNode->setVersionString("2.0");
     REQUIRE(shaderNode->getNodeDef() == nullptr);
     anisoSrf->setVersionString("2");
+    shaderNode->setVersionString("2");
     REQUIRE(shaderNode->getNodeDef() == anisoSrf);
     shaderNode->setType("volumeshader");
     REQUIRE(shaderNode->getNodeDef() == nullptr);

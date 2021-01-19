@@ -6,7 +6,7 @@
       <parameter name="roughness_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_roughness_2k_raw.exr" />
       <output name="out" type="surfaceshader" value="" />
    </nodedef>
-   <nodegraph name="NG_parquet_03_surfaceshader_template" nodedef="adsk:ND_parquet_03_surfaceshader" version="1.0" namespace="adsk">
+   <nodegraph name="NG_parquet_03_surfaceshader_template" nodedef="adsk:ND_parquet_03_surfaceshader" namespace="adsk">
       <normalmap name="parquet_03_normalmap" type="vector3">
          <input name="in" type="vector3" nodename="parquet_03_normal" />
       </normalmap>
@@ -36,7 +36,7 @@
       <input name="scalar_zero_value" type="float" value="0.0" />
       <output name="out" type="displacementshader" value=""/>
    </nodedef>
-   <nodegraph name="NG_parquet_03_displacementshader_graph" nodedef="adsk:ND_parquet_03_displacementshader" version="1.0" namespace="adsk">
+   <nodegraph name="NG_parquet_03_displacementshader_graph" nodedef="adsk:ND_parquet_03_displacementshader" namespace="adsk">
       <subtract name="parquet_03_disp_subtract" type="float">
          <input name="in1" type="float" nodename="parquet_03_displacement" />
          <input name="in2" type="float" interfacename="scalar_zero_value" />

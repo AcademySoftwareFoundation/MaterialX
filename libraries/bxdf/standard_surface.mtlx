@@ -5,9 +5,9 @@
   -->
   <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" nodegroup="pbr"
             doc="Autodesk standard surface shader" version="1.0.1" isdefaultversion="true">
-      <input name="base" type="float" value="0.8" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base"
+      <input name="base" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base"
             doc="Multiplier on the intensity of the diffuse reflection." />
-      <input name="base_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Base Color"  uifolder="Base"
+      <input name="base_color" type="color3" value="0.8, 0.8, 0.8" uimin="0,0,0" uimax="1,1,1" uiname="Base Color"  uifolder="Base"
             doc="Color of the diffuse reflection." />
       <input name="diffuse_roughness" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Diffuse Roughness"  uifolder="Base" uiadvanced="true"
             doc="Roughness of the diffuse reflection. Higher values cause the surface to appear flatter and darker." />
@@ -371,4 +371,5 @@
     <output name="out" type="surfaceshader" nodename="shader_constructor" />
 
   </nodegraph>
+  
 </materialx>

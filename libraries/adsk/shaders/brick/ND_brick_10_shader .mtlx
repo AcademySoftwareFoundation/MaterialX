@@ -6,7 +6,7 @@
       <parameter name="roughness_image" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_roughness_2k_raw.exr" />
       <output name="out" type="surfaceshader" value="" />
    </nodedef>
-   <nodegraph name="NG_brick_10_surfaceshader_template" nodedef="adsk:ND_bricks_10_surfaceshader" version="1.0" namespace="adsk">
+   <nodegraph name="NG_brick_10_surfaceshader_template" nodedef="adsk:ND_bricks_10_surfaceshader" namespace="adsk">
       <normalmap name="bricks_10_normalmap" type="vector3">
          <input name="in" type="vector3" nodename="bricks_10_normal" />
       </normalmap>
@@ -36,7 +36,7 @@
       <input name="scalar_zero_value" type="float" value="0.0" />
       <output name="out" type="displacementshader" value=""/>
    </nodedef>
-   <nodegraph name="NG_brick_10_displacementshader_graph" nodedef="adsk:ND_bricks_10_displacementshader" version="1.0" namespace="adsk">      
+   <nodegraph name="NG_brick_10_displacementshader_graph" nodedef="adsk:ND_bricks_10_displacementshader" namespace="adsk">
       <subtract name="bricks_10_disp_subtract" type="float">
          <input name="in1" type="float" nodename="bricks_10_displacement" />
          <input name="in2" type="float" interfacename="scalar_zero_value" />

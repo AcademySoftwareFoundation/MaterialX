@@ -3,7 +3,7 @@
   <nodedef name="ND_plastic08_red_surfaceshader" node="plastic08_red" version="1.0" isdefaultversion="true" nodegroup="shader" namespace="adsk">
     <output name="out" type="surfaceshader" value="" />
   </nodedef>
-  <nodegraph name="NG_plastic08_red_surfaceshader" version="1.0" nodedef="adsk:ND_plastic08_red_surfaceshader" namespace="adsk">
+  <nodegraph name="NG_plastic08_red_surfaceshader" nodedef="adsk:ND_plastic08_red_surfaceshader" namespace="adsk">
     <standard_surface name="Red_Plastic" type="surfaceshader" version="1.0.1">
       <input name="base" type="float" value="1" />
       <input name="base_color" type="color3" value="0.405, 0.084, 0.051" />

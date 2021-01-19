@@ -6,7 +6,7 @@
   </nodedef>
 
    <!-- Sample parquet material implemtnation. Versioned and namespaced -->
-   <nodegraph name="NG_parquet_03_material1" nodedef="adsk:ND_parquet_03_material" version="1.0" namespace="adsk">
+   <nodegraph name="NG_parquet_03_material1" nodedef="adsk:ND_parquet_03_material" namespace="adsk">
     <displacement name="parquet_03_displacement_shader" type="displacementshader" />
     <surfacematerial name="parquet_03_material" type="material">
       <input name="surfaceshader" type="surfaceshader" nodename="parquet_03_surface_shader" />

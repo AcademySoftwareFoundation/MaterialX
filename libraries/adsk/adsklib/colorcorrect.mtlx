@@ -25,7 +25,7 @@
    </nodedef>
 
    <!-- Sample color correct implementation. Versioned and namespaced -->
-   <nodegraph name="NG_colorcorrect" nodedef="adsk:ND_colorcorrect" namespace="adsk" version="1.0">
+   <nodegraph name="NG_colorcorrect" nodedef="adsk:ND_colorcorrect" namespace="adsk">
       <range name="AlphaClampAndGamma" type="float">
          <input name="in" type="float" nodename="AlphaOffset" />
          <input name="gamma" type="float" value="1" interfacename="alpha_gamma" />

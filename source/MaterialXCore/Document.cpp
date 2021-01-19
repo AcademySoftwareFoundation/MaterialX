@@ -1054,7 +1054,10 @@ void Document::upgradeVersion()
         // If they are, rename the nodes.
         for (NodeGraphPtr nodegraph : getNodeGraphs())
         {
-            StringSet interfaceNames;
+            // Clear out any erroneously set version 
+            nodegraph->removeAttribute(Element::VERSION_ATTRIBUTE);
+
+            StringSet interfaceNames;            
             for (auto child : nodegraph->getChildren())
             {
                 NodePtr node = child->asA<Node>();
