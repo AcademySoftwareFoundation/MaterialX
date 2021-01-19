@@ -96,7 +96,7 @@ TEST_CASE("Node", "[node]")
     REQUIRE(custom->getNodeDef() == customNodeDef);
     custom->setVersionString("1");
     REQUIRE(custom->getNodeDef() == nullptr);
-    custom->setVersionString("2");
+    custom->removeAttribute(mx::Element::VERSION_ATTRIBUTE);
     REQUIRE(custom->getNodeDef() == customNodeDef);
 
     // Define a custom type.

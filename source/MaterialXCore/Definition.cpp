@@ -30,8 +30,7 @@ namespace
         for (InterfaceElementPtr interface : candidates)
         {
             if (!interface->isA<NodeGraph>() ||
-                !targetStringsMatch(interface->getTarget(), target) ||
-                !nodedef.isVersionCompatible(interface))
+                !targetStringsMatch(interface->getTarget(), target))
             {
                 continue;
             }
@@ -126,11 +125,11 @@ bool NodeDef::validate(string* message) const
 
 bool NodeDef::isVersionCompatible(ConstElementPtr elem) const
 {
-    if (getVersionIntegers() == elem->getVersionIntegers())
+    if (getVersionString() == elem->getVersionString())
     {
         return true;
     }
-    if (getDefaultVersion() && !elem->hasVersionString())
+    if (getDefaultVersion() && (!elem->hasVersionString() || elem->getVersionString().empty()))
     {
         return true;
     }
