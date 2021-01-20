@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.37">
 
-  <!-- <diffuse_brdf> -->
-  <implementation name="IM_diffuse_brdf_genglsl" nodedef="ND_diffuse_brdf" file="pbrlib/genglsl/mx_diffuse_brdf.glsl" function="mx_diffuse_brdf" target="genglsl"/>
+  <!-- <oren_nayar_diffuse_bsdf> -->
+  <implementation name="IM_oren_nayar_diffuse_bsdf_genglsl" nodedef="ND_oren_nayar_diffuse_bsdf" file="pbrlib/genglsl/mx_oren_nayar_diffuse_bsdf.glsl" function="mx_oren_nayar_diffuse_bsdf" target="genglsl"/>
 
-  <!-- <diffuse_btdf> -->
-  <implementation name="IM_diffuse_btdf_genglsl" nodedef="ND_diffuse_btdf" file="pbrlib/genglsl/mx_diffuse_btdf.glsl" function="mx_diffuse_btdf" target="genglsl"/>
+  <!-- <burley_diffuse_bsdf> -->
+  <implementation name="IM_burley_diffuse_bsdf_genglsl" nodedef="ND_burley_diffuse_bsdf" file="pbrlib/genglsl/mx_burley_diffuse_bsdf.glsl" function="mx_burley_diffuse_bsdf" target="genglsl"/>
+
+  <!-- <translucent_bsdf> -->
+  <implementation name="IM_translucent_bsdf_genglsl" nodedef="ND_translucent_bsdf" file="pbrlib/genglsl/mx_translucent_bsdf.glsl" function="mx_translucent_bsdf" target="genglsl"/>
 
   <!-- <dielectric_bsdf> -->
   <implementation name="IM_dielectric_bsdf_genglsl" nodedef="ND_dielectric_bsdf" file="pbrlib/genglsl/mx_dielectric_bsdf.glsl" function="mx_dielectric_bsdf" target="genglsl"/>
 
-  <!-- <conductor_brdf> -->
-  <implementation name="IM_conductor_brdf_genglsl" nodedef="ND_conductor_brdf" file="pbrlib/genglsl/mx_conductor_brdf.glsl" function="mx_conductor_brdf" target="genglsl"/>
+  <!-- <conductor_bsdf> -->
+  <implementation name="IM_conductor_bsdf_genglsl" nodedef="ND_conductor_bsdf" file="pbrlib/genglsl/mx_conductor_bsdf.glsl" function="mx_conductor_bsdf" target="genglsl"/>
 
-  <!-- <burley_diffuse_brdf> -->
-  <implementation name="IM_burley_diffuse_brdf_genglsl" nodedef="ND_burley_diffuse_brdf" file="pbrlib/genglsl/mx_burley_diffuse_brdf.glsl" function="mx_burley_diffuse_brdf" target="genglsl"/>
-
-  <!-- <generalized_schlick_brdf> -->
+  <!-- <generalized_schlick_bsdf> -->
   <implementation name="IM_generalized_schlick_bsdf_genglsl" nodedef="ND_generalized_schlick_bsdf" file="pbrlib/genglsl/mx_generalized_schlick_bsdf.glsl" function="mx_generalized_schlick_bsdf" target="genglsl"/>
 
-  <!-- <subsurface_brdf> -->
-  <implementation name="IM_subsurface_brdf_genglsl" nodedef="ND_subsurface_brdf" file="pbrlib/genglsl/mx_subsurface_brdf.glsl" function="mx_subsurface_brdf" target="genglsl"/>
+  <!-- <subsurface_bsdf> -->
+  <implementation name="IM_subsurface_bsdf_genglsl" nodedef="ND_subsurface_bsdf" file="pbrlib/genglsl/mx_subsurface_bsdf.glsl" function="mx_subsurface_bsdf" target="genglsl"/>
 
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genglsl" nodedef="ND_sheen_bsdf" file="pbrlib/genglsl/mx_sheen_bsdf.glsl" function="mx_sheen_bsdf" target="genglsl"/>
 
-  <!-- <thin_film_brdf> -->
-  <implementation name="IM_thin_film_brdf_genglsl" nodedef="ND_thin_film_brdf" target="genglsl"/>
+  <!-- <thin_film_bsdf> -->
+  <implementation name="IM_thin_film_bsdf_genglsl" nodedef="ND_thin_film_bsdf" target="genglsl"/>
 
   <!-- <layer> -->
   <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" target="genglsl"/>

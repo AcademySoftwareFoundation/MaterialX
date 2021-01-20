@@ -21,10 +21,10 @@
   <!-- ======================================================================== -->
 
   <!--
-    Node: <diffuse_brdf>
+    Node: <oren_nayar_diffuse_bsdf>
     A BSDF node for diffuse reflection.
   -->
-  <nodedef name="ND_diffuse_brdf" node="diffuse_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_oren_nayar_diffuse_bsdf" node="oren_nayar_diffuse_bsdf" bsdf="R" nodegroup="pbr"
            doc="A BSDF node for diffuse reflections.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -34,26 +34,26 @@
   </nodedef>
 
   <!--
-    Node: <diffuse_btdf>
-    A BSDF node for diffuse transmission.
+    Node: <burley_diffuse_bsdf>
+    A BSDF node for Burley diffuse reflection.
   -->
-  <nodedef name="ND_diffuse_btdf" node="diffuse_btdf" bsdf="R" nodegroup="pbr"
-           doc="A BSDF node for pure diffuse transmission.">
+  <nodedef name="ND_burley_diffuse_bsdf" node="burley_diffuse_bsdf" bsdf="R" nodegroup="pbr"
+           doc="A BSDF node for Burley diffuse reflections.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
-    <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
+    <input name="roughness" type="float" value="0.0"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <output name="out" type="BSDF"/>
   </nodedef>
 
   <!--
-    Node: <burley_diffuse_brdf>
-    A BSDF node for Burley diffuse reflection.
+    Node: <translucent_bsdf>
+    A BSDF node for diffuse transmission.
   -->
-  <nodedef name="ND_burley_diffuse_brdf" node="burley_diffuse_brdf" bsdf="R" nodegroup="pbr"
-           doc="A BSDF node for Burley diffuse reflections.">
+  <nodedef name="ND_translucent_bsdf" node="translucent_bsdf" bsdf="R" nodegroup="pbr"
+           doc="A BSDF node for pure diffuse transmission.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
-    <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
-    <input name="roughness" type="float" value="0.0"/>
+    <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <output name="out" type="BSDF"/>
   </nodedef>
@@ -76,10 +76,10 @@
   </nodedef>
 
   <!--
-    Node: <conductor_brdf>
+    Node: <conductor_bsdf>
     A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.
   -->
-  <nodedef name="ND_conductor_brdf" node="conductor_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_conductor_bsdf" node="conductor_bsdf" bsdf="R" nodegroup="pbr"
            doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="reflectivity" type="color3" value="0.944, 0.776, 0.373" colorspace="lin_rec709"/>
@@ -110,10 +110,10 @@
   </nodedef>
 
   <!--
-    Node: <subsurface_brdf>
+    Node: <subsurface_bsdf>
     A subsurface scattering BSDF for true subsurface scattering.
   -->
-  <nodedef name="ND_subsurface_brdf" node="subsurface_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_subsurface_bsdf" node="subsurface_bsdf" bsdf="R" nodegroup="pbr"
            doc="A subsurface scattering BSDF for true subsurface scattering.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -133,19 +133,17 @@
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="roughness" type="float" value="0.3"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
-    <input name="base" type="BSDF" value=""/>
     <output name="out" type="BSDF"/>
   </nodedef>
 
   <!--
-    Node: <thin_film_brdf>
+    Node: <thin_film_bsdf>
     Adds an iridescent thin film layer over a microfacet base BSDF.
   -->
-  <nodedef name="ND_thin_film_brdf" node="thin_film_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_thin_film_bsdf" node="thin_film_bsdf" bsdf="R" nodegroup="pbr"
            doc="Adds an iridescent thin film layer over a microfacet base BSDF.">
     <input name="thickness" type="float" value="550" unittype="distance" unit="nanometer"/>
     <input name="ior" type="float" value="1.5"/>
-    <input name="base" type="BSDF" value=""/>
     <output name="out" type="BSDF"/>
   </nodedef>
 

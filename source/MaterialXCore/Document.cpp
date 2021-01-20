@@ -1009,14 +1009,19 @@ void Document::upgradeVersion()
             }
         }
 
-        // Update dielectric BSDF interfaces
-        const string DIELECTRIC_BRDF = "dielectric_brdf";
-        const string DIELECTRIC_BTDF = "dielectric_btdf";
-        const string DIELECTRIC_BSDF = "dielectric_bsdf";
-        const string GENERALIZED_SCHLICK_BRDF = "generalized_schlick_brdf";
-        const string GENERALIZED_SCHLICK_BSDF = "generalized_schlick_bsdf";
-        const string SHEEN_BRDF = "sheen_brdf";
-        const string SHEEN_BSDF = "sheen_bsdf";
+        // Update BSDF interfaces
+        using StringPair = std::pair<string, string>;
+        const StringPair DIELECTRIC_BRDF = { "dielectric_brdf", "dielectric_bsdf" };
+        const StringPair DIELECTRIC_BTDF = { "dielectric_btdf", "dielectric_bsdf" };
+        const StringPair GENERALIZED_SCHLICK_BRDF = { "generalized_schlick_brdf", "generalized_schlick_bsdf" };
+        const StringPair CONDUCTOR_BRDF = { "conductor_brdf", "conductor_bsdf" };
+        const StringPair SHEEN_BRDF = { "sheen_brdf", "sheen_bsdf" };
+        const StringPair DIFFUSE_BRDF = { "diffuse_brdf", "oren_nayar_diffuse_bsdf" };
+        const StringPair BURLEY_DIFFUSE_BRDF = { "burley_diffuse_brdf", "burley_diffuse_bsdf" };
+        const StringPair DIFFUSE_BTDF = { "diffuse_btdf", "translucent_bsdf" };
+        const StringPair SUBSURFACE_BRDF = { "subsurface_brdf", "subsurface_bsdf" };
+        const StringPair THIN_FILM_BRDF = { "thin_film_brdf", "thin_film_bsdf" };
+
         const string SCATTER_MODE = "scatter_mode";
         const string BSDF = "BSDF";
         const string LAYER = "layer";
@@ -1024,9 +1029,8 @@ void Document::upgradeVersion()
         const string BASE = "base";
         const string INTERIOR = "interior";
 
-        // Function for upgrading BSDF nodedef, 
-        // adding scattering mode input.
-        auto upgradeBsdfNodeDef = [SCATTER_MODE](NodeDefPtr nodedef, const string& newCategory, bool addScatterMode)
+        // Function for upgrading BSDF nodedef.
+        auto upgradeBsdfNodeDef = [SCATTER_MODE](NodeDefPtr nodedef, const string& newCategory, bool addScatterMode = false)
         {
             if (nodedef)
             {
@@ -1040,6 +1044,18 @@ void Document::upgradeVersion()
                 }
             }
         };
+
+        // Update BSDF nodedefs.
+        upgradeBsdfNodeDef(getNodeDef(DIELECTRIC_BRDF.first), DIELECTRIC_BRDF.second, true);
+        upgradeBsdfNodeDef(getNodeDef(GENERALIZED_SCHLICK_BRDF.first), GENERALIZED_SCHLICK_BRDF.second, true);
+        upgradeBsdfNodeDef(getNodeDef(CONDUCTOR_BRDF.first), CONDUCTOR_BRDF.second);
+        upgradeBsdfNodeDef(getNodeDef(SHEEN_BRDF.first), SHEEN_BRDF.second);
+        upgradeBsdfNodeDef(getNodeDef(DIFFUSE_BRDF.first), DIFFUSE_BRDF.second);
+        upgradeBsdfNodeDef(getNodeDef(BURLEY_DIFFUSE_BRDF.first), BURLEY_DIFFUSE_BRDF.second);
+        upgradeBsdfNodeDef(getNodeDef(DIFFUSE_BTDF.first), DIFFUSE_BTDF.second);
+        upgradeBsdfNodeDef(getNodeDef(SUBSURFACE_BRDF.first), SUBSURFACE_BRDF.second);
+        upgradeBsdfNodeDef(getNodeDef(THIN_FILM_BRDF.first), THIN_FILM_BRDF.second);
+        removeNodeDef(DIELECTRIC_BTDF.first);
 
         // Function for upgrading old nested layering setup
         // to new setup with layer operators.
@@ -1065,12 +1081,6 @@ void Document::upgradeVersion()
                 node->removeInput(BASE);
             }
         };
-
-        // Update BSDF nodedefs.
-        upgradeBsdfNodeDef(getNodeDef(DIELECTRIC_BRDF), DIELECTRIC_BSDF, true);
-        upgradeBsdfNodeDef(getNodeDef(GENERALIZED_SCHLICK_BRDF), GENERALIZED_SCHLICK_BSDF, true);
-        upgradeBsdfNodeDef(getNodeDef(SHEEN_BRDF), SHEEN_BSDF, false);
-        removeNodeDef(DIELECTRIC_BTDF);
 
         // Update all nodes.
         for (ElementPtr elem : traverseTree())
@@ -1111,28 +1121,52 @@ void Document::upgradeVersion()
                     updateChildSubclass<Input>(node, axis);
                 }
             }
-            else if (nodeCategory == DIELECTRIC_BRDF)
+            else if (nodeCategory == DIELECTRIC_BRDF.first)
             {
-                node->setCategory(DIELECTRIC_BSDF);
+                node->setCategory(DIELECTRIC_BRDF.second);
                 upgradeBsdfLayering(node);
             }
-            else if (nodeCategory == DIELECTRIC_BTDF)
+            else if (nodeCategory == DIELECTRIC_BTDF.first)
             {
-                node->setCategory(DIELECTRIC_BSDF);
+                node->setCategory(DIELECTRIC_BTDF.second);
                 node->removeInput(INTERIOR);
                 InputPtr mode = node->addInput(SCATTER_MODE, STRING_TYPE_STRING);
                 mode->setValueString("T");
-
             }
-            else if (nodeCategory == GENERALIZED_SCHLICK_BRDF)
+            else if (nodeCategory == GENERALIZED_SCHLICK_BRDF.first)
             {
-                node->setCategory(GENERALIZED_SCHLICK_BSDF);
+                node->setCategory(GENERALIZED_SCHLICK_BRDF.second);
                 upgradeBsdfLayering(node);
             }
-            else if (nodeCategory == SHEEN_BRDF)
+            else if (nodeCategory == SHEEN_BRDF.first)
             {
-                node->setCategory(SHEEN_BSDF);
+                node->setCategory(SHEEN_BRDF.second);
                 upgradeBsdfLayering(node);
+            }
+            else if (nodeCategory == THIN_FILM_BRDF.first)
+            {
+                node->setCategory(THIN_FILM_BRDF.second);
+                upgradeBsdfLayering(node);
+            }
+            else if (nodeCategory == CONDUCTOR_BRDF.first)
+            {
+                node->setCategory(CONDUCTOR_BRDF.second);
+            }
+            else if (nodeCategory == DIFFUSE_BRDF.first)
+            {
+                node->setCategory(DIFFUSE_BRDF.second);
+            }
+            else if (nodeCategory == BURLEY_DIFFUSE_BRDF.first)
+            {
+                node->setCategory(BURLEY_DIFFUSE_BRDF.second);
+            }
+            else if (nodeCategory == DIFFUSE_BTDF.first)
+            {
+                node->setCategory(DIFFUSE_BTDF.second);
+            }
+            else if (nodeCategory == SUBSURFACE_BRDF.first)
+            {
+                node->setCategory(SUBSURFACE_BRDF.second);
             }
         }
 

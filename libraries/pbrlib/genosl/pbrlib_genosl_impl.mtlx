@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.35">
 
-  <!-- <diffuse_brdf> -->
-  <implementation name="IM_diffuse_brdf_genosl" nodedef="ND_diffuse_brdf" file="pbrlib/genosl/mx_diffuse_brdf.inline" target="genosl"/>
+  <!-- <oren_nayar_diffuse_bsdf> -->
+  <implementation name="IM_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_oren_nayar_diffuse_bsdf" file="pbrlib/genosl/mx_oren_nayar_diffuse_bsdf.inline" target="genosl"/>
 
-  <!-- <diffuse_btdf> -->
-  <implementation name="IM_diffuse_btdf_genosl" nodedef="ND_diffuse_btdf" file="pbrlib/genosl/mx_diffuse_btdf.inline" target="genosl"/>
+  <!-- <burley_diffuse_bsdf> -->
+  <implementation name="IM_burley_diffuse_bsdf_genosl" nodedef="ND_burley_diffuse_bsdf" file="pbrlib/genosl/mx_burley_diffuse_bsdf.osl" function="mx_burley_diffuse_bsdf" target="genosl"/>
+
+  <!-- <translucent_bsdf> -->
+  <implementation name="IM_translucent_bsdf_genosl" nodedef="ND_translucent_bsdf" file="pbrlib/genosl/mx_translucent_bsdf.inline" target="genosl"/>
 
   <!-- <dielectric_bsdf> -->
   <implementation name="IM_dielectric_bsdf_genosl" nodedef="ND_dielectric_bsdf" file="pbrlib/genosl/mx_dielectric_bsdf.osl" function="mx_dielectric_bsdf" target="genosl"/>
 
-  <!-- <conductor_brdf> -->
-  <implementation name="IM_conductor_brdf_genosl" nodedef="ND_conductor_brdf" file="pbrlib/genosl/mx_conductor_brdf.osl" function="mx_conductor_brdf" target="genosl"/>
-
-  <!-- <burley_diffuse_brdf> -->
-  <implementation name="IM_burley_diffuse_brdf_genosl" nodedef="ND_burley_diffuse_brdf" file="pbrlib/genosl/mx_burley_diffuse_brdf.osl" function="mx_burley_diffuse_brdf" target="genosl"/>
+  <!-- <conductor_bsdf> -->
+  <implementation name="IM_conductor_bsdf_genosl" nodedef="ND_conductor_bsdf" file="pbrlib/genosl/mx_conductor_bsdf.osl" function="mx_conductor_bsdf" target="genosl"/>
 
   <!-- <generalized_schlick_bsdf> -->
   <implementation name="IM_generalized_schlick_bsdf_genosl" nodedef="ND_generalized_schlick_bsdf" file="pbrlib/genosl/mx_generalized_schlick_bsdf.osl" function="mx_generalized_schlick_bsdf" target="genosl"/>
 
-  <!-- <subsurface_brdf> -->
-  <implementation name="IM_subsurface_brdf_genosl" nodedef="ND_subsurface_brdf" file="pbrlib/genosl/mx_subsurface_brdf.osl" function="mx_subsurface_brdf" target="genosl"/>
+  <!-- <subsurface_bsdf> -->
+  <implementation name="IM_subsurface_bsdf_genosl" nodedef="ND_subsurface_bsdf" file="pbrlib/genosl/mx_subsurface_bsdf.osl" function="mx_subsurface_bsdf" target="genosl"/>
 
-  <!-- <sheen_brdf> -->
-  <implementation name="IM_sheen_brdf_genosl" nodedef="ND_sheen_brdf" file="pbrlib/genosl/mx_sheen_brdf.osl" function="mx_sheen_brdf" target="genosl"/>
+  <!-- <sheen_bsdf> -->
+  <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" file="pbrlib/genosl/mx_sheen_bsdf.osl" function="mx_sheen_bsdf" target="genosl"/>
 
-  <!-- <thin_film_brdf> -->
-  <implementation name="IM_thin_film_brdf_genosl" nodedef="ND_thin_film_brdf" target="genosl"/>
+  <!-- <thin_film_bsdf> -->
+  <implementation name="IM_thin_film_bsdf_genosl" nodedef="ND_thin_film_bsdf" target="genosl"/>
 
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" file="pbrlib/genosl/mx_uniform_edf.inline" target="genosl"/>
