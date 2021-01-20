@@ -12,6 +12,7 @@
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/CombineNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/ThinFilmNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
@@ -182,6 +183,9 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <layer> -->
     registerImplementation("IM_layer_bsdf_" + MdlShaderGenerator::TARGET, LayerNode::create);
+
+    // <!-- <thin_film_bsdf> -->
+    registerImplementation("IM_thin_film_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmNodeMdl::create);
 
     // <!-- <dielectric_bsdf> -->
     registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNode::create);

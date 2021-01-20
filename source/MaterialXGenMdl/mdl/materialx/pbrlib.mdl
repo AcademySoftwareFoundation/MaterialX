@@ -77,7 +77,7 @@ export df::scatter_mode mx_map_scatter_mode( mx_scatter_mode mode) {
     }
 }
 
-export material mx_diffuse_brdf(
+export material mx_oren_nayar_diffuse_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(0.18),
     float  mxp_roughness = 0.0,
@@ -98,7 +98,29 @@ export material mx_diffuse_brdf(
     )
 );
 
-export material mx_diffuse_btdf(
+// NOTE: Approximate Burley with df::diffuse_reflection_bsdf, the difference isn't big
+export material mx_burley_diffuse_bsdf(
+    float  mxp_weight    = 1.0,
+    color  mxp_color     = color(0.18),
+    float  mxp_roughness = 0.0,
+    float3 mxp_normal    = state::normal()
+) [[ 
+    anno::usage( "materialx:bsdf") 
+]]
+= material(
+    surface: material_surface( 
+        scattering: df::weighted_layer(
+            weight: mxp_weight,
+            layer: df::diffuse_reflection_bsdf(
+                tint: mxp_color,
+                roughness: mxp_roughness
+            ),
+            normal: mxp_normal
+        )
+    )
+);
+
+export material mx_translucent_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(1.0),
     float3 mxp_normal    = state::normal()
@@ -111,28 +133,6 @@ export material mx_diffuse_btdf(
             weight: mxp_weight,
             layer: df::diffuse_transmission_bsdf(
                 tint: mxp_color
-            ),
-            normal: mxp_normal
-        )
-    )
-);
-
-// NOTE: Approximate Burley with df::diffuse_brdf, the difference isn't big
-export material mx_burley_diffuse_brdf(
-    float  mxp_weight    = 1.0,
-    color  mxp_color     = color(0.18),
-    float  mxp_roughness = 0.0,
-    float3 mxp_normal    = state::normal()
-) [[ 
-    anno::usage( "materialx:bsdf") 
-]]
-= material(
-    surface: material_surface( 
-        scattering: df::weighted_layer(
-            weight: mxp_weight,
-            layer: df::diffuse_reflection_bsdf(
-                tint: mxp_color,
-                roughness: mxp_roughness
             ),
             normal: mxp_normal
         )
@@ -194,7 +194,7 @@ color[2] artistic_to_complex_ior( color mxp_reflectivity, color mxp_edge_color) 
     return color[2](n,k);
 }
 
-export material mx_conductor_brdf(
+export material mx_conductor_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_reflectivity = color(0.944, 0.776, 0.373),
     color  mxp_edge_color   = color(0.998, 0.981, 0.751),
@@ -266,7 +266,7 @@ export material mx_generalized_schlick_bsdf(
     volume: mxp_base.volume
 );
 
-export material mx_subsurface_brdf(
+export material mx_subsurface_bsdf(
     float  mxp_weight    = 1.0 [[ anno::unused() ]],
     color  mxp_color     = color(0.18) [[ anno::unused() ]],
     float3 mxp_radius    = float3(1.0) [[ anno::unused() ]], // TODO: should probably be a color in MTLX Spec
@@ -307,7 +307,7 @@ export material mx_sheen_bsdf(
     )
 );
 
-export material mx_thin_film_brdf(
+export material mx_thin_film_bsdf(
     float  mxp_thickness  = 550.0,
     float  mxp_ior        = 1.5,
     material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
