@@ -178,17 +178,17 @@
     </power>
 
     <!-- Diffuse/Subsurface Layer -->
-    <diffuse_brdf name="diffuse_bsdf" type="BSDF">
+    <oren_nayar_diffuse_bsdf name="diffuse_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="base" />
       <input name="color" type="color3" nodename="coat_affected_diffuse_color" />
       <input name="roughness" type="float" interfacename="diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
-    </diffuse_brdf>
-    <diffuse_btdf name="translucent_bsdf" type="BSDF">
+    </oren_nayar_diffuse_bsdf>
+    <translucent_bsdf name="translucent_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" nodename="coat_affected_subsurface_color" />
       <input name="normal" type="vector3" interfacename="normal" />
-    </diffuse_btdf>
+    </translucent_bsdf>
     <convert name="subsurface_radius_vector" type="vector3">
       <input name="in" type="color3" interfacename="subsurface_radius" />
     </convert>
@@ -196,13 +196,13 @@
       <input name="in1" type="vector3" nodename="subsurface_radius_vector" />
       <input name="in2" type="float" interfacename="subsurface_scale" />
     </multiply>
-    <subsurface_brdf name="subsurface_bsdf" type="BSDF">
+    <subsurface_bsdf name="subsurface_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" nodename="coat_affected_subsurface_color" />
       <input name="radius" type="vector3" nodename="subsurface_radius_scaled"/>
       <input name="anisotropy" type="float" interfacename="subsurface_anisotropy"/>
       <input name="normal" type="vector3" interfacename="normal" />
-    </subsurface_brdf>
+    </subsurface_bsdf>
     <convert name="subsurface_selector" type="float">
       <input name="in" type="boolean" interfacename="thin_walled" />
     </convert>
@@ -218,12 +218,12 @@
     </mix>
 
     <!-- Sheen Layer -->
-    <sheen_brdf name="sheen_bsdf" type="BSDF">
+    <sheen_bsdf name="sheen_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="sheen" />
       <input name="color" type="color3" interfacename="sheen_color" />
       <input name="roughness" type="float" interfacename="sheen_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
-    </sheen_brdf>
+    </sheen_bsdf>
     <layer name="sheen_layer" type="BSDF">
       <input name="top" type="BSDF" nodename="sheen_bsdf" />
       <input name="base" type="BSDF" nodename="subsurface_mix" />
@@ -247,10 +247,10 @@
     </mix>
 
     <!-- Thin-film -->
-    <thin_film_brdf name="thin_film_bsdf" type="BSDF">
+    <thin_film_bsdf name="thin_film_bsdf" type="BSDF">
       <input name="thickness" type="float" interfacename="thin_film_thickness" />
       <input name="ior" type="float" interfacename="thin_film_IOR" />
-    </thin_film_brdf>
+    </thin_film_bsdf>
 
     <!-- Specular Layer -->
     <dielectric_bsdf name="specular_bsdf" type="BSDF">
@@ -281,7 +281,7 @@
       <input name="in1" type="color3" interfacename="specular_color" />
       <input name="in2" type="float" interfacename="specular" />
     </multiply>
-    <conductor_brdf name="metal_bsdf" type="BSDF">
+    <conductor_bsdf name="metal_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="reflectivity" type="color3" nodename="metal_reflectivity"/>
       <input name="edge_color" type="color3" nodename="metal_edgecolor"/>
@@ -289,7 +289,7 @@
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <parameter name="distribution" type="string" value="ggx" />
-    </conductor_brdf>
+    </conductor_bsdf>
     <mix name="metalness_mix" type="BSDF">
       <input name="fg" type="BSDF" nodename="metal_bsdf" />
       <input name="bg" type="BSDF" nodename="specular_layer_with_thin_film" />
