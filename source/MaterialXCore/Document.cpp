@@ -1112,9 +1112,6 @@ void Document::upgradeVersion()
                 }
             }
         }
-
-        // While we are in the process of supporting 1.38. Leave files as 1.37
-        minorVersion = 37;
     }
 
     setVersionIntegers(majorVersion, minorVersion);
