@@ -62,28 +62,25 @@ std::unordered_set<NodePtr> getShaderNodes(const NodePtr& materialNode, const st
     for (const InputPtr& input : inputs) 
     {
         // Scan for a node directly connected to the input.
+        // Note that this will handle traversing through interfacename associations.
         //
-        const string& inputShader = input->getNodeName();
-        if (!inputShader.empty())
+        NodePtr shaderNode = input->getConnectedNode();
+        if (shaderNode)
         {
-            NodePtr shaderNode = parent->getChildOfType<Node>(inputShader);
-            if (shaderNode)
+            if (!nodeType.empty() && shaderNode->getType() != nodeType)
             {
-                if (!nodeType.empty() && shaderNode->getType() != nodeType)
+                continue;
+            }
+                
+            if (!target.empty())
+            {
+                NodeDefPtr nodeDef = shaderNode->getNodeDef(target);
+                if (!nodeDef)
                 {
                     continue;
                 }
-                
-                if (!target.empty())
-                {
-                    NodeDefPtr nodeDef = shaderNode->getNodeDef(target);
-                    if (!nodeDef)
-                    {
-                        continue;
-                    }
-                }
-                shaderNodes.insert(shaderNode);
             }
+            shaderNodes.insert(shaderNode);
         }
 
         // Check upstream nodegraph connected to the input.
