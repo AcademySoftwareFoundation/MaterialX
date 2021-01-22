@@ -14,7 +14,7 @@
   <implementation name="IM_dielectric_bsdf_genmdl" nodedef="ND_dielectric_bsdf" sourcecode="mx::pbrlib::mx_dielectric_bsdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl"/>
 
   <!-- <conductor_bsdf> -->
-  <implementation name="IM_conductor_bsdf_genmdl" nodedef="ND_conductor_bsdf" sourcecode="mx::pbrlib::mx_conductor_bsdf(mxp_weight:{{weight}}, mxp_reflectivity:{{reflectivity}}, mxp_edge_color:{{edge_color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl"/>
+  <implementation name="IM_conductor_bsdf_genmdl" nodedef="ND_conductor_bsdf" sourcecode="mx::pbrlib::mx_conductor_bsdf(mxp_weight:{{weight}}, mxp_ior:{{ior}}, mxp_extinction:{{extinction}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl"/>
 
   <!-- <generalized_schlick_bsdf> -->
   <implementation name="IM_generalized_schlick_bsdf_genmdl" nodedef="ND_generalized_schlick_bsdf" sourcecode="mx::pbrlib::mx_generalized_schlick_bsdf(mxp_weight:{{weight}}, mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}},mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl"/>
@@ -87,9 +87,6 @@
 
    <!-- <roughness_dual> -->
   <implementation name="IM_roughness_dual_genmdl" nodedef="ND_roughness_dual" sourcecode="mx::pbrlib::mx_roughness_dual(mxp_roughness:{{roughness}})" target="genmdl"/>
-
-  <!-- <complex_ior> -->
-  <implementation name="IM_complex_ior_genmdl" nodedef="ND_complex_ior" sourcecode="mx::pbrlib::mx_complex_ior(mxp_ior:{{ior}}, mxp_extinction:{{extinction}})" target="genmdl"/>
 
   <!-- <artistic_ior> -->
   <implementation name="IM_artistic_ior_genmdl" nodedef="ND_artistic_ior" sourcecode="mx::pbrlib::mx_artistic_ior(mxp_reflectivity:{{reflectivity}}, mxp_edge_color:{{edge_color}})" target="genmdl"/>

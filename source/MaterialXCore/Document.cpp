@@ -1028,6 +1028,13 @@ void Document::upgradeVersion()
         const string TOP = "top";
         const string BASE = "base";
         const string INTERIOR = "interior";
+        const string ARTISTIC_IOR = "artistic_ior";
+        const string COMPLEX_IOR = "complex_ior";
+        const string REFLECTIVITY = "reflectivity";
+        const string EDGE_COLOR = "edge_color";
+        const string IOR = "ior";
+        const string EXTINCTION = "extinction";
+        const string COLOR3 = "color3";
 
         // Function for upgrading BSDF nodedef.
         auto upgradeBsdfNodeDef = [SCATTER_MODE](NodeDefPtr nodedef, const string& newCategory, bool addScatterMode = false)
@@ -1045,7 +1052,7 @@ void Document::upgradeVersion()
             }
         };
 
-        // Update BSDF nodedefs.
+        // Update nodedefs.
         upgradeBsdfNodeDef(getNodeDef(DIELECTRIC_BRDF.first), DIELECTRIC_BRDF.second, true);
         upgradeBsdfNodeDef(getNodeDef(GENERALIZED_SCHLICK_BRDF.first), GENERALIZED_SCHLICK_BRDF.second, true);
         upgradeBsdfNodeDef(getNodeDef(CONDUCTOR_BRDF.first), CONDUCTOR_BRDF.second);
@@ -1056,6 +1063,7 @@ void Document::upgradeVersion()
         upgradeBsdfNodeDef(getNodeDef(SUBSURFACE_BRDF.first), SUBSURFACE_BRDF.second);
         upgradeBsdfNodeDef(getNodeDef(THIN_FILM_BRDF.first), THIN_FILM_BRDF.second);
         removeNodeDef(DIELECTRIC_BTDF.first);
+        removeNodeDef(COMPLEX_IOR);
 
         // Function for upgrading old nested layering setup
         // to new setup with layer operators.
@@ -1079,6 +1087,15 @@ void Document::upgradeVersion()
                     layerBase->setConnectedNode(baseNode);
                 }
                 node->removeInput(BASE);
+            }
+        };
+
+        // Function for copy all attributes from one element to another.
+        auto copyAttributes = [](ConstElementPtr src, ElementPtr dest)
+        {
+            for (const string& attr : src->getAttributeNames())
+            {
+                dest->setAttribute(attr, src->getAttribute(attr));
             }
         };
 
@@ -1151,6 +1168,37 @@ void Document::upgradeVersion()
             else if (nodeCategory == CONDUCTOR_BRDF.first)
             {
                 node->setCategory(CONDUCTOR_BRDF.second);
+
+                // Create an artistic_ior node to convert from artistic to physical parameterization.
+                GraphElementPtr parent = node->getParent()->asA<GraphElement>();
+                NodePtr artisticIor = parent->addNode(ARTISTIC_IOR, node->getName() + "__artistic_ior", "multioutput");
+                OutputPtr artisticIor_ior = artisticIor->addOutput(IOR, COLOR3);
+                OutputPtr artisticIor_extinction = artisticIor->addOutput(EXTINCTION, COLOR3);
+
+                // Copy values and connections from conductor node to artistic_ior node.
+                InputPtr reflectivity = node->getInput(REFLECTIVITY);
+                if (reflectivity)
+                {
+                    InputPtr artisticIor_reflectivity = artisticIor->addInput(REFLECTIVITY, COLOR3);
+                    copyAttributes(reflectivity, artisticIor_reflectivity);
+                }
+                InputPtr edge_color = node->getInput(EDGE_COLOR);
+                if (edge_color)
+                {
+                    InputPtr artisticIor_edge_color = artisticIor->addInput(EDGE_COLOR, COLOR3);
+                    copyAttributes(edge_color, artisticIor_edge_color);
+                }
+
+                // Update the parameterization on the conductor node
+                // and connect it to the artistic_ior node.
+                node->removeInput(REFLECTIVITY);
+                node->removeInput(EDGE_COLOR);
+                InputPtr ior = node->addInput(IOR, COLOR3);
+                ior->setNodeName(artisticIor->getName());
+                ior->setOutputString(artisticIor_ior->getName());
+                InputPtr extinction = node->addInput(EXTINCTION, COLOR3);
+                extinction->setNodeName(artisticIor->getName());
+                extinction->setOutputString(artisticIor_extinction->getName());
             }
             else if (nodeCategory == DIFFUSE_BRDF.first)
             {

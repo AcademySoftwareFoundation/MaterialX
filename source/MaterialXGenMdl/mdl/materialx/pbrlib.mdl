@@ -824,39 +824,10 @@ export color mx_blackbody(
     return math::blackbody( mxp_temperature);
 }
 
-// Supportive struct type for the two outputs of mx_complex_ior
-export struct mx_complex_ior__result {
-    color mxp_reflectivity;
-    color mxp_edge_color;
-};
-
-// Converts complex IOR values to the artistic parameterization
-// reflectivity and edgecolor. Can be used with the conductor_brdf
-// node to input true complex IOR values instead of artistic
-// reflectivity.
-export mx_complex_ior__result mx_complex_ior(
-    // NOTE: In MDL, those would ideally be colors as well and we would
-    // switch the calculations to color as well.
-    float3 mxp_ior = float3(0.271, 0.677, 1.316),
-    float3 mxp_extinction = float3(3.609, 2.625, 2.292)
-) {
-    float3 nm1 = mxp_ior - 1.0;
-    float3 np1 = mxp_ior + 1.0;
-    float3 k2  = mxp_extinction * mxp_extinction;
-    float3 r = (nm1*nm1 + k2) / (np1*np1 + k2);
-    float3 r_sqrt = math::sqrt(r);
-    float3 n_min = (1.0 - r) / (1.0 + r);
-    float3 n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
-    float3 e = (n_max - mxp_ior) / (n_max - n_min);    
-    return mx_complex_ior__result( color(r), color(e));
-}
-
 // Supportive struct type for the two outputs of mx_artistic_ior
-// NOTE: In MDL, those would ideally be colors as well and we would
-// switch the calculations to color as well.
 export struct mx_artistic_ior__result {
-    float3 mxp_ior;
-    float3 mxp_extinction;
+    color mxp_ior;
+    color mxp_extinction;
 };
 
 // Converts the artistic parameterization reflectivity and edgecolor
@@ -865,16 +836,16 @@ export mx_artistic_ior__result mx_artistic_ior(
     color mxp_reflectivity = color(0.944, 0.776, 0.373),
     color mxp_edge_color = color(0.998, 0.981, 0.751)
 ) {
-    float3 r = math::clamp( float3(mxp_reflectivity), float3(0.0), float3(0.99));
-    float3 r_sqrt = math::sqrt(r);
-    float3 n_min = (1.0 - r) / (1.0 + r);
-    float3 n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
-    float3 n = math::lerp(n_max, n_min, float3(mxp_edge_color));
-    float3 np1 = n + 1.0;
-    float3 nm1 = n - 1.0;
-    float3 k2 = (np1*np1 * r - nm1*nm1) / (1.0 - r);
+    color r = math::clamp( mxp_reflectivity, color(0.0), color(0.99));
+    color r_sqrt = math::sqrt(r);
+    color n_min = (1.0 - r) / (1.0 + r);
+    color n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
+    color n = math::lerp(n_max, n_min, float3(mxp_edge_color));
+    color np1 = n + 1.0;
+    color nm1 = n - 1.0;
+    color k2 = (np1*np1 * r - nm1*nm1) / (1.0 - r);
     k2 = math::max(k2, 0.0);
-    float3 k = math::sqrt(k2);
+    color k = math::sqrt(k2);
     return mx_artistic_ior__result(n,k);
 }
 

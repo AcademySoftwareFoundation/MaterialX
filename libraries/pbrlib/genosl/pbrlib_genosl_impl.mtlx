@@ -66,9 +66,6 @@
    <!-- <roughness_dual> -->
   <implementation name="IM_roughness_dual_genosl" nodedef="ND_roughness_dual" file="pbrlib/genosl/mx_roughness_dual.osl" function="mx_roughness_dual" target="genosl"/>
 
-  <!-- <complex_ior> -->
-  <implementation name="IM_complex_ior_genosl" nodedef="ND_complex_ior" file="pbrlib/genosl/mx_complex_ior.osl" function="mx_complex_ior" target="genosl"/>
-
   <!-- <artistic_ior> -->
   <implementation name="IM_artistic_ior_genosl" nodedef="ND_artistic_ior" file="pbrlib/genosl/mx_artistic_ior.osl" function="mx_artistic_ior" target="genosl"/>
 

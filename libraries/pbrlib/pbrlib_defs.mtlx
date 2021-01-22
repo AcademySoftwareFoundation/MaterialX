@@ -82,8 +82,8 @@
   <nodedef name="ND_conductor_bsdf" node="conductor_bsdf" bsdf="R" nodegroup="pbr"
            doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
-    <input name="reflectivity" type="color3" value="0.944, 0.776, 0.373" colorspace="lin_rec709"/>
-    <input name="edge_color" type="color3" value="0.998, 0.981, 0.751" colorspace="lin_rec709"/>
+    <input name="ior" type="color3" value="0.271, 0.677, 1.316" colorspace="none"/>
+    <input name="extinction" type="color3" value="3.609, 2.625, 2.292" colorspace="none"/>
     <input name="roughness" type="vector2" value="0.05, 0.05"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
@@ -436,18 +436,6 @@
   </nodedef>
 
   <!--
-    Node: <complex_ior>
-    A node for converting scientific/complex IOR to the artistic IOR used by the conductor_brdf node.
-  -->
-  <nodedef name="ND_complex_ior" node="complex_ior" nodegroup="pbr"
-           doc="A node for converting scientific/complex IOR to the artistic IOR used by the conductor_brdf node.">
-    <input name="ior" type="vector3" value="0.271, 0.677, 1.316"/>
-    <input name="extinction" type="vector3" value="3.609, 2.625, 2.292"/>
-    <output name="reflectivity" type="color3"/>
-    <output name="edge_color" type="color3"/>
-  </nodedef>
-
-  <!--
     Node: <artistic_ior>
     Converts the artistic parameterization reflectivity and edge_color to  complex IOR values.
   -->
@@ -455,8 +443,8 @@
            doc="Converts the artistic parameterization reflectivity and edge_color to  complex IOR values.">
     <input name="reflectivity" type="color3" value="0.944, 0.776, 0.373" colorspace="lin_rec709"/>
     <input name="edge_color" type="color3" value="0.998, 0.981, 0.751" colorspace="lin_rec709"/>
-    <output name="ior" type="vector3"/>
-    <output name="extinction" type="vector3"/>
+    <output name="ior" type="color3"/>
+    <output name="extinction" type="color3"/>
   </nodedef>
 
   <!--

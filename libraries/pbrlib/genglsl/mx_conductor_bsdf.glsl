@@ -1,7 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
-#include "pbrlib/genglsl/lib/mx_refraction_index.glsl"
 
-void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 reflectivity, vec3 edge_color, vec2 roughness, vec3 N, vec3 X, int distribution, out BSDF result)
+void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, vec3 N, vec3 X, int distribution, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -19,8 +18,6 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
     float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
     float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
-    vec3 ior_n, ior_k;
-    mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
     FresnelData fd = mx_init_fresnel_conductor(ior_n, ior_k);
     vec3 F = mx_compute_fresnel(VdotH, fd);
 
@@ -34,7 +31,7 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
     result = D * F * G * comp * occlusion * weight / (4 * NdotV);
 }
 
-void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 reflectivity, vec3 edge_color, vec2 roughness, vec3 N, vec3 X, int distribution, out BSDF result)
+void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, vec3 N, vec3 X, int distribution, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -45,9 +42,6 @@ void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 reflectivity, vec3 ed
     N = mx_forward_facing_normal(N, V);
 
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
-
-    vec3 ior_n, ior_k;
-    mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
 
     FresnelData fd = mx_init_fresnel_conductor(ior_n, ior_k);
     vec3 F = mx_compute_fresnel(NdotV, fd);
