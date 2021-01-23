@@ -1,6 +1,7 @@
 #ifndef MATERIALXVIEW_VIEWER_H
 #define MATERIALXVIEW_VIEWER_H
 
+#include <MaterialXView/Camera.h>
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
 
@@ -126,7 +127,7 @@ class Viewer : public ng::Screen
 
     /// Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
-    
+
     /// Split the given radiance map into indirect and direct components,
     /// returning a new indirect map and directional light document.
     void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
@@ -139,7 +140,7 @@ class Viewer : public ng::Screen
 
   private:
     ng::Window* _window;
-    ng::Arcball _arcball;
+    Camera _arcball;
 
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;

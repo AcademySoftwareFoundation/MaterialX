@@ -346,7 +346,7 @@ Viewer::Viewer(const std::string& materialFilename,
     initCamera();
     setResizeCallback([this](ng::Vector2i size)
     {
-        _arcball.setSize(size);
+        _arcball.setSize(mx::Vector2(static_cast<float>(size[0]), static_cast<float>(size[1])));
     });
 
     // Update geometry selections.
@@ -1896,7 +1896,7 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         return true;
     }
 
-    if (_arcball.motion(p))
+    if (_arcball.motion(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1]))))
     {
         return true;
     }
@@ -1949,7 +1949,7 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
 
     if (button == GLFW_MOUSE_BUTTON_1 && !modifiers)
     {
-        _arcball.button(p, down);
+        _arcball.button(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), down);
     }
     else if (button == GLFW_MOUSE_BUTTON_2 ||
             (button == GLFW_MOUSE_BUTTON_1 && modifiers == GLFW_MOD_SHIFT))
@@ -1960,7 +1960,7 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
     }
     if (button == GLFW_MOUSE_BUTTON_1 && !down)
     {
-        _arcball.button(p, false);
+        _arcball.button(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), false);
     }
     if (!down)
     {
@@ -1971,8 +1971,8 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
 
 void Viewer::initCamera()
 {
-    _arcball = ng::Arcball();
-    _arcball.setSize(mSize);
+    _arcball = Camera();
+    _arcball.setSize(mx::Vector2(static_cast<float>(mSize[0]), static_cast<float>(mSize[1])));
 
     // Disable user camera controls when non-centered views are requested.
     _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
@@ -2006,8 +2006,7 @@ void Viewer::updateViewHandlers()
     mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
     if (_userCameraEnabled)
     {
-        ng::Matrix4f ngArcball = _arcball.matrix();
-        arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
+        arcball = _arcball.matrix();
     }
 
     _cameraViewHandler->worldMatrix = meshRotation *
