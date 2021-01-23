@@ -1,17 +1,14 @@
 
 #include <MaterialXView/Camera.h>
-#include <Eigen/Geometry>
 
-typedef Eigen::Quaternionf Quaternionf;
-typedef Eigen::Matrix4f Matrix4f;
 namespace mx = MaterialX;
 
 struct Camera::Internal
 {
     Internal()
     : mActive(false), mLastPos(0.f, 0.f), mSize(0.f, 0.f),
-      mQuat(Quaternionf::Identity()),
-      mIncr(Quaternionf::Identity()),
+      mQuat(mx::Quaternion::IDENTITY),
+      mIncr(mx::Quaternion::IDENTITY),
       mSpeedFactor(2.f) { }
 
     void setSize(mx::Vector2 size) {
@@ -22,8 +19,8 @@ struct Camera::Internal
         mActive = pressed;
         mLastPos = pos;
         if (!mActive)
-            mQuat = (mIncr * mQuat).normalized();
-        mIncr = Quaternionf::Identity();
+            mQuat = (mIncr * mQuat).getNormalized();
+        mIncr = mx::Quaternion::IDENTITY;
     }
 
     bool motion(mx::Vector2 pos) {
@@ -53,17 +50,15 @@ struct Camera::Internal
             if (tx*tx + ty*ty > 1.0f)
                 angle *= 1.0f + 0.2f * (std::sqrt(tx*tx + ty*ty) - 1.0f);
             axis = axis.getNormalized();
-            mIncr = Eigen::AngleAxisf(angle, Eigen::Vector3f(axis[0], axis[1], axis[2]));
-            if (!std::isfinite(mIncr.norm()))
-                mIncr = Quaternionf::Identity();
+            mIncr = mx::Quaternion::createFromAxisAngle(axis, angle);
+            if (!std::isfinite(mIncr.getMagnitude()))
+                mIncr = mx::Quaternion::IDENTITY;
         }
         return true;
     }
 
     mx::Matrix44 matrix() const {
-        Matrix4f result2 = Matrix4f::Identity();
-        result2.block<3,3>(0, 0) = (mIncr * mQuat).toRotationMatrix();
-        return mx::Matrix44(result2.data(), result2.data() + result2.size());
+        return mx::Matrix44::createRotation(mIncr * mQuat);
     }
 
     /// Whether or not this Arcball is currently active.
@@ -80,10 +75,10 @@ struct Camera::Internal
      * state of this Arcball when \ref Arcball::button was called with
      * ``down = true``.
      */
-    Quaternionf mQuat;
+    mx::Quaternion mQuat;
 
     /// When active, tracks the overall update to the state.  Identity when non-active.
-    Quaternionf mIncr;
+    mx::Quaternion mIncr;
 
     /**
      * The speed at which this Arcball rotates.  Smaller values mean it rotates
