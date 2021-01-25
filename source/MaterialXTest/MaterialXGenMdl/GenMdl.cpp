@@ -167,6 +167,7 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
             }
             _logFile << "\tError: " << line << std::endl;
         }
+        CHECK(returnValue == 0);
     }
     else
     {
@@ -227,6 +228,7 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
             }
             _logFile << "\tLog: " << line << std::endl;
         }
+        CHECK(returnValue == 0);
     }
 }
 
