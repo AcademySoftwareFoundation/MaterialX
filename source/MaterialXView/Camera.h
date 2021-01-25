@@ -6,8 +6,10 @@
 
 namespace mx = MaterialX;
 
-struct Camera
+/// A viewer camera class, based on the ArcBall class in NanoGUI.
+class Camera
 {
+  public:
     Camera() :
         _active(false),
         _lastPos(0.0f, 0.0f),
@@ -19,14 +21,17 @@ struct Camera
     }
     ~Camera() { };
 
-    // Set the size of a virtual sphere for click-drag interaction.
-    void setSize(mx::Vector2 size);
+    // Set the size of a virtual window for click-drag interaction.
+    void setSize(const mx::Vector2& size)
+    {
+        _size = size;
+    }
 
     // Indicates a button state change, with pos being the instantaneous location of the mouse.
-    void button(mx::Vector2 pos, bool pressed);
+    void buttonEvent(const mx::Vector2& pos, bool pressed);
 
     // Mouse motion is continuously supplied here.
-    bool applyMotion(mx::Vector2 pos);
+    bool applyMotion(const mx::Vector2& pos);
 
     // Current view matrix.
     mx::Matrix44 matrix() const;
@@ -45,7 +50,7 @@ struct Camera
     // of this camera when the button method was called with pressed set to true.
     mx::Quaternion _quat;
 
-    /// When active, tracks the overall update to the state.  Identity when non-active.
+    // When active, tracks the overall update to the state.  Identity when non-active.
     mx::Quaternion _incr;
 
     // The speed at which this camera rotates.  Smaller values mean it rotates

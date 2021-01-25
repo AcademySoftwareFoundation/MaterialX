@@ -1,31 +1,25 @@
 #include <MaterialXView/Camera.h>
 
-#include <string.h>
-
 namespace mx = MaterialX;
 
-void Camera::setSize(mx::Vector2 size)
-{
-    _size = size;
-}
-
-void Camera::button(mx::Vector2 pos, bool pressed)
+void Camera::buttonEvent(const mx::Vector2& pos, bool pressed)
 {
     _active = pressed;
     _lastPos = pos;
     if (!_active)
+    {
         _quat = (_incr * _quat).getNormalized();
+    }
     _incr = mx::Quaternion::IDENTITY;
 }
 
-bool Camera::applyMotion(mx::Vector2 pos)
+bool Camera::applyMotion(const mx::Vector2& pos)
 {
     if (!_active)
     {
         return false;
     }
 
-    /* Based on the rotation controller from AntTweakBar */
     float invMinDim = 1.0f / (_size[0] < _size[1] ? _size[0] : _size[1]);
     float w = _size[0], h = _size[1];
 

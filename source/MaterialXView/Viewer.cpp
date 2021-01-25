@@ -2038,7 +2038,7 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
 
     if (button == GLFW_MOUSE_BUTTON_1 && !modifiers)
     {
-        _arcball.button(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), down);
+        _arcball.buttonEvent(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), down);
     }
     else if (button == GLFW_MOUSE_BUTTON_2 ||
             (button == GLFW_MOUSE_BUTTON_1 && modifiers == GLFW_MOD_SHIFT))
@@ -2049,7 +2049,7 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
     }
     if (button == GLFW_MOUSE_BUTTON_1 && !down)
     {
-        _arcball.button(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), false);
+        _arcball.buttonEvent(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), false);
     }
     if (!down)
     {
