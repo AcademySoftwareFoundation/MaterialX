@@ -1985,7 +1985,7 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         return true;
     }
 
-    if (_arcball.motion(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1]))))
+    if (_arcball.applyMotion(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1]))))
     {
         return true;
     }
