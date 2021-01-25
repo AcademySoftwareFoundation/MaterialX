@@ -370,21 +370,6 @@ class Quaternion : public VectorN<Vector4, float, 4>
     static const Quaternion IDENTITY;
 };
 
-
-/// @class Color2
-/// A two-component color value
-class Color2 : public VectorN<Color2, float, 2>
-{
-  public:
-    using VectorN<Color2, float, 2>::VectorN;
-    Color2() { }
-    Color2(float r, float a) : VectorN(Uninit{})
-    {
-        _arr = {r, a};
-    }
-};
-
-
 /// @class Color3
 /// A three-component color value
 class Color3 : public VectorN<Color3, float, 3>
