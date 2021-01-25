@@ -1,5 +1,5 @@
-
 #include <MaterialXView/Camera.h>
+
 #include <string.h>
 
 namespace mx = MaterialX;
@@ -100,7 +100,6 @@ Camera& Camera::operator= (const Camera& c)
     memcpy(mInternal, c.mInternal, sizeof(Internal));
     return *this;
 }
-
 
 // set the size of a virtual sphere for click-drag interaction
 void Camera::setSize(mx::Vector2 size) {

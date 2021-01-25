@@ -322,25 +322,25 @@ class Vector3 : public VectorN<Vector3, float, 3>
 /// A vector of four floating-point values
 class Vector4 : public VectorN<Vector4, float, 4>
 {
-public:
+  public:
     using VectorN<Vector4, float, 4>::VectorN;
     Vector4() { }
     Vector4(float x, float y, float z, float w) : VectorN(Uninit{})
     {
-        _arr = { x, y, z, w };
+        _arr = {x, y, z, w};
     }
 };
 
-/// @class Vector4
-/// A vector of four floating-point values
+/// @class Quaternion
+/// A quaternion vector
 class Quaternion : public VectorN<Vector4, float, 4>
 {
-public:
+  public:
     using VectorN<Vector4, float, 4>::VectorN;
     Quaternion() { }
     Quaternion(float x, float y, float z, float w) : VectorN(Uninit{})
     {
-        _arr = { x, y, z, w };
+        _arr = {x, y, z, w};
     }
 
     Quaternion operator*(const Quaternion& q) const
@@ -360,12 +360,13 @@ public:
         return { _arr[0] * l, _arr[1] * l, _arr[2] * l, _arr[3] * l };
     }
 
-    static Quaternion createFromAxisAngle(Vector3 v, float a)
+    static Quaternion createFromAxisAngle(const Vector3& v, float a)
     {
         float s = std::sin(a * 0.5f);
         return Quaternion(v[0] * s, v[1] * s, v[2] * s, std::cos(a * 0.5f));
     }
 
+  public:
     static const Quaternion IDENTITY;
 };
 
