@@ -37,6 +37,8 @@ const Matrix44 Matrix44::IDENTITY(1, 0, 0, 0,
                                   0, 0, 1, 0,
                                   0, 0, 0, 1);
 
+const Quaternion Quaternion::IDENTITY(0, 0, 0, 1);
+
 //
 // Matrix33 methods
 //
@@ -266,6 +268,24 @@ Matrix44 Matrix44::createRotationZ(float angle)
     return Matrix44( cos,  sin, 0.0f, 0.0f,
                     -sin,  cos, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Matrix44 Matrix44::createRotation(const Quaternion& q)
+{
+    Vector3 xaxis(1 - 2 * (q[1] * q[1] + q[2] * q[2]),
+                  2 * (q[0] * q[1] + q[2] * q[3]),
+                  2 * (q[2] * q[0] - q[1] * q[3]));
+    Vector3 yaxis(2 * (q[0] * q[1] - q[2] * q[3]),
+                  1 - 2 * (q[2] * q[2] + q[0] * q[0]),
+                  2 * (q[1] * q[2] + q[0] * q[3]));
+    Vector3 zaxis(2 * (q[2] * q[0] + q[1] * q[3]),
+                  2 * (q[1] * q[2] - q[0] * q[3]),
+                  1 - 2 * (q[1] * q[1] + q[0] * q[0]));
+
+    return Matrix44(xaxis[0], xaxis[1], xaxis[2], 0.0f,
+                    yaxis[0], yaxis[1], yaxis[2], 0.0f,
+                    zaxis[0], zaxis[1], zaxis[2], 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f);
 }
 

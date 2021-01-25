@@ -6,11 +6,7 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/UnitSystem.h>
 
-#include <nanogui/common.h>
-#include <nanogui/glutil.h>
-
 namespace mx = MaterialX;
-namespace ng = nanogui;
 
 using MaterialPtr = std::shared_ptr<class Material>;
 

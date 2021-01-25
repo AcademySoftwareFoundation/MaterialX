@@ -1,6 +1,7 @@
 #ifndef MATERIALXVIEW_VIEWER_H
 #define MATERIALXVIEW_VIEWER_H
 
+#include <MaterialXView/Camera.h>
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
 
@@ -208,7 +209,7 @@ class Viewer : public ng::Screen
 
   private:
     ng::Window* _window;
-    ng::Arcball _arcball;
+    Camera _arcball;
 
     mx::FilePath _materialFilename;
     mx::FilePath _meshFilename;
