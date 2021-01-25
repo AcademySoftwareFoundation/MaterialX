@@ -4,38 +4,48 @@
 
 namespace mx = MaterialX;
 
-struct Camera::Internal
+class Camera::Internal
 {
-    Internal()
-    : mActive(false), mLastPos(0.f, 0.f), mSize(0.f, 0.f),
-      mQuat(mx::Quaternion::IDENTITY),
-      mIncr(mx::Quaternion::IDENTITY),
-      mSpeedFactor(2.f) { }
-
-    void setSize(mx::Vector2 size) {
-        mSize = size;
+  public:
+    Internal() :
+        _active(false),
+        _lastPos(0.f, 0.f),
+        _size(0.f, 0.f),
+        _quat(mx::Quaternion::IDENTITY),
+        _incr(mx::Quaternion::IDENTITY),
+        _speedFactor(2.f)
+    {
     }
 
-    void button(mx::Vector2 pos, bool pressed) {
-        mActive = pressed;
-        mLastPos = pos;
-        if (!mActive)
-            mQuat = (mIncr * mQuat).getNormalized();
-        mIncr = mx::Quaternion::IDENTITY;
+    void setSize(mx::Vector2 size)
+    {
+        _size = size;
     }
 
-    bool motion(mx::Vector2 pos) {
-        if (!mActive)
+    void button(mx::Vector2 pos, bool pressed)
+    {
+        _active = pressed;
+        _lastPos = pos;
+        if (!_active)
+            _quat = (_incr * _quat).getNormalized();
+        _incr = mx::Quaternion::IDENTITY;
+    }
+
+    bool motion(mx::Vector2 pos)
+    {
+        if (!_active)
+        {
             return false;
+        }
 
         /* Based on the rotation controller from AntTweakBar */
-        float invMinDim = 1.0f / (mSize[0] < mSize[1] ? mSize[0] : mSize[1]);
-        float w = mSize[0], h = mSize[1];
+        float invMinDim = 1.0f / (_size[0] < _size[1] ? _size[0] : _size[1]);
+        float w = _size[0], h = _size[1];
 
-        float ox = (mSpeedFactor * (2*mLastPos[0]  - w) + w) - w - 1.0f;
-        float tx = (mSpeedFactor * (2*pos[0]       - w) + w) - w - 1.0f;
-        float oy = (mSpeedFactor * (h - 2*mLastPos[1])  + h) - h - 1.0f;
-        float ty = (mSpeedFactor * (h - 2*pos[1])       + h) - h - 1.0f;
+        float ox = (_speedFactor * (2*_lastPos[0]  - w) + w) - w - 1.0f;
+        float tx = (_speedFactor * (2*pos[0]       - w) + w) - w - 1.0f;
+        float oy = (_speedFactor * (h - 2*_lastPos[1])  + h) - h - 1.0f;
+        float ty = (_speedFactor * (h - 2*pos[1])       + h) - h - 1.0f;
 
         ox *= invMinDim; oy *= invMinDim;
         tx *= invMinDim; ty *= invMinDim;
@@ -51,69 +61,72 @@ struct Camera::Internal
             if (tx*tx + ty*ty > 1.0f)
                 angle *= 1.0f + 0.2f * (std::sqrt(tx*tx + ty*ty) - 1.0f);
             axis = axis.getNormalized();
-            mIncr = mx::Quaternion::createFromAxisAngle(axis, angle);
-            if (!std::isfinite(mIncr.getMagnitude()))
-                mIncr = mx::Quaternion::IDENTITY;
+            _incr = mx::Quaternion::createFromAxisAngle(axis, angle);
+            if (!std::isfinite(_incr.getMagnitude()))
+                _incr = mx::Quaternion::IDENTITY;
         }
         return true;
     }
 
-    mx::Matrix44 matrix() const {
-        return mx::Matrix44::createRotation(mIncr * mQuat);
+    mx::Matrix44 matrix() const
+    {
+        return mx::Matrix44::createRotation(_incr * _quat);
     }
 
-    /// Whether or not this Arcball is currently active.
-    bool mActive;
+  public:
+    // Whether or not this camera is currently active.
+    bool _active;
 
-    /// The last click position (which triggered the Arcball to be active / non-active).
-    mx::Vector2 mLastPos;
+    // The last click position (which triggered the camera to be active / non-active).
+    mx::Vector2 _lastPos;
 
-    /// The size of this Arcball.
-    mx::Vector2 mSize;
+    // The size of this Arcball.
+    mx::Vector2 _size;
 
-    /**
-     * The current stable state.  When this Arcball is active, represents the
-     * state of this Arcball when \ref Arcball::button was called with
-     * ``down = true``.
-     */
-    mx::Quaternion mQuat;
+    // The current stable state.  When this camera is active, represents the state
+    // of this camera when the button method was called with pressed set to true.
+    mx::Quaternion _quat;
 
     /// When active, tracks the overall update to the state.  Identity when non-active.
-    mx::Quaternion mIncr;
+    mx::Quaternion _incr;
 
-    /**
-     * The speed at which this Arcball rotates.  Smaller values mean it rotates
-     * more slowly, higher values mean it rotates more quickly.
-     */
-    float mSpeedFactor;
+    // The speed at which this Arcball rotates.  Smaller values mean it rotates
+    // more slowly, higher values mean it rotates more quickly.
+    float _speedFactor;
 };
 
-Camera::Camera()
-    : mInternal(new Internal()) {}
-
-Camera::~Camera() {
-    delete mInternal;
+Camera::Camera() :
+    _internal(new Internal())
+{
 }
 
-Camera& Camera::operator= (const Camera& c)
+Camera::~Camera()
 {
-    memcpy(mInternal, c.mInternal, sizeof(Internal));
+    delete _internal;
+}
+
+Camera& Camera::operator=(const Camera& c)
+{
+    memcpy(_internal, c._internal, sizeof(Internal));
     return *this;
 }
 
-// set the size of a virtual sphere for click-drag interaction
-void Camera::setSize(mx::Vector2 size) {
-    mInternal->setSize(size);
+void Camera::setSize(mx::Vector2 size)
+{
+    _internal->setSize(size);
 }
 
-void Camera::button(mx::Vector2 pos, bool pressed) {
-    mInternal->button(pos, pressed);
+void Camera::button(mx::Vector2 pos, bool pressed)
+{
+    _internal->button(pos, pressed);
 }
 
-bool Camera::motion(mx::Vector2 pos) {
-    return mInternal->motion(pos);
+bool Camera::motion(mx::Vector2 pos)
+{
+    return _internal->motion(pos);
 }
 
-mx::Matrix44 Camera::matrix() const {
-    return mInternal->matrix();
+mx::Matrix44 Camera::matrix() const
+{
+    return _internal->matrix();
 }

@@ -4,8 +4,9 @@
 
 #include <MaterialXCore/Types.h>
 
-struct Camera {
-    explicit Camera();
+struct Camera
+{
+    Camera();
     ~Camera();
 
     Camera& operator= (const Camera&);
@@ -22,9 +23,9 @@ struct Camera {
     // current view matrix
     MaterialX::Matrix44 matrix() const;
 
-protected:
-    struct Internal;
-    Internal* mInternal;
+  protected:
+    class Internal;
+    Internal* _internal;
 };
 
 #endif
