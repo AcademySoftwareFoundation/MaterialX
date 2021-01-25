@@ -1,13 +1,12 @@
 #include <MaterialXView/Material.h>
 
+#include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
 
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXFormat/Util.h>
-
-#include <nanogui/messagedialog.h>
 
 namespace {
 
@@ -522,17 +521,11 @@ mx::VariableBlock* Material::getPublicUniforms() const
     {
         return nullptr;
     }
-    try
-    {
-        mx::ShaderStage& stage = _hwShader->getStage(mx::Stage::PIXEL);
-        mx::VariableBlock& block = stage.getUniformBlock(mx::HW::PUBLIC_UNIFORMS);
-        return &block;
-    }
-    catch (mx::Exception& e)
-    {
-        new ng::MessageDialog(nullptr, ng::MessageDialog::Type::Warning, "Unable to find shader uniforms", e.what());
-    }
-    return nullptr;
+
+    mx::ShaderStage& stage = _hwShader->getStage(mx::Stage::PIXEL);
+    mx::VariableBlock& block = stage.getUniformBlock(mx::HW::PUBLIC_UNIFORMS);
+
+    return &block;
 }
 
 mx::ShaderPort* Material::findUniform(const std::string& path) const

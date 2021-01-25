@@ -19,6 +19,7 @@
 #include <MaterialXFormat/Util.h>
 
 #include <nanogui/combobox.h>
+#include <nanogui/glutil.h>
 #include <nanogui/messagedialog.h>
 #include <nanogui/vscrollpanel.h>
 
