@@ -20,7 +20,63 @@ void GeomPropValueNodeGlsl::createVariables(const ShaderNode& node, GenContext&,
     const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
     if (!geomPropInput || !geomPropInput->getValue())
     {
-        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "', don't know what property to bind");
+        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
+    }
+    const string geomProp = geomPropInput->getValue()->getValueString();
+    const ShaderOutput* output = node.getOutput();
+
+    ShaderStage& vs = shader.getStage(Stage::VERTEX);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
+
+    addStageInput(HW::VERTEX_INPUTS, output->getType(), HW::T_IN_GEOMPROP + "_" + geomProp, vs);
+    addStageConnector(HW::VERTEX_DATA, output->getType(), HW::T_IN_GEOMPROP + "_" + geomProp, vs, ps);
+}
+
+void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+{
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+
+    const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
+    if (!geomPropInput)
+    {
+        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
+    }
+    const string geomname = geomPropInput->getValue()->getValueString();
+    const string variable = HW::T_IN_GEOMPROP + "_" + geomname;
+
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* geomprop = vertexData[variable];
+        if (!geomprop->isEmitted())
+        {
+            shadergen.emitLine(prefix + geomprop->getVariable() + " = " + HW::T_IN_GEOMPROP + "_" + geomname, stage);
+            geomprop->setEmitted();
+        }
+    END_SHADER_STAGE(shader, Stage::VERTEX)
+
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* geomprop = vertexData[variable];
+            shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitString(" = " + prefix + geomprop->getVariable(), stage);
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(shader, Stage::PIXEL)
+}
+
+ShaderNodeImplPtr GeomPropValueNodeGlslAsUniform::create()
+{
+    return std::make_shared<GeomPropValueNodeGlslAsUniform>();
+}
+
+void GeomPropValueNodeGlslAsUniform::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+{
+    const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
+    if (!geomPropInput || !geomPropInput->getValue())
+    {
+        throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
     }
     const string geomProp = geomPropInput->getValue()->getValueString();
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
@@ -28,14 +84,14 @@ void GeomPropValueNodeGlsl::createVariables(const ShaderNode& node, GenContext&,
     uniform->setPath(geomPropInput->getPath());
 }
 
-void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void GeomPropValueNodeGlslAsUniform::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
         if (!geomPropInput)
         {
-            throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "', don't know what property to bind");
+            throw ExceptionShaderGenError("No 'geomprop' parameter found on geompropvalue node '" + node.getName() + "'. Don't know what property to bind");
         }
         const string attrName = geomPropInput->getValue()->getValueString();
         shadergen.emitLineBegin(stage);

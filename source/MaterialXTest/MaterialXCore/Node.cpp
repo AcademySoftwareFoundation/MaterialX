@@ -10,6 +10,9 @@
 
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
+#include <MaterialXFormat/Util.h>
+
+#include <iostream>
 
 namespace mx = MaterialX;
 
@@ -20,7 +23,7 @@ bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
     {
         for (size_t i = 0; i < elem->getUpstreamEdgeCount(); i++)
         {
-            mx::ElementPtr upstreamElem = elem->getUpstreamElement(nullptr, i);
+            mx::ElementPtr upstreamElem = elem->getUpstreamElement(i);
             if (upstreamElem && !prevElems.count(upstreamElem))
             {
                 return false;
@@ -45,15 +48,15 @@ TEST_CASE("Node", "[node]")
 
     // Set constant node color.
     mx::Color3 color(0.1f, 0.2f, 0.3f);
-    constant->setParameterValue<mx::Color3>("value", color);
-    REQUIRE(constant->getParameterValue("value")->isA<mx::Color3>());
-    REQUIRE(constant->getParameterValue("value")->asA<mx::Color3>() == color);
+    constant->setInputValue<mx::Color3>("value", color);
+    REQUIRE(constant->getInputValue("value")->isA<mx::Color3>());
+    REQUIRE(constant->getInputValue("value")->asA<mx::Color3>() == color);
 
     // Set image node file.
     std::string file("image1.tif");
-    image->setParameterValue("file", file, mx::FILENAME_TYPE_STRING);
-    REQUIRE(image->getParameterValue("file")->isA<std::string>());
-    REQUIRE(image->getParameterValue("file")->asA<std::string>() == file);
+    image->setInputValue("file", file, mx::FILENAME_TYPE_STRING);
+    REQUIRE(image->getInputValue("file")->isA<std::string>());
+    REQUIRE(image->getInputValue("file")->asA<std::string>() == file);
 
     // Create connected outputs.
     mx::OutputPtr output1 = doc->addOutput();
@@ -68,18 +71,18 @@ TEST_CASE("Node", "[node]")
     // Create a custom nodedef.
     mx::NodeDefPtr customNodeDef = doc->addNodeDef("ND_turbulence3d", "float", "turbulence3d");
     customNodeDef->setNodeGroup(mx::NodeDef::PROCEDURAL_NODE_GROUP);
-    customNodeDef->setParameterValue("octaves", 3);
-    customNodeDef->setParameterValue("lacunarity", 2.0f);
-    customNodeDef->setParameterValue("gain", 0.5f);
+    customNodeDef->setInputValue("octaves", 3);
+    customNodeDef->setInputValue("lacunarity", 2.0f);
+    customNodeDef->setInputValue("gain", 0.5f);
 
     // Reference the custom nodedef.
     mx::NodePtr custom = doc->addNodeInstance(customNodeDef);
     REQUIRE(custom->getNodeDefString() == customNodeDef->getName());
     REQUIRE(custom->getNodeDef()->getNodeGroup() == mx::NodeDef::PROCEDURAL_NODE_GROUP);
-    REQUIRE(custom->getParameterValue("octaves")->isA<int>());
-    REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 3);
-    custom->setParameterValue("octaves", 5);
-    REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 5);
+    REQUIRE(custom->getInputValue("octaves")->isA<int>());
+    REQUIRE(custom->getInputValue("octaves")->asA<int>() == 3);
+    custom->setInputValue("octaves", 5);
+    REQUIRE(custom->getInputValue("octaves")->asA<int>() == 5);
 
     // Remove the nodedef attribute from the node, requiring that it fall back
     // to type and version matching.
@@ -108,11 +111,11 @@ TEST_CASE("Node", "[node]")
 
     // Reference the custom type.
     std::string d65("400.0,82.75,500.0,109.35,600.0,90.01,700.0,71.61,800.0,59.45");
-    constant->setParameterValue<std::string>("value", d65, "spectrum");
-    REQUIRE(constant->getParameter("value")->getType() == "spectrum");
-    REQUIRE(constant->getParameter("value")->getValueString() == d65);
-    REQUIRE(constant->getParameterValue("value")->isA<std::string>());
-    REQUIRE(constant->getParameterValue("value")->asA<std::string>() == d65);
+    constant->setInputValue<std::string>("value", d65, "spectrum");
+    REQUIRE(constant->getInput("value")->getType() == "spectrum");
+    REQUIRE(constant->getInput("value")->getValueString() == d65);
+    REQUIRE(constant->getInputValue("value")->isA<std::string>());
+    REQUIRE(constant->getInputValue("value")->asA<std::string>() == d65);
 
     // Validate the document.
     REQUIRE(doc->validate());
@@ -180,6 +183,30 @@ TEST_CASE("Flatten", "[nodegraph]")
         }
     }
     REQUIRE(totalNodeCount == 15);
+
+    // Test filtered flattening. Leave one node unflattened
+    flatGraph->copyContentFrom(graph);
+    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [] (mx::NodePtr node)
+    {
+        return (node->getCategory() != "color_checker");
+    });
+    totalNodeCount = 0;
+    for (mx::ElementPtr elem : flatGraph->traverseTree())
+    {
+        if (elem->isA<mx::Node>())
+        {
+            totalNodeCount++;
+
+            // Make sure it's an atomic node.
+            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
+            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
+            if (elem->getCategory() != "color_checker")
+            {
+                REQUIRE(isAtomic);
+            }
+        }
+    }
+    REQUIRE(totalNodeCount == 16);
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")
@@ -545,4 +572,131 @@ TEST_CASE("Organization", "[nodegraph]")
     nodeGraph->removeBackdrop(backdrop1->getName());
     nodeGraph->removeBackdrop(backdrop2->getName());
     CHECK(nodeGraph->getBackdrops().empty());
+}
+
+TEST_CASE("Node Definition Creation", "[nodedef]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
+    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/definition/");
+
+    mx::readFromXmlFile(doc, "definition_from_nodegraph.mtlx", searchPath);
+    REQUIRE(doc->validate());
+
+    mx::NodeGraphPtr graph = doc->getNodeGraph("test_colorcorrect");
+    REQUIRE(graph);
+    if (graph)
+    {
+        const std::string VERSION1 = "1.0";
+        const std::string GROUP = "adjustment";
+        bool isDefaultVersion = false;
+        const std::string NODENAME = graph->getName();
+
+        // Duplicate the graph and then make the duplicate a nodedef nodegraph
+        std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
+        std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
+        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName);
+        REQUIRE(nodeDef != nullptr);
+        REQUIRE(nodeDef->getNodeGroup() == "adjustment");
+        REQUIRE(nodeDef->getVersionString() == VERSION1);
+        REQUIRE_FALSE(nodeDef->getDefaultVersion());
+
+        // Try and fail to create the same definition
+        mx::NodeDefPtr temp;
+        try
+        {
+            temp = nullptr;
+            temp = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName);
+        }
+        catch (mx::Exception&)
+        {
+            REQUIRE(temp == nullptr);
+        }
+
+        // Check that the new nodegraph has the correct definition
+        mx::NodeGraphPtr newGraph = doc->getNodeGraph(newGraphName);
+        REQUIRE(newGraph != nullptr);
+        REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
+
+        // Check declaration was set up properly
+        mx::ConstNodeDefPtr decl = newGraph->getDeclaration();
+        REQUIRE(decl->getName() == nodeDef->getName());
+
+        // Arbitrarily add all unconnected inputs as interfaces
+        mx::ValueElementPtr newInterface = nullptr;
+        for (auto node : newGraph->getNodes())
+        {
+            mx::NodeDefPtr nodeNodeDef = node->getNodeDef();
+            REQUIRE(nodeNodeDef);
+            for (auto nodeDefValueElem : nodeNodeDef->getActiveValueElements())
+            {
+                const std::string& valueElemName = nodeDefValueElem->getName();
+                mx::ValueElementPtr valueElem = node->getValueElement(valueElemName);
+                if (!valueElem)
+                {
+                    valueElem = node->addInputFromNodeDef(valueElemName);
+                    if (!valueElem)
+                    {
+                        continue;
+                    }
+                }
+
+                mx::InputPtr input = valueElem->asA<mx::Input>();
+                if (input && !input->getConnectedNode())
+                {
+                    std::string interfaceName = input->getNamePath();
+                    interfaceName = nodeDef->createValidChildName(interfaceName);
+                    newGraph->addInterfaceName(input->getNamePath(newGraph), interfaceName);
+                    REQUIRE(nodeDef->getChild(interfaceName));
+                    try
+                    {
+                        // Check duplicate failure case
+                        newGraph->addInterfaceName(input->getNamePath(newGraph), interfaceName);
+                    }
+                    catch (mx::Exception& e)
+                    {
+                        REQUIRE(e.what());
+                        newGraph->removeInterfaceName(input->getNamePath(newGraph));
+                        REQUIRE(nodeDef->getChild(interfaceName) == nullptr);
+                        newGraph->addInterfaceName(input->getNamePath(newGraph), interfaceName);
+
+                        const std::string newInterfaceName = interfaceName + "_renamed";
+                        newGraph->modifyInterfaceName(input->getNamePath(newGraph), newInterfaceName);
+                        REQUIRE(nodeDef->getChild(newInterfaceName));
+                    }
+                }
+            }
+        }
+
+        // Add new version 
+        const std::string VERSION2 = "2.0";
+        newGraphName = mx::EMPTY_STRING;
+        nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName + "2", NODENAME, VERSION2, isDefaultVersion, GROUP, newGraphName);
+        nodeDef->setDefaultVersion(true);
+        REQUIRE(nodeDef != nullptr);
+
+        std::vector<mx::NodeDefPtr> matchingNodeDefs;
+        for (auto docNodeDef : doc->getNodeDefs())
+        {
+            if (docNodeDef->getNodeString() == NODENAME)
+            {
+                matchingNodeDefs.push_back(docNodeDef);
+            }
+        }
+        bool findDefault = false;
+        for (auto matchingDef : matchingNodeDefs)
+        {
+            if (matchingDef->getDefaultVersion())
+            {
+                findDefault = true;
+                REQUIRE(matchingDef->getVersionString() == VERSION2);
+                break;
+            }
+        }
+        REQUIRE(findDefault);
+    }
+
+    REQUIRE(doc->validate());
+    mx::writeToXmlFile(doc, "definition_from_nodegraph_out.mtlx");
 }

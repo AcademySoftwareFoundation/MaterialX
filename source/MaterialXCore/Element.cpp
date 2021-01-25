@@ -42,6 +42,7 @@ const string ValueElement::UI_STEP_ATTRIBUTE = "uistep";
 const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
 const string ValueElement::UNIT_ATTRIBUTE = "unit";
 const string ValueElement::UNITTYPE_ATTRIBUTE = "unittype";
+const string ValueElement::UNIFORM_ATTRIBUTE = "uniform";
 
 Element::CreatorMap Element::_creatorMap;
 
@@ -136,9 +137,16 @@ ElementPtr Element::getDescendant(const string& namePath) const
     return elem;
 }
 
+void Element::setVersionIntegers(int majorVersion, int minorVersion)
+{
+    string versionString = std::to_string(majorVersion) + "." +
+                           std::to_string(minorVersion);
+    setVersionString(versionString);
+}
+
 std::pair<int, int> Element::getVersionIntegers() const
 {
-    string versionString = getVersionString();
+    const string& versionString = getVersionString();
     StringVec splitVersion = splitString(versionString, ".");
     try
     {
@@ -340,19 +348,19 @@ TreeIterator Element::traverseTree() const
     return TreeIterator(getSelfNonConst());
 }
 
-GraphIterator Element::traverseGraph(ConstMaterialPtr material) const
+GraphIterator Element::traverseGraph() const
 {
-    return GraphIterator(getSelfNonConst(), material);
+    return GraphIterator(getSelfNonConst());
 }
 
-Edge Element::getUpstreamEdge(ConstMaterialPtr, size_t) const
+Edge Element::getUpstreamEdge(size_t) const
 {
     return NULL_EDGE;
 }
 
-ElementPtr Element::getUpstreamElement(ConstMaterialPtr material, size_t index) const
+ElementPtr Element::getUpstreamElement(size_t index) const
 {
-    return getUpstreamEdge(material, index).getUpstreamElement();
+    return getUpstreamEdge(index).getUpstreamElement();
 }
 
 InheritanceIterator Element::traverseInheritance() const
@@ -368,7 +376,7 @@ void Element::copyContentFrom(const ConstElementPtr& source)
     _attributeMap = source->_attributeMap;
     _attributeOrder = source->_attributeOrder;
 
-    for (const ElementPtr& child : source->getChildren())
+    for (auto child : source->getChildren())
     {
         const string& name = child->getName();
 
@@ -405,7 +413,7 @@ bool Element::validate(string* message) const
         bool validInherit = getInheritsFrom() && getInheritsFrom()->getCategory() == getCategory();
         validateRequire(validInherit, res, message, "Invalid element inheritance");
     }
-    for (ElementPtr child : getChildren())
+    for (auto child : getChildren())
     {
         res = child->validate(message) && res;
     }
@@ -413,10 +421,7 @@ bool Element::validate(string* message) const
     return res;
 }
 
-StringResolverPtr Element::createStringResolver(const string& geom,
-                                                ConstMaterialPtr material,
-                                                const string& target,
-                                                const string& type) const
+StringResolverPtr Element::createStringResolver(const string& geom) const
 {
     StringResolverPtr resolver = StringResolver::create();
 
@@ -435,21 +440,6 @@ StringResolverPtr Element::createStringResolver(const string& geom,
             {
                 string key = "<" + token->getName() + ">";
                 string value = token->getResolvedValueString();
-                resolver->setFilenameSubstitution(key, value);
-            }
-        }
-    }
-
-    // If a material is specified, then apply it to the filename map.
-    if (material)
-    {
-        for (TokenPtr token : material->getPrimaryShaderTokens(target, type))
-        {
-            ValuePtr boundValue = token->getBoundValue(material);
-            if (boundValue->isA<string>())
-            {
-                string key = "[" + token->getName() + "]";
-                string value = boundValue->asA<string>();
                 resolver->setFilenameSubstitution(key, value);
             }
         }
@@ -511,28 +501,8 @@ string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
     return resolver->resolve(getValueString(), getType());
 }
 
-ValuePtr ValueElement::getBoundValue(ConstMaterialPtr material) const
-{
-    ElementPtr upstreamElem = getUpstreamElement(material);
-    if (!upstreamElem)
-    {
-        return getDefaultValue();
-    }
-    if (upstreamElem->isA<ValueElement>())
-    {
-        return upstreamElem->asA<ValueElement>()->getValue();
-    }
-    return ValuePtr();
-}
-
 ValuePtr ValueElement::getDefaultValue() const
 {
-    if (hasValue())
-    {
-        return getValue();
-    }
-
-    // Return the value, if any, stored in our declaration.
     ConstElementPtr parent = getParent();
     ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
     if (interface)
@@ -579,7 +549,7 @@ bool ValueElement::validate(string* message) const
     }
     if (hasInterfaceName())
     {
-        validateRequire(isA<Parameter>() || isA<Input>(), res, message, "Only parameter and input elements support interface names");
+        validateRequire(isA<Input>(), res, message, "Only input elements support interface names");
         ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
         NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
         if (nodeDef)
@@ -629,39 +599,6 @@ bool ValueElement::validate(string* message) const
         validateRequire(foundUnit, res, message, "Unit definition does not exist in document");
     }
     return TypedElement::validate(message) && res;
-}
-
-//
-// Token methods
-//
-
-Edge Token::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
-{
-    if (material && index < getUpstreamEdgeCount())
-    {
-        ConstElementPtr parent = getParent();
-        ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
-        ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
-        if (nodeDef)
-        {
-            // Apply BindToken elements to the Token.
-            for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
-            {
-                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
-                {
-                    for (BindTokenPtr bindToken : shaderRef->getBindTokens())
-                    {
-                        if (bindToken->getName() == getName() && bindToken->hasValue())
-                        {
-                            return Edge(getSelfNonConst(), nullptr, bindToken);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return NULL_EDGE;
 }
 
 //
@@ -759,9 +696,6 @@ INSTANTIATE_SUBCLASS(T)
 
 INSTANTIATE_CONCRETE_SUBCLASS(AttributeDef, "attributedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Backdrop, "backdrop")
-INSTANTIATE_CONCRETE_SUBCLASS(BindParam, "bindparam")
-INSTANTIATE_CONCRETE_SUBCLASS(BindInput, "bindinput")
-INSTANTIATE_CONCRETE_SUBCLASS(BindToken, "bindtoken")
 INSTANTIATE_CONCRETE_SUBCLASS(Collection, "collection")
 INSTANTIATE_CONCRETE_SUBCLASS(Document, "materialx")
 INSTANTIATE_CONCRETE_SUBCLASS(GenericElement, "generic")
@@ -772,19 +706,17 @@ INSTANTIATE_CONCRETE_SUBCLASS(Implementation, "implementation")
 INSTANTIATE_CONCRETE_SUBCLASS(Input, "input")
 INSTANTIATE_CONCRETE_SUBCLASS(Look, "look")
 INSTANTIATE_CONCRETE_SUBCLASS(LookGroup, "lookgroup")
-INSTANTIATE_CONCRETE_SUBCLASS(Material, "material")
 INSTANTIATE_CONCRETE_SUBCLASS(MaterialAssign, "materialassign")
 INSTANTIATE_CONCRETE_SUBCLASS(Member, "member")
 INSTANTIATE_CONCRETE_SUBCLASS(Node, "node")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeDef, "nodedef")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeGraph, "nodegraph")
 INSTANTIATE_CONCRETE_SUBCLASS(Output, "output")
-INSTANTIATE_CONCRETE_SUBCLASS(Parameter, "parameter")
 INSTANTIATE_CONCRETE_SUBCLASS(Property, "property")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertyAssign, "propertyassign")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySet, "propertyset")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySetAssign, "propertysetassign")
-INSTANTIATE_CONCRETE_SUBCLASS(ShaderRef, "shaderref")
+INSTANTIATE_CONCRETE_SUBCLASS(TargetDef, "targetdef")
 INSTANTIATE_CONCRETE_SUBCLASS(Token, "token")
 INSTANTIATE_CONCRETE_SUBCLASS(TypeDef, "typedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Unit, "unit")

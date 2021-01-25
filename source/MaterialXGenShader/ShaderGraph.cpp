@@ -40,20 +40,27 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
     {
         if (!port->isA<Output>())
         {
+            ShaderGraphInputSocket* inputSocket = nullptr;
             const string& portValue = port->getResolvedValueString();
             std::pair<const TypeDesc*, ValuePtr> enumResult;
-            if (context.getShaderGenerator().remapEnumeration(*port, portValue, enumResult))
+            const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+            const TypeDesc* portType = TypeDesc::get(port->getType());
+            if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
-                ShaderGraphInputSocket* inputSocket = addInputSocket(port->getName(), enumResult.first);
+                inputSocket = addInputSocket(port->getName(), enumResult.first);
                 inputSocket->setValue(enumResult.second);
             }
             else
             {
-                ShaderGraphInputSocket* inputSocket = addInputSocket(port->getName(), TypeDesc::get(port->getType()));
+                inputSocket = addInputSocket(port->getName(), portType);
                 if (!portValue.empty())
                 {
                     inputSocket->setValue(port->getValue());
                 }
+            }
+            if (port->getIsUniform())
+            {
+                inputSocket->setUniform();
             }
         }
     }
@@ -75,8 +82,7 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
 void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
                                        const ElementPtr& upstreamElement,
                                        ElementPtr connectingElement,
-                                       GenContext& context,
-                                       ShaderNode* rootNode)
+                                       GenContext& context)
 {
     // Create the node if it doesn't exists
     NodePtr upstreamNode = upstreamElement->asA<Node>();
@@ -113,62 +119,43 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
             "' on upstream node '" + upstreamNode->getName() + "'");
     }
 
-    // First check if this was a bind input connection
-    // In this case we must have a root node as well
-    if (rootNode && connectingElement && connectingElement->isA<BindInput>())
+    // Check if it was a node downstream
+    NodePtr downstreamNode = downstreamElement->asA<Node>();
+    if (downstreamNode)
     {
-        // Connect to the corresponding input on the root node
-        ShaderInput* input = rootNode->getInput(connectingElement->getName());
-        if (input)
+        // We have a node downstream
+        ShaderNode* downstream = getNode(downstreamNode->getName());
+        if (downstream && connectingElement)
         {
-            input->breakConnection();
+            ShaderInput* input = downstream->getInput(connectingElement->getName());
+            if (!input)
+            {
+                throw ExceptionShaderGenError("Could not find an input named '" + connectingElement->getName() +
+                    "' on downstream node '" + downstream->getName() + "'");
+            }
             input->makeConnection(output);
+        }
+        else
+        {
+            throw ExceptionShaderGenError("Could not find downstream node ' " + downstreamNode->getName() + "'");
         }
     }
     else
     {
-        // Check if it was a node downstream
-        NodePtr downstreamNode = downstreamElement->asA<Node>();
-        if (downstreamNode)
+        // Not a node, then it must be an output
+        ShaderGraphOutputSocket* outputSocket = getOutputSocket(downstreamElement->getName());
+        if (outputSocket)
         {
-            // We have a node downstream
-            ShaderNode* downstream = getNode(downstreamNode->getName());
-            if (downstream && connectingElement)
-            {
-                ShaderInput* input = downstream->getInput(connectingElement->getName());
-                if (!input)
-                {
-                    throw ExceptionShaderGenError("Could not find an input named '" + connectingElement->getName() +
-                        "' on downstream node '" + downstream->getName() + "'");
-                }
-                input->makeConnection(output);
-            }
-            else
-            {
-                throw ExceptionShaderGenError("Could not find downstream node ' " + downstreamNode->getName() + "'");
-            }
-        }
-        else
-        {
-            // Not a node, then it must be an output
-            ShaderGraphOutputSocket* outputSocket = getOutputSocket(downstreamElement->getName());
-            if (outputSocket)
-            {
-                outputSocket->makeConnection(output);
-            }
+            outputSocket->makeConnection(output);
         }
     }
 }
 
-void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, GenContext& context)
+void ShaderGraph::addUpstreamDependencies(const Element& root, GenContext& context)
 {
-    // Keep track of our root node in the graph.
-    // This is needed when the graph is a shader graph and we need
-    // to make connections for BindInputs during traversal below.
-    ShaderNode* rootNode = getNode(root.getName());
     std::set<ElementPtr> processedOutputs;
 
-    for (Edge edge : root.traverseGraph(material))
+    for (Edge edge : root.traverseGraph())
     {
         ElementPtr upstreamElement = edge.getUpstreamElement();
         if (!upstreamElement)
@@ -203,8 +190,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
         createConnectedNodes(downstreamElement,
                              upstreamElement,
                              edge.getConnectingElement(),
-                             context,
-                             rootNode);
+                             context);
     }
 }
 
@@ -238,7 +224,9 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
             if (spaceInput && nodeDefSpaceInput)
             {
                 std::pair<const TypeDesc*, ValuePtr> enumResult;
-                if (context.getShaderGenerator().remapEnumeration(*nodeDefSpaceInput, space, enumResult))
+                const string& enumNames = nodeDefSpaceInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+                const TypeDesc* portType = TypeDesc::get(nodeDefSpaceInput->getType());
+                if (context.getShaderGenerator().getSyntax().remapEnumeration(space, portType, enumNames, enumResult))
                 {
                     spaceInput->setValue(enumResult.second);
                 }
@@ -428,21 +416,16 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     // Create output sockets from the nodegraph
     graph->addOutputSockets(nodeGraph);
 
-    if (context.getOptions().addUpstreamDependencies)
+    // Traverse all outputs and create all internal nodes
+    for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
     {
-        // Traverse all outputs and create all upstream dependencies
-        for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
-        {
-            graph->addUpstreamDependencies(*graphOutput, nullptr, context);
-        }
+        graph->addUpstreamDependencies(*graphOutput, context);
     }
 
     // Add classification according to last node
     // TODO: What if the graph has multiple outputs?
-    {
-        ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-        graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
-    }
+    ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
+    graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
 
     // Finalize the graph
     graph->finalize(context);
@@ -455,8 +438,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
     const ShaderGraph* parent,
     NodePtr node,
     GenContext& context,
-    ElementPtr& root,
-    MaterialPtr& material)
+    ElementPtr& root)
 {
     NodeDefPtr nodeDef = node->getNodeDef();
     if (!nodeDef)
@@ -497,46 +479,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
     const string& targetDistanceUnit = context.getOptions().targetDistanceUnit;
     UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
 
-    // Set node parameter values onto graph input sockets
-    for (ParameterPtr elem : nodeDef->getActiveParameters())
-    {
-        ShaderGraphInputSocket* inputSocket = graph->getInputSocket(elem->getName());
-        ShaderInput* input = newNode->getInput(elem->getName());
-        if (!inputSocket || !input)
-        {
-            throw ExceptionShaderGenError("Shader parameter '" + elem->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
-        }
-
-        ParameterPtr nodeParam = node->getParameter(elem->getName());
-        if (nodeParam)
-        {
-            // Copy value from binding
-            ValuePtr nodeParamValue = nodeParam->getResolvedValue();
-            if (nodeParamValue)
-            {
-                inputSocket->setValue(nodeParamValue);
-
-                graph->populateColorTransformMap(colorManagementSystem, input, nodeParam, targetColorSpace, true);
-                graph->populateUnitTransformMap(unitSystem, input, nodeParam, targetDistanceUnit, true);
-            }
-            inputSocket->setPath(nodeParam->getNamePath());
-            input->setPath(inputSocket->getPath());
-            const string& nodeParamUnit = nodeParam->getUnit();
-            if (!nodeParamUnit.empty())
-            {
-                inputSocket->setUnit(nodeParamUnit);
-                input->setUnit(nodeParamUnit);
-            }
-        }
-
-        // Connect graph input socket to the node input
-        inputSocket->makeConnection(input);
-
-        // Share metadata.
-        inputSocket->setMetadata(input->getMetadata());
-    }
-
-    // Set node input values onto grah input sockets
+    // Set node input values onto graph input sockets
     for (const InputPtr& nodeDefInput : nodeDef->getActiveInputs())
     {
         ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodeDefInput->getName());
@@ -554,6 +497,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
             if (nodeInputValue)
             {
                 inputSocket->setValue(nodeInputValue);
+                input->setBindInput();
                 graph->populateColorTransformMap(colorManagementSystem, input, nodeInput, targetColorSpace, true);
                 graph->populateUnitTransformMap(unitSystem, input, nodeInput, targetDistanceUnit, true);
             }
@@ -567,25 +511,34 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
             }
         }
 
-        GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
-        if (geomprop)
+        // Check if the input is a uniform
+        bool isUniform = nodeDefInput->getIsUniform();
+        if (isUniform)
         {
-            inputSocket->setGeomProp(geomprop->getName());
-            input->setGeomProp(geomprop->getName());
+            inputSocket->makeConnection(input);
         }
-
-        // If no explicit connection, connect to geometric node if a geomprop is used
-        // or otherwise to the graph interface.
-        const string& connection = nodeInput ? nodeInput->getOutputString() : EMPTY_STRING;
-        if (connection.empty())
+        else
         {
+            GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
             if (geomprop)
             {
-                graph->addDefaultGeomNode(input, *geomprop, context);
+                inputSocket->setGeomProp(geomprop->getName());
+                input->setGeomProp(geomprop->getName());
             }
-            else
+
+            // If no explicit connection, connect to geometric node if a geomprop is used
+            // or otherwise to the graph interface.
+            const string& connection = nodeInput ? nodeInput->getOutputString() : EMPTY_STRING;
+            if (connection.empty())
             {
-                inputSocket->makeConnection(input);
+                if (geomprop)
+                {
+                    graph->addDefaultGeomNode(input, *geomprop, context);
+                }
+                else
+                {
+                    inputSocket->makeConnection(input);
+                }
             }
         }
 
@@ -595,7 +548,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
 
     // Add shader node paths and unit value
     const string& nodePath = node->getNamePath();
-    for (const InputPtr& nodeInput : nodeDef->getActiveInputs())
+    for (auto nodeInput : nodeDef->getActiveInputs())
     {
         const string& inputName = nodeInput->getName();
         const string path = nodePath + NAME_PATH_SEPARATOR + inputName;
@@ -619,25 +572,9 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
             inputSocket->setUnit(unit);
         }
     }
-    for (const ParameterPtr& nodeParameter : nodeDef->getActiveParameters())
-    {
-        const string& paramName = nodeParameter->getName();
-        const string path = nodePath + NAME_PATH_SEPARATOR + paramName;
-        ShaderInput* input = newNode->getInput(paramName);
-        if (input && input->getPath().empty())
-        {
-            input->setPath(path);
-        }
-        ShaderGraphInputSocket* inputSocket = graph->getInputSocket(paramName);
-        if (inputSocket && inputSocket->getPath().empty())
-        {
-            inputSocket->setPath(path);
-        }
-    }
 
     // Start traversal from this shader node
     root = node;    
-    material = nullptr; // node->getParent()->asA<Material>(); -- send over material node instead?
     
     return graph;
 }
@@ -646,7 +583,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
 {
     ShaderGraphPtr graph;
     ElementPtr root;
-    MaterialPtr material;
 
     if (element->isA<Output>())
     {
@@ -672,7 +608,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         {
             // A free floating output.
             outputParent = output->getConnectedNode();
-            interface = outputParent->asA<InterfaceElement>();
+            interface = outputParent ? outputParent->asA<InterfaceElement>() : nullptr;
         }
         if (!interface)
         {
@@ -708,8 +644,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Handle shader nodes different from other nodes
         if (node->getType() == SURFACE_SHADER_TYPE_STRING)
         {
-            graph = createSurfaceShader(name, parent, node, context,
-                root, material);
+            graph = createSurfaceShader(name, parent, node, context, root);
         }
         else
         {
@@ -775,7 +710,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     }
                 }
 
-                bool addedDefault = false;
                 if (nodedefPort->isA<Input>())
                 {
                     GeomPropDefPtr geomprop = nodedefPort->asA<Input>()->getDefaultGeomProp();
@@ -783,21 +717,11 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     {
                         inputSocket->setGeomProp(geomprop->getName());
                         input->setGeomProp(geomprop->getName());
-
-                        const string& connection = nodePort ? nodePort->asA<Input>()->getOutputString() : EMPTY_STRING;
-                        if (connection.empty())
-                        {
-                            graph->addDefaultGeomNode(input, *geomprop, context);
-                            addedDefault = true;
-                        }
                     }
                 }
 
                 // Connect to the graph input
-                if (!addedDefault)
-                {
-                    inputSocket->makeConnection(input);
-                }
+                inputSocket->makeConnection(input);
 
                 // Share metadata.
                 inputSocket->setMetadata(input->getMetadata());
@@ -808,192 +732,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
     }
 
-    else if (element->isA<ShaderRef>())
-    {
-        ShaderRefPtr shaderRef = element->asA<ShaderRef>();
-        NodeDefPtr nodeDef = shaderRef->getNodeDef();
-        if (!nodeDef)
-        {
-            throw ExceptionShaderGenError("Could not find a nodedef for shader '" + shaderRef->getName() + "'");
-        }
-
-        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument(), context.getReservedWords());
-
-        // Create input sockets
-        graph->addInputSockets(*nodeDef, context);
-
-        // Create output sockets
-        graph->addOutputSockets(*nodeDef);
-
-        // Create this shader node in the graph.
-        const string& newNodeName = shaderRef->getName();
-        ShaderNodePtr newNode = ShaderNode::create(graph.get(), newNodeName, *nodeDef, context);
-        graph->addNode(newNode);
-
-        // Connect it to the graph output
-        ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-        outputSocket->makeConnection(newNode->getOutput());
-        outputSocket->setPath(shaderRef->getNamePath());
-
-        // Share metadata.
-        graph->setMetadata(newNode->getMetadata());
-
-        string targetColorSpace;
-        ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-        if (colorManagementSystem)
-        {
-            targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
-                element->getDocument()->getColorSpace() : context.getOptions().targetColorSpaceOverride;
-        }
-
-        // Handle node parameters
-        const string& targetDistanceUnit = context.getOptions().targetDistanceUnit;
-        UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
-        for (ParameterPtr elem : nodeDef->getActiveParameters())
-        {
-            ShaderGraphInputSocket* inputSocket = graph->getInputSocket(elem->getName());
-            ShaderInput* input = newNode->getInput(elem->getName());
-            if (!inputSocket || !input)
-            {
-                throw ExceptionShaderGenError("Shader parameter '" + elem->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
-            }
-
-            BindParamPtr bindParam = shaderRef->getBindParam(elem->getName());
-            if (bindParam)
-            {
-                // Copy value from binding
-                ValuePtr bindParamValue = bindParam->getResolvedValue();
-                if (bindParamValue)
-                {
-                    inputSocket->setValue(bindParamValue);
-
-                    input->setBindInput();
-                    graph->populateColorTransformMap(colorManagementSystem, input, bindParam, targetColorSpace, true);
-                    graph->populateUnitTransformMap(unitSystem, input, bindParam, targetDistanceUnit, true);
-                }
-                inputSocket->setPath(bindParam->getNamePath());
-                input->setPath(inputSocket->getPath());
-                const string& bindParamUnit = bindParam->getUnit();
-                if (!bindParamUnit.empty())
-                {
-                    inputSocket->setUnit(bindParamUnit);
-                    input->setUnit(bindParamUnit);
-                }
-            }
-
-            // Connect to the graph input
-            inputSocket->makeConnection(input);
-
-            // Share metadata.
-            inputSocket->setMetadata(input->getMetadata());
-        }
-
-        // Handle node inputs
-        for (const InputPtr& nodeDefInput : nodeDef->getActiveInputs())
-        {
-            ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodeDefInput->getName());
-            ShaderInput* input = newNode->getInput(nodeDefInput->getName());
-            if (!inputSocket || !input)
-            {
-                throw ExceptionShaderGenError("Shader input '" + nodeDefInput->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
-            }
-
-            BindInputPtr bindInput = shaderRef->getBindInput(nodeDefInput->getName());
-            if (bindInput)
-            {
-                // Copy value from binding
-                ValuePtr bindInputValue = bindInput->getResolvedValue();
-                if (bindInputValue)
-                {
-                    inputSocket->setValue(bindInputValue);
-
-                    input->setBindInput();
-                    graph->populateColorTransformMap(colorManagementSystem, input, bindInput, targetColorSpace, true);
-                    graph->populateUnitTransformMap(unitSystem, input, bindInput, targetDistanceUnit, true);
-                }
-                inputSocket->setPath(bindInput->getNamePath());
-                input->setPath(inputSocket->getPath());
-                const string& bindInputUnit = bindInput->getUnit();
-                if (!bindInputUnit.empty())
-                {
-                    inputSocket->setUnit(bindInputUnit);
-                    input->setUnit(bindInputUnit);
-                }
-            }
-
-            GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
-            if (geomprop)
-            {
-                inputSocket->setGeomProp(geomprop->getName());
-                input->setGeomProp(geomprop->getName());
-            }
-
-            // If no explicit connection, connect to geometric node if a geomprop is used
-            // or otherwise to the graph interface.
-            const string& connection = bindInput ? bindInput->getOutputString() : EMPTY_STRING;
-            if (connection.empty())
-            {
-                if (geomprop)
-                {
-                    graph->addDefaultGeomNode(input, *geomprop, context);
-                }
-                else
-                {
-                    inputSocket->makeConnection(input);
-                }
-            }
-
-            // Share metadata.
-            inputSocket->setMetadata(input->getMetadata());
-        }
-
-        // Add shaderRef nodedef paths
-        const string& nodePath = shaderRef->getNamePath();
-        for (const InputPtr& nodeInput : nodeDef->getActiveInputs())
-        {
-            const string& inputName = nodeInput->getName();
-            const string path = nodePath + NAME_PATH_SEPARATOR + inputName;
-            const string& unit = nodeInput->getUnit();
-            ShaderInput* input = newNode->getInput(inputName);
-            if (input && input->getPath().empty())
-            {
-                input->setPath(path);
-            }
-            if (input && input->getUnit().empty() && !unit.empty())
-            {
-                input->setUnit(unit);
-            }
-            ShaderGraphInputSocket* inputSocket = graph->getInputSocket(inputName);
-            if (inputSocket && inputSocket->getPath().empty())
-            {
-                inputSocket->setPath(path);
-            }
-            if (inputSocket && inputSocket->getUnit().empty() && !unit.empty())
-            {
-                inputSocket->setUnit(unit);
-            }
-        }
-        for (const ParameterPtr& nodeParameter : nodeDef->getActiveParameters())
-        {
-            const string& paramName = nodeParameter->getName();
-            const string path = nodePath + NAME_PATH_SEPARATOR + paramName;
-            ShaderInput* input = newNode->getInput(paramName);
-            if (input && input->getPath().empty())
-            {
-                input->setPath(path);
-            }
-            ShaderGraphInputSocket* inputSocket = graph->getInputSocket(paramName);
-            if (inputSocket && inputSocket->getPath().empty())
-            {
-                inputSocket->setPath(path);
-            }
-        }
-
-        // Start traversal from this shaderref and material
-        root = shaderRef;
-        material = shaderRef->getParent()->asA<Material>();
-    }
-
     if (!graph)
     {
         throw ExceptionShaderGenError("Shader generation from element '" + element->getName() + "' of type '" + element->getCategory() + "' is not supported");
@@ -1002,7 +740,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
     // Traverse and create all dependencies upstream
     if (root && context.getOptions().addUpstreamDependencies)
     {
-        graph->addUpstreamDependencies(*root, material, context);
+        graph->addUpstreamDependencies(*root, context);
     }
 
     // Add classification according to root node
@@ -1029,12 +767,6 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
     _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
 
-    // Check if the node is a convolution node and mark the graph as such.
-    if (newNode->hasClassification(Classification::CONVOLUTION2D))
-    {
-        _classification |= Classification::CONVOLUTION2D;
-    }
-
     // Check if any of the node inputs should be connected to the graph interface
     for (ValueElementPtr elem : node.getChildrenOfType<ValueElement>())
     {
@@ -1042,15 +774,14 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
         if (!interfaceName.empty())
         {
             ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
-            if (!inputSocket)
+            if (inputSocket)
             {
-                throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on nodegraph '" + getName() + "'");
-            }
-            ShaderInput* input = newNode->getInput(elem->getName());
+                ShaderInput* input = newNode->getInput(elem->getName());
 
-            if (input)
-            {
-                input->makeConnection(inputSocket);
+                if (input)
+                {
+                    input->makeConnection(inputSocket);
+                }
             }
         }
     }
@@ -1073,6 +804,8 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
         }
     }
 
+    // 
+    // Handle colorspace and unit conversion if needed.
     string targetColorSpace;
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
     if (colorManagementSystem)
@@ -1081,56 +814,29 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
             _document->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
     }
 
-    if (colorManagementSystem && !targetColorSpace.empty())
+    UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
+    const string& targetDistanceUnit = context.getOptions().targetDistanceUnit;
+
+    for (InputPtr input : node.getInputs())
     {
-        for (InputPtr input : node.getInputs())
+        // It is sufficient that the input type is a filename regardless of whether it is marked as a uniform 
+        if (input->getType() == FILENAME_TYPE_STRING)
+        {
+            ShaderOutput* shaderOutput = newNode->getOutput();
+            if (shaderOutput)
+            {
+                populateColorTransformMap(colorManagementSystem, shaderOutput, input, targetColorSpace, false);
+                populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
+            }
+        }
+        else
         {
             ShaderInput* shaderInput = newNode->getInput(input->getName());
             populateColorTransformMap(colorManagementSystem, shaderInput, input, targetColorSpace, true);
-        }
-        for (ParameterPtr parameter : node.getParameters())
-        {
-            if (parameter->getType() == FILENAME_TYPE_STRING)
-            {
-                ShaderOutput* shaderOutput = newNode->getOutput();
-                if (shaderOutput)
-                {
-                    populateColorTransformMap(colorManagementSystem, shaderOutput, parameter, targetColorSpace, false);
-                }
-            }
-            else
-            {
-                ShaderInput* shaderInput = newNode->getInput(parameter->getName());
-                populateColorTransformMap(colorManagementSystem, shaderInput, parameter, targetColorSpace, true);
-            }
+            populateUnitTransformMap(unitSystem, shaderInput, input, targetDistanceUnit, true);
         }
     }
 
-    // Unit Conversion: Only applicable if Unit system and a "targetDistanceUnit" is defined for now.
-    UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
-    const string& targetDistanceUnit = context.getOptions().targetDistanceUnit;
-    if (unitSystem && !targetDistanceUnit.empty())
-    {
-        for (InputPtr input : node.getInputs())
-        {
-            ShaderInput* inputPort = newNode->getInput(input->getName());
-            populateUnitTransformMap(unitSystem, inputPort, input, targetDistanceUnit, true);
-        }
-        for (ParameterPtr parameter : node.getParameters())
-        {
-            ShaderInput* inputPort = newNode->getInput(parameter->getName());
-            if (parameter->getType() == FILENAME_TYPE_STRING)
-            {
-                // Check output port for any parameters which are file names
-                ShaderOutput* shaderOutput = newNode->getOutput();
-                if (shaderOutput)
-                {
-                    populateUnitTransformMap(unitSystem, shaderOutput, parameter, targetDistanceUnit, false);
-                }
-            }
-            populateUnitTransformMap(unitSystem, inputPort, parameter, targetDistanceUnit, true);
-        }
-    }
     return newNode.get();
 }
 
@@ -1195,6 +901,75 @@ void ShaderGraph::finalize(GenContext& context)
     // Optimize the graph, removing redundant paths.
     optimize(context);
 
+    // Let the generator perform any custom edits on the graph
+    context.getShaderGenerator().finalizeShaderGraph(*this);
+
+    // Sort the nodes in topological order.
+    topologicalSort();
+
+    // Calculate scopes for all nodes in the graph.
+    calculateScopes();
+
+    // Analyze the graph and extract information needed by shader nodes and BSDF nodes.
+    bool layerOperatorUsed = false;
+    for (ShaderNode* node : _nodeOrder)
+    {
+        // Track closure nodes used by surface shaders.
+        if (node->hasClassification(ShaderNode::Classification::SHADER))
+        {
+            // TODO: Optimize this search for closures.
+            //       No need to do a full traversal when 
+            //       texture nodes are reached.
+            for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(node->getOutput()))
+            {
+                if (edge.upstream && edge.upstream->getNode()->hasClassification(ShaderNode::Classification::CLOSURE))
+                {
+                    node->_usedClosures.insert(edge.upstream->getNode());
+                }
+            }
+        }
+        else if (node->hasClassification(ShaderNode::Classification::LAYER))
+        {
+            layerOperatorUsed = true;
+        }
+    }
+    if (layerOperatorUsed)
+    {
+        for (ShaderNode* node : _nodeOrder)
+        {
+            if (node->hasClassification(ShaderNode::Classification::BSDF) &&
+                !node->hasClassification(ShaderNode::Classification::LAYER))
+            {
+                // Dissalow using explicit 'base' connections in a graph where
+                // layer operators are used.
+                ShaderInput* base = node->getInput("base");
+                if (base && base->getType() == Type::BSDF && base->getConnection())
+                {
+                    throw ExceptionShaderGenError("Explicit 'base' connection to '" + node->getName() + "' is not supported in a graph where layer operators are used." +
+                                                  "Resolve by using a layer operator for '" + node->getName() + "' as well.");
+                }
+
+                // Check if the BSDF is strictly used as top layer in vertical layering.
+                // If so we can exclude its function call since the layering node will
+                // emit this for each layering instance used.
+                bool exclude = true;
+                const ShaderOutput* output = node->getOutput();
+                for (const ShaderInput* downstreamInput : output->getConnections())
+                {
+                    if (!downstreamInput->getNode()->hasClassification(ShaderNode::Classification::LAYER) ||
+                        downstreamInput->getName() != "top")
+                    {
+                        // This is not a connection to a layer operator "top" input.
+                        // So we should not exclude this function call.
+                        exclude = false;
+                        break;
+                    }
+                }
+                node->setFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL, exclude);
+            }
+        }
+    }
+
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
         // Publish all node inputs that has not been connected already.
@@ -1220,6 +995,10 @@ void ShaderGraph::finalize(GenContext& context)
                             inputSocket->setPath(input->getPath());
                             inputSocket->setValue(input->getValue());
                             inputSocket->setUnit(input->getUnit());
+                            if (input->isUniform())
+                            {
+                                inputSocket->setUniform();
+                            }
                         }
                         inputSocket->makeConnection(input);
                         inputSocket->setMetadata(input->getMetadata());
@@ -1229,36 +1008,8 @@ void ShaderGraph::finalize(GenContext& context)
         }
     }
 
-    // Sort the nodes in topological order.
-    topologicalSort();
-
-    // Calculate scopes for all nodes in the graph.
-    calculateScopes();
-
     // Set variable names for inputs and outputs in the graph.
     setVariableNames(context);
-
-    // Track closure nodes used by each surface shader.
-    //
-    // TODO: Optimize this search for closures.
-    //       No need to do a full traversal when 
-    //       texture nodes are reached.
-    for (ShaderNode* node : _nodeOrder)
-    {
-        if (node->hasClassification(ShaderNode::Classification::SHADER))
-        {
-            for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(node->getOutput()))
-            {
-                if (edge.upstream)
-                {
-                    if (edge.upstream->getNode()->hasClassification(ShaderNode::Classification::CLOSURE))
-                    {
-                        node->_usedClosures.insert(edge.upstream->getNode());
-                    }
-                }
-            }
-        }
-    }
 }
 
 void ShaderGraph::disconnect(ShaderNode* node) const
@@ -1532,7 +1283,7 @@ void ShaderGraph::calculateScopes()
                 {
                     newScopeInfo.adjustAtConditionalInput(node, int(inputIndex), 0x12);
                 }
-                else if (isSwitch)
+                else if (isSwitch && inputIndex != node->numInputs() - 1)
                 {
                     const uint32_t fullMask = (1 << node->numInputs()) - 1;
                     newScopeInfo.adjustAtConditionalInput(node, int(inputIndex), fullMask);
@@ -1575,7 +1326,6 @@ void ShaderGraph::setVariableNames(GenContext& context)
         }
         for (ShaderOutput* output : node->getOutputs())
         {
-            // Node outputs use long names for better code readability
             string variable = output->getFullName();
             variable = syntax.getVariableName(variable, output->getType(), _identifiers);
             output->setVariable(variable);
@@ -1586,7 +1336,7 @@ void ShaderGraph::setVariableNames(GenContext& context)
 void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderPort* shaderPort, 
                                             ValueElementPtr input, const string& targetColorSpace, bool asInput)
 {
-    if (!colorManagementSystem)
+    if (!colorManagementSystem || targetColorSpace.empty())
     {
         return;
     }
@@ -1623,6 +1373,11 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
 
 void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort* shaderPort, ValueElementPtr input, const string& globalTargetUnitSpace, bool asInput)
 {
+    if (!unitSystem || globalTargetUnitSpace.empty())
+    {
+        return;
+    }
+
     const string& sourceUnitSpace = input->getUnit();
     if (!shaderPort || sourceUnitSpace.empty())
     {

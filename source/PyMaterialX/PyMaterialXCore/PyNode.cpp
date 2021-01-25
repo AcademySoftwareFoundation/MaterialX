@@ -12,6 +12,8 @@ namespace mx = MaterialX;
 
 void bindPyNode(py::module& mod)
 {
+    py::class_<mx::NodePredicate>(mod, "NodePredicate");
+
     py::class_<mx::Node, mx::NodePtr, mx::InterfaceElement>(mod, "Node")
         .def("setConnectedNode", &mx::Node::setConnectedNode)
         .def("getConnectedNode", &mx::Node::getConnectedNode)
@@ -20,8 +22,7 @@ void bindPyNode(py::module& mod)
         .def("getNodeDef", &mx::Node::getNodeDef,
             py::arg("target") = mx::EMPTY_STRING)
         .def("getImplementation", &mx::Node::getImplementation,
-            py::arg("target") = mx::EMPTY_STRING,
-            py::arg("language") = mx::EMPTY_STRING)
+            py::arg("target") = mx::EMPTY_STRING)
         .def("getDownstreamPorts", &mx::Node::getDownstreamPorts)
         .def_readonly_static("CATEGORY", &mx::Node::CATEGORY);
 
@@ -34,19 +35,25 @@ void bindPyNode(py::module& mod)
         .def("getNodes", &mx::GraphElement::getNodes,
             py::arg("category") = mx::EMPTY_STRING)
         .def("removeNode", &mx::GraphElement::removeNode)
+        .def("addMaterialNode", &mx::GraphElement::addMaterialNode)
+        .def("getMaterialNodes", &mx::GraphElement::getMaterialNodes)
         .def("addBackdrop", &mx::GraphElement::addBackdrop,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getBackdrop", &mx::GraphElement::getBackdrop)
         .def("getBackdrops", &mx::GraphElement::getBackdrops)
         .def("removeBackdrop", &mx::GraphElement::removeBackdrop)
         .def("flattenSubgraphs", &mx::GraphElement::flattenSubgraphs,
-            py::arg("target") = mx::EMPTY_STRING)
+            py::arg("target") = mx::EMPTY_STRING, py::arg("filter") = nullptr)
         .def("topologicalSort", &mx::GraphElement::topologicalSort)
         .def("asStringDot", &mx::GraphElement::asStringDot);
 
     py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::GraphElement>(mod, "NodeGraph")
         .def("setNodeDef", &mx::NodeGraph::setNodeDef)
         .def("getNodeDef", &mx::NodeGraph::getNodeDef)
+        .def("getDeclaration", &mx::NodeGraph::getDeclaration)
+        .def("addInterfaceName", &mx::NodeGraph::addInterfaceName)
+        .def("removeInterfaceName", &mx::NodeGraph::removeInterfaceName)
+        .def("modifyInterfaceName", &mx::NodeGraph::modifyInterfaceName)
         .def_readonly_static("CATEGORY", &mx::NodeGraph::CATEGORY);
 
     py::class_<mx::Backdrop, mx::BackdropPtr, mx::Element>(mod, "Backdrop")

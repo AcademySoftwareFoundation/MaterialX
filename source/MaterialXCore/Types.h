@@ -22,6 +22,7 @@ namespace MaterialX
 extern const string DEFAULT_TYPE_STRING;
 extern const string FILENAME_TYPE_STRING;
 extern const string GEOMNAME_TYPE_STRING;
+extern const string STRING_TYPE_STRING;
 extern const string SURFACE_SHADER_TYPE_STRING;
 extern const string DISPLACEMENT_SHADER_TYPE_STRING;
 extern const string VOLUME_SHADER_TYPE_STRING;
@@ -45,7 +46,7 @@ class VectorBase { };
 class Uninit { };
 
 /// The class template for vectors of scalar values.  Inherited by Vector2,
-/// Vector3, Vector4, Color2, Color3, and Color4.
+/// Vector3, Vector4, Color3, and Color4.
 ///
 /// Template parameter V is the vector subclass, S is the scalar element type,
 /// and N is the number of scalar elements in the vector.
@@ -381,6 +382,7 @@ class Color2 : public VectorN<Color2, float, 2>
         _arr = {r, a};
     }
 };
+
 
 /// @class Color3
 /// A three-component color value

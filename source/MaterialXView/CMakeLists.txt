@@ -62,11 +62,22 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
-target_link_libraries(
+set(LIBS
     MaterialXView
     MaterialXFormat
     MaterialXGenGlsl
-    MaterialXRenderGlsl
+    MaterialXRenderGlsl)
+
+if (MATERIALX_BUILD_GEN_OSL)
+    LIST(APPEND LIBS MaterialXGenOsl)
+endif()
+if (MATERIALX_BUILD_GEN_MDL)
+    LIST(APPEND LIBS MaterialXGenMdl)
+endif()
+
+target_link_libraries(
+     ${LIBS}
+    nanogui
     ${NANOGUI_LIBRARIES}
     ${NANOGUI_EXTRA_LIBS})
 

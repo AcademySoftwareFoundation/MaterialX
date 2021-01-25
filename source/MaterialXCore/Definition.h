@@ -22,8 +22,8 @@ extern const string SHADER_SEMANTIC;
 class NodeDef;
 class Implementation;
 class TypeDef;
+class TargetDef;
 class Member;
-class ShaderRef;
 class Unit;
 class UnitDef;
 class UnitTypeDef;
@@ -43,6 +43,11 @@ using ConstImplementationPtr = shared_ptr<const Implementation>;
 using TypeDefPtr = shared_ptr<TypeDef>;
 /// A shared pointer to a const TypeDef
 using ConstTypeDefPtr = shared_ptr<const TypeDef>;
+
+/// A shared pointer to a TargetDef
+using TargetDefPtr = shared_ptr<TargetDef>;
+/// A shared pointer to a const TargetDef
+using ConstTargetDefPtr = shared_ptr<const TargetDef>;
 
 /// A shared pointer to a Member
 using MemberPtr = shared_ptr<Member>;
@@ -73,7 +78,7 @@ using AttributeDefDefPtr = shared_ptr<const AttributeDef>;
 /// A node definition element within a Document.
 ///
 /// A NodeDef provides the declaration of a node interface, which may then
-/// be instantiated as a Node or a ShaderRef.
+/// be instantiated as a Node.
 class NodeDef : public InterfaceElement
 {
   public:
@@ -82,8 +87,6 @@ class NodeDef : public InterfaceElement
     {
     }
     virtual ~NodeDef() { }
-
-    using ShaderRefPtr = shared_ptr<ShaderRef>;
 
     /// @name Node String
     /// @{
@@ -136,23 +139,13 @@ class NodeDef : public InterfaceElement
     /// @{
 
     /// Return the first implementation for this nodedef, optionally filtered
-    /// by the given target and language names.
+    /// by the given target name.
     /// @param target An optional target name, which will be used to filter
-    ///    the implementations that are considered.
-    /// @param language An optional language name, which will be used to filter
     ///    the implementations that are considered.
     /// @return An implementation for this nodedef, or an empty shared pointer
     ///    if none was found.  Note that a node implementation may be either
     ///    an Implementation element or a NodeGraph element.
-    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING, 
-                                          const string& language = EMPTY_STRING) const;
-
-    /// @}
-    /// @name Shader References
-    /// @{
-
-    /// Return all ShaderRef elements that instantiate this NodeDef.
-    vector<ShaderRefPtr> getInstantiatingShaderRefs() const;
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const;
 
     /// @}
     /// @name Validation
@@ -250,28 +243,6 @@ class Implementation : public InterfaceElement
     }
 
     /// @}
-    /// @name Language String
-    /// @{
-
-    /// Set the language string for the Implementation.
-    void setLanguage(const string& language)
-    {
-        setAttribute(LANGUAGE_ATTRIBUTE, language);
-    }
-
-    /// Return true if the given Implementation has a language string.
-    bool hasLanguage() const
-    {
-        return hasAttribute(LANGUAGE_ATTRIBUTE);
-    }
-
-    /// Return the language string for the Implementation.
-    const string& getLanguage() const
-    {
-        return getAttribute(LANGUAGE_ATTRIBUTE);
-    }
-
-    /// @}
     /// @name NodeDef References
     /// @{
 
@@ -295,7 +266,6 @@ class Implementation : public InterfaceElement
     static const string CATEGORY;
     static const string FILE_ATTRIBUTE;
     static const string FUNCTION_ATTRIBUTE;
-    static const string LANGUAGE_ATTRIBUTE;
 };
 
 /// @class TypeDef
@@ -390,6 +360,27 @@ class TypeDef : public Element
     static const string CATEGORY;
     static const string SEMANTIC_ATTRIBUTE;
     static const string CONTEXT_ATTRIBUTE;
+};
+
+/// @class TargetDef
+/// A definition of an implementation target.
+class TargetDef : public TypedElement
+{
+  public:
+    TargetDef(ElementPtr parent, const string& name) :
+        TypedElement(parent, CATEGORY, name)
+    {
+    }
+    virtual ~TargetDef() { }
+
+    /// Return a vector of target names that is matching this targetdef
+    /// either by itself of by its inheritance.
+    /// The vector is ordered by priority starting with this targetdef
+    /// itself and then upwards in the inheritance hierarchy.
+    StringVec getMatchingTargets() const;
+
+  public:
+    static const string CATEGORY;
 };
 
 /// @class Member

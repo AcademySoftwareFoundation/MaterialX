@@ -10,6 +10,38 @@
 namespace MaterialX
 {
 
+namespace
+{
+    InterfaceElementPtr findMatchingImplementation(const NodeDef& nodedef, const string& target, const vector<InterfaceElementPtr>& candidates)
+    {
+        // Search for the first implementation which matches the given target string.
+        for (InterfaceElementPtr interface : candidates)
+        {
+            if (!interface->isA<Implementation>() ||
+                !targetStringsMatch(interface->getTarget(), target) ||
+                !nodedef.isVersionCompatible(interface))
+            {
+                continue;
+            }
+            return interface;
+        }
+
+        // Search for a node graph match if no implementation match was found.
+        for (InterfaceElementPtr interface : candidates)
+        {
+            if (!interface->isA<NodeGraph>() ||
+                !targetStringsMatch(interface->getTarget(), target) ||
+                !nodedef.isVersionCompatible(interface))
+            {
+                continue;
+            }
+            return interface;
+        }
+
+        return InterfaceElementPtr();
+    }
+}
+
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
 
@@ -27,7 +59,6 @@ const string TypeDef::SEMANTIC_ATTRIBUTE = "semantic";
 const string TypeDef::CONTEXT_ATTRIBUTE = "context";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
-const string Implementation::LANGUAGE_ATTRIBUTE = "language";
 const string UnitDef::UNITTYPE_ATTRIBUTE = "unittype";
 const string AttributeDef::ATTRNAME_ATTRIBUTE = "attrname";
 const string AttributeDef::VALUE_ATTRIBUTE = "value";
@@ -57,61 +88,33 @@ const string& NodeDef::getType() const
     }
 }
 
-InterfaceElementPtr NodeDef::getImplementation(const string& target, const string& language) const
+InterfaceElementPtr NodeDef::getImplementation(const string& target) const
 {
     vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(getQualifiedName(getName()));
     vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
     interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
 
-    // Search for the first implementation which matches a given language string.
-    // If no language is specified then return the first implementation found.
-    bool matchLanguage = !language.empty();
-    for (InterfaceElementPtr interface : interfaces)
+    if (target.empty())
     {
-        ImplementationPtr implement = interface->asA<Implementation>();
-        if (!implement||
-            !targetStringsMatch(interface->getTarget(), target) ||
-            !isVersionCompatible(interface))
-        {
-            continue;
-        }
-        if (!matchLanguage ||
-            implement->getLanguage() == language)
-        {
-            return interface;
-        }
+        return findMatchingImplementation(*this, target, interfaces);
     }
 
-    // Search for a node graph match if no implementation match was found.
-    // There is no language check as node graphs are considered to be language independent.
-    for (InterfaceElementPtr interface : interfaces)
+    // Get all candidate targets matching the given target,
+    // taking inheritance into account.
+    const TargetDefPtr targetDef = getDocument()->getTargetDef(target);
+    const StringVec candidateTargets = targetDef ? targetDef->getMatchingTargets() : StringVec();
+
+    // Search the candidate targets in order
+    for (const string& candidateTarget : candidateTargets)
     {
-        if (interface->isA<Implementation>() ||
-            !targetStringsMatch(interface->getTarget(), target) ||
-            !isVersionCompatible(interface))
+        InterfaceElementPtr impl = findMatchingImplementation(*this, candidateTarget, interfaces);
+        if (impl)
         {
-            continue;
+            return impl;
         }
-        return interface;
     }
 
     return InterfaceElementPtr();
-}
-
-vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
-{
-    vector<ShaderRefPtr> shaderRefs;
-    for (MaterialPtr mat : getDocument()->getMaterials())
-    {
-        for (ShaderRefPtr shaderRef : mat->getShaderRefs())
-        {
-            if (shaderRef->getNodeDef()->hasInheritedBase(getSelf()))
-            {
-                shaderRefs.push_back(shaderRef);
-            }
-        }
-    }
-    return shaderRefs;
 }
 
 bool NodeDef::validate(string* message) const
@@ -163,6 +166,18 @@ NodeDefPtr Implementation::getNodeDef() const
 ConstNodeDefPtr Implementation::getDeclaration(const string&) const
 {
     return getNodeDef();
+}
+
+StringVec TargetDef::getMatchingTargets() const
+{
+    StringVec result = { getName() };
+    ElementPtr base = getInheritsFrom();
+    while (base)
+    {
+        result.push_back(base->getName());
+        base = base->getInheritsFrom();
+    }
+    return result;
 }
 
 vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const

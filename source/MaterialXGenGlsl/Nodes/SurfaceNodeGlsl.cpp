@@ -41,7 +41,7 @@ ShaderNodeImplPtr SurfaceNodeGlsl::create()
     return std::make_shared<SurfaceNodeGlsl>();
 }
 
-void SurfaceNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void SurfaceNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // TODO: 
     // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
@@ -60,8 +60,9 @@ void SurfaceNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& sh
     addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_NORMAL_WORLD, vs, ps);
 
     addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, HW::T_VIEW_POSITION, ps);
-    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
-    numActiveLights->setValue(Value::createValue<int>(0));
+
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    shadergen.addStageLightingUniforms(context, ps);
 }
 
 void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
@@ -138,30 +139,37 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         }
         shadergen.emitLineBreak(stage);
 
-        shadergen.emitComment("Light loop", stage);
         shadergen.emitLine("vec3 N = normalize(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_NORMAL_WORLD + ")", stage);
         shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ")", stage);
         shadergen.emitLine("vec3 P = " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD, stage);
-        shadergen.emitLine("int numLights = numActiveLightSources()", stage);
-        shadergen.emitLine("lightshader lightShader", stage);
-        shadergen.emitLine("for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)", stage, false);
 
-        shadergen.emitScopeBegin(stage);
+        // 
+        // Generate Light loop if requested
+        //
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+            shadergen.emitComment("Light loop", stage);
+            shadergen.emitLine("int numLights = numActiveLightSources()", stage);
+            shadergen.emitLine("lightshader lightShader", stage);
+            shadergen.emitLine("for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)", stage, false);
 
-        shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", lightShader)", stage);
-        shadergen.emitLine("vec3 L = lightShader.direction", stage);
-        shadergen.emitLineBreak(stage);
+            shadergen.emitScopeBegin(stage);
 
-        shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-        string bsdf;
-        shadergen.emitBsdfNodes(graph, node, _callReflection, context, stage, bsdf);
-        shadergen.emitLineBreak(stage);
+            shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", lightShader)", stage);
+            shadergen.emitLine("vec3 L = lightShader.direction", stage);
+            shadergen.emitLineBreak(stage);
 
-        shadergen.emitComment("Accumulate the light's contribution", stage);
-        shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf, stage);
+            shadergen.emitComment("Calculate the BSDF response for this light source", stage);
+            string bsdf;
+            shadergen.emitBsdfNodes(graph, node, _callReflection, context, stage, bsdf);
+            shadergen.emitLineBreak(stage);
 
-        shadergen.emitScopeEnd(stage);
-        shadergen.emitLineBreak(stage);
+            shadergen.emitComment("Accumulate the light's contribution", stage);
+            shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf, stage);
+
+            shadergen.emitScopeEnd(stage);
+            shadergen.emitLineBreak(stage);
+        }
 
         //
         // Handle indirect lighting.
@@ -190,6 +198,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
         shadergen.emitComment("Add indirect contribution", stage);
         shadergen.emitScopeBegin(stage);
+        string bsdf;
         shadergen.emitBsdfNodes(graph, node, _callIndirect, context, stage, bsdf);
         shadergen.emitLineBreak(stage);
         shadergen.emitLine(outColor + " += occlusion * " + bsdf, stage);

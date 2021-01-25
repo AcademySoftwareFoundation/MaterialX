@@ -51,7 +51,7 @@ class ShaderGraph : public ShaderNode
     virtual ~ShaderGraph() { }
 
     /// Create a new shader graph from an element.
-    /// Supported elements are outputs and shaderrefs.
+    /// Supported elements are outputs and shader nodes.
     static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element, 
                                  GenContext& context);
 
@@ -112,20 +112,17 @@ class ShaderGraph : public ShaderNode
         const ShaderGraph* parent,
         NodePtr node,
         GenContext& context,
-        ElementPtr& root,
-        MaterialPtr& material);
+        ElementPtr& root);
 
     /// Create node connections corresponding to the connection between a pair of elements.
     /// @param downstreamElement Element representing the node to connect to.
     /// @param upstreamElement Element representing the node to connect from
     /// @param connectingElement If non-null, specifies the element on on the downstream node to connect to.
     /// @param context Context for generation.
-    /// @param rootNode Root node for downstream element. Only required for handing ShaderRef elements.
     void createConnectedNodes(const ElementPtr& downstreamElement,
                               const ElementPtr& upstreamElement,
                               ElementPtr connectingElement,
-                              GenContext& context,
-                              ShaderNode* rootNode = nullptr);
+                              GenContext& context);
 
     /// Add a node to the graph
     void addNode(ShaderNodePtr node);
@@ -139,7 +136,7 @@ class ShaderGraph : public ShaderNode
     /// Traverse from the given root element and add all dependencies upstream.
     /// The traversal is done in the context of a material, if given, to include
     /// bind input elements in the traversal.
-    void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, GenContext& context);
+    void addUpstreamDependencies(const Element& root, GenContext& context);
 
     /// Add a default geometric node and connect to the given input.
     void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, GenContext& context);

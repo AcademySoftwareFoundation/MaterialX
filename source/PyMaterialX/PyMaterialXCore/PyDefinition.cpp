@@ -23,9 +23,7 @@ void bindPyDefinition(py::module& mod)
         .def("getNodeGroup", &mx::NodeDef::getNodeGroup)
         .def("getImplementation", &mx::NodeDef::getImplementation)
         .def("getImplementation", &mx::NodeDef::getImplementation,
-            py::arg("target") = mx::EMPTY_STRING,
-            py::arg("language") = mx::EMPTY_STRING)
-        .def("getInstantiatingShaderRefs", &mx::NodeDef::getInstantiatingShaderRefs)
+            py::arg("target") = mx::EMPTY_STRING)
         .def("isVersionCompatible", &mx::NodeDef::isVersionCompatible)
         .def_readonly_static("CATEGORY", &mx::NodeDef::CATEGORY)
         .def_readonly_static("NODE_ATTRIBUTE", &mx::NodeDef::NODE_ATTRIBUTE)
@@ -43,15 +41,11 @@ void bindPyDefinition(py::module& mod)
         .def("setFunction", &mx::Implementation::setFunction)
         .def("hasFunction", &mx::Implementation::hasFunction)
         .def("getFunction", &mx::Implementation::getFunction)
-        .def("setLanguage", &mx::Implementation::setLanguage)
-        .def("hasLanguage", &mx::Implementation::hasLanguage)
-        .def("getLanguage", &mx::Implementation::getLanguage)
         .def("setNodeDef", &mx::Implementation::setNodeDef)
         .def("getNodeDef", &mx::Implementation::getNodeDef)
         .def_readonly_static("CATEGORY", &mx::Implementation::CATEGORY)
         .def_readonly_static("FILE_ATTRIBUTE", &mx::Implementation::FILE_ATTRIBUTE)
-        .def_readonly_static("FUNCTION_ATTRIBUTE", &mx::Implementation::FUNCTION_ATTRIBUTE)
-        .def_readonly_static("LANGUAGE_ATTRIBUTE", &mx::Implementation::LANGUAGE_ATTRIBUTE);
+        .def_readonly_static("FUNCTION_ATTRIBUTE", &mx::Implementation::FUNCTION_ATTRIBUTE);
 
     py::class_<mx::TypeDef, mx::TypeDefPtr, mx::Element>(mod, "TypeDef")
         .def("setSemantic", &mx::TypeDef::setSemantic)

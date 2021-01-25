@@ -44,7 +44,7 @@ class GlslRenderer : public ShaderRenderer
     static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
 
     /// Destructor
-    virtual ~GlslRenderer();
+    virtual ~GlslRenderer() { };
 
     /// @name Setup
     /// @{
@@ -88,7 +88,7 @@ class GlslRenderer : public ShaderRenderer
 
     /// Save the current contents of the off-screen hardware buffer to disk.
     /// @param filePath Name of file to save rendered image to.
-    void saveImage(const FilePath& filePath) override;
+    void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) override;
 
     /// Return the GL frame buffer.
     GLFrameBufferPtr getFrameBuffer() const
@@ -103,7 +103,10 @@ class GlslRenderer : public ShaderRenderer
     }
 
     /// Submit geometry for a screen-space quad.
-    static void drawScreenSpaceQuad();
+    void drawScreenSpaceQuad();
+
+    /// Sets the clear color
+    void setClearColor(const Color4& clearColor);
 
     /// @}
 
@@ -127,6 +130,7 @@ class GlslRenderer : public ShaderRenderer
 
     SimpleWindowPtr _window;
     GLContextPtr _context;
+    Color4 _clearColor;
 };
 
 } // namespace MaterialX

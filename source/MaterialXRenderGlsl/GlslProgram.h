@@ -23,15 +23,10 @@ namespace MaterialX
 using GlslProgramPtr = std::shared_ptr<class GlslProgram>;
 
 /// @class GlslProgram
-/// GLSL program helper class to perform validation of GLSL source code.
+/// A class representing an executable GLSL program.
 ///
-/// There are two main interfaces which can be used. One which takes in a HwShader and one which
+/// There are two main interfaces which can be used.  One which takes in a HwShader and one which
 /// allows for explicit setting of shader stage code.
-///
-/// The main services provided are:
-///     - Validation: All shader stages are compiled and atteched to a GLSL shader program.
-///     - Introspection: The compiled shader program is examined for uniforms and attributes.
-///
 class GlslProgram
 {
   public:
@@ -132,9 +127,9 @@ class GlslProgram
     /// @param foundList Returned list of found program inputs. Empty if none found.
     /// @param exactMatch Search for exact variable name match.
     void findInputs(const std::string& variable,
-                            const InputMap& variableList,
-                            InputMap& foundList,
-                            bool exactMatch);
+                    const InputMap& variableList,
+                    InputMap& foundList,
+                    bool exactMatch);
 
     /// @}
     /// @name Program activation
@@ -153,11 +148,14 @@ class GlslProgram
     /// Unbind inputs
     void unbindInputs(ImageHandlerPtr imageHandler);
 
-    /// Return if there are any active inputs on the program
-    bool haveActiveAttributes() const;
+    /// Return true if the program has active attributes.
+    bool hasActiveAttributes() const;
 
-    /// Assign a parameter value to a uniform
-    void bindUniform(int location, const Value& value);
+    /// Return true if a uniform with the given name is present.
+    bool hasUniform(const string& name);
+
+    /// Bind a value to the uniform with the given name.
+    void bindUniform(const string& name, ConstValuePtr value, bool errorIfMissing = true);
 
     /// Bind attribute buffers to attribute inputs.
     /// A hardware buffer of the given attribute type is created and bound to the program locations
@@ -167,10 +165,10 @@ class GlslProgram
     void bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mesh);
 
     /// Bind input geometry partition (indexing)
-    void bindPartition(const std::string& meshName, MeshPartitionPtr partition);
+    void bindPartition(MeshPartitionPtr partition);
 
     /// Bind input geometry streams
-    void bindStreams(MeshPtr mesh);
+    void bindMesh(MeshPtr mesh);
 
     /// Unbind any bound geometry
     void unbindGeometry();
@@ -187,95 +185,89 @@ class GlslProgram
     /// Bind time and frame
     void bindTimeAndFrame();
 
-    /// Unbind the program. Equivalent to binding no program
+    /// Unbind the program.  Equivalent to binding no program
     void unbind() const;
-
-    /// Whether the geometry is currently bound
-    bool geometryBound() const;
-
-    /// @}
-
-    void printUniforms(std::ostream& outputStream);
-    void printAttributes(std::ostream& outputStream);
-
-    /// Constant for an undefined OpenGL resource identifier
-    static unsigned int UNDEFINED_OPENGL_RESOURCE_ID;
-    /// Constant for a undefined OpenGL program location
-    static int UNDEFINED_OPENGL_PROGRAM_LOCATION;
-
-  protected:
-    /// Constructor
-    GlslProgram();
-
-    ///
-    /// @name Program introspection
-    /// @{
-
-    /// Update a list of program input uniforms
-    const InputMap& updateUniformsList();
-
-    /// Update a list of program input attributes
-    const InputMap& updateAttributesList();
-
-    /// Clear out any cached input lists
-    void clearInputLists();
-
-    /// Utility to map a MaterialX type to an OpenGL type
-    /// @param type MaterialX type
-    /// @return OpenGL type. INVALID_OPENGL_TYPE is returned if no mapping exists. For example strings have no OpenGL type.
-    static int mapTypeToOpenGLType(const TypeDesc* type);
-
-    /// Utility to find a uniform value in an uniform list.
-    /// If uniform cannot be found a null pointer will be return.
-    MaterialX::ValuePtr findUniformValue(const std::string& uniformName, const InputMap& uniformList);
 
     /// @}
     /// @name Utilities
     /// @{
 
-    /// Bind an individual texture to a program uniform location
-    ImagePtr bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
-                         ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
+    /// Print all uniforms to the given stream.
+    void printUniforms(std::ostream& outputStream);
 
-    /// Delete any currently created shader program
-    void deleteProgram();
+    /// Print all attributes to the given stream.
+    void printAttributes(std::ostream& outputStream);
 
     /// @}
 
-  private:
-    /// Stages used to create program
-    /// Map of stage name and its source code
-      StringMap _stages;
+  public:
+    static unsigned int UNDEFINED_OPENGL_RESOURCE_ID;
+    static int UNDEFINED_OPENGL_PROGRAM_LOCATION;
 
-    /// Generated program. A non-zero number indicates a valid shader program.
+  protected:
+    GlslProgram();
+
+    // Update a list of program input uniforms
+    const InputMap& updateUniformsList();
+
+    // Update a list of program input attributes
+    const InputMap& updateAttributesList();
+
+    // Clear out any cached input lists
+    void clearInputLists();
+
+    // Utility to find a uniform value in an uniform list.
+    // If uniform cannot be found a null pointer will be return.
+    MaterialX::ValuePtr findUniformValue(const std::string& uniformName, const InputMap& uniformList);
+
+    // Bind an individual texture to a program uniform location
+    ImagePtr bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
+                         ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
+
+    // Delete any currently created shader program
+    void deleteProgram();
+
+    // Utility to map a MaterialX type to an OpenGL type
+    static int mapTypeToOpenGLType(const TypeDesc* type);
+
+    // Bind a value to the uniform at the given location.
+    void bindUniformLocation(int location, ConstValuePtr value);
+
+  private:
+    // Stages used to create program
+    // Map of stage name and its source code
+    StringMap _stages;
+
+    // Generated program. A non-zero number indicates a valid shader program.
     unsigned int _programId;
 
-    /// List of program input uniforms
+    // List of program input uniforms
     InputMap _uniformList;
-    /// List of program input attributes
+    // List of program input attributes
     InputMap _attributeList;
 
-    /// Hardware shader (if any) used for program creation
+    // Hardware shader (if any) used for program creation
     ShaderPtr _shader;
 
-    /// Attribute buffer resource handles
-    /// for each attribute identifier in the program
+    // Attribute buffer resource handles
+    // for each attribute identifier in the program
     std::unordered_map<std::string, unsigned int> _attributeBufferIds;
 
-    /// Attribute indexing buffer handle
-    std::map<std::string, unsigned int> _indexBufferIds;
+    // Attribute indexing buffer handle
+    std::map<MeshPartitionPtr, unsigned int> _indexBufferIds;
 
-    /// Attribute vertex array handle
+    // Attribute vertex array handle
     unsigned int _vertexArray;
 
-    /// Program texture map
+    // Program texture map
     std::unordered_map<std::string, unsigned int> _programTextures;
 
-    /// Enabled vertex stream program locations
+    // Enabled vertex stream program locations
     std::set<int> _enabledStreamLocations;
 
     std::string _lastGeometryName;
 };
 
 } // namespace MaterialX
+
 #endif

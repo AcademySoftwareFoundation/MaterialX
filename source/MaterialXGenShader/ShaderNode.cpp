@@ -121,7 +121,6 @@ const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";
 const string ShaderNode::TEXTURE3D_GROUPNAME = "texture3d";
 const string ShaderNode::PROCEDURAL2D_GROUPNAME = "procedural2d";
 const string ShaderNode::PROCEDURAL3D_GROUPNAME = "procedural3d";
-const string ShaderNode::CONVOLUTION2D_GROUPNAME = "convolution2d";
 
 //
 // ShaderNode methods
@@ -131,6 +130,7 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
     _parent(parent),
     _name(name),
     _classification(0),
+    _flags(0),
     _impl(nullptr)
 {
 }
@@ -205,7 +205,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Find the implementation for this nodedef
-    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget());
     if (impl)
     {
         newNode->_impl = shadergen.getImplementation(*impl, context);
@@ -213,7 +213,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     if (!newNode->_impl)
     {
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
-            "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
+            "' matching target '" + shadergen.getTarget() + "'");
     }
 
     // Check for classification based on group name
@@ -229,10 +229,6 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             groupClassification = Classification::SAMPLE3D;
         }
-        else if (groupName == CONVOLUTION2D_GROUPNAME)
-        {
-            groupClassification = Classification::CONVOLUTION2D;
-        }
     }
 
     // Create interface from nodedef
@@ -245,20 +241,26 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         }
         else
         {
+            ShaderInput* input;
             const string& portValue = port->getResolvedValueString();
             std::pair<const TypeDesc*, ValuePtr> enumResult;
-            if (context.getShaderGenerator().remapEnumeration(*port, portValue, enumResult))
+            const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+            if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
-                ShaderInput* input = newNode->addInput(port->getName(), enumResult.first);
+                input = newNode->addInput(port->getName(), enumResult.first);
                 input->setValue(enumResult.second);
             }
             else
             {
-                ShaderInput* input = newNode->addInput(port->getName(), portType);
+                input = newNode->addInput(port->getName(), portType);
                 if (!portValue.empty())
                 {
                     input->setValue(port->getResolvedValue());
                 }
+            }
+            if (port->getIsUniform())
+            {
+                input->setUniform();
             }
         }
     }
@@ -301,6 +303,17 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         else if (bsdfType == BSDF_T)
         {
             newNode->_classification |= Classification::BSDF_T;
+        }
+
+        // Check specifically for the vertical layering node
+        if (nodeDef.getName() == "ND_layer_bsdf")
+        {
+            newNode->_classification |= Classification::LAYER;
+        }
+        // Check specifically for the thin-film node
+        else if (nodeDef.getName() == "ND_thin_film_brdf")
+        {
+            newNode->_classification |= Classification::THINFILM;
         }
     }
     else if (primaryOutput->getType() == Type::EDF)
@@ -358,7 +371,9 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
         {
             const string& valueString = nodeValue->getResolvedValueString();
             std::pair<const TypeDesc*, ValuePtr> enumResult;
-            if (context.getShaderGenerator().remapEnumeration(*nodeDefInput, valueString, enumResult))
+            const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+            const TypeDesc* type = TypeDesc::get(nodeDefInput->getType());
+            if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
             {
                 input->setValue(enumResult.second);
             }
@@ -393,23 +408,15 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
 
     // Set element paths based on the node definition. Note that these
     // paths don't actually exist at time of shader generation since there
-    // are no inputs/parameters specified on the node itself
+    // are no inputs specified on the node itself
     //
     const string& nodePath = node.getNamePath();
-    for (const InputPtr& nodeInput : nodeDef.getActiveInputs())
+    for (auto nodeInput : nodeDef.getActiveInputs())
     {
         ShaderInput* input = getInput(nodeInput->getName());
         if (input && input->getPath().empty())
         {
             input->setPath(nodePath + NAME_PATH_SEPARATOR + nodeInput->getName());
-        }
-    }
-    for (const ParameterPtr& nodeParameter : nodeDef.getActiveParameters())
-    {
-        ShaderInput* input = getInput(nodeParameter->getName());
-        if (input && input->getPath().empty())
-        {
-            input->setPath(nodePath + NAME_PATH_SEPARATOR + nodeParameter->getName());
         }
     }
 }

@@ -62,22 +62,32 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
                 shadergen.emitLine(shadergen.getSyntax().getTypeName(in1->getType()) + " " + in1Variable + " = " + variableValue, stage);
             }
 
-            // Get the components of the input values.
-            valueComponents.resize(4);
-
             // Get components from in1
             const StringVec& in1Members = shadergen.getSyntax().getTypeSyntax(in1->getType()).getMembers();
-            valueComponents[0] = in1Variable + in1Members[0];
-            valueComponents[1] = in1Variable + in1Members[1];
-            valueComponents[2] = in1Variable + in1Members[2];
+            size_t memberSize = in1Members.size();
 
+            // Get the components of the input values.
+            if (memberSize)
+            {
+                valueComponents.resize(memberSize + 1);
+                for (size_t i = 0; i < memberSize; i++)
+                {
+                    valueComponents[i] = in1Variable + in1Members[i];
+                }
+            }
+            else
+            {
+                memberSize = 1;
+                valueComponents.resize(2);
+                valueComponents[0] = in1Variable;
+            }
             // Get component from in2
-            valueComponents[3] = shadergen.getUpstreamResult(in2, context);
+            valueComponents[memberSize] = shadergen.getUpstreamResult(in2, context);
         }
-        else if (in1->getType() == Type::COLOR2 || in1->getType() == Type::VECTOR2)
+        else if (in1->getType() == Type::VECTOR2)
         {
             const ShaderInput* in2 = node.getInput(1);
-            if (!in2 || (in2->getType() != Type::COLOR2 && in2->getType() != Type::VECTOR2))
+            if (!in2 || (in2->getType() != Type::VECTOR2))
             {
                 throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid convert node");
             }

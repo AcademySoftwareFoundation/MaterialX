@@ -18,8 +18,7 @@ namespace RenderUtil
 {
 
 ShaderRenderTester::ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
-    _shaderGenerator(shaderGenerator),
-    _languageTargetString(shaderGenerator->getLanguage() + "_" + shaderGenerator->getTarget())
+    _shaderGenerator(shaderGenerator)
 {
 }
 
@@ -72,7 +71,7 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 {
     dependLib = mx::createDocument();
 
-    const mx::FilePathVec libraries = { "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "lights" };
     mx::loadLibraries(libraries, searchPath, dependLib);
     for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
     {
@@ -95,12 +94,12 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
 {
 #ifdef LOG_TO_FILE
-    std::ofstream logfile(_languageTargetString + "_render_log.txt");
+    std::ofstream logfile(_shaderGenerator->getTarget() + "_render_log.txt");
     std::ostream& log(logfile);
-    std::string docValidLogFilename = _languageTargetString + "_render_doc_validation_log.txt";
+    std::string docValidLogFilename = _shaderGenerator->getTarget() + "_render_doc_validation_log.txt";
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile(_languageTargetString + "__render_profiling_log.txt");
+    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "__render_profiling_log.txt");
     std::ostream& profilingLog(profilingLogfile);
 #else
     std::ostream& log(std::cout);
@@ -119,7 +118,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     }
     if (!runTest(options))
     {
-        log << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
+        log << "Target: " << _shaderGenerator->getTarget() << " not set to run. Skip test." << std::endl;
         return false;
     }
 
@@ -176,12 +175,12 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     createRenderer(log);
 
-    mx::ColorManagementSystemPtr colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getLanguage());
+    mx::ColorManagementSystemPtr colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
     colorManagementSystem->loadLibrary(dependLib);
     _shaderGenerator->setColorManagementSystem(colorManagementSystem);
 
     // Setup Unit system and working space
-    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_shaderGenerator->getLanguage());
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_shaderGenerator->getTarget());
     _shaderGenerator->setUnitSystem(unitSystem);
     mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
     mx::UnitTypeDefPtr distanceTypeDef = dependLib->getUnitTypeDef("distance");
@@ -205,14 +204,19 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     registerLights(dependLib, options, context);
 
-    // Map to replace "/" in Element path names with "_".
+    // Map to replace "/" in Element path and ":" in namespaced names with "_".
     mx::StringMap pathMap;
     pathMap["/"] = "_";
+    pathMap[":"] = "_";
 
     RenderUtil::AdditiveScopedTimer validateTimer(profileTimes.validateTime, "Global validation time");
     RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");
 
     mx::StringSet usedImpls;
+
+    const mx::StringVec& bakeFiles = options.bakeFiles;
+    const mx::IntVec& bakeResolution = options.bakeResolutions;
+    const mx::BoolVec& bakeHdr = options.bakeHdrs;
 
     const std::string MTLX_EXTENSION("mtlx");
     for (const auto& dir : dirs)
@@ -244,9 +248,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             {
                 mx::FileSearchPath readSearchPath(searchPath);
                 readSearchPath.append(dir);
-                mx::XmlReadOptions readOptions;
-                readOptions.applyFutureUpdates = options.applyFutureUpdates;
-                mx::readFromXmlFile(doc, filename, readSearchPath, &readOptions);
+                mx::readFromXmlFile(doc, filename, readSearchPath);
             }
             catch (mx::Exception& e)
             {
@@ -254,11 +256,16 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");
             }
 
+            // For each new file clear the implementation cache.
+            // Since the new file might contain implementations with names
+            // colliding with implementations in previous test cases.
+            context.clearNodeImplementations();
+
             doc->importLibrary(dependLib);
             ioTimer.endTimer();
 
             validateTimer.startTimer();
-            std::cout << "- Validating MTLX file: " << filename.asString() << std::endl;
+            std::cout << "- Validating rendering for: " << filename.asString() << std::endl;
             log << "MTLX Filename: " << filename.asString() << std::endl;
 
             // Validate the test document
@@ -272,6 +279,29 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             validateTimer.endTimer();
             CHECK(validDoc);
 
+            mx::FileSearchPath imageSearchPath(dir);
+            imageSearchPath.append(searchPath);
+
+            mx::FilePath outputPath = mx::FilePath(dir) / file;
+            outputPath.removeExtension();
+
+            // Perform bake and use that file for rendering
+            if (canBake() && (bakeFiles.size() == bakeResolution.size()) && 
+                (bakeFiles.size() == bakeHdr.size()))
+            {
+                for (size_t i = 0; i < bakeFiles.size(); i++)
+                {
+                    mx::FilePath outputBakeFile = file;
+                    if (bakeFiles[i] == outputBakeFile.asString())
+                    {
+                        outputBakeFile.removeExtension();
+                        outputBakeFile = outputPath / (outputBakeFile.asString() + "_baked.mtlx");
+                        runBake(doc, imageSearchPath, outputBakeFile, bakeResolution[i], bakeResolution[i], bakeHdr[i], log);
+                        break;
+                    }
+                }
+            }
+
             renderableSearchTimer.startTimer();
             std::vector<mx::TypedElementPtr> elements;
             try
@@ -281,20 +311,16 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             catch (mx::Exception& e)
             {
                 docValidLog << e.what() << std::endl;
-                WARN("Find renderable elements failed, see: " + docValidLogFilename + " for details.");
+                WARN("Shader generation error in " + filename.asString() + ": " + e.what());
             }
             renderableSearchTimer.endTimer();
 
-            mx::FileSearchPath imageSearchPath(dir);
-            mx::FilePath outputPath = mx::FilePath(dir) / file;
-            outputPath.removeExtension();
             for (const auto& element : elements)
             {
                 std::vector<mx::TypedElementPtr> targetElements;
                 std::vector<mx::NodeDefPtr> nodeDefs;
 
                 mx::OutputPtr output = element->asA<mx::Output>();
-                mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
                 mx::NodePtr outputNode = element->asA<mx::Node>();
 
                 if (output)
@@ -311,20 +337,11 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                         }
                     }
                 }
-                else if (shaderRef)
-                {
-                    mx::NodeDefPtr nodeDef = shaderRef->getNodeDef();
-                    if (nodeDef)
-                    {
-                        nodeDefs.push_back(nodeDef);
-                        targetElements.push_back(shaderRef);
-                    }
-                }
 
                 // Get connected shader nodes if a material node.
                 if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
                 {
-                    std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
+                    std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
                     for (auto node : shaderNodes)
                     {
                         mx::NodeDefPtr nodeDef = node->getNodeDef();
@@ -343,7 +360,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                     const mx::string elementName = mx::createValidName(mx::replaceSubstrings(targetElement->getNamePath(), pathMap));
                     {
                         renderableSearchTimer.startTimer();
-                        mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());
+                        mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget());
                         renderableSearchTimer.endTimer();
                         if (impl)
                         {
@@ -353,7 +370,123 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath);
+
+                            const mx::StringVec& wedgeParameters = options.wedgeParameters;
+                            const mx::FloatVec& wedgeRangeMin = options.wedgeRangeMin;
+                            const mx::FloatVec& wedgeRangeMax = options.wedgeRangeMax;
+                            const mx::IntVec& wedgeSteps = options.wedgeSteps;
+                            const mx::StringVec& wedgeFiles = options.wedgeFiles;
+                            mx::StringSet wedgeFileSet(wedgeFiles.begin(), wedgeFiles.end());
+
+                            bool performWedge = (!wedgeFiles.empty()) &&
+                                wedgeFileSet.count(file) &&
+                                wedgeFiles.size() == wedgeParameters.size() &&
+                                wedgeFiles.size() == wedgeRangeMin.size() &&
+                                wedgeFiles.size() == wedgeRangeMax.size() &&
+                                wedgeFiles.size() == wedgeSteps.size();
+
+                            if (!performWedge)
+                            {
+                                runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
+                            }
+                            else
+                            {
+                                for (size_t f = 0; f < wedgeFiles.size(); f++)
+                                {
+                                    mx::ImageVec imageVec;
+
+                                    const std::string& wedgeFile = wedgeFiles[f];
+                                    if (wedgeFile != file.asString())
+                                    {
+                                        continue;
+                                    }
+
+                                    // Make this a utility
+                                    std::string parameterPath = wedgeParameters[f];
+                                    mx::ElementPtr uniformElement = doc->getDescendant(parameterPath);
+                                    if (!uniformElement)
+                                    {
+                                        std::string nodePath = mx::parentNamePath(parameterPath);
+                                        mx::ElementPtr uniformParent = doc->getDescendant(nodePath);
+                                        if (uniformParent)
+                                        {
+                                            mx::NodePtr uniformNode = uniformParent->asA<mx::Node>();
+                                            if (uniformNode)
+                                            {
+                                                mx::StringVec pathVec = mx::splitNamePath(parameterPath);
+                                                uniformNode->addInputFromNodeDef(pathVec[pathVec.size() - 1]);
+                                            }
+                                        }
+                                    }
+                                    uniformElement = doc->getDescendant(parameterPath);
+                                    mx::ValueElementPtr valueElement = uniformElement ? uniformElement->asA<mx::ValueElement>() : nullptr;
+                                    if (!valueElement)
+                                    {
+                                        continue;
+                                    }
+
+                                    mx::ValuePtr origPropertyValue(valueElement ? valueElement->getValue() : nullptr);
+                                    mx::ValuePtr newValue = valueElement->getValue();
+
+                                    float wedgePropertyMin = wedgeRangeMin[f];
+                                    float wedgePropertyMax = wedgeRangeMax[f];
+                                    int wedgeImageCount = std::max(wedgeSteps[f], 2);
+
+                                    float wedgePropertyStep = (wedgePropertyMax - wedgePropertyMin) / (wedgeImageCount - 1);
+                                    for (int w = 0; w < wedgeImageCount; w++)
+                                    {
+                                        bool setValue = false;
+                                        float propertyValue = (w == wedgeImageCount - 1) ? wedgePropertyMax : wedgePropertyMin + wedgePropertyStep * w;
+                                        if (origPropertyValue->isA<int>())
+                                        {
+                                            valueElement->setValue(static_cast<int>(propertyValue));
+                                            setValue = true;
+                                        }
+                                        else if (origPropertyValue->isA<float>())
+                                        {
+                                            valueElement->setValue(propertyValue);
+                                            setValue = true;
+                                        }
+                                        else if (origPropertyValue->isA<mx::Vector2>())
+                                        {
+                                            mx::Vector2 val(propertyValue, propertyValue);
+                                            valueElement->setValue(val);
+                                            setValue = true;
+                                        }
+                                        else if (origPropertyValue->isA<mx::Color3>() ||
+                                            origPropertyValue->isA<mx::Vector3>())
+                                        {
+                                            mx::Vector3 val(propertyValue, propertyValue, propertyValue);
+                                            valueElement->setValue(val);
+                                            setValue = true;
+                                        }
+                                        else if (origPropertyValue->isA<mx::Color4>() ||
+                                            origPropertyValue->isA<mx::Vector4>())
+                                        {
+                                            mx::Vector4 val(propertyValue, propertyValue, propertyValue, origPropertyValue->isA<mx::Color4>() ? 1.0f : propertyValue);
+                                            valueElement->setValue(val);
+                                            setValue = true;
+                                        }
+
+                                        if (setValue)
+                                        {
+                                            runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath, &imageVec);
+                                        }
+                                    }
+
+                                    if (!imageVec.empty())
+                                    {
+                                        mx::ImagePtr wedgeImage = mx::createImageStrip(imageVec);
+                                        if (wedgeImage)
+                                        {
+                                            std::string wedgeFileName = mx::createValidName(mx::replaceSubstrings(parameterPath, pathMap));
+                                            wedgeFileName += "_" + _shaderGenerator->getTarget() + ".bmp";
+                                            mx::FilePath wedgePath = outputPath / wedgeFileName;
+                                            saveImage(wedgePath, wedgeImage, true);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

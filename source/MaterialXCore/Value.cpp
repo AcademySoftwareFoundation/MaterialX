@@ -5,8 +5,6 @@
 
 #include <MaterialXCore/Value.h>
 
-#include <MaterialXCore/Util.h>
-
 #include <iomanip>
 #include <sstream>
 #include <type_traits>
@@ -194,16 +192,6 @@ template <class T> T fromValueString(const string& value)
 // TypedValue methods
 //
 
-template <class T> const string& TypedValue<T>::getTypeString() const
-{
-    return TYPE;
-}
-
-template <class T> string TypedValue<T>::getValueString() const
-{
-    return toValueString<T>(_data);
-}
-
 template <class T> ValuePtr TypedValue<T>::createFromString(const string& value)
 {
     try
@@ -279,20 +267,21 @@ template <class T> class ValueRegistry
 // Template instantiations
 //
 
-#define INSTANTIATE_TYPE(T, name)                       \
-template <> const string TypedValue<T>::TYPE = name;    \
-template bool Value::isA<T>() const;                    \
-template const T& Value::asA<T>() const;                \
-template const string& getTypeString<T>();              \
-template string toValueString(const T& data);           \
-template T fromValueString(const string& value);        \
+#define INSTANTIATE_TYPE(T, name)                                                               \
+template <> const string TypedValue<T>::TYPE = name;                                            \
+template <> const string& TypedValue<T>::getTypeString() const { return TYPE; }                 \
+template <> string TypedValue<T>::getValueString() const { return toValueString<T>(_data); }    \
+template bool Value::isA<T>() const;                                                            \
+template const T& Value::asA<T>() const;                                                        \
+template const string& getTypeString<T>();                                                      \
+template string toValueString(const T& data);                                                   \
+template T fromValueString(const string& value);                                                \
 ValueRegistry<T> registry##T;
 
 // Base types
 INSTANTIATE_TYPE(int, "integer")
 INSTANTIATE_TYPE(bool, "boolean")
 INSTANTIATE_TYPE(float, "float")
-INSTANTIATE_TYPE(Color2, "color2")
 INSTANTIATE_TYPE(Color3, "color3")
 INSTANTIATE_TYPE(Color4, "color4")
 INSTANTIATE_TYPE(Vector2, "vector2")

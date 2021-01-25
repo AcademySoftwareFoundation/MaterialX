@@ -21,3 +21,9 @@ void bindPyGenContext(py::module& mod)
         .def("registerSourceCodeSearchPath", static_cast<void (mx::GenContext::*)(const mx::FileSearchPath&)>(&mx::GenContext::registerSourceCodeSearchPath))
         .def("resolveSourceFile", &mx::GenContext::resolveSourceFile);
 }
+
+void bindPyGenUserData(py::module& mod)
+{
+    py::class_<mx::GenUserData, mx::GenUserDataPtr>(mod, "GenUserData")
+        .def("getSelf", static_cast<mx::GenUserDataPtr(mx::GenUserData::*)()>(&mx::GenUserData::getSelf));
+}

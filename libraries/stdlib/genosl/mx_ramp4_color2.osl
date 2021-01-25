@@ -1,8 +1,0 @@
-void mx_ramp4_color2(color2 valuetl, color2 valuetr, color2 valuebl, color2 valuebr, vector2 texcoord, output color2 result)
-{
-    float ss = clamp(texcoord.x, 0, 1);
-    float tt = clamp(texcoord.y, 0, 1);
-    result = mix(mix(valuetl, valuetr, ss),
-                 mix(valuebl, valuebr, ss),
-                 tt);
-}

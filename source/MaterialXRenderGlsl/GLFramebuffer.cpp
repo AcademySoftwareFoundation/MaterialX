@@ -154,7 +154,6 @@ void GLFramebuffer::resize(unsigned int width, unsigned int height)
     }
 }
 
-
 void GLFramebuffer::bind()
 {
     if (!_frameBuffer)

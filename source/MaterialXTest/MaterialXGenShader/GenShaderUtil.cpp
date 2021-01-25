@@ -6,7 +6,7 @@
 #include <MaterialXTest/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
-#include <MaterialXCore/Util.h>
+#include <MaterialXCore/Material.h>
 #include <MaterialXCore/Unit.h>
 
 #include <MaterialXFormat/File.h>
@@ -16,10 +16,29 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
+#include <iostream>
+
 namespace mx = MaterialX;
 
 namespace GenShaderUtil
 {
+
+const std::string LAYOUT_SUFFIX = "_layout";
+
+namespace
+{
+    const std::string& getFileExtensionForTarget(const std::string& target)
+    {
+        static const std::unordered_map<std::string, std::string> _fileExtensions = 
+        {
+            {"genglsl","glsl"},
+            {"genosl","osl"},
+            {"genmdl","mdl"}
+        };
+        auto it = _fileExtensions.find(target);
+        return it != _fileExtensions.end() ? it->second : target;
+    }
+}
 
 bool getShaderSource(mx::GenContext& context,
                     const mx::ImplementationPtr implementation,
@@ -49,19 +68,17 @@ void checkImplementations(mx::GenContext& context,
 
     mx::FileSearchPath searchPath; 
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+    loadLibraries({ "targets", "adsk", "stdlib", "pbrlib" }, searchPath, doc);
 
-    std::string generatorId = shadergen.getLanguage() + "_" + shadergen.getTarget();
-    std::string fileName = generatorId + "_implementation_check.txt";
+    const std::string& target = shadergen.getTarget();
+
+    std::string fileName = target + "_implementation_check.txt";
 
     std::filebuf implDumpBuffer;
     implDumpBuffer.open(fileName, std::ios::out);
     std::ostream implDumpStream(&implDumpBuffer);
 
     context.registerSourceCodeSearchPath(searchPath);
-
-    const std::string& language = shadergen.getLanguage();
-    const std::string& target = shadergen.getTarget();
 
     // Node types to explicitly skip temporarily.
     mx::StringSet skipNodeTypes =
@@ -107,33 +124,24 @@ void checkImplementations(mx::GenContext& context,
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 
     implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-    implDumpStream << "Scanning language: " << language << ". Target: " << target << std::endl;
-    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
+    implDumpStream << "Scanning target: " << target << std::endl;
 
     std::vector<mx::ImplementationPtr> impls = doc->getImplementations();
-    implDumpStream << "Existing implementations: " << std::to_string(impls.size()) << std::endl;
     implDumpStream << "-----------------------------------------------------------------------" << std::endl;
+    implDumpStream << "Scanning implementations: " << std::to_string(impls.size()) << std::endl;
     for (const auto& impl : impls)
     {
-        if (language == impl->getLanguage())
+        mx::NodeDefPtr nodedef = impl->getNodeDef();
+        if (!nodedef)
         {
-            std::string msg("Impl: ");
-            msg += impl->getName();
-            std::string targetName = impl->getTarget();
+            std::string msg(impl->getName());
+            const std::string& targetName = impl->getTarget();
             if (targetName.size())
             {
                 msg += ", target: " + targetName;
             }
-            else
-            {
-                msg += ", target: NONE ";
-            }
-            mx::NodeDefPtr nodedef = impl->getNodeDef();
-            if (!nodedef)
-            {
-                std::string nodedefName = impl->getNodeDefString();
-                msg += ". Does NOT have a nodedef with name: " + nodedefName;
-            }
+            const std::string& nodedefName = impl->getNodeDefString();
+            msg += ": Missing nodedef with name: " + nodedefName;
             implDumpStream << msg << std::endl;
         }
     }
@@ -146,13 +154,17 @@ void checkImplementations(mx::GenContext& context,
     std::string missing_str;
     std::string found_str;
 
+    std::vector<mx::NodeDefPtr> nodedefs = doc->getNodeDefs();
+    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
+    implDumpStream << "Scanning nodedefs: " << std::to_string(nodedefs.size()) << std::endl;
+
     // Scan through every nodedef defined
-    for (mx::NodeDefPtr nodeDef : doc->getNodeDefs())
+    for (mx::NodeDefPtr nodedef : nodedefs)
     {
         count++;
 
-        const std::string& nodeDefName = nodeDef->getName();
-        const std::string& nodeName = nodeDef->getNodeString();
+        const std::string& nodeDefName = nodedef->getName();
+        const std::string& nodeName = nodedef->getNodeString();
 
         if (skipNodeTypes.count(nodeName))
         {
@@ -167,17 +179,17 @@ void checkImplementations(mx::GenContext& context,
             continue;
         }
 
-        if (!requiresImplementation(nodeDef))
+        if (!requiresImplementation(nodedef))
         {
             found_str += "No implementation required for nodedef: " + nodeDefName + ", Node: " + nodeName + ".\n";
             continue;
         }
 
-        mx::InterfaceElementPtr inter = nodeDef->getImplementation(target, language);
+        mx::InterfaceElementPtr inter = nodedef->getImplementation(target);
         if (!inter)
         {
             missing++;
-            missing_str += "Missing nodeDef implementation: " + nodeDefName + ", Node: " + nodeName + ".\n";
+            missing_str += "Missing nodedef implementation: " + nodeDefName + ", Node: " + nodeName + ".\n";
 
             std::vector<mx::InterfaceElementPtr> inters = doc->getMatchingImplementations(nodeDefName);
             for (const auto& inter2 : inters)
@@ -189,7 +201,6 @@ void checkImplementations(mx::GenContext& context,
                     msg += impl->getName();
                     msg += ", nodedef: " + impl->getNodeDefString();
                     msg += ", target: " + impl->getTarget();
-                    msg += ", language: " + impl->getLanguage();
                     missing_str += msg + ".\n";
                 }
             }
@@ -202,11 +213,9 @@ void checkImplementations(mx::GenContext& context,
                     msg += childImpl->getName();
                     msg += ", nodedef: " + childImpl->getNodeDefString();
                     msg += ", target: " + childImpl->getTarget();
-                    msg += ", language: " + childImpl->getLanguage();
                     missing_str += msg + ".\n";
                 }
             }
-
         }
         else
         {
@@ -228,7 +237,7 @@ void checkImplementations(mx::GenContext& context,
                     if (!getShaderSource(context, impl, sourcePath, resolvedPath, contents))
                     {
                         missing++;
-                        missing_str += "Missing source code: " + sourcePath.asString() + " for nodeDef: "
+                        missing_str += "Missing source code: " + sourcePath.asString() + " for nodedef: "
                             + nodeDefName + ". Impl: " + impl->getName() + ".\n";
                     }
                     else
@@ -253,13 +262,16 @@ void checkImplementations(mx::GenContext& context,
         }
     }
 
-    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
     implDumpStream << "Missing: " << missing << " implementations out of: " << count << " nodedefs. Skipped: " << skipped << std::endl;
     implDumpStream << missing_str << std::endl;
     implDumpStream << found_str << std::endl;
-    implDumpStream << "-----------------------------------------------------------------------" << std::endl;
 
     // Should have 0 missing including skipped
+    if (missing != 0)
+    {
+        std::cerr << (std::string("Missing: ") + std::to_string(missing) + std::string(" implementations out of: ") + std::to_string(count) + std::string(" nodedefs. Skipped: ") + std::to_string(skipped)) << std::endl;
+        std::cerr << (std::string("Missing list: ") + missing_str) << std::endl;
+    }
     REQUIRE(missing == 0);
     REQUIRE(skipped == expectedSkipCount);
 
@@ -272,7 +284,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "stdlib" }, searchPath, doc);
+    loadLibraries({ "targets", "stdlib" }, searchPath, doc);
 
     const std::string exampleName = "unique_names";
 
@@ -311,20 +323,15 @@ void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedIm
                                                      const mx::GenContext& context,
                                                      std::ostream& stream)
 {
-    // Get list of implementations a given langauge.
-    std::set<mx::ImplementationPtr> libraryImpls;
+    // Get list of implementations for a given target.
+    std::set<mx::ImplementationPtr> targetImpls;
     const std::vector<mx::ElementPtr>& children = _dependLib->getChildren();
     for (const auto& child : children)
     {
         mx::ImplementationPtr impl = child->asA<mx::Implementation>();
-        if (!impl)
+        if (impl && impl->getTarget() == _shaderGenerator->getTarget())
         {
-            continue;
-        }
-
-        if (impl->getLanguage() == _shaderGenerator->getLanguage())
-        {
-            libraryImpls.insert(impl);
+            targetImpls.insert(impl);
         }
     }
 
@@ -334,9 +341,9 @@ void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedIm
     unsigned int implementationUseCount = 0;
     mx::StringVec skippedImplementations;
     mx::StringVec missedImplementations;
-    for (const auto& libraryImpl : libraryImpls)
+    for (const auto& targetImpl : targetImpls)
     {
-        const std::string& implName = libraryImpl->getName();
+        const std::string& implName = targetImpl->getName();
 
         // Skip white-list items
         bool inWhiteList = false;
@@ -369,8 +376,8 @@ void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedIm
         missedImplementations.push_back(implName);
     }
 
-    size_t libraryCount = libraryImpls.size();
-    stream << "Tested: " << implementationUseCount << " out of: " << libraryCount << " library implementations." << std::endl;
+    size_t count = targetImpls.size();
+    stream << "Tested: " << implementationUseCount << " out of: " << count << " library implementations." << std::endl;
     stream << "Skipped: " << skippedImplementations.size() << " implementations." << std::endl;
     if (skippedImplementations.size())
     {
@@ -386,10 +393,9 @@ void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedIm
         {
             stream << "\t" << implName << std::endl;
         }
-        CHECK(implementationUseCount == libraryCount);
+        CHECK(implementationUseCount == count);
     }
 }
-
 
 bool ShaderGeneratorTester::generateCode(mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
                                          std::ostream& log, mx::StringVec testStages, mx::StringVec& sourceCode)
@@ -431,11 +437,11 @@ void ShaderGeneratorTester::addColorManagement()
 {
     if (!_colorManagementSystem && _shaderGenerator)
     {
-        const std::string language = _shaderGenerator->getLanguage();
-        _colorManagementSystem = mx::DefaultColorManagementSystem::create(language);
+        const std::string& target = _shaderGenerator->getTarget();
+        _colorManagementSystem = mx::DefaultColorManagementSystem::create(target);
         if (!_colorManagementSystem)
         {
-            _logFile << ">> Failed to create color management system for language: " << language << std::endl;
+            _logFile << ">> Failed to create color management system for target: " << target << std::endl;
         }
         else
         {
@@ -449,11 +455,11 @@ void ShaderGeneratorTester::addUnitSystem()
 {
     if (!_unitSystem && _shaderGenerator)
     {
-        const std::string language = _shaderGenerator->getLanguage();
-        _unitSystem = mx::UnitSystem::create(language);
+        const std::string target = _shaderGenerator->getTarget();
+        _unitSystem = mx::UnitSystem::create(target);
         if (!_unitSystem)
         {
-            _logFile << ">> Failed to create unit system for language: " << language << std::endl;
+            _logFile << ">> Failed to create unit system for target: " << target << std::endl;
         }
         else
         {
@@ -474,8 +480,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    const mx::FilePathVec libraries = { "stdlib", "pbrlib", "lights" };
-
+    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "lights" };
     loadLibraries(libraries, _libSearchPath, _dependLib, _skipLibraryFiles);
 
     // Load shader definitions used in the test suite.
@@ -545,10 +550,10 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
         _lightIdentifierMap = computeLightIdMap(lights);
         for (const auto& id : _lightIdentifierMap)
         {
-            mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
-            if (nodeDef)
+            mx::NodeDefPtr nodedef = doc->getNodeDef(id.first);
+            if (nodedef)
             {
-                mx::HwShaderGenerator::bindLightShader(*nodeDef, id.second, context);
+                mx::HwShaderGenerator::bindLightShader(*nodedef, id.second, context);
             }
         }
     }
@@ -574,7 +579,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Test has been turned off so just do nothing.
     if (!runTest(options))
     {
-        _logFile << "Language / target: " << _languageTargetString << " not set to run. Skipping test." << std::endl;
+        _logFile << "Target: " << _targetString << " not set to run. Skipping test." << std::endl;
         _logFile.close();
         return;
     }
@@ -602,7 +607,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     mx::StringVec errorLog;
     mx::FileSearchPath searchPath(_libSearchPath);
     mx::XmlReadOptions readOptions;
-    readOptions.applyFutureUpdates = options.applyFutureUpdates;
     for (const auto& testRoot : _testRootPaths)
     {
         mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
@@ -637,9 +641,28 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         context.getOptions().targetDistanceUnit = _defaultDistanceUnit;
     }
 
+    // Check if a binding context has been set.
+    bool bindingContextUsed = _userData.count(mx::HW::USER_DATA_BINDING_CONTEXT) > 0;
+
+    // Map to remove invalid names for files when writing to disk
+    mx::StringMap filenameRemap;
+    filenameRemap[":"] = "_";
+
     size_t documentIndex = 0;
     for (const auto& doc : _documents)
     {
+        // For each new file clear the implementation cache.
+        // Since the new file might contain implementations with names
+        // colliding with implementations in previous test cases.
+        context.clearNodeImplementations();
+
+        // Set user data
+        context.clearUserData();
+        for (auto it : _userData)
+        {
+            context.pushUserData(it.first, it.second);
+        }
+
         // Add in dependent libraries
         bool importedLibrary = false;
         try
@@ -654,27 +677,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     << e.what() << std::endl;
             CHECK(importedLibrary);
             continue;
-        }
-
-        if (options.applyFutureUpdates &&
-            (!doc->getNodes(mx::SURFACE_MATERIAL_NODE_STRING).empty() ||
-             !doc->getNodes(mx::VOLUME_MATERIAL_NODE_STRING).empty()))
-        {
-            _logFile << "Updated version document written to: " << doc->getSourceUri() + "modified.mtlxx" << std::endl;
-
-            mx::StringSet xincludeFiles = doc->getReferencedSourceUris();
-            auto skipXincludes = [xincludeFiles](mx::ConstElementPtr elem)
-            {
-                if (elem->hasSourceUri())
-                {
-                    return (xincludeFiles.count(elem->getSourceUri()) == 0);
-                }
-                return true;
-            };
-            mx::XmlWriteOptions writeOptions;
-            writeOptions.writeXIncludeEnable = true;
-            writeOptions.elementPredicate = skipXincludes;
-            mx::writeToXmlFile(doc, doc->getSourceUri() + "_modified.mtlxx", &writeOptions);
         }
 
         // Find and register lights
@@ -704,11 +706,13 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         bool docValid = doc->validate(&message);
         if (!docValid)
         {
-            _logFile << "Document is invalid: [" << doc->getSourceUri() << "] " << message;
+            std::string msg = "Document is invalid: [" + doc->getSourceUri() + "] " + message;
+            _logFile << msg;
+            WARN(msg);
         }
         CHECK(docValid);
 
-        // Traverse the renderable documents and run the validation step
+        // Traverse the renderable elements and run the validation step
         int missingNodeDefs = 0;
         int missingImplementations = 0;
         int codeGenerationFailures = 0;
@@ -716,7 +720,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         {
             mx::TypedElementPtr targetElement = element;
             mx::OutputPtr output = targetElement->asA<mx::Output>();
-            mx::ShaderRefPtr shaderRef = targetElement->asA<mx::ShaderRef>();
             mx::NodePtr outputNode = targetElement->asA<mx::Node>();
             mx::NodeDefPtr nodeDef = nullptr;
             if (output)
@@ -728,19 +731,15 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     nodeDef = outputNode->getNodeDef();
                 }
             }
-            else if (shaderRef)
-            {
-                nodeDef = shaderRef->getNodeDef();
-            }
 
             // Handle material node checking. For now only check first surface shader if any
             if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
                 if (!shaderNodes.empty())
                 {
-                    nodeDef = shaderNodes[0]->getNodeDef();
-                    targetElement = shaderNodes[0];
+                    nodeDef = (*shaderNodes.begin())->getNodeDef();
+                    targetElement = *shaderNodes.begin();
                 }
             }
 
@@ -757,25 +756,82 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
                 mx::string elementName = mx::replaceSubstrings(namePath, pathMap);
                 elementName = mx::createValidName(elementName);
+                elementName = mx::replaceSubstrings(elementName, filenameRemap);
 
-                mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());
+                mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget());
                 if (impl)
                 {
+                    _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
+
+                    mx::StringVec sourceCode;
+                    bool generatedCode = generateCode(context, elementName, targetElement, _logFile, _testStages, sourceCode);
+
                     // Record implementations tested
                     if (options.checkImplCount)
                     {
+                        context.getNodeImplementationNames(_usedImplementations);
                         mx::NodeGraphPtr nodeGraph = impl->asA<mx::NodeGraph>();
                         mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                         _usedImplementations.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                     }
 
-                    _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
-                    mx::StringVec sourceCode;
-                    bool generatedCode = generateCode(context, elementName, targetElement, _logFile, _testStages, sourceCode);
                     if (!generatedCode)
                     {
                         _logFile << ">> Failed to generate code for nodedef: " << nodeDefName << std::endl;
                         codeGenerationFailures++;
+                    }
+                    else if (_writeShadersToDisk && sourceCode.size())
+                    {
+                        const std::string elementNameSuffix(bindingContextUsed ? LAYOUT_SUFFIX : mx::EMPTY_STRING);
+
+                        mx::FilePath path = element->getActiveSourceUri();
+                        if (!path.isEmpty())
+                        {
+                            std::string testFileName = path[path.size() - 1];
+                            size_t pos = testFileName.rfind('.');
+                            if (pos != std::string::npos)
+                                testFileName = testFileName.substr(0, pos);
+
+                            path = path.getParentPath() / testFileName;
+                            if (!path.exists())
+                            {
+                                path.createDirectory();
+                            }
+                        }
+                        else
+                        {
+                            path = mx::FilePath::getCurrentPath();
+                        }
+
+                        std::vector<mx::FilePath> sourceCodePaths;
+                        if (sourceCode.size() > 1)
+                        {
+                            for (size_t i=0; i<sourceCode.size(); ++i)
+                            {
+                                const mx::FilePath filename = path / (elementName + elementNameSuffix + "." + _testStages[i] + "." + getFileExtensionForTarget(_shaderGenerator->getTarget()));
+                                sourceCodePaths.push_back(filename);
+                                std::ofstream file(filename.asString());
+                                _logFile << "Write source code: " << filename.asString() << std::endl;
+                                file << sourceCode[i];
+                                file.close();
+                            }
+                        }
+                        else
+                        {
+                            path = path / (elementName + "."  
+                                + _shaderGenerator->getTarget() 
+                                + "." + getFileExtensionForTarget(_shaderGenerator->getTarget())
+                                );
+                            sourceCodePaths.push_back(path);
+                            std::ofstream file(path.asString());
+                            _logFile << "Write source code: " << path.asString() << std::endl;
+                            std::cout << "Write source code: " << path.asString() << std::endl;
+                            file << sourceCode[0];
+                            file.close();
+                        }
+
+                        // Run compile test
+                        compileSource(sourceCodePaths);
                     }
                 }
                 else
@@ -812,21 +868,16 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 void TestSuiteOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
-    output << "\tApply future updates: " << std::to_string(applyFutureUpdates) << std::endl;
     output << "\tOverride Files: { ";
     for (const auto& overrideFile : overrideFiles) { output << overrideFile << " "; }
     output << "} " << std::endl;
     output << "\tLight Setup Files: { ";
     for (const auto& lightFile : lightFiles) { output << lightFile << " "; }
     output << "} " << std::endl;
-    output << "\tLanguage / Targets to run: " << std::endl;
-    for (const auto& l : languageAndTargets)
+    output << "\tTargets to run: " << std::endl;
+    for (const auto& t : targets)
     {
-        mx::StringVec languageAndTarget = mx::splitString(l, "_");
-        size_t count = languageAndTarget.size();
-        output << "\t\tLanguage: " << ((count > 0) ? languageAndTarget[0] : "NONE") << ". ";
-        output << "Target: " << ((count > 1) ? languageAndTarget[1] : "NONE");
-        output << std::endl;
+        output << "Target: " << t << std::endl;
     }
     output << "\tCheck Implementation Usage Count: " << checkImplCount << std::endl;
     output << "\tDump Generated Code: " << dumpGeneratedCode << std::endl;
@@ -856,7 +907,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     //
     const std::string RENDER_TEST_OPTIONS_STRING("TestSuiteOptions");
     const std::string OVERRIDE_FILES_STRING("overrideFiles");
-    const std::string LANGUAGE_AND_TARGETS_STRING("languageAndTargets");
+    const std::string TARGETS_STRING("targets");
     const std::string LIGHT_FILES_STRING("lightFiles");
     const std::string SHADER_INTERFACES_STRING("shaderInterfaces");
     const std::string VALIDATE_ELEMENT_TO_RENDER_STRING("validateElementToRender");
@@ -880,7 +931,14 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
-    const std::string APPLY_LATEST_UPDATES("applyFutureUpdates");
+    const std::string WEDGE_FILES("wedgeFiles");
+    const std::string WEDGE_PARAMETERS("wedgeParameters");
+    const std::string WEDGE_RANGE_MIN("wedgeRangeMin");
+    const std::string WEDGE_RANGE_MAX("wedgeRangeMax");
+    const std::string WEDGE_STEPS("wedgeSteps");
+    const std::string BAKE_FILES("bakeFiles");
+    const std::string BAKE_HDRS("bakeHdrs");
+    const std::string BAKE_RESOLUTIONS("bakeResolutions");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -890,17 +948,16 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableDirectLighting = true;
     enableIndirectLighting = true;
     specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    applyFutureUpdates = false;
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
-    try {
-        mx::XmlReadOptions readOptions;
-        MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath(), &readOptions);
+    try
+    {
+        MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath());
 
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
         {
-            for (MaterialX::ParameterPtr p : optionDefs->getParameters())
+            for (auto p : optionDefs->getInputs())
             {
                 const std::string& name = p->getName();
                 MaterialX::ValuePtr val = p->getValue();
@@ -942,12 +999,12 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         dumpUniformsAndAttributes = val->asA<bool>();
                     }
-                    else if (name == LANGUAGE_AND_TARGETS_STRING)
+                    else if (name == TARGETS_STRING)
                     {
                         mx::StringVec list = mx::splitString(p->getValueString(), ",");
                         for (const auto& l : list)
                         {
-                            languageAndTargets.insert(l);
+                            targets.insert(l);
                         }
                     }
                     else if (name == CHECK_IMPL_COUNT_STRING)
@@ -1010,9 +1067,37 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                             externalTestPaths.append(mx::FilePath(l));
                         }
                     }
-                    else if (name == APPLY_LATEST_UPDATES)
+                    else if (name == WEDGE_FILES)
                     {
-                        applyFutureUpdates = p->getValue()->asA<bool>();
+                        wedgeFiles = mx::splitString(p->getValueString(), ",");
+                    }
+                    else if (name == WEDGE_PARAMETERS)
+                    {
+                        wedgeParameters = mx::splitString(p->getValueString(), ",");
+                    }
+                    else if (name == WEDGE_STEPS)
+                    {
+                        wedgeSteps = val->asA<mx::IntVec>();
+                    }
+                    else if (name == WEDGE_RANGE_MIN)
+                    {
+                        wedgeRangeMin = val->asA<mx::FloatVec>();
+                    }
+                    else if (name == WEDGE_RANGE_MAX)
+                    {
+                        wedgeRangeMax = val->asA<mx::FloatVec>();
+                    }
+                    else if (name == BAKE_FILES)
+                    {
+                        bakeFiles = mx::splitString(p->getValueString(), ",");
+                    }
+                    else if (name == BAKE_RESOLUTIONS)
+                    {
+                        bakeResolutions = val->asA<mx::IntVec>();
+                    }
+                    else if (name == BAKE_HDRS)
+                    {
+                        bakeHdrs = val->asA<mx::BoolVec>();
                     }
                 }
             }

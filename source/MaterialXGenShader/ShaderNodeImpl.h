@@ -32,12 +32,6 @@ class ShaderNodeImpl
   public:
     virtual ~ShaderNodeImpl() { }
 
-    /// Return an identifier for the language used by this implementation.
-    /// By default an empty string is returned, representing any language.
-    /// Only override this method if your derived node implementation class
-    /// is for a specific language.
-    virtual const string& getLanguage() const { return EMPTY_STRING; }
-
     /// Return an identifier for the target used by this implementation.
     /// By default an empty string is returned, representing all targets.
     /// Only override this method if your derived node implementation class
@@ -64,7 +58,7 @@ class ShaderNodeImpl
         return _hash;
     }
 
-    /// Add additional inputs on the node 
+    /// Add additional inputs on the node
     virtual void addInputs(ShaderNode& node, GenContext& context) const;
 
     /// Set values for additional inputs on the node 

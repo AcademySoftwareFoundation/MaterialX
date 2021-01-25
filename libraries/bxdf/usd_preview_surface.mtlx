@@ -6,7 +6,8 @@
   <!-- ======================================================================== -->
 
   <!-- Node: UsdPreviewSurface -->
-  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface">
+  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr"
+            doc="USD preview surface shader" version="2.3" isdefaultversion="true">
     <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" />
     <input name="emissiveColor" type="color3" value="0, 0, 0" />
     <input name="useSpecularWorkflow" type="integer" value="0" />
@@ -166,10 +167,6 @@
       <input name="in1" type="float" nodename="div_ior" />
       <input name="in2" type="float" nodename="div_ior" />
     </multiply>
-    <multiply name="F0_albedo" type="color3">
-      <input name="in1" type="color3" interfacename="diffuseColor" />
-      <input name="in2" type="float" nodename="F0" />
-    </multiply>
     <generalized_schlick_brdf name="metalness_specular_bsdf" type="BSDF">
       <input name="weight" type="float" value="1" />
       <input name="color0" type="color3" nodename="F0" channels="rrr"/>
@@ -180,7 +177,7 @@
     </generalized_schlick_brdf>
     <conductor_brdf name="metalness_metal_bsdf" type="BSDF">
       <input name="weight" type="float" value="1" />
-      <input name="reflectivity" type="color3" nodename="F0_albedo" />
+      <input name="reflectivity" type="color3" interfacename="diffuseColor" />
       <input name="edge_color" type="color3" interfacename="diffuseColor" />
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />

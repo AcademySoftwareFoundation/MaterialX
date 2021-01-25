@@ -5,6 +5,7 @@
 
 #include <MaterialXRender/GeometryHandler.h>
 
+#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 namespace MaterialX
@@ -107,6 +108,31 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath)
     }
 
     return loaded;
+}
+
+MeshPtr GeometryHandler::createQuadMesh()
+{
+    MeshStreamPtr quadPositions = MeshStream::create(HW::IN_POSITION, MeshStream::POSITION_ATTRIBUTE, 0);
+    quadPositions->setStride(MeshStream::STRIDE_3D);
+    quadPositions->getData().assign({  1.0f,  1.0f, 0.0f,
+                                       1.0f, -1.0f, 0.0f,
+                                      -1.0f, -1.0f, 0.0f,
+                                      -1.0f,  1.0f, 0.0f });
+    MeshStreamPtr quadTexCoords = MeshStream::create(HW::IN_TEXCOORD + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
+    quadTexCoords->setStride(MeshStream::STRIDE_2D);
+    quadTexCoords->getData().assign({ 1.0f, 1.0f,
+                                      1.0f, 0.0f,
+                                      0.0f, 0.0f,
+                                      0.0f, 1.0f });
+    MeshPartitionPtr quadIndices = MeshPartition::create();
+    quadIndices->getIndices().assign({ 0, 1, 3, 1, 2, 3 });
+    quadIndices->setFaceCount(6);
+    MeshPtr quadMesh = Mesh::create("ScreenSpaceQuad");
+    quadMesh->addStream(quadPositions);
+    quadMesh->addStream(quadTexCoords);
+    quadMesh->addPartition(quadIndices);
+    
+    return quadMesh;
 }
 
 } // namespace MaterialX

@@ -86,8 +86,6 @@ TEST_CASE("Typed values", "[value]")
     testTypedValue<int>(1, 2);
     testTypedValue<bool>(false, true);
     testTypedValue<float>(1.0f, 2.0f);
-    testTypedValue(mx::Color2(0.1f, 0.2f),
-                   mx::Color2(0.5f, 0.6f));
     testTypedValue(mx::Color3(0.1f, 0.2f, 0.3f),
                    mx::Color3(0.5f, 0.6f, 0.7f));
     testTypedValue(mx::Color4(0.1f, 0.2f, 0.3f, 0.4f),

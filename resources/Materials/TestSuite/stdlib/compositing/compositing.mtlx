@@ -31,14 +31,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </plus>
     <output name="out" type="float" nodename="plus1" />
   </nodegraph>
-  <nodegraph name="plus_color2" type="" xpos="7.23892" ypos="18.728">
-    <plus name="plus1" type="color2" xpos="5.74483" ypos="4.42">
-      <input name="fg" type="color2" value="0.2000, 0.4000" />
-      <input name="bg" type="color2" value="0.3000, 0.3000" />
-      <input name="mix" type="float" value="0.5000" />
-    </plus>
-    <output name="out" type="color2" nodename="plus1" />
-  </nodegraph>
   <nodegraph name="plus_color3" type="" xpos="8.21937" ypos="18.7209">
     <plus name="plus1" type="color3" xpos="5.74483" ypos="4.42">
       <input name="fg" type="color3" value="0.2000, 0.4000, 0.0" />
@@ -63,14 +55,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </minus>
     <output name="out" type="float" nodename="minus1" />
   </nodegraph>
-  <nodegraph name="minus_color2" type="" xpos="7.24081" ypos="20.0539">
-    <minus name="minus1" type="color2" xpos="5.75172" ypos="4.42">
-      <input name="fg" type="color2" value="1.0000, 0.0000" />
-      <input name="bg" type="color2" value="1.0000, 1.0" />
-      <input name="mix" type="float" value="0.5000" />
-    </minus>
-    <output name="out" type="color2" nodename="minus1" />
-  </nodegraph>
   <nodegraph name="minus_color3" type="" xpos="8.22864" ypos="20.0396">
     <minus name="minus1" type="color3" xpos="5.75172" ypos="4.42">
       <input name="fg" type="color3" value="1.0000, 0.0, 0.0" />
@@ -94,14 +78,6 @@ Basic compositing function tests each test is in a separate graph for each varia
       <input name="mix" type="float" value="0.5000" />
     </difference>
     <output name="out" type="float" nodename="difference1" />
-  </nodegraph>
-  <nodegraph name="difference_color2" type="" xpos="7.22638" ypos="21.36">
-    <difference name="difference1" type="color2" xpos="5.75172" ypos="4.42">
-      <input name="fg" type="color2" value="1.0000, 1.0000" />
-      <input name="bg" type="color2" value="0.5000, 0.0000" />
-      <input name="mix" type="float" value="0.5000" />
-    </difference>
-    <output name="out" type="color2" nodename="difference1" />
   </nodegraph>
   <nodegraph name="difference_color3" type="" xpos="8.22972" ypos="21.3398">
     <difference name="difference1" type="color3" xpos="5.75862" ypos="4.44">
@@ -135,14 +111,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </burn>
     <output name="out" type="float" nodename="burn1" />
   </nodegraph>
-  <nodegraph name="burn_color2" type="" xpos="7.22638" ypos="22.6889">
-    <burn name="burn1" type="color2" xpos="5.75172" ypos="4.42">
-      <input name="fg" type="color2" value="0.5000, 0.7500" />
-      <input name="bg" type="color2" value="0.5000, 0.7500" />
-      <input name="mix" type="float" value="0.5000" />
-    </burn>
-    <output name="out" type="color2" nodename="burn1" />
-  </nodegraph>
   <nodegraph name="burn_color3" type="" xpos="8.24017" ypos="22.6586">
     <burn name="burn1" type="color3" xpos="5.75172" ypos="4.42">
       <input name="fg" type="color3" value="0.5000, 0.7500, 1.0000" />
@@ -175,14 +143,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </dodge>
     <output name="out" type="float" nodename="dodge1" />
   </nodegraph>
-  <nodegraph name="dodge_color2" type="" xpos="7.2229" ypos="24.0124">
-    <dodge name="dodge1" type="color2" xpos="5.75172" ypos="4.42">
-      <input name="fg" type="color2" value="0.0, 0.2000" />
-      <input name="bg" type="color2" value="0.5000, 0.8000" />
-      <input name="mix" type="float" value="0.5000" />
-    </dodge>
-    <output name="out" type="color2" nodename="dodge1" />
-  </nodegraph>
   <nodegraph name="dodge_color3" type="" xpos="8.25062" ypos="24.0124">
     <dodge name="dodge1" type="color3" xpos="5.75172" ypos="4.42">
       <input name="fg" type="color3" value="0.0, 0.2000, 0.0" />
@@ -207,14 +167,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </screen>
     <output name="out" type="float" nodename="screen1" />
   </nodegraph>
-  <nodegraph name="screen_color2" type="" xpos="7.2229" ypos="25.2854">
-    <screen name="screen1" type="color2" xpos="5" ypos="9.92">
-      <input name="fg" type="color2" value="0.5000, 0.0000" />
-      <input name="bg" type="color2" value="0.5000, 1.0000" />
-      <input name="mix" type="float" value="0.5000" />
-    </screen>
-    <output name="out" type="color2" nodename="screen1" />
-  </nodegraph>
   <nodegraph name="screen_color3" type="" xpos="8.2541" ypos="25.2753">
     <screen name="screen1" type="color3" xpos="5" ypos="9.92">
       <input name="fg" type="color3" value="0.5000, 0.0, 0.0000" />
@@ -238,30 +190,6 @@ Basic compositing function tests each test is in a separate graph for each varia
       <input name="mix" type="float" value="0.5000" />
     </overlay>
     <output name="out" type="float" nodename="overlay1" />
-  </nodegraph>
-  <nodegraph name="disjointover_color2" type="" xpos="6.2204" ypos="27.9159">
-    <output name="out" type="color2" nodename="disjointover1" />
-    <disjointover name="disjointover1" type="color2" xpos="5" ypos="9.92">
-      <input name="fg" type="color2" value="0.5000, 1.0" />
-      <input name="bg" type="color2" value="0.5000, 1.0" />
-      <input name="mix" type="float" value="0.5000" />
-    </disjointover>
-  </nodegraph>
-  <nodegraph name="disjointover_color2_divzero" type="" xpos="6.2204" ypos="27.9159">
-    <output name="out" type="color2" nodename="disjointover1" />
-    <disjointover name="disjointover1" type="color2" xpos="5" ypos="9.92">
-      <input name="fg" type="color2" value="0.5000, 2.0" />
-      <input name="bg" type="color2" value="0.5000, 0.0" />
-      <input name="mix" type="float" value="0.5000" />
-    </disjointover>
-  </nodegraph>
-  <nodegraph name="overlay_color2" type="" xpos="7.2342" ypos="26.5419">
-    <overlay name="overlay1" type="color2" xpos="5" ypos="9.92">
-      <input name="fg" type="color2" value="0.5000, 0.0000" />
-      <input name="bg" type="color2" value="0.5000, 1.0" />
-      <input name="mix" type="float" value="0.5000" />
-    </overlay>
-    <output name="out" type="color2" nodename="overlay1" />
   </nodegraph>
   <nodegraph name="overlay_color3" type="" xpos="8.25148" ypos="26.5369">
     <overlay name="overlay1" type="color3" xpos="5" ypos="9.92">
@@ -295,14 +223,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </disjointover>
     <output name="out" type="color4" nodename="disjointover1" />
   </nodegraph>
-  <nodegraph name="mask_color2" type="" xpos="6.22388" ypos="29.2927">
-    <mask name="mask1" type="color2" xpos="5.0069" ypos="9.92">
-      <input name="fg" type="color2" value="1.0000, 0.5000" />
-      <input name="bg" type="color2" value="0.5000, 0.5000" />
-      <input name="mix" type="float" value="0.5000" />
-    </mask>
-    <output name="out" type="color2" nodename="mask1" />
-  </nodegraph>
   <nodegraph name="mask_color4" type="" xpos="7.22892" ypos="29.2733">
     <mask name="mask1" type="color4" xpos="5.0069" ypos="9.92">
       <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 1.000" />
@@ -311,14 +231,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mask>
     <output name="out" type="color4" nodename="mask1" />
   </nodegraph>
-  <nodegraph name="out_color2" type="" xpos="6.21943" ypos="33.2042">
-    <out name="out1" type="color2" xpos="5.0069" ypos="9.92">
-      <input name="fg" type="color2" value="1.0000, 0.5000" />
-      <input name="bg" type="color2" value="0.5000, 0.5000" />
-      <input name="mix" type="float" value="0.5000" />
-    </out>
-    <output name="out" type="color2" nodename="out1" />
-  </nodegraph>
   <nodegraph name="out_color4" type="" xpos="7.23492" ypos="33.1872">
     <out name="out1" type="color4" xpos="5.0069" ypos="9.92">
       <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 1.0000" />
@@ -326,14 +238,6 @@ Basic compositing function tests each test is in a separate graph for each varia
       <input name="mix" type="float" value="0.5000" />
     </out>
     <output name="out" type="color4" nodename="out1" />
-  </nodegraph>
-  <nodegraph name="over_color2" type="" xpos="6.22404" ypos="34.5402">
-    <over name="over1" type="color2" xpos="5.74483" ypos="4.42">
-      <input name="fg" type="color2" value="1.0000, 0.5000" />
-      <input name="bg" type="color2" value="0.5000, 0.5000" />
-      <input name="mix" type="float" value="0.5000" />
-    </over>
-    <output name="out" type="color2" nodename="over1" />
   </nodegraph>
   <nodegraph name="over_color4" type="" xpos="7.23192" ypos="34.5142">
     <over name="over1" type="color4" xpos="5.74483" ypos="4.42">
@@ -350,13 +254,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </inside>
     <output name="out" type="float" nodename="inside1" />
   </nodegraph>
-  <nodegraph name="inside_color2" type="" xpos="7.21966" ypos="35.9986">
-    <inside name="inside1" type="color2" xpos="5.0069" ypos="10.08">
-      <input name="in" type="color2" value="0.5000, 0.8000" />
-      <input name="mask" type="float" value="0.5000" />
-    </inside>
-    <output name="out" type="color2" nodename="inside1" />
-  </nodegraph>
   <nodegraph name="mix_float" type="" xpos="6.2028" ypos="38.5028">
     <mix name="mix1" type="float" xpos="5.74483" ypos="4.42">
       <input name="fg" type="float" value="1.0000" />
@@ -364,14 +261,6 @@ Basic compositing function tests each test is in a separate graph for each varia
       <input name="mix" type="float" value="0.5000" />
     </mix>
     <output name="out" type="float" nodename="mix1" />
-  </nodegraph>
-  <nodegraph name="mix_color2" type="" xpos="7.22863" ypos="38.5028">
-    <mix name="mix1" type="color2" xpos="5.74483" ypos="4.42">
-      <input name="fg" type="color2" value="1.0000, 0.0000" />
-      <input name="bg" type="color2" value="0.0, 1.0" />
-      <input name="mix" type="float" value="0.5000" />
-    </mix>
-    <output name="out" type="color2" nodename="mix1" />
   </nodegraph>
   <nodegraph name="inside_color3" type="" xpos="8.23952" ypos="35.9726">
     <inside name="inside1" type="color3" xpos="5.0069" ypos="10.08">
@@ -427,37 +316,17 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mix>
     <output name="out" type="vector4" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="premult_color2" type="" xpos="6.20907" ypos="41.4788">
-    <premult name="premult1" type="color2" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="1.0000, 0.5000" />
-    </premult>
-    <output name="out" type="color2" nodename="premult1" />
-  </nodegraph>
   <nodegraph name="premult_color4" type="" xpos="8.25474" ypos="41.4442">
     <premult name="premult1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="1.0000, 0.0, 0.5000, 0.5000" />
     </premult>
     <output name="out" type="color4" nodename="premult1" />
   </nodegraph>
-  <nodegraph name="unpremult_color2" type="" xpos="6.19113" ypos="43.0574">
-    <unpremult name="unpremult1" type="color2" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="1.0000, 0.5000" />
-    </unpremult>
-    <output name="out" type="color2" nodename="unpremult1" />
-  </nodegraph>
   <nodegraph name="unpremult_color4" type="" xpos="8.27269" ypos="42.9706">
     <unpremult name="unpremult1" type="color4" xpos="5.74483" ypos="4.58">
       <input name="in" type="color4" value="1.0000, 0.0, 0.5000, 0.5000" />
     </unpremult>
     <output name="out" type="color4" nodename="unpremult1" />
-  </nodegraph>
-  <nodegraph name="in_color2" type="" xpos="6.21392" ypos="31.9246">
-    <in name="in1" type="color2" xpos="5.75172" ypos="4.42">
-      <input name="fg" type="color2" value="1.0000, 0.5000" />
-      <input name="bg" type="color2" value="0.5000, 0.5000" />
-      <input name="mix" type="float" value="0.5000" />
-    </in>
-    <output name="out" type="color2" nodename="in1" />
   </nodegraph>
   <nodegraph name="in_color4" type="" xpos="7.23719" ypos="31.8966">
     <in name="in1" type="color4" xpos="5.75172" ypos="4.42">
@@ -474,13 +343,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </outside>
     <output name="out" type="float" nodename="outside1" />
   </nodegraph>
-  <nodegraph name="outside_color2" type="" xpos="7.22759" ypos="37.265">
-    <outside name="outside1" type="color2" xpos="5.75172" ypos="4.58">
-      <input name="in" type="color2" value="0.5000, 0.8000" />
-      <input name="mask" type="float" value="0.5000" />
-    </outside>
-    <output name="out" type="color2" nodename="outside1" />
-  </nodegraph>
   <nodegraph name="outside_color3" type="" xpos="8.23448" ypos="37.25">
     <outside name="outside1" type="color3" xpos="5.75172" ypos="4.58">
       <input name="in" type="color3" value="0.5000, 0.8000, 0.0" />
@@ -494,14 +356,6 @@ Basic compositing function tests each test is in a separate graph for each varia
       <input name="mask" type="float" value="0.5000" />
     </outside>
     <output name="out" type="color4" nodename="outside1" />
-  </nodegraph>
-  <nodegraph name="matte_color2" type="" xpos="6.21219" ypos="30.6344">
-    <matte name="matte1" type="color2" xpos="5.75172" ypos="4.42">
-      <input name="fg" type="color2" value="1.0000, 0.5000" />
-      <input name="bg" type="color2" value="0.5000, 0.5000" />
-      <input name="mix" type="float" value="0.5000" />
-    </matte>
-    <output name="out" type="color2" nodename="matte1" />
   </nodegraph>
   <nodegraph name="matte_color4" type="" xpos="7.22237" ypos="30.6262">
     <matte name="matte1" type="color4" xpos="5.75172" ypos="4.42">

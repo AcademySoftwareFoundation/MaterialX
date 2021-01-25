@@ -241,6 +241,17 @@ vector2 min(vector2 a, float b)
     return min(a, vector2(b, b));
 }
 
+vector2 mod(vector2 a, vector2 b)
+{
+    return vector2(mod(a.x, b.x),
+                   mod(a.y, b.y));
+}
+
+vector2 mod(vector2 a, float b)
+{
+    return mod(a, vector2(b, b));
+}
+
 vector2 fmod(vector2 a, vector2 b)
 {
     return vector2 (fmod(a.x, b.x),

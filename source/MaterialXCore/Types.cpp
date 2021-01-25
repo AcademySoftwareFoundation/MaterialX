@@ -11,6 +11,7 @@ namespace MaterialX
 const string DEFAULT_TYPE_STRING = "color3";
 const string FILENAME_TYPE_STRING = "filename";
 const string GEOMNAME_TYPE_STRING = "geomname";
+const string STRING_TYPE_STRING = "string";
 const string SURFACE_SHADER_TYPE_STRING = "surfaceshader";
 const string DISPLACEMENT_SHADER_TYPE_STRING = "displacementshader";
 const string VOLUME_SHADER_TYPE_STRING = "volumeshader";

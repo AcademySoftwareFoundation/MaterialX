@@ -9,6 +9,7 @@
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 #include <iostream>
 
@@ -37,7 +38,8 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _eye(0.0f, 0.0f, 4.0f),
     _center(0.0f, 0.0f, 0.0f),
     _up(0.0f, 1.0f, 0.0f),
-    _objectScale(1.0f)
+    _objectScale(1.0f),
+    _clearColor(0.4f, 0.4f, 0.4f, 1.0f)
 {
     _program = GlslProgram::create();
 
@@ -45,14 +47,6 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _geometryHandler->addLoader(TinyObjLoader::create());
 
     _viewHandler = ViewHandler::create();
-}
-
-GlslRenderer::~GlslRenderer()
-{
-    if (_program->geometryBound())
-    {
-        _program->unbindGeometry();
-    }
 }
 
 void GlslRenderer::initialize()
@@ -90,7 +84,6 @@ void GlslRenderer::initialize()
                 throw ExceptionShaderRenderError(errorType, errors);
             }
 #endif
-            glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
             glClearStencil(0);
 
             _frameBuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
@@ -241,6 +234,8 @@ void GlslRenderer::render()
     // Set up target
     _frameBuffer->bind();
 
+    glClearColor(_clearColor[0], _clearColor[1], _clearColor[2], _clearColor[3]);
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
@@ -256,7 +251,7 @@ void GlslRenderer::render()
         {
             // Check if we have any attributes to bind. If not then
             // there is nothing to draw
-            if (!_program->haveActiveAttributes())
+            if (!_program->hasActiveAttributes())
             {
                 errors.push_back("Program has no input vertex data.");
                 throw ExceptionShaderRenderError(errorType, errors);
@@ -273,7 +268,7 @@ void GlslRenderer::render()
                     for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                     {
                         auto part = mesh->getPartition(i);
-                        _program->bindPartition(mesh->getIdentifier(), part);
+                        _program->bindPartition(part);
                         MeshIndexBuffer& indexData = part->getIndices();
                         glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
                     }
@@ -309,13 +304,12 @@ ImagePtr GlslRenderer::captureImage()
     return _frameBuffer->createColorImage();
 }
 
-void GlslRenderer::saveImage(const FilePath& filePath)
+void GlslRenderer::saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip)
 {
     StringVec errors;
     const string errorType("GLSL image save error.");
 
-    ImagePtr image = captureImage();
-    if (!_imageHandler->saveImage(filePath, image, true))
+    if (!_imageHandler->saveImage(filePath, image, verticalFlip))
     {
         errors.push_back("Failed to save to file:" + filePath.asString());
         throw ExceptionShaderRenderError(errorType, errors);
@@ -336,7 +330,9 @@ void GlslRenderer::drawScreenSpaceQuad()
         0, 1, 3,
         1, 2, 3
     };
-    
+    const unsigned int VERTEX_STRIDE = 5;
+    const unsigned int TEXCOORD_OFFSET = 3;
+
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -346,11 +342,20 @@ void GlslRenderer::drawScreenSpaceQuad()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(QUAD_VERTICES), QUAD_VERTICES, GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) 0);
+    for (const auto& pair : _program->getAttributesList())
+    {
+        if (pair.first.find(HW::IN_POSITION) != std::string::npos)
+        {
+            glEnableVertexAttribArray(pair.second->location);
+            glVertexAttribPointer(pair.second->location, 3, GL_FLOAT, GL_FALSE, VERTEX_STRIDE * sizeof(float), (void*) 0);
+        }
 
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
+        if (pair.first.find(HW::IN_TEXCOORD + "_") != std::string::npos)
+        {
+            glEnableVertexAttribArray(pair.second->location);
+            glVertexAttribPointer(pair.second->location, 2, GL_FLOAT, GL_FALSE, VERTEX_STRIDE * sizeof(float), (void*) (TEXCOORD_OFFSET * sizeof(float)));
+        }
+    }
 
     GLuint ebo;
     glGenBuffers(1, &ebo);
@@ -368,6 +373,11 @@ void GlslRenderer::drawScreenSpaceQuad()
     glDeleteVertexArrays(1, &vao);
 
     checkGlErrors("after draw screen-space quad");
+}
+
+void GlslRenderer::setClearColor(const Color4& clearColor)
+{
+    _clearColor = clearColor;
 }
 
 } // namespace MaterialX

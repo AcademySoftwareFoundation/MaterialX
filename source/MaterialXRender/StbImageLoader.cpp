@@ -56,7 +56,7 @@ bool StbImageLoader::saveImage(const FilePath& filePath,
     {
         if (extension == PNG_EXTENSION)
         {
-            returnValue = stbi_write_png(filePathName.c_str(), w, h, channels, data, w * 4);
+            returnValue = stbi_write_png(filePathName.c_str(), w, h, channels, data, w * image->getChannelCount());
         }
         else if (extension == BMP_EXTENSION)
         {

@@ -55,6 +55,16 @@ bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type) const
     return (type == Type::FLOAT && type->isScalar());
 }
 
+void HeightToNormalNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+{
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+        // Emit sampling functions
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitInclude("stdlib/genglsl/lib/mx_sampling.glsl", context, stage);
+        shadergen.emitLineBreak(stage);
+    END_SHADER_STAGE(shader, Stage::PIXEL)
+}
+
 void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
@@ -95,11 +105,6 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
     END_SHADER_STAGE(shader, Stage::PIXEL)
-}
-
-const string& HeightToNormalNodeGlsl::getLanguage() const
-{
-    return GlslShaderGenerator::LANGUAGE;
 }
 
 const string& HeightToNormalNodeGlsl::getTarget() const

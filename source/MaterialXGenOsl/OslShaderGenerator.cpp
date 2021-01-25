@@ -15,14 +15,15 @@
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
-#include <MaterialXGenShader/Nodes/BlurNode.h>
+#include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/LayerNode.h>
+#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 namespace MaterialX
 {
 
-const string OslShaderGenerator::LANGUAGE = "genosl";
-const string OslShaderGenerator::TARGET = "vanilla";
+const string OslShaderGenerator::TARGET = "genosl";
 
 //
 // OslShaderGenerator methods
@@ -42,150 +43,136 @@ OslShaderGenerator::OslShaderGenerator() :
             { IfGreaterNode::create,  IfGreaterEqNode::create, IfEqualNode::create };
     static const vector<bool> IMPL_HAS_INTVERSION = { true, true, true };
     static const vector<bool> IMPL_HAS_BOOLVERSION = { false, false, true };
-    static const StringVec IMPL_TYPES = { "float", "color2", "color3", "color4", "vector2", "vector3", "vector4" };
+    static const StringVec IMPL_TYPES = { "float", "color3", "color4", "vector2", "vector3", "vector4" };
     for (size_t i = 0; i<IMPL_PREFIXES.size(); i++)
     {
         const string& implPrefix = IMPL_PREFIXES[i];
         for (const string& implType : IMPL_TYPES)
         {
             const string implRoot = implPrefix + implType;
-            registerImplementation(implRoot + SEPARATOR + OslShaderGenerator::LANGUAGE, IMPL_CREATE_FUNCTIONS[i]);
+            registerImplementation(implRoot + SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
             if (IMPL_HAS_INTVERSION[i])
             {
-                registerImplementation(implRoot + INT_SEPARATOR + OslShaderGenerator::LANGUAGE, IMPL_CREATE_FUNCTIONS[i]);
+                registerImplementation(implRoot + INT_SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
             }
             if (IMPL_HAS_BOOLVERSION[i])
             {
-                registerImplementation(implRoot + BOOL_SEPARATOR + OslShaderGenerator::LANGUAGE, IMPL_CREATE_FUNCTIONS[i]);
+                registerImplementation(implRoot + BOOL_SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
             }
         }
     }
 
     // <!-- <switch> -->
     // <!-- 'which' type : float -->
-    registerImplementation("IM_switch_float_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color2_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color3_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color4_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector2_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector3_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector4_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_float_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_color3_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_color4_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector2_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector3_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector4_" + OslShaderGenerator::TARGET, SwitchNode::create);
     // <!-- 'which' type : integer -->
-    registerImplementation("IM_switch_floatI_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color2I_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color3I_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color4I_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector2I_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector3I_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector4I_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_floatI_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_color3I_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_color4I_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector2I_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector3I_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector4I_" + OslShaderGenerator::TARGET, SwitchNode::create);
     // <!-- 'which' type : boolean -->
-    registerImplementation("IM_switch_floatB_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color2B_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color3B_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_color4B_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector2B_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector3B_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
-    registerImplementation("IM_switch_vector4B_" + OslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_floatB_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_color3B_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_color4B_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector2B_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector3B_" + OslShaderGenerator::TARGET, SwitchNode::create);
+    registerImplementation("IM_switch_vector4B_" + OslShaderGenerator::TARGET, SwitchNode::create);
 
     // <!-- <swizzle> -->
     // <!-- from type : float -->
-    registerImplementation("IM_swizzle_float_color2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_color3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_color4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    // <!-- from type : color2 -->
-    registerImplementation("IM_swizzle_color2_float_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_color2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_color3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_color4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_vector2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_vector3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_vector4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
     // <!-- from type : color3 -->
-    registerImplementation("IM_swizzle_color3_float_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_color2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_color3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_color4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
     // <!-- from type : color4 -->
-    registerImplementation("IM_swizzle_color4_float_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_color2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_color3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_color4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
     // <!-- from type : vector2 -->
-    registerImplementation("IM_swizzle_vector2_float_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_color2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_color3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_color4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
     // <!-- from type : vector3 -->
-    registerImplementation("IM_swizzle_vector3_float_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_color2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_color3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_color4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
     // <!-- from type : vector4 -->
-    registerImplementation("IM_swizzle_vector4_float_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_color2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_color3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_color4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector2_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector3_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector4_" + OslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_float_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_color3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_color4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_vector2_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_vector3_" + OslShaderGenerator::TARGET, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_vector4_" + OslShaderGenerator::TARGET, SwizzleNode::create);
 
     // <!-- <convert> -->
-    registerImplementation("IM_convert_float_color2_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_float_color3_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_float_color4_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector2_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector3_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector4_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_vector2_color2_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_vector2_vector3_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_vector2_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_color3_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_vector4_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_vector4_vector3_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_vector4_color4_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_color2_vector2_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_color3_vector3_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_color4_vector4_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_color3_color4_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_color4_color3_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_boolean_float_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
-    registerImplementation("IM_convert_integer_float_" + OslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_float_color3_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_float_color4_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_float_vector2_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_float_vector3_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_float_vector4_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_vector2_vector3_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_vector3_vector2_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_vector3_color3_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_vector3_vector4_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_vector4_vector3_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_vector4_color4_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_color3_vector3_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_color4_vector4_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_color3_color4_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_color4_color3_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_boolean_float_" + OslShaderGenerator::TARGET, ConvertNode::create);
+    registerImplementation("IM_convert_integer_float_" + OslShaderGenerator::TARGET, ConvertNode::create);
 
     // <!-- <combine> -->
-    registerImplementation("IM_combine2_color2_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine2_vector2_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine2_color4CF_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine2_vector4VF_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine2_color4CC_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine2_vector4VV_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine3_color3_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine3_vector3_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine4_color4_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
-    registerImplementation("IM_combine4_vector4_" + OslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine2_vector2_" + OslShaderGenerator::TARGET, CombineNode::create);
+    registerImplementation("IM_combine2_color4CF_" + OslShaderGenerator::TARGET, CombineNode::create);
+    registerImplementation("IM_combine2_vector4VF_" + OslShaderGenerator::TARGET, CombineNode::create);
+    registerImplementation("IM_combine2_vector4VV_" + OslShaderGenerator::TARGET, CombineNode::create);
+    registerImplementation("IM_combine3_color3_" + OslShaderGenerator::TARGET, CombineNode::create);
+    registerImplementation("IM_combine3_vector3_" + OslShaderGenerator::TARGET, CombineNode::create);
+    registerImplementation("IM_combine4_color4_" + OslShaderGenerator::TARGET, CombineNode::create);
+    registerImplementation("IM_combine4_vector4_" + OslShaderGenerator::TARGET, CombineNode::create);
 
     // <!-- <blur> -->
-    registerImplementation("IM_blur_float_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
-    registerImplementation("IM_blur_color2_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
-    registerImplementation("IM_blur_color3_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
-    registerImplementation("IM_blur_color4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
-    registerImplementation("IM_blur_vector2_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
-    registerImplementation("IM_blur_vector3_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
-    registerImplementation("IM_blur_vector4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
+    registerImplementation("IM_blur_float_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
+    registerImplementation("IM_blur_color3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
+    registerImplementation("IM_blur_color4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
+    registerImplementation("IM_blur_vector2_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
+    registerImplementation("IM_blur_vector3_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
+    registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
+
+    // <!-- <layer> -->
+    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, LayerNode::create);
+
+    // <!-- <thin_film_brdf> -->
+    registerImplementation("IM_thin_film_brdf_" + OslShaderGenerator::TARGET, ThinFilmNode::create);
+    // <!-- <dielectric_brdf> -->
+    registerImplementation("IM_dielectric_brdf_" + OslShaderGenerator::TARGET, ThinFilmSupport::create);
+
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -197,27 +184,30 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     emitIncludes(stage, context);
 
-    // Add global constants and type definitions
-    emitLine("#define M_FLOAT_EPS 0.000001", stage, false);
-    emitTypeDefinitions(context, stage);
+    // Resolve path to directional albedo table.
+    // Force path to use slash since backslash even if escaped 
+    // gives problems when saving the source code to file.
+    FilePath albedoTableFile = context.resolveSourceFile("resources/Lights/AlbedoTable.exr");
+    string albedoTableFilePath = albedoTableFile.asString();
+    std::replace(albedoTableFilePath.begin(), albedoTableFilePath.end(), '\\', '/');
 
-    // Emit sampling code if needed
-    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
-    {
-        // Emit sampling functions
-        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl", context, stage);
-        emitLineBreak(stage);
-    }
+    // Add global constants and type definitions
+    emitTypeDefinitions(context, stage);
+    emitLine("#define M_FLOAT_EPS 1e-8", stage, false);
+    emitLine("#define M_GOLDEN_RATIO 1.6180339887498948482045868343656", stage, false);
+    emitLine("#define GGX_DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
+    emitLine("#define GGX_DIRECTIONAL_ALBEDO_TABLE \"" + albedoTableFilePath + "\"", stage, false);
+    emitLineBreak(stage);
 
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.osl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv_vflip.osl";
     }
     else
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.osl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv.osl";
     }
 
     // Emit function definitions for all nodes
@@ -253,7 +243,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         for (size_t j = 0; j < metadata->size(); ++j)
         {
             const ShaderMetadata& data = metadata->at(j);
-            const string& delim = (j == metadata->size() - 1) ? EMPTY_STRING : COMMA;
+            const string& delim = (j == metadata->size() - 1) ? EMPTY_STRING : Syntax::COMMA;
             const string& dataType = _syntax->getTypeName(data.type);
             const string dataValue = _syntax->getValue(data.type, *data.value, true);
             emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
@@ -282,7 +272,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const VariableBlock& constants = stage.getConstantBlock();
     if (constants.size())
     {
-        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), SEMICOLON, context, stage);
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, stage);
         emitLineBreak(stage);
     }
 
@@ -400,7 +390,13 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
     for (const string& file : INCLUDE_FILES)
     {
         FilePath path = context.resolveSourceFile(file);
-        emitLine(INCLUDE_PREFIX + path.asString() + INCLUDE_SUFFIX, stage, false);
+
+        // Force path to use slash since backslash even if escaped 
+        // gives problems when saving the source code to file.
+        string pathStr = path.asString();
+        std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
+
+        emitLine(INCLUDE_PREFIX + pathStr + INCLUDE_SUFFIX, stage, false);
     }
 
     emitLineBreak(stage);
@@ -472,7 +468,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
                 for (size_t j = 0; j < metadata->size(); ++j)
                 {
                     const ShaderMetadata& data = metadata->at(j);
-                    const string& delim = (widgetMetadata || j < metadata->size() - 1) ? COMMA : EMPTY_STRING;
+                    const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
                     const string& dataType = _syntax->getTypeName(data.type);
                     const string dataValue = _syntax->getValue(data.type, *data.value, true);
                     emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
@@ -487,7 +483,11 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
             emitScopeEnd(stage, false, false);
         }
 
-        emitString(",", stage);
+        if (i < inputs.size())
+        {
+            emitString(",", stage);
+        }
+
         emitLineEnd(stage, false);
     }
 }
@@ -500,7 +500,7 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
         const TypeDesc* outputType = output->getType();
         const string type = _syntax->getOutputTypeName(outputType);
         const string value = _syntax->getDefaultValue(outputType, true);
-        const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : COMMA;
+        const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : Syntax::COMMA;
         emitLine(type + " " + output->getVariable() + " = " + value + delim, stage, false);
     }
 }
