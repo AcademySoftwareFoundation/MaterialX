@@ -1,5 +1,6 @@
 
 #include <MaterialXView/Camera.h>
+#include <string.h>
 
 namespace mx = MaterialX;
 
