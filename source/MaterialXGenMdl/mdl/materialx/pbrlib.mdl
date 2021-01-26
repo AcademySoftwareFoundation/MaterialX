@@ -153,24 +153,43 @@ export material mx_dielectric_bsdf(
     anno::usage( "materialx:bsdf") 
 ]]
 = let {
-    df::scatter_mode mode = ::mx_map_scatter_mode(mxp_scatter_mode);
-    bsdf ggx_model = df::microfacet_ggx_smith_bsdf(
-        roughness_u: mxp_roughness.x,
-        roughness_v: mxp_roughness.y,
-        tint: mxp_tint,
-        tangent_u: mxp_tangent,
-        mode: mode);
-    bsdf distribution_model =  (mxp_distribution == mx_distribution_type_ggx) 
-                                   ? ggx_model : bsdf();
+    bsdf bsdf_R = df::fresnel_layer(
+        ior: mxp_ior,
+        weight: mxp_weight,
+        layer: df::microfacet_ggx_smith_bsdf(
+                    roughness_u: mxp_roughness.x,
+                    roughness_v: mxp_roughness.y,
+                    tint: mxp_tint,
+                    tangent_u: mxp_tangent,
+                    mode: df::scatter_reflect),
+        base: mxp_base.surface.scattering,
+        normal: mxp_normal);
+
+    bsdf bsdf_T = df::weighted_layer(
+        weight: mxp_weight,
+        layer: df::microfacet_ggx_smith_bsdf(
+                    roughness_u: mxp_roughness.x,
+                    roughness_v: mxp_roughness.y,
+                    tint: mxp_tint,
+                    tangent_u: mxp_tangent,
+                    mode: df::scatter_transmit),
+        normal: mxp_normal);
+
+    bsdf bsdf_RT = df::weighted_layer(
+        weight: mxp_weight,
+        layer: df::microfacet_ggx_smith_bsdf(
+                    roughness_u: mxp_roughness.x,
+                    roughness_v: mxp_roughness.y,
+                    tint: mxp_tint,
+                    tangent_u: mxp_tangent,
+                    mode: df::scatter_reflect_transmit),
+        normal: mxp_normal);
+
+    bsdf bsdf_selected = (mxp_scatter_mode == mx_scatter_mode_R) ? bsdf_R :
+                         ((mxp_scatter_mode == mx_scatter_mode_T) ? bsdf_T : bsdf_RT);
 } in material(
-    surface: material_surface( 
-        scattering: df::fresnel_layer(
-            ior: mxp_ior,
-            weight: mxp_weight,
-            layer: distribution_model,
-            base: mxp_base.surface.scattering,
-            normal: mxp_normal
-        )
+    surface: material_surface(
+        scattering: bsdf_selected
     ),
     // we need to carry volume properties along for SSS
     ior:    mxp_base.ior,
