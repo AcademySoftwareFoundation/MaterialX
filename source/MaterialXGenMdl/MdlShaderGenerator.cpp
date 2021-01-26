@@ -12,6 +12,8 @@
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/CombineNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/DielectricBsdfNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/SheenBsdfNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ThinFilmNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -21,8 +23,6 @@
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/LayerNode.h>
-#include <MaterialXGenShader/Nodes/DielectricBsdfNode.h>
-#include <MaterialXGenShader/Nodes/SheenBsdfNode.h>
 
 namespace MaterialX
 {
@@ -188,13 +188,13 @@ MdlShaderGenerator::MdlShaderGenerator() :
     registerImplementation("IM_thin_film_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmNodeMdl::create);
 
     // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNode::create);
+    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNodeMdl::create);
 
     // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNode::create);
+    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNodeMdl::create);
 
     // <!-- <sheen_bsdf> -->
-    registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, SheenBsdfNode::create);
+    registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, SheenBsdfNodeMdl::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

@@ -3,18 +3,18 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_THINFILMNODEMDL_H
-#define MATERIALX_THINFILMNODEMDL_H
+#ifndef MATERIALX_DIELECTRICBSDFNODEMDL_H
+#define MATERIALX_DIELECTRICBSDFNODEMDL_H
 
 #include <MaterialXGenMdl/Nodes/SourceCodeNodeMdl.h>
 
 namespace MaterialX
 {
 
-/// Thin-Film node for MDL.
-class ThinFilmNodeMdl : public SourceCodeNodeMdl
+/// Dielectric BSDF node.
+class DielectricBsdfNodeMdl : public SourceCodeNodeMdl
 {
-  public:
+public:
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;

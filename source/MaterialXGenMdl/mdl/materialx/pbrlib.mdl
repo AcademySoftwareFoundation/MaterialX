@@ -177,27 +177,10 @@ export material mx_dielectric_bsdf(
     volume: mxp_base.volume
 );
 
-// Internal helper function to converts the artistic parameterization 
-// reflectivity and edgecolor to complex IOR values, in contrast to mx_artistic_ior, 
-// this implementation is color based, not float3.
-color[2] artistic_to_complex_ior( color mxp_reflectivity, color mxp_edge_color) {
-    color r = math::clamp( mxp_reflectivity, color(0.0), color(0.99));
-    color r_sqrt = math::sqrt(r);
-    color n_min = (1.0 - r) / (1.0 + r);
-    color n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
-    color n = math::lerp(n_max, n_min, mxp_edge_color);
-    color np1 = n + 1.0;
-    color nm1 = n - 1.0;
-    color k2 = (np1*np1 * r - nm1*nm1) / (1.0 - r);
-    k2 = math::max(k2, 0.0);
-    color k = math::sqrt(k2);
-    return color[2](n,k);
-}
-
 export material mx_conductor_bsdf(
     float  mxp_weight    = 1.0,
-    color  mxp_reflectivity = color(0.944, 0.776, 0.373),
-    color  mxp_edge_color   = color(0.998, 0.981, 0.751),
+    color  mxp_ior = color(0.271, 0.677, 1.316),
+    color  mxp_extinction   = color(3.609, 2.625, 2.292),
     float2 mxp_roughness = float2(0.0),
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
@@ -213,8 +196,7 @@ export material mx_conductor_bsdf(
         roughness_u: mxp_roughness.x,
         roughness_v: mxp_roughness.y,
         tangent_u: mxp_tangent);
-    color[2] complex_ior = artistic_to_complex_ior(mxp_reflectivity, mxp_edge_color);
-    bsdf conductor = df::fresnel_factor(complex_ior[0], complex_ior[1], ggx_model);
+    bsdf conductor = df::fresnel_factor(mxp_ior, mxp_extinction, ggx_model);
 } in material(
     surface: material_surface(
         scattering: df::weighted_layer(
@@ -840,7 +822,7 @@ export mx_artistic_ior__result mx_artistic_ior(
     color r_sqrt = math::sqrt(r);
     color n_min = (1.0 - r) / (1.0 + r);
     color n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
-    color n = math::lerp(n_max, n_min, float3(mxp_edge_color));
+    color n = math::lerp(n_max, n_min, mxp_edge_color);
     color np1 = n + 1.0;
     color nm1 = n - 1.0;
     color k2 = (np1*np1 * r - nm1*nm1) / (1.0 - r);

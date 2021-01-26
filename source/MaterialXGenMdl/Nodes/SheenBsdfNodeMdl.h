@@ -3,18 +3,18 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_THINFILMNODEMDL_H
-#define MATERIALX_THINFILMNODEMDL_H
+#ifndef MATERIALX_SHEENBSDFNODEMDL_H
+#define MATERIALX_SHEENBSDFNODEMDL_H
 
 #include <MaterialXGenMdl/Nodes/SourceCodeNodeMdl.h>
 
 namespace MaterialX
 {
 
-/// Thin-Film node for MDL.
-class ThinFilmNodeMdl : public SourceCodeNodeMdl
+/// Sheen BSDF node.
+class SheenBsdfNodeMdl : public SourceCodeNodeMdl
 {
-  public:
+public:
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;
