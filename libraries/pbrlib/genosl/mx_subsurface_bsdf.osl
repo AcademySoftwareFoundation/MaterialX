@@ -1,4 +1,4 @@
-void mx_subsurface_brdf(float weight, color _color, vector radius, float anisotropy, vector _normal, output BSDF result)
+void mx_subsurface_bsdf(float weight, color _color, vector radius, float anisotropy, vector _normal, output BSDF result)
 {
     // TODO: Subsurface closure is not supported by vanilla OSL.
     result = _color * weight * translucent(_normal);

@@ -1,6 +1,6 @@
 ﻿#include "pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl"
 
-void mx_subsurface_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, vec3 radius, float anisotropy, vec3 normal, out BSDF result)
+void mx_subsurface_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, vec3 radius, float anisotropy, vec3 normal, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -16,7 +16,7 @@ void mx_subsurface_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
     result = sss * visibleOcclusion * weight;
 }
 
-void mx_subsurface_brdf_indirect(vec3 V, float weight, vec3 color, vec3 radius, float anisotropy, vec3 normal, out BSDF result)
+void mx_subsurface_bsdf_indirect(vec3 V, float weight, vec3 color, vec3 radius, float anisotropy, vec3 normal, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {

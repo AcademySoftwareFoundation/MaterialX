@@ -115,6 +115,7 @@ const string ShaderNode::CONSTANT = "constant";
 const string ShaderNode::IMAGE = "image";
 const string ShaderNode::COMPARE = "compare";
 const string ShaderNode::SWITCH = "switch";
+const string ShaderNode::SCATTER_MODE = "scatter_mode";
 const string ShaderNode::BSDF_R = "R";
 const string ShaderNode::BSDF_T = "T";
 const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";
@@ -311,7 +312,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             newNode->_classification |= Classification::LAYER;
         }
         // Check specifically for the thin-film node
-        else if (nodeDef.getName() == "ND_thin_film_brdf")
+        else if (nodeDef.getName() == "ND_thin_film_bsdf")
         {
             newNode->_classification |= Classification::THINFILM;
         }
@@ -417,6 +418,22 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
         if (input && input->getPath().empty())
         {
             input->setPath(nodePath + NAME_PATH_SEPARATOR + nodeInput->getName());
+        }
+    }
+
+    // For BSDF nodes see if there is a scatter_mode input,
+    // and update the classification accordingly.
+    if (hasClassification(Classification::BSDF))
+    {
+        const InputPtr scatterModeInput = node.getInput(SCATTER_MODE);
+        const string& scatterMode = scatterModeInput ? scatterModeInput->getValueString() : EMPTY_STRING;
+        // If scatter mode is only T, set classification to only transmission.
+        // Note: For only R we must still keep classification at default value (both reflection/transmission)
+        // since reflection needs to attenuate the transmission amount in HW shaders when layering is used.
+        if (scatterMode == BSDF_T)
+        {
+            _classification |= Classification::BSDF_T;
+            _classification &= ~Classification::BSDF_R;
         }
     }
 }

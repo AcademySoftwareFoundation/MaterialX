@@ -19,6 +19,9 @@ class LayerNode : public ShaderNodeImpl
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
+    /// Adding a base BSDF input to a node.
+    static void addLayerSupport(ShaderNode& node);
+
     /// String constants
     static const string TOP;
     static const string BASE;

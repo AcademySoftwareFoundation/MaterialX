@@ -1,7 +1,6 @@
-#include "pbrlib/genosl/lib/mx_refraction_index.osl"
 #include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
-void mx_conductor_brdf(float weight, color reflectivity, color edge_color, vector2 roughness, normal N, vector U, string distribution, output BSDF result)
+void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness, normal N, vector U, string distribution, output BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -16,8 +15,6 @@ void mx_conductor_brdf(float weight, color reflectivity, color edge_color, vecto
     // view direction and surface normal instead
     //
     float NdotV = fabs(dot(N,-I));
-    vector ior_n, ior_k;
-    mx_artistic_to_complex_ior(reflectivity, edge_color, ior_n, ior_k);
     color F = mx_fresnel_conductor(NdotV, ior_n, ior_k);
 
     // Calculate compensation for multiple scattering.

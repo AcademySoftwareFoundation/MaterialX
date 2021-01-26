@@ -38,7 +38,7 @@ void ThinFilmNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
         const ShaderOutput* output = node.getOutput();
         if (!(thickness && ior && output))
         {
-            throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid thin_film_brdf node");
+            throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid thin_film_bsdf node");
         }
 
         shadergen.emitLine(syntax.getTypeName(Type::THINFILM) + " " + output->getVariable(), stage);
@@ -48,25 +48,13 @@ void ThinFilmNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-
-ShaderNodeImplPtr ThinFilmSupport::create()
+void ThinFilmNode::addInputs(ShaderNode& node, GenContext&) const
 {
-    return std::make_shared<ThinFilmSupport>();
+    // Add layering support.
+    LayerNode::addLayerSupport(node);
 }
 
-void ThinFilmSupport::addInputs(ShaderNode& node, GenContext&) const
-{
-    // Add the input to hold thinfilm data.
-    node.addInput(ThinFilmNode::THINFILM_INPUT, Type::THINFILM);
-}
-
-
-ShaderNodeImplPtr HwThinFilmSupport::create()
-{
-    return std::make_shared<HwThinFilmSupport>();
-}
-
-void HwThinFilmSupport::addInputs(ShaderNode& node, GenContext&) const
+void ThinFilmNode::addThinFilmSupport(ShaderNode& node)
 {
     // Add the input to hold thinfilm data.
     node.addInput(ThinFilmNode::THINFILM_INPUT, Type::THINFILM);

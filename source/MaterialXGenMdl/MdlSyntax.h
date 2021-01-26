@@ -53,6 +53,7 @@ class MdlSyntax : public Syntax
     static const StringVec FILTERLOOKUPMODE_MEMBERS;
     static const StringVec FILTERTYPE_MEMBERS;
     static const StringVec DISTRIBUTIONTYPE_MEMBERS;
+    static const StringVec SCATTER_MODE_MEMBERS;
 
     /// Get an type description for an enumeration based on member value
     const TypeDesc* getEnumeratedType(const string& value) const;

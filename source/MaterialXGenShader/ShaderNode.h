@@ -392,6 +392,7 @@ class ShaderNode
     static const string IMAGE;
     static const string COMPARE;
     static const string SWITCH;
+    static const string SCATTER_MODE;
     static const string BSDF_R;
     static const string BSDF_T;
     static const string TRANSFORM_POINT;

@@ -1,8 +1,11 @@
 #include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
-void mx_generalized_schlick_brdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
+void mx_generalized_schlick_bsdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, BSDF base, thinfilm tf, output BSDF result)
 {
-    if (weight < M_FLOAT_EPS)
+    //
+    // TODO: We need handling of transmission for generalized schlick
+    //
+    if (weight < M_FLOAT_EPS || scatter_mode == "T")
     {
         result = base;
         return;
@@ -24,6 +27,6 @@ void mx_generalized_schlick_brdf(float weight, color color0, color color90, floa
     float avgDirAlbedo = dot(dirAlbedo, color(1.0 / 3.0));
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    result = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false)
+    result = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, 0)
              + base * (1.0 - avgDirAlbedo * weight);
 }

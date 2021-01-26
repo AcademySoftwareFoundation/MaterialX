@@ -12,6 +12,9 @@
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/CombineNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/DielectricBsdfNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/SheenBsdfNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/ThinFilmNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
@@ -50,10 +53,10 @@ namespace
         "import ::anno::*",
         "import ::tex::*",
         "import ::mx::swizzle::*",
-        "import ::mx::pbrlib::*",
         "import ::mx::cm::*",
-        "using ::mx::stdlib import *",
         "using ::mx::core import *",
+        "using ::mx::stdlib import *",
+        "using ::mx::pbrlib import *",
         "using ::mx::sampling import *",
     };
 }
@@ -180,6 +183,18 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <layer> -->
     registerImplementation("IM_layer_bsdf_" + MdlShaderGenerator::TARGET, LayerNode::create);
+
+    // <!-- <thin_film_bsdf> -->
+    registerImplementation("IM_thin_film_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmNodeMdl::create);
+
+    // <!-- <dielectric_bsdf> -->
+    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNodeMdl::create);
+
+    // <!-- <generalized_schlick_bsdf> -->
+    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNodeMdl::create);
+
+    // <!-- <sheen_bsdf> -->
+    registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, SheenBsdfNodeMdl::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

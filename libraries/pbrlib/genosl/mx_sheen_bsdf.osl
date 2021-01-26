@@ -40,7 +40,7 @@ float mx_imageworks_sheen_directional_albedo(float cosTheta, float roughness)
 
 // TODO: Vanilla OSL doesn't have a proper sheen closure,
 // so use 'diffuse' scaled by sheen directional albedo for now.
-void mx_sheen_brdf(float weight, color Ks, float roughness, vector N, BSDF base, output BSDF result)
+void mx_sheen_bsdf(float weight, color Ks, float roughness, vector N, BSDF base, output BSDF result)
 {
     if (weight > M_FLOAT_EPS)
     {
