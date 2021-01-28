@@ -18,14 +18,13 @@ def main():
     parser.add_argument("--average", dest="average", action="store_true", help="Average baked images to generate constant values.")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
-    parser.add_argument(dest="input_filename", help="Filename of the input document.")
-    parser.add_argument(dest="output_filename", help="Filename of the output document.")
-
+    parser.add_argument(dest="inputFilename", help="Filename of the input document.")
+    parser.add_argument(dest="outputFilename", help="Filename of the output document.")
     opts = parser.parse_args()
 
     doc = mx.createDocument()
     try:
-        mx.readFromXmlFile(doc, opts.input_filename)
+        mx.readFromXmlFile(doc, opts.inputFilename)
     except mx.ExceptionFileMissing as err:
         print(err)
         sys.exit(0)
@@ -33,7 +32,7 @@ def main():
     stdlib = mx.createDocument()
     filePath = os.path.dirname(os.path.abspath(__file__))
     searchPath = mx.FileSearchPath(os.path.join(filePath, '..', '..'))
-    searchPath.append(os.path.dirname(opts.input_filename))
+    searchPath.append(os.path.dirname(opts.inputFilename))
     libraryFolders = [ "libraries" ]
     if opts.paths:
         for pathList in opts.paths:
@@ -55,7 +54,7 @@ def main():
     baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, baseType)
     if opts.average:
         baker.setAverageImages(True)
-    baker.bakeAllMaterials(doc, searchPath, opts.output_filename)
+    baker.bakeAllMaterials(doc, searchPath, opts.outputFilename)
 
 if __name__ == '__main__':
     main()
