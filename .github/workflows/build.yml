@@ -144,9 +144,11 @@ jobs:
 
     - name: Python Tests
       run: |
-        python main.py
-        python genshader.py
-      working-directory: python/MaterialXTest
+        python MaterialXTest/main.py
+        python MaterialXTest/genshader.py
+        python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
+        python Scripts/mxdoc.py ../libraries/pbrlib/pbrlib_defs.mtlx
+      working-directory: python
 
     - name: Render Tests
       if: matrix.test_render == 'ON'
