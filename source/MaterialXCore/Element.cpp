@@ -298,6 +298,21 @@ ElementPtr Element::addChildOfCategory(const string& category, string name)
     return child;
 }
 
+ElementPtr Element::changeChildCategory(ElementPtr child, const string& category)
+{
+    int childIndex = getChildIndex(child->getName());
+    if (childIndex == -1)
+    {
+        return nullptr;
+    }
+
+    removeChild(child->getName());
+    ElementPtr newChild = addChildOfCategory(category, child->getName());
+    setChildIndex(child->getName(), childIndex);
+    newChild->copyContentFrom(child);
+    return newChild;
+}
+
 ElementPtr Element::getRoot()
 {
     ElementPtr root = _root.lock();

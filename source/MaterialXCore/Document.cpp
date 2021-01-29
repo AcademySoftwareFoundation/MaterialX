@@ -17,17 +17,6 @@ const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
 
 namespace {
 
-template<class T> shared_ptr<T> updateChildSubclass(ElementPtr parent, ElementPtr origChild)
-{
-    string childName = origChild->getName();
-    int childIndex = parent->getChildIndex(childName);
-    parent->removeChild(childName);
-    shared_ptr<T> newChild = parent->addChild<T>(childName);
-    parent->setChildIndex(childName, childIndex);
-    newChild->copyContentFrom(origChild);
-    return newChild;
-}
-
 NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
 {
     if (shaderRef->hasAttribute(NodeDef::NODE_DEF_ATTRIBUTE))
@@ -389,7 +378,7 @@ void Document::upgradeVersion()
             }
             for (ElementPtr child : getChildrenOfType<Element>("assign"))
             {
-                updateChildSubclass<MaterialAssign>(elem, child);
+                elem->changeChildCategory(child, "materialassign");
             }
         }
         minorVersion = 24;
@@ -437,11 +426,11 @@ void Document::upgradeVersion()
             {
                 if (child->getCategory() == "opgraph")
                 {
-                    updateChildSubclass<NodeGraph>(elem, child);
+                    elem->changeChildCategory(child, "nodegraph");
                 }
                 else if (child->getCategory() == "shader")
                 {
-                    NodeDefPtr nodeDef = updateChildSubclass<NodeDef>(elem, child);
+                    NodeDefPtr nodeDef = elem->changeChildCategory(child, "nodedef")->asA<NodeDef>();
                     if (nodeDef->hasAttribute("shadertype"))
                     {
                         nodeDef->setType(SURFACE_SHADER_TYPE_STRING);
@@ -467,7 +456,7 @@ void Document::upgradeVersion()
                     {
                         if (elem->isA<Node>())
                         {
-                            InputPtr input = updateChildSubclass<Input>(elem, child);
+                            InputPtr input = elem->changeChildCategory(child, "input")->asA<Input>();
                             input->setNodeName(input->getAttribute("value"));
                             input->removeAttribute("value");
                             if (input->getConnectedNode())
@@ -541,7 +530,7 @@ void Document::upgradeVersion()
         {
             for (ElementPtr child : geomInfo->getChildrenOfType<Element>("geomattr"))
             {
-                updateChildSubclass<GeomProp>(geomInfo, child);
+                geomInfo->changeChildCategory(child, "geomprop");
             }
         }
         if (getGeomPropValue("udim") && !getGeomPropValue("udimset"))
@@ -706,7 +695,7 @@ void Document::upgradeVersion()
         {
             for (ElementPtr child : geomInfo->getChildrenOfType<Element>("geomattr"))
             {
-                updateChildSubclass<GeomProp>(geomInfo, child);
+                geomInfo->changeChildCategory(child, "geomprop");
             }
         }
         for (ElementPtr elem : traverseTree())
@@ -762,7 +751,7 @@ void Document::upgradeVersion()
                 ElementPtr cutoff = node->getChild("cutoff");
                 if (cutoff)
                 {
-                    cutoff = updateChildSubclass<Input>(node, cutoff);
+                    cutoff = node->changeChildCategory(cutoff, "input");
                     cutoff->setName("value2");
                 }
                 InputPtr in1 = node->getInput("in1");
@@ -1005,7 +994,7 @@ void Document::upgradeVersion()
             ElementPtr axis = nodedef->getChild(AXIS);
             if (axis)
             {
-                updateChildSubclass<Input>(nodedef, axis);
+                nodedef->changeChildCategory(axis, "input");
             }
         }
 
@@ -1141,7 +1130,7 @@ void Document::upgradeVersion()
                 ElementPtr axis = node->getChild(AXIS);
                 if (axis)
                 {
-                    updateChildSubclass<Input>(node, axis);
+                    node->changeChildCategory(axis, "input");
                 }
             }
             else if (nodeCategory == DIELECTRIC_BRDF.first)
@@ -1222,7 +1211,7 @@ void Document::upgradeVersion()
             {
                 node->setCategory(SUBSURFACE_BRDF.second);
             }
-            else if(nodeCategory == ARTISTIC_IOR)
+            else if (nodeCategory == ARTISTIC_IOR)
             {
                 OutputPtr ior = node->getOutput(IOR);
                 if (ior)
@@ -1241,7 +1230,7 @@ void Document::upgradeVersion()
             // since the outputs of artistic_ior is now color3.
             // Save the inputs here and insert the conversion nodes below,
             // since we can't modify the graph while traversing it.
-            for (auto input : node->getInputs())
+            for (InputPtr input : node->getInputs())
             {
                 if (input->getOutputString() == IOR && input->getType() == VECTOR3)
                 {
@@ -1334,14 +1323,14 @@ void Document::upgradeVersion()
         const string FRAME_OFFSET_STRING = "frameoffset";
         const string INDEX_STRING = "index";
         const string DEFAULT_STRING = "default";
-        for (ElementPtr elementPtr : traverseTree())
+        for (ElementPtr elem : traverseTree())
         {
-            if (elementPtr->isA<InterfaceElement>())
+            if (elem->isA<InterfaceElement>())
             {
-                for (ElementPtr param : elementPtr->getChildrenOfType<Element>("parameter"))
+                for (ElementPtr param : elem->getChildrenOfType<Element>("parameter"))
                 {
-                    InputPtr input = updateChildSubclass<Input>(elementPtr, param);
-                    if (elementPtr->isA<NodeDef>())
+                    InputPtr input = elem->changeChildCategory(param, "input")->asA<Input>();
+                    if (elem->isA<NodeDef>())
                     {
                         // Strings and filename types should always be uniforms.
                         const string& inputType = input->getType();

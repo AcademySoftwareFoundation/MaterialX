@@ -466,6 +466,13 @@ class Element : public std::enable_shared_from_this<Element>
     /// @return A shared pointer to the new child element.
     ElementPtr addChildOfCategory(const string& category, string name = EMPTY_STRING);
 
+    /// Change the category of the given child element.
+    /// @param child The child element that will be modified.
+    /// @param category The new category string for the child element.
+    /// @return A shared pointer to a new child element, containing the contents
+    ///     of the original child but with a new category and subclass.
+    ElementPtr changeChildCategory(ElementPtr child, const string& category);
+
     /// Return the child element, if any, with the given name.
     ElementPtr getChild(const string& name) const
     {

@@ -14,9 +14,6 @@
 namespace MaterialX
 {
 
-class Element;
-using ElementPtr = shared_ptr<Element>;
-
 extern const string EMPTY_STRING;
 
 /// Return the version of the MaterialX library as a string.
@@ -65,9 +62,6 @@ string createNamePath(const StringVec& nameVec);
 
 /// Given a name path, return the parent name path
 string parentNamePath(const string& namePath);
-
-// Change the category of a child element	
-ElementPtr changeChildCategory(ElementPtr parent, ElementPtr origChild, const string& category);
 
 } // namespace MaterialX
 
