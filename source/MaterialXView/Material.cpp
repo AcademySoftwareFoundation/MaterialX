@@ -329,14 +329,11 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
                 }
 
                 // Bind any associated uniforms.
-                if (genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+                if (uniform == mx::HW::ENV_RADIANCE)
                 {
-                    if (uniform == mx::HW::ENV_RADIANCE)
+                    if (_glProgram->hasUniform(mx::HW::ENV_RADIANCE_MIPS))
                     {
-                        if (_glProgram->hasUniform(mx::HW::ENV_RADIANCE_MIPS))
-                        {
-                            _glProgram->bindUniform(mx::HW::ENV_RADIANCE_MIPS, mx::Value::createValue((int) image->getMaxMipCount()));
-                        }
+                        _glProgram->bindUniform(mx::HW::ENV_RADIANCE_MIPS, mx::Value::createValue((int) image->getMaxMipCount()));
                     }
                 }
             }
