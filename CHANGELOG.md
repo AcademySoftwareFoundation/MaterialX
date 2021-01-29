@@ -2,11 +2,11 @@
 
 ## [1.38] - Development
 
-### v1.38_adsk_development2 : 2021-01-29
-- Up-to-date with LucasFilm v1.38 branch @a2e2633.
+### [v1.38_adsk_development2](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development2) : 2021-01-29
+- Up-to-date with LucasFilm v1.38 branch [@a2e2633](https://github.com/materialx/MaterialX/commit/a2e263307f7edd353189cfe51c43b4aa34191580).
 - *All documents upgrade to "1.38" as version number. Files must be marked
 as "1.37" for upgrade to occur*
-- Standard surface default value changes (See https://github.com/Autodesk/standard-surface/blob/master/reference/standard_surface.mtlx)
+- Standard surface [default value changes](https://github.com/Autodesk/standard-surface/blob/master/reference/standard_surface.mtlx)
 - UsdPreviewSurface "metallic" input name update.
 - Deprecation of Language specifier and introduction of TargetDefs
 - Deprecation of Material and ShaderRef elements.
@@ -17,8 +17,8 @@ as "1.37" for upgrade to occur*
 - GPU testing framework setup for Linux.
 - Update of MDL support. Passes test verification for v1.6.
 
-### v1.38_adsk_development1 : Major changes since "v1.37.3_parameters_as_inputs"
- - Up-to-date with LucasFilm v1.38 branch @3900415.
+### [v1.38_adsk_development1](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development1) : Major changes since "v1.37.3_parameters_as_inputs"
+ - Up-to-date with LucasFilm v1.38 branch [@3900415](https://github.com/materialx/MaterialX/commit/39004152256d64231352be8a28515c30a08b4414).
  - Finished API support for Material Nodes (from Material Elements)
  - Baker support for v1.38, CM and units.
  - Shader Translator support for v1.38, CM and units.
