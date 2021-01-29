@@ -87,26 +87,6 @@ ValueElement.getDefaultValue = _getDefaultValue
 # InterfaceElement
 #
 
-def _setParameterValue(self, name, value, typeString = ''):
-    """Set the typed value of a parameter by its name, creating a child element
-       to hold the parameter if needed."""
-    method = getattr(self.__class__, "_setParameterValue" + getTypeString(value))
-    return method(self, name, value, typeString)
-
-def _getParameterValue(self, name, target = ''):
-    """Return the typed value of a parameter by its name, taking both the
-       calling element and its declaration into account.  If the given
-       parameter is not found, then None is returned."""
-    value = self._getParameterValue(name, target)
-    return value.getData() if value else None
-
-def _getParameterValueString(self, name):
-    """(Deprecated) Return the value string of a parameter by its name.  If the
-       given parameter is not present, then an empty string is returned."""
-    warnings.warn("This function is deprecated; call InterfaceElement.getParameter() and Parameter.getValueString() instead.", DeprecationWarning, stacklevel = 2)
-    param = self.getParameter(name)
-    return param.getValueString() if param else ""
-
 def _setInputValue(self, name, value, typeString = ''):
     """Set the typed value of an input by its name, creating a child element
        to hold the input if needed."""
@@ -120,11 +100,37 @@ def _getInputValue(self, name, target = ''):
     value = self._getInputValue(name, target)
     return value.getData() if value else None
 
+def _getParameters(self):
+    """(Deprecated) Return a vector of all Parameter elements."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return list()
+
+def _getActiveParameters(self):
+    """(Deprecated) Return a vector of all parameters belonging to this interface, taking inheritance into account."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return list()
+
+def _setParameterValue(self, name, value, typeString = ''):
+    """(Deprecated) Set the typed value of a parameter by its name."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+
+def _getParameterValue(self, name, target = ''):
+    """(Deprecated) Return the typed value of a parameter by its name."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return None
+
+def _getParameterValueString(self, name):
+    """(Deprecated) Return the value string of a parameter by its name."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return ""
+
+InterfaceElement.setInputValue = _setInputValue
+InterfaceElement.getInputValue = _getInputValue
+InterfaceElement.getParameters = _getParameters
+InterfaceElement.getActiveParameters = _getActiveParameters
 InterfaceElement.setParameterValue = _setParameterValue
 InterfaceElement.getParameterValue = _getParameterValue
 InterfaceElement.getParameterValueString = _getParameterValueString
-InterfaceElement.setInputValue = _setInputValue
-InterfaceElement.getInputValue = _getInputValue
 
 
 #
@@ -197,12 +203,13 @@ def _applyStringSubstitutions(self, filename, geom = '/'):
     warnings.warn("This function is deprecated; call Element.createStringResolver() instead.", DeprecationWarning, stacklevel = 2)
     return self.createStringResolver(geom).resolve(filename, 'filename')
 
-def _generateRequireString(self):
-    """(Deprecated) Generate the require string for a document."""
-    warnings.warn("Require strings are no longer supported in MaterialX.", DeprecationWarning, stacklevel = 2)
+def _getMaterials(self):
+    """(Deprecated) Return a vector of all materials in the document."""
+    warnings.warn("This function is deprecated, call Document.getMaterialNodes() instead.", DeprecationWarning, stacklevel = 2)
+    return self.getMaterialNodes()
 
 Document.applyStringSubstitutions = _applyStringSubstitutions
-Document.generateRequireString = _generateRequireString
+Document.getMaterials = _getMaterials
 
 
 #

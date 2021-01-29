@@ -151,9 +151,6 @@ class GlslProgram
     /// Return true if the program has active attributes.
     bool hasActiveAttributes() const;
 
-    /// Whether the geometry is currently bound	
-    bool geometryBound() const;
-
     /// Return true if a uniform with the given name is present.
     bool hasUniform(const string& name);
 

@@ -49,17 +49,6 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _viewHandler = ViewHandler::create();
 }
 
-GlslRenderer::~GlslRenderer()
-{
-    if (_program->geometryBound())
-    {
-        if (_context->makeCurrent())
-        {
-            _program->unbindGeometry();
-        }
-    }
-}
-
 void GlslRenderer::initialize()
 {
     StringVec errors;

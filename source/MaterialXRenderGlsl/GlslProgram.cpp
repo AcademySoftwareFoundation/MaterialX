@@ -1115,11 +1115,6 @@ bool GlslProgram::hasActiveAttributes() const
     return (activeAttributeCount > 0);
 }
 
-bool GlslProgram::geometryBound() const
-{
-    return _vertexArray != UNDEFINED_OPENGL_RESOURCE_ID;
-}
-
 void GlslProgram::unbind() const
 {
     glUseProgram(0);

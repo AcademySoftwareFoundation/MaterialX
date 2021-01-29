@@ -57,7 +57,6 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
     "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
 
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
-set(MATERIALX_DEBUG_POSTFIX "" CACHE STRING "Postfix to append to the target file name for debug configuration (e.g. 'd').")
 
 # Helpers for OSL validation
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")

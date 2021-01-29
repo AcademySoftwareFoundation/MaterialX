@@ -65,12 +65,13 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2017, 64-bit, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2017_x64_Python37.zip)
-- [Microsoft Windows (Visual Studio 2019, 64-bit, Python 3.8)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2019_x64_Python38.zip)
+- [Microsoft Windows (Visual Studio 2017, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2017_x64_Python37.zip)
+- [MacOS (Xcode 11, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_11_Python37.zip)
+- [Linux (GCC 10, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Linux_GCC_10_Python37.zip)
 
 ### Additional Resources
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
-- The [Python Scripts](python/Scripts/README.md) folder contains standalone examples of MaterialX Python code.
+- The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
+- Presentations at the [Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) and [MaterialX Birds of a Feather](http://www.materialx.org/assets/MaterialX_Sig2020_BOF_slides.pdf) provide details on the roadmap for MaterialX development.
 - The [JavaScript](source/JsMaterialX/README.md) source folder contains more information about the setup.
- Presentations at the [Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) and [MaterialX Birds of a Feather](http://www.materialx.org/assets/MaterialX_Sig2020_BOF_slides.pdf) provide details on the roadmap for MaterialX development.

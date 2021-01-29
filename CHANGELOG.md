@@ -33,6 +33,9 @@
 ### Changed
 - Improved the robustness of context management in MaterialXRenderGlsl.
 
+### Fixed
+- Added a missing VAO binding to GlslRenderer\:\:drawScreenSpaceQuad.
+
 ## [1.37.3] - 2020-11-24
 
 ### Added
@@ -40,12 +43,15 @@
 - Added viewer support for partially-transparent mesh partitions.
 - Added a subsurface scattering approximation to MaterialX GLSL.
 - Added a CMake option for building shared libraries on Linux and MacOS.
+- Added support for the latest OpenImageIO interface.
 
 ### Changed
 - Improved the robustness of texture baking and shader translation.
+- Unified the handling of missing images in generated GLSL.
 - Moved CI builds from Travis and Appveyor to GitHub Actions.
 
 ### Fixed
+- Fixed a bug in code generation for custom BSDF/EDF graphs.
 - Fixed rendering of single-channel textures in MaterialXRenderGlsl.
 
 ## [1.37.2] - 2020-09-06
@@ -116,9 +122,6 @@
 - Upgraded Smith masking-shadowing to height-correlated form in generated GLSL.
 - Improved the robustness of tangent frame computations in MaterialXRender.
 - Renamed Backdrop\:\:setContains and getContains to Backdrop\:\:setContainsString and getContainsString for consistency.
-- Added `applyFutureUpdates` to XmlReadOptions. Updates current applied include:
-  - Upgrade from Material Element to Material Node
-  - Fix for arguments of from `atan2(x,y)` to `atan2(y,x)`. (in1 and in2 arguments are swapped)
 
 ### Fixed
 - Fixed the GLSL implementation of Burley diffuse for punctual lights.
