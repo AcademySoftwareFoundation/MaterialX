@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.37">
 
-  <!-- <diffuse_brdf> -->
-  <implementation name="IM_diffuse_brdf_genmdl" nodedef="ND_diffuse_brdf" sourcecode="mx::pbrlib::mx_diffuse_brdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}})" target="genmdl"/>
+  <!-- <oren_nayar_diffuse_bsdf> -->
+  <implementation name="IM_oren_nayar_diffuse_bsdf_genmdl" nodedef="ND_oren_nayar_diffuse_bsdf" sourcecode="mx::pbrlib::mx_oren_nayar_diffuse_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}})" target="genmdl"/>
 
-  <!-- <diffuse_btdf> -->
-  <implementation name="IM_diffuse_btdf_genmdl" nodedef="ND_diffuse_btdf" sourcecode="mx::pbrlib::mx_diffuse_btdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_normal:{{normal}})" target="genmdl"/>
+  <!-- <burley_diffuse_bsdf> -->
+  <implementation name="IM_burley_diffuse_bsdf_genmdl" nodedef="ND_burley_diffuse_bsdf" sourcecode="mx::pbrlib::mx_burley_diffuse_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}})" target="genmdl"/>
 
-  <!-- <dielectric_brdf> -->
-  <implementation name="IM_dielectric_brdf_genmdl" nodedef="ND_dielectric_brdf" sourcecode="mx::pbrlib::mx_dielectric_brdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_base:{{base}})" target="genmdl"/>
+  <!-- <translucent_bsdf> -->
+  <implementation name="IM_translucent_bsdf_genmdl" nodedef="ND_translucent_bsdf" sourcecode="mx::pbrlib::mx_translucent_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_normal:{{normal}})" target="genmdl"/>
 
-  <!-- <dielectric_btdf> -->
-  <implementation name="IM_dielectric_btdf_genmdl" nodedef="ND_dielectric_btdf" sourcecode="mx::pbrlib::mx_dielectric_btdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_interior:{{interior}})" target="genmdl"/>
+  <!-- <dielectric_bsdf> -->
+  <implementation name="IM_dielectric_bsdf_genmdl" nodedef="ND_dielectric_bsdf" sourcecode="mx::pbrlib::mx_dielectric_bsdf(mxp_weight:{{weight}}, mxp_tint:{{tint}}, mxp_ior:{{ior}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl"/>
 
-  <!-- <conductor_brdf> -->
-  <implementation name="IM_conductor_brdf_genmdl" nodedef="ND_conductor_brdf" sourcecode="mx::pbrlib::mx_conductor_brdf(mxp_weight:{{weight}}, mxp_reflectivity:{{reflectivity}}, mxp_edge_color:{{edge_color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl"/>
+  <!-- <conductor_bsdf> -->
+  <implementation name="IM_conductor_bsdf_genmdl" nodedef="ND_conductor_bsdf" sourcecode="mx::pbrlib::mx_conductor_bsdf(mxp_weight:{{weight}}, mxp_ior:{{ior}}, mxp_extinction:{{extinction}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl"/>
 
-  <!-- <burley_diffuse_brdf> -->
-  <implementation name="IM_burley_diffuse_brdf_genmdl" nodedef="ND_burley_diffuse_brdf" sourcecode="mx::pbrlib::mx_burley_diffuse_brdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}})" target="genmdl"/>
+  <!-- <generalized_schlick_bsdf> -->
+  <implementation name="IM_generalized_schlick_bsdf_genmdl" nodedef="ND_generalized_schlick_bsdf" sourcecode="mx::pbrlib::mx_generalized_schlick_bsdf(mxp_weight:{{weight}}, mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}},mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_scatter_mode:{{scatter_mode}}, mxp_base:{{base}})" target="genmdl"/>
 
-  <!-- <generalized_schlick_brdf> -->
-  <implementation name="IM_generalized_schlick_brdf_genmdl" nodedef="ND_generalized_schlick_brdf" sourcecode="mx::pbrlib::mx_generalized_schlick_brdf(mxp_weight:{{weight}}, mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}},mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_base:{{base}})" target="genmdl"/>
+  <!-- <subsurface_bsdf> -->
+  <implementation name="IM_subsurface_bsdf_genmdl" nodedef="ND_subsurface_bsdf" sourcecode="mx::pbrlib::mx_subsurface_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_radius:{{radius}}, mxp_anisotropy:{{anisotropy}}, mxp_normal:{{normal}})" target="genmdl"/>
 
-  <!-- <subsurface_brdf> -->
-  <implementation name="IM_subsurface_brdf_genmdl" nodedef="ND_subsurface_brdf" sourcecode="mx::pbrlib::mx_subsurface_brdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_radius:{{radius}}, mxp_anisotropy:{{anisotropy}}, mxp_normal:{{normal}})" target="genmdl"/>
+  <!-- <sheen_bsdf> -->
+  <implementation name="IM_sheen_bsdf_genmdl" nodedef="ND_sheen_bsdf" sourcecode="mx::pbrlib::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl"/>
 
-  <!-- <sheen_brdf> -->
-  <implementation name="IM_sheen_brdf_genmdl" nodedef="ND_sheen_brdf" sourcecode="mx::pbrlib::mx_sheen_brdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl"/>
-
-  <!-- <thin_film_brdf> -->
-  <implementation name="IM_thin_film_brdf_genmdl" nodedef="ND_thin_film_brdf" sourcecode="mx::pbrlib::mx_thin_film_brdf(mxp_thickness:{{thickness}}, mxp_ior:{{ior}}, mxp_base:{{base}})" target="genmdl"/>
+  <!-- <thin_film_bsdf> -->
+  <implementation name="IM_thin_film_bsdf_genmdl" nodedef="ND_thin_film_bsdf" sourcecode="mx::pbrlib::mx_thin_film_bsdf(mxp_thickness:{{thickness}}, mxp_ior:{{ior}}, mxp_base:{{base}})" target="genmdl"/>
 
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genmdl" nodedef="ND_uniform_edf" sourcecode="mx::pbrlib::mx_uniform_edf(mxp_color:{{color}})" target="genmdl"/>
@@ -90,9 +87,6 @@
 
    <!-- <roughness_dual> -->
   <implementation name="IM_roughness_dual_genmdl" nodedef="ND_roughness_dual" sourcecode="mx::pbrlib::mx_roughness_dual(mxp_roughness:{{roughness}})" target="genmdl"/>
-
-  <!-- <complex_ior> -->
-  <implementation name="IM_complex_ior_genmdl" nodedef="ND_complex_ior" sourcecode="mx::pbrlib::mx_complex_ior(mxp_ior:{{ior}}, mxp_extinction:{{extinction}})" target="genmdl"/>
 
   <!-- <artistic_ior> -->
   <implementation name="IM_artistic_ior_genmdl" nodedef="ND_artistic_ior" sourcecode="mx::pbrlib::mx_artistic_ior(mxp_reflectivity:{{reflectivity}}, mxp_edge_color:{{edge_color}})" target="genmdl"/>

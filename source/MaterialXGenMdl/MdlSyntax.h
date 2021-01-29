@@ -53,6 +53,7 @@ class MdlSyntax : public Syntax
     static const StringVec FILTERLOOKUPMODE_MEMBERS;
     static const StringVec FILTERTYPE_MEMBERS;
     static const StringVec DISTRIBUTIONTYPE_MEMBERS;
+    static const StringVec SCATTER_MODE_MEMBERS;
 
     /// Get an type description for an enumeration based on member value
     const TypeDesc* getEnumeratedType(const string& value) const;
@@ -60,6 +61,9 @@ class MdlSyntax : public Syntax
     /// Given an input specification attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be converted to a different type than the input.
     bool remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const override;
+
+    /// Modify the given name string to remove any invalid characters or tokens.
+    void makeValidName(string& name) const override;
 };
 
 namespace Type

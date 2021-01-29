@@ -31,13 +31,17 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lodBias, sampler2D sa
 
 vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)
 {
+    N = mx_forward_facing_normal(N, V);
     vec3 L = reflect(-V, N);
+
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
+    vec3 F = mx_compute_fresnel(NdotV, fd);
     float avgRoughness = mx_average_roughness(roughness);
+    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
+    vec3 Li = mx_latlong_map_lookup(L, $envMatrix, avgRoughness, $envRadiance);
 
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, fd.ior, fd.extinction);
-    return mx_latlong_map_lookup(L, $envMatrix, avgRoughness, $envRadiance) * dirAlbedo;
+    return Li * F * comp;
 }
 
 vec3 mx_environment_irradiance(vec3 N)

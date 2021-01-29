@@ -87,4 +87,10 @@ void LayerNode::emitFunctionCall(const ShaderNode& _node, GenContext& context, S
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
+void LayerNode::addLayerSupport(ShaderNode& node)
+{
+    // Add the input to hold base layer BSDF.
+    node.addInput(LayerNode::BASE, Type::BSDF);
+}
+
 } // namespace MaterialX

@@ -1,8 +1,11 @@
 #include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
-void mx_generalized_schlick_brdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
+void mx_generalized_schlick_bsdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, BSDF base, thinfilm tf, output BSDF result)
 {
-    if (weight < M_FLOAT_EPS)
+    //
+    // TODO: We need handling of transmission for generalized schlick
+    //
+    if (weight < M_FLOAT_EPS || scatter_mode == "T")
     {
         result = base;
         return;

@@ -22,6 +22,7 @@ namespace Type
     const TypeDesc* MDL_FILTERLOOKUPMODE = TypeDesc::registerType("filterlookup", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
     const TypeDesc* MDL_FILTERTYPE = TypeDesc::registerType("filtertype", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
     const TypeDesc* MDL_DISTRIBUTION = TypeDesc::registerType("distributiontype", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
+    const TypeDesc* MDL_SCATTER_MODE = TypeDesc::registerType("scatter_mode", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
 }
 
 namespace
@@ -190,6 +191,7 @@ const StringVec MdlSyntax::COORDINATESPACE_MEMBERS = { "model", "object", "world
 const StringVec MdlSyntax::FILTERLOOKUPMODE_MEMBERS = { "closest", "linear", "cubic" };
 const StringVec MdlSyntax::FILTERTYPE_MEMBERS = { "box", "gaussian" };
 const StringVec MdlSyntax::DISTRIBUTIONTYPE_MEMBERS = { "ggx" };
+const StringVec MdlSyntax::SCATTER_MODE_MEMBERS = { "R", "T", "RT" };
 
 //
 // MdlSyntax methods
@@ -466,6 +468,16 @@ MdlSyntax::MdlSyntax()
             "mx_distribution_type_ggx",
             DISTRIBUTIONTYPE_MEMBERS)
     );
+
+    registerTypeSyntax
+    (
+        Type::MDL_SCATTER_MODE,
+        std::make_shared<MdlEnumSyntax>(
+            "mx_scatter_mode",
+            "mx_scatter_mode_R",
+            "mx_scatter_mode_R",
+            SCATTER_MODE_MEMBERS)
+    );
 }
 
 const TypeDesc* MdlSyntax::getEnumeratedType(const string& value) const
@@ -473,9 +485,14 @@ const TypeDesc* MdlSyntax::getEnumeratedType(const string& value) const
     for (const TypeSyntaxPtr& syntax : getTypeSyntaxes())
     {
         const StringVec& members = syntax->getMembers();
-        if (std::find(members.begin(), members.end(), value) != members.end())
+        if (members.size())
         {
-            return getTypeDescription(syntax);
+            // TODO: This logic assumes the enum values are strictly unique among all enum types.
+            // We should find a more safe way to handled this.
+            if (std::find(members.begin(), members.end(), value) != members.end())
+            {
+                return getTypeDescription(syntax);
+            }
         }
     }
     return nullptr;
@@ -597,6 +614,17 @@ bool MdlSyntax::remapEnumeration(const string& value, const TypeDesc* type, cons
     }
 
     return false;
+}
+
+void MdlSyntax::makeValidName(string& name) const
+{
+    Syntax::makeValidName(name);
+
+    // MDL variables are not allowed to begin with underscore.
+    if (!name.empty() && name[0] == '_')
+    {
+        name = "v" + name;
+    }
 }
 
 } // namespace MaterialX

@@ -1,0 +1,35 @@
+#include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
+
+void mx_dielectric_bsdf(float weight, color tint, float ior, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, BSDF base, thinfilm tf, output BSDF result)
+{
+    if (scatter_mode == "T")
+    {
+        result = tint * weight * microfacet(distribution, N, U, roughness.x, roughness.y, ior, 1);
+        return;
+    }
+
+    float NdotV = clamp(dot(N,-I), M_FLOAT_EPS, 1.0);
+    float F0 = mx_ior_to_f0(ior);
+    float F = mx_fresnel_schlick(NdotV, F0);
+
+    // Calculate compensation for multiple scattering.
+    // This should normally be done inside the closure
+    // but since vanilla OSL doesen't support this we
+    // add it here in shader code instead.
+    float avgRoughness = mx_average_roughness(roughness);
+    float comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
+
+    if (scatter_mode == "R")
+    {
+        // Calculate directional albedo since we need
+        // to attenuate the base layer according to this.
+        float dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, ior) * comp;
+
+        result = tint * weight * comp * microfacet(distribution, N, U, roughness.x, roughness.y, ior, 0)
+                 + base * (1.0 - dirAlbedo * weight);
+    }
+    else
+    {
+        result = tint * weight * comp * microfacet(distribution, N, U, roughness.x, roughness.y, ior, 2);
+    }
+}

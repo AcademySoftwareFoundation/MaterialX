@@ -57,7 +57,27 @@ import ::anno::*;
 //       of volumetric properties in the BSDF components as well. Since IOR 
 //       is uniform in MDL, some nodes have a limitation on how IOR works.
 
-export material mx_diffuse_brdf(
+
+// Enum selecting scatter mode, instead of string
+export enum mx_scatter_mode {
+    mx_scatter_mode_R,
+    mx_scatter_mode_T,
+    mx_scatter_mode_RT
+};
+
+// Helper function mapping MaterialX scatter mode to MDL scatter_mode enum
+export df::scatter_mode mx_map_scatter_mode( mx_scatter_mode mode) {
+    switch (mode) {
+    case mx_scatter_mode_R:
+        return df::scatter_reflect;
+    case mx_scatter_mode_T:
+        return df::scatter_transmit;
+    default:
+        return df::scatter_reflect_transmit;
+    }
+}
+
+export material mx_oren_nayar_diffuse_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(0.18),
     float  mxp_roughness = 0.0,
@@ -78,7 +98,29 @@ export material mx_diffuse_brdf(
     )
 );
 
-export material mx_diffuse_btdf(
+// NOTE: Approximate Burley with df::diffuse_reflection_bsdf, the difference isn't big
+export material mx_burley_diffuse_bsdf(
+    float  mxp_weight    = 1.0,
+    color  mxp_color     = color(0.18),
+    float  mxp_roughness = 0.0,
+    float3 mxp_normal    = state::normal()
+) [[ 
+    anno::usage( "materialx:bsdf") 
+]]
+= material(
+    surface: material_surface( 
+        scattering: df::weighted_layer(
+            weight: mxp_weight,
+            layer: df::diffuse_reflection_bsdf(
+                tint: mxp_color,
+                roughness: mxp_roughness
+            ),
+            normal: mxp_normal
+        )
+    )
+);
+
+export material mx_translucent_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(1.0),
     float3 mxp_normal    = state::normal()
@@ -97,122 +139,67 @@ export material mx_diffuse_btdf(
     )
 );
 
-// NOTE: Approximate Burley with df::diffuse_brdf, the difference isn't big
-export material mx_burley_diffuse_brdf(
-    float  mxp_weight    = 1.0,
-    color  mxp_color     = color(0.18),
-    float  mxp_roughness = 0.0,
-    float3 mxp_normal    = state::normal()
-) [[ 
-    anno::usage( "materialx:bsdf") 
-]]
-= material(
-    surface: material_surface( 
-        scattering: df::weighted_layer(
-            weight: mxp_weight,
-            layer: df::diffuse_reflection_bsdf(
-                tint: mxp_color,
-                roughness: mxp_roughness
-            ),
-            normal: mxp_normal
-        )
-    )
-);
-
-export material mx_dielectric_brdf(
+export material mx_dielectric_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_tint      = color(1.0),
     float  mxp_ior       = 1.5,
     float2 mxp_roughness = float2(0.0),
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
-    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx, 
+    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx,
+    uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
     material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
 = let {
-    bsdf ggx_model = df::microfacet_ggx_smith_bsdf(
-        roughness_u: mxp_roughness.x,
-        roughness_v: mxp_roughness.y,
-        tint: mxp_tint,
-        tangent_u: mxp_tangent);
-    bsdf distribution_model =  (mxp_distribution == mx_distribution_type_ggx) 
-                                   ? ggx_model : bsdf();
+    bsdf bsdf_R = df::fresnel_layer(
+        ior: mxp_ior,
+        weight: mxp_weight,
+        layer: df::microfacet_ggx_smith_bsdf(
+                    roughness_u: mxp_roughness.x,
+                    roughness_v: mxp_roughness.y,
+                    tint: mxp_tint,
+                    tangent_u: mxp_tangent,
+                    mode: df::scatter_reflect),
+        base: mxp_base.surface.scattering,
+        normal: mxp_normal);
+
+    bsdf bsdf_T = df::weighted_layer(
+        weight: mxp_weight,
+        layer: df::microfacet_ggx_smith_bsdf(
+                    roughness_u: mxp_roughness.x,
+                    roughness_v: mxp_roughness.y,
+                    tint: mxp_tint,
+                    tangent_u: mxp_tangent,
+                    mode: df::scatter_transmit),
+        normal: mxp_normal);
+
+    bsdf bsdf_RT = df::weighted_layer(
+        weight: mxp_weight,
+        layer: df::microfacet_ggx_smith_bsdf(
+                    roughness_u: mxp_roughness.x,
+                    roughness_v: mxp_roughness.y,
+                    tint: mxp_tint,
+                    tangent_u: mxp_tangent,
+                    mode: df::scatter_reflect_transmit),
+        normal: mxp_normal);
+
+    bsdf bsdf_selected = (mxp_scatter_mode == mx_scatter_mode_R) ? bsdf_R :
+                         ((mxp_scatter_mode == mx_scatter_mode_T) ? bsdf_T : bsdf_RT);
 } in material(
-    surface: material_surface( 
-        scattering: df::fresnel_layer(
-            ior: mxp_ior,
-            weight: mxp_weight,
-            layer: distribution_model,
-            base: mxp_base.surface.scattering,
-            normal: mxp_normal
-        )
+    surface: material_surface(
+        scattering: bsdf_selected
     ),
     // we need to carry volume properties along for SSS
     ior:    mxp_base.ior,
     volume: mxp_base.volume
 );
 
-export material mx_dielectric_btdf(
-    float  mxp_weight     = 1.0,
-    color  mxp_tint       = color(1.0),
-    // NOTE: this IOR must be uniform in MDL for a consistent IOR in the volume
-    uniform float mxp_ior = 1.5,
-    float2 mxp_roughness  = float2(0.0),
-    float3 mxp_normal     = state::normal(),
-    float3 mxp_tangent    = state::texture_tangent_u(0),
-    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx, 
-    material mxp_interior = material() [[ anno::usage( "materialx:vdf") ]]
-) [[ 
-    anno::usage( "materialx:bsdf") 
-]]
-= let {
-    material_volume interior_volume = mxp_interior.volume;
-    bsdf ggx_model = df::microfacet_ggx_smith_bsdf(
-        roughness_u: mxp_roughness.x,
-        roughness_v: mxp_roughness.y,
-        tint: mxp_tint,
-        tangent_u: mxp_tangent,
-        mode: df::scatter_transmit);
-    bsdf distribution_model =  (mxp_distribution == mx_distribution_type_ggx) 
-                                   ? ggx_model : bsdf();
-} in material(
-    // Despite the mentioning of Fresnel in the MaterialX specification for this BTDF, 
-    // we see in the implementations that the dielectric_btdf is intended as a base
-    // for a dielectric_brdf and would get its Fresnel weighting from there.
-    surface: material_surface( 
-        scattering: df::weighted_layer(
-            weight: mxp_weight,
-            layer: distribution_model,
-            normal: mxp_normal
-        )
-    ),
-    ior: color(mxp_ior),
-    volume: interior_volume
-);
-
-// Internal helper function to converts the artistic parameterization 
-// reflectivity and edgecolor to complex IOR values, in contrast to mx_artistic_ior, 
-// this implementation is color based, not float3.
-color[2] artistic_to_complex_ior( color mxp_reflectivity, color mxp_edge_color) {
-    color r = math::clamp( mxp_reflectivity, color(0.0), color(0.99));
-    color r_sqrt = math::sqrt(r);
-    color n_min = (1.0 - r) / (1.0 + r);
-    color n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
-    color n = math::lerp(n_max, n_min, mxp_edge_color);
-    color np1 = n + 1.0;
-    color nm1 = n - 1.0;
-    color k2 = (np1*np1 * r - nm1*nm1) / (1.0 - r);
-    k2 = math::max(k2, 0.0);
-    color k = math::sqrt(k2);
-    return color[2](n,k);
-}
-
-export material mx_conductor_brdf(
+export material mx_conductor_bsdf(
     float  mxp_weight    = 1.0,
-    color  mxp_reflectivity = color(0.944, 0.776, 0.373),
-    color  mxp_edge_color   = color(0.998, 0.981, 0.751),
+    color  mxp_ior = color(0.271, 0.677, 1.316),
+    color  mxp_extinction   = color(3.609, 2.625, 2.292),
     float2 mxp_roughness = float2(0.0),
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
@@ -228,8 +215,7 @@ export material mx_conductor_brdf(
         roughness_u: mxp_roughness.x,
         roughness_v: mxp_roughness.y,
         tangent_u: mxp_tangent);
-    color[2] complex_ior = artistic_to_complex_ior(mxp_reflectivity, mxp_edge_color);
-    bsdf conductor = df::fresnel_factor(complex_ior[0], complex_ior[1], ggx_model);
+    bsdf conductor = df::fresnel_factor(mxp_ior, mxp_extinction, ggx_model);
 } in material(
     surface: material_surface(
         scattering: df::weighted_layer(
@@ -240,7 +226,7 @@ export material mx_conductor_brdf(
     )
 );
 
-export material mx_generalized_schlick_brdf(
+export material mx_generalized_schlick_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color0    = color(1.0),
     color  mxp_color90   = color(1.0),
@@ -249,16 +235,19 @@ export material mx_generalized_schlick_brdf(
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
     uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx,
+    uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
     material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
 = let {
+    df::scatter_mode mode = ::mx_map_scatter_mode(mxp_scatter_mode);
     bsdf ggx_model = df::microfacet_ggx_smith_bsdf(
         roughness_u: mxp_roughness.x * mxp_roughness.x,
         roughness_v: mxp_roughness.y * mxp_roughness.y,
         tint: color(1.0),
-        tangent_u: mxp_tangent);
+        tangent_u: mxp_tangent,
+        mode: mode);
     bsdf distribution_model =  (mxp_distribution == mx_distribution_type_ggx) 
                                    ? ggx_model : bsdf();
 } in material(
@@ -278,7 +267,7 @@ export material mx_generalized_schlick_brdf(
     volume: mxp_base.volume
 );
 
-export material mx_subsurface_brdf(
+export material mx_subsurface_bsdf(
     float  mxp_weight    = 1.0 [[ anno::unused() ]],
     color  mxp_color     = color(0.18) [[ anno::unused() ]],
     float3 mxp_radius    = float3(1.0) [[ anno::unused() ]], // TODO: should probably be a color in MTLX Spec
@@ -290,11 +279,11 @@ export material mx_subsurface_brdf(
 // TODO: add proper implementation
 = material();
 
-// TODO: MDL's sheen BRDF has no possibility to configure the base BSDF, it is
+// TODO: MDL's sheen BSDF has no possibility to configure the base BSDF, it is
 //       always a diffuse BSDF. Its color is configurable through the multiscatter
 //       tint and can be fed through the extra mxp_diffuse_tint input. A context
 //       analysis in the generator can map the color of the base to this input.
-export material mx_sheen_brdf(
+export material mx_sheen_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color     = color(1.0),
     float  mxp_roughness = 0.2,
@@ -319,7 +308,7 @@ export material mx_sheen_brdf(
     )
 );
 
-export material mx_thin_film_brdf(
+export material mx_thin_film_bsdf(
     float  mxp_thickness  = 550.0,
     float  mxp_ior        = 1.5,
     material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
@@ -533,20 +522,18 @@ export material mx_light(
 export float3 mx_displacement_float(
     float mxp_displacement = 0.0,
     float mxp_scale        = 1.0
-) [[ 
-    anno::usage( "materialx:displacementshader") 
-]] {
+)
+{
     return mxp_displacement * mxp_scale * state::normal();
 }
 
 export float3 mx_displacement_vector3(
     float3 mxp_displacement = float3(0.0),
     float  mxp_scale        = 1.0
-) [[ 
-    anno::usage( "materialx:displacementshader") 
-]] {
+)
+{
     return mxp_scale * ( mxp_displacement.x * state::texture_tangent_u(0)
-                       + mxp_displacement.y * state::texture_tangent_v(0)   
+                       + mxp_displacement.y * state::texture_tangent_v(0)
                        + mxp_displacement.z * state::normal());
 }
 
@@ -838,39 +825,10 @@ export color mx_blackbody(
     return math::blackbody( mxp_temperature);
 }
 
-// Supportive struct type for the two outputs of mx_complex_ior
-export struct mx_complex_ior__result {
-    color mxp_reflectivity;
-    color mxp_edge_color;
-};
-
-// Converts complex IOR values to the artistic parameterization
-// reflectivity and edgecolor. Can be used with the conductor_brdf
-// node to input true complex IOR values instead of artistic
-// reflectivity.
-export mx_complex_ior__result mx_complex_ior(
-    // NOTE: In MDL, those would ideally be colors as well and we would
-    // switch the calculations to color as well.
-    float3 mxp_ior = float3(0.271, 0.677, 1.316),
-    float3 mxp_extinction = float3(3.609, 2.625, 2.292)
-) {
-    float3 nm1 = mxp_ior - 1.0;
-    float3 np1 = mxp_ior + 1.0;
-    float3 k2  = mxp_extinction * mxp_extinction;
-    float3 r = (nm1*nm1 + k2) / (np1*np1 + k2);
-    float3 r_sqrt = math::sqrt(r);
-    float3 n_min = (1.0 - r) / (1.0 + r);
-    float3 n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
-    float3 e = (n_max - mxp_ior) / (n_max - n_min);    
-    return mx_complex_ior__result( color(r), color(e));
-}
-
 // Supportive struct type for the two outputs of mx_artistic_ior
-// NOTE: In MDL, those would ideally be colors as well and we would
-// switch the calculations to color as well.
 export struct mx_artistic_ior__result {
-    float3 mxp_ior;
-    float3 mxp_extinction;
+    color mxp_ior;
+    color mxp_extinction;
 };
 
 // Converts the artistic parameterization reflectivity and edgecolor
@@ -879,16 +837,16 @@ export mx_artistic_ior__result mx_artistic_ior(
     color mxp_reflectivity = color(0.944, 0.776, 0.373),
     color mxp_edge_color = color(0.998, 0.981, 0.751)
 ) {
-    float3 r = math::clamp( float3(mxp_reflectivity), float3(0.0), float3(0.99));
-    float3 r_sqrt = math::sqrt(r);
-    float3 n_min = (1.0 - r) / (1.0 + r);
-    float3 n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
-    float3 n = math::lerp(n_max, n_min, float3(mxp_edge_color));
-    float3 np1 = n + 1.0;
-    float3 nm1 = n - 1.0;
-    float3 k2 = (np1*np1 * r - nm1*nm1) / (1.0 - r);
+    color r = math::clamp( mxp_reflectivity, color(0.0), color(0.99));
+    color r_sqrt = math::sqrt(r);
+    color n_min = (1.0 - r) / (1.0 + r);
+    color n_max = (1.0 + r_sqrt) / (1.0 - r_sqrt);
+    color n = math::lerp(n_max, n_min, mxp_edge_color);
+    color np1 = n + 1.0;
+    color nm1 = n - 1.0;
+    color k2 = (np1*np1 * r - nm1*nm1) / (1.0 - r);
     k2 = math::max(k2, 0.0);
-    float3 k = math::sqrt(k2);
+    color k = math::sqrt(k2);
     return mx_artistic_ior__result(n,k);
 }
 

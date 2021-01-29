@@ -1,0 +1,4 @@
+void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness, normal N, vector U, string distribution, output BSDF result)
+{
+    result = metal(distribution, N, U, ior_n, ior_k, roughness.x, roughness.y);
+}

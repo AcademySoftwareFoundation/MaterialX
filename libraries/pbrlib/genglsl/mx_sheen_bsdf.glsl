@@ -1,6 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_sheen.glsl"
 
-void mx_sheen_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 N, BSDF base, out BSDF result)
+void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 N, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -30,7 +30,7 @@ void mx_sheen_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float wei
            + base * (1.0 - dirAlbedo * weight);     // Base layer reflection attenuated by top layer
 }
 
-void mx_sheen_brdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 N, BSDF base, out vec3 result)
+void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 N, BSDF base, out vec3 result)
 {
     if (weight <= 0.0)
     {

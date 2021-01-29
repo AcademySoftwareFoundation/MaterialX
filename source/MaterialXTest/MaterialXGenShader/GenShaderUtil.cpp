@@ -23,7 +23,8 @@ namespace mx = MaterialX;
 namespace GenShaderUtil
 {
 
-const std::string LAYOUT_SUFFIX = "_layout";
+const std::string LAYOUT_SUFFIX("_layout");
+const std::string SOURCE_CODE_STRING("sourcecode");
 
 namespace
 {
@@ -43,14 +44,20 @@ namespace
 bool getShaderSource(mx::GenContext& context,
                     const mx::ImplementationPtr implementation,
                     mx::FilePath& sourcePath,
-                    mx::FilePath& resolvedPath,
+                    std::string& resolvedSource,
                     std::string& sourceContents)
 {
     if (implementation)
     {
+        resolvedSource = implementation->getAttribute(SOURCE_CODE_STRING);
+        if (!resolvedSource.empty())
+        {
+            return true;
+        }
         sourcePath = implementation->getFile();
-        resolvedPath = context.resolveSourceFile(sourcePath);
-        sourceContents = mx::readFile(resolvedPath.asString());
+        mx::FilePath resolvedPath = context.resolveSourceFile(sourcePath);
+        sourceContents = mx::readFile(resolvedPath);
+        resolvedSource = resolvedPath.asString();
         return !sourceContents.empty();
     }
     return false;
@@ -67,7 +74,8 @@ void checkImplementations(mx::GenContext& context,
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
     mx::FileSearchPath searchPath; 
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::FilePath librariesRoot = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    searchPath.append(librariesRoot);
     loadLibraries({ "targets", "adsk", "stdlib", "pbrlib" }, searchPath, doc);
 
     const std::string& target = shadergen.getTarget();
@@ -78,7 +86,9 @@ void checkImplementations(mx::GenContext& context,
     implDumpBuffer.open(fileName, std::ios::out);
     std::ostream implDumpStream(&implDumpBuffer);
 
-    context.registerSourceCodeSearchPath(searchPath);
+    mx::FileSearchPath sourceSearchPath = searchPath;
+    sourceSearchPath.append(librariesRoot / mx::FilePath("adsk"));
+    context.registerSourceCodeSearchPath(sourceSearchPath);
 
     // Node types to explicitly skip temporarily.
     mx::StringSet skipNodeTypes =
@@ -94,7 +104,7 @@ void checkImplementations(mx::GenContext& context,
         "absorption_vdf",
         "anisotropic_vdf",
         "thin_surface",
-        "thin_film_brdf",
+        "thin_film_bsdf",
         "worleynoise2d",
         "worleynoise3d",
         "geompropvalue",
@@ -232,9 +242,10 @@ void checkImplementations(mx::GenContext& context,
                 // Check for an implementation explicitly stored
                 else
                 {
-                    mx::FilePath sourcePath, resolvedPath;
+                    mx::FilePath sourcePath;
+                    std::string resolvedSource;
                     std::string contents;
-                    if (!getShaderSource(context, impl, sourcePath, resolvedPath, contents))
+                    if (!getShaderSource(context, impl, sourcePath, resolvedSource, contents))
                     {
                         missing++;
                         missing_str += "Missing source code: " + sourcePath.asString() + " for nodedef: "
@@ -243,7 +254,7 @@ void checkImplementations(mx::GenContext& context,
                     else
                     {
                         found_str += "Found impl and src for nodedef: " + nodeDefName + ", Node: "
-                            + nodeName + +". Impl: " + impl->getName() + ". Path: " + resolvedPath.asString() + ".\n";
+                            + nodeName + +". Impl: " + impl->getName() + ". Source: " + resolvedSource + ".\n";
                     }
                 }
             }

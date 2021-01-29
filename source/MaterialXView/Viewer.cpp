@@ -19,6 +19,7 @@
 #include <MaterialXFormat/Util.h>
 
 #include <nanogui/combobox.h>
+#include <nanogui/glutil.h>
 #include <nanogui/messagedialog.h>
 #include <nanogui/vscrollpanel.h>
 
@@ -288,7 +289,7 @@ void Viewer::initialize()
     mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
     _geometryHandler = mx::GeometryHandler::create();
     _geometryHandler->addLoader(loader);
-    _geometryHandler->loadGeometry(_searchPath.find(_meshFilename));
+    loadMesh(_searchPath.find(_meshFilename));
 
     // Create environment geometry handler.
     _envGeometryHandler = mx::GeometryHandler::create();
@@ -342,7 +343,7 @@ void Viewer::initialize()
     initCamera();
     setResizeCallback([this](ng::Vector2i size)
     {
-        _arcball.setSize(size);
+        _arcball.setSize(mx::Vector2(static_cast<float>(size[0]), static_cast<float>(size[1])));
     });
 
     // Update geometry selections.
@@ -451,7 +452,6 @@ void Viewer::loadEnvironmentLight()
         {
             _envMaterial = Material::create();
             _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadianceFilename);
-            _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
         }
         catch (std::exception& e)
         {
@@ -492,8 +492,8 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
 
     if (material)
     {
-        material->bindMesh(meshes[0]);
         _materialAssignments[geometry] = material;
+        material->unbindGeometry();
     }
     else
     {
@@ -517,45 +517,15 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
         std::string filename = ng::file_dialog({ { "obj", "Wavefront OBJ" } }, false);
         if (!filename.empty())
         {
-            _geometryHandler->clearGeometry();
-            if (_geometryHandler->loadGeometry(filename))
-            {
-                _meshFilename = filename;
-                const mx::MeshList& meshes = _geometryHandler->getMeshes();
-                if (!meshes.empty())
-                {
-                    if (_splitByUdims)
-                    {
-                        meshes[0]->splitByUdims();
-                    }
-                }
+            loadMesh(filename);
 
-                updateGeometrySelections();
+            _meshRotation = mx::Vector3();
+            _meshScale = 1.0f;
+            _cameraPosition = DEFAULT_CAMERA_POSITION;
+            _cameraTarget = mx::Vector3();
+            _cameraViewAngle = DEFAULT_CAMERA_VIEW_ANGLE;
 
-                // Assign the selected material to all geometries.
-                _materialAssignments.clear();
-                MaterialPtr material = getSelectedMaterial();
-                if (material)
-                {
-                    for (mx::MeshPartitionPtr geom : _geometryList)
-                    {
-                        assignMaterial(geom, material);
-                    }
-                }
-
-                _meshRotation = mx::Vector3();
-                _meshScale = 1.0f;
-                _cameraPosition = DEFAULT_CAMERA_POSITION;
-                _cameraTarget = mx::Vector3();
-                _cameraViewAngle = DEFAULT_CAMERA_VIEW_ANGLE;
-                initCamera();
-
-                invalidateShadowMap();
-            }
-            else
-            {
-                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Mesh Loading Error", filename);
-            }
+            initCamera();
         }
         mProcessEvents = true;
     });
@@ -830,27 +800,32 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
-    if (_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
+    ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
+    importanceSampleBox->setChecked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
+    importanceSampleBox->setCallback([this](bool enable)
     {
-        Widget* sampleGroup = new Widget(advancedPopup);
-        sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-        new ng::Label(sampleGroup, "Environment Samples:");
-        mx::StringVec sampleOptions;
-        _genContext.getOptions().hwMaxRadianceSamples = MAX_ENV_SAMPLES;
-        for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
-        {
-            mProcessEvents = false;
-            sampleOptions.push_back(std::to_string(i));
-            mProcessEvents = true;
-        }
-        ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
-        sampleBox->setChevronIcon(-1);
-        sampleBox->setSelectedIndex((int)std::log2(_envSampleCount / MIN_ENV_SAMPLES) / 2);
-        sampleBox->setCallback([this](int index)
-        {
-            _envSampleCount = MIN_ENV_SAMPLES * (int) std::pow(4, index);
-        });
+        _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
+        reloadShaders();
+    });
+
+    Widget* sampleGroup = new Widget(advancedPopup);
+    sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(sampleGroup, "Environment Samples:");
+    mx::StringVec sampleOptions;
+    _genContext.getOptions().hwMaxRadianceSamples = MAX_ENV_SAMPLES;
+    for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
+    {
+        mProcessEvents = false;
+        sampleOptions.push_back(std::to_string(i));
+        mProcessEvents = true;
     }
+    ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
+    sampleBox->setChevronIcon(-1);
+    sampleBox->setSelectedIndex((int)std::log2(_envSampleCount / MIN_ENV_SAMPLES) / 2);
+    sampleBox->setCallback([this](int index)
+    {
+        _envSampleCount = MIN_ENV_SAMPLES * (int) std::pow(4, index);
+    });
 
     ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options (B)");
     textureLabel->setFontSize(20);
@@ -958,15 +933,6 @@ void Viewer::updateGeometrySelections()
     }
     mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
 
-    if (_wireMaterial)
-    {
-        _wireMaterial->bindMesh(mesh);
-    }
-    if (_shadowMaterial)
-    {
-        _shadowMaterial->bindMesh(mesh);
-    }
-
     for (size_t partIndex = 0; partIndex < mesh->getPartitionCount(); partIndex++)
     {
         mx::MeshPartitionPtr part = mesh->getPartition(partIndex);
@@ -1033,6 +999,42 @@ void Viewer::updateMaterialSelectionUI()
         }
     }
     performLayout();
+}
+
+void Viewer::loadMesh(const mx::FilePath& filename)
+{
+    _geometryHandler->clearGeometry();
+    if (_geometryHandler->loadGeometry(filename))
+    {
+        _meshFilename = filename;
+        const mx::MeshList& meshes = _geometryHandler->getMeshes();
+        if (!meshes.empty())
+        {
+            if (_splitByUdims)
+            {
+                meshes[0]->splitByUdims();
+            }
+        }
+
+        updateGeometrySelections();
+
+        // Assign the selected material to all geometries.
+        _materialAssignments.clear();
+        MaterialPtr material = getSelectedMaterial();
+        if (material)
+        {
+            for (mx::MeshPartitionPtr geom : _geometryList)
+            {
+                assignMaterial(geom, material);
+            }
+        }
+
+        invalidateShadowMap();
+    }
+    else
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Mesh Loading Error", filename);
+    }
 }
 
 void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries)
@@ -1171,7 +1173,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
 
-            mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
             MaterialPtr udimMaterial = nullptr;
             for (MaterialPtr mat : newMaterials)
             {
@@ -1268,11 +1269,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     catch (std::exception& e)
     {
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load material", e.what());
-        return;
     }
-
-    // Restore the original image search path.
-    _imageHandler->setSearchPath(_searchPath);
 
     // Update material UI.
     updateMaterialSelections();
@@ -1286,14 +1283,9 @@ void Viewer::reloadShaders()
 {
     try
     {
-        const mx::MeshList& meshes = _geometryHandler->getMeshes();
         for (MaterialPtr material : _materials)
         {
             material->generateShader(_genContext);
-            if (!meshes.empty())
-            {
-                material->bindMesh(meshes[0]);
-            }
         }
     }
     catch (std::exception& e)
@@ -1361,7 +1353,7 @@ void Viewer::loadShaderSource()
             std::string vertexShaderFile = baseName + "_vs.glsl";
             std::string pixelShaderFile = baseName + "_ps.glsl";
             bool hasTransparency = false;
-            if (material->loadSource(vertexShaderFile, pixelShaderFile, baseName, hasTransparency))
+            if (material->loadSource(vertexShaderFile, pixelShaderFile, hasTransparency))
             {
                 assignMaterial(getSelectedGeometry(), material);
             }
@@ -1683,13 +1675,14 @@ void Viewer::renderFrame()
         auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
         mx::Matrix44 envWorld = mx::Matrix44::createScale(mx::Vector3(300.0f));
         float longitudeOffset = (_lightRotation / 360.0f) + 0.5f;
-        _envMaterial->setUniformFloat("longitude/in2", longitudeOffset);
+        _envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
 
         if (envPart)
         {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
             _envMaterial->bindShader();
+            _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
             _envMaterial->bindViewInformation(envWorld, view, proj);
             _envMaterial->bindImages(_imageHandler, _searchPath, false);
             _envMaterial->drawPartition(envPart);
@@ -1716,21 +1709,22 @@ void Viewer::renderFrame()
             continue;
         }
 
-        if (material->getShader()->name() == "__WIRE_SHADER__")
+        if (material->getShader()->getName() == "__WIRE_SHADER__")
         {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
         material->bindShader();
-        if (material->getShader()->uniform(mx::HW::ALPHA_THRESHOLD, false) != -1)
+        material->bindMesh(_geometryHandler->getMeshes()[0]);
+        if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
-            material->getShader()->setUniform(mx::HW::ALPHA_THRESHOLD, 0.99f);
+            material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
         material->bindViewInformation(world, view, proj);
         material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
-        if (material->getShader()->name() == "__WIRE_SHADER__")
+        if (material->getShader()->getName() == "__WIRE_SHADER__")
         {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
@@ -1752,9 +1746,10 @@ void Viewer::renderFrame()
             }
 
             material->bindShader();
-            if (material->getShader()->uniform(mx::HW::ALPHA_THRESHOLD, false) != -1)
+            material->bindMesh(_geometryHandler->getMeshes()[0]);
+            if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
             {
-                material->getShader()->setUniform(mx::HW::ALPHA_THRESHOLD, 0.001f);
+                material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
             material->bindViewInformation(world, view, proj);
             material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
@@ -1776,6 +1771,7 @@ void Viewer::renderFrame()
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         _wireMaterial->bindShader();
+        _wireMaterial->bindMesh(_geometryHandler->getMeshes()[0]);
         _wireMaterial->bindViewInformation(world, view, proj);
         _wireMaterial->drawPartition(getSelectedGeometry());
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1824,39 +1820,34 @@ mx::ImagePtr Viewer::renderWedge()
         for (unsigned int i = 0; i < _wedgeImageCount; i++)
         {
             bool setValue = false;
-            if (material)
+            float propertyValue = (i == _wedgeImageCount - 1) ? _wedgePropertyMax : _wedgePropertyMin + wedgePropertyStep * i;
+            if (origPropertyValue->isA<int>())
             {
-                float propertyValue = (i == _wedgeImageCount - 1) ? _wedgePropertyMax : _wedgePropertyMin + wedgePropertyStep * i;
-                if (origPropertyValue->isA<int>())
-                {
-                    material->setUniformInt(_wedgePropertyName, static_cast<int>(propertyValue));
-                    setValue = true;
-                }
-                else if (origPropertyValue->isA<float>())
-                {
-                    material->setUniformFloat(_wedgePropertyName, propertyValue);
-                    setValue = true;
-                }
-                else if (origPropertyValue->isA<mx::Vector2>())
-                {
-                    ng::Vector2f val(propertyValue, propertyValue);
-                    material->setUniformVec2(_wedgePropertyName, val);
-                    setValue = true;
-                }
-                else if (origPropertyValue->isA<mx::Color3>() ||
-                    origPropertyValue->isA<mx::Vector3>())
-                {
-                    ng::Vector3f val(propertyValue, propertyValue, propertyValue);
-                    material->setUniformVec3(_wedgePropertyName, val);
-                    setValue = true;
-                }
-                else if (origPropertyValue->isA<mx::Color4>() ||
-                    origPropertyValue->isA<mx::Vector4>())
-                {
-                    ng::Vector4f val(propertyValue, propertyValue, propertyValue, origPropertyValue->isA<mx::Color4>() ? 1.0f : propertyValue);
-                    material->setUniformVec4(_wedgePropertyName, val);
-                    setValue = true;
-                }
+                material->modifyUniform(_wedgePropertyName, mx::Value::createValue((int) propertyValue));
+                setValue = true;
+            }
+            else if (origPropertyValue->isA<float>())
+            {
+                material->modifyUniform(_wedgePropertyName, mx::Value::createValue(propertyValue));
+                setValue = true;
+            }
+            else if (origPropertyValue->isA<mx::Vector2>())
+            {
+                material->modifyUniform(_wedgePropertyName, mx::Value::createValue(mx::Vector2(propertyValue)));
+                setValue = true;
+            }
+            else if (origPropertyValue->isA<mx::Color3>() ||
+                     origPropertyValue->isA<mx::Vector3>())
+            {
+                material->modifyUniform(_wedgePropertyName, mx::Value::createValue(mx::Vector3(propertyValue)));
+                setValue = true;
+            }
+            else if (origPropertyValue->isA<mx::Color4>() ||
+                     origPropertyValue->isA<mx::Vector4>())
+            {
+                mx::Vector4 val(propertyValue, propertyValue, propertyValue, origPropertyValue->isA<mx::Color4>() ? 1.0f : propertyValue);
+                material->modifyUniform(_wedgePropertyName, mx::Value::createValue(val));
+                setValue = true;
             }
             if (setValue)
             {
@@ -1865,47 +1856,7 @@ mx::ImagePtr Viewer::renderWedge()
             }
         }
 
-        if (material)
-        {
-            if (origPropertyValue->isA<int>())
-            {
-                material->setUniformInt(_wedgePropertyName, origPropertyValue->asA<int>());
-            }
-            else if (origPropertyValue->isA<float>())
-            {
-                material->setUniformFloat(_wedgePropertyName, origPropertyValue->asA<float>());
-            }
-            else if (origPropertyValue->isA<mx::Color3>())
-            {
-                const mx::Color3& val =  origPropertyValue->asA<mx::Color3>();
-                ng::Vector3f ngval(val[0], val[1], val[2]);
-                material->setUniformVec3(_wedgePropertyName, ngval);
-            }
-            else if (origPropertyValue->isA<mx::Vector2>())
-            {
-                const mx::Vector2& val = origPropertyValue->asA<mx::Vector2>();
-                ng::Vector2f ngval(val[0], val[1]);
-                material->setUniformVec2(_wedgePropertyName, ngval);
-            }
-            else if (origPropertyValue->isA<mx::Vector3>())
-            {
-                const mx::Vector3& val = origPropertyValue->asA<mx::Vector3>();
-                ng::Vector3f ngval(val[0], val[1], val[2]);
-                material->setUniformVec3(_wedgePropertyName, ngval);
-            }
-            else if (origPropertyValue->isA<mx::Color4>())
-            {
-                const mx::Color4& val = origPropertyValue->asA<mx::Color4>();
-                ng::Vector4f ngval(val[0], val[1], val[1], val[2]);
-                material->setUniformVec4(_wedgePropertyName, ngval);
-            }
-            else if (origPropertyValue->isA<mx::Vector4>())
-            {
-                const mx::Vector4& val = origPropertyValue->asA<mx::Vector4>();
-                ng::Vector4f ngval(val[0], val[1], val[1], val[2]);
-                material->setUniformVec4(_wedgePropertyName, ngval);
-            }
-        }
+        material->modifyUniform(_wedgePropertyName, origPropertyValue);
 
         return mx::createImageStrip(imageVec);
     }
@@ -2043,7 +1994,7 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         return true;
     }
 
-    if (_arcball.motion(p))
+    if (_arcball.applyMotion(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1]))))
     {
         return true;
     }
@@ -2096,7 +2047,7 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
 
     if (button == GLFW_MOUSE_BUTTON_1 && !modifiers)
     {
-        _arcball.button(p, down);
+        _arcball.buttonEvent(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), down);
     }
     else if (button == GLFW_MOUSE_BUTTON_2 ||
             (button == GLFW_MOUSE_BUTTON_1 && modifiers == GLFW_MOD_SHIFT))
@@ -2107,7 +2058,7 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
     }
     if (button == GLFW_MOUSE_BUTTON_1 && !down)
     {
-        _arcball.button(p, false);
+        _arcball.buttonEvent(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), false);
     }
     if (!down)
     {
@@ -2118,8 +2069,8 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
 
 void Viewer::initCamera()
 {
-    _arcball = ng::Arcball();
-    _arcball.setSize(mSize);
+    _arcball = Camera();
+    _arcball.setSize(mx::Vector2(static_cast<float>(mSize[0]), static_cast<float>(mSize[1])));
 
     // Disable user camera controls when non-centered views are requested.
     _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
@@ -2153,8 +2104,7 @@ void Viewer::updateViewHandlers()
     mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
     if (_userCameraEnabled)
     {
-        ng::Matrix4f ngArcball = _arcball.matrix();
-        arcball = mx::Matrix44(ngArcball.data(), ngArcball.data() + ngArcball.size());
+        arcball = _arcball.matrix();
     }
 
     _cameraViewHandler->worldMatrix = meshRotation *
@@ -2249,7 +2199,9 @@ void Viewer::updateShadowMap()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Render shadow geometry.
+    _shadowMaterial->unbindGeometry();
     _shadowMaterial->bindShader();
+    _shadowMaterial->bindMesh(_geometryHandler->getMeshes()[0]);
     _shadowMaterial->bindViewInformation(world, view, proj);
     for (const auto& assignment : _materialAssignments)
     {
@@ -2269,7 +2221,7 @@ void Viewer::updateShadowMap()
             int textureLocation = textureHandler->getBoundTextureLocation(_shadowMap->getResourceId());
             if (textureLocation >= 0)
             {
-                _shadowBlurMaterial->getShader()->setUniform("image_file", textureLocation);
+                _shadowBlurMaterial->getProgram()->bindUniform("image_file", mx::Value::createValue(textureLocation));
             }
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -2321,9 +2273,9 @@ void Viewer::updateAlbedoTable()
 
     // Render albedo table.
     material->bindShader();
-    if (material->getShader()->uniform(mx::HW::ALBEDO_TABLE_SIZE, false) != -1)
+    if (material->getProgram()->hasUniform(mx::HW::ALBEDO_TABLE_SIZE))
     {
-        material->getShader()->setUniform(mx::HW::ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE);
+        material->getProgram()->bindUniform(mx::HW::ALBEDO_TABLE_SIZE, mx::Value::createValue(ALBEDO_TABLE_SIZE));
     }
     renderScreenSpaceQuad(material);
 

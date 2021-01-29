@@ -1310,7 +1310,7 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     mx::RtStagePtr stage = api->createStage(MAIN);
 
     // Test access and usage of contents from the library.
-    mx::RtPrim nodedef = api->getLibrary()->getPrimAtPath("/ND_complex_ior");
+    mx::RtPrim nodedef = api->getLibrary()->getPrimAtPath("/ND_artistic_ior");
     REQUIRE(nodedef.isValid());
     mx::RtNode node1 = stage->createPrim("/nodeA", nodedef.getName());
     REQUIRE(node1.isValid());
@@ -1430,7 +1430,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     mx::RtObjTypePredicate<mx::RtInput> inputFilter;
 
     // Travers a nodedef finding all its inputs.
-    mx::RtNodeDef generalized_schlick_brdf = api->getLibrary()->getPrimAtPath("/ND_generalized_schlick_brdf");
+    mx::RtNodeDef generalized_schlick_brdf = api->getLibrary()->getPrimAtPath("/ND_generalized_schlick_bsdf");
     REQUIRE(generalized_schlick_brdf);
     size_t inputCount = 0;
     for (auto it = generalized_schlick_brdf.getPrim().getAttributes(inputFilter); !it.isDone(); ++it)

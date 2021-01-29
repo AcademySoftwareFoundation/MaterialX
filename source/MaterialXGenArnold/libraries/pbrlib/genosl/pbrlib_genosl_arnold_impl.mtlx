@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35">
+<materialx version="1.37">
   <!-- Implementation overrides for Arnold -->
 
-  <!-- <dielectric_brdf> -->
-  <implementation name="IM_dielectric_brdf_arnold" nodedef="ND_dielectric_brdf" file="pbrlib/genosl/arnold/mx_dielectric_brdf.osl" function="mx_dielectric_brdf" target="arnold"/>
+  <!-- <dielectric_bsdf> -->
+  <implementation name="IM_dielectric_bsdf_arnold" nodedef="ND_dielectric_bsdf" file="pbrlib/genosl/arnold/mx_dielectric_bsdf.osl" function="mx_dielectric_bsdf" target="arnold"/>
 
-  <!-- <generalized_schlick_brdf> -->
-  <implementation name="IM_generalized_schlick_brdf_arnold" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genosl/arnold/mx_generalized_schlick_brdf.osl" function="mx_generalized_schlick_brdf" target="arnold"/>
+  <!-- <generalized_schlick_bsdf> -->
+  <implementation name="IM_generalized_schlick_bsdf_arnold" nodedef="ND_generalized_schlick_bsdf" file="pbrlib/genosl/arnold/mx_generalized_schlick_bsdf.osl" function="mx_generalized_schlick_bsdf" target="arnold"/>
 
-  <!-- <conductor_brdf> -->
-  <implementation name="IM_conductor_brdf_arnold" nodedef="ND_conductor_brdf" file="pbrlib/genosl/arnold/mx_conductor_brdf.osl" function="mx_conductor_brdf" target="arnold"/>
+  <!-- <conductor_bsdf> -->
+  <implementation name="IM_conductor_bsdf_arnold" nodedef="ND_conductor_bsdf" file="pbrlib/genosl/arnold/mx_conductor_bsdf.osl" function="mx_conductor_bsdf" target="arnold"/>
 
-  <!-- <subsurface_brdf> -->
-  <implementation name="IM_subsurface_brdf_arnold" nodedef="ND_subsurface_brdf" file="pbrlib/genosl/arnold/mx_subsurface_brdf.osl" function="mx_subsurface_brdf" target="arnold"/>
+  <!-- <subsurface_bsdf> -->
+  <implementation name="IM_subsurface_bsdf_arnold" nodedef="ND_subsurface_bsdf" file="pbrlib/genosl/arnold/mx_subsurface_bsdf.osl" function="mx_subsurface_bsdf" target="arnold"/>
 
-  <!-- <sheen_brdf> -->
-  <implementation name="IM_sheen_brdf_arnold" nodedef="ND_sheen_brdf" file="pbrlib/genosl/arnold/mx_sheen_brdf.osl" function="mx_sheen_brdf" target="arnold"/>
+  <!-- <sheen_bsdf> -->
+  <implementation name="IM_sheen_bsdf_arnold" nodedef="ND_sheen_bsdf" file="pbrlib/genosl/arnold/mx_sheen_bsdf.osl" function="mx_sheen_bsdf" target="arnold"/>
 
 </materialx>

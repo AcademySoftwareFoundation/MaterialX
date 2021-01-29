@@ -1,6 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
-void mx_dielectric_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, thinfilm tf, out BSDF result)
+void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, BSDF base, thinfilm tf, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -34,20 +34,28 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
            + base * (1.0 - dirAlbedo * weight);                         // Base layer reflection attenuated by top layer
 }
 
-void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, thinfilm tf, out BSDF result)
+void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, BSDF base, thinfilm tf, out BSDF result)
 {
+    if (scatter_mode == 1)
+    {
+        result = tint * weight;
+        return;
+    }
+
+    if (scatter_mode == 2)
+    {
+        // No external layering in RT mode,
+        // the base is always T in this case.
+        base = tint * weight;
+    }
+
     if (weight < M_FLOAT_EPS)
     {
         result = base;
         return;
     }
 
-    // Dielectric BRDF has no transmission but we must
-    // attenuate the base layer transmission by the
-    // inverse of top layer reflectance.
-
     N = mx_forward_facing_normal(N, V);
-
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     FresnelData fd = tf.thickness > 0.0 ? mx_init_fresnel_dielectric_airy(ior, tf.thickness, tf.ior) : mx_init_fresnel_dielectric(ior);
@@ -58,10 +66,10 @@ void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
     vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
 
-    result = base * (1.0 - dirAlbedo * weight); // Base layer transmission attenuated by top layer
+    result = base * (1.0 - dirAlbedo * weight); // Transmission attenuated by reflection amount
 }
 
-void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, thinfilm tf, out BSDF result)
+void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, BSDF base, thinfilm tf, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {

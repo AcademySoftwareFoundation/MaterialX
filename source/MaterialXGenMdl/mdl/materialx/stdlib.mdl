@@ -591,8 +591,8 @@ export string mx_constant_filename(
 }
 
 export float mx_ramplr_float(
-	uniform float mxp_valuel = float(0.0),
-	uniform float mxp_valuer = float(0.0),
+	float mxp_valuel = float(0.0),
+	float mxp_valuer = float(0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -603,8 +603,8 @@ export float mx_ramplr_float(
 }
 
 export color mx_ramplr_color3(
-	uniform color mxp_valuel = color(0.0, 0.0, 0.0),
-	uniform color mxp_valuer = color(0.0, 0.0, 0.0),
+	color mxp_valuel = color(0.0, 0.0, 0.0),
+	color mxp_valuer = color(0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -615,8 +615,8 @@ export color mx_ramplr_color3(
 }
 
 export color4 mx_ramplr_color4(
-	uniform color4 mxp_valuel = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color4 mxp_valuer = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_valuel = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_valuer = mk_color4(0.0, 0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -628,8 +628,8 @@ export color4 mx_ramplr_color4(
 	return color4(rgb, a);}
 
 export float2 mx_ramplr_vector2(
-	uniform float2 mxp_valuel = float2(0.0, 0.0),
-	uniform float2 mxp_valuer = float2(0.0, 0.0),
+	float2 mxp_valuel = float2(0.0, 0.0),
+	float2 mxp_valuer = float2(0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -640,8 +640,8 @@ export float2 mx_ramplr_vector2(
 }
 
 export float3 mx_ramplr_vector3(
-	uniform float3 mxp_valuel = float3(0.0, 0.0, 0.0),
-	uniform float3 mxp_valuer = float3(0.0, 0.0, 0.0),
+	float3 mxp_valuel = float3(0.0, 0.0, 0.0),
+	float3 mxp_valuer = float3(0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -652,8 +652,8 @@ export float3 mx_ramplr_vector3(
 }
 
 export float4 mx_ramplr_vector4(
-	uniform float4 mxp_valuel = float4(0.0, 0.0, 0.0, 0.0),
-	uniform float4 mxp_valuer = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_valuel = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_valuer = float4(0.0, 0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -664,8 +664,8 @@ export float4 mx_ramplr_vector4(
 }
 
 export float mx_ramptb_float(
-	uniform float mxp_valuet = float(0.0),
-	uniform float mxp_valueb = float(0.0),
+	float mxp_valuet = float(0.0),
+	float mxp_valueb = float(0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -676,8 +676,8 @@ export float mx_ramptb_float(
 }
 
 export color mx_ramptb_color3(
-	uniform color mxp_valuet = color(0.0, 0.0, 0.0),
-	uniform color mxp_valueb = color(0.0, 0.0, 0.0),
+	color mxp_valuet = color(0.0, 0.0, 0.0),
+	color mxp_valueb = color(0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -688,8 +688,8 @@ export color mx_ramptb_color3(
 }
 
 export color4 mx_ramptb_color4(
-	uniform color4 mxp_valuet = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color4 mxp_valueb = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_valuet = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_valueb = mk_color4(0.0, 0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -701,8 +701,8 @@ export color4 mx_ramptb_color4(
 	return color4(rgb, a);}
 
 export float2 mx_ramptb_vector2(
-	uniform float2 mxp_valuet = float2(0.0, 0.0),
-	uniform float2 mxp_valueb = float2(0.0, 0.0),
+	float2 mxp_valuet = float2(0.0, 0.0),
+	float2 mxp_valueb = float2(0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -713,8 +713,8 @@ export float2 mx_ramptb_vector2(
 }
 
 export float3 mx_ramptb_vector3(
-	uniform float3 mxp_valuet = float3(0.0, 0.0, 0.0),
-	uniform float3 mxp_valueb = float3(0.0, 0.0, 0.0),
+	float3 mxp_valuet = float3(0.0, 0.0, 0.0),
+	float3 mxp_valueb = float3(0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -725,8 +725,8 @@ export float3 mx_ramptb_vector3(
 }
 
 export float4 mx_ramptb_vector4(
-	uniform float4 mxp_valuet = float4(0.0, 0.0, 0.0, 0.0),
-	uniform float4 mxp_valueb = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_valuet = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_valueb = float4(0.0, 0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -744,15 +744,15 @@ export float4 mx_ramptb_vector4(
 // Nodedef: ND_ramp4_vector4 is represented by a nodegraph: NG_ramp4_vector4
 
 export float mx_splitlr_float(
-	uniform float mxp_valuel = float(0.0)	
+	float mxp_valuel = float(0.0)	
 	[[
 		anno::display_name("Left")
 	]],
-	uniform float mxp_valuer = float(0.0)	
+	float mxp_valuer = float(0.0)	
 	[[
 		anno::display_name("Right")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -766,15 +766,15 @@ export float mx_splitlr_float(
 }
 
 export color mx_splitlr_color3(
-	uniform color mxp_valuel = color(0.0, 0.0, 0.0)	
+	color mxp_valuel = color(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Left")
 	]],
-	uniform color mxp_valuer = color(0.0, 0.0, 0.0)	
+	color mxp_valuer = color(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Right")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -788,15 +788,15 @@ export color mx_splitlr_color3(
 }
 
 export color4 mx_splitlr_color4(
-	uniform color4 mxp_valuel = mk_color4(0.0, 0.0, 0.0, 0.0)	
+	color4 mxp_valuel = mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Left")
 	]],
-	uniform color4 mxp_valuer = mk_color4(0.0, 0.0, 0.0, 0.0)	
+	color4 mxp_valuer = mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Right")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -812,15 +812,15 @@ export color4 mx_splitlr_color4(
 }
 
 export float2 mx_splitlr_vector2(
-	uniform float2 mxp_valuel = float2(0.0, 0.0)	
+	float2 mxp_valuel = float2(0.0, 0.0)	
 	[[
 		anno::display_name("Left")
 	]],
-	uniform float2 mxp_valuer = float2(0.0, 0.0)	
+	float2 mxp_valuer = float2(0.0, 0.0)	
 	[[
 		anno::display_name("Right")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -834,15 +834,15 @@ export float2 mx_splitlr_vector2(
 }
 
 export float3 mx_splitlr_vector3(
-	uniform float3 mxp_valuel = float3(0.0, 0.0, 0.0)	
+	float3 mxp_valuel = float3(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Left")
 	]],
-	uniform float3 mxp_valuer = float3(0.0, 0.0, 0.0)	
+	float3 mxp_valuer = float3(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Right")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -856,15 +856,15 @@ export float3 mx_splitlr_vector3(
 }
 
 export float4 mx_splitlr_vector4(
-	uniform float4 mxp_valuel = float4(0.0, 0.0, 0.0, 0.0)	
+	float4 mxp_valuel = float4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Left")
 	]],
-	uniform float4 mxp_valuer = float4(0.0, 0.0, 0.0, 0.0)	
+	float4 mxp_valuer = float4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Right")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -878,15 +878,15 @@ export float4 mx_splitlr_vector4(
 }
 
 export float mx_splittb_float(
-	uniform float mxp_valuet = float(0.0)	
+	float mxp_valuet = float(0.0)	
 	[[
 		anno::display_name("Top")
 	]],
-	uniform float mxp_valueb = float(0.0)	
+	float mxp_valueb = float(0.0)	
 	[[
 		anno::display_name("Bottom")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -900,15 +900,15 @@ export float mx_splittb_float(
 }
 
 export color mx_splittb_color3(
-	uniform color mxp_valuet = color(0.0, 0.0, 0.0)	
+	color mxp_valuet = color(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Top")
 	]],
-	uniform color mxp_valueb = color(0.0, 0.0, 0.0)	
+	color mxp_valueb = color(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Bottom")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -922,15 +922,15 @@ export color mx_splittb_color3(
 }
 
 export color4 mx_splittb_color4(
-	uniform color4 mxp_valuet = mk_color4(0.0, 0.0, 0.0, 0.0)	
+	color4 mxp_valuet = mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Top")
 	]],
-	uniform color4 mxp_valueb = mk_color4(0.0, 0.0, 0.0, 0.0)	
+	color4 mxp_valueb = mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Bottom")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -944,15 +944,15 @@ export color4 mx_splittb_color4(
 }
 
 export float2 mx_splittb_vector2(
-	uniform float2 mxp_valuet = float2(0.0, 0.0)	
+	float2 mxp_valuet = float2(0.0, 0.0)	
 	[[
 		anno::display_name("Top")
 	]],
-	uniform float2 mxp_valueb = float2(0.0, 0.0)	
+	float2 mxp_valueb = float2(0.0, 0.0)	
 	[[
 		anno::display_name("Bottom")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -966,15 +966,15 @@ export float2 mx_splittb_vector2(
 }
 
 export float3 mx_splittb_vector3(
-	uniform float3 mxp_valuet = float3(0.0, 0.0, 0.0)	
+	float3 mxp_valuet = float3(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Top")
 	]],
-	uniform float3 mxp_valueb = float3(0.0, 0.0, 0.0)	
+	float3 mxp_valueb = float3(0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Bottom")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -988,15 +988,15 @@ export float3 mx_splittb_vector3(
 }
 
 export float4 mx_splittb_vector4(
-	uniform float4 mxp_valuet = float4(0.0, 0.0, 0.0, 0.0)	
+	float4 mxp_valuet = float4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Top")
 	]],
-	uniform float4 mxp_valueb = float4(0.0, 0.0, 0.0, 0.0)	
+	float4 mxp_valueb = float4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Bottom")
 	]],
-	uniform float mxp_center = float(0.5)	
+	float mxp_center = float(0.5)	
 	[[
 		anno::display_name("Center")
 	]],
@@ -1129,7 +1129,7 @@ export color4 mx_geomcolor_color4(
 
 export int mx_geompropvalue_integer(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform int mxp_default = int(0) [[ anno::unused() ]]
+	int mxp_default = int(0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1142,7 +1142,7 @@ export int mx_geompropvalue_integer(
 
 export bool mx_geompropvalue_boolean(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform bool mxp_default = bool(false) [[ anno::unused() ]]
+	bool mxp_default = bool(false) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1155,7 +1155,7 @@ export bool mx_geompropvalue_boolean(
 
 export string mx_geompropvalue_string(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform string mxp_default = string("") [[ anno::unused() ]]
+	string mxp_default = string("") [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1168,7 +1168,7 @@ export string mx_geompropvalue_string(
 
 export float mx_geompropvalue_float(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform float mxp_default = float(0.0) [[ anno::unused() ]]
+	float mxp_default = float(0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1181,7 +1181,7 @@ export float mx_geompropvalue_float(
 
 export color mx_geompropvalue_color3(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform color mxp_default = color(0.0, 0.0, 0.0) [[ anno::unused() ]]
+	color mxp_default = color(0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1194,7 +1194,7 @@ export color mx_geompropvalue_color3(
 
 export color4 mx_geompropvalue_color4(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0) [[ anno::unused() ]]
+	color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1207,7 +1207,7 @@ export color4 mx_geompropvalue_color4(
 
 export float2 mx_geompropvalue_vector2(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform float2 mxp_default = float2(0.0, 0.0) [[ anno::unused() ]]
+	float2 mxp_default = float2(0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1220,7 +1220,7 @@ export float2 mx_geompropvalue_vector2(
 
 export float3 mx_geompropvalue_vector3(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform float3 mxp_default = float3(0.0, 0.0, 0.0) [[ anno::unused() ]]
+	float3 mxp_default = float3(0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1233,7 +1233,7 @@ export float3 mx_geompropvalue_vector3(
 
 export float4 mx_geompropvalue_vector4(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	uniform float4 mxp_default = float4(0.0, 0.0, 0.0, 0.0) [[ anno::unused() ]]
+	float4 mxp_default = float4(0.0, 0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
@@ -1245,12 +1245,12 @@ export float4 mx_geompropvalue_vector4(
 }
 
 export float mx_ambientocclusion_float(
-	uniform float mxp_coneangle = float(90.0) 
+	float mxp_coneangle = float(90.0) 
 	[[
 		anno::description("Unit Type:angle. Unit:degrees."),
         anno::unused()
 	]],
-	uniform float mxp_maxdistance = float(1e38) [[ anno::unused() ]]
+	float mxp_maxdistance = float(1e38) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: global")
@@ -1443,7 +1443,7 @@ export color4 mx_modulo_color4FA(
 
 export color4 mx_invert_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color4 mxp_amount = mk_color4(1.0, 1.0, 1.0, 1.0)
+	color4 mxp_amount = mk_color4(1.0, 1.0, 1.0, 1.0)
 )
 	[[
 		anno::description("Node Group: math")
@@ -1454,7 +1454,7 @@ export color4 mx_invert_color4(
 
 export color4 mx_invert_color4FA(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform float mxp_amount = float(1.0)
+	float mxp_amount = float(1.0)
 )
 	[[
 		anno::description("Node Group: math")
@@ -1921,8 +1921,8 @@ export color4 mx_sign_color4(
 
 export color4 mx_clamp_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color4 mxp_low = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color4 mxp_high = mk_color4(1.0, 1.0, 1.0, 1.0)
+	color4 mxp_low = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_high = mk_color4(1.0, 1.0, 1.0, 1.0)
 )
 	[[
 		anno::description("Node Group: math")
@@ -1933,8 +1933,8 @@ export color4 mx_clamp_color4(
 
 export color4 mx_clamp_color4FA(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform float mxp_low = float(0.0),
-	uniform float mxp_high = float(1.0)
+	float mxp_low = float(0.0),
+	float mxp_high = float(1.0)
 )
 	[[
 		anno::description("Node Group: math")
