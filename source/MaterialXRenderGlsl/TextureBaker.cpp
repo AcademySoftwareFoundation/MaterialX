@@ -459,14 +459,14 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
             imageHandler->setFilenameResolver(resolver);
             setImageHandler(imageHandler);
             bakeShaderInputs(materialNode, shaderNode, genContext, tag);
-
-            // Optimize baked textures.
-            optimizeBakedTextures(shaderNode);
-
-            // Write the baked material and textures.
-            DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimSet);
-            bakedDocuments.push_back(std::make_pair(shaderNode->getName(), bakedMaterialDoc));
         }
+
+        // Optimize baked textures.
+        optimizeBakedTextures(shaderNode);
+
+        // Write the baked material and textures.
+        DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimSet);
+        bakedDocuments.push_back(std::make_pair(shaderNode->getName(), bakedMaterialDoc));
     }
 
     return bakedDocuments;
