@@ -651,19 +651,19 @@
 
   <!-- <switch> -->
   <!-- 'which' type : float -->
-  <implementation name="IM_switch_float_genmdl" nodedef="ND_switch_float" target="genmdl"/>
-  <implementation name="IM_switch_color3_genmdl" nodedef="ND_switch_color3" target="genmdl"/>
-  <implementation name="IM_switch_color4_genmdl" nodedef="ND_switch_color4" target="genmdl"/>
-  <implementation name="IM_switch_vector2_genmdl" nodedef="ND_switch_vector2" target="genmdl"/>
-  <implementation name="IM_switch_vector3_genmdl" nodedef="ND_switch_vector3" target="genmdl"/>
-  <implementation name="IM_switch_vector4_genmdl" nodedef="ND_switch_vector4" target="genmdl"/>
+  <implementation name="IM_switch_float_genmdl" nodedef="ND_switch_float" sourcecode="mx::stdlib::mx_switch_float({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_color3_genmdl" nodedef="ND_switch_color3" sourcecode="mx::stdlib::mx_switch_color3({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_color4_genmdl" nodedef="ND_switch_color4" sourcecode="mx::stdlib::mx_switch_color4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_vector2_genmdl" nodedef="ND_switch_vector2" sourcecode="mx::stdlib::mx_switch_vector2({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_vector3_genmdl" nodedef="ND_switch_vector3" sourcecode="mx::stdlib::mx_switch_vector3({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_vector4_genmdl" nodedef="ND_switch_vector4" sourcecode="mx::stdlib::mx_switch_vector4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
   <!-- 'which' type : integer -->
-  <implementation name="IM_switch_floatI_genmdl" nodedef="ND_switch_floatI" target="genmdl"/>
-  <implementation name="IM_switch_color3I_genmdl" nodedef="ND_switch_color3I" target="genmdl"/>
-  <implementation name="IM_switch_color4I_genmdl" nodedef="ND_switch_color4I" target="genmdl"/>
-  <implementation name="IM_switch_vector2I_genmdl" nodedef="ND_switch_vector2I" target="genmdl"/>
-  <implementation name="IM_switch_vector3I_genmdl" nodedef="ND_switch_vector3I" target="genmdl"/>
-  <implementation name="IM_switch_vector4I_genmdl" nodedef="ND_switch_vector4I" target="genmdl"/>
+  <implementation name="IM_switch_floatI_genmdl" nodedef="ND_switch_floatI" sourcecode="mx::stdlib::mx_switch_floatI({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_color3I_genmdl" nodedef="ND_switch_color3I" sourcecode="mx::stdlib::mx_switch_color3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_color4I_genmdl" nodedef="ND_switch_color4I" sourcecode="mx::stdlib::mx_switch_color4I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_vector2I_genmdl" nodedef="ND_switch_vector2I" sourcecode="mx::stdlib::mx_switch_vector2I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_vector3I_genmdl" nodedef="ND_switch_vector3I" sourcecode="mx::stdlib::mx_switch_vector3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
+  <implementation name="IM_switch_vector4I_genmdl" nodedef="ND_switch_vector4I" sourcecode="mx::stdlib::mx_switch_vector4I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl"/>
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->

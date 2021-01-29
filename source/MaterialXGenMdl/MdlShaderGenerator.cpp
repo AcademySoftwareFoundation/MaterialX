@@ -75,29 +75,6 @@ MdlShaderGenerator::MdlShaderGenerator() :
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + MdlShaderGenerator::TARGET, SurfaceNodeMdl::create);
 
-    // <!-- <switch> -->
-    // <!-- 'which' type : float -->
-    registerImplementation("IM_switch_float_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    // <!-- 'which' type : integer -->
-    registerImplementation("IM_switch_floatI_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3I_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4I_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2I_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3I_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4I_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    // <!-- 'which' type : boolean -->
-    registerImplementation("IM_switch_floatB_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3B_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4B_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2B_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3B_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4B_" + MdlShaderGenerator::TARGET, SwitchNode::create);
-
     // <!-- <swizzle> -->
     // <!-- from type : float -->
     registerImplementation("IM_swizzle_float_color3_" + MdlShaderGenerator::TARGET, SwizzleNode::create);

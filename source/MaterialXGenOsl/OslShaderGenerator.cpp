@@ -79,13 +79,6 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_switch_vector2I_" + OslShaderGenerator::TARGET, SwitchNode::create);
     registerImplementation("IM_switch_vector3I_" + OslShaderGenerator::TARGET, SwitchNode::create);
     registerImplementation("IM_switch_vector4I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    // <!-- 'which' type : boolean -->
-    registerImplementation("IM_switch_floatB_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3B_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4B_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2B_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3B_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4B_" + OslShaderGenerator::TARGET, SwitchNode::create);
 
     // <!-- <swizzle> -->
     // <!-- from type : float -->

@@ -61,6 +61,9 @@ class MdlSyntax : public Syntax
     /// Given an input specification attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be converted to a different type than the input.
     bool remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const override;
+
+    /// Modify the given name string to remove any invalid characters or tokens.
+    void makeValidName(string& name) const override;
 };
 
 namespace Type
