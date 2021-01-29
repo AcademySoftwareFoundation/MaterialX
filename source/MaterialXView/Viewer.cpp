@@ -398,7 +398,7 @@ void Viewer::loadEnvironmentLight()
     }
 
     // If not found, then generate an irradiance map via spherical harmonics.
-    if (!envIrradianceMap || envIrradianceMap == _imageHandler->getInvalidImage())
+    if (envIrradianceMap == _imageHandler->getInvalidImage())
     {
         if (_generateReferenceIrradiance)
         {
