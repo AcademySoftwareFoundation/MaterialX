@@ -101,13 +101,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_switch_vector2I_" + GlslShaderGenerator::TARGET, SwitchNode::create);
     registerImplementation("IM_switch_vector3I_" + GlslShaderGenerator::TARGET, SwitchNode::create);
     registerImplementation("IM_switch_vector4I_" + GlslShaderGenerator::TARGET, SwitchNode::create);
-    // <!-- 'which' type : boolean -->
-    registerImplementation("IM_switch_floatB_" + GlslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3B_" + GlslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4B_" + GlslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2B_" + GlslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3B_" + GlslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4B_" + GlslShaderGenerator::TARGET, SwitchNode::create);
 
     // <!-- <swizzle> -->
     // <!-- from type : float -->

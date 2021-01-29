@@ -104,7 +104,7 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
-TEST_CASE("GenShader: Metadata", "[genosl]")
+TEST_CASE("GenShader: OSL Metadata", "[genosl]")
 {
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));

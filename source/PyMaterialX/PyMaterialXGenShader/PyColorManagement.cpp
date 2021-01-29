@@ -30,12 +30,12 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
     }
 
   protected:
-    std::string getImplementationName(const mx::ColorSpaceTransform& transform) const override
+    mx::ImplementationPtr getImplementation(const mx::ColorSpaceTransform& transform) const override
     {
         PYBIND11_OVERLOAD_PURE(
-            std::string,
+            mx::ImplementationPtr,
             mx::ColorManagementSystem,
-            getImplementationName,
+            getImplementation,
             transform
         );
     }

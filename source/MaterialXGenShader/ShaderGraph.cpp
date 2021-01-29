@@ -908,7 +908,11 @@ void ShaderGraph::finalize(GenContext& context)
     topologicalSort();
 
     // Calculate scopes for all nodes in the graph.
-    calculateScopes();
+    //
+    // TODO: Enable calculateScopes() again when support for 
+    // conditional nodes are improved.
+    //
+    // calculateScopes();
 
     // Analyze the graph and extract information needed by shader nodes and BSDF nodes.
     bool layerOperatorUsed = false;

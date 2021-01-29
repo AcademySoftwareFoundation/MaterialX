@@ -83,7 +83,7 @@ TEST_CASE("GenShader: MDL Syntax", "[genmdl]")
     REQUIRE(value == "int[](1, 2, 3, 4, 5, 6, 7)");
 }
 
-/*
+
 TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
 {
     mx::GenContext context(mx::MdlShaderGenerator::create());
@@ -92,10 +92,10 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 65);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 63);
 }
 
-
+/*
 TEST_CASE("GenShader: MDL Unique Names", "[genmdl]")
 {
     mx::GenContext context(mx::MdlShaderGenerator::create());
@@ -167,6 +167,8 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
             }
             _logFile << "\tError: " << line << std::endl;
         }
+
+        CHECK(returnValue == 0);
     }
     else
     {
@@ -227,6 +229,8 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
             }
             _logFile << "\tLog: " << line << std::endl;
         }
+
+        CHECK(returnValue == 0);
     }
 }
 

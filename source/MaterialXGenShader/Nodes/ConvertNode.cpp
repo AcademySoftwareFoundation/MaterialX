@@ -113,15 +113,20 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
                 throw ExceptionShaderGenError("Conversion from '" + in->getType()->getName() + "' to '" + out->getType()->getName() + "' is not supported by convert node");
             }
 
-            string variableName = in->getConnection() ? in->getConnection()->getVariable() : in->getVariable();
-
             // If the input is unconnected we must declare a local variable
             // for it first, in order to swizzle it below.
+            string variableName;
             if (!in->getConnection())
             {
+                variableName = in->getVariable();
                 string variableValue = in->getValue() ? shadergen.getSyntax().getValue(in->getType(), *in->getValue()) : shadergen.getSyntax().getDefaultValue(in->getType());
                 shadergen.emitLine(shadergen.getSyntax().getTypeName(in->getType()) + " " + variableName + " = " + variableValue, stage);
             }
+            else
+            {
+                variableName = shadergen.getUpstreamResult(in, context);
+            }
+
             const TypeDesc* type = in->getConnection() ? in->getConnection()->getType() : in->getType();
             result = shadergen.getSyntax().getSwizzledVariable(variableName, type, *swizzle, node.getOutput()->getType());
         }

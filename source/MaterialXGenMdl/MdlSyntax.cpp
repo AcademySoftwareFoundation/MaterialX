@@ -616,4 +616,15 @@ bool MdlSyntax::remapEnumeration(const string& value, const TypeDesc* type, cons
     return false;
 }
 
+void MdlSyntax::makeValidName(string& name) const
+{
+    Syntax::makeValidName(name);
+
+    // MDL variables are not allowed to begin with underscore.
+    if (!name.empty() && name[0] == '_')
+    {
+        name = "v" + name;
+    }
+}
+
 } // namespace MaterialX

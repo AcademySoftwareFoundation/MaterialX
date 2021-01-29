@@ -662,7 +662,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
 
     // Shading model display
     mx::TypedElementPtr elem = material->getElement();
-    std::string shaderName = elem ? elem->getAttribute("node") : mx::EMPTY_STRING;
+    std::string shaderName = elem ? elem->getAttribute(mx::NodeDef::NODE_ATTRIBUTE) : mx::EMPTY_STRING;
     if (!shaderName.empty())
     {
         ng::Widget* twoColumns = new ng::Widget(_container);

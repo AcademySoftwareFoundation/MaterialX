@@ -300,22 +300,20 @@ void Syntax::makeIdentifier(string& name, IdentifierMap& identifiers) const
     makeValidName(name);
 
     auto it = identifiers.find(name);
-    if (it == identifiers.end())
+    if (it != identifiers.end())
     {
-        // Name is unique so we can use it as is.
-        // Save it among the known identifiers.
-        identifiers[name] = 1;
-        return;
+        // Name is not unique so append the counter and keep
+        // incrementing until a unique name is found.
+        string name2;
+        do {
+            name2 = name + std::to_string(it->second++);
+        } while (identifiers.count(name2));
+
+        name = name2;
     }
 
-    // Name is not unique so append the counter and keep
-    // increamanting until a unique name is found.
-    string name2;
-    do {
-        name2 = name + std::to_string(it->second++);
-    } while (identifiers.count(name2));
-
-    name = name2;
+    // Save it among the known identifiers.
+    identifiers[name] = 1;
 }
 
 string Syntax::getVariableName(const string& name, const TypeDesc* /*type*/, IdentifierMap& identifiers) const

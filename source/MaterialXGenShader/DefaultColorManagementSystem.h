@@ -39,8 +39,8 @@ class DefaultColorManagementSystem : public ColorManagementSystem
     static const string CMS_NAME;
 
   protected:
-    /// Returns an implementation name for a given transform
-    string getImplementationName(const ColorSpaceTransform& transform) const override;
+    /// Returns an implementation for a given transform
+    ImplementationPtr getImplementation(const ColorSpaceTransform& transform) const override;
 
     /// Protected constructor
     DefaultColorManagementSystem(const string& target);
