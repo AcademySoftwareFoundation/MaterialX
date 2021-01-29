@@ -2,16 +2,23 @@
 
 ## [1.38] - Development
 
-### v1.38_adsk_development2 : Work-in-progress
-- Up-to-date with ILM v1.38 branch @8718c59
-- GPU testing framework setup (in progress)
+### v1.38_adsk_development2 : 2021-01-29
+- Up-to-date with LucasFilm v1.38 branch @a2e2633.
+- *All documents upgrade to "1.38" as version number. Files must be marked
+as "1.37" for upgrade to occur*
+- Standard surface default value changes (See https://github.com/Autodesk/standard-surface/blob/master/reference/standard_surface.mtlx)
+- UsdPreviewSurface "metallic" input name update.
 - Deprecation of Language specifier and introduction of TargetDefs
 - Deprecation of Material and ShaderRef elements.
-- Deprecation of Parameter element.
-- TextureBaker v1 completion
+- Deprecation of Parameter element. Remapped to Input element with optional "uniform" attribute.
+- PBR node modifications in. Full deprecated node support upgrade support in progress.
+- TextureBaker version "1" completion.
+- Nodegraph "version" tag + logic fix (deprecation).
+- GPU testing framework setup for Linux.
+- Update of MDL support. Passes test verification for v1.6.
 
 ### v1.38_adsk_development1 : Major changes since "v1.37.3_parameters_as_inputs"
- - Up-to-date with ILM v1.38 branch @3900415.
+ - Up-to-date with LucasFilm v1.38 branch @3900415.
  - Finished API support for Material Nodes (from Material Elements)
  - Baker support for v1.38, CM and units.
  - Shader Translator support for v1.38, CM and units.

@@ -226,7 +226,8 @@ class ImageHandler
         return _zeroImage;
     }
 
-    /// Return a reference to the "invalid" image returned when a image cannot be loaded.
+    /// Return the sentinel invalid image, representing images that cannot be loaded
+    /// and should be replaced with their declared default value.
     ImagePtr getInvalidImage() const
     {
         return _invalidImage;

@@ -72,6 +72,7 @@ void bindPyElement(py::module& mod)
         .def("getDocString", &mx::Element::getDocString)
         .def("addChildOfCategory", &mx::Element::addChildOfCategory,
             py::arg("category"), py::arg("name") = mx::EMPTY_STRING)
+        .def("changeChildCategory", &mx::Element::changeChildCategory)
         .def("_getChild", &mx::Element::getChild)
         .def("getChildren", &mx::Element::getChildren)
         .def("setChildIndex", &mx::Element::setChildIndex)

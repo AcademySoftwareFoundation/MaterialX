@@ -162,13 +162,6 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
         return;
     }
 
-    // Early exist if not optimizing	
-    if (!_optimizeConstants)
-    {
-        _bakedConstantMap.clear();
-        return;
-    }
-
     // Check for uniform images.
     for (auto& pair : _bakedImageMap)
     {
