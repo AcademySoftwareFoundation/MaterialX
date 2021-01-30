@@ -702,8 +702,6 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    /// @param material An optional material element, whose data bindings will
-    ///    be applied to the query.
     /// @param index An optional index of the edge to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Edge, if valid, or an empty Edge object.

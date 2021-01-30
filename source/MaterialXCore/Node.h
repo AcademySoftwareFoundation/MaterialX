@@ -108,8 +108,6 @@ class Node : public InterfaceElement
     /// the given target and language names.
     /// @param target An optional target name, which will be used to filter
     ///    the implementations that are considered.
-    /// @param language An optional language name, which will be used to filter
-    ///    the implementations that are considered.
     /// @return An implementation for this node, or an empty shared pointer if
     ///    none was found.  Note that a node implementation may be either an
     ///    Implementation element or a NodeGraph element.
