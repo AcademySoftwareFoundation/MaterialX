@@ -242,7 +242,7 @@ using HwResourceBindingContextPtr = shared_ptr<class HwResourceBindingContext>;
 /// and if extra arguments and function decorators are needed for that context.
 class HwClosureContext : public GenUserData
 {
-public:
+  public:
     /// Types of closure contexts.
     enum Type
     {
@@ -297,7 +297,7 @@ public:
         return it != _suffix.end() ? it->second : EMPTY_STRING;
     }
 
-protected:
+  protected:
     const int _type;
     std::unordered_map<const TypeDesc*, Arguments> _arguments;
     std::unordered_map<const TypeDesc*, string> _suffix;
@@ -308,7 +308,7 @@ protected:
 /// Hardware light shader user data
 class HwLightShaders : public GenUserData
 {
-public:
+  public:
     /// Create and return a new instance.
     static HwLightShadersPtr create()
     {
@@ -347,16 +347,15 @@ public:
         return _shaders;
     }
 
-protected:
+  protected:
     std::unordered_map<unsigned int, ShaderNodePtr> _shaders;
 };
-
 
 /// @class HwShaderGenerator
 /// Base class for shader generators targeting HW rendering.
 class HwShaderGenerator : public ShaderGenerator
 {
-public:
+  public:
     /// Add the function call for a single node.
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, 
                           bool checkScope = true) const override;
@@ -399,7 +398,7 @@ public:
     static const string CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION;
     static const string CLOSURE_CONTEXT_SUFFIX_INDIRECT;
 
-protected:
+  protected:
     HwShaderGenerator(SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
@@ -418,11 +417,11 @@ protected:
     HwClosureContextPtr _defEmission;
 };
 
-/// @class HwResourceBinding
+/// @class HwResourceBindingContext
 /// Class representing a context for resource binding for hardware resources.
 class HwResourceBindingContext : public GenUserData
 {
-public:
+  public:
     virtual ~HwResourceBindingContext() {}
 
     // Initialize the context before generation starts.
