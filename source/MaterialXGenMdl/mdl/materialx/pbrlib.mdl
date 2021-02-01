@@ -787,13 +787,6 @@ export material mx_multiply_vdf_float(
     )
 );
 
-
-// NOTE: mx_backfacing, not supported in MDL, and requires function overlaod
-//       based on the return type. We return always false.
-export bool  mx_backfacing_bool()  { return false; }
-export int   mx_backfacing_int()   { return 0; }
-export float mx_backfacing_float() { return 0.0; }
-
 export float2 mx_roughness_anisotropy(
     float mxp_roughness = 0.0,
     float mxp_anisotropy = 0.0

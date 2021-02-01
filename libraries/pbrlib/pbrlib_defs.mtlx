@@ -385,19 +385,6 @@
   </nodedef>
 
   <!--
-    Node: <backfacing>
-  -->
-  <nodedef name="ND_backfacing_boolean" node="backfacing" nodegroup="pbr">
-    <output name="out" type="boolean"/>
-  </nodedef>
-  <nodedef name="ND_backfacing_integer" node="backfacing" nodegroup="pbr">
-    <output name="out" type="integer"/>
-  </nodedef>
-  <nodedef name="ND_backfacing_float" node="backfacing" nodegroup="pbr">
-    <output name="out" type="float"/>
-  </nodedef>
-
-  <!--
     Node: <roughness_anisotropy>
     Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization.
   -->
