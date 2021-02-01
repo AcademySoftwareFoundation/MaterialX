@@ -7,6 +7,7 @@
 
 #include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/HwCompoundNode.h>
+#include <MaterialXGenShader/Nodes/LayerNode.h>
 #include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXCore/Document.h>
@@ -23,6 +24,7 @@ namespace HW
     const string T_IN_NORMAL                      = "$inNormal";
     const string T_IN_TANGENT                     = "$inTangent";
     const string T_IN_TEXCOORD                    = "$inTexcoord";
+    const string T_IN_GEOMPROP                    = "$inGeomprop";
     const string T_IN_COLOR                       = "$inColor";
     const string T_POSITION_WORLD                 = "$positionWorld";
     const string T_NORMAL_WORLD                   = "$normalWorld";
@@ -74,6 +76,7 @@ namespace HW
     const string IN_NORMAL                        = "i_normal";
     const string IN_TANGENT                       = "i_tangent";
     const string IN_TEXCOORD                      = "i_texcoord";
+    const string IN_GEOMPROP                      = "i_geomprop";
     const string IN_COLOR                         = "i_color";
     const string POSITION_WORLD                   = "positionWorld";
     const string NORMAL_WORLD                     = "normalWorld";
@@ -120,6 +123,8 @@ namespace HW
     const string SHADOW_MATRIX                    = "u_shadowMatrix";
     const string VERTEX_DATA_INSTANCE             = "vd";
     const string LIGHT_DATA_INSTANCE              = "u_lightData";
+    const string LIGHT_DATA_MAX_LIGHT_SOURCES     = "MAX_LIGHT_SOURCES";
+    const string ENV_RADIANCE_MAX_SAMPLES         = "MAX_ENV_RADIANCE_SAMPLES";
 
     const string VERTEX_INPUTS                    = "VertexInputs";
     const string VERTEX_DATA                      = "VertexData";
@@ -135,6 +140,7 @@ namespace HW
     const string ATTR_TRANSPARENT                 = "transparent";
     const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
     const string USER_DATA_LIGHT_SHADERS          = "udls";
+    const string USER_DATA_BINDING_CONTEXT        = "udbinding";
 }
 
 namespace Stage
@@ -162,6 +168,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_IN_NORMAL] = HW::IN_NORMAL;
     _tokenSubstitutions[HW::T_IN_TANGENT] = HW::IN_TANGENT;
     _tokenSubstitutions[HW::T_IN_TEXCOORD] = HW::IN_TEXCOORD;
+    _tokenSubstitutions[HW::T_IN_GEOMPROP] = HW::IN_GEOMPROP;
     _tokenSubstitutions[HW::T_IN_COLOR] = HW::IN_COLOR;
     _tokenSubstitutions[HW::T_POSITION_WORLD] = HW::POSITION_WORLD;
     _tokenSubstitutions[HW::T_NORMAL_WORLD] = HW::NORMAL_WORLD;
@@ -241,6 +248,15 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Create vertex stage.
     ShaderStagePtr vs = createStage(Stage::VERTEX, *shader);
     vs->createInputBlock(HW::VERTEX_INPUTS, "i_vs");
+
+    // Each Stage must have three types of uniform blocks:
+    // Private, Public and Sampler blocks
+    // Public uniforms are inputs that should be published in a user interface for user interaction,
+    // while private uniforms are internal variables needed by the system which should not be exposed in UI.
+    // So when creating these uniforms for a shader node, if the variable is user-facing it should go into the public block,
+    // and otherwise the private block.
+    // All texture based objects should be added to Sampler block
+
     vs->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     vs->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
 
@@ -254,6 +270,8 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Create pixel stage.
     ShaderStagePtr ps = createStage(Stage::PIXEL, *shader);
     VariableBlockPtr psOutputs = ps->createOutputBlock(HW::PIXEL_OUTPUTS, "o_ps");
+
+    // Create required Uniform blocks and any additonal blocks if needed.
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
     VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
@@ -407,50 +425,67 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
 void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const
 {
+    // Omit node if it's tagged to be excluded.
+    if (node.getFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL))
+    {
+        return;
+    }
+
     // Omit node if it's only used inside a conditional branch
     if (checkScope && node.referencedConditionally())
     {
         emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" + 
                     node.getScopeInfo().conditionalNode->getName() + "'", stage);
+        return;
+    }
+
+    bool match = true;
+
+    // Check if we have a closure context to modify the function call.
+    HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
+
+    if (ccx && node.hasClassification(ShaderNode::Classification::CLOSURE))
+    {
+        // If a layer operator is used the node to check classification on
+        // is the node connected to the top layer input.
+        const ShaderNode* classifyNode = &node;
+        if (node.hasClassification(ShaderNode::Classification::LAYER))
+        {
+            const ShaderInput* top = node.getInput(LayerNode::TOP);
+            if (top && top->getConnection())
+            {
+                classifyNode = top->getConnection()->getNode();
+            }
+        }
+
+        match =
+            // For reflection and indirect we don't support pure transmissive closures.
+            ((ccx->getType() == HwClosureContext::REFLECTION || ccx->getType() == HwClosureContext::INDIRECT) &&
+                classifyNode->hasClassification(ShaderNode::Classification::BSDF) &&
+                !classifyNode->hasClassification(ShaderNode::Classification::BSDF_T)) ||
+            // For transmissive we don't support pure reflective closures.
+            (ccx->getType() == HwClosureContext::TRANSMISSION &&
+                classifyNode->hasClassification(ShaderNode::Classification::BSDF) &&
+                !classifyNode->hasClassification(ShaderNode::Classification::BSDF_R)) ||
+            // For emission we only support emission closures.
+            (ccx->getType() == HwClosureContext::EMISSION &&
+                classifyNode->hasClassification(ShaderNode::Classification::EDF));
+    }
+
+    if (match)
+    {
+        // A match between closure context and node classification was found.
+        // So emit the function call in this context.
+        node.getImplementation().emitFunctionCall(node, context, stage);
     }
     else
     {
-        bool match = true;
-
-        // Check if we have a closure context to modify the function call.
-        HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
-
-        if (ccx && node.hasClassification(ShaderNode::Classification::CLOSURE))
-        {
-            match =
-                // For reflection and indirect we don't support pure transmissive closures.
-                ((ccx->getType() == HwClosureContext::REFLECTION || ccx->getType() == HwClosureContext::INDIRECT) &&
-                    node.hasClassification(ShaderNode::Classification::BSDF) &&
-                    !node.hasClassification(ShaderNode::Classification::BSDF_T)) ||
-                // For transmissive we don't support pure reflective closures.
-                (ccx->getType() == HwClosureContext::TRANSMISSION &&
-                    node.hasClassification(ShaderNode::Classification::BSDF) &&
-                    !node.hasClassification(ShaderNode::Classification::BSDF_R)) ||
-                // For emission we only support emission closures.
-                (ccx->getType() == HwClosureContext::EMISSION &&
-                    node.hasClassification(ShaderNode::Classification::EDF));
-        }
-
-        if (match)
-        {
-            // A match between closure context and node classification was found.
-            // So emit the function call in this context.
-            node.getImplementation().emitFunctionCall(node, context, stage);
-        }
-        else
-        {
-            // Context and node classification doen't match so just
-            // emit the output variable set to default value, in case
-            // it is referenced by another nodes in this context.
-            emitLineBegin(stage);
-            emitOutput(node.getOutput(), true, true, context, stage);
-            emitLineEnd(stage);
-        }
+        // Context and node classification doesn't match so just
+        // emit the output variable set to default value, in case
+        // it is referenced by another nodes in this context.
+        emitLineBegin(stage);
+        emitOutput(node.getOutput(), true, true, context, stage);
+        emitLineEnd(stage);
     }
 }
 
@@ -622,6 +657,16 @@ ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(const NodeGrap
     // The standard compound implementation
     // is the compound implementation to us by default
     return HwCompoundNode::create();
+}
+
+void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStage& stage) const
+{
+    // Create uniform for number of active light sources
+    if (context.getOptions().hwMaxActiveLightSources > 0)
+    {
+        ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, stage);
+        numActiveLights->setValue(Value::createValue<int>(0));
+    }
 }
 
 } // namespace MaterialX

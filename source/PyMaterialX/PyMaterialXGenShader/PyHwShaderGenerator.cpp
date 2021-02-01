@@ -6,6 +6,7 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/GenUserData.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
 #include <string>
@@ -30,4 +31,11 @@ void bindPyHwShaderGenerator(py::module& mod)
         .def("bindLightShader", &mx::HwShaderGenerator::bindLightShader)
         .def("unbindLightShader", &mx::HwShaderGenerator::unbindLightShader)
         .def("unbindLightShaders", &mx::HwShaderGenerator::unbindLightShaders);
+}
+
+void bindPyHwResourceBindingContext(py::module& mod)
+{
+    py::class_<mx::HwResourceBindingContext, mx::GenUserData, mx::HwResourceBindingContextPtr>(mod, "HwResourceBindingContext")
+        .def("emitDirectives", &mx::HwResourceBindingContext::emitDirectives)
+        .def("emitResourceBindings", &mx::HwResourceBindingContext::emitResourceBindings);
 }

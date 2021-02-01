@@ -1,22 +1,13 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
 
-  <!-- Test multioutput node complex_ior connected directly to output -->
-  <nodegraph name="multioutput_test1">
-    <complex_ior name="complex_ior1" type="multioutput">
-      <input name="ior" type="vector3" value="0.1556, 0.4242, 1.3831" />
-      <input name="extinction" type="vector3" value="3.6024, 2.4721, 1.9155" />
-    </complex_ior>
-    <output name="out" type="color3" nodename="complex_ior1" output="reflectivity" />
-  </nodegraph>
-
   <!-- Test multioutput node artistic_ior connected directly to output -->
   <nodegraph name="multioutput_test2">
     <artistic_ior name="artistic_ior1" type="multioutput">
       <input name="reflectivity" type="color3" value="0.4, 0.4, 0.4" />
       <input name="edge_color" type="color3" value="0.8, 0.8, 0.8" />
     </artistic_ior>
-    <output name="out" type="vector3" nodename="artistic_ior1" output="ior" />
+    <output name="out" type="color3" nodename="artistic_ior1" output="ior" />
    </nodegraph>
 
   <!-- Test multioutput node separate connected internally -->

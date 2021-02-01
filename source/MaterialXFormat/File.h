@@ -154,6 +154,24 @@ class FilePath
     /// combined path.
     FilePath operator/(const FilePath& rhs) const;
 
+    /// Return the number of strings in the path.
+    size_t size() const
+    {
+        return _vec.size();
+    }
+
+    /// Return the string at the given index.
+    string operator[](size_t index)
+    {
+        return _vec[index];
+    }
+
+    /// Return the const string at the given index.
+    const string& operator[](size_t index) const
+    {
+        return _vec[index];
+    }
+
     /// @}
     /// @name File System Operations
     /// @{

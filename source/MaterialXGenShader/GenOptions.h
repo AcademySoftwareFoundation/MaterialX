@@ -76,7 +76,8 @@ class GenOptions
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
-        hwWriteAlbedoTable(false)
+        hwWriteAlbedoTable(false),
+        hwMaxRadianceSamples(1024)
     {
     }
     virtual ~GenOptions() { }
@@ -149,6 +150,10 @@ class GenOptions
     /// Enables the writing of a directional albedo table.
     /// Defaults to false.
     bool hwWriteAlbedoTable;
+
+    /// Sets the maximum number of radiance samples 
+    unsigned int hwMaxRadianceSamples;
+
 };
 
 } // namespace MaterialX

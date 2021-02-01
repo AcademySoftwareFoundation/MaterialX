@@ -97,7 +97,7 @@ Basic vector math function tests each test is in a separate graph for each varia
       <rotate3d name="rotate1" type="vector3" xpos="5.19248" ypos="5.306">
          <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
          <input name="amount" type="float" value="180.0000" unittype="angle" unit="degree" />
-         <parameter name="axis" type="vector3" value="0.0, 1.0000, 1.0000" />
+         <input name="axis" type="vector3" value="0.0, 1.0000, 1.0000" />
       </rotate3d>
       <output name="out" type="vector3" nodename="rotate1" />
    </nodegraph>

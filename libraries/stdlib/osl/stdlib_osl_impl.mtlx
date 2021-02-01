@@ -13,78 +13,68 @@
   <!-- ======================================================================== -->
 
   <!-- <image> -->
-  <implementation name="IM_image_float_osl" nodedef="ND_image_float" file="stdlib/osl/mx_image_float.osl" function="mx_image_float" language="osl">
+  <implementation name="IM_image_float_osl" nodedef="ND_image_float" file="stdlib/osl/mx_image_float.osl" function="mx_image_float" target="osl">
     <parameter name="default" type="float" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_color2_osl" nodedef="ND_image_color2" file="stdlib/osl/mx_image_color2.osl" function="mx_image_color2" language="osl">
-    <parameter name="default" type="color2" implname="default_value"/>
-  </implementation>
-  <implementation name="IM_image_color3_osl" nodedef="ND_image_color3" file="stdlib/osl/mx_image_color.osl" function="mx_image_color" language="osl">
+  <implementation name="IM_image_color3_osl" nodedef="ND_image_color3" file="stdlib/osl/mx_image_color.osl" function="mx_image_color" target="osl">
     <parameter name="default" type="color3" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_color4_osl" nodedef="ND_image_color4" file="stdlib/osl/mx_image_color4.osl" function="mx_image_color4" language="osl">
+  <implementation name="IM_image_color4_osl" nodedef="ND_image_color4" file="stdlib/osl/mx_image_color4.osl" function="mx_image_color4" target="osl">
     <parameter name="default" type="color4" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_vector2_osl" nodedef="ND_image_vector2" file="stdlib/osl/mx_image_vector2.osl" function="mx_image_vector2" language="osl">
+  <implementation name="IM_image_vector2_osl" nodedef="ND_image_vector2" file="stdlib/osl/mx_image_vector2.osl" function="mx_image_vector2" target="osl">
     <parameter name="default" type="vector2" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_vector3_osl" nodedef="ND_image_vector3" file="stdlib/osl/mx_image_vector.osl" function="mx_image_vector" language="osl">
+  <implementation name="IM_image_vector3_osl" nodedef="ND_image_vector3" file="stdlib/osl/mx_image_vector.osl" function="mx_image_vector" target="osl">
     <parameter name="default" type="vector3" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_vector4_osl" nodedef="ND_image_vector4" file="stdlib/osl/mx_image_vector4.osl" function="mx_image_vector4" language="osl">
+  <implementation name="IM_image_vector4_osl" nodedef="ND_image_vector4" file="stdlib/osl/mx_image_vector4.osl" function="mx_image_vector4" target="osl">
     <parameter name="default" type="vector4" implname="default_value"/>
   </implementation>
 
 
   <!-- <tiledimage> Supplemental Node -->
-  <implementation name="IM_tiledimage_float_osl" nodedef="ND_tiledimage_float" file="stdlib/osl/mx_tiledimage_float.osl" function="mx_tiledimage_float" language="osl">
+  <implementation name="IM_tiledimage_float_osl" nodedef="ND_tiledimage_float" file="stdlib/osl/mx_tiledimage_float.osl" function="mx_tiledimage_float" target="osl">
     <parameter name="default" type="float" implname="default_value"/>
   </implementation>
-  <implementation name="IM_tiledimage_color2_osl" nodedef="ND_tiledimage_color2" file="stdlib/osl/mx_tiledimage_color2.osl" function="mx_tiledimage_color2" language="osl">
-    <parameter name="default" type="color2" implname="default_value"/>
-  </implementation>
-  <implementation name="IM_tiledimage_color3_osl" nodedef="ND_tiledimage_color3" file="stdlib/osl/mx_tiledimage_color.osl" function="mx_tiledimage_color" language="osl">
+  <implementation name="IM_tiledimage_color3_osl" nodedef="ND_tiledimage_color3" file="stdlib/osl/mx_tiledimage_color.osl" function="mx_tiledimage_color" target="osl">
     <parameter name="default" type="color3" implname="default_value"/>
   </implementation>
-  <implementation name="IM_tiledimage_color4_osl" nodedef="ND_tiledimage_color4" file="stdlib/osl/mx_tiledimage_color4.osl" function="mx_tiledimage_color4" language="osl">
+  <implementation name="IM_tiledimage_color4_osl" nodedef="ND_tiledimage_color4" file="stdlib/osl/mx_tiledimage_color4.osl" function="mx_tiledimage_color4" target="osl">
     <parameter name="default" type="color4" implname="default_value"/>
   </implementation>
-  <implementation name="IM_tiledimage_vector2_osl" nodedef="ND_tiledimage_vector2" file="stdlib/osl/mx_tiledimage_vector2.osl" function="mx_tiledimage_vector2" language="osl">
+  <implementation name="IM_tiledimage_vector2_osl" nodedef="ND_tiledimage_vector2" file="stdlib/osl/mx_tiledimage_vector2.osl" function="mx_tiledimage_vector2" target="osl">
     <parameter name="default" type="vector2" implname="default_value"/>
   </implementation>
-  <implementation name="IM_tiledimage_vector3_osl" nodedef="ND_tiledimage_vector3" file="stdlib/osl/mx_tiledimage_vector.osl" function="mx_tiledimage_vector" language="osl">
+  <implementation name="IM_tiledimage_vector3_osl" nodedef="ND_tiledimage_vector3" file="stdlib/osl/mx_tiledimage_vector.osl" function="mx_tiledimage_vector" target="osl">
     <parameter name="default" type="vector3" implname="default_value"/>
   </implementation>
-  <implementation name="IM_tiledimage_vector4_osl" nodedef="ND_tiledimage_vector4" file="stdlib/osl/mx_tiledimage_vector4.osl" function="mx_tiledimage_vector4" language="osl">
+  <implementation name="IM_tiledimage_vector4_osl" nodedef="ND_tiledimage_vector4" file="stdlib/osl/mx_tiledimage_vector4.osl" function="mx_tiledimage_vector4" target="osl">
     <parameter name="default" type="vector4" implname="default_value"/>
   </implementation>
 
   <!-- <triplanarprojection> Supplemental Node -->
-  <implementation name="IM_triplanarprojection_float_osl" nodedef="ND_triplanarprojection_float" file="stdlib/osl/mx_triplanarprojection_float.osl" function="mx_triplanarprojection_float" language="osl">
+  <implementation name="IM_triplanarprojection_float_osl" nodedef="ND_triplanarprojection_float" file="stdlib/osl/mx_triplanarprojection_float.osl" function="mx_triplanarprojection_float" target="osl">
     <parameter name="default" type="float" implname="default_value"/>
     <input name="normal" type="vector3" implname="inN"/>
   </implementation>
-  <implementation name="IM_triplanarprojection_color2_osl" nodedef="ND_triplanarprojection_color2" file="stdlib/osl/mx_triplanarprojection_color2.osl" function="mx_triplanarprojection_color2" language="osl">
-    <parameter name="default" type="color2" implname="default_value"/>
-    <input name="normal" type="vector3" implname="inN"/>
-  </implementation>
-  <implementation name="IM_triplanarprojection_color3_osl" nodedef="ND_triplanarprojection_color3" file="stdlib/osl/mx_triplanarprojection_color.osl" function="mx_triplanarprojection_color" language="osl">
+  <implementation name="IM_triplanarprojection_color3_osl" nodedef="ND_triplanarprojection_color3" file="stdlib/osl/mx_triplanarprojection_color.osl" function="mx_triplanarprojection_color" target="osl">
     <parameter name="default" type="color3" implname="default_value"/>
     <input name="normal" type="vector3" implname="inN"/>
   </implementation>
-  <implementation name="IM_triplanarprojection_color4_osl" nodedef="ND_triplanarprojection_color4" file="stdlib/osl/mx_triplanarprojection_color4.osl" function="mx_triplanarprojection_color4" language="osl">
+  <implementation name="IM_triplanarprojection_color4_osl" nodedef="ND_triplanarprojection_color4" file="stdlib/osl/mx_triplanarprojection_color4.osl" function="mx_triplanarprojection_color4" target="osl">
     <parameter name="default" type="color4" implname="default_value"/>
     <input name="normal" type="vector3" implname="inN"/>
   </implementation>
-  <implementation name="IM_triplanarprojection_vector2_osl" nodedef="ND_triplanarprojection_vector2" file="stdlib/osl/mx_triplanarprojection_vector2.osl" function="mx_triplanarprojection_vector2" language="osl">
+  <implementation name="IM_triplanarprojection_vector2_osl" nodedef="ND_triplanarprojection_vector2" file="stdlib/osl/mx_triplanarprojection_vector2.osl" function="mx_triplanarprojection_vector2" target="osl">
     <parameter name="default" type="vector2" implname="default_value"/>
     <input name="normal" type="vector3" implname="inN"/>
   </implementation>
-  <implementation name="IM_triplanarprojection_vector3_osl" nodedef="ND_triplanarprojection_vector3" file="stdlib/osl/mx_triplanarprojection_vector.osl" function="mx_triplanarprojection_vector" language="osl">
+  <implementation name="IM_triplanarprojection_vector3_osl" nodedef="ND_triplanarprojection_vector3" file="stdlib/osl/mx_triplanarprojection_vector.osl" function="mx_triplanarprojection_vector" target="osl">
     <parameter name="default" type="vector3" implname="default_value"/>
     <input name="normal" type="vector3" implname="inN"/>
   </implementation>
-  <implementation name="IM_triplanarprojection_vector4_osl" nodedef="ND_triplanarprojection_vector4" file="stdlib/osl/mx_triplanarprojection_vector4.osl" function="mx_triplanarprojection_vector4" language="osl">
+  <implementation name="IM_triplanarprojection_vector4_osl" nodedef="ND_triplanarprojection_vector4" file="stdlib/osl/mx_triplanarprojection_vector4.osl" function="mx_triplanarprojection_vector4" target="osl">
     <parameter name="default" type="vector4" implname="default_value"/>
     <input name="normal" type="vector3" implname="inN"/>
   </implementation>
@@ -95,115 +85,103 @@
   <!-- ======================================================================== -->
 
   <!-- <constant> -->
-  <implementation name="IM_constant_float_osl" nodedef="ND_constant_float" file="stdlib/osl/mx_constant_float.osl" function="mx_constant_float" language="osl"/>
-  <implementation name="IM_constant_color2_osl" nodedef="ND_constant_color2" file="stdlib/osl/mx_constant_color2.osl" function="mx_constant_color2" language="osl"/>
-  <implementation name="IM_constant_color3_osl" nodedef="ND_constant_color3" file="stdlib/osl/mx_constant_color.osl" function="mx_constant_color" language="osl"/>
-  <implementation name="IM_constant_color4_osl" nodedef="ND_constant_color4" file="stdlib/osl/mx_constant_color4.osl" function="mx_constant_color4" language="osl"/>
-  <implementation name="IM_constant_vector2_osl" nodedef="ND_constant_vector2" file="stdlib/osl/mx_constant_vector2.osl" function="mx_constant_vector2" language="osl"/>
-  <implementation name="IM_constant_vector3_osl" nodedef="ND_constant_vector3" file="stdlib/osl/mx_constant_vector.osl" function="mx_constant_vector" language="osl"/>
-  <implementation name="IM_constant_vector4_osl" nodedef="ND_constant_vector4" file="stdlib/osl/mx_constant_vector4.osl" function="mx_constant_vector4" language="osl"/>
-  <implementation name="IM_constant_boolean_osl" nodedef="ND_constant_boolean" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant_integer_osl" nodedef="ND_constant_integer" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant_matrix33_osl" nodedef="ND_constant_matrix33" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant_matrix44_osl" nodedef="ND_constant_matrix44" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant_string_osl" nodedef="ND_constant_string" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant_filename_osl" nodedef="ND_constant_filename" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_constant_float_osl" nodedef="ND_constant_float" file="stdlib/osl/mx_constant_float.osl" function="mx_constant_float" target="osl"/>
+  <implementation name="IM_constant_color3_osl" nodedef="ND_constant_color3" file="stdlib/osl/mx_constant_color.osl" function="mx_constant_color" target="osl"/>
+  <implementation name="IM_constant_color4_osl" nodedef="ND_constant_color4" file="stdlib/osl/mx_constant_color4.osl" function="mx_constant_color4" target="osl"/>
+  <implementation name="IM_constant_vector2_osl" nodedef="ND_constant_vector2" file="stdlib/osl/mx_constant_vector2.osl" function="mx_constant_vector2" target="osl"/>
+  <implementation name="IM_constant_vector3_osl" nodedef="ND_constant_vector3" file="stdlib/osl/mx_constant_vector.osl" function="mx_constant_vector" target="osl"/>
+  <implementation name="IM_constant_vector4_osl" nodedef="ND_constant_vector4" file="stdlib/osl/mx_constant_vector4.osl" function="mx_constant_vector4" target="osl"/>
+  <implementation name="IM_constant_boolean_osl" nodedef="ND_constant_boolean" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_constant_integer_osl" nodedef="ND_constant_integer" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_constant_matrix33_osl" nodedef="ND_constant_matrix33" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_constant_matrix44_osl" nodedef="ND_constant_matrix44" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_constant_string_osl" nodedef="ND_constant_string" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_constant_filename_osl" nodedef="ND_constant_filename" file="FILE" function="FUNC" target="osl"/>
 
   <!-- <ramplr> -->
-  <implementation name="IM_ramplr_float_osl" nodedef="ND_ramplr_float" file="stdlib/osl/mx_ramplr_float.osl" function="mx_ramplr_float" language="osl"/>
-  <implementation name="IM_ramplr_color2_osl" nodedef="ND_ramplr_color2" file="stdlib/osl/mx_ramplr_color2.osl" function="mx_ramplr_color2" language="osl"/>
-  <implementation name="IM_ramplr_color3_osl" nodedef="ND_ramplr_color3" file="stdlib/osl/mx_ramplr_color.osl" function="mx_ramplr_color" language="osl"/>
-  <implementation name="IM_ramplr_color4_osl" nodedef="ND_ramplr_color4" file="stdlib/osl/mx_ramplr_color4.osl" function="mx_ramplr_color4" language="osl"/>
-  <implementation name="IM_ramplr_vector2_osl" nodedef="ND_ramplr_vector2" file="stdlib/osl/mx_ramplr_vector2.osl" function="mx_ramplr_vector2" language="osl"/>
-  <implementation name="IM_ramplr_vector3_osl" nodedef="ND_ramplr_vector3" file="stdlib/osl/mx_ramplr_vector.osl" function="mx_ramplr_vector" language="osl"/>
-  <implementation name="IM_ramplr_vector4_osl" nodedef="ND_ramplr_vector4" file="stdlib/osl/mx_ramplr_vector4.osl" function="mx_ramplr_vector4" language="osl"/>
+  <implementation name="IM_ramplr_float_osl" nodedef="ND_ramplr_float" file="stdlib/osl/mx_ramplr_float.osl" function="mx_ramplr_float" target="osl"/>
+  <implementation name="IM_ramplr_color3_osl" nodedef="ND_ramplr_color3" file="stdlib/osl/mx_ramplr_color.osl" function="mx_ramplr_color" target="osl"/>
+  <implementation name="IM_ramplr_color4_osl" nodedef="ND_ramplr_color4" file="stdlib/osl/mx_ramplr_color4.osl" function="mx_ramplr_color4" target="osl"/>
+  <implementation name="IM_ramplr_vector2_osl" nodedef="ND_ramplr_vector2" file="stdlib/osl/mx_ramplr_vector2.osl" function="mx_ramplr_vector2" target="osl"/>
+  <implementation name="IM_ramplr_vector3_osl" nodedef="ND_ramplr_vector3" file="stdlib/osl/mx_ramplr_vector.osl" function="mx_ramplr_vector" target="osl"/>
+  <implementation name="IM_ramplr_vector4_osl" nodedef="ND_ramplr_vector4" file="stdlib/osl/mx_ramplr_vector4.osl" function="mx_ramplr_vector4" target="osl"/>
 
   <!-- <ramptb> -->
-  <implementation name="IM_ramptb_float_osl" nodedef="ND_ramptb_float" file="stdlib/osl/mx_ramptb_float.osl" function="mx_ramptb_float" language="osl"/>
-  <implementation name="IM_ramptb_color2_osl" nodedef="ND_ramptb_color2" file="stdlib/osl/mx_ramptb_color2.osl" function="mx_ramptb_color2" language="osl"/>
-  <implementation name="IM_ramptb_color3_osl" nodedef="ND_ramptb_color3" file="stdlib/osl/mx_ramptb_color.osl" function="mx_ramptb_color" language="osl"/>
-  <implementation name="IM_ramptb_color4_osl" nodedef="ND_ramptb_color4" file="stdlib/osl/mx_ramptb_color4.osl" function="mx_ramptb_color4" language="osl"/>
-  <implementation name="IM_ramptb_vector2_osl" nodedef="ND_ramptb_vector2" file="stdlib/osl/mx_ramptb_vector2.osl" function="mx_ramptb_vector2" language="osl"/>
-  <implementation name="IM_ramptb_vector3_osl" nodedef="ND_ramptb_vector3" file="stdlib/osl/mx_ramptb_vector.osl" function="mx_ramptb_vector" language="osl"/>
-  <implementation name="IM_ramptb_vector4_osl" nodedef="ND_ramptb_vector4" file="stdlib/osl/mx_ramptb_vector4.osl" function="mx_ramptb_vector4" language="osl"/>
+  <implementation name="IM_ramptb_float_osl" nodedef="ND_ramptb_float" file="stdlib/osl/mx_ramptb_float.osl" function="mx_ramptb_float" target="osl"/>
+  <implementation name="IM_ramptb_color3_osl" nodedef="ND_ramptb_color3" file="stdlib/osl/mx_ramptb_color.osl" function="mx_ramptb_color" target="osl"/>
+  <implementation name="IM_ramptb_color4_osl" nodedef="ND_ramptb_color4" file="stdlib/osl/mx_ramptb_color4.osl" function="mx_ramptb_color4" target="osl"/>
+  <implementation name="IM_ramptb_vector2_osl" nodedef="ND_ramptb_vector2" file="stdlib/osl/mx_ramptb_vector2.osl" function="mx_ramptb_vector2" target="osl"/>
+  <implementation name="IM_ramptb_vector3_osl" nodedef="ND_ramptb_vector3" file="stdlib/osl/mx_ramptb_vector.osl" function="mx_ramptb_vector" target="osl"/>
+  <implementation name="IM_ramptb_vector4_osl" nodedef="ND_ramptb_vector4" file="stdlib/osl/mx_ramptb_vector4.osl" function="mx_ramptb_vector4" target="osl"/>
 
   <!-- <ramp4> Supplemental Node -->
-  <implementation name="IM_ramp4_float_osl" nodedef="ND_ramp4_float" file="stdlib/osl/mx_ramp4_float.osl" function="mx_ramp4_float" language="osl"/>
-  <implementation name="IM_ramp4_color2_osl" nodedef="ND_ramp4_color2" file="stdlib/osl/mx_ramp4_color2.osl" function="mx_ramp4_color2" language="osl"/>
-  <implementation name="IM_ramp4_color3_osl" nodedef="ND_ramp4_color3" file="stdlib/osl/mx_ramp4_color.osl" function="mx_ramp4_color" language="osl"/>
-  <implementation name="IM_ramp4_color4_osl" nodedef="ND_ramp4_color4" file="stdlib/osl/mx_ramp4_color4.osl" function="mx_ramp4_color4" language="osl"/>
-  <implementation name="IM_ramp4_vector2_osl" nodedef="ND_ramp4_vector2" file="stdlib/osl/mx_ramp4_vector2.osl" function="mx_ramp4_vector2" language="osl"/>
-  <implementation name="IM_ramp4_vector3_osl" nodedef="ND_ramp4_vector3" file="stdlib/osl/mx_ramp4_vector.osl" function="mx_ramp4_vector" language="osl"/>
-  <implementation name="IM_ramp4_vector4_osl" nodedef="ND_ramp4_vector4" file="stdlib/osl/mx_ramp4_vector4.osl" function="mx_ramp4_vector4" language="osl"/>
+  <implementation name="IM_ramp4_float_osl" nodedef="ND_ramp4_float" file="stdlib/osl/mx_ramp4_float.osl" function="mx_ramp4_float" target="osl"/>
+  <implementation name="IM_ramp4_color3_osl" nodedef="ND_ramp4_color3" file="stdlib/osl/mx_ramp4_color.osl" function="mx_ramp4_color" target="osl"/>
+  <implementation name="IM_ramp4_color4_osl" nodedef="ND_ramp4_color4" file="stdlib/osl/mx_ramp4_color4.osl" function="mx_ramp4_color4" target="osl"/>
+  <implementation name="IM_ramp4_vector2_osl" nodedef="ND_ramp4_vector2" file="stdlib/osl/mx_ramp4_vector2.osl" function="mx_ramp4_vector2" target="osl"/>
+  <implementation name="IM_ramp4_vector3_osl" nodedef="ND_ramp4_vector3" file="stdlib/osl/mx_ramp4_vector.osl" function="mx_ramp4_vector" target="osl"/>
+  <implementation name="IM_ramp4_vector4_osl" nodedef="ND_ramp4_vector4" file="stdlib/osl/mx_ramp4_vector4.osl" function="mx_ramp4_vector4" target="osl"/>
 
   <!-- <splitlr> -->
-  <implementation name="IM_splitlr_float_osl" nodedef="ND_splitlr_float" file="stdlib/osl/mx_splitlr_float.osl" function="mx_splitlr_float" language="osl"/>
-  <implementation name="IM_splitlr_color2_osl" nodedef="ND_splitlr_color2" file="stdlib/osl/mx_splitlr_color2.osl" function="mx_splitlr_color2" language="osl"/>
-  <implementation name="IM_splitlr_color3_osl" nodedef="ND_splitlr_color3" file="stdlib/osl/mx_splitlr_color.osl" function="mx_splitlr_color" language="osl"/>
-  <implementation name="IM_splitlr_color4_osl" nodedef="ND_splitlr_color4" file="stdlib/osl/mx_splitlr_color4.osl" function="mx_splitlr_color4" language="osl"/>
-  <implementation name="IM_splitlr_vector2_osl" nodedef="ND_splitlr_vector2" file="stdlib/osl/mx_splitlr_vector2.osl" function="mx_splitlr_vector2" language="osl"/>
-  <implementation name="IM_splitlr_vector3_osl" nodedef="ND_splitlr_vector3" file="stdlib/osl/mx_splitlr_vector.osl" function="mx_splitlr_vector" language="osl"/>
-  <implementation name="IM_splitlr_vector4_osl" nodedef="ND_splitlr_vector4" file="stdlib/osl/mx_splitlr_vector4.osl" function="mx_splitlr_vector4" language="osl"/>
+  <implementation name="IM_splitlr_float_osl" nodedef="ND_splitlr_float" file="stdlib/osl/mx_splitlr_float.osl" function="mx_splitlr_float" target="osl"/>
+  <implementation name="IM_splitlr_color3_osl" nodedef="ND_splitlr_color3" file="stdlib/osl/mx_splitlr_color.osl" function="mx_splitlr_color" target="osl"/>
+  <implementation name="IM_splitlr_color4_osl" nodedef="ND_splitlr_color4" file="stdlib/osl/mx_splitlr_color4.osl" function="mx_splitlr_color4" target="osl"/>
+  <implementation name="IM_splitlr_vector2_osl" nodedef="ND_splitlr_vector2" file="stdlib/osl/mx_splitlr_vector2.osl" function="mx_splitlr_vector2" target="osl"/>
+  <implementation name="IM_splitlr_vector3_osl" nodedef="ND_splitlr_vector3" file="stdlib/osl/mx_splitlr_vector.osl" function="mx_splitlr_vector" target="osl"/>
+  <implementation name="IM_splitlr_vector4_osl" nodedef="ND_splitlr_vector4" file="stdlib/osl/mx_splitlr_vector4.osl" function="mx_splitlr_vector4" target="osl"/>
 
   <!-- <splittb> -->
-  <implementation name="IM_splittb_float_osl" nodedef="ND_splittb_float" file="stdlib/osl/mx_splittb_float.osl" function="mx_splittb_float" language="osl"/>
-  <implementation name="IM_splittb_color2_osl" nodedef="ND_splittb_color2" file="stdlib/osl/mx_splittb_color2.osl" function="mx_splittb_color2" language="osl"/>
-  <implementation name="IM_splittb_color3_osl" nodedef="ND_splittb_color3" file="stdlib/osl/mx_splittb_color.osl" function="mx_splittb_color" language="osl"/>
-  <implementation name="IM_splittb_color4_osl" nodedef="ND_splittb_color4" file="stdlib/osl/mx_splittb_color4.osl" function="mx_splittb_color4" language="osl"/>
-  <implementation name="IM_splittb_vector2_osl" nodedef="ND_splittb_vector2" file="stdlib/osl/mx_splittb_vector2.osl" function="mx_splittb_vector2" language="osl"/>
-  <implementation name="IM_splittb_vector3_osl" nodedef="ND_splittb_vector3" file="stdlib/osl/mx_splittb_vector.osl" function="mx_splittb_vector" language="osl"/>
-  <implementation name="IM_splittb_vector4_osl" nodedef="ND_splittb_vector4" file="stdlib/osl/mx_splittb_vector4.osl" function="mx_splittb_vector4" language="osl"/>
+  <implementation name="IM_splittb_float_osl" nodedef="ND_splittb_float" file="stdlib/osl/mx_splittb_float.osl" function="mx_splittb_float" target="osl"/>
+  <implementation name="IM_splittb_color3_osl" nodedef="ND_splittb_color3" file="stdlib/osl/mx_splittb_color.osl" function="mx_splittb_color" target="osl"/>
+  <implementation name="IM_splittb_color4_osl" nodedef="ND_splittb_color4" file="stdlib/osl/mx_splittb_color4.osl" function="mx_splittb_color4" target="osl"/>
+  <implementation name="IM_splittb_vector2_osl" nodedef="ND_splittb_vector2" file="stdlib/osl/mx_splittb_vector2.osl" function="mx_splittb_vector2" target="osl"/>
+  <implementation name="IM_splittb_vector3_osl" nodedef="ND_splittb_vector3" file="stdlib/osl/mx_splittb_vector.osl" function="mx_splittb_vector" target="osl"/>
+  <implementation name="IM_splittb_vector4_osl" nodedef="ND_splittb_vector4" file="stdlib/osl/mx_splittb_vector4.osl" function="mx_splittb_vector4" target="osl"/>
 
   <!-- <noise2d> -->
-  <implementation name="IM_noise2d_float_osl" nodedef="ND_noise2d_float" file="stdlib/osl/mx_noise2d_float.osl" function="mx_noise2d_float" language="osl"/>
-  <implementation name="IM_noise2d_color2_osl" nodedef="ND_noise2d_color2" file="stdlib/osl/mx_noise2d_color2.osl" function="mx_noise2d_color2" language="osl"/>
-  <implementation name="IM_noise2d_color2FA_osl" nodedef="ND_noise2d_color2FA" file="stdlib/osl/mx_noise2d_fa_color2.osl" function="mx_noise2d_fa_color2" language="osl"/>
-  <implementation name="IM_noise2d_color3_osl" nodedef="ND_noise2d_color3" file="stdlib/osl/mx_noise2d_color.osl" function="mx_noise2d_color" language="osl"/>
-  <implementation name="IM_noise2d_color3FA_osl" nodedef="ND_noise2d_color3FA" file="stdlib/osl/mx_noise2d_fa_color.osl" function="mx_noise2d_fa_color" language="osl"/>
-  <implementation name="IM_noise2d_color4_osl" nodedef="ND_noise2d_color4" file="stdlib/osl/mx_noise2d_color4.osl" function="mx_noise2d_color4" language="osl"/>
-  <implementation name="IM_noise2d_color4FA_osl" nodedef="ND_noise2d_color4FA" file="stdlib/osl/mx_noise2d_fa_color4.osl" function="mx_noise2d_fa_color4" language="osl"/>
-  <implementation name="IM_noise2d_vector2_osl" nodedef="ND_noise2d_vector2" file="stdlib/osl/mx_noise2d_vector2.osl" function="mx_noise2d_vector2" language="osl"/>
-  <implementation name="IM_noise2d_vector2FA_osl" nodedef="ND_noise2d_vector2FA" file="stdlib/osl/mx_noise2d_fa_vector2.osl" function="mx_noise2d_fa_vector2" language="osl"/>
-  <implementation name="IM_noise2d_vector3_osl" nodedef="ND_noise2d_vector3" file="stdlib/osl/mx_noise2d_vector.osl" function="mx_noise2d_vector" language="osl"/>
-  <implementation name="IM_noise2d_vector3FA_osl" nodedef="ND_noise2d_vector3FA" file="stdlib/osl/mx_noise2d_fa_vector.osl" function="mx_noise2d_fa_vector" language="osl"/>
-  <implementation name="IM_noise2d_vector4_osl" nodedef="ND_noise2d_vector4" file="stdlib/osl/mx_noise2d_vector4.osl" function="mx_noise2d_vector4" language="osl"/>
-  <implementation name="IM_noise2d_vector4FA_osl" nodedef="ND_noise2d_vector4FA" file="stdlib/osl/mx_noise2d_fa_vector4.osl" function="mx_noise2d_fa_vector4" language="osl"/>
+  <implementation name="IM_noise2d_float_osl" nodedef="ND_noise2d_float" file="stdlib/osl/mx_noise2d_float.osl" function="mx_noise2d_float" target="osl"/>
+  <implementation name="IM_noise2d_color3_osl" nodedef="ND_noise2d_color3" file="stdlib/osl/mx_noise2d_color.osl" function="mx_noise2d_color" target="osl"/>
+  <implementation name="IM_noise2d_color3FA_osl" nodedef="ND_noise2d_color3FA" file="stdlib/osl/mx_noise2d_fa_color.osl" function="mx_noise2d_fa_color" target="osl"/>
+  <implementation name="IM_noise2d_color4_osl" nodedef="ND_noise2d_color4" file="stdlib/osl/mx_noise2d_color4.osl" function="mx_noise2d_color4" target="osl"/>
+  <implementation name="IM_noise2d_color4FA_osl" nodedef="ND_noise2d_color4FA" file="stdlib/osl/mx_noise2d_fa_color4.osl" function="mx_noise2d_fa_color4" target="osl"/>
+  <implementation name="IM_noise2d_vector2_osl" nodedef="ND_noise2d_vector2" file="stdlib/osl/mx_noise2d_vector2.osl" function="mx_noise2d_vector2" target="osl"/>
+  <implementation name="IM_noise2d_vector2FA_osl" nodedef="ND_noise2d_vector2FA" file="stdlib/osl/mx_noise2d_fa_vector2.osl" function="mx_noise2d_fa_vector2" target="osl"/>
+  <implementation name="IM_noise2d_vector3_osl" nodedef="ND_noise2d_vector3" file="stdlib/osl/mx_noise2d_vector.osl" function="mx_noise2d_vector" target="osl"/>
+  <implementation name="IM_noise2d_vector3FA_osl" nodedef="ND_noise2d_vector3FA" file="stdlib/osl/mx_noise2d_fa_vector.osl" function="mx_noise2d_fa_vector" target="osl"/>
+  <implementation name="IM_noise2d_vector4_osl" nodedef="ND_noise2d_vector4" file="stdlib/osl/mx_noise2d_vector4.osl" function="mx_noise2d_vector4" target="osl"/>
+  <implementation name="IM_noise2d_vector4FA_osl" nodedef="ND_noise2d_vector4FA" file="stdlib/osl/mx_noise2d_fa_vector4.osl" function="mx_noise2d_fa_vector4" target="osl"/>
 
   <!-- <noise3d> -->
-  <implementation name="IM_noise3d_float_osl" nodedef="ND_noise3d_float" file="stdlib/osl/mx_noise3d_float.osl" function="mx_noise3d_float" language="osl"/>
-  <implementation name="IM_noise3d_color2_osl" nodedef="ND_noise3d_color2" file="stdlib/osl/mx_noise3d_color2.osl" function="mx_noise3d_color2" language="osl"/>
-  <implementation name="IM_noise3d_color2FA_osl" nodedef="ND_noise3d_color2FA" file="stdlib/osl/mx_noise3d_fa_color2.osl" function="mx_noise3d_fa_color2" language="osl"/>
-  <implementation name="IM_noise3d_color3_osl" nodedef="ND_noise3d_color3" file="stdlib/osl/mx_noise3d_color.osl" function="mx_noise3d_color" language="osl"/>
-  <implementation name="IM_noise3d_color3FA_osl" nodedef="ND_noise3d_color3FA" file="stdlib/osl/mx_noise3d_fa_color.osl" function="mx_noise3d_fa_color" language="osl"/>
-  <implementation name="IM_noise3d_color4_osl" nodedef="ND_noise3d_color4" file="stdlib/osl/mx_noise3d_color4.osl" function="mx_noise3d_color4" language="osl"/>
-  <implementation name="IM_noise3d_color4FA_osl" nodedef="ND_noise3d_color4FA" file="stdlib/osl/mx_noise3d_fa_color4.osl" function="mx_noise3d_fa_color4" language="osl"/>
-  <implementation name="IM_noise3d_vector2_osl" nodedef="ND_noise3d_vector2" file="stdlib/osl/mx_noise3d_vector2.osl" function="mx_noise3d_vector2" language="osl"/>
-  <implementation name="IM_noise3d_vector2FA_osl" nodedef="ND_noise3d_vector2FA" file="stdlib/osl/mx_noise3d_fa_vector2.osl" function="mx_noise3d_fa_vector2" language="osl"/>
-  <implementation name="IM_noise3d_vector3_osl" nodedef="ND_noise3d_vector3" file="stdlib/osl/mx_noise3d_vector.osl" function="mx_noise3d_vector" language="osl"/>
-  <implementation name="IM_noise3d_vector3FA_osl" nodedef="ND_noise3d_vector3FA" file="stdlib/osl/mx_noise3d_fa_vector.osl" function="mx_noise3d_fa_vector" language="osl"/>
-  <implementation name="IM_noise3d_vector4_osl" nodedef="ND_noise3d_vector4" file="stdlib/osl/mx_noise3d_vector4.osl" function="mx_noise3d_vector4" language="osl"/>
-  <implementation name="IM_noise3d_vector4FA_osl" nodedef="ND_noise3d_vector4FA" file="stdlib/osl/mx_noise3d_fa_vector4.osl" function="mx_noise3d_fa_vector4" language="osl"/>
+  <implementation name="IM_noise3d_float_osl" nodedef="ND_noise3d_float" file="stdlib/osl/mx_noise3d_float.osl" function="mx_noise3d_float" target="osl"/>
+  <implementation name="IM_noise3d_color3_osl" nodedef="ND_noise3d_color3" file="stdlib/osl/mx_noise3d_color.osl" function="mx_noise3d_color" target="osl"/>
+  <implementation name="IM_noise3d_color3FA_osl" nodedef="ND_noise3d_color3FA" file="stdlib/osl/mx_noise3d_fa_color.osl" function="mx_noise3d_fa_color" target="osl"/>
+  <implementation name="IM_noise3d_color4_osl" nodedef="ND_noise3d_color4" file="stdlib/osl/mx_noise3d_color4.osl" function="mx_noise3d_color4" target="osl"/>
+  <implementation name="IM_noise3d_color4FA_osl" nodedef="ND_noise3d_color4FA" file="stdlib/osl/mx_noise3d_fa_color4.osl" function="mx_noise3d_fa_color4" target="osl"/>
+  <implementation name="IM_noise3d_vector2_osl" nodedef="ND_noise3d_vector2" file="stdlib/osl/mx_noise3d_vector2.osl" function="mx_noise3d_vector2" target="osl"/>
+  <implementation name="IM_noise3d_vector2FA_osl" nodedef="ND_noise3d_vector2FA" file="stdlib/osl/mx_noise3d_fa_vector2.osl" function="mx_noise3d_fa_vector2" target="osl"/>
+  <implementation name="IM_noise3d_vector3_osl" nodedef="ND_noise3d_vector3" file="stdlib/osl/mx_noise3d_vector.osl" function="mx_noise3d_vector" target="osl"/>
+  <implementation name="IM_noise3d_vector3FA_osl" nodedef="ND_noise3d_vector3FA" file="stdlib/osl/mx_noise3d_fa_vector.osl" function="mx_noise3d_fa_vector" target="osl"/>
+  <implementation name="IM_noise3d_vector4_osl" nodedef="ND_noise3d_vector4" file="stdlib/osl/mx_noise3d_vector4.osl" function="mx_noise3d_vector4" target="osl"/>
+  <implementation name="IM_noise3d_vector4FA_osl" nodedef="ND_noise3d_vector4FA" file="stdlib/osl/mx_noise3d_fa_vector4.osl" function="mx_noise3d_fa_vector4" target="osl"/>
 
   <!-- <fractal3d> -->
-  <implementation name="IM_fractal3d_float_osl" nodedef="ND_fractal3d_float" file="stdlib/osl/mx_fractal3d_float.osl" function="mx_fractal3d_float" language="osl"/>
-  <implementation name="IM_fractal3d_color2_osl" nodedef="ND_fractal3d_color2" file="stdlib/osl/mx_fractal3d_color2.osl" function="mx_fractal3d_color2" language="osl"/>
-  <implementation name="IM_fractal3d_color2FA_osl" nodedef="ND_fractal3d_color2FA" file="stdlib/osl/mx_fractal3d_fa_color2.osl" function="mx_fractal3d_fa_color2" language="osl"/>
-  <implementation name="IM_fractal3d_color3_osl" nodedef="ND_fractal3d_color3" file="stdlib/osl/mx_fractal3d_color.osl" function="mx_fractal3d_color" language="osl"/>
-  <implementation name="IM_fractal3d_color3FA_osl" nodedef="ND_fractal3d_color3FA" file="stdlib/osl/mx_fractal3d_fa_color.osl" function="mx_fractal3d_fa_color" language="osl"/>
-  <implementation name="IM_fractal3d_color4_osl" nodedef="ND_fractal3d_color4" file="stdlib/osl/mx_fractal3d_color4.osl" function="mx_fractal3d_color4" language="osl"/>
-  <implementation name="IM_fractal3d_color4FA_osl" nodedef="ND_fractal3d_color4FA" file="stdlib/osl/mx_fractal3d_fa_color4.osl" function="mx_fractal3d_fa_color4" language="osl"/>
-  <implementation name="IM_fractal3d_vector2_osl" nodedef="ND_fractal3d_vector2" file="stdlib/osl/mx_fractal3d_vector2.osl" function="mx_fractal3d_vector2" language="osl"/>
-  <implementation name="IM_fractal3d_vector2FA_osl" nodedef="ND_fractal3d_vector2FA" file="stdlib/osl/mx_fractal3d_fa_vector2.osl" function="mx_fractal3d_fa_vector2" language="osl"/>
-  <implementation name="IM_fractal3d_vector3_osl" nodedef="ND_fractal3d_vector3" file="stdlib/osl/mx_fractal3d_vector.osl" function="mx_fractal3d_vector" language="osl"/>
-  <implementation name="IM_fractal3d_vector3FA_osl" nodedef="ND_fractal3d_vector3FA" file="stdlib/osl/mx_fractal3d_fa_vector.osl" function="mx_fractal3d_fa_vector" language="osl"/>
-  <implementation name="IM_fractal3d_vector4_osl" nodedef="ND_fractal3d_vector4" file="stdlib/osl/mx_fractal3d_vector4.osl" function="mx_fractal3d_vector4" language="osl"/>
-  <implementation name="IM_fractal3d_vector4FA_osl" nodedef="ND_fractal3d_vector4FA" file="stdlib/osl/mx_fractal3d_fa_vector4.osl" function="mx_fractal3d_fa_vector4" language="osl"/>
+  <implementation name="IM_fractal3d_float_osl" nodedef="ND_fractal3d_float" file="stdlib/osl/mx_fractal3d_float.osl" function="mx_fractal3d_float" target="osl"/>
+  <implementation name="IM_fractal3d_color3_osl" nodedef="ND_fractal3d_color3" file="stdlib/osl/mx_fractal3d_color.osl" function="mx_fractal3d_color" target="osl"/>
+  <implementation name="IM_fractal3d_color3FA_osl" nodedef="ND_fractal3d_color3FA" file="stdlib/osl/mx_fractal3d_fa_color.osl" function="mx_fractal3d_fa_color" target="osl"/>
+  <implementation name="IM_fractal3d_color4_osl" nodedef="ND_fractal3d_color4" file="stdlib/osl/mx_fractal3d_color4.osl" function="mx_fractal3d_color4" target="osl"/>
+  <implementation name="IM_fractal3d_color4FA_osl" nodedef="ND_fractal3d_color4FA" file="stdlib/osl/mx_fractal3d_fa_color4.osl" function="mx_fractal3d_fa_color4" target="osl"/>
+  <implementation name="IM_fractal3d_vector2_osl" nodedef="ND_fractal3d_vector2" file="stdlib/osl/mx_fractal3d_vector2.osl" function="mx_fractal3d_vector2" target="osl"/>
+  <implementation name="IM_fractal3d_vector2FA_osl" nodedef="ND_fractal3d_vector2FA" file="stdlib/osl/mx_fractal3d_fa_vector2.osl" function="mx_fractal3d_fa_vector2" target="osl"/>
+  <implementation name="IM_fractal3d_vector3_osl" nodedef="ND_fractal3d_vector3" file="stdlib/osl/mx_fractal3d_vector.osl" function="mx_fractal3d_vector" target="osl"/>
+  <implementation name="IM_fractal3d_vector3FA_osl" nodedef="ND_fractal3d_vector3FA" file="stdlib/osl/mx_fractal3d_fa_vector.osl" function="mx_fractal3d_fa_vector" target="osl"/>
+  <implementation name="IM_fractal3d_vector4_osl" nodedef="ND_fractal3d_vector4" file="stdlib/osl/mx_fractal3d_vector4.osl" function="mx_fractal3d_vector4" target="osl"/>
+  <implementation name="IM_fractal3d_vector4FA_osl" nodedef="ND_fractal3d_vector4FA" file="stdlib/osl/mx_fractal3d_fa_vector4.osl" function="mx_fractal3d_fa_vector4" target="osl"/>
 
   <!-- <cellnoise2d> -->
-  <implementation name="IM_cellnoise2d_float_osl" nodedef="ND_cellnoise2d_float" file="stdlib/osl/mx_cellnoise2d_float.osl" function="mx_cellnoise2d_float" language="osl"/>
+  <implementation name="IM_cellnoise2d_float_osl" nodedef="ND_cellnoise2d_float" file="stdlib/osl/mx_cellnoise2d_float.osl" function="mx_cellnoise2d_float" target="osl"/>
 
   <!-- <cellnoise3d> -->
-  <implementation name="IM_cellnoise3d_float_osl" nodedef="ND_cellnoise3d_float" file="stdlib/osl/mx_cellnoise3d_float.osl" function="mx_cellnoise3d_float" language="osl"/>
+  <implementation name="IM_cellnoise3d_float_osl" nodedef="ND_cellnoise3d_float" file="stdlib/osl/mx_cellnoise3d_float.osl" function="mx_cellnoise3d_float" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -211,38 +189,36 @@
   <!-- ======================================================================== -->
 
   <!-- <position> -->
-  <implementation name="IM_position_vector3_osl" nodedef="ND_position_vector3" file="stdlib/osl/mx_position_vector.osl" function="mx_position_vector" language="osl"/>
+  <implementation name="IM_position_vector3_osl" nodedef="ND_position_vector3" file="stdlib/osl/mx_position_vector.osl" function="mx_position_vector" target="osl"/>
 
   <!-- <normal> -->
-  <implementation name="IM_normal_vector3_osl" nodedef="ND_normal_vector3" file="stdlib/osl/mx_normal_vector.osl" function="mx_normal_vector" language="osl"/>
+  <implementation name="IM_normal_vector3_osl" nodedef="ND_normal_vector3" file="stdlib/osl/mx_normal_vector.osl" function="mx_normal_vector" target="osl"/>
 
   <!-- <tangent> -->
-  <implementation name="IM_tangent_vector3_osl" nodedef="ND_tangent_vector3" file="stdlib/osl/mx_tangent_vector.osl" function="mx_tangent_vector" language="osl"/>
+  <implementation name="IM_tangent_vector3_osl" nodedef="ND_tangent_vector3" file="stdlib/osl/mx_tangent_vector.osl" function="mx_tangent_vector" target="osl"/>
 
   <!-- <bitangent> -->
-  <implementation name="IM_bitangent_vector3_osl" nodedef="ND_bitangent_vector3" file="stdlib/osl/mx_bitangent_vector.osl" function="mx_bitangent_vector" language="osl"/>
+  <implementation name="IM_bitangent_vector3_osl" nodedef="ND_bitangent_vector3" file="stdlib/osl/mx_bitangent_vector.osl" function="mx_bitangent_vector" target="osl"/>
 
   <!-- <texcoord> -->
-  <implementation name="IM_texcoord_vector2_osl" nodedef="ND_texcoord_vector2" file="stdlib/osl/mx_texcoord_vector2.osl" function="mx_texcoord_vector2" language="osl"/>
-  <implementation name="IM_texcoord_vector3_osl" nodedef="ND_texcoord_vector3" file="stdlib/osl/mx_texcoord_vector.osl" function="mx_texcoord_vector" language="osl"/>
+  <implementation name="IM_texcoord_vector2_osl" nodedef="ND_texcoord_vector2" file="stdlib/osl/mx_texcoord_vector2.osl" function="mx_texcoord_vector2" target="osl"/>
+  <implementation name="IM_texcoord_vector3_osl" nodedef="ND_texcoord_vector3" file="stdlib/osl/mx_texcoord_vector.osl" function="mx_texcoord_vector" target="osl"/>
 
   <!-- <geomcolor> -->
-  <implementation name="IM_geomcolor_float_osl" nodedef="ND_geomcolor_float" file="stdlib/osl/mx_geomcolor_float.osl" function="mx_geomcolor_float" language="osl"/>
-  <implementation name="IM_geomcolor_color2_osl" nodedef="ND_geomcolor_color2" file="stdlib/osl/mx_geomcolor_color2.osl" function="mx_geomcolor_color2" language="osl"/>
-  <implementation name="IM_geomcolor_color3_osl" nodedef="ND_geomcolor_color3" file="stdlib/osl/mx_geomcolor_color.osl" function="mx_geomcolor_color" language="osl"/>
-  <implementation name="IM_geomcolor_color4_osl" nodedef="ND_geomcolor_color4" file="stdlib/osl/mx_geomcolor_color4.osl" function="mx_geomcolor_color4" language="osl"/>
+  <implementation name="IM_geomcolor_float_osl" nodedef="ND_geomcolor_float" file="stdlib/osl/mx_geomcolor_float.osl" function="mx_geomcolor_float" target="osl"/>
+  <implementation name="IM_geomcolor_color3_osl" nodedef="ND_geomcolor_color3" file="stdlib/osl/mx_geomcolor_color.osl" function="mx_geomcolor_color" target="osl"/>
+  <implementation name="IM_geomcolor_color4_osl" nodedef="ND_geomcolor_color4" file="stdlib/osl/mx_geomcolor_color4.osl" function="mx_geomcolor_color4" target="osl"/>
 
   <!-- <geompropvalue> -->
-  <implementation name="IM_geompropvalue_integer_osl" nodedef="ND_geompropvalue_integer" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_geompropvalue_boolean_osl" nodedef="ND_geompropvalue_boolean" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_geompropvalue_string_osl" nodedef="ND_geompropvalue_string" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_geompropvalue_float_osl" nodedef="ND_geompropvalue_float" file="stdlib/osl/mx_geompropvalue_float.osl" function="mx_geompropvalue_float" language="osl"/>
-  <implementation name="IM_geompropvalue_color2_osl" nodedef="ND_geompropvalue_color2" file="stdlib/osl/mx_geompropvalue_color2.osl" function="mx_geompropvalue_color2" language="osl"/>
-  <implementation name="IM_geompropvalue_color3_osl" nodedef="ND_geompropvalue_color3" file="stdlib/osl/mx_geompropvalue_color.osl" function="mx_geompropvalue_color" language="osl"/>
-  <implementation name="IM_geompropvalue_color4_osl" nodedef="ND_geompropvalue_color4" file="stdlib/osl/mx_geompropvalue_color4.osl" function="mx_geompropvalue_color4" language="osl"/>
-  <implementation name="IM_geompropvalue_vector2_osl" nodedef="ND_geompropvalue_vector2" file="stdlib/osl/mx_geompropvalue_vector2.osl" function="mx_geompropvalue_vector2" language="osl"/>
-  <implementation name="IM_geompropvalue_vector3_osl" nodedef="ND_geompropvalue_vector3" file="stdlib/osl/mx_geompropvalue_vector.osl" function="mx_geompropvalue_vector" language="osl"/>
-  <implementation name="IM_geompropvalue_vector4_osl" nodedef="ND_geompropvalue_vector4" file="stdlib/osl/mx_geompropvalue_vector4.osl" function="mx_geompropvalue_vector4" language="osl"/>
+  <implementation name="IM_geompropvalue_integer_osl" nodedef="ND_geompropvalue_integer" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_geompropvalue_boolean_osl" nodedef="ND_geompropvalue_boolean" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_geompropvalue_string_osl" nodedef="ND_geompropvalue_string" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_geompropvalue_float_osl" nodedef="ND_geompropvalue_float" file="stdlib/osl/mx_geompropvalue_float.osl" function="mx_geompropvalue_float" target="osl"/>
+  <implementation name="IM_geompropvalue_color3_osl" nodedef="ND_geompropvalue_color3" file="stdlib/osl/mx_geompropvalue_color.osl" function="mx_geompropvalue_color" target="osl"/>
+  <implementation name="IM_geompropvalue_color4_osl" nodedef="ND_geompropvalue_color4" file="stdlib/osl/mx_geompropvalue_color4.osl" function="mx_geompropvalue_color4" target="osl"/>
+  <implementation name="IM_geompropvalue_vector2_osl" nodedef="ND_geompropvalue_vector2" file="stdlib/osl/mx_geompropvalue_vector2.osl" function="mx_geompropvalue_vector2" target="osl"/>
+  <implementation name="IM_geompropvalue_vector3_osl" nodedef="ND_geompropvalue_vector3" file="stdlib/osl/mx_geompropvalue_vector.osl" function="mx_geompropvalue_vector" target="osl"/>
+  <implementation name="IM_geompropvalue_vector4_osl" nodedef="ND_geompropvalue_vector4" file="stdlib/osl/mx_geompropvalue_vector4.osl" function="mx_geompropvalue_vector4" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -250,7 +226,7 @@
   <!-- ======================================================================== -->
 
   <!-- <ambientocclusion> -->
-  <implementation name="IM_ambientocclusion_float_osl" nodedef="ND_ambientocclusion_float" file="stdlib/osl/mx_ambientocclusion_float.osl" function="mx_ambientocclusion_float" language="osl"/>
+  <implementation name="IM_ambientocclusion_float_osl" nodedef="ND_ambientocclusion_float" file="stdlib/osl/mx_ambientocclusion_float.osl" function="mx_ambientocclusion_float" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -258,13 +234,13 @@
   <!-- ======================================================================== -->
 
   <!-- <frame> -->
-  <implementation name="IM_frame_float_osl" nodedef="ND_frame_float" file="stdlib/osl/mx_frame_float.osl" function="mx_frame_float" language="osl"/>
+  <implementation name="IM_frame_float_osl" nodedef="ND_frame_float" file="stdlib/osl/mx_frame_float.osl" function="mx_frame_float" target="osl"/>
 
   <!-- <time> -->
-  <implementation name="IM_time_float_osl" nodedef="ND_time_float" file="stdlib/osl/mx_time_float.osl" function="mx_time_float" language="osl"/>
+  <implementation name="IM_time_float_osl" nodedef="ND_time_float" file="stdlib/osl/mx_time_float.osl" function="mx_time_float" target="osl"/>
 
   <!-- <viewdirection> -->
-  <implementation name="IM_viewdirection_vector3_osl" nodedef="ND_viewdirection_vector3" file="stdlib/osl/mx_viewdirection_vector.osl" function="mx_viewdirection_vector" language="osl"/>
+  <implementation name="IM_viewdirection_vector3_osl" nodedef="ND_viewdirection_vector3" file="stdlib/osl/mx_viewdirection_vector.osl" function="mx_viewdirection_vector" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -272,286 +248,260 @@
   <!-- ======================================================================== -->
 
   <!-- <add> -->
-  <implementation name="IM_add_float_osl" nodedef="ND_add_float" file="stdlib/osl/mx_add_float.osl" function="mx_add_float" language="osl"/>
-  <implementation name="IM_add_color2_osl" nodedef="ND_add_color2" file="stdlib/osl/mx_add_color2.osl" function="mx_add_color2" language="osl"/>
-  <implementation name="IM_add_color2FA_osl" nodedef="ND_add_color2FA" file="stdlib/osl/mx_add_float_color2.osl" function="mx_add_float_color2" language="osl"/>
-  <implementation name="IM_add_color3_osl" nodedef="ND_add_color3" file="stdlib/osl/mx_add_color.osl" function="mx_add_color" language="osl"/>
-  <implementation name="IM_add_color3FA_osl" nodedef="ND_add_color3FA" file="stdlib/osl/mx_add_float_color.osl" function="mx_add_float_color" language="osl"/>
-  <implementation name="IM_add_color4_osl" nodedef="ND_add_color4" file="stdlib/osl/mx_add_color4.osl" function="mx_add_color4" language="osl"/>
-  <implementation name="IM_add_color4FA_osl" nodedef="ND_add_color4FA" file="stdlib/osl/mx_add_float_color4.osl" function="mx_add_float_color4" language="osl"/>
-  <implementation name="IM_add_vector2_osl" nodedef="ND_add_vector2" file="stdlib/osl/mx_add_vector2.osl" function="mx_add_vector2" language="osl"/>
-  <implementation name="IM_add_vector2FA_osl" nodedef="ND_add_vector2FA" file="stdlib/osl/mx_add_float_vector2.osl" function="mx_add_float_vector2" language="osl"/>
-  <implementation name="IM_add_vector3_osl" nodedef="ND_add_vector3" file="stdlib/osl/mx_add_vector.osl" function="mx_add_vector" language="osl"/>
-  <implementation name="IM_add_vector3FA_osl" nodedef="ND_add_vector3FA" file="stdlib/osl/mx_add_float_vector.osl" function="mx_add_float_vector" language="osl"/>
-  <implementation name="IM_add_vector4_osl" nodedef="ND_add_vector4" file="stdlib/osl/mx_add_vector4.osl" function="mx_add_vector4" language="osl"/>
-  <implementation name="IM_add_vector4FA_osl" nodedef="ND_add_vector4FA" file="stdlib/osl/mx_add_float_vector4.osl" function="mx_add_float_vector4" language="osl"/>
-  <implementation name="IM_add_matrix33_osl" nodedef="ND_add_matrix33" file="stdlib/osl/mx_add_matrix33.osl" function="mx_add_matrix33" language="osl"/>
-  <implementation name="IM_add_matrix33FA_osl" nodedef="ND_add_matrix33FA" file="stdlib/osl/mx_add_float_matrix33.osl" function="mx_add_float_matrix33" language="osl"/>
-  <implementation name="IM_add_matrix44_osl" nodedef="ND_add_matrix44" file="stdlib/osl/mx_add_matrix44.osl" function="mx_add_matrix44" language="osl"/>
-  <implementation name="IM_add_matrix44FA_osl" nodedef="ND_add_matrix44FA" file="stdlib/osl/mx_add_float_matrix44.osl" function="mx_add_float_matrix44" language="osl"/>
-  <implementation name="IM_add_surfaceshader_osl" nodedef="ND_add_surfaceshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_add_displacementshader_osl" nodedef="ND_add_displacementshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_add_volumeshader_osl" nodedef="ND_add_volumeshader" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_add_float_osl" nodedef="ND_add_float" file="stdlib/osl/mx_add_float.osl" function="mx_add_float" target="osl"/>
+  <implementation name="IM_add_color3_osl" nodedef="ND_add_color3" file="stdlib/osl/mx_add_color.osl" function="mx_add_color" target="osl"/>
+  <implementation name="IM_add_color3FA_osl" nodedef="ND_add_color3FA" file="stdlib/osl/mx_add_float_color.osl" function="mx_add_float_color" target="osl"/>
+  <implementation name="IM_add_color4_osl" nodedef="ND_add_color4" file="stdlib/osl/mx_add_color4.osl" function="mx_add_color4" target="osl"/>
+  <implementation name="IM_add_color4FA_osl" nodedef="ND_add_color4FA" file="stdlib/osl/mx_add_float_color4.osl" function="mx_add_float_color4" target="osl"/>
+  <implementation name="IM_add_vector2_osl" nodedef="ND_add_vector2" file="stdlib/osl/mx_add_vector2.osl" function="mx_add_vector2" target="osl"/>
+  <implementation name="IM_add_vector2FA_osl" nodedef="ND_add_vector2FA" file="stdlib/osl/mx_add_float_vector2.osl" function="mx_add_float_vector2" target="osl"/>
+  <implementation name="IM_add_vector3_osl" nodedef="ND_add_vector3" file="stdlib/osl/mx_add_vector.osl" function="mx_add_vector" target="osl"/>
+  <implementation name="IM_add_vector3FA_osl" nodedef="ND_add_vector3FA" file="stdlib/osl/mx_add_float_vector.osl" function="mx_add_float_vector" target="osl"/>
+  <implementation name="IM_add_vector4_osl" nodedef="ND_add_vector4" file="stdlib/osl/mx_add_vector4.osl" function="mx_add_vector4" target="osl"/>
+  <implementation name="IM_add_vector4FA_osl" nodedef="ND_add_vector4FA" file="stdlib/osl/mx_add_float_vector4.osl" function="mx_add_float_vector4" target="osl"/>
+  <implementation name="IM_add_matrix33_osl" nodedef="ND_add_matrix33" file="stdlib/osl/mx_add_matrix33.osl" function="mx_add_matrix33" target="osl"/>
+  <implementation name="IM_add_matrix33FA_osl" nodedef="ND_add_matrix33FA" file="stdlib/osl/mx_add_float_matrix33.osl" function="mx_add_float_matrix33" target="osl"/>
+  <implementation name="IM_add_matrix44_osl" nodedef="ND_add_matrix44" file="stdlib/osl/mx_add_matrix44.osl" function="mx_add_matrix44" target="osl"/>
+  <implementation name="IM_add_matrix44FA_osl" nodedef="ND_add_matrix44FA" file="stdlib/osl/mx_add_float_matrix44.osl" function="mx_add_float_matrix44" target="osl"/>
+  <implementation name="IM_add_surfaceshader_osl" nodedef="ND_add_surfaceshader" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_add_displacementshader_osl" nodedef="ND_add_displacementshader" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_add_volumeshader_osl" nodedef="ND_add_volumeshader" file="FILE" function="FUNC" target="osl"/>
 
   <!-- <subtract> -->
-  <implementation name="IM_subtract_float_osl" nodedef="ND_subtract_float" file="stdlib/osl/mx_subtract_float.osl" function="mx_subtract_float" language="osl"/>
-  <implementation name="IM_subtract_color2_osl" nodedef="ND_subtract_color2" file="stdlib/osl/mx_subtract_color2.osl" function="mx_subtract_color2" language="osl"/>
-  <implementation name="IM_subtract_color2FA_osl" nodedef="ND_subtract_color2FA" file="stdlib/osl/mx_subtract_float_color2.osl" function="mx_subtract_float_color2" language="osl"/>
-  <implementation name="IM_subtract_color3_osl" nodedef="ND_subtract_color3" file="stdlib/osl/mx_subtract_color.osl" function="mx_subtract_color" language="osl"/>
-  <implementation name="IM_subtract_color3FA_osl" nodedef="ND_subtract_color3FA" file="stdlib/osl/mx_subtract_float_color.osl" function="mx_subtract_float_color" language="osl"/>
-  <implementation name="IM_subtract_color4_osl" nodedef="ND_subtract_color4" file="stdlib/osl/mx_subtract_color4.osl" function="mx_subtract_color4" language="osl"/>
-  <implementation name="IM_subtract_color4FA_osl" nodedef="ND_subtract_color4FA" file="stdlib/osl/mx_subtract_float_color4.osl" function="mx_subtract_float_color4" language="osl"/>
-  <implementation name="IM_subtract_vector2_osl" nodedef="ND_subtract_vector2" file="stdlib/osl/mx_subtract_vector2.osl" function="mx_subtract_vector2" language="osl"/>
-  <implementation name="IM_subtract_vector2FA_osl" nodedef="ND_subtract_vector2FA" file="stdlib/osl/mx_subtract_float_vector2.osl" function="mx_subtract_float_vector2" language="osl"/>
-  <implementation name="IM_subtract_vector3_osl" nodedef="ND_subtract_vector3" file="stdlib/osl/mx_subtract_vector.osl" function="mx_subtract_vector" language="osl"/>
-  <implementation name="IM_subtract_vector3FA_osl" nodedef="ND_subtract_vector3FA" file="stdlib/osl/mx_subtract_float_vector.osl" function="mx_subtract_float_vector" language="osl"/>
-  <implementation name="IM_subtract_vector4_osl" nodedef="ND_subtract_vector4" file="stdlib/osl/mx_subtract_vector4.osl" function="mx_subtract_vector4" language="osl"/>
-  <implementation name="IM_subtract_vector4FA_osl" nodedef="ND_subtract_vector4FA" file="stdlib/osl/mx_subtract_float_vector4.osl" function="mx_subtract_float_vector4" language="osl"/>
-  <implementation name="IM_subtract_matrix33_osl" nodedef="ND_subtract_matrix33" file="stdlib/osl/mx_subtract_matrix33.osl" function="mx_subtract_matrix33" language="osl"/>
-  <implementation name="IM_subtract_matrix33FA_osl" nodedef="ND_subtract_matrix33FA" file="stdlib/osl/mx_subtract_float_matrix33.osl" function="mx_subtract_float_matrix33" language="osl"/>
-  <implementation name="IM_subtract_matrix44_osl" nodedef="ND_subtract_matrix44" file="stdlib/osl/mx_subtract_matrix44.osl" function="mx_subtract_matrix44" language="osl"/>
-  <implementation name="IM_subtract_matrix44FA_osl" nodedef="ND_subtract_matrix44FA" file="stdlib/osl/mx_subtract_float_matrix44.osl" function="mx_subtract_float_matrix44" language="osl"/>
+  <implementation name="IM_subtract_float_osl" nodedef="ND_subtract_float" file="stdlib/osl/mx_subtract_float.osl" function="mx_subtract_float" target="osl"/>
+  <implementation name="IM_subtract_color3_osl" nodedef="ND_subtract_color3" file="stdlib/osl/mx_subtract_color.osl" function="mx_subtract_color" target="osl"/>
+  <implementation name="IM_subtract_color3FA_osl" nodedef="ND_subtract_color3FA" file="stdlib/osl/mx_subtract_float_color.osl" function="mx_subtract_float_color" target="osl"/>
+  <implementation name="IM_subtract_color4_osl" nodedef="ND_subtract_color4" file="stdlib/osl/mx_subtract_color4.osl" function="mx_subtract_color4" target="osl"/>
+  <implementation name="IM_subtract_color4FA_osl" nodedef="ND_subtract_color4FA" file="stdlib/osl/mx_subtract_float_color4.osl" function="mx_subtract_float_color4" target="osl"/>
+  <implementation name="IM_subtract_vector2_osl" nodedef="ND_subtract_vector2" file="stdlib/osl/mx_subtract_vector2.osl" function="mx_subtract_vector2" target="osl"/>
+  <implementation name="IM_subtract_vector2FA_osl" nodedef="ND_subtract_vector2FA" file="stdlib/osl/mx_subtract_float_vector2.osl" function="mx_subtract_float_vector2" target="osl"/>
+  <implementation name="IM_subtract_vector3_osl" nodedef="ND_subtract_vector3" file="stdlib/osl/mx_subtract_vector.osl" function="mx_subtract_vector" target="osl"/>
+  <implementation name="IM_subtract_vector3FA_osl" nodedef="ND_subtract_vector3FA" file="stdlib/osl/mx_subtract_float_vector.osl" function="mx_subtract_float_vector" target="osl"/>
+  <implementation name="IM_subtract_vector4_osl" nodedef="ND_subtract_vector4" file="stdlib/osl/mx_subtract_vector4.osl" function="mx_subtract_vector4" target="osl"/>
+  <implementation name="IM_subtract_vector4FA_osl" nodedef="ND_subtract_vector4FA" file="stdlib/osl/mx_subtract_float_vector4.osl" function="mx_subtract_float_vector4" target="osl"/>
+  <implementation name="IM_subtract_matrix33_osl" nodedef="ND_subtract_matrix33" file="stdlib/osl/mx_subtract_matrix33.osl" function="mx_subtract_matrix33" target="osl"/>
+  <implementation name="IM_subtract_matrix33FA_osl" nodedef="ND_subtract_matrix33FA" file="stdlib/osl/mx_subtract_float_matrix33.osl" function="mx_subtract_float_matrix33" target="osl"/>
+  <implementation name="IM_subtract_matrix44_osl" nodedef="ND_subtract_matrix44" file="stdlib/osl/mx_subtract_matrix44.osl" function="mx_subtract_matrix44" target="osl"/>
+  <implementation name="IM_subtract_matrix44FA_osl" nodedef="ND_subtract_matrix44FA" file="stdlib/osl/mx_subtract_float_matrix44.osl" function="mx_subtract_float_matrix44" target="osl"/>
 
   <!-- <multiply> -->
-  <implementation name="IM_multiply_float_osl" nodedef="ND_multiply_float" file="stdlib/osl/mx_multiply_float.osl" function="mx_multiply_float" language="osl"/>
-  <implementation name="IM_multiply_color2_osl" nodedef="ND_multiply_color2" file="stdlib/osl/mx_multiply_color2.osl" function="mx_multiply_color2" language="osl"/>
-  <implementation name="IM_multiply_color2FA_osl" nodedef="ND_multiply_color2FA" file="stdlib/osl/mx_multiply_float_color2.osl" function="mx_multiply_float_color2" language="osl"/>
-  <implementation name="IM_multiply_color3_osl" nodedef="ND_multiply_color3" file="stdlib/osl/mx_multiply_color.osl" function="mx_multiply_color" language="osl"/>
-  <implementation name="IM_multiply_color3FA_osl" nodedef="ND_multiply_color3FA" file="stdlib/osl/mx_multiply_float_color.osl" function="mx_multiply_float_color" language="osl"/>
-  <implementation name="IM_multiply_color4_osl" nodedef="ND_multiply_color4" file="stdlib/osl/mx_multiply_color4.osl" function="mx_multiply_color4" language="osl"/>
-  <implementation name="IM_multiply_color4FA_osl" nodedef="ND_multiply_color4FA" file="stdlib/osl/mx_multiply_float_color4.osl" function="mx_multiply_float_color4" language="osl"/>
-  <implementation name="IM_multiply_vector2_osl" nodedef="ND_multiply_vector2" file="stdlib/osl/mx_multiply_vector2.osl" function="mx_multiply_vector2" language="osl"/>
-  <implementation name="IM_multiply_vector2FA_osl" nodedef="ND_multiply_vector2FA" file="stdlib/osl/mx_multiply_float_vector2.osl" function="mx_multiply_float_vector2" language="osl"/>
-  <implementation name="IM_multiply_vector3_osl" nodedef="ND_multiply_vector3" file="stdlib/osl/mx_multiply_vector.osl" function="mx_multiply_vector" language="osl"/>
-  <implementation name="IM_multiply_vector3FA_osl" nodedef="ND_multiply_vector3FA" file="stdlib/osl/mx_multiply_float_vector.osl" function="mx_multiply_float_vector" language="osl"/>
-  <implementation name="IM_multiply_vector4_osl" nodedef="ND_multiply_vector4" file="stdlib/osl/mx_multiply_vector4.osl" function="mx_multiply_vector4" language="osl"/>
-  <implementation name="IM_multiply_vector4FA_osl" nodedef="ND_multiply_vector4FA" file="stdlib/osl/mx_multiply_float_vector4.osl" function="mx_multiply_float_vector4" language="osl"/>
-  <implementation name="IM_multiply_matrix33_osl" nodedef="ND_multiply_matrix33" file="stdlib/osl/mx_multiply_matrix33.osl" function="mx_multiply_matrix33" language="osl"/>
-  <implementation name="IM_multiply_matrix44_osl" nodedef="ND_multiply_matrix44" file="stdlib/osl/mx_multiply_matrix44.osl" function="mx_multiply_matrix44" language="osl"/>
-  <implementation name="IM_multiply_surfaceshaderF_osl" nodedef="ND_multiply_surfaceshaderF" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_multiply_surfaceshaderC_osl" nodedef="ND_multiply_surfaceshaderC" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_multiply_float_osl" nodedef="ND_multiply_float" file="stdlib/osl/mx_multiply_float.osl" function="mx_multiply_float" target="osl"/>
+  <implementation name="IM_multiply_color3_osl" nodedef="ND_multiply_color3" file="stdlib/osl/mx_multiply_color.osl" function="mx_multiply_color" target="osl"/>
+  <implementation name="IM_multiply_color3FA_osl" nodedef="ND_multiply_color3FA" file="stdlib/osl/mx_multiply_float_color.osl" function="mx_multiply_float_color" target="osl"/>
+  <implementation name="IM_multiply_color4_osl" nodedef="ND_multiply_color4" file="stdlib/osl/mx_multiply_color4.osl" function="mx_multiply_color4" target="osl"/>
+  <implementation name="IM_multiply_color4FA_osl" nodedef="ND_multiply_color4FA" file="stdlib/osl/mx_multiply_float_color4.osl" function="mx_multiply_float_color4" target="osl"/>
+  <implementation name="IM_multiply_vector2_osl" nodedef="ND_multiply_vector2" file="stdlib/osl/mx_multiply_vector2.osl" function="mx_multiply_vector2" target="osl"/>
+  <implementation name="IM_multiply_vector2FA_osl" nodedef="ND_multiply_vector2FA" file="stdlib/osl/mx_multiply_float_vector2.osl" function="mx_multiply_float_vector2" target="osl"/>
+  <implementation name="IM_multiply_vector3_osl" nodedef="ND_multiply_vector3" file="stdlib/osl/mx_multiply_vector.osl" function="mx_multiply_vector" target="osl"/>
+  <implementation name="IM_multiply_vector3FA_osl" nodedef="ND_multiply_vector3FA" file="stdlib/osl/mx_multiply_float_vector.osl" function="mx_multiply_float_vector" target="osl"/>
+  <implementation name="IM_multiply_vector4_osl" nodedef="ND_multiply_vector4" file="stdlib/osl/mx_multiply_vector4.osl" function="mx_multiply_vector4" target="osl"/>
+  <implementation name="IM_multiply_vector4FA_osl" nodedef="ND_multiply_vector4FA" file="stdlib/osl/mx_multiply_float_vector4.osl" function="mx_multiply_float_vector4" target="osl"/>
+  <implementation name="IM_multiply_matrix33_osl" nodedef="ND_multiply_matrix33" file="stdlib/osl/mx_multiply_matrix33.osl" function="mx_multiply_matrix33" target="osl"/>
+  <implementation name="IM_multiply_matrix44_osl" nodedef="ND_multiply_matrix44" file="stdlib/osl/mx_multiply_matrix44.osl" function="mx_multiply_matrix44" target="osl"/>
+  <implementation name="IM_multiply_surfaceshaderF_osl" nodedef="ND_multiply_surfaceshaderF" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_multiply_surfaceshaderC_osl" nodedef="ND_multiply_surfaceshaderC" file="FILE" function="FUNC" target="osl"/>
 
   <!-- <divide> -->
-  <implementation name="IM_divide_float_osl" nodedef="ND_divide_float" file="stdlib/osl/mx_divide_float.osl" function="mx_divide_float" language="osl"/>
-  <implementation name="IM_divide_color2_osl" nodedef="ND_divide_color2" file="stdlib/osl/mx_divide_color2.osl" function="mx_divide_color2" language="osl"/>
-  <implementation name="IM_divide_color2FA_osl" nodedef="ND_divide_color2FA" file="stdlib/osl/mx_divide_float_color2.osl" function="mx_divide_float_color2" language="osl"/>
-  <implementation name="IM_divide_color3_osl" nodedef="ND_divide_color3" file="stdlib/osl/mx_divide_color.osl" function="mx_divide_color" language="osl"/>
-  <implementation name="IM_divide_color3FA_osl" nodedef="ND_divide_color3FA" file="stdlib/osl/mx_divide_float_color.osl" function="mx_divide_float_color" language="osl"/>
-  <implementation name="IM_divide_color4_osl" nodedef="ND_divide_color4" file="stdlib/osl/mx_divide_color4.osl" function="mx_divide_color4" language="osl"/>
-  <implementation name="IM_divide_color4FA_osl" nodedef="ND_divide_color4FA" file="stdlib/osl/mx_divide_float_color4.osl" function="mx_divide_float_color4" language="osl"/>
-  <implementation name="IM_divide_vector2_osl" nodedef="ND_divide_vector2" file="stdlib/osl/mx_divide_vector2.osl" function="mx_divide_vector2" language="osl"/>
-  <implementation name="IM_divide_vector2FA_osl" nodedef="ND_divide_vector2FA" file="stdlib/osl/mx_divide_float_vector2.osl" function="mx_divide_float_vector2" language="osl"/>
-  <implementation name="IM_divide_vector3_osl" nodedef="ND_divide_vector3" file="stdlib/osl/mx_divide_vector.osl" function="mx_divide_vector" language="osl"/>
-  <implementation name="IM_divide_vector3FA_osl" nodedef="ND_divide_vector3FA" file="stdlib/osl/mx_divide_float_vector.osl" function="mx_divide_float_vector" language="osl"/>
-  <implementation name="IM_divide_vector4_osl" nodedef="ND_divide_vector4" file="stdlib/osl/mx_divide_vector4.osl" function="mx_divide_vector4" language="osl"/>
-  <implementation name="IM_divide_vector4FA_osl" nodedef="ND_divide_vector4FA" file="stdlib/osl/mx_divide_float_vector4.osl" function="mx_divide_float_vector4" language="osl"/>
-  <implementation name="IM_divide_matrix33_osl" nodedef="ND_divide_matrix33" file="stdlib/osl/mx_divide_matrix33.osl" function="mx_divide_matrix33" language="osl"/>
-  <implementation name="IM_divide_matrix44_osl" nodedef="ND_divide_matrix44" file="stdlib/osl/mx_divide_matrix44.osl" function="mx_divide_matrix44" language="osl"/>
+  <implementation name="IM_divide_float_osl" nodedef="ND_divide_float" file="stdlib/osl/mx_divide_float.osl" function="mx_divide_float" target="osl"/>
+  <implementation name="IM_divide_color3_osl" nodedef="ND_divide_color3" file="stdlib/osl/mx_divide_color.osl" function="mx_divide_color" target="osl"/>
+  <implementation name="IM_divide_color3FA_osl" nodedef="ND_divide_color3FA" file="stdlib/osl/mx_divide_float_color.osl" function="mx_divide_float_color" target="osl"/>
+  <implementation name="IM_divide_color4_osl" nodedef="ND_divide_color4" file="stdlib/osl/mx_divide_color4.osl" function="mx_divide_color4" target="osl"/>
+  <implementation name="IM_divide_color4FA_osl" nodedef="ND_divide_color4FA" file="stdlib/osl/mx_divide_float_color4.osl" function="mx_divide_float_color4" target="osl"/>
+  <implementation name="IM_divide_vector2_osl" nodedef="ND_divide_vector2" file="stdlib/osl/mx_divide_vector2.osl" function="mx_divide_vector2" target="osl"/>
+  <implementation name="IM_divide_vector2FA_osl" nodedef="ND_divide_vector2FA" file="stdlib/osl/mx_divide_float_vector2.osl" function="mx_divide_float_vector2" target="osl"/>
+  <implementation name="IM_divide_vector3_osl" nodedef="ND_divide_vector3" file="stdlib/osl/mx_divide_vector.osl" function="mx_divide_vector" target="osl"/>
+  <implementation name="IM_divide_vector3FA_osl" nodedef="ND_divide_vector3FA" file="stdlib/osl/mx_divide_float_vector.osl" function="mx_divide_float_vector" target="osl"/>
+  <implementation name="IM_divide_vector4_osl" nodedef="ND_divide_vector4" file="stdlib/osl/mx_divide_vector4.osl" function="mx_divide_vector4" target="osl"/>
+  <implementation name="IM_divide_vector4FA_osl" nodedef="ND_divide_vector4FA" file="stdlib/osl/mx_divide_float_vector4.osl" function="mx_divide_float_vector4" target="osl"/>
+  <implementation name="IM_divide_matrix33_osl" nodedef="ND_divide_matrix33" file="stdlib/osl/mx_divide_matrix33.osl" function="mx_divide_matrix33" target="osl"/>
+  <implementation name="IM_divide_matrix44_osl" nodedef="ND_divide_matrix44" file="stdlib/osl/mx_divide_matrix44.osl" function="mx_divide_matrix44" target="osl"/>
 
   <!-- <modulo> -->
-  <implementation name="IM_modulo_float_osl" nodedef="ND_modulo_float" file="stdlib/osl/mx_modulo_float.osl" function="mx_modulo_float" language="osl"/>
-  <implementation name="IM_modulo_color2_osl" nodedef="ND_modulo_color2" file="stdlib/osl/mx_modulo_color2.osl" function="mx_modulo_color2" language="osl"/>
-  <implementation name="IM_modulo_color2FA_osl" nodedef="ND_modulo_color2FA" file="stdlib/osl/mx_modulo_float_color2.osl" function="mx_modulo_float_color2" language="osl"/>
-  <implementation name="IM_modulo_color3_osl" nodedef="ND_modulo_color3" file="stdlib/osl/mx_modulo_color.osl" function="mx_modulo_color" language="osl"/>
-  <implementation name="IM_modulo_color3FA_osl" nodedef="ND_modulo_color3FA" file="stdlib/osl/mx_modulo_float_color.osl" function="mx_modulo_float_color" language="osl"/>
-  <implementation name="IM_modulo_color4_osl" nodedef="ND_modulo_color4" file="stdlib/osl/mx_modulo_color4.osl" function="mx_modulo_color4" language="osl"/>
-  <implementation name="IM_modulo_color4FA_osl" nodedef="ND_modulo_color4FA" file="stdlib/osl/mx_modulo_float_color4.osl" function="mx_modulo_float_color4" language="osl"/>
-  <implementation name="IM_modulo_vector2_osl" nodedef="ND_modulo_vector2" file="stdlib/osl/mx_modulo_vector2.osl" function="mx_modulo_vector2" language="osl"/>
-  <implementation name="IM_modulo_vector2FA_osl" nodedef="ND_modulo_vector2FA" file="stdlib/osl/mx_modulo_float_vector2.osl" function="mx_modulo_float_vector2" language="osl"/>
-  <implementation name="IM_modulo_vector3_osl" nodedef="ND_modulo_vector3" file="stdlib/osl/mx_modulo_vector.osl" function="mx_modulo_vector" language="osl"/>
-  <implementation name="IM_modulo_vector3FA_osl" nodedef="ND_modulo_vector3FA" file="stdlib/osl/mx_modulo_float_vector.osl" function="mx_modulo_float_vector" language="osl"/>
-  <implementation name="IM_modulo_vector4_osl" nodedef="ND_modulo_vector4" file="stdlib/osl/mx_modulo_vector4.osl" function="mx_modulo_vector4" language="osl"/>
-  <implementation name="IM_modulo_vector4FA_osl" nodedef="ND_modulo_vector4FA" file="stdlib/osl/mx_modulo_float_vector4.osl" function="mx_modulo_float_vector4" language="osl"/>
+  <implementation name="IM_modulo_float_osl" nodedef="ND_modulo_float" file="stdlib/osl/mx_modulo_float.osl" function="mx_modulo_float" target="osl"/>
+  <implementation name="IM_modulo_color3_osl" nodedef="ND_modulo_color3" file="stdlib/osl/mx_modulo_color.osl" function="mx_modulo_color" target="osl"/>
+  <implementation name="IM_modulo_color3FA_osl" nodedef="ND_modulo_color3FA" file="stdlib/osl/mx_modulo_float_color.osl" function="mx_modulo_float_color" target="osl"/>
+  <implementation name="IM_modulo_color4_osl" nodedef="ND_modulo_color4" file="stdlib/osl/mx_modulo_color4.osl" function="mx_modulo_color4" target="osl"/>
+  <implementation name="IM_modulo_color4FA_osl" nodedef="ND_modulo_color4FA" file="stdlib/osl/mx_modulo_float_color4.osl" function="mx_modulo_float_color4" target="osl"/>
+  <implementation name="IM_modulo_vector2_osl" nodedef="ND_modulo_vector2" file="stdlib/osl/mx_modulo_vector2.osl" function="mx_modulo_vector2" target="osl"/>
+  <implementation name="IM_modulo_vector2FA_osl" nodedef="ND_modulo_vector2FA" file="stdlib/osl/mx_modulo_float_vector2.osl" function="mx_modulo_float_vector2" target="osl"/>
+  <implementation name="IM_modulo_vector3_osl" nodedef="ND_modulo_vector3" file="stdlib/osl/mx_modulo_vector.osl" function="mx_modulo_vector" target="osl"/>
+  <implementation name="IM_modulo_vector3FA_osl" nodedef="ND_modulo_vector3FA" file="stdlib/osl/mx_modulo_float_vector.osl" function="mx_modulo_float_vector" target="osl"/>
+  <implementation name="IM_modulo_vector4_osl" nodedef="ND_modulo_vector4" file="stdlib/osl/mx_modulo_vector4.osl" function="mx_modulo_vector4" target="osl"/>
+  <implementation name="IM_modulo_vector4FA_osl" nodedef="ND_modulo_vector4FA" file="stdlib/osl/mx_modulo_float_vector4.osl" function="mx_modulo_float_vector4" target="osl"/>
 
   <!-- <invert> -->
-  <implementation name="IM_invert_float_osl" nodedef="ND_invert_float" file="stdlib/osl/mx_invert_float.osl" function="mx_invert_float" language="osl"/>
-  <implementation name="IM_invert_color2_osl" nodedef="ND_invert_color2" file="stdlib/osl/mx_invert_color2.osl" function="mx_invert_color2" language="osl"/>
-  <implementation name="IM_invert_color2FA_osl" nodedef="ND_invert_color2FA" file="stdlib/osl/mx_invert_float_color2.osl" function="mx_invert_float_color2" language="osl"/>
-  <implementation name="IM_invert_color3_osl" nodedef="ND_invert_color3" file="stdlib/osl/mx_invert_color.osl" function="mx_invert_color" language="osl"/>
-  <implementation name="IM_invert_color3FA_osl" nodedef="ND_invert_color3FA" file="stdlib/osl/mx_invert_float_color.osl" function="mx_invert_float_color" language="osl"/>
-  <implementation name="IM_invert_color4_osl" nodedef="ND_invert_color4" file="stdlib/osl/mx_invert_color4.osl" function="mx_invert_color4" language="osl"/>
-  <implementation name="IM_invert_color4FA_osl" nodedef="ND_invert_color4FA" file="stdlib/osl/mx_invert_float_color4.osl" function="mx_invert_float_color4" language="osl"/>
-  <implementation name="IM_invert_vector2_osl" nodedef="ND_invert_vector2" file="stdlib/osl/mx_invert_vector2.osl" function="mx_invert_vector2" language="osl"/>
-  <implementation name="IM_invert_vector2FA_osl" nodedef="ND_invert_vector2FA" file="stdlib/osl/mx_invert_float_vector2.osl" function="mx_invert_float_vector2" language="osl"/>
-  <implementation name="IM_invert_vector3_osl" nodedef="ND_invert_vector3" file="stdlib/osl/mx_invert_vector.osl" function="mx_invert_vector" language="osl"/>
-  <implementation name="IM_invert_vector3FA_osl" nodedef="ND_invert_vector3FA" file="stdlib/osl/mx_invert_float_vector.osl" function="mx_invert_float_vector" language="osl"/>
-  <implementation name="IM_invert_vector4_osl" nodedef="ND_invert_vector4" file="stdlib/osl/mx_invert_vector4.osl" function="mx_invert_vector4" language="osl"/>
-  <implementation name="IM_invert_vector4FA_osl" nodedef="ND_invert_vector4FA" file="stdlib/osl/mx_invert_float_vector4.osl" function="mx_invert_float_vector4" language="osl"/>
-  <implementation name="IM_invert_matrix33_osl" nodedef="ND_invert_matrix33" file="stdlib/osl/mx_invert_matrix33.osl" function="mx_invert_matrix33" language="osl"/>
-  <implementation name="IM_invert_matrix44_osl" nodedef="ND_invert_matrix44" file="stdlib/osl/mx_invert_matrix44.osl" function="mx_invert_matrix44" language="osl"/>
+  <implementation name="IM_invert_float_osl" nodedef="ND_invert_float" file="stdlib/osl/mx_invert_float.osl" function="mx_invert_float" target="osl"/>
+  <implementation name="IM_invert_color3_osl" nodedef="ND_invert_color3" file="stdlib/osl/mx_invert_color.osl" function="mx_invert_color" target="osl"/>
+  <implementation name="IM_invert_color3FA_osl" nodedef="ND_invert_color3FA" file="stdlib/osl/mx_invert_float_color.osl" function="mx_invert_float_color" target="osl"/>
+  <implementation name="IM_invert_color4_osl" nodedef="ND_invert_color4" file="stdlib/osl/mx_invert_color4.osl" function="mx_invert_color4" target="osl"/>
+  <implementation name="IM_invert_color4FA_osl" nodedef="ND_invert_color4FA" file="stdlib/osl/mx_invert_float_color4.osl" function="mx_invert_float_color4" target="osl"/>
+  <implementation name="IM_invert_vector2_osl" nodedef="ND_invert_vector2" file="stdlib/osl/mx_invert_vector2.osl" function="mx_invert_vector2" target="osl"/>
+  <implementation name="IM_invert_vector2FA_osl" nodedef="ND_invert_vector2FA" file="stdlib/osl/mx_invert_float_vector2.osl" function="mx_invert_float_vector2" target="osl"/>
+  <implementation name="IM_invert_vector3_osl" nodedef="ND_invert_vector3" file="stdlib/osl/mx_invert_vector.osl" function="mx_invert_vector" target="osl"/>
+  <implementation name="IM_invert_vector3FA_osl" nodedef="ND_invert_vector3FA" file="stdlib/osl/mx_invert_float_vector.osl" function="mx_invert_float_vector" target="osl"/>
+  <implementation name="IM_invert_vector4_osl" nodedef="ND_invert_vector4" file="stdlib/osl/mx_invert_vector4.osl" function="mx_invert_vector4" target="osl"/>
+  <implementation name="IM_invert_vector4FA_osl" nodedef="ND_invert_vector4FA" file="stdlib/osl/mx_invert_float_vector4.osl" function="mx_invert_float_vector4" target="osl"/>
+  <implementation name="IM_invert_matrix33_osl" nodedef="ND_invert_matrix33" file="stdlib/osl/mx_invert_matrix33.osl" function="mx_invert_matrix33" target="osl"/>
+  <implementation name="IM_invert_matrix44_osl" nodedef="ND_invert_matrix44" file="stdlib/osl/mx_invert_matrix44.osl" function="mx_invert_matrix44" target="osl"/>
 
   <!-- <absval> -->
-  <implementation name="IM_absval_float_osl" nodedef="ND_absval_float" file="stdlib/osl/mx_absval_float.osl" function="mx_absval_float" language="osl"/>
-  <implementation name="IM_absval_color2_osl" nodedef="ND_absval_color2" file="stdlib/osl/mx_absval_color2.osl" function="mx_absval_color2" language="osl"/>
-  <implementation name="IM_absval_color3_osl" nodedef="ND_absval_color3" file="stdlib/osl/mx_absval_color.osl" function="mx_absval_color" language="osl"/>
-  <implementation name="IM_absval_color4_osl" nodedef="ND_absval_color4" file="stdlib/osl/mx_absval_color4.osl" function="mx_absval_color4" language="osl"/>
-  <implementation name="IM_absval_vector2_osl" nodedef="ND_absval_vector2" file="stdlib/osl/mx_absval_vector2.osl" function="mx_absval_vector2" language="osl"/>
-  <implementation name="IM_absval_vector3_osl" nodedef="ND_absval_vector3" file="stdlib/osl/mx_absval_vector.osl" function="mx_absval_vector" language="osl"/>
-  <implementation name="IM_absval_vector4_osl" nodedef="ND_absval_vector4" file="stdlib/osl/mx_absval_vector4.osl" function="mx_absval_vector4" language="osl"/>
+  <implementation name="IM_absval_float_osl" nodedef="ND_absval_float" file="stdlib/osl/mx_absval_float.osl" function="mx_absval_float" target="osl"/>
+  <implementation name="IM_absval_color3_osl" nodedef="ND_absval_color3" file="stdlib/osl/mx_absval_color.osl" function="mx_absval_color" target="osl"/>
+  <implementation name="IM_absval_color4_osl" nodedef="ND_absval_color4" file="stdlib/osl/mx_absval_color4.osl" function="mx_absval_color4" target="osl"/>
+  <implementation name="IM_absval_vector2_osl" nodedef="ND_absval_vector2" file="stdlib/osl/mx_absval_vector2.osl" function="mx_absval_vector2" target="osl"/>
+  <implementation name="IM_absval_vector3_osl" nodedef="ND_absval_vector3" file="stdlib/osl/mx_absval_vector.osl" function="mx_absval_vector" target="osl"/>
+  <implementation name="IM_absval_vector4_osl" nodedef="ND_absval_vector4" file="stdlib/osl/mx_absval_vector4.osl" function="mx_absval_vector4" target="osl"/>
 
   <!-- <floor> -->
-  <implementation name="IM_floor_float_osl" nodedef="ND_floor_float" file="stdlib/osl/mx_floor_float.osl" function="mx_floor_float" language="osl"/>
-  <implementation name="IM_floor_color2_osl" nodedef="ND_floor_color2" file="stdlib/osl/mx_floor_color2.osl" function="mx_floor_color2" language="osl"/>
-  <implementation name="IM_floor_color3_osl" nodedef="ND_floor_color3" file="stdlib/osl/mx_floor_color.osl" function="mx_floor_color" language="osl"/>
-  <implementation name="IM_floor_color4_osl" nodedef="ND_floor_color4" file="stdlib/osl/mx_floor_color4.osl" function="mx_floor_color4" language="osl"/>
-  <implementation name="IM_floor_vector2_osl" nodedef="ND_floor_vector2" file="stdlib/osl/mx_floor_vector2.osl" function="mx_floor_vector2" language="osl"/>
-  <implementation name="IM_floor_vector3_osl" nodedef="ND_floor_vector3" file="stdlib/osl/mx_floor_vector.osl" function="mx_floor_vector" language="osl"/>
-  <implementation name="IM_floor_vector4_osl" nodedef="ND_floor_vector4" file="stdlib/osl/mx_floor_vector4.osl" function="mx_floor_vector4" language="osl"/>
+  <implementation name="IM_floor_float_osl" nodedef="ND_floor_float" file="stdlib/osl/mx_floor_float.osl" function="mx_floor_float" target="osl"/>
+  <implementation name="IM_floor_color3_osl" nodedef="ND_floor_color3" file="stdlib/osl/mx_floor_color.osl" function="mx_floor_color" target="osl"/>
+  <implementation name="IM_floor_color4_osl" nodedef="ND_floor_color4" file="stdlib/osl/mx_floor_color4.osl" function="mx_floor_color4" target="osl"/>
+  <implementation name="IM_floor_vector2_osl" nodedef="ND_floor_vector2" file="stdlib/osl/mx_floor_vector2.osl" function="mx_floor_vector2" target="osl"/>
+  <implementation name="IM_floor_vector3_osl" nodedef="ND_floor_vector3" file="stdlib/osl/mx_floor_vector.osl" function="mx_floor_vector" target="osl"/>
+  <implementation name="IM_floor_vector4_osl" nodedef="ND_floor_vector4" file="stdlib/osl/mx_floor_vector4.osl" function="mx_floor_vector4" target="osl"/>
 
   <!-- <ceil> -->
-  <implementation name="IM_ceil_float_osl" nodedef="ND_ceil_float" file="stdlib/osl/mx_ceil_float.osl" function="mx_ceil_float" language="osl"/>
-  <implementation name="IM_ceil_color2_osl" nodedef="ND_ceil_color2" file="stdlib/osl/mx_ceil_color2.osl" function="mx_ceil_color2" language="osl"/>
-  <implementation name="IM_ceil_color3_osl" nodedef="ND_ceil_color3" file="stdlib/osl/mx_ceil_color.osl" function="mx_ceil_color" language="osl"/>
-  <implementation name="IM_ceil_color4_osl" nodedef="ND_ceil_color4" file="stdlib/osl/mx_ceil_color4.osl" function="mx_ceil_color4" language="osl"/>
-  <implementation name="IM_ceil_vector2_osl" nodedef="ND_ceil_vector2" file="stdlib/osl/mx_ceil_vector2.osl" function="mx_ceil_vector2" language="osl"/>
-  <implementation name="IM_ceil_vector3_osl" nodedef="ND_ceil_vector3" file="stdlib/osl/mx_ceil_vector.osl" function="mx_ceil_vector" language="osl"/>
-  <implementation name="IM_ceil_vector4_osl" nodedef="ND_ceil_vector4" file="stdlib/osl/mx_ceil_vector4.osl" function="mx_ceil_vector4" language="osl"/>
+  <implementation name="IM_ceil_float_osl" nodedef="ND_ceil_float" file="stdlib/osl/mx_ceil_float.osl" function="mx_ceil_float" target="osl"/>
+  <implementation name="IM_ceil_color3_osl" nodedef="ND_ceil_color3" file="stdlib/osl/mx_ceil_color.osl" function="mx_ceil_color" target="osl"/>
+  <implementation name="IM_ceil_color4_osl" nodedef="ND_ceil_color4" file="stdlib/osl/mx_ceil_color4.osl" function="mx_ceil_color4" target="osl"/>
+  <implementation name="IM_ceil_vector2_osl" nodedef="ND_ceil_vector2" file="stdlib/osl/mx_ceil_vector2.osl" function="mx_ceil_vector2" target="osl"/>
+  <implementation name="IM_ceil_vector3_osl" nodedef="ND_ceil_vector3" file="stdlib/osl/mx_ceil_vector.osl" function="mx_ceil_vector" target="osl"/>
+  <implementation name="IM_ceil_vector4_osl" nodedef="ND_ceil_vector4" file="stdlib/osl/mx_ceil_vector4.osl" function="mx_ceil_vector4" target="osl"/>
 
   <!-- <power> -->
-  <implementation name="IM_power_float_osl" nodedef="ND_power_float" file="stdlib/osl/mx_power_float.osl" function="mx_power_float" language="osl"/>
-  <implementation name="IM_power_color2_osl" nodedef="ND_power_color2" file="stdlib/osl/mx_power_color2.osl" function="mx_power_color2" language="osl"/>
-  <implementation name="IM_power_color2FA_osl" nodedef="ND_power_color2FA" file="stdlib/osl/mx_power_float_color2.osl" function="mx_power_float_color2" language="osl"/>
-  <implementation name="IM_power_color3_osl" nodedef="ND_power_color3" file="stdlib/osl/mx_power_color.osl" function="mx_power_color" language="osl"/>
-  <implementation name="IM_power_color3FA_osl" nodedef="ND_power_color3FA" file="stdlib/osl/mx_power_float_color.osl" function="mx_power_float_color" language="osl"/>
-  <implementation name="IM_power_color4_osl" nodedef="ND_power_color4" file="stdlib/osl/mx_power_color4.osl" function="mx_power_color4" language="osl"/>
-  <implementation name="IM_power_color4FA_osl" nodedef="ND_power_color4FA" file="stdlib/osl/mx_power_float_color4.osl" function="mx_power_float_color4" language="osl"/>
-  <implementation name="IM_power_vector2_osl" nodedef="ND_power_vector2" file="stdlib/osl/mx_power_vector2.osl" function="mx_power_vector2" language="osl"/>
-  <implementation name="IM_power_vector2FA_osl" nodedef="ND_power_vector2FA" file="stdlib/osl/mx_power_float_vector2.osl" function="mx_power_float_vector2" language="osl"/>
-  <implementation name="IM_power_vector3_osl" nodedef="ND_power_vector3" file="stdlib/osl/mx_power_vector.osl" function="mx_power_vector" language="osl"/>
-  <implementation name="IM_power_vector3FA_osl" nodedef="ND_power_vector3FA" file="stdlib/osl/mx_power_float_vector.osl" function="mx_power_float_vector" language="osl"/>
-  <implementation name="IM_power_vector4_osl" nodedef="ND_power_vector4" file="stdlib/osl/mx_power_vector4.osl" function="mx_power_vector4" language="osl"/>
-  <implementation name="IM_power_vector4FA_osl" nodedef="ND_power_vector4FA" file="stdlib/osl/mx_power_float_vector4.osl" function="mx_power_float_vector4" language="osl"/>
+  <implementation name="IM_power_float_osl" nodedef="ND_power_float" file="stdlib/osl/mx_power_float.osl" function="mx_power_float" target="osl"/>
+  <implementation name="IM_power_color3_osl" nodedef="ND_power_color3" file="stdlib/osl/mx_power_color.osl" function="mx_power_color" target="osl"/>
+  <implementation name="IM_power_color3FA_osl" nodedef="ND_power_color3FA" file="stdlib/osl/mx_power_float_color.osl" function="mx_power_float_color" target="osl"/>
+  <implementation name="IM_power_color4_osl" nodedef="ND_power_color4" file="stdlib/osl/mx_power_color4.osl" function="mx_power_color4" target="osl"/>
+  <implementation name="IM_power_color4FA_osl" nodedef="ND_power_color4FA" file="stdlib/osl/mx_power_float_color4.osl" function="mx_power_float_color4" target="osl"/>
+  <implementation name="IM_power_vector2_osl" nodedef="ND_power_vector2" file="stdlib/osl/mx_power_vector2.osl" function="mx_power_vector2" target="osl"/>
+  <implementation name="IM_power_vector2FA_osl" nodedef="ND_power_vector2FA" file="stdlib/osl/mx_power_float_vector2.osl" function="mx_power_float_vector2" target="osl"/>
+  <implementation name="IM_power_vector3_osl" nodedef="ND_power_vector3" file="stdlib/osl/mx_power_vector.osl" function="mx_power_vector" target="osl"/>
+  <implementation name="IM_power_vector3FA_osl" nodedef="ND_power_vector3FA" file="stdlib/osl/mx_power_float_vector.osl" function="mx_power_float_vector" target="osl"/>
+  <implementation name="IM_power_vector4_osl" nodedef="ND_power_vector4" file="stdlib/osl/mx_power_vector4.osl" function="mx_power_vector4" target="osl"/>
+  <implementation name="IM_power_vector4FA_osl" nodedef="ND_power_vector4FA" file="stdlib/osl/mx_power_float_vector4.osl" function="mx_power_float_vector4" target="osl"/>
 
   <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> -->
-  <implementation name="IM_sin_float_osl" nodedef="ND_sin_float" file="stdlib/osl/mx_sin_float.osl" function="mx_sin_float" language="osl"/>
-  <implementation name="IM_cos_float_osl" nodedef="ND_cos_float" file="stdlib/osl/mx_cos_float.osl" function="mx_cos_float" language="osl"/>
-  <implementation name="IM_tan_float_osl" nodedef="ND_tan_float" file="stdlib/osl/mx_tan_float.osl" function="mx_tan_float" language="osl"/>
-  <implementation name="IM_asin_float_osl" nodedef="ND_asin_float" file="stdlib/osl/mx_asin_float.osl" function="mx_asin_float" language="osl"/>
-  <implementation name="IM_acos_float_osl" nodedef="ND_acos_float" file="stdlib/osl/mx_acos_float.osl" function="mx_acos_float" language="osl"/>
-  <implementation name="IM_atan2_float_osl" nodedef="ND_atan2_float" file="stdlib/osl/mx_atan2_float.osl" function="mx_atan2_float" language="osl"/>
+  <implementation name="IM_sin_float_osl" nodedef="ND_sin_float" file="stdlib/osl/mx_sin_float.osl" function="mx_sin_float" target="osl"/>
+  <implementation name="IM_cos_float_osl" nodedef="ND_cos_float" file="stdlib/osl/mx_cos_float.osl" function="mx_cos_float" target="osl"/>
+  <implementation name="IM_tan_float_osl" nodedef="ND_tan_float" file="stdlib/osl/mx_tan_float.osl" function="mx_tan_float" target="osl"/>
+  <implementation name="IM_asin_float_osl" nodedef="ND_asin_float" file="stdlib/osl/mx_asin_float.osl" function="mx_asin_float" target="osl"/>
+  <implementation name="IM_acos_float_osl" nodedef="ND_acos_float" file="stdlib/osl/mx_acos_float.osl" function="mx_acos_float" target="osl"/>
+  <implementation name="IM_atan2_float_osl" nodedef="ND_atan2_float" file="stdlib/osl/mx_atan2_float.osl" function="mx_atan2_float" target="osl"/>
 
   <!-- <sqrt>, <ln>, <exp> -->
-  <implementation name="IM_sqrt_float_osl" nodedef="ND_sqrt_float" file="stdlib/osl/mx_sqrt_float.osl" function="mx_sqrt_float" language="osl"/>
-  <implementation name="IM_ln_float_osl" nodedef="ND_ln_float" file="stdlib/osl/mx_ln_float.osl" function="mx_ln_float" language="osl"/>
-  <implementation name="IM_exp_float_osl" nodedef="ND_exp_float" file="stdlib/osl/mx_exp_float.osl" function="mx_exp_float" language="osl"/>
+  <implementation name="IM_sqrt_float_osl" nodedef="ND_sqrt_float" file="stdlib/osl/mx_sqrt_float.osl" function="mx_sqrt_float" target="osl"/>
+  <implementation name="IM_ln_float_osl" nodedef="ND_ln_float" file="stdlib/osl/mx_ln_float.osl" function="mx_ln_float" target="osl"/>
+  <implementation name="IM_exp_float_osl" nodedef="ND_exp_float" file="stdlib/osl/mx_exp_float.osl" function="mx_exp_float" target="osl"/>
 
   <!-- <sign> -->
-  <implementation name="IM_sign_float_osl" nodedef="ND_sign_float" file="stdlib/osl/mx_sign_float.osl" function="mx_sign_float" language="osl"/>
-  <implementation name="IM_sign_color2_osl" nodedef="ND_sign_color2" file="stdlib/osl/mx_sign_color2.osl" function="mx_sign_color2" language="osl"/>
-  <implementation name="IM_sign_color3_osl" nodedef="ND_sign_color3" file="stdlib/osl/mx_sign_color3.osl" function="mx_sign_color3" language="osl"/>
-  <implementation name="IM_sign_color4_osl" nodedef="ND_sign_color4" file="stdlib/osl/mx_sign_color4.osl" function="mx_sign_color4" language="osl"/>
-  <implementation name="IM_sign_vector2_osl" nodedef="ND_sign_vector2" file="stdlib/osl/mx_sign_vector2.osl" function="mx_sign_vector2" language="osl"/>
-  <implementation name="IM_sign_vector3_osl" nodedef="ND_sign_vector3" file="stdlib/osl/mx_sign_vector3.osl" function="mx_sign_vector3" language="osl"/>
-  <implementation name="IM_sign_vector4_osl" nodedef="ND_sign_vector4" file="stdlib/osl/mx_sign_vector4.osl" function="mx_sign_vector4" language="osl"/>
+  <implementation name="IM_sign_float_osl" nodedef="ND_sign_float" file="stdlib/osl/mx_sign_float.osl" function="mx_sign_float" target="osl"/>
+  <implementation name="IM_sign_color3_osl" nodedef="ND_sign_color3" file="stdlib/osl/mx_sign_color3.osl" function="mx_sign_color3" target="osl"/>
+  <implementation name="IM_sign_color4_osl" nodedef="ND_sign_color4" file="stdlib/osl/mx_sign_color4.osl" function="mx_sign_color4" target="osl"/>
+  <implementation name="IM_sign_vector2_osl" nodedef="ND_sign_vector2" file="stdlib/osl/mx_sign_vector2.osl" function="mx_sign_vector2" target="osl"/>
+  <implementation name="IM_sign_vector3_osl" nodedef="ND_sign_vector3" file="stdlib/osl/mx_sign_vector3.osl" function="mx_sign_vector3" target="osl"/>
+  <implementation name="IM_sign_vector4_osl" nodedef="ND_sign_vector4" file="stdlib/osl/mx_sign_vector4.osl" function="mx_sign_vector4" target="osl"/>
 
   <!-- <clamp> -->
-  <implementation name="IM_clamp_float_osl" nodedef="ND_clamp_float" file="stdlib/osl/mx_clamp_float.osl" function="mx_clamp_float" language="osl"/>
-  <implementation name="IM_clamp_color2_osl" nodedef="ND_clamp_color2" file="stdlib/osl/mx_clamp_color2.osl" function="mx_clamp_color2" language="osl"/>
-  <implementation name="IM_clamp_color2FA_osl" nodedef="ND_clamp_color2FA" file="stdlib/osl/mx_clamp_float_color2.osl" function="mx_clamp_float_color2" language="osl"/>
-  <implementation name="IM_clamp_color3_osl" nodedef="ND_clamp_color3" file="stdlib/osl/mx_clamp_color.osl" function="mx_clamp_color" language="osl"/>
-  <implementation name="IM_clamp_color3FA_osl" nodedef="ND_clamp_color3FA" file="stdlib/osl/mx_clamp_float_color.osl" function="mx_clamp_float_color" language="osl"/>
-  <implementation name="IM_clamp_color4_osl" nodedef="ND_clamp_color4" file="stdlib/osl/mx_clamp_color4.osl" function="mx_clamp_color4" language="osl"/>
-  <implementation name="IM_clamp_color4FA_osl" nodedef="ND_clamp_color4FA" file="stdlib/osl/mx_clamp_float_color4.osl" function="mx_clamp_float_color4" language="osl"/>
-  <implementation name="IM_clamp_vector2_osl" nodedef="ND_clamp_vector2" file="stdlib/osl/mx_clamp_vector2.osl" function="mx_clamp_vector2" language="osl"/>
-  <implementation name="IM_clamp_vector2FA_osl" nodedef="ND_clamp_vector2FA" file="stdlib/osl/mx_clamp_float_vector2.osl" function="mx_clamp_float_vector2" language="osl"/>
-  <implementation name="IM_clamp_vector3_osl" nodedef="ND_clamp_vector3" file="stdlib/osl/mx_clamp_vector.osl" function="mx_clamp_vector" language="osl"/>
-  <implementation name="IM_clamp_vector3FA_osl" nodedef="ND_clamp_vector3FA" file="stdlib/osl/mx_clamp_float_vector.osl" function="mx_clamp_float_vector" language="osl"/>
-  <implementation name="IM_clamp_vector4_osl" nodedef="ND_clamp_vector4" file="stdlib/osl/mx_clamp_vector4.osl" function="mx_clamp_vector4" language="osl"/>
-  <implementation name="IM_clamp_vector4FA_osl" nodedef="ND_clamp_vector4FA" file="stdlib/osl/mx_clamp_float_vector4.osl" function="mx_clamp_float_vector4" language="osl"/>
+  <implementation name="IM_clamp_float_osl" nodedef="ND_clamp_float" file="stdlib/osl/mx_clamp_float.osl" function="mx_clamp_float" target="osl"/>
+  <implementation name="IM_clamp_color3_osl" nodedef="ND_clamp_color3" file="stdlib/osl/mx_clamp_color.osl" function="mx_clamp_color" target="osl"/>
+  <implementation name="IM_clamp_color3FA_osl" nodedef="ND_clamp_color3FA" file="stdlib/osl/mx_clamp_float_color.osl" function="mx_clamp_float_color" target="osl"/>
+  <implementation name="IM_clamp_color4_osl" nodedef="ND_clamp_color4" file="stdlib/osl/mx_clamp_color4.osl" function="mx_clamp_color4" target="osl"/>
+  <implementation name="IM_clamp_color4FA_osl" nodedef="ND_clamp_color4FA" file="stdlib/osl/mx_clamp_float_color4.osl" function="mx_clamp_float_color4" target="osl"/>
+  <implementation name="IM_clamp_vector2_osl" nodedef="ND_clamp_vector2" file="stdlib/osl/mx_clamp_vector2.osl" function="mx_clamp_vector2" target="osl"/>
+  <implementation name="IM_clamp_vector2FA_osl" nodedef="ND_clamp_vector2FA" file="stdlib/osl/mx_clamp_float_vector2.osl" function="mx_clamp_float_vector2" target="osl"/>
+  <implementation name="IM_clamp_vector3_osl" nodedef="ND_clamp_vector3" file="stdlib/osl/mx_clamp_vector.osl" function="mx_clamp_vector" target="osl"/>
+  <implementation name="IM_clamp_vector3FA_osl" nodedef="ND_clamp_vector3FA" file="stdlib/osl/mx_clamp_float_vector.osl" function="mx_clamp_float_vector" target="osl"/>
+  <implementation name="IM_clamp_vector4_osl" nodedef="ND_clamp_vector4" file="stdlib/osl/mx_clamp_vector4.osl" function="mx_clamp_vector4" target="osl"/>
+  <implementation name="IM_clamp_vector4FA_osl" nodedef="ND_clamp_vector4FA" file="stdlib/osl/mx_clamp_float_vector4.osl" function="mx_clamp_float_vector4" target="osl"/>
 
   <!-- <min> -->
-  <implementation name="IM_min_float_osl" nodedef="ND_min_float" file="stdlib/osl/mx_min_float.osl" function="mx_min_float" language="osl"/>
-  <implementation name="IM_min_color2_osl" nodedef="ND_min_color2" file="stdlib/osl/mx_min_color2.osl" function="mx_min_color2" language="osl"/>
-  <implementation name="IM_min_color2FA_osl" nodedef="ND_min_color2FA" file="stdlib/osl/mx_min_float_color2.osl" function="mx_min_float_color2" language="osl"/>
-  <implementation name="IM_min_color3_osl" nodedef="ND_min_color3" file="stdlib/osl/mx_min_color.osl" function="mx_min_color" language="osl"/>
-  <implementation name="IM_min_color3FA_osl" nodedef="ND_min_color3FA" file="stdlib/osl/mx_min_float_color.osl" function="mx_min_float_color" language="osl"/>
-  <implementation name="IM_min_color4_osl" nodedef="ND_min_color4" file="stdlib/osl/mx_min_color4.osl" function="mx_min_color4" language="osl"/>
-  <implementation name="IM_min_color4FA_osl" nodedef="ND_min_color4FA" file="stdlib/osl/mx_min_float_color4.osl" function="mx_min_float_color4" language="osl"/>
-  <implementation name="IM_min_vector2_osl" nodedef="ND_min_vector2" file="stdlib/osl/mx_min_vector2.osl" function="mx_min_vector2" language="osl"/>
-  <implementation name="IM_min_vector2FA_osl" nodedef="ND_min_vector2FA" file="stdlib/osl/mx_min_float_vector2.osl" function="mx_min_float_vector2" language="osl"/>
-  <implementation name="IM_min_vector3_osl" nodedef="ND_min_vector3" file="stdlib/osl/mx_min_vector.osl" function="mx_min_vector" language="osl"/>
-  <implementation name="IM_min_vector3FA_osl" nodedef="ND_min_vector3FA" file="stdlib/osl/mx_min_float_vector.osl" function="mx_min_float_vector" language="osl"/>
-  <implementation name="IM_min_vector4_osl" nodedef="ND_min_vector4" file="stdlib/osl/mx_min_vector4.osl" function="mx_min_vector4" language="osl"/>
-  <implementation name="IM_min_vector4FA_osl" nodedef="ND_min_vector4FA" file="stdlib/osl/mx_min_float_vector4.osl" function="mx_min_float_vector4" language="osl"/>
+  <implementation name="IM_min_float_osl" nodedef="ND_min_float" file="stdlib/osl/mx_min_float.osl" function="mx_min_float" target="osl"/>
+  <implementation name="IM_min_color3_osl" nodedef="ND_min_color3" file="stdlib/osl/mx_min_color.osl" function="mx_min_color" target="osl"/>
+  <implementation name="IM_min_color3FA_osl" nodedef="ND_min_color3FA" file="stdlib/osl/mx_min_float_color.osl" function="mx_min_float_color" target="osl"/>
+  <implementation name="IM_min_color4_osl" nodedef="ND_min_color4" file="stdlib/osl/mx_min_color4.osl" function="mx_min_color4" target="osl"/>
+  <implementation name="IM_min_color4FA_osl" nodedef="ND_min_color4FA" file="stdlib/osl/mx_min_float_color4.osl" function="mx_min_float_color4" target="osl"/>
+  <implementation name="IM_min_vector2_osl" nodedef="ND_min_vector2" file="stdlib/osl/mx_min_vector2.osl" function="mx_min_vector2" target="osl"/>
+  <implementation name="IM_min_vector2FA_osl" nodedef="ND_min_vector2FA" file="stdlib/osl/mx_min_float_vector2.osl" function="mx_min_float_vector2" target="osl"/>
+  <implementation name="IM_min_vector3_osl" nodedef="ND_min_vector3" file="stdlib/osl/mx_min_vector.osl" function="mx_min_vector" target="osl"/>
+  <implementation name="IM_min_vector3FA_osl" nodedef="ND_min_vector3FA" file="stdlib/osl/mx_min_float_vector.osl" function="mx_min_float_vector" target="osl"/>
+  <implementation name="IM_min_vector4_osl" nodedef="ND_min_vector4" file="stdlib/osl/mx_min_vector4.osl" function="mx_min_vector4" target="osl"/>
+  <implementation name="IM_min_vector4FA_osl" nodedef="ND_min_vector4FA" file="stdlib/osl/mx_min_float_vector4.osl" function="mx_min_float_vector4" target="osl"/>
 
   <!-- <max> -->
-  <implementation name="IM_max_float_osl" nodedef="ND_max_float" file="stdlib/osl/mx_max_float.osl" function="mx_max_float" language="osl"/>
-  <implementation name="IM_max_color2_osl" nodedef="ND_max_color2" file="stdlib/osl/mx_max_color2.osl" function="mx_max_color2" language="osl"/>
-  <implementation name="IM_max_color2FA_osl" nodedef="ND_max_color2FA" file="stdlib/osl/mx_max_float_color2.osl" function="mx_max_float_color2" language="osl"/>
-  <implementation name="IM_max_color3_osl" nodedef="ND_max_color3" file="stdlib/osl/mx_max_color.osl" function="mx_max_color" language="osl"/>
-  <implementation name="IM_max_color3FA_osl" nodedef="ND_max_color3FA" file="stdlib/osl/mx_max_float_color.osl" function="mx_max_float_color" language="osl"/>
-  <implementation name="IM_max_color4_osl" nodedef="ND_max_color4" file="stdlib/osl/mx_max_color4.osl" function="mx_max_color4" language="osl"/>
-  <implementation name="IM_max_color4FA_osl" nodedef="ND_max_color4FA" file="stdlib/osl/mx_max_float_color4.osl" function="mx_max_float_color4" language="osl"/>
-  <implementation name="IM_max_vector2_osl" nodedef="ND_max_vector2" file="stdlib/osl/mx_max_vector2.osl" function="mx_max_vector2" language="osl"/>
-  <implementation name="IM_max_vector2FA_osl" nodedef="ND_max_vector2FA" file="stdlib/osl/mx_max_float_vector2.osl" function="mx_max_float_vector2" language="osl"/>
-  <implementation name="IM_max_vector3_osl" nodedef="ND_max_vector3" file="stdlib/osl/mx_max_vector.osl" function="mx_max_vector" language="osl"/>
-  <implementation name="IM_max_vector3FA_osl" nodedef="ND_max_vector3FA" file="stdlib/osl/mx_max_float_vector.osl" function="mx_max_float_vector" language="osl"/>
-  <implementation name="IM_max_vector4_osl" nodedef="ND_max_vector4" file="stdlib/osl/mx_max_vector4.osl" function="mx_max_vector4" language="osl"/>
-  <implementation name="IM_max_vector4FA_osl" nodedef="ND_max_vector4FA" file="stdlib/osl/mx_max_float_vector4.osl" function="mx_max_float_vector4" language="osl"/>
+  <implementation name="IM_max_float_osl" nodedef="ND_max_float" file="stdlib/osl/mx_max_float.osl" function="mx_max_float" target="osl"/>
+  <implementation name="IM_max_color3_osl" nodedef="ND_max_color3" file="stdlib/osl/mx_max_color.osl" function="mx_max_color" target="osl"/>
+  <implementation name="IM_max_color3FA_osl" nodedef="ND_max_color3FA" file="stdlib/osl/mx_max_float_color.osl" function="mx_max_float_color" target="osl"/>
+  <implementation name="IM_max_color4_osl" nodedef="ND_max_color4" file="stdlib/osl/mx_max_color4.osl" function="mx_max_color4" target="osl"/>
+  <implementation name="IM_max_color4FA_osl" nodedef="ND_max_color4FA" file="stdlib/osl/mx_max_float_color4.osl" function="mx_max_float_color4" target="osl"/>
+  <implementation name="IM_max_vector2_osl" nodedef="ND_max_vector2" file="stdlib/osl/mx_max_vector2.osl" function="mx_max_vector2" target="osl"/>
+  <implementation name="IM_max_vector2FA_osl" nodedef="ND_max_vector2FA" file="stdlib/osl/mx_max_float_vector2.osl" function="mx_max_float_vector2" target="osl"/>
+  <implementation name="IM_max_vector3_osl" nodedef="ND_max_vector3" file="stdlib/osl/mx_max_vector.osl" function="mx_max_vector" target="osl"/>
+  <implementation name="IM_max_vector3FA_osl" nodedef="ND_max_vector3FA" file="stdlib/osl/mx_max_float_vector.osl" function="mx_max_float_vector" target="osl"/>
+  <implementation name="IM_max_vector4_osl" nodedef="ND_max_vector4" file="stdlib/osl/mx_max_vector4.osl" function="mx_max_vector4" target="osl"/>
+  <implementation name="IM_max_vector4FA_osl" nodedef="ND_max_vector4FA" file="stdlib/osl/mx_max_float_vector4.osl" function="mx_max_float_vector4" target="osl"/>
 
   <!-- <normalize> -->
-  <implementation name="IM_normalize_vector2_osl" nodedef="ND_normalize_vector2" file="stdlib/osl/mx_normalize_vector2.osl" function="mx_normalize_vector2" language="osl"/>
-  <implementation name="IM_normalize_vector3_osl" nodedef="ND_normalize_vector3" file="stdlib/osl/mx_normalize_vector.osl" function="mx_normalize_vector" language="osl"/>
-  <implementation name="IM_normalize_vector4_osl" nodedef="ND_normalize_vector4" file="stdlib/osl/mx_normalize_vector4.osl" function="mx_normalize_vector4" language="osl"/>
+  <implementation name="IM_normalize_vector2_osl" nodedef="ND_normalize_vector2" file="stdlib/osl/mx_normalize_vector2.osl" function="mx_normalize_vector2" target="osl"/>
+  <implementation name="IM_normalize_vector3_osl" nodedef="ND_normalize_vector3" file="stdlib/osl/mx_normalize_vector.osl" function="mx_normalize_vector" target="osl"/>
+  <implementation name="IM_normalize_vector4_osl" nodedef="ND_normalize_vector4" file="stdlib/osl/mx_normalize_vector4.osl" function="mx_normalize_vector4" target="osl"/>
 
   <!-- <magnitude> -->
-  <implementation name="IM_magnitude_vector2_osl" nodedef="ND_magnitude_vector2" file="stdlib/osl/mx_magnitude_vector2.osl" function="mx_magnitude_vector2" language="osl"/>
-  <implementation name="IM_magnitude_vector3_osl" nodedef="ND_magnitude_vector3" file="stdlib/osl/mx_magnitude_vector.osl" function="mx_magnitude_vector" language="osl"/>
-  <implementation name="IM_magnitude_vector4_osl" nodedef="ND_magnitude_vector4" file="stdlib/osl/mx_magnitude_vector4.osl" function="mx_magnitude_vector4" language="osl"/>
+  <implementation name="IM_magnitude_vector2_osl" nodedef="ND_magnitude_vector2" file="stdlib/osl/mx_magnitude_vector2.osl" function="mx_magnitude_vector2" target="osl"/>
+  <implementation name="IM_magnitude_vector3_osl" nodedef="ND_magnitude_vector3" file="stdlib/osl/mx_magnitude_vector.osl" function="mx_magnitude_vector" target="osl"/>
+  <implementation name="IM_magnitude_vector4_osl" nodedef="ND_magnitude_vector4" file="stdlib/osl/mx_magnitude_vector4.osl" function="mx_magnitude_vector4" target="osl"/>
 
   <!-- <dotproduct> -->
-  <implementation name="IM_dotproduct_vector2_osl" nodedef="ND_dotproduct_vector2" file="stdlib/osl/mx_dotproduct_vector2.osl" function="mx_dotproduct_vector2" language="osl"/>
-  <implementation name="IM_dotproduct_vector3_osl" nodedef="ND_dotproduct_vector3" file="stdlib/osl/mx_dotproduct_vector.osl" function="mx_dotproduct_vector" language="osl"/>
-  <implementation name="IM_dotproduct_vector4_osl" nodedef="ND_dotproduct_vector4" file="stdlib/osl/mx_dotproduct_vector4.osl" function="mx_dotproduct_vector4" language="osl"/>
+  <implementation name="IM_dotproduct_vector2_osl" nodedef="ND_dotproduct_vector2" file="stdlib/osl/mx_dotproduct_vector2.osl" function="mx_dotproduct_vector2" target="osl"/>
+  <implementation name="IM_dotproduct_vector3_osl" nodedef="ND_dotproduct_vector3" file="stdlib/osl/mx_dotproduct_vector.osl" function="mx_dotproduct_vector" target="osl"/>
+  <implementation name="IM_dotproduct_vector4_osl" nodedef="ND_dotproduct_vector4" file="stdlib/osl/mx_dotproduct_vector4.osl" function="mx_dotproduct_vector4" target="osl"/>
 
   <!-- <crossproduct> -->
-  <implementation name="IM_crossproduct_vector3_osl" nodedef="ND_crossproduct_vector3" file="stdlib/osl/mx_crossproduct_vector.osl" function="mx_crossproduct_vector" language="osl"/>
+  <implementation name="IM_crossproduct_vector3_osl" nodedef="ND_crossproduct_vector3" file="stdlib/osl/mx_crossproduct_vector.osl" function="mx_crossproduct_vector" target="osl"/>
 
   <!-- <transformpoint>, <transformvector>, <transformnormal> -->
-  <implementation name="IM_transformpoint_vector3_osl" nodedef="ND_transformpoint_vector3" file="stdlib/osl/mx_transformpoint_vector.osl" function="mx_transformpoint_vector" language="osl"/>
-  <implementation name="IM_transformpoint_vector3M_osl" nodedef="ND_transformpoint_vector3M" file="stdlib/osl/mx_transformpoint_vectorM.osl" function="mx_transformpoint_vectorM" language="osl"/>
-  <implementation name="IM_transformpoint_vector4_osl" nodedef="ND_transformpoint_vector4" file="stdlib/osl/mx_transformpoint_vector4.osl" function="mx_transformpoint_vector4" language="osl"/>
-  <implementation name="IM_transformpoint_vector4M_osl" nodedef="ND_transformpoint_vector4M" file="stdlib/osl/mx_transformpoint_vector4M.osl" function="mx_transformpoint_vector4M" language="osl"/>
-  <implementation name="IM_transformvector_vector3_osl" nodedef="ND_transformvector_vector3" file="stdlib/osl/mx_transformvector_vector.osl" function="mx_transformvector_vector" language="osl"/>
-  <implementation name="IM_transformvector_vector3M_osl" nodedef="ND_transformvector_vector3M" file="stdlib/osl/mx_transformvector_vectorM.osl" function="mx_transformvector_vectorM" language="osl"/>
-  <implementation name="IM_transformvector_vector4_osl" nodedef="ND_transformvector_vector4" file="stdlib/osl/mx_transformvector_vector4.osl" function="mx_transformvector_vector4" language="osl"/>
-  <implementation name="IM_transformvector_vector4M_osl" nodedef="ND_transformvector_vector4M" file="stdlib/osl/mx_transformvector_vector4M.osl" function="mx_transformvector_vector4M" language="osl"/>
-  <implementation name="IM_transformnormal_vector3_osl" nodedef="ND_transformnormal_vector3" file="stdlib/osl/mx_transformnormal_vector.osl" function="mx_transformnormal_vector" language="osl"/>
-  <implementation name="IM_transformnormal_vector3M_osl" nodedef="ND_transformnormal_vector3M" file="stdlib/osl/mx_transformnormal_vectorM.osl" function="mx_transformnormal_vectorM" language="osl"/>
-  <implementation name="IM_transformnormal_vector4_osl" nodedef="ND_transformnormal_vector4" file="stdlib/osl/mx_transformnormal_vector4.osl" function="mx_transformnormal_vector4" language="osl"/>
-  <implementation name="IM_transformnormal_vector4M_osl" nodedef="ND_transformnormal_vector4M" file="stdlib/osl/mx_transformnormal_vector4M.osl" function="mx_transformnormal_vector4M" language="osl"/>
+  <implementation name="IM_transformpoint_vector3_osl" nodedef="ND_transformpoint_vector3" file="stdlib/osl/mx_transformpoint_vector.osl" function="mx_transformpoint_vector" target="osl"/>
+  <implementation name="IM_transformpoint_vector3M_osl" nodedef="ND_transformpoint_vector3M" file="stdlib/osl/mx_transformpoint_vectorM.osl" function="mx_transformpoint_vectorM" target="osl"/>
+  <implementation name="IM_transformpoint_vector4_osl" nodedef="ND_transformpoint_vector4" file="stdlib/osl/mx_transformpoint_vector4.osl" function="mx_transformpoint_vector4" target="osl"/>
+  <implementation name="IM_transformpoint_vector4M_osl" nodedef="ND_transformpoint_vector4M" file="stdlib/osl/mx_transformpoint_vector4M.osl" function="mx_transformpoint_vector4M" target="osl"/>
+  <implementation name="IM_transformvector_vector3_osl" nodedef="ND_transformvector_vector3" file="stdlib/osl/mx_transformvector_vector.osl" function="mx_transformvector_vector" target="osl"/>
+  <implementation name="IM_transformvector_vector3M_osl" nodedef="ND_transformvector_vector3M" file="stdlib/osl/mx_transformvector_vectorM.osl" function="mx_transformvector_vectorM" target="osl"/>
+  <implementation name="IM_transformvector_vector4_osl" nodedef="ND_transformvector_vector4" file="stdlib/osl/mx_transformvector_vector4.osl" function="mx_transformvector_vector4" target="osl"/>
+  <implementation name="IM_transformvector_vector4M_osl" nodedef="ND_transformvector_vector4M" file="stdlib/osl/mx_transformvector_vector4M.osl" function="mx_transformvector_vector4M" target="osl"/>
+  <implementation name="IM_transformnormal_vector3_osl" nodedef="ND_transformnormal_vector3" file="stdlib/osl/mx_transformnormal_vector.osl" function="mx_transformnormal_vector" target="osl"/>
+  <implementation name="IM_transformnormal_vector3M_osl" nodedef="ND_transformnormal_vector3M" file="stdlib/osl/mx_transformnormal_vectorM.osl" function="mx_transformnormal_vectorM" target="osl"/>
+  <implementation name="IM_transformnormal_vector4_osl" nodedef="ND_transformnormal_vector4" file="stdlib/osl/mx_transformnormal_vector4.osl" function="mx_transformnormal_vector4" target="osl"/>
+  <implementation name="IM_transformnormal_vector4M_osl" nodedef="ND_transformnormal_vector4M" file="stdlib/osl/mx_transformnormal_vector4M.osl" function="mx_transformnormal_vector4M" target="osl"/>
 
   <!-- <transpose> -->
-  <implementation name="IM_transpose_matrix33_osl" nodedef="ND_transpose_matrix33" file="stdlib/osl/mx_transpose_matrix33.osl" function="mx_transpose_matrix33" language="osl"/>
-  <implementation name="IM_transpose_matrix44_osl" nodedef="ND_transpose_matrix44" file="stdlib/osl/mx_transpose_matrix44.osl" function="mx_transpose_matrix44" language="osl"/>
+  <implementation name="IM_transpose_matrix33_osl" nodedef="ND_transpose_matrix33" file="stdlib/osl/mx_transpose_matrix33.osl" function="mx_transpose_matrix33" target="osl"/>
+  <implementation name="IM_transpose_matrix44_osl" nodedef="ND_transpose_matrix44" file="stdlib/osl/mx_transpose_matrix44.osl" function="mx_transpose_matrix44" target="osl"/>
 
   <!-- <determinant> -->
-  <implementation name="IM_determinant_matrix33_osl" nodedef="ND_determinant_matrix33" file="stdlib/osl/mx_determinant_matrix33.osl" function="mx_determinant_matrix33" language="osl"/>
-  <implementation name="IM_determinant_matrix44_osl" nodedef="ND_determinant_matrix44" file="stdlib/osl/mx_determinant_matrix44.osl" function="mx_determinant_matrix44" language="osl"/>
+  <implementation name="IM_determinant_matrix33_osl" nodedef="ND_determinant_matrix33" file="stdlib/osl/mx_determinant_matrix33.osl" function="mx_determinant_matrix33" target="osl"/>
+  <implementation name="IM_determinant_matrix44_osl" nodedef="ND_determinant_matrix44" file="stdlib/osl/mx_determinant_matrix44.osl" function="mx_determinant_matrix44" target="osl"/>
 
   <!-- <rotate> -->
-  <implementation name="IM_rotate_vector2_osl" nodedef="ND_rotate_vector2" file="stdlib/osl/mx_rotate_vector2.osl" function="mx_rotate_vector2" language="osl"/>
-  <implementation name="IM_rotate_vector3_osl" nodedef="ND_rotate_vector3" file="stdlib/osl/mx_rotate_vector3.osl" function="mx_rotate_vector3" language="osl"/>
+  <implementation name="IM_rotate_vector2_osl" nodedef="ND_rotate_vector2" file="stdlib/osl/mx_rotate_vector2.osl" function="mx_rotate_vector2" target="osl"/>
+  <implementation name="IM_rotate_vector3_osl" nodedef="ND_rotate_vector3" file="stdlib/osl/mx_rotate_vector3.osl" function="mx_rotate_vector3" target="osl"/>
 
   <!-- <arrayappend> -->
-  <implementation name="IM_arrayappend_integer_integerarray_osl" nodedef="ND_arrayappend_integer_integerarray" file="stdlib/osl/mx_arrayappend_integer_integerarray.osl" function="mx_arrayappend_integer_integerarray" language="osl"/>
-  <implementation name="IM_arrayappend_integerarray_integerarray_osl" nodedef="ND_arrayappend_integerarray_integerarray" file="stdlib/osl/mx_arrayappend_integerarray_integerarray.osl" function="mx_arrayappend_integerarray_integerarray" language="osl"/>
-  <implementation name="IM_arrayappend_float_floatarray_osl" nodedef="ND_arrayappend_float_floatarray" file="stdlib/osl/mx_arrayappend_float_floatarray.osl" function="mx_arrayappend_float_floatarray" language="osl"/>
-  <implementation name="IM_arrayappend_floatarray_floatarray_osl" nodedef="ND_arrayappend_floatarray_floatarray" file="stdlib/osl/mx_arrayappend_floatarray_floatarray.osl" function="mx_arrayappend_floatarray_floatarray" language="osl"/>
-  <implementation name="IM_arrayappend_color2_color2array_osl" nodedef="ND_arrayappend_color2_color2array" file="stdlib/osl/mx_arrayappend_color2_color2array.osl" function="mx_arrayappend_color2_color2array" language="osl"/>
-  <implementation name="IM_arrayappend_color2array_color2array_osl" nodedef="ND_arrayappend_color2array_color2array" file="stdlib/osl/mx_arrayappend_color2array_color2array.osl" function="mx_arrayappend_color2array_color2array" language="osl"/>
-  <implementation name="IM_arrayappend_color3_color3array_osl" nodedef="ND_arrayappend_color3_color3array" file="stdlib/osl/mx_arrayappend_color3_color3array.osl" function="mx_arrayappend_color3_color3array" language="osl"/>
-  <implementation name="IM_arrayappend_color3array_color3array_osl" nodedef="ND_arrayappend_color3array_color3array" file="stdlib/osl/mx_arrayappend_color3array_color3array.osl" function="mx_arrayappend_color3array_color3array" language="osl"/>
-  <implementation name="IM_arrayappend_color4_color4array_osl" nodedef="ND_arrayappend_color4_color4array" file="stdlib/osl/mx_arrayappend_color4_color4array.osl" function="mx_arrayappend_color4_color4array" language="osl"/>
-  <implementation name="IM_arrayappend_color4array_color4array_osl" nodedef="ND_arrayappend_color4array_color4array" file="stdlib/osl/mx_arrayappend_color4array_color4array.osl" function="mx_arrayappend_color4array_color4array" language="osl"/>
-  <implementation name="IM_arrayappend_vector2_vector2array_osl" nodedef="ND_arrayappend_vector2_vector2array" file="stdlib/osl/mx_arrayappend_vector2_vector2array.osl" function="mx_arrayappend_vector2_vector2array" language="osl"/>
-  <implementation name="IM_arrayappend_vector2array_vector2array_osl" nodedef="ND_arrayappend_vector2array_vector2array" file="stdlib/osl/mx_arrayappend_vector2array_vector2array.osl" function="mx_arrayappend_vector2array_vector2array" language="osl"/>
-  <implementation name="IM_arrayappend_vector3_vector3array_osl" nodedef="ND_arrayappend_vector3_vector3array" file="stdlib/osl/mx_arrayappend_vector3_vector3array.osl" function="mx_arrayappend_vector3_vector3array" language="osl"/>
-  <implementation name="IM_arrayappend_vector3array_vector3array_osl" nodedef="ND_arrayappend_vector3array_vector3array" file="stdlib/osl/mx_arrayappend_vector3array_vector3array.osl" function="mx_arrayappend_vector3array_vector3array" language="osl"/>
-  <implementation name="IM_arrayappend_vector4_vector4array_osl" nodedef="ND_arrayappend_vector4_vector4array" file="stdlib/osl/mx_arrayappend_vector4_vector4array.osl" function="mx_arrayappend_vector4_vector4array" language="osl"/>
-  <implementation name="IM_arrayappend_vector4array_vector4array_osl" nodedef="ND_arrayappend_vector4array_vector4array" file="stdlib/osl/mx_arrayappend_vector4array_vector4array.osl" function="mx_arrayappend_vector4array_vector4array" language="osl"/>
-  <implementation name="IM_arrayappend_string_stringarray_osl" nodedef="ND_arrayappend_string_stringarray" file="stdlib/osl/mx_arrayappend_string_stringarray.osl" function="mx_arrayappend_string_stringarray" language="osl"/>
-  <implementation name="IM_arrayappend_stringarray_stringarray_osl" nodedef="ND_arrayappend_stringarray_stringarray" file="stdlib/osl/mx_arrayappend_stringarray_stringarray.osl" function="mx_arrayappend_stringarray_stringarray" language="osl"/>
+  <implementation name="IM_arrayappend_integer_integerarray_osl" nodedef="ND_arrayappend_integer_integerarray" file="stdlib/osl/mx_arrayappend_integer_integerarray.osl" function="mx_arrayappend_integer_integerarray" target="osl"/>
+  <implementation name="IM_arrayappend_integerarray_integerarray_osl" nodedef="ND_arrayappend_integerarray_integerarray" file="stdlib/osl/mx_arrayappend_integerarray_integerarray.osl" function="mx_arrayappend_integerarray_integerarray" target="osl"/>
+  <implementation name="IM_arrayappend_float_floatarray_osl" nodedef="ND_arrayappend_float_floatarray" file="stdlib/osl/mx_arrayappend_float_floatarray.osl" function="mx_arrayappend_float_floatarray" target="osl"/>
+  <implementation name="IM_arrayappend_floatarray_floatarray_osl" nodedef="ND_arrayappend_floatarray_floatarray" file="stdlib/osl/mx_arrayappend_floatarray_floatarray.osl" function="mx_arrayappend_floatarray_floatarray" target="osl"/>
+  <implementation name="IM_arrayappend_color3_color3array_osl" nodedef="ND_arrayappend_color3_color3array" file="stdlib/osl/mx_arrayappend_color3_color3array.osl" function="mx_arrayappend_color3_color3array" target="osl"/>
+  <implementation name="IM_arrayappend_color3array_color3array_osl" nodedef="ND_arrayappend_color3array_color3array" file="stdlib/osl/mx_arrayappend_color3array_color3array.osl" function="mx_arrayappend_color3array_color3array" target="osl"/>
+  <implementation name="IM_arrayappend_color4_color4array_osl" nodedef="ND_arrayappend_color4_color4array" file="stdlib/osl/mx_arrayappend_color4_color4array.osl" function="mx_arrayappend_color4_color4array" target="osl"/>
+  <implementation name="IM_arrayappend_color4array_color4array_osl" nodedef="ND_arrayappend_color4array_color4array" file="stdlib/osl/mx_arrayappend_color4array_color4array.osl" function="mx_arrayappend_color4array_color4array" target="osl"/>
+  <implementation name="IM_arrayappend_vector2_vector2array_osl" nodedef="ND_arrayappend_vector2_vector2array" file="stdlib/osl/mx_arrayappend_vector2_vector2array.osl" function="mx_arrayappend_vector2_vector2array" target="osl"/>
+  <implementation name="IM_arrayappend_vector2array_vector2array_osl" nodedef="ND_arrayappend_vector2array_vector2array" file="stdlib/osl/mx_arrayappend_vector2array_vector2array.osl" function="mx_arrayappend_vector2array_vector2array" target="osl"/>
+  <implementation name="IM_arrayappend_vector3_vector3array_osl" nodedef="ND_arrayappend_vector3_vector3array" file="stdlib/osl/mx_arrayappend_vector3_vector3array.osl" function="mx_arrayappend_vector3_vector3array" target="osl"/>
+  <implementation name="IM_arrayappend_vector3array_vector3array_osl" nodedef="ND_arrayappend_vector3array_vector3array" file="stdlib/osl/mx_arrayappend_vector3array_vector3array.osl" function="mx_arrayappend_vector3array_vector3array" target="osl"/>
+  <implementation name="IM_arrayappend_vector4_vector4array_osl" nodedef="ND_arrayappend_vector4_vector4array" file="stdlib/osl/mx_arrayappend_vector4_vector4array.osl" function="mx_arrayappend_vector4_vector4array" target="osl"/>
+  <implementation name="IM_arrayappend_vector4array_vector4array_osl" nodedef="ND_arrayappend_vector4array_vector4array" file="stdlib/osl/mx_arrayappend_vector4array_vector4array.osl" function="mx_arrayappend_vector4array_vector4array" target="osl"/>
+  <implementation name="IM_arrayappend_string_stringarray_osl" nodedef="ND_arrayappend_string_stringarray" file="stdlib/osl/mx_arrayappend_string_stringarray.osl" function="mx_arrayappend_string_stringarray" target="osl"/>
+  <implementation name="IM_arrayappend_stringarray_stringarray_osl" nodedef="ND_arrayappend_stringarray_stringarray" file="stdlib/osl/mx_arrayappend_stringarray_stringarray.osl" function="mx_arrayappend_stringarray_stringarray" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -559,76 +509,69 @@
   <!-- ======================================================================== -->
 
   <!-- <remap> -->
-  <implementation name="IM_remap_float_osl" nodedef="ND_remap_float" file="stdlib/osl/mx_remap_float.osl" function="mx_remap_float" language="osl"/>
-  <implementation name="IM_remap_color2_osl" nodedef="ND_remap_color2" file="stdlib/osl/mx_remap_color2.osl" function="mx_remap_color2" language="osl"/>
-  <implementation name="IM_remap_color2FA_osl" nodedef="ND_remap_color2FA" file="stdlib/osl/mx_remap_float_color2.osl" function="mx_remap_float_color2" language="osl"/>
-  <implementation name="IM_remap_color3_osl" nodedef="ND_remap_color3" file="stdlib/osl/mx_remap_color.osl" function="mx_remap_color" language="osl"/>
-  <implementation name="IM_remap_color3FA_osl" nodedef="ND_remap_color3FA" file="stdlib/osl/mx_remap_float_color.osl" function="mx_remap_float_color" language="osl"/>
-  <implementation name="IM_remap_color4_osl" nodedef="ND_remap_color4" file="stdlib/osl/mx_remap_color4.osl" function="mx_remap_color4" language="osl"/>
-  <implementation name="IM_remap_color4FA_osl" nodedef="ND_remap_color4FA" file="stdlib/osl/mx_remap_float_color4.osl" function="mx_remap_float_color4" language="osl"/>
-  <implementation name="IM_remap_vector2_osl" nodedef="ND_remap_vector2" file="stdlib/osl/mx_remap_vector2.osl" function="mx_remap_vector2" language="osl"/>
-  <implementation name="IM_remap_vector2FA_osl" nodedef="ND_remap_vector2FA" file="stdlib/osl/mx_remap_float_vector2.osl" function="mx_remap_float_vector2" language="osl"/>
-  <implementation name="IM_remap_vector3_osl" nodedef="ND_remap_vector3" file="stdlib/osl/mx_remap_vector.osl" function="mx_remap_vector" language="osl"/>
-  <implementation name="IM_remap_vector3FA_osl" nodedef="ND_remap_vector3FA" file="stdlib/osl/mx_remap_float_vector.osl" function="mx_remap_float_vector" language="osl"/>
-  <implementation name="IM_remap_vector4_osl" nodedef="ND_remap_vector4" file="stdlib/osl/mx_remap_vector4.osl" function="mx_remap_vector4" language="osl"/>
-  <implementation name="IM_remap_vector4FA_osl" nodedef="ND_remap_vector4FA" file="stdlib/osl/mx_remap_float_vector4.osl" function="mx_remap_float_vector4" language="osl"/>
+  <implementation name="IM_remap_float_osl" nodedef="ND_remap_float" file="stdlib/osl/mx_remap_float.osl" function="mx_remap_float" target="osl"/>
+  <implementation name="IM_remap_color3_osl" nodedef="ND_remap_color3" file="stdlib/osl/mx_remap_color.osl" function="mx_remap_color" target="osl"/>
+  <implementation name="IM_remap_color3FA_osl" nodedef="ND_remap_color3FA" file="stdlib/osl/mx_remap_float_color.osl" function="mx_remap_float_color" target="osl"/>
+  <implementation name="IM_remap_color4_osl" nodedef="ND_remap_color4" file="stdlib/osl/mx_remap_color4.osl" function="mx_remap_color4" target="osl"/>
+  <implementation name="IM_remap_color4FA_osl" nodedef="ND_remap_color4FA" file="stdlib/osl/mx_remap_float_color4.osl" function="mx_remap_float_color4" target="osl"/>
+  <implementation name="IM_remap_vector2_osl" nodedef="ND_remap_vector2" file="stdlib/osl/mx_remap_vector2.osl" function="mx_remap_vector2" target="osl"/>
+  <implementation name="IM_remap_vector2FA_osl" nodedef="ND_remap_vector2FA" file="stdlib/osl/mx_remap_float_vector2.osl" function="mx_remap_float_vector2" target="osl"/>
+  <implementation name="IM_remap_vector3_osl" nodedef="ND_remap_vector3" file="stdlib/osl/mx_remap_vector.osl" function="mx_remap_vector" target="osl"/>
+  <implementation name="IM_remap_vector3FA_osl" nodedef="ND_remap_vector3FA" file="stdlib/osl/mx_remap_float_vector.osl" function="mx_remap_float_vector" target="osl"/>
+  <implementation name="IM_remap_vector4_osl" nodedef="ND_remap_vector4" file="stdlib/osl/mx_remap_vector4.osl" function="mx_remap_vector4" target="osl"/>
+  <implementation name="IM_remap_vector4FA_osl" nodedef="ND_remap_vector4FA" file="stdlib/osl/mx_remap_float_vector4.osl" function="mx_remap_float_vector4" target="osl"/>
 
   <!-- <smoothstep> -->
-  <implementation name="IM_smoothstep_float_osl" nodedef="ND_smoothstep_float" file="stdlib/osl/mx_smoothstep_float.osl" function="mx_smoothstep_float" language="osl"/>
-  <implementation name="IM_smoothstep_color2_osl" nodedef="ND_smoothstep_color2" file="stdlib/osl/mx_smoothstep_color2.osl" function="mx_smoothstep_color2" language="osl"/>
-  <implementation name="IM_smoothstep_color2FA_osl" nodedef="ND_smoothstep_color2FA" file="stdlib/osl/mx_smoothstep_float_color2.osl" function="mx_smoothstep_float_color2" language="osl"/>
-  <implementation name="IM_smoothstep_color3_osl" nodedef="ND_smoothstep_color3" file="stdlib/osl/mx_smoothstep_color.osl" function="mx_smoothstep_color" language="osl"/>
-  <implementation name="IM_smoothstep_color3FA_osl" nodedef="ND_smoothstep_color3FA" file="stdlib/osl/mx_smoothstep_float_color.osl" function="mx_smoothstep_float_color" language="osl"/>
-  <implementation name="IM_smoothstep_color4_osl" nodedef="ND_smoothstep_color4" file="stdlib/osl/mx_smoothstep_color4.osl" function="mx_smoothstep_color4" language="osl"/>
-  <implementation name="IM_smoothstep_color4FA_osl" nodedef="ND_smoothstep_color4FA" file="stdlib/osl/mx_smoothstep_float_color4.osl" function="mx_smoothstep_float_color4" language="osl"/>
-  <implementation name="IM_smoothstep_vector2_osl" nodedef="ND_smoothstep_vector2" file="stdlib/osl/mx_smoothstep_vector2.osl" function="mx_smoothstep_vector2" language="osl"/>
-  <implementation name="IM_smoothstep_vector2FA_osl" nodedef="ND_smoothstep_vector2FA" file="stdlib/osl/mx_smoothstep_float_vector2.osl" function="mx_smoothstep_float_vector2" language="osl"/>
-  <implementation name="IM_smoothstep_vector3_osl" nodedef="ND_smoothstep_vector3" file="stdlib/osl/mx_smoothstep_vector.osl" function="mx_smoothstep_vector" language="osl"/>
-  <implementation name="IM_smoothstep_vector3FA_osl" nodedef="ND_smoothstep_vector3FA" file="stdlib/osl/mx_smoothstep_float_vector.osl" function="mx_smoothstep_float_vector" language="osl"/>
-  <implementation name="IM_smoothstep_vector4_osl" nodedef="ND_smoothstep_vector4" file="stdlib/osl/mx_smoothstep_vector4.osl" function="mx_smoothstep_vector4" language="osl"/>
-  <implementation name="IM_smoothstep_vector4FA_osl" nodedef="ND_smoothstep_vector4FA" file="stdlib/osl/mx_smoothstep_float_vector4.osl" function="mx_smoothstep_float_vector4" language="osl"/>
+  <implementation name="IM_smoothstep_float_osl" nodedef="ND_smoothstep_float" file="stdlib/osl/mx_smoothstep_float.osl" function="mx_smoothstep_float" target="osl"/>
+  <implementation name="IM_smoothstep_color3_osl" nodedef="ND_smoothstep_color3" file="stdlib/osl/mx_smoothstep_color.osl" function="mx_smoothstep_color" target="osl"/>
+  <implementation name="IM_smoothstep_color3FA_osl" nodedef="ND_smoothstep_color3FA" file="stdlib/osl/mx_smoothstep_float_color.osl" function="mx_smoothstep_float_color" target="osl"/>
+  <implementation name="IM_smoothstep_color4_osl" nodedef="ND_smoothstep_color4" file="stdlib/osl/mx_smoothstep_color4.osl" function="mx_smoothstep_color4" target="osl"/>
+  <implementation name="IM_smoothstep_color4FA_osl" nodedef="ND_smoothstep_color4FA" file="stdlib/osl/mx_smoothstep_float_color4.osl" function="mx_smoothstep_float_color4" target="osl"/>
+  <implementation name="IM_smoothstep_vector2_osl" nodedef="ND_smoothstep_vector2" file="stdlib/osl/mx_smoothstep_vector2.osl" function="mx_smoothstep_vector2" target="osl"/>
+  <implementation name="IM_smoothstep_vector2FA_osl" nodedef="ND_smoothstep_vector2FA" file="stdlib/osl/mx_smoothstep_float_vector2.osl" function="mx_smoothstep_float_vector2" target="osl"/>
+  <implementation name="IM_smoothstep_vector3_osl" nodedef="ND_smoothstep_vector3" file="stdlib/osl/mx_smoothstep_vector.osl" function="mx_smoothstep_vector" target="osl"/>
+  <implementation name="IM_smoothstep_vector3FA_osl" nodedef="ND_smoothstep_vector3FA" file="stdlib/osl/mx_smoothstep_float_vector.osl" function="mx_smoothstep_float_vector" target="osl"/>
+  <implementation name="IM_smoothstep_vector4_osl" nodedef="ND_smoothstep_vector4" file="stdlib/osl/mx_smoothstep_vector4.osl" function="mx_smoothstep_vector4" target="osl"/>
+  <implementation name="IM_smoothstep_vector4FA_osl" nodedef="ND_smoothstep_vector4FA" file="stdlib/osl/mx_smoothstep_float_vector4.osl" function="mx_smoothstep_float_vector4" target="osl"/>
 
   <!-- <curveadjust> -->
-  <implementation name="IM_curveadjust_float_osl" nodedef="ND_curveadjust_float" file="stdlib/osl/mx_curveadjust_float.osl" function="mx_curveadjust_float" language="osl"/>
-  <implementation name="IM_curveadjust_color2_osl" nodedef="ND_curveadjust_color2" file="stdlib/osl/mx_curveadjust_color2.osl" function="mx_curveadjust_color2" language="osl"/>
-  <implementation name="IM_curveadjust_color3_osl" nodedef="ND_curveadjust_color3" file="stdlib/osl/mx_curveadjust_color.osl" function="mx_curveadjust_color" language="osl"/>
-  <implementation name="IM_curveadjust_color4_osl" nodedef="ND_curveadjust_color4" file="stdlib/osl/mx_curveadjust_color4.osl" function="mx_curveadjust_color4" language="osl"/>
-  <implementation name="IM_curveadjust_vector2_osl" nodedef="ND_curveadjust_vector2" file="stdlib/osl/mx_curveadjust_vector2.osl" function="mx_curveadjust_vector2" language="osl"/>
-  <implementation name="IM_curveadjust_vector3_osl" nodedef="ND_curveadjust_vector3" file="stdlib/osl/mx_curveadjust_vector.osl" function="mx_curveadjust_vector" language="osl"/>
-  <implementation name="IM_curveadjust_vector4_osl" nodedef="ND_curveadjust_vector4" file="stdlib/osl/mx_curveadjust_vector4.osl" function="mx_curveadjust_vector4" language="osl"/>
+  <implementation name="IM_curveadjust_float_osl" nodedef="ND_curveadjust_float" file="stdlib/osl/mx_curveadjust_float.osl" function="mx_curveadjust_float" target="osl"/>
+  <implementation name="IM_curveadjust_color3_osl" nodedef="ND_curveadjust_color3" file="stdlib/osl/mx_curveadjust_color.osl" function="mx_curveadjust_color" target="osl"/>
+  <implementation name="IM_curveadjust_color4_osl" nodedef="ND_curveadjust_color4" file="stdlib/osl/mx_curveadjust_color4.osl" function="mx_curveadjust_color4" target="osl"/>
+  <implementation name="IM_curveadjust_vector2_osl" nodedef="ND_curveadjust_vector2" file="stdlib/osl/mx_curveadjust_vector2.osl" function="mx_curveadjust_vector2" target="osl"/>
+  <implementation name="IM_curveadjust_vector3_osl" nodedef="ND_curveadjust_vector3" file="stdlib/osl/mx_curveadjust_vector.osl" function="mx_curveadjust_vector" target="osl"/>
+  <implementation name="IM_curveadjust_vector4_osl" nodedef="ND_curveadjust_vector4" file="stdlib/osl/mx_curveadjust_vector4.osl" function="mx_curveadjust_vector4" target="osl"/>
 
   <!-- <luminance> -->
-  <implementation name="IM_luminance_color3_osl" nodedef="ND_luminance_color3" file="stdlib/osl/mx_luminance_color.osl" function="mx_luminance_color" language="osl"/>
-  <implementation name="IM_luminance_color4_osl" nodedef="ND_luminance_color4" file="stdlib/osl/mx_luminance_color4.osl" function="mx_luminance_color4" language="osl"/>
+  <implementation name="IM_luminance_color3_osl" nodedef="ND_luminance_color3" file="stdlib/osl/mx_luminance_color.osl" function="mx_luminance_color" target="osl"/>
+  <implementation name="IM_luminance_color4_osl" nodedef="ND_luminance_color4" file="stdlib/osl/mx_luminance_color4.osl" function="mx_luminance_color4" target="osl"/>
 
   <!-- <rgbtohsv>, <hsvtorgb> -->
-  <implementation name="IM_rgbtohsv_color3_osl" nodedef="ND_rgbtohsv_color3" file="stdlib/osl/mx_rgbtohsv_color.osl" function="mx_rgbtohsv_color" language="osl"/>
-  <implementation name="IM_rgbtohsv_color4_osl" nodedef="ND_rgbtohsv_color4" file="stdlib/osl/mx_rgbtohsv_color4.osl" function="mx_rgbtohsv_color4" language="osl"/>
-  <implementation name="IM_hsvtorgb_color3_osl" nodedef="ND_hsvtorgb_color3" file="stdlib/osl/mx_hsvtorgb_color.osl" function="mx_hsvtorgb_color" language="osl"/>
-  <implementation name="IM_hsvtorgb_color4_osl" nodedef="ND_hsvtorgb_color4" file="stdlib/osl/mx_hsvtorgb_color4.osl" function="mx_hsvtorgb_color4" language="osl"/>
+  <implementation name="IM_rgbtohsv_color3_osl" nodedef="ND_rgbtohsv_color3" file="stdlib/osl/mx_rgbtohsv_color.osl" function="mx_rgbtohsv_color" target="osl"/>
+  <implementation name="IM_rgbtohsv_color4_osl" nodedef="ND_rgbtohsv_color4" file="stdlib/osl/mx_rgbtohsv_color4.osl" function="mx_rgbtohsv_color4" target="osl"/>
+  <implementation name="IM_hsvtorgb_color3_osl" nodedef="ND_hsvtorgb_color3" file="stdlib/osl/mx_hsvtorgb_color.osl" function="mx_hsvtorgb_color" target="osl"/>
+  <implementation name="IM_hsvtorgb_color4_osl" nodedef="ND_hsvtorgb_color4" file="stdlib/osl/mx_hsvtorgb_color4.osl" function="mx_hsvtorgb_color4" target="osl"/>
 
   <!-- <contrast> Supplemental Node -->
-  <implementation name="IM_contrast_float_osl" nodedef="ND_contrast_float" file="stdlib/osl/mx_contrast_float.osl" function="mx_contrast_float" language="osl"/>
-  <implementation name="IM_contrast_color2_osl" nodedef="ND_contrast_color2" file="stdlib/osl/mx_contrast_color2.osl" function="mx_contrast_color2" language="osl"/>
-  <implementation name="IM_contrast_color2FA_osl" nodedef="ND_contrast_color2FA" file="stdlib/osl/mx_contrast_float_color2.osl" function="mx_contrast_float_color2" language="osl"/>
-  <implementation name="IM_contrast_color3_osl" nodedef="ND_contrast_color3" file="stdlib/osl/mx_contrast_color.osl" function="mx_contrast_color" language="osl"/>
-  <implementation name="IM_contrast_color3FA_osl" nodedef="ND_contrast_color3FA" file="stdlib/osl/mx_contrast_float_color.osl" function="mx_contrast_float_color" language="osl"/>
-  <implementation name="IM_contrast_color4_osl" nodedef="ND_contrast_color4" file="stdlib/osl/mx_contrast_color4.osl" function="mx_contrast_color4" language="osl"/>
-  <implementation name="IM_contrast_color4FA_osl" nodedef="ND_contrast_color4FA" file="stdlib/osl/mx_contrast_float_color4.osl" function="mx_contrast_float_color4" language="osl"/>
-  <implementation name="IM_contrast_vector2_osl" nodedef="ND_contrast_vector2" file="stdlib/osl/mx_contrast_vector2.osl" function="mx_contrast_vector2" language="osl"/>
-  <implementation name="IM_contrast_vector2FA_osl" nodedef="ND_contrast_vector2FA" file="stdlib/osl/mx_contrast_float_vector2.osl" function="mx_contrast_float_vector2" language="osl"/>
-  <implementation name="IM_contrast_vector3_osl" nodedef="ND_contrast_vector3" file="stdlib/osl/mx_contrast_vector.osl" function="mx_contrast_vector" language="osl"/>
-  <implementation name="IM_contrast_vector3FA_osl" nodedef="ND_contrast_vector3FA" file="stdlib/osl/mx_contrast_float_vector.osl" function="mx_contrast_float_vector" language="osl"/>
-  <implementation name="IM_contrast_vector4_osl" nodedef="ND_contrast_vector4" file="stdlib/osl/mx_contrast_vector4.osl" function="mx_contrast_vector4" language="osl"/>
-  <implementation name="IM_contrast_vector4FA_osl" nodedef="ND_contrast_vector4FA" file="stdlib/osl/mx_contrast_float_vector4.osl" function="mx_contrast_float_vector4" language="osl"/>
+  <implementation name="IM_contrast_float_osl" nodedef="ND_contrast_float" file="stdlib/osl/mx_contrast_float.osl" function="mx_contrast_float" target="osl"/>
+  <implementation name="IM_contrast_color3_osl" nodedef="ND_contrast_color3" file="stdlib/osl/mx_contrast_color.osl" function="mx_contrast_color" target="osl"/>
+  <implementation name="IM_contrast_color3FA_osl" nodedef="ND_contrast_color3FA" file="stdlib/osl/mx_contrast_float_color.osl" function="mx_contrast_float_color" target="osl"/>
+  <implementation name="IM_contrast_color4_osl" nodedef="ND_contrast_color4" file="stdlib/osl/mx_contrast_color4.osl" function="mx_contrast_color4" target="osl"/>
+  <implementation name="IM_contrast_color4FA_osl" nodedef="ND_contrast_color4FA" file="stdlib/osl/mx_contrast_float_color4.osl" function="mx_contrast_float_color4" target="osl"/>
+  <implementation name="IM_contrast_vector2_osl" nodedef="ND_contrast_vector2" file="stdlib/osl/mx_contrast_vector2.osl" function="mx_contrast_vector2" target="osl"/>
+  <implementation name="IM_contrast_vector2FA_osl" nodedef="ND_contrast_vector2FA" file="stdlib/osl/mx_contrast_float_vector2.osl" function="mx_contrast_float_vector2" target="osl"/>
+  <implementation name="IM_contrast_vector3_osl" nodedef="ND_contrast_vector3" file="stdlib/osl/mx_contrast_vector.osl" function="mx_contrast_vector" target="osl"/>
+  <implementation name="IM_contrast_vector3FA_osl" nodedef="ND_contrast_vector3FA" file="stdlib/osl/mx_contrast_float_vector.osl" function="mx_contrast_float_vector" target="osl"/>
+  <implementation name="IM_contrast_vector4_osl" nodedef="ND_contrast_vector4" file="stdlib/osl/mx_contrast_vector4.osl" function="mx_contrast_vector4" target="osl"/>
+  <implementation name="IM_contrast_vector4FA_osl" nodedef="ND_contrast_vector4FA" file="stdlib/osl/mx_contrast_float_vector4.osl" function="mx_contrast_float_vector4" target="osl"/>
 
   <!-- <hsvadjust> Supplemental Node -->
-  <implementation name="IM_hsvadjust_color3_osl" nodedef="ND_hsvadjust_color3" file="stdlib/osl/mx_hsvadjust_color.osl" function="mx_hsvadjust_color" language="osl"/>
-  <implementation name="IM_hsvadjust_color4_osl" nodedef="ND_hsvadjust_color4" file="stdlib/osl/mx_hsvadjust_color4.osl" function="mx_hsvadjust_color4" language="osl"/>
+  <implementation name="IM_hsvadjust_color3_osl" nodedef="ND_hsvadjust_color3" file="stdlib/osl/mx_hsvadjust_color.osl" function="mx_hsvadjust_color" target="osl"/>
+  <implementation name="IM_hsvadjust_color4_osl" nodedef="ND_hsvadjust_color4" file="stdlib/osl/mx_hsvadjust_color4.osl" function="mx_hsvadjust_color4" target="osl"/>
 
   <!-- <saturate> Supplemental Node -->
-  <implementation name="IM_saturate_color3_osl" nodedef="ND_saturate_color3" file="stdlib/osl/mx_saturate_color.osl" function="mx_saturate_color" language="osl"/>
-  <implementation name="IM_saturate_color4_osl" nodedef="ND_saturate_color4" file="stdlib/osl/mx_saturate_color4.osl" function="mx_saturate_color4" language="osl"/>
+  <implementation name="IM_saturate_color3_osl" nodedef="ND_saturate_color3" file="stdlib/osl/mx_saturate_color.osl" function="mx_saturate_color" target="osl"/>
+  <implementation name="IM_saturate_color4_osl" nodedef="ND_saturate_color4" file="stdlib/osl/mx_saturate_color4.osl" function="mx_saturate_color4" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -636,104 +579,86 @@
   <!-- ======================================================================== -->
 
   <!-- <premult> -->
-  <implementation name="IM_premult_color2_osl" nodedef="ND_premult_color2" file="stdlib/osl/mx_premult_color2.osl" function="mx_premult_color2" language="osl"/>
-  <implementation name="IM_premult_color4_osl" nodedef="ND_premult_color4" file="stdlib/osl/mx_premult_color4.osl" function="mx_premult_color4" language="osl"/>
-  <implementation name="IM_premult_color3_osl" nodedef="ND_premult_color3" file="stdlib/osl/mx_premult_color.osl" function="mx_premult_color" language="osl"/>
+  <implementation name="IM_premult_color4_osl" nodedef="ND_premult_color4" file="stdlib/osl/mx_premult_color4.osl" function="mx_premult_color4" target="osl"/>
+  <implementation name="IM_premult_color3_osl" nodedef="ND_premult_color3" file="stdlib/osl/mx_premult_color.osl" function="mx_premult_color" target="osl"/>
 
   <!-- <unpremult> -->
-  <implementation name="IM_unpremult_color2_osl" nodedef="ND_unpremult_color2" file="stdlib/osl/mx_unpremult_color2.osl" function="mx_unpremult_color2" language="osl"/>
-  <implementation name="IM_unpremult_color4_osl" nodedef="ND_unpremult_color4" file="stdlib/osl/mx_unpremult_color4.osl" function="mx_unpremult_color4" language="osl"/>
-  <implementation name="IM_unpremult_color3_osl" nodedef="ND_unpremult_color3" file="stdlib/osl/mx_unpremult_color.osl" function="mx_unpremult_color" language="osl"/>
+  <implementation name="IM_unpremult_color4_osl" nodedef="ND_unpremult_color4" file="stdlib/osl/mx_unpremult_color4.osl" function="mx_unpremult_color4" target="osl"/>
+  <implementation name="IM_unpremult_color3_osl" nodedef="ND_unpremult_color3" file="stdlib/osl/mx_unpremult_color.osl" function="mx_unpremult_color" target="osl"/>
 
   <!-- <plus> -->
-  <implementation name="IM_plus_float_osl" nodedef="ND_plus_float" file="stdlib/osl/mx_plus_float.osl" function="mx_plus_float" language="osl"/>
-  <implementation name="IM_plus_color2_osl" nodedef="ND_plus_color2" file="stdlib/osl/mx_plus_color2.osl" function="mx_plus_color2" language="osl"/>
-  <implementation name="IM_plus_color3_osl" nodedef="ND_plus_color3" file="stdlib/osl/mx_plus_color.osl" function="mx_plus_color" language="osl"/>
-  <implementation name="IM_plus_color4_osl" nodedef="ND_plus_color4" file="stdlib/osl/mx_plus_color4.osl" function="mx_plus_color4" language="osl"/>
+  <implementation name="IM_plus_float_osl" nodedef="ND_plus_float" file="stdlib/osl/mx_plus_float.osl" function="mx_plus_float" target="osl"/>
+  <implementation name="IM_plus_color3_osl" nodedef="ND_plus_color3" file="stdlib/osl/mx_plus_color.osl" function="mx_plus_color" target="osl"/>
+  <implementation name="IM_plus_color4_osl" nodedef="ND_plus_color4" file="stdlib/osl/mx_plus_color4.osl" function="mx_plus_color4" target="osl"/>
 
   <!-- <minus> -->
-  <implementation name="IM_minus_float_osl" nodedef="ND_minus_float" file="stdlib/osl/mx_minus_float.osl" function="mx_minus_float" language="osl"/>
-  <implementation name="IM_minus_color2_osl" nodedef="ND_minus_color2" file="stdlib/osl/mx_minus_color2.osl" function="mx_minus_color2" language="osl"/>
-  <implementation name="IM_minus_color3_osl" nodedef="ND_minus_color3" file="stdlib/osl/mx_minus_color.osl" function="mx_minus_color" language="osl"/>
-  <implementation name="IM_minus_color4_osl" nodedef="ND_minus_color4" file="stdlib/osl/mx_minus_color4.osl" function="mx_minus_color4" language="osl"/>
+  <implementation name="IM_minus_float_osl" nodedef="ND_minus_float" file="stdlib/osl/mx_minus_float.osl" function="mx_minus_float" target="osl"/>
+  <implementation name="IM_minus_color3_osl" nodedef="ND_minus_color3" file="stdlib/osl/mx_minus_color.osl" function="mx_minus_color" target="osl"/>
+  <implementation name="IM_minus_color4_osl" nodedef="ND_minus_color4" file="stdlib/osl/mx_minus_color4.osl" function="mx_minus_color4" target="osl"/>
 
   <!-- <difference> -->
-  <implementation name="IM_difference_float_osl" nodedef="ND_difference_float" file="stdlib/osl/mx_difference_float.osl" function="mx_difference_float" language="osl"/>
-  <implementation name="IM_difference_color2_osl" nodedef="ND_difference_color2" file="stdlib/osl/mx_difference_color2.osl" function="mx_difference_color2" language="osl"/>
-  <implementation name="IM_difference_color3_osl" nodedef="ND_difference_color3" file="stdlib/osl/mx_difference_color.osl" function="mx_difference_color" language="osl"/>
-  <implementation name="IM_difference_color4_osl" nodedef="ND_difference_color4" file="stdlib/osl/mx_difference_color4.osl" function="mx_difference_color4" language="osl"/>
+  <implementation name="IM_difference_float_osl" nodedef="ND_difference_float" file="stdlib/osl/mx_difference_float.osl" function="mx_difference_float" target="osl"/>
+  <implementation name="IM_difference_color3_osl" nodedef="ND_difference_color3" file="stdlib/osl/mx_difference_color.osl" function="mx_difference_color" target="osl"/>
+  <implementation name="IM_difference_color4_osl" nodedef="ND_difference_color4" file="stdlib/osl/mx_difference_color4.osl" function="mx_difference_color4" target="osl"/>
 
   <!-- <burn> -->
-  <implementation name="IM_burn_float_osl" nodedef="ND_burn_float" file="stdlib/osl/mx_burn_float.osl" function="mx_burn_float" language="osl"/>
-  <implementation name="IM_burn_color2_osl" nodedef="ND_burn_color2" file="stdlib/osl/mx_burn_color2.osl" function="mx_burn_color2" language="osl"/>
-  <implementation name="IM_burn_color3_osl" nodedef="ND_burn_color3" file="stdlib/osl/mx_burn_color.osl" function="mx_burn_color" language="osl"/>
-  <implementation name="IM_burn_color4_osl" nodedef="ND_burn_color4" file="stdlib/osl/mx_burn_color4.osl" function="mx_burn_color4" language="osl"/>
+  <implementation name="IM_burn_float_osl" nodedef="ND_burn_float" file="stdlib/osl/mx_burn_float.osl" function="mx_burn_float" target="osl"/>
+  <implementation name="IM_burn_color3_osl" nodedef="ND_burn_color3" file="stdlib/osl/mx_burn_color.osl" function="mx_burn_color" target="osl"/>
+  <implementation name="IM_burn_color4_osl" nodedef="ND_burn_color4" file="stdlib/osl/mx_burn_color4.osl" function="mx_burn_color4" target="osl"/>
 
   <!-- <dodge> -->
-  <implementation name="IM_dodge_float_osl" nodedef="ND_dodge_float" file="stdlib/osl/mx_dodge_float.osl" function="mx_dodge_float" language="osl"/>
-  <implementation name="IM_dodge_color2_osl" nodedef="ND_dodge_color2" file="stdlib/osl/mx_dodge_color2.osl" function="mx_dodge_color2" language="osl"/>
-  <implementation name="IM_dodge_color3_osl" nodedef="ND_dodge_color3" file="stdlib/osl/mx_dodge_color.osl" function="mx_dodge_color" language="osl"/>
-  <implementation name="IM_dodge_color4_osl" nodedef="ND_dodge_color4" file="stdlib/osl/mx_dodge_color4.osl" function="mx_dodge_color4" language="osl"/>
+  <implementation name="IM_dodge_float_osl" nodedef="ND_dodge_float" file="stdlib/osl/mx_dodge_float.osl" function="mx_dodge_float" target="osl"/>
+  <implementation name="IM_dodge_color3_osl" nodedef="ND_dodge_color3" file="stdlib/osl/mx_dodge_color.osl" function="mx_dodge_color" target="osl"/>
+  <implementation name="IM_dodge_color4_osl" nodedef="ND_dodge_color4" file="stdlib/osl/mx_dodge_color4.osl" function="mx_dodge_color4" target="osl"/>
 
   <!-- <screen> -->
-  <implementation name="IM_screen_float_osl" nodedef="ND_screen_float" file="stdlib/osl/mx_screen_float.osl" function="mx_screen_float" language="osl"/>
-  <implementation name="IM_screen_color2_osl" nodedef="ND_screen_color2" file="stdlib/osl/mx_screen_color2.osl" function="mx_screen_color2" language="osl"/>
-  <implementation name="IM_screen_color3_osl" nodedef="ND_screen_color3" file="stdlib/osl/mx_screen_color.osl" function="mx_screen_color" language="osl"/>
-  <implementation name="IM_screen_color4_osl" nodedef="ND_screen_color4" file="stdlib/osl/mx_screen_color4.osl" function="mx_screen_color4" language="osl"/>
+  <implementation name="IM_screen_float_osl" nodedef="ND_screen_float" file="stdlib/osl/mx_screen_float.osl" function="mx_screen_float" target="osl"/>
+  <implementation name="IM_screen_color3_osl" nodedef="ND_screen_color3" file="stdlib/osl/mx_screen_color.osl" function="mx_screen_color" target="osl"/>
+  <implementation name="IM_screen_color4_osl" nodedef="ND_screen_color4" file="stdlib/osl/mx_screen_color4.osl" function="mx_screen_color4" target="osl"/>
 
   <!-- <overlay> -->
-  <implementation name="IM_overlay_float_osl" nodedef="ND_overlay_float" file="stdlib/osl/mx_overlay_float.osl" function="mx_overlay_float" language="osl"/>
-  <implementation name="IM_overlay_color2_osl" nodedef="ND_overlay_color2" file="stdlib/osl/mx_overlay_color2.osl" function="mx_overlay_color2" language="osl"/>
-  <implementation name="IM_overlay_color3_osl" nodedef="ND_overlay_color3" file="stdlib/osl/mx_overlay_color.osl" function="mx_overlay_color" language="osl"/>
-  <implementation name="IM_overlay_color4_osl" nodedef="ND_overlay_color4" file="stdlib/osl/mx_overlay_color4.osl" function="mx_overlay_color4" language="osl"/>
+  <implementation name="IM_overlay_float_osl" nodedef="ND_overlay_float" file="stdlib/osl/mx_overlay_float.osl" function="mx_overlay_float" target="osl"/>
+  <implementation name="IM_overlay_color3_osl" nodedef="ND_overlay_color3" file="stdlib/osl/mx_overlay_color.osl" function="mx_overlay_color" target="osl"/>
+  <implementation name="IM_overlay_color4_osl" nodedef="ND_overlay_color4" file="stdlib/osl/mx_overlay_color4.osl" function="mx_overlay_color4" target="osl"/>
 
   <!-- <disjointover> -->
-  <implementation name="IM_disjointover_color2_osl" nodedef="ND_disjointover_color2" file="stdlib/osl/mx_disjointover_color2.osl" function="mx_disjointover_color2" language="osl"/>
-  <implementation name="IM_disjointover_color4_osl" nodedef="ND_disjointover_color4" file="stdlib/osl/mx_disjointover_color4.osl" function="mx_disjointover_color4" language="osl"/>
+  <implementation name="IM_disjointover_color4_osl" nodedef="ND_disjointover_color4" file="stdlib/osl/mx_disjointover_color4.osl" function="mx_disjointover_color4" target="osl"/>
 
   <!-- <in> -->
-  <implementation name="IM_in_color2_osl" nodedef="ND_in_color2" file="stdlib/osl/mx_in_color2.osl" function="mx_in_color2" language="osl"/>
-  <implementation name="IM_in_color4_osl" nodedef="ND_in_color4" file="stdlib/osl/mx_in_color4.osl" function="mx_in_color4" language="osl"/>
+  <implementation name="IM_in_color4_osl" nodedef="ND_in_color4" file="stdlib/osl/mx_in_color4.osl" function="mx_in_color4" target="osl"/>
 
   <!-- <mask> -->
-  <implementation name="IM_mask_color2_osl" nodedef="ND_mask_color2" file="stdlib/osl/mx_mask_color2.osl" function="mx_mask_color2" language="osl"/>
-  <implementation name="IM_mask_color4_osl" nodedef="ND_mask_color4" file="stdlib/osl/mx_mask_color4.osl" function="mx_mask_color4" language="osl"/>
+  <implementation name="IM_mask_color4_osl" nodedef="ND_mask_color4" file="stdlib/osl/mx_mask_color4.osl" function="mx_mask_color4" target="osl"/>
 
   <!-- <matte> -->
-  <implementation name="IM_matte_color2_osl" nodedef="ND_matte_color2" file="stdlib/osl/mx_matte_color2.osl" function="mx_matte_color2" language="osl"/>
-  <implementation name="IM_matte_color4_osl" nodedef="ND_matte_color4" file="stdlib/osl/mx_matte_color4.osl" function="mx_matte_color4" language="osl"/>
+  <implementation name="IM_matte_color4_osl" nodedef="ND_matte_color4" file="stdlib/osl/mx_matte_color4.osl" function="mx_matte_color4" target="osl"/>
 
   <!-- <out> -->
-  <implementation name="IM_out_color2_osl" nodedef="ND_out_color2" file="stdlib/osl/mx_out_color2.osl" function="mx_out_color2" language="osl"/>
-  <implementation name="IM_out_color4_osl" nodedef="ND_out_color4" file="stdlib/osl/mx_out_color4.osl" function="mx_out_color4" language="osl"/>
+  <implementation name="IM_out_color4_osl" nodedef="ND_out_color4" file="stdlib/osl/mx_out_color4.osl" function="mx_out_color4" target="osl"/>
 
   <!-- <over> -->
-  <implementation name="IM_over_color2_osl" nodedef="ND_over_color2" file="stdlib/osl/mx_over_color2.osl" function="mx_over_color2" language="osl"/>
-  <implementation name="IM_over_color4_osl" nodedef="ND_over_color4" file="stdlib/osl/mx_over_color4.osl" function="mx_over_color4" language="osl"/>
+  <implementation name="IM_over_color4_osl" nodedef="ND_over_color4" file="stdlib/osl/mx_over_color4.osl" function="mx_over_color4" target="osl"/>
 
   <!-- <inside> -->
-  <implementation name="IM_inside_float_osl" nodedef="ND_inside_float" file="stdlib/osl/mx_inside_float.osl" function="mx_inside_float" language="osl"/>
-  <implementation name="IM_inside_color2_osl" nodedef="ND_inside_color2" file="stdlib/osl/mx_inside_color2.osl" function="mx_inside_color2" language="osl"/>
-  <implementation name="IM_inside_color3_osl" nodedef="ND_inside_color3" file="stdlib/osl/mx_inside_color.osl" function="mx_inside_color" language="osl"/>
-  <implementation name="IM_inside_color4_osl" nodedef="ND_inside_color4" file="stdlib/osl/mx_inside_color4.osl" function="mx_inside_color4" language="osl"/>
+  <implementation name="IM_inside_float_osl" nodedef="ND_inside_float" file="stdlib/osl/mx_inside_float.osl" function="mx_inside_float" target="osl"/>
+  <implementation name="IM_inside_color3_osl" nodedef="ND_inside_color3" file="stdlib/osl/mx_inside_color.osl" function="mx_inside_color" target="osl"/>
+  <implementation name="IM_inside_color4_osl" nodedef="ND_inside_color4" file="stdlib/osl/mx_inside_color4.osl" function="mx_inside_color4" target="osl"/>
 
   <!-- <outside> -->
-  <implementation name="IM_outside_float_osl" nodedef="ND_outside_float" file="stdlib/osl/mx_outside_float.osl" function="mx_outside_float" language="osl"/>
-  <implementation name="IM_outside_color2_osl" nodedef="ND_outside_color2" file="stdlib/osl/mx_outside_color2.osl" function="mx_outside_color2" language="osl"/>
-  <implementation name="IM_outside_color3_osl" nodedef="ND_outside_color3" file="stdlib/osl/mx_outside_color.osl" function="mx_outside_color" language="osl"/>
-  <implementation name="IM_outside_color4_osl" nodedef="ND_outside_color4" file="stdlib/osl/mx_outside_color4.osl" function="mx_outside_color4" language="osl"/>
+  <implementation name="IM_outside_float_osl" nodedef="ND_outside_float" file="stdlib/osl/mx_outside_float.osl" function="mx_outside_float" target="osl"/>
+  <implementation name="IM_outside_color3_osl" nodedef="ND_outside_color3" file="stdlib/osl/mx_outside_color.osl" function="mx_outside_color" target="osl"/>
+  <implementation name="IM_outside_color4_osl" nodedef="ND_outside_color4" file="stdlib/osl/mx_outside_color4.osl" function="mx_outside_color4" target="osl"/>
 
   <!-- <mix> -->
-  <implementation name="IM_mix_float_osl" nodedef="ND_mix_float" file="stdlib/osl/mx_mix_float.osl" function="mx_mix_float" language="osl"/>
-  <implementation name="IM_mix_color2_osl" nodedef="ND_mix_color2" file="stdlib/osl/mx_mix_color2.osl" function="mx_mix_color2" language="osl"/>
-  <implementation name="IM_mix_color3_osl" nodedef="ND_mix_color3" file="stdlib/osl/mx_mix_color.osl" function="mx_mix_color" language="osl"/>
-  <implementation name="IM_mix_color4_osl" nodedef="ND_mix_color4" file="stdlib/osl/mx_mix_color4.osl" function="mx_mix_color4" language="osl"/>
-  <implementation name="IM_mix_vector2_osl" nodedef="ND_mix_vector2" file="stdlib/osl/mx_mix_vector2.osl" function="mx_mix_vector2" language="osl"/>
-  <implementation name="IM_mix_vector3_osl" nodedef="ND_mix_vector3" file="stdlib/osl/mx_mix_vector.osl" function="mx_mix_vector" language="osl"/>
-  <implementation name="IM_mix_vector4_osl" nodedef="ND_mix_vector4" file="stdlib/osl/mx_mix_vector4.osl" function="mx_mix_vector4" language="osl"/>
-  <implementation name="IM_mix_surfaceshader_osl" nodedef="ND_mix_surfaceshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_mix_displacementshader_osl" nodedef="ND_mix_displacementshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_mix_volumeshader_osl" nodedef="ND_mix_volumeshader" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_mix_float_osl" nodedef="ND_mix_float" file="stdlib/osl/mx_mix_float.osl" function="mx_mix_float" target="osl"/>
+  <implementation name="IM_mix_color3_osl" nodedef="ND_mix_color3" file="stdlib/osl/mx_mix_color.osl" function="mx_mix_color" target="osl"/>
+  <implementation name="IM_mix_color4_osl" nodedef="ND_mix_color4" file="stdlib/osl/mx_mix_color4.osl" function="mx_mix_color4" target="osl"/>
+  <implementation name="IM_mix_vector2_osl" nodedef="ND_mix_vector2" file="stdlib/osl/mx_mix_vector2.osl" function="mx_mix_vector2" target="osl"/>
+  <implementation name="IM_mix_vector3_osl" nodedef="ND_mix_vector3" file="stdlib/osl/mx_mix_vector.osl" function="mx_mix_vector" target="osl"/>
+  <implementation name="IM_mix_vector4_osl" nodedef="ND_mix_vector4" file="stdlib/osl/mx_mix_vector4.osl" function="mx_mix_vector4" target="osl"/>
+  <implementation name="IM_mix_surfaceshader_osl" nodedef="ND_mix_surfaceshader" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_mix_displacementshader_osl" nodedef="ND_mix_displacementshader" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_mix_volumeshader_osl" nodedef="ND_mix_volumeshader" file="FILE" function="FUNC" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -741,36 +666,32 @@
   <!-- ======================================================================== -->
 
   <!-- <compare> -->
-  <implementation name="IM_compare_float_osl" nodedef="ND_compare_float" file="stdlib/osl/mx_compare_float.osl" function="mx_compare_float" language="osl"/>
-  <implementation name="IM_compare_color2_osl" nodedef="ND_compare_color2" file="stdlib/osl/mx_compare_color2.osl" function="mx_compare_color2" language="osl"/>
-  <implementation name="IM_compare_color3_osl" nodedef="ND_compare_color3" file="stdlib/osl/mx_compare_color.osl" function="mx_compare_color" language="osl"/>
-  <implementation name="IM_compare_color4_osl" nodedef="ND_compare_color4" file="stdlib/osl/mx_compare_color4.osl" function="mx_compare_color4" language="osl"/>
-  <implementation name="IM_compare_vector2_osl" nodedef="ND_compare_vector2" file="stdlib/osl/mx_compare_vector2.osl" function="mx_compare_vector2" language="osl"/>
-  <implementation name="IM_compare_vector3_osl" nodedef="ND_compare_vector3" file="stdlib/osl/mx_compare_vector.osl" function="mx_compare_vector" language="osl"/>
-  <implementation name="IM_compare_vector4_osl" nodedef="ND_compare_vector4" file="stdlib/osl/mx_compare_vector4.osl" function="mx_compare_vector4" language="osl"/>
+  <implementation name="IM_compare_float_osl" nodedef="ND_compare_float" file="stdlib/osl/mx_compare_float.osl" function="mx_compare_float" target="osl"/>
+  <implementation name="IM_compare_color3_osl" nodedef="ND_compare_color3" file="stdlib/osl/mx_compare_color.osl" function="mx_compare_color" target="osl"/>
+  <implementation name="IM_compare_color4_osl" nodedef="ND_compare_color4" file="stdlib/osl/mx_compare_color4.osl" function="mx_compare_color4" target="osl"/>
+  <implementation name="IM_compare_vector2_osl" nodedef="ND_compare_vector2" file="stdlib/osl/mx_compare_vector2.osl" function="mx_compare_vector2" target="osl"/>
+  <implementation name="IM_compare_vector3_osl" nodedef="ND_compare_vector3" file="stdlib/osl/mx_compare_vector.osl" function="mx_compare_vector" target="osl"/>
+  <implementation name="IM_compare_vector4_osl" nodedef="ND_compare_vector4" file="stdlib/osl/mx_compare_vector4.osl" function="mx_compare_vector4" target="osl"/>
 
   <!-- <switch> -->
-  <implementation name="IM_switch_float_osl" nodedef="ND_switch_float" file="stdlib/osl/mx_switch_float.osl" function="mx_switch_float" language="osl"/>
-  <implementation name="IM_switch_color2_osl" nodedef="ND_switch_color2" file="stdlib/osl/mx_switch_color2.osl" function="mx_switch_color2" language="osl"/>
-  <implementation name="IM_switch_color3_osl" nodedef="ND_switch_color3" file="stdlib/osl/mx_switch_color.osl" function="mx_switch_color" language="osl"/>
-  <implementation name="IM_switch_color4_osl" nodedef="ND_switch_color4" file="stdlib/osl/mx_switch_color4.osl" function="mx_switch_color4" language="osl"/>
-  <implementation name="IM_switch_vector2_osl" nodedef="ND_switch_vector2" file="stdlib/osl/mx_switch_vector2.osl" function="mx_switch_vector2" language="osl"/>
-  <implementation name="IM_switch_vector3_osl" nodedef="ND_switch_vector3" file="stdlib/osl/mx_switch_vector.osl" function="mx_switch_vector" language="osl"/>
-  <implementation name="IM_switch_vector4_osl" nodedef="ND_switch_vector4" file="stdlib/osl/mx_switch_vector4.osl" function="mx_switch_vector4" language="osl"/>
-  <implementation name="IM_switch_floatI_osl" nodedef="ND_switch_floatI" file="stdlib/osl/mx_switch_float.osl" function="mx_switch_float" language="osl"/>
-  <implementation name="IM_switch_color2I_osl" nodedef="ND_switch_color2I" file="stdlib/osl/mx_switch_color2.osl" function="mx_switch_color2" language="osl"/>
-  <implementation name="IM_switch_color3I_osl" nodedef="ND_switch_color3I" file="stdlib/osl/mx_switch_color.osl" function="mx_switch_color" language="osl"/>
-  <implementation name="IM_switch_color4I_osl" nodedef="ND_switch_color4I" file="stdlib/osl/mx_switch_color4.osl" function="mx_switch_color4" language="osl"/>
-  <implementation name="IM_switch_vector2I_osl" nodedef="ND_switch_vector2I" file="stdlib/osl/mx_switch_vector2.osl" function="mx_switch_vector2" language="osl"/>
-  <implementation name="IM_switch_vector3I_osl" nodedef="ND_switch_vector3I" file="stdlib/osl/mx_switch_vector.osl" function="mx_switch_vector" language="osl"/>
-  <implementation name="IM_switch_vector4I_osl" nodedef="ND_switch_vector4I" file="stdlib/osl/mx_switch_vector4.osl" function="mx_switch_vector4" language="osl"/>
-  <implementation name="IM_switch_floatB_osl" nodedef="ND_switch_floatB" file="stdlib/osl/mx_switch_float.osl" function="mx_switch_float" language="osl"/>
-  <implementation name="IM_switch_color2B_osl" nodedef="ND_switch_color2B" file="stdlib/osl/mx_switch_color2.osl" function="mx_switch_color2" language="osl"/>
-  <implementation name="IM_switch_color3B_osl" nodedef="ND_switch_color3B" file="stdlib/osl/mx_switch_color.osl" function="mx_switch_color" language="osl"/>
-  <implementation name="IM_switch_color4B_osl" nodedef="ND_switch_color4B" file="stdlib/osl/mx_switch_color4.osl" function="mx_switch_color4" language="osl"/>
-  <implementation name="IM_switch_vector2B_osl" nodedef="ND_switch_vector2B" file="stdlib/osl/mx_switch_vector2.osl" function="mx_switch_vector2" language="osl"/>
-  <implementation name="IM_switch_vector3B_osl" nodedef="ND_switch_vector3B" file="stdlib/osl/mx_switch_vector.osl" function="mx_switch_vector" language="osl"/>
-  <implementation name="IM_switch_vector4B_osl" nodedef="ND_switch_vector4B" file="stdlib/osl/mx_switch_vector4.osl" function="mx_switch_vector4" language="osl"/>
+  <implementation name="IM_switch_float_osl" nodedef="ND_switch_float" file="stdlib/osl/mx_switch_float.osl" function="mx_switch_float" target="osl"/>
+  <implementation name="IM_switch_color3_osl" nodedef="ND_switch_color3" file="stdlib/osl/mx_switch_color.osl" function="mx_switch_color" target="osl"/>
+  <implementation name="IM_switch_color4_osl" nodedef="ND_switch_color4" file="stdlib/osl/mx_switch_color4.osl" function="mx_switch_color4" target="osl"/>
+  <implementation name="IM_switch_vector2_osl" nodedef="ND_switch_vector2" file="stdlib/osl/mx_switch_vector2.osl" function="mx_switch_vector2" target="osl"/>
+  <implementation name="IM_switch_vector3_osl" nodedef="ND_switch_vector3" file="stdlib/osl/mx_switch_vector.osl" function="mx_switch_vector" target="osl"/>
+  <implementation name="IM_switch_vector4_osl" nodedef="ND_switch_vector4" file="stdlib/osl/mx_switch_vector4.osl" function="mx_switch_vector4" target="osl"/>
+  <implementation name="IM_switch_floatI_osl" nodedef="ND_switch_floatI" file="stdlib/osl/mx_switch_float.osl" function="mx_switch_float" target="osl"/>
+  <implementation name="IM_switch_color3I_osl" nodedef="ND_switch_color3I" file="stdlib/osl/mx_switch_color.osl" function="mx_switch_color" target="osl"/>
+  <implementation name="IM_switch_color4I_osl" nodedef="ND_switch_color4I" file="stdlib/osl/mx_switch_color4.osl" function="mx_switch_color4" target="osl"/>
+  <implementation name="IM_switch_vector2I_osl" nodedef="ND_switch_vector2I" file="stdlib/osl/mx_switch_vector2.osl" function="mx_switch_vector2" target="osl"/>
+  <implementation name="IM_switch_vector3I_osl" nodedef="ND_switch_vector3I" file="stdlib/osl/mx_switch_vector.osl" function="mx_switch_vector" target="osl"/>
+  <implementation name="IM_switch_vector4I_osl" nodedef="ND_switch_vector4I" file="stdlib/osl/mx_switch_vector4.osl" function="mx_switch_vector4" target="osl"/>
+  <implementation name="IM_switch_floatB_osl" nodedef="ND_switch_floatB" file="stdlib/osl/mx_switch_float.osl" function="mx_switch_float" target="osl"/>
+  <implementation name="IM_switch_color3B_osl" nodedef="ND_switch_color3B" file="stdlib/osl/mx_switch_color.osl" function="mx_switch_color" target="osl"/>
+  <implementation name="IM_switch_color4B_osl" nodedef="ND_switch_color4B" file="stdlib/osl/mx_switch_color4.osl" function="mx_switch_color4" target="osl"/>
+  <implementation name="IM_switch_vector2B_osl" nodedef="ND_switch_vector2B" file="stdlib/osl/mx_switch_vector2.osl" function="mx_switch_vector2" target="osl"/>
+  <implementation name="IM_switch_vector3B_osl" nodedef="ND_switch_vector3B" file="stdlib/osl/mx_switch_vector.osl" function="mx_switch_vector" target="osl"/>
+  <implementation name="IM_switch_vector4B_osl" nodedef="ND_switch_vector4B" file="stdlib/osl/mx_switch_vector4.osl" function="mx_switch_vector4" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -778,89 +699,71 @@
   <!-- ======================================================================== -->
 
   <!-- <convert> -->
-  <implementation name="IM_convert_float_color2_osl" nodedef="ND_convert_float_color2" file="stdlib/osl/mx_convert_float_color2.osl" function="mx_convert_float_color2" language="osl"/>
-  <implementation name="IM_convert_float_color3_osl" nodedef="ND_convert_float_color3" file="stdlib/osl/mx_convert_float_color.osl" function="mx_convert_float_color" language="osl"/>
-  <implementation name="IM_convert_float_color4_osl" nodedef="ND_convert_float_color4" file="stdlib/osl/mx_convert_float_color4.osl" function="mx_convert_float_color4" language="osl"/>
-  <implementation name="IM_convert_float_vector2_osl" nodedef="ND_convert_float_vector2" file="stdlib/osl/mx_convert_float_vector2.osl" function="mx_convert_float_vector2" language="osl"/>
-  <implementation name="IM_convert_float_vector3_osl" nodedef="ND_convert_float_vector3" file="stdlib/osl/mx_convert_float_vector.osl" function="mx_convert_float_vector" language="osl"/>
-  <implementation name="IM_convert_float_vector4_osl" nodedef="ND_convert_float_vector4" file="stdlib/osl/mx_convert_float_vector4.osl" function="mx_convert_float_vector4" language="osl"/>
-  <implementation name="IM_convert_vector2_color2_osl" nodedef="ND_convert_vector2_color2" file="stdlib/osl/mx_convert_vector2_color2.osl" function="mx_convert_vector2_color2" language="osl"/>
-  <implementation name="IM_convert_vector3_color3_osl" nodedef="ND_convert_vector3_color3" file="stdlib/osl/mx_convert_vector_color.osl" function="mx_convert_vector_color" language="osl"/>
-  <implementation name="IM_convert_vector4_color4_osl" nodedef="ND_convert_vector4_color4" file="stdlib/osl/mx_convert_vector4_color4.osl" function="mx_convert_vector4_color4" language="osl"/>
-  <implementation name="IM_convert_color2_vector2_osl" nodedef="ND_convert_color2_vector2" file="stdlib/osl/mx_convert_color2_vector2.osl" function="mx_convert_color2_vector2" language="osl"/>
-  <implementation name="IM_convert_color3_vector3_osl" nodedef="ND_convert_color3_vector3" file="stdlib/osl/mx_convert_color_vector.osl" function="mx_convert_color_vector" language="osl"/>
-  <implementation name="IM_convert_color4_vector4_osl" nodedef="ND_convert_color4_vector4" file="stdlib/osl/mx_convert_color4_vector4.osl" function="mx_convert_color4_vector4" language="osl"/>
-  <implementation name="IM_convert_color3_color4_osl" nodedef="ND_convert_color3_color4" file="stdlib/osl/mx_convert_color_color4.osl" function="mx_convert_color_color4" language="osl"/>
-  <implementation name="IM_convert_color4_color3_osl" nodedef="ND_convert_color4_color3" file="stdlib/osl/mx_convert_color4_color.osl" function="mx_convert_color4_color" language="osl"/>
+  <implementation name="IM_convert_float_color3_osl" nodedef="ND_convert_float_color3" file="stdlib/osl/mx_convert_float_color.osl" function="mx_convert_float_color" target="osl"/>
+  <implementation name="IM_convert_float_color4_osl" nodedef="ND_convert_float_color4" file="stdlib/osl/mx_convert_float_color4.osl" function="mx_convert_float_color4" target="osl"/>
+  <implementation name="IM_convert_float_vector2_osl" nodedef="ND_convert_float_vector2" file="stdlib/osl/mx_convert_float_vector2.osl" function="mx_convert_float_vector2" target="osl"/>
+  <implementation name="IM_convert_float_vector3_osl" nodedef="ND_convert_float_vector3" file="stdlib/osl/mx_convert_float_vector.osl" function="mx_convert_float_vector" target="osl"/>
+  <implementation name="IM_convert_float_vector4_osl" nodedef="ND_convert_float_vector4" file="stdlib/osl/mx_convert_float_vector4.osl" function="mx_convert_float_vector4" target="osl"/>
+  <implementation name="IM_convert_vector3_color3_osl" nodedef="ND_convert_vector3_color3" file="stdlib/osl/mx_convert_vector_color.osl" function="mx_convert_vector_color" target="osl"/>
+  <implementation name="IM_convert_vector4_color4_osl" nodedef="ND_convert_vector4_color4" file="stdlib/osl/mx_convert_vector4_color4.osl" function="mx_convert_vector4_color4" target="osl"/>
+  <implementation name="IM_convert_color3_vector3_osl" nodedef="ND_convert_color3_vector3" file="stdlib/osl/mx_convert_color_vector.osl" function="mx_convert_color_vector" target="osl"/>
+  <implementation name="IM_convert_color4_vector4_osl" nodedef="ND_convert_color4_vector4" file="stdlib/osl/mx_convert_color4_vector4.osl" function="mx_convert_color4_vector4" target="osl"/>
+  <implementation name="IM_convert_color3_color4_osl" nodedef="ND_convert_color3_color4" file="stdlib/osl/mx_convert_color_color4.osl" function="mx_convert_color_color4" target="osl"/>
+  <implementation name="IM_convert_color4_color3_osl" nodedef="ND_convert_color4_color3" file="stdlib/osl/mx_convert_color4_color.osl" function="mx_convert_color4_color" target="osl"/>
 
   <!-- <swizzle> -->
   <!-- from type: float -->
-  <implementation name="IM_swizzle_float_color2_osl" nodedef="ND_swizzle_float_color2" file="stdlib/osl/mx_swizzle_float_color2.osl" function="mx_swizzle_float_color2" language="osl"/>
-  <implementation name="IM_swizzle_float_color3_osl" nodedef="ND_swizzle_float_color3" file="stdlib/osl/mx_swizzle_float_color.osl" function="mx_swizzle_float_color" language="osl"/>
-  <implementation name="IM_swizzle_float_color4_osl" nodedef="ND_swizzle_float_color4" file="stdlib/osl/mx_swizzle_float_color4.osl" function="mx_swizzle_float_color4" language="osl"/>
-  <implementation name="IM_swizzle_float_vector2_osl" nodedef="ND_swizzle_float_vector2" file="stdlib/osl/mx_swizzle_float_vector2.osl" function="mx_swizzle_float_vector2" language="osl"/>
-  <implementation name="IM_swizzle_float_vector3_osl" nodedef="ND_swizzle_float_vector3" file="stdlib/osl/mx_swizzle_float_vector.osl" function="mx_swizzle_float_vector" language="osl"/>
-  <implementation name="IM_swizzle_float_vector4_osl" nodedef="ND_swizzle_float_vector4" file="stdlib/osl/mx_swizzle_float_vector4.osl" function="mx_swizzle_float_vector4" language="osl"/>
-  <!-- from type: color2 -->
-  <implementation name="IM_swizzle_color2_float_osl" nodedef="ND_swizzle_color2_float" file="stdlib/osl/mx_swizzle_color2_float.osl" function="mx_swizzle_color2_float" language="osl"/>
-  <implementation name="IM_swizzle_color2_color2_osl" nodedef="ND_swizzle_color2_color2" file="stdlib/osl/mx_swizzle_color2_color2.osl" function="mx_swizzle_color2_color2" language="osl"/>
-  <implementation name="IM_swizzle_color2_color3_osl" nodedef="ND_swizzle_color2_color3" file="stdlib/osl/mx_swizzle_color2_color.osl" function="mx_swizzle_color2_color" language="osl"/>
-  <implementation name="IM_swizzle_color2_color4_osl" nodedef="ND_swizzle_color2_color4" file="stdlib/osl/mx_swizzle_color2_color4.osl" function="mx_swizzle_color2_color4" language="osl"/>
-  <implementation name="IM_swizzle_color2_vector2_osl" nodedef="ND_swizzle_color2_vector2" file="stdlib/osl/mx_swizzle_color2_vector2.osl" function="mx_swizzle_color2_vector2" language="osl"/>
-  <implementation name="IM_swizzle_color2_vector3_osl" nodedef="ND_swizzle_color2_vector3" file="stdlib/osl/mx_swizzle_color2_vector.osl" function="mx_swizzle_color2_vector" language="osl"/>
-  <implementation name="IM_swizzle_color2_vector4_osl" nodedef="ND_swizzle_color2_vector4" file="stdlib/osl/mx_swizzle_color2_vector4.osl" function="mx_swizzle_color2_vector4" language="osl"/>
+  <implementation name="IM_swizzle_float_color3_osl" nodedef="ND_swizzle_float_color3" file="stdlib/osl/mx_swizzle_float_color.osl" function="mx_swizzle_float_color" target="osl"/>
+  <implementation name="IM_swizzle_float_color4_osl" nodedef="ND_swizzle_float_color4" file="stdlib/osl/mx_swizzle_float_color4.osl" function="mx_swizzle_float_color4" target="osl"/>
+  <implementation name="IM_swizzle_float_vector2_osl" nodedef="ND_swizzle_float_vector2" file="stdlib/osl/mx_swizzle_float_vector2.osl" function="mx_swizzle_float_vector2" target="osl"/>
+  <implementation name="IM_swizzle_float_vector3_osl" nodedef="ND_swizzle_float_vector3" file="stdlib/osl/mx_swizzle_float_vector.osl" function="mx_swizzle_float_vector" target="osl"/>
+  <implementation name="IM_swizzle_float_vector4_osl" nodedef="ND_swizzle_float_vector4" file="stdlib/osl/mx_swizzle_float_vector4.osl" function="mx_swizzle_float_vector4" target="osl"/>
   <!-- from type: color3 -->
-  <implementation name="IM_swizzle_color3_float_osl" nodedef="ND_swizzle_color3_float" file="stdlib/osl/mx_swizzle_color_float.osl" function="mx_swizzle_color_float" language="osl"/>
-  <implementation name="IM_swizzle_color3_color2_osl" nodedef="ND_swizzle_color3_color2" file="stdlib/osl/mx_swizzle_color_color2.osl" function="mx_swizzle_color_color2" language="osl"/>
-  <implementation name="IM_swizzle_color3_color3_osl" nodedef="ND_swizzle_color3_color3" file="stdlib/osl/mx_swizzle_color_color.osl" function="mx_swizzle_color_color" language="osl"/>
-  <implementation name="IM_swizzle_color3_color4_osl" nodedef="ND_swizzle_color3_color4" file="stdlib/osl/mx_swizzle_color_color4.osl" function="mx_swizzle_color_color4" language="osl"/>
-  <implementation name="IM_swizzle_color3_vector2_osl" nodedef="ND_swizzle_color3_vector2" file="stdlib/osl/mx_swizzle_color_vector2.osl" function="mx_swizzle_color_vector2" language="osl"/>
-  <implementation name="IM_swizzle_color3_vector3_osl" nodedef="ND_swizzle_color3_vector3" file="stdlib/osl/mx_swizzle_color_vector.osl" function="mx_swizzle_color_vector" language="osl"/>
-  <implementation name="IM_swizzle_color3_vector4_osl" nodedef="ND_swizzle_color3_vector4" file="stdlib/osl/mx_swizzle_color_vector4.osl" function="mx_swizzle_color_vector4" language="osl"/>
+  <implementation name="IM_swizzle_color3_float_osl" nodedef="ND_swizzle_color3_float" file="stdlib/osl/mx_swizzle_color_float.osl" function="mx_swizzle_color_float" target="osl"/>
+  <implementation name="IM_swizzle_color3_color3_osl" nodedef="ND_swizzle_color3_color3" file="stdlib/osl/mx_swizzle_color_color.osl" function="mx_swizzle_color_color" target="osl"/>
+  <implementation name="IM_swizzle_color3_color4_osl" nodedef="ND_swizzle_color3_color4" file="stdlib/osl/mx_swizzle_color_color4.osl" function="mx_swizzle_color_color4" target="osl"/>
+  <implementation name="IM_swizzle_color3_vector2_osl" nodedef="ND_swizzle_color3_vector2" file="stdlib/osl/mx_swizzle_color_vector2.osl" function="mx_swizzle_color_vector2" target="osl"/>
+  <implementation name="IM_swizzle_color3_vector3_osl" nodedef="ND_swizzle_color3_vector3" file="stdlib/osl/mx_swizzle_color_vector.osl" function="mx_swizzle_color_vector" target="osl"/>
+  <implementation name="IM_swizzle_color3_vector4_osl" nodedef="ND_swizzle_color3_vector4" file="stdlib/osl/mx_swizzle_color_vector4.osl" function="mx_swizzle_color_vector4" target="osl"/>
   <!-- from type: color4 -->
-  <implementation name="IM_swizzle_color4_float_osl" nodedef="ND_swizzle_color4_float" file="stdlib/osl/mx_swizzle_color4_float.osl" function="mx_swizzle_color4_float" language="osl"/>
-  <implementation name="IM_swizzle_color4_color2_osl" nodedef="ND_swizzle_color4_color2" file="stdlib/osl/mx_swizzle_color4_color2.osl" function="mx_swizzle_color4_color2" language="osl"/>
-  <implementation name="IM_swizzle_color4_color3_osl" nodedef="ND_swizzle_color4_color3" file="stdlib/osl/mx_swizzle_color4_color.osl" function="mx_swizzle_color4_color" language="osl"/>
-  <implementation name="IM_swizzle_color4_color4_osl" nodedef="ND_swizzle_color4_color4" file="stdlib/osl/mx_swizzle_color4_color4.osl" function="mx_swizzle_color4_color4" language="osl"/>
-  <implementation name="IM_swizzle_color4_vector2_osl" nodedef="ND_swizzle_color4_vector2" file="stdlib/osl/mx_swizzle_color4_vector2.osl" function="mx_swizzle_color4_vector2" language="osl"/>
-  <implementation name="IM_swizzle_color4_vector3_osl" nodedef="ND_swizzle_color4_vector3" file="stdlib/osl/mx_swizzle_color4_vector.osl" function="mx_swizzle_color4_vector" language="osl"/>
-  <implementation name="IM_swizzle_color4_vector4_osl" nodedef="ND_swizzle_color4_vector4" file="stdlib/osl/mx_swizzle_color4_vector4.osl" function="mx_swizzle_color4_vector4" language="osl"/>
+  <implementation name="IM_swizzle_color4_float_osl" nodedef="ND_swizzle_color4_float" file="stdlib/osl/mx_swizzle_color4_float.osl" function="mx_swizzle_color4_float" target="osl"/>
+  <implementation name="IM_swizzle_color4_color3_osl" nodedef="ND_swizzle_color4_color3" file="stdlib/osl/mx_swizzle_color4_color.osl" function="mx_swizzle_color4_color" target="osl"/>
+  <implementation name="IM_swizzle_color4_color4_osl" nodedef="ND_swizzle_color4_color4" file="stdlib/osl/mx_swizzle_color4_color4.osl" function="mx_swizzle_color4_color4" target="osl"/>
+  <implementation name="IM_swizzle_color4_vector2_osl" nodedef="ND_swizzle_color4_vector2" file="stdlib/osl/mx_swizzle_color4_vector2.osl" function="mx_swizzle_color4_vector2" target="osl"/>
+  <implementation name="IM_swizzle_color4_vector3_osl" nodedef="ND_swizzle_color4_vector3" file="stdlib/osl/mx_swizzle_color4_vector.osl" function="mx_swizzle_color4_vector" target="osl"/>
+  <implementation name="IM_swizzle_color4_vector4_osl" nodedef="ND_swizzle_color4_vector4" file="stdlib/osl/mx_swizzle_color4_vector4.osl" function="mx_swizzle_color4_vector4" target="osl"/>
   <!-- from type: vector2 -->
-  <implementation name="IM_swizzle_vector2_float_osl" nodedef="ND_swizzle_vector2_float" file="stdlib/osl/mx_swizzle_vector2_float.osl" function="mx_swizzle_vector2_float" language="osl"/>
-  <implementation name="IM_swizzle_vector2_color2_osl" nodedef="ND_swizzle_vector2_color2" file="stdlib/osl/mx_swizzle_vector2_color2.osl" function="mx_swizzle_vector2_color2" language="osl"/>
-  <implementation name="IM_swizzle_vector2_color3_osl" nodedef="ND_swizzle_vector2_color3" file="stdlib/osl/mx_swizzle_vector2_color.osl" function="mx_swizzle_vector2_color" language="osl"/>
-  <implementation name="IM_swizzle_vector2_color4_osl" nodedef="ND_swizzle_vector2_color4" file="stdlib/osl/mx_swizzle_vector2_color4.osl" function="mx_swizzle_vector2_color4" language="osl"/>
-  <implementation name="IM_swizzle_vector2_vector2_osl" nodedef="ND_swizzle_vector2_vector2" file="stdlib/osl/mx_swizzle_vector2_vector2.osl" function="mx_swizzle_vector2_vector2" language="osl"/>
-  <implementation name="IM_swizzle_vector2_vector3_osl" nodedef="ND_swizzle_vector2_vector3" file="stdlib/osl/mx_swizzle_vector2_vector.osl" function="mx_swizzle_vector2_vector" language="osl"/>
-  <implementation name="IM_swizzle_vector2_vector4_osl" nodedef="ND_swizzle_vector2_vector4" file="stdlib/osl/mx_swizzle_vector2_vector4.osl" function="mx_swizzle_vector2_vector4" language="osl"/>
+  <implementation name="IM_swizzle_vector2_float_osl" nodedef="ND_swizzle_vector2_float" file="stdlib/osl/mx_swizzle_vector2_float.osl" function="mx_swizzle_vector2_float" target="osl"/>
+  <implementation name="IM_swizzle_vector2_color3_osl" nodedef="ND_swizzle_vector2_color3" file="stdlib/osl/mx_swizzle_vector2_color.osl" function="mx_swizzle_vector2_color" target="osl"/>
+  <implementation name="IM_swizzle_vector2_color4_osl" nodedef="ND_swizzle_vector2_color4" file="stdlib/osl/mx_swizzle_vector2_color4.osl" function="mx_swizzle_vector2_color4" target="osl"/>
+  <implementation name="IM_swizzle_vector2_vector2_osl" nodedef="ND_swizzle_vector2_vector2" file="stdlib/osl/mx_swizzle_vector2_vector2.osl" function="mx_swizzle_vector2_vector2" target="osl"/>
+  <implementation name="IM_swizzle_vector2_vector3_osl" nodedef="ND_swizzle_vector2_vector3" file="stdlib/osl/mx_swizzle_vector2_vector.osl" function="mx_swizzle_vector2_vector" target="osl"/>
+  <implementation name="IM_swizzle_vector2_vector4_osl" nodedef="ND_swizzle_vector2_vector4" file="stdlib/osl/mx_swizzle_vector2_vector4.osl" function="mx_swizzle_vector2_vector4" target="osl"/>
   <!-- from type: vector3 -->
-  <implementation name="IM_swizzle_vector3_float_osl" nodedef="ND_swizzle_vector3_float" file="stdlib/osl/mx_swizzle_vector_float.osl" function="mx_swizzle_vector_float" language="osl"/>
-  <implementation name="IM_swizzle_vector3_color2_osl" nodedef="ND_swizzle_vector3_color2" file="stdlib/osl/mx_swizzle_vector_color2.osl" function="mx_swizzle_vector_color2" language="osl"/>
-  <implementation name="IM_swizzle_vector3_color3_osl" nodedef="ND_swizzle_vector3_color3" file="stdlib/osl/mx_swizzle_vector_color.osl" function="mx_swizzle_vector_color" language="osl"/>
-  <implementation name="IM_swizzle_vector3_color4_osl" nodedef="ND_swizzle_vector3_color4" file="stdlib/osl/mx_swizzle_vector_color4.osl" function="mx_swizzle_vector_color4" language="osl"/>
-  <implementation name="IM_swizzle_vector3_vector2_osl" nodedef="ND_swizzle_vector3_vector2" file="stdlib/osl/mx_swizzle_vector_vector2.osl" function="mx_swizzle_vector_vector2" language="osl"/>
-  <implementation name="IM_swizzle_vector3_vector3_osl" nodedef="ND_swizzle_vector3_vector3" file="stdlib/osl/mx_swizzle_vector_vector.osl" function="mx_swizzle_vector_vector" language="osl"/>
-  <implementation name="IM_swizzle_vector3_vector4_osl" nodedef="ND_swizzle_vector3_vector4" file="stdlib/osl/mx_swizzle_vector_vector4.osl" function="mx_swizzle_vector_vector4" language="osl"/>
+  <implementation name="IM_swizzle_vector3_float_osl" nodedef="ND_swizzle_vector3_float" file="stdlib/osl/mx_swizzle_vector_float.osl" function="mx_swizzle_vector_float" target="osl"/>
+  <implementation name="IM_swizzle_vector3_color3_osl" nodedef="ND_swizzle_vector3_color3" file="stdlib/osl/mx_swizzle_vector_color.osl" function="mx_swizzle_vector_color" target="osl"/>
+  <implementation name="IM_swizzle_vector3_color4_osl" nodedef="ND_swizzle_vector3_color4" file="stdlib/osl/mx_swizzle_vector_color4.osl" function="mx_swizzle_vector_color4" target="osl"/>
+  <implementation name="IM_swizzle_vector3_vector2_osl" nodedef="ND_swizzle_vector3_vector2" file="stdlib/osl/mx_swizzle_vector_vector2.osl" function="mx_swizzle_vector_vector2" target="osl"/>
+  <implementation name="IM_swizzle_vector3_vector3_osl" nodedef="ND_swizzle_vector3_vector3" file="stdlib/osl/mx_swizzle_vector_vector.osl" function="mx_swizzle_vector_vector" target="osl"/>
+  <implementation name="IM_swizzle_vector3_vector4_osl" nodedef="ND_swizzle_vector3_vector4" file="stdlib/osl/mx_swizzle_vector_vector4.osl" function="mx_swizzle_vector_vector4" target="osl"/>
   <!-- from type: vector4 -->
-  <implementation name="IM_swizzle_vector4_float_osl" nodedef="ND_swizzle_vector4_float" file="stdlib/osl/mx_swizzle_vector4_float.osl" function="mx_swizzle_vector4_float" language="osl"/>
-  <implementation name="IM_swizzle_vector4_color2_osl" nodedef="ND_swizzle_vector4_color2" file="stdlib/osl/mx_swizzle_vector4_color2.osl" function="mx_swizzle_vector4_color2" language="osl"/>
-  <implementation name="IM_swizzle_vector4_color3_osl" nodedef="ND_swizzle_vector4_color3" file="stdlib/osl/mx_swizzle_vector4_color.osl" function="mx_swizzle_vector4_color" language="osl"/>
-  <implementation name="IM_swizzle_vector4_color4_osl" nodedef="ND_swizzle_vector4_color4" file="stdlib/osl/mx_swizzle_vector4_color4.osl" function="mx_swizzle_vector4_color4" language="osl"/>
-  <implementation name="IM_swizzle_vector4_vector2_osl" nodedef="ND_swizzle_vector4_vector2" file="stdlib/osl/mx_swizzle_vector4_vector2.osl" function="mx_swizzle_vector4_vector2" language="osl"/>
-  <implementation name="IM_swizzle_vector4_vector3_osl" nodedef="ND_swizzle_vector4_vector3" file="stdlib/osl/mx_swizzle_vector4_vector.osl" function="mx_swizzle_vector4_vector" language="osl"/>
-  <implementation name="IM_swizzle_vector4_vector4_osl" nodedef="ND_swizzle_vector4_vector4" file="stdlib/osl/mx_swizzle_vector4_vector4.osl" function="mx_swizzle_vector4_vector4" language="osl"/>
+  <implementation name="IM_swizzle_vector4_float_osl" nodedef="ND_swizzle_vector4_float" file="stdlib/osl/mx_swizzle_vector4_float.osl" function="mx_swizzle_vector4_float" target="osl"/>
+  <implementation name="IM_swizzle_vector4_color3_osl" nodedef="ND_swizzle_vector4_color3" file="stdlib/osl/mx_swizzle_vector4_color.osl" function="mx_swizzle_vector4_color" target="osl"/>
+  <implementation name="IM_swizzle_vector4_color4_osl" nodedef="ND_swizzle_vector4_color4" file="stdlib/osl/mx_swizzle_vector4_color4.osl" function="mx_swizzle_vector4_color4" target="osl"/>
+  <implementation name="IM_swizzle_vector4_vector2_osl" nodedef="ND_swizzle_vector4_vector2" file="stdlib/osl/mx_swizzle_vector4_vector2.osl" function="mx_swizzle_vector4_vector2" target="osl"/>
+  <implementation name="IM_swizzle_vector4_vector3_osl" nodedef="ND_swizzle_vector4_vector3" file="stdlib/osl/mx_swizzle_vector4_vector.osl" function="mx_swizzle_vector4_vector" target="osl"/>
+  <implementation name="IM_swizzle_vector4_vector4_osl" nodedef="ND_swizzle_vector4_vector4" file="stdlib/osl/mx_swizzle_vector4_vector4.osl" function="mx_swizzle_vector4_vector4" target="osl"/>
 
   <!-- <combine> -->
-  <implementation name="IM_combine_color2_osl" nodedef="ND_combine_color2" file="stdlib/osl/mx_combine2_color2.osl" function="mx_combine_color2" language="osl"/>
-  <implementation name="IM_combine_vector2_osl" nodedef="ND_combine_vector2" file="stdlib/osl/mx_combine2_vector2.osl" function="mx_combine_vector2" language="osl"/>
-  <implementation name="IM_combine_color3_osl" nodedef="ND_combine_color3" file="stdlib/osl/mx_combine3_color.osl" function="mx_combine_color" language="osl"/>
-  <implementation name="IM_combine_vector3_osl" nodedef="ND_combine_vector3" file="stdlib/osl/mx_combine3_vector.osl" function="mx_combine_vector" language="osl"/>
-  <implementation name="IM_combine_color4_osl" nodedef="ND_combine_color4" file="stdlib/osl/mx_combine4_color4.osl" function="mx_combine_color4" language="osl"/>
-  <implementation name="IM_combine_vector4_osl" nodedef="ND_combine_vector4" file="stdlib/osl/mx_combine4_vector4.osl" function="mx_combine_vector4" language="osl"/>
-  <implementation name="IM_combine_color4CF_osl" nodedef="ND_combine_color4CF" file="stdlib/osl/mx_combine_cf_color4.osl" function="mx_combine_cf_color4" language="osl"/>
-  <implementation name="IM_combine_vector4VF_osl" nodedef="ND_combine_vector4VF" file="stdlib/osl/mx_combine_vf_vector4.osl" function="mx_combine_vf_vector4" language="osl"/>
-  <implementation name="IM_combine_color4CC_osl" nodedef="ND_combine_color4CC" file="stdlib/osl/mx_combine_cc_color4.osl" function="mx_combine_cc_color4" language="osl"/>
-  <implementation name="IM_combine_vector4VV_osl" nodedef="ND_combine_vector4VV" file="stdlib/osl/mx_combine_vv_vector4.osl" function="mx_combine_vv_vector4" language="osl"/>
+  <implementation name="IM_combine_vector2_osl" nodedef="ND_combine_vector2" file="stdlib/osl/mx_combine2_vector2.osl" function="mx_combine_vector2" target="osl"/>
+  <implementation name="IM_combine_color3_osl" nodedef="ND_combine_color3" file="stdlib/osl/mx_combine3_color.osl" function="mx_combine_color" target="osl"/>
+  <implementation name="IM_combine_vector3_osl" nodedef="ND_combine_vector3" file="stdlib/osl/mx_combine3_vector.osl" function="mx_combine_vector" target="osl"/>
+  <implementation name="IM_combine_color4_osl" nodedef="ND_combine_color4" file="stdlib/osl/mx_combine4_color4.osl" function="mx_combine_color4" target="osl"/>
+  <implementation name="IM_combine_vector4_osl" nodedef="ND_combine_vector4" file="stdlib/osl/mx_combine4_vector4.osl" function="mx_combine_vector4" target="osl"/>
+  <implementation name="IM_combine_color4CF_osl" nodedef="ND_combine_color4CF" file="stdlib/osl/mx_combine_cf_color4.osl" function="mx_combine_cf_color4" target="osl"/>
+  <implementation name="IM_combine_vector4VF_osl" nodedef="ND_combine_vector4VF" file="stdlib/osl/mx_combine_vf_vector4.osl" function="mx_combine_vf_vector4" target="osl"/>
+  <implementation name="IM_combine_color4CC_osl" nodedef="ND_combine_color4CC" file="stdlib/osl/mx_combine_cc_color4.osl" function="mx_combine_cc_color4" target="osl"/>
+  <implementation name="IM_combine_vector4VV_osl" nodedef="ND_combine_vector4VV" file="stdlib/osl/mx_combine_vv_vector4.osl" function="mx_combine_vv_vector4" target="osl"/>
 
   <!-- <separate> Supplemental Node -->
   <!-- OSL does not currently support multioutput nodes -->
@@ -871,16 +774,15 @@
   <!-- ======================================================================== -->
 
   <!-- <blur> -->
-  <implementation name="IM_blur_float_osl" nodedef="ND_blur_float" file="stdlib/osl/mx_blur_float.osl" function="mx_blur_float" language="osl"/>
-  <implementation name="IM_blur_color2_osl" nodedef="ND_blur_color2" file="stdlib/osl/mx_blur_color2.osl" function="mx_blur_color2" language="osl"/>
-  <implementation name="IM_blur_color3_osl" nodedef="ND_blur_color3" file="stdlib/osl/mx_blur_color.osl" function="mx_blur_color" language="osl"/>
-  <implementation name="IM_blur_color4_osl" nodedef="ND_blur_color4" file="stdlib/osl/mx_blur_color4.osl" function="mx_blur_color4" language="osl"/>
-  <implementation name="IM_blur_vector2_osl" nodedef="ND_blur_vector2" file="stdlib/osl/mx_blur_vector2.osl" function="mx_blur_vector2" language="osl"/>
-  <implementation name="IM_blur_vector3_osl" nodedef="ND_blur_vector3" file="stdlib/osl/mx_blur_vector.osl" function="mx_blur_vector" language="osl"/>
-  <implementation name="IM_blur_vector4_osl" nodedef="ND_blur_vector4" file="stdlib/osl/mx_blur_vector4.osl" function="mx_blur_vector4" language="osl"/>
+  <implementation name="IM_blur_float_osl" nodedef="ND_blur_float" file="stdlib/osl/mx_blur_float.osl" function="mx_blur_float" target="osl"/>
+  <implementation name="IM_blur_color3_osl" nodedef="ND_blur_color3" file="stdlib/osl/mx_blur_color.osl" function="mx_blur_color" target="osl"/>
+  <implementation name="IM_blur_color4_osl" nodedef="ND_blur_color4" file="stdlib/osl/mx_blur_color4.osl" function="mx_blur_color4" target="osl"/>
+  <implementation name="IM_blur_vector2_osl" nodedef="ND_blur_vector2" file="stdlib/osl/mx_blur_vector2.osl" function="mx_blur_vector2" target="osl"/>
+  <implementation name="IM_blur_vector3_osl" nodedef="ND_blur_vector3" file="stdlib/osl/mx_blur_vector.osl" function="mx_blur_vector" target="osl"/>
+  <implementation name="IM_blur_vector4_osl" nodedef="ND_blur_vector4" file="stdlib/osl/mx_blur_vector4.osl" function="mx_blur_vector4" target="osl"/>
 
   <!-- <heighttonormal> -->
-  <implementation name="IM_heighttonormal_vector3_osl" nodedef="ND_heighttonormal_vector3" file="stdlib/osl/mx_heighttonormal_vector.osl" function="mx_heighttonormal_vector" language="osl"/>
+  <implementation name="IM_heighttonormal_vector3_osl" nodedef="ND_heighttonormal_vector3" file="stdlib/osl/mx_heighttonormal_vector.osl" function="mx_heighttonormal_vector" target="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -888,22 +790,21 @@
   <!-- ======================================================================== -->
 
   <!-- <dot> -->
-  <implementation name="IM_dot_float_osl" nodedef="ND_dot_float" file="stdlib/osl/mx_dot_float.osl" function="mx_dot_float" language="osl"/>
-  <implementation name="IM_dot_color2_osl" nodedef="ND_dot_color2" file="stdlib/osl/mx_dot_color2.osl" function="mx_dot_color2" language="osl"/>
-  <implementation name="IM_dot_color3_osl" nodedef="ND_dot_color3" file="stdlib/osl/mx_dot_color.osl" function="mx_dot_color" language="osl"/>
-  <implementation name="IM_dot_color4_osl" nodedef="ND_dot_color4" file="stdlib/osl/mx_dot_color4.osl" function="mx_dot_color4" language="osl"/>
-  <implementation name="IM_dot_vector2_osl" nodedef="ND_dot_vector2" file="stdlib/osl/mx_dot_vector2.osl" function="mx_dot_vector2" language="osl"/>
-  <implementation name="IM_dot_vector3_osl" nodedef="ND_dot_vector3" file="stdlib/osl/mx_dot_vector.osl" function="mx_dot_vector" language="osl"/>
-  <implementation name="IM_dot_vector4_osl" nodedef="ND_dot_vector4" file="stdlib/osl/mx_dot_vector4.osl" function="mx_dot_vector4" language="osl"/>
-  <implementation name="IM_dot_boolean_osl" nodedef="ND_dot_boolean" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_integer_osl" nodedef="ND_dot_integer" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_matrix33_osl" nodedef="ND_dot_matrix33" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_matrix44_osl" nodedef="ND_dot_matrix44" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_string_osl" nodedef="ND_dot_string" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_filename_osl" nodedef="ND_dot_filename" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_surfaceshader_osl" nodedef="ND_dot_surfaceshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_displacementshader_osl" nodedef="ND_dot_displacementshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_volumeshader_osl" nodedef="ND_dot_volumeshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot_lightshader_osl" nodedef="ND_dot_lightshader" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_dot_float_osl" nodedef="ND_dot_float" file="stdlib/osl/mx_dot_float.osl" function="mx_dot_float" target="osl"/>
+  <implementation name="IM_dot_color3_osl" nodedef="ND_dot_color3" file="stdlib/osl/mx_dot_color.osl" function="mx_dot_color" target="osl"/>
+  <implementation name="IM_dot_color4_osl" nodedef="ND_dot_color4" file="stdlib/osl/mx_dot_color4.osl" function="mx_dot_color4" target="osl"/>
+  <implementation name="IM_dot_vector2_osl" nodedef="ND_dot_vector2" file="stdlib/osl/mx_dot_vector2.osl" function="mx_dot_vector2" target="osl"/>
+  <implementation name="IM_dot_vector3_osl" nodedef="ND_dot_vector3" file="stdlib/osl/mx_dot_vector.osl" function="mx_dot_vector" target="osl"/>
+  <implementation name="IM_dot_vector4_osl" nodedef="ND_dot_vector4" file="stdlib/osl/mx_dot_vector4.osl" function="mx_dot_vector4" target="osl"/>
+  <implementation name="IM_dot_boolean_osl" nodedef="ND_dot_boolean" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_integer_osl" nodedef="ND_dot_integer" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_matrix33_osl" nodedef="ND_dot_matrix33" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_matrix44_osl" nodedef="ND_dot_matrix44" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_string_osl" nodedef="ND_dot_string" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_filename_osl" nodedef="ND_dot_filename" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_surfaceshader_osl" nodedef="ND_dot_surfaceshader" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_displacementshader_osl" nodedef="ND_dot_displacementshader" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_volumeshader_osl" nodedef="ND_dot_volumeshader" file="FILE" function="FUNC" target="osl"/>
+  <implementation name="IM_dot_lightshader_osl" nodedef="ND_dot_lightshader" file="FILE" function="FUNC" target="osl"/>
 
 </materialx>

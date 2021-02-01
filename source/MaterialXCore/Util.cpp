@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Util.h>
+#include <MaterialXCore/Types.h>
 
 #include <cctype>
 
@@ -124,6 +124,44 @@ bool stringEndsWith(const string& str, const string& suffix)
         return !str.compare(str.length() - suffix.length(), suffix.length(), suffix);
     }
     return false;
+}
+
+string trimSpaces(const string& str)
+{
+    const string SPACE(" ");
+
+    size_t start = str.find_first_not_of(SPACE);
+    string result = (start == std::string::npos) ? EMPTY_STRING : str.substr(start);
+    size_t end = result.find_last_not_of(SPACE);
+    result = (end == std::string::npos) ? EMPTY_STRING : result.substr(0, end + 1);
+    return result;
+}
+
+StringVec splitNamePath(const string& namePath)
+{
+    StringVec nameVec = splitString(namePath, NAME_PATH_SEPARATOR);
+    return nameVec;
+}
+
+string createNamePath(const StringVec& nameVec)
+{
+    string res;
+    for (const string& name : nameVec)
+    {
+        res = res.empty() ? name: res + NAME_PATH_SEPARATOR + name;
+    }
+    return res;
+}
+
+string parentNamePath(const string& namePath)
+{
+    StringVec nameVec = splitNamePath(namePath);
+    if (!nameVec.empty())
+    {
+        nameVec.pop_back();
+        return createNamePath(nameVec);
+    }
+    return EMPTY_STRING;
 }
 
 } // namespace MaterialX

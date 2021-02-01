@@ -58,7 +58,7 @@ using ShaderMetadataVecPtr = shared_ptr<ShaderMetadataVec>;
 /// if found on nodes and inputs during shader generation.
 class ShaderMetadataRegistry : public GenUserData
 {
-public:
+  public:
     static const string USER_DATA_NAME;
 
     /// Add a new metadata entry to the registry.
@@ -102,7 +102,7 @@ public:
         _entries.clear();
     }
 
-protected:
+  protected:
     vector<ShaderMetadata> _entries;
     std::unordered_map<string, size_t> _entryIndex;
 };
@@ -110,15 +110,20 @@ protected:
 using ShaderMetadataRegistryPtr = shared_ptr<ShaderMetadataRegistry>;
 
 
+/// Flags set on shader ports.
+class ShaderPortFlag
+{
+  public:
+    static const uint32_t UNIFORM    = 1u << 0;
+    static const uint32_t EMITTED    = 1u << 1;
+    static const uint32_t BIND_INPUT = 1u << 2;
+};
+
 /// @class ShaderPort
 /// An input or output port on a ShaderNode
 class ShaderPort : public std::enable_shared_from_this<ShaderPort>
 {
   public:
-    /// Flags set on shader ports.
-    static const unsigned int EMITTED = 1 << 0;
-    static const unsigned int BIND_INPUT = 1 << 1;
-
     /// Constructor.
     ShaderPort(ShaderNode* node, const TypeDesc* type, const string& name, ValuePtr value = nullptr);
 
@@ -186,23 +191,41 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     /// Return the path to this port.
     const string& getPath() const { return _path; }
 
-    /// Set the emitted state on this port to true.
-    void setEmitted() { _flags |= EMITTED; }
-
-    /// Return the emitted state of this port.
-    bool isEmitted() const { return (_flags & EMITTED) != 0; }
-
-    /// Set the bind input state on this port to true.
-    void setBindInput() { _flags |= BIND_INPUT; }
-
-    /// Return the emitted state of this port.
-    bool isBindInput() const { return (_flags & BIND_INPUT) != 0; }
-
     /// Set flags on this port.
-    void setFlags(unsigned int flags) { _flags = flags; }
+    void setFlags(uint32_t flags) { _flags = flags; }
 
     /// Return flags set on this port.
-    unsigned int getFlags() const { return _flags; }
+    uint32_t getFlags() const { return _flags; }
+
+    /// Set the on|off state of a given flag.
+    void setFlag(uint32_t flag, bool value)
+    {
+        _flags = value ? (_flags | flag) : (_flags & ~flag);
+    }
+
+    /// Return the on|off state of a given flag.
+    bool getFlag(uint32_t flag) const
+    {
+        return ((_flags & flag) != 0);
+    }
+
+    /// Set the uniform flag this port to true.
+    void setUniform() { _flags |= ShaderPortFlag::UNIFORM; }
+
+    /// Return the uniform flag on this port.
+    bool isUniform() const { return (_flags & ShaderPortFlag::UNIFORM) != 0; }
+
+    /// Set the emitted state on this port to true.
+    void setEmitted() { _flags |= ShaderPortFlag::EMITTED; }
+
+    /// Return the emitted state of this port.
+    bool isEmitted() const { return (_flags & ShaderPortFlag::EMITTED) != 0; }
+
+    /// Set the bind input state on this port to true.
+    void setBindInput() { _flags |= ShaderPortFlag::BIND_INPUT; }
+
+    /// Return the emitted state of this port.
+    bool isBindInput() const { return (_flags & ShaderPortFlag::BIND_INPUT) != 0; }
 
     /// Set the metadata vector.
     void setMetadata(ShaderMetadataVecPtr metadata) { _metadata = metadata; }
@@ -224,7 +247,7 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     string _unit;
     string _geomprop;
     ShaderMetadataVecPtr _metadata;
-    unsigned int _flags;
+    uint32_t _flags;
 };
 
 /// @class ShaderInput
@@ -289,6 +312,14 @@ class ShaderOutput : public ShaderPort
     friend class ShaderInput;
 };
 
+
+/// Flags for tagging shader nodes.
+enum class ShaderNodeFlag
+{
+    /// Omit the function call for this node.
+    EXCLUDE_FUNCTION_CALL = 1 << 0,
+};
+
 /// @class ShaderNode
 /// Class representing a node in the shader generation DAG
 class ShaderNode
@@ -301,30 +332,31 @@ class ShaderNode
     {
     public:
         // Node classes
-        static const unsigned int TEXTURE     = 1 << 0;  /// Any node that outputs floats, colors, vectors, etc.
-        static const unsigned int CLOSURE     = 1 << 1;  /// Any node that represents light integration
-        static const unsigned int SHADER      = 1 << 2;  /// Any node that outputs a shader
+        static const uint32_t TEXTURE       = 1 << 0;  /// Any node that outputs floats, colors, vectors, etc.
+        static const uint32_t CLOSURE       = 1 << 1;  /// Any node that represents light integration
+        static const uint32_t SHADER        = 1 << 2;  /// Any node that outputs a shader
         // Specific texture node types
-        static const unsigned int FILETEXTURE = 1 << 3;  /// A file texture node
-        static const unsigned int CONDITIONAL = 1 << 4;  /// A conditional node
-        static const unsigned int CONSTANT    = 1 << 5;  /// A constant node
+        static const uint32_t FILETEXTURE   = 1 << 3;  /// A file texture node
+        static const uint32_t CONDITIONAL   = 1 << 4;  /// A conditional node
+        static const uint32_t CONSTANT      = 1 << 5;  /// A constant node
         // Specific closure types
-        static const unsigned int BSDF        = 1 << 6;  /// A BSDF node
-        static const unsigned int BSDF_R      = 1 << 7;  /// A BSDF node only for reflection
-        static const unsigned int BSDF_T      = 1 << 8;  /// A BSDF node only for transmission
-        static const unsigned int EDF         = 1 << 9;  /// A EDF node
-        static const unsigned int VDF         = 1 << 10; /// A VDF node
+        static const uint32_t BSDF          = 1 << 6;  /// A BSDF node
+        static const uint32_t BSDF_R        = 1 << 7;  /// A BSDF node only for reflection
+        static const uint32_t BSDF_T        = 1 << 8;  /// A BSDF node only for transmission
+        static const uint32_t EDF           = 1 << 9;  /// A EDF node
+        static const uint32_t VDF           = 1 << 10; /// A VDF node
+        static const uint32_t LAYER         = 1 << 11; /// A node for vertical layering of other closure nodes
+        static const uint32_t THINFILM      = 1 << 12; /// A node for adding thin-film over microfacet BSDF nodes
         // Specific shader types
-        static const unsigned int SURFACE     = 1 << 11; /// A surface shader node
-        static const unsigned int VOLUME      = 1 << 12; /// A volume shader node
-        static const unsigned int LIGHT       = 1 << 13; /// A light shader node
+        static const uint32_t SURFACE       = 1 << 13; /// A surface shader node
+        static const uint32_t VOLUME        = 1 << 14; /// A volume shader node
+        static const uint32_t LIGHT         = 1 << 15; /// A light shader node
         // Specific conditional types
-        static const unsigned int IFELSE      = 1 << 14; /// An if-else statement
-        static const unsigned int SWITCH      = 1 << 15; /// A switch statement
+        static const uint32_t IFELSE        = 1 << 16; /// An if-else statement
+        static const uint32_t SWITCH        = 1 << 17; /// A switch statement
         // Types based on nodegroup
-        static const unsigned int SAMPLE2D    = 1 << 16; /// Can be sampled in 2D (uv space)
-        static const unsigned int SAMPLE3D    = 1 << 17; /// Can be sampled in 3D (position)
-        static const unsigned int CONVOLUTION2D = 1 << 18; /// Performs a convolution in 2D (uv space)
+        static const uint32_t SAMPLE2D      = 1 << 18; /// Can be sampled in 2D (uv space)
+        static const uint32_t SAMPLE3D      = 1 << 19; /// Can be sampled in 3D (position)
     };
 
     /// @struct ScopeInfo
@@ -360,6 +392,7 @@ class ShaderNode
     static const string IMAGE;
     static const string COMPARE;
     static const string SWITCH;
+    static const string SCATTER_MODE;
     static const string BSDF_R;
     static const string BSDF_T;
     static const string TRANSFORM_POINT;
@@ -369,7 +402,6 @@ class ShaderNode
     static const string TEXTURE3D_GROUPNAME;
     static const string PROCEDURAL2D_GROUPNAME;
     static const string PROCEDURAL3D_GROUPNAME;
-    static const string CONVOLUTION2D_GROUPNAME;
 
   public:
     /// Constructor.
@@ -395,7 +427,7 @@ class ShaderNode
     }
 
     /// Return true if this node matches the given classification.
-    bool hasClassification(unsigned int c) const
+    bool hasClassification(uint32_t c) const
     {
         return (_classification & c) == c;
     }
@@ -486,13 +518,26 @@ class ShaderNode
         return (!_impl || _impl->isEditable(input));
     }
 
+    /// Set the on|off state of a given flag.
+    void setFlag(ShaderNodeFlag flag, bool value)
+    {
+        _flags = value ? (_flags | uint32_t(flag)) : (_flags & ~uint32_t(flag));
+    }
+
+    /// Return the on|off state of a given flag.
+    bool getFlag(ShaderNodeFlag flag) const
+    {
+        return ((_flags & uint32_t(flag)) != 0);
+    }
+
   protected:
     /// Create metadata from the nodedef according to registered metadata.
     void createMetadata(const NodeDef& nodeDef, GenContext& context);
 
     const ShaderGraph* _parent;
     string _name;
-    unsigned int _classification;
+    uint32_t _classification;
+    uint32_t _flags;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;
     vector<ShaderInput*> _inputOrder;

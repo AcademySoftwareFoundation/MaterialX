@@ -110,6 +110,9 @@ class GeometryHandler
         return _maximumBounds;
     }
 
+    /// Utility to create a quad mesh
+    static MeshPtr createQuadMesh();
+    
   protected:
     // Recompute bounds for all stored geometry
     void computeBounds();

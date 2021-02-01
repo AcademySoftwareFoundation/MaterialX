@@ -50,6 +50,14 @@ ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name) const
     return it != _nodeImpls.end() ? it->second : nullptr;
 }
 
+void GenContext::getNodeImplementationNames(StringSet& names)
+{
+    for (auto it : _nodeImpls)
+    {
+        names.insert(it.first);
+    }
+}
+
 void GenContext::clearNodeImplementations()
 {
     _nodeImpls.clear();

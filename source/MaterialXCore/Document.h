@@ -100,54 +100,6 @@ class Document : public GraphElement
     vector<PortElementPtr> getMatchingPorts(const string& nodeName) const;
 
     /// @}
-    /// @name Material Elements
-    /// @{
-
-    /// Add a Material to the document.
-    /// @param name The name of the new Material.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new Material.
-    MaterialPtr addMaterial(const string& name = EMPTY_STRING)
-    {
-        return addChild<Material>(name);
-    }
-
-    /// Return the Material, if any, with the given name.
-    MaterialPtr getMaterial(const string& name) const
-    {
-        return getChildOfType<Material>(name);
-    }
-
-    /// Return a vector of all Material elements in the document.
-    vector<MaterialPtr> getMaterials() const
-    {
-        return getChildrenOfType<Material>();
-    }
-
-    /// Remove the Material, if any, with the given name.
-    void removeMaterial(const string& name)
-    {
-        removeChildOfType<Material>(name);
-    }
-
-    /// @}
-    /// @name Material Node Utilities
-    /// @{
-
-    /// Return the Material node, if any, with the given name.
-    NodePtr getMaterialNode(const string& name) const
-    {
-        return getNode(name);
-    }
-
-    /// Return a vector of all Material nodes in the document.
-    vector<NodePtr> getMaterialNodes() const
-    {
-        return getNodesOfType(MATERIAL_TYPE_STRING);
-    }
-
-    /// @}
     /// @name GeomInfo Elements
     /// @{
 
@@ -375,6 +327,19 @@ class Document : public GraphElement
         return child;
     }
 
+    /// Create a NodeDef declaration which is based on a NodeGraph.
+    /// @param nodeGraph NodeGraph used to create NodeDef
+    /// @param nodeDefName Declaration name 
+    /// @param node Node type for the new declaration
+    /// @param version Version for the new declaration
+    /// @param isDefaultVersion If a version is specified is thie definition the default version
+    /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
+    ///        modify the existing NodeGraph. Default value is an empty string.
+    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
+    /// @return New declaration if successful.
+    NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
+                                   bool isDefaultVersion, const string& nodeGroup, string& newGraphName);
+
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
     {
@@ -426,6 +391,38 @@ class Document : public GraphElement
     void removeAttributeDef(const string& name)
     {
         removeChildOfType<AttributeDef>(name);
+    }
+
+    /// @}
+    /// @name TargetDef Elements
+    /// @{
+
+    /// Add an TargetDef to the document.
+    /// @param name The name of the new TargetDef.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new TargetDef.
+    TargetDefPtr addTargetDef(const string& name = EMPTY_STRING)
+    {
+        return addChild<TargetDef>(name);
+    }
+
+    /// Return the AttributeDef, if any, with the given name.
+    TargetDefPtr getTargetDef(const string& name) const
+    {
+        return getChildOfType<TargetDef>(name);
+    }
+
+    /// Return a vector of all TargetDef elements in the document.
+    vector<TargetDefPtr> getTargetDefs() const
+    {
+        return getChildrenOfType<TargetDef>();
+    }
+
+    /// Remove the TargetDef, if any, with the given name.
+    void removeTargetDef(const string& name)
+    {
+        removeChildOfType<TargetDef>(name);
     }
 
     /// @}
@@ -600,9 +597,7 @@ class Document : public GraphElement
 
     /// Upgrade the content of this document from earlier supported versions to
     /// the library version.
-    /// @param applyFutureUpdates Apply updates that test prototype functionality
-    ///    for future versions of MaterialX
-    void upgradeVersion(bool applyFutureUpdates = false);
+    void upgradeVersion();
 
     /// @}
     /// @name Color Management System

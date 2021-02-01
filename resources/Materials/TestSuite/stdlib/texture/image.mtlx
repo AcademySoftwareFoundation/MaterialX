@@ -41,10 +41,4 @@ Basic image unit test with one image node for each variation in input type.
   </image>
   <output name="image_float_output" type="float" nodename="image_float" />
 
-   <image name="image_default" type="color3">
-    <parameter name="file" type="filename" value="resources/Images/invalid.png" />
-    <parameter name="default" type="color3" value="0.2, 0.2, 0.8" />
-  </image>
-  <output name="image_default_output" type="color3" nodename="image_default" />
-
 </materialx>

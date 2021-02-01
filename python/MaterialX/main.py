@@ -73,47 +73,19 @@ def _getValue(self):
     value = self._getValue()
     return value.getData() if value else None
 
-def _getBoundValue(self, material):
-    """Return the value that is bound to this element within the context of a
-       given material, taking the entire dataflow graph into account."""
-    value = self._getBoundValue(material)
-    return value.getData() if value else None
-
 def _getDefaultValue(self):
-    """Return the default value for this element, which will be used as its bound
-       value when no external binding from a material is present."""
+    """Return the default value for this element."""
     value = self._getDefaultValue()
     return value.getData() if value else None
 
 ValueElement.setValue = _setValue
 ValueElement.getValue = _getValue
-ValueElement.getBoundValue = _getBoundValue
 ValueElement.getDefaultValue = _getDefaultValue
 
 
 #
 # InterfaceElement
 #
-
-def _setParameterValue(self, name, value, typeString = ''):
-    """Set the typed value of a parameter by its name, creating a child element
-       to hold the parameter if needed."""
-    method = getattr(self.__class__, "_setParameterValue" + getTypeString(value))
-    return method(self, name, value, typeString)
-
-def _getParameterValue(self, name, target = ''):
-    """Return the typed value of a parameter by its name, taking both the
-       calling element and its declaration into account.  If the given
-       parameter is not found, then None is returned."""
-    value = self._getParameterValue(name, target)
-    return value.getData() if value else None
-
-def _getParameterValueString(self, name):
-    """(Deprecated) Return the value string of a parameter by its name.  If the
-       given parameter is not present, then an empty string is returned."""
-    warnings.warn("This function is deprecated; call InterfaceElement.getParameter() and Parameter.getValueString() instead.", DeprecationWarning, stacklevel = 2)
-    param = self.getParameter(name)
-    return param.getValueString() if param else ""
 
 def _setInputValue(self, name, value, typeString = ''):
     """Set the typed value of an input by its name, creating a child element
@@ -128,11 +100,37 @@ def _getInputValue(self, name, target = ''):
     value = self._getInputValue(name, target)
     return value.getData() if value else None
 
+def _getParameters(self):
+    """(Deprecated) Return a vector of all Parameter elements."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return list()
+
+def _getActiveParameters(self):
+    """(Deprecated) Return a vector of all parameters belonging to this interface, taking inheritance into account."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return list()
+
+def _setParameterValue(self, name, value, typeString = ''):
+    """(Deprecated) Set the typed value of a parameter by its name."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+
+def _getParameterValue(self, name, target = ''):
+    """(Deprecated) Return the typed value of a parameter by its name."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return None
+
+def _getParameterValueString(self, name):
+    """(Deprecated) Return the value string of a parameter by its name."""
+    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return ""
+
+InterfaceElement.setInputValue = _setInputValue
+InterfaceElement.getInputValue = _getInputValue
+InterfaceElement.getParameters = _getParameters
+InterfaceElement.getActiveParameters = _getActiveParameters
 InterfaceElement.setParameterValue = _setParameterValue
 InterfaceElement.getParameterValue = _getParameterValue
 InterfaceElement.getParameterValueString = _getParameterValueString
-InterfaceElement.setInputValue = _setInputValue
-InterfaceElement.getInputValue = _getInputValue
 
 
 #
@@ -156,53 +154,6 @@ def _addNode(self, category, name = '', typeString = DEFAULT_TYPE_STRING):
     return self._addNode(category, name, typeString)
 
 GraphElement.addNode = _addNode
-
-
-#
-# Material
-#
-
-def _addOverride(self, name):
-    "Add an override to the material."
-    return self._addOverride(name)
-
-def _setOverrideValue(self, name, value, typeString = ''):
-    """Set the value of an override by its name, creating a child element
-       to hold the override if needed."""
-    method = getattr(self.__class__, "_setOverrideValue" + getTypeString(value))
-    return method(self, name, value, typeString)
-
-def _addShaderRef(self, name = '', node = ''):
-    "Add a shader ref to the material."
-    return self._addShaderRef(name, node)
-
-def _getReferencedShaderDefs(self):
-    "(Deprecated) Return a list of all shader nodedefs referenced by this material."
-    warnings.warn("This function is deprecated; call Material.getShaderNodeDefs instead.", DeprecationWarning, stacklevel = 2)
-    return self.getShaderNodeDefs()
-
-def _getReferencingMaterialAssigns(self):
-    "(Deprecated) Return a list of all material assigns that reference this material."
-    warnings.warn("This function is deprecated; call Material.getGeometryBindings instead.", DeprecationWarning, stacklevel = 2)
-    return self.getGeometryBindings()
-
-Material.addOverride = _addOverride
-Material.setOverrideValue = _setOverrideValue
-Material.addShaderRef = _addShaderRef
-Material.getReferencedShaderDefs = _getReferencedShaderDefs
-Material.getReferencingMaterialAssigns = _getReferencingMaterialAssigns
-
-
-#
-# ShaderRef
-#
-
-def _getReferencedShaderDef(self):
-    "(Deprecated) Return the NodeDef that this element references."
-    warnings.warn("This function is deprecated; call ShaderRef.getNodeDef instead.", DeprecationWarning, stacklevel = 2)
-    return self.getNodeDef()
-
-ShaderRef.getReferencedShaderDef = _getReferencedShaderDef
 
 
 #
@@ -252,12 +203,13 @@ def _applyStringSubstitutions(self, filename, geom = '/'):
     warnings.warn("This function is deprecated; call Element.createStringResolver() instead.", DeprecationWarning, stacklevel = 2)
     return self.createStringResolver(geom).resolve(filename, 'filename')
 
-def _generateRequireString(self):
-    """(Deprecated) Generate the require string for a document."""
-    warnings.warn("Require strings are no longer supported in MaterialX.", DeprecationWarning, stacklevel = 2)
+def _getMaterials(self):
+    """(Deprecated) Return a vector of all materials in the document."""
+    warnings.warn("This function is deprecated, call Document.getMaterialNodes() instead.", DeprecationWarning, stacklevel = 2)
+    return self.getMaterialNodes()
 
 Document.applyStringSubstitutions = _applyStringSubstitutions
-Document.generateRequireString = _generateRequireString
+Document.getMaterials = _getMaterials
 
 
 #

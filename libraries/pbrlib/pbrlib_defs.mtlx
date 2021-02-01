@@ -21,10 +21,10 @@
   <!-- ======================================================================== -->
 
   <!--
-    Node: <diffuse_brdf>
+    Node: <oren_nayar_diffuse_bsdf>
     A BSDF node for diffuse reflection.
   -->
-  <nodedef name="ND_diffuse_brdf" node="diffuse_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_oren_nayar_diffuse_bsdf" node="oren_nayar_diffuse_bsdf" bsdf="R" nodegroup="pbr"
            doc="A BSDF node for diffuse reflections.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -34,22 +34,10 @@
   </nodedef>
 
   <!--
-    Node: <diffuse_btdf>
-    A BSDF node for diffuse transmission.
-  -->
-  <nodedef name="ND_diffuse_btdf" node="diffuse_btdf" bsdf="R" nodegroup="pbr"
-           doc="A BSDF node for pure diffuse transmission.">
-    <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
-    <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
-    <output name="out" type="BSDF"/>
-  </nodedef>
-
-  <!--
-    Node: <burley_diffuse_brdf>
+    Node: <burley_diffuse_bsdf>
     A BSDF node for Burley diffuse reflection.
   -->
-  <nodedef name="ND_burley_diffuse_brdf" node="burley_diffuse_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_burley_diffuse_bsdf" node="burley_diffuse_bsdf" bsdf="R" nodegroup="pbr"
            doc="A BSDF node for Burley diffuse reflections.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -59,49 +47,44 @@
   </nodedef>
 
   <!--
-    Node: <dielectric_brdf>
-    A reflection BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
+    Node: <translucent_bsdf>
+    A BSDF node for diffuse transmission.
   -->
-  <nodedef name="ND_dielectric_brdf" node="dielectric_brdf" nodegroup="pbr"
-           doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for dielectrics.">
+  <nodedef name="ND_translucent_bsdf" node="translucent_bsdf" bsdf="R" nodegroup="pbr"
+           doc="A BSDF node for pure diffuse transmission.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
-    <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="ior" type="float" value="1.5"/>
-    <input name="roughness" type="vector2" value="0.0, 0.0"/>
+    <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
-    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
-    <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
-    <input name="base" type="BSDF" value=""/>
     <output name="out" type="BSDF"/>
   </nodedef>
 
   <!--
-    Node: <dielectric_btdf>
-    A transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
+    Node: <dielectric_bsdf>
+    A reflection/transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
   -->
-  <nodedef name="ND_dielectric_btdf" node="dielectric_btdf" bsdf="T" nodegroup="pbr"
-           doc="A BSDF node for specular to glossy transmission.">
+  <nodedef name="ND_dielectric_bsdf" node="dielectric_bsdf" nodegroup="pbr"
+           doc="A reflection/transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.5"/>
-    <input name="roughness" type="vector2" value="0.0, 0.0"/>
+    <input name="roughness" type="vector2" value="0.05, 0.05"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
-    <input name="interior" type="VDF" value=""/>
+    <parameter name="scatter_mode" type="string" value="R" enum="R,T,RT"/>
     <output name="out" type="BSDF"/>
   </nodedef>
 
   <!--
-    Node: <conductor_brdf>
+    Node: <conductor_bsdf>
     A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.
   -->
-  <nodedef name="ND_conductor_brdf" node="conductor_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_conductor_bsdf" node="conductor_bsdf" bsdf="R" nodegroup="pbr"
            doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
-    <input name="reflectivity" type="color3" value="0.944, 0.776, 0.373" colorspace="lin_rec709"/>
-    <input name="edge_color" type="color3" value="0.998, 0.981, 0.751" colorspace="lin_rec709"/>
-    <input name="roughness" type="vector2" value="0.0, 0.0"/>
+    <input name="ior" type="color3" value="0.271, 0.677, 1.316" colorspace="none"/>
+    <input name="extinction" type="color3" value="3.609, 2.625, 2.292" colorspace="none"/>
+    <input name="roughness" type="vector2" value="0.05, 0.05"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -109,28 +92,28 @@
   </nodedef>
 
   <!--
-    Node: <generalized_schlick_brdf>
-    A reflection BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.
+    Node: <generalized_schlick_bsdf>
+    A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.
   -->
-  <nodedef name="ND_generalized_schlick_brdf" node="generalized_schlick_brdf" nodegroup="pbr"
-           doc="A reflection BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.">
+  <nodedef name="ND_generalized_schlick_bsdf" node="generalized_schlick_bsdf" nodegroup="pbr"
+           doc="A reflection/transmission BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color0" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="color90" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="exponent" type="float" value="5.0"/>
-    <input name="roughness" type="vector2" value="0.0, 0.0"/>
+    <input name="roughness" type="vector2" value="0.05, 0.05"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <parameter name="distribution" type="string" value="ggx" enum="ggx"/>
-    <input name="base" type="BSDF" value=""/>
+    <parameter name="scatter_mode" type="string" value="R" enum="R,T,RT"/>
     <output name="out" type="BSDF"/>
   </nodedef>
 
   <!--
-    Node: <subsurface_brdf>
+    Node: <subsurface_bsdf>
     A subsurface scattering BSDF for true subsurface scattering.
   -->
-  <nodedef name="ND_subsurface_brdf" node="subsurface_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_subsurface_bsdf" node="subsurface_bsdf" bsdf="R" nodegroup="pbr"
            doc="A subsurface scattering BSDF for true subsurface scattering.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -141,28 +124,26 @@
   </nodedef>
 
   <!--
-    Node: <sheen_brdf>
+    Node: <sheen_bsdf>
     A microfacet BSDF for the back-scattering properties of cloth-like materials.
   -->
-  <nodedef name="ND_sheen_brdf" node="sheen_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_sheen_bsdf" node="sheen_bsdf" bsdf="R" nodegroup="pbr"
            doc="A microfacet BSDF for the back-scattering properties of cloth-like materials.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="roughness" type="float" value="0.3"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
-    <input name="base" type="BSDF" value=""/>
     <output name="out" type="BSDF"/>
   </nodedef>
 
   <!--
-    Node: <thin_film_brdf>
+    Node: <thin_film_bsdf>
     Adds an iridescent thin film layer over a microfacet base BSDF.
   -->
-  <nodedef name="ND_thin_film_brdf" node="thin_film_brdf" bsdf="R" nodegroup="pbr"
+  <nodedef name="ND_thin_film_bsdf" node="thin_film_bsdf" bsdf="R" nodegroup="pbr"
            doc="Adds an iridescent thin film layer over a microfacet base BSDF.">
-    <input name="thickness" type="float" value="1000" unittype="distance" unit="nanometer"/>
+    <input name="thickness" type="float" value="550" unittype="distance" unit="nanometer"/>
     <input name="ior" type="float" value="1.5"/>
-    <input name="base" type="BSDF" value=""/>
     <output name="out" type="BSDF"/>
   </nodedef>
 
@@ -307,6 +288,16 @@
   <!-- ======================================================================== -->
 
   <!--
+    Node: <layer>
+  -->
+  <nodedef name="ND_layer_bsdf" node="layer" nodegroup="pbr" defaultinput="top"
+           doc="Layer two BSDF's with vertical layering.">
+    <input name="top" type="BSDF" value=""/>
+    <input name="base" type="BSDF" value=""/>
+    <output name="out" type="BSDF"/>
+  </nodedef>
+
+  <!--
     Node: <mix>
   -->
   <nodedef name="ND_mix_bsdf" node="mix" nodegroup="pbr" defaultinput="bg"
@@ -445,18 +436,6 @@
   </nodedef>
 
   <!--
-    Node: <complex_ior>
-    A node for converting scientific/complex IOR to the artistic IOR used by the conductor_brdf node.
-  -->
-  <nodedef name="ND_complex_ior" node="complex_ior" nodegroup="pbr"
-           doc="A node for converting scientific/complex IOR to the artistic IOR used by the conductor_brdf node.">
-    <input name="ior" type="vector3" value="0.271, 0.677, 1.316"/>
-    <input name="extinction" type="vector3" value="3.609, 2.625, 2.292"/>
-    <output name="reflectivity" type="color3"/>
-    <output name="edge_color" type="color3"/>
-  </nodedef>
-
-  <!--
     Node: <artistic_ior>
     Converts the artistic parameterization reflectivity and edge_color to  complex IOR values.
   -->
@@ -464,8 +443,8 @@
            doc="Converts the artistic parameterization reflectivity and edge_color to  complex IOR values.">
     <input name="reflectivity" type="color3" value="0.944, 0.776, 0.373" colorspace="lin_rec709"/>
     <input name="edge_color" type="color3" value="0.998, 0.981, 0.751" colorspace="lin_rec709"/>
-    <output name="ior" type="vector3"/>
-    <output name="extinction" type="vector3"/>
+    <output name="ior" type="color3"/>
+    <output name="extinction" type="color3"/>
   </nodedef>
 
   <!--

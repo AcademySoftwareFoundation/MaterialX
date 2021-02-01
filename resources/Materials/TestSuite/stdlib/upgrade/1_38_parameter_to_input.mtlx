@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+  <nodegraph name="parameter_as_input" fileprefix="resources/Images/">
+    <constant name="constant" type="color3">
+      <input name="value" type="color3" value="1, 0, 0" />
+    </constant>
+    <constant name="constant1" type="color3">
+      <input name="value" type="color3" value="0, 1, 0" />
+    </constant>
+    <ramp4 name="ramp4" type="color3">
+      <input name="valuetl" type="color3" nodename="ramp5" />
+      <input name="valuetr" type="color3" nodename="image" />
+      <input name="valuebl" type="color3" nodename="image" />
+      <input name="valuebr" type="color3" nodename="constant1" />
+    </ramp4>
+    <ramp4 name="ramp5" type="color3">
+      <input name="valuetl" type="color3" nodename="image" />
+      <input name="valuetr" type="color3" value="0, 1, 1" />
+      <input name="valuebl" type="color3" value="0, 0, 0" />
+      <input name="valuebr" type="color3" nodename="image" />
+    </ramp4>
+    <image name="image" type="color3">
+      <input name="file" type="filename" nodename="constant3" />
+      <input name="layer" type="string" value="" uiname="Layer" uniform="true" />
+      <input name="default" type="color3" value="0.0, 0.0, 0.0" uiname="Default Color" uniform="true" />
+      <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+      <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
+      <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type" uniform="true" />
+      <input name="framerange" type="string" value="" uiname="Frame Range" uniform="true" />
+      <input name="frameoffset" type="integer" value="0" uiname="Frame Offset" uniform="true" />
+      <input name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror" uiname="Frame End Action" uniform="true" />
+    </image>
+    <splitlr name="splitlr" type="color3">
+      <input name="valuel" type="color3" nodename="image" />
+      <input name="valuer" type="color3" nodename="constant" />
+      <input name="center" type="float" value="0.4" />
+    </splitlr>
+    <splittb name="splittb" type="color3">
+      <input name="valuet" type="color3" nodename="splitlr" />
+      <input name="valueb" type="color3" nodename="noise2d" />
+      <input name="center" type="float" value="0.4" />
+    </splittb>
+    <noise2d name="noise2d" type="color3">
+      <input name="pivot" type="float" nodename="noise2d1" />
+      <input name="texcoord" type="vector2" nodename="multiply" />
+      <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" uniform="true" />
+    </noise2d>
+    <noise2d name="noise2d1" type="float">
+      <input name="amplitude" type="float" value="2" />
+      <input name="pivot" type="float" value="0.1" />
+      <input name="texcoord" type="vector2" nodename="multiply" />
+    </noise2d>
+    <texcoord name="texcoord" type="vector2" />
+    <multiply name="multiply" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord" />
+      <input name="in2" type="vector2" value="10, 10" />
+    </multiply>
+    <tangent name="tangent" type="vector3">
+      <input name="index" type="integer" nodename="geompropvalue" />
+    </tangent>
+    <geompropvalue name="geompropvalue" type="integer">
+      <input name="geomprop" type="string" value="myvalue" />
+      <input name="default" type="integer" value="0" uniform="true" />
+    </geompropvalue>
+    <constant name="constant2" type="string">
+      <input name="value" type="string" value="mytangents" />
+    </constant>
+    <invert name="invert" type="color3">
+      <input name="in" type="color3" nodename="splittb" />
+      <input name="amount" type="color3" nodename="noise2d" />
+    </invert>
+    <constant name="constant3" type="filename">
+      <input name="value" type="filename" value="grid.png" />
+    </constant>
+    <output name="out" type="color3" nodename="ramp4" />
+    <output name="out1" type="color3" nodename="splittb" />
+    <output name="out2" type="vector3" nodename="tangent" />
+  </nodegraph>
+</materialx>

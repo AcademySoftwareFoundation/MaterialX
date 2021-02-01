@@ -28,7 +28,7 @@ class DefaultColorManagementSystem : public ColorManagementSystem
     virtual ~DefaultColorManagementSystem() { }
 
     /// Create a new DefaultColorManagementSystem
-    static DefaultColorManagementSystemPtr create(const string& language);
+    static DefaultColorManagementSystemPtr create(const string& target);
 
     /// Return the DefaultColorManagementSystem name
     const string& getName() const override
@@ -39,14 +39,14 @@ class DefaultColorManagementSystem : public ColorManagementSystem
     static const string CMS_NAME;
 
   protected:
-    /// Returns an implementation name for a given transform
-    string getImplementationName(const ColorSpaceTransform& transform) const override;
+    /// Returns an implementation for a given transform
+    ImplementationPtr getImplementation(const ColorSpaceTransform& transform) const override;
 
     /// Protected constructor
-    DefaultColorManagementSystem(const string& language);
+    DefaultColorManagementSystem(const string& target);
 
   private:
-    string _language;
+    string _target;
 };
 
 } // namespace MaterialX

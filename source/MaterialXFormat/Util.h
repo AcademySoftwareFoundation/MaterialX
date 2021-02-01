@@ -24,7 +24,7 @@ namespace MaterialX
 string readFile(const FilePath& file);
 
 /// Get all subdirectories for a given set of directories and search paths
-void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subdirectories);
+void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories);
 
 /// Scans for all documents under a root path and returns documents which can be loaded
 void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
@@ -44,6 +44,13 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
                         DocumentPtr doc,
                         const StringSet& excludeFiles = StringSet(),
                         XmlReadOptions* readOptions = nullptr);
+
+/// Flatten all filenames in the given document, applying string resolvers at the
+/// scope of each element and removing all fileprefix attributes.
+/// @param doc The document to modify.
+/// @param searchPath An optional search path for relative to absolute path conversion.
+/// @param customResolver An optional custom resolver to apply.
+void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr);
 
 } // namespace MaterialX
 

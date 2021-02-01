@@ -68,9 +68,8 @@ class TestSuiteOptions
     // Filter list of files to only run validation on.
     mx::StringVec overrideFiles;
 
-    // List of language,target pair identifier storage as
-    // strings in the form <language>_<target>.
-    mx::StringSet languageAndTargets;
+    // List of target identifiers
+    mx::StringSet targets;
 
     // Comma separated list of light setup files
     mx::StringVec lightFiles;
@@ -141,8 +140,17 @@ class TestSuiteOptions
     // Additional testPaths paths
     mx::FileSearchPath externalTestPaths;
 
-    // Apply updates for future versions
-    bool applyFutureUpdates;
+    // Wedge parameters
+    mx::StringVec wedgeFiles;
+    mx::StringVec wedgeParameters;
+    mx::FloatVec wedgeRangeMin;
+    mx::FloatVec wedgeRangeMax;
+    mx::IntVec wedgeSteps;
+
+    // Bake parameters
+    mx::StringVec bakeFiles;
+    mx::BoolVec bakeHdrs;
+    mx::IntVec bakeResolutions;
 };
 
 // Utility class to handle testing of shader generators.
@@ -152,13 +160,14 @@ class ShaderGeneratorTester
   public:
     ShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths, 
                             const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
-                            const mx::FilePath& logFilePath) :
+                            const mx::FilePath& logFilePath, bool writeShadersToDisk) :
         _shaderGenerator(shaderGenerator),
-        _languageTargetString(shaderGenerator ? (shaderGenerator->getLanguage() + "_" + shaderGenerator->getTarget()) : "NULL"),
+        _targetString(shaderGenerator ? shaderGenerator->getTarget() : "NULL"),
         _testRootPaths(testRootPaths),
         _libSearchPath(libSearchPath),
         _srcSearchPath(srcSearchPath),
-        _logFilePath(logFilePath)
+        _logFilePath(logFilePath),
+        _writeShadersToDisk(writeShadersToDisk)
     {
     }
 
@@ -169,7 +178,7 @@ class ShaderGeneratorTester
     // Check if testing should be performed based in input options
     virtual bool runTest(const TestSuiteOptions& testOptions)
     {
-        return (testOptions.languageAndTargets.count(_languageTargetString) > 0);
+        return (testOptions.targets.count(_targetString) > 0);
     }
 
     // Stages to test is required from derived class
@@ -189,6 +198,12 @@ class ShaderGeneratorTester
 
     // Add unit system
     virtual void addUnitSystem();
+
+    // Add user data 
+    void addUserData(const std::string& name, mx::GenUserDataPtr data)
+    {
+        _userData[name] = data;
+    }
 
     // Load in dependent libraries
     virtual void setupDependentLibraries();
@@ -211,6 +226,9 @@ class ShaderGeneratorTester
     // Run test for source code generation
     void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);
 
+    // Compile generated source code. Default implementation does nothing.
+    virtual void compileSource(const std::vector<mx::FilePath>& /*sourceCodePaths*/) {};
+
   protected:
     // Check to see that all implementations have been tested for a given
     // language.
@@ -223,7 +241,7 @@ class ShaderGeneratorTester
     virtual void getImplementationWhiteList(mx::StringSet& whiteList) = 0;
 
     mx::ShaderGeneratorPtr _shaderGenerator;
-    const std::string _languageTargetString;
+    const std::string _targetString;
     mx::DefaultColorManagementSystemPtr _colorManagementSystem;
 
     // Unit system 
@@ -236,6 +254,7 @@ class ShaderGeneratorTester
     const mx::FileSearchPath _libSearchPath;
     const mx::FileSearchPath _srcSearchPath;
     const mx::FilePath _logFilePath;
+    bool _writeShadersToDisk;
 
     mx::StringSet _skipFiles;
     mx::StringSet _skipLibraryFiles;
@@ -248,6 +267,7 @@ class ShaderGeneratorTester
     std::vector<mx::NodePtr> _lights;
     std::unordered_map<std::string, unsigned int> _lightIdentifierMap;
 
+    std::unordered_map<std::string, mx::GenUserDataPtr> _userData;
     mx::StringSet _usedImplementations;
 };
 

@@ -41,10 +41,6 @@ class XmlReadOptions
     /// The vector of parent XIncludes at the scope of the current document.
     /// Defaults to an empty vector.
     StringVec parentXIncludes;
-
-    /// Apply updates that test prototype functionality for future versions
-    /// of MaterialX.  Defaults to false.
-    bool applyFutureUpdates;
 };
 
 /// @class XmlWriteOptions

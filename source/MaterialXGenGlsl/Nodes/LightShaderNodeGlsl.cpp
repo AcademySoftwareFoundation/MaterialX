@@ -20,11 +20,6 @@ ShaderNodeImplPtr LightShaderNodeGlsl::create()
     return std::make_shared<LightShaderNodeGlsl>();
 }
 
-const string& LightShaderNodeGlsl::getLanguage() const
-{
-    return GlslShaderGenerator::LANGUAGE;
-}
-
 const string& LightShaderNodeGlsl::getTarget() const
 {
     return GlslShaderGenerator::TARGET;
@@ -46,19 +41,15 @@ void LightShaderNodeGlsl::initialize(const InterfaceElement& element, GenContext
 
     const Implementation& impl = static_cast<const Implementation&>(element);
 
-    // Store light uniforms for all inputs and parameters on the interface
+    // Store light uniforms for all inputs on the interface
     NodeDefPtr nodeDef = impl.getNodeDef();
     for (InputPtr input : nodeDef->getActiveInputs())
     {
         _lightUniforms.add(TypeDesc::get(input->getType()), input->getName(), input->getValue());
     }
-    for (ParameterPtr param : nodeDef->getActiveParameters())
-    {
-        _lightUniforms.add(TypeDesc::get(param->getType()), param->getName(), param->getValue());
-    }
 }
 
-void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
@@ -70,9 +61,8 @@ void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader
         lightData.add(u->getType(), u->getName());
     }
 
-    // Create uniform for number of active light sources
-    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
-    numActiveLights->setValue(Value::createValue<int>(0));
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    shadergen.addStageLightingUniforms(context, ps);
 }
 
 void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const

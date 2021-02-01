@@ -55,7 +55,7 @@ class UnitSystem
     virtual ~UnitSystem() { }
 
     /// Create a new UnitSystem
-    static UnitSystemPtr create(const string& language);
+    static UnitSystemPtr create(const string& target);
 
     /// Return the UnitSystem name
     virtual const string& getName() const
@@ -91,7 +91,7 @@ class UnitSystem
   protected:
     UnitConverterRegistryPtr _unitRegistry;
     DocumentPtr _document;
-    string _language;
+    string _target;
 };
 
 } // namespace MaterialX
