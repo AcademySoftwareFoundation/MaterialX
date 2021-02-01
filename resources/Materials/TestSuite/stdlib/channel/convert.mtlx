@@ -21,15 +21,6 @@ Basic convert test
     </convert>
     <output name="out" type="float" nodename="convert1" />
   </nodegraph>
-  <nodegraph name="convert_float_color2" type="" xpos="6.21379" ypos="18.74">
-    <convert name="convert1" type="color2" xpos="5.74483" ypos="4.74">
-      <input name="in" type="float" value="0.0" nodename="constant1" />
-    </convert>
-    <output name="out" type="color2" nodename="convert1" />
-    <constant name="constant1" type="float" xpos="4.71488" ypos="5.00692">
-      <parameter name="value" type="float" value="0.5000" />
-    </constant>
-  </nodegraph>
   <nodegraph name="convert_float_color3" type="" xpos="7.21163" ypos="18.7398">
     <constant name="constant1" type="float" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="float" value="0.5000" />
@@ -75,15 +66,6 @@ Basic convert test
     </convert>
     <output name="out" type="vector4" nodename="convert1" />
   </nodegraph>
-  <nodegraph name="convert_vector2_color2" type="" xpos="9.16328" ypos="20.0339">
-    <constant name="constant1" type="vector2" xpos="5.74483" ypos="4.9">
-      <parameter name="value" type="vector2" value="0.2000, 0.8000" />
-    </constant>
-    <convert name="convert1" type="color2" xpos="6.2069" ypos="8.3">
-      <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
-    </convert>
-    <output name="out" type="color2" nodename="convert1" />
-  </nodegraph>
   <nodegraph name="convert_vector3_color3" type="" xpos="7.2142" ypos="21.3512">
     <constant name="constant1" type="vector3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector3" value="0.2000, 0.8000, 0.5000" />
@@ -101,15 +83,6 @@ Basic convert test
       <parameter name="value" type="vector4" value="0.2000, 0.8000, 0.5000, 1.0" />
     </constant>
     <output name="out" type="color4" nodename="convert1" />
-  </nodegraph>
-  <nodegraph name="convert_color2_vector2" type="" xpos="9.1751" ypos="21.3568">
-    <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9">
-      <parameter name="value" type="color2" value="0.2000, 0.8000" />
-    </constant>
-    <convert name="convert1" type="vector2" xpos="6.2069" ypos="8.3">
-      <input name="in" type="color2" value="0.0, 1.0" nodename="constant1" />
-    </convert>
-    <output name="out" type="vector2" nodename="convert1" />
   </nodegraph>
   <nodegraph name="convert_color3_vector3" type="" xpos="7.20928" ypos="22.6541">
     <convert name="convert1" type="vector3" xpos="5.74483" ypos="4.74">

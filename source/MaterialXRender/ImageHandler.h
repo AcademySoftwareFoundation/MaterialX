@@ -221,9 +221,16 @@ class ImageHandler
     virtual void releaseRenderResources(ImagePtr image);
 
     /// Return a fallback image with zeroes in all channels.
-    ImagePtr getZeroImage()
+    ImagePtr getZeroImage() const
     {
         return _zeroImage;
+    }
+
+    /// Return the sentinel invalid image, representing images that cannot be loaded
+    /// and should be replaced with their declared default value.
+    ImagePtr getInvalidImage() const
+    {
+        return _invalidImage;
     }
 
   protected:

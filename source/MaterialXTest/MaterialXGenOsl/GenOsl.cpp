@@ -89,7 +89,7 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 67);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 63);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
@@ -104,13 +104,13 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
-TEST_CASE("GenShader: Metadata", "[genosl]")
+TEST_CASE("GenShader: OSL Metadata", "[genosl]")
 {
     mx::FileSearchPath searchPath;
     searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
     mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibraries({ "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
+    mx::loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
 
     //
     // Define custom attributes to be exported as shader metadata
@@ -199,9 +199,11 @@ static void generateOslCode()
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/osl"));
+    srcSearchPath.append(mx::FilePath::getCurrentPath());
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
 
-    OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
+    bool writeShadersToDisk = false;
+    OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
     tester.addSkipLibraryFiles();
 
     const mx::GenOptions genOptions;

@@ -9,6 +9,8 @@
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/LayerNode.h>
+#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXFormat/File.h>
@@ -22,8 +24,6 @@
 namespace MaterialX
 {
 
-const string ShaderGenerator::SEMICOLON = ";";
-const string ShaderGenerator::COMMA = ",";
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
 
 //
@@ -93,16 +93,22 @@ void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext&
 void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
                                        bool checkScope) const
 {
+    // Omit node if it's tagged to be excluded.
+    if (node.getFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL))
+    {
+        return;
+    }
+
     // Omit node if it's only used inside a conditional branch
     if (checkScope && node.referencedConditionally())
     {
         emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
                     node.getScopeInfo().conditionalNode->getName() + "'", stage);
+        return;
     }
-    else
-    {
-        node.getImplementation().emitFunctionCall(node, context, stage);
-    }
+
+    // Emit the function call.
+    node.getImplementation().emitFunctionCall(node, context, stage);
 }
 
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
@@ -145,12 +151,20 @@ void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const 
                                               bool assignValue) const
 {
     string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
-    str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
+    str += _syntax->getTypeName(variable->getType());
+    
+    bool haveArray = variable->getType()->isArray() && variable->getValue();
+    if (haveArray)
+    {
+        str += _syntax->getArrayTypeSuffix(variable->getType(), *variable->getValue());
+    }
+    
+    str += " " + variable->getVariable();
 
     // If an array we need an array qualifier (suffix) for the variable name
-    if (variable->getType()->isArray() && variable->getValue())
+    if (haveArray)
     {
-        str += _syntax->getArraySuffix(variable->getType(), *variable->getValue());
+        str += _syntax->getArrayVariableSuffix(variable->getType(), *variable->getValue());
     }
 
     if (assignValue)
@@ -276,11 +290,6 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const InterfaceElement& ele
     return impl;
 }
 
-bool ShaderGenerator::remapEnumeration(const ValueElement&, const string&, std::pair<const TypeDesc*, ValuePtr>&) const
-{
-    return false;
-}
-
 namespace
 {
     void replace(const StringMap& substitutions, ShaderPort* port)
@@ -391,6 +400,86 @@ ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(const NodeGraph&
     // The standard compound implementation
     // is the compound implementation to us by default
     return CompoundNode::create();
+}
+
+void ShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
+{
+    // Find all thin-film nodes and reconnect them to the 'thinfilm' input
+    // on BSDF nodes layered underneath.
+    for (ShaderNode* node : graph.getNodes())
+    {
+        if (node->hasClassification(ShaderNode::Classification::THINFILM))
+        {
+            ShaderOutput* output = node->getOutput();
+
+            // Change type to our 'thinfilm' data type since this
+            // is not a BSDF in our default implementation.
+            output->setType(Type::THINFILM);
+
+            // Find vertical layering nodes connected to this thinfilm.
+            vector<ShaderNode*> layerNodes;
+            for (ShaderInput* dest : output->getConnections())
+            {
+                ShaderNode* layerNode = dest->getNode();
+
+                // Make sure the connection is valid.
+                if (!layerNode->hasClassification(ShaderNode::Classification::LAYER) ||
+                    dest->getName() != LayerNode::TOP)
+                {
+                    throw ExceptionShaderGenError("Invalid connection from '" + node->getName() + "' to '" + layerNode->getName() + "." + dest->getName() + "'. " +
+                        "Thin-film can only be connected to a <layer> operator's top input.");
+                }
+
+                layerNodes.push_back(layerNode);
+            }
+
+            // Remove all connections to the thin-film node downstream.
+            output->breakConnections();
+
+            for (ShaderNode* layerNode : layerNodes)
+            {
+                ShaderInput* base = layerNode->getInput(LayerNode::BASE);
+                if (base && base->getConnection())
+                {
+                    ShaderNode* bsdf = base->getConnection()->getNode();
+
+                    // Save the output to use for bypassing the layer node below.
+                    ShaderOutput* bypassOutput = bsdf->getOutput();
+
+                    // Handle the case where the bsdf below is an additional layer operator.
+                    if (bsdf->hasClassification(ShaderNode::Classification::LAYER))
+                    {
+                        // In this case get the top bsdf since this is where microfacet bsdfs
+                        // are placed. Only one such extra layer indirection is supported.
+                        // We need this in order to support having thin-film applied to a
+                        // microfacet bsdf that itself is layered on top of a substrate.
+                        ShaderInput* top = bsdf->getInput(LayerNode::TOP);
+                        bsdf = top && top->getConnection() ? top->getConnection()->getNode() : nullptr;
+                    }
+
+                    ShaderInput* bsdfInput = bsdf ? bsdf->getInput(ThinFilmNode::THINFILM_INPUT) : nullptr;
+                    if (!bsdfInput)
+                    {
+                        throw ExceptionShaderGenError("No BSDF node supporting thin-film was found for '" + node->getName() + "'");
+                    }
+
+                    // Connect the thinfilm node to the bsdf input.
+                    bsdfInput->makeConnection(output);
+
+                    // Bypass the layer node since thin-film is now setup on the bsdf.
+                    // Iterate a copy of the connection set since the original set will
+                    // change when breaking connections.
+                    base->breakConnection();
+                    ShaderInputSet downstreamConnections = layerNode->getOutput()->getConnections();
+                    for (ShaderInput* downstream : downstreamConnections)
+                    {
+                        downstream->breakConnection();
+                        downstream->makeConnection(bypassOutput);
+                    }
+                }
+            }
+        }
+    }
 }
 
 } // namespace MaterialX

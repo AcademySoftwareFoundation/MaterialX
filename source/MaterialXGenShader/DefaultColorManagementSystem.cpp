@@ -16,20 +16,36 @@ const string DefaultColorManagementSystem::CMS_NAME = "default_cms";
 // DefaultColorManagementSystem methods
 //
 
-string DefaultColorManagementSystem::getImplementationName(const ColorSpaceTransform& transform) const
+ImplementationPtr DefaultColorManagementSystem::getImplementation(const ColorSpaceTransform& transform) const
 {
-    return "IM_" + transform.sourceSpace + "_to_" + transform.targetSpace + "_" + transform.type->getName() + "_" + _language;
+    if (!_document)
+    {
+        throw ExceptionShaderGenError("No library loaded for color management system");
+    }
+
+    TargetDefPtr targetDef = _document->getTargetDef(_target);
+    const StringVec targets = targetDef->getMatchingTargets();
+    for (const string& target : targets)
+    {
+        const string implName = "IM_" + transform.sourceSpace + "_to_" + transform.targetSpace + "_" + transform.type->getName() + "_" + target;
+        ImplementationPtr impl = _document->getImplementation(implName);
+        if (impl)
+        {
+            return impl;
+        }
+    }
+
+    return nullptr;
 }
 
-DefaultColorManagementSystemPtr DefaultColorManagementSystem::create(const string& language)
+DefaultColorManagementSystemPtr DefaultColorManagementSystem::create(const string& target)
 {
-    DefaultColorManagementSystemPtr result(new DefaultColorManagementSystem(language));
-    return result;
+    return DefaultColorManagementSystemPtr(new DefaultColorManagementSystem(target));
 }
 
-DefaultColorManagementSystem::DefaultColorManagementSystem(const string& language)
+DefaultColorManagementSystem::DefaultColorManagementSystem(const string& target) :
+    _target(target)
 {
-    _language = createValidName(language);
 }
 
 } // namespace MaterialX

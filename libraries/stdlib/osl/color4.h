@@ -233,6 +233,22 @@ color4 min(color4 a, float b)
                   min(a.a, b));
 }
 
+color4 mod(color4 a, color4 b)
+{
+    return color4(mod(a.rgb, b.rgb),
+                  mod(a.a, b.a));
+}
+
+color4 mod(color4 a, int b)
+{
+    return mod(a, color4(color(b), b));
+}
+
+color4 mod(color4 a, float b)
+{
+    return mod(a, color4(color(b), b));
+}
+
 color4 fmod(color4 a, color4 b)
 {
     return color4(fmod(a.rgb, b.rgb),

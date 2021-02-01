@@ -87,6 +87,7 @@ namespace HW
     extern const string T_IN_NORMAL;
     extern const string T_IN_TANGENT;
     extern const string T_IN_TEXCOORD;
+    extern const string T_IN_GEOMPROP;
     extern const string T_IN_COLOR;
     extern const string T_POSITION_WORLD;
     extern const string T_NORMAL_WORLD;
@@ -140,6 +141,7 @@ namespace HW
     extern const string IN_NORMAL;
     extern const string IN_TANGENT;
     extern const string IN_TEXCOORD;
+    extern const string IN_GEOMPROP;
     extern const string IN_COLOR;
     extern const string POSITION_WORLD;
     extern const string NORMAL_WORLD;
@@ -186,6 +188,8 @@ namespace HW
     extern const string SHADOW_MATRIX;
     extern const string VERTEX_DATA_INSTANCE;
     extern const string LIGHT_DATA_INSTANCE;
+    extern const string LIGHT_DATA_MAX_LIGHT_SOURCES;
+    extern const string ENV_RADIANCE_MAX_SAMPLES;
 
     /// Variable blocks names.
     extern const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
@@ -208,6 +212,7 @@ namespace HW
     /// User data names.
     extern const string USER_DATA_CLOSURE_CONTEXT;
     extern const string USER_DATA_LIGHT_SHADERS;
+    extern const string USER_DATA_BINDING_CONTEXT;
 }
 
 namespace Stage
@@ -219,6 +224,7 @@ namespace Stage
 class HwClosureContext;
 class HwLightShaders;
 class HwShaderGenerator;
+class HwResourceBindingContext;
 
 /// Shared pointer to a HwClosureContext
 using HwClosureContextPtr = shared_ptr<class HwClosureContext>;
@@ -226,6 +232,8 @@ using HwClosureContextPtr = shared_ptr<class HwClosureContext>;
 using HwLightShadersPtr = shared_ptr<class HwLightShaders>;
 /// Shared pointer to a HwShaderGenerator
 using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
+/// Shared pointer to a HwResourceBindingContext
+using HwResourceBindingContextPtr = shared_ptr<class HwResourceBindingContext>;
 
 /// @class HwClosureContext
 /// Class representing a context for closure evaluation on hardware targets.
@@ -234,7 +242,7 @@ using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
 /// and if extra arguments and function decorators are needed for that context.
 class HwClosureContext : public GenUserData
 {
-public:
+  public:
     /// Types of closure contexts.
     enum Type
     {
@@ -289,7 +297,7 @@ public:
         return it != _suffix.end() ? it->second : EMPTY_STRING;
     }
 
-protected:
+  protected:
     const int _type;
     std::unordered_map<const TypeDesc*, Arguments> _arguments;
     std::unordered_map<const TypeDesc*, string> _suffix;
@@ -300,7 +308,7 @@ protected:
 /// Hardware light shader user data
 class HwLightShaders : public GenUserData
 {
-public:
+  public:
     /// Create and return a new instance.
     static HwLightShadersPtr create()
     {
@@ -339,16 +347,15 @@ public:
         return _shaders;
     }
 
-protected:
+  protected:
     std::unordered_map<unsigned int, ShaderNodePtr> _shaders;
 };
-
 
 /// @class HwShaderGenerator
 /// Base class for shader generators targeting HW rendering.
 class HwShaderGenerator : public ShaderGenerator
 {
-public:
+  public:
     /// Add the function call for a single node.
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, 
                           bool checkScope = true) const override;
@@ -367,6 +374,9 @@ public:
     /// The output 'edf' will hold the variable keeping the result.
     virtual void emitEdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
                               GenContext& context, ShaderStage& stage, string& edf) const;
+
+    /// Emit code for active light count definitions and uniforms
+    virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
     /// Return the closure contexts defined for the given node.
     void getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const;
@@ -388,7 +398,7 @@ public:
     static const string CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION;
     static const string CLOSURE_CONTEXT_SUFFIX_INDIRECT;
 
-protected:
+  protected:
     HwShaderGenerator(SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
@@ -405,6 +415,29 @@ protected:
     HwClosureContextPtr _defTransmission;
     HwClosureContextPtr _defIndirect;
     HwClosureContextPtr _defEmission;
+};
+
+/// @class HwResourceBindingContext
+/// Class representing a context for resource binding for hardware resources.
+class HwResourceBindingContext : public GenUserData
+{
+  public:
+    virtual ~HwResourceBindingContext() {}
+
+    // Initialize the context before generation starts.
+    virtual void initialize() = 0;
+
+    // Emit directives required for binding support 
+    virtual void emitDirectives(GenContext& context, ShaderStage& stage) = 0;
+
+    // Emit uniforms with binding information
+    virtual void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) = 0;
+
+    // Emit struct uniforms with binding information
+    virtual void emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
+        ShaderStage& stage, const std::string& structInstanceName,
+        const std::string& arraySuffix = EMPTY_STRING) = 0;
+
 };
 
 } // namespace MaterialX

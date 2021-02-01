@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+   <nodegraph name="atan2_graph">
+      <atan2 name="atan2_float" type="float">
+         <input name="in1" type="float" value="0.5" />
+         <input name="in2" type="float" value="1.0" />
+      </atan2>
+      <atan2 name="atan2_vector2" type="vector2">
+         <input name="in1" type="vector2" value="0.5, 0.5" />
+         <input name="in2" type="vector2" value="1.0, 1.0" />
+      </atan2>
+      <atan2 name="atan2_vector3" type="vector3">
+         <input name="in1" type="vector3" value="0.5, 0.5, 0.5" />
+         <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
+      </atan2>
+      <atan2 name="atan2_vector4" type="vector4">
+         <input name="in1" type="vector4" value="0.5, 0.5, 0.5, 0.5" />
+         <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+      </atan2>
+      <rotate3d name="rot1" type="vector3">
+         <input name="in" type="vector3" value="1.0, 0.0, 0.0"/>
+         <input name="amount" type="float" value="10.0"/>
+         <parameter name="axis" type="vector3" value="0.0, 0.0, 1.0"/>
+      </rotate3d>
+   </nodegraph>
+
+   <nodedef name="ND_Test" node="test">
+      <input name="add" type="float" />
+   </nodedef>
+   <nodegraph name="NG_Test" nodedef="ND_Test">
+      <add name="add" type="float">
+         <input name="in1" type="float" value="1.0" interfacename="add" />
+         <input name="in2" type="float" value="1.0" />
+      </add>
+      <add name="add1" type="float">
+         <input name="in1" type="float" nodename="add" />
+         <input name="in2" type="float" value="1.0" />
+      </add>
+   </nodegraph>
+</materialx>

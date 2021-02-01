@@ -1,28 +1,14 @@
 #ifndef MATERIALXVIEW_MATERIAL_H
 #define MATERIALXVIEW_MATERIAL_H
 
-#include <MaterialXRender/GeometryHandler.h>
-
-#include <MaterialXCore/Document.h>
-#include <MaterialXFormat/XmlIo.h>
-#include <MaterialXFormat/File.h>
+#include <MaterialXRenderGlsl/GlslProgram.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/UnitSystem.h>
-#include <MaterialXRender/ImageHandler.h>
-#include <MaterialXRender/LightHandler.h>
-
-#include <nanogui/common.h>
-#include <nanogui/glutil.h>
 
 namespace mx = MaterialX;
-namespace ng = nanogui;
 
 using MaterialPtr = std::shared_ptr<class Material>;
-using GLShaderPtr = std::shared_ptr<ng::GLShader>;
-
-using StringPair = std::pair<std::string, std::string>;
 
 class DocumentModifiers
 {
@@ -115,7 +101,6 @@ class Material
     /// Load shader source from file.
     bool loadSource(const mx::FilePath& vertexShaderFile,
                     const mx::FilePath& pixelShaderFile,
-                    const std::string& shaderName,
                     bool hasTransparency);
 
     /// Generate a shader from our currently stored element and
@@ -135,13 +120,19 @@ class Material
     void copyShader(MaterialPtr material)
     {
         _hwShader = material->_hwShader;
-        _glShader = material->_glShader;
+        _glProgram = material->_glProgram;
     }
 
-    /// Return the underlying OpenGL shader.
-    GLShaderPtr getShader() const
+    /// Return the underlying hardware shader.
+    mx::ShaderPtr getShader() const
     {
-        return _glShader;
+        return _hwShader;
+    }
+
+    /// Return the underlying GLSL program.
+    mx::GlslProgramPtr getProgram() const
+    {
+        return _glProgram;
     }
 
     /// Return true if this material has transparency.
@@ -182,40 +173,25 @@ class Material
     /// Draw the given mesh partition.
     void drawPartition(mx::MeshPartitionPtr part) const;
 
+    /// Unbind all geometry from this material.
+    void unbindGeometry() const;
+
     /// Return the block of public uniforms for this material.
     mx::VariableBlock* getPublicUniforms() const;
 
     /// Find a public uniform from its MaterialX path.
     mx::ShaderPort* findUniform(const std::string& path) const;
 
-    /// Change the uniform value inside the shader and the associated element in the MaterialX document.
-    void changeUniformElement(mx::ShaderPort* uniform, const std::string& value);
-
-    /// Set the value for an integer element with a given path.
-    void setUniformInt(const std::string& path, int value);
-
-    /// Set the value for a float element with a given path.
-    void setUniformFloat(const std::string& path, float value);
-
-    /// Set the value for a vector2 element with a given path.
-    void setUniformVec2(const std::string& path, const ng::Vector2f& value);
-
-    /// Set the value for a vector3 element with a given path.
-    void setUniformVec3(const std::string& path, const ng::Vector3f& value);
-
-    /// Set the value for a vector4 element with a given path.
-    void setUniformVec4(const std::string& path, const ng::Vector4f& value);
-
-    /// Set the value for an enumerated element with a given path.
-    void setUniformEnum(const std::string& path, int index, const std::string& value);
+    /// Modify the value of the uniform with the given path.
+    void modifyUniform(const std::string& path, mx::ConstValuePtr value, std::string valueString = mx::EMPTY_STRING);
 
   protected:
-    void bindUniform(const std::string& name, mx::ConstValuePtr value);
+    void clearShader();
     void updateUniformsList();
 
   protected:
-    GLShaderPtr _glShader;
     mx::ShaderPtr _hwShader;
+    mx::GlslProgramPtr _glProgram;
 
     mx::DocumentPtr _doc;
     mx::TypedElementPtr _elem;
@@ -225,7 +201,7 @@ class Material
     bool _hasTransparency;
     mx::StringSet _uniformVariable;
 
-    std::vector<mx::ImagePtr> _boundImages;
+    mx::ImageVec _boundImages;
 };
 
 #endif // MATERIALXVIEW_MATERIAL_H

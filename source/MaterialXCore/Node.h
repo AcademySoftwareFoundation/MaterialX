@@ -41,11 +41,15 @@ using BackdropPtr = shared_ptr<Backdrop>;
 /// A shared pointer to a const Backdrop
 using ConstBackdropPtr = shared_ptr<const Backdrop>;
 
+// Predicate to test a node against some criteria whether
+// that criteria has passed
+using NodePredicate = std::function<bool(NodePtr node)>;
+
 /// @class Node
 /// A node element within a NodeGraph or Document.
 ///
-/// A Node represents an instance of a NodeDef within a graph, and its Parameter
-/// and Input elements apply specific values and connections to that instance.
+/// A Node represents an instance of a NodeDef within a graph, and its Input
+/// elements apply specific values and connections to that instance.
 class Node : public InterfaceElement
 {
   public:
@@ -75,6 +79,15 @@ class Node : public InterfaceElement
     /// input is not present, then an empty string is returned.
     string getConnectedNodeName(const string& inputName) const;
 
+    /// Set the output to which the given input is connected, creating a
+    /// child input if needed.  If the node argument is null, then any
+    /// existing output connection on the input will be cleared.
+    void setConnectedOutput(const string& inputName, OutputPtr output);
+
+    /// Return the output connected to the given input.  If the given input is
+    /// not present, then an empty OutputPtr is returned.
+    OutputPtr getConnectedOutput(const string& inputName) const;
+
     /// @}
     /// @name NodeDef References
     /// @{
@@ -95,16 +108,13 @@ class Node : public InterfaceElement
     /// the given target and language names.
     /// @param target An optional target name, which will be used to filter
     ///    the implementations that are considered.
-    /// @param language An optional language name, which will be used to filter
-    ///    the implementations that are considered.
     /// @return An implementation for this node, or an empty shared pointer if
     ///    none was found.  Note that a node implementation may be either an
     ///    Implementation element or a NodeGraph element.
-    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING,
-                                          const string& language = EMPTY_STRING) const
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const
     {
         NodeDefPtr nodeDef = getNodeDef(target);
-        return nodeDef ? nodeDef->getImplementation(target, language) : InterfaceElementPtr();
+        return nodeDef ? nodeDef->getImplementation(target) : InterfaceElementPtr();
     }
 
     /// @}
@@ -113,8 +123,7 @@ class Node : public InterfaceElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
-                         size_t index = 0) const override;
+    Edge getUpstreamEdge(size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
     size_t getUpstreamEdgeCount() const override
@@ -122,7 +131,7 @@ class Node : public InterfaceElement
         return getInputCount();
     }
 
-    /// Given a connecting element (Input/Output/BindInput) return the NodeDef output
+    /// Given a connecting element (Input or Output) return the NodeDef output
     /// corresponding to the output the element is connected to. This is only valid if
     /// the NodeDef has explicit outputs defined, e.g. multiple outputs or an explicitly 
     /// named output. If this is not the case, nullptr is returned, which implies the
@@ -143,6 +152,10 @@ class Node : public InterfaceElement
     {
         return getNodeDef(target);
     }
+
+    /// Add an input based on the corresponding input for the associated node definition.
+    /// If the input already exists on the node it will just be returned.
+    ValueElementPtr addInputFromNodeDef(const string& name);
 
     /// @}
     /// @name Validation
@@ -232,6 +245,20 @@ class GraphElement : public InterfaceElement
     }
 
     /// @}
+    /// @name Material Nodes
+    /// @{
+
+    /// Add a material node to the graph, optionally connecting it to the given
+    /// shader node.
+    NodePtr addMaterialNode(const string& name = EMPTY_STRING, ConstNodePtr shaderNode = nullptr);
+
+    /// Return a vector of all material nodes.
+    vector<NodePtr> getMaterialNodes() const
+    {
+        return getNodesOfType(MATERIAL_TYPE_STRING);
+    }
+
+    /// @}
     /// @name Backdrop Elements
     /// @{
 
@@ -265,7 +292,7 @@ class GraphElement : public InterfaceElement
 
     /// Flatten any references to graph-based node definitions within this
     /// node graph, replacing each reference with the equivalent node network.
-    void flattenSubgraphs(const string& target = EMPTY_STRING);
+    void flattenSubgraphs(const string& target = EMPTY_STRING, NodePredicate filter=nullptr);
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
@@ -315,6 +342,20 @@ class NodeGraph : public GraphElement
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
     ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+
+    /// Add an interface name to an existing NodeDef associated with this NodeGraph.
+    /// @param inputPath Path to an input descendant of this graph.
+    /// @param interfaceName The new interface name.
+    void addInterfaceName(const string& inputPath, const string& interfaceName);
+
+    /// Remove an interface name from an existing NodeDef associated with this NodeGraph.
+    /// @param inputPath Path to an input descendant of this graph.
+    void removeInterfaceName(const string& inputPath);
+
+    /// Modify the interface name on an existing NodeDef associated with this NodeGraph.
+    /// @param inputPath Path to an input descendant of this graph.
+    /// @param interfaceName The new interface name.
+    void modifyInterfaceName(const string& inputPath, const string& interfaceName);
 
     /// @}
     /// @name Validation

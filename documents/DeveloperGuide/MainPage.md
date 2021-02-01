@@ -53,5 +53,7 @@ Building the `install` target of your project will install the MaterialX C++ and
 
 ### Additional Links
 
-- The main [MaterialX website](http://www.materialx.org)
-- [Code Examples](@ref codeexamples) in C++ and Python
+- The main [MaterialX website](http://www.materialx.org) provides background on the project's history, industry collaborations, and recent presentations.
+- The [Python Scripts](https://github.com/materialx/MaterialX/tree/master/python/Scripts) folder contains standalone examples of MaterialX Python code.
+- The [MaterialX Unit Tests](https://github.com/materialx/MaterialX/tree/master/source/MaterialXTest) folder contains examples of useful patterns for MaterialX C++.
+- The [MaterialX Viewer](https://github.com/materialx/MaterialX/blob/master/documents/DeveloperGuide/Viewer.md) is a complete, cross-platform C++ application based upon [MaterialX Shader Generation](https://github.com/materialx/MaterialX/blob/master/documents/DeveloperGuide/ShaderGeneration.md)

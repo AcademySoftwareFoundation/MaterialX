@@ -18,10 +18,10 @@
       <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
       <parameter name="lightFiles" type="string" value="light_rig_test_2.mtlx" />
 
-      <!-- Comma separated list of "language"_"target" specifiers to indicate which
+      <!-- Comma separated list of target" specifiers to indicate which
            code generators to use.
        -->
-      <parameter name="languageAndTargets" type="string" value="genglsl_glsl400,genosl_vanilla" />
+      <parameter name="targets" type="string" value="genglsl,genosl,genmdl,arnold,ogsfx,ogsxml" />
 
       <!-- Check the count of number of implementations used for a given generator
         -->
@@ -67,7 +67,7 @@
       <parameter name="geometryScale" type="float" value="40.0" />
 
       <!-- Enable direct lighting. Default is true. -->
-      <parameter name="enableDirectLighting" type="boolean" value="true" />
+      <parameter name="enableDirectLighting" type="boolean" value="false" />
 
       <!-- Enable indirect lighting. Default is true. -->
       <parameter name="enableIndirectLighting" type="boolean" value="true" />
@@ -95,8 +95,17 @@
       <!-- External testing: extra comma separated list of test root paths -->
       <parameter name="externalTestPaths" type="string" value="" />
 
-      <!-- Test prototype functionality for future versions of MaterialX -->
-      <parameter name="applyFutureUpdates" type="boolean" value="true" />
+      <!-- Wedge rendering options -->
+      <parameter name="wedgeFiles" type="string" value="wedge_conductor.mtlx,wedge_conductor.mtlx" />
+      <parameter name="wedgeParameters" type="string" value="test_conductor/roughness1/roughness,test_conductor/roughness1/anisotropy" />
+      <parameter name="wedgeRangeMin" type="floatarray" value="0.0, 0.3" />
+      <parameter name="wedgeRangeMax" type="floatarray" value="1.0, 0.9" />
+      <parameter name="wedgeSteps" type="integerarray" value="4, 3" />
+
+      <!-- Bake rendering options: Currently only suppoers the genglsl_glsl400 shader generator -->
+      <parameter name="bakeFiles" type="string" value="mapped_surfaceshader.mtlx,normalmapped_surfaceshader.mtlx" />
+      <parameter name="bakeHdrs" type="booleanarray" value="false,false" />
+      <parameter name="bakeResolutions" type="integerarray" value="1024,1024" />
 
    </nodedef>
 </materialx>

@@ -6,7 +6,7 @@
       <bindinput name="emissiveColor" type="color3" value="0, 0, 0" />
       <bindinput name="useSpecularWorkflow" type="integer" value="0" />
       <bindinput name="specularColor" type="color3" value="0, 0, 0" />
-      <bindinput name="metalness" type="float" value="0" />
+      <bindinput name="metallic" type="float" value="0" />
       <bindinput name="roughness" type="float" value="0.01" />
       <bindinput name="clearcoat" type="float" value="0" />
       <bindinput name="clearcoatRoughness" type="float" value="0.01" />

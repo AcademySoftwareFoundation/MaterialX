@@ -23,7 +23,6 @@ public:
 
     static ShaderNodeImplPtr create();
 
-    const string& getLanguage() const override;
     const string& getTarget() const override;
 
     void initialize(const InterfaceElement& element, GenContext& context) override;

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+  All rights reserved.  See LICENSE.txt for license.
+-->
+
+<materialx version="1.38">
+
+  <!-- ======================================================================== -->
+  <!-- Base target definition for GLSL targets using shader generation.         -->
+  <!-- ======================================================================== -->
+  <targetdef name="genglsl" />
+
+</materialx>

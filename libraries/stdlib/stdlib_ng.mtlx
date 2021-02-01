@@ -46,37 +46,6 @@
     <output name="out" type="float" nodename="N_img_float"/>
   </nodegraph>
 
-  <nodegraph name="NG_tiledimage_color2" nodedef="ND_tiledimage_color2">
-    <multiply name="N_mult_color2" type="vector2">
-      <input name="in1" type="vector2" interfacename="texcoord"/>
-      <input name="in2" type="vector2" interfacename="uvtiling"/>
-    </multiply>
-    <subtract name="N_sub_color2" type="vector2">
-      <input name="in1" type="vector2" nodename="N_mult_color2"/>
-      <input name="in2" type="vector2" interfacename="uvoffset"/>
-    </subtract>
-    <divide name="N_divtilesize_color2" type="vector2">
-      <input name="in1" type="vector2" nodename="N_sub_color2"/>
-      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
-    </divide>
-    <multiply name="N_multtilesize_color2" type="vector2">
-      <input name="in1" type="vector2" nodename="N_divtilesize_color2"/>
-      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
-    </multiply>
-    <image name="N_img_color2" type="color2">
-      <parameter name="file" type="filename" interfacename="file"/>
-      <parameter name="default" type="color2" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_multtilesize_color2"/>
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" interfacename="filtertype"/>
-      <parameter name="framerange" type="string" interfacename="framerange"/>
-      <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
-      <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
-    </image>
-    <output name="out" type="color2" nodename="N_img_color2"/>
-  </nodegraph>
-
   <nodegraph name="NG_tiledimage_color3" nodedef="ND_tiledimage_color3">
     <multiply name="N_mult_color3" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord"/>
@@ -345,114 +314,6 @@
       <input name="in2" type="float" nodename="N_nZ_float"/>
     </add>
     <output name="out" type="float" nodename="N_add2_float"/>
-  </nodegraph>
-
-  <nodegraph name="NG_triplanarprojection_color2" nodedef="ND_triplanarprojection_color2">
-    <extract name="N_extX_color2" type="float">
-      <input name="in" type="vector3" interfacename="position"/>
-      <parameter name="index" type="integer" value="0"/>
-    </extract>
-    <extract name="N_extY_color2" type="float">
-      <input name="in" type="vector3" interfacename="position"/>
-      <parameter name="index" type="integer" value="1"/>
-    </extract>
-    <extract name="N_extZ_color2" type="float">
-      <input name="in" type="vector3" interfacename="position"/>
-      <parameter name="index" type="integer" value="2"/>
-    </extract>
-    <combine2 name="N_vecYZ_color2" type="vector2">
-      <input name="in1" type="float" nodename="N_extY_color2"/>
-      <input name="in2" type="float" nodename="N_extZ_color2"/>
-    </combine2>
-    <combine2 name="N_vecXZ_color2" type="vector2">
-      <input name="in1" type="float" nodename="N_extX_color2"/>
-      <input name="in2" type="float" nodename="N_extZ_color2"/>
-    </combine2>
-    <combine2 name="N_vecXY_color2" type="vector2">
-      <input name="in1" type="float" nodename="N_extX_color2"/>
-      <input name="in2" type="float" nodename="N_extY_color2"/>
-    </combine2>
-    <image name="N_imgX_color2" type="color2">
-      <parameter name="file" type="filename" interfacename="filex"/>
-      <parameter name="layer" type="string" interfacename="layerx"/>
-      <parameter name="default" type="color2" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_vecYZ_color2"/>
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" interfacename="filtertype"/>
-      <parameter name="framerange" type="string" interfacename="framerange"/>
-      <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
-      <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
-    </image>
-    <image name="N_imgY_color2" type="color2">
-      <parameter name="file" type="filename" interfacename="filey"/>
-      <parameter name="layer" type="string" interfacename="layery"/>
-      <parameter name="default" type="color2" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_vecXZ_color2"/>
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" interfacename="filtertype"/>
-      <parameter name="framerange" type="string" interfacename="framerange"/>
-      <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
-      <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
-    </image>
-    <image name="N_imgZ_color2" type="color2">
-      <parameter name="file" type="filename" interfacename="filez"/>
-      <parameter name="layer" type="string" interfacename="layerz"/>
-      <parameter name="default" type="color2" interfacename="default"/>
-      <input name="texcoord" type="vector2" nodename="N_vecXY_color2"/>
-      <parameter name="uaddressmode" type="string" value="periodic"/>
-      <parameter name="vaddressmode" type="string" value="periodic"/>
-      <parameter name="filtertype" type="string" interfacename="filtertype"/>
-      <parameter name="framerange" type="string" interfacename="framerange"/>
-      <parameter name="frameoffset" type="integer" interfacename="frameoffset"/>
-      <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
-    </image>
-    <normalize name="N_norm_color2" type="vector3">
-      <input name="in" type="vector3" interfacename="normal"/>
-    </normalize>
-    <dotproduct name="N_dotX_color2" type="float">
-      <input name="in1" type="vector3" nodename="N_norm_color2"/>
-      <input name="in2" type="vector3" value="1.0, 0.0, 0.0"/>
-    </dotproduct>
-    <dotproduct name="N_dotY_color2" type="float">
-      <input name="in1" type="vector3" nodename="N_norm_color2"/>
-      <input name="in2" type="vector3" value="0.0, 1.0, 0.0"/>
-    </dotproduct>
-    <dotproduct name="N_dotZ_color2" type="float">
-      <input name="in1" type="vector3" nodename="N_norm_color2"/>
-      <input name="in2" type="vector3" value="0.0, 0.0, 1.0"/>
-    </dotproduct>
-    <absval name="N_blendX_color2" type="float">
-      <input name="in" type="float" nodename="N_dotX_color2"/>
-    </absval>
-    <absval name="N_blendY_color2" type="float">
-      <input name="in" type="float" nodename="N_dotY_color2"/>
-    </absval>
-    <absval name="N_blendZ_color2" type="float">
-      <input name="in" type="float" nodename="N_dotZ_color2"/>
-    </absval>
-    <multiply name="N_nX_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_imgX_color2"/>
-      <input name="in2" type="float" nodename="N_blendX_color2"/>
-    </multiply>
-    <multiply name="N_nY_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_imgY_color2"/>
-      <input name="in2" type="float" nodename="N_blendY_color2"/>
-    </multiply>
-    <multiply name="N_nZ_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_imgZ_color2"/>
-      <input name="in2" type="float" nodename="N_blendZ_color2"/>
-    </multiply>
-    <add name="N_add1_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_nX_color2"/>
-      <input name="in2" type="color2" nodename="N_nY_color2"/>
-    </add>
-    <add name="N_add2_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_add1_color2"/>
-      <input name="in2" type="color2" nodename="N_nZ_color2"/>
-    </add>
-    <output name="out" type="color2" nodename="N_add2_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_triplanarprojection_color3" nodedef="ND_triplanarprojection_color3">
@@ -1035,36 +896,6 @@
     <output name="out" type="float" nodename="N_mix_float"/>
   </nodegraph>
 
-  <nodegraph name="NG_ramp4_color2" nodedef="ND_ramp4_color2">
-    <clamp name="N_txclamp_color2" type="vector2">
-      <input name="in" type="vector2" interfacename="texcoord"/>
-    </clamp>
-    <extract name="N_s_color2" type="float">
-      <input name="in" type="vector2" nodename="N_txclamp_color2"/>
-      <parameter name="index" type="integer" value="0"/>
-    </extract>
-    <extract name="N_t_color2" type="float">
-      <input name="in" type="vector2" nodename="N_txclamp_color2"/>
-      <parameter name="index" type="integer" value="1"/>
-    </extract>
-    <mix name="N_mixtop_color2" type="color2">
-      <input name="bg" type="color2" interfacename="valuetl"/>
-      <input name="fg" type="color2" interfacename="valuetr"/>
-      <input name="mix" type="float" nodename="N_s_color2"/>
-    </mix>
-    <mix name="N_mixbot_color2" type="color2">
-      <input name="bg" type="color2" interfacename="valuebl"/>
-      <input name="fg" type="color2" interfacename="valuebr"/>
-      <input name="mix" type="float" nodename="N_s_color2"/>
-    </mix>
-    <mix name="N_mix_color2" type="color2">
-      <input name="bg" type="color2" nodename="N_mixtop_color2"/>
-      <input name="fg" type="color2" nodename="N_mixbot_color2"/>
-      <input name="mix" type="float" nodename="N_t_color2"/>
-    </mix>
-    <output name="out" type="color2" nodename="N_mix_color2"/>
-  </nodegraph>
-
   <nodegraph name="NG_ramp4_color3" nodedef="ND_ramp4_color3">
     <clamp name="N_txclamp_color3" type="vector2">
       <input name="in" type="vector2" interfacename="texcoord"/>
@@ -1289,22 +1120,6 @@
     <output name="out" type="float" nodename="N_add_float"/>
   </nodegraph>
 
-  <nodegraph name="NG_contrast_color2" nodedef="ND_contrast_color2">
-    <subtract name="N_sub_color2" type="color2">
-      <input name="in1" type="color2" interfacename="in"/>
-      <input name="in2" type="color2" interfacename="pivot"/>
-    </subtract>
-    <multiply name="N_mul_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_sub_color2"/>
-      <input name="in2" type="color2" interfacename="amount"/>
-    </multiply>
-    <add name="N_add_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_mul_color2"/>
-      <input name="in2" type="color2" interfacename="pivot"/>
-    </add>
-    <output name="out" type="color2" nodename="N_add_color2"/>
-  </nodegraph>
-
   <nodegraph name="NG_contrast_color3" nodedef="ND_contrast_color3">
     <subtract name="N_sub_color3" type="color3">
       <input name="in1" type="color3" interfacename="in"/>
@@ -1383,22 +1198,6 @@
       <input name="in2" type="vector4" interfacename="pivot"/>
     </add>
     <output name="out" type="vector4" nodename="N_add_vector4"/>
-  </nodegraph>
-
-  <nodegraph name="NG_contrast_color2FA" nodedef="ND_contrast_color2FA">
-    <subtract name="N_sub_color2FA" type="color2">
-      <input name="in1" type="color2" interfacename="in"/>
-      <input name="in2" type="float" interfacename="pivot"/>
-    </subtract>
-    <multiply name="N_mul_color2FA" type="color2">
-      <input name="in1" type="color2" nodename="N_sub_color2FA"/>
-      <input name="in2" type="float" interfacename="amount"/>
-    </multiply>
-    <add name="N_add_color2FA" type="color2">
-      <input name="in1" type="color2" nodename="N_mul_color2FA"/>
-      <input name="in2" type="float" interfacename="pivot"/>
-    </add>
-    <output name="out" type="color2" nodename="N_add_color2FA"/>
   </nodegraph>
 
   <nodegraph name="NG_contrast_color3FA" nodedef="ND_contrast_color3FA">
@@ -1530,51 +1329,6 @@
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
     <output name="out" type="float" nodename="N_switch_float"/>
-  </nodegraph>
-
-  <nodegraph name="NG_range_color2" nodedef="ND_range_color2">
-    <remap name="N_remap1_color2" type="color2">
-      <input name="in" type="color2" interfacename="in"/>
-      <input name="inlow" type="color2" interfacename="inlow"/>
-      <input name="inhigh" type="color2" interfacename="inhigh"/>
-      <input name="outlow" type="color2" value="0.0, 0.0"/>
-      <input name="outhigh" type="color2" value="1.0, 1.0"/>
-    </remap>
-    <divide name="N_recip_color2" type="color2">
-      <input name="in1" type="color2" value="1.0, 1.0"/>
-      <input name="in2" type="color2" interfacename="gamma"/>
-    </divide>
-    <absval name="N_abs_color2" type="color2">
-      <input name="in" type="color2" nodename="N_remap1_color2"/>
-    </absval>
-    <power name="N_pow_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_abs_color2"/>
-      <input name="in2" type="color2" nodename="N_recip_color2"/>
-    </power>
-    <sign name="N_sign_color2" type="color2">
-      <input name="in" type="color2" nodename="N_remap1_color2"/>
-    </sign>
-    <multiply name="N_gamma_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_pow_color2"/>
-      <input name="in2" type="color2" nodename="N_sign_color2"/>
-    </multiply>
-    <remap name="N_remap2_color2" type="color2">
-      <input name="in" type="color2" nodename="N_gamma_color2"/>
-      <input name="inlow" type="color2" value="0.0, 0.0"/>
-      <input name="inhigh" type="color2" value="1.0, 1.0"/>
-      <input name="outlow" type="color2" interfacename="outlow"/>
-      <input name="outhigh" type="color2" interfacename="outhigh"/>
-    </remap>
-    <clamp name="N_clamp_color2" type="color2">
-      <input name="in" type="color2" nodename="N_remap2_color2"/>
-    </clamp>
-    <ifequal name="N_switch_color2" type="color2">
-      <input name="in1" type="color2" nodename="N_clamp_color2"/>
-      <input name="in2" type="color2" nodename="N_remap2_color2"/>
-      <input name="value1" type="boolean" interfacename="doclamp"/>
-      <input name="value2" type="boolean" value="true"/>
-    </ifequal>
-    <output name="out" type="color2" nodename="N_switch_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_range_color3" nodedef="ND_range_color3">
@@ -1801,51 +1555,6 @@
       <input name="value2" type="boolean" value="true"/>
     </ifequal>
     <output name="out" type="vector4" nodename="N_switch_vector4"/>
-  </nodegraph>
-
-  <nodegraph name="NG_range_color2FA" nodedef="ND_range_color2FA">
-    <remap name="N_remap1_color2FA" type="color2">
-      <input name="in" type="color2" interfacename="in"/>
-      <input name="inlow" type="float" interfacename="inlow"/>
-      <input name="inhigh" type="float" interfacename="inhigh"/>
-      <input name="outlow" type="float" value="0.0"/>
-      <input name="outhigh" type="float" value="1.0"/>
-    </remap>
-    <divide name="N_recip_color2FA" type="float">
-      <input name="in1" type="float" value="1.0"/>
-      <input name="in2" type="float" interfacename="gamma"/>
-    </divide>
-    <absval name="N_abs_color2FA" type="color2">
-      <input name="in" type="color2" nodename="N_remap1_color2FA"/>
-    </absval>
-    <power name="N_pow_color2FA" type="color2">
-      <input name="in1" type="color2" nodename="N_abs_color2FA"/>
-      <input name="in2" type="float" nodename="N_recip_color2FA"/>
-    </power>
-    <sign name="N_sign_color2FA" type="color2">
-      <input name="in" type="color2" nodename="N_remap1_color2FA"/>
-    </sign>
-    <multiply name="N_gamma_color2FA" type="color2">
-      <input name="in1" type="color2" nodename="N_pow_color2FA"/>
-      <input name="in2" type="color2" nodename="N_sign_color2FA"/>
-    </multiply>
-    <remap name="N_remap2_color2FA" type="color2">
-      <input name="in" type="color2" nodename="N_gamma_color2FA"/>
-      <input name="inlow" type="float" value="0.0"/>
-      <input name="inhigh" type="float" value="1.0"/>
-      <input name="outlow" type="float" interfacename="outlow"/>
-      <input name="outhigh" type="float" interfacename="outhigh"/>
-    </remap>
-    <clamp name="N_clamp_color2FA" type="color2">
-      <input name="in" type="color2" nodename="N_remap2_color2FA"/>
-    </clamp>
-    <ifequal name="N_switch_color2FA" type="color2">
-      <input name="in1" type="color2" nodename="N_clamp_color2FA"/>
-      <input name="in2" type="color2" nodename="N_remap2_color2FA"/>
-      <input name="value1" type="boolean" interfacename="doclamp"/>
-      <input name="value2" type="boolean" value="true"/>
-    </ifequal>
-    <output name="out" type="color2" nodename="N_switch_color2FA"/>
   </nodegraph>
 
   <nodegraph name="NG_range_color3FA" nodedef="ND_range_color3FA">
@@ -2201,23 +1910,6 @@
     Node: <extract>
     Extract a single channel from a colorN or vectorN stream, outputting a float.
   -->
-  <nodegraph name="NG_extract_color2" nodedef="ND_extract_color2">
-    <swizzle name="N_r_color2" type="float">
-      <input name="in" type="color2" interfacename="in"/>
-      <parameter name="channels" type="string" value="r"/>
-    </swizzle>
-    <swizzle name="N_a_color2" type="float">
-      <input name="in" type="color2" interfacename="in"/>
-      <parameter name="channels" type="string" value="a"/>
-    </swizzle>
-    <switch name="N_sw_color2" type="float">
-      <input name="in1" type="float" nodename="N_r_color2"/>
-      <input name="in2" type="float" nodename="N_a_color2"/>
-      <parameter name="which" type="integer" interfacename="index"/>
-    </switch>
-    <output name="out" type="float" nodename="N_sw_color2"/>
-  </nodegraph>
-
   <nodegraph name="NG_extract_vector2" nodedef="ND_extract_vector2">
     <swizzle name="N_x_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
@@ -2338,19 +2030,6 @@
     Nodes: <separate2>, <separate3>, <separate4>
     Output each of the channels of a color/vector stream as a separate float output.
   -->
-  <nodegraph name="NG_separate2_color2" nodedef="ND_separate2_color2">
-    <swizzle name="N_r_color2" type="float">
-      <input name="in" type="color2" interfacename="in"/>
-      <parameter name="channels" type="string" value="r"/>
-    </swizzle>
-    <swizzle name="N_a_color2" type="float">
-      <input name="in" type="color2" interfacename="in"/>
-      <parameter name="channels" type="string" value="a"/>
-    </swizzle>
-    <output name="outr" type="float" nodename="N_r_color2"/>
-    <output name="outa" type="float" nodename="N_a_color2"/>
-  </nodegraph>
-
   <nodegraph name="NG_separate2_vector2" nodedef="ND_separate2_vector2">
     <swizzle name="N_x_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>

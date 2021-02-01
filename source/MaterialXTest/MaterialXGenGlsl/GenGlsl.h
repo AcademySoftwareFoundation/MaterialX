@@ -20,8 +20,8 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     GlslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths, 
                               const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
-                              const mx::FilePath& logFilePath) :
-        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath)
+                              const mx::FilePath& logFilePath, bool writeShadersToDisk) :
+        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath, writeShadersToDisk)
     {}
 
     void setTestStages() override
@@ -53,9 +53,9 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         whiteList =
         {
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_light_genglsl",
-            "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl", "IM_angle", 
-            "surfacematerial", "volumematerial", "ND_surfacematerial", "ND_volumematerial" 
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue_boolean", "IM_geompropvalue_string",
+            "IM_light_genglsl", "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl",
+            "IM_angle", "surfacematerial", "volumematerial", "ND_surfacematerial", "ND_volumematerial", "ND_backface_util", "IM_backface_util_genglsl"
         };
     }
 };

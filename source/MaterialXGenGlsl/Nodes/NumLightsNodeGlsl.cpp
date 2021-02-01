@@ -39,7 +39,8 @@ void NumLightsNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext& co
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLine(NUM_LIGHTS_FUNC_SIGNATURE, stage, false);
         shadergen.emitScopeBegin(stage);
-        shadergen.emitLine("return min("+ HW::T_NUM_ACTIVE_LIGHT_SOURCES + ", MAX_LIGHT_SOURCES)", stage);
+        shadergen.emitLine("return min(" + HW::T_NUM_ACTIVE_LIGHT_SOURCES + ", " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + ") ",
+            stage);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
     END_SHADER_STAGE(shader, Stage::PIXEL)

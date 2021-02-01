@@ -64,8 +64,8 @@
   <nodedef name="ND_testshader3" node="testshader3">
     <input name="reflectivity" type="color3" />
     <input name="edge_color" type="color3" />
-    <input name="ior_n" type="vector3" />
-    <input name="ior_k" type="vector3" />
+    <input name="ior_n" type="color3" />
+    <input name="ior_k" type="color3" />
     <input name="artistic_vs_complex" type="float" />
     <input name="roughness" type="float" />
     <output name="out" type="surfaceshader" />
@@ -76,22 +76,22 @@
       <input name="roughness" type="float" interfacename="roughness" />
       <input name="anisotropy" type="float" value="0.0" />
     </roughness_anisotropy>
-    <conductor_brdf name="metal1" type="BSDF">
-      <input name="normal" type="vector3" nodename="shadingnormal1" />
+    <artistic_ior name="artistic_ior1" type="multioutput">
       <input name="reflectivity" type="color3" interfacename="reflectivity" />
       <input name="edge_color" type="color3" interfacename="edge_color" />
-      <input name="roughness" type="vector2" nodename="roughness1" />
-    </conductor_brdf>
-    <conductor_brdf name="metal2" type="BSDF">
+    </artistic_ior>
+    <conductor_bsdf name="metal1" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
-      <input name="reflectivity" type="color3" nodename="complex_ior1" output="reflectivity" />
-      <input name="edge_color" type="color3" nodename="complex_ior1" output="edge_color" />
+      <input name="ior" type="color3" nodename="artistic_ior1" output="ior" />
+      <input name="extinction" type="color3" nodename="artistic_ior1" output="extinction" />
       <input name="roughness" type="vector2" nodename="roughness1" />
-    </conductor_brdf>
-    <complex_ior name="complex_ior1" type="multioutput">
-      <input name="ior" type="vector3" interfacename="ior_n" />
-      <input name="extinction" type="vector3" interfacename="ior_k" />
-    </complex_ior>
+    </conductor_bsdf>
+    <conductor_bsdf name="metal2" type="BSDF">
+      <input name="normal" type="vector3" nodename="shadingnormal1" />
+      <input name="ior" type="color3" interfacename="ior_n" />
+      <input name="extinction" type="color3" interfacename="ior_k" />
+      <input name="roughness" type="vector2" nodename="roughness1" />
+    </conductor_bsdf>
     <mix name="mix1" type="BSDF">
       <input name="mix" type="float" interfacename="artistic_vs_complex" />
       <input name="fg" type="BSDF" nodename="metal1" />
@@ -106,8 +106,8 @@
     <shaderref name="example3_surface" node="testshader3">
       <bindinput name="reflectivity" type="color3" value="0.944, 0.776, 0.373" />
       <bindinput name="edge_color" type="color3" value="0.998, 0.981, 0.751" />
-      <bindinput name="ior_n" type="vector3" value="0.183, 0.422, 1.373" />
-      <bindinput name="ior_k" type="vector3" value="3.424, 2.346, 1.771" />
+      <bindinput name="ior_n" type="color3" value="0.183, 0.422, 1.373" />
+      <bindinput name="ior_k" type="color3" value="3.424, 2.346, 1.771" />
       <bindinput name="roughness" type="float" value="0.2" />
     </shaderref>
   </material>

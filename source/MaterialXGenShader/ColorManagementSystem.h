@@ -69,8 +69,8 @@ class ColorManagementSystem
     /// Protected constructor
     ColorManagementSystem();
       
-    /// Returns an implementation name for a given transform
-    virtual string getImplementationName(const ColorSpaceTransform& transform) const = 0;
+    /// Returns an implementation for a given transform
+    virtual ImplementationPtr getImplementation(const ColorSpaceTransform& transform) const = 0;
 
   protected:
     DocumentPtr _document;

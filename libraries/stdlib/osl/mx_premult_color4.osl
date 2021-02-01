@@ -15,11 +15,6 @@ color premult (color in, float alpha)
     return in * alpha;
 }
 
-color2 premult (color2 in, float alpha)
-{
-    return color2 (in.r * in.a, in.a);
-}
-
 color4 premult (color4 in, float alpha)
 {
     return color4 (in.rgb * in.a, in.a);

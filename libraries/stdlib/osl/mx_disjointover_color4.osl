@@ -7,21 +7,6 @@
 #include "mx_funcs.h"
 
 
-color2 disjointover(color2 fg, color2 bg)
-{
-    float summedAlpha = fg.a + bg.a;
-
-    color2 out;
-    if (summedAlpha <= 1) {
-        out.r = fg.r + bg.r;
-    } else {
-        out.r = fg.r + ((bg.r * (1-fg.a)) / bg.a);
-    }
-
-    out.a = min(summedAlpha, 1);
-    return out;
-}
-
 color4 disjointover(color4 fg, color4 bg)
 {
     float summedAlpha = fg.a + bg.a;
@@ -41,7 +26,7 @@ color4 disjointover(color4 fg, color4 bg)
 
 
 shader mx_disjointover_color4
-    [[ string help = "Color4"" Take two color2 or two color4 inputs and use the built-in alpha \
+    [[ string help = "Color4"" Take two color4 inputs and use the built-in alpha \
                                channel(s) to control the compositing of the fg and bg inputs" ]]
   (
     color4 fg = {color(0,0,0), 0},
