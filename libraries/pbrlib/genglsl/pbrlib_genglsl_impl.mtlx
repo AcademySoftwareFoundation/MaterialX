@@ -54,11 +54,6 @@
   <!-- <light> -->
   <implementation name="IM_light_genglsl" nodedef="ND_light" target="genglsl"/>
 
-  <!-- <backfacing> -->
-  <implementation name="IM_backfacing_boolean_genglsl" nodedef="ND_backfacing_boolean" file="pbrlib/genglsl/mx_backfacing_boolean.inline" target="genglsl"/>
-  <implementation name="IM_backfacing_integer_genglsl" nodedef="ND_backfacing_integer" file="pbrlib/genglsl/mx_backfacing_integer.inline" target="genglsl"/>
-  <implementation name="IM_backfacing_float_genglsl" nodedef="ND_backfacing_float" file="pbrlib/genglsl/mx_backfacing_float.inline" target="genglsl"/>
-
   <!-- <roughness_anisotropy> -->
   <implementation name="IM_roughness_anisotropy_genglsl" nodedef="ND_roughness_anisotropy" file="pbrlib/genglsl/mx_roughness_anisotropy.glsl" function="mx_roughness_anisotropy" target="genglsl"/>
 
