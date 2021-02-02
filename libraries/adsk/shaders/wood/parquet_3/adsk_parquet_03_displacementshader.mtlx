@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<materialx version="1.37">
+   <nodedef name="ND_parquet_03_displacementshader" node="parquet_03_displacement" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
+      <parameter name="displacement_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_height_2k_raw.exr" />
+      <input name="displacement_scale" type="float" value="1.0" />
+      <input name="scalar_zero_value" type="float" value="0.0" />
+      <output name="out" type="displacementshader" value=""/>
+   </nodedef>
+   <nodegraph name="NG_parquet_03_displacementshader_graph" nodedef="adsk:ND_parquet_03_displacementshader" namespace="adsk">
+      <subtract name="parquet_03_disp_subtract" type="float">
+         <input name="in1" type="float" nodename="parquet_03_displacement" />
+         <input name="in2" type="float" interfacename="scalar_zero_value" />
+      </subtract>
+      <normalize name="parquet_03_disp_normalize" type="vector3">
+         <input name="in" type="vector3" nodename="parquet_03_disp_normal" />
+      </normalize>
+      <displacement name="parquet_03_disp_displacement" type="displacementshader">
+         <input name="displacement" type="vector3" nodename="parquet_03_disp_multiply" />
+         <input name="scale" type="float" interfacename="scalar_zero_value"/>
+      </displacement>
+      <multiply name="parquet_03_disp_multiply" type="vector3">
+         <input name="in1" type="vector3" nodename="parquet_03_disp_normalize" />
+         <input name="in2" type="float" interfacename="displacement_scale" />
+      </multiply>
+      <tiledimage name="parquet_03_displacement" type="float">
+         <parameter name="file" type="filename" interfacename="displacement_image" />
+         <input name="uvtiling" type="vector2" value="3, 3" />
+      </tiledimage>
+      <normal name="parquet_03_disp_normal" type="vector3" />
+      <output name="out" type="displacementshader" nodename="parquet_03_disp_displacement" />
+   </nodegraph>
+</materialx>
