@@ -63,11 +63,7 @@ const TypeDesc* TypeDesc::get(const string& name)
 {
     const TypeDescMap& map = typeMap();
     auto it = map.find(name);
-    if (it == map.end())
-    {
-        throw Exception("No registered type with name '" + name + "' could be found");
-    }
-    return it->second.get();
+    return it != map.end() ? it->second.get() : nullptr;
 }
 
 namespace Type
