@@ -89,7 +89,4 @@
   <!-- <blackbody> -->
   <implementation name="IM_blackbody_genmdl" nodedef="ND_blackbody" sourcecode="mx::pbrlib::mx_blackbody(mxp_temperature:{{temperature}})" target="genmdl"/>
 
-  <!-- <fresnel> -->
-  <implementation name="IM_fresnel_ior_genmdl" nodedef="ND_fresnel_ior" sourcecode="mx::pbrlib::mx_fresnel_ior(mxp_ior:{{ior}}, mxp_normal:{{normal}}, mxp_viewdirection:{{viewdirection}})" target="genmdl"/>
-
 </materialx>
