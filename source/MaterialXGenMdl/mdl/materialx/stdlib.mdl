@@ -1282,22 +1282,6 @@ export float mx_time_float(
 	return ::state::animation_time();
 }
 
-export float3 mx_viewdirection_vector3(
-	uniform mx_coordinatespace_type mxp_space = mx_coordinatespace_type(mx_coordinatespace_type_world)	
-	[[
-		anno::description("Enumeration {model,object,world}."),
-        anno::unused()
-	]]
-)
-	[[
-		anno::description("Node Group: application")
-	]]
-{
-	// Not implemented: mx_viewdirection_vector3
-	float3 defaultValue = float3(0.0, 0.0, 1.0);
-	return defaultValue;
-}
-
 export material mx_add_surfaceshader(
 	material mxp_in1,
 	material mxp_in2 [[ anno::unused() ]]

@@ -185,9 +185,6 @@
   <!-- <time> -->
   <implementation name="IM_time_float_genglsl" nodedef="ND_time_float" function="mx_time_float" target="genglsl"/>
 
-  <!-- <viewdirection> -->
-  <implementation name="IM_viewdirection_vector3_genglsl" nodedef="ND_viewdirection_vector3" target="genglsl"/>
-
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->
   <!-- ======================================================================== -->

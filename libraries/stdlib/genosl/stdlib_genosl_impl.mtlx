@@ -188,8 +188,6 @@
   <!-- <time> -->
   <implementation name="IM_time_float_genosl" nodedef="ND_time_float" file="stdlib/genosl/mx_time_float.osl" function="mx_time_float" target="genosl"/>
 
-  <!-- <viewdirection> -->
-  <implementation name="IM_viewdirection_vector3_genosl" nodedef="ND_viewdirection_vector3" file="stdlib/genosl/mx_viewdirection_vector3.inline" target="genosl"/>
 
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->
