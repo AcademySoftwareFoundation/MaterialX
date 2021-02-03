@@ -1358,6 +1358,8 @@ void Document::upgradeVersion()
                 }
             }
         }
+
+        minorVersion = 38;
     }
 
     setVersionIntegers(majorVersion, minorVersion);
