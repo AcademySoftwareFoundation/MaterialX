@@ -186,9 +186,6 @@
   <!-- <time> -->
   <implementation name="IM_time_float_genmdl" nodedef="ND_time_float" sourcecode="mx::stdlib::mx_time_float()" target="genmdl" />
 
-  <!-- <viewdirection> -->
-  <implementation name="IM_viewdirection_vector3_genmdl" nodedef="ND_viewdirection_vector3" sourcecode="mx::stdlib::mx_viewdirection_vector3()" target="genmdl"/>
-
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->
   <!-- ======================================================================== -->

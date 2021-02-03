@@ -15,7 +15,6 @@
 #include <MaterialXGenGlsl/Nodes/GeomPropValueNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TimeNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/ViewDirectionNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceShaderNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
@@ -203,8 +202,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, FrameNodeGlsl::create);
     // <!-- <time> -->
     registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, TimeNodeGlsl::create);
-    // <!-- <viewdirection> -->
-    registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, ViewDirectionNodeGlsl::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);

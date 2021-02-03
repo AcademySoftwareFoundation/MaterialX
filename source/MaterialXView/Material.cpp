@@ -34,8 +34,13 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
         return false;
     }
 
+    // TODO:
+    // Here we set new source code on the _glProgram without rebuilding 
+    // the _hwShader instance. So the _hwShader is not in sync with the
+    // _glProgram after this operation.
     _glProgram = mx::GlslProgram::create();
-    _glProgram->setStages(_hwShader);
+    _glProgram->addStage(mx::Stage::VERTEX, vertexShader);
+    _glProgram->addStage(mx::Stage::PIXEL, pixelShader);
     _glProgram->build();
 
     updateUniformsList();
