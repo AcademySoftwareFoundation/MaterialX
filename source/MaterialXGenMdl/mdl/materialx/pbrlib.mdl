@@ -842,24 +842,3 @@ export mx_artistic_ior__result mx_artistic_ior(
     color k = math::sqrt(k2);
     return mx_artistic_ior__result(n,k);
 }
-
-// TODO: mx_fresnel, MaterialX Spec misses to document an output (type)
-// NOTE: Can be implemented but lack of viewdirection in MDL makes this less useful.
-export float mx_fresnel_ior(
-    float  mxp_ior    = 1.5,
-    float3 mxp_normal = state::normal(),
-    float3 mxp_viewdirection = float3(0.0, 0.0, 1.0) // no default view direction in MDL
-) {
-    float cos_theta = math::dot(mxp_normal, - mxp_viewdirection);
-    if (cos_theta < 0.0 || mxp_ior == 0.0)
-        return 1.0;
-    float g =  mxp_ior * mxp_ior + cos_theta * cos_theta - 1.0;
-    if (g < 0.0) // total internal reflection
-        return 1.0;
-    g = math::sqrt(g);
-    float gmc = g - cos_theta;
-    float gpc = g + cos_theta;
-    float x = gmc / gpc;
-    float y = (gpc * cos_theta - 1.0) / (gmc * cos_theta + 1.0);
-    return 0.5 * x * x * (1.0 + y * y);
-}
