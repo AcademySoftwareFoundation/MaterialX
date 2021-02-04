@@ -3,75 +3,54 @@
 Generate the "Looks.mtlx" example file programmatically.
 '''
 
-import sys, string
 import MaterialX as mx
 
-
 def main():
-
     doc = mx.createDocument()
 
     # Add document CMS/colorspace
     doc.setColorManagementSystem("ocio")
     doc.setColorSpace("lin_rec709")
 
-    # Add "SimpleSrf.mtlx" as a library, which will create an xi:include in the output file.
-    xi_doc = mx.createDocument()
-    inclfile = "SimpleSrf.mtlx"
-    try:
-	mx.readFromXmlFile(xi_doc, inclfile)
-	doc.importLibrary(xi_doc)
-    except mx.ExceptionFileMissing:
-	print 'Unable to find "%s" in current MATERIALX_SEARCH_PATH' % inclfile
+    # Prepend an XInclude reference for "SimpleSrf.mtlx".
+    mx.prependXInclude(doc, "SimpleSrf.mtlx")
 
     #
     # Materials
     #
-    mplastic1 = doc.addMaterial("Mplastic1")
-    sref = mplastic1.addShaderRef("sr_mp1", "simple_srf")
-    bin1 = sref.addBindInput("diffColor", "color3")
-    bin1.setValue(mx.Color3(0.134, 0.130, 0.125))
-    bin2 = sref.addBindInput("specColor", "color3")
-    bin2.setValue(mx.Color3(0.114, 0.114, 0.114))
-    bin3 = sref.addBindInput("specRoughness", "float")
-    bin3.setValue(0.38)
+    shader = doc.addNode("simple_srf", "sr_mp1")
+    shader.setInputValue("diffColor", mx.Color3(0.134, 0.130, 0.125))
+    shader.setInputValue("specColor", mx.Color3(0.114))
+    shader.setInputValue("specRoughness", 0.38)
+    mplastic1 = doc.addMaterialNode("Mplastic1", shader)
 
-    mplastic2 = doc.addMaterial("Mplastic2")
-    mplastic2.setInheritsFrom(mplastic1)
-    sref = mplastic2.addShaderRef("sr_mp2", "simple_srf")
-    bin1 = sref.addBindInput("diffColor", "color3")
-    bin1.setValue(mx.Color3(0.17, 0.26, 0.23))
-    bin2 = sref.addBindInput("specRoughness", "float")
-    bin2.setValue(0.24)
+    shader = doc.addNode("simple_srf", "sr_mp2")
+    shader.setInputValue("diffColor", mx.Color3(0.17, 0.26, 0.23))
+    shader.setInputValue("specRoughness", 0.24)
+    mplastic2 = doc.addMaterialNode("Mplastic2", shader)
 
-    mmetal1 = doc.addMaterial("Mmetal1")
-    sref = mmetal1.addShaderRef("sr_mm1", "simple_srf")
-    bin1 = sref.addBindInput("diffColor", "color3")
-    bin1.setValue(mx.Color3(0.001, 0.001, 0.001))
-    bin2 = sref.addBindInput("specColor", "color3")
-    bin2.setValue(mx.Color3(0.671, 0.676, 0.667))
-    bin3 = sref.addBindInput("specRoughness", "float")
-    bin3.setValue(0.005)
+    shader = doc.addNode("simple_srf", "sr_mm1")
+    shader.setInputValue("diffColor", mx.Color3(0.001))
+    shader.setInputValue("specColor", mx.Color3(0.671, 0.676, 0.667))
+    shader.setInputValue("specRoughness", 0.005)
+    mmetal1 = doc.addMaterialNode("Mmetal1", shader)
 
-    mmetal2 = doc.addMaterial("Mmetal2")
-    sref = mmetal2.addShaderRef("sr_mm2", "simple_srf")
-    bin1 = sref.addBindInput("diffColor", "color3")
-    bin1.setValue(mx.Color3(0.049, 0.043, 0.033))
-    bin2 = sref.addBindInput("specColor", "color3")
-    bin2.setValue(mx.Color3(0.115, 0.091, 0.064))
-    bin3 = sref.addBindInput("specRoughness", "float")
-    bin3.setValue(0.35)
+    shader = doc.addNode("simple_srf", "sr_mm2")
+    shader.setInputValue("diffColor", mx.Color3(0.049, 0.043, 0.033))
+    shader.setInputValue("specColor", mx.Color3(0.115, 0.091, 0.064))
+    shader.setInputValue("specRoughness", 0.35)
+    mmetal2 = doc.addMaterialNode("Mmetal2", shader)
 
     #
     # VariantSet
     #
     vset = doc.addVariantSet("varset")
     vardry = vset.addVariant("dry")
-    vardry.setParameterValue("wetgain", 0.0)
+    vardry.setInputValue("wetgain", 0.0)
     varwet = vset.addVariant("wet")
-    varwet.setParameterValue("wetgain", 1.0)
+    varwet.setInputValue("wetgain", 1.0)
     vardamp = vset.addVariant("damp")
-    vardamp.setParameterValue("wetgain", 0.2)
+    vardamp.setInputValue("wetgain", 0.2)
 
     #
     # Collections
@@ -89,15 +68,14 @@ def main():
     # Nodedef and lightshader material
     #
     nd_disklgt = doc.addNodeDef("ND_disk_lgt_light", "lightshader", "disk_lgt")
-    nd_disklgt.setParameterValue("emissionmap", "", "filename")
-    nd_disklgt.setParameterValue("gain", 2000.0)
-    mheadlight = doc.addMaterial("mheadlight")
-    sref = mheadlight.addShaderRef("lgtsr1", "disk_lgt")
-    bpar = sref.addBindParam("gain", "float")
-    bpar.setValue(500.0)
+    nd_disklgt.setInputValue("emissionmap", "", "filename")
+    nd_disklgt.setInputValue("gain", 2000.0)
+    shader = doc.addNode("disk_lgt", "lgtsr1")
+    shader.setInputValue("gain", 500.0)
+    mheadlight = doc.addMaterialNode("mheadlight", shader)
 
     #
-    # Propertyset
+    # PropertySet
     #
     propset = doc.addPropertySet("standard")
     p = propset.addProperty("displacementbound_sphere")
@@ -151,7 +129,7 @@ def main():
     va.setVisible(0)
 
     #
-    # Lookgroups
+    # LookGroups
     #
     lookgrp = doc.addLookGroup("testlooks")
     looks = "%s,%s" % (lookA.getName(), lookB.getName())
@@ -160,15 +138,13 @@ def main():
     # Validate the doc just to be sure
     rc = doc.validate()
     if (len(rc) >= 1 and rc[0]):
-	print "Mtlx document is valid."
+        print("Mtlx document is valid.")
     else:
-	print "Mtlx document is NOT valid: %s" % str(rc[1])
+        print("Mtlx document is NOT valid: %s" % str(rc[1]))
 
     outfile = "myLooks.mtlx"
     mx.writeToXmlFile(doc, outfile)
-    print "Wrote materials and looks and such to %s" % outfile
-
+    print("Wrote materials and looks and such to %s" % outfile)
 
 if __name__ == '__main__':
     main()
-

@@ -331,7 +331,7 @@ void prependXInclude(DocumentPtr doc, const FilePath& filename)
 {
     if (!filename.isEmpty())
     {
-        ElementPtr elem = doc->addChildOfCategory("xinclude");
+        ElementPtr elem = doc->addNode("xinclude");
         elem->setSourceUri(filename.asString());
         doc->setChildIndex(elem->getName(), 0);
     }
