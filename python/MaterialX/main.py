@@ -100,29 +100,44 @@ def _getInputValue(self, name, target = ''):
     value = self._getInputValue(name, target)
     return value.getData() if value else None
 
+def _addParameter(self, name):
+    """(Deprecated) Add a Parameter to this interface."""
+    warnings.warn("This function is deprecated; parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    return self.addInput(name)
+
 def _getParameters(self):
     """(Deprecated) Return a vector of all Parameter elements."""
-    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    warnings.warn("This function is deprecated; parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
     return list()
 
 def _getActiveParameters(self):
     """(Deprecated) Return a vector of all parameters belonging to this interface, taking inheritance into account."""
-    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    warnings.warn("This function is deprecated; parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
     return list()
 
 def _setParameterValue(self, name, value, typeString = ''):
     """(Deprecated) Set the typed value of a parameter by its name."""
-    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    warnings.warn("This function is deprecated; parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
 
 def _getParameterValue(self, name, target = ''):
     """(Deprecated) Return the typed value of a parameter by its name."""
-    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    warnings.warn("This function is deprecated; parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
     return None
 
 def _getParameterValueString(self, name):
     """(Deprecated) Return the value string of a parameter by its name."""
-    warnings.warn("This function is deprecated, parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
+    warnings.warn("This function is deprecated; parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
     return ""
+
+def _addBindInput(self, name, type = DEFAULT_TYPE_STRING):
+    """(Deprecated) Add a BindInput to this shader reference."""
+    warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
+    return self.addInput(name, type)
+
+def _addBindParam(self, name, type = DEFAULT_TYPE_STRING):
+    """(Deprecated) Add a BindParam to this shader reference."""
+    warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
+    return self.addInput(name, type)
 
 InterfaceElement.setInputValue = _setInputValue
 InterfaceElement.getInputValue = _getInputValue
@@ -131,6 +146,8 @@ InterfaceElement.getActiveParameters = _getActiveParameters
 InterfaceElement.setParameterValue = _setParameterValue
 InterfaceElement.getParameterValue = _getParameterValue
 InterfaceElement.getParameterValueString = _getParameterValueString
+InterfaceElement.addBindInput = _addBindInput
+InterfaceElement.addBindParam = _addBindParam
 
 
 #
@@ -142,7 +159,13 @@ def _getReferencedNodeDef(self):
     warnings.warn("This function is deprecated; call Node.getNodeDef instead.", DeprecationWarning, stacklevel = 2)
     return self.getNodeDef()
 
+def _addShaderRef(self, name, nodeName):
+    "(Deprecated) Add a shader reference to this material element."
+    warnings.warn("This function is deprecated; material elements have been replaced with material nodes in 1.38.", DeprecationWarning, stacklevel = 2)
+    return self.getParent().addNode(nodeName, name)
+
 Node.getReferencedNodeDef = _getReferencedNodeDef
+Node.addShaderRef = _addShaderRef
 
 
 #
@@ -203,12 +226,18 @@ def _applyStringSubstitutions(self, filename, geom = '/'):
     warnings.warn("This function is deprecated; call Element.createStringResolver() instead.", DeprecationWarning, stacklevel = 2)
     return self.createStringResolver(geom).resolve(filename, 'filename')
 
+def _addMaterial(self, name):
+    """(Deprecated) Add a material element to the document."""
+    warnings.warn("This function is deprecated; call Document.addMaterialNode() instead.", DeprecationWarning, stacklevel = 2)
+    return self.addMaterialNode(name)
+
 def _getMaterials(self):
     """(Deprecated) Return a vector of all materials in the document."""
-    warnings.warn("This function is deprecated, call Document.getMaterialNodes() instead.", DeprecationWarning, stacklevel = 2)
+    warnings.warn("This function is deprecated; call Document.getMaterialNodes() instead.", DeprecationWarning, stacklevel = 2)
     return self.getMaterialNodes()
 
 Document.applyStringSubstitutions = _applyStringSubstitutions
+Document.addMaterial = _addMaterial
 Document.getMaterials = _getMaterials
 
 
