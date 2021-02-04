@@ -1,8 +1,12 @@
+#!/usr/bin/env python
+'''
+Native Python helper functions for MaterialX data types.
+'''
+
 import sys
 
 from .PyMaterialXCore import *
 
-# Native Python helper functions for MaterialX data types.
 
 #--------------------------------------------------------------------------------
 _typeToName = { int         : 'integer',
@@ -45,8 +49,6 @@ def getTypeString(value):
         return 'stringarray'
     return None
 
-
-#--------------------------------------------------------------------------------
 def getValueString(value):
     """Return the MaterialX value string associated with the given Python value
        If the type of the given Python value is not recognized by MaterialX,
@@ -62,8 +64,6 @@ def getValueString(value):
     method = globals()['TypedValue_' + typeString].createValue
     return method(value).getValueString()
 
-
-#--------------------------------------------------------------------------------
 def createValueFromStrings(valueString, typeString):
     """Convert a MaterialX value and type strings to the corresponding
        Python value.  If the given conversion cannot be performed, then None
@@ -79,13 +79,10 @@ def createValueFromStrings(valueString, typeString):
     return valueObj.getData()
 
 
-#--------------------------------------------------------------------------------
 def isColorType(t):
     "Return True if the given type is a MaterialX color."
     return t in (Color3, Color4)
 
-
-#--------------------------------------------------------------------------------
 def isColorValue(value):
     "Return True if the given value is a MaterialX color."
     return isColorType(type(value))
