@@ -1,13 +1,14 @@
+#!/usr/bin/env python
+'''
+Native Python wrappers for PyMaterialX, providing a more Pythonic interface
+for Elements and Values.
+'''
+
 import warnings
 
 from .PyMaterialXCore import *
 from .PyMaterialXFormat import *
 from .datatype import *
-
-"""
-Native Python wrappers for PyMaterialX, providing a more Pythonic interface
-for Elements and Values.
-"""
 
 
 #
@@ -141,6 +142,7 @@ def _addBindParam(self, name, type = DEFAULT_TYPE_STRING):
 
 InterfaceElement.setInputValue = _setInputValue
 InterfaceElement.getInputValue = _getInputValue
+InterfaceElement.addParameter = _addParameter
 InterfaceElement.getParameters = _getParameters
 InterfaceElement.getActiveParameters = _getActiveParameters
 InterfaceElement.setParameterValue = _setParameterValue
@@ -166,17 +168,6 @@ def _addShaderRef(self, name, nodeName):
 
 Node.getReferencedNodeDef = _getReferencedNodeDef
 Node.addShaderRef = _addShaderRef
-
-
-#
-# GraphElement
-#
-
-def _addNode(self, category, name = '', typeString = DEFAULT_TYPE_STRING):
-    "Add a node to the graph."
-    return self._addNode(category, name, typeString)
-
-GraphElement.addNode = _addNode
 
 
 #
@@ -209,22 +200,24 @@ def _setGeomPropValue(self, name, value, typeString = ''):
     method = getattr(self.__class__, "_setGeomPropValue" + getTypeString(value))
     return method(self, name, value, typeString)
 
-GeomInfo.setGeomPropValue = _setGeomPropValue
+def _addGeomAttr(self, name):
+    "(Deprecated) Add a geomprop to this element."
+    warnings.warn("This function is deprecated; call GeomInfo.addGeomProp() instead", DeprecationWarning, stacklevel = 2)
+    return self.addGeomProp(name)
 
-GeomInfo.addGeomAttr = GeomInfo.addGeomProp
-GeomInfo.setGeomAttrValue = GeomInfo.setGeomPropValue
+def _setGeomAttrValue(self, name, value, typeString = ''):
+    "(Deprecated) Set the value of a geomattr by its name."
+    warnings.warn("This function is deprecated; call GeomInfo.setGeomPropValue() instead", DeprecationWarning, stacklevel = 2)
+    return self.setGeomPropValue(name, value, typeString)
+
+GeomInfo.setGeomPropValue = _setGeomPropValue
+GeomInfo.addGeomAttr = _addGeomAttr
+GeomInfo.setGeomAttrValue = _setGeomAttrValue
 
 
 #
 # Document
 #
-
-def _applyStringSubstitutions(self, filename, geom = '/'):
-    """(Deprecated) Given an input filename and geom string, apply any string
-        substitutions that have been defined for the given geom to the filename,
-        returning the modified filename."""
-    warnings.warn("This function is deprecated; call Element.createStringResolver() instead.", DeprecationWarning, stacklevel = 2)
-    return self.createStringResolver(geom).resolve(filename, 'filename')
 
 def _addMaterial(self, name):
     """(Deprecated) Add a material element to the document."""
@@ -236,7 +229,6 @@ def _getMaterials(self):
     warnings.warn("This function is deprecated; call Document.getMaterialNodes() instead.", DeprecationWarning, stacklevel = 2)
     return self.getMaterialNodes()
 
-Document.applyStringSubstitutions = _applyStringSubstitutions
 Document.addMaterial = _addMaterial
 Document.getMaterials = _getMaterials
 

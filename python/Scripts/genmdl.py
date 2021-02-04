@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 '''
-   TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-   All rights reserved.  See LICENSE.txt for license.
-
-   Generate MDL implementation directory based on MaterialX nodedefs
+Generate MDL implementation directory based on MaterialX nodedefs
 '''
 
 import sys

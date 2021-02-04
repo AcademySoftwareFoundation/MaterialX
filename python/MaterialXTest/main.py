@@ -1,10 +1,12 @@
-import math
-import os
-import unittest
+#!/usr/bin/env python
+'''
+Unit tests for MaterialX Python.
+'''
+
+import math, os, unittest
 
 import MaterialX as mx
 
-# Unit tests for MaterialX Python.
 
 #--------------------------------------------------------------------------------
 _testValues = (1,
@@ -42,8 +44,12 @@ _exampleFilenames = ('CustomNode.mtlx',
 
 _epsilon = 1e-4
 
+
 #--------------------------------------------------------------------------------
 class TestMaterialX(unittest.TestCase):
+    def test_Globals(self):
+        self.assertTrue(mx.__version__ == mx.getVersionString())
+
     def test_DataTypes(self):
         for value in _testValues:
             valueString = mx.getValueString(value)
