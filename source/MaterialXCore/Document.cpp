@@ -890,46 +890,30 @@ void Document::upgradeVersion()
 
             for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
             {
-                // Find the shader type if defined
-                string shaderNodeType = SURFACE_SHADER_TYPE_STRING;
                 NodeDefPtr nodeDef = getShaderNodeDef(shaderRef);
-                if (nodeDef)
-                {
-                    shaderNodeType = nodeDef->getType();
-                }
+
+                // Get the shader node type and category, using the shader nodedef if present.
+                string shaderNodeType = nodeDef ? nodeDef->getType() : SURFACE_SHADER_TYPE_STRING;
+                string shaderNodeCategory = nodeDef ? nodeDef->getNodeString() : shaderRef->getAttribute(NodeDef::NODE_ATTRIBUTE);
 
                 // Add the shader node.
                 string shaderNodeName = createValidChildName(shaderRef->getName());
-                string shaderNodeCategory = shaderRef->getAttribute(NodeDef::NODE_ATTRIBUTE);
                 NodePtr shaderNode = addNode(shaderNodeCategory, shaderNodeName, shaderNodeType);
                 shaderNode->setSourceUri(shaderRef->getSourceUri());
 
+                // Copy child elements to the shader node.
                 for (ElementPtr child : shaderRef->getChildren())
                 {
-                    ElementPtr port = nullptr;
-
-                    // Copy over bindinputs as inputs, and bindparams as params
-                    if (child->getCategory() == "bindinput")
+                    ElementPtr newChild;
+                    if (child->getCategory() == "bindinput" || child->getCategory() == "bindparam")
                     {
-                        port = shaderNode->addInput(child->getName(), child->getAttribute(TypedElement::TYPE_ATTRIBUTE));
-                    }
-                    else if (child->getCategory() == "bindparam")
-                    {
-                        port = shaderNode->addChildOfCategory("parameter", child->getName());
-                        port->setAttribute(TypedElement::TYPE_ATTRIBUTE, child->getAttribute(TypedElement::TYPE_ATTRIBUTE));
+                        newChild = shaderNode->addInput(child->getName());
                     }
                     else if (child->getCategory() == "bindtoken")
                     {
-                        TokenPtr token = shaderNode->addToken(child->getName());
-                        token->copyContentFrom(child);
+                        newChild = shaderNode->addToken(child->getName());
                     }
-                    if (port)
-                    {
-                        // Copy over attributes.
-                        // Note: We preserve inputs which have nodegraph connections,
-                        // as well as top level output connections.
-                        port->copyContentFrom(child);
-                    }
+                    newChild->copyContentFrom(child);
                 }
 
                 // Create a new material node if not already created and
