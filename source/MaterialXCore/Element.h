@@ -245,28 +245,6 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// @}
-    /// @name Target
-    /// @{
-
-    /// Set the element's target string.
-    void setTarget(const string& target)
-    {
-        setAttribute(TARGET_ATTRIBUTE, target);
-    }
-
-    /// Return true if the given element has a target string.
-    bool hasTarget() const
-    {
-        return hasAttribute(TARGET_ATTRIBUTE);
-    }
-
-    /// Return the element's target string.
-    const string& getTarget() const
-    {
-        return getAttribute(TARGET_ATTRIBUTE);
-    }
-
-    /// @}
     /// @name Inheritance
     /// @{
 
@@ -357,50 +335,6 @@ class Element : public std::enable_shared_from_this<Element>
             }
         }
         return name;
-    }
-
-    /// @}
-    /// @name Version
-    /// @{
-
-    /// Set the version string of this element.
-    void setVersionString(const string& version)
-    {
-        setAttribute(VERSION_ATTRIBUTE, version);
-    }
-
-    /// Return true if this element has a version string.
-    bool hasVersionString() const
-    {
-        return hasAttribute(VERSION_ATTRIBUTE);
-    }
-
-    /// Return the version string of this element.
-    const string& getVersionString() const
-    {
-        return getAttribute(VERSION_ATTRIBUTE);
-    }
-
-    /// Set the major and minor versions as an integer pair.
-    void setVersionIntegers(int majorVersion, int minorVersion);
-
-    /// Return the major and minor versions as an integer pair.
-    virtual std::pair<int, int> getVersionIntegers() const;
-
-    /// @}
-    /// @name Default Version
-    /// @{
-
-    /// Set the default version flag of this element.
-    void setDefaultVersion(bool defaultVersion)
-    {
-        setTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE, defaultVersion);
-    }
-
-    /// Return the default version flag of this element.
-    bool getDefaultVersion() const
-    {
-        return getTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE);
     }
 
     /// @}
@@ -842,9 +776,6 @@ class Element : public std::enable_shared_from_this<Element>
     static const string FILE_PREFIX_ATTRIBUTE;
     static const string GEOM_PREFIX_ATTRIBUTE;
     static const string COLOR_SPACE_ATTRIBUTE;
-    static const string TARGET_ATTRIBUTE;
-    static const string VERSION_ATTRIBUTE;
-    static const string DEFAULT_VERSION_ATTRIBUTE;
     static const string INHERIT_ATTRIBUTE;
     static const string NAMESPACE_ATTRIBUTE;
     static const string DOC_ATTRIBUTE;
