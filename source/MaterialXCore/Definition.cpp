@@ -10,37 +10,6 @@
 namespace MaterialX
 {
 
-namespace
-{
-    InterfaceElementPtr findMatchingImplementation(const NodeDef& nodedef, const string& target, const vector<InterfaceElementPtr>& candidates)
-    {
-        // Search for the first implementation which matches the given target string.
-        for (InterfaceElementPtr interface : candidates)
-        {
-            if (!interface->isA<Implementation>() ||
-                !targetStringsMatch(interface->getTarget(), target) ||
-                !nodedef.isVersionCompatible(interface))
-            {
-                continue;
-            }
-            return interface;
-        }
-
-        // Search for a node graph match if no implementation match was found.
-        for (InterfaceElementPtr interface : candidates)
-        {
-            if (!interface->isA<NodeGraph>() ||
-                !targetStringsMatch(interface->getTarget(), target))
-            {
-                continue;
-            }
-            return interface;
-        }
-
-        return InterfaceElementPtr();
-    }
-}
-
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
 
@@ -95,7 +64,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
 
     if (target.empty())
     {
-        return findMatchingImplementation(*this, target, interfaces);
+        return !interfaces.empty() ? interfaces[0] : InterfaceElementPtr();
     }
 
     // Get all candidate targets matching the given target,
@@ -106,10 +75,12 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
     // Search the candidate targets in order
     for (const string& candidateTarget : candidateTargets)
     {
-        InterfaceElementPtr impl = findMatchingImplementation(*this, candidateTarget, interfaces);
-        if (impl)
+        for (InterfaceElementPtr interface : interfaces)
         {
-            return impl;
+            if (targetStringsMatch(interface->getTarget(), candidateTarget))
+            {
+                return interface;
+            }
         }
     }
 
@@ -123,13 +94,13 @@ bool NodeDef::validate(string* message) const
     return InterfaceElement::validate(message) && res;
 }
 
-bool NodeDef::isVersionCompatible(ConstElementPtr elem) const
+bool NodeDef::isVersionCompatible(const string& version) const
 {
-    if (getVersionString() == elem->getVersionString())
+    if (getVersionString() == version)
     {
         return true;
     }
-    if (getDefaultVersion() && (!elem->hasVersionString() || elem->getVersionString().empty()))
+    if (getDefaultVersion() && version.empty())
     {
         return true;
     }
@@ -160,6 +131,13 @@ void Implementation::setNodeDef(ConstNodeDefPtr nodeDef)
 NodeDefPtr Implementation::getNodeDef() const
 {
     return resolveRootNameReference<NodeDef>(getNodeDefString());
+}
+
+bool Implementation::validate(string* message) const
+{
+    bool res = true;
+    validateRequire(!hasVersionString(), res, message, "Implementation elements do not support version strings");
+    return InterfaceElement::validate(message) && res;
 }
 
 ConstNodeDefPtr Implementation::getDeclaration(const string&) const

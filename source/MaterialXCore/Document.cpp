@@ -28,13 +28,15 @@ NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
     {
         string nodeString = shaderRef->getAttribute(NodeDef::NODE_ATTRIBUTE);
         string type = shaderRef->getAttribute(TypedElement::TYPE_ATTRIBUTE);
+        string target = shaderRef->getAttribute(InterfaceElement::TARGET_ATTRIBUTE);
+        string version = shaderRef->getAttribute(InterfaceElement::VERSION_ATTRIBUTE);
         vector<NodeDefPtr> nodeDefs = shaderRef->getDocument()->getMatchingNodeDefs(shaderRef->getQualifiedName(nodeString));
         vector<NodeDefPtr> secondary = shaderRef->getDocument()->getMatchingNodeDefs(nodeString);
         nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
         for (NodeDefPtr nodeDef : nodeDefs)
         {
-            if (targetStringsMatch(nodeDef->getTarget(), shaderRef->getTarget()) &&
-                nodeDef->isVersionCompatible(shaderRef) &&
+            if (targetStringsMatch(nodeDef->getTarget(), target) &&
+                nodeDef->isVersionCompatible(version) &&
                 (type.empty() || nodeDef->getType() == type))
             {
                 return nodeDef;
@@ -263,7 +265,7 @@ std::pair<int, int> Document::getVersionIntegers() const
     {
         return {MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION};
     }
-    return Element::getVersionIntegers();
+    return InterfaceElement::getVersionIntegers();
 }
 
 vector<PortElementPtr> Document::getMatchingPorts(const string& nodeName) const
@@ -882,7 +884,7 @@ void Document::upgradeVersion()
             }
         }
 
-        // Convert material elements to nodes
+        // Convert material elements to material nodes
         for (ElementPtr mat : getChildrenOfType<Element>("material"))
         {
             string materialName = mat->getName();
@@ -899,6 +901,23 @@ void Document::upgradeVersion()
                 // Add the shader node.
                 string shaderNodeName = createValidChildName(shaderRef->getName());
                 NodePtr shaderNode = addNode(shaderNodeCategory, shaderNodeName, shaderNodeType);
+
+                // Copy attributes to the shader node.
+                string nodeDefString = shaderRef->getAttribute(NodeDef::NODE_DEF_ATTRIBUTE);
+                string target = shaderRef->getAttribute(InterfaceElement::TARGET_ATTRIBUTE);
+                string version = shaderRef->getAttribute(InterfaceElement::VERSION_ATTRIBUTE);
+                if (!nodeDefString.empty())
+                {
+                    shaderNode->setNodeDefString(nodeDefString);
+                }
+                if (!target.empty())
+                {
+                    shaderNode->setTarget(target);
+                }
+                if (!version.empty())
+                {
+                    shaderNode->setVersionString(version);
+                }
                 shaderNode->setSourceUri(shaderRef->getSourceUri());
 
                 // Copy child elements to the shader node.
@@ -916,29 +935,18 @@ void Document::upgradeVersion()
                     newChild->copyContentFrom(child);
                 }
 
-                // Create a new material node if not already created and
-                // add a reference from the material node to the new shader node
+                // Create a material node if needed, making a connection to the new shader node.
                 if (!materialNode)
                 {
                     materialNode = addMaterialNode(createValidName("temp"), shaderNode);
                     materialNode->setSourceUri(mat->getSourceUri());
                 }
 
-                // Create input to replace each shaderref. Use shaderref name as unique
-                // input name.
-                InputPtr shaderInput = materialNode->getInput(shaderNodeType);
-                if (!shaderInput)
+                // Assign additional shader inputs to the material as needed.
+                if (!materialNode->getInput(shaderNodeType))
                 {
-                    shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
+                    InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
                     shaderInput->setNodeName(shaderNode->getName());
-                }
-                if (!shaderRef->getTarget().empty())
-                {
-                    shaderInput->setTarget(shaderRef->getTarget());
-                }
-                if (!shaderRef->getVersionString().empty())
-                {
-                    shaderInput->setVersionString(shaderRef->getVersionString());
                 }
             }
 
@@ -1266,7 +1274,7 @@ void Document::upgradeVersion()
         for (NodeGraphPtr nodegraph : getNodeGraphs())
         {
             // Clear out any erroneously set version 
-            nodegraph->removeAttribute(Element::VERSION_ATTRIBUTE);
+            nodegraph->removeAttribute(InterfaceElement::VERSION_ATTRIBUTE);
 
             StringSet interfaceNames;            
             for (auto child : nodegraph->getChildren())
