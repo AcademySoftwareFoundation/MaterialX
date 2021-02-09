@@ -272,6 +272,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     }
     else
     {
+        // End shader body
+        emitScopeEnd(stage);
+
         throw ExceptionShaderGenError("Output type '" + outputSocket->getType()->getName() + "' is not yet supported by shader generator");
     }
 
