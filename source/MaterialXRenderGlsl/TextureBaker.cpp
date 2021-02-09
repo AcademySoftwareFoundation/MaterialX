@@ -201,12 +201,12 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
 
     // Check for uniform outputs at their default values.
     NodeDefPtr shaderNodeDef = shader->getNodeDef();
-    for (InputPtr shaderInput : shader->getInputs())
+    if (shaderNodeDef)
     {
-        OutputPtr output = shaderInput->getConnectedOutput();
-        if (output && _bakedConstantMap.count(output))
+        for (InputPtr shaderInput : shader->getInputs())
         {
-            if (_bakedConstantMap.count(output) && shaderNodeDef)
+            OutputPtr output = shaderInput->getConnectedOutput();
+            if (output && _bakedConstantMap.count(output))
             {
                 InputPtr input = shaderNodeDef->getInput(shaderInput->getName());
                 if (input)
