@@ -12,8 +12,7 @@
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/CombineNodeMdl.h>
-#include <MaterialXGenMdl/Nodes/DielectricBsdfNodeMdl.h>
-#include <MaterialXGenMdl/Nodes/SheenBsdfNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/BsdfNodesMdl.h>
 #include <MaterialXGenMdl/Nodes/ThinFilmNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>

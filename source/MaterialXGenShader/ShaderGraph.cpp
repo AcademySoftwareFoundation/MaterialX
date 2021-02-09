@@ -1049,11 +1049,11 @@ void ShaderGraph::optimize(GenContext& context)
         {
             // Check if we have a constant conditional expression
             ShaderInput* intest = node->getInput("intest");
-            if (!intest->getConnection() || intest->getConnection()->getNode()->hasClassification(ShaderNode::Classification::CONSTANT))
+            if (!intest->getConnection())
             {
                 // Find which branch should be taken
                 ShaderInput* cutoff = node->getInput("cutoff");
-                ValuePtr value = intest->getConnection() ? intest->getConnection()->getNode()->getInput(0)->getValue() : intest->getValue();
+                ValuePtr value = intest->getValue();
                 const float intestValue = value ? value->asA<float>() : 0.0f;
                 const int branch = (intestValue <= cutoff->getValue()->asA<float>() ? 2 : 3);
 
@@ -1066,14 +1066,13 @@ void ShaderGraph::optimize(GenContext& context)
         else if (node->hasClassification(ShaderNode::Classification::SWITCH))
         {
             // Check if we have a constant conditional expression
-            ShaderInput* which = node->getInput("which");
-            if (!which->getConnection() || which->getConnection()->getNode()->hasClassification(ShaderNode::Classification::CONSTANT))
+            const ShaderInput* which = node->getInput("which");
+            if (!which->getConnection())
             {
                 // Find which branch should be taken
-                ValuePtr value = which->getConnection() ? which->getConnection()->getNode()->getInput(0)->getValue() : which->getValue();
+                ValuePtr value = which->getValue();
                 const int branch = int(value==nullptr ? 0 :
-                    (which->getType() == Type::BOOLEAN ? value->asA<bool>() :
-                    (which->getType() == Type::FLOAT ? value->asA<float>() : value->asA<int>())));
+                    (which->getType() == Type::FLOAT ? value->asA<float>() : value->asA<int>()));
 
                 // Bypass the conditional using the taken branch
                 bypass(context, node, branch);

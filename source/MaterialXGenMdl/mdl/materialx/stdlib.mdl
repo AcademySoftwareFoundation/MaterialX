@@ -471,7 +471,7 @@ export float4 mx_image_vector4(
 // Nodedef: ND_triplanarprojection_vector4 is represented by a nodegraph: NG_triplanarprojection_vector4
 
 export float mx_constant_float(
-	uniform float mxp_value = float(0.0)
+	float mxp_value = float(0.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -481,7 +481,7 @@ export float mx_constant_float(
 }
 
 export color mx_constant_color3(
-	uniform color mxp_value = color(0.0, 0.0, 0.0)
+	color mxp_value = color(0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -491,7 +491,7 @@ export color mx_constant_color3(
 }
 
 export color4 mx_constant_color4(
-	uniform color4 mxp_value = mk_color4(0.0, 0.0, 0.0, 0.0)
+	color4 mxp_value = mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -501,7 +501,7 @@ export color4 mx_constant_color4(
 }
 
 export float2 mx_constant_vector2(
-	uniform float2 mxp_value = float2(0.0, 0.0)
+	float2 mxp_value = float2(0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -511,7 +511,7 @@ export float2 mx_constant_vector2(
 }
 
 export float3 mx_constant_vector3(
-	uniform float3 mxp_value = float3(0.0, 0.0, 0.0)
+	float3 mxp_value = float3(0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -521,7 +521,7 @@ export float3 mx_constant_vector3(
 }
 
 export float4 mx_constant_vector4(
-	uniform float4 mxp_value = float4(0.0, 0.0, 0.0, 0.0)
+	float4 mxp_value = float4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -531,7 +531,7 @@ export float4 mx_constant_vector4(
 }
 
 export bool mx_constant_boolean(
-	uniform bool mxp_value = bool(false)
+	bool mxp_value = bool(false)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -541,7 +541,7 @@ export bool mx_constant_boolean(
 }
 
 export int mx_constant_integer(
-	uniform int mxp_value = int(0)
+	int mxp_value = int(0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -551,7 +551,7 @@ export int mx_constant_integer(
 }
 
 export float3x3 mx_constant_matrix33(
-	uniform float3x3 mxp_value = float3x3(1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0)
+	float3x3 mxp_value = float3x3(1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -561,7 +561,7 @@ export float3x3 mx_constant_matrix33(
 }
 
 export float4x4 mx_constant_matrix44(
-	uniform float4x4 mxp_value = float4x4(1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0)
+	float4x4 mxp_value = float4x4(1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -2505,7 +2505,7 @@ export float4 mx_smoothstep_vector4FA(
 
 export float mx_curveadjust_float(
 	float mxp_in = float(0.0),
-	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
+	float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2518,7 +2518,7 @@ export float mx_curveadjust_float(
 
 export color mx_curveadjust_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
+	float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2531,7 +2531,7 @@ export color mx_curveadjust_color3(
 
 export color4 mx_curveadjust_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
+	float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2544,7 +2544,7 @@ export color4 mx_curveadjust_color4(
 
 export float2 mx_curveadjust_vector2(
 	float2 mxp_in = float2(0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
+	float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2557,7 +2557,7 @@ export float2 mx_curveadjust_vector2(
 
 export float3 mx_curveadjust_vector3(
 	float3 mxp_in = float3(0.0, 0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
+	float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -2570,7 +2570,7 @@ export float3 mx_curveadjust_vector3(
 
 export float4 mx_curveadjust_vector4(
 	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0),
-	uniform float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
+	float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: adjustment")
@@ -3591,7 +3591,7 @@ export float mx_switch_float(
 	float mxp_in3 = float(0.0),
 	float mxp_in4 = float(0.0),
 	float mxp_in5 = float(0.0),
-	uniform float mxp_which = float(0.0)
+	float mxp_which = float(0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3615,7 +3615,7 @@ export color mx_switch_color3(
 	color mxp_in3 = color(0.0, 0.0, 0.0),
 	color mxp_in4 = color(0.0, 0.0, 0.0),
 	color mxp_in5 = color(0.0, 0.0, 0.0),
-	uniform float mxp_which = float(0.0)
+	float mxp_which = float(0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3639,7 +3639,7 @@ export color4 mx_switch_color4(
 	color4 mxp_in3 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_in4 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_in5 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform float mxp_which = float(0.0)
+	float mxp_which = float(0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3663,7 +3663,7 @@ export float2 mx_switch_vector2(
 	float2 mxp_in3 = float2(0.0, 0.0),
 	float2 mxp_in4 = float2(0.0, 0.0),
 	float2 mxp_in5 = float2(0.0, 0.0),
-	uniform float mxp_which = float(0.0)
+	float mxp_which = float(0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3687,7 +3687,7 @@ export float3 mx_switch_vector3(
 	float3 mxp_in3 = float3(0.0, 0.0, 0.0),
 	float3 mxp_in4 = float3(0.0, 0.0, 0.0),
 	float3 mxp_in5 = float3(0.0, 0.0, 0.0),
-	uniform float mxp_which = float(0.0)
+	float mxp_which = float(0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3711,7 +3711,7 @@ export float4 mx_switch_vector4(
 	float4 mxp_in3 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in4 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in5 = float4(0.0, 0.0, 0.0, 0.0),
-	uniform float mxp_which = float(0.0)
+	float mxp_which = float(0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3735,7 +3735,7 @@ export float mx_switch_floatI(
 	float mxp_in3 = float(0.0),
 	float mxp_in4 = float(0.0),
 	float mxp_in5 = float(0.0),
-	uniform int mxp_which = int(0)
+	int mxp_which = int(0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3759,7 +3759,7 @@ export color mx_switch_color3I(
 	color mxp_in3 = color(0.0, 0.0, 0.0),
 	color mxp_in4 = color(0.0, 0.0, 0.0),
 	color mxp_in5 = color(0.0, 0.0, 0.0),
-	uniform int mxp_which = int(0)
+	int mxp_which = int(0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3783,7 +3783,7 @@ export color4 mx_switch_color4I(
 	color4 mxp_in3 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_in4 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_in5 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform int mxp_which = int(0)
+	int mxp_which = int(0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3807,7 +3807,7 @@ export float2 mx_switch_vector2I(
 	float2 mxp_in3 = float2(0.0, 0.0),
 	float2 mxp_in4 = float2(0.0, 0.0),
 	float2 mxp_in5 = float2(0.0, 0.0),
-	uniform int mxp_which = int(0)
+	int mxp_which = int(0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3831,7 +3831,7 @@ export float3 mx_switch_vector3I(
 	float3 mxp_in3 = float3(0.0, 0.0, 0.0),
 	float3 mxp_in4 = float3(0.0, 0.0, 0.0),
 	float3 mxp_in5 = float3(0.0, 0.0, 0.0),
-	uniform int mxp_which = int(0)
+	int mxp_which = int(0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3855,7 +3855,7 @@ export float4 mx_switch_vector4I(
 	float4 mxp_in3 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in4 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in5 = float4(0.0, 0.0, 0.0, 0.0),
-	uniform int mxp_which = int(0)
+	int mxp_which = int(0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -4161,7 +4161,7 @@ export float4 mx_combine4_vector4(
 
 export float mx_blur_float(
 	float mxp_in = float(0.0),
-	uniform float mxp_size = float(0.0)
+	float mxp_size = float(0.0)
     [[
         anno::unused()
     ]],
@@ -4182,7 +4182,7 @@ export float mx_blur_float(
 
 export color mx_blur_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
-	uniform float mxp_size = float(0.0)
+	float mxp_size = float(0.0)
     [[
         anno::unused()
     ]],
@@ -4203,7 +4203,7 @@ export color mx_blur_color3(
 
 export color4 mx_blur_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform float mxp_size = float(0.0)
+	float mxp_size = float(0.0)
     [[
         anno::unused()
     ]],
@@ -4224,7 +4224,7 @@ export color4 mx_blur_color4(
 
 export float2 mx_blur_vector2(
 	float2 mxp_in = float2(0.0, 0.0),
-	uniform float mxp_size = float(0.0)
+	float mxp_size = float(0.0)
     [[
         anno::unused()
     ]],
@@ -4245,7 +4245,7 @@ export float2 mx_blur_vector2(
 
 export float3 mx_blur_vector3(
 	float3 mxp_in = float3(0.0, 0.0, 0.0),
-	uniform float mxp_size = float(0.0)
+	float mxp_size = float(0.0)
     [[
         anno::unused()
     ]],
@@ -4266,7 +4266,7 @@ export float3 mx_blur_vector3(
 
 export float4 mx_blur_vector4(
 	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0),
-	uniform float mxp_size = float(0.0)
+	float mxp_size = float(0.0)
     [[
         anno::unused()
     ]],
@@ -4287,7 +4287,7 @@ export float4 mx_blur_vector4(
 
 export float3 mx_heighttonormal_vector3(
 	float mxp_in = float(0.0) [[ anno::unused() ]],
-	uniform float mxp_scale = float(1.0) [[ anno::unused() ]]
+	float mxp_scale = float(1.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: convolution2d")

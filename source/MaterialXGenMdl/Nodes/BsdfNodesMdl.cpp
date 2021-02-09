@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenMdl/Nodes/DielectricBsdfNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/BsdfNodesMdl.h>
 #include <MaterialXGenShader/Nodes/LayerNode.h>
 
 namespace MaterialX
@@ -15,6 +15,18 @@ ShaderNodeImplPtr DielectricBsdfNodeMdl::create()
 }
 
 void DielectricBsdfNodeMdl::addInputs(ShaderNode& node, GenContext&) const
+{
+    // Add layering support.
+    LayerNode::addLayerSupport(node);
+}
+
+
+ShaderNodeImplPtr SheenBsdfNodeMdl::create()
+{
+    return std::make_shared<SheenBsdfNodeMdl>();
+}
+
+void SheenBsdfNodeMdl::addInputs(ShaderNode& node, GenContext&) const
 {
     // Add layering support.
     LayerNode::addLayerSupport(node);
