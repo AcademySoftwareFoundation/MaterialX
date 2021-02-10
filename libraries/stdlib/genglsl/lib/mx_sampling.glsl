@@ -27,11 +27,11 @@ vec2 mx_compute_sample_size_uv(vec2 uv, float filterSize, float filterOffset)
 //
 vec3 mx_normal_from_samples_sobel(float S[9], float _scale)
 {
-   float nx = S[0] - S[2] + (2.0*S[3]) - (2.0*S[5]) + S[6] - S[8];
-   float ny = S[0] + (2.0*S[1]) + S[2] - S[6] - (2.0*S[7]) - S[8];
-   float nz = _scale * sqrt(1.0 - nx*nx - ny*ny);
-   vec3 norm = normalize(vec3(nx, ny, nz));
-   return (norm + 1.0) * 0.5;
+    float nx = S[0] - S[2] + (2.0*S[3]) - (2.0*S[5]) + S[6] - S[8];
+    float ny = S[0] + (2.0*S[1]) + S[2] - S[6] - (2.0*S[7]) - S[8];
+    float nz = max(_scale, M_FLOAT_EPS) * sqrt(max(1.0 - nx * nx - ny * ny, M_FLOAT_EPS));
+    vec3 norm = normalize(vec3(nx, ny, nz));
+    return (norm + 1.0) * 0.5;
 }
 
 //

@@ -27,7 +27,7 @@ void bindPyNode(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Node::CATEGORY);
 
     py::class_<mx::GraphElement, mx::GraphElementPtr, mx::InterfaceElement>(mod, "GraphElement")
-        .def("_addNode", &mx::GraphElement::addNode,
+        .def("addNode", &mx::GraphElement::addNode,
             py::arg("category"), py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
         .def("addNodeInstance", &mx::GraphElement::addNodeInstance,
             py::arg("nodeDef"), py::arg("name") = mx::EMPTY_STRING)
@@ -35,7 +35,8 @@ void bindPyNode(py::module& mod)
         .def("getNodes", &mx::GraphElement::getNodes,
             py::arg("category") = mx::EMPTY_STRING)
         .def("removeNode", &mx::GraphElement::removeNode)
-        .def("addMaterialNode", &mx::GraphElement::addMaterialNode)
+        .def("addMaterialNode", &mx::GraphElement::addMaterialNode,
+            py::arg("name") = mx::EMPTY_STRING, py::arg("shaderNode") = nullptr)
         .def("getMaterialNodes", &mx::GraphElement::getMaterialNodes)
         .def("addBackdrop", &mx::GraphElement::addBackdrop,
             py::arg("name") = mx::EMPTY_STRING)

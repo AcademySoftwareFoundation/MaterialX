@@ -552,26 +552,9 @@
   <implementation name="IM_hsvtorgb_color3_osl" nodedef="ND_hsvtorgb_color3" file="stdlib/osl/mx_hsvtorgb_color.osl" function="mx_hsvtorgb_color" target="osl"/>
   <implementation name="IM_hsvtorgb_color4_osl" nodedef="ND_hsvtorgb_color4" file="stdlib/osl/mx_hsvtorgb_color4.osl" function="mx_hsvtorgb_color4" target="osl"/>
 
-  <!-- <contrast> Supplemental Node -->
-  <implementation name="IM_contrast_float_osl" nodedef="ND_contrast_float" file="stdlib/osl/mx_contrast_float.osl" function="mx_contrast_float" target="osl"/>
-  <implementation name="IM_contrast_color3_osl" nodedef="ND_contrast_color3" file="stdlib/osl/mx_contrast_color.osl" function="mx_contrast_color" target="osl"/>
-  <implementation name="IM_contrast_color3FA_osl" nodedef="ND_contrast_color3FA" file="stdlib/osl/mx_contrast_float_color.osl" function="mx_contrast_float_color" target="osl"/>
-  <implementation name="IM_contrast_color4_osl" nodedef="ND_contrast_color4" file="stdlib/osl/mx_contrast_color4.osl" function="mx_contrast_color4" target="osl"/>
-  <implementation name="IM_contrast_color4FA_osl" nodedef="ND_contrast_color4FA" file="stdlib/osl/mx_contrast_float_color4.osl" function="mx_contrast_float_color4" target="osl"/>
-  <implementation name="IM_contrast_vector2_osl" nodedef="ND_contrast_vector2" file="stdlib/osl/mx_contrast_vector2.osl" function="mx_contrast_vector2" target="osl"/>
-  <implementation name="IM_contrast_vector2FA_osl" nodedef="ND_contrast_vector2FA" file="stdlib/osl/mx_contrast_float_vector2.osl" function="mx_contrast_float_vector2" target="osl"/>
-  <implementation name="IM_contrast_vector3_osl" nodedef="ND_contrast_vector3" file="stdlib/osl/mx_contrast_vector.osl" function="mx_contrast_vector" target="osl"/>
-  <implementation name="IM_contrast_vector3FA_osl" nodedef="ND_contrast_vector3FA" file="stdlib/osl/mx_contrast_float_vector.osl" function="mx_contrast_float_vector" target="osl"/>
-  <implementation name="IM_contrast_vector4_osl" nodedef="ND_contrast_vector4" file="stdlib/osl/mx_contrast_vector4.osl" function="mx_contrast_vector4" target="osl"/>
-  <implementation name="IM_contrast_vector4FA_osl" nodedef="ND_contrast_vector4FA" file="stdlib/osl/mx_contrast_float_vector4.osl" function="mx_contrast_float_vector4" target="osl"/>
-
   <!-- <hsvadjust> Supplemental Node -->
   <implementation name="IM_hsvadjust_color3_osl" nodedef="ND_hsvadjust_color3" file="stdlib/osl/mx_hsvadjust_color.osl" function="mx_hsvadjust_color" target="osl"/>
   <implementation name="IM_hsvadjust_color4_osl" nodedef="ND_hsvadjust_color4" file="stdlib/osl/mx_hsvadjust_color4.osl" function="mx_hsvadjust_color4" target="osl"/>
-
-  <!-- <saturate> Supplemental Node -->
-  <implementation name="IM_saturate_color3_osl" nodedef="ND_saturate_color3" file="stdlib/osl/mx_saturate_color.osl" function="mx_saturate_color" target="osl"/>
-  <implementation name="IM_saturate_color4_osl" nodedef="ND_saturate_color4" file="stdlib/osl/mx_saturate_color4.osl" function="mx_saturate_color4" target="osl"/>
 
 
   <!-- ======================================================================== -->

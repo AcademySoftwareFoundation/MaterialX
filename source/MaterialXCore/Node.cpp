@@ -101,7 +101,7 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     for (NodeDefPtr nodeDef : nodeDefs)
     {
         if (targetStringsMatch(nodeDef->getTarget(), target) &&
-            nodeDef->isVersionCompatible(getSelf()) &&
+            nodeDef->isVersionCompatible(getVersionString()) &&
             isTypeCompatible(nodeDef))
         {
             return nodeDef;
@@ -197,8 +197,8 @@ vector<PortElementPtr> Node::getDownstreamPorts() const
 bool Node::validate(string* message) const
 {
     bool res = true;
-    validateRequire(!getCategory().empty(), res, message, "Missing category");
-    validateRequire(hasType(), res, message, "Missing type");
+    validateRequire(!getCategory().empty(), res, message, "Node element is missing a category");
+    validateRequire(hasType(), res, message, "Node element is missing a type");
     return InterfaceElement::validate(message) && res;
 }
 
@@ -622,7 +622,7 @@ bool NodeGraph::validate(string* message) const
 {
     bool res = true;
 
-    validateRequire(!hasVersionString(), res, message, "NodeGraph has an invalid version string: " + getVersionString());
+    validateRequire(!hasVersionString(), res, message, "NodeGraph elements do not support version strings");
     if (hasNodeDefString())
     {
         NodeDefPtr nodeDef = getNodeDef();

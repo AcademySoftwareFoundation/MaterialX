@@ -137,23 +137,23 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool)
         }
     }
 
-    if (!filePath.isEmpty())
+    if (!foundFilePath.isEmpty())
     {
         if (!foundFilePath.exists())
         {
-            std::cerr << string("Image file not found: ") + filePath.asString() << std::endl;
+            std::cerr << string("Image file not found: ") + foundFilePath.asString() << std::endl;
         }
         else if (!extensionSupported)
         {
-            std::cerr << string("Unsupported image extension: ") + filePath.asString() << std::endl;
+            std::cerr << string("Unsupported image extension: ") + foundFilePath.asString() << std::endl;
         }
         else
         {
-            std::cerr << string("Image loader failed to parse image: ") + filePath.asString() << std::endl;
+            std::cerr << string("Image loader failed to parse image: ") + foundFilePath.asString() << std::endl;
         }
     }
 
-    cacheImage(filePath, _invalidImage);
+    cacheImage(foundFilePath, _invalidImage);
     return _invalidImage;
 }
 

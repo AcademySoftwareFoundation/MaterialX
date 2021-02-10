@@ -74,16 +74,16 @@ class Material
         _elem = val;
     }
 
-    /// Return the material element associated with this material
-    mx::TypedElementPtr getMaterialElement() const
+    /// Return the material node associated with this material
+    mx::NodePtr getMaterialNode() const
     {
-        return _material;
+        return _materialNode;
     }
 
-    /// Set the material element associated with this material
-    void setMaterialElement(mx::TypedElementPtr val)
+    /// Set the material node associated with this material
+    void setMaterialNode(mx::NodePtr node)
     {
-        _material = val;
+        _materialNode = node;
     }
 
     /// Get any associated udim identifier
@@ -195,7 +195,7 @@ class Material
 
     mx::DocumentPtr _doc;
     mx::TypedElementPtr _elem;
-    mx::TypedElementPtr _material;
+    mx::NodePtr _materialNode;
 
     std::string _udim;
     bool _hasTransparency;

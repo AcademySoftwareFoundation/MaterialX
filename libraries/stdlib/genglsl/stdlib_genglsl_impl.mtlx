@@ -497,10 +497,6 @@
   <implementation name="IM_smoothstep_vector4_genglsl" nodedef="ND_smoothstep_vector4" file="stdlib/genglsl/mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" target="genglsl"/>
   <implementation name="IM_smoothstep_vector4FA_genglsl" nodedef="ND_smoothstep_vector4FA" file="stdlib/genglsl/mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" target="genglsl"/>
 
-  <!-- <saturate> -->
-  <implementation name="IM_saturate_color3_genglsl" nodedef="ND_saturate_color3" file="stdlib/genglsl/mx_saturate_color3.glsl" function="mx_saturate_color3" target="genglsl"/>
-  <implementation name="IM_saturate_color4_genglsl" nodedef="ND_saturate_color4" file="stdlib/genglsl/mx_saturate_color4.glsl" function="mx_saturate_color4" target="genglsl"/>
-
   <!-- <luminance> -->
   <implementation name="IM_luminance_color3_genglsl" nodedef="ND_luminance_color3" file="stdlib/genglsl/mx_luminance_color3.glsl" function="mx_luminance_color3" target="genglsl"/>
   <implementation name="IM_luminance_color4_genglsl" nodedef="ND_luminance_color4" file="stdlib/genglsl/mx_luminance_color4.glsl" function="mx_luminance_color4" target="genglsl"/>

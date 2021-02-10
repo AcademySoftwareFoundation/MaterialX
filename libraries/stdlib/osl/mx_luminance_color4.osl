@@ -27,7 +27,7 @@ shader mx_luminance_color4
     [[ string help = "Output a grayscale image containing the luminance of the incoming RGB color in all color channels." ]]
   (
     color4 in = {color(0,0,0), 0},
-    color lumacoeffs = color(0.272287, 0.6740818, 0.0536895),
+    color lumacoeffs = color(0.2722287, 0.6740818, 0.0536895),
     output color4 out = {color(0,0,0), 0}
   )
 {

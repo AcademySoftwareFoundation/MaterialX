@@ -1,13 +1,16 @@
+#!/usr/bin/env python
+'''
+Native Python wrappers for PyMaterialX and PyOpenColorIO, providing helper
+functions for transforming MaterialX colors between OpenColorIO color spaces.
+
+By default, the OpenColorIO configuration packaged with MaterialX Python will
+be used, but clients may instead pass their own custom configurations to these
+methods.
+'''
+
 import os
 
 from .PyMaterialXCore import *
-
-# Native Python wrappers for PyMaterialX and PyOpenColorIO, providing helper
-# functions for transforming MaterialX colors between OpenColorIO color spaces.
-#
-# By default, the OpenColorIO configuration packaged with MaterialX Python will
-# be used, but clients may instead pass their own custom configurations to these
-# methods.
 
 
 #--------------------------------------------------------------------------------
@@ -29,8 +32,6 @@ def getColorSpaces(cms = 'ocio', config = None):
 
     return [cs.getName() for cs in config.getColorSpaces()]
 
-
-#--------------------------------------------------------------------------------
 def transformColor(color, sourceColorSpace, destColorSpace, cms = 'ocio', config = None):
     """Given a MaterialX color and the names of two supported color spaces,
        transform the color from the source to the destination color space.
@@ -51,8 +52,6 @@ def transformColor(color, sourceColorSpace, destColorSpace, cms = 'ocio', config
 
     return newColor
 
-
-#--------------------------------------------------------------------------------
 def getDefaultOCIOConfig():
     """Return the default OCIO config packaged with this Python library.
        Raises ImportError if the PyOpenColorIO module cannot be imported."""

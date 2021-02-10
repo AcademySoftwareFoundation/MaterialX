@@ -19,6 +19,7 @@ namespace {
 const string SRGB_TEXTURE = "srgb_texture";
 const string LIN_REC709 = "lin_rec709";
 const string BAKED_POSTFIX = "_baked";
+const string NORMAL_MAP_CATEGORY = "normalmap";
 
 StringVec getRenderablePaths(ConstDocumentPtr doc)
 {
@@ -106,7 +107,7 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
 
     std::set<OutputPtr> bakedOutputs;
     StringSet categories;
-    categories.insert("normalmap");
+    categories.insert(NORMAL_MAP_CATEGORY);
 
     for (InputPtr input : shader->getInputs())
     {
@@ -159,6 +160,13 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
 {
     if (!shader)
     {
+        return;
+    }
+
+    // Early out if not optimizing		
+    if (!_optimizeConstants)
+    {
+        _bakedConstantMap.clear();
         return;
     }
 
@@ -326,8 +334,8 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
                 if (worldSpaceShaderInput != _worldSpaceShaderInputs.end())
                 {
                     NodePtr origNormalMapNode = worldSpaceShaderInput->second;
-                    NodePtr normalMapNode = bakedNodeGraph->addNode("normalmap", sourceName + BAKED_POSTFIX + "_map", sourceType);
-                    if (origNormalMapNode)
+                    NodePtr normalMapNode = bakedNodeGraph->addNode(NORMAL_MAP_CATEGORY, sourceName + BAKED_POSTFIX + "_map", sourceType);
+                    if (origNormalMapNode && (origNormalMapNode->getCategory() == NORMAL_MAP_CATEGORY))
                     {
                         normalMapNode->copyContentFrom(origNormalMapNode);
                     }
@@ -459,14 +467,14 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
             imageHandler->setFilenameResolver(resolver);
             setImageHandler(imageHandler);
             bakeShaderInputs(materialNode, shaderNode, genContext, tag);
-
-            // Optimize baked textures.
-            optimizeBakedTextures(shaderNode);
-
-            // Write the baked material and textures.
-            DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimSet);
-            bakedDocuments.push_back(std::make_pair(shaderNode->getName(), bakedMaterialDoc));
         }
+
+        // Optimize baked textures.
+        optimizeBakedTextures(shaderNode);
+
+        // Write the baked material and textures.
+        DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimSet);
+        bakedDocuments.push_back(std::make_pair(shaderNode->getName(), bakedMaterialDoc));
     }
 
     return bakedDocuments;

@@ -97,7 +97,6 @@ class OslRenderer : public ShaderRenderer
     /// Save the current contents of rendering to disk. Note that this method
     /// does not perform any action as render() produces images as part if it's
     /// execution.
-    /// @param filePath Name of file to save rendered image to.
     void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) override;
 
     /// @}

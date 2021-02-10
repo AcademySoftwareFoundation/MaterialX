@@ -2,20 +2,19 @@
 
 ## [1.38] - Development
 
-### [v1.38_adsk_development2](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development2) : 2021-01-29
-- Up-to-date with LucasFilm v1.38 branch [@a2e2633](https://github.com/materialx/MaterialX/commit/a2e263307f7edd353189cfe51c43b4aa34191580).
-- *All documents upgrade to "1.38" as version number. Files must be marked
-as "1.37" for upgrade to occur*
+### [v1.38_adsk_development2](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development2) : 2021-02-05
+- Up-to-date with LucasFilm v1.38 branch [@cc0defbb3bc7b55cca2565711572ee11eec4b4ef](https://github.com/materialx/MaterialX/commit/cc0defbb3bc7b55cca2565711572ee11eec4b4ef).
+- *All documents upgrade to "1.38" as version number*. Files must be marked as "1.37" for upgrade to occur*
 - Standard surface [default value changes](https://github.com/Autodesk/standard-surface/blob/master/reference/standard_surface.mtlx)
-- UsdPreviewSurface "metallic" input name update.
-- Deprecation of Language specifier and introduction of TargetDefs
-- Deprecation of Material and ShaderRef elements.
-- Deprecation of Parameter element. Remapped to Input element with optional "uniform" attribute.
-- PBR node modifications in. Full deprecated node support upgrade support in progress.
+- UsdPreviewSurface "metallic" input name update for conformance.
+- Deprecation of Language specifier and introduction of TargetDefs. Removal of "language" qualifier from public API.
+- Deprecation of Material, ShaderRef, BindInput, BindToken and other associated Elements. Removal of all interfaces from public API.
+- Deprecation of Parameter Element. Remapped to Input element with optional "uniform" attribute. Removal of Parameter interface from public API.
+- PBR node modifications including deprecation of the following nodes: fresnel, viewdirection, backfacing. artistic_ior signature change.
 - TextureBaker version "1" completion.
-- Nodegraph "version" tag + logic fix (deprecation).
-- GPU testing framework setup for Linux.
-- Update of MDL support. Passes test verification for v1.6.
+- Deprecation of invalid nodegraph "version" tags. Version logic fixes.
+- GPU testing framework set up for Linux.
+- Update of MDL support. Pasts unit tests verification using version 1.6.
 
 ### [v1.38_adsk_development1](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development1) : Major changes since "v1.37.3_parameters_as_inputs"
  - Up-to-date with LucasFilm v1.38 branch [@3900415](https://github.com/materialx/MaterialX/commit/39004152256d64231352be8a28515c30a08b4414).

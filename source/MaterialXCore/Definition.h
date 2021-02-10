@@ -159,10 +159,10 @@ class NodeDef : public InterfaceElement
     /// @name Utility
     /// @{
 
-    /// Return true if the given element is version compatible with this
+    /// Return true if the given version string is compatible with this
     /// NodeDef.  This may be used to test, for example, whether a NodeDef
     /// and Node may be used together.
-    bool isVersionCompatible(ConstElementPtr elem) const;
+    bool isVersionCompatible(const string& version) const;
 
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
@@ -251,6 +251,14 @@ class Implementation : public InterfaceElement
 
     /// Return the NodeDef element referenced by the Implementation.
     NodeDefPtr getNodeDef() const;
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
 
     /// @}
     /// @name Utility

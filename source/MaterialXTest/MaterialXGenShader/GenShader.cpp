@@ -82,15 +82,15 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE(color4Type->getSemantic() == mx::TypeDesc::SEMANTIC_COLOR);
     REQUIRE(color4Type->isFloat4());
 
-    // Make sure we can register a new sutom type
+    // Make sure we can register a new custom type
     const mx::TypeDesc* fooType = mx::TypeDesc::registerType("foo", mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMANTIC_COLOR, 5);
     REQUIRE(fooType != nullptr);
 
-    // Make sure we can't use a name already take
+    // Make sure we can't use a name that is already taken
     REQUIRE_THROWS(mx::TypeDesc::registerType("color3", mx::TypeDesc::BASETYPE_FLOAT));
 
     // Make sure we can't request an unknown type
-    REQUIRE_THROWS(mx::TypeDesc::get("bar"));
+    REQUIRE(mx::TypeDesc::get("bar") == nullptr);
 }
 
 TEST_CASE("GenShader: Shader Translation", "[translate]")

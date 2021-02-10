@@ -2583,7 +2583,7 @@ export float4 mx_curveadjust_vector4(
 
 export color mx_luminance_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
-	uniform color mxp_lumacoeffs = color(0.272287, 0.6740818, 0.0536895)	
+	uniform color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)	
 	[[
 		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
         anno::unused()
@@ -2598,7 +2598,7 @@ export color mx_luminance_color3(
 
 export color4 mx_luminance_color4(
 	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	uniform color mxp_lumacoeffs = color(0.272287, 0.6740818, 0.0536895)
+	uniform color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)
 	[[
 		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
         anno::unused()

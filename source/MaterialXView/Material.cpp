@@ -466,6 +466,8 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
 {
     static std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
 
+    _glProgram->bind();
+
     mx::ShaderPort* port = nullptr;
     mx::VariableBlock* publicUniforms = getPublicUniforms();
     if (publicUniforms)

@@ -10,6 +10,8 @@
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
 
+#include <stdexcept>
+
 namespace MaterialX
 {
 
@@ -18,6 +20,9 @@ const string PortElement::NODE_GRAPH_ATTRIBUTE = "nodegraph";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
+const string InterfaceElement::TARGET_ATTRIBUTE = "target";
+const string InterfaceElement::VERSION_ATTRIBUTE = "version";
+const string InterfaceElement::DEFAULT_VERSION_ATTRIBUTE = "isdefaultversion";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
 const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
 
@@ -556,6 +561,37 @@ ValuePtr InterfaceElement::getInputValue(const string& name, const string& targe
     }
 
     return ValuePtr();
+}
+
+void InterfaceElement::setVersionIntegers(int majorVersion, int minorVersion)
+{
+    string versionString = std::to_string(majorVersion) + "." +
+                           std::to_string(minorVersion);
+    setVersionString(versionString);
+}
+
+std::pair<int, int> InterfaceElement::getVersionIntegers() const
+{
+    const string& versionString = getVersionString();
+    StringVec splitVersion = splitString(versionString, ".");
+    try
+    {
+        if (splitVersion.size() == 2)
+        {
+            return {std::stoi(splitVersion[0]), std::stoi(splitVersion[1])};
+        }
+        else if (splitVersion.size() == 1)
+        {
+            return {std::stoi(splitVersion[0]), 0};
+        }
+    }
+    catch (std::invalid_argument&)
+    {
+    }
+    catch (std::out_of_range&)
+    {
+    }
+    return {0, 0};
 }
 
 void InterfaceElement::registerChildElement(ElementPtr child)

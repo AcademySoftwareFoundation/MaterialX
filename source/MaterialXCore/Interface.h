@@ -563,6 +563,72 @@ class InterfaceElement : public TypedElement
     }
 
     /// @}
+    /// @name Target
+    /// @{
+
+    /// Set the target string of this interface.
+    void setTarget(const string& target)
+    {
+        setAttribute(TARGET_ATTRIBUTE, target);
+    }
+
+    /// Return true if the given interface has a target string.
+    bool hasTarget() const
+    {
+        return hasAttribute(TARGET_ATTRIBUTE);
+    }
+
+    /// Return the target string of this interface.
+    const string& getTarget() const
+    {
+        return getAttribute(TARGET_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Version
+    /// @{
+
+    /// Set the version string of this interface.
+    void setVersionString(const string& version)
+    {
+        setAttribute(VERSION_ATTRIBUTE, version);
+    }
+
+    /// Return true if this interface has a version string.
+    bool hasVersionString() const
+    {
+        return hasAttribute(VERSION_ATTRIBUTE);
+    }
+
+    /// Return the version string of this interface.
+    const string& getVersionString() const
+    {
+        return getAttribute(VERSION_ATTRIBUTE);
+    }
+
+    /// Set the major and minor versions as an integer pair.
+    void setVersionIntegers(int majorVersion, int minorVersion);
+
+    /// Return the major and minor versions as an integer pair.
+    virtual std::pair<int, int> getVersionIntegers() const;
+
+    /// @}
+    /// @name Default Version
+    /// @{
+
+    /// Set the default version flag of this element.
+    void setDefaultVersion(bool defaultVersion)
+    {
+        setTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE, defaultVersion);
+    }
+
+    /// Return the default version flag of this element.
+    bool getDefaultVersion() const
+    {
+        return getTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Utility
     /// @{
 
@@ -587,6 +653,9 @@ class InterfaceElement : public TypedElement
 
   public:
     static const string NODE_DEF_ATTRIBUTE;
+    static const string TARGET_ATTRIBUTE;
+    static const string VERSION_ATTRIBUTE;
+    static const string DEFAULT_VERSION_ATTRIBUTE;
 
   protected:
     void registerChildElement(ElementPtr child) override;

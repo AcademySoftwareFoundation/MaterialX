@@ -2633,16 +2633,16 @@
   -->
   <nodedef name="ND_luminance_color3" node="luminance" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="lumacoeffs" type="color3" value="0.272287, 0.6740818, 0.0536895"
+    <parameter name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895"
 	enum="acescg, rec709, rec2020, rec2100"
-	enumvalues="0.272287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593"/>
+	enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593"/>
     <output name="out" type="color3" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_luminance_color4" node="luminance" nodegroup="adjustment">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="lumacoeffs" type="color3" value="0.272287, 0.6740818, 0.0536895"
+    <parameter name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895"
 	enum="acescg, rec709, rec2020, rec2100"
-	enumvalues="0.272287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593"/>
+	enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593"/>
     <output name="out" type="color4" defaultinput="in"/>
   </nodedef>
 
@@ -2880,17 +2880,17 @@
   <nodedef name="ND_saturate_color3" node="saturate" nodegroup="adjustment">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="amount" type="float" value="1.0"/>
-    <parameter name="lumacoeffs" type="color3" value="0.272287, 0.6740818, 0.0536895"
+    <parameter name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895"
 	enum="acescg, rec709, rec2020, rec2100"
-	enumvalues="0.272287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593"/>
+	enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593"/>
     <output name="out" type="color3" defaultinput="in"/>
   </nodedef>
   <nodedef name="ND_saturate_color4" node="saturate" nodegroup="adjustment">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="amount" type="float" value="1.0"/>
-    <parameter name="lumacoeffs" type="color3" value="0.272287, 0.6740818, 0.0536895"
+    <parameter name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895"
 	enum="acescg, rec709, rec2020, rec2100"
-	enumvalues="0.272287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593"/>
+	enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593"/>
     <output name="out" type="color4" defaultinput="in"/>
   </nodedef>
 

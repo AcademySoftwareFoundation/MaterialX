@@ -3,12 +3,9 @@
 Generate the "NodeGraphs.mtlx" example file programmatically.
 '''
 
-import sys, string
 import MaterialX as mx
 
-
 def main():
-
     doc = mx.createDocument()
 
     #
@@ -18,13 +15,13 @@ def main():
     img1 = ng1.addNode("image", "img1", "color3")
     # Because filenames look like string types, it is necessary to explicitly declare
     # this parameter value as type "filename".
-    img1.setParameterValue("file", "layer1.tif", "filename")
+    img1.setInputValue("file", "layer1.tif", "filename")
 
     img2 = ng1.addNode("image", "img2", "color3")
-    img2.setParameterValue("file", "layer2.tif", "filename")
+    img2.setInputValue("file", "layer2.tif", "filename")
 
     img3 = ng1.addNode("image", "img3", "float")
-    img3.setParameterValue("file", "mask1.tif", "filename")
+    img3.setInputValue("file", "mask1.tif", "filename")
 
     n0 = ng1.addNode("mix", "n0", "color3")
     # To connect an input to another node, you must first add the input with the expected
@@ -50,20 +47,20 @@ def main():
     ng3 = doc.addNodeGraph("NG_example3")
 
     img1 = ng3.addNode("image", "img1", "color3")
-    img1.setParameterValue("file", "<diff_albedo>", "filename")
+    img1.setInputValue("file", "<diff_albedo>", "filename")
 
     img2 = ng3.addNode("image", "img2", "color3")
-    img2.setParameterValue("file", "<dirt_albedo>", "filename")
+    img2.setInputValue("file", "<dirt_albedo>", "filename")
 
     img3 = ng3.addNode("image", "img3", "float")
-    img3.setParameterValue("file", "<areamask>", "filename")
+    img3.setInputValue("file", "<areamask>", "filename")
 
     img4 = ng3.addNode("image", "img4", "float")
-    img4.setParameterValue("file", "<noisemask>", "filename")
+    img4.setInputValue("file", "<noisemask>", "filename")
 
     n5 = ng3.addNode("constant", "n5", "color3")
     # For colorN, vectorN or matrix types, use the appropriate mx Type constructor.
-    n5.setParameterValue("value", mx.Color3(0.8,1.0,1.3))
+    n5.setInputValue("value", mx.Color3(0.8,1.0,1.3))
 
     n6 = ng3.addNode("multiply", "n6", "color3")
     inp1 = n6.addInput("in1", "color3")
@@ -75,7 +72,7 @@ def main():
     inp = n7.addInput("in", "color3")
     inp.setConnectedNode(img2)
     n7.setInputValue("amount", 0.2)
-    n7.setParameterValue("pivot", 0.5)
+    n7.setInputValue("pivot", 0.5)
 
     n8 = ng3.addNode("mix", "n8", "color3")
     infg = n8.addInput("fg", "color3")
@@ -99,7 +96,7 @@ def main():
     n9 = ng3.addNode("noise2d", "n9", "color3")
     intx = n9.addInput("texcoord", "vector2")
     intx.setConnectedNode(m1)
-    n9.setParameterValue("amplitude", mx.Vector3(0.05,0.04,0.06))
+    n9.setInputValue("amplitude", mx.Vector3(0.05,0.04,0.06))
 
     n10 = ng3.addNode("inside", "n10", "color3")
     inmask = n10.addInput("mask", "float")
@@ -123,19 +120,18 @@ def main():
     # independently, not just the whole document.
     rc = ng1.validate()
     if (len(rc) >= 1 and rc[0]):
-	print "Nodegraph %s is valid." % ng1.getName()
+        print("Nodegraph %s is valid." % ng1.getName())
     else:
-	print "Nodegraph %s is NOT valid: %s" % (ng1.getName(), str(rc[1]))
+        print("Nodegraph %s is NOT valid: %s" % (ng1.getName(), str(rc[1])))
     rc = ng3.validate()
     if (len(rc) >= 1 and rc[0]):
-	print "Nodegraph %s is valid." % ng3.getName()
+        print("Nodegraph %s is valid." % ng3.getName())
     else:
-	print "Nodegraph %s is NOT valid: %s" % (ng3.getName(), str(rc[1]))
+        print("Nodegraph %s is NOT valid: %s" % (ng3.getName(), str(rc[1])))
 
     outfile = "myNodeGraphs.mtlx"
     mx.writeToXmlFile(doc, outfile)
-    print "Wrote nodegraphs to %s" % outfile
-
+    print("Wrote nodegraphs to %s" % outfile)
 
 if __name__ == '__main__':
     main()
