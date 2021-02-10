@@ -87,7 +87,7 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Return whether images should be averaged to generate constants.
-    bool getAverageImages()
+    bool getAverageImages() const
     {
         return _averageImages;
     }
@@ -99,7 +99,7 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Return whether uniform textures should be stored as constants.
-    bool getOptimizeConstants()
+    bool getOptimizeConstants() const
     {
         return _optimizeConstants;
     }
@@ -157,6 +157,20 @@ class TextureBaker : public GlslRenderer
     std::ostream* getOutputStream() const
     {
         return _outputStream;
+    }
+
+    /// Set baked texture resolution automatically. Defaults to false.
+    /// If any images are found upstream from a shader input, then the output baked texture is the largest image resolution. 
+    /// If no images are found, then the fixed resolution of the baker is used.
+    void setAutoTextureResolution(bool enable)
+    {
+        _autoTextureResolution = enable;
+    }
+
+    /// Return whether automatic baked texture resolution is set.
+    bool getAutoTextureResolution() const
+    {
+        return _autoTextureResolution;
     }
 
     /// Set up the unit definitions to be used in baking.
@@ -219,6 +233,7 @@ class TextureBaker : public GlslRenderer
     string _bakedGeomInfoName;
     FileSearchPath _codeSearchPath;
     std::ostream* _outputStream;
+    bool _autoTextureResolution;
 
     ShaderGeneratorPtr _generator;
     ConstNodePtr _material;
