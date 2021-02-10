@@ -38,8 +38,7 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/LayerNode.h>
 #include <MaterialXGenShader/Nodes/ThinFilmNode.h>
-#include <MaterialXGenShader/Nodes/DielectricBsdfNode.h>
-#include <MaterialXGenShader/Nodes/SheenBsdfNode.h>
+#include <MaterialXGenShader/Nodes/BsdfNodes.h>
 
 namespace MaterialX
 {
@@ -258,6 +257,9 @@ GlslShaderGenerator::GlslShaderGenerator() :
 
     // <!-- <generalized_schlick_bsdf> -->
     registerImplementation("IM_generalized_schlick_bsdf_" + GlslShaderGenerator::TARGET, HwDielectricBsdfNode::create);
+
+    // <!-- <conductor_bsdf> -->
+    registerImplementation("IM_conductor_bsdf_" + GlslShaderGenerator::TARGET, HwConductorBsdfNode::create);
 
     // <!-- <sheen_bsdf> -->
     registerImplementation("IM_sheen_bsdf_" + GlslShaderGenerator::TARGET, HwSheenBsdfNode::create);
