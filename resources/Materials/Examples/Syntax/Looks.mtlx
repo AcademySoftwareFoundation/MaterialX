@@ -1,84 +1,88 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.37" cms="ocio" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <xi:include href="SimpleSrf.mtlx"/>
-  <material name="Mplastic1">
-    <shaderref name="sr_mp1" node="simple_srf">
-      <bindinput name="diffColor" type="color3" value="0.134, 0.130, 0.125"/>
-      <bindinput name="specColor" type="color3" value="0.114, 0.114, 0.114"/>
-      <bindinput name="specRoughness" type="float" value="0.38"/>
-    </shaderref>
-  </material>
-  <material name="Mplastic2" inherit="Mplastic1">
-    <shaderref name="sr_mp2" node="simple_srf">
-      <bindinput name="diffColor" type="color3" value="0.17, 0.26, 0.23"/>
-      <bindinput name="specRoughness" type="float" value="0.24"/>
-    </shaderref>
-  </material>
-  <material name="Mmetal1">
-    <shaderref name="sr_mm1" node="simple_srf">
-      <bindinput name="diffColor" type="color3" value="0.001, 0.001, 0.001"/>
-      <bindinput name="specColor" type="color3" value="0.671, 0.676, 0.667"/>
-      <bindinput name="specRoughness" type="float" value="0.005"/>
-    </shaderref>
-  </material>
-  <material name="Mmetal2">
-    <shaderref name="sr_mm2" node="simple_srf">
-      <bindinput name="diffColor" type="color3" value="0.049, 0.043, 0.033"/>
-      <bindinput name="specColor" type="color3" value="0.115, 0.091, 0.064"/>
-      <bindinput name="specRoughness" type="float" value="0.35"/>
-    </shaderref>
-  </material>
+<?xml version="1.0"?>
+<materialx version="1.38" cms="ocio" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="SimpleSrf.mtlx" />
+  <simple_srf name="sr_mp1" type="surfaceshader">
+    <input name="diffColor" type="color3" value="0.134, 0.130, 0.125" />
+    <input name="specColor" type="color3" value="0.114, 0.114, 0.114" />
+    <input name="specRoughness" type="float" value="0.38" />
+  </simple_srf>
+  <surfacematerial name="Mplastic1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr_mp1" />
+  </surfacematerial>
+  <simple_srf name="sr_mp2" type="surfaceshader">
+    <input name="diffColor" type="color3" value="0.17, 0.26, 0.23" />
+    <input name="specRoughness" type="float" value="0.24" />
+  </simple_srf>
+  <surfacematerial name="Mplastic2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr_mp2" />
+  </surfacematerial>
+  <simple_srf name="sr_mm1" type="surfaceshader">
+    <input name="diffColor" type="color3" value="0.001, 0.001, 0.001" />
+    <input name="specColor" type="color3" value="0.671, 0.676, 0.667" />
+    <input name="specRoughness" type="float" value="0.005" />
+  </simple_srf>
+  <surfacematerial name="Mmetal1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr_mm1" />
+  </surfacematerial>
+  <simple_srf name="sr_mm2" type="surfaceshader">
+    <input name="diffColor" type="color3" value="0.049, 0.043, 0.033" />
+    <input name="specColor" type="color3" value="0.115, 0.091, 0.064" />
+    <input name="specRoughness" type="float" value="0.35" />
+  </simple_srf>
+  <surfacematerial name="Mmetal2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr_mm2" />
+  </surfacematerial>
 
   <variantset name="varset">
     <variant name="dry">
-      <parameter name="wetgain" type="float" value="0.0"/>
+      <input name="wetgain" type="float" value="0.0" />
     </variant>
     <variant name="wet">
-      <parameter name="wetgain" type="float" value="1.0"/>
+      <input name="wetgain" type="float" value="1.0" />
     </variant>
     <variant name="damp">
-      <parameter name="wetgain" type="float" value="0.2"/>
+      <input name="wetgain" type="float" value="0.2" />
     </variant>
   </variantset>
 
-  <collection name="c_plastic" includegeom="/a/g1,/a/g2,/a/g5"/>
-  <collection name="c_metal" includegeom="/a/g3,/a/g4"/>
-  <collection name="c_lamphouse" includegeom="/a/lamp1/housing*Mesh"/>
-  <collection name="c_setgeom" includegeom="/b"/>
+  <collection name="c_plastic" includegeom="/a/g1,/a/g2,/a/g5" />
+  <collection name="c_metal" includegeom="/a/g3,/a/g4" />
+  <collection name="c_lamphouse" includegeom="/a/lamp1/housing*Mesh" />
+  <collection name="c_setgeom" includegeom="/b" />
 
   <nodedef name="ND_disk_lgt_light" node="disk_lgt">
-    <parameter name="emissionmap" type="filename" value=""/>
-    <parameter name="gain" type="float" value="2000.0"/>
-    <output name="out" type="lightshader"/>
+    <input name="emissionmap" type="filename" value="" uniform="true" />
+    <input name="gain" type="float" value="2000.0" />
+    <output name="out" type="lightshader" />
   </nodedef>
-  <material name="mheadlight">
-    <shaderref name="lgtsr1" node="disk_lgt">
-      <bindparam name="gain" type="float" value="500.0"/>
-    </shaderref>
-  </material>
+  <disk_lgt name="lgtsr1" type="lightshader">
+    <input name="gain" type="float" value="500.0" />
+  </disk_lgt>
+  <surfacematerial name="mheadlight" type="material">
+    <input name="lightshader" type="lightshader" nodename="lgtsr1" />
+  </surfacematerial>
 
   <propertyset name="standard">
-    <property name="displacementbound_sphere" target="rmanris" type="float" value="0.05"/>
-    <property name="trace_maxdiffusedepth" target="rmanris" type="float" value="3"/>
+    <property name="displacementbound_sphere" target="rmanris" type="float" value="0.05" />
+    <property name="trace_maxdiffusedepth" target="rmanris" type="float" value="3" />
   </propertyset>
 
   <look name="lookA">
-    <materialassign name="ma1" material="Mplastic1" collection="c_plastic"/>
-    <materialassign name="ma2" material="Mmetal1" collection="c_metal"/>
-    <materialassign name="ma3" material="mheadlight" geom="/a/b/headlight"/>
-    <visibility name="v1" viewergeom="/a/b/headlight" vistype="shadow" geom="/" visible="false"/>
-    <visibility name="v2" viewergeom="/a/b/headlight" vistype="shadow" collection="c_lamphouse"/>
-    <propertysetassign name="psa1" propertyset="standard" geom="/"/>
+    <materialassign name="ma1" material="Mplastic1" collection="c_plastic" />
+    <materialassign name="ma2" material="Mmetal1" collection="c_metal" />
+    <materialassign name="ma3" material="mheadlight" geom="/a/b/headlight" />
+    <visibility name="v1" viewergeom="/a/b/headlight" vistype="shadow" geom="/" visible="false" />
+    <visibility name="v2" viewergeom="/a/b/headlight" vistype="shadow" collection="c_lamphouse" />
+    <propertysetassign name="psa1" propertyset="standard" geom="/" />
   </look>
   <look name="lookB">
-    <materialassign name="ma4" material="Mplastic2" collection="c_plastic"/>
-    <materialassign name="ma5" material="Mmetal2" collection="c_metal"/>
-    <propertyassign name="pa1" property="matte" type="boolean" value="true" geom="/g/holdout,/g/holdout2"/>
-    <propertysetassign name="psa2" propertyset="standard" geom="/"/>
-    <variantassign name="va1" variantset="varset" variant="damp"/>
-    <!-- make the setgeom invisible to camera but still visible to shadows and reflections -->
-    <visibility name="v3" vistype="camera" collection="c_setgeom" visible="false"/>
+    <materialassign name="ma4" material="Mplastic2" collection="c_plastic" />
+    <materialassign name="ma5" material="Mmetal2" collection="c_metal" />
+    <propertyassign name="pa1" property="matte" type="boolean" value="true" geom="/g/holdout,/g/holdout2" />
+    <propertysetassign name="psa2" propertyset="standard" geom="/" />
+    <variantassign name="va1" variantset="varset" variant="damp" />
+    <visibility name="v3" vistype="camera" collection="c_setgeom" visible="false" />
   </look>
-  <lookgroup name="testlooks" looks="lookA,lookB"/>
+  <lookgroup name="testlooks" looks="lookA,lookB" />
 
 </materialx>
