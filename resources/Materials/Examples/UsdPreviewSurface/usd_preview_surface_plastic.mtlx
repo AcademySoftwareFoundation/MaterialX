@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
-  <material name="USD_Plastic">
-    <shaderref name="SR_plastic" node="UsdPreviewSurface">
-      <bindinput name="diffuseColor" type="color3" value="0.10470402, 0.24188282, 0.81800002" />
-      <bindinput name="useSpecularWorkflow" type="integer" value="0" />
-      <bindinput name="metallic" type="float" value="0" />
-      <bindinput name="roughness" type="float" value="0.32467532157897949" />
-      <bindinput name="clearcoat" type="float" value="0" />
-      <bindinput name="clearcoatRoughness" type="float" value="0.01" />
-      <bindinput name="ior" type="float" value="1.5" />
-    </shaderref>
-  </material>
+<materialx version="1.38" colorspace="lin_rec709">
+  <UsdPreviewSurface name="SR_plastic" type="surfaceshader">
+    <input name="diffuseColor" type="color3" value="0.10470402, 0.24188282, 0.81800002" />
+    <input name="useSpecularWorkflow" type="integer" value="0" />
+    <input name="metallic" type="float" value="0" />
+    <input name="roughness" type="float" value="0.32467532157897949" />
+    <input name="clearcoat" type="float" value="0" />
+    <input name="clearcoatRoughness" type="float" value="0.01" />
+    <input name="ior" type="float" value="1.5" />
+  </UsdPreviewSurface>
+  <surfacematerial name="USD_Plastic" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_plastic" />
+  </surfacematerial>
 </materialx>

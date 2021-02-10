@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38" colorspace="lin_rec709">
   <nodegraph name="NG_marble1">
     <position name="objpos" type="vector3" />
     <dotproduct name="addxyz" type="float">
@@ -42,10 +42,10 @@
       <input name="in2" type="float" value="3.0" />
     </power>
     <constant name="constant_1" type="color3">
-      <parameter name="value" type="color3" value="0.8, 0.8, 0.8" />
+      <input name="value" type="color3" value="0.8, 0.8, 0.8" />
     </constant>
     <constant name="constant_2" type="color3">
-      <parameter name="value" type="color3" value="0.1, 0.1, 0.3" />
+      <input name="value" type="color3" value="0.1, 0.1, 0.3" />
     </constant>
     <mix name="mix1" type="color3">
       <input name="bg" type="color3" nodename="constant_1" />
@@ -54,15 +54,15 @@
     </mix>
     <output name="out" type="color3" nodename="mix1" />
   </nodegraph>
-
-  <material name="Marble_3D">
-    <shaderref name="SR_marble1" node="standard_surface">
-      <bindinput name="base" type="float" value="1" />
-      <bindinput name="base_color" type="color3" nodegraph="NG_marble1" output="out" />
-      <bindinput name="specular_color" type="color3" value="1, 1, 1" />
-      <bindinput name="specular_roughness" type="float" value="0.1" />
-      <bindinput name="subsurface" type="float" value="0.4" />
-      <bindinput name="subsurface_color" type="color3" nodegraph="NG_marble1" output="out" />
-    </shaderref>
-  </material>
+  <standard_surface name="SR_marble1" type="surfaceshader">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" nodegraph="NG_marble1" output="out" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="subsurface" type="float" value="0.4" />
+    <input name="subsurface_color" type="color3" nodegraph="NG_marble1" output="out" />
+  </standard_surface>
+  <surfacematerial name="Marble_3D" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_marble1" />
+  </surfacematerial>
 </materialx>
