@@ -3,17 +3,16 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_DIELECTRICBSDFNODE_H
-#define MATERIALX_DIELECTRICBSDFNODE_H
+#ifndef MATERIALX_BSDFNODES_MDL_H
+#define MATERIALX_BSDFNODES_MDL_H
 
-#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
+#include <MaterialXGenMdl/Nodes/SourceCodeNodeMdl.h>
 
 namespace MaterialX
 {
 
 /// Dielectric BSDF node.
-class DielectricBsdfNode : public SourceCodeNode
+class DielectricBsdfNodeMdl : public SourceCodeNodeMdl
 {
 public:
     static ShaderNodeImplPtr create();
@@ -21,10 +20,10 @@ public:
     void addInputs(ShaderNode& node, GenContext&) const override;
 };
 
-/// Dielectric BSDF node specifically for HW.
-class HwDielectricBsdfNode : public HwSourceCodeNode
+/// Sheen BSDF node.
+class SheenBsdfNodeMdl : public SourceCodeNodeMdl
 {
-  public:
+public:
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;
