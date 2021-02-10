@@ -2,19 +2,20 @@
 
 ## [1.38] - Development
 
-### [v1.38_adsk_development2](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development2) : 2021-02-05
-- Up-to-date with LucasFilm v1.38 branch [@cc0defbb3bc7b55cca2565711572ee11eec4b4ef](https://github.com/materialx/MaterialX/commit/cc0defbb3bc7b55cca2565711572ee11eec4b4ef).
-- *All documents upgrade to "1.38" as version number*. Files must be marked as "1.37" for upgrade to occur*
-- Standard surface [default value changes](https://github.com/Autodesk/standard-surface/blob/master/reference/standard_surface.mtlx)
-- UsdPreviewSurface "metallic" input name update for conformance.
+### [v1.38_adsk_development2](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development2) : 2021-02-10
+- Up-to-date with LucasFilm `master` branch (no longer on v1.38 branch) [@e954329e29480ca2b2d05e437a018c0685a8d62b](https://github.com/materialx/MaterialX/commit/e954329e29480ca2b2d05e437a018c0685a8d62b).
+- *All documents upgrade to "1.38" as version number. Files must be marked as "1.37" for upgrade to occur*
+- Standard surface [default value changes](https://github.com/Autodesk/standard-surface/blob/master/reference/standard_surface.mtlx). Version is still 1.0.1.
+- UsdPreviewSurface "metallic" input name update for conformance. Version 2.3.
 - Deprecation of Language specifier and introduction of TargetDefs. Removal of "language" qualifier from public API.
-- Deprecation of Material, ShaderRef, BindInput, BindToken and other associated Elements. Removal of all interfaces from public API.
-- Deprecation of Parameter Element. Remapped to Input element with optional "uniform" attribute. Removal of Parameter interface from public API.
-- PBR node modifications including deprecation of the following nodes: fresnel, viewdirection, backfacing. artistic_ior signature change.
-- TextureBaker version "1" completion.
+- Deprecation of `Material`, `ShaderRef`, `BindInput`, `BindToken` and other associated Elements. Removal of all interfaces from public API.
+- Deprecation of `Parameter` Element. Remapped to `Input` element with optional "uniform" attribute. Removal of Parameter interface from public API.
+- PBR node modifications including deprecation of the following nodes: `fresnel`, `viewdirection`, `backfacing`. `artistic_ior` signature change.
+- Updates to support Lama shaders.
+- TextureBaker version milestone "1" completion.
 - Deprecation of invalid nodegraph "version" tags. Version logic fixes.
-- GPU testing framework set up for Linux.
-- Update of MDL support. Pasts unit tests verification using version 1.6.
+- GPU testing framework set up for Linux using Mesa.
+- Update of MDL to support 1.38. Passes unit tests verification using version 1.6.
 
 ### [v1.38_adsk_development1](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development1) : Major changes since "v1.37.3_parameters_as_inputs"
  - Up-to-date with LucasFilm v1.38 branch [@3900415](https://github.com/materialx/MaterialX/commit/39004152256d64231352be8a28515c30a08b4414).
