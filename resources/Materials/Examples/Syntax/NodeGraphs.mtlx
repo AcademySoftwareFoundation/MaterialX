@@ -1,26 +1,27 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.37">
+<?xml version="1.0"?>
+<materialx version="1.38">
+    
   <!-- "nodegraph1" example from Spec doc -->
   <nodegraph name="NG_example1">
     <image name="img1" type="color3">
-      <parameter name="file" type="filename" value="layer1.tif"/>
+      <input name="file" type="filename" value="layer1.tif" />
     </image>
     <image name="img2" type="color3">
-      <parameter name="file" type="filename" value="layer2.tif"/>
+      <input name="file" type="filename" value="layer2.tif" />
     </image>
     <image name="img3" type="float">
-      <parameter name="file" type="filename" value="mask1.tif"/>
+      <input name="file" type="filename" value="mask1.tif" />
     </image>
     <mix name="n0" type="color3">
-      <input name="fg" type="color3" nodename="img1"/>
-      <input name="bg" type="color3" nodename="img2"/>
-      <input name="mix" type="float" nodename="img3"/>
+      <input name="fg" type="color3" nodename="img1" />
+      <input name="bg" type="color3" nodename="img2" />
+      <input name="mix" type="float" nodename="img3" />
     </mix>
     <multiply name="n1" type="color3">
-      <input name="in1" type="color3" nodename="n0"/>
-      <input name="in2" type="float" value="0.22"/>
+      <input name="in1" type="color3" nodename="n0" />
+      <input name="in2" type="float" value="0.22" />
     </multiply>
-    <output name="diffuse" type="color3" nodename="n1"/>
+    <output name="diffuse" type="color3" nodename="n1" />
   </nodegraph>
 
   <!-- "nodegraph2" example from Spec doc -->
@@ -28,52 +29,52 @@
        token values for each geometry -->
   <nodegraph name="NG_example2">
     <image name="img1" type="color3">
-      <parameter name="file" type="filename" value="<diff_albedo>"/>
+      <input name="file" type="filename" value="<diff_albedo>" />
     </image>
     <image name="img2" type="color3">
-      <parameter name="file" type="filename" value="<dirt_albedo>"/>
+      <input name="file" type="filename" value="<dirt_albedo>" />
     </image>
     <image name="img3" type="float">
-      <parameter name="file" type="filename" value="<areamask>"/>
+      <input name="file" type="filename" value="<areamask>" />
     </image>
     <image name="img4" type="float">
-      <parameter name="file" type="filename" value="<noisemask>"/>
+      <input name="file" type="filename" value="<noisemask>" />
     </image>
     <constant name="n5" type="color3">
-      <parameter name="value" type="color3" value="0.8,1.0,1.3"/>
+      <input name="value" type="color3" value="0.8,1.0,1.3" />
     </constant>
     <multiply name="n6" type="color3">
-      <input name="in1" type="color3" nodename="n5"/>
-      <input name="in2" type="color3" nodename="img1"/>
+      <input name="in1" type="color3" nodename="n5" />
+      <input name="in2" type="color3" nodename="img1" />
     </multiply>
     <contrast name="n7" type="color3">
-      <input name="in" type="color3" nodename="img2"/>
-      <input name="amount" type="float" value="0.2"/>
-      <parameter name="pivot" type="float" value="0.5"/>
+      <input name="in" type="color3" nodename="img2" />
+      <input name="amount" type="float" value="0.2" />
+      <input name="pivot" type="float" value="0.5" />
     </contrast>
     <mix name="n8" type="color3">
-      <input name="fg" type="color3" nodename="n7"/>
-      <input name="bg" type="color3" nodename="n6"/>
-      <input name="mix" type="float" nodename="img3"/>
+      <input name="fg" type="color3" nodename="n7" />
+      <input name="bg" type="color3" nodename="n6" />
+      <input name="mix" type="float" nodename="img3" />
     </mix>
-    <texcoord name="t1" type="vector2"/>
+    <texcoord name="t1" type="vector2" />
     <multiply name="m1" type="vector2">
-      <input name="in1" type="vector2" nodename="t1"/>
-      <input name="in2" type="float" value="0.003"/>
+      <input name="in1" type="vector2" nodename="t1" />
+      <input name="in2" type="float" value="0.003" />
     </multiply>
     <noise2d name="n9" type="color3">
-      <input name="texcoord" type="vector2" nodename="m1"/>
-      <parameter name="amplitude" type="vector3" value="0.05,0.04,0.06"/>
+      <input name="texcoord" type="vector2" nodename="m1" />
+      <input name="amplitude" type="vector3" value="0.05,0.04,0.06" />
     </noise2d>
     <inside name="n10" type="color3">
-      <input name="mask" type="float" nodename="img4"/>
-      <input name="in" type="color3" nodename="n9"/>
+      <input name="mask" type="float" nodename="img4" />
+      <input name="in" type="color3" nodename="n9" />
     </inside>
     <add name="n11" type="color3">
-      <input name="in1" type="color3" nodename="n10"/>
-      <input name="in2" type="color3" nodename="n8"/>
+      <input name="in1" type="color3" nodename="n10" />
+      <input name="in2" type="color3" nodename="n8" />
     </add>
-    <output name="albedo" type="color3" nodename="n11"/>
-    <output name="areamask" type="float" nodename="img3"/>
+    <output name="albedo" type="color3" nodename="n11" />
+    <output name="areamask" type="float" nodename="img3" />
   </nodegraph>
 </materialx>

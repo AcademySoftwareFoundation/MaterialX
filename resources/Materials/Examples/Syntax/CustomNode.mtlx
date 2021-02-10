@@ -1,43 +1,43 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.37">
+<?xml version="1.0"?>
+<materialx version="1.38">
 
   <!-- Parameter interface for a simple custom node -->
   <!-- The "bg" input is required, while the "fg" input and "fgamt" parameter are optional. -->
   <nodedef name="ND_blend_add_color3" node="blend_add" defaultinput="bg">
-    <input name="fg" type="color3" value="0,0,0"/>
-    <input name="bg" type="color3" value="0,0,0"/>
-    <parameter name="fgamt" type="float" value="1.0"/>
-    <output name="out" type="color3"/>
+    <input name="fg" type="color3" value="0,0,0" />
+    <input name="bg" type="color3" value="0,0,0" />
+    <input name="fgamt" type="float" value="1.0" />
+    <output name="out" type="color3" />
   </nodedef>
 
   <!-- Define the functionality of the color3-type "blend_add" node using a nodegraph -->
   <!--      out = (fg * fgamt) + bg        -->
   <nodegraph name="NG_blend_add_color3" nodedef="ND_blend_add_color3">
     <multiply name="n1" type="color3">
-      <input name="in1" type="color3" interfacename="fg"/>
-      <input name="in2" type="float" interfacename="fgamt"/>
+      <input name="in1" type="color3" interfacename="fg" />
+      <input name="in2" type="float" interfacename="fgamt" />
     </multiply>
     <add name="n2" type="color3">
-      <input name="in1" type="color3" nodename="n1"/>
-      <input name="in2" type="color3" interfacename="bg"/>
+      <input name="in1" type="color3" nodename="n1" />
+      <input name="in2" type="color3" interfacename="bg" />
     </add>
-    <output name="out" type="color3" nodename="n2"/>
+    <output name="out" type="color3" nodename="n2" />
   </nodegraph>
 
   <!-- Use this custom node in a nodegraph -->
   <nodegraph name="nodegraph1">
     <image name="img1" type="color3">
-      <parameter name="file" type="filename" value="a.tif"/>
+      <input name="file" type="filename" value="a.tif" />
     </image>
     <image name="img2" type="color3">
-      <parameter name="file" type="filename" value="b.tif"/>
+      <input name="file" type="filename" value="b.tif" />
     </image>
     <blend_add name="bl1" type="color3">
-      <input name="fg" type="color3" nodename="img1"/>
-      <input name="bg" type="color3" nodename="img2"/>
-      <parameter name="fgamt" type="float" value="0.45"/>
+      <input name="fg" type="color3" nodename="img1" />
+      <input name="bg" type="color3" nodename="img2" />
+      <input name="fgamt" type="float" value="0.45" />
     </blend_add>
-    <output name="blended" type="color3" nodename="bl1"/>
+    <output name="blended" type="color3" nodename="bl1" />
   </nodegraph>
 
 </materialx>

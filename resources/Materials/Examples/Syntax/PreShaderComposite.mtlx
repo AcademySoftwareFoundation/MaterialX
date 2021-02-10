@@ -1,131 +1,117 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.37" cms="ocio" colorspace="lin_rec709">
+<?xml version="1.0"?>
+<materialx version="1.38" cms="ocio" colorspace="lin_rec709">
 
-  <!-- Define a basic surface shaders with two implementations; first might be
+  <!-- Define a basic surface shader with two implementations; first might be
        applicable to several renderers, second is specific to rmanris and has
        slightly different parameter names.
   -->
   <nodedef name="ND_basic_surface_surface" node="basic_surface">
-    <input name="diff_albedo" type="color3" value="0.18,0.18,0.18"/>
-    <input name="spec_color" type="color3" value="1,1,1"/>
-    <input name="roughness" type="float" value="0.3"/>
-    <parameter name="fresnel_exp" type="float" value="0.25"/>
-    <output name="out" type="surfaceshader"/>
+    <input name="diff_albedo" type="color3" value="0.18,0.18,0.18" />
+    <input name="spec_color" type="color3" value="1,1,1" />
+    <input name="roughness" type="float" value="0.3" />
+    <input name="fresnel_exp" type="float" value="0.25" />
+    <output name="out" type="surfaceshader" />
   </nodedef>
-
-  <implementation name="IM_basicsurface_surface_osl"
-        nodedef="ND_basic_surface_surface" file="basic_surface.osl"/>
-
-  <implementation name="IM_basicsurface_surface_rmanris"
-        nodedef="ND_basic_surface_surface" implname="basic_srf"
-	target="rmanris" file="basic_srf.C" language="cpp">
-    <input name="diff_albedo" type="color3" implname="diffColor"/>
-    <input name="spec_color" type="color3" implname="specColor"/>
-    <input name="roughness" type="float" implname="specRoughness"/>
+  <implementation name="IM_basicsurface_surface_osl" nodedef="ND_basic_surface_surface" file="basic_surface.osl" />
+  <implementation name="IM_basicsurface_surface_rmanris" nodedef="ND_basic_surface_surface" implname="basic_srf" target="rmanris" file="basic_srf.C" language="cpp">
+    <input name="diff_albedo" type="color3" implname="diffColor" />
+    <input name="spec_color" type="color3" implname="specColor" />
+    <input name="roughness" type="float" implname="specRoughness" />
   </implementation>
 
   <!-- Define interface and shading network for a simple blended material driven
        by mask image files.
   -->
   <nodedef name="ND_triblendsrf_surface" node="triblendsrf">
-    <parameter name="paintmaskfile" type="filename" value=""/>
-    <parameter name="rustmaskfile" type="filename" value=""/>
-    <output name="out" type="surfaceshader"/>
+    <input name="paintmaskfile" type="filename" value="" uniform="true" />
+    <input name="rustmaskfile" type="filename" value="" uniform="true" />
+    <output name="out" type="surfaceshader" />
   </nodedef>
-
   <nodegraph name="NG_triblendsrf_surface" nodedef="ND_triblendsrf_surface">
     <!-- Material constants for base layer, "steel" -->
     <constant name="steel_diffc" type="color3">
-      <parameter name="value" type="color3" value="0.0318, 0.0318, 0.0318"/>
+      <input name="value" type="color3" value="0.0318, 0.0318, 0.0318" />
     </constant>
     <constant name="steel_specc" type="color3">
-      <parameter name="value" type="color3" value="0.476, 0.476, 0.476"/>
+      <input name="value" type="color3" value="0.476, 0.476, 0.476" />
     </constant>
     <constant name="steel_roughf" type="float">
-      <parameter name="value" type="float" value="0.05"/>
+      <input name="value" type="float" value="0.05" />
     </constant>
-
     <!-- Material constants for middle layer, "paint" -->
     <constant name="paint_diffc" type="color3">
-      <parameter name="value" type="color3" value="0.447, 0.447, 0.447"/>
+      <input name="value" type="color3" value="0.447, 0.447, 0.447" />
     </constant>
     <constant name="paint_specc" type="color3">
-      <parameter name="value" type="color3" value="0.144, 0.144, 0.144"/>
+      <input name="value" type="color3" value="0.144, 0.144, 0.144" />
     </constant>
     <constant name="paint_roughf" type="float">
-      <parameter name="value" type="float" value="0.137"/>
+      <input name="value" type="float" value="0.137" />
     </constant>
-
     <!-- Material constants for top layer, "rust" -->
-    <image name="rust_diffc" type="color3">
-      <parameter name="file" type="filename" value="rust_diffc.tif"/>
+     <image name="rust_diffc" type="color3">
+      <input name="file" type="filename" value="rust_diffc.tif" />
     </image>
     <constant name="rust_specc" type="color3">
-      <parameter name="value" type="color3" value="0.043, 0.043, 0.043"/>
+      <input name="value" type="color3" value="0.043, 0.043, 0.043" />
     </constant>
     <constant name="rust_roughf" type="float">
-      <parameter name="value" type="float" value="0.5"/>
+      <input name="value" type="float" value="0.5" />
     </constant>
-
     <!-- Blending masks -->
     <image name="mask_paint" type="float">
-      <parameter name="file" type="filename" interfacename="paintmaskfile"/>
+      <input name="file" type="filename" interfacename="paintmaskfile" />
     </image>
     <image name="mask_rust" type="float">
-      <parameter name="file" type="filename" interfacename="rustmaskfile"/>
+      <input name="file" type="filename" interfacename="rustmaskfile" />
     </image>
-
     <!-- Define blended values for diffcolor, speccolor, roughness -->
     <mix name="mix_diff1" type="color3">
-      <input name="bg" type="color3" nodename="steel_diffc"/>
-      <input name="fg" type="color3" nodename="paint_diffc"/>
-      <input name="mix" type="float" nodename="mask_paint"/>
+      <input name="bg" type="color3" nodename="steel_diffc" />
+      <input name="fg" type="color3" nodename="paint_diffc" />
+      <input name="mix" type="float" nodename="mask_paint" />
     </mix>
     <mix name="mix_diff2" type="color3">
-      <input name="bg" type="color3" nodename="mix_diff1"/>
-      <input name="fg" type="color3" nodename="rust_diffc"/>
-      <input name="mix" type="float" nodename="mask_rust"/>
+      <input name="bg" type="color3" nodename="mix_diff1" />
+      <input name="fg" type="color3" nodename="rust_diffc" />
+      <input name="mix" type="float" nodename="mask_rust" />
     </mix>
-
     <mix name="mix_spec1" type="color3">
-      <input name="bg" type="color3" nodename="steel_specc"/>
-      <input name="fg" type="color3" nodename="paint_specc"/>
-      <input name="mix" type="float" nodename="mask_paint"/>
+      <input name="bg" type="color3" nodename="steel_specc" />
+      <input name="fg" type="color3" nodename="paint_specc" />
+      <input name="mix" type="float" nodename="mask_paint" />
     </mix>
     <mix name="mix_spec2" type="color3">
-      <input name="bg" type="color3" nodename="mix_spec1"/>
-      <input name="fg" type="color3" nodename="rust_specc"/>
-      <input name="mix" type="float" nodename="mask_rust"/>
+      <input name="bg" type="color3" nodename="mix_spec1" />
+      <input name="fg" type="color3" nodename="rust_specc" />
+      <input name="mix" type="float" nodename="mask_rust" />
     </mix>
-
     <mix name="mix_rough1" type="float">
-      <input name="bg" type="float" nodename="steel_roughf"/>
-      <input name="fg" type="float" nodename="paint_roughf"/>
-      <input name="mix" type="float" nodename="mask_paint"/>
+      <input name="bg" type="float" nodename="steel_roughf" />
+      <input name="fg" type="float" nodename="paint_roughf" />
+      <input name="mix" type="float" nodename="mask_paint" />
     </mix>
     <mix name="mix_rough2" type="float">
-      <input name="bg" type="float" nodename="mix_rough1"/>
-      <input name="fg" type="float" nodename="rust_roughf"/>
-      <input name="mix" type="float" nodename="mask_rust"/>
+      <input name="bg" type="float" nodename="mix_rough1" />
+      <input name="fg" type="float" nodename="rust_roughf" />
+      <input name="mix" type="float" nodename="mask_rust" />
     </mix>
-
     <!-- Basic_Surface shader, connected to above blended values -->
     <basic_surface name="bsrf1" type="surfaceshader">
-      <input name="diff_albedo" type="color3" nodename="mix_diff2"/>
-      <input name="spec_color" type="color3" nodename="mix_spec2"/>
-      <input name="roughness" type="float" nodename="mix_rough2"/>
+      <input name="diff_albedo" type="color3" nodename="mix_diff2" />
+      <input name="spec_color" type="color3" nodename="mix_spec2" />
+      <input name="roughness" type="float" nodename="mix_rough2" />
     </basic_surface>
-    
     <!-- Define the output of the shading network nodegraph -->
-    <output name="out" type="surfaceshader" nodename="bsrf1"/>
+    <output name="out" type="surfaceshader" nodename="bsrf1" />
   </nodegraph>
 
   <!-- Sample blended material using the above network shader -->
-  <material name="blendedmtl">
-    <shaderref name="sr4" node="triblendsrf">
-      <bindparam name="paintmaskfile" type="filename" value="paint_mask.tif"/>
-      <bindparam name="rustmaskfile" type="filename" value="rust_mask.tif"/>
-    </shaderref>
-  </material>
-
+  <triblendsrf name="sr4" type="surfaceshader">
+    <input name="paintmaskfile" type="filename" value="paint_mask.tif" />
+    <input name="rustmaskfile" type="filename" value="rust_mask.tif" />
+  </triblendsrf>
+  <surfacematerial name="blendedmtl" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr4" />
+  </surfacematerial>
 </materialx>
