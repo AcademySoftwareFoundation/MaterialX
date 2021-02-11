@@ -148,7 +148,6 @@ mark_as_advanced(MATERIALX_BUILD_GEN_ARNOLD)
 mark_as_advanced(MATERIALX_BUILD_CROSS)
 mark_as_advanced(MATERIALX_BUILD_GEN)
 mark_as_advanced(MATERIALX_BUILD_CONTRIB)
-mark_as_advanced(MATERIALX_DEBUG_POSTFIX)
 
 if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)

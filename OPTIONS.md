@@ -104,7 +104,6 @@ Interpret all compiler warnings as errors.
 
 There are additional parameters that may be overridden to influence the build. These are documented in [CMakeLists.txt](CMakeLists.txt).
 
--   `MATERIALX_DEBUG_POSTFIX`
 -   `MATERIALX_PYTHON_VERSION`
 -   `MATERIALX_PYTHON_EXECUTABLE`
 -   `MATERIALX_PYTHON_OCIO_DIR`
