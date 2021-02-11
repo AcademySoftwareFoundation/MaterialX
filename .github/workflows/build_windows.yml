@@ -9,8 +9,10 @@ on:
       - '**.md'
 
 jobs:
-  build_windows:
 
+  build_windows:
+    name: Build_Windows
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -33,11 +35,6 @@ jobs:
           python: 3.8
           cmake_config: -G "Visual Studio 16 2019" -A "x64"
 
-    runs-on: ${{matrix.os}}
-
-    env:
-      config: Release
-
     steps:
     - name: Sync Repository
       uses: actions/checkout@v2
@@ -58,7 +55,7 @@ jobs:
       working-directory: build
 
     - name: CMake Build
-      run: cmake --build . --target install --config ${{env.config}} --parallel 2
+      run: cmake --build . --target install --config Release --parallel 2
       working-directory: build
 
     - name: Initialize Virtual Framebuffer
@@ -71,14 +68,17 @@ jobs:
         echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
 
     - name: CMake Unit Tests
-      run: ctest -VV --output-on-failure --build-config ${{env.config}}
+      run: ctest -VV --output-on-failure --build-config Release
       working-directory: build
 
     - name: Python Tests
       run: |
-        python main.py
-        python genshader.py
-      working-directory: python/MaterialXTest
+        python MaterialXTest/main.py
+        python MaterialXTest/genshader.py
+        python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
+        python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
+        python Scripts/mxdoc.py ../libraries/pbrlib/pbrlib_defs.mtlx
+      working-directory: python
 
     - name: Render Tests
       if: matrix.test_render == 'ON'
@@ -91,12 +91,12 @@ jobs:
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2
       with:
-        name: MaterialX_${{matrix.name}}
+        name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Renders
       uses: actions/upload-artifact@v2
       if: matrix.test_render == 'ON'
       with:
-        name: Renders_${{matrix.name}}
+        name: Renders_${{ matrix.name }}
         path: build/render/

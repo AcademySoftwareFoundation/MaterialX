@@ -932,7 +932,10 @@ void Document::upgradeVersion()
                     {
                         newChild = shaderNode->addToken(child->getName());
                     }
-                    newChild->copyContentFrom(child);
+                    if (newChild)
+                    {
+                        newChild->copyContentFrom(child);
+                    }
                 }
 
                 // Create a material node if needed, making a connection to the new shader node.

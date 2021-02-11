@@ -9,8 +9,10 @@ on:
       - '**.md'
 
 jobs:
-  build_linux:
 
+  build_linux:
+    name: Build_Linux
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -34,11 +36,6 @@ jobs:
           compiler_version: "10"
           python: 3.7
           test_render: ON
-
-    runs-on: ${{matrix.os}}
-
-    env:
-      config: Release
 
     steps:
     - name: Sync Repository
@@ -89,7 +86,7 @@ jobs:
       working-directory: build
 
     - name: CMake Build
-      run: cmake --build . --target install --config ${{env.config}} --parallel 2
+      run: cmake --build . --target install --config Release --parallel 2
       working-directory: build
 
     - name: Initialize Virtual Framebuffer
@@ -102,7 +99,7 @@ jobs:
         echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
 
     - name: CMake Unit Tests
-      run: ctest -VV --output-on-failure --build-config ${{env.config}}
+      run: ctest -VV --output-on-failure --build-config Release
       working-directory: build
 
     - name: Python Tests
@@ -125,12 +122,12 @@ jobs:
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2
       with:
-        name: MaterialX_${{matrix.name}}
+        name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Renders
       uses: actions/upload-artifact@v2
       if: matrix.test_render == 'ON'
       with:
-        name: Renders_${{matrix.name}}
+        name: Renders_${{ matrix.name }}
         path: build/render/

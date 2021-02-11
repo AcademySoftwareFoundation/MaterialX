@@ -1,31 +1,31 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.37">
-  <collection name="col1" includegeom="/root/world/geo/g[123]"/>
-  <collection name="col2" includegeom="/root/world/geo/g[4567]"/>
-  <collection name="col3" includegeom="/root/world/geo/g[89]"/>
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <collection name="col1" includegeom="/root/world/geo/g[123]" />
+  <collection name="col2" includegeom="/root/world/geo/g[4567]" />
+  <collection name="col3" includegeom="/root/world/geo/g[89]" />
 
-  <geompropdef name="uv2" type="vector2" geomprop="texcoord" index="2"/>
-  <geompropdef name="objsize" type="float" unittype="distance" unit="meter"/>
+  <geompropdef name="uv2" type="vector2" geomprop="texcoord" index="2" />
+  <geompropdef name="objsize" type="float" unittype="distance" unit="meter" />
 
   <geominfo name="gi1" collection="col1">
-    <geomprop name="objsize" type="float" value="2.1"/>
-    <token name="diffalbedo" type="string" value="txt/albedo/albedo.1001.tif"/>
-    <token name="dirtcolor" type="string" value="txt/dirt/dirt.1001.tif"/>
-    <token name="areamask" type="string" value="txt/area/area.1001.tif"/>
-    <token name="noisemask" type="string" value="txt/noisemask/noisemask.1001.tif"/>
+    <geomprop name="objsize" type="float" value="2.1" />
+    <token name="diffalbedo" type="string" value="txt/albedo/albedo.1001.tif" />
+    <token name="dirtcolor" type="string" value="txt/dirt/dirt.1001.tif" />
+    <token name="areamask" type="string" value="txt/area/area.1001.tif" />
+    <token name="noisemask" type="string" value="txt/noisemask/noisemask.1001.tif" />
   </geominfo>
   <geominfo name="gi2" collection="col2">
-    <geomprop name="objsize" type="float" value="1.8"/>
-    <token name="diffalbedo" type="string" value="txt/albedo/albedo.1002.tif"/>
-    <token name="dirtcolor" type="string" value="txt/dirt/dirt.1002.tif"/>
-    <token name="areamask" type="string" value="txt/area/area.1002.tif"/>
-    <token name="noisemask" type="string" value="txt/noisemask/noisemask.1002.tif"/>
+    <geomprop name="objsize" type="float" value="1.8" />
+    <token name="diffalbedo" type="string" value="txt/albedo/albedo.1002.tif" />
+    <token name="dirtcolor" type="string" value="txt/dirt/dirt.1002.tif" />
+    <token name="areamask" type="string" value="txt/area/area.1002.tif" />
+    <token name="noisemask" type="string" value="txt/noisemask/noisemask.1002.tif" />
   </geominfo>
   <geominfo name="gi3" collection="col3">
-    <geomprop name="objsize" type="float" value="5.7" unittype="distance" unit="foot"/>
-    <token name="diffalbedo" type="string" value="txt/albedo/albedo.1003.tif"/>
-    <token name="dirtcolor" type="string" value="txt/dirt/dirt.1003.tif"/>
-    <token name="areamask" type="string" value="txt/area/area.1003.tif"/>
-    <token name="noisemask" type="string" value="txt/noisemask/noisemask.1003.tif"/>
+    <geomprop name="objsize" type="float" value="5.7" unittype="distance" unit="foot" />
+    <token name="diffalbedo" type="string" value="txt/albedo/albedo.1003.tif" />
+    <token name="dirtcolor" type="string" value="txt/dirt/dirt.1003.tif" />
+    <token name="areamask" type="string" value="txt/area/area.1003.tif" />
+    <token name="noisemask" type="string" value="txt/noisemask/noisemask.1003.tif" />
   </geominfo>
 </materialx>
