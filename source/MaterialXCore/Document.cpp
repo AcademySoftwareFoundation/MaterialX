@@ -1314,10 +1314,8 @@ void Document::upgradeVersion()
             }
         }   
 
-        // Convert parameters to inputs, applying uniform markings as needed.
-        const string FRAME_OFFSET_STRING = "frameoffset";
-        const string INDEX_STRING = "index";
-        const string DEFAULT_STRING = "default";
+        // Convert parameters to inputs, applying uniform markings to converted inputs
+        // of nodedefs.
         for (ElementPtr elem : traverseTree())
         {
             if (elem->isA<InterfaceElement>())
@@ -1327,28 +1325,7 @@ void Document::upgradeVersion()
                     InputPtr input = elem->changeChildCategory(param, "input")->asA<Input>();
                     if (elem->isA<NodeDef>())
                     {
-                        // Strings and filename types should always be uniforms.
-                        const string& inputType = input->getType();
-                        if (inputType == FILENAME_TYPE_STRING || inputType == STRING_TYPE_STRING)
-                        {
-                            input->setIsUniform(true);
-                        }
-                        // Some integer inputs should be set as uniforms
-                        else if (inputType == "integer")
-                        {
-                            if (input->getName() == FRAME_OFFSET_STRING)
-                            {
-                                input->setIsUniform(true);
-                            }
-                            else if (input->getName() == INDEX_STRING)
-                            {
-                                input->setIsUniform(true);
-                            }
-                            else if (input->getName() == DEFAULT_STRING)
-                            {
-                                input->setIsUniform(true);
-                            }
-                        }
+                        input->setIsUniform(true);
                     }
                 }
             }
