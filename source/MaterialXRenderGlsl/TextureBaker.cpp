@@ -209,13 +209,6 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
         return;
     }
 
-    // Early out if not optimizing		
-    if (!_optimizeConstants)
-    {
-        _bakedConstantMap.clear();
-        return;
-    }
-
     // Check for uniform images.
     for (auto& pair : _bakedImageMap)
     {
@@ -238,8 +231,8 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
             }
         }
 
-        // Check for uniform outputs.
-        if (outputIsUniform)
+        // Add a constant for each uniform if optimizing out uniforms
+        if (outputIsUniform && _optimizeConstants)
         {
             BakedConstant bakedConstant;
             bakedConstant.color = pair.second[0].uniformColor;
