@@ -1,35 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.37">
+<?xml version="1.0"?>
+<materialx version="1.38">
   <nodedef name="ND_simplesrf_surface" node="simplesrf">
-    <input name="diff_albedo" type="color3" value="0.18,0.18,0.18"/>
-    <input name="spec_color" type="color3" value="1,1,1"/>
-    <input name="roughness" type="float" value="0.3"/>
-    <parameter name="fresnel_exp" type="float" value="0.2"/>
-    <output name="out" type="surfaceshader"/>
+    <input name="diff_albedo" type="color3" value="0.18,0.18,0.18" />
+    <input name="spec_color" type="color3" value="1,1,1" />
+    <input name="roughness" type="float" value="0.3" />
+    <input name="fresnel_exp" type="float" value="0.2" />
+    <output name="out" type="surfaceshader" />
   </nodedef>
 
   <nodedef name="ND_noisebump_displacement" node="noisebump">
-    <parameter name="bump_scale" type="float" value="0.02"/>
-    <parameter name="bump_ampl" type="float" value="0.015"/>
-    <output name="out" type="displacementshader"/>
+    <input name="bump_scale" type="float" value="0.02" />
+    <input name="bump_ampl" type="float" value="0.015" />
+    <output name="out" type="displacementshader" />
   </nodedef>
 
-  <material name="material1">
-    <shaderref name="sr1" node="simplesrf">
-      <bindinput name="diff_albedo" type="color3" value="0.31, 0.14, 0.09"/>
-      <bindinput name="spec_color" type="color3" value="1.0, 0.99, 0.95"/>
-      <bindinput name="roughness" type="float" value="0.15"/>
-    </shaderref>
-    <shaderref name="sr2" node="noisebump">
-      <bindparam name="bump_ampl" type="float" value="0.0125"/>
-    </shaderref>
-  </material>
-
-  <material name="material2">
-    <shaderref name="sr3" node="simplesrf">
-      <bindinput name="spec_color" type="color3" value="0.7,0.7,0.7"/>
-      <bindinput name="roughness" type="float" value="0.1"/>
-      <bindparam name="fresnel_exp" type="float" value="0.3"/>
-    </shaderref>
-  </material>
+  <simplesrf name="sr1" type="surfaceshader">
+    <input name="diff_albedo" type="color3" value="0.31, 0.14, 0.09" />
+    <input name="spec_color" type="color3" value="1.0, 0.99, 0.95" />
+    <input name="roughness" type="float" value="0.15" />
+  </simplesrf>
+  <surfacematerial name="material1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr1" />
+    <input name="displacementshader" type="displacementshader" nodename="sr2" />
+  </surfacematerial>
+  
+  <noisebump name="sr2" type="displacementshader">
+    <input name="bump_ampl" type="float" value="0.0125" />
+  </noisebump>
+  <simplesrf name="sr3" type="surfaceshader">
+    <input name="spec_color" type="color3" value="0.7,0.7,0.7" />
+    <input name="roughness" type="float" value="0.1" />
+    <input name="fresnel_exp" type="float" value="0.3" />
+  </simplesrf>
+  <surfacematerial name="material2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr3" />
+  </surfacematerial>
 </materialx>

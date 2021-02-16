@@ -1,26 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.37" cms="ocio" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <xi:include href="SimpleSrf.mtlx"/>
+<?xml version="1.0"?>
+<materialx version="1.38" cms="ocio" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="SimpleSrf.mtlx" />
+  <simple_srf name="sr_pf" type="surfaceshader">
+    <input name="diffColor" type="color3" value="0.134, 0.130, 0.125" />
+    <input name="specColor" type="color3" value="0.014, 0.014, 0.014" />
+    <input name="specRoughness" type="float" value="0.38" />
+  </simple_srf>
+  <surfacematerial name="paint_flat" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr_pf" />
+  </surfacematerial>
 
-  <material name="paint_flat">
-    <shaderref name="sr_pf" node="simple_srf">
-      <bindinput name="diffColor" type="color3" value="0.134, 0.130, 0.125"/>
-      <bindinput name="specColor" type="color3" value="0.014, 0.014, 0.014"/>
-      <bindinput name="specRoughness" type="float" value="0.38"/>
-    </shaderref>
-  </material>
+  <simple_srf name="sr_ps" type="surfaceshader">
+    <input name="specColor" type="color3" value="0.05, 0.05, 0.05" />
+    <input name="specRoughness" type="float" value="0.14" />
+  </simple_srf>
+  <surfacematerial name="paint_semigloss" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr_ps" />
+  </surfacematerial>
 
-  <material name="paint_semigloss" inherit="paint_flat">
-    <shaderref name="sr_ps" node="simple_srf">
-      <bindinput name="specColor" type="color3" value="0.05, 0.05, 0.05"/>
-      <bindinput name="specRoughness" type="float" value="0.14"/>
-    </shaderref>
-  </material>
-
-  <material name="paint_gloss" inherit="paint_flat">
-    <shaderref name="sr_pg" node="simple_srf">
-      <bindinput name="specColor" type="color3" value="0.26, 0.265, 0.27"/>
-      <bindinput name="specRoughness" type="float" value="0.03"/>
-    </shaderref>
-  </material>
+  <simple_srf name="sr_pg" type="surfaceshader">
+    <input name="specColor" type="color3" value="0.26, 0.265, 0.27" />
+    <input name="specRoughness" type="float" value="0.03" />
+  </simple_srf>
+  <surfacematerial name="paint_gloss" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="sr_pg" />
+  </surfacematerial>
 </materialx>
