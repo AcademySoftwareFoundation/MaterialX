@@ -1459,7 +1459,7 @@ void RtFileIo::readLibraries(const FilePathVec& libraryPaths, const FileSearchPa
 
     // Load all content into a document.
     DocumentPtr doc = createDocument();
-    MaterialX::loadLibraries(libraryPaths, searchPaths, doc, MaterialX::StringSet());
+    MaterialX::loadLibraries(libraryPaths, searchPaths, doc);
 
     StringSet uris = doc->getReferencedSourceUris();
     for (const string& uri : uris)
