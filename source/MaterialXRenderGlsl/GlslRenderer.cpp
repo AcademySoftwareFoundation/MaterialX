@@ -316,6 +316,31 @@ void GlslRenderer::saveImage(const FilePath& filePath, ConstImagePtr image, bool
     }
 }
 
+ImageVec GlslRenderer::getReferencedImages(const ShaderPtr& /*shader*/)
+{
+    ImageVec imageList;
+    const GlslProgram::InputMap& uniformList = _program->getUniformsList();
+    for (const auto& uniform : uniformList)
+    {
+        GLenum uniformType = uniform.second->gltype;
+        GLint uniformLocation = uniform.second->location;
+        if (uniformLocation >= 0 && uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
+        {
+            const string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
+            if (fileName != HW::ENV_RADIANCE &&
+                fileName != HW::ENV_IRRADIANCE)
+            {
+                ImagePtr image = _imageHandler->acquireImage(fileName);
+                if (image)
+                {
+                    imageList.push_back(image);
+                }
+            }
+        }
+    }
+    return imageList;
+}
+
 void GlslRenderer::drawScreenSpaceQuad()
 {
     const float QUAD_VERTICES[] =

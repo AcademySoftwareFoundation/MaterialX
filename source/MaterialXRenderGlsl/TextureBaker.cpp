@@ -153,30 +153,17 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
         unsigned int bakedTextureHeight = 0;
         unsigned int bakedTextureWidth = 0;
         bool requiresResize = false;
-        // Prefetch all required images and query thier dimensions. 
+
+        // Prefetch all required images and query their dimensions. 
         // Since Images are cached by ImageHandler, they will be reused during bindTextures
-        const GlslProgram::InputMap& uniformList = program->getUniformsList();
-        for (const auto& uniform : uniformList)
+        ImageVec imageList = getReferencedImages(shader);
+        for (const auto& image : imageList)
         {
-            GLenum uniformType = uniform.second->gltype;
-            GLint uniformLocation = uniform.second->location;
-            if (uniformLocation >= 0 && uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
-            {
-                const string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
-                if (fileName != HW::ENV_RADIANCE &&
-                    fileName != HW::ENV_IRRADIANCE)
-                {
-                    ImagePtr image = _imageHandler->acquireImage(fileName);
-                    if (image)
-                    {
-                        const unsigned int imageHeight = image->getHeight();
-                        const unsigned int imageWidth = image->getWidth();
-                        bakedTextureHeight = imageHeight > bakedTextureHeight ? imageHeight : bakedTextureHeight;
-                        bakedTextureWidth = imageWidth > bakedTextureWidth ? imageWidth : bakedTextureWidth;
-                        requiresResize = true;
-                    }
-                }
-            }
+            const unsigned int imageHeight = image->getHeight();
+            const unsigned int imageWidth = image->getWidth();
+            bakedTextureHeight = imageHeight > bakedTextureHeight ? imageHeight : bakedTextureHeight;
+            bakedTextureWidth = imageWidth > bakedTextureWidth ? imageWidth : bakedTextureWidth;
+            requiresResize = true;
         }
 
         if (requiresResize)
