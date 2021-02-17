@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="lin_rec709">
-  <nodegraph name="NG_wood1" fileprefix="resources/Images/">
+  <nodegraph name="NG_wood1" fileprefix="../../../Images/">
     <tiledimage name="image_color" type="color3">
       <input name="file" type="filename" value="wood_color.jpg" colorspace="srgb_texture" />
       <input name="uvtiling" type="vector2" value="4.0, 4.0" />

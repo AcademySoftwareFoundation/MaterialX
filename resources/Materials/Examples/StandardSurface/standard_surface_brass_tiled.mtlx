@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709" fileprefix="resources/Images/">
+<materialx version="1.38" colorspace="lin_rec709" fileprefix="../../../Images/">
   <nodegraph name="NG_brass1">
     <tiledimage name="image_color" type="color3">
       <input name="file" type="filename" value="brass_color.jpg" colorspace="srgb_texture" />
