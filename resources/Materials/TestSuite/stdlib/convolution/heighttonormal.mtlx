@@ -1,38 +1,47 @@
 <?xml version="1.0"?>
-<!--
-
-Basic test of heighttonormal node
-
--->
 <materialx version="1.37">
-
-  <!-- Unconnected input test -->
-  <nodegraph name="hton_unconnected_graph" type="" xpos="6.82414" ypos="8.68">
-    <heighttonormal name="heighttonormal1" type="vector3" xpos="3.38621" ypos="7.06">
-      <input name="in" type="float" value="1.0000" />
-      <parameter name="scale" type="float" value="0.6" />
-    </heighttonormal>
-    <output name="out" type="vector3" nodename="heighttonormal1" />
-  </nodegraph>
-
-   <!-- Connected to input image node -->
-   <nodegraph name="hton_image_graph" type="" xpos="8.26207" ypos="20.328">
-      <heighttonormal name="heighttonormal1" type="vector3" xpos="5.82414" ypos="15.83">
-         <input name="in" type="float" value="0.0" nodename="image1" />
-         <parameter name="scale" type="float" value="0.2000" />
+   <nodegraph name="hton_unconnected_graph" xpos="-27.6471" ypos="304.882" >
+      <heighttonormal name="heighttonormal1" type="vector3" xpos="-441.909" ypos="554.975">
+         <input name="in" type="float" value="1" />
+         <input name="scale" type="float" value="1" />
       </heighttonormal>
-      <image name="image1" type="float" xpos="4.32759" ypos="14.92">
-         <parameter name="file" type="filename" value="resources/Images/marble.png" />
-         <parameter name="layer" type="string" value="" />
-         <parameter name="default" type="float" value="0.0" />
-         <input name="texcoord" type="vector2" value="0.0, 0.0" />
-         <parameter name="uaddressmode" type="string" value="periodic" />
-         <parameter name="vaddressmode" type="string" value="periodic" />
-         <parameter name="filtertype" type="string" value="linear" />
-         <parameter name="framerange" type="string" value="" />
-         <parameter name="frameoffset" type="integer" value="0" />
-         <parameter name="frameendaction" type="string" value="constant" />
-      </image>
-      <output name="out" type="vector3" nodename="heighttonormal1" />
+      <normalmap name="normalmap" type="vector3" xpos="-60.5" ypos="176">
+         <input name="in" type="vector3" nodename="heighttonormal1" />
+      </normalmap>
+      <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="289.5" ypos="209">
+         <input name="normal" type="vector3" nodename="normalmap" />
+      </standard_surface>
+      <UsdPreviewSurface name="UsdPreviewSurface" type="surfaceshader" version="2.3" xpos="-123.25" ypos="564">
+         <input name="normal" type="vector3" nodename="heighttonormal1" />
+      </UsdPreviewSurface>
+      <output name="const_outHeightToNormal" type="vector3" nodename="heighttonormal1" />
+      <output name="const_outNormalMap" type="vector3" nodename="normalmap" />
+      <output name="const_outStandardSurface" type="surfaceshader" nodename="standard_surface" />
+      <output name="const_outUSDSurface" type="surfaceshader" nodename="UsdPreviewSurface" />
+   </nodegraph>
+   <nodegraph name="hton_image_graph" xpos="-20.5886" ypos="1.76472" >
+      <input name="file" type="filename" uniform="true" value="resources/Images/plain_heightmap.png" />
+      <heighttonormal name="heighttonormal1" type="vector3" xpos="620" ypos="112.591">
+         <input name="in" type="float" nodename="tiledimage" />
+         <input name="scale" type="float" value="0.2" />
+      </heighttonormal>
+      <tiledimage name="tiledimage" type="float" xpos="315" ypos="138">
+         <input name="file" type="filename" uniform="true" interfacename="file" value="resources/Images/plain_heightmap.png" />
+         <input name="uvtiling" type="vector2" value="10, 10" />
+      </tiledimage>
+      <normalmap name="normalmap" type="vector3" xpos="925" ypos="137">
+         <input name="in" type="vector3" nodename="heighttonormal1" />
+         <input name="scale" type="float" value="1" />
+      </normalmap>
+      <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1" xpos="1345.52" ypos="403.639">
+         <input name="normal" type="vector3" nodename="normalmap" />
+      </standard_surface>
+      <UsdPreviewSurface name="UsdPreviewSurface" type="surfaceshader" version="2.3" xpos="893.447" ypos="531.913">
+         <input name="normal" type="vector3" nodename="heighttonormal1" />
+      </UsdPreviewSurface>
+      <output name="txt_outHeightToNormal" type="vector3" nodename="heighttonormal1" />
+      <output name="txt_outNormalMap" type="vector3" nodename="normalmap" />
+      <output name="txt_outStandardSurface" type="surfaceshader" nodename="standard_surface" />
+      <output name="txt_outUSDSurface" type="surfaceshader" nodename="UsdPreviewSurface" />
    </nodegraph>
 </materialx>

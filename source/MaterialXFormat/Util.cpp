@@ -148,6 +148,10 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
         }
 
         FilePath unresolvedValue(valueElem->getValueString());
+        if (unresolvedValue.isEmpty())
+        {
+            continue;
+        }
         StringResolverPtr elementResolver = elem->createStringResolver();
         // If the path is already absolute then don't allow an additional prefix
         // as this would make the path invalid.
@@ -157,7 +161,7 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
         }
         string resolvedString = valueElem->getResolvedValueString(elementResolver);
 
-        // Convert relative to absolute pathing if the file is not alrady found
+        // Convert relative to absolute pathing if the file is not already found
         if (!searchPath.isEmpty())
         {
             FilePath resolvedValue(resolvedString);

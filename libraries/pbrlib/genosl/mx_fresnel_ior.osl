@@ -1,7 +1,0 @@
-#include "pbrlib/genosl/lib/mx_microfacet.osl"
-
-void mx_fresnel_ior(float ior, vector _normal, vector viewdir, output float result)
-{
-    float cosTheta = dot(_normal, -viewdir);
-    result = mx_fresnel_dielectric(cosTheta, ior);
-}

@@ -1,11 +1,17 @@
 <?xml version="1.0"?>
 <materialx version="1.37">
+
+   <!-- Custom node: <viewdir>                     -->
+   <!-- Required by environment shader graph below -->
+   <nodedef name="ND_viewdir_vector3" node="viewdir">
+     <output name="out" type="vector3" default="0.0, 0.0, 1.0"/>
+   </nodedef>
+  <implementation name="IM_viewdir_vector3_genglsl" nodedef="ND_viewdir_vector3" target="genglsl"/>
+
    <nodegraph name="environmentDraw">
 
      <!-- Get view direction -->
-     <viewdirection name="viewDir" type="vector3">
-       <parameter name="space" type="string" value="world" />
-     </viewdirection>
+     <viewdir name="viewDir" type="vector3" />
 
      <!-- Compute longitude coordinate -->
      <atan2 name="angleXZ" type="float">

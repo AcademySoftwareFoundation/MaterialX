@@ -55,11 +55,6 @@
   <implementation name="IM_displacement_float_genosl" nodedef="ND_displacement_float" file="pbrlib/genosl/mx_displacement_float.osl" function="mx_displacement_float" target="genosl"/>
   <implementation name="IM_displacement_vector3_genosl" nodedef="ND_displacement_vector3" file="pbrlib/genosl/mx_displacement_vector3.osl" function="mx_displacement_vector3" target="genosl"/>
 
-  <!-- <backfacing> -->
-  <implementation name="IM_backfacing_boolean_genosl" nodedef="ND_backfacing_boolean" file="pbrlib/genosl/mx_backfacing_boolean.inline" target="genosl"/>
-  <implementation name="IM_backfacing_integer_genosl" nodedef="ND_backfacing_integer" file="pbrlib/genosl/mx_backfacing_integer.inline" target="genosl"/>
-  <implementation name="IM_backfacing_float_genosl" nodedef="ND_backfacing_float" file="pbrlib/genosl/mx_backfacing_float.inline" target="genosl"/>
-
   <!-- <roughness_anisotropy> -->
   <implementation name="IM_roughness_anisotropy_genosl" nodedef="ND_roughness_anisotropy" file="pbrlib/genosl/mx_roughness_anisotropy.osl" function="mx_roughness_anisotropy" target="genosl"/>
 
@@ -68,8 +63,5 @@
 
   <!-- <artistic_ior> -->
   <implementation name="IM_artistic_ior_genosl" nodedef="ND_artistic_ior" file="pbrlib/genosl/mx_artistic_ior.osl" function="mx_artistic_ior" target="genosl"/>
-
-  <!-- <fresnel> -->
-  <implementation name="IM_fresnel_ior_genosl" nodedef="ND_fresnel_ior" file="pbrlib/genosl/mx_fresnel_ior.osl" function="mx_fresnel_ior" target="genosl"/>
 
 </materialx>

@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<materialx version="1.37">
-  <nodegraph name="viewDirectionGraph" type="" xpos="8.5931" ypos="20.52">
-    <viewdirection name="viewdirection1" type="vector3" xpos="3.51724" ypos="7.38" />
-    <output name="out" type="vector3" nodename="viewdirection1" />
-  </nodegraph>
-</materialx>
