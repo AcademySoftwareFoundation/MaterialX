@@ -1242,7 +1242,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     else
                     {
                         // Generate a shader for the new material.
-                        mat->generateShader(_genContext);
+                        try
+                        {
+                            mat->generateShader(_genContext);
+                        }
+                        catch (std::exception& e)
+                        {
+                            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
+                            continue;
+                        }
                         if (udimElement == elem)
                         {
                             udimMaterial = mat;
