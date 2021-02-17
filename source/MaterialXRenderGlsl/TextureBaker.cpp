@@ -144,6 +144,37 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     ShaderPtr shader = _generator->generate("BakingShader", output, context);
     createProgram(shader);
 
+    if (_autoTextureResolution)
+    {
+        GlslProgramPtr program = getProgram();
+        GLFrameBufferPtr framebuffer = getFrameBuffer();
+        unsigned int bakedTextureHeight = 0;
+        unsigned int bakedTextureWidth = 0;
+        bool requiresResize = false;
+
+        // Prefetch all required images and query their dimensions. 
+        // Since Images are cached by ImageHandler, they will be reused during bindTextures
+        ImageVec imageList = getReferencedImages(shader);
+        for (const auto& image : imageList)
+        {
+            const unsigned int imageHeight = image->getHeight();
+            const unsigned int imageWidth = image->getWidth();
+            bakedTextureHeight = imageHeight > bakedTextureHeight ? imageHeight : bakedTextureHeight;
+            bakedTextureWidth = imageWidth > bakedTextureWidth ? imageWidth : bakedTextureWidth;
+            requiresResize = true;
+        }
+
+        if (requiresResize)
+        {
+            framebuffer->resize(bakedTextureWidth, bakedTextureHeight);
+        }
+        else
+        {
+            // Ensure that original size is restored.
+            framebuffer->resize(_width, _height);
+        }
+    }
+
     bool encodeSrgb = _colorSpace == SRGB_TEXTURE &&
         (output->getType() == "color3" || output->getType() == "color4");
     getFrameBuffer()->setEncodeSrgb(encodeSrgb);
