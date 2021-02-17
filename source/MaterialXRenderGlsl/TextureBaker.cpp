@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
 
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -65,7 +64,6 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _bakedGraphName("NG_baked"),
     _bakedGeomInfoName("GI_baked"),
     _outputStream(&std::cout),
-    _autoTextureResolution(false),
     _generator(GlslShaderGenerator::create())
 {
     if (baseType == Image::BaseType::UINT8)
@@ -145,50 +143,6 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
 
     ShaderPtr shader = _generator->generate("BakingShader", output, context);
     createProgram(shader);
-
-    if (_autoTextureResolution)
-    {
-        GlslProgramPtr program = getProgram();
-        GLFrameBufferPtr framebuffer = getFrameBuffer();
-        unsigned int bakedTextureHeight = 0;
-        unsigned int bakedTextureWidth = 0;
-        bool requiresResize = false;
-        // Prefetch all required images and query thier dimensions. 
-        // Since Images are cached by ImageHandler, they will be reused during bindTextures
-        const GlslProgram::InputMap& uniformList = program->getUniformsList();
-        for (const auto& uniform : uniformList)
-        {
-            GLenum uniformType = uniform.second->gltype;
-            GLint uniformLocation = uniform.second->location;
-            if (uniformLocation >= 0 && uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
-            {
-                const string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
-                if (fileName != HW::ENV_RADIANCE &&
-                    fileName != HW::ENV_IRRADIANCE)
-                {
-                    ImagePtr image = _imageHandler->acquireImage(fileName);
-                    if (image)
-                    {
-                        const unsigned int imageHeight = image->getHeight();
-                        const unsigned int imageWidth = image->getWidth();
-                        bakedTextureHeight = imageHeight > bakedTextureHeight ? imageHeight : bakedTextureHeight;
-                        bakedTextureWidth = imageWidth > bakedTextureWidth ? imageWidth : bakedTextureWidth;
-                        requiresResize = true;
-                    }
-                }
-            }
-        }
-
-        if (requiresResize)
-        {
-            framebuffer->resize(bakedTextureWidth, bakedTextureHeight);
-        }
-        else
-        {
-            // Ensure that original size is restored.
-            framebuffer->resize(_width, _height);
-        }
-    }
 
     bool encodeSrgb = _colorSpace == SRGB_TEXTURE &&
         (output->getType() == "color3" || output->getType() == "color4");
