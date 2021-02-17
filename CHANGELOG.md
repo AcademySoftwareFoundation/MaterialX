@@ -2,6 +2,11 @@
 
 ## [1.38] - Development
 
+### [v1.38_adsk_development3]
+- Up-to-date with LucasFilm `master` @(TBD)
+- Change in signature for loadDocument(), loadLibvrary() and loadLibraries()
+- Migration of core library files to 1.38.
+
 ### [v1.38_adsk_development2](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development2) : 2021-02-10
 - Up-to-date with LucasFilm `master` branch (no longer on v1.38 branch) [@e954329e29480ca2b2d05e437a018c0685a8d62b](https://github.com/materialx/MaterialX/commit/e954329e29480ca2b2d05e437a018c0685a8d62b).
 - *All documents upgrade to "1.38" as version number. Files must be marked as "1.37" for upgrade to occur*
