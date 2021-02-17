@@ -2,9 +2,9 @@
 
 The following is the layout of the definitions and implementations provided as part of the core libraries.
 
-- `genglsl` : Support for GLSL code generation
-- `genosl` : Support for OSL code generation
-- `osl` : Reference OSL implementations
+These libraries can be used to build shading networks which can be accepted by code generators to produce shader code.
+
+The following core "targets": GLSL, MDL and OSL. Additional Autodesk specific targets are also supported including Arnold which is a variant on OSL code generation.
 
 ## Standard Library
 - [stdlib](stdlib)
@@ -14,14 +14,20 @@ The following is the layout of the definitions and implementations provided as p
         - lib : Shader utility files.
         - [stdlib_genglsl_impl.mtlx](stdlib/genglsl/stdlib_genglsl_impl.mtlx) : Mapping from definitions to implementations
         - [stdlib_genglsl_cm_impl.mtlx](stdlib/genglsl/stdlib_genglsl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
+        - [stdlib_genglsl_unit_impl.mtlx](stdlib/genosl/stdlib_genglsl_unit_impl.mtlx) : Real world unit support implementations.
         - GLSL implementation files.
     - [genosl](stdlib/genosl): OSL language support.
         - lib: Shader utility files.
         - [stdlib_genosl_impl.mtlx](stdlib/genosl/stdlib_genosl_impl.mtlx) : Mapping from definitions to implementations
         - [stdlib_genosl_cm_impl.mtlx](stdlib/genosl/stdlib_genosl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
+        - [stdlib_genosl_unit_impl.mtlx](stdlib/genosl/stdlib_genosl_unit_impl.mtlx) : Real world unit support implementations.
         -  OSL implementation files.
     - [osl](stdlib/osl): OSL reference implementation
         -  OSL implementation files.
+    - [genmdl](stdlib/genmdl): MDL language support.
+        - [stdlib_genmdl_impl.mtlx](stdlib/genosl/stdlib_genmdl_impl.mtlx) : Mapping from definitions to implementations
+        - [stdlib_genmdl_cm_impl.mtlx](stdlib/genosl/stdlib_genmdl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
+        - [stdlib_genmdl_unit_impl.mtlx](stdlib/genosl/stdlib_genmdl_unit_impl.mtlx) : Real world unit support implementations.
 
 ## Physically-Based Shading Library
 - [pbrlib](pbrlib)
@@ -35,16 +41,42 @@ The following is the layout of the definitions and implementations provided as p
         - lib : Utilities
         - [pbrlib_genosl_impl.mtlx](pbrlib/genosl/pbrlib_genosl_impl.mtlx) : Mapping from definitions to implementations
         - OSL implementation files.
+    - [genmdl](pbrlib/genmdl) : MDL language support
+        - [pbrlib_genmdl_impl.mtlx](pbrlib/genosl/pbrlib_genmdl_impl.mtlx) : Mapping from definitions to implementations.
+        - Note: MDL implementation files are in a "package" folder found under
+        [source/MaterialXGenMdl/mdl/materialx](../source/MaterialXGenMdl/mdl/materialx)
 
-## Support Notes:
-- GLSL language support is for version 4.0 or higher.
-- OSL language support is for version 1.9.10 or higher.
-- "default" color management support includes OSL and GLSL implementations for the following non-LUT transforms:
+## Autodesk Sample Definitions
+- These are examples showing some of the complexity of a possible material asset.
+Makes use of both stdlib, and pbrlib libraries.
+- [adsk](adsk)
+  - [adsklib](adsk/adsklib) : Sample core definitions.
+  - [shaders](adsk/shader) : Sample shader definitions.
+  - [materials](adsk/materials) : Sample material definitions.
+  - [materials](adsk/textures) : Images used by definitions.
+
+## Target Definitions
+- Each target implementation requires a target definition for definition / implementation correspondence to work.
+- [targets](targets) is the folder holding documents which declare these definitions.
+- There are definition files for the following core targets:
+  - OSL : `genosl`
+  - Desktop GLSL : `genglsl`
+  - MDL : `genmdl`
+- There are definitions files for the following Autodesk specific targets:
+  - OGS : `ogsfx`, and `ogsxml` (for Maya integration)
+  - Arnold : `arnold`
+- Any additional target files should be added under this folder and loaded in as required.
+
+### Target Support
+- GLSL target support is for version 4.0 or higher.
+- OSL target support is for version 1.9.10 or higher.
+- MDL target support is for version 1.6.
+- "Default" color management support includes OSL,  GLSL, and MDL implementations for the following non-LUT transforms:
     - lin_rec709, gamma18, gamma22, gamma24, acescg, g22_acescg, srgb_texture
 - Basic GLSL `lightshader` node definitions and implementations are provided for the following light types:
     - point, directional, spot
-- Code generation is not currently supported for:
-    - `ambientocclusion` node for: `genosl` and `genglsl`.
-    - `arrayappend` node for: `genosl` and `genglsl`.
-    - `curveadjust` node for: `genosl` and `genglsl`.
-    - `displacementshader` and `volumeshader` nodes and associated operations (`add`, `multiply`, `mix`) for: `genosl` and `genglsl`.
+- Code generation does not currently support:
+    - `ambientocclusion` node.
+    - `arrayappend` node.
+    - `curveadjust` node.
+    - `displacementshader` and `volumeshader` nodes and associated operations (`add`, `multiply`, `mix`) for GLSL targets.
