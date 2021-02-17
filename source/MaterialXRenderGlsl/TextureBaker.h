@@ -87,7 +87,7 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Return whether images should be averaged to generate constants.
-    bool getAverageImages()
+    bool getAverageImages() const
     {
         return _averageImages;
     }
@@ -99,7 +99,7 @@ class TextureBaker : public GlslRenderer
     }
 
     /// Return whether uniform textures should be stored as constants.
-    bool getOptimizeConstants()
+    bool getOptimizeConstants() const
     {
         return _optimizeConstants;
     }

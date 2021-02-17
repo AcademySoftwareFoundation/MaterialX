@@ -79,7 +79,6 @@
   <geompropdef name="Tworld" type="vector3" geomprop="tangent" space="world" index="0"/>
   <geompropdef name="Bworld" type="vector3" geomprop="bitangent" space="world" index="0"/>
   <geompropdef name="UV0" type="vector2" geomprop="texcoord" index="0"/>
-  <geompropdef name="Vworld" type="vector3" geomprop="viewdirection" space="world"/>
 
   <!-- ======================================================================== -->
   <!-- Materials                                                     -->
@@ -1123,15 +1122,6 @@
   <nodedef name="ND_time_float" node="time" nodegroup="application">
     <parameter name="fps" type="float" value="24.0"/>
     <output name="out" type="float" default="0.041666667"/>
-  </nodedef>
-
-  <!--
-    Node: <viewdirection>
-    The current scene view direction, as defined by the shading environment.
-  -->
-  <nodedef name="ND_viewdirection_vector3" node="viewdirection" nodegroup="application">
-    <parameter name="space" type="string" value="world" enum="model,object,world"/>
-    <output name="out" type="vector3" default="0.0, 0.0, 1.0"/>
   </nodedef>
 
 

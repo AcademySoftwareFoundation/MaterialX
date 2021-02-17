@@ -124,6 +124,52 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
     }
 }
 
+// ViewDir implementation for GLSL
+// as needed for the environment shader.
+class ViewDirGlsl : public mx::GlslImplementation
+{
+public:
+    static  mx::ShaderNodeImplPtr create()
+    {
+        return std::make_shared<ViewDirGlsl>();
+    }
+
+    void createVariables(const  mx::ShaderNode&, mx::GenContext&, mx::Shader& shader) const override
+    {
+        mx::ShaderStage& vs = shader.getStage(mx::Stage::VERTEX);
+        mx::ShaderStage& ps = shader.getStage(mx::Stage::PIXEL);
+        addStageInput(mx::HW::VERTEX_INPUTS, mx::Type::VECTOR3, mx::HW::T_IN_POSITION, vs);
+        addStageConnector(mx::HW::VERTEX_DATA, mx::Type::VECTOR3, mx::HW::T_POSITION_WORLD, vs, ps);
+        addStageUniform(mx::HW::PRIVATE_UNIFORMS, mx::Type::VECTOR3, mx::HW::T_VIEW_POSITION, ps);
+    }
+
+    void emitFunctionCall(const  mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
+    {
+        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+
+        BEGIN_SHADER_STAGE(stage, mx::Stage::VERTEX)
+            mx::VariableBlock& vertexData = stage.getOutputBlock(mx::HW::VERTEX_DATA);
+            const mx::string prefix = vertexData.getInstance() + ".";
+            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
+            if (!position->isEmitted())
+            {
+                position->setEmitted();
+                shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
+            }
+        END_SHADER_STAGE(stage, mx::Stage::VERTEX)
+
+        BEGIN_SHADER_STAGE(stage, mx::Stage::PIXEL)
+            mx::VariableBlock& vertexData = stage.getInputBlock(mx::HW::VERTEX_DATA);
+            const mx::string prefix = vertexData.getInstance() + ".";
+            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+            shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + mx::HW::T_VIEW_POSITION + ")", stage);
+            shadergen.emitLineEnd(stage);
+        END_SHADER_STAGE(stage, mx::Stage::PIXEL)
+    }
+};
+
 } // anonymous namespace
 
 //
@@ -224,6 +270,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
+
+    // Register the GLSL implementation for <viewdir> used by the environment shader.
+    _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + mx::GlslShaderGenerator::TARGET, ViewDirGlsl::create);
 }
 
 void Viewer::initialize()
@@ -447,7 +496,7 @@ void Viewer::loadEnvironmentLight()
     {
         // Create environment shader.
         mx::FilePath envFilename = _searchPath.find(
-            mx::FilePath("resources/Materials/TestSuite/lights/envmap_shader.mtlx"));
+            mx::FilePath("resources/Lights/envmap_shader.mtlx"));
         try
         {
             _envMaterial = Material::create();
@@ -1193,15 +1242,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     else
                     {
                         // Generate a shader for the new material.
-                        try
-                        {
-                            mat->generateShader(_genContext);
-                        }
-                        catch (std::exception& e)
-                        {
-                            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate shader", e.what());
-                            continue;
-                        }
+                        mat->generateShader(_genContext);
                         if (udimElement == elem)
                         {
                             udimMaterial = mat;

@@ -77,11 +77,6 @@
   <implementation name="IM_multiply_edfC_genmdl" nodedef="ND_multiply_edfC" sourcecode="{{in1}}" target="genmdl"/> <!-- TODO: Implement properly -->
   <implementation name="IM_multiply_edfF_genmdl" nodedef="ND_multiply_edfF" sourcecode="{{in1}}" target="genmdl"/> <!-- TODO: Implement properly -->
 
-  <!-- <backfacing> -->
-  <implementation name="IM_backfacing_boolean_genmdl" nodedef="ND_backfacing_boolean" sourcecode="mx::pbrlib::mx_backfacing_bool()" target="genmdl"/>
-  <implementation name="IM_backfacing_integer_genmdl" nodedef="ND_backfacing_integer" sourcecode="mx::pbrlib::mx_backfacing_int()" target="genmdl"/>
-  <implementation name="IM_backfacing_float_genmdl" nodedef="ND_backfacing_float" sourcecode="mx::pbrlib::mx_backfacing_float()" target="genmdl"/>
-
   <!-- <roughness_anisotropy> -->
   <implementation name="IM_roughness_anisotropy_genmdl" nodedef="ND_roughness_anisotropy" sourcecode="mx::pbrlib::mx_roughness_anisotropy(mxp_roughness:{{roughness}}, mxp_anisotropy:{{anisotropy}})" target="genmdl"/>
 
@@ -93,8 +88,5 @@
 
   <!-- <blackbody> -->
   <implementation name="IM_blackbody_genmdl" nodedef="ND_blackbody" sourcecode="mx::pbrlib::mx_blackbody(mxp_temperature:{{temperature}})" target="genmdl"/>
-
-  <!-- <fresnel> -->
-  <implementation name="IM_fresnel_ior_genmdl" nodedef="ND_fresnel_ior" sourcecode="mx::pbrlib::mx_fresnel_ior(mxp_ior:{{ior}}, mxp_normal:{{normal}}, mxp_viewdirection:{{viewdirection}})" target="genmdl"/>
 
 </materialx>

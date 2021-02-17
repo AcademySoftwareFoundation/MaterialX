@@ -385,19 +385,6 @@
   </nodedef>
 
   <!--
-    Node: <backfacing>
-  -->
-  <nodedef name="ND_backfacing_boolean" node="backfacing" nodegroup="pbr">
-    <output name="out" type="boolean"/>
-  </nodedef>
-  <nodedef name="ND_backfacing_integer" node="backfacing" nodegroup="pbr">
-    <output name="out" type="integer"/>
-  </nodedef>
-  <nodedef name="ND_backfacing_float" node="backfacing" nodegroup="pbr">
-    <output name="out" type="float"/>
-  </nodedef>
-
-  <!--
     Node: <roughness_anisotropy>
     Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization.
   -->
@@ -447,15 +434,4 @@
     <output name="extinction" type="color3"/>
   </nodedef>
 
-  <!--
-    Node: <fresnel>
-    Calculate the Fresnel amount from an index of refraction for a dielectric surface.
-  -->
-  <nodedef name="ND_fresnel_ior" node="fresnel" nodegroup="pbr"
-           doc="Node for calculating the Fresnel equation from index of refraction for a dielectric surface.">
-    <input name="ior" type="float" value="1.5"/>
-    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
-    <input name="viewdirection" type="vector3" defaultgeomprop="Vworld"/>
-    <output name="out" type="float"/>
-  </nodedef>
 </materialx>
