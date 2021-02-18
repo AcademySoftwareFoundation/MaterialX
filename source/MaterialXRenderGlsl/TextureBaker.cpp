@@ -4,12 +4,16 @@
 //
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
+#include <MaterialXRenderGlsl/External/GLew/glew.h>
 
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+
+#include <unordered_map>
+#include <sstream>
 
 namespace MaterialX
 {
@@ -64,6 +68,8 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _bakedGraphName("NG_baked"),
     _bakedGeomInfoName("GI_baked"),
     _outputStream(&std::cout),
+    _autoTextureResolution(false),
+    _hashImageNames(false),
     _generator(GlslShaderGenerator::create())
 {
     if (baseType == Image::BaseType::UINT8)
@@ -92,8 +98,15 @@ FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& s
     string outputName = createValidName(output->getNamePath());
     string shaderSuffix = shaderName.empty() ? EMPTY_STRING : "_" + shaderName;
     string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
-
-    return FilePath(outputName + shaderSuffix + BAKED_POSTFIX + udimSuffix + "." + _extension);
+    std::string bakedImageName; 
+    bakedImageName = outputName + shaderSuffix + BAKED_POSTFIX + udimSuffix;
+    if (_hashImageNames)
+    {
+        std::stringstream hashStream;
+        hashStream << std::hash<std::string>{}(bakedImageName);
+        bakedImageName = hashStream.str();
+    }
+    return FilePath(bakedImageName + "." + _extension);
 }
 
 void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const string& udim)
