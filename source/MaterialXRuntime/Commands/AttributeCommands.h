@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RTCONNECTIONCOMMANDS_H
-#define MATERIALX_RTCONNECTIONCOMMANDS_H
+#ifndef MATERIALX_RTATTRIBUTECOMMANDS_H
+#define MATERIALX_RTATTRIBUTECOMMANDS_H
 
 /// @file
 /// Commands for connection handling.

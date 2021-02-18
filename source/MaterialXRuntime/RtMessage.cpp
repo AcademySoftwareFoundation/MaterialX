@@ -35,6 +35,16 @@ RtCallbackId RtMessage::addSetAttributeCallback(RtSetAttributeCallbackFunc callb
     return PvtApi::cast(RtApi::get())->getMessageHandler().addSetAttributeCallback(callback, userData);
 }
 
+RtCallbackId RtMessage::addSetMetadataCallback(RtSetMetadataCallbackFunc callback, void* userData)
+{
+    return PvtApi::cast(RtApi::get())->getMessageHandler().addSetMetadataCallback(callback, userData);
+}
+
+RtCallbackId RtMessage::addRemoveMetadataCallback(RtRemoveMetadataCallbackFunc callback, void* userData)
+{
+    return PvtApi::cast(RtApi::get())->getMessageHandler().addRemoveMetadataCallback(callback, userData);
+}
+
 RtCallbackId RtMessage::addConnectionCallback(RtConnectionCallbackFunc callback, void* userData)
 {
     return PvtApi::cast(RtApi::get())->getMessageHandler().addConnectionCallback(callback, userData);

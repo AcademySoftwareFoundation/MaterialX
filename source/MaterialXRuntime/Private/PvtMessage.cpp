@@ -52,6 +52,22 @@ RtCallbackId PvtMessageHandler::addSetAttributeCallback(RtSetAttributeCallbackFu
     return _callbackIdCounter++;
 }
 
+RtCallbackId PvtMessageHandler::addSetMetadataCallback(RtSetMetadataCallbackFunc callback, void* userData)
+{
+    PvtSetMetadataObserver observer = PvtSetMetadataObserver(callback, userData);
+    _setMetadataObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
+RtCallbackId PvtMessageHandler::addRemoveMetadataCallback(RtRemoveMetadataCallbackFunc callback, void* userData)
+{
+    PvtRemoveMetadataObserver observer = PvtRemoveMetadataObserver(callback, userData);
+    _removeMetadataObservers[_callbackIdCounter] = observer;
+    _callbackIdToType[_callbackIdCounter] = observer.type;
+    return _callbackIdCounter++;
+}
+
 RtCallbackId PvtMessageHandler::addConnectionCallback(RtConnectionCallbackFunc callback, void* userData)
 {
     PvtConnectionObserver observer = PvtConnectionObserver(callback, userData);
@@ -90,6 +106,12 @@ void PvtMessageHandler::removeCallback(RtCallbackId id)
             break;
         case PvtMessageType::SET_ATTRIBUTE:
             _setAttrObservers.erase(id);
+            break;
+        case PvtMessageType::SET_METADATA:
+            _setMetadataObservers.erase(id);
+            break;
+        case PvtMessageType::REMOVE_METADATA:
+            _removeMetadataObservers.erase(id);
             break;
         case PvtMessageType::CHANGE_CONNECTION:
             _connectionObservers.erase(id);
@@ -143,6 +165,22 @@ void PvtMessageHandler::sendSetAttributeMessage(const RtAttribute& attr, const R
     for (auto observer : _setAttrObservers)
     {
         observer.second.callback(attr, value, observer.second.userData);
+    }
+}
+
+void PvtMessageHandler::sendSetMetadataMessage(const RtObject &obj, const RtToken& name, const RtValue& value)
+{
+    for (auto observer : _setMetadataObservers)
+    {
+        observer.second.callback(obj, name, value, observer.second.userData);
+    }
+}
+
+void PvtMessageHandler::sendRemoveMetadataMessage(const RtObject &obj, const RtToken& name)
+{
+    for (auto observer : _removeMetadataObservers)
+    {
+        observer.second.callback(obj, name, observer.second.userData);
     }
 }
 

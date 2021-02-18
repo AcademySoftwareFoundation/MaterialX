@@ -34,6 +34,7 @@
 
 #include <MaterialXRuntime/Commands/PrimCommands.h>
 #include <MaterialXRuntime/Commands/AttributeCommands.h>
+#include <MaterialXRuntime/Commands/MetadataCommands.h>
 #include <MaterialXRuntime/Commands/RelationshipCommands.h>
 #include <MaterialXRuntime/Commands/UndoCommands.h>
 
@@ -2296,6 +2297,101 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtCommandResult unknownResult;
     mx::RtCommand::createPrim(stage, mx::RtToken("unknown"), mx::RtPath("/"), mx::EMPTY_TOKEN, unknownResult);
     REQUIRE(!unknownResult);
+
+    //
+    // Test setting metadata
+    //
+    auto setMetadataCallback = [](const mx::RtObject&, const mx::RtToken&, const mx::RtValue&, void* userData)
+    {
+        ++(*reinterpret_cast<size_t*>(userData));
+    };
+    auto removeMetadataCallback = [](const mx::RtObject&, const mx::RtToken&, void* userData)
+    {
+        ++(*reinterpret_cast<size_t*>(userData));
+    };
+    size_t setMetadataCount = 0;
+    size_t removeMetadataCount = 0;
+    mx::RtCallbackId setMetadata_id = mx::RtMessage::addSetMetadataCallback(setMetadataCallback, &setMetadataCount);
+    mx::RtCallbackId removeMetadata_id = mx::RtMessage::addRemoveMetadataCallback(removeMetadataCallback, &removeMetadataCount);
+
+    mx::RtCommandResult metadataResult;
+    mx::RtToken metadata("metadata");
+    std::string metadataValue("some_value");
+    mx::RtCommand::setMetadata(foo, metadata, metadataValue, metadataResult);
+    REQUIRE(metadataResult);
+    REQUIRE(foo.getMetadata(metadata));
+    REQUIRE(foo.getMetadata(metadata)->getValue().asToken() == metadataValue);
+    REQUIRE(setMetadataCount == 1);
+    REQUIRE(removeMetadataCount == 0);
+
+    mx::RtCommand::undo(result);
+    REQUIRE(result);
+    REQUIRE(!foo.getMetadata(metadata));
+    REQUIRE(setMetadataCount == 1);
+    REQUIRE(removeMetadataCount == 1);
+
+    mx::RtCommand::redo(result);
+    REQUIRE(result);
+    REQUIRE(foo.getMetadata(metadata));
+    REQUIRE(foo.getMetadata(metadata)->getValue().asToken() == metadataValue);
+    REQUIRE(setMetadataCount == 2);
+    REQUIRE(removeMetadataCount == 1);
+
+    //
+    // Test changing metadata value
+    //
+    std::string metadataValue2("some_value2");
+    mx::RtCommand::setMetadata(foo, metadata, metadataValue2, metadataResult);
+    REQUIRE(metadataResult);
+    REQUIRE(foo.getMetadata(metadata));
+    REQUIRE(foo.getMetadata(metadata)->getValueString() == metadataValue2);
+    REQUIRE(setMetadataCount == 3);
+    REQUIRE(removeMetadataCount == 1);
+
+    mx::RtCommand::undo(result);
+    REQUIRE(result);
+    REQUIRE(foo.getMetadata(metadata));
+    REQUIRE(foo.getMetadata(metadata)->getValueString() == metadataValue);
+    REQUIRE(setMetadataCount == 4);
+    REQUIRE(removeMetadataCount == 1);
+
+    mx::RtCommand::redo(result);
+    REQUIRE(result);
+    REQUIRE(foo.getMetadata(metadata));
+    REQUIRE(foo.getMetadata(metadata)->getValueString() == metadataValue2);
+    REQUIRE(setMetadataCount == 5);
+    REQUIRE(removeMetadataCount == 1);
+
+    mx::RtCommand::undo(result);
+
+    //
+    // Test removing metadata
+    //
+    setMetadataCount = 0;
+    removeMetadataCount = 0;
+
+    REQUIRE(removeMetadataCount == 0);
+    mx::RtCommand::removeMetadata(foo, metadata, metadataResult);
+    REQUIRE(metadataResult);
+    REQUIRE(!foo.getMetadata(metadata));
+    REQUIRE(setMetadataCount == 0);
+    REQUIRE(removeMetadataCount == 1);
+
+    mx::RtCommand::undo(result);
+    REQUIRE(result);
+    REQUIRE(foo.getMetadata(metadata));
+    REQUIRE(foo.getMetadata(metadata)->getValueString() == metadataValue);
+    REQUIRE(setMetadataCount == 1);
+    REQUIRE(removeMetadataCount == 1);
+
+    mx::RtCommand::redo(result);
+    REQUIRE(result);
+    REQUIRE(!foo.getMetadata(metadata));
+    REQUIRE(setMetadataCount == 1);
+    REQUIRE(removeMetadataCount == 2);
+
+    mx::RtMessage::removeCallback(setMetadata_id);
+    mx::RtMessage::removeCallback(removeMetadata_id);
 }
 
 TEST_CASE("Runtime: graph output connection", "[runtime]")
