@@ -712,6 +712,8 @@ void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPa
     baker->setupUnitSystem(doc);
     baker->setImageHandler(_renderer->getImageHandler());
     baker->setOptimizeConstants(true);
+    baker->setAutoTextureResolution(true);
+    baker->setHashImageNames(true);
     
     try
     {
