@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<materialx version="1.37">
+<?xml version="1.0"?>
+<materialx version="1.38">
 
   <!-- ======================================================================== -->
   <!-- Color Management System Implementations -->
@@ -15,7 +14,7 @@
 
   <implementation name="IM_acescg_to_lin_rec709_color3_genglsl" file="stdlib/genglsl/mx_acescg_to_linear_color3.glsl" function="mx_acescg_to_linear_color3" target="genglsl" />
   <implementation name="IM_acescg_to_lin_rec709_color4_genglsl" file="stdlib/genglsl/mx_acescg_to_linear_color4.glsl" function="mx_acescg_to_linear_color4" target="genglsl" />
-  
+
   <implementation name="IM_g22_ap1_to_lin_rec709_color3_genglsl" file="stdlib/genglsl/mx_g22_ap1_to_lin_rec709_color3.glsl" function="mx_g22_ap1_to_lin_rec709_color3" target="genglsl" />
   <implementation name="IM_g22_ap1_to_lin_rec709_color4_genglsl" file="stdlib/genglsl/mx_g22_ap1_to_lin_rec709_color4.glsl" function="mx_g22_ap1_to_lin_rec709_color4" target="genglsl" />
 
