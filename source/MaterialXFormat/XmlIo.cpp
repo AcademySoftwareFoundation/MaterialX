@@ -61,6 +61,13 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         // Create the new element.
         ElementPtr child = elem->addChildOfCategory(category, name);
         elementFromXml(xmlChild, child, readOptions);
+
+        // Handle the interpretation of XML comments.
+        if (readOptions && readOptions->readComments && category.empty())
+        {
+            child = elem->changeChildCategory(child, CommentElement::CATEGORY);
+            child->setDocString(xmlChild.value());
+        }
     }
 }
 
@@ -117,31 +124,16 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
             }
         }
 
-        xml_node xmlChild = xmlNode.append_child(child->getCategory().c_str());
-        elementToXml(child, xmlChild, writeOptions);
-    }
-}
-
-void xmlDocumentFromFile(xml_document& xmlDoc, FilePath filename, FileSearchPath searchPath)
-{
-    searchPath.append(getEnvironmentPath());
-
-    filename = searchPath.find(filename);
-
-    xml_parse_result result = xmlDoc.load_file(filename.asString().c_str());
-    if (!result)
-    {
-        if (result.status == xml_parse_status::status_file_not_found ||
-            result.status == xml_parse_status::status_io_error ||
-            result.status == xml_parse_status::status_out_of_memory)
+        // Write XML comments.
+        if (child->getCategory() == CommentElement::CATEGORY)
         {
-            throw ExceptionFileMissing("Failed to open file for reading: " + filename.asString());
+            xml_node xmlChild = xmlNode.append_child(node_comment);
+            xmlChild.set_value(child->getAttribute(Element::DOC_ATTRIBUTE).c_str());
+            continue;
         }
 
-        string desc = result.description();
-        string offset = std::to_string(result.offset);
-        throw ExceptionParseError("XML parse error in file: " + filename.asString() +
-                                  " (" + desc + " at character " + offset + ")");
+        xml_node xmlChild = xmlNode.append_child(child->getCategory().c_str());
+        elementToXml(child, xmlChild, writeOptions);
     }
 }
 
@@ -230,6 +222,42 @@ void documentFromXml(DocumentPtr doc,
     doc->upgradeVersion();
 }
 
+void validateParseResult(xml_parse_result& result, const FilePath& filename = FilePath())
+{
+    if (result)
+    {
+        return;
+    }
+
+    if (result.status == xml_parse_status::status_file_not_found ||
+        result.status == xml_parse_status::status_io_error ||
+        result.status == xml_parse_status::status_out_of_memory)
+    {
+        throw ExceptionFileMissing("Failed to open file for reading: " + filename.asString());
+    }
+
+    string desc = result.description();
+    string offset = std::to_string(result.offset);
+    string message = "XML parse error";
+    if (!filename.isEmpty())
+    {
+        message += " in " + filename.asString();
+    }
+    message += " (" + desc + " at character " + offset + ")";
+
+    throw ExceptionParseError(message);
+}
+
+unsigned int getParseOptions(const XmlReadOptions* readOptions)
+{
+    unsigned int parseOptions = parse_default;
+    if (readOptions && readOptions->readComments)
+    {
+        parseOptions |= parse_comments;
+    }
+    return parseOptions;
+}
+
 } // anonymous namespace
 
 //
@@ -237,7 +265,8 @@ void documentFromXml(DocumentPtr doc,
 //
 
 XmlReadOptions::XmlReadOptions() :
-    readXIncludeFunction(readFromXmlFile)
+    readXIncludeFunction(readFromXmlFile),
+    readComments(false)
 {
 }
 
@@ -257,11 +286,8 @@ XmlWriteOptions::XmlWriteOptions() :
 void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
-    xml_parse_result result = xmlDoc.load_string(buffer);
-    if (!result)
-    {
-        throw ExceptionParseError("Parse error in readFromXmlBuffer");
-    }
+    xml_parse_result result = xmlDoc.load_string(buffer, getParseOptions(readOptions));
+    validateParseResult(result);
 
     documentFromXml(doc, xmlDoc, EMPTY_STRING, readOptions);
 }
@@ -269,19 +295,21 @@ void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions
 void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
-    xml_parse_result result = xmlDoc.load(stream);
-    if (!result)
-    {
-        throw ExceptionParseError("Parse error in readFromXmlStream");
-    }
+    xml_parse_result result = xmlDoc.load(stream, getParseOptions(readOptions));
+    validateParseResult(result);
 
     documentFromXml(doc, xmlDoc, EMPTY_STRING, readOptions);
 }
 
-void readFromXmlFile(DocumentPtr doc, const FilePath& filename, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
+void readFromXmlFile(DocumentPtr doc, FilePath filename, FileSearchPath searchPath, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
-    xmlDocumentFromFile(xmlDoc, filename, searchPath);
+
+    searchPath.append(getEnvironmentPath());
+    filename = searchPath.find(filename);
+
+    xml_parse_result result = xmlDoc.load_file(filename.asString().c_str(), getParseOptions(readOptions));
+    validateParseResult(result, filename);
 
     // This must be done before parsing the XML as the source URI
     // is used for searching for include files.
