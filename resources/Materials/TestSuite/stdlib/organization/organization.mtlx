@@ -1,72 +1,72 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="dot_float" type="" xpos="4.58053" ypos="13.8678">
     <dot name="dot1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.5000" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+      <input name="note" type="string" value="" />
     </dot>
     <output name="out" type="float" nodename="dot1" />
     <constant name="constant1" type="float" xpos="4.37389" ypos="4.87278">
-      <parameter name="value" type="float" value="0.5000" />
+      <input name="value" type="float" value="0.5000" />
     </constant>
   </nodegraph>
   <nodegraph name="dot_color2" type="" xpos="5.63784" ypos="13.8481">
-    <dot name="dot1" type="color2" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="0.0, 1.0" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+    <dot name="dot1" type="vector2" xpos="5.74483" ypos="4.74">
+      <input name="in" type="vector2" value="0.0, 1.0" nodename="constant1" />
+      <input name="note" type="string" value="" />
     </dot>
-    <output name="out" type="color2" nodename="dot1" />
-    <constant name="constant1" type="color2" xpos="4.46234" ypos="4.8856">
-      <parameter name="value" type="color2" value="0.5000, 1.0" />
+    <output name="out" type="vector2" nodename="dot1" />
+    <constant name="constant1" type="vector2" xpos="4.46234" ypos="4.8856">
+      <input name="value" type="vector2" value="0.5000, 1.0" />
     </constant>
   </nodegraph>
   <nodegraph name="dot_color3" type="" xpos="6.67495" ypos="13.8481">
     <dot name="dot1" type="color3" xpos="5.79581" ypos="4.74">
       <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+      <input name="note" type="string" value="" />
     </dot>
     <constant name="constant1" type="color3" xpos="4.70414" ypos="5.03028">
-      <parameter name="value" type="color3" value="0.0000, 0.5000, 1.0000" />
+      <input name="value" type="color3" value="0.0000, 0.5000, 1.0000" />
     </constant>
     <output name="out" type="color3" nodename="dot1" />
   </nodegraph>
   <nodegraph name="dot_color4" type="" xpos="7.71945" ypos="13.8338">
     <dot name="dot1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+      <input name="note" type="string" value="" />
     </dot>
     <constant name="constant1" type="color4" xpos="4.67194" ypos="5.05362">
-      <parameter name="value" type="color4" value="0.0, 0.2500, 0.5000, 1.0" />
+      <input name="value" type="color4" value="0.0, 0.2500, 0.5000, 1.0" />
     </constant>
     <output name="out" type="color4" nodename="dot1" />
   </nodegraph>
   <nodegraph name="dot_vector2" type="" xpos="5.66248" ypos="14.9482">
     <dot name="dot1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+      <input name="note" type="string" value="" />
     </dot>
     <constant name="constant1" type="vector2" xpos="4.70683" ypos="5.05362">
-      <parameter name="value" type="vector2" value="0.5000, 1.0000" />
+      <input name="value" type="vector2" value="0.5000, 1.0000" />
     </constant>
     <output name="out" type="vector2" nodename="dot1" />
   </nodegraph>
   <nodegraph name="dot_vector3" type="" xpos="6.68973" ypos="14.9167">
     <dot name="dot1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+      <input name="note" type="string" value="" />
     </dot>
     <constant name="constant1" type="vector3" xpos="4.64243" ypos="4.91354">
-      <parameter name="value" type="vector3" value="0.0, 0.5000, 1.0000" />
+      <input name="value" type="vector3" value="0.0, 0.5000, 1.0000" />
     </constant>
     <output name="out" type="vector3" nodename="dot1" />
   </nodegraph>
   <nodegraph name="dot_vector4" type="" xpos="7.73177" ypos="14.9096">
     <dot name="dot1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+      <input name="note" type="string" value="" />
     </dot>
     <constant name="constant1" type="vector4" xpos="4.65048" ypos="4.96802">
-      <parameter name="value" type="vector4" value="0.0, 0.2500, 0.5000, 1.0" />
+      <input name="value" type="vector4" value="0.0, 0.2500, 0.5000, 1.0" />
     </constant>
     <output name="out" type="vector4" nodename="dot1" />
   </nodegraph>
@@ -89,15 +89,15 @@
   <nodegraph name="dot_matrix44" type="">
     <dot name="dot1" type="matrix44">
       <input name="in" type="matrix44" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+      <input name="note" type="string" value="" />
     </dot>
     <constant name="constant1" type="matrix44">
-      <parameter name="value" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
+      <input name="value" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
     </constant>
     <transformmatrix name="transformvector1" type="vector4">
-      <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0"/>
-      <input name="mat" type="matrix44" nodename="dot1"/>
+      <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0" />
+      <input name="mat" type="matrix44" nodename="dot1" />
     </transformmatrix>
-    <output name="out" type="vector4" nodename="transformvector1"/>
+    <output name="out" type="vector4" nodename="transformvector1" />
   </nodegraph>
 </materialx>

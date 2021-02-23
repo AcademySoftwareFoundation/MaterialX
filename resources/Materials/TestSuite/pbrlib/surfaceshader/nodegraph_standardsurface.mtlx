@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="IMPL_standard_surface_graph" type="" xpos="5.77241" ypos="16.6699">
     <constant name="coat_affect_roughness" type="float" xpos="-5.97931" ypos="17.86">
-      <parameter name="value" type="float" value="1.0000" />
+      <input name="value" type="float" value="1.0000" />
     </constant>
     <invert name="invert1" type="float" xpos="-0.8" ypos="12.94">
       <input name="in" type="float" />
-      <parameter name="amount" type="float" value="1.0" />
+      <input name="amount" type="float" value="1.0" />
     </invert>
     <multiply name="multiply5" type="float" xpos="-3.76552" ypos="17.24">
       <input name="in1" type="float" nodename="coat_affect_roughness" />
@@ -18,7 +18,7 @@
     </multiply>
     <invert name="invert2" type="float" xpos="-0.8" ypos="16">
       <input name="in" type="float" nodename="multiply6" />
-      <parameter name="amount" type="float" value="1.0" />
+      <input name="amount" type="float" value="1.0" />
     </invert>
     <multiply name="multiply7" type="float" xpos="0.682758" ypos="13.54">
       <input name="in1" type="float" nodename="invert1" />
@@ -26,62 +26,61 @@
     </multiply>
     <invert name="invert3" type="float" xpos="2.16552" ypos="12.9056">
       <input name="in" type="float" nodename="multiply7" />
-      <parameter name="amount" type="float" value="1.0" />
+      <input name="amount" type="float" value="1.0" />
     </invert>
     <roughness_anisotropy name="rougness2" type="vector2" xpos="3.64828" ypos="12.3">
       <input name="roughness" type="float" nodename="invert3" />
       <input name="anisotropy" type="float" />
     </roughness_anisotropy>
-    <diffuse_brdf name="Diffuse_BSDF" type="BSDF" xpos="3.64828" ypos="2.02564">
+    <oren_nayar_diffuse_bsdf name="Diffuse_BSDF" type="BSDF" xpos="3.64828" ypos="2.02564">
       <input name="weight" type="float" value="1.0000" />
       <input name="color" type="color3" value="1.0000, 1.0000, 1.0000" />
       <input name="roughness" type="float" />
       <input name="normal" type="vector3" />
-    </diffuse_brdf>
-    <diffuse_btdf name="SSS_BSDF" type="BSDF" xpos="3.64828" ypos="6.96564">
+    </oren_nayar_diffuse_bsdf>
+    <translucent_bsdf name="SSS_BSDF" type="BSDF" xpos="3.64828" ypos="6.96564">
       <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" value="1.0000, 1.0000, 1.0000" />
       <input name="normal" type="vector3" />
-    </diffuse_btdf>
+    </translucent_bsdf>
     <mix name="mix1" type="BSDF" xpos="5.18621" ypos="4.66564">
       <input name="fg" type="BSDF" nodename="Diffuse_BSDF" />
       <input name="bg" type="BSDF" nodename="SSS_BSDF" />
       <input name="mix" type="float" value="1.0000" />
     </mix>
-    <dielectric_btdf name="Transmission_BSDF" type="BSDF" xpos="5.18621" ypos="9">
+    <dielectric_bsdf name="Transmission_BSDF" type="BSDF" xpos="5.18621" ypos="9">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="1.0000, 1.0000, 1.0000" />
       <input name="ior" type="float" value="0.2000" />
       <input name="roughness" type="vector2" nodename="rougness2" />
       <input name="normal" type="vector3" />
       <input name="tangent" type="vector3" />
-      <parameter name="distribution" type="string" value="ggx" />
-      <input name="interior" type="VDF" value="" />
-    </dielectric_btdf>
+      <input name="distribution" type="string" value="ggx" />
+      <input name="scatter_mode" type="string" value="T" />
+    </dielectric_bsdf>
     <mix name="mix3" type="BSDF" xpos="7.16552" ypos="6.54984">
       <input name="fg" type="BSDF" nodename="mix1" />
       <input name="bg" type="BSDF" nodename="Transmission_BSDF" />
       <input name="mix" type="float" value="1.0000" />
     </mix>
-    <dielectric_brdf name="Specular_BSDF" type="BSDF" xpos="8.65818" ypos="1.33436">
+    <dielectric_bsdf name="Specular_BSDF__layer_top" type="BSDF" xpos="8.65818" ypos="1.33436">
       <input name="weight" type="float" value="1.0000" />
       <input name="tint" type="color3" value="0.0000, 0.0000, 0.0000" />
       <input name="ior" type="float" value="0.7700" />
       <input name="roughness" type="vector2" nodename="rougness2" />
       <input name="normal" type="vector3" />
       <input name="tangent" type="vector3" />
-      <parameter name="distribution" type="string" value="ggx" />
-      <input name="base" type="BSDF" nodename="mix3" />
-    </dielectric_brdf>
-    <conductor_brdf name="Metal_BSDF" type="BSDF" xpos="8.64828" ypos="8.78">
+      <input name="distribution" type="string" value="ggx" />
+    </dielectric_bsdf>
+    <conductor_bsdf name="Metal_BSDF" type="BSDF" xpos="8.64828" ypos="8.78">
       <input name="weight" type="float" value="1.0000" />
-      <input name="reflectivity" type="color3" value="0.7000, 1.0000, 0.3000" />
-      <input name="edge_color" type="color3" value="0.9000, 0.9000, 0.9000" />
       <input name="roughness" type="vector2" nodename="rougness2" />
       <input name="normal" type="vector3" />
       <input name="tangent" type="vector3" />
-      <parameter name="distribution" type="string" value="ggx" />
-    </conductor_brdf>
+      <input name="distribution" type="string" value="ggx" />
+      <input name="ior" type="color3" nodename="Metal_BSDF__artistic_ior" output="ior" />
+      <input name="extinction" type="color3" nodename="Metal_BSDF__artistic_ior" output="extinction" />
+    </conductor_bsdf>
     <mix name="mix2" type="BSDF" xpos="10.2966" ypos="3.1">
       <input name="fg" type="BSDF" nodename="Specular_BSDF" />
       <input name="bg" type="BSDF" nodename="Metal_BSDF" />
@@ -100,15 +99,14 @@
       <input name="roughness" type="float" value="1.0000" />
       <input name="anisotropy" type="float" value="0.0000" />
     </roughness_anisotropy>
-    <dielectric_brdf name="Coat_BSDF" type="BSDF" xpos="13.869" ypos="2.47694">
+    <dielectric_bsdf name="Coat_BSDF__layer_top" type="BSDF" xpos="13.869" ypos="2.47694">
       <input name="weight" type="float" value="1.0000" />
       <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
       <input name="ior" type="float" value="0.5440" />
       <input name="roughness" type="vector2" nodename="coat_roughness2" />
       <input name="normal" type="vector3" />
-      <parameter name="distribution" type="string" value="ggx" />
-      <input name="base" type="BSDF" nodename="scale_bsdf1" />
-    </dielectric_brdf>
+      <input name="distribution" type="string" value="ggx" />
+    </dielectric_bsdf>
     <multiply name="multiply3" type="color3" xpos="10.2966" ypos="11.74">
       <input name="in1" type="color3" value="0.0010, 0.0000, 0.0000" />
       <input name="in2" type="float" value="1.0000" />
@@ -125,7 +123,7 @@
     </luminance>
     <swizzle name="luminance1_x" type="float" xpos="13.869" ypos="12.42">
       <input name="in" type="color3" nodename="luminance1" />
-      <parameter name="channels" type="string" value="r" />
+      <input name="channels" type="string" value="r" />
     </swizzle>
     <surface name="Surface_Constructor" type="surfaceshader" xpos="15.4276" ypos="6.84">
       <input name="bsdf" type="BSDF" nodename="Coat_BSDF" />
@@ -133,5 +131,19 @@
       <input name="opacity" type="float" nodename="luminance1_x" />
     </surface>
     <output name="out" type="surfaceshader" nodename="Surface_Constructor" />
+    <layer name="Specular_BSDF" type="BSDF">
+      <input name="top" type="BSDF" nodename="Specular_BSDF__layer_top" />
+      <input name="base" type="BSDF" nodename="mix3" />
+    </layer>
+    <artistic_ior name="Metal_BSDF__artistic_ior" type="multioutput">
+      <output name="ior" type="color3" />
+      <output name="extinction" type="color3" />
+      <input name="reflectivity" type="color3" value="0.7000, 1.0000, 0.3000" />
+      <input name="edge_color" type="color3" value="0.9000, 0.9000, 0.9000" />
+    </artistic_ior>
+    <layer name="Coat_BSDF" type="BSDF">
+      <input name="top" type="BSDF" nodename="Coat_BSDF__layer_top" />
+      <input name="base" type="BSDF" nodename="scale_bsdf1" />
+    </layer>
   </nodegraph>
 </materialx>

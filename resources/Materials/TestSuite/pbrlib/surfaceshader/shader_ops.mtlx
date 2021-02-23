@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="nodegraph1" type="">
     <add name="add_surface_shader" type="surfaceshader">
       <input name="in1" type="surfaceshader" value="" nodename="multiply_surface_shaderFloat" />

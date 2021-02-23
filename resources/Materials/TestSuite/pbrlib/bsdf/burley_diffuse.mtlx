@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="test_burley_diffuse">
-    <burley_diffuse_brdf name="burley_brdf1" type="BSDF">
+    <burley_diffuse_bsdf name="burley_brdf1" type="BSDF">
       <input name="color" type="color3" value="0.6, 0.6, 0.6" />
       <input name="roughness" type="float" value="0.2" />
-    </burley_diffuse_brdf>
+    </burley_diffuse_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="burley_brdf1" />
       <input name="opacity" type="float" value="1.0" />

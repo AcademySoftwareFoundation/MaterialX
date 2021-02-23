@@ -1,38 +1,45 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
-
+<materialx version="1.38">
   <!--  Layering using explicit connection to 'base'.-->
   <nodegraph name="layer_bsdf_test1">
-    <diffuse_brdf name="diffuse_brdf_1" type="BSDF" />
-    <sheen_brdf name="sheen_brdf_1" type="BSDF">
-      <input name="base" type="BSDF" nodename="diffuse_brdf_1" />
-    </sheen_brdf>
-    <dielectric_brdf name="dielectric_brdf_1" type="BSDF">
+    <oren_nayar_diffuse_bsdf name="diffuse_brdf_1" type="BSDF" />
+    <sheen_bsdf name="sheen_brdf_1__layer_top" type="BSDF" />
+    <dielectric_bsdf name="dielectric_brdf_1__layer_top" type="BSDF">
       <input name="ior" type="float" value="2.5" />
-      <input name="base" type="BSDF" nodename="sheen_brdf_1" />
-    </dielectric_brdf>
-    <dielectric_brdf name="dielectric_brdf_2" type="BSDF">
+    </dielectric_bsdf>
+    <dielectric_bsdf name="dielectric_brdf_2__layer_top" type="BSDF">
       <input name="ior" type="float" value="1.2" />
       <input name="tint" type="color3" value="1,0,0" />
-      <input name="base" type="BSDF" nodename="dielectric_brdf_1" />
-    </dielectric_brdf>
+    </dielectric_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="dielectric_brdf_2" />
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
+    <layer name="sheen_brdf_1" type="BSDF">
+      <input name="top" type="BSDF" nodename="sheen_brdf_1__layer_top" />
+      <input name="base" type="BSDF" nodename="diffuse_brdf_1" />
+    </layer>
+    <layer name="dielectric_brdf_1" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_brdf_1__layer_top" />
+      <input name="base" type="BSDF" nodename="sheen_brdf_1" />
+    </layer>
+    <layer name="dielectric_brdf_2" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_brdf_2__layer_top" />
+      <input name="base" type="BSDF" nodename="dielectric_brdf_1" />
+    </layer>
   </nodegraph>
 
   <!--  Layering using layer operator.-->
   <nodegraph name="layer_bsdf_test2">
-    <diffuse_brdf name="diffuse_brdf_1" type="BSDF" />
-    <sheen_brdf name="sheen_brdf_1" type="BSDF" />
-    <dielectric_brdf name="dielectric_brdf_1" type="BSDF">
+    <oren_nayar_diffuse_bsdf name="diffuse_brdf_1" type="BSDF" />
+    <sheen_bsdf name="sheen_brdf_1" type="BSDF" />
+    <dielectric_bsdf name="dielectric_brdf_1" type="BSDF">
       <input name="ior" type="float" value="2.5" />
-    </dielectric_brdf>
-    <dielectric_brdf name="dielectric_brdf_2" type="BSDF">
+    </dielectric_bsdf>
+    <dielectric_bsdf name="dielectric_brdf_2" type="BSDF">
       <input name="ior" type="float" value="1.2" />
       <input name="tint" type="color3" value="1,0,0" />
-    </dielectric_brdf>
+    </dielectric_bsdf>
     <layer name="layer_bsdf_1" type="BSDF">
       <input name="top" type="BSDF" nodename="sheen_brdf_1" />
       <input name="base" type="BSDF" nodename="diffuse_brdf_1" />
@@ -50,5 +57,4 @@
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
-
 </materialx>
