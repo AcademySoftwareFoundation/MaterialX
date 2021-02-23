@@ -14,6 +14,9 @@
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+#ifdef MATERIALX_BUILD_GEN_ARNOLD
+#include <MaterialXGenArnold/ArnoldShaderGenerator.h>
+#endif
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
@@ -229,6 +232,9 @@ Viewer::Viewer(const std::string& materialFilename,
 #endif
 #if MATERIALX_BUILD_GEN_MDL
     _genContextMdl(mx::MdlShaderGenerator::create()),
+#endif
+#if MATERIALX_BUILD_GEN_ARNOLD
+    _genContextArnold(mx::ArnoldShaderGenerator::create()),
 #endif
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(true),
@@ -1396,6 +1402,14 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                     new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", baseName);
                 }
 #endif
+#if MATERIALX_BUILD_GEN_ARNOLD
+                else if (context.getShaderGenerator().getTarget() == mx::ArnoldShaderGenerator::TARGET)
+                {
+                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                    writeTextFile(pixelShader, baseName + "_arnold.osl");
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Arnold OSL source: ", baseName);
+                }
+#endif
             }
         }
     }
@@ -1532,6 +1546,9 @@ void Viewer::loadStandardLibraries()
 #if MATERIALX_BUILD_GEN_MDL
     initContext(_genContextMdl);
 #endif
+#if MATERIALX_BUILD_GEN_ARNOLD
+    initContext(_genContextArnold);
+#endif
 }
 
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
@@ -1590,6 +1607,15 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     if (key == GLFW_KEY_M && action == GLFW_PRESS)
     {
         saveShaderSource(_genContextMdl);
+        return true;
+    }
+#endif
+
+#if MATERIALX_BUILD_GEN_ARNOLD
+    // Save MDL shader source to file.
+    if (key == GLFW_KEY_A && action == GLFW_PRESS)
+    {
+        saveShaderSource(_genContextArnold);
         return true;
     }
 #endif
