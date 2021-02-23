@@ -2,7 +2,7 @@
 
 ## [1.38] - Development
 
-### v1.38_adsk_development3 - In progress
+### [v1.38_adsk_development3](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development3) - In progress
 - Up-to-date with LucasFilm `master` @(a78c28572f8b275f0ed83509cf919a99791d6997)
   - Includes fix for optimization logic to preserve other options such as averaging and not affect baked UDIM creation.
 - Change in signature for loadDocument(), loadLibrary() and loadLibraries() to have pointer based optional arguments.
