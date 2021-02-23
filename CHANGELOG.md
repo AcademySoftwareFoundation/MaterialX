@@ -4,9 +4,12 @@
 
 ### v1.38_adsk_development3 - In progress
 - Up-to-date with LucasFilm `master` @(a78c28572f8b275f0ed83509cf919a99791d6997)
-- Change in signature for loadDocument(), loadLibrary() and loadLibraries()
+  - Includes fix for optimization logic to preserve other options such as averaging and not affect baked UDIM creation.
+- Change in signature for loadDocument(), loadLibrary() and loadLibraries() to have pointer based optional arguments.
 - Migration of core library files to 1.38.
-- Add getReferencedImages() to ShaderRenderer to support automatic texture bake resizing.
+- Add getReferencedImages() to ShaderRenderer to support automatic texture bake resizing. Used by TextureBaker for auto baked image resizing.
+- Add setHashImageNames() option to TextureBaker to hash image file names in case they are too long for the file system (e.g. Windows).
+- Add in option to save Arnold OSL in MaterialXView via "A" key.
 
 ### [v1.38_adsk_development2](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development2) : 2021-02-10
 - Up-to-date with LucasFilm `master` branch (no longer on v1.38 branch) [@e954329e29480ca2b2d05e437a018c0685a8d62b](https://github.com/materialx/MaterialX/commit/e954329e29480ca2b2d05e437a018c0685a8d62b).
