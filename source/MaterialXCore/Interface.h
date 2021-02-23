@@ -172,13 +172,6 @@ class PortElement : public ValueElement
     /// Return the node, if any, to which this element is connected.
     virtual NodePtr getConnectedNode() const;
 
-    /// Set the output to which this element is connected.  If the output
-    /// argument is null, then any existing output connection will be cleared.
-    void setConnectedOutput(ConstOutputPtr output);
-
-    /// Return the output, if any, to which this element is connected.
-    OutputPtr getConnectedOutput() const;
-
     /// @}
     /// @name Validation
     /// @{
@@ -215,20 +208,6 @@ class Input : public PortElement
     virtual ~Input() { }
 
   public:
-    /// @name Traversal
-    /// @{
-
-    /// Return the input on the parent graph corresponding to the interface name
-    /// for the element.
-    InputPtr getConnectedInterface() const;
-
-    /// Return the output, if any, to which this element is connected.
-    OutputPtr getConnectedOutput() const;
-
-    /// Return the node, if any, to which this element is connected.
-    NodePtr getConnectedNode() const override;
-
-    /// @}
     /// @name Default Geometric Property
     /// @{
 
@@ -252,6 +231,24 @@ class Input : public PortElement
 
     /// Return the GeomPropDef element to use, if defined for this input.
     GeomPropDefPtr getDefaultGeomProp() const;
+
+    /// @}
+    /// @name Connections
+    /// @{
+
+    /// Return the node, if any, to which this input is connected.
+    NodePtr getConnectedNode() const override;
+
+    /// Set the output to which this input is connected.  If the output
+    /// argument is null, then any existing output connection will be cleared.
+    void setConnectedOutput(ConstOutputPtr output);
+
+    /// Return the output, if any, to which this input is connected.
+    virtual OutputPtr getConnectedOutput() const;
+
+    /// Return the input on the parent graph corresponding to the interface name
+    /// for this input.
+    InputPtr getInterfaceInput() const;
 
     /// @}
     /// @name Validation
