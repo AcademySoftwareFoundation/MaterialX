@@ -185,6 +185,12 @@ void bindPyElement(py::module& mod)
     py::class_<mx::Token, mx::TokenPtr, mx::ValueElement>(mod, "Token")
         .def_readonly_static("CATEGORY", &mx::Token::CATEGORY);
 
+    py::class_<mx::CommentElement, mx::CommentElementPtr, mx::Element>(mod, "CommentElement")
+        .def_readonly_static("CATEGORY", &mx::CommentElement::CATEGORY);
+
+    py::class_<mx::GenericElement, mx::GenericElementPtr, mx::Element>(mod, "GenericElement")
+        .def_readonly_static("CATEGORY", &mx::GenericElement::CATEGORY);
+
     py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")
         .def("setFilePrefix", &mx::StringResolver::setFilePrefix)
         .def("getFilePrefix", &mx::StringResolver::getFilePrefix)

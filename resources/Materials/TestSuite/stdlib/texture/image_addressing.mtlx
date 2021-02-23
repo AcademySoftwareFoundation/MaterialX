@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="uclamp" type="" xpos="8.43448" ypos="4.84">
     <image name="image_number_1" type="color3" xpos="5.36637" ypos="4.71876">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="layer" type="string" value="" />
-      <parameter name="default" type="color3" value="1.0, 0.0, 0.0" />
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value="1.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
-      <parameter name="uaddressmode" type="string" value="clamp" />
-      <parameter name="vaddressmode" type="string" value="periodic" />
-      <parameter name="filtertype" type="string" value="linear" />
-      <parameter name="framerange" type="string" value="" />
-      <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="constant" />
+      <input name="uaddressmode" type="string" value="clamp" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
-      <parameter name="index" type="integer" value="0" />
+      <input name="index" type="integer" value="0" />
     </texcoord>
     <multiply name="multiply1" type="vector2" xpos="4.35964" ypos="5.9449">
       <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
@@ -24,20 +24,20 @@
   </nodegraph>
   <nodegraph name="vclamp" type="" xpos="8.43448" ypos="4.84">
     <image name="image_number_1" type="color3" xpos="5.36637" ypos="4.71876">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="layer" type="string" value="" />
-      <parameter name="default" type="color3" value="1.0, 0.0, 0.0" />
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value="1.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
-      <parameter name="uaddressmode" type="string" value="periodic" />
-      <parameter name="vaddressmode" type="string" value="clamp" />
-      <parameter name="filtertype" type="string" value="linear" />
-      <parameter name="framerange" type="string" value="" />
-      <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="constant" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="clamp" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
-      <parameter name="index" type="integer" value="0" />
+      <input name="index" type="integer" value="0" />
     </texcoord>
     <multiply name="multiply1" type="vector2" xpos="4.35964" ypos="5.9449">
       <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
@@ -46,20 +46,20 @@
   </nodegraph>
   <nodegraph name="uborder_color" type="" xpos="8.43448" ypos="4.84">
     <image name="image_number_1" type="color3" xpos="5.36637" ypos="4.71876">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="layer" type="string" value="" />
-      <parameter name="default" type="color3" value="1.0, 0.0, 0.0" />
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value="1.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
-      <parameter name="uaddressmode" type="string" value="constant" />
-      <parameter name="vaddressmode" type="string" value="periodic" />
-      <parameter name="filtertype" type="string" value="linear" />
-      <parameter name="framerange" type="string" value="" />
-      <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="constant" />
+      <input name="uaddressmode" type="string" value="constant" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
-      <parameter name="index" type="integer" value="0" />
+      <input name="index" type="integer" value="0" />
     </texcoord>
     <multiply name="multiply1" type="vector2" xpos="4.35964" ypos="5.9449">
       <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
@@ -68,20 +68,20 @@
   </nodegraph>
   <nodegraph name="vborder_color" type="" xpos="8.43448" ypos="4.84">
     <image name="image_number_1" type="color3" xpos="5.36637" ypos="4.71876">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="layer" type="string" value="" />
-      <parameter name="default" type="color3" value="1.0, 0.0, 0.0" />
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value="1.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
-      <parameter name="uaddressmode" type="string" value="periodic" />
-      <parameter name="vaddressmode" type="string" value="constant" />
-      <parameter name="filtertype" type="string" value="linear" />
-      <parameter name="framerange" type="string" value="" />
-      <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="constant" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="constant" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
-      <parameter name="index" type="integer" value="0" />
+      <input name="index" type="integer" value="0" />
     </texcoord>
     <multiply name="multiply1" type="vector2" xpos="4.35964" ypos="5.9449">
       <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
@@ -90,20 +90,20 @@
   </nodegraph>
   <nodegraph name="uv_decal_black" type="" xpos="8.43448" ypos="4.84">
     <image name="image_number_1" type="color3" xpos="5.36637" ypos="4.71876">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="layer" type="string" value="" />
-      <parameter name="default" type="color3" value="0.0, 0.0, 0.0" />
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value="0.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="add1" />
-      <parameter name="uaddressmode" type="string" value="constant" />
-      <parameter name="vaddressmode" type="string" value="constant" />
-      <parameter name="filtertype" type="string" value="linear" />
-      <parameter name="framerange" type="string" value="" />
-      <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="constant" />
+      <input name="uaddressmode" type="string" value="constant" />
+      <input name="vaddressmode" type="string" value="constant" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
-      <parameter name="index" type="integer" value="0" />
+      <input name="index" type="integer" value="0" />
     </texcoord>
     <multiply name="multiply1" type="vector2" xpos="4.35964" ypos="5.9449">
       <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
@@ -116,20 +116,20 @@
   </nodegraph>
   <nodegraph name="vmirror" type="" xpos="8.43448" ypos="4.84">
     <image name="image_number_1" type="color3" xpos="5.36637" ypos="4.71876">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="layer" type="string" value="" />
-      <parameter name="default" type="color3" value="1.0, 0.0, 0.0" />
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value="1.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
-      <parameter name="uaddressmode" type="string" value="clamp" />
-      <parameter name="vaddressmode" type="string" value="mirror" />
-      <parameter name="filtertype" type="string" value="linear" />
-      <parameter name="framerange" type="string" value="" />
-      <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="constant" />
+      <input name="uaddressmode" type="string" value="clamp" />
+      <input name="vaddressmode" type="string" value="mirror" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
-      <parameter name="index" type="integer" value="0" />
+      <input name="index" type="integer" value="0" />
     </texcoord>
     <multiply name="multiply1" type="vector2" xpos="4.35964" ypos="5.9449">
       <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
@@ -138,20 +138,20 @@
   </nodegraph>
   <nodegraph name="umirror" type="" xpos="8.43448" ypos="4.84">
     <image name="image_number_1" type="color3" xpos="5.36637" ypos="4.71876">
-      <parameter name="file" type="filename" value="resources/Images/grid.png" />
-      <parameter name="layer" type="string" value="" />
-      <parameter name="default" type="color3" value="1.0, 0.0, 0.0" />
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value="1.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
-      <parameter name="uaddressmode" type="string" value="mirror" />
-      <parameter name="vaddressmode" type="string" value="clamp" />
-      <parameter name="filtertype" type="string" value="linear" />
-      <parameter name="framerange" type="string" value="" />
-      <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="constant" />
+      <input name="uaddressmode" type="string" value="mirror" />
+      <input name="vaddressmode" type="string" value="clamp" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
-      <parameter name="index" type="integer" value="0" />
+      <input name="index" type="integer" value="0" />
     </texcoord>
     <multiply name="multiply1" type="vector2" xpos="4.35964" ypos="5.9449">
       <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />

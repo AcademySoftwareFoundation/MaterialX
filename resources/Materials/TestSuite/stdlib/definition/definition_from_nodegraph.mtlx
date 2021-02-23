@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="test_colorcorrect">
     <range name="AlphaClampAndGamma" type="float">
       <input name="in" type="float" nodename="AlphaOffset" />
       <input name="gamma" type="float" value="3" />
-      <parameter name="doclamp" type="boolean" value="true" />
+      <input name="doclamp" type="boolean" value="true" />
     </range>
     <multiply name="AlphaGain" type="float">
       <input name="in1" type="float" nodename="extractAlphaForGain" />
@@ -47,24 +47,24 @@
     </ifequal>
     <swizzle name="outputColor" type="color3">
       <input name="in" type="color4" nodename="if_premultiply_condition" />
-      <parameter name="channels" type="string" value="rgb" />
+      <input name="channels" type="string" value="rgb" />
     </swizzle>
     <swizzle name="outputAlpha" type="float">
       <input name="in" type="color4" nodename="if_premultiply_condition" />
-      <parameter name="channels" type="string" value="a" />
+      <input name="channels" type="string" value="a" />
     </swizzle>
     <swizzle name="extractColorForHsv" type="color3">
       <input name="in" type="color4" nodename="if_unpremultiply_condition" />
-      <parameter name="channels" type="string" value="rgb" />
+      <input name="channels" type="string" value="rgb" />
     </swizzle>
     <swizzle name="extractAlphaForGain" type="float">
       <input name="in" type="color4" nodename="if_unpremultiply_condition" />
     </swizzle>
     <constant name="inputColor" type="color3">
-      <parameter name="value" type="color3" value="0.5, 0.5, 0.5" />
+      <input name="value" type="color3" value="0.5, 0.5, 0.5" />
     </constant>
     <constant name="inputAlpha" type="float">
-      <parameter name="value" type="float" value="1" />
+      <input name="value" type="float" value="1" />
     </constant>
     <combine2 name="combineInput" type="color4">
       <input name="in1" type="color3" nodename="inputColor" />

@@ -2,7 +2,12 @@
 
 ## [1.38] - Development
 
-### [v1.38_adsk_development3](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development3) - In progress
+### [v1.38_adsk_development4]
+- Up-to-date with LucasFilm `master` @(8df1c073)
+- Support for preserving comments in documents and improved mxupdate.py
+- Porting of 1.37 files to be 1.38 files (in progress)
+
+### [v1.38_adsk_development3](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development3) - 2021-02-23
 - Up-to-date with LucasFilm `master` @(a78c28572f8b275f0ed83509cf919a99791d6997)
   - Includes fix for optimization logic to preserve other options such as averaging and not affect baked UDIM creation.
 - Change in signature for loadDocument(), loadLibrary() and loadLibraries() to have pointer based optional arguments.

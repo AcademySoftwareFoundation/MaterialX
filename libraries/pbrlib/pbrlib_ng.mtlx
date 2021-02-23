@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+    TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+    All rights reserved.  See LICENSE.txt for license.
 
-<!--
-  TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-  All rights reserved.  See LICENSE.txt for license.
+    Graph definitions of standard nodes included in the MaterialX specification.
+  -->
 
-  Declarations of standard data types and nodes included in the MaterialX specification.
--->
-
-<materialx version="1.37">
   <!-- <glossiness_anisotropy> -->
   <nodegraph name="IMP_glossiness_anisotropy" nodedef="ND_glossiness_anisotropy">
     <invert name="invert1" type="float">
@@ -19,4 +18,5 @@
     </roughness_anisotropy>
     <output name="out" type="vector2" nodename="roughness1" />
   </nodegraph>
+
 </materialx>

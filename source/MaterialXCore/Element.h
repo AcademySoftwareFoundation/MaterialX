@@ -22,6 +22,8 @@ class Element;
 class TypedElement;
 class ValueElement;
 class Token;
+class CommentElement;
+class GenericElement;
 class StringResolver;
 class Document;
 
@@ -44,6 +46,16 @@ using ConstValueElementPtr = shared_ptr<const ValueElement>;
 using TokenPtr = shared_ptr<Token>;
 /// A shared pointer to a const Token
 using ConstTokenPtr = shared_ptr<const Token>;
+
+/// A shared pointer to a CommentElement
+using CommentElementPtr = shared_ptr<CommentElement>;
+/// A shared pointer to a const CommentElement
+using ConstCommentElementPtr = shared_ptr<const CommentElement>;
+
+/// A shared pointer to a GenericElement
+using GenericElementPtr = shared_ptr<GenericElement>;
+/// A shared pointer to a const GenericElement
+using ConstGenericElementPtr = shared_ptr<const GenericElement>;
 
 /// A shared pointer to a StringResolver
 using StringResolverPtr = shared_ptr<StringResolver>;
@@ -1119,6 +1131,26 @@ class Token : public ValueElement
     {
     }
     virtual ~Token() { }
+
+  public:
+    static const string CATEGORY;
+};
+
+/// @class CommentElement
+/// An element representing a block of descriptive text within a document, which will
+/// be stored a comment when the document is written out.
+///
+/// The comment text may be accessed with the methods Element::setDocString and
+/// Element::getDocString.
+/// 
+class CommentElement : public Element
+{
+  public:
+    CommentElement(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~CommentElement() { }
 
   public:
     static const string CATEGORY;

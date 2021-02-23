@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="test_diffuse_btdf">
-    <diffuse_btdf name="diffuse_btdf1" type="BSDF">
+    <translucent_bsdf name="diffuse_btdf1" type="BSDF">
       <input name="weight" type="float" value="0.6" />
       <input name="color" type="color3" value="1.0, 1.0, 1.0" />
-    </diffuse_btdf>
+    </translucent_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="diffuse_btdf1" />
       <input name="opacity" type="float" value="1.0" />

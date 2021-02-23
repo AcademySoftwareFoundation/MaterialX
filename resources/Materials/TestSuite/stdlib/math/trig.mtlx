@@ -1,234 +1,217 @@
 <?xml version="1.0"?>
-<!--
-
-Basic trig function tests with one or more constants connected to each trig node in a separate
-graph per trig function.
-- sin
-- cos
-- tan
-- asin
-- acos
-- atan2
-
--->
-<materialx version="1.37">
-   <nodegraph name="sin_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <sin name="sin1" type="float" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="float" value="0.0" nodename="constant1" />
-      </sin>
-      <constant name="constant1" type="float" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="float" value="1.0000" />
-      </constant>
-      <output name="sin_out" type="float" nodename="sin1" />
-   </nodegraph>
-   <nodegraph name="sin_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <sin name="sin1" type="vector2" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
-      </sin>
-      <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector2" value="1.0000, 1.0" />
-      </constant>
-      <output name="sin_out" type="vector2" nodename="sin1" />
-   </nodegraph>
-   <nodegraph name="sin_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <sin name="sin1" type="vector3" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
-      </sin>
-      <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector3" value="1.0, 1.0, 1.0" />
-      </constant>
-      <output name="sin_out" type="vector3" nodename="sin1" />
-   </nodegraph>
-   <nodegraph name="sin_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <sin name="sin1" type="vector4" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
-      </sin>
-      <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-      </constant>
-      <output name="sin_out" type="vector4" nodename="sin1" />
-   </nodegraph>
-
-   <nodegraph name="cos_nodegraph" type="" xpos="5.61327" ypos="15.3983">
-      <cos name="cos1" type="float" xpos="5.75172" ypos="10.24">
-         <input name="in" type="float" value="0.0" nodename="constant1" />
-      </cos>
-      <constant name="constant1" type="float" xpos="4.26897" ypos="10.54">
-         <parameter name="value" type="float" value="1.0000" />
-      </constant>
-      <output name="cos_out" type="float" nodename="cos1" />
-   </nodegraph>
-   <nodegraph name="cos_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <cos name="cos1" type="vector2" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
-      </cos>
-      <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector2" value="1.0000, 1.0" />
-      </constant>
-      <output name="cos_out" type="vector2" nodename="cos1" />
-   </nodegraph>
-   <nodegraph name="cos_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <cos name="cos1" type="vector3" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
-      </cos>
-      <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector3" value="1.0, 1.0, 1.0" />
-      </constant>
-      <output name="cos_out" type="vector3" nodename="cos1" />
-   </nodegraph>
-   <nodegraph name="cos_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <cos name="cos1" type="vector4" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
-      </cos>
-      <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-      </constant>
-      <output name="cos_out" type="vector4" nodename="cos1" />
-   </nodegraph>
-
-   <nodegraph name="tan_nodegraph" type="" xpos="5.63544" ypos="16.6298">
-      <constant name="constant1" type="float" xpos="4.26897" ypos="10.54">
-         <parameter name="value" type="float" value="0.5000" />
-      </constant>
-      <tan name="tan1" type="float" xpos="5.75172" ypos="10.24">
-         <input name="in" type="float" value="0.0" nodename="constant1" />
-      </tan>
-      <output name="tan_out" type="float" nodename="tan1" />
-   </nodegraph>
-   <nodegraph name="tan_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <tan name="tan1" type="vector2" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
-      </tan>
-      <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector2" value="1.0000, 1.0" />
-      </constant>
-      <output name="tan_out" type="vector2" nodename="tan1" />
-   </nodegraph>
-   <nodegraph name="tan_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <tan name="tan1" type="vector3" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
-      </tan>
-      <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector3" value="1.0, 1.0, 1.0" />
-      </constant>
-      <output name="tan_out" type="vector3" nodename="tan1" />
-   </nodegraph>
-   <nodegraph name="tan_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <tan name="tan1" type="vector4" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
-      </tan>
-      <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-      </constant>
-      <output name="tan_out" type="vector4" nodename="tan1" />
-   </nodegraph>
-
-   <nodegraph name="asin_nodegraph" type="" xpos="5.64463" ypos="17.8931">
-      <asin name="asin1" type="float" xpos="5.75172" ypos="10.24">
-         <input name="in" type="float" value="0.0" nodename="constant1" />
-      </asin>
-      <constant name="constant1" type="float" xpos="4.26897" ypos="10.54">
-         <parameter name="value" type="float" value="0.5000" />
-      </constant>
-      <output name="asin_out" type="float" nodename="asin1" />
-   </nodegraph>
-   <nodegraph name="asin_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <asin name="asin1" type="vector2" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
-      </asin>
-      <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector2" value="1.0000, 1.0" />
-      </constant>
-      <output name="asin_out" type="vector2" nodename="asin1" />
-   </nodegraph>
-   <nodegraph name="asin_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <asin name="asin1" type="vector3" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
-      </asin>
-      <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector3" value="1.0, 1.0, 1.0" />
-      </constant>
-      <output name="asin_out" type="vector3" nodename="asin1" />
-   </nodegraph>
-   <nodegraph name="asin_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <asin name="asin1" type="vector4" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
-      </asin>
-      <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-      </constant>
-      <output name="asin_out" type="vector4" nodename="asin1" />
-   </nodegraph>
-
-   <nodegraph name="acos_nodegraph" type="" xpos="5.64463" ypos="19.1375">
-      <acos name="acos1" type="float" xpos="5.75172" ypos="10.24">
-         <input name="in" type="float" value="0.0" nodename="constant1" />
-      </acos>
-      <constant name="constant1" type="float" xpos="4.26897" ypos="10.54">
-         <parameter name="value" type="float" value="0.8000" />
-      </constant>
-      <output name="acos_out" type="float" nodename="acos1" />
-   </nodegraph>
-   <nodegraph name="acos_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <acos name="acos1" type="vector2" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
-      </acos>
-      <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector2" value="1.0000, 1.0" />
-      </constant>
-      <output name="acos_out" type="vector2" nodename="acos1" />
-   </nodegraph>
-   <nodegraph name="acos_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <acos name="acos1" type="vector3" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
-      </acos>
-      <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector3" value="1.0, 1.0, 1.0" />
-      </constant>
-      <output name="acos_out" type="vector3" nodename="acos1" />
-   </nodegraph>
-   <nodegraph name="acos_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <acos name="acos1" type="vector4" xpos="4.03625" ypos="12.8689">
-         <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
-      </acos>
-      <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
-         <parameter name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-      </constant>
-      <output name="acos_out" type="vector4" nodename="acos1" />
-   </nodegraph>
-
-   <nodegraph name="atan_nodegraph" type="" xpos="5.65399" ypos="20.3234">
-      <constant name="constant1" type="float" xpos="4.26207" ypos="9.5">
-         <parameter name="value" type="float" value="0.5000" />
-      </constant>
-      <constant name="constant2" type="float" xpos="4.26207" ypos="11.28">
-         <parameter name="value" type="float" value="1.0000" />
-      </constant>
-      <atan2 name="atan21" type="float" xpos="5.74171" ypos="9.92">
-         <input name="in1" type="float" value="0.0" nodename="constant1" />
-         <input name="in2" type="float" value="0.0" nodename="constant2" />
-      </atan2>
-      <output name="atan2_out" type="float" nodename="atan21" />
-   </nodegraph>
-   <nodegraph name="atan_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <atan2 name="atan21" type="vector2" xpos="4.03625" ypos="12.8689">
-         <input name="in1" type="vector2" value="0.5, 0.5" />
-         <input name="in2" type="vector2" value="1.0, 1.0" />
-      </atan2>
-      <output name="atan_out" type="vector2" nodename="atan21" />
-   </nodegraph>
-   <nodegraph name="atan_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <atan2 name="atan21" type="vector3" xpos="4.03625" ypos="12.8689">
-         <input name="in1" type="vector3" value="0.5, 0.5, 0.5" />
-         <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-      </atan2>
-      <output name="atan_out" type="vector3" nodename="atan21" />
-   </nodegraph>
-   <nodegraph name="atan_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
-      <atan2 name="atan21" type="vector4" xpos="4.03625" ypos="12.8689">
-         <input name="in1" type="vector4" value="0.5, 0.5, 0.5, 0.5" />
-         <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-      </atan2>
-      <output name="atan_out" type="vector4" nodename="atan21" />
-   </nodegraph>
+<materialx version="1.38">
+  <nodegraph name="sin_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <sin name="sin1" type="float" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="float" value="0.0" nodename="constant1" />
+    </sin>
+    <constant name="constant1" type="float" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="float" value="1.0000" />
+    </constant>
+    <output name="sin_out" type="float" nodename="sin1" />
+  </nodegraph>
+  <nodegraph name="sin_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <sin name="sin1" type="vector2" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
+    </sin>
+    <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector2" value="1.0000, 1.0" />
+    </constant>
+    <output name="sin_out" type="vector2" nodename="sin1" />
+  </nodegraph>
+  <nodegraph name="sin_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <sin name="sin1" type="vector3" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
+    </sin>
+    <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector3" value="1.0, 1.0, 1.0" />
+    </constant>
+    <output name="sin_out" type="vector3" nodename="sin1" />
+  </nodegraph>
+  <nodegraph name="sin_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <sin name="sin1" type="vector4" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
+    </sin>
+    <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    </constant>
+    <output name="sin_out" type="vector4" nodename="sin1" />
+  </nodegraph>
+  <nodegraph name="cos_nodegraph" type="" xpos="5.61327" ypos="15.3983">
+    <cos name="cos1" type="float" xpos="5.75172" ypos="10.24">
+      <input name="in" type="float" value="0.0" nodename="constant1" />
+    </cos>
+    <constant name="constant1" type="float" xpos="4.26897" ypos="10.54">
+      <input name="value" type="float" value="1.0000" />
+    </constant>
+    <output name="cos_out" type="float" nodename="cos1" />
+  </nodegraph>
+  <nodegraph name="cos_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <cos name="cos1" type="vector2" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
+    </cos>
+    <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector2" value="1.0000, 1.0" />
+    </constant>
+    <output name="cos_out" type="vector2" nodename="cos1" />
+  </nodegraph>
+  <nodegraph name="cos_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <cos name="cos1" type="vector3" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
+    </cos>
+    <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector3" value="1.0, 1.0, 1.0" />
+    </constant>
+    <output name="cos_out" type="vector3" nodename="cos1" />
+  </nodegraph>
+  <nodegraph name="cos_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <cos name="cos1" type="vector4" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
+    </cos>
+    <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    </constant>
+    <output name="cos_out" type="vector4" nodename="cos1" />
+  </nodegraph>
+  <nodegraph name="tan_nodegraph" type="" xpos="5.63544" ypos="16.6298">
+    <constant name="constant1" type="float" xpos="4.26897" ypos="10.54">
+      <input name="value" type="float" value="0.5000" />
+    </constant>
+    <tan name="tan1" type="float" xpos="5.75172" ypos="10.24">
+      <input name="in" type="float" value="0.0" nodename="constant1" />
+    </tan>
+    <output name="tan_out" type="float" nodename="tan1" />
+  </nodegraph>
+  <nodegraph name="tan_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <tan name="tan1" type="vector2" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
+    </tan>
+    <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector2" value="1.0000, 1.0" />
+    </constant>
+    <output name="tan_out" type="vector2" nodename="tan1" />
+  </nodegraph>
+  <nodegraph name="tan_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <tan name="tan1" type="vector3" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
+    </tan>
+    <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector3" value="1.0, 1.0, 1.0" />
+    </constant>
+    <output name="tan_out" type="vector3" nodename="tan1" />
+  </nodegraph>
+  <nodegraph name="tan_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <tan name="tan1" type="vector4" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
+    </tan>
+    <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    </constant>
+    <output name="tan_out" type="vector4" nodename="tan1" />
+  </nodegraph>
+  <nodegraph name="asin_nodegraph" type="" xpos="5.64463" ypos="17.8931">
+    <asin name="asin1" type="float" xpos="5.75172" ypos="10.24">
+      <input name="in" type="float" value="0.0" nodename="constant1" />
+    </asin>
+    <constant name="constant1" type="float" xpos="4.26897" ypos="10.54">
+      <input name="value" type="float" value="0.5000" />
+    </constant>
+    <output name="asin_out" type="float" nodename="asin1" />
+  </nodegraph>
+  <nodegraph name="asin_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <asin name="asin1" type="vector2" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
+    </asin>
+    <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector2" value="1.0000, 1.0" />
+    </constant>
+    <output name="asin_out" type="vector2" nodename="asin1" />
+  </nodegraph>
+  <nodegraph name="asin_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <asin name="asin1" type="vector3" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
+    </asin>
+    <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector3" value="1.0, 1.0, 1.0" />
+    </constant>
+    <output name="asin_out" type="vector3" nodename="asin1" />
+  </nodegraph>
+  <nodegraph name="asin_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <asin name="asin1" type="vector4" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
+    </asin>
+    <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    </constant>
+    <output name="asin_out" type="vector4" nodename="asin1" />
+  </nodegraph>
+  <nodegraph name="acos_nodegraph" type="" xpos="5.64463" ypos="19.1375">
+    <acos name="acos1" type="float" xpos="5.75172" ypos="10.24">
+      <input name="in" type="float" value="0.0" nodename="constant1" />
+    </acos>
+    <constant name="constant1" type="float" xpos="4.26897" ypos="10.54">
+      <input name="value" type="float" value="0.8000" />
+    </constant>
+    <output name="acos_out" type="float" nodename="acos1" />
+  </nodegraph>
+  <nodegraph name="acos_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <acos name="acos1" type="vector2" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
+    </acos>
+    <constant name="constant1" type="vector2" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector2" value="1.0000, 1.0" />
+    </constant>
+    <output name="acos_out" type="vector2" nodename="acos1" />
+  </nodegraph>
+  <nodegraph name="acos_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <acos name="acos1" type="vector3" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
+    </acos>
+    <constant name="constant1" type="vector3" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector3" value="1.0, 1.0, 1.0" />
+    </constant>
+    <output name="acos_out" type="vector3" nodename="acos1" />
+  </nodegraph>
+  <nodegraph name="acos_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <acos name="acos1" type="vector4" xpos="4.03625" ypos="12.8689">
+      <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
+    </acos>
+    <constant name="constant1" type="vector4" xpos="2.71937" ypos="13.0341">
+      <input name="value" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    </constant>
+    <output name="acos_out" type="vector4" nodename="acos1" />
+  </nodegraph>
+  <nodegraph name="atan_nodegraph" type="" xpos="5.65399" ypos="20.3234">
+    <constant name="constant1" type="float" xpos="4.26207" ypos="9.5">
+      <input name="value" type="float" value="0.5000" />
+    </constant>
+    <constant name="constant2" type="float" xpos="4.26207" ypos="11.28">
+      <input name="value" type="float" value="1.0000" />
+    </constant>
+    <atan2 name="atan21" type="float" xpos="5.74171" ypos="9.92">
+      <input name="in1" type="float" value="0.0" nodename="constant1" />
+      <input name="in2" type="float" value="0.0" nodename="constant2" />
+    </atan2>
+    <output name="atan2_out" type="float" nodename="atan21" />
+  </nodegraph>
+  <nodegraph name="atan_vector2_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <atan2 name="atan21" type="vector2" xpos="4.03625" ypos="12.8689">
+      <input name="in1" type="vector2" value="0.5, 0.5" />
+      <input name="in2" type="vector2" value="1.0, 1.0" />
+    </atan2>
+    <output name="atan_out" type="vector2" nodename="atan21" />
+  </nodegraph>
+  <nodegraph name="atan_vector3_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <atan2 name="atan21" type="vector3" xpos="4.03625" ypos="12.8689">
+      <input name="in1" type="vector3" value="0.5, 0.5, 0.5" />
+      <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
+    </atan2>
+    <output name="atan_out" type="vector3" nodename="atan21" />
+  </nodegraph>
+  <nodegraph name="atan_vector4_nodegraph" type="" xpos="5.6201" ypos="14.0821">
+    <atan2 name="atan21" type="vector4" xpos="4.03625" ypos="12.8689">
+      <input name="in1" type="vector4" value="0.5, 0.5, 0.5, 0.5" />
+      <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    </atan2>
+    <output name="atan_out" type="vector4" nodename="atan21" />
+  </nodegraph>
 </materialx>

@@ -19,7 +19,9 @@ def main():
                 filename = os.path.join(root, file)
                 doc = mx.createDocument()
                 try:
-                    mx.readFromXmlFile(doc, filename)
+                    readOptions = mx.XmlReadOptions()
+                    readOptions.readComments = True
+                    mx.readFromXmlFile(doc, filename, mx.FileSearchPath(), readOptions)
                     validDocs[filename] = doc
                 except mx.Exception:
                     pass
