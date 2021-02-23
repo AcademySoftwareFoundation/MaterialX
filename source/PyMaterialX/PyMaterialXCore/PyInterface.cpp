@@ -29,15 +29,17 @@ void bindPyInterface(py::module& mod)
         .def("setChannels", &mx::PortElement::setChannels)
         .def("getChannels", &mx::PortElement::getChannels)
         .def("setConnectedNode", &mx::PortElement::setConnectedNode)
-        .def("getConnectedNode", &mx::PortElement::getConnectedNode)
-        .def("setConnectedOutput", &mx::PortElement::setConnectedOutput)
-        .def("getConnectedOutput", &mx::PortElement::getConnectedOutput);
+        .def("getConnectedNode", &mx::PortElement::getConnectedNode);
 
     py::class_<mx::Input, mx::InputPtr, mx::PortElement>(mod, "Input")
         .def("setDefaultGeomPropString", &mx::Input::setDefaultGeomPropString)
         .def("hasDefaultGeomPropString", &mx::Input::hasDefaultGeomPropString)
         .def("getDefaultGeomPropString", &mx::Input::getDefaultGeomPropString)
         .def("getDefaultGeomProp", &mx::Input::getDefaultGeomProp)
+        .def("getConnectedNode", &mx::Input::getConnectedNode)
+        .def("setConnectedOutput", &mx::Input::setConnectedOutput)
+        .def("getConnectedOutput", &mx::Input::getConnectedOutput)
+        .def("getInterfaceInput", &mx::Input::getInterfaceInput)
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY);
 
     py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output")

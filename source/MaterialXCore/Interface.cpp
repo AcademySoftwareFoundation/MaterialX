@@ -70,38 +70,6 @@ NodePtr PortElement::getConnectedNode() const
     return graph ? graph->getNode(getNodeName()) : nullptr;
 }
 
-void PortElement::setConnectedOutput(ConstOutputPtr output)
-{
-    if (output)
-    {
-        setOutputString(output->getName());
-        ConstElementPtr parent = output->getParent();
-        if (parent->isA<NodeGraph>())
-        {
-            setNodeGraphString(parent->getName());
-        }
-        else
-        {
-            removeAttribute(NODE_GRAPH_ATTRIBUTE);
-        }
-    }
-    else
-    {
-        removeAttribute(OUTPUT_ATTRIBUTE);
-        removeAttribute(NODE_GRAPH_ATTRIBUTE);
-    }
-}
-
-OutputPtr PortElement::getConnectedOutput() const
-{
-    if (hasNodeGraphString())
-    {
-        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
-        return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
-    }
-    return getDocument()->getOutput(getOutputString());
-}
-
 bool PortElement::validate(string* message) const
 {
     bool res = true;
@@ -213,6 +181,61 @@ bool PortElement::validChannelsString(const string& channels, const string& sour
 // Input methods
 //
 
+NodePtr Input::getConnectedNode() const
+{
+    // Handle interface name references.
+    InputPtr graphInput = getInterfaceInput();
+    if (graphInput && (graphInput->hasNodeName() || graphInput->hasNodeGraphString()))
+    {
+        return graphInput->getConnectedNode();
+    }
+
+    // Handle inputs of compound nodegraphs.
+    if (getParent()->isA<NodeGraph>())
+    {
+        NodePtr rootNode = getDocument()->getNode(getNodeName());
+        if (rootNode)
+        {
+            return rootNode;
+        }
+    }
+
+    // Handle transitive connections via outputs.
+    OutputPtr output = getConnectedOutput();
+    if (output)
+    {
+        NodePtr node = output->getConnectedNode();
+        if (node)
+        {
+            return node;
+        }
+    }
+
+    return PortElement::getConnectedNode();
+}
+
+void Input::setConnectedOutput(ConstOutputPtr output)
+{
+    if (output)
+    {
+        setOutputString(output->getName());
+        ConstElementPtr parent = output->getParent();
+        if (parent->isA<NodeGraph>())
+        {
+            setNodeGraphString(parent->getName());
+        }
+        else
+        {
+            removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        }
+    }
+    else
+    {
+        removeAttribute(OUTPUT_ATTRIBUTE);
+        removeAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+}
+
 OutputPtr Input::getConnectedOutput() const
 {
     const string& outputString = getOutputString();
@@ -280,7 +303,7 @@ OutputPtr Input::getConnectedOutput() const
     return result;
 }
 
-InputPtr Input::getConnectedInterface() const
+InputPtr Input::getInterfaceInput() const
 {
     const string& interfaceName = getInterfaceName();
     if (!interfaceName.empty())
@@ -292,47 +315,6 @@ InputPtr Input::getConnectedInterface() const
         }
     }
     return nullptr;
-}
-
-NodePtr Input::getConnectedNode() const
-{
-    // Traverse through interface names to nodegraph input
-    InputPtr graphInput = getConnectedInterface();
-    if (graphInput && (graphInput->hasNodeName() || graphInput->hasNodeGraphString()))
-    {
-        return graphInput->getConnectedNode();
-    }
-
-    OutputPtr output = getConnectedOutput();
-    if (output)
-    {
-        NodePtr node = output->getConnectedNode();
-        if (node)
-            return node;
-    }
-    if (hasNodeName())
-    {
-        const string& nodeName = getNodeName();
-        ConstElementPtr startingElement = getParent();
-        if (startingElement)
-        {
-            // Look for a node reference above the nodegraph if input is a direct child.
-            if (startingElement->isA<NodeGraph>())
-            {
-                startingElement = startingElement->getParent();
-            }
-            if (startingElement)
-            {
-                ConstGraphElementPtr graph = startingElement->getAncestorOfType<GraphElement>();
-                NodePtr node = graph ? graph->getNode(nodeName) : nullptr;
-                if (node)
-                {
-                    return node;
-                }
-            }
-        }
-    }
-    return PortElement::getConnectedNode();
 }
 
 GeomPropDefPtr Input::getDefaultGeomProp() const
@@ -353,7 +335,7 @@ bool Input::validate(string* message) const
     {
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
-    InputPtr interfaceInput = getConnectedInterface();
+    InputPtr interfaceInput = getInterfaceInput();
     if (interfaceInput)
     {
         return interfaceInput->validate() && res;
