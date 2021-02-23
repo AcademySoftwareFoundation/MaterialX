@@ -1,107 +1,107 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
-   <nodegraph name="nodegraph1" type="" xpos="7.14697" ypos="11.4475">
-      <cellnoise3d name="cellnoise3d1" type="float" xpos="4.5505" ypos="4.1665">
-         <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
-      </cellnoise3d>
-      <output name="out" type="color3" nodename="ifgreater1" />
-      <position name="position1" type="vector3" xpos="2.97476" ypos="1.83258">
-         <parameter name="space" type="string" value="object" />
-      </position>
-      <multiply name="multiply1" type="vector3" xpos="3.14625" ypos="3.6056">
-         <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
-         <input name="in2" type="vector3" value="1.0000, 1.0000, 1.0000" />
-      </multiply>
-      <ifgreater name="ifgreater2" type="color3" xpos="5.97002" ypos="8.61048">
-         <input name="value1" type="float" value="0.4400" />
-         <input name="value2" type="float" value="0.0" nodename="cellnoise3d1" />
-         <input name="in1" type="color3" value="0.0, 1.0000, 0.0" nodename="noise3d1" />
-         <input name="in2" type="color3" value="0.0, 0.0000, 1.0000" nodename="ifgreater3" />
-      </ifgreater>
-      <ifgreater name="ifgreater1" type="color3" xpos="5.95711" ypos="5.76366">
-         <input name="value1" type="float" value="0.3700" />
-         <input name="value2" type="float" value="0.0" nodename="cellnoise3d1" />
-         <input name="in1" type="color3" value="1.0000, 0.0, 0.0" nodename="mix1" />
-         <input name="in2" type="color3" value="0.0, 0.0, 0.0" nodename="ifgreater2" />
-      </ifgreater>
-      <ifgreater name="ifgreater3" type="color3" xpos="6.01609" ypos="12.2133">
-         <input name="value1" type="float" value="0.6800" />
-         <input name="value2" type="float" value="0.0" nodename="cellnoise3d1" />
-         <input name="in1" type="color3" value="0.0, 0.0, 1.0000" nodename="convert1" />
-         <input name="in2" type="color3" value="0.0, 0.0, 0.0" nodename="fractal3d1" />
-      </ifgreater>
-      <fractal3d name="fractal3d1" type="color3" xpos="4.45249" ypos="15.9225">
-         <parameter name="amplitude" type="vector3" value="2.0000, 2.0000, 1.0000" />
-         <parameter name="octaves" type="integer" value="3" />
-         <parameter name="lacunarity" type="float" value="2.0" />
-         <parameter name="diminish" type="float" value="0.5" />
-         <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply2" />
-      </fractal3d>
-      <position name="position2" type="vector3" xpos="2.33754" ypos="15.8045">
-         <parameter name="space" type="string" value="object" />
-      </position>
-      <multiply name="multiply2" type="vector3" xpos="3.34061" ypos="15.478">
-         <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position2" />
-         <input name="in2" type="vector3" value="3.0000, 0.0000, 0.0000" />
-      </multiply>
-      <noise3d name="noise3d1" type="color3" xpos="4.41623" ypos="11.4751">
-         <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
-         <parameter name="pivot" type="float" value="0.0" />
-         <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply3" />
-      </noise3d>
-      <position name="position3" type="vector3" xpos="2.27049" ypos="11.2296">
-         <parameter name="space" type="string" value="object" />
-      </position>
-      <multiply name="multiply3" type="vector3" xpos="3.30537" ypos="11.2024">
-         <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position3" />
-         <input name="in2" type="vector3" value="2.0000, 2.0000, 2.0000" />
-      </multiply>
-      <ramptb name="ramptb1" type="color3" xpos="3.19306" ypos="5.66478">
-         <parameter name="valuet" type="color3" value="1.0000, 0.0, 0.0" />
-         <parameter name="valueb" type="color3" value="1.0000, 1.0000, 0.0" />
-         <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply4" />
-      </ramptb>
-      <texcoord name="texcoord1" type="vector2" xpos="0.696786" ypos="4.9712">
-         <parameter name="index" type="integer" value="0" />
-      </texcoord>
-      <multiply name="multiply4" type="vector2" xpos="1.9959" ypos="5.44648">
-         <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
-         <input name="in2" type="vector2" value="1.0000, 1.0000" />
-      </multiply>
-      <ramptb name="ramptb2" type="color3" xpos="3.2132" ypos="7.19774">
-         <parameter name="valuet" type="color3" value="1.0000, 0.2000, 0.2000" />
-         <parameter name="valueb" type="color3" value="1.0000, 1.0000, 0.2000" />
-         <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="invert1" />
-      </ramptb>
-      <invert name="invert1" type="vector2" xpos="2.11326" ypos="7.71854">
-         <input name="in" type="vector2" value="0.0, 0.0" nodename="multiply4" />
-         <parameter name="amount" type="vector2" value="1.0, 1.0" />
-      </invert>
-      <mix name="mix1" type="color3" xpos="4.52024" ypos="6.59818">
-         <input name="fg" type="color3" value="0.0, 0.0, 0.0" nodename="ramptb1" />
-         <input name="bg" type="color3" value="0.0, 0.0, 0.0" nodename="ramptb2" />
-         <input name="mix" type="float" value="0.5600" nodename="sin1" />
-      </mix>
-      <swizzle name="swizzle1" type="float" xpos="0.913317" ypos="6.98328">
-         <input name="in" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
-         <parameter name="channels" type="string" value="y" />
-      </swizzle>
-      <sin name="sin1" type="float" xpos="3.19075" ypos="9.25918">
-         <input name="in" type="float" value="0.0" nodename="multiply5" />
-      </sin>
-      <multiply name="multiply5" type="float" xpos="1.4099" ypos="9.29448">
-         <input name="in1" type="float" value="0.0" nodename="swizzle1" />
-         <input name="in2" type="float" value="30.0000" />
-      </multiply>
-      <cellnoise2d name="cellnoise2d1" type="float" xpos="3.6397" ypos="13.4553">
-         <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply6" />
-      </cellnoise2d>
-      <convert name="convert1" type="color3" xpos="4.77081" ypos="13.4516">
-         <input name="in" type="float" value="0.0" nodename="cellnoise2d1" />
-      </convert>
-      <multiply name="multiply6" type="vector2" xpos="2.5005" ypos="13.364">
-         <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
-         <input name="in2" type="vector2" value="50.0000, 50.0000" />
-      </multiply>
-   </nodegraph>
+<materialx version="1.38">
+  <nodegraph name="nodegraph1" type="" xpos="7.14697" ypos="11.4475">
+    <cellnoise3d name="cellnoise3d1" type="float" xpos="4.5505" ypos="4.1665">
+      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+    </cellnoise3d>
+    <output name="out" type="color3" nodename="ifgreater1" />
+    <position name="position1" type="vector3" xpos="2.97476" ypos="1.83258">
+      <input name="space" type="string" value="object" />
+    </position>
+    <multiply name="multiply1" type="vector3" xpos="3.14625" ypos="3.6056">
+      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+      <input name="in2" type="vector3" value="1.0000, 1.0000, 1.0000" />
+    </multiply>
+    <ifgreater name="ifgreater2" type="color3" xpos="5.97002" ypos="8.61048">
+      <input name="value1" type="float" value="0.4400" />
+      <input name="value2" type="float" value="0.0" nodename="cellnoise3d1" />
+      <input name="in1" type="color3" value="0.0, 1.0000, 0.0" nodename="noise3d1" />
+      <input name="in2" type="color3" value="0.0, 0.0000, 1.0000" nodename="ifgreater3" />
+    </ifgreater>
+    <ifgreater name="ifgreater1" type="color3" xpos="5.95711" ypos="5.76366">
+      <input name="value1" type="float" value="0.3700" />
+      <input name="value2" type="float" value="0.0" nodename="cellnoise3d1" />
+      <input name="in1" type="color3" value="1.0000, 0.0, 0.0" nodename="mix1" />
+      <input name="in2" type="color3" value="0.0, 0.0, 0.0" nodename="ifgreater2" />
+    </ifgreater>
+    <ifgreater name="ifgreater3" type="color3" xpos="6.01609" ypos="12.2133">
+      <input name="value1" type="float" value="0.6800" />
+      <input name="value2" type="float" value="0.0" nodename="cellnoise3d1" />
+      <input name="in1" type="color3" value="0.0, 0.0, 1.0000" nodename="convert1" />
+      <input name="in2" type="color3" value="0.0, 0.0, 0.0" nodename="fractal3d1" />
+    </ifgreater>
+    <fractal3d name="fractal3d1" type="color3" xpos="4.45249" ypos="15.9225">
+      <input name="amplitude" type="vector3" value="2.0000, 2.0000, 1.0000" />
+      <input name="octaves" type="integer" value="3" />
+      <input name="lacunarity" type="float" value="2.0" />
+      <input name="diminish" type="float" value="0.5" />
+      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply2" />
+    </fractal3d>
+    <position name="position2" type="vector3" xpos="2.33754" ypos="15.8045">
+      <input name="space" type="string" value="object" />
+    </position>
+    <multiply name="multiply2" type="vector3" xpos="3.34061" ypos="15.478">
+      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position2" />
+      <input name="in2" type="vector3" value="3.0000, 0.0000, 0.0000" />
+    </multiply>
+    <noise3d name="noise3d1" type="color3" xpos="4.41623" ypos="11.4751">
+      <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
+      <input name="pivot" type="float" value="0.0" />
+      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply3" />
+    </noise3d>
+    <position name="position3" type="vector3" xpos="2.27049" ypos="11.2296">
+      <input name="space" type="string" value="object" />
+    </position>
+    <multiply name="multiply3" type="vector3" xpos="3.30537" ypos="11.2024">
+      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position3" />
+      <input name="in2" type="vector3" value="2.0000, 2.0000, 2.0000" />
+    </multiply>
+    <ramptb name="ramptb1" type="color3" xpos="3.19306" ypos="5.66478">
+      <input name="valuet" type="color3" value="1.0000, 0.0, 0.0" />
+      <input name="valueb" type="color3" value="1.0000, 1.0000, 0.0" />
+      <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply4" />
+    </ramptb>
+    <texcoord name="texcoord1" type="vector2" xpos="0.696786" ypos="4.9712">
+      <input name="index" type="integer" value="0" />
+    </texcoord>
+    <multiply name="multiply4" type="vector2" xpos="1.9959" ypos="5.44648">
+      <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
+      <input name="in2" type="vector2" value="1.0000, 1.0000" />
+    </multiply>
+    <ramptb name="ramptb2" type="color3" xpos="3.2132" ypos="7.19774">
+      <input name="valuet" type="color3" value="1.0000, 0.2000, 0.2000" />
+      <input name="valueb" type="color3" value="1.0000, 1.0000, 0.2000" />
+      <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="invert1" />
+    </ramptb>
+    <invert name="invert1" type="vector2" xpos="2.11326" ypos="7.71854">
+      <input name="in" type="vector2" value="0.0, 0.0" nodename="multiply4" />
+      <input name="amount" type="vector2" value="1.0, 1.0" />
+    </invert>
+    <mix name="mix1" type="color3" xpos="4.52024" ypos="6.59818">
+      <input name="fg" type="color3" value="0.0, 0.0, 0.0" nodename="ramptb1" />
+      <input name="bg" type="color3" value="0.0, 0.0, 0.0" nodename="ramptb2" />
+      <input name="mix" type="float" value="0.5600" nodename="sin1" />
+    </mix>
+    <swizzle name="swizzle1" type="float" xpos="0.913317" ypos="6.98328">
+      <input name="in" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
+      <input name="channels" type="string" value="y" />
+    </swizzle>
+    <sin name="sin1" type="float" xpos="3.19075" ypos="9.25918">
+      <input name="in" type="float" value="0.0" nodename="multiply5" />
+    </sin>
+    <multiply name="multiply5" type="float" xpos="1.4099" ypos="9.29448">
+      <input name="in1" type="float" value="0.0" nodename="swizzle1" />
+      <input name="in2" type="float" value="30.0000" />
+    </multiply>
+    <cellnoise2d name="cellnoise2d1" type="float" xpos="3.6397" ypos="13.4553">
+      <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply6" />
+    </cellnoise2d>
+    <convert name="convert1" type="color3" xpos="4.77081" ypos="13.4516">
+      <input name="in" type="float" value="0.0" nodename="cellnoise2d1" />
+    </convert>
+    <multiply name="multiply6" type="vector2" xpos="2.5005" ypos="13.364">
+      <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
+      <input name="in2" type="vector2" value="50.0000, 50.0000" />
+    </multiply>
+  </nodegraph>
 </materialx>

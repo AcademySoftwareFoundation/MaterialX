@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="thin_film_bsdf_test">
-    <dielectric_brdf name="dielectric_brdf_1" type="BSDF">
+    <dielectric_bsdf name="dielectric_brdf_1" type="BSDF">
       <input name="ior" type="float" value="2.5" />
       <input name="roughness" type="vector2" value="0.1, 0.1" />
-    </dielectric_brdf>
-    <thin_film_brdf name="thin_film_brdf_1" type="BSDF">
+    </dielectric_bsdf>
+    <thin_film_bsdf name="thin_film_brdf_1" type="BSDF">
       <input name="thickness" type="float" value="550" />
       <input name="ior" type="float" value="1.5" />
-    </thin_film_brdf>
+    </thin_film_bsdf>
     <layer name="layer_bsdf_1" type="BSDF">
       <input name="top" type="BSDF" nodename="thin_film_brdf_1" />
       <input name="base" type="BSDF" nodename="dielectric_brdf_1" />

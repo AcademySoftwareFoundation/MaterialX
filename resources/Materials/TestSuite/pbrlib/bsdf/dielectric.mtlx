@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <!-- Test dielectric_bsdf in various scatter modes -->
   <nodegraph name="dielectric_bsdf_R">
     <dielectric_bsdf name="bsdf1" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="ior" type="float" value="1.7" />
-      <parameter name="scatter_mode" type="string" value="R" />
+      <input name="scatter_mode" type="string" value="R" />
     </dielectric_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="bsdf1" />
@@ -18,7 +18,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="ior" type="float" value="1.7" />
-      <parameter name="scatter_mode" type="string" value="T" />
+      <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="bsdf1" />
@@ -30,7 +30,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="ior" type="float" value="1.7" />
-      <parameter name="scatter_mode" type="string" value="RT" />
+      <input name="scatter_mode" type="string" value="RT" />
     </dielectric_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="bsdf1" />
@@ -42,13 +42,13 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="ior" type="float" value="1.7" />
-      <parameter name="scatter_mode" type="string" value="R" />
+      <input name="scatter_mode" type="string" value="R" />
     </dielectric_bsdf>
     <dielectric_bsdf name="bsdf2" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="ior" type="float" value="1.7" />
-      <parameter name="scatter_mode" type="string" value="T" />
+      <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
     <layer name="layer1" type="BSDF">
       <input name="top" type="BSDF" nodename="bsdf1" />
@@ -66,7 +66,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
       <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
-      <parameter name="scatter_mode" type="string" value="R" />
+      <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="bsdf1" />
@@ -78,7 +78,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
       <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
-      <parameter name="scatter_mode" type="string" value="T" />
+      <input name="scatter_mode" type="string" value="T" />
     </generalized_schlick_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="bsdf1" />
@@ -90,7 +90,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
       <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
-      <parameter name="scatter_mode" type="string" value="RT" />
+      <input name="scatter_mode" type="string" value="RT" />
     </generalized_schlick_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="bsdf1" />
@@ -102,13 +102,13 @@
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
       <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
-      <parameter name="scatter_mode" type="string" value="R" />
+      <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
     <generalized_schlick_bsdf name="bsdf2" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
       <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
-      <parameter name="scatter_mode" type="string" value="T" />
+      <input name="scatter_mode" type="string" value="T" />
     </generalized_schlick_bsdf>
     <layer name="layer1" type="BSDF">
       <input name="top" type="BSDF" nodename="bsdf1" />

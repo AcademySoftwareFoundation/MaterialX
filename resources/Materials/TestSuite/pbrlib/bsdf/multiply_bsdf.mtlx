@@ -1,24 +1,24 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="multiply_bsdf_test">
-    <diffuse_brdf name="diffuse_brdf1" type="BSDF">
+    <oren_nayar_diffuse_bsdf name="diffuse_brdf1" type="BSDF">
       <input name="color" type="color3" value="0.96, 0.1, 0.1" />
-    </diffuse_brdf>
+    </oren_nayar_diffuse_bsdf>
     <multiply name="multiply_bsdf1" type="BSDF">
       <input name="in1" type="BSDF" nodename="diffuse_brdf1" />
-      <input name="in2" type="float" value="0.5"/>
+      <input name="in2" type="float" value="0.5" />
     </multiply>
-    <diffuse_btdf name="diffuse_btdf1" type="BSDF">
+    <translucent_bsdf name="diffuse_btdf1" type="BSDF">
       <input name="color" type="color3" value="0.0, 0.0, 0.8" />
-    </diffuse_btdf>
+    </translucent_bsdf>
     <multiply name="multiply_bsdf2" type="BSDF">
       <input name="in1" type="BSDF" nodename="diffuse_btdf1" />
-      <input name="in2" type="color3" value="0.5, 0.5, 0.5"/>
+      <input name="in2" type="color3" value="0.5, 0.5, 0.5" />
     </multiply>
     <mix name="mix_bsdf1" type="BSDF">
       <input name="fg" type="BSDF" nodename="multiply_bsdf1" />
       <input name="bg" type="BSDF" nodename="multiply_bsdf2" />
-      <input name="mix" type="float" value="0.5"/>
+      <input name="mix" type="float" value="0.5" />
     </mix>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="mix_bsdf1" />
