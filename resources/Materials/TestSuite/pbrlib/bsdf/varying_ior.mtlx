@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
-
+<materialx version="1.38">
   <!-- Define a surface shader node using transmission IOR -->
   <nodedef name="ND_foo_surface" node="foo_surface">
     <input name="ior" type="float" value="1.33" />
@@ -8,25 +7,29 @@
     <output name="out" type="surfaceshader" />
   </nodedef>
   <nodegraph name="IMP_foo_surface" nodedef="ND_foo_surface">
-    <dielectric_btdf name="dielectric_btdf_1" type="BSDF">
+    <dielectric_bsdf name="dielectric_btdf_1" type="BSDF">
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" interfacename="roughness" />
-    </dielectric_btdf>
-    <dielectric_brdf name="dielectric_brdf_1" type="BSDF">
+      <input name="scatter_mode" type="string" value="T" />
+    </dielectric_bsdf>
+    <dielectric_bsdf name="dielectric_brdf_1__layer_top" type="BSDF">
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" interfacename="roughness" />
-      <input name="base" type="BSDF" nodename="dielectric_btdf_1" />
-    </dielectric_brdf>
+    </dielectric_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="dielectric_brdf_1" />
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
+    <layer name="dielectric_brdf_1" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_brdf_1__layer_top" />
+      <input name="base" type="BSDF" nodename="dielectric_btdf_1" />
+    </layer>
   </nodegraph>
 
   <!-- Use this shader with a varying connections to IOR from the outside -->
   <texcoord name="texcoord1" type="vector2" />
   <foo_surface name="varying_ior_test1" type="surfaceshader">
-    <input name="ior" type="float" nodename="texcoord1" channels="x"/>
+    <input name="ior" type="float" nodename="texcoord1" channels="x" />
   </foo_surface>
   <surfacematerial name="varying_ior_test1_mtrl" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="varying_ior_test1" />
@@ -42,5 +45,4 @@
   <surfacematerial name="varying_ior_test2_mtrl" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="varying_ior_test2" />
   </surfacematerial>
-
 </materialx>

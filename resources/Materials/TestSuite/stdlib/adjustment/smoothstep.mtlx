@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
-<!--
-
-Basic adjustment function tests each test is in a separate graph for each variation in input type.
-- smoothstep
--->
-<materialx version="1.37">
+<materialx version="1.38">
+  <!--
+  Basic adjustment function tests each test is in a separate graph for each variation in input type.
+  - smoothstep
+  -->
   <nodegraph name="smoothstep_float_range_min" type="" xpos="6.07605" ypos="29.1097">
     <smoothstep name="smoothstep1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.2000" />
@@ -22,20 +21,20 @@ Basic adjustment function tests each test is in a separate graph for each variat
     <output name="out" type="float" nodename="smoothstep1" />
   </nodegraph>
   <nodegraph name="smoothstep_color2" type="" xpos="7.06205" ypos="29.1176">
-    <smoothstep name="smoothstep1" type="color2" xpos="5.75172" ypos="4.74">
-      <input name="in" type="color2" value="0.6000, 0.5000" />
-      <input name="low" type="color2" value="0.2000, 0.2000" />
-      <input name="high" type="color2" value="0.8000, 0.8000" />
+    <smoothstep name="smoothstep1" type="vector2" xpos="5.75172" ypos="4.74">
+      <input name="in" type="vector2" value="0.6000, 0.5000" />
+      <input name="low" type="vector2" value="0.2000, 0.2000" />
+      <input name="high" type="vector2" value="0.8000, 0.8000" />
     </smoothstep>
-    <output name="out" type="color2" nodename="smoothstep1" />
+    <output name="out" type="vector2" nodename="smoothstep1" />
   </nodegraph>
   <nodegraph name="smoothstep_color2FA" type="" xpos="8.09902" ypos="29.1395">
-    <smoothstep name="smoothstep1" type="color2" xpos="5.75172" ypos="4.74">
-      <input name="in" type="color2" value="0.6000, 0.5000" />
+    <smoothstep name="smoothstep1" type="vector2" xpos="5.75172" ypos="4.74">
+      <input name="in" type="vector2" value="0.6000, 0.5000" />
       <input name="low" type="float" value="0.2000" />
       <input name="high" type="float" value="0.8000" />
     </smoothstep>
-    <output name="out" type="color2" nodename="smoothstep1" />
+    <output name="out" type="vector2" nodename="smoothstep1" />
   </nodegraph>
   <nodegraph name="smoothstep_color3" type="" xpos="9.12894" ypos="29.1314">
     <smoothstep name="smoothstep1" type="color3" xpos="5.75172" ypos="4.74">

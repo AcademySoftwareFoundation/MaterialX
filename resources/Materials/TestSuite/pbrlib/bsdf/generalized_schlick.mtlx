@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="test_generalized_schlick">
     <roughness_anisotropy name="roughness1" type="vector2">
       <input name="roughness" type="float" value="0.2" />
       <input name="anisotropy" type="float" value="0.0" />
     </roughness_anisotropy>
-    <generalized_schlick_brdf name="generalized_schlick_brdf1" type="BSDF">
+    <generalized_schlick_bsdf name="generalized_schlick_brdf1" type="BSDF">
       <input name="color0" type="color3" value="0.3, 0.3, 1.0" />
       <input name="color90" type="color3" value="1.0, 0.3, 0.3" />
       <input name="exponent" type="float" value="5.0" />
       <input name="roughness" type="vector2" nodename="roughness1" />
-    </generalized_schlick_brdf>
+    </generalized_schlick_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="generalized_schlick_brdf1" />
       <input name="opacity" type="float" value="1.0" />

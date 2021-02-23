@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
-<!--
-
-Basic switch conditional function tests each test is in a separate graph for each variation in input type.
-
--->
-<materialx version="1.37">
+<materialx version="1.38">
+  <!--
+  Basic switch conditional function tests each test is in a separate graph for each variation in input type.
+  -->
   <nodegraph name="switch_float" type="" xpos="6.26074" ypos="21.3283">
     <switch name="switch1" type="float" xpos="5.74483" ypos="4.12">
       <input name="in1" type="float" value="0.0000" />
@@ -12,20 +10,20 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="float" value="0.5000" />
       <input name="in4" type="float" value="0.7000" />
       <input name="in5" type="float" value="1.0000" />
-      <parameter name="which" type="float" value="0.0000" />
+      <input name="which" type="float" value="0.0000" />
     </switch>
     <output name="out" type="float" nodename="switch1" />
   </nodegraph>
   <nodegraph name="switch_color2" type="" xpos="7.23526" ypos="21.2988">
-    <switch name="switch1" type="color2" xpos="5.74483" ypos="4.12">
-      <input name="in1" type="color2" value="0.0, 0.0" />
-      <input name="in2" type="color2" value="0.3000, 0.3000" />
-      <input name="in3" type="color2" value="0.5000, 0.5000" />
-      <input name="in4" type="color2" value="0.7000, 0.7000" />
-      <input name="in5" type="color2" value="1.0000, 1.0000" />
-      <parameter name="which" type="float" value="1.0000" />
+    <switch name="switch1" type="vector2" xpos="5.74483" ypos="4.12">
+      <input name="in1" type="vector2" value="0.0, 0.0" />
+      <input name="in2" type="vector2" value="0.3000, 0.3000" />
+      <input name="in3" type="vector2" value="0.5000, 0.5000" />
+      <input name="in4" type="vector2" value="0.7000, 0.7000" />
+      <input name="in5" type="vector2" value="1.0000, 1.0000" />
+      <input name="which" type="float" value="1.0000" />
     </switch>
-    <output name="out" type="color2" nodename="switch1" />
+    <output name="out" type="vector2" nodename="switch1" />
   </nodegraph>
   <nodegraph name="switch_color3" type="" xpos="8.25501" ypos="21.2779">
     <switch name="switch1" type="color3" xpos="5.74483" ypos="4.12">
@@ -34,7 +32,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="color3" value="0.5000, 0.5000, 0.5000" />
       <input name="in4" type="color3" value="0.7000, 0.7000, 0.7000" />
       <input name="in5" type="color3" value="1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="float" value="2.0000" />
+      <input name="which" type="float" value="2.0000" />
     </switch>
     <output name="out" type="color3" nodename="switch1" />
   </nodegraph>
@@ -45,7 +43,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="color4" value="0.5000, 0.5000, 0.5000, 0.5000" />
       <input name="in4" type="color4" value="0.7000, 0.7000, 0.7000, 0.7000" />
       <input name="in5" type="color4" value="1.0000, 1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="float" value="3.0000" />
+      <input name="which" type="float" value="3.0000" />
     </switch>
     <output name="out" type="color4" nodename="switch1" />
   </nodegraph>
@@ -56,7 +54,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="vector2" value="0.5000, 0.5000" />
       <input name="in4" type="vector2" value="0.7000, 0.7000" />
       <input name="in5" type="vector2" value="1.0000, 1.0000" />
-      <parameter name="which" type="float" value="1.0000" />
+      <input name="which" type="float" value="1.0000" />
     </switch>
     <output name="out" type="vector2" nodename="switch1" />
   </nodegraph>
@@ -67,7 +65,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="vector3" value="0.5000, 0.5000, 0.5000" />
       <input name="in4" type="vector3" value="0.7000, 0.7000, 0.7000" />
       <input name="in5" type="vector3" value="1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="float" value="2.0000" />
+      <input name="which" type="float" value="2.0000" />
     </switch>
     <output name="out" type="vector3" nodename="switch1" />
   </nodegraph>
@@ -78,7 +76,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="vector4" value="0.5000, 0.5000, 0.5000, 0.5000" />
       <input name="in4" type="vector4" value="0.7000, 0.7000, 0.7000, 0.7000" />
       <input name="in5" type="vector4" value="1.0000, 1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="float" value="3.0000" />
+      <input name="which" type="float" value="3.0000" />
     </switch>
     <output name="out" type="vector4" nodename="switch1" />
   </nodegraph>
@@ -89,20 +87,20 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="float" value="0.5000" />
       <input name="in4" type="float" value="0.7000" />
       <input name="in5" type="float" value="1.0000" />
-      <parameter name="which" type="integer" value="0" />
+      <input name="which" type="integer" value="0" />
     </switch>
     <output name="out" type="float" nodename="switch1" />
   </nodegraph>
   <nodegraph name="switch_color2I" type="" xpos="8.29571" ypos="23.8875">
-    <switch name="switch1" type="color2" xpos="5.74483" ypos="4.12">
-      <input name="in1" type="color2" value="0.0000, 0.0000" />
-      <input name="in2" type="color2" value="0.3000, 0.3000" />
-      <input name="in3" type="color2" value="0.5000, 0.5000" />
-      <input name="in4" type="color2" value="0.7000, 0.7000" />
-      <input name="in5" type="color2" value="1.0000, 1.0000" />
-      <parameter name="which" type="integer" value="1" />
+    <switch name="switch1" type="vector2" xpos="5.74483" ypos="4.12">
+      <input name="in1" type="vector2" value="0.0000, 0.0000" />
+      <input name="in2" type="vector2" value="0.3000, 0.3000" />
+      <input name="in3" type="vector2" value="0.5000, 0.5000" />
+      <input name="in4" type="vector2" value="0.7000, 0.7000" />
+      <input name="in5" type="vector2" value="1.0000, 1.0000" />
+      <input name="which" type="integer" value="1" />
     </switch>
-    <output name="out" type="color2" nodename="switch1" />
+    <output name="out" type="vector2" nodename="switch1" />
   </nodegraph>
   <nodegraph name="switch_color3I" type="" xpos="9.31603" ypos="23.8875">
     <switch name="switch1" type="color3" xpos="5.74483" ypos="4.12">
@@ -111,7 +109,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="color3" value="0.5000, 0.5000, 0.5000" />
       <input name="in4" type="color3" value="0.7000, 0.7000, 0.7000" />
       <input name="in5" type="color3" value="1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="integer" value="2" />
+      <input name="which" type="integer" value="2" />
     </switch>
     <output name="out" type="color3" nodename="switch1" />
   </nodegraph>
@@ -122,7 +120,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="color4" value="0.5000, 0.5000, 0.5000, 0.5000" />
       <input name="in4" type="color4" value="0.7000, 0.7000, 0.7000, 0.7000" />
       <input name="in5" type="color4" value="1.0000, 1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="integer" value="3" />
+      <input name="which" type="integer" value="3" />
     </switch>
     <output name="out" type="color4" nodename="switch1" />
   </nodegraph>
@@ -133,7 +131,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="vector2" value="0.5000, 0.5000" />
       <input name="in4" type="vector2" value="0.7000, 0.7000" />
       <input name="in5" type="vector2" value="1.0000, 1.0000" />
-      <parameter name="which" type="integer" value="1" />
+      <input name="which" type="integer" value="1" />
     </switch>
     <output name="out" type="vector2" nodename="switch1" />
   </nodegraph>
@@ -144,7 +142,7 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="vector3" value="0.5000, 0.5000, 0.5000" />
       <input name="in4" type="vector3" value="0.7000, 0.7000, 0.7000" />
       <input name="in5" type="vector3" value="1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="integer" value="2" />
+      <input name="which" type="integer" value="2" />
     </switch>
     <output name="out" type="vector3" nodename="switch1" />
   </nodegraph>
@@ -155,18 +153,18 @@ Basic switch conditional function tests each test is in a separate graph for eac
       <input name="in3" type="vector4" value="0.5000, 0.5000, 0.5000, 0.5000" />
       <input name="in4" type="vector4" value="0.7000, 0.7000, 0.7000, 0.7000" />
       <input name="in5" type="vector4" value="1.0000, 1.0000, 1.0000, 1.0000" />
-      <parameter name="which" type="integer" value="3" />
+      <input name="which" type="integer" value="3" />
     </switch>
     <output name="out" type="vector4" nodename="switch1" />
   </nodegraph>
   <nodegraph name="switch_vector3_geometric">
-    <tangent name="tangent1" type="vector3"/>
-    <bitangent name="bitangent1" type="vector3"/>
-    <texcoord name="texcoord1" type="vector2"/>
+    <tangent name="tangent1" type="vector3" />
+    <bitangent name="bitangent1" type="vector3" />
+    <texcoord name="texcoord1" type="vector2" />
     <splitlr name="splitlr1" type="float">
-      <parameter name="valuel" type="float" value="0.0" />
-      <parameter name="valuer" type="float" value="1.0" />
-      <parameter name="center" type="float" value="0.5" />
+      <input name="valuel" type="float" value="0.0" />
+      <input name="valuer" type="float" value="1.0" />
+      <input name="center" type="float" value="0.5" />
       <input name="texcoord" type="vector2" nodename="texcoord1" />
     </splitlr>
     <ifgreater name="ifgreater1" type="vector3">

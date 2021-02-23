@@ -1,111 +1,108 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-   Test suite options file which is parsed when the "render" category units tests are executed.
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+    Test suite options file which is parsed when the "render" category units tests are executed.
 
-   Execution uses existing code generator instances to produce the code and corresponding validator
-   instance to check the validity of the generated code by compiling and/or rendering
-   the code to produce images on disk.
+     Execution uses existing code generator instances to produce the code and corresponding validator
+     instance to check the validity of the generated code by compiling and/or rendering
+     the code to produce images on disk.
 
-   Input uniform and stream checking as well as node implementation coverage and profiling
-   can also be performed depending on the options enabled.
--->
-<materialx version="1.37">
-   <nodedef name="TestSuiteOptions">
+     Input uniform and stream checking as well as node implementation coverage and profiling
+     can also be performed depending on the options enabled.
+  -->
 
-      <!-- List of comma separated file names acts as a filter to only test documents with these names -->
-      <parameter name="overrideFiles" type="string" value="" />
+  <nodedef name="TestSuiteOptions">
+    <!-- List of comma separated file names acts as a filter to only test documents with these names -->
+    <input name="overrideFiles" type="string" value="" />
 
-      <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
-      <parameter name="lightFiles" type="string" value="light_rig_test_2.mtlx" />
+    <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
+    <input name="lightFiles" type="string" value="light_rig_test_2.mtlx" />
 
-      <!-- Comma separated list of target" specifiers to indicate which
-           code generators to use.
-       -->
-      <parameter name="targets" type="string" value="genglsl,genosl,genmdl,arnold,ogsfx,ogsxml" />
+    <!-- Comma separated list of target" specifiers to indicate which
+         code generators to use. -->
+    <input name="targets" type="string" value="genglsl,genosl,genmdl,arnold,ogsfx,ogsxml" />
 
-      <!-- Check the count of number of implementations used for a given generator
-        -->
-      <parameter name="checkImplCount" type="boolean" value="true" />
+    <!-- Check the count of number of implementations used for a given generator -->
+    <input name="checkImplCount" type="boolean" value="true" />
 
-      <!-- Run using a given set of shader interface generation options. Default value is 2 where:
-            - 1 = run reduced only.
-            - 2 = run complete only.
-            - 3 = run complete + reduced.
-        -->
-      <parameter name="shaderInterfaces" type="integer" value="2" />
+    <!-- Run using a given set of shader interface generation options. Default value is 2 where:
+         1 = run reduced only.
+         2 = run complete only.
+         3 = run complete + reduced.
+    -->
+    <input name="shaderInterfaces" type="integer" value="2" />
 
-      <!-- Validate element before attempting to generate code. Default is false  -->
-      <parameter name="validateElementToRender" type="boolean" value="false" />
+    <!-- Validate element before attempting to generate code. Default is false  -->
+    <input name="validateElementToRender" type="boolean" value="false" />
 
-      <!-- Perform source code compilation validation test -->
-      <parameter name="compileCode" type="boolean" value="true" />
+    <!-- Perform source code compilation validation test -->
+    <input name="compileCode" type="boolean" value="true" />
 
-      <!-- Perform rendering validation test -->
-      <parameter name="renderImages" type="boolean" value="true" />
+    <!-- Perform rendering validation test -->
+    <input name="renderImages" type="boolean" value="true" />
 
-      <!-- Rendered image size if render validation test enabled -->
-      <parameter name="renderSize" type="vector2" value="512, 512" />
+    <!-- Rendered image size if render validation test enabled -->
+    <input name="renderSize" type="vector2" value="512, 512" />
 
-      <!-- Perform saving of image. Can only be disabled for GLSL tests -->
-      <parameter name="saveImages" type="boolean" value="true" />
+    <!-- Perform saving of image. Can only be disabled for GLSL tests -->
+    <input name="saveImages" type="boolean" value="true" />
 
-      <!-- Set this to be true if it is desired to dump out uniform and attribut information to the logging file -->
-      <parameter name="dumpUniformsAndAttributes" type="boolean" value="true" />
+    <!-- Set this to be true if it is desired to dump out uniform and attribut information to the logging file -->
+    <input name="dumpUniformsAndAttributes" type="boolean" value="true" />
 
-      <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
-      <parameter name="dumpGeneratedCode" type="boolean" value="true" />
+    <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
+    <input name="dumpGeneratedCode" type="boolean" value="true" />
 
-      <!-- Suggested geometry file to use for rendering unshaded elements.
-           File path is relative to the "/resources/Geometry/" folder -->
-      <parameter name="unShadedGeometry" type="string" value="sphere.obj" />
+    <!-- Suggested geometry file to use for rendering unshaded elements.
+         File path is relative to the "/resources/Geometry/" folder -->
+    <input name="unShadedGeometry" type="string" value="sphere.obj" />
 
-      <!-- Suggested geometry file to use for rendering shaded elements.
-           File path is relative to the "/resources/Geometry/" folder -->
-      <parameter name="shadedGeometry" type="string" value="sphere.obj" />
+    <!-- Suggested geometry file to use for rendering shaded elements.
+         File path is relative to the "/resources/Geometry/" folder -->
+    <input name="shadedGeometry" type="string" value="sphere.obj" />
 
-      <!-- Amount to scale geometry. -->
-      <parameter name="geometryScale" type="float" value="40.0" />
+    <!-- Amount to scale geometry. -->
+    <input name="geometryScale" type="float" value="40.0" />
 
-      <!-- Enable direct lighting. Default is true. -->
-      <parameter name="enableDirectLighting" type="boolean" value="false" />
+    <!-- Enable direct lighting. Default is true. -->
+    <input name="enableDirectLighting" type="boolean" value="false" />
 
-      <!-- Enable indirect lighting. Default is true. -->
-      <parameter name="enableIndirectLighting" type="boolean" value="true" />
+    <!-- Enable indirect lighting. Default is true. -->
+    <input name="enableIndirectLighting" type="boolean" value="true" />
 
-      <!-- Method for specular environment sampling (only used for HW rendering):
-            0 : Disable environment mapping.
-            1 : Filtered Importance Sampling: Use FIS to sample the IBL texture according to the BRDF in runtime.
-            2: Prefiltered: Use a radiance IBL texture that has been prefiltered with the BRDF.
-            Default value is 1.
-      -->
-      <parameter name="specularEnvironmentMethod" type="integer" value="1" />
+    <!-- Method for specular environment sampling (only used for HW rendering):
+           0 = Disable environment mapping.
+           1 = Filtered Importance Sampling: Use FIS to sample the IBL texture according to the BRDF in runtime.
+           2 = Prefiltered: Use a radiance IBL texture that has been prefiltered with the BRDF.
+           Default value is 1.
+    -->
+    <input name="specularEnvironmentMethod" type="integer" value="1" />
 
-      <!-- Suggested radiance IBL file path -->
-      <parameter name="radianceIBLPath" type="string" value="resources/Lights/san_giuseppe_bridge.hdr" />
+    <!-- Suggested radiance IBL file path -->
+    <input name="radianceIBLPath" type="string" value="resources/Lights/san_giuseppe_bridge.hdr" />
 
-      <!-- Suggested irradiance IBL file path -->
-      <parameter name="irradianceIBLPath" type="string" value="resources/Lights/irradiance/san_giuseppe_bridge.hdr" />
+    <!-- Suggested irradiance IBL file path -->
+    <input name="irradianceIBLPath" type="string" value="resources/Lights/irradiance/san_giuseppe_bridge.hdr" />
 
-      <!-- Transforms UVs of loaded geometry -->
-      <parameter name="transformUVs" type="matrix44" value="1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -0.235f, 1.0f, 0.0f, 1.0f" />
+    <!-- Transforms UVs of loaded geometry -->
+    <input name="transformUVs" type="matrix44" value="1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -0.235f, 1.0f, 0.0f, 1.0f" />
 
-      <!-- External testing: extra comma separated list of library paths -->
-      <parameter name="externalLibraryPaths" type="string" value="" />
+    <!-- External testing: extra comma separated list of library paths -->
+    <input name="externalLibraryPaths" type="string" value="" />
 
-      <!-- External testing: extra comma separated list of test root paths -->
-      <parameter name="externalTestPaths" type="string" value="" />
+    <!-- External testing: extra comma separated list of test root paths -->
+    <input name="externalTestPaths" type="string" value="" />
 
-      <!-- Wedge rendering options -->
-      <parameter name="wedgeFiles" type="string" value="wedge_conductor.mtlx,wedge_conductor.mtlx" />
-      <parameter name="wedgeParameters" type="string" value="test_conductor/roughness1/roughness,test_conductor/roughness1/anisotropy" />
-      <parameter name="wedgeRangeMin" type="floatarray" value="0.0, 0.3" />
-      <parameter name="wedgeRangeMax" type="floatarray" value="1.0, 0.9" />
-      <parameter name="wedgeSteps" type="integerarray" value="4, 3" />
+    <!-- Wedge rendering options -->
+    <input name="wedgeFiles" type="string" value="wedge_conductor.mtlx,wedge_conductor.mtlx" />
+    <input name="wedgeParameters" type="string" value="test_conductor/roughness1/roughness,test_conductor/roughness1/anisotropy" />
+    <input name="wedgeRangeMin" type="floatarray" value="0.0, 0.3" />
+    <input name="wedgeRangeMax" type="floatarray" value="1.0, 0.9" />
+    <input name="wedgeSteps" type="integerarray" value="4, 3" />
 
-      <!-- Bake rendering options: Currently only suppoers the genglsl_glsl400 shader generator -->
-      <parameter name="bakeFiles" type="string" value="mapped_surfaceshader.mtlx,normalmapped_surfaceshader.mtlx" />
-      <parameter name="bakeHdrs" type="booleanarray" value="false,false" />
-      <parameter name="bakeResolutions" type="integerarray" value="1024,1024" />
-
-   </nodedef>
+    <!-- Bake rendering options: Currently only supports the genglsl_glsl400 shader generator -->
+    <input name="bakeFiles" type="string" value="mapped_surfaceshader.mtlx,normalmapped_surfaceshader.mtlx" />
+    <input name="bakeHdrs" type="booleanarray" value="false,false" />
+    <input name="bakeResolutions" type="integerarray" value="1024,1024" />
+  </nodedef>
 </materialx>

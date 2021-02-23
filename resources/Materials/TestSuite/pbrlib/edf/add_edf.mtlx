@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="add_edf_test">
-    <diffuse_brdf name="brdf1" type="BSDF">
+    <oren_nayar_diffuse_bsdf name="brdf1" type="BSDF">
       <input name="color" type="color3" value="0.1, 0.1, 0.1" />
-    </diffuse_brdf>
+    </oren_nayar_diffuse_bsdf>
     <uniform_edf name="edf1" type="EDF">
       <input name="color" type="color3" value="1.0, 0.0, 0.0" />
     </uniform_edf>

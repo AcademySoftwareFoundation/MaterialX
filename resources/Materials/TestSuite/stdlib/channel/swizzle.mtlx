@@ -1,342 +1,338 @@
 <?xml version="1.0"?>
-<!--
-Basic channel function tests each test is in a separate graph for each variation in input type.
-- swizzle
--->
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="swizzle_float_color2" type="" xpos="6.21568" ypos="25.2003">
-    <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">
+    <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.5000" />
-      <parameter name="channels" type="string" value="rr" />
+      <input name="channels" type="string" value="rr" />
     </swizzle>
-    <output name="out" type="color2" nodename="swizzle1" />
+    <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_float_color3" type="" xpos="7.20877" ypos="25.1899">
     <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.5000" />
-      <parameter name="channels" type="string" value="rrr" />
+      <input name="channels" type="string" value="rrr" />
     </swizzle>
     <output name="out" type="color3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_float_color4" type="" xpos="8.21248" ypos="25.1654">
     <swizzle name="swizzle1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.5000" />
-      <parameter name="channels" type="string" value="rrrr" />
+      <input name="channels" type="string" value="rrrr" />
     </swizzle>
     <output name="out" type="color4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_float_vector2" type="" xpos="9.22519" ypos="25.1458">
     <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.5000" />
-      <parameter name="channels" type="string" value="rr" />
+      <input name="channels" type="string" value="rr" />
     </swizzle>
     <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_float_vector3" type="" xpos="7.22341" ypos="26.5359">
     <swizzle name="swizzle1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.5000" />
-      <parameter name="channels" type="string" value="rrr" />
+      <input name="channels" type="string" value="rrr" />
     </swizzle>
     <output name="out" type="vector3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_float_vector4" type="" xpos="8.22618" ypos="26.5237">
     <swizzle name="swizzle1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.5000" />
-      <parameter name="channels" type="string" value="rrrr" />
+      <input name="channels" type="string" value="rrrr" />
     </swizzle>
     <output name="out" type="vector4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_float" type="" xpos="9.24226" ypos="26.5139">
     <swizzle name="swizzle1" type="float" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="a" />
+      <input name="in" type="vector2" value="0.0, 1.0" />
+      <input name="channels" type="string" value="y" />
     </swizzle>
     <output name="out" type="float" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_color2" type="" xpos="7.2118" ypos="28.0137">
-    <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="ar" />
+    <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
+      <input name="in" type="vector2" value="0.0, 1.0" />
+      <input name="channels" type="string" value="yx" />
     </swizzle>
-    <output name="out" type="color2" nodename="swizzle1" />
+    <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_color3" type="" xpos="8.23801" ypos="27.9999">
     <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="ara" />
+      <input name="in" type="vector2" value="0.0, 1.0" />
+      <input name="channels" type="string" value="yxy" />
     </swizzle>
     <output name="out" type="color3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_color4" type="" xpos="9.26083" ypos="27.9705">
     <swizzle name="swizzle1" type="color4" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="rara" />
+      <input name="in" type="vector2" value="0.0, 1.0" />
+      <input name="channels" type="string" value="xyxy" />
     </swizzle>
     <output name="out" type="color4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_vector2" type="" xpos="7.21855" ypos="29.5494">
     <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="ar" />
+      <input name="in" type="vector2" value="0.0, 1.0" />
+      <input name="channels" type="string" value="yx" />
     </swizzle>
     <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_vector3" type="" xpos="8.25449" ypos="29.5396">
     <swizzle name="swizzle1" type="vector3" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="ara" />
+      <input name="in" type="vector2" value="0.0, 1.0" />
+      <input name="channels" type="string" value="yxy" />
     </swizzle>
     <output name="out" type="vector3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_vector4" type="" xpos="9.27394" ypos="29.52">
     <swizzle name="swizzle1" type="vector4" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="rara" />
+      <input name="in" type="vector2" value="0.0, 1.0" />
+      <input name="channels" type="string" value="xyxy" />
     </swizzle>
     <output name="out" type="vector4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color3_float" type="" xpos="7.23249" ypos="31.0317">
     <swizzle name="swizzle1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="color3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="g" />
+      <input name="channels" type="string" value="g" />
     </swizzle>
     <output name="out" type="float" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color3_color2" type="" xpos="8.27856" ypos="30.9888">
-    <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">
+    <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="color3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="br" />
+      <input name="channels" type="string" value="br" />
     </swizzle>
-    <output name="out" type="color2" nodename="swizzle1" />
+    <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color3_color3" type="" xpos="9.29463" ypos="30.9497">
     <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
       <input name="in" type="color3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="bgr" />
+      <input name="channels" type="string" value="bgr" />
     </swizzle>
     <output name="out" type="color3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color3_color4" type="" xpos="7.21874" ypos="32.5258">
     <swizzle name="swizzle1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="bgrg" />
+      <input name="channels" type="string" value="bgrg" />
     </swizzle>
     <output name="out" type="color4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color3_vector2" type="" xpos="8.29558" ypos="32.4964">
     <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="color3" value="0.0000, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="br" />
+      <input name="channels" type="string" value="br" />
     </swizzle>
     <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color3_vector3" type="" xpos="9.31503" ypos="32.4886">
     <swizzle name="swizzle1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="color3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="bgr" />
+      <input name="channels" type="string" value="bgr" />
     </swizzle>
     <output name="out" type="vector3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color3_vector4" type="" xpos="7.23678" ypos="34.035">
     <swizzle name="swizzle1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="bgrg" />
+      <input name="channels" type="string" value="bgrg" />
     </swizzle>
     <output name="out" type="vector4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color4_float" type="" xpos="8.29675" ypos="34.0056">
     <swizzle name="swizzle1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="a" />
+      <input name="channels" type="string" value="a" />
     </swizzle>
     <output name="out" type="float" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color4_color2" type="" xpos="9.33249" ypos="33.9864">
-    <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">
+    <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="ab" />
+      <input name="channels" type="string" value="ab" />
     </swizzle>
-    <output name="out" type="color2" nodename="swizzle1" />
+    <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color4_color3" type="" xpos="7.23958" ypos="35.4984">
     <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="abg" />
+      <input name="channels" type="string" value="abg" />
     </swizzle>
     <output name="out" type="color3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color4_color4" type="" xpos="8.31267" ypos="35.4504">
     <swizzle name="swizzle1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="agrb" />
+      <input name="channels" type="string" value="agrb" />
     </swizzle>
     <output name="out" type="color4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color4_vector2" type="" xpos="9.35855" ypos="35.4606">
     <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="ab" />
+      <input name="channels" type="string" value="ab" />
     </swizzle>
     <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color4_vector3" type="" xpos="7.26621" ypos="36.9482">
     <swizzle name="swizzle1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="abg" />
+      <input name="channels" type="string" value="abg" />
     </swizzle>
     <output name="out" type="vector3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color4_vector4" type="" xpos="8.31845" ypos="36.9312">
     <swizzle name="swizzle1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="agrb" />
+      <input name="channels" type="string" value="agrb" />
     </swizzle>
     <output name="out" type="vector4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector2_float" type="" xpos="9.37783" ypos="36.9414">
     <swizzle name="swizzle1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 1.0000" />
-      <parameter name="channels" type="string" value="y" />
+      <input name="channels" type="string" value="y" />
     </swizzle>
     <output name="out" type="float" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector2_color2" type="" xpos="7.25878" ypos="38.4682">
-    <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">
+    <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 1.0000" />
-      <parameter name="channels" type="string" value="yx" />
+      <input name="channels" type="string" value="yx" />
     </swizzle>
-    <output name="out" type="color2" nodename="swizzle1" />
+    <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector2_color3" type="" xpos="8.32886" ypos="38.4486">
     <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 1.0000" />
-      <parameter name="channels" type="string" value="yxy" />
+      <input name="channels" type="string" value="yxy" />
     </swizzle>
     <output name="out" type="color3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector2_color4" type="" xpos="9.38149" ypos="38.4392">
     <swizzle name="swizzle1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 1.0000" />
-      <parameter name="channels" type="string" value="xyxy" />
+      <input name="channels" type="string" value="xyxy" />
     </swizzle>
     <output name="out" type="color4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector2_vector2" type="" xpos="7.26759" ypos="39.9862">
     <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 1.0000" />
-      <parameter name="channels" type="string" value="yx" />
+      <input name="channels" type="string" value="yx" />
     </swizzle>
     <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector2_vector3" type="" xpos="8.3208" ypos="39.9826">
     <swizzle name="swizzle1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 1.0000" />
-      <parameter name="channels" type="string" value="yxy" />
+      <input name="channels" type="string" value="yxy" />
     </swizzle>
     <output name="out" type="vector3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector2_vector4" type="" xpos="9.37343" ypos="39.9732">
     <swizzle name="swizzle1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 1.0000" />
-      <parameter name="channels" type="string" value="xyxy" />
+      <input name="channels" type="string" value="xyxy" />
     </swizzle>
     <output name="out" type="vector4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector3_float" type="" xpos="7.2811" ypos="41.5294">
     <swizzle name="swizzle1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="y" />
+      <input name="channels" type="string" value="y" />
     </swizzle>
     <output name="out" type="float" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector3_color2" type="" xpos="8.34643" ypos="41.496">
-    <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">
+    <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="zx" />
+      <input name="channels" type="string" value="zx" />
     </swizzle>
-    <output name="out" type="color2" nodename="swizzle1" />
+    <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector3_color3" type="" xpos="9.38556" ypos="41.4868">
     <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="zyx" />
+      <input name="channels" type="string" value="zyx" />
     </swizzle>
     <output name="out" type="color3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector3_color4" type="" xpos="7.29258" ypos="43.1184">
     <swizzle name="swizzle1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="zyxy" />
+      <input name="channels" type="string" value="zyxy" />
     </swizzle>
     <output name="out" type="color4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector3_vector2" type="" xpos="8.3501" ypos="43.0918">
     <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="zx" />
+      <input name="channels" type="string" value="zx" />
     </swizzle>
     <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector3_vector3" type="" xpos="9.38248" ypos="43.0922">
     <swizzle name="swizzle1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="zyx" />
+      <input name="channels" type="string" value="zyx" />
     </swizzle>
     <output name="out" type="vector3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector3_vector4" type="" xpos="7.29998" ypos="44.6092">
     <swizzle name="swizzle1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.5000, 1.0000" />
-      <parameter name="channels" type="string" value="zyxy" />
+      <input name="channels" type="string" value="zyxy" />
     </swizzle>
     <output name="out" type="vector4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector4_float" type="" xpos="8.35147" ypos="44.5852">
     <swizzle name="swizzle1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="w" />
+      <input name="channels" type="string" value="w" />
     </swizzle>
     <output name="out" type="float" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector4_color2" type="" xpos="9.38385" ypos="44.5856">
-    <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">
+    <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="wz" />
+      <input name="channels" type="string" value="wz" />
     </swizzle>
-    <output name="out" type="color2" nodename="swizzle1" />
+    <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector4_color3" type="" xpos="7.32189" ypos="46.1222">
     <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="wzy" />
+      <input name="channels" type="string" value="wzy" />
     </swizzle>
     <output name="out" type="color3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector4_color4" type="" xpos="8.35147" ypos="46.099">
     <swizzle name="swizzle1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="wyxz" />
+      <input name="channels" type="string" value="wyxz" />
     </swizzle>
     <output name="out" type="color4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector4_vector2" type="" xpos="9.38047" ypos="46.0994">
     <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="wz" />
+      <input name="channels" type="string" value="wz" />
     </swizzle>
     <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector4_vector3" type="" xpos="7.31852" ypos="47.8024">
     <swizzle name="swizzle1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="wzy" />
+      <input name="channels" type="string" value="wzy" />
     </swizzle>
     <output name="out" type="vector3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_vector4_vector4" type="" xpos="8.3567" ypos="47.7944">
     <swizzle name="swizzle1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.2500, 0.7500, 1.0" />
-      <parameter name="channels" type="string" value="wyxz" />
+      <input name="channels" type="string" value="wyxz" />
     </swizzle>
     <output name="out" type="vector4" nodename="swizzle1" />
   </nodegraph>

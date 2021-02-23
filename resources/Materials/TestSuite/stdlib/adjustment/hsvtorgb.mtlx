@@ -1,27 +1,26 @@
 <?xml version="1.0"?>
-<!--
-
-Basic adjustment function tests each test is in a separate graph for each variation in input type.
-- rgbtohsv
-- hsvtorgb
--->
-<materialx version="1.37">
-   <nodegraph name="rgb_to_hsv_to_rgb_color3" type="" xpos="6.05808" ypos="15.2766">
-      <hsvtorgb name="hsvtorgb1" type="color3" xpos="4.42069" ypos="7.5">
-         <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="rgbtohsv1" />
-      </hsvtorgb>
-      <rgbtohsv name="rgbtohsv1" type="color3" xpos="5.90819" ypos="6.67748">
-         <input name="in" type="color3" value="0.5, 0.5, 0.5" />
-      </rgbtohsv>
-      <output name="out" type="color3" nodename="hsvtorgb1" />
-   </nodegraph>
-   <nodegraph name="rgb_to_hsv_to_rgb_color4" type="" xpos="7.04042" ypos="15.2612">
-      <hsvtorgb name="hsvtorgb1" type="color4" xpos="6.00513" ypos="6.8723">
-         <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" nodename="rgbtohsv1" />
-      </hsvtorgb>
-      <rgbtohsv name="rgbtohsv1" type="color4" xpos="6.39423" ypos="5.84506">
-         <input name="in" type="color4" value="0.5, 0.5, 0.5, 1.0" />
-      </rgbtohsv>
-      <output name="out" type="color4" nodename="hsvtorgb1" />
-   </nodegraph>
+<materialx version="1.38">
+  <!--
+  Basic adjustment function tests each test is in a separate graph for each variation in input type.
+  - rgbtohsv
+  - hsvtorgb
+  -->
+  <nodegraph name="rgb_to_hsv_to_rgb_color3" type="" xpos="6.05808" ypos="15.2766">
+    <hsvtorgb name="hsvtorgb1" type="color3" xpos="4.42069" ypos="7.5">
+      <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="rgbtohsv1" />
+    </hsvtorgb>
+    <rgbtohsv name="rgbtohsv1" type="color3" xpos="5.90819" ypos="6.67748">
+      <input name="in" type="color3" value="0.5, 0.5, 0.5" />
+    </rgbtohsv>
+    <output name="out" type="color3" nodename="hsvtorgb1" />
+  </nodegraph>
+  <nodegraph name="rgb_to_hsv_to_rgb_color4" type="" xpos="7.04042" ypos="15.2612">
+    <hsvtorgb name="hsvtorgb1" type="color4" xpos="6.00513" ypos="6.8723">
+      <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" nodename="rgbtohsv1" />
+    </hsvtorgb>
+    <rgbtohsv name="rgbtohsv1" type="color4" xpos="6.39423" ypos="5.84506">
+      <input name="in" type="color4" value="0.5, 0.5, 0.5, 1.0" />
+    </rgbtohsv>
+    <output name="out" type="color4" nodename="hsvtorgb1" />
+  </nodegraph>
 </materialx>

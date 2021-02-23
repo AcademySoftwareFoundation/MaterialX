@@ -1,20 +1,13 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
-  <material name="example1">
-    <shaderref name="example1_surface" node="standard_surface">
-      <bindinput name="normal" type="vector3" output="outNormal" />
-      <bindinput name="specular_roughness" type="float" value="0.2" />
-      <bindinput name="specular_IOR" type="float" value="2" />
-    </shaderref>
-  </material>
+<materialx version="1.38">
   <texcoord name="texcoord1" type="vector2" />
   <multiply name="uvscale" type="vector2">
     <input name="in1" type="vector2" nodename="texcoord1" />
     <input name="in2" type="vector2" value="2, 2" />
   </multiply>
   <image name="normalTex" type="vector3">
-    <parameter name="file" type="filename" value="resources/Images/marble.png" />
-    <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
+    <input name="file" type="filename" value="resources/Images/marble.png" />
+    <input name="default" type="vector3" value="0.5, 0.5, 1" />
     <input name="texcoord" type="vector2" nodename="uvscale" />
   </image>
   <normalmap name="normalmap1" type="vector3">
@@ -31,36 +24,30 @@
   </nodedef>
   <nodegraph name="IMP_testshader2" nodedef="ND_testshader2">
     <normal name="shadingnormal1" type="vector3" />
-    <diffuse_brdf name="diffuse" type="BSDF">
+    <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="color" type="color3" interfacename="diffuse_reflectance" />
       <input name="roughness" type="float" interfacename="diffuse_roughness" />
-    </diffuse_brdf>
+    </oren_nayar_diffuse_bsdf>
     <roughness_anisotropy name="roughness1" type="vector2">
       <input name="roughness" type="float" interfacename="specular_roughness" />
       <input name="anisotropy" type="float" value="0.0" />
     </roughness_anisotropy>
-    <dielectric_brdf name="coating" type="BSDF">
+    <dielectric_bsdf name="coating_layer_top" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
-      <input name="base" type="BSDF" nodename="diffuse" />
       <input name="tint" type="color3" interfacename="specular_reflectance" />
       <input name="roughness" type="vector2" nodename="roughness1" />
       <input name="ior" type="float" interfacename="specular_IOR" />
-    </dielectric_brdf>
+    </dielectric_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="coating" />
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
+    <layer name="coating" type="BSDF">
+      <input name="top" type="BSDF" nodename="coating_layer_top" />
+      <input name="base" type="BSDF" nodename="diffuse" />
+    </layer>
   </nodegraph>
-  <material name="example2">
-    <shaderref name="example2_surface" node="testshader2">
-      <bindinput name="diffuse_reflectance" type="color3" value="0.8, 0.2, 0.8" />
-      <bindinput name="specular_reflectance" type="color3" value="1, 1, 1" />
-      <bindinput name="specular_roughness" type="float" value="0.2" />
-      <bindinput name="specular_IOR" type="float" value="2" />
-    </shaderref>
-  </material>
-
   <nodedef name="ND_testshader3" node="testshader3">
     <input name="reflectivity" type="color3" />
     <input name="edge_color" type="color3" />
@@ -102,16 +89,6 @@
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
-  <material name="example3">
-    <shaderref name="example3_surface" node="testshader3">
-      <bindinput name="reflectivity" type="color3" value="0.944, 0.776, 0.373" />
-      <bindinput name="edge_color" type="color3" value="0.998, 0.981, 0.751" />
-      <bindinput name="ior_n" type="color3" value="0.183, 0.422, 1.373" />
-      <bindinput name="ior_k" type="color3" value="3.424, 2.346, 1.771" />
-      <bindinput name="roughness" type="float" value="0.2" />
-    </shaderref>
-  </material>
-
   <nodedef name="ND_testshader4" node="testshader4">
     <input name="base" type="float" />
     <input name="base_color" type="color3" />
@@ -148,59 +125,59 @@
   </nodedef>
   <nodegraph name="IMP_testshader4" nodedef="ND_testshader4">
     <image name="base_color" type="color3">
-      <parameter name="file" type="filename" interfacename="base_color_map" />
-      <parameter name="default" type="color3" interfacename="base_color" />
+      <input name="file" type="filename" interfacename="base_color_map" />
+      <input name="default" type="color3" interfacename="base_color" />
     </image>
     <image name="specular" type="float">
-      <parameter name="file" type="filename" interfacename="specular_map" />
-      <parameter name="default" type="float" interfacename="specular" />
+      <input name="file" type="filename" interfacename="specular_map" />
+      <input name="default" type="float" interfacename="specular" />
     </image>
     <image name="specular_color" type="color3">
-      <parameter name="file" type="filename" interfacename="specular_color_map" />
-      <parameter name="default" type="color3" interfacename="specular_color" />
+      <input name="file" type="filename" interfacename="specular_color_map" />
+      <input name="default" type="color3" interfacename="specular_color" />
     </image>
     <image name="specular_roughness" type="float">
-      <parameter name="file" type="filename" interfacename="specular_roughness_map" />
-      <parameter name="default" type="float" interfacename="specular_roughness" />
+      <input name="file" type="filename" interfacename="specular_roughness_map" />
+      <input name="default" type="float" interfacename="specular_roughness" />
     </image>
     <image name="metalness" type="float">
-      <parameter name="file" type="filename" interfacename="metalness_map" />
-      <parameter name="default" type="float" interfacename="metalness" />
+      <input name="file" type="filename" interfacename="metalness_map" />
+      <input name="default" type="float" interfacename="metalness" />
     </image>
     <image name="transmission" type="float">
-      <parameter name="file" type="filename" interfacename="transmission_map" />
-      <parameter name="default" type="float" interfacename="transmission" />
+      <input name="file" type="filename" interfacename="transmission_map" />
+      <input name="default" type="float" interfacename="transmission" />
     </image>
     <image name="transmission_color" type="color3">
-      <parameter name="file" type="filename" interfacename="transmission_color_map" />
-      <parameter name="default" type="color3" interfacename="transmission_color" />
+      <input name="file" type="filename" interfacename="transmission_color_map" />
+      <input name="default" type="color3" interfacename="transmission_color" />
     </image>
     <image name="transmission_extra_roughness" type="float">
-      <parameter name="file" type="filename" interfacename="transmission_extra_roughness_map" />
-      <parameter name="default" type="float" interfacename="transmission_extra_roughness" />
+      <input name="file" type="filename" interfacename="transmission_extra_roughness_map" />
+      <input name="default" type="float" interfacename="transmission_extra_roughness" />
     </image>
     <image name="coat" type="float">
-      <parameter name="file" type="filename" interfacename="coat_map" />
-      <parameter name="default" type="float" interfacename="coat" />
+      <input name="file" type="filename" interfacename="coat_map" />
+      <input name="default" type="float" interfacename="coat" />
     </image>
     <image name="coat_color" type="color3">
-      <parameter name="file" type="filename" interfacename="coat_color_map" />
-      <parameter name="default" type="color3" interfacename="coat_color" />
+      <input name="file" type="filename" interfacename="coat_color_map" />
+      <input name="default" type="color3" interfacename="coat_color" />
     </image>
     <image name="coat_roughness" type="float">
-      <parameter name="file" type="filename" interfacename="coat_roughness_map" />
-      <parameter name="default" type="float" interfacename="coat_roughness" />
+      <input name="file" type="filename" interfacename="coat_roughness_map" />
+      <input name="default" type="float" interfacename="coat_roughness" />
     </image>
     <image name="normalTex" type="vector3">
-      <parameter name="file" type="filename" interfacename="normalmap" />
-      <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
+      <input name="file" type="filename" interfacename="normalmap" />
+      <input name="default" type="vector3" value="0.5, 0.5, 1" />
     </image>
     <normalmap name="normalmap1" type="vector3">
       <input name="in" type="vector3" nodename="normalTex" />
     </normalmap>
     <image name="coatTex" type="vector3">
-      <parameter name="file" type="filename" interfacename="coat_normalmap" />
-      <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
+      <input name="file" type="filename" interfacename="coat_normalmap" />
+      <input name="default" type="vector3" value="0.5, 0.5, 1" />
     </image>
     <normalmap name="normalmap2" type="vector3">
       <input name="in" type="vector3" nodename="coatTex" />
@@ -229,22 +206,50 @@
     </standard_surface>
     <output name="out" type="surfaceshader" nodename="standardsurface1" />
   </nodegraph>
-
-  <material name="example4">
-    <shaderref name="example4_surface" node="testshader4">
-      <bindinput name="base" type="float" value="0.8" />
-      <bindinput name="base_color" type="color3" value="1, 1, 1" />
-      <bindinput name="specular" type="float" value="1" />
-      <bindinput name="specular_color" type="color3" value="1, 1, 1" />
-      <bindinput name="specular_IOR" type="float" value="1.52" />
-      <bindinput name="specular_roughness" type="float" value="0.1" />
-      <bindinput name="coat_IOR" type="float" value="3" />
-    </shaderref>
-  </material>
-  <material name="example5">
-    <shaderref name="example5_surface" node="standard_surface">
-      <bindinput name="specular_roughness" type="float" value="0.123" />
-      <bindinput name="specular_IOR" type="float" value="2" />
-    </shaderref>
-  </material>
+  <standard_surface name="example1_surface" type="surfaceshader">
+    <input name="normal" type="vector3" output="outNormal" />
+    <input name="specular_roughness" type="float" value="0.2" />
+    <input name="specular_IOR" type="float" value="2" />
+  </standard_surface>
+  <surfacematerial name="example1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="example1_surface" />
+  </surfacematerial>
+  <testshader2 name="example2_surface" type="surfaceshader">
+    <input name="diffuse_reflectance" type="color3" value="0.8, 0.2, 0.8" />
+    <input name="specular_reflectance" type="color3" value="1, 1, 1" />
+    <input name="specular_roughness" type="float" value="0.2" />
+    <input name="specular_IOR" type="float" value="2" />
+  </testshader2>
+  <surfacematerial name="example2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="example2_surface" />
+  </surfacematerial>
+  <testshader3 name="example3_surface" type="surfaceshader">
+    <input name="reflectivity" type="color3" value="0.944, 0.776, 0.373" />
+    <input name="edge_color" type="color3" value="0.998, 0.981, 0.751" />
+    <input name="ior_n" type="color3" value="0.183, 0.422, 1.373" />
+    <input name="ior_k" type="color3" value="3.424, 2.346, 1.771" />
+    <input name="roughness" type="float" value="0.2" />
+  </testshader3>
+  <surfacematerial name="example3" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="example3_surface" />
+  </surfacematerial>
+  <testshader4 name="example4_surface" type="surfaceshader">
+    <input name="base" type="float" value="0.8" />
+    <input name="base_color" type="color3" value="1, 1, 1" />
+    <input name="specular" type="float" value="1" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
+    <input name="specular_IOR" type="float" value="1.52" />
+    <input name="specular_roughness" type="float" value="0.1" />
+    <input name="coat_IOR" type="float" value="3" />
+  </testshader4>
+  <surfacematerial name="example4" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="example4_surface" />
+  </surfacematerial>
+  <standard_surface name="example5_surface" type="surfaceshader">
+    <input name="specular_roughness" type="float" value="0.123" />
+    <input name="specular_IOR" type="float" value="2" />
+  </standard_surface>
+  <surfacematerial name="example5" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="example5_surface" />
+  </surfacematerial>
 </materialx>

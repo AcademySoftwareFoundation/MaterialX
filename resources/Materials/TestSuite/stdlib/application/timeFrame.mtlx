@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodegraph name="timeGraph" type="" xpos="8.5931" ypos="20.52">
     <time name="time1" type="float" xpos="3.51724" ypos="7.38">
-      <parameter name="fps" type="float" value="36.0000" />
+      <input name="fps" type="float" value="36.0000" />
     </time>
     <remap name="remap1" type="float" xpos="5.24828" ypos="7.86">
       <input name="in" type="float" value="0.0" nodename="time1" />
