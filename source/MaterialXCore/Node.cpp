@@ -145,7 +145,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
             InputPtr interfaceInput = nullptr;
             if (connectedInput->hasInterfaceName())
             {
-                interfaceInput = connectedInput->getConnectedInterface();
+                interfaceInput = connectedInput->getInterfaceInput();
                 if (interfaceInput)
                 {
                     outputName = &(interfaceInput->getOutputString());
@@ -642,7 +642,7 @@ bool NodeGraph::validate(string* message) const
                 const string& interfaceName = input->getInterfaceName();
                 if (!interfaceName.empty())
                 {
-                    InputPtr interfaceInput = input->getConnectedInterface();
+                    InputPtr interfaceInput = input->getInterfaceInput();
                     validateRequire(interfaceInput != nullptr, res, message, "NodeGraph interface input: \"" + interfaceName + "\" does not exist on nodegraph");
                     string connectedNodeName = interfaceInput ? interfaceInput->getNodeName() : EMPTY_STRING;
                     if (connectedNodeName.empty())
