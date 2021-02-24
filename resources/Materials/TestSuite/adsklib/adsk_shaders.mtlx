@@ -1,27 +1,24 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
-   <!-- Test graph for adsk nodedefs -->
-
-   <nodegraph name="util_nodedefs" type="color3">
-      <adsk:colorcorrect name="colorcorrect" type="multioutput" version="1.0">
-         <input name="color" type="color3" value="1, 0.5, 0.5" />
-         <output name="outColor" type="color3" />
-         <output name="outAlpha" type="float" />
-      </adsk:colorcorrect>
-      <output name="colorcorrect_out" type="color3" nodename="colorcorrect" output="outColor" />
-   </nodegraph>
- 
-   <nodegraph name="shader_defs" type="multioutput">
-      <adsk:parquet_03 name="parquet_03" type="surfaceshader" version="1.0" />
-      <adsk:brick_02 name="brick_02" type="surfaceshader" version="1.0" />
-      <adsk:brick_10 name="brick_10" type="surfaceshader" version="1.0" />
-      <output name="parquet_out" type="surfaceshader" nodename="parquet_03" /> 
-      <output name="brick_02_out" type="surfaceshader" nodename="brick_02" />
-      <output name="brick_10_out" type="surfaceshader" nodename="brick_10" />
-   </nodegraph>
- 
-   <nodegraph name="material_defs" type="material">
-      <adsk:parquet_03_material name="parquet_03_material" type="material" version="1.0"/>
-      <output name="parquet_material_out" type="material" nodename="parquet_03_material" /> 
-   </nodegraph>
+<materialx version="1.38">
+  <!-- Test graph for adsk nodedefs -->
+  <nodegraph name="util_nodedefs" type="color3">
+    <adsk:colorcorrect name="colorcorrect" type="multioutput" version="1.0">
+      <input name="color" type="color3" value="1, 0.5, 0.5" />
+      <output name="outColor" type="color3" />
+      <output name="outAlpha" type="float" />
+    </adsk:colorcorrect>
+    <output name="colorcorrect_out" type="color3" nodename="colorcorrect" output="outColor" />
+  </nodegraph>
+  <nodegraph name="shader_defs" type="multioutput">
+    <adsk:parquet_03 name="parquet_03" type="surfaceshader" version="1.0" />
+    <adsk:brick_02 name="brick_02" type="surfaceshader" version="1.0" />
+    <adsk:brick_10 name="brick_10" type="surfaceshader" version="1.0" />
+    <output name="parquet_out" type="surfaceshader" nodename="parquet_03" />
+    <output name="brick_02_out" type="surfaceshader" nodename="brick_02" />
+    <output name="brick_10_out" type="surfaceshader" nodename="brick_10" />
+  </nodegraph>
+  <nodegraph name="material_defs" type="material">
+    <adsk:parquet_03_material name="parquet_03_material" type="material" version="1.0" />
+    <output name="parquet_material_out" type="material" nodename="parquet_03_material" />
+  </nodegraph>
 </materialx>

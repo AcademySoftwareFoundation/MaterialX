@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
   <nodedef name="ND_plastic08_red_surfaceshader" node="plastic08_red" version="1.0" isdefaultversion="true" nodegroup="shader" namespace="adsk">
     <output name="out" type="surfaceshader" value="" />
   </nodedef>

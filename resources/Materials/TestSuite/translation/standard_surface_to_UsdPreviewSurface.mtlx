@@ -1,67 +1,59 @@
 <?xml version="1.0"?>
-<!--
- Copyright (c) 2020 Autodesk, Inc.
- All rights reserved.
- These coded instructions, statements, and computer programs contain
- unpublished proprietary information written by Autodesk, Inc., and are
- protected by Federal copyright law. They may not be disclosed to third
- parties or copied or duplicated in any form, in whole or in part, without
- the prior written consent of Autodesk, Inc. 
+<materialx version="1.38">
+  <!--
+   Copyright (c) 2020 Autodesk, Inc.
+   All rights reserved.
+   These coded instructions, statements, and computer programs contain
+   unpublished proprietary information written by Autodesk, Inc., and are
+   protected by Federal copyright law. They may not be disclosed to third
+   parties or copied or duplicated in any form, in whole or in part, without
+   the prior written consent of Autodesk, Inc. 
 
- DESCRIPTION: Translation to map Autodesk Standard Surface to USDPreviewSurface. 
-              This is preliminary translation and will be updated as required.
--->
-
-<materialx version="1.37">
-   <nodedef name="ND_standard_surface_to_UsdPreviewSurface" node="standard_surface_to_UsdPreviewSurface" nodegroup="translation">
-      <input name="base" type="float" value="0" />
-      <input name="base_color" type="color3" value="0.18, 0.18, 0.18" />
-      <input name="specular" type="float" value="0" />
-      <input name="specular_color" type="color3" value="0.18, 0.18, 0.18" />
-      <input name="specular_roughness" type="float" value="0" />
-      <input name="specular_IOR" type="float" value="1.5" />
-      <input name="metalness" type="float" value="1" />
-      <output name="diffuseColor_out" type="color3" />
-      <output name="specularColor_out" type="color3" />
-      <output name="roughness_out" type="float" />
-
-      <output name="metalness_out" type="float" />
-      <output name="ior_out" type="float" value="50" />
-
-   </nodedef>
-
-   <nodegraph name="NG_standard_surface_to_UsdPreviewSurface" nodedef="ND_standard_surface_to_UsdPreviewSurface">
-      <!-- Partial translation of Autodesk Standard Surface to UsdPreview surface conversion -->
-      <multiply name="base_colorToDiffuseColor" type="color3">
-         <input name="in1" type="color3" interfacename="base_color" />
-         <input name="in2" type="float" interfacename="base" />
-      </multiply>
-      <multiply name="specular_colorToSpecularColor" type="color3">
-         <input name="in1" type="color3" interfacename="specular_color" />
-         <input name="in2" type="float" interfacename="specular" />
-      </multiply>
-
-      <!-- Pass through -->
-      <multiply name="metalnessTometalness" type="float">
-         <input name="in1" type="float" interfacename="metalness" />
-         <input name="in2" type="float" value="1.0" />
-      </multiply>
-      <multiply name="specular_roughnessToroughness" type="float">
-         <input name="in1" type="float" interfacename="specular_roughness" />
-         <input name="in2" type="float" value="1.0" />
-      </multiply>
-      <multiply name="specular_IORToior" type="float">
-         <input name="in1" type="float" interfacename="specular_IOR" />
-         <input name="in2" type="float" value="1.0" />
-      </multiply>
-
-      <!-- Outputs -->
-      <output name="diffuseColor_out" type="color3" nodename="base_colorToDiffuseColor" />
-      <output name="specularColor_out" type="color3" nodename="specular_colorToSpecularColor" />
-      <output name="roughness_out" type="float" nodename="specular_roughnessToroughness" />
-
-      <output name="metalness_out" type="float" nodename="metalnessTometalness" />
-      <output name="ior_out" type="float" nodename="specular_IORToior" />
-
-   </nodegraph>
+   DESCRIPTION: Translation to map Autodesk Standard Surface to USDPreviewSurface. 
+               This is preliminary translation and will be updated as required.
+   -->
+  <nodedef name="ND_standard_surface_to_UsdPreviewSurface" node="standard_surface_to_UsdPreviewSurface" nodegroup="translation">
+    <input name="base" type="float" value="0" />
+    <input name="base_color" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="specular" type="float" value="0" />
+    <input name="specular_color" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="specular_roughness" type="float" value="0" />
+    <input name="specular_IOR" type="float" value="1.5" />
+    <input name="metalness" type="float" value="1" />
+    <output name="diffuseColor_out" type="color3" />
+    <output name="specularColor_out" type="color3" />
+    <output name="roughness_out" type="float" />
+    <output name="metalness_out" type="float" />
+    <output name="ior_out" type="float" value="50" />
+  </nodedef>
+  <nodegraph name="NG_standard_surface_to_UsdPreviewSurface" nodedef="ND_standard_surface_to_UsdPreviewSurface">
+    <!-- Partial translation of Autodesk Standard Surface to UsdPreview surface conversion -->
+    <multiply name="base_colorToDiffuseColor" type="color3">
+      <input name="in1" type="color3" interfacename="base_color" />
+      <input name="in2" type="float" interfacename="base" />
+    </multiply>
+    <multiply name="specular_colorToSpecularColor" type="color3">
+      <input name="in1" type="color3" interfacename="specular_color" />
+      <input name="in2" type="float" interfacename="specular" />
+    </multiply>
+    <!-- Pass through -->
+    <multiply name="metalnessTometalness" type="float">
+      <input name="in1" type="float" interfacename="metalness" />
+      <input name="in2" type="float" value="1.0" />
+    </multiply>
+    <multiply name="specular_roughnessToroughness" type="float">
+      <input name="in1" type="float" interfacename="specular_roughness" />
+      <input name="in2" type="float" value="1.0" />
+    </multiply>
+    <multiply name="specular_IORToior" type="float">
+      <input name="in1" type="float" interfacename="specular_IOR" />
+      <input name="in2" type="float" value="1.0" />
+    </multiply>
+    <!-- Outputs -->
+    <output name="diffuseColor_out" type="color3" nodename="base_colorToDiffuseColor" />
+    <output name="specularColor_out" type="color3" nodename="specular_colorToSpecularColor" />
+    <output name="roughness_out" type="float" nodename="specular_roughnessToroughness" />
+    <output name="metalness_out" type="float" nodename="metalnessTometalness" />
+    <output name="ior_out" type="float" nodename="specular_IORToior" />
+  </nodegraph>
 </materialx>

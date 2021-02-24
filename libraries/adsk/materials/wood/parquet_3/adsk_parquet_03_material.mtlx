@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
-   <!-- Sample parquet material interface. Versioned and namespaced -->
-   <nodedef name="ND_parquet_03_material" node="parquet_03_material" nodegroup="material" version="1.0" isdefaultversion="true" namespace="adsk">
+<materialx version="1.38">
+  <!-- Sample parquet material interface. Versioned and namespaced -->
+  <nodedef name="ND_parquet_03_material" node="parquet_03_material" nodegroup="material" version="1.0" isdefaultversion="true" namespace="adsk">
     <output name="out" type="material" value="" />
   </nodedef>
-
-   <!-- Sample parquet material implemtnation. Versioned and namespaced -->
-   <nodegraph name="NG_parquet_03_material1" nodedef="adsk:ND_parquet_03_material" namespace="adsk">
+  <!-- Sample parquet material implemtnation. Versioned and namespaced -->
+  <nodegraph name="NG_parquet_03_material1" nodedef="adsk:ND_parquet_03_material" namespace="adsk">
     <displacement name="parquet_03_displacement_shader" type="displacementshader" />
     <surfacematerial name="parquet_03_material" type="material">
       <input name="surfaceshader" type="surfaceshader" nodename="parquet_03_surface_shader" />
