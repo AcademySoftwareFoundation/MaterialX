@@ -27,7 +27,7 @@ namespace MaterialX
 ///                 all node types are returned. The default argument value is to return surface shaders.
 /// @param target Target attribute filter for nodes to return. The default argument value is an empty string
 ///               indicating to include nodes which match any target.
-std::unordered_set<NodePtr> getShaderNodes(const NodePtr& materialNode,
+std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode,
                                            const string& nodeType = SURFACE_SHADER_TYPE_STRING,
                                            const string& target = EMPTY_STRING);
 

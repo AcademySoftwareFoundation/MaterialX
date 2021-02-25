@@ -8,7 +8,7 @@
 namespace MaterialX
 {
 
-std::unordered_set<NodePtr> getShaderNodes(const NodePtr& materialNode, const string& nodeType, const string& target)
+std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, const string& target)
 {
     ElementPtr parent = materialNode->getParent();
     if (!parent)
