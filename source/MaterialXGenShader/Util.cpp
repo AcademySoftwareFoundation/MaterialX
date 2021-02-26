@@ -66,216 +66,117 @@ namespace
         return false;
     }
 
-    bool isTransparentShaderGraph(OutputPtr output, const ShaderGenerator& shadergen,
-                                  StringSet& opacityInterfaceNames, StringSet& transmissionInterfaceNames)
+    bool isTransparentShaderNode(NodePtr node)
     {
-        // Track how many nodes has the potential of being transparent
-        // and how many of these we can say for sure are 100% opaque.
-        size_t numCandidates = 0;
-        size_t numOpaque = 0;
-
-        for (GraphIterator it = output->traverseGraph().begin(); it != GraphIterator::end(); ++it)
+        if (!node || node->getType() != SURFACE_SHADER_TYPE_STRING)
         {
-            ElementPtr upstreamElem = it.getUpstreamElement();
-            if (!upstreamElem)
+            return false;
+        }
+
+        // Check opacity
+        InputPtr opacity = node->getActiveInput("opacity");
+        if (opacity)
+        {
+            if (opacity->getConnectedOutput() || opacity->hasInterfaceName())
             {
-                it.setPruneSubgraph(true);
-                continue;
+                return true;
             }
-
-            const string& typeName = upstreamElem->asA<TypedElement>()->getType();
-            const TypeDesc* type = TypeDesc::get(typeName);
-            bool isFourChannelOutput = type == Type::COLOR4 || type == Type::VECTOR4;
-            if (type != Type::SURFACESHADER && type != Type::BSDF && !isFourChannelOutput)
+            else
             {
-                it.setPruneSubgraph(true);
-                continue;
-            }
-
-            if (upstreamElem->isA<Node>())
-            {
-                NodePtr node = upstreamElem->asA<Node>();
-
-                const string& nodetype = node->getCategory();
-                if (nodetype == "surface")
+                ValuePtr value = opacity->getValue();
+                if (value && !isOne(value))
                 {
-                    // This is a candidate for transparency
-                    ++numCandidates;
-
-                    bool opaque = false;
-
-                    InputPtr opacity = node->getInput("opacity");
-                    if (!opacity)
-                    {
-                        opaque = true;
-                    }
-                    else if (opacity->getNodeName().empty() && opacity->getInterfaceName().empty())
-                    {
-                        ValuePtr value = opacity->getValue();
-                        if (!value || (value->isA<float>() && isOne(value->asA<float>())))
-                        {
-                            opaque = true;
-                        }
-                    }
-
-                    if (opaque)
-                    {
-                        ++numOpaque;
-                    }
-                }
-                else if (nodetype == "dielectric_bsdf" || nodetype == "generalized_schlick_bsdf")
-                {
-                    InputPtr mode = node->getInput("scatter_mode");
-                    if (mode && mode->getValueString() != "R")
-                    {
-                        // This is a candidate for transparency
-                        ++numCandidates;
-
-                        bool opaque = false;
-
-                        // First check the weight
-                        InputPtr weight = node->getInput("weight");
-                        if (weight && weight->getNodeName() == EMPTY_STRING && weight->getInterfaceName() == EMPTY_STRING)
-                        {
-                            // Unconnected, check the value
-                            ValuePtr value = weight->getValue();
-                            if (value && isZero(value))
-                            {
-                                opaque = true;
-                            }
-                        }
-
-                        if (!opaque)
-                        {
-                            // Second check the tint
-                            InputPtr tint = node->getInput("tint");
-                            if (tint && tint->getNodeName() == EMPTY_STRING && tint->getInterfaceName() == EMPTY_STRING)
-                            {
-                                // Unconnected, check the value
-                                ValuePtr value = tint->getValue();
-                                if (!value || isZero(value))
-                                {
-                                    opaque = true;
-                                }
-                            }
-                        }
-
-                        if (opaque)
-                        {
-                            ++numOpaque;
-                        }
-                    }
-                }
-                else if (nodetype == "standard_surface")
-                {
-                    // This is a candidate for transparency
-                    ++numCandidates;
-
-                    bool opaque = false;
-
-                    // First check the transmission weight
-                    InputPtr transmission = node->getInput("transmission");
-                    if (!transmission)
-                    {
-                        opaque = true;
-                    }
-                    else
-                    {
-                        const string& tranmsInterfaceName = transmission->getInterfaceName();
-                        if (!tranmsInterfaceName.empty())
-                        {
-                            transmissionInterfaceNames.insert(tranmsInterfaceName);
-                        }
-                        if (transmission->getNodeName().empty())
-                        {
-                            // Unconnected, check the value
-                            ValuePtr value = transmission->getValue();
-                            if (!value || isZero(value))
-                            {
-                                opaque = true;
-                            }
-                        }
-                    }
-
-                    // Second check the opacity
-                    if (opaque)
-                    {
-                        opaque = false;
-
-                        InputPtr opacity = node->getInput("opacity");
-                        if (!opacity)
-                        {
-                            opaque = true;
-                        }
-                        else
-                        {
-                            const string& opacityInterfaceName = opacity->getInterfaceName();
-                            if (!opacityInterfaceName.empty())
-                            {
-                                opacityInterfaceNames.insert(opacityInterfaceName);
-                            }
-                            if (opacity->getNodeName().empty())
-                            {
-                                // Unconnected, check the value
-                                ValuePtr value = opacity->getValue();
-                                if (!value || isOne(value))
-                                {
-                                    opaque = true;
-                                }
-                            }
-                        }
-                    }
-
-                    if (opaque)
-                    {
-                        // We know for sure this is opaque
-                        ++numOpaque;
-                    }
-                }
-                else
-                {
-                    // If node is nodedef which references a node graph.
-                    // If so, then try to examine that node graph.
-                    NodeDefPtr nodeDef = node->getNodeDef();
-                    if (nodeDef)
-                    {
-                        const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
-                        if (nodeDefType == Type::BSDF)
-                        {
-                            InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
-                            if (impl && impl->isA<NodeGraph>())
-                            {
-                                NodeGraphPtr graph = impl->asA<NodeGraph>();
-
-                                vector<OutputPtr> outputs = graph->getActiveOutputs();
-                                if (outputs.size() > 0)
-                                {
-                                    const OutputPtr& graphOutput = outputs[0];
-                                    bool isTransparent = isTransparentShaderGraph(graphOutput, shadergen, opacityInterfaceNames, transmissionInterfaceNames);
-                                    if (isTransparent)
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                        else if (isFourChannelOutput)
-                        {
-                            ++numCandidates;
-                        }
-                    }
-                }
-
-                if (numOpaque != numCandidates)
-                {
-                    // We found at least one candidate that we can't
-                    // say for sure is opaque. So we might need transparency.
                     return true;
                 }
             }
         }
 
-        return numCandidates > 0 ? numOpaque != numCandidates : false;
+        // Check existence
+        InputPtr existence = node->getActiveInput("existence");
+        if (existence)
+        {
+            if (existence->getConnectedOutput() || existence->hasInterfaceName())
+            {
+                return true;
+            }
+            else
+            {
+                ValuePtr value = existence->getValue();
+                if (value && !isOne(value))
+                {
+                    return true;
+                }
+            }
+        }
+
+        // Check transmission
+        InputPtr transmission = node->getActiveInput("transmission");
+        if (transmission)
+        {
+            if (transmission->getConnectedOutput() || transmission->hasInterfaceName())
+            {
+                return true;
+            }
+            else
+            {
+                ValuePtr value = transmission->getValue();
+                if (value && !isZero(value))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool isTransparentShaderGraph(OutputPtr output, const ShaderGenerator& shadergen)
+    {
+        for (GraphIterator it = output->traverseGraph().begin(); it != GraphIterator::end(); ++it)
+        {
+            ElementPtr upstreamElem = it.getUpstreamElement();
+            if (!upstreamElem)
+            {
+                continue;
+            }
+
+            if (upstreamElem->isA<Node>())
+            {
+                // Handle shader nodes.
+                NodePtr node = upstreamElem->asA<Node>();
+                if (isTransparentShaderNode(node))
+                {
+                    return true;
+                }
+
+                // Handle graph definitions.
+                NodeDefPtr nodeDef = node->getNodeDef();
+                if (nodeDef)
+                {
+                    const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
+                    if (nodeDefType == Type::BSDF)
+                    {
+                        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
+                        if (impl && impl->isA<NodeGraph>())
+                        {
+                            NodeGraphPtr graph = impl->asA<NodeGraph>();
+
+                            vector<OutputPtr> outputs = graph->getActiveOutputs();
+                            if (outputs.size() > 0)
+                            {
+                                const OutputPtr& graphOutput = outputs[0];
+                                if (isTransparentShaderGraph(graphOutput, shadergen))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
 
@@ -304,94 +205,26 @@ FileSearchPath getDefaultSearchPath()
 
 bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
 {
-    // Handle shader nodes
-    NodePtr shaderNode = element->asA<Node>();
-    if (shaderNode && shaderNode->getType() == SURFACE_SHADER_TYPE_STRING)
+    NodePtr node = element->asA<Node>();
+    if (node)
     {
-        NodeDefPtr nodeDef = shaderNode->getNodeDef();
+        // Handle shader nodes.
+        if (isTransparentShaderNode(node))
+        {
+            return true;
+        }
+
+        // Handle graph definitions.
+        NodeDefPtr nodeDef = node->getNodeDef();
         if (!nodeDef)
         {
-            throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + shaderNode->getNamePath());
+            throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getNamePath());
         }
-
-        // Check opacity
-        InputPtr opacity = shaderNode->getActiveInput("opacity");
-        if (opacity)
-        {
-            if (opacity->getConnectedOutput())
-            {
-                return true;
-            }
-            else
-            {
-                ValuePtr value = opacity->getValue();
-                if (value && !isOne(value))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // Check existence
-        InputPtr existence = shaderNode->getActiveInput("existence");
-        if (existence)
-        {
-            if (existence->getConnectedOutput())
-            {
-                return true;
-            }
-            else
-            {
-                ValuePtr value = existence->getValue();
-                if (value && !isOne(value))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // Check transmission
-        InputPtr transmission = shaderNode->getActiveInput("transmission");
-        if (transmission)
-        {
-            if (transmission->getConnectedOutput())
-            {
-                return true;
-            }
-            else
-            {
-                ValuePtr value = transmission->getValue();
-                if (value && !isZero(value))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // Check subsurface
-        InputPtr subsurface = shaderNode->getActiveInput("subsurface");
-        if (subsurface)
-        {
-            if (subsurface->getConnectedOutput())
-            {
-                return true;
-            }
-            else
-            {
-                ValuePtr value = subsurface->getValue();
-                if (value && !isZero(value))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // Check for a transparent graph.
         InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
         if (!impl)
         {
             throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef->getNodeString() +
-                "' matching target '" + shadergen.getTarget() + "'");
+                                          "' matching target '" + shadergen.getTarget() + "'");
         }
         if (impl->isA<NodeGraph>())
         {
@@ -401,52 +234,11 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             if (!outputs.empty())
             {
                 const OutputPtr& output = outputs[0];
-                if (TypeDesc::get(output->getType()) == Type::SURFACESHADER)
+                if (output->getType() == SURFACE_SHADER_TYPE_STRING)
                 {
-                    StringSet opacityInterfaceNames;
-                    StringSet transmissionInterfaceNames;
-                    if (isTransparentShaderGraph(output, shadergen, opacityInterfaceNames, transmissionInterfaceNames))
+                    if (isTransparentShaderGraph(output, shadergen))
                     {
                         return true;
-                    }
-
-                    for (const string& opacityInterfaceName : opacityInterfaceNames)
-                    {
-                        opacity = shaderNode->getActiveInput(opacityInterfaceName);
-                        if (opacity)
-                        {
-                            if (!opacity->getOutputString().empty())
-                            {
-                                return true;
-                            }
-                            else
-                            {
-                                ValuePtr value = opacity->getValue();
-                                if (value && !isOne(value))
-                                {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                    for (const string& transmissionInterfaceName : transmissionInterfaceNames)
-                    {
-                        transmission = shaderNode->getActiveInput(transmissionInterfaceName);
-                        if (transmission)
-                        {
-                            if (!transmission->getOutputString().empty())
-                            {
-                                return true;
-                            }
-                            else
-                            {
-                                ValuePtr value = transmission->getValue();
-                                if (value && !isZero(value))
-                                {
-                                    return true;
-                                }
-                            }
-                        }
                     }
 
                     return false;
@@ -454,14 +246,11 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
             }
         }
     }
-
-    // Handle output nodes
     else if (element->isA<Output>())
     {
+        // Handle output elements.
         OutputPtr output = element->asA<Output>();
-        StringSet opacityInterfaceNames;
-        StringSet transmissionInterfaceNames;
-        return isTransparentShaderGraph(output, shadergen, opacityInterfaceNames, transmissionInterfaceNames);
+        return isTransparentShaderGraph(output, shadergen);
     }
 
     return false;
