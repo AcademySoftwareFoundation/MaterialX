@@ -117,12 +117,6 @@ class TextureBaker : public GlslRenderer
         return _outputImagePath;
     }
 
-    /// Set the "libraries" search path location. Otherwise will use getDefaultSearchPath()
-    void setCodeSearchPath(const FileSearchPath& codesearchPath)
-    {
-        _codeSearchPath = codesearchPath;
-    }
-
     /// Set the name of the baked graph element.
     void setBakedGraphName(const string& name)
     {
@@ -175,11 +169,11 @@ class TextureBaker : public GlslRenderer
     DocumentPtr bakeMaterial(NodePtr shader, const StringVec& udimSet);
 
     /// Bake all materials in the given document and return them as a vector.
-    BakedDocumentVec createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath);
+    BakedDocumentVec createBakeDocuments(DocumentPtr doc, const FileSearchPath& searchPath);
 
     /// Bake all materials in the given document and write them to disk.  If multiple documents are written,
     /// then the given output filename will be used as a template.
-    void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFileName);
+    void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFileName);
 
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
@@ -217,7 +211,6 @@ class TextureBaker : public GlslRenderer
     FilePath _outputImagePath;
     string _bakedGraphName;
     string _bakedGeomInfoName;
-    FileSearchPath _codeSearchPath;
     std::ostream* _outputStream;
 
     ShaderGeneratorPtr _generator;

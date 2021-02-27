@@ -5,12 +5,7 @@
 
 #include <MaterialXGenShader/Util.h>
 
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/GenContext.h>
-
-#include <MaterialXFormat/XmlIo.h>
-#include <MaterialXFormat/PugiXML/pugixml.hpp>
 
 namespace MaterialX
 {
@@ -178,29 +173,6 @@ namespace
 
         return false;
     }
-}
-
-FileSearchPath getDefaultSearchPath()
-{
-    FileSearchPath searchPath;
-
-    // Default search path for installed binaries.
-    FilePath installSearchPath = FilePath::getModulePath().getParentPath();
-    if (installSearchPath.exists())
-    {
-        searchPath.append(installSearchPath);
-        searchPath.append(installSearchPath / "libraries");
-    }
-
-    // Default search path for development environments.
-    FilePath devSearchPath = FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
-    if (devSearchPath.exists())
-    {
-        searchPath.append(devSearchPath);
-        searchPath.append(devSearchPath / "libraries");
-    }
-
-    return searchPath;
 }
 
 bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
