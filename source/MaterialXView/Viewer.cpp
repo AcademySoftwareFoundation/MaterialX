@@ -1458,7 +1458,10 @@ void Viewer::saveDotFiles()
 void Viewer::initContext(mx::GenContext& context)
 {
     // Initialize search paths.
-    context.registerSourceCodeSearchPath(_searchPath);
+    for (const mx::FilePath& path : _searchPath)
+    {
+        context.registerSourceCodeSearchPath(path / "libraries");
+    }
 
     // Initialize color management.
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());

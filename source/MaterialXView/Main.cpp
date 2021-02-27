@@ -50,6 +50,27 @@ template<class T> void parseToken(std::string token, std::string type, T& res)
     res = value->asA<T>();
 }
 
+mx::FileSearchPath getDefaultSearchPath()
+{
+    mx::FileSearchPath searchPath;
+
+    // Default search path for installed binaries.
+    mx::FilePath installSearchPath = mx::FilePath::getModulePath().getParentPath();
+    if (installSearchPath.exists())
+    {
+        searchPath.append(installSearchPath);
+    }
+
+    // Default search path for development environments.
+    mx::FilePath devSearchPath = mx::FilePath(__FILE__).getParentPath().getParentPath().getParentPath();
+    if (devSearchPath.exists())
+    {
+        searchPath.append(devSearchPath);
+    }
+
+    return searchPath;
+}
+
 int main(int argc, char* const argv[])
 {  
     std::vector<std::string> tokens;
@@ -61,7 +82,7 @@ int main(int argc, char* const argv[])
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    mx::FileSearchPath searchPath = mx::getDefaultSearchPath();
+    mx::FileSearchPath searchPath = getDefaultSearchPath();
     mx::FilePathVec libraryFolders = { "libraries" };
 
     mx::Vector3 meshRotation;
