@@ -388,7 +388,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     return bakingSuccessful ? bakedTextureDoc : nullptr;
 }
 
-BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSearchPath& imageSearchPath)
+BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSearchPath& searchPath)
 {
     GenContext genContext(_generator);
     genContext.getOptions().hwSpecularEnvironmentMethod = SPECULAR_ENVIRONMENT_FIS;
@@ -400,10 +400,10 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
 
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
     cms->loadLibrary(doc);
-    if (_codeSearchPath.isEmpty())
-        genContext.registerSourceCodeSearchPath(getDefaultSearchPath());
-    else
-        genContext.registerSourceCodeSearchPath(_codeSearchPath);
+    for (const FilePath& path : searchPath)
+    {
+        genContext.registerSourceCodeSearchPath(path / "libraries");
+    }
     genContext.getShaderGenerator().setColorManagementSystem(cms);
     StringResolverPtr resolver = StringResolver::create();
     ImageHandlerPtr imageHandler = GLTextureHandler::create(StbImageLoader::create());
@@ -455,7 +455,7 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
             {
                 continue;
             }
-            imageHandler->setSearchPath(imageSearchPath);
+            imageHandler->setSearchPath(searchPath);
             resolver->setUdimString(tag);
             imageHandler->setFilenameResolver(resolver);
             setImageHandler(imageHandler);
@@ -473,7 +473,7 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
     return bakedDocuments;
 }
 
-void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& imageSearchPath, const FilePath& outputFilename)
+void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFilename)
 {
     if (_outputImagePath.isEmpty())
     {
@@ -484,7 +484,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& image
         }
     }
 
-    BakedDocumentVec bakedDocuments = createBakeDocuments(doc, imageSearchPath);
+    BakedDocumentVec bakedDocuments = createBakeDocuments(doc, searchPath);
     size_t bakeCount = bakedDocuments.size();
     if (bakeCount == 1)
     {
