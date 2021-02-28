@@ -21,6 +21,7 @@ Updated the MaterialX library to the v1.38 specification.  See the [v1.38 change
 - Updated the prefiltered path for specular environment rendering in GLSL, providing a closer match with the Filtered Importance Sampling path.
 - Updated the definition of Autodesk Standard Surface to version 1.0.1.
 - Updated the definition of UsdPreviewSurface to version 2.3.
+- Renamed the default branch from master to main.
 
 ### Removed
 - Removed support for the 'complex_ior', 'backfacing', 'viewdirection' and 'fresnel' nodes in Physically Based Shading.
