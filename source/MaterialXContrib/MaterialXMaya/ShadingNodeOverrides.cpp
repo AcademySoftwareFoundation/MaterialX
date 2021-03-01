@@ -227,7 +227,10 @@ ShadingNodeOverride<BASE>::fragmentName() const
     MFnDependencyNode depNode(_object, &status);
     const auto* const node = dynamic_cast<MaterialXNode*>(depNode.userNode());
     const OgsFragment* const data = node ? node->getOgsFragment() : nullptr;
-    return data ? data->getFragmentName().c_str() : "";
+    if (data) {
+        return data->getLightRigName().empty() ? data->getFragmentName().c_str() : data->getLightRigName().c_str();
+    }
+    return "";
 }
 
 template <class BASE>

@@ -1,0 +1,124 @@
+<fragment uiName="materialXLightDataBuilder" name="materialXLightDataBuilder" type="plumbing" class="ShadeFragment" version="1.0" feature_level="0">
+    <description><![CDATA[Accumulates Maya lights into a MaterialX compatible structure.]]></description>
+    <properties>
+        <float3 name="L" flags="varyingInputParam" />
+        <int name="lightType" />
+        <float3 name="diffuseI" />
+        <float3 name="specularI" />
+    </properties>
+    <values>
+    </values>
+    <outputs>
+        <float3 name="outColor" />
+    </outputs>
+    <implementation>
+        <implementation render="OGSRenderer" language="GLSL" lang_version="3.0">
+            <function_name val="materialXLightDataBuilder" />
+            <source>
+                <![CDATA[
+struct LightData
+{
+    int type;
+    vec3 direction;
+    vec3 color;
+    float intensity;
+};
+
+int g_numActiveLightSources = 0;
+LightData g_lightData[16];
+vec3 g_diffuseI = vec3(0.0f, 0.0f, 0.0f);
+vec3 g_specularI = vec3(0.0f, 0.0f, 0.0f);
+
+vec3 materialXLightDataBuilder(
+    vec3 L,
+    int lightType,
+    vec3 diffuseI,
+    vec3 specularI
+)
+{
+    if (g_numActiveLightSources < 16) {
+        g_lightData[g_numActiveLightSources].type = 1;
+        g_lightData[g_numActiveLightSources].direction = -L;
+        g_lightData[g_numActiveLightSources].color = diffuseI;
+        g_lightData[g_numActiveLightSources].intensity = 1.0f;
+        g_numActiveLightSources = g_numActiveLightSources + 1;
+    }
+    return diffuseI;
+}
+                ]]>
+            </source>
+        </implementation>
+        <implementation render="OGSRenderer" language="HLSL" lang_version="11.0">
+            <function_name val="mayaStandardSurfaceEvalBrdfs" />
+            <source>
+                <![CDATA[
+struct LightData
+{
+    int type;
+    float3 direction;
+    float3 color;
+    float intensity;
+};
+
+int g_numActiveLightSources = 0;
+LightData g_lightData[16];
+float3 g_diffuseI = float3(0.0f, 0.0f, 0.0f);
+float3 g_specularI = float3(0.0f, 0.0f, 0.0f);
+
+float3 materialXLightDataBuilder(
+    float3 L,
+    int lightType,
+    float3 diffuseI,
+    float3 specularI
+)
+{
+    if (g_numActiveLightSources < 16) {
+        g_lightData[g_numActiveLightSources].type = 1;
+        g_lightData[g_numActiveLightSources].direction = -L;
+        g_lightData[g_numActiveLightSources].color = diffuseI;
+        g_lightData[g_numActiveLightSources].intensity = 1.0f;
+        g_numActiveLightSources = g_numActiveLightSources + 1;
+    }
+    return diffuseI;
+}
+                ]]>
+            </source>
+        </implementation>
+        <implementation render="OGSRenderer" language="Cg" lang_version="2.1">
+            <function_name val="mayaStandardSurfaceEvalBrdfs" />
+            <source>
+                <![CDATA[
+struct LightData
+{
+    int type;
+    float3 direction;
+    float3 color;
+    float intensity;
+};
+
+int g_numActiveLightSources = 0;
+LightData g_lightData[16];
+float3 g_diffuseI = float3(0.0f, 0.0f, 0.0f);
+float3 g_specularI = float3(0.0f, 0.0f, 0.0f);
+
+float3 materialXLightDataBuilder(
+    float3 L,
+    int lightType,
+    float3 diffuseI,
+    float3 specularI
+)
+{
+    if (g_numActiveLightSources < 16) {
+        g_lightData[g_numActiveLightSources].type = 1;
+        g_lightData[g_numActiveLightSources].direction = -L;
+        g_lightData[g_numActiveLightSources].color = diffuseI;
+        g_lightData[g_numActiveLightSources].intensity = 1.0f;
+        g_numActiveLightSources = g_numActiveLightSources + 1;
+    }
+    return diffuseI;
+}
+                ]]>
+            </source>
+        </implementation>
+    </implementation>
+</fragment>

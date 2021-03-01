@@ -43,12 +43,19 @@ class Plugin
         return _librarySearchPath;
     }
 
+    const mx::FilePath& getPluginLoadPath() const
+    {
+        return _pluginLoadPath;
+    } 
+
     /// Get the currently loaded MaterialX libraries stored in a document
     /// which can be imported to other documents.
     mx::ConstDocumentPtr getLibraryDocument() const
     {
         return _libraryDocument;
     }
+
+    static const std::string MX_LIGHT_BUILDER_FRAG;
 
   private:
     Plugin()

@@ -71,12 +71,14 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
 
     file(GLOB _scripts "${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.py")
     file(GLOB _AEtemplate "${CMAKE_CURRENT_SOURCE_DIR}/AEtemplate/AE*Template.mel")
+    file(GLOB _vp2ShaderFragments "${CMAKE_CURRENT_SOURCE_DIR}/vp2ShaderFragments/*.xml")
     file(GLOB _mods "${CMAKE_CURRENT_SOURCE_DIR}/mods/*.mod")
 
     source_group("Header Files" FILES ${_headers})
     source_group("Source Files" FILES ${_source})
     source_group("Scripts" FILES ${_scripts})
     source_group("AETemplates" FILES ${_AEtemplate})
+    source_group("VP2ShaderFragments" FILES ${_vp2ShaderFragments})
     source_group("Mods" FILES ${_mods})
 
     add_library(${PROJECT_NAME} SHARED
@@ -127,6 +129,7 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
     install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/plug-ins)
     install(FILES ${_scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/scripts)
     install(FILES ${_AEtemplate} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/AEtemplate)
+    install(FILES ${_vp2ShaderFragments} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/plug-ins/vp2ShaderFragments)
     install(FILES ${_mods} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME})
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../resources DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}")
 endif()

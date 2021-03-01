@@ -65,11 +65,10 @@ class GlslGeneratorWrapperBase
         // Use FIS environment lookup for surface shader generation but
         // disable for texture nodes to avoid additional unneeded XML parameter
         // generation.    
-        genOptions.hwSpecularEnvironmentMethod =
-            _isSurface ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_NONE;
+        genOptions.hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_NONE;
 
         // Set to use no direct lighting
-        genOptions.hwMaxActiveLightSources = 0;
+        genOptions.hwMaxActiveLightSources = _isSurface ? 16 : 0;
 
         // Maya images require a texture coordinates to be flipped in V.
         genOptions.fileTextureVerticalFlip = true;
@@ -150,6 +149,11 @@ public:
         genContext.registerSourceCodeSearchPath(_librarySearchPath);
         
         setCommonOptions(genOptions, *generator);
+
+        // Every light ends up as a directional light once processed thru Maya:
+        mx::DocumentPtr document = _element->getDocument();
+        mx::NodeDefPtr directionalLightShader = document->getNodeDef("ND_directional_light");
+        mx::HwShaderGenerator::bindLightShader(*directionalLightShader, 1, genContext);
 
         return generator->generate(baseFragmentName, _element, genContext);
     }
@@ -242,7 +246,6 @@ generateFragment(
     // fragment name to use for registration with Maya API that won't clash
     // with other fragments (possibly different versions of the same
     // MaterialX fragment).
-
     std::ostringstream nameStream;
     const size_t sourceHash = std::hash<std::string>{}(fragmentSource);
     nameStream << baseFragmentName << "__" << std::hex << sourceHash;
@@ -252,6 +255,53 @@ generateFragment(
     //
     const mx::StringMap substitutions{ {FRAGMENT_NAME_TOKEN, fragmentName} };
     mx::tokenSubstitution(substitutions, fragmentSource);
+
+    return fragmentName;
+}
+
+/// Generate a fragment graph linking Maya lights to the generated fragment:
+/// @return The unique name of the fragment
+std::string
+generateLightRig(
+    std::string& lightRigSource,
+    const mx::Shader& glslShader,
+    const std::string& baseFragmentName
+)
+{
+    static const std::string FRAGMENT_NAME_TOKEN = "$fragmentName";
+    static const std::string BASE_FRAGMENT_NAME_TOKEN = "$baseFragmentName";
+
+    {
+        // Supply a placeholder name token to be replaced with an actual unique
+        // name later.
+        //
+        lightRigSource = mx::OgsXmlGenerator::generateLightRig(
+            FRAGMENT_NAME_TOKEN,
+            BASE_FRAGMENT_NAME_TOKEN,
+            glslShader
+        );
+        if (lightRigSource.empty())
+        {
+            throw mx::Exception("Generated light rig is empty");
+        }
+    }
+
+    // Strip out any '\r' characters.
+    lightRigSource.erase(
+        std::remove(lightRigSource.begin(), lightRigSource.end(), '\r'),
+        lightRigSource.end()
+    );
+
+    std::ostringstream nameStream;
+    const size_t sourceHash = std::hash<std::string>{}(lightRigSource);
+    nameStream << "Lit_" << baseFragmentName << "__" << std::hex << sourceHash;
+    std::string fragmentName = nameStream.str();
+
+    // Substitute the placeholder name token with the actual name.
+    //
+    const mx::StringMap substitutions{ {FRAGMENT_NAME_TOKEN, fragmentName},
+                                       {BASE_FRAGMENT_NAME_TOKEN, baseFragmentName} };
+    mx::tokenSubstitution(substitutions, lightRigSource);
 
     return fragmentName;
 }
@@ -304,6 +354,16 @@ OgsFragment::OgsFragment(
         _fragmentSource, *_glslShader, baseFragmentName
     );
 
+    const mx::ShaderGraph& graph = _glslShader->getGraph();
+    bool lighting = graph.hasClassification(mx::ShaderNode::Classification::SHADER | mx::ShaderNode::Classification::SURFACE) ||
+                    graph.hasClassification(mx::ShaderNode::Classification::BSDF);
+    if (lighting)
+    {
+        _lightRigName = generateLightRig(
+            _lightRigSource, *_glslShader, _fragmentName
+        );
+    }
+
     // Extract the input fragment parameter names along with their
     // associated element paths to allow for value binding.
     //
@@ -352,6 +412,16 @@ const std::string& OgsFragment::getFragmentName() const
 const std::string& OgsFragment::getFragmentSource() const
 {
     return _fragmentSource;
+}
+
+const std::string& OgsFragment::getLightRigName() const
+{
+    return _lightRigName;
+}
+
+const std::string& OgsFragment::getLightRigSource() const
+{
+    return _lightRigSource;
 }
 
 const mx::StringMap& OgsFragment::getPathInputMap() const

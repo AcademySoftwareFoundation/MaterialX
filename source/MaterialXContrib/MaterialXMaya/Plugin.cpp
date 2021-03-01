@@ -22,6 +22,7 @@ namespace MaterialXMaya
 
 namespace
 {
+
 class SearchPathBuilder
 {
 public:
@@ -55,16 +56,8 @@ public:
     std::unordered_set<std::string> _uniquePaths;
 };
 
-void setIntermediateDumpPath()
+void setIntermediateDumpPath(const mx::FilePath& pluginLoadPath)
 {
-    bool optionVarExists = false;
-    MString path = MGlobal::optionVarStringValue("materialXIntermediateDumpPath", &optionVarExists);
-
-    if (!optionVarExists || path.length() == 0)
-    {
-        return;
-    }
-
     MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
     if (!theRenderer)
     {
@@ -76,6 +69,23 @@ void setIntermediateDumpPath()
     if (!fragmentManager)
     {
         MGlobal::displayError("Failed to get the VP2 fragment manager");
+        return;
+    }
+
+    mx::FilePath xmlFragPath = pluginLoadPath / 
+                               mx::FilePath("vp2ShaderFragments") /
+                               (Plugin::MX_LIGHT_BUILDER_FRAG + ".xml");
+    const MString addedName = fragmentManager->addShadeFragmentFromFile(xmlFragPath.asString().c_str(), false);
+    if (Plugin::MX_LIGHT_BUILDER_FRAG != addedName.asChar()) {
+        MGlobal::displayError("Failed to register the materialXLightDataBuilder fragment");
+        return;
+    }
+
+    bool optionVarExists = false;
+    MString path = MGlobal::optionVarStringValue("materialXIntermediateDumpPath", &optionVarExists);
+
+    if (!optionVarExists || path.length() == 0)
+    {
         return;
     }
 
@@ -97,6 +107,8 @@ void setIntermediateDumpPath()
 
 } // anonymous namespace
 
+const std::string Plugin::MX_LIGHT_BUILDER_FRAG = "materialXLightDataBuilder";
+
 Plugin& Plugin::instance()
 {
     static Plugin s_instance;
@@ -106,7 +118,7 @@ Plugin& Plugin::instance()
 void Plugin::initialize(const std::string& pluginLoadPath)
 {
     _pluginLoadPath = pluginLoadPath;
-    setIntermediateDumpPath();
+    setIntermediateDumpPath(_pluginLoadPath);
     loadLibraries();
 }
 
@@ -287,6 +299,15 @@ MStatus uninitializePlugin(MObject obj)
         MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator(
             SurfaceOverride::DRAW_CLASSIFICATION,
             SurfaceOverride::REGISTRANT_ID ));
+
+    MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
+    MHWRender::MFragmentManager* const fragmentManager = theRenderer ? 
+                                                         theRenderer->getFragmentManager() :
+                                                         nullptr;
+    if (fragmentManager && !fragmentManager->removeFragment(Plugin::MX_LIGHT_BUILDER_FRAG.c_str())) {
+        MGlobal::displayWarning("Failed to remove materialXLightDataBuilder fragment graph");
+    }
+
 
 #ifdef MATERIALX_BUILD_CROSS
     mx::Cross::finalize();

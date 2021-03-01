@@ -24,6 +24,12 @@ public:
         const std::string& hlslSource
     );
 
+    /// Generate light rig graph for the given shader fragments, output to the given stream.
+    static string generateLightRig(
+        const string& shaderName,
+        const string& baseShaderName,
+        const Shader& glslShader);
+
     static bool isSamplerName(const string&);
     static string textureToSamplerName(const string&);
     static string samplerToTextureName(const string&);

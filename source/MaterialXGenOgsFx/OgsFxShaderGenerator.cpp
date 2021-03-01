@@ -186,8 +186,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         }
     }
 
-    bool lighting = graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
-                    graph.hasClassification(ShaderNode::Classification::BSDF);
+    bool lighting = requiresLighting(graph);
 
     if (lighting)
     {
@@ -283,8 +282,7 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
     emitLine("GLSLShader PS", stage, false);
     emitScopeBegin(stage);
 
-    bool lighting = graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
-                    graph.hasClassification(ShaderNode::Classification::BSDF);
+    bool lighting = requiresLighting(graph);
 
     if (lighting)
     {

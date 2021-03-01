@@ -390,6 +390,12 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
     emitLineBreak(stage);
 }
 
+bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
+{
+    return graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
+           graph.hasClassification(ShaderNode::Classification::BSDF);
+}
+
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
@@ -444,8 +450,8 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         }
     }
 
-    bool lighting = graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
-                    graph.hasClassification(ShaderNode::Classification::BSDF);
+    bool lighting = requiresLighting(graph);
+
     bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
                      context.getOptions().hwWriteDepthMoments;
 

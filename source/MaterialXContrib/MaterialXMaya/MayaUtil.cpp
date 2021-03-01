@@ -10,7 +10,11 @@ namespace MaterialXMaya
 namespace MayaUtil
 {
 
-void registerFragment(const std::string& fragmentName, const std::string& fragmentSource)
+void registerFragment(
+    const std::string& fragmentName,
+    const std::string& fragmentSource,
+    const std::string& lightRigName,
+    const std::string& lightRigSource)
 {
     if (fragmentName.empty())
     {
@@ -30,14 +34,28 @@ void registerFragment(const std::string& fragmentName, const std::string& fragme
         throw std::runtime_error("Failed to get the VP2 fragment manager");
     }
 
+    constexpr bool hidden = false;
+
     if (!fragmentManager->hasFragment(fragmentName.c_str()))
     {
-        constexpr bool hidden = false;
         const MString registeredFragment = fragmentManager->addShadeFragmentFromBuffer(fragmentSource.c_str(), hidden);
-
-        if (registeredFragment.length() == 0)
+        if (fragmentName != registeredFragment.asChar())
         {
             throw std::runtime_error("Failed to register shader fragment '" + fragmentName + "'");
+        }
+    }
+
+    if (!lightRigSource.empty()) {
+        if (lightRigName.empty())
+        {
+            throw std::runtime_error("Cannot register light rig with an empty name");
+        }
+        if (!fragmentManager->hasFragment(lightRigName.c_str())) {
+            const MString registeredFragment = fragmentManager->addFragmentGraphFromBuffer(lightRigSource.c_str());
+            if (lightRigName != registeredFragment.asChar())
+            {
+                throw std::runtime_error("Failed to register light rig '" + lightRigName + "'");
+            }
         }
     }
 }

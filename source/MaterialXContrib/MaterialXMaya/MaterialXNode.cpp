@@ -163,7 +163,8 @@ void MaterialXNode::createAndRegisterFragment()
         _ogsFragment.reset(new OgsFragment(_document->getDescendant(_elementPath.asChar()),
                                            Plugin::instance().getLibrarySearchPath()));
 
-        MayaUtil::registerFragment(_ogsFragment->getFragmentName(), _ogsFragment->getFragmentSource());
+        MayaUtil::registerFragment(_ogsFragment->getFragmentName(), _ogsFragment->getFragmentSource(),
+                                   _ogsFragment->getLightRigName(), _ogsFragment->getLightRigSource());
     }
     catch (std::exception& e)
     {

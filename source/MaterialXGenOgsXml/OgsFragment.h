@@ -57,10 +57,18 @@ class OgsFragment
     /// Return the source of the OGS fragment as a string.
     const std::string& getFragmentSource() const;
 
+    /// Return the light rig that will light this fragment from inside Maya:
+    const std::string& getLightRigSource() const;
+
     /// Return the name of shader fragment. The name is automatically generated
     /// from the name of the MaterialX element and a hash of the generated
     /// fragment source. Can be used to register the fragment in VP2.
     const std::string& getFragmentName() const;
+
+    /// Return the name of light rig graph. The name is automatically generated
+    /// from the name of the MaterialX element and a hash of the generated
+    /// fragment source. Can be used to register the light rig in VP2.
+    const std::string& getLightRigName() const;
 
     /// Maps XML element paths of MaterialX inputs to their names in the generated shader.
     const mx::StringMap& getPathInputMap() const;
@@ -88,6 +96,8 @@ class OgsFragment
     mx::ElementPtr _element;        ///< The MaterialX element.
     std::string _fragmentName;      ///< An automatically generated fragment name.
     std::string _fragmentSource;    ///< The generated fragment source.
+    std::string _lightRigName;      ///< An automatically generated light rig name.
+    std::string _lightRigSource;    ///< The generated light rig for surface fragments.
     mx::StringMap _pathInputMap;    ///< Maps MaterialX element paths to fragment input names.
     mx::ShaderPtr _glslShader;      ///< The MaterialX-generated GLSL shader.
 };

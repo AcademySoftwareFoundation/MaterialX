@@ -96,7 +96,8 @@ std::string CreateMaterialXNodeCmd::createNode(mx::TypedElementPtr renderableEle
 {
     std::unique_ptr<OgsFragment> ogsFragment{new OgsFragment(renderableElement, searchPath)};
 
-    MayaUtil::registerFragment(ogsFragment->getFragmentName(), ogsFragment->getFragmentSource());
+    MayaUtil::registerFragment(ogsFragment->getFragmentName(), ogsFragment->getFragmentSource(),
+                               ogsFragment->getLightRigName(), ogsFragment->getLightRigSource());
 
     const bool createAsTexture = nodeTypeToCreate == NodeTypeToCreate::TEXTURE ||
                                  (nodeTypeToCreate == NodeTypeToCreate::AUTO && !ogsFragment->isElementAShader());

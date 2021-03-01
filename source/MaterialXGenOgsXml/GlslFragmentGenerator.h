@@ -48,6 +48,8 @@ class GlslFragmentGenerator : public GlslShaderGenerator
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext&, ShaderStage&,
                                  bool assignValue = true) const override;
 
+    void addStageLightingUniforms(GenContext&, ShaderStage&) const override {};
+
     static const string TARGET;
     static const string MATRIX3_TO_MATRIX4_POSTFIX;
 
