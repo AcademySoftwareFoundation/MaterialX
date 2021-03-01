@@ -14,6 +14,88 @@
 namespace MaterialX
 {
 
+namespace
+{
+
+    static const RtTokenVec PUBLIC_INPUT_COLOR_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("value"),
+        RtToken("uniform"),
+        RtToken("defaultgeomprop"),
+        RtToken("enum"),
+        RtToken("enumvalues"),
+        RtToken("colorspace"),
+        RtToken("uiname"),
+        RtToken("uifolder"),
+        RtToken("uimin"),
+        RtToken("uimax"),
+        RtToken("uisoftmin"),
+        RtToken("uisoftmax"),
+        RtToken("uistep")
+    };
+
+    static const RtTokenVec PUBLIC_INPUT_FLOAT_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("value"),
+        RtToken("uniform"),
+        RtToken("defaultgeomprop"),
+        RtToken("enum"),
+        RtToken("enumvalues"),
+        RtToken("unittype"),
+        RtToken("unit"),
+        RtToken("uiname"),
+        RtToken("uifolder"),
+        RtToken("uimin"),
+        RtToken("uimax"),
+        RtToken("uisoftmin"),
+        RtToken("uisoftmax"),
+        RtToken("uistep")
+    };
+
+    static const RtTokenVec PUBLIC_INPUT_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("value"),
+        RtToken("uniform"),
+        RtToken("defaultgeomprop"),
+        RtToken("enum"),
+        RtToken("enumvalues"),
+        RtToken("uiname"),
+        RtToken("uifolder"),
+    };
+
+
+    static const RtTokenVec PUBLIC_OUTPUT_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("value"),
+        RtToken("defaultinput"),
+        RtToken("default")
+    };
+
+    static const RtTokenVec PUBLIC_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("node"),
+        RtToken("inherit"),
+        RtToken("nodegroup"),
+        RtToken("version"),
+        RtToken("isdefaultversion"),
+        RtToken("target"),
+        RtToken("uiname"),
+        RtToken("internalgeomprops")
+    };
+
+    static const RtTokenVec PUBLIC_EMPTY_METADATA_NAMES;
+}
+
 DEFINE_TYPED_SCHEMA(RtNodeDef, "nodedef");
 
 RtPrim RtNodeDef::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
@@ -238,6 +320,42 @@ RtNodeLayout RtNodeDef::getNodeLayout()
         }
     }
     return layout;
+}
+
+const RtTokenVec& RtNodeDef::getPublicMetadataNames() const
+{
+    return PUBLIC_METADATA_NAMES;
+}
+
+const RtTokenVec& RtNodeDef::getPublicPortMetadataNames(const RtToken& name) const
+{
+    RtInput input = getInput(name);
+    if (input)
+    {
+        const RtToken& type = input.getType();
+        if (type == RtType::COLOR3 || type == RtType::COLOR4 || type == RtType::FILENAME)
+        {
+            return PUBLIC_INPUT_COLOR_METADATA_NAMES;
+        }
+        else if(type == RtType::FLOAT || type == RtType::VECTOR2 || type == RtType::VECTOR3 || type == RtType::VECTOR4)
+        {
+            return PUBLIC_INPUT_FLOAT_METADATA_NAMES;
+        }
+        else
+        {
+            return PUBLIC_INPUT_METADATA_NAMES;
+        }
+    }
+    else
+    {
+        RtOutput output = getOutput(name);
+        if (output)
+        {
+            return PUBLIC_OUTPUT_METADATA_NAMES;
+        }
+    }
+
+    return PUBLIC_EMPTY_METADATA_NAMES;
 }
 
 }

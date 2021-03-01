@@ -17,6 +17,92 @@ namespace MaterialX
 namespace
 {
     static const RtToken NODEDEF("nodedef");
+
+    static const RtTokenVec PUBLIC_INPUT_COLOR_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("Value"),
+        RtToken("nodename"),
+        RtToken("nodegraph"),
+        RtToken("output"),
+        RtToken("member"),
+        RtToken("channels"),
+        RtToken("colorspace")
+    };
+
+    static const RtTokenVec PUBLIC_INPUT_FLOAT_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("Value"),
+        RtToken("nodename"),
+        RtToken("nodegraph"),
+        RtToken("output"),
+        RtToken("member"),
+        RtToken("channels"),
+        RtToken("unit"),
+        RtToken("unittype")
+    };
+
+    static const RtTokenVec PUBLIC_INPUT_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("Value"),
+        RtToken("nodename"),
+        RtToken("nodegraph"),
+        RtToken("output"),
+        RtToken("member"),
+        RtToken("channels")
+    };
+
+    static const RtTokenVec PUBLIC_OUTPUT_COLOR_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("nodename"),
+        RtToken("output"),
+        RtToken("member"),
+        RtToken("colorspace"),
+        RtToken("width"),
+        RtToken("height"),
+        RtToken("bitdepth")
+    };
+    static const RtTokenVec PUBLIC_OUTPUT_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("nodename"),
+        RtToken("output"),
+        RtToken("member"),
+        RtToken("width"),
+        RtToken("height"),
+        RtToken("bitdepth")
+    };
+
+    static const RtTokenVec PUBLIC_METADATA_NAMES
+    {
+        RtToken("name"),
+        RtToken("type"),
+        RtToken("value"),
+        RtToken("doc"),
+        RtToken("xpos"),
+        RtToken("ypos"),
+        RtToken("width"),
+        RtToken("height"),
+        RtToken("uicolor"),
+        RtToken("uiname"),
+        RtToken("uivisible"),
+        RtToken("uiadvanced"),
+        RtToken("version"),
+        RtToken("cms"),
+        RtToken("cmsconfig"),
+        RtToken("colorspace"),
+        RtToken("namespace")
+    };
+
+    static const RtTokenVec PUBLIC_EMPTY_METADATA_NAMES;
 }
 
 DEFINE_TYPED_SCHEMA(RtNode, "node");
@@ -152,6 +238,50 @@ RtOutput RtNode::getOutput() const
 RtAttrIterator RtNode::getOutputs() const
 {
     return getPrim().getOutputs();
+}
+
+const RtTokenVec& RtNode::getPublicMetadataNames() const
+{
+    return PUBLIC_METADATA_NAMES;
+}
+
+const RtTokenVec& RtNode::getPublicPortMetadataNames(const RtToken& name) const
+{
+    RtInput input = getInput(name);
+    if (input)
+    {
+        const RtToken& type = input.getType();
+        if (type == RtType::COLOR3 || type == RtType::COLOR4 || type == RtType::FILENAME)
+        {
+            return PUBLIC_INPUT_COLOR_METADATA_NAMES;
+        }
+        else if(type == RtType::FLOAT || type == RtType::VECTOR2 || type == RtType::VECTOR3 || type == RtType::VECTOR4)
+        {
+            return PUBLIC_INPUT_FLOAT_METADATA_NAMES;
+        }
+        else
+        {
+            return PUBLIC_INPUT_METADATA_NAMES;
+        }
+    }
+    else
+    {
+        RtOutput output = getOutput(name);
+        if (output)
+        {
+            const RtToken& type = output.getType();
+            if (type == RtType::COLOR3 || type == RtType::COLOR4 || type == RtType::FILENAME)
+            {
+                return PUBLIC_OUTPUT_COLOR_METADATA_NAMES;
+            }
+            else
+            {
+                return PUBLIC_OUTPUT_METADATA_NAMES;
+            }
+        }
+    }
+
+    return PUBLIC_EMPTY_METADATA_NAMES;
 }
 
 }

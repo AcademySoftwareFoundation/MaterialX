@@ -60,8 +60,17 @@ public:
     /// Return an iterator traversing all output attributes
     /// on this node. Shorthand for getPrim().getOutputs().
     RtAttrIterator getOutputs() const;
+
+    /// Returns a vector of public nodegraph metadata names
+    const RtTokenVec& getPublicMetadataNames() const override;
+
+    /// Returns a vector of public metadata names for a port.
+    const RtTokenVec& getPublicPortMetadataNames(const RtToken& name) const override;
+
+
 };
 
 }
 
 #endif
+

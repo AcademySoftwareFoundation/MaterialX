@@ -11,12 +11,14 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
+#include <MaterialXCore/Element.h>
+
 namespace MaterialX
 {
 
 namespace
 {
-    const RtToken SOCKETS("_nodegraph_internal_sockets");
+    static const RtToken SOCKETS("_nodegraph_internal_sockets");
 }
 
 DEFINE_TYPED_SCHEMA(RtNodeGraph, "node:nodegraph");
