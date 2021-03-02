@@ -4,7 +4,7 @@ The following is the layout of the definitions and implementations provided as p
 
 These libraries can be used to build shading networks which can be accepted by code generators to produce shader code.
 
-The following core "targets": GLSL, MDL and OSL. Additional Autodesk specific targets are also supported including Arnold which is a variant on OSL code generation.
+The following core "targets": GLSL, MDL and OSL.
 
 ## Standard Library
 - [stdlib](stdlib)
@@ -46,15 +46,6 @@ The following core "targets": GLSL, MDL and OSL. Additional Autodesk specific ta
         - Note: MDL implementation files are in a "package" folder found under
         [source/MaterialXGenMdl/mdl/materialx](../source/MaterialXGenMdl/mdl/materialx)
 
-## Autodesk Sample Definitions
-- These are examples showing some of the complexity of a possible material asset.
-Makes use of both stdlib, and pbrlib libraries.
-- [adsk](adsk)
-  - [adsklib](adsk/adsklib) : Sample core definitions.
-  - [shaders](adsk/shader) : Sample shader definitions.
-  - [materials](adsk/materials) : Sample material definitions.
-  - [materials](adsk/textures) : Images used by definitions.
-
 ## Target Definitions
 - Each target implementation requires a target definition for definition / implementation correspondence to work.
 - [targets](targets) is the folder holding documents which declare these definitions.
@@ -62,9 +53,6 @@ Makes use of both stdlib, and pbrlib libraries.
   - OSL : `genosl`
   - Desktop GLSL : `genglsl`
   - MDL : `genmdl`
-- There are definitions files for the following Autodesk specific targets:
-  - OGS : `ogsfx`, and `ogsxml` (for Maya integration)
-  - Arnold : `arnold`
 - Any additional target files should be added under this folder and loaded in as required.
 
 ### Target Support
