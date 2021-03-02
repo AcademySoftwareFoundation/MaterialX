@@ -16,7 +16,6 @@ The names of the files reflect the Element type being tested for the following:
 - Value.cpp
 
 ## 2. Document utilities
-- Observer.cpp : Document observation.
 - Traversal.cpp : Document traversal.
 - Util.cpp : Basic utilities.
 
