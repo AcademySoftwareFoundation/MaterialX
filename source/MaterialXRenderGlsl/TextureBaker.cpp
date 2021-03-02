@@ -4,16 +4,12 @@
 //
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
 
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-
-#include <unordered_map>
-#include <sstream>
 
 namespace MaterialX
 {

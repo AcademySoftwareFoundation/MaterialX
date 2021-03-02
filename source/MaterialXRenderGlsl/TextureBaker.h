@@ -186,7 +186,6 @@ class TextureBaker : public GlslRenderer
     {
         return _hashImageNames;
     }
-    
 
     /// Set up the unit definitions to be used in baking.
     void setupUnitSystem(DocumentPtr unitDefinitions);

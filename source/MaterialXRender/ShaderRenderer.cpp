@@ -1,5 +1,5 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -9,30 +9,33 @@
 namespace MaterialX
 {
 
-    ImageVec ShaderRenderer::getReferencedImages(const ShaderPtr& shader)
+ImageVec ShaderRenderer::getReferencedImages(const ShaderPtr& shader)
+{
+    if (!shader && !_imageHandler)
     {
-        if (!shader && !_imageHandler)
-            return {};
+        return {};
+    }
 
-        ImageVec imageList;
-        // Prefetch all required images for Public Uniforms and query their dimensions. 
-        // Since Images are cached by ImageHandler, they will be reused during bindTextures
-        const ShaderStage& stage = shader->getStage(Stage::PIXEL);
-        const VariableBlock& block = stage.getUniformBlock(HW::PUBLIC_UNIFORMS);
-        for (const auto& uniform : block.getVariableOrder())
+    ImageVec imageList;
+
+    // Prefetch all required images for Public Uniforms and query their dimensions. 
+    // Since Images are cached by ImageHandler, they will be reused during bindTextures
+    const ShaderStage& stage = shader->getStage(Stage::PIXEL);
+    const VariableBlock& block = stage.getUniformBlock(HW::PUBLIC_UNIFORMS);
+    for (const auto& uniform : block.getVariableOrder())
+    {
+        if (uniform->getType() == Type::FILENAME)
         {
-            if (uniform->getType() == Type::FILENAME)
+            const string fileName(uniform->getValue()->getValueString());
+            ImagePtr image = _imageHandler->acquireImage(fileName);
+            if (image)
             {
-                const string fileName(uniform->getValue()->getValueString());
-                ImagePtr image = _imageHandler->acquireImage(fileName);
-                if (image)
-                {
-                    imageList.push_back(image);
-                }
+                imageList.push_back(image);
             }
         }
-
-        return imageList;
     }
+
+    return imageList;
+}
 
 } // namespace MaterialX
