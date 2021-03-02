@@ -1,15 +1,15 @@
 # Change Log
 
-## [1.38.0] - Development
+## [1.38.0] - 2021-03-02
 
 Updated the MaterialX library to the v1.38 specification.  See the [v1.38 changelist](http://www.materialx.org/assets/MaterialX.v1.38.Changelist.pdf) for full details.
 
 ### Added
 - Added support for the generalized 'layer' node in Physically Based Shading.
+- Added user controls for texture baking and wedge rendering in the [MaterialX Viewer](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
 - Added support for Nvidia's Material Definition Language (MDL) in MaterialX code generation.
 - Added support for inline source code in Implementation elements.
 - Added support for TargetDef elements.
-- Added user controls for texture baking and wedge rendering in the MaterialX viewer.
 - Added viewer rendering to cloud-based tests in GitHub Actions.
 - Added support for Xcode 12.
 
