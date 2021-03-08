@@ -20,9 +20,9 @@
 
 #include <sstream>
 
-/// Macro for being/end of statements to be picked up by a given shader stage.
-/// For shaders that are multi-stage all code generation statements adding code 
-/// to the shader should be wrapped inside such begin/end stating its target.
+// Macro for begin/end of statements to be picked up by a given shader stage.
+// For shaders that are multi-stage all code generation statements adding code 
+// to the shader should be wrapped inside such begin/end stating its target.
 #define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
 #define END_SHADER_STAGE(stage, name) }
 

@@ -1,6 +1,31 @@
 # Change Log
 
-## [1.38] - Development
+## [1.38.0] - 2021-03-02
+
+Updated the MaterialX library to the v1.38 specification.  See the [v1.38 changelist](http://www.materialx.org/assets/MaterialX.v1.38.Changelist.pdf) for full details.
+
+#### Added
+- Added support for the generalized 'layer' node in Physically Based Shading.
+- Added user controls for texture baking and wedge rendering in the [MaterialX Viewer](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
+- Added support for Nvidia's Material Definition Language (MDL) in MaterialX code generation.
+- Added support for inline source code in Implementation elements.
+- Added support for TargetDef elements.
+- Added viewer rendering to cloud-based tests in GitHub Actions.
+- Added support for Xcode 12.
+
+#### Changed
+- Updated the set of standard nodes to match the v1.38 specification, including significant improvements to the [Physically Based Shading](http://www.materialx.org/assets/MaterialX.v1.38.PBRSpec.pdf) nodes.
+- Replaced specialized Material elements with material nodes, allowing more flexible material definitions and more consistent traversal.
+- Unified the Input and Parameter element classes, simplifying the MaterialX API and client code.
+- Updated the MaterialX viewer to use native classes for GLSL rendering and camera controls, opening the door to additional render frameworks in the future.
+- Updated the prefiltered path for specular environment rendering in GLSL, providing a closer match with the Filtered Importance Sampling path.
+- Updated the definition of Autodesk Standard Surface to version 1.0.1.
+- Updated the definition of UsdPreviewSurface to version 2.3.
+- Renamed the default branch from master to main.
+
+#### Removed
+- Removed support for the 'complex_ior', 'backfacing', 'viewdirection' and 'fresnel' nodes in Physically Based Shading.
+- Removed support for the Color2 type.
 
 ### [v1.38_adsk_development4]
 - Up-to-date with LucasFilm `master` @(8df1c073)

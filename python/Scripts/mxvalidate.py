@@ -128,6 +128,12 @@ def listContents(elemlist, resolve):
                 names.append("%s: %d nodes, %d backdrop%s%s" % (
                     elem.getName(), nchildnodes, nbackdrops, pl(backdrops), outs))
 
+        elif elem.isA(mx.Node, mx.SURFACE_MATERIAL_NODE_STRING):
+            shaders = mx.getShaderNodes(elem)
+            names.append("%s: %d connected shader node%s" % (elem.getName(), len(shaders), pl(shaders)))
+            for shader in shaders:
+                names.append('Shader node "%s" (%s), with bindings:%s' % (shader.getName(), shader.getCategory(), listShaderBindings(shader)))
+
         elif elem.isA(mx.GeomInfo):
             props = elem.getGeomProps()
             if props:
@@ -223,6 +229,23 @@ def listContents(elemlist, resolve):
         else:
             names.append(elem.getName())
     return ":\n\t" + "\n\t".join(names)
+
+def listShaderBindings(shader):
+    s = ''
+    for inp in shader.getInputs():
+        bname = inp.getName()
+        btype = inp.getType()
+        if inp.hasOutputString():
+            outname = inp.getOutputString()
+            if inp.hasNodeGraphString():
+                ngname = inp.getNodeGraphString()
+                s = s + '\n\t    %s "%s" -> nodegraph "%s" output "%s"' % (btype, bname, ngname, outname)
+            else:
+                s = s + '\n\t    %s "%s" -> output "%s"' % (btype, bname, outname)
+        else:
+            bval = getConvertedValue(inp)
+            s = s + '\n\t    %s "%s" = %s' % (btype, bname, bval)
+    return s
 
 def listNodedefInterface(nodedef):
     s = ''

@@ -121,6 +121,7 @@ class ShaderRenderer
 
     /// Load images referenced by shader program and return list of images loaded
     virtual ImageVec getReferencedImages (const ShaderPtr& shader);
+
     /// @}
 
   protected:

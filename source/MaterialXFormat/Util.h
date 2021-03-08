@@ -27,9 +27,14 @@ string readFile(const FilePath& file);
 void getSubdirectories(const FilePathVec& rootDirectories, const FileSearchPath& searchPath, FilePathVec& subDirectories);
 
 /// Scans for all documents under a root path and returns documents which can be loaded
-void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
-                   const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
-                   const XmlReadOptions* readOptions = nullptr, StringVec* errors = nullptr);
+void loadDocuments(const FilePath& rootPath,
+                   const FileSearchPath& searchPath,
+                   const StringSet& skipFiles,
+                   const StringSet& includeFiles,
+                   vector<DocumentPtr>& documents,
+                   StringVec& documentsPaths,
+                   const XmlReadOptions* readOptions = nullptr,
+                   StringVec* errors = nullptr);
 
 /// Load a given MaterialX library into a document
 void loadLibrary(const FilePath& file,

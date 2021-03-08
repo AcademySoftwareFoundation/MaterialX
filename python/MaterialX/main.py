@@ -135,10 +135,25 @@ def _addBindInput(self, name, type = DEFAULT_TYPE_STRING):
     warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
     return self.addInput(name, type)
 
+def _getBindInputs(self):
+    """(Deprecated) Return a vector of all BindInput elements in this shader reference."""
+    warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
+    return self.getInputs()
+
 def _addBindParam(self, name, type = DEFAULT_TYPE_STRING):
     """(Deprecated) Add a BindParam to this shader reference."""
     warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
     return self.addInput(name, type)
+
+def _getBindParams(self):
+    """(Deprecated) Return a vector of all BindParam elements in this shader reference."""
+    warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
+    return list()
+
+def _getBindTokens(self):
+    """(Deprecated) Return a vector of all BindToken elements in this shader reference."""
+    warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
+    return list()
 
 InterfaceElement.setInputValue = _setInputValue
 InterfaceElement.getInputValue = _getInputValue
@@ -149,7 +164,10 @@ InterfaceElement.setParameterValue = _setParameterValue
 InterfaceElement.getParameterValue = _getParameterValue
 InterfaceElement.getParameterValueString = _getParameterValueString
 InterfaceElement.addBindInput = _addBindInput
+InterfaceElement.getBindInputs = _getBindInputs
 InterfaceElement.addBindParam = _addBindParam
+InterfaceElement.getBindParams = _getBindParams
+InterfaceElement.getBindTokens = _getBindTokens
 
 
 #
@@ -166,8 +184,20 @@ def _addShaderRef(self, name, nodeName):
     warnings.warn("This function is deprecated; material elements have been replaced with material nodes in 1.38.", DeprecationWarning, stacklevel = 2)
     return self.getParent().addNode(nodeName, name)
 
+def _getShaderRefs(self):
+    """(Deprecated) Return a vector of all shader references in this material element."""
+    warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
+    return getShaderNodes(self)
+
+def _getActiveShaderRefs(self):
+    """(Deprecated) Return a vector of all shader references in this material element, taking material inheritance into account."""
+    warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
+    return getShaderNodes(self)
+
 Node.getReferencedNodeDef = _getReferencedNodeDef
 Node.addShaderRef = _addShaderRef
+Node.getShaderRefs = _getShaderRefs
+Node.getActiveShaderRefs = _getActiveShaderRefs
 
 
 #

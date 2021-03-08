@@ -39,14 +39,6 @@ Additional options for the generation of MaterialX Python include the following:
 - `MATERIALX_PYTHON_OCIO_DIR`: Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python. The recommended OpenColorIO configuration for MaterialX is [ACES 1.0.3](https://github.com/imageworks/OpenColorIO-Configs/tree/master/aces_1.0.3).
 - `MATERIALX_PYTHON_PYBIND11_DIR`: Path to a folder containing the PyBind11 source to be used in building MaterialX Python. Defaults to the included PyBind11 source.
 
-### Building MaterialX JavaScript
-
-Building the JavaScript and WebAssembly library requires the user to install and activate the emsdk environment. For more information follow the instructions in the JsMaterialX [README.md](../../source/JsMaterialX/README.md).
-
-Additional options for the generation of MaterialX JavaScript include the following:
-
-- `MATERIALX_EMSDK_PATH`: Path to the folder that contains emsdk. This option can be omitted if `emsdk_env.sh` or `emsdk_env.bat` was run. 
-
 ### Building The MaterialX Viewer
 
 Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Installation will copy the **MaterialXView** executable to a `bin/` directory within the selected install folder.
@@ -61,5 +53,7 @@ Building the `install` target of your project will install the MaterialX C++ and
 
 ### Additional Links
 
-- The main [MaterialX website](http://www.materialx.org)
-- [Code Examples](@ref codeexamples) in C++ and Python
+- The main [MaterialX website](http://www.materialx.org) provides background on the project's history, industry collaborations, and recent presentations.
+- The [Python Scripts](https://github.com/materialx/MaterialX/tree/main/python/Scripts) folder contains standalone examples of MaterialX Python code.
+- The [MaterialX Unit Tests](https://github.com/materialx/MaterialX/tree/main/source/MaterialXTest) folder contains examples of useful patterns for MaterialX C++.
+- The [MaterialX Viewer](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md) is a complete, cross-platform C++ application based upon [MaterialX Shader Generation](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/ShaderGeneration.md)
