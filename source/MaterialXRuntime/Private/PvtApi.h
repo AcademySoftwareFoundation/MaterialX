@@ -100,7 +100,7 @@ public:
         {
             throw ExceptionRuntimeError("A nodedef with name '" + prim.getName().str() + "' is already registered");
         }
-        _nodedefs.add(prim.getName(), PvtObject::hnd(prim));
+        _nodedefs.add(PvtObject::ptr(prim));
     }
 
     void unregisterNodeDef(const RtToken& name)
@@ -110,7 +110,7 @@ public:
 
     bool hasNodeDef(const RtToken& name)
     {
-        return _nodedefs.get(name) != nullptr;
+        return _nodedefs.count(name);
     }
 
     size_t numNodeDefs() const
@@ -120,12 +120,13 @@ public:
 
     RtPrim getNodeDef(const RtToken& name)
     {
-        return _nodedefs.get(name);
+        PvtObject* obj = _nodedefs.find(name);
+        return obj ? obj->hnd() : RtPrim();
     }
 
     RtPrim getNodeDef(size_t index)
     {
-        return _nodedefs.get(index);
+        return _nodedefs[index]->hnd();
     }
 
     void registerNodeImpl(const RtPrim& prim)
@@ -138,7 +139,7 @@ public:
         {
             throw ExceptionRuntimeError("A nodeimpl with name '" + prim.getName().str() + "' is already registered");
         }
-        _nodeimpls.add(prim.getName(), PvtObject::hnd(prim));
+        _nodeimpls.add(PvtObject::ptr(prim));
     }
 
     void unregisterNodeImpl(const RtToken& name)
@@ -148,7 +149,7 @@ public:
 
     bool hasNodeImpl(const RtToken& name)
     {
-        return _nodeimpls.get(name) != nullptr;
+        return _nodeimpls.count(name);
     }
 
     size_t numNodeImpls() const
@@ -158,12 +159,13 @@ public:
 
     RtPrim getNodeImpl(const RtToken& name)
     {
-        return _nodeimpls.get(name);
+        PvtObject* obj = _nodeimpls.find(name);
+        return obj ? obj->hnd() : RtPrim();
     }
 
     RtPrim getNodeImpl(size_t index)
     {
-        return _nodeimpls.get(index);
+        return _nodeimpls[index]->hnd();
     }
 
     void registerTargetDef(const RtPrim& prim)
@@ -176,7 +178,7 @@ public:
         {
             throw ExceptionRuntimeError("A targetdef with name '" + prim.getName().str() + "' is already registered");
         }
-        _targetdefs.add(prim.getName(), PvtObject::hnd(prim));
+        _targetdefs.add(PvtObject::ptr(prim));
     }
 
     void unregisterTargetDef(const RtToken& name)
@@ -186,7 +188,7 @@ public:
 
     bool hasTargetDef(const RtToken& name)
     {
-        return _targetdefs.get(name) != nullptr;
+        return _targetdefs.count(name);
     }
 
     void clearSearchPath()
@@ -342,9 +344,9 @@ public:
 
     RtTokenMap<RtPrimCreateFunc> _createFunctions;
     RtTokenMap<RtStagePtr> _stages;
-    PvtDataHandleRecord _nodedefs;
-    PvtDataHandleRecord _nodeimpls;
-    PvtDataHandleRecord _targetdefs;
+    PvtObjectList _nodedefs;
+    PvtObjectList _nodeimpls;
+    PvtObjectList _targetdefs;
 };
 
 }

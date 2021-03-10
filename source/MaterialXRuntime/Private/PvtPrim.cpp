@@ -24,17 +24,21 @@ PvtPrim::PvtPrim(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* paren
 
 void PvtPrim::dispose(bool state)
 {
-    for (const PvtDataHandle& hnd : _relOrder)
+    for (PvtObject* obj : _rel.vec())
     {
-        hnd->setDisposed(state);
+        obj->setDisposed(state);
     }
-    for (const PvtDataHandle& hnd : _attrOrder)
+    for (PvtObject* obj : _inputs.vec())
     {
-        hnd->setDisposed(state);
+        obj->setDisposed(state);
     }
-    for (const PvtDataHandle& hnd : _primOrder)
+    for (PvtObject* obj : _outputs.vec())
     {
-        hnd->asA<PvtPrim>()->dispose(state);
+        obj->setDisposed(state);
+    }
+    for (PvtObject* obj : _prims.vec())
+    {
+        obj->asA<PvtPrim>()->dispose(state);
     }
     setDisposed(state);
 }
@@ -42,36 +46,32 @@ void PvtPrim::dispose(bool state)
 void PvtPrim::destroy()
 {
     // Disconnect and delete all relationships.
-    for (PvtDataHandle& hnd : _relOrder)
+    for (PvtObject* obj : _rel.vec())
     {
-        PvtRelationship* rel = hnd->asA<PvtRelationship>();
-        rel->clearTargets();
+        obj->asA<PvtRelationship>()->clearConnections();
     }
-    _relOrder.clear();
-    _relMap.clear();
+    _rel.clear();
 
-    // Disconnect and delete all attributes.
-    for (PvtDataHandle& hnd : _attrOrder)
+    // Disconnect and delete all inputs.
+    for (PvtObject* obj : _inputs.vec())
     {
-        if (hnd->isA<PvtInput>())
-        {
-            hnd->asA<PvtInput>()->clearConnection();
-        }
-        else if (hnd->isA<PvtOutput>())
-        {
-            hnd->asA<PvtOutput>()->clearConnections();
-        }
+        obj->asA<PvtInput>()->clearConnection();
     }
-    _attrOrder.clear();
-    _attrMap.clear();
+    _inputs.clear();
+
+    // Disconnect and delete all outputs.
+    for (PvtObject* obj : _outputs.vec())
+    {
+        obj->asA<PvtOutput>()->clearConnections();
+    }
+    _outputs.clear();
 
     // Destroy all child prims reqursively.
-    for (const PvtDataHandle& hnd : _primOrder)
+    for (PvtObject* obj : _prims.vec())
     {
-        hnd->asA<PvtPrim>()->destroy();
+        obj->asA<PvtPrim>()->destroy();
     }
-    _primOrder.clear();
-    _primMap.clear();
+    _prims.clear();
 
     // Tag as disposed.
     dispose(true);
@@ -84,11 +84,10 @@ PvtRelationship* PvtPrim::createRelationship(const RtToken& name)
         throw ExceptionRuntimeError("A relationship named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
     }
 
-    PvtDataHandle relH(new PvtRelationship(name, this));
-    _relOrder.push_back(relH);
-    _relMap[name] = relH;
+    PvtRelationship* rel = new PvtRelationship(name, this);
+    _rel.add(rel);
 
-    return relH->asA<PvtRelationship>();
+    return rel;
 }
 
 void PvtPrim::removeRelationship(const RtToken& name)
@@ -96,47 +95,9 @@ void PvtPrim::removeRelationship(const RtToken& name)
     PvtRelationship* rel = getRelationship(name);
     if (rel)
     {
-        for (auto it = _relOrder.begin(); it != _relOrder.end(); ++it)
-        {
-            PvtRelationship* r = (*it)->asA<PvtRelationship>();
-            if (r == rel)
-            {
-                _relOrder.erase(it);
-                break;
-            }
-        }
         rel->setDisposed(true);
-        _relMap.erase(name);
+        _rel.remove(name);
     }
-}
-
-void PvtPrim::renameRelationship(const RtToken& name, const RtToken& newName)
-{
-    if (getRelationship(newName))
-    {
-        throw ExceptionRuntimeError("A relationship named '" + newName.str() + "' already exists in prim '" + getName().str() + "'");
-    }
-    PvtRelationship* rel = getRelationship(name);
-    if (rel)
-    {
-        rel->setName(newName);
-        _relMap[newName] = rel->hnd();
-        _relMap.erase(name);
-    }
-}
-
-PvtAttribute* PvtPrim::createAttribute(const RtToken& name, const RtToken& type, uint32_t flags)
-{
-    if (getAttribute(name))
-    {
-        throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists in prim '" + getName().str() + "'");
-    }
-
-    PvtDataHandle attrH(new PvtAttribute(name, type, flags, this));
-    _attrOrder.push_back(attrH);
-    _attrMap[name] = attrH;
-
-    return attrH->asA<PvtAttribute>();
 }
 
 PvtInput* PvtPrim::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
@@ -144,71 +105,46 @@ PvtInput* PvtPrim::createInput(const RtToken& name, const RtToken& type, uint32_
     // Inputs with type filename, token or string must always be uniform.
     if (type == RtType::FILENAME || type == RtType::TOKEN || type == RtType::STRING)
     {
-        flags |= RtAttrFlag::UNIFORM;
+        flags |= RtPortFlag::UNIFORM;
     }
 
     RtToken uniqueName = makeUniqueChildName(name);
-    PvtDataHandle attrH(new PvtInput(uniqueName, type, flags, this));
-    _attrOrder.push_back(attrH);
-    _attrMap[uniqueName] = attrH;
+    PvtInput* port = new PvtInput(uniqueName, type, flags, this);
+    _inputs.add(port);
 
-    return attrH->asA<PvtInput>();
+    return port;
+}
+
+void PvtPrim::removeInput(const RtToken& name)
+{
+    PvtPort* port = getInput(name);
+    if (!port)
+    {
+        throw ExceptionRuntimeError("No input found with name '" + name.str() + "'");
+    }
+    port->setDisposed(true);
+    _inputs.remove(name);
 }
 
 PvtOutput* PvtPrim::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
 {
     RtToken uniqueName = makeUniqueChildName(name);
-    PvtDataHandle attrH(new PvtOutput(uniqueName, type, flags, this));
-    _attrOrder.push_back(attrH);
-    _attrMap[uniqueName] = attrH;
 
-    return attrH->asA<PvtOutput>();
+    PvtOutput* port = new PvtOutput(uniqueName, type, flags, this);
+    _outputs.add(port);
+
+    return port;
 }
 
-void PvtPrim::removeAttribute(const RtToken& name)
+void PvtPrim::removeOutput(const RtToken& name)
 {
-    PvtAttribute* attr = getAttribute(name);
-    if (attr)
+    PvtPort* port = getOutput(name);
+    if (!port)
     {
-        for (auto it = _attrOrder.begin(); it != _attrOrder.end(); ++it)
-        {
-            PvtAttribute* a = (*it)->asA<PvtAttribute>();
-            if (a == attr)
-            {
-                _attrOrder.erase(it);
-                break;
-            }
-        }
-        attr->setDisposed(true);
-        _attrMap.erase(name);
+        throw ExceptionRuntimeError("No output found with name '" + name.str() + "'");
     }
-}
-
-void PvtPrim::setAttributeName(const RtToken& name, const RtToken& newName)
-{
-    PvtAttribute* attr = getAttribute(name);
-    if (attr)
-    {
-        attr->setName(newName);
-        _attrMap[newName] = attr->hnd();
-        _attrMap.erase(name);
-    }
-    else
-    {
-        throw ExceptionRuntimeError("Unable to set attribute name. Attribute named: " + name.str() + " does not exist.");
-    }
-}
-
-RtToken PvtPrim::renameAttribute(const RtToken& name, const RtToken& newName)
-{
-    RtToken uniqueNewName = makeUniqueChildName(newName);
-    setAttributeName(name, uniqueNewName);
-    return uniqueNewName;
-}
-
-RtAttrIterator PvtPrim::getAttributes(RtObjectPredicate predicate) const
-{
-    return RtAttrIterator(hnd(), predicate);
+    port->setDisposed(true);
+    _outputs.remove(name);
 }
 
 RtPrimIterator PvtPrim::getChildren(RtObjectPredicate predicate) const
@@ -221,9 +157,10 @@ RtToken PvtPrim::makeUniqueChildName(const RtToken& name) const
     RtToken newName = name;
 
     // Check if there is another child with this name.
-    const PvtPrim* otherChild = getChild(name);
-    const PvtAttribute* otherAttr = getAttribute(name);
-    if (otherChild || otherAttr)
+    // We must check both prims, inputs and outputs since in
+    // MaterialX core these all stored in the same map and 
+    // cannot have name conflicts among them.
+    if (_prims.count(newName) || _inputs.count(newName) || _outputs.count(newName))
     {
         // Find a number to append to the name, incrementing
         // the counter until a unique name is found.
@@ -239,30 +176,67 @@ RtToken PvtPrim::makeUniqueChildName(const RtToken& name) const
         // Iterate until there is no other child with the resulting name.
         do {
             newName = RtToken(baseName + std::to_string(i++));
-            otherChild = getChild(newName);
-	    otherAttr = getAttribute(newName);
-        } while (otherChild || otherAttr);
+        } while (_prims.count(newName) || _inputs.count(newName) || _outputs.count(newName));
     }
+
     return newName;
 }
 
-void PvtPrim::addChildPrim(const PvtPrim* prim)
+void PvtPrim::addChildPrim(PvtPrim* prim)
 {
-    _primOrder.push_back(prim->hnd());
-    _primMap[prim->getName()] = prim->hnd();
+    _prims.add(prim);
 }
 
-void PvtPrim::removeChildPrim(const PvtPrim* prim)
+void PvtPrim::removeChildPrim(PvtPrim* prim)
 {
-    for (auto it = _primOrder.begin(); it != _primOrder.end(); ++it)
+    _prims.remove(prim->getName());
+}
+
+
+const RtAttributeSpec* PvtPrimSpec::getPortAttribute(const RtPort& port, const RtToken& name) const
+{
+    const bool input = port.isA<RtInput>();
+
+    // First search the input/output lists by port name.
+    const RtTokenMap<RtAttributeSpecList>& mapByName = (input ? _inputAttrByName : _outputAttrByName);
+    auto it = mapByName.find(port.getName());
+    if (it != mapByName.end())
     {
-        if ((*it).get() == prim)
+        const RtAttributeSpec* spec = it->second.find(name);
+        if (spec)
         {
-            _primOrder.erase(it);
-            break;
+            return spec;
         }
     }
-    _primMap.erase(prim->getName());
+
+    // Second search the input/output lists by port type.
+    const RtTokenMap<RtAttributeSpecList>& mapByType = (input ? _inputAttrByType : _outputAttrByType);
+    it = mapByType.find(port.getType());
+    if (it != mapByType.end())
+    {
+        const RtAttributeSpec* spec = it->second.find(name);
+        if (spec)
+        {
+            return spec;
+        }
+    }
+
+    // Finally search the general input/output list.
+    const RtAttributeSpecList& list = (input ? _inputAttr : _outputAttr);
+    return list.find(name);
+}
+
+RtAttributeSpec* PvtPrimSpec::create(const RtToken& name, const RtToken& type, const string& value,
+                                     bool exportable, bool custom)
+{
+    RtAttributeSpec* spec = new RtAttributeSpec();
+    PvtAttributeSpec* ptr = static_cast<PvtAttributeSpec*>(spec->_ptr);
+    ptr->name = name;
+    ptr->type = type;
+    ptr->value = value;
+    ptr->exportable = exportable;
+    ptr->custom = custom;
+    return spec;
 }
 
 }

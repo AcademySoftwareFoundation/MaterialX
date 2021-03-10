@@ -25,20 +25,6 @@ public:
     /// Constructor.
     RtBindElement(const RtPrim& prim) : RtTypedSchema(prim) {}
 
-    /// Return the named attribute.
-    /// Shorthand for getPrim().getAttribute(name).
-    RtAttribute getAttribute(const RtToken& name) const
-    {
-        return getPrim().getAttribute(name);
-    }
-
-    /// Return an iterator traversing all attributes on this
-    /// element. Shorthand for getPrim().getAttributes().
-    RtAttrIterator getAttributes() const
-    {
-        return getPrim().getAttributes();
-    }
-
     /// Return the named relationship.
     /// Shorthand for getPrim().getRelationship(name).
     RtRelationship getRelationship(const RtToken& name) const

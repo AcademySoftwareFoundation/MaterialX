@@ -19,9 +19,10 @@ namespace MaterialX
 
 class PvtObject;
 class PvtPrim;
-class PvtAttribute;
+class PvtPort;
 class PvtRelationship;
 class RtStage;
+class RtAttributeIterator;
 
 // A handle to private object data
 RT_DECLARE_REF_PTR_TYPE(PvtObject, PvtDataHandle)
@@ -35,13 +36,13 @@ using RtStageWeakPtr = RtWeakPtr<RtStage>;
 /// Identifiers for object types.
 enum class RtObjType
 {
-    OBJECT          = 1<<0,
-    PRIM            = 1<<1,
-    ATTRIBUTE       = 1<<2,
-    INPUT           = 1<<3,
-    OUTPUT          = 1<<4,
-    RELATIONSHIP    = 1<<5,
-    DISPOSED        = 1<<6
+    OBJECT          = 1 << 0,
+    PRIM            = 1 << 1,
+    PORT            = 1 << 2,
+    INPUT           = 1 << 3,
+    OUTPUT          = 1 << 4,
+    RELATIONSHIP    = 1 << 5,
+    DISPOSED        = 1 << 6
 };
 
 #define RT_DECLARE_RUNTIME_OBJECT(T)                         \
@@ -138,31 +139,32 @@ public:
     /// Return the stage that owns the object.
     RtStageWeakPtr getStage() const;
 
-    /// Add new metadata to the object.
-    RtTypedValue* addMetadata(const RtToken& name, const RtToken& type);
+    /// Create a new attribute on the object.
+    RtTypedValue* createAttribute(const RtToken& name, const RtToken& type);
 
-    /// Remove metadata from the object.
-    void removeMetadata(const RtToken& name);
+    /// Remove an attribute from the object.
+    void removeAttribute(const RtToken& name);
 
-    /// Returns the number of metadata entries.
-    size_t numMetadata() const;
+    /// Return an attribute by name.
+    /// No type check is performed.
+    RtTypedValue* getAttribute(const RtToken& name);
 
-    /// Return the metadata name from the object at a given index.
-    const RtToken& getMetadataName(size_t index) const;
+    /// Return an attribute by name.
+    /// No type check is performed.
+    const RtTypedValue* getAttribute(const RtToken& name) const;
 
-    /// Return metadata from the object.
-    RtTypedValue* getMetadata(const RtToken& name);
+    /// Return an attribute by name.
+    /// With a type check that throw exception if an attribute 
+    /// exists but has a different deta type.
+    RtTypedValue* getAttribute(const RtToken& name, const RtToken& type);
 
-    /// Return const metadata from the object.
-    const RtTypedValue* getMetadata(const RtToken& name) const;
+    /// Return an attribute by name.
+    /// With a type check that throw exception if an attribute 
+    /// exists but has a different deta type.
+    const RtTypedValue* getAttribute(const RtToken& name, const RtToken& type) const;
 
-    /// Return metadata from the object.
-    /// If found also perform a type check.
-    RtTypedValue* getMetadata(const RtToken& name, const RtToken& type);
-
-    /// Return const metadata from the object.
-    /// If found also perform a type check.
-    const RtTypedValue* getMetadata(const RtToken& name, const RtToken& type) const;
+    /// Return an iterator over all attributes on this object.
+    RtAttributeIterator getAttributes() const;
 
 protected:
 #ifdef NDEBUG

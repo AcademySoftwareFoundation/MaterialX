@@ -7,7 +7,7 @@
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtStage.h>
 
-#include <MaterialXRuntime/Private/PvtAttribute.h>
+#include <MaterialXRuntime/Private/PvtPort.h>
 #include <MaterialXRuntime/Private/PvtRelationship.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 #include <MaterialXRuntime/Private/PvtStage.h>
@@ -18,12 +18,6 @@ namespace MaterialX
 namespace
 {
 
-static const RtAttrIterator NULL_ATTR_ITERATOR;
-static const RtPrimIterator NULL_PRIM_ITERATOR;
-static const RtConnectionIterator NULL_CONNECTION_ITERATOR;
-static const RtRelationshipIterator NULL_RELATIONSHIP_ITERATOR;
-static const RtStageIterator NULL_STAGE_ITERATOR;
-
 using StageIteratorStackFrame = std::tuple<PvtStage*, int, int>;
 
 struct StageIteratorData
@@ -33,30 +27,114 @@ struct StageIteratorData
     vector<StageIteratorStackFrame> stack;
 };
 
+struct AttrIteratorData
+{
+    PvtDataHandle obj;
+    size_t index;
+    AttrIteratorData() : obj(nullptr), index(0) {}
+    explicit AttrIteratorData(const PvtDataHandle& o) : obj(o), index(0) {}
+};
+
 }
 
-RtAttrIterator::RtAttrIterator(const RtPrim& prim, RtObjectPredicate predicate) :
-    _prim(nullptr),
-    _current(-1),
-    _predicate(predicate)
+RtAttributeIterator::RtAttributeIterator() :
+    _ptr(nullptr)
 {
-    if (prim)
+}
+
+RtAttributeIterator::RtAttributeIterator(const RtObject& obj) :
+    _ptr(new AttrIteratorData(PvtObject::hnd(obj)))
+{
+}
+
+RtAttributeIterator::RtAttributeIterator(const RtAttributeIterator& other) :
+    _ptr(nullptr)
+{
+    if (other._ptr)
     {
-        _prim = PvtObject::ptr<PvtPrim>(prim);
-        ++*this;
+        _ptr = new AttrIteratorData();
+        *static_cast<AttrIteratorData*>(_ptr) = *static_cast<AttrIteratorData*>(other._ptr);
     }
 }
 
-RtAttribute RtAttrIterator::operator*() const
+RtAttributeIterator& RtAttributeIterator::operator=(const RtAttributeIterator& other)
 {
-    return _prim->getAllAttributes()[_current];
+    if (other._ptr)
+    {
+        if (!_ptr)
+        {
+            _ptr = new AttrIteratorData();
+        }
+        *static_cast<AttrIteratorData*>(_ptr) = *static_cast<AttrIteratorData*>(other._ptr);
+    }
+    return *this;
 }
 
-RtAttrIterator& RtAttrIterator::operator++()
+RtAttributeIterator::~RtAttributeIterator()
 {
-    while (_prim && ++_current < int(_prim->getAllAttributes().size()))
+    delete static_cast<AttrIteratorData*>(_ptr);
+}
+
+bool RtAttributeIterator::operator==(const RtAttributeIterator& other) const
+{
+    AttrIteratorData* data1 = static_cast<AttrIteratorData*>(_ptr);
+    AttrIteratorData* data2 = static_cast<AttrIteratorData*>(other._ptr);
+    return data1 && data2 ?
+        data1->obj == data2->obj && data1->index == data2->index :
+        data1 == data2;
+}
+
+RtAttribute RtAttributeIterator::operator*() const
+{
+    AttrIteratorData* data = static_cast<AttrIteratorData*>(_ptr);
+    PvtObject* obj = data->obj->asA<PvtObject>();
+    const RtToken& name = obj->_attrNames[data->index];
+    return RtAttribute(name, obj->getAttribute(name));
+}
+
+bool RtAttributeIterator::isDone() const
+{
+    return _ptr == nullptr;
+}
+
+const RtAttributeIterator& RtAttributeIterator::end()
+{
+    static const RtAttributeIterator NULL_ITERATOR;
+    return NULL_ITERATOR;
+}
+
+RtAttributeIterator& RtAttributeIterator::operator++()
+{
+    AttrIteratorData* data = static_cast<AttrIteratorData*>(_ptr);
+    PvtObject* obj = data->obj->asA<PvtObject>();
+    if (++data->index >= obj->_attrNames.size())
     {
-        if (!_predicate || _predicate(_prim->getAllAttributes()[_current]))
+        abort();
+    }
+    return *this;
+}
+
+void RtAttributeIterator::abort()
+{
+    delete static_cast<AttrIteratorData*>(_ptr);
+    _ptr = nullptr;
+}
+
+
+template<class T>
+T RtObjectIterator<T>::operator*() const
+{
+    const PvtObjectVec& vec = *static_cast<PvtObjectVec*>(_ptr);
+    return T(vec[_current]->hnd());
+}
+
+template<class T>
+RtObjectIterator<T>& RtObjectIterator<T>::operator++()
+{
+    const PvtObjectVec& vec = *static_cast<PvtObjectVec*>(_ptr);
+    while (_ptr && ++_current < int(vec.size()))
+    {
+        if (!_predicate || _predicate(vec[_current]->obj()))
         {
             return *this;
         }
@@ -65,59 +143,78 @@ RtAttrIterator& RtAttrIterator::operator++()
     return *this;
 }
 
-bool RtAttrIterator::isDone() const
+template<class T>
+bool RtObjectIterator<T>::isDone() const
 {
-    return !(_prim && _current < int(_prim->getAllAttributes().size()));
+    return !(_ptr && _current < int(static_cast<PvtObjectVec*>(_ptr)->size()));
 }
 
-const RtAttrIterator& RtAttrIterator::end()
+template<class T>
+const RtObjectIterator<T>& RtObjectIterator<T>::end()
 {
-    return NULL_ATTR_ITERATOR;
+    static const RtObjectIterator<T> NULL_ITERATOR;
+    return NULL_ITERATOR;
 }
 
-RtPrimIterator::RtPrimIterator(const RtPrim& prim, RtObjectPredicate predicate) :
-    _prim(nullptr),
-    _current(-1),
-    _predicate(predicate)
+template class RtObjectIterator<RtObject>;
+template class RtObjectIterator<RtPrim>;
+template class RtObjectIterator<RtInput>;
+template class RtObjectIterator<RtOutput>;
+template class RtObjectIterator<RtRelationship>;
+
+
+RtPrimIterator::RtPrimIterator(const RtObject& obj, RtObjectPredicate predicate) :
+    RtObjectIterator(predicate)
 {
-    if (prim)
+    if (obj.isA<RtPrim>())
     {
-        _prim = PvtObject::ptr<PvtPrim>(prim);
-        ++*this;
+        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        _ptr = prim->_prims.empty() ? nullptr : &prim->_prims._vec;
     }
+    ++*this;
 }
 
-RtPrim RtPrimIterator::operator*() const
+RtInputIterator::RtInputIterator(const RtObject& obj) :
+    RtObjectIterator()
 {
-    return _prim->getAllChildren()[_current];
-}
-
-RtPrimIterator& RtPrimIterator::operator++()
-{
-    while (_prim && ++_current < int(_prim->getAllChildren().size()))
+    if (obj.isA<RtPrim>())
     {
-        if (!_predicate || _predicate(_prim->getAllChildren()[_current]->obj()))
-        {
-            return *this;
-        }
+        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        _ptr = prim->_inputs.empty() ? nullptr : &prim->_inputs._vec;
     }
-    abort();
-    return *this;
+    else if (obj.isA<RtOutput>())
+    {
+        PvtOutput* output = PvtObject::ptr<PvtOutput>(obj);
+        _ptr = output->_connections.empty() ? nullptr : &output->_connections;
+    }
+    ++*this;
 }
 
-bool RtPrimIterator::isDone() const
+RtOutputIterator::RtOutputIterator(const RtObject& obj) :
+    RtObjectIterator()
 {
-    return !(_prim && _current < int(_prim->getAllChildren().size()));
+    if (obj.isA<RtPrim>())
+    {
+        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        _ptr = prim->_outputs.empty() ? nullptr : &prim->_outputs._vec;
+    }
+    ++*this;
 }
 
-const RtPrimIterator& RtPrimIterator::end()
+RtRelationshipIterator::RtRelationshipIterator(const RtObject& obj) :
+    RtObjectIterator()
 {
-    return NULL_PRIM_ITERATOR;
+    if (obj.isA<RtPrim>())
+    {
+        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        _ptr = prim->_rel.empty() ? nullptr : &prim->_rel._vec;
+    }
+    ++*this;
 }
+
 
 RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
-    _ptr(nullptr),
-    _current(-1)
+    RtObjectIterator()
 {
     if (obj.isA<RtOutput>())
     {
@@ -127,75 +224,11 @@ RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
     else if (obj.isA<RtRelationship>())
     {
         PvtRelationship* rel = PvtObject::ptr<PvtRelationship>(obj);
-        _ptr = rel->_targets.empty() ? nullptr : &rel->_targets;
+        _ptr = rel->_connections.empty() ? nullptr : &rel->_connections;
     }
     ++*this;
 }
 
-RtObject RtConnectionIterator::operator*() const
-{
-    PvtDataHandleVec& data = *static_cast<PvtDataHandleVec*>(_ptr);
-    return data[_current]->obj();
-}
-
-RtConnectionIterator& RtConnectionIterator::operator++()
-{
-    if (_ptr && ++_current < int(static_cast<PvtDataHandleVec*>(_ptr)->size()))
-    {
-        return *this;
-    }
-    abort();
-    return *this;
-}
-
-bool RtConnectionIterator::isDone() const
-{
-    return !(_ptr && _current < int(static_cast<PvtDataHandleVec*>(_ptr)->size()));
-}
-
-const RtConnectionIterator& RtConnectionIterator::end()
-{
-    return NULL_CONNECTION_ITERATOR;
-}
-
-
-RtRelationshipIterator::RtRelationshipIterator(const RtObject& obj) :
-    _ptr(nullptr),
-    _current(-1)
-{
-    if (obj.isA<RtPrim>())
-    {
-        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
-        _ptr = prim->_relOrder.empty() ? nullptr : &prim->_relOrder;
-    }
-    ++*this;
-}
-
-RtObject RtRelationshipIterator::operator*() const
-{
-    PvtDataHandleVec& data = *static_cast<PvtDataHandleVec*>(_ptr);
-    return data[_current]->obj();
-}
-
-RtRelationshipIterator& RtRelationshipIterator::operator++()
-{
-    if (_ptr && ++_current < int(static_cast<PvtDataHandleVec*>(_ptr)->size()))
-    {
-        return *this;
-    }
-    abort();
-    return *this;
-}
-
-bool RtRelationshipIterator::isDone() const
-{
-    return !(_ptr && _current < int(static_cast<PvtDataHandleVec*>(_ptr)->size()));
-}
-
-const RtRelationshipIterator& RtRelationshipIterator::end()
-{
-    return NULL_RELATIONSHIP_ITERATOR;
-}
 
 RtStageIterator::RtStageIterator() :
     _ptr(nullptr)
@@ -250,13 +283,6 @@ bool RtStageIterator::operator==(const RtStageIterator& other) const
         _ptr == other._ptr;
 }
 
-bool RtStageIterator::operator!=(const RtStageIterator& other) const
-{
-    return _ptr && other._ptr ?
-        static_cast<StageIteratorData*>(_ptr)->current != static_cast<StageIteratorData*>(other._ptr)->current :
-        _ptr != other._ptr;
-}
-
 RtPrim RtStageIterator::operator*() const
 {
     return static_cast<StageIteratorData*>(_ptr)->current;
@@ -269,7 +295,8 @@ bool RtStageIterator::isDone() const
 
 const RtStageIterator& RtStageIterator::end()
 {
-    return NULL_STAGE_ITERATOR;
+    static const RtStageIterator NULL_ITERATOR;
+    return NULL_ITERATOR;
 }
 
 RtStageIterator& RtStageIterator::operator++()

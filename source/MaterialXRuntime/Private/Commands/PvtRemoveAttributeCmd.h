@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_PVTREMOVEMETADATACMD_H
-#define MATERIALX_PVTREMOVEMETADATACMD_H
+#ifndef MATERIALX_PVTREMOVEATTRIBUTECMD_H
+#define MATERIALX_PVTREMOVEATTRIBUTECMD_H
 
 #include <MaterialXRuntime/Private/PvtCommand.h>
 
@@ -13,10 +13,10 @@
 namespace MaterialX
 {
 
-class PvtRemoveMetadataCmd : public PvtCommand
+class PvtRemoveAttributeCmd : public PvtCommand
 {
 public:
-    PvtRemoveMetadataCmd(const RtObject& obj, const RtToken& name);
+    PvtRemoveAttributeCmd(const RtObject& obj, const RtToken& name);
 
     static PvtCommandPtr create(const RtObject& obj, const RtToken& name);
 

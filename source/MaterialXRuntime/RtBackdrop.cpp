@@ -10,6 +10,27 @@
 
 namespace MaterialX
 {
+namespace
+{
+    // TODO: We should derive this from a data driven XML schema.
+    class PvtBackdropPrimSpec : public PvtPrimSpec
+    {
+    public:
+        PvtBackdropPrimSpec()
+        {
+            addPrimAttribute(Tokens::DOC, RtType::STRING);
+            addPrimAttribute(Tokens::XPOS, RtType::FLOAT);
+            addPrimAttribute(Tokens::YPOS, RtType::FLOAT);
+            addPrimAttribute(Tokens::WIDTH, RtType::INTEGER);
+            addPrimAttribute(Tokens::HEIGHT, RtType::INTEGER);
+            addPrimAttribute(Tokens::UICOLOR, RtType::COLOR3);
+            addPrimAttribute(Tokens::UINAME, RtType::STRING);
+            addPrimAttribute(Tokens::CONTAINS, RtType::STRINGARRAY);
+            addPrimAttribute(Tokens::MINIMIZED, RtType::BOOLEAN);
+
+        }
+    };
+}
 
 DEFINE_TYPED_SCHEMA(RtBackdrop, "backdrop");
 
@@ -23,11 +44,14 @@ RtPrim RtBackdrop::createPrim(const RtToken& typeName, const RtToken& name, RtPr
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->createRelationship(Tokens::CONTAINS);
-    prim->createAttribute(Tokens::WIDTH, RtType::FLOAT);
-    prim->createAttribute(Tokens::HEIGHT, RtType::FLOAT);
-    prim->createAttribute(Tokens::NOTE, RtType::STRING);
 
     return primH;
+}
+
+const RtPrimSpec& RtBackdrop::getPrimSpec() const
+{
+    static const PvtBackdropPrimSpec s_primSpec;
+    return s_primSpec;
 }
 
 RtRelationship RtBackdrop::getContains() const
@@ -35,19 +59,40 @@ RtRelationship RtBackdrop::getContains() const
     return prim()->getRelationship(Tokens::CONTAINS)->hnd();
 }
 
-RtAttribute RtBackdrop::getNote() const
+void RtBackdrop::setNote(const string& note)
 {
-    return prim()->getAttribute(Tokens::NOTE)->hnd();
+    RtTypedValue* attr = prim()->createAttribute(Tokens::NOTE, RtType::STRING);
+    attr->asString() = note;
 }
 
-RtAttribute RtBackdrop::getWidth() const
+const string& RtBackdrop::getNote() const
 {
-    return prim()->getAttribute(Tokens::WIDTH)->hnd();
+    const RtTypedValue* attr = prim()->getAttribute(Tokens::NOTE, RtType::STRING);
+    return attr ? attr->asString() : EMPTY_STRING;
 }
 
-RtAttribute RtBackdrop::getHeight() const
+void RtBackdrop::setWidth(float width)
 {
-    return prim()->getAttribute(Tokens::HEIGHT)->hnd();
+    RtTypedValue* attr = prim()->createAttribute(Tokens::WIDTH, RtType::FLOAT);
+    attr->asFloat() = width;
+}
+
+float RtBackdrop::getWidth() const
+{
+    const RtTypedValue* attr = prim()->getAttribute(Tokens::WIDTH, RtType::FLOAT);
+    return attr ? attr->asFloat() : 0.0f;
+}
+
+void RtBackdrop::setHeight(float width)
+{
+    RtTypedValue* attr = prim()->createAttribute(Tokens::HEIGHT, RtType::FLOAT);
+    attr->asFloat() = width;
+}
+
+float RtBackdrop::getHeight() const
+{
+    const RtTypedValue* attr = prim()->getAttribute(Tokens::HEIGHT, RtType::FLOAT);
+    return attr ? attr->asFloat() : 0.0f;
 }
 
 }

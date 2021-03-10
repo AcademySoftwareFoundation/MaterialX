@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/Commands/AttributeCommands.h>
+#include <MaterialXRuntime/Commands/RelationshipCommands.h>
 #include <MaterialXRuntime/RtApi.h>
 
 #include <MaterialXRuntime/Private/PvtApi.h>
@@ -12,22 +12,20 @@
 
 namespace MaterialX
 {
-
 namespace RtCommand
 {
 
-void makeRelationship(const RtRelationship& rel, const RtObject& target, RtCommandResult& result)
+void makeRelationship(const RtRelationship& rel, const RtObject& obj, RtCommandResult& result)
 {
-    PvtCommandPtr cmd = PvtRelationshipCmd::create(rel, target, ConnectionChange::MAKE_CONNECTION);
+    PvtCommandPtr cmd = PvtRelationshipCmd::create(rel, obj, ConnectionChange::MAKE_CONNECTION);
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
-void breakRelationship(const RtRelationship& rel, const RtObject& target, RtCommandResult& result)
+void breakRelationship(const RtRelationship& rel, const RtObject& obj, RtCommandResult& result)
 {
-    PvtCommandPtr cmd = PvtRelationshipCmd::create(rel, target, ConnectionChange::BREAK_CONNECTION);
+    PvtCommandPtr cmd = PvtRelationshipCmd::create(rel, obj, ConnectionChange::BREAK_CONNECTION);
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
-} // RtCommands
-
+} // RtCommand
 } // MaterialX

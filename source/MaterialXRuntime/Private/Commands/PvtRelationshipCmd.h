@@ -8,7 +8,7 @@
 
 #include <MaterialXRuntime/Private/PvtCommand.h>
 
-#include <MaterialXRuntime/RtAttribute.h>
+#include <MaterialXRuntime/RtPort.h>
 
 namespace MaterialX
 {
@@ -16,13 +16,13 @@ namespace MaterialX
 class PvtRelationshipCmd : public PvtCommand
 {
 public:
-    PvtRelationshipCmd(const RtRelationship& rel, const RtObject& target, ConnectionChange change) :
+    PvtRelationshipCmd(const RtRelationship& rel, const RtObject& obj, ConnectionChange change) :
         _rel(rel),
-        _target(target),
+        _obj(obj),
         _change(change)
     {}
 
-    static PvtCommandPtr create(const RtRelationship& rel, const RtObject& target, ConnectionChange change);
+    static PvtCommandPtr create(const RtRelationship& rel, const RtObject& obj, ConnectionChange change);
 
     void execute(RtCommandResult& result) override;
     void undo(RtCommandResult& result) override;
@@ -32,7 +32,7 @@ private:
     void breakConnection(RtCommandResult& result);
 
     RtRelationship _rel;
-    RtObject _target;
+    RtObject _obj;
     ConnectionChange _change;
 };
 

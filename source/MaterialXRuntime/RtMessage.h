@@ -12,13 +12,12 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtTypeInfo.h>
-#include <MaterialXRuntime/RtAttribute.h>
+#include <MaterialXRuntime/RtPort.h>
 #include <MaterialXRuntime/RtRelationship.h>
 
 namespace MaterialX
 {
 
-class RtAttrIterator;
 class RtRelationshipIterator;
 class RtPrimIterator;
 class RtSchemaBase;
@@ -38,14 +37,14 @@ using RtRenamePrimCallbackFunc = std::function<void(RtStagePtr stage, const RtPr
 /// Function type for callback notifying when a prim is about to be reparented.
 using RtReparentPrimCallbackFunc = std::function<void(RtStagePtr stage, const RtPrim& prim, const RtPath& newPath, void* userData)>;
 
-/// Function type for callback notifying when an attribute value is set.
-using RtSetAttributeCallbackFunc = std::function<void(const RtAttribute& attr, const RtValue& value, void* userData)>;
+/// Function type for callback notifying when a port value is set.
+using RtSetPortValueCallbackFunc = std::function<void(const RtPort& port, const RtValue& value, void* userData)>;
 
-/// Function type for callback notifying when a metadata value is set.
-using RtSetMetadataCallbackFunc = std::function<void(const RtObject& obj, const RtToken& name, const RtValue& value, void* userData)>;
+/// Function type for callback notifying when an attribute is set.
+using RtSetAttributeCallbackFunc = std::function<void(const RtObject& obj, const RtToken& name, const RtValue& value, void* userData)>;
 
 /// Function type for callback notifying when a metadata value is removed.
-using RtRemoveMetadataCallbackFunc = std::function<void(const RtObject& obj, const RtToken& name, void* userData)>;
+using RtRemoveAttributeCallbackFunc = std::function<void(const RtObject& obj, const RtToken& name, void* userData)>;
 
 /// Function type for callback notifying when a connection is changed.
 using RtConnectionCallbackFunc = std::function<void(const RtOutput& src, const RtInput& dest, ConnectionChange change, void* userData)>;
@@ -69,14 +68,14 @@ public:
     /// Register a callback to get notified when a prim is about to be reparented.
     static RtCallbackId addReparentPrimCallback(RtReparentPrimCallbackFunc callback, void* userData = nullptr);
 
-    /// Register a callback to get notified when an attribute value is set.
+    /// Register a callback to get notified when a port value is set.
+    static RtCallbackId addSetPortValueCallback(RtSetPortValueCallbackFunc callback, void* userData = nullptr);
+
+    /// Register a callback to get notified when an attribute is set.
     static RtCallbackId addSetAttributeCallback(RtSetAttributeCallbackFunc callback, void* userData = nullptr);
 
-    /// Register a callback to get notified when a metadata value is set.
-    static RtCallbackId addSetMetadataCallback(RtSetMetadataCallbackFunc callback, void* userData = nullptr);
-
-    /// Register a callback to get notified when a metadata value is removed.
-    static RtCallbackId addRemoveMetadataCallback(RtRemoveMetadataCallbackFunc callback, void* userData = nullptr);
+    /// Register a callback to get notified when an attribute is removed.
+    static RtCallbackId addRemoveAttributeCallback(RtRemoveAttributeCallbackFunc callback, void* userData = nullptr);
 
     /// Register a callback to get notified when a connection is changed.
     static RtCallbackId addConnectionCallback(RtConnectionCallbackFunc callback, void* userData = nullptr);

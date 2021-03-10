@@ -10,6 +10,7 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/RtSchema.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 namespace MaterialX
 {
@@ -32,88 +33,137 @@ public:
     /// Constructor.
     RtNodeDef(const RtPrim& prim) : RtTypedSchema(prim) {}
 
+    /// Set the node for this nodedef.
+    void setNode(const RtToken& node);
+
     /// Return the node for this nodedef.
     const RtToken& getNode() const;
 
     /// Return the namespaced node for this nodedef.
     RtToken getNamespacedNode() const;
 
-    /// Set the node for this nodedef.
-    void setNode(const RtToken& node);
+    /// Set the nodegroup for this nodedef.
+    void setNodeGroup(const RtToken& nodegroup);
 
     /// Return the node group for this nodedef.
     const RtToken& getNodeGroup() const;
 
-    /// Set the node for this nodedef.
-    void setNodeGroup(const RtToken& nodegroup);
+    /// Set the target for this nodedef.
+    void setTarget(const RtToken& nodegroup);
 
     /// Return the target for this nodedef.
     const RtToken& getTarget() const;
 
-    /// Set the target for this nodedef.
-    void setTarget(const RtToken& nodegroup);
+    /// Set the inheritance for this nodedef.
+    void setIneritance(const RtToken& inherit);
 
     /// Return the inheritance for this nodedef.
     const RtToken& getIneritance() const;
 
-    /// Set the inheritance for this nodedef.
-    void setIneritance(const RtToken& inherit);
+    /// Set the version for this nodedef.
+    void setVersion(const RtToken& version);
 
     /// Return the version for this nodedef.
     const RtToken& getVersion() const;
 
-    /// Set the version for this nodedef.
-    void setVersion(const RtToken& version);
-
     /// Is the version for this definition compatible with the version passed in
     bool isVersionCompatible(const RtToken& version) const;
 
-    /// Return if this definition is the default version.
-    bool getIsDefaultVersion() const;
-
-    /// Set the version for this nodedef.
+    /// Set if this nodedef is the default version.
     void setIsDefaultVersion(bool isDefault);
 
-    /// Return the namespace for this nodedef.
-    const string& getNamespace() const;
+    /// Return if this nodedef is the default version.
+    bool getIsDefaultVersion() const;
 
     /// Set the namespace for this nodedef.
-    void setNamespace(const string& space);
+    void setNamespace(const RtToken& space);
 
-    /// Add an input attribute to the interface.
-    RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+    /// Return the namespace for this nodedef.
+    const RtToken& getNamespace() const;
 
-    /// Remove an input attribute from the interface.
-    void removeInput(const RtToken& name);
+    /// Add an input port to the interface.
+    /// Shorthand for calling getPrim().createInput().
+    RtInput createInput(const RtToken& name, const RtToken& type, uint32_t flags = 0)
+    {
+        return getPrim().createInput(name, type, flags);
+    }
 
-    /// Add an output attribute to the interface.
-    RtOutput createOutput(const RtToken& name, const RtToken& type, uint32_t flags = 0);
+    /// Remove an input port from the interface.
+    /// Shorthand for calling getPrim().removeInput().
+    void removeInput(const RtToken& name)
+    {
+        return getPrim().removeInput(name);
+    }
 
-    /// Remove an output attribute from the interface.
-    void removeOutput(const RtToken& name);
+    /// Return the number of inputs on the node.
+    /// Shorthand for calling getPrim().numInputs().
+    size_t numInputs() const
+    {
+        return getPrim().numInputs();
+    }
 
-    /// Return the number of inputs on the interface.
-    size_t numInputs() const;
+    /// Return an input by index.
+    /// Shorthand for calling getPrim().getInput().
+    RtInput getInput(size_t index) const
+    {
+        return getPrim().getInput(index);
+    }
 
-    /// Return the named input.
-    RtInput getInput(const RtToken& name) const;
+    /// Return an input by name.
+    /// Shorthand for calling getPrim().getInput().
+    RtInput getInput(const RtToken& name) const
+    {
+        return getPrim().getInput(name);
+    }
 
-    /// Return an iterator traversing all input attributes.
-    RtAttrIterator getInputs() const;
+    /// Return an iterator over all inputs.
+    /// Shorthand for calling getPrim().getInputs().
+    RtInputIterator getInputs() const
+    {
+        return getPrim().getInputs();
+    }
 
-    /// Return the number of outputs on the interface.
-    size_t numOutputs() const;
+    /// Add an output port to the interface.
+    /// Shorthand for calling getPrim().numInputs().
+    RtOutput createOutput(const RtToken& name, const RtToken& type, uint32_t flags = 0)
+    {
+        return getPrim().createOutput(name, type, flags);
+    }
 
-    /// Return the named output.
-    RtOutput getOutput(const RtToken& name) const;
+    /// Remove an output port from the interface.
+    /// Shorthand for calling getPrim().removeOutput().
+    void removeOutput(const RtToken& name)
+    {
+        return getPrim().removeOutput(name);
+    }
 
-    /// Return the single output for single output nodes.
-    /// Or if multiple outputs are available return the 
-    /// last created output.
-    RtOutput getOutput() const;
+    /// Return the number of outputs on the node.
+    /// Shorthand for calling getPrim().numOutputs().
+    size_t numOutputs() const
+    {
+        return getPrim().numOutputs();
+    }
 
-    /// Return an iterator traversing all output attributes.
-    RtAttrIterator getOutputs() const;
+    /// Return an output by index.
+    /// Shorthand for calling getPrim().getOutput().
+    RtOutput getOutput(size_t index = 0) const
+    {
+        return getPrim().getOutput(index);
+    }
+
+    /// Return an output by name.
+    /// Shorthand for calling getPrim().getOutput().
+    RtOutput getOutput(const RtToken& name) const
+    {
+        return getPrim().getOutput(name);
+    }
+
+    /// Return an iterator over all outputs.
+    /// Shorthand for calling getPrim().getOutputs().
+    RtOutputIterator getOutputs() const
+    {
+        return getPrim().getOutputs();
+    }
 
     /// Return the relationship maintaining all node implementations registered for this nodedef.
     RtRelationship getNodeImpls() const;
@@ -125,12 +175,6 @@ public:
     /// Return a node layout struct for this nodedef.
     /// Containing its input ordering and uifolder hierarchy.
     RtNodeLayout getNodeLayout();
-
-    /// Returns a vector of public nodegraph metadata names
-    const RtTokenVec& getPublicMetadataNames() const override;
-
-    /// Returns a vector of public metadata names for a port.
-    const RtTokenVec& getPublicPortMetadataNames(const RtToken& name) const override;
 };
 
 }

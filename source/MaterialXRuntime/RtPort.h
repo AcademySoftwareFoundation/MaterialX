@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RTATTRIBUTE_H
-#define MATERIALX_RTATTRIBUTE_H
+#ifndef MATERIALX_RTPORT_H
+#define MATERIALX_RTPORT_H
 
 /// @file
 /// TODO: Docs
@@ -17,75 +17,75 @@ namespace MaterialX
 
 class RtValue;
 class RtOutput;
-class RtConnectionIterator;
+class RtInputIterator;
 
-/// @class RtAttrFlag
-/// Flags for tagging attributes.
-class RtAttrFlag
+/// @class RtPortFlag
+/// Flags for tagging ports.
+class RtPortFlag
 {
 public:
-    /// Attribute holds uniform values.
+    /// Port holds uniform values.
     static const uint32_t UNIFORM     = 0x00000001;
 
-    /// Attribute is a nodegraph internal socket.
+    /// Port is a nodegraph internal socket.
     static const uint32_t SOCKET      = 0x00000002;
 };
 
-/// @class RtAttribute
-/// Object holding an attribute on a prim.
-class RtAttribute : public RtObject
+/// @class RtPort
+/// Base class for prim ports.
+class RtPort : public RtObject
 {
-    RT_DECLARE_RUNTIME_OBJECT(RtAttribute)
+    RT_DECLARE_RUNTIME_OBJECT(RtInput)
 
 public:
     /// Empty constructor.
     /// Creating an invalid object.
-    RtAttribute() {}
+    RtPort() {}
 
     /// Construct from a data handle.
-    RtAttribute(PvtDataHandle hnd);
+    RtPort(PvtDataHandle hnd);
 
-    /// Return the data type for this attribute.
+    /// Return the data type for this port.
     const RtToken& getType() const;
 
-    /// Return the default value for this attribute.
+    /// Return the value for this port.
     const RtValue& getValue() const;
 
-    /// Return the default value for this attribute.
+    /// Return the value for this port.
     RtValue& getValue();
 
-    /// Set a new default value on the attribute.
+    /// Set a new value on the port.
     void setValue(const RtValue& v);
 
-    /// Return a string representation for the value of this attribute.
+    /// Return a string representation for the value of this port.
     string getValueString() const;
 
-    /// Set the attribute value from a string representation.
+    /// Set the port value from a string representation.
     void setValueString(const string& v);
 
-    /// Return the default color space for this attribute.
+    /// Return the color space for this port.
     const RtToken& getColorSpace() const;
 
-    /// Set the default color space for this attribute.
+    /// Set the color space for this port.
     void setColorSpace(const RtToken& colorspace);
 
-    /// Return the default unit for this attribute.
+    /// Return the unit for this port.
     const RtToken& getUnit() const;
 
-    /// Set the default unit for this attribute.
+    /// Set the unit for this port.
     void setUnit(const RtToken& unit);
 
-    /// Return the default unit type for this attribute.
+    /// Return the unit type for this port.
     const RtToken& getUnitType() const;
 
-    /// Set the default unit type for this attribute.
+    /// Set the unit type for this port.
     void setUnitType(const RtToken& unit);
 };
 
 
 /// @class RtInput
-/// Object holding an input attribute on a prim.
-class RtInput : public RtAttribute
+/// Object holding an input port on a prim.
+class RtInput : public RtPort
 {
     RT_DECLARE_RUNTIME_OBJECT(RtInput)
 
@@ -129,8 +129,8 @@ public:
 };
 
 /// @class RtOutput
-/// Object holding an output attribute on a prim.
-class RtOutput : public RtAttribute
+/// Object holding an output port on a prim.
+class RtOutput : public RtPort
 {
     RT_DECLARE_RUNTIME_OBJECT(RtOutput)
 
@@ -162,7 +162,7 @@ public:
     void clearConnections();
 
     /// Return an iterator for the connections downstream from this output.
-    RtConnectionIterator getConnections() const;
+    RtInputIterator getConnections() const;
 
     friend class RtInput;
 };

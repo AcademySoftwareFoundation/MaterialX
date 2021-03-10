@@ -11,6 +11,25 @@
 
 namespace MaterialX
 {
+namespace
+{
+    class PvtCollectionPrimSpec : public PvtPrimSpec
+    {
+    public:
+        PvtCollectionPrimSpec()
+        {
+            // TODO: We should derive this from a data driven XML schema.
+            addPrimAttribute(Tokens::DOC, RtType::STRING);
+            addPrimAttribute(Tokens::XPOS, RtType::FLOAT);
+            addPrimAttribute(Tokens::YPOS, RtType::FLOAT);
+            addPrimAttribute(Tokens::WIDTH, RtType::INTEGER);
+            addPrimAttribute(Tokens::HEIGHT, RtType::INTEGER);
+            addPrimAttribute(Tokens::UICOLOR, RtType::COLOR3);
+            addPrimAttribute(Tokens::INCLUDEGEOM, RtType::STRING);
+            addPrimAttribute(Tokens::EXCLUDEGEOM, RtType::STRING);
+        }
+    };
+}
 
 DEFINE_TYPED_SCHEMA(RtCollection, "bindelement:collection");
 
@@ -23,41 +42,59 @@ RtPrim RtCollection::createPrim(const RtToken& typeName, const RtToken& name, Rt
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->createAttribute(Tokens::INCLUDE_GEOM, RtType::STRING);
-    prim->createAttribute(Tokens::EXCLUDE_GEOM, RtType::STRING);
-    prim->createRelationship(Tokens::INCLUDE_COLLECTION);
+    prim->createRelationship(Tokens::INCLUDECOLLECTION);
 
     return primH;
 }
 
-RtAttribute RtCollection::getIncludeGeom() const
+const RtPrimSpec& RtCollection::getPrimSpec() const
 {
-    return prim()->getAttribute(Tokens::INCLUDE_GEOM)->hnd();
+    static const PvtCollectionPrimSpec s_primSpec;
+    return s_primSpec;
 }
 
-RtAttribute RtCollection::getExcludeGeom() const
+void RtCollection::setIncludeGeom(const string& geom)
 {
-    return prim()->getAttribute(Tokens::EXCLUDE_GEOM)->hnd();
+    RtTypedValue* attr = prim()->createAttribute(Tokens::INCLUDEGEOM, RtType::STRING);
+    attr->asString() = geom;
+}
+
+const string& RtCollection::getIncludeGeom() const
+{
+    const RtTypedValue* attr = prim()->getAttribute(Tokens::INCLUDEGEOM, RtType::STRING);
+    return attr ? attr->asString() : EMPTY_STRING;
+}
+
+void RtCollection::setExcludeGeom(const string& geom)
+{
+    RtTypedValue* attr = prim()->createAttribute(Tokens::EXCLUDEGEOM, RtType::STRING);
+    attr->asString() = geom;
+}
+
+const string& RtCollection::getExcludeGeom() const
+{
+    const RtTypedValue* attr = prim()->getAttribute(Tokens::EXCLUDEGEOM, RtType::STRING);
+    return attr ? attr->asString() : EMPTY_STRING;
 }
 
 void RtCollection::addCollection(const RtObject& collection)
 {
-    getIncludeCollection().addTarget(collection);
+    getIncludeCollection().connect(collection);
 }
 
 void RtCollection::removeCollection(const RtObject& collection)
 {
-    getIncludeCollection().removeTarget(collection);
+    getIncludeCollection().disconnect(collection);
 }
 
 RtRelationship RtCollection::getIncludeCollection() const
 {
-    return prim()->getRelationship(Tokens::INCLUDE_COLLECTION)->hnd();
+    return prim()->getRelationship(Tokens::INCLUDECOLLECTION)->hnd();
 }
 
 bool RtCollectionConnectableApi::acceptRelationship(const RtRelationship& rel, const RtObject& target) const
 {
-    if (rel.getName() == Tokens::INCLUDE_COLLECTION)
+    if (rel.getName() == Tokens::INCLUDECOLLECTION)
     {
         // 'includecollection' only accepts other collection prims as target.
         return target.isA<RtPrim>() && target.asA<RtPrim>().hasApi<RtCollection>();

@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXRuntime/Commands/PrimCommands.h>
-#include <MaterialXRuntime/Commands/AttributeCommands.h>
+#include <MaterialXRuntime/Commands/PortCommands.h>
 #include <MaterialXRuntime/RtApi.h>
 
 #include <MaterialXRuntime/Private/PvtApi.h>

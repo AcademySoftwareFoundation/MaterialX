@@ -8,7 +8,6 @@
 
 #include <MaterialXRuntime/Private/PvtCommand.h>
 
-#include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtValue.h>
 
 namespace MaterialX
@@ -17,18 +16,20 @@ namespace MaterialX
 class PvtSetAttributeCmd : public PvtCommand
 {
 public:
-    PvtSetAttributeCmd(const RtAttribute& attr, const RtValue& value);
+    PvtSetAttributeCmd(const RtObject& obj, const RtToken& name, const RtValue& value);
 
-    static PvtCommandPtr create(const RtAttribute& attr, const RtValue& value);
+    static PvtCommandPtr create(const RtObject& obj, const RtToken& name, const RtValue& value);
 
     void execute(RtCommandResult& result) override;
     void undo(RtCommandResult& result) override;
     void redo(RtCommandResult& result) override;
 
 private:
-    RtAttribute _attr;
+    RtObject _obj;
+    RtToken _name;
     RtValue _value;
     RtValue _oldValue;
+    bool _attrCreated;
 };
 
 }

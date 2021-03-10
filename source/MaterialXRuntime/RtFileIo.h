@@ -46,8 +46,8 @@ class RtWriteOptions
     /// Filter function type for filtering objects during write.
     using ObjectFilter = std::function<bool(const RtObject& obj)>;
 
-    /// Filter function type for filtering metadata on object during write.
-    using MetadataFilter = std::function<bool(const RtObject& obj, const RtToken& name, const RtTypedValue* value)>;
+    /// Filter function type for filtering attributes on object during write.
+    using AttributeFilter = std::function<bool(const RtObject& obj, const RtToken& name, const RtTypedValue* value)>;
 
   public:
     RtWriteOptions();
@@ -67,9 +67,9 @@ class RtWriteOptions
     /// If the filter returns false the object will not be written.
     ObjectFilter objectFilter;
 
-    /// Filter function used for filtering metadata during write.
-    /// If the filter returns false the metadata will not be written.
-    MetadataFilter metadataFilter;
+    /// Filter function used for filtering attributes during write.
+    /// If the filter returns false the attribute will not be written.
+    AttributeFilter attributeFilter;
 
     /// The desired major version
     unsigned int desiredMajorVersion;

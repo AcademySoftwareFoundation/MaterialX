@@ -3,86 +3,86 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/RtAttribute.h>
+#include <MaterialXRuntime/RtPort.h>
 
-#include <MaterialXRuntime/Private/PvtAttribute.h>
+#include <MaterialXRuntime/Private/PvtPort.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 namespace MaterialX
 {
 
-RT_DEFINE_RUNTIME_OBJECT(RtAttribute, RtObjType::ATTRIBUTE, "RtAttribute")
+RT_DEFINE_RUNTIME_OBJECT(RtPort, RtObjType::PORT, "RtPort")
 
-RtAttribute::RtAttribute(PvtDataHandle hnd) :
+RtPort::RtPort(PvtDataHandle hnd) :
     RtObject(hnd)
 {
 }
 
-const RtToken& RtAttribute::getType() const
+const RtToken& RtPort::getType() const
 {
-    return hnd()->asA<PvtAttribute>()->getType();
+    return hnd()->asA<PvtPort>()->getType();
 }
 
-const RtValue& RtAttribute::getValue() const
+const RtValue& RtPort::getValue() const
 {
-    return hnd()->asA<PvtAttribute>()->getValue();
+    return hnd()->asA<PvtPort>()->getValue();
 }
 
-RtValue& RtAttribute::getValue()
+RtValue& RtPort::getValue()
 {
-    return hnd()->asA<PvtAttribute>()->getValue();
+    return hnd()->asA<PvtPort>()->getValue();
 }
 
-void RtAttribute::setValue(const RtValue& v)
+void RtPort::setValue(const RtValue& v)
 {
-    return hnd()->asA<PvtAttribute>()->setValue(v);
+    return hnd()->asA<PvtPort>()->setValue(v);
 }
 
-string RtAttribute::getValueString() const
+string RtPort::getValueString() const
 {
-    return hnd()->asA<PvtAttribute>()->getValueString();
+    return hnd()->asA<PvtPort>()->getValueString();
 }
 
-void RtAttribute::setValueString(const string& v)
+void RtPort::setValueString(const string& v)
 {
-    hnd()->asA<PvtAttribute>()->setValueString(v);
+    hnd()->asA<PvtPort>()->setValueString(v);
 }
 
-const RtToken& RtAttribute::getColorSpace() const
+const RtToken& RtPort::getColorSpace() const
 {
-    return hnd()->asA<PvtAttribute>()->getColorSpace();
+    return hnd()->asA<PvtPort>()->getColorSpace();
 }
 
-void RtAttribute::setColorSpace(const RtToken& colorspace)
+void RtPort::setColorSpace(const RtToken& colorspace)
 {
-    return hnd()->asA<PvtAttribute>()->setColorSpace(colorspace);
+    return hnd()->asA<PvtPort>()->setColorSpace(colorspace);
 }
 
-const RtToken& RtAttribute::getUnit() const
+const RtToken& RtPort::getUnit() const
 {
-    return hnd()->asA<PvtAttribute>()->getUnit();
+    return hnd()->asA<PvtPort>()->getUnit();
 }
 
-void RtAttribute::setUnit(const RtToken& unit)
+void RtPort::setUnit(const RtToken& unit)
 {
-    return hnd()->asA<PvtAttribute>()->setUnit(unit);
+    return hnd()->asA<PvtPort>()->setUnit(unit);
 }
 
-const RtToken& RtAttribute::getUnitType() const
+const RtToken& RtPort::getUnitType() const
 {
-    return hnd()->asA<PvtAttribute>()->getUnitType();
+    return hnd()->asA<PvtPort>()->getUnitType();
 }
 
-void RtAttribute::setUnitType(const RtToken& unit)
+void RtPort::setUnitType(const RtToken& unit)
 {
-    return hnd()->asA<PvtAttribute>()->setUnitType(unit);
+    return hnd()->asA<PvtPort>()->setUnitType(unit);
 }
 
 
 RT_DEFINE_RUNTIME_OBJECT(RtInput, RtObjType::INPUT, "RtInput")
 
 RtInput::RtInput(PvtDataHandle hnd) :
-    RtAttribute(hnd)
+    RtPort(hnd)
 {
 }
 
@@ -136,7 +136,7 @@ RtOutput RtInput::getConnection() const
 RT_DEFINE_RUNTIME_OBJECT(RtOutput, RtObjType::OUTPUT, "RtOutput")
 
 RtOutput::RtOutput(PvtDataHandle hnd) :
-    RtAttribute(hnd)
+    RtPort(hnd)
 {
 }
 
@@ -170,7 +170,7 @@ void RtOutput::clearConnections()
     return hnd()->asA<PvtOutput>()->clearConnections();
 }
 
-RtConnectionIterator RtOutput::getConnections() const
+RtInputIterator RtOutput::getConnections() const
 {
     return hnd()->asA<PvtOutput>()->getConnections();
 }

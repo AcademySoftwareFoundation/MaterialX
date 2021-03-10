@@ -105,15 +105,20 @@ void PvtStage::disposePrim(const PvtPath& path)
     }
 
     // Make sure the prim has no connections.
-    for (RtAttribute attr : prim->getAttributes())
+    for (size_t i=0; i<prim->numInputs(); ++i)
     {
-        if (attr.isA<RtInput>() && attr.asA<RtInput>().isConnected())
+        const PvtInput* port = prim->getInput(i);
+        if (port->isConnected())
         {
-            throw ExceptionRuntimeError("Found a connection to '" + attr.getName().str() + "'. Cannot dispose a prim with connections.");
+            throw ExceptionRuntimeError("Found a connection to '" + port->getName().str() + "'. Cannot dispose a prim with connections.");
         }
-        else if (attr.isA<RtOutput>() && attr.asA<RtOutput>().isConnected())
+    }
+    for (size_t i = 0; i < prim->numOutputs(); ++i)
+    {
+        const PvtOutput* port = prim->getOutput(i);
+        if (port->isConnected())
         {
-            throw ExceptionRuntimeError("Found a connection from '" + attr.getName().str() + "'. Cannot dispose a prim with connections.");
+            throw ExceptionRuntimeError("Found a connection from '" + port->getName().str() + "'. Cannot dispose a prim with connections.");
         }
     }
 
@@ -150,16 +155,13 @@ RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
     PvtPrim* prim = getPrimAtPathLocal(path);
     if (!(prim && prim->getParent()))
     {
-        throw ExceptionRuntimeError("Given path '" + path.asString() + " does not point to a prim in this stage");
+        throw ExceptionRuntimeError("Given path '" + path.asString() + " does not point to a valid prim in this stage");
     }
 
-    // Remove the old name from the name map.
     PvtPrim* parent = prim->getParent();
-    parent->_primMap.erase(prim->getName());
-
-    // Make sure the new name is unique and insert it to the name map.
+    PvtDataHandle hnd = parent->_prims.remove(prim->getName());
     prim->setName(parent->makeUniqueChildName(newName));
-    parent->_primMap[prim->getName()] = prim->hnd();
+    parent->_prims.add(hnd.get());
 
     return prim->getName();
 }

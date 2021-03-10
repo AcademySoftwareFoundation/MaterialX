@@ -285,6 +285,149 @@ public:
         RtValue::fromString(_type, v, _value);
     }
 
+    /// Return bool value.
+    const bool& asBool() const
+    {
+        return _value .asBool();
+    }
+    /// Return reference to bool value.
+    bool& asBool()
+    {
+        return _value.asBool();
+    }
+
+    /// Return int value.
+    int asInt() const
+    {
+        return _value.asInt();
+    }
+    /// Return reference to int value.
+    int& asInt()
+    {
+        return _value.asInt();
+    }
+
+    /// Return float value.
+    float asFloat() const
+    {
+        return _value.asFloat();
+    }
+    /// Return reference to float value.
+    float& asFloat()
+    {
+        return _value.asFloat();
+    }
+
+    /// Return Color3 value.
+    const Color3& asColor3() const
+    {
+        return _value.asColor3();
+    }
+    /// Return reference to Color3 value.
+    Color3& asColor3()
+    {
+        return _value.asColor3();
+    }
+
+    /// Return Color4 value.
+    const Color4& asColor4() const
+    {
+        return _value.asColor4();
+    }
+    /// Return reference to Color4 value.
+    Color4& asColor4()
+    {
+        return _value.asColor4();
+    }
+
+    /// Return Vector2 value.
+    const Vector2& asVector2() const
+    {
+        return _value.asVector2();
+    }
+    /// Return reference to Vector2 value.
+    Vector2& asVector2()
+    {
+        return _value.asVector2();
+    }
+
+    /// Return Vector3 value.
+    const Vector3& asVector3() const
+    {
+        return _value.asVector3();
+    }
+    /// Return reference to Vector3 value.
+    Vector3& asVector3()
+    {
+        return _value.asVector3();
+    }
+
+    /// Return Vector4 value.
+    const Vector4& asVector4() const
+    {
+        return _value.asVector4();
+    }
+    /// Return reference to Vector4 value.
+    Vector4& asVector4()
+    {
+        return _value.asVector4();
+    }
+
+    /// Return token value.
+    const RtToken& asToken() const
+    {
+        return _value.asToken();
+    }
+    /// Return reference to token value.
+    RtToken& asToken()
+    {
+        return _value.asToken();
+    }
+
+    /// Return const pointer.
+    void* const& asPtr() const
+    {
+        return _value.asPtr();
+    }
+    /// Return reference to pointer.
+    void*& asPtr()
+    {
+        return _value.asPtr();
+    }
+
+    /// Return Matrix33 value.
+    const Matrix33& asMatrix33() const
+    {
+        return _value.asMatrix33();
+    }
+    /// Return reference to Matrix33 value.
+    Matrix33& asMatrix33()
+    {
+        return _value.asMatrix33();
+    }
+
+    /// Return Matrix44 value.
+    const Matrix44& asMatrix44() const
+    {
+        return _value.asMatrix44();
+    }
+    /// Return reference to Matrix44 value.
+    Matrix44& asMatrix44()
+    {
+        return _value.asMatrix44();
+    }
+
+    /// Return string value.
+    const string& asString() const
+    {
+        return _value.asString();
+    }
+    /// Return reference to string value.
+    string& asString()
+    {
+        return _value.asString();
+    }
+
 private:
     RtToken _type;
     RtValue _value;

@@ -62,10 +62,6 @@ void RtApi::initialize()
     registerTypedSchema<RtLook, RtLookConnectableApi>();
     registerTypedSchema<RtMaterialAssign, RtMaterialAssignConnectableApi>();
     registerTypedSchema<RtCollection, RtCollectionConnectableApi>();
-
-    // Register connectable API for nodegraph internal sockets.
-    // This is not a typed schema so need explicit registration.
-    RtConnectableApi::registerApi(RtNodeGraph::SOCKETS_TYPE_INFO.getShortTypeName(), RtConnectableApiPtr(new RtConnectableApi));
 }
 
 void RtApi::shutdown()
@@ -87,9 +83,6 @@ void RtApi::shutdown()
     unregisterTypedSchema<RtLook>();
     unregisterTypedSchema<RtMaterialAssign>();
     unregisterTypedSchema<RtCollection>();
-
-    // Unregister connectable API for nodegraph internal sockets.
-    RtConnectableApi::unregisterApi(RtNodeGraph::SOCKETS_TYPE_INFO.getShortTypeName());
 }
 
 void RtApi::registerLogger(RtLoggerPtr logger)

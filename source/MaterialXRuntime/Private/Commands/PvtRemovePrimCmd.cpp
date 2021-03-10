@@ -28,10 +28,9 @@ void PvtRemovePrimCmd::execute(RtCommandResult& result)
         clearCommands();
 
         // Collect commands for breaking all input connections
-        RtObjTypePredicate<RtInput> inputFilter;
-        for (RtAttribute attr : _prim.getAttributes(inputFilter))
+        for (size_t i = 0; i < _prim.numInputs(); ++i)
         {
-            RtInput input = attr.asA<RtInput>();
+            RtInput input = _prim.getInput(i);
             if (input.isConnected())
             {
                 RtOutput output = input.getConnection();
@@ -40,10 +39,9 @@ void PvtRemovePrimCmd::execute(RtCommandResult& result)
         }
 
         // Collect commands for breaking all output connections
-        RtObjTypePredicate<RtOutput> outputFilter;
-        for (RtAttribute attr : _prim.getAttributes(outputFilter))
+        for (size_t i = 0; i < _prim.numOutputs(); ++i)
         {
-            RtOutput output = attr.asA<RtOutput>();
+            RtOutput output = _prim.getOutput(i);
             if (output.isConnected())
             {
                 for (RtObject inputObj : output.getConnections())

@@ -20,15 +20,15 @@ PvtRelationship::PvtRelationship(const RtToken& name, PvtPrim* parent) :
     setTypeBit<PvtRelationship>();
 }
 
-void PvtRelationship::addTarget(const PvtObject* target)
+void PvtRelationship::connect(PvtObject* obj)
 {
     // Check if this relationship exists already.
     // Linear search here not ideal for performance, but we need the relationship ordering
     // so must maintain a vector here. If performance ever gets noticable we could add an
     // extra set/map if we can affor the storage.
-    for (auto it = _targets.begin(); it != _targets.end(); ++it)
+    for (auto it = _connections.begin(); it != _connections.end(); ++it)
     {
-        if (it->get() == target)
+        if (*it == obj)
         {
             // Relationship already exists
             return;
@@ -37,22 +37,22 @@ void PvtRelationship::addTarget(const PvtObject* target)
 
     // Validate the relationship with this prims connectable API.
     RtConnectableApi* connectableApi = RtConnectableApi::get(getParent()->prim());
-    if (!(connectableApi && connectableApi->acceptRelationship(hnd(), target->hnd())))
+    if (!(connectableApi && connectableApi->acceptRelationship(hnd(), obj->obj())))
     {
         throw ExceptionRuntimeError("'" + getPath().asString() + "' rejected the relationship");
     }
 
     // Create the relationship.
-    _targets.push_back(target->hnd());
+    _connections.push_back(obj);
 }
 
-void PvtRelationship::removeTarget(const PvtObject* target)
+void PvtRelationship::disconnect(PvtObject* obj)
 {
-    for (auto it = _targets.begin(); it != _targets.end(); ++it)
+    for (auto it = _connections.begin(); it != _connections.end(); ++it)
     {
-        if (it->get() == target)
+        if (*it == obj)
         {
-            _targets.erase(it);
+            _connections.erase(it);
             break;
         }
     }

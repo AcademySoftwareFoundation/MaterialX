@@ -25,11 +25,17 @@ public:
     /// Constructor.
     RtCollection(const RtPrim& prim) : RtBindElement(prim) {}
 
-    /// Return included geometry identifiers
-    RtAttribute getIncludeGeom() const;
+    /// Set included geometry identifiers.
+    void setIncludeGeom(const string& geom);
+
+    /// Return included geometry identifiers.
+    const string& getIncludeGeom() const;
+
+    /// Set excluded geometry identifiers.
+    void setExcludeGeom(const string& geom);
 
     /// Return excluded geometry identifiers
-    RtAttribute getExcludeGeom() const;
+    const string& getExcludeGeom() const;
 
     /// Add a child collection
     void addCollection(const RtObject& collection);

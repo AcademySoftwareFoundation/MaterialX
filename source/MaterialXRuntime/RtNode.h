@@ -10,6 +10,7 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/RtSchema.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 namespace MaterialX
 {
@@ -24,53 +25,83 @@ public:
     /// Constructor.
     RtNode(const RtPrim& prim) : RtTypedSchema(prim) {}
 
-    /// Return the nodedef for this node.
-    RtPrim getNodeDef() const;
-
     /// Set the nodedef for this node.
     void setNodeDef(RtPrim prim);
 
-    /// Return the version for this node.
-    const RtToken& getVersion() const;
+    /// Return the nodedef for this node.
+    RtPrim getNodeDef() const;
 
     /// Set the version for this node.
     void setVersion(const RtToken& version);
 
+    /// Return the version for this node.
+    const RtToken& getVersion() const;
+
+    /// Return a port (input or output) by name, or a null object
+    /// if no such port exists.
+    /// Shorthand for calling getPrim().getPort().
+    RtPort getPort(const RtToken& name) const
+    {
+        return getPrim().getPort(name);
+    }
+
     /// Return the number of inputs on the node.
-    size_t numInputs() const;
+    /// Shorthand for calling getPrim().numInputs().
+    size_t numInputs() const
+    {
+        return getPrim().numInputs();
+    }
 
-    /// Return the named input.
-    RtInput getInput(const RtToken& name) const;
+    /// Return an input by index.
+    /// Shorthand for calling getPrim().getInput().
+    RtInput getInput(size_t index) const
+    {
+        return getPrim().getInput(index);
+    }
 
-    /// Return an iterator traversing all input attributes
-    /// on this node. Shorthand for getPrim().getInputs().
-    RtAttrIterator getInputs() const;
+    /// Return an input by name.
+    /// Shorthand for calling getPrim().getInput().
+    RtInput getInput(const RtToken& name) const
+    {
+        return getPrim().getInput(name);
+    }
+
+    /// Return an iterator over all inputs.
+    /// Shorthand for calling getPrim().getInputs().
+    RtInputIterator getInputs() const
+    {
+        return getPrim().getInputs();
+    }
 
     /// Return the number of outputs on the node.
-    size_t numOutputs() const;
+    /// Shorthand for calling getPrim().numOutputs().
+    size_t numOutputs() const
+    {
+        return getPrim().numOutputs();
+    }
 
-    /// Return the named output.
-    RtOutput getOutput(const RtToken& name) const;
+    /// Return an output by index.
+    /// Shorthand for calling getPrim().getOutput().
+    RtOutput getOutput(size_t index = 0) const
+    {
+        return getPrim().getOutput(index);
+    }
 
-    /// Return the single output for single output nodes.
-    /// Or if multiple outputs are available return the 
-    /// last created output.
-    RtOutput getOutput() const;
+    /// Return an output by name.
+    /// Shorthand for calling getPrim().getOutput().
+    RtOutput getOutput(const RtToken& name) const
+    {
+        return getPrim().getOutput(name);
+    }
 
-    /// Return an iterator traversing all output attributes
-    /// on this node. Shorthand for getPrim().getOutputs().
-    RtAttrIterator getOutputs() const;
-
-    /// Returns a vector of public nodegraph metadata names
-    const RtTokenVec& getPublicMetadataNames() const override;
-
-    /// Returns a vector of public metadata names for a port.
-    const RtTokenVec& getPublicPortMetadataNames(const RtToken& name) const override;
-
-
+    /// Return an iterator over all outputs.
+    /// Shorthand for calling getPrim().getOutputs().
+    RtOutputIterator getOutputs() const
+    {
+        return getPrim().getOutputs();
+    }
 };
 
 }
 
 #endif
-

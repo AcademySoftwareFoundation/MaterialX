@@ -37,30 +37,37 @@ namespace MaterialX
 
 namespace
 {
-    // Lists of known metadata which are handled explicitly by import/export.
-    static const RtTokenSet nodedefMetadata     = { RtToken("name"), RtToken("type"), RtToken("node"), RtToken("version"), RtToken("isdefaultversion") };
-    static const RtTokenSet attrMetadata        = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels") };
-    static const RtTokenSet inputMetadata       = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels"), 
-                                                    RtToken("nodegraph"), RtToken("interfacename") };
-    static const RtTokenSet nodeMetadata        = { RtToken("name"), RtToken("type"), RtToken("node"), RtToken("version") };
-    static const RtTokenSet nodegraphMetadata   = { RtToken("name"), RtToken("nodedef") };
-    static const RtTokenSet targetdefMetadata   = { RtToken("name"), RtToken("inherit") };
-    static const RtTokenSet nodeimplMetadata    = { RtToken("name"), RtToken("nodedef"), RtToken("target"), RtToken("file"), RtToken("sourcecode"), RtToken("function"), RtToken("format") };
-    static const RtTokenSet lookMetadata        = { RtToken("name"), RtToken("inherit") };
-    static const RtTokenSet lookGroupMetadata   = { RtToken("name"), RtToken("looks"), RtToken("default") };
-    static const RtTokenSet mtrlAssignMetadata  = { RtToken("name"), RtToken("geom"), RtToken("collection"), RtToken("material"), RtToken("exclusive") };
-    static const RtTokenSet collectionMetadata  = { RtToken("name"), RtToken("includegeom"), RtToken("includecollection"), RtToken("excludegeom") };
-    static const RtTokenSet genericMetadata     = { RtToken("name"), RtToken("kind") };
-    static const RtTokenSet stageMetadata       = {};
+    // Lists of attributes which are handled explicitly by read/write and should be ignored when reading/writing attributes.
+    static const RtTokenSet nodedefIgnoreList    = { RtToken("name"), RtToken("type") };
+    static const RtTokenSet portIgnoreList       = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels") };
+    static const RtTokenSet inputIgnoreList      = { RtToken("name"), RtToken("type"), RtToken("value"), RtToken("nodename"), RtToken("output"), RtToken("channels"),
+                                                     RtToken("nodegraph"), RtToken("interfacename") };
+    static const RtTokenSet nodeIgnoreList       = { RtToken("name"), RtToken("type") };
+    static const RtTokenSet nodegraphIgnoreList  = { RtToken("name") };
+    static const RtTokenSet targetdefIgnoreList  = { RtToken("name"), RtToken("inherit") };
+    static const RtTokenSet nodeimplIgnoreList   = { RtToken("name"), RtToken("file"), RtToken("sourcecode") };
+    static const RtTokenSet lookIgnoreList       = { RtToken("name"), RtToken("inherit") };
+    static const RtTokenSet lookGroupIgnoreList  = { RtToken("name"), RtToken("looks") };
+    static const RtTokenSet mtrlAssignIgnoreList = { RtToken("name"), RtToken("geom"), RtToken("collection"), RtToken("material") };
+    static const RtTokenSet collectionIgnoreList = { RtToken("name"), RtToken("includecollection") };
+    static const RtTokenSet genericIgnoreList    = { RtToken("name"), RtToken("kind") };
+    static const RtTokenSet stageIgnoreList      = {};
 
-    static const RtToken DEFAULT_OUTPUT("out");
-    static const RtToken OUTPUT_ELEMENT_PREFIX("OUT_");
     static const RtToken MULTIOUTPUT("multioutput");
-    static const RtToken UI_VISIBLE("uivisible");
     static const RtToken SWIZZLE_INPUT("in");
     static const RtToken SWIZZLE_CHANNELS("channels");
-    static const RtToken XPOS("xpos");
-    static const RtToken YPOS("ypos");
+
+    // Specification of attributes for the document root element.
+    class PvtRootPrimSpec : public PvtPrimSpec
+    {
+    public:
+        PvtRootPrimSpec()
+        {
+            // TODO: We should derive this from a data driven XML schema.
+            addPrimAttribute(Tokens::DOC, RtType::STRING);
+            addPrimAttribute(Tokens::COLORSPACE, RtType::TOKEN);
+        }
+    };
 
     class PvtRenamingMapper
     {
@@ -118,40 +125,55 @@ namespace
         return output;
     }
 
-    void readMetadata(const ElementPtr& src, PvtObject* dest, const RtTokenSet& ignoreList)
+    void readAttributes(const ElementPtr& src, PvtObject* dest, const RtPrimSpec& primSpec, const RtTokenSet& ignoreList)
     {
-        // Read in all metadata so we can export the element again
-        // without loosing data.
-        for (const string& name : src->getAttributeNames())
+        // Check if this is a port, we have a separate 
+        // attribute spec call for ports below.
+        const bool isAPort = dest->isA<PvtPort>();
+
+        for (const string& nameStr : src->getAttributeNames())
         {
-            const RtToken mdName(name);
-            if (!ignoreList.count(mdName))
+            const RtToken name(nameStr);
+            if (!ignoreList.count(name))
             {
-                // Store all generic metadata as strings.
-                RtTypedValue* md = dest->addMetadata(mdName, RtType::STRING);
-                md->getValue().asString() = src->getAttribute(name);
+                // Check if this is an attribute defined by the spec.
+                const RtAttributeSpec* attrSpec = isAPort ? primSpec.getPortAttribute(RtPort(dest->hnd()), name) : primSpec.getAttribute(name);
+                if (attrSpec)
+                {
+                    // Create it according to the spec.
+                    RtTypedValue* attr = dest->createAttribute(attrSpec->getName(), attrSpec->getType());
+                    RtValue::fromString(attr->getType(), src->getAttribute(nameStr), attr->getValue());
+                }
+                else
+                {
+                    // Store all generic attributes as strings.
+                    RtTypedValue* attr = dest->createAttribute(name, RtType::STRING);
+                    attr->asString() = src->getAttribute(nameStr);
+                }
             }
         }
     }
 
-    void writeMetadata(const PvtObject* src, ElementPtr dest, const RtTokenSet& ignoreList, const RtWriteOptions* options)
+    void writeAttributes(const PvtObject* src, ElementPtr dest, const RtTokenSet& ignoreList, const RtWriteOptions* options)
     {
-        for (const RtToken name : src->getMetadataOrder())
+        for (const RtToken& name : src->getAttributeNames())
         {
             if (ignoreList.count(name) ||
-                (name.str().size() > 0 && name.str().at(0) == '_')) // Metadata with "_" prefix are private
-            {
-                continue;
-            }
-            const RtTypedValue* md = src->getMetadata(name);
-
-            // Check filter if the metadata should be ignored
-            if (options && options->metadataFilter && options->metadataFilter(src->hnd(), name, md))
+                (name.str().size() > 0 && name.str().at(0) == '_')) // Attributes with "_" prefix are private
             {
                 continue;
             }
 
-            std::string valueString = md->getValueString();
+            const RtTypedValue* attr = src->getAttribute(name);
+
+            // Check filter if the attribute should be ignored
+            if (options && options->attributeFilter && options->attributeFilter(src->hnd(), name, attr))
+            {
+                continue;
+            }
+
+            // Get the value as string to cover all attribute types.
+            const string valueString = attr->getValueString();
             if (!valueString.empty())
             {
                 dest->setAttribute(name.str(), valueString);
@@ -164,31 +186,30 @@ namespace
     {
         for (auto elem : src->getChildrenOfType<ValueElement>())
         {
-            const RtToken attrName(elem->getName());
-            const RtToken attrType(elem->getType());
+            const RtToken portName(elem->getName());
+            const RtToken portType(elem->getType());
 
-            RtAttribute attr;
+            RtPort port;
             if (elem->isA<Output>())
             {
-                attr = schema.createOutput(attrName, attrType);
+                port = schema.createOutput(portName, portType);
             }
             else if (elem->isA<Input>())
             {
-                const uint32_t flags = elem->asA<Input>()->getIsUniform() ? RtAttrFlag::UNIFORM : 0;
-                attr = schema.createInput(attrName, attrType, flags);
-            }
-            else
-            {
-                attr = schema.createInput(attrName, attrType, RtAttrFlag::UNIFORM);
+                const uint32_t flags = elem->asA<Input>()->getIsUniform() ? RtPortFlag::UNIFORM : 0;
+                port = schema.createInput(portName, portType, flags);
             }
 
-            const string& valueStr = elem->getValueString();
-            if (!valueStr.empty())
+            if (port)
             {
-                RtValue::fromString(attrType, valueStr, attr.getValue());
-            }
+                const string& valueStr = elem->getValueString();
+                if (!valueStr.empty())
+                {
+                    RtValue::fromString(portType, valueStr, port.getValue());
+                }
 
-            readMetadata(elem, PvtObject::ptr<PvtObject>(attr), attrMetadata);
+                readAttributes(elem, PvtObject::ptr(port), schema.getPrimSpec(), portIgnoreList);
+            }
         }
     }
 
@@ -205,7 +226,7 @@ namespace
 
             PvtInput* in = swizzleNode->getInput(SWIZZLE_INPUT);
             PvtInput* ch = swizzleNode->getInput(SWIZZLE_CHANNELS);
-            PvtOutput* out = swizzleNode->getOutput(DEFAULT_OUTPUT);
+            PvtOutput* out = swizzleNode->getOutput();
             if (in && ch && out)
             {
                 ch->getValue().asString() = swizzle;
@@ -236,7 +257,7 @@ namespace
                 if (outputName == EMPTY_TOKEN && connectedNode)
                 {
                     RtNode rtConnectedNode(connectedNode->hnd());
-                    auto output = rtConnectedNode.getOutput();
+                    RtOutput output = rtConnectedNode.getOutput();
                     if (output)
                     {
                         outputName = output.getName();
@@ -270,21 +291,8 @@ namespace
         const RtToken name(src->getName());
         PvtPrim* prim = stage->createPrim(stage->getPath(), name, RtNodeDef::typeName());
 
-        const RtToken nodeName(src->getNodeString());
         RtNodeDef nodedef(prim->hnd());
-        nodedef.setNode(nodeName);
-
-        const string& version = src->getVersionString();
-        if (!version.empty())
-        {
-            nodedef.setVersion(RtToken(version));
-            if (src->getDefaultVersion())
-            {
-                nodedef.setIsDefaultVersion(true);
-            }
-        }
-
-        readMetadata(src, prim, nodedefMetadata);
+        readAttributes(src, prim, nodedef.getPrimSpec(), nodedefIgnoreList);
 
         // Create the interface.
         createInterface(src, nodedef);
@@ -305,15 +313,16 @@ namespace
         }
 
         // Check all ports.
-        // TODO: Do we need to match port type as well (input/output/parameter)?
         for (const ValueElementPtr& nodePort : nodePorts)
         {
-            const PvtAttribute* attr = prim->getAttribute(RtToken(nodePort->getName()));
-            if (!attr || attr->getType().str() != nodePort->getType())
+            const RtToken name(nodePort->getName());
+            const PvtPort* port = nodePort->isA<Input>() ? prim->getInput(name)->asA<PvtPort>() : prim->getOutput(name)->asA<PvtPort>();
+            if (!port || port->getType().str() != nodePort->getType())
             {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -362,17 +371,11 @@ namespace
         }
 
         const RtToken nodeName(src->getName());
-        PvtPrim* node = stage->createPrim(parent->getPath(), nodeName, nodedefName);
-        mapper.addMapping(parent, nodeName, node->getName());
+        PvtPrim* prim = stage->createPrim(parent->getPath(), nodeName, nodedefName);
+        mapper.addMapping(parent, nodeName, prim->getName());
 
-        const string& version = src->getVersionString();
-        if (!version.empty())
-        {
-            RtNode schema(node->hnd());
-            schema.setVersion(RtToken(version));
-        }
-
-        readMetadata(src, node, nodeMetadata);
+        RtNode node(prim->hnd());
+        readAttributes(src, prim, node.getPrimSpec(), nodeIgnoreList);
 
         // Copy input values.
         for (auto elem : src->getChildrenOfType<ValueElement>())
@@ -382,10 +385,10 @@ namespace
                 continue;
             }
             const RtToken portName(elem->getName());
-            PvtAttribute* input = node->getInput(portName);
+            PvtInput* input = prim->getInput(portName);
             if (!input)
             {
-                throw ExceptionRuntimeError("No input named '" + elem->getName() + "' was found on runtime node '" + node->getName().str() + "'");
+                throw ExceptionRuntimeError("No input named '" + elem->getName() + "' was found on runtime node '" + prim->getName().str() + "'");
             }
             const string& valueStr = elem->getValueString();
             if (!valueStr.empty())
@@ -393,33 +396,32 @@ namespace
                 const RtToken portType(elem->getType());
                 RtValue::fromString(portType, valueStr, input->getValue());
             }
-            readMetadata(elem, input, attrMetadata);
+            readAttributes(elem, input, node.getPrimSpec(), portIgnoreList);
         }
 
-        return node;
+        return prim;
     }
 
     PvtPrim* readNodeGraph(const NodeGraphPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
         const RtToken nodegraphName(src->getName());
 
-        PvtPrim* nodegraph = stage->createPrim(parent->getPath(), nodegraphName, RtNodeGraph::typeName());
-        mapper.addMapping(parent, nodegraphName, nodegraph->getName());
-        RtNodeGraph schema(nodegraph->hnd());
+        PvtPrim* prim = stage->createPrim(parent->getPath(), nodegraphName, RtNodeGraph::typeName());
+        mapper.addMapping(parent, nodegraphName, prim->getName());
 
-        readMetadata(src, nodegraph, nodegraphMetadata);
+        RtNodeGraph nodegraph(prim->hnd());
+        readAttributes(src, prim, nodegraph.getPrimSpec(), nodegraphIgnoreList);
 
         // Create the interface either from a nodedef if given
         // otherwise from the graph itself.
         const NodeDefPtr srcNodeDef = src->getNodeDef();
         if (srcNodeDef)
         {
-            createInterface(srcNodeDef, schema);
-            schema.setDefinition(RtToken(srcNodeDef->getName()));
+            createInterface(srcNodeDef, nodegraph);
         }
         else
         {
-            createInterface(src, schema);
+            createInterface(src, nodegraph);
         }
 
         // Create all nodes and connections between node inputs and internal graph sockets.
@@ -428,7 +430,7 @@ namespace
             NodePtr srcNnode = child->asA<Node>();
             if (srcNnode)
             {
-                PvtPrim* node = readNode(srcNnode, nodegraph, stage, mapper);
+                PvtPrim* node = readNode(srcNnode, prim, stage, mapper);
 
                 // Check for connections to the internal graph sockets
                 for (auto elem : srcNnode->getChildrenOfType<ValueElement>())
@@ -441,12 +443,12 @@ namespace
                     if (!interfaceName.empty())
                     {
                         const RtToken socketName(interfaceName);
-                        RtOutput socket = schema.getInputSocket(socketName);
+                        RtOutput socket = nodegraph.getInputSocket(socketName);
                         if (!socket)
                         {
                             const RtToken inputType(elem->getType());
-                            RtInput input = schema.createInput(socketName, inputType);
-                            socket = schema.getInputSocket(input.getName());
+                            RtInput input = nodegraph.createInput(socketName, inputType);
+                            socket = nodegraph.getInputSocket(input.getName());
 
                             // Set the input value
                             const string& valueStr = elem->getValueString();
@@ -469,7 +471,7 @@ namespace
         }
 
         // Create connections between all nodes.
-        createNodeConnections(src->getNodes(), nodegraph, stage, mapper);
+        createNodeConnections(src->getNodes(), prim, stage, mapper);
 
         // Create connections between node outputs and internal graph sockets.
         for (const OutputPtr& elem : src->getOutputs())
@@ -477,7 +479,7 @@ namespace
             const string& connectedNodeName = elem->getNodeName();
             if (!connectedNodeName.empty())
             {
-                RtInput socket = schema.getOutputSocket(RtToken(elem->getName()));
+                RtInput socket = nodegraph.getOutputSocket(RtToken(elem->getName()));
                 if (!socket)
                 {
                     PvtPath path(parent->getPath());
@@ -485,7 +487,7 @@ namespace
                     throw ExceptionRuntimeError("Output '" + elem->getName() + "' does not match an internal output socket on the nodegraph '" + path.asString() + "'");
                 }
 
-                PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), nodegraph, mapper);
+                PvtPrim* connectedNode = findPrimOrThrow(RtToken(connectedNodeName), prim, mapper);
 
                 const RtToken outputName(elem->getOutputString());
                 PvtOutput* output = findOutputOrThrow(outputName, connectedNode);
@@ -496,7 +498,7 @@ namespace
             }
         }
 
-        return nodegraph;
+        return prim;
     }
 
     PvtPrim* readGenericPrim(const ElementPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
@@ -506,10 +508,10 @@ namespace
 
         PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtGeneric::typeName());
         mapper.addMapping(parent, name, prim->getName());
+
         RtGeneric generic(prim->hnd());
         generic.setKind(category);
-
-        readMetadata(src, prim, genericMetadata);
+        readAttributes(src, prim, generic.getPrimSpec(), genericIgnoreList);
 
         for (auto child : src->getChildren())
         {
@@ -532,7 +534,7 @@ namespace
             def.setInherit(inherit);
         }
 
-        readMetadata(src, prim, targetdefMetadata);
+        readAttributes(src, prim, def.getPrimSpec(), targetdefIgnoreList);
 
         return prim;
     }
@@ -549,7 +551,6 @@ namespace
         }
 
         const RtToken name(src->getName());
-        const RtToken nodedef(src->getNodeDefString());
 
         const string& sourcecode = src->getAttribute(Tokens::SOURCECODE.str());
         const string& file = src->getAttribute(Tokens::FILE.str());
@@ -574,45 +575,28 @@ namespace
             {
                 impl.setFile(file);
             }
-
-            const string& function = src->getAttribute(Tokens::FUNCTION.str());
-            if (!function.empty())
-            {
-                impl.setFunction(function);
-            }
-
-            const string& format = src->getAttribute(Tokens::FORMAT.str());
-            if (!format.empty())
-            {
-                impl.setFormat(RtToken(format));
-            }
         }
 
         RtNodeImpl impl(prim->hnd());
-        impl.setNodeDef(nodedef);
-        impl.setTarget(target);
-
-        readMetadata(src, prim, nodeimplMetadata);
+        readAttributes(src, prim, impl.getPrimSpec(), nodeimplIgnoreList);
 
         return prim;
     }
 
     // Note that this function reads in a single collection. After all required collections
-    // have been read in, the createCollectionConnections() function can be called
+    // have been read in, the makeCollectionIncludeConnections() function can be called
     // to create collection inclusion connections.
     PvtPrim* readCollection(const CollectionPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
         const RtToken name(src->getName());
 
-        PvtPrim* collectionPrim = stage->createPrim(parent->getPath(), name, RtCollection::typeName());
-        mapper.addMapping(parent, name, collectionPrim->getName());
-        RtCollection collection(collectionPrim->hnd());
-        collection.getIncludeGeom().setValueString(src->getIncludeGeom());
-        collection.getExcludeGeom().setValueString(src->getExcludeGeom());
+        PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtCollection::typeName());
+        mapper.addMapping(parent, name, prim->getName());
 
-        readMetadata(src, collectionPrim, collectionMetadata);
+        RtCollection collection(prim->hnd());
+        readAttributes(src, prim, collection.getPrimSpec(), collectionIgnoreList);
 
-        return collectionPrim;
+        return prim;
     }
 
     // Create collection include connections assuming that all referenced
@@ -632,7 +616,7 @@ namespace
     }
 
     // Note that this function reads in a single look. After all required looks have been
-    // read in then createLookConnections() can be called to create look inheritance
+    // read in then makeLookInheritConnections() can be called to create look inheritance
     // connections.
     PvtPrim* readLook(const LookPtr& src, PvtPrim* parent, PvtStage* stage, PvtRenamingMapper& mapper)
     {
@@ -653,7 +637,7 @@ namespace
             if (!matAssign->getCollectionString().empty())
             {
                 PvtPrim* collection = findPrimOrThrow(RtToken(matAssign->getCollectionString()), parent, mapper);
-                rtMatAssign.getCollection().addTarget(collection->hnd());
+                rtMatAssign.getCollection().connect(collection->hnd());
             }
 
             if (!matAssign->getMaterial().empty())
@@ -662,20 +646,14 @@ namespace
                 rtMatAssign.getMaterial().connect(material->prim().getOutput());
             }
 
-            if (matAssign->hasAttribute(MaterialAssign::EXCLUSIVE_ATTRIBUTE)) {
-                rtMatAssign.getExclusive().getValue().asBool() = matAssign->getExclusive();
-            } else {
-                rtMatAssign.getExclusive().getValue().asBool() = true; // default
-            }
+            rtMatAssign.setGeom(matAssign->getActiveGeom());
 
-            rtMatAssign.getGeom().getValue().asString() = matAssign->getActiveGeom();
+            readAttributes(matAssign, assignPrim, rtMatAssign.getPrimSpec(), mtrlAssignIgnoreList);
 
-            readMetadata(matAssign, assignPrim, mtrlAssignMetadata);
-
-            look.getMaterialAssigns().addTarget(assignPrim->hnd());
+            look.getMaterialAssigns().connect(assignPrim->hnd());
         }
 
-        readMetadata(src, lookPrim, lookMetadata);
+        readAttributes(src, lookPrim, look.getPrimSpec(), lookIgnoreList);
 
         return lookPrim;
     }
@@ -692,7 +670,7 @@ namespace
             {
                 PvtPrim* parentLook = findPrimOrThrow(RtToken(inheritString), parent, mapper);
                 RtLook rtLook(childLook->hnd());
-                rtLook.getInherit().addTarget(parentLook->hnd());
+                rtLook.getInherit().connect(parentLook->hnd());
             }
         }
     }
@@ -706,6 +684,7 @@ namespace
         const RtToken name(src->getName());
         PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtLookGroup::typeName());
         mapper.addMapping(parent, name, prim->getName());
+
         RtLookGroup lookGroup(prim->hnd());
 
         // Link to looks
@@ -719,10 +698,8 @@ namespace
                 lookGroup.addLook(lookPrim->hnd());
             }
         }
-        const string& activeLook = src->getActiveLook();
-        lookGroup.getActiveLook().setValueString(activeLook);
 
-        readMetadata(src, prim, lookGroupMetadata);
+        readAttributes(src, prim, lookGroup.getPrimSpec(), lookGroupIgnoreList);
 
         return prim;
     }
@@ -791,7 +768,9 @@ namespace
         const std::string& uri = doc->getSourceUri();
         stage->addSourceUri(RtToken(uri));
 
-        readMetadata(doc, stage->getRootPrim(), stageMetadata);
+        // Read root document attributes.
+        static PvtRootPrimSpec s_rootPrimSpec;
+        readAttributes(doc, stage->getRootPrim(), s_rootPrimSpec, stageIgnoreList);
 
         RtReadOptions::ElementFilter filter = options ? options->elementFilter : nullptr;
 
@@ -897,29 +876,25 @@ namespace
             }
         }
 
-        writeMetadata(src, destNodeDef, nodedefMetadata, options);
+        writeAttributes(src, destNodeDef, nodedefIgnoreList, options);
 
-        for (const PvtDataHandle attrH : src->getAllAttributes())
+        for (PvtObject* obj : src->getInputs())
         {
-            const PvtAttribute* attr = attrH->asA<PvtAttribute>();
-
-            ValueElementPtr destPort;
-            if (attr->isA<PvtInput>())
+            const PvtInput* input = obj->asA<PvtInput>();
+            ValueElementPtr destPort = destNodeDef->addInput(input->getName().str(), input->getType().str());
+            if (input->isUniform())
             {
-                const PvtInput* input = attr->asA<PvtInput>();
-                destPort = destNodeDef->addInput(attr->getName().str(), attr->getType().str());
-                if (input->isUniform())
-                {
-                    destPort->setIsUniform(true);
-                }
+                destPort->setIsUniform(true);
             }
-            else
-            {
-                destPort = destNodeDef->addOutput(attr->getName().str(), attr->getType().str());
-            }
-
-            destPort->setValueString(attr->getValueString());
-            writeMetadata(attr, destPort, attrMetadata, options);
+            destPort->setValueString(input->getValueString());
+            writeAttributes(input, destPort, portIgnoreList, options);
+        }
+        for (PvtObject* obj : src->getOutputs())
+        {
+            const PvtOutput* output = obj->asA<PvtOutput>();
+            ValueElementPtr destPort = destNodeDef->addOutput(output->getName().str(), output->getType().str());
+            destPort->setValueString(output->getValueString());
+            writeAttributes(output, destPort, portIgnoreList, options);
         }
     }
 
@@ -933,39 +908,29 @@ namespace
         }
 
         // Count output and get output type
-        size_t numOutputs = 0;
-        string outputType;
-        RtObjTypePredicate<RtOutput> outputFilter;
-        for (RtAttribute attr : nodedef.getPrim().getAttributes(outputFilter))
-        {
-            numOutputs++;
-            outputType = attr.getType().str();
-        }
+        const size_t numOutputs = nodedef.getPrim().numOutputs();
+        const string outputType = numOutputs > 1 ? "multioutput" : (numOutputs > 0 ? nodedef.getPrim().getOutput().getType().str() : EMPTY_STRING);
 
-        NodePtr destNode = dest->addNode(nodedef.getNamespacedNode().str(), node.getName().str(), numOutputs > 1 ? "multioutput" : outputType);
-        if (node.getVersion() != EMPTY_TOKEN)
-        {
-            destNode->setVersionString(node.getVersion().str());
-        }
+        NodePtr destNode = dest->addNode(nodedef.getNamespacedNode().str(), node.getName().str(), outputType);
 
         bool writeDefaultValues = options ? options->writeDefaultValues : false;
 
-        for (RtAttribute attrDef : nodedef.getPrim().getAttributes())
+        for (size_t i = 0; i < nodedef.numInputs(); ++i)
         {
-            RtAttribute attr = node.getPrim().getAttribute(attrDef.getName());
-            RtInput input = attr.asA<RtInput>();
+            RtInput nodedefInput = nodedef.getInput(i);
+            RtInput input = node.getInput(i);
             if (input)
             {
-                const RtTypedValue* uiVisible1 = input.getMetadata(UI_VISIBLE);
-                const RtTypedValue* uiVisible2 = attrDef.getMetadata(UI_VISIBLE);
-                const bool uiHidden1 = uiVisible1 && (uiVisible1->getValueString() == VALUE_STRING_FALSE);
-                const bool uiHidden2 = uiVisible2 && (uiVisible2->getValueString() == VALUE_STRING_FALSE);
+                const RtTypedValue* uiVisible1 = input.getAttribute(Tokens::UIVISIBLE, RtType::BOOLEAN);
+                const RtTypedValue* uiVisible2 = nodedefInput.getAttribute(Tokens::UIVISIBLE, RtType::BOOLEAN);
+                const bool uiHidden1 = uiVisible1 && !uiVisible1->asBool();
+                const bool uiHidden2 = uiVisible2 && !uiVisible2->asBool();
                 const bool writeUiVisibleData = uiHidden1 != uiHidden2;
 
                 // Write input if it's connected or different from default value.
                 // Write input if the uivisible value differs in the input from the nodedef
                 if (writeDefaultValues || writeUiVisibleData ||
-                    input.isConnected() || !RtValue::compare(input.getType(), input.getValue(), attrDef.getValue()))
+                    input.isConnected() || !RtValue::compare(input.getType(), input.getValue(), nodedefInput.getValue()))
                 {
                     ValueElementPtr valueElem;
                     if (input.isUniform())
@@ -981,7 +946,7 @@ namespace
                                 valueElem->setInterfaceName(source.getName().str());
                             }
                         }
-                        const string& inputValueString = input.getValueString(); 
+                        const string& inputValueString = input.getValueString();
                         if (!inputValueString.empty())
                         {
                             valueElem->setValueString(inputValueString);
@@ -1027,16 +992,21 @@ namespace
                         }
                     }
 
-                    writeMetadata(PvtObject::ptr<PvtObject>(attr), valueElem, inputMetadata, options);
+                    writeAttributes(PvtObject::ptr(input), valueElem, inputIgnoreList, options);
                 }
-            }
-            else if(numOutputs > 1)
-            {
-                destNode->addOutput(attr.getName().str(), attr.getType().str());
             }
         }
 
-        writeMetadata(src, destNode, nodeMetadata, options);
+        if (numOutputs > 1)
+        {
+            for (size_t i = 0; i < nodedef.numOutputs(); ++i)
+            {
+                RtOutput nodedefOutput = nodedef.getOutput(i);
+                destNode->addOutput(nodedefOutput.getName().str(), nodedefOutput.getType().str());
+            }
+        }
+
+        writeAttributes(src, destNode, nodeIgnoreList, options);
 
         return destNode;
     }
@@ -1044,23 +1014,18 @@ namespace
     void writeNodeGraph(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
     {
         NodeGraphPtr destNodeGraph = dest->addNodeGraph(src->getName().str());
-        writeMetadata(src, destNodeGraph, nodegraphMetadata, options);
+        writeAttributes(src, destNodeGraph, nodegraphIgnoreList, options);
 
         RtNodeGraph nodegraph(src->hnd());
 
-        const RtToken& nodedef = nodegraph.getDefinition();
-        if (nodedef != EMPTY_TOKEN)
-        {
-            destNodeGraph->setNodeDefString(nodedef.str());
-        }
-
         if (!options || options->writeNodeGraphInputs)
         {
-            // Write inputs/parameters.
-            RtObjTypePredicate<RtInput> inputsFilter;
-            for (RtAttribute attr : src->getAttributes(inputsFilter))
+            // Write inputs.
+            for (size_t i = 0; i < src->numInputs(); ++i)
             {
-                RtInput nodegraphInput = nodegraph.getInput(attr.getName());
+                PvtPort* port = src->getInput(i);
+
+                RtInput nodegraphInput = nodegraph.getInput(port->getName());
                 ValueElementPtr v = nullptr;
                 if (nodegraphInput.isUniform())
                 {
@@ -1094,7 +1059,7 @@ namespace
                 if (v)
                 {
                     v->setValueString(nodegraphInput.getValueString());
-                    writeMetadata(PvtObject::ptr<PvtObject>(attr), v, inputMetadata, options);
+                    writeAttributes(port, v, inputIgnoreList, options);
                 }
             }
         }
@@ -1106,10 +1071,11 @@ namespace
         }
 
         // Write outputs.
-        RtObjTypePredicate<RtOutput> outputsFilter;
-        for (RtAttribute attr : src->getAttributes(outputsFilter))
+        for (size_t i = 0; i < src->numOutputs(); ++i)
         {
-            RtInput nodegraphOutput = nodegraph.getOutputSocket(attr.getName());
+            PvtPort* port = src->getOutput(i);
+
+            RtInput nodegraphOutput = nodegraph.getOutputSocket(port->getName());
             OutputPtr output = destNodeGraph->addOutput(nodegraphOutput.getName().str(), nodegraphOutput.getType().str());
             if (nodegraphOutput.isConnected())
             {
@@ -1136,12 +1102,9 @@ namespace
         for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
         {
             const PvtPrim* prim = PvtObject::ptr<PvtPrim>(child);
-            const RtToken typeName = child.getTypeInfo()->getShortTypeName();
-            if (typeName == RtCollection::typeName())
+            if (prim->hasApi<RtCollection>())
             {
-                RtCollection rtCollection(prim->hnd());
-                const string name(prim->getName().str());
-
+                const string& name = prim->getName().str();
                 if (dest.getCollection(name))
                 {
                     continue;
@@ -1149,14 +1112,12 @@ namespace
 
                 CollectionPtr collection = dest.addCollection(name);
 
-                collection->setExcludeGeom(rtCollection.getExcludeGeom().getValueString());
-                collection->setIncludeGeom(rtCollection.getIncludeGeom().getValueString());
-
+                RtCollection rtCollection(prim->hnd());
                 RtRelationship rtIncludeCollection = rtCollection.getIncludeCollection();
-                string includeList = rtIncludeCollection.getTargetsAsString();                
+                string includeList = rtIncludeCollection.getObjectNames();
                 collection->setIncludeCollectionString(includeList);
 
-                writeMetadata(prim, collection, collectionMetadata, options);
+                writeAttributes(prim, collection, collectionIgnoreList, options);
             }
         }
     }
@@ -1180,13 +1141,14 @@ namespace
                 LookPtr look = dest.addLook(name);
 
                 // Add inherit
-                if (!rtLook.getInherit().getTargetsAsString().empty())
+                const string inheritList = rtLook.getInherit().getObjectNames();
+                if (!inheritList.empty())
                 {
-                    look->setInheritString(rtLook.getInherit().getTargetsAsString());
+                    look->setInheritString(inheritList);
                 }
 
                 // Add in material assignments
-                for (const RtObject& obj : rtLook.getMaterialAssigns().getTargets())
+                for (RtObject obj : rtLook.getMaterialAssigns().getConnections())
                 {
                     PvtPrim* pprim = PvtObject::ptr<PvtPrim>(obj);
                     RtMaterialAssign rtMatAssign(pprim->hnd());
@@ -1197,13 +1159,11 @@ namespace
                     }
 
                     MaterialAssignPtr massign = look->addMaterialAssign(assignName);
-                    massign->setExclusive(rtMatAssign.getExclusive().getValue().asBool());
-                    massign->setGeom(rtMatAssign.getGeom().getValueString());
+                    massign->setGeom(rtMatAssign.getGeom());
 
-                    auto iter = rtMatAssign.getCollection().getTargets();
-                    if (!iter.isDone())
+                    if (rtMatAssign.getCollection().hasConnections())
                     {
-                        massign->setCollectionString((*iter).getName().str());
+                        massign->setCollectionString(rtMatAssign.getCollection().getConnection().getName().str());
                     }
 
                     if (rtMatAssign.getMaterial().isConnected())
@@ -1211,10 +1171,10 @@ namespace
                         massign->setMaterial(rtMatAssign.getMaterial().getConnection().getParent().getName().str());
                     }
 
-                    writeMetadata(pprim, massign, mtrlAssignMetadata, options);
+                    writeAttributes(pprim, massign, mtrlAssignIgnoreList, options);
                 }
 
-                writeMetadata(prim, look, lookMetadata, options);
+                writeAttributes(prim, look, lookIgnoreList, options);
             }
         }
     }
@@ -1237,11 +1197,10 @@ namespace
 
                 LookGroupPtr lookGroup = dest.addLookGroup(name);
 
-                string lookList = rtLookGroup.getLooks().getTargetsAsString();
+                const string lookList = rtLookGroup.getLooks().getObjectNames();
                 lookGroup->setLooks(lookList);
-                lookGroup->setActiveLook(rtLookGroup.getActiveLook().getValueString());
 
-                writeMetadata(prim, lookGroup, lookGroupMetadata, options);
+                writeAttributes(prim, lookGroup, lookGroupIgnoreList, options);
             }
         }
     }
@@ -1251,7 +1210,7 @@ namespace
         RtGeneric generic(src->hnd());
 
         ElementPtr elem = dest->addChildOfCategory(generic.getKind().str(), generic.getName().str());
-        writeMetadata(src, elem, genericMetadata, options);
+        writeAttributes(src, elem, genericIgnoreList, options);
 
         for (auto child : src->getChildren())
         {
@@ -1310,7 +1269,7 @@ namespace
 
     void writeDocument(DocumentPtr& doc, PvtStage* stage, const RtWriteOptions* options)
     {
-        writeMetadata(stage->getRootPrim(), doc, RtTokenSet(), options);
+        writeAttributes(stage->getRootPrim(), doc, RtTokenSet(), options);
 
         // Write out any dependent includes
         if (options && options->writeIncludes)
@@ -1414,7 +1373,7 @@ RtWriteOptions::RtWriteOptions() :
     writeNodeGraphInputs(true),
     writeDefaultValues(false),
     objectFilter(nullptr),
-    metadataFilter(nullptr),
+    attributeFilter(nullptr),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),
     desiredMinorVersion(MATERIALX_MINOR_VERSION)
 {

@@ -4,37 +4,53 @@
 //
 
 #include <MaterialXRuntime/Private/Commands/PvtSetAttributeCmd.h>
+#include <MaterialXRuntime/Private/PvtCommand.h>
 
 #include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtTypeDef.h>
+#include <MaterialXRuntime/RtValue.h>
 
 namespace MaterialX
 {
 
-PvtSetAttributeCmd::PvtSetAttributeCmd(const RtAttribute& attr, const RtValue& value) :
-    _attr(attr),
-    _value(RtValue::clone(attr.getType(), value, attr.getParent()))
+PvtSetAttributeCmd::PvtSetAttributeCmd(const RtObject& obj, const RtToken& name, const RtValue& value)
+    : PvtCommand()
+    , _obj(obj)
+    , _name(name)
+    , _value(value)
+    , _oldValue()
+    , _attrCreated(false)
 {
 }
 
-PvtCommandPtr PvtSetAttributeCmd::create(const RtAttribute& attr, const RtValue& value)
+PvtCommandPtr PvtSetAttributeCmd::create(const RtObject& obj, const RtToken& name, const RtValue& value)
 {
-    return std::make_shared<PvtSetAttributeCmd>(attr, value);
+    return std::make_shared<PvtSetAttributeCmd>(obj, name, value);
 }
 
 void PvtSetAttributeCmd::execute(RtCommandResult& result)
 {
-    if (_attr.isValid())
+    if (_obj.isValid())
     {
         try
         {
             // Send message that the attribute is changing
-            msg().sendSetAttributeMessage(_attr, _value);
+            msg().sendSetAttributeMessage(_obj, _name, _value);
+
+            RtTypedValue* attr = _obj.getAttribute(_name, RtType::STRING);
+
+            // Do we need to create the attribute or does it already exist?
+            if (!attr)
+            {
+                attr = _obj.createAttribute(_name, RtType::STRING);
+                _attrCreated = true;
+            }
 
             // Save old value for undo/redo
-            _oldValue = RtValue::clone(_attr.getType(), _attr.getValue(), _attr.getParent());
+            _oldValue = RtValue::clone(RtType::STRING, attr->getValue(), _obj.getParent());
 
-            // Set the value
-            _attr.setValue(_value);
+            attr->setValue(_value);
+
             result = RtCommandResult(true);
         }
         catch (const ExceptionRuntimeError& e)
@@ -44,22 +60,43 @@ void PvtSetAttributeCmd::execute(RtCommandResult& result)
     }
     else
     {
-        result = RtCommandResult(false, string("Attribute to set is no longer valid"));
+        result = RtCommandResult(false, string("Object to set attribute on is no longer valid"));
     }
 }
 
 void PvtSetAttributeCmd::undo(RtCommandResult& result)
 {
-    if (_attr.isValid())
+    if (_obj.isValid())
     {
         try
         {
-            // Send message that the attribute is changing
-            msg().sendSetAttributeMessage(_attr, _oldValue);
 
-            // Reset the value
-            _attr.setValue(_oldValue);
-            result = RtCommandResult(true);
+            if (_attrCreated)
+            {
+                // Send message that the attribute is being removed
+                msg().sendRemoveAttributeMessage(_obj, _name);
+
+                _obj.removeAttribute(_name);
+                _attrCreated = false;
+                result = RtCommandResult(true);
+            }
+            else
+            {
+                // Send message that the attribute is changing
+                msg().sendSetAttributeMessage(_obj, _name, _oldValue);
+
+                // Reset the value
+                RtTypedValue* attr = _obj.getAttribute(_name, RtType::STRING);
+                if (attr)
+                {
+                    attr->setValue(_oldValue);
+                    result = RtCommandResult(true);
+                }
+                else
+                {
+                    result = RtCommandResult(false, "Attribute is no longer valid");
+                }
+            }
         }
         catch (const ExceptionRuntimeError& e)
         {
@@ -68,22 +105,30 @@ void PvtSetAttributeCmd::undo(RtCommandResult& result)
     }
     else
     {
-        result = RtCommandResult(false, string("Attribute to set is no longer valid"));
+        result = RtCommandResult(false, string("Object to set attribute on is no longer valid"));
     }
 }
 
 void PvtSetAttributeCmd::redo(RtCommandResult& result)
 {
-    if (_attr.isValid())
+    if (_obj.isValid())
     {
         try
         {
             // Send message that the attribute is changing
-            msg().sendSetAttributeMessage(_attr, _value);
+            msg().sendSetAttributeMessage(_obj, _name, _value);
 
-            // Set the value
-            _attr.setValue(_value);
-            result = RtCommandResult(true);
+            RtTypedValue* attr = _obj.getAttribute(_name, RtType::STRING);
+
+            // Do we need to create the attribute or does it already exist?
+            if (!attr)
+            {
+                attr = _obj.createAttribute(_name, RtType::STRING);
+                _attrCreated = true;
+            }
+
+            // Reset the value
+            attr->setValue(_value);
         }
         catch (const ExceptionRuntimeError& e)
         {
@@ -92,7 +137,7 @@ void PvtSetAttributeCmd::redo(RtCommandResult& result)
     }
     else
     {
-        result = RtCommandResult(false, string("Attribute to set is no longer valid"));
+        result = RtCommandResult(false, string("Object to set attribute on is no longer valid"));
     }
 }
 

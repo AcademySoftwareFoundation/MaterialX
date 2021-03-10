@@ -16,84 +16,82 @@ namespace MaterialX
 
 namespace
 {
-
-    static const RtTokenVec PUBLIC_INPUT_COLOR_METADATA_NAMES
+    // TODO: We should derive this from a data driven XML schema.
+    class PvtNodeDefPrimSpec : public PvtPrimSpec
     {
-        RtToken("name"),
-        RtToken("type"),
-        RtToken("value"),
-        RtToken("uniform"),
-        RtToken("defaultgeomprop"),
-        RtToken("enum"),
-        RtToken("enumvalues"),
-        RtToken("colorspace"),
-        RtToken("uiname"),
-        RtToken("uifolder"),
-        RtToken("uimin"),
-        RtToken("uimax"),
-        RtToken("uisoftmin"),
-        RtToken("uisoftmax"),
-        RtToken("uistep")
+    public:
+        PvtNodeDefPrimSpec()
+        {
+            addPrimAttribute(Tokens::DOC, RtType::STRING);
+            addPrimAttribute(Tokens::NODE, RtType::TOKEN);
+            addPrimAttribute(Tokens::INHERIT, RtType::TOKEN);
+            addPrimAttribute(Tokens::NODEGROUP, RtType::TOKEN);
+            addPrimAttribute(Tokens::VERSION, RtType::TOKEN);
+            addPrimAttribute(Tokens::ISDEFAULTVERSION, RtType::BOOLEAN);
+            addPrimAttribute(Tokens::TARGET, RtType::TOKEN);
+            addPrimAttribute(Tokens::UINAME, RtType::STRING);
+            addPrimAttribute(Tokens::INTERNALGEOMPROPS, RtType::TOKEN);
+            addPrimAttribute(Tokens::NAMESPACE, RtType::TOKEN);
+
+            addInputAttribute(Tokens::DOC, RtType::STRING);
+            addInputAttribute(Tokens::UNIFORM, RtType::BOOLEAN);
+            addInputAttribute(Tokens::DEFAULTGEOMPROP, RtType::TOKEN);
+            addInputAttribute(Tokens::ENUM, RtType::STRING);
+            addInputAttribute(Tokens::ENUMVALUES, RtType::STRING);
+            addInputAttribute(Tokens::UINAME, RtType::STRING);
+            addInputAttribute(Tokens::UIFOLDER, RtType::STRING);
+
+            addInputAttributeByType(RtType::COLOR3, Tokens::COLORSPACE, RtType::TOKEN);
+            addInputAttributeByType(RtType::COLOR3, Tokens::UIMIN, RtType::COLOR3);
+            addInputAttributeByType(RtType::COLOR3, Tokens::UIMAX, RtType::COLOR3);
+            addInputAttributeByType(RtType::COLOR3, Tokens::UISOFTMIN, RtType::COLOR3);
+            addInputAttributeByType(RtType::COLOR3, Tokens::UISOFTMAX, RtType::COLOR3);
+            addInputAttributeByType(RtType::COLOR3, Tokens::UISTEP, RtType::COLOR3);
+
+            addInputAttributeByType(RtType::COLOR4, Tokens::COLORSPACE, RtType::TOKEN);
+            addInputAttributeByType(RtType::COLOR4, Tokens::UIMIN, RtType::COLOR4);
+            addInputAttributeByType(RtType::COLOR4, Tokens::UIMAX, RtType::COLOR4);
+            addInputAttributeByType(RtType::COLOR4, Tokens::UISOFTMIN, RtType::COLOR4);
+            addInputAttributeByType(RtType::COLOR4, Tokens::UISOFTMAX, RtType::COLOR4);
+            addInputAttributeByType(RtType::COLOR4, Tokens::UISTEP, RtType::COLOR4);
+
+            addInputAttributeByType(RtType::FLOAT, Tokens::UNIT, RtType::TOKEN);
+            addInputAttributeByType(RtType::FLOAT, Tokens::UNITTYPE, RtType::TOKEN);
+            addInputAttributeByType(RtType::FLOAT, Tokens::UIMIN, RtType::FLOAT);
+            addInputAttributeByType(RtType::FLOAT, Tokens::UIMAX, RtType::FLOAT);
+            addInputAttributeByType(RtType::FLOAT, Tokens::UISOFTMIN, RtType::FLOAT);
+            addInputAttributeByType(RtType::FLOAT, Tokens::UISOFTMAX, RtType::FLOAT);
+            addInputAttributeByType(RtType::FLOAT, Tokens::UISTEP, RtType::FLOAT);
+
+            addInputAttributeByType(RtType::VECTOR2, Tokens::UNIT, RtType::TOKEN);
+            addInputAttributeByType(RtType::VECTOR2, Tokens::UNITTYPE, RtType::TOKEN);
+            addInputAttributeByType(RtType::VECTOR2, Tokens::UIMIN, RtType::VECTOR2);
+            addInputAttributeByType(RtType::VECTOR2, Tokens::UIMAX, RtType::VECTOR2);
+            addInputAttributeByType(RtType::VECTOR2, Tokens::UISOFTMIN, RtType::VECTOR2);
+            addInputAttributeByType(RtType::VECTOR2, Tokens::UISOFTMAX, RtType::VECTOR2);
+            addInputAttributeByType(RtType::VECTOR2, Tokens::UISTEP, RtType::VECTOR2);
+
+            addInputAttributeByType(RtType::VECTOR3, Tokens::UNIT, RtType::TOKEN);
+            addInputAttributeByType(RtType::VECTOR3, Tokens::UNITTYPE, RtType::TOKEN);
+            addInputAttributeByType(RtType::VECTOR3, Tokens::UIMIN, RtType::VECTOR3);
+            addInputAttributeByType(RtType::VECTOR3, Tokens::UIMAX, RtType::VECTOR3);
+            addInputAttributeByType(RtType::VECTOR3, Tokens::UISOFTMIN, RtType::VECTOR3);
+            addInputAttributeByType(RtType::VECTOR3, Tokens::UISOFTMAX, RtType::VECTOR3);
+            addInputAttributeByType(RtType::VECTOR3, Tokens::UISTEP, RtType::VECTOR3);
+
+            addInputAttributeByType(RtType::VECTOR4, Tokens::UNIT, RtType::TOKEN);
+            addInputAttributeByType(RtType::VECTOR4, Tokens::UNITTYPE, RtType::TOKEN);
+            addInputAttributeByType(RtType::VECTOR4, Tokens::UIMIN, RtType::VECTOR4);
+            addInputAttributeByType(RtType::VECTOR4, Tokens::UIMAX, RtType::VECTOR4);
+            addInputAttributeByType(RtType::VECTOR4, Tokens::UISOFTMIN, RtType::VECTOR4);
+            addInputAttributeByType(RtType::VECTOR4, Tokens::UISOFTMAX, RtType::VECTOR4);
+            addInputAttributeByType(RtType::VECTOR4, Tokens::UISTEP, RtType::VECTOR4);
+
+            addOutputAttribute(Tokens::DOC, RtType::STRING);
+            addOutputAttribute(Tokens::DEFAULTINPUT, RtType::TOKEN);
+            addOutputAttribute(Tokens::DEFAULT, RtType::STRING);
+        }
     };
-
-    static const RtTokenVec PUBLIC_INPUT_FLOAT_METADATA_NAMES
-    {
-        RtToken("name"),
-        RtToken("type"),
-        RtToken("value"),
-        RtToken("uniform"),
-        RtToken("defaultgeomprop"),
-        RtToken("enum"),
-        RtToken("enumvalues"),
-        RtToken("unittype"),
-        RtToken("unit"),
-        RtToken("uiname"),
-        RtToken("uifolder"),
-        RtToken("uimin"),
-        RtToken("uimax"),
-        RtToken("uisoftmin"),
-        RtToken("uisoftmax"),
-        RtToken("uistep")
-    };
-
-    static const RtTokenVec PUBLIC_INPUT_METADATA_NAMES
-    {
-        RtToken("name"),
-        RtToken("type"),
-        RtToken("value"),
-        RtToken("uniform"),
-        RtToken("defaultgeomprop"),
-        RtToken("enum"),
-        RtToken("enumvalues"),
-        RtToken("uiname"),
-        RtToken("uifolder"),
-    };
-
-
-    static const RtTokenVec PUBLIC_OUTPUT_METADATA_NAMES
-    {
-        RtToken("name"),
-        RtToken("type"),
-        RtToken("value"),
-        RtToken("defaultinput"),
-        RtToken("default")
-    };
-
-    static const RtTokenVec PUBLIC_METADATA_NAMES
-    {
-        RtToken("name"),
-        RtToken("type"),
-        RtToken("node"),
-        RtToken("inherit"),
-        RtToken("nodegroup"),
-        RtToken("version"),
-        RtToken("isdefaultversion"),
-        RtToken("target"),
-        RtToken("uiname"),
-        RtToken("internalgeomprops")
-    };
-
-    static const RtTokenVec PUBLIC_EMPTY_METADATA_NAMES;
 }
 
 DEFINE_TYPED_SCHEMA(RtNodeDef, "nodedef");
@@ -105,106 +103,111 @@ RtPrim RtNodeDef::createPrim(const RtToken& typeName, const RtToken& name, RtPri
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, name, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->addMetadata(Tokens::NODE, RtType::TOKEN);
+    prim->createAttribute(Tokens::NODE, RtType::TOKEN);
     prim->createRelationship(Tokens::NODEIMPL);
 
     return primH;
 }
 
-const RtToken& RtNodeDef::getNode() const
+const RtPrimSpec& RtNodeDef::getPrimSpec() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::NODE);
-    return v ? v->getValue().asToken() : EMPTY_TOKEN;
-}
-
-RtToken RtNodeDef::getNamespacedNode() const
-{
-    const RtToken& nodeToken = getNode();
-    string nodeString = nodeToken.c_str();
-    string namespaceString = getNamespace().c_str();
-    if (!namespaceString.empty())
-    {
-        return RtToken(namespaceString + NAME_PREFIX_SEPARATOR + nodeString);
-    }
-    return nodeToken;
+    static const PvtNodeDefPrimSpec s_primSpec;
+    return s_primSpec;
 }
 
 void RtNodeDef::setNode(const RtToken& node)
 {
-    RtTypedValue* v = prim()->addMetadata(Tokens::NODE, RtType::TOKEN);
-    v->getValue().asToken() = node;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::NODE, RtType::TOKEN);
+    attr->asToken() = node;
 }
 
-const RtToken& RtNodeDef::getNodeGroup() const
+const RtToken& RtNodeDef::getNode() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::NODEGROUP, RtType::TOKEN);
-    return v ? v->getValue().asToken() : EMPTY_TOKEN;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::NODE, RtType::TOKEN);
+    return attr ? attr->asToken() : EMPTY_TOKEN;
+}
+
+RtToken RtNodeDef::getNamespacedNode() const
+{
+    const RtToken& node = getNode();
+    const RtToken& namespaceString = getNamespace();
+    if (namespaceString != EMPTY_TOKEN)
+    {
+        return RtToken(namespaceString.str() + NAME_PREFIX_SEPARATOR + node.str());
+    }
+    return node;
 }
 
 void RtNodeDef::setNodeGroup(const RtToken& nodegroup)
 {
-    RtTypedValue* v = prim()->addMetadata(Tokens::NODEGROUP, RtType::TOKEN);
-    v->getValue().asToken() = nodegroup;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::NODEGROUP, RtType::TOKEN);
+    attr->asToken() = nodegroup;
 }
 
-const RtToken& RtNodeDef::getTarget() const
+const RtToken& RtNodeDef::getNodeGroup() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::TARGET, RtType::TOKEN);
-    return v ? v->getValue().asToken() : EMPTY_TOKEN;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::NODEGROUP, RtType::TOKEN);
+    return attr ? attr->asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setTarget(const RtToken& nodegroup)
 {
-    RtTypedValue* v = prim()->addMetadata(Tokens::TARGET, RtType::TOKEN);
-    v->getValue().asToken() = nodegroup;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::TARGET, RtType::TOKEN);
+    attr->asToken() = nodegroup;
 }
 
-const RtToken& RtNodeDef::getIneritance() const
+const RtToken& RtNodeDef::getTarget() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::INHERIT, RtType::TOKEN);
-    return v ? v->getValue().asToken() : EMPTY_TOKEN;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::TARGET, RtType::TOKEN);
+    return attr ? attr->asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setIneritance(const RtToken& inherit)
 {
-    RtTypedValue* v = prim()->addMetadata(Tokens::INHERIT, RtType::TOKEN);
-    v->getValue().asToken() = inherit;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::INHERIT, RtType::TOKEN);
+    attr->asToken() = inherit;
 }
 
-const RtToken& RtNodeDef::getVersion() const
+const RtToken& RtNodeDef::getIneritance() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::VERSION, RtType::TOKEN);
-    return v ? v->getValue().asToken() : EMPTY_TOKEN;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::INHERIT, RtType::TOKEN);
+    return attr ? attr->asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setVersion(const RtToken& version)
 {
-    RtTypedValue* v = prim()->addMetadata(Tokens::VERSION, RtType::TOKEN);
-    v->getValue().asToken() = version;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::VERSION, RtType::TOKEN);
+    attr->asToken() = version;
 }
 
-bool RtNodeDef::getIsDefaultVersion() const
+const RtToken& RtNodeDef::getVersion() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::IS_DEFAULT_VERSION, RtType::BOOLEAN);
-    return v ? v->getValue().asBool() : false;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::VERSION, RtType::TOKEN);
+    return attr ? attr->asToken() : EMPTY_TOKEN;
 }
 
 void RtNodeDef::setIsDefaultVersion(bool isDefault)
 {
-    RtTypedValue* v = prim()->addMetadata(Tokens::IS_DEFAULT_VERSION, RtType::BOOLEAN);
-    v->getValue().asBool() = isDefault;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::ISDEFAULTVERSION, RtType::BOOLEAN);
+    attr->asBool() = isDefault;
 }
 
-const string& RtNodeDef::getNamespace() const
+bool RtNodeDef::getIsDefaultVersion() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::NAMESPACE, RtType::STRING);
-    return v ? v->getValue().asString() : EMPTY_STRING;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::ISDEFAULTVERSION, RtType::BOOLEAN);
+    return attr ? attr->asBool() : false;
 }
 
-void RtNodeDef::setNamespace(const string& space)
+void RtNodeDef::setNamespace(const RtToken& space)
 {
-    RtTypedValue* v = prim()->addMetadata(Tokens::NAMESPACE, RtType::STRING);
-    v->getValue().asString() = space;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::NAMESPACE, RtType::TOKEN);
+    attr->asToken() = space;
+}
+
+const RtToken& RtNodeDef::getNamespace() const
+{
+    RtTypedValue* attr = prim()->getAttribute(Tokens::NAMESPACE, RtType::TOKEN);
+    return attr ? attr->asToken() : EMPTY_TOKEN;
 }
 
 bool RtNodeDef::isVersionCompatible(const RtToken& version) const
@@ -212,76 +215,6 @@ bool RtNodeDef::isVersionCompatible(const RtToken& version) const
     // Test if either the version matches or if no version passed in if this is the default version.
     return ((version == getVersion()) ||
             (version.str().empty() && getIsDefaultVersion()));
-}
-
-RtInput RtNodeDef::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
-{
-    return prim()->createInput(name, type, flags)->hnd();
-}
-
-void RtNodeDef::removeInput(const RtToken& name)
-{
-    PvtInput* input = prim()->getInput(name);
-    if (!(input && input->isA<PvtInput>()))
-    {
-        throw ExceptionRuntimeError("No input found with name '" + name.str() + "'");
-    }
-    prim()->removeAttribute(name);
-}
-
-RtOutput RtNodeDef::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
-{
-    return prim()->createOutput(name, type, flags)->hnd();
-}
-
-void RtNodeDef::removeOutput(const RtToken& name)
-{
-    PvtOutput* output = prim()->getOutput(name);
-    if (!(output && output->isA<PvtOutput>()))
-    {
-        throw ExceptionRuntimeError("No output found with name '" + name.str() + "'");
-    }
-    prim()->removeAttribute(name);
-}
-
-size_t RtNodeDef::numInputs() const
-{
-    return prim()->numInputs();
-}
-
-RtInput RtNodeDef::getInput(const RtToken& name) const
-{
-    PvtInput* input = prim()->getInput(name);
-    return input ? input->hnd() : RtInput();
-}
-
-RtAttrIterator RtNodeDef::getInputs() const
-{
-    RtObjTypePredicate<RtInput> filter;
-    return RtAttrIterator(getPrim(), filter);
-}
-
-size_t RtNodeDef::numOutputs() const
-{
-    return prim()->numOutputs();
-}
-
-RtOutput RtNodeDef::getOutput(const RtToken& name) const
-{
-    PvtOutput* output = prim()->getOutput(name);
-    return output ? output->hnd() : RtOutput();
-}
-
-RtOutput RtNodeDef::getOutput() const
-{
-    PvtOutput* output = prim()->getOutput();
-    return output ? output->hnd() : RtOutput();
-}
-
-RtAttrIterator RtNodeDef::getOutputs() const
-{
-    RtObjTypePredicate<RtOutput> filter;
-    return RtAttrIterator(getPrim(), filter);
 }
 
 RtRelationship RtNodeDef::getNodeImpls() const
@@ -293,7 +226,7 @@ RtRelationship RtNodeDef::getNodeImpls() const
 RtPrim RtNodeDef::getNodeImpl(const RtToken& target) const
 {
     RtRelationship rel = getNodeImpls();
-    for (RtObject obj : rel.getTargets())
+    for (RtObject obj : rel.getConnections())
     {
         if (obj.isA<RtPrim>())
         {
@@ -310,52 +243,17 @@ RtPrim RtNodeDef::getNodeImpl(const RtToken& target) const
 RtNodeLayout RtNodeDef::getNodeLayout()
 {
     RtNodeLayout layout;
-    for (RtAttribute input : getInputs())
+    for (size_t i=0; i<numInputs(); ++i)
     {
+        RtInput input = getInput(i);
         layout.order.push_back(input.getName());
-        RtTypedValue* data = input.getMetadata(Tokens::UIFOLDER);
+        RtTypedValue* data = input.getAttribute(Tokens::UIFOLDER);
         if (data && data->getType() == RtType::STRING)
         {
-            layout.uifolder[input.getName()] = data->getValue().asString();
+            layout.uifolder[input.getName()] = data->asString();
         }
     }
     return layout;
-}
-
-const RtTokenVec& RtNodeDef::getPublicMetadataNames() const
-{
-    return PUBLIC_METADATA_NAMES;
-}
-
-const RtTokenVec& RtNodeDef::getPublicPortMetadataNames(const RtToken& name) const
-{
-    RtInput input = getInput(name);
-    if (input)
-    {
-        const RtToken& type = input.getType();
-        if (type == RtType::COLOR3 || type == RtType::COLOR4 || type == RtType::FILENAME)
-        {
-            return PUBLIC_INPUT_COLOR_METADATA_NAMES;
-        }
-        else if(type == RtType::FLOAT || type == RtType::VECTOR2 || type == RtType::VECTOR3 || type == RtType::VECTOR4)
-        {
-            return PUBLIC_INPUT_FLOAT_METADATA_NAMES;
-        }
-        else
-        {
-            return PUBLIC_INPUT_METADATA_NAMES;
-        }
-    }
-    else
-    {
-        RtOutput output = getOutput(name);
-        if (output)
-        {
-            return PUBLIC_OUTPUT_METADATA_NAMES;
-        }
-    }
-
-    return PUBLIC_EMPTY_METADATA_NAMES;
 }
 
 }

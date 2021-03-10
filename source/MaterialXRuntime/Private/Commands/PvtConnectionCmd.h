@@ -8,7 +8,7 @@
 
 #include <MaterialXRuntime/Private/PvtCommand.h>
 
-#include <MaterialXRuntime/RtAttribute.h>
+#include <MaterialXRuntime/RtPort.h>
 
 namespace MaterialX
 {

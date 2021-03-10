@@ -21,23 +21,25 @@ RtPrim RtGeneric::createPrim(const RtToken& typeName, const RtToken& name, RtPri
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
     PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
-    PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->addMetadata(Tokens::KIND, RtType::TOKEN);
-
     return primH;
+}
+
+const RtPrimSpec& RtGeneric::getPrimSpec() const
+{
+    static const PvtPrimSpec s_primSpec;
+    return s_primSpec;
 }
 
 const RtToken& RtGeneric::getKind() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::KIND, RtType::TOKEN);
+    RtTypedValue* v = prim()->getAttribute(Tokens::KIND, RtType::TOKEN);
     return v ? v->getValue().asToken() : Tokens::UNKNOWN;
 }
 
 void RtGeneric::setKind(const RtToken& kind)
 {
-    PvtPrim* p = prim();
-    RtTypedValue* v = p->addMetadata(Tokens::KIND, RtType::TOKEN);
-    v->getValue().asToken() = kind;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::KIND, RtType::TOKEN);
+    attr->asToken() = kind;
 }
 
 }

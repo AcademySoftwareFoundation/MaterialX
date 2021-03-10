@@ -22,58 +22,60 @@ const RtToken& RtRelationship::getName() const
     return hnd()->asA<PvtRelationship>()->getName();
 }
 
-bool RtRelationship::hasTargets() const
+void RtRelationship::connect(const RtObject& obj)
 {
-    return hnd()->asA<PvtRelationship>()->hasTargets();
-}
-
-size_t RtRelationship::targetCount()  const
-{
-    return hnd()->asA<PvtRelationship>()->targetCount();
-}
-
-void RtRelationship::addTarget(const RtObject& target)
-{
-    if (!target)
+    if (!obj)
     {
-        throw ExceptionRuntimeError("Given target object is not valid");
+        throw ExceptionRuntimeError("Given object is not valid");
     }
-    return hnd()->asA<PvtRelationship>()->addTarget(PvtObject::ptr<PvtObject>(target));
+    return hnd()->asA<PvtRelationship>()->connect(PvtObject::ptr(obj));
 }
 
-void RtRelationship::removeTarget(const RtObject& target)
+void RtRelationship::disconnect(const RtObject& obj)
 {
-    if (!target)
+    if (!obj)
     {
-        throw ExceptionRuntimeError("Given target object is not valid");
+        throw ExceptionRuntimeError("Given object is not valid");
     }
-    return hnd()->asA<PvtRelationship>()->removeTarget(PvtObject::ptr<PvtObject>(target));
+    return hnd()->asA<PvtRelationship>()->disconnect(PvtObject::ptr(obj));
 }
 
-void RtRelationship::clearTargets()
+bool RtRelationship::hasConnections() const
 {
-    return hnd()->asA<PvtRelationship>()->clearTargets();
+    return hnd()->asA<PvtRelationship>()->hasConnections();
 }
 
-RtConnectionIterator RtRelationship::getTargets() const
+size_t RtRelationship::numConnections()  const
+{
+    return hnd()->asA<PvtRelationship>()->numConnections();
+}
+
+RtObject RtRelationship::getConnection(size_t index) const
+{
+    return hnd()->asA<PvtRelationship>()->getConnection(index);
+}
+
+void RtRelationship::clearConnections()
+{
+    return hnd()->asA<PvtRelationship>()->clearConnections();
+}
+
+RtConnectionIterator RtRelationship::getConnections() const
 {
     return RtConnectionIterator(*this);
 }
 
-string RtRelationship::getTargetsAsString(const string& sep) const
+string RtRelationship::getObjectNames() const
 {
-    RtConnectionIterator iter = getTargets();
-    string str;
-    while (!iter.isDone())
+    string result;
+    const string seperator = ",";
+    const string* sep = &EMPTY_STRING;
+    for (RtObject obj : getConnections())
     {
-        str += (*iter).getName().str();
-        iter.operator++();
-        if (!iter.isDone())
-        {
-            str += sep;
-        }
+        result += *sep + obj.getName().str();
+        sep = &seperator;
     }
-    return str;
+    return result;
 }
 
 }

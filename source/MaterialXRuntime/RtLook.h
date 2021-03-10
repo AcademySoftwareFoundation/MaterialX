@@ -29,8 +29,11 @@ public:
     /// Constructor.
     RtLookGroup(const RtPrim& prim) : RtBindElement(prim) {}
 
+    /// Set the active look.
+    void setActiveLook(const string& look);
+
     /// Return the active look.
-    RtAttribute getActiveLook() const;
+    const string& getActiveLook() const;
 
     /// Add a look
     void addLook(const RtObject& look);
@@ -99,11 +102,17 @@ public:
     /// Return the collection relationship.
     RtRelationship getCollection() const;
 
+    /// Set the geometry attribute.
+    void setGeom(const string& geom);
+
     /// Return the geometry attribute.
-    RtAttribute getGeom() const;
+    const string& getGeom() const;
+
+    /// Set the exclusive flag attribute.
+    void setExclusive(bool exclusive);
 
     /// Return the exclusive flag attribute.
-    RtAttribute getExclusive() const;
+    bool getExclusive() const;
 };
 
 /// @class RtMaterialAssignConnectableApi

@@ -28,11 +28,16 @@ RtPrim RtSourceCodeImpl::createPrim(const RtToken& typeName, const RtToken& name
     return primH;
 }
 
+const RtPrimSpec& RtSourceCodeImpl::getPrimSpec() const
+{
+    static const PvtPrimSpec s_primSpec;
+    return s_primSpec;
+}
+
 void RtSourceCodeImpl::setFile(const string& file)
 {
-    PvtPrim* p = prim();
-    RtTypedValue* v = p->addMetadata(Tokens::FILE, RtType::STRING);
-    v->getValue().asString() = file;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::FILE, RtType::STRING);
+    attr->asString() = file;
 
     const FilePath path = RtApi::get().getSearchPath().find(file);
     string source = readFile(path);
@@ -46,47 +51,44 @@ void RtSourceCodeImpl::setFile(const string& file)
 
 const string& RtSourceCodeImpl::getFile() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::FILE, RtType::STRING);
-    return v ? v->getValue().asString() : EMPTY_STRING;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::FILE, RtType::STRING);
+    return attr ? attr->asString() : EMPTY_STRING;
 }
 
 void RtSourceCodeImpl::setSourceCode(const string& source)
 {
-    PvtPrim* p = prim();
-    RtTypedValue* v = p->addMetadata(Tokens::SOURCECODE, RtType::STRING);
-    v->getValue().asString() = source;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::SOURCECODE, RtType::STRING);
+    attr->asString() = source;
 }
 
 const string& RtSourceCodeImpl::getSourceCode() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::SOURCECODE, RtType::STRING);
-    return v ? v->getValue().asString() : EMPTY_STRING;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::SOURCECODE, RtType::STRING);
+    return attr ? attr->asString() : EMPTY_STRING;
 }
 
 void RtSourceCodeImpl::setFormat(const RtToken& format)
 {
-    PvtPrim* p = prim();
-    RtTypedValue* v = p->addMetadata(Tokens::FORMAT, RtType::TOKEN);
-    v->getValue().asToken() = format;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::FORMAT, RtType::TOKEN);
+    attr->asToken() = format;
 }
 
 const RtToken& RtSourceCodeImpl::getFormat() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::FORMAT, RtType::TOKEN);
-    return v ? v->getValue().asToken() : Tokens::SHADER;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::FORMAT, RtType::TOKEN);
+    return attr ? attr->asToken() : Tokens::SHADER;
 }
 
 void RtSourceCodeImpl::setFunction(const string& source)
 {
-    PvtPrim* p = prim();
-    RtTypedValue* v = p->addMetadata(Tokens::FUNCTION, RtType::STRING);
-    v->getValue().asString() = source;
+    RtTypedValue* attr = prim()->createAttribute(Tokens::FUNCTION, RtType::STRING);
+    attr->asString() = source;
 }
 
 const string& RtSourceCodeImpl::getFunction() const
 {
-    RtTypedValue* v = prim()->getMetadata(Tokens::FUNCTION, RtType::STRING);
-    return v ? v->getValue().asString() : EMPTY_STRING;
+    RtTypedValue* attr = prim()->getAttribute(Tokens::FUNCTION, RtType::STRING);
+    return attr ? attr->asString() : EMPTY_STRING;
 }
 
 void RtSourceCodeImpl::emitFunctionDefinition(const RtNode& /*node*/, GenContext& /*context*/, ShaderStage& /*stage*/) const

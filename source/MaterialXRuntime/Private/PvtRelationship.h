@@ -7,7 +7,7 @@
 #define MATERIALX_PVTRELATIONSHIP_H
 
 #include <MaterialXRuntime/Private/PvtObject.h>
-#include <MaterialXRuntime/Private/PvtAttribute.h>
+#include <MaterialXRuntime/Private/PvtPort.h>
 
 #include <MaterialXRuntime/RtTraversal.h>
 
@@ -24,37 +24,37 @@ class PvtRelationship : public PvtObject
 public:
     PvtRelationship(const RtToken& name, PvtPrim* parent);
 
-    bool hasTargets() const
+    void connect(PvtObject* obj);
+
+    void disconnect(PvtObject* obj);
+
+    bool hasConnections() const
     {
-        return !_targets.empty();
+        return !_connections.empty();
     }
 
-    size_t targetCount() const
+    size_t numConnections() const
     {
-        return _targets.size();
+        return _connections.size();
     }
 
-    void addTarget(const PvtObject* target);
-
-    void removeTarget(const PvtObject* target);
-
-    void clearTargets()
+    RtObject getConnection(size_t index = 0) const
     {
-        _targets.clear();
+        return _connections[index]->hnd();
     }
 
-    RtConnectionIterator getTargets() const
+    RtConnectionIterator getConnections() const
     {
         return RtConnectionIterator(this->obj());
     }
 
-    const PvtDataHandleVec& getAllTargets() const
+    void clearConnections()
     {
-        return _targets;
+        _connections.clear();
     }
 
 protected:
-    PvtDataHandleVec _targets;
+    PvtObjectVec _connections;
     friend class RtConnectionIterator;
 };
 

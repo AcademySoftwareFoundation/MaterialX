@@ -17,9 +17,9 @@ enum class PvtMessageType
     REMOVE_PRIM,
     RENAME_PRIM,
     REPARENT_PRIM,
+    SET_PORT_VALUE,
     SET_ATTRIBUTE,
-    SET_METADATA,
-    REMOVE_METADATA,
+    REMOVE_ATTRIBUTE,
     CHANGE_CONNECTION,
     CHANGE_RELATIONSHIP,
     NUM_TYPES,
@@ -43,9 +43,9 @@ using PvtCreatePrimObserver = PvtObserver<PvtMessageType::CREATE_PRIM, RtCreateP
 using PvtRemovePrimObserver = PvtObserver<PvtMessageType::REMOVE_PRIM, RtRemovePrimCallbackFunc>;
 using PvtRenamePrimObserver = PvtObserver<PvtMessageType::RENAME_PRIM, RtRenamePrimCallbackFunc>;
 using PvtReparentPrimObserver = PvtObserver<PvtMessageType::REPARENT_PRIM, RtReparentPrimCallbackFunc>;
+using PvtSetPortValueObserver = PvtObserver<PvtMessageType::SET_PORT_VALUE, RtSetPortValueCallbackFunc>;
 using PvtSetAttributeObserver = PvtObserver<PvtMessageType::SET_ATTRIBUTE, RtSetAttributeCallbackFunc>;
-using PvtSetMetadataObserver = PvtObserver<PvtMessageType::SET_METADATA, RtSetMetadataCallbackFunc>;
-using PvtRemoveMetadataObserver = PvtObserver<PvtMessageType::REMOVE_METADATA, RtRemoveMetadataCallbackFunc>;
+using PvtRemoveAttributeObserver = PvtObserver<PvtMessageType::REMOVE_ATTRIBUTE, RtRemoveAttributeCallbackFunc>;
 using PvtConnectionObserver = PvtObserver<PvtMessageType::CHANGE_CONNECTION, RtConnectionCallbackFunc>;
 using PvtRelationshipObserver = PvtObserver<PvtMessageType::CHANGE_RELATIONSHIP, RtRelationshipCallbackFunc>;
 
@@ -58,9 +58,9 @@ public:
     RtCallbackId addRemovePrimCallback(RtRemovePrimCallbackFunc callback, void* userData = nullptr);
     RtCallbackId addRenamePrimCallback(RtRenamePrimCallbackFunc callback, void* userData = nullptr);
     RtCallbackId addReparentPrimCallback(RtReparentPrimCallbackFunc callback, void* userData = nullptr);
+    RtCallbackId addSetPortValueCallback(RtSetPortValueCallbackFunc callback, void* userData = nullptr);
     RtCallbackId addSetAttributeCallback(RtSetAttributeCallbackFunc callback, void* userData = nullptr);
-    RtCallbackId addSetMetadataCallback(RtSetMetadataCallbackFunc callback, void* userData = nullptr);
-    RtCallbackId addRemoveMetadataCallback(RtRemoveMetadataCallbackFunc callback, void* userData = nullptr);
+    RtCallbackId addRemoveAttributeCallback(RtRemoveAttributeCallbackFunc callback, void* userData = nullptr);
     RtCallbackId addConnectionCallback(RtConnectionCallbackFunc callback, void* userData = nullptr);
     RtCallbackId addRelationshipCallback(RtRelationshipCallbackFunc callback, void* userData = nullptr);
 
@@ -70,9 +70,9 @@ public:
     void sendRemovePrimMessage(RtStagePtr stage, const RtPrim& prim);
     void sendRenamePrimMessage(RtStagePtr stage, const RtPrim& prim, const RtToken& newName);
     void sendReparentPrimMessage(RtStagePtr stage, const RtPrim& prim, const RtPath& newParentPath);
-    void sendSetAttributeMessage(const RtAttribute& attr, const RtValue& value);
-    void sendSetMetadataMessage(const RtObject &obj, const RtToken& name, const RtValue& value);
-    void sendRemoveMetadataMessage(const RtObject& obj, const RtToken& name);
+    void sendSetPortValueMessage(const RtPort& port, const RtValue& value);
+    void sendSetAttributeMessage(const RtObject &obj, const RtToken& name, const RtValue& value);
+    void sendRemoveAttributeMessage(const RtObject& obj, const RtToken& name);
     void sendConnectionMessage(const RtOutput& src, const RtInput& dest, ConnectionChange change);
     void sendRelationshipMessage(const RtRelationship& rel, const RtObject& target, ConnectionChange change);
 
@@ -87,9 +87,9 @@ private:
     PvtCallbackIdMap<PvtRemovePrimObserver> _removePrimObservers;
     PvtCallbackIdMap<PvtRenamePrimObserver> _renamePrimObservers;
     PvtCallbackIdMap<PvtReparentPrimObserver> _reparentPrimObservers;
+    PvtCallbackIdMap<PvtSetPortValueObserver> _setPortValueObservers;
     PvtCallbackIdMap<PvtSetAttributeObserver> _setAttrObservers;
-    PvtCallbackIdMap<PvtSetMetadataObserver> _setMetadataObservers;
-    PvtCallbackIdMap<PvtRemoveMetadataObserver> _removeMetadataObservers;
+    PvtCallbackIdMap<PvtRemoveAttributeObserver> _removeAttributeObservers;
     PvtCallbackIdMap<PvtConnectionObserver> _connectionObservers;
     PvtCallbackIdMap<PvtRelationshipObserver> _relationshipObservers;
 };

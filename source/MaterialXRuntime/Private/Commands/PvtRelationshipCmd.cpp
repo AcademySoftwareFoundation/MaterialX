@@ -8,9 +8,9 @@
 namespace MaterialX
 {
 
-PvtCommandPtr PvtRelationshipCmd::create(const RtRelationship& rel, const RtObject& target, ConnectionChange change)
+PvtCommandPtr PvtRelationshipCmd::create(const RtRelationship& rel, const RtObject& obj, ConnectionChange change)
 {
-    return std::make_shared<PvtRelationshipCmd>(rel, target, change);
+    return std::make_shared<PvtRelationshipCmd>(rel, obj, change);
 }
 
 void PvtRelationshipCmd::execute(RtCommandResult& result)
@@ -42,17 +42,17 @@ void PvtRelationshipCmd::makeConnection(RtCommandResult& result)
     try
     {
         // Validate the operation
-        if (!(_rel && _target))
+        if (!(_rel && _obj))
         {
             result = RtCommandResult(false, string("PvtRelationshipCmd: Command operands are no longer valid"));
             return;
         }
 
         // Make the change
-        _rel.addTarget(_target);
+        _rel.connect(_obj);
 
         // Send message that the relationship has changes.
-        msg().sendRelationshipMessage(_rel, _target, ConnectionChange::MAKE_CONNECTION);
+        msg().sendRelationshipMessage(_rel, _obj, ConnectionChange::MAKE_CONNECTION);
 
         result = RtCommandResult(true);
     }
@@ -67,17 +67,17 @@ void PvtRelationshipCmd::breakConnection(RtCommandResult& result)
     try
     {
         // Validate the operation
-        if (!(_rel && _target))
+        if (!(_rel && _obj))
         {
             result = RtCommandResult(false, string("PvtRelationshipCmd: Command operands are no longer valid"));
             return;
         }
 
         // Make the change
-        _rel.removeTarget(_target);
+        _rel.disconnect(_obj);
 
         // Send message that the relationship has changes.
-        msg().sendRelationshipMessage(_rel, _target, ConnectionChange::BREAK_CONNECTION);
+        msg().sendRelationshipMessage(_rel, _obj, ConnectionChange::BREAK_CONNECTION);
 
         result = RtCommandResult(true);
     }

@@ -6,6 +6,7 @@
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtPath.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
@@ -65,50 +66,39 @@ RtStageWeakPtr RtObject::getStage() const
     return hnd()->asA<PvtObject>()->getStage();
 }
 
-RtTypedValue* RtObject::addMetadata(const RtToken& name, const RtToken& type)
+RtTypedValue* RtObject::createAttribute(const RtToken& name, const RtToken& type)
 {
-    return hnd()->asA<PvtObject>()->addMetadata(name, type);
+    return hnd()->asA<PvtObject>()->createAttribute(name, type);
 }
 
-void RtObject::removeMetadata(const RtToken& name)
+void RtObject::removeAttribute(const RtToken& name)
 {
-    hnd()->asA<PvtObject>()->removeMetadata(name);
+    hnd()->asA<PvtObject>()->removeAttribute(name);
 }
 
-size_t RtObject::numMetadata() const
+RtTypedValue* RtObject::getAttribute(const RtToken& name)
 {
-    return hnd()->asA<PvtObject>()->getMetadataOrder().size();
+    return hnd()->asA<PvtObject>()->getAttribute(name);
 }
 
-const RtToken& RtObject::getMetadataName(size_t index) const
+const RtTypedValue* RtObject::getAttribute(const RtToken& name) const
 {
-    const auto& mdn = hnd()->asA<PvtObject>()->getMetadataOrder();
-    if (index >= mdn.size())
-    {
-        throw ExceptionRuntimeError("getMetadataName: index is out of range");
-    }
-
-    return mdn[index];
+    return hnd()->asA<PvtObject>()->getAttribute(name);
 }
 
-RtTypedValue* RtObject::getMetadata(const RtToken& name)
+RtTypedValue* RtObject::getAttribute(const RtToken& name, const RtToken& type)
 {
-    return hnd()->asA<PvtObject>()->getMetadata(name);
+    return hnd()->asA<PvtObject>()->getAttribute(name, type);
 }
 
-const RtTypedValue* RtObject::getMetadata(const RtToken& name) const
+const RtTypedValue* RtObject::getAttribute(const RtToken& name, const RtToken& type) const
 {
-    return hnd()->asA<PvtObject>()->getMetadata(name);
+    return hnd()->asA<PvtObject>()->getAttribute(name, type);
 }
 
-RtTypedValue* RtObject::getMetadata(const RtToken& name, const RtToken& type)
+RtAttributeIterator RtObject::getAttributes() const
 {
-    return hnd()->asA<PvtObject>()->getMetadata(name, type);
-}
-
-const RtTypedValue* RtObject::getMetadata(const RtToken& name, const RtToken& type) const
-{
-    return hnd()->asA<PvtObject>()->getMetadata(name, type);
+    return RtAttributeIterator(*this);
 }
 
 bool RtObject::isCompatible(RtObjType typeId) const

@@ -26,6 +26,14 @@ PvtObject::PvtObject(const RtToken& name, PvtPrim* parent) :
     setTypeBit<PvtObject>();
 }
 
+PvtObject::~PvtObject()
+{
+    for (auto it : _attr)
+    {
+        delete it.second;
+    }
+}
+
 PvtPath PvtObject::getPath() const
 {
     return PvtPath(this);
@@ -46,52 +54,49 @@ RtStageWeakPtr PvtObject::getStage() const
     return getRoot()->asA<PvtStage::RootPrim>()->getStage();
 }
 
-RtTypedValue* PvtObject::addMetadata(const RtToken& name, const RtToken& type)
+RtTypedValue* PvtObject::createAttribute(const RtToken& name, const RtToken& type)
 {
-    auto it = _metadataMap.find(name);
-    if (it != _metadataMap.end())
+    RtTypedValue* value = getAttribute(name, type);
+    if (value)
     {
-        // Check if the data type is matching.
-        if (it->second.getType() != type)
-        {
-            throw ExceptionRuntimeError("Metadata '" + name.str() + "' found with an unmatching datatype on object '" + getName().str() +"'");
-        }
-        return &it->second;
+        return value;
     }
 
-    PvtPrim* prim = isA<PvtPrim>() ? asA<PvtPrim>() : _parent;
-    _metadataMap[name] = RtTypedValue(type, RtValue::createNew(type, prim->prim()));
-    _metadataOrder.push_back(name);
+    PvtPrim* owner = isA<PvtPrim>() ? asA<PvtPrim>() : _parent;
+    RtTypedValue* attr = new RtTypedValue(type, RtValue::createNew(type, owner->prim()));
+    _attr[name] = attr;
+    _attrNames.push_back(name);
 
-    return &_metadataMap[name];
+    return attr;
 }
 
-void PvtObject::removeMetadata(const RtToken& name)
+void PvtObject::removeAttribute(const RtToken& name)
 {
-    for (auto it = _metadataOrder.begin(); it != _metadataOrder.end(); ++it)
+    auto it = _attr.find(name);
+    if (it != _attr.end())
     {
-        if (*it == name)
+        RtTypedValue* attr = it->second;
+        for (auto it2 = _attrNames.begin(); it2 != _attrNames.end(); ++it2)
         {
-            _metadataOrder.erase(it);
-            break;
+            if (*it2 == it->first)
+            {
+                _attrNames.erase(it2);
+                break;
+            }
         }
+        _attr.erase(it);
+        delete attr;
     }
-    _metadataMap.erase(name);
 }
 
-RtTypedValue* PvtObject::getMetadata(const RtToken& name, const RtToken& type)
+RtTypedValue* PvtObject::getAttribute(const RtToken& name, const RtToken& type)
 {
-    auto it = _metadataMap.find(name);
-    if (it != _metadataMap.end())
+    RtTypedValue* value = getAttribute(name);
+    if (value && value->getType() != type)
     {
-        // Check if the data type is matching.
-        if (it->second.getType() != type)
-        {
-            throw ExceptionRuntimeError("Metadata '" + name.str() + "' found with an unmatching datatype on object '" + getName().str() + "'");
-        }
-        return &it->second;
+        throw ExceptionRuntimeError("Attribute '" + name.str() + "' found with an unmatching datatype on object '" + getName().str() + "'");
     }
-    return nullptr;
+    return value;
 }
 
 }

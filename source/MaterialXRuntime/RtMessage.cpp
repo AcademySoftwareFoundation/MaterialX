@@ -30,19 +30,19 @@ RtCallbackId RtMessage::addReparentPrimCallback(RtReparentPrimCallbackFunc callb
     return PvtApi::cast(RtApi::get())->getMessageHandler().addReparentPrimCallback(callback, userData);
 }
 
+RtCallbackId RtMessage::addSetPortValueCallback(RtSetPortValueCallbackFunc callback, void* userData)
+{
+    return PvtApi::cast(RtApi::get())->getMessageHandler().addSetPortValueCallback(callback, userData);
+}
+
 RtCallbackId RtMessage::addSetAttributeCallback(RtSetAttributeCallbackFunc callback, void* userData)
 {
     return PvtApi::cast(RtApi::get())->getMessageHandler().addSetAttributeCallback(callback, userData);
 }
 
-RtCallbackId RtMessage::addSetMetadataCallback(RtSetMetadataCallbackFunc callback, void* userData)
+RtCallbackId RtMessage::addRemoveAttributeCallback(RtRemoveAttributeCallbackFunc callback, void* userData)
 {
-    return PvtApi::cast(RtApi::get())->getMessageHandler().addSetMetadataCallback(callback, userData);
-}
-
-RtCallbackId RtMessage::addRemoveMetadataCallback(RtRemoveMetadataCallbackFunc callback, void* userData)
-{
-    return PvtApi::cast(RtApi::get())->getMessageHandler().addRemoveMetadataCallback(callback, userData);
+    return PvtApi::cast(RtApi::get())->getMessageHandler().addRemoveAttributeCallback(callback, userData);
 }
 
 RtCallbackId RtMessage::addConnectionCallback(RtConnectionCallbackFunc callback, void* userData)

@@ -28,7 +28,7 @@ class RtObject;
 class RtPath;
 class RtStage;
 class RtPrim;
-class RtAttribute;
+class RtPort;
 class RtInput;
 class RtOutput;
 class RtRelationship;

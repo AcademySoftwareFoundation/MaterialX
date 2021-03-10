@@ -7,7 +7,7 @@
 #define MATERIALX_RTCONNECTABLEAPI_H
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtAttribute.h>
+#include <MaterialXRuntime/RtPort.h>
 #include <MaterialXRuntime/RtRelationship.h>
 
 /// @file
