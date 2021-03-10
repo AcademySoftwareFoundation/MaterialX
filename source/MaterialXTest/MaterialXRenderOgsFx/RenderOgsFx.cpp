@@ -137,7 +137,7 @@ bool OgsFxShaderRenderTester::runRenderer(const std::string& shaderName,
             try
             {
                 RenderUtil::AdditiveScopedTimer transpTimer(profileTimes.languageTimes.transparencyTime, "OgsFx transparency time");
-                options.hwTransparency = mx::isTransparentSurface(element, shadergen);
+                options.hwTransparency = mx::isTransparentSurface(element, shadergen.getTarget());
                 transpTimer.endTimer();
 
                 RenderUtil::AdditiveScopedTimer generationTimer(profileTimes.languageTimes.generationTime, "OgsFx generation time");

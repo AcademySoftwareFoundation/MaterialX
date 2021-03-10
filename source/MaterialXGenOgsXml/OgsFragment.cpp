@@ -72,7 +72,7 @@ class GlslGeneratorWrapperBase
 
         // Maya images require a texture coordinates to be flipped in V.
         genOptions.fileTextureVerticalFlip = true;
-        genOptions.hwTransparency = mx::isTransparentSurface(_element, generator);
+        genOptions.hwTransparency = mx::isTransparentSurface(_element, generator.getTarget());
 
         // Maya viewport uses texture atlas for tile image so enabled
         // texture coordinate transform to go from original UDIM range to

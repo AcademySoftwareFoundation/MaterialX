@@ -13,6 +13,7 @@
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -93,6 +94,67 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE(mx::TypeDesc::get("bar") == nullptr);
 }
 
+TEST_CASE("GenShader: Translation Check", "[genshader]")
+{
+    mx::FileSearchPath searchPath;
+    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    searchPath.append(currentPath / mx::FilePath("libraries"));
+    searchPath.append(currentPath / mx::FilePath("resources/Materials/TestSuite"));
+
+    mx::DocumentPtr doc = mx::createDocument();
+    loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf",  }, searchPath, doc);
+    mx::FilePath testPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/pbrlib/surfaceshader/transparency_test.mtlx");
+    mx::readFromXmlFile(doc, testPath, searchPath);
+
+    // Test against nodegraphs using surface shaders
+    std::vector<mx::TypedElementPtr> testElements;
+    mx::findRenderableElements(doc, testElements);
+    std::string failedElements;
+    std::set<mx::NodeGraphPtr> testGraphs;
+    for (auto testElement : testElements)
+    {
+        if (testElement->isA<mx::Output>())
+        {
+            const mx::ElementPtr testParent = testElement->getParent();            
+            mx::NodeGraphPtr graph = testParent ? testParent->asA<mx::NodeGraph>() : nullptr;
+            if (graph)
+            {
+                testGraphs.insert(graph);
+            }
+        }
+        if (!mx::isTransparentSurface(testElement))
+        {
+            failedElements += testElement->getNamePath() + " ";
+        }
+    }
+    REQUIRE(failedElements == mx::EMPTY_STRING);
+
+    // Create nodedefs from nodegraphs to test against instances using
+    // definitions which have surface shaders.
+    unsigned int counter = 0;
+    for (auto testGraph : testGraphs)
+    {
+        std::string counterString = std::to_string(counter);
+        std::string newCategory = doc->createValidChildName("transptype_" + counterString);
+        const std::string graphName = testGraph->getName() + counterString;
+        std::string newNodeDefName = doc->createValidChildName("ND_" + graphName);
+        std::string newGraphName = doc->createValidChildName("NG_" + graphName);
+        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(testGraph, newNodeDefName, newCategory, "1.0", true, mx::EMPTY_STRING, newGraphName);
+        if (nodeDef)
+        {
+            mx::NodePtr newInstance = doc->addNode(newCategory, mx::EMPTY_STRING, nodeDef->getType());
+            for (auto valueElement : nodeDef->getActiveValueElements())
+            {
+                mx::ValueElementPtr newValueElem = newInstance->addChildOfCategory(valueElement->getCategory(), valueElement->getName())->asA<mx::ValueElement>();
+                newValueElem->setValue(valueElement->getValueString(), valueElement->getType());
+            }
+            bool defInstanceIsTransp = mx::isTransparentSurface(newInstance);
+            CHECK(defInstanceIsTransp);
+        }
+    }
+    mx::writeToXmlFile(doc, "transparency_test_nodedefs.mtlx");
+}
+
 TEST_CASE("GenShader: Shader Translation", "[translate]")
 {
     mx::FileSearchPath searchPath;
@@ -108,7 +170,7 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
     for (mx::FilePath& mtlxFile : testPath.getFilesInDirectory("mtlx"))
     {
         mx::DocumentPtr doc = mx::createDocument();
-        mx::StringSet libFiles = loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf", "translation" }, searchPath, doc);
+        loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf", "translation" }, searchPath, doc);
 
         mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
         mtlxFile.removeExtension();

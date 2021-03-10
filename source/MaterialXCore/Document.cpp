@@ -151,9 +151,14 @@ void Document::initialize()
     setVersionIntegers(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
 }
 
-NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
+NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& category,
                                          const string& version, bool isDefaultVersion, const string& group, string& newGraphName)
 {
+    if (!nodeGraph || nodeDefName.empty() || category.empty())
+    {
+        throw Exception("Invalid input arguments specified for nodedef creation");
+    }
+
     if (getNodeDef(nodeDefName))
     {
         throw Exception("Cannot create duplicate nodedef: " + nodeDefName);
@@ -172,7 +177,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     graph->setNodeDefString(nodeDefName);
 
     NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
-    nodeDef->setNodeString(node);
+    nodeDef->setNodeString(category);
     if (!group.empty())
     {
         nodeDef->setNodeGroup(group);
@@ -186,6 +191,56 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         if (isDefaultVersion)
         {
             nodeDef->setDefaultVersion(true);
+        }
+    }
+
+    for (auto child : graph->getChildren())
+    {
+        // Check for direct children and add first. Then check for inputs with interface names
+        // on interior nodes. Only add nodedef children once.
+        for (ValueElementPtr directElem : graph->getChildrenOfType<ValueElement>())
+        {
+            if (!nodeDef->getChild(directElem->getName()))
+            {
+                if (directElem->isA<Input>())
+                {
+                    InputPtr newInput = nodeDef->addInput(directElem->getName(), directElem->getType());
+                    newInput->copyContentFrom(directElem);
+                }
+                if (directElem->isA<Token>())
+                {
+                    TokenPtr newToken = nodeDef->addToken(directElem->getName());
+                    newToken->copyContentFrom(directElem);
+                    newToken->setInterfaceName(EMPTY_STRING);
+                }
+            }
+        }
+
+        NodePtr graphNode = child->asA<Node>();
+        if (graphNode)
+        {
+            for (ValueElementPtr elem : graphNode->getChildrenOfType<ValueElement>())
+            {
+                const string& interfaceName = elem->getInterfaceName();
+                if (!interfaceName.empty() &&
+                    !nodeDef->getChild(interfaceName))
+                {
+                    if (elem->isA<Input>())
+                    {
+                        InputPtr newInput = nodeDef->addInput(interfaceName, elem->getType());
+                        newInput->copyContentFrom(elem);
+                        newInput->setInterfaceName(EMPTY_STRING);
+                    }
+                    if (elem->isA<Token>())
+                    {
+                        TokenPtr newToken = nodeDef->addToken(interfaceName);
+                        newToken->copyContentFrom(elem);
+                        newToken->setInterfaceName(EMPTY_STRING);
+                    }
+                }
+                elem->setAttribute("xpos", EMPTY_STRING);
+                elem->setAttribute("ypos", EMPTY_STRING);
+            }
         }
     }
 
