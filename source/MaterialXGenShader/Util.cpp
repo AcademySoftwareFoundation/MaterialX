@@ -72,14 +72,14 @@ namespace
             if (interfaceInput)
             {
                 if (interfaceInput->getConnectedNode())
-        {
-            return true;
-        }
+                {
+                    return true;
+                }
                 ValuePtr value = interfaceInput->getValue();
                 if (value && !isEqual(value, opaqueInput.second))
-        {
-            return true;
-        }
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -138,25 +138,25 @@ namespace
                     if (interfaceInput)
                     {
                         checkInput = interfaceInput;
-            }
-            else
-            {
+                    }
+                    else
+                    {
                         return false;
+                    }
                 }
-            }
                 if (checkInput->getConnectedNode())
-            {
-                return true;
-            }
-            else
-            {
-                    ValuePtr value = checkInput->getValue();
-                    if (value && !isEqual(value, inputPair.second))
                 {
                     return true;
                 }
+                else
+                {
+                    ValuePtr value = checkInput->getValue();
+                    if (value && !isEqual(value, inputPair.second))
+                    {
+                        return true;
+                    }
+                }
             }
-        }
         }
         return false;
     }
