@@ -20,6 +20,7 @@ namespace Tokens
     const RtToken ENUM("enum");
     const RtToken ENUMVALUES("enumvalues");
     const RtToken COLORSPACE("colorspace");
+    const RtToken FILEPREFIX("fileprefix");
     const RtToken UINAME("uiname");
     const RtToken UICOLOR("uicolor");
     const RtToken UIFOLDER("uifolder");

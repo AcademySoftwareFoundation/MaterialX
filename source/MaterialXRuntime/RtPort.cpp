@@ -13,7 +13,7 @@ namespace MaterialX
 
 RT_DEFINE_RUNTIME_OBJECT(RtPort, RtObjType::PORT, "RtPort")
 
-RtPort::RtPort(PvtDataHandle hnd) :
+RtPort::RtPort(PvtObjHandle hnd) :
     RtObject(hnd)
 {
 }
@@ -81,7 +81,7 @@ void RtPort::setUnitType(const RtToken& unit)
 
 RT_DEFINE_RUNTIME_OBJECT(RtInput, RtObjType::INPUT, "RtInput")
 
-RtInput::RtInput(PvtDataHandle hnd) :
+RtInput::RtInput(PvtObjHandle hnd) :
     RtPort(hnd)
 {
 }
@@ -135,7 +135,7 @@ RtOutput RtInput::getConnection() const
 
 RT_DEFINE_RUNTIME_OBJECT(RtOutput, RtObjType::OUTPUT, "RtOutput")
 
-RtOutput::RtOutput(PvtDataHandle hnd) :
+RtOutput::RtOutput(PvtObjHandle hnd) :
     RtPort(hnd)
 {
 }

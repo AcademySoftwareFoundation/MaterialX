@@ -32,7 +32,7 @@ void PvtRenamePrimCmd::execute(RtCommandResult& result)
         // Otherwise the name will be updated during rename in order to be
         // unique, and the message we send will not have correct information.
         RtPrim parent = prim.getParent();
-        PvtDataHandle parentH = PvtObject::hnd(parent);
+        PvtObjHandle parentH = PvtObject::hnd(parent);
         PvtPrim* parentPtr = parentH->asA<PvtPrim>();
         _newName = parentPtr->makeUniqueChildName(_newName);
 

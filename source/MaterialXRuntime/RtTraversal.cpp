@@ -22,17 +22,17 @@ using StageIteratorStackFrame = std::tuple<PvtStage*, int, int>;
 
 struct StageIteratorData
 {
-    PvtDataHandle current;
+    PvtObjHandle current;
     RtObjectPredicate predicate;
     vector<StageIteratorStackFrame> stack;
 };
 
 struct AttrIteratorData
 {
-    PvtDataHandle obj;
+    PvtObjHandle obj;
     size_t index;
     AttrIteratorData() : obj(nullptr), index(0) {}
-    explicit AttrIteratorData(const PvtDataHandle& o) : obj(o), index(0) {}
+    explicit AttrIteratorData(const PvtObjHandle& o) : obj(o), index(0) {}
 };
 
 }

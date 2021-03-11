@@ -71,11 +71,11 @@ class PvtPrim : public PvtObject
 
 public:
     template<class T = PvtPrim>
-    static PvtDataHandle createNew(const RtTypeInfo* type, const RtToken& name, PvtPrim* parent)
+    static PvtObjHandle createNew(const RtTypeInfo* type, const RtToken& name, PvtPrim* parent)
     {
         // Make the name unique.
         const RtToken primName = parent->makeUniqueChildName(name);
-        return PvtDataHandle(new T(type, primName, parent));
+        return PvtObjHandle(new T(type, primName, parent));
     }
 
     RtPrim prim() const
@@ -104,9 +104,9 @@ public:
 
     void removeRelationship(const RtToken& name);
 
-    void renameRelationship(const RtToken& name, const RtToken& newName)
+    RtToken renameRelationship(const RtToken& name, const RtToken& newName)
     {
-        _rel.rename(name, newName);
+        return _rel.rename(name, newName, this);
     }
 
     PvtRelationship* getRelationship(const RtToken& name)
@@ -136,9 +136,7 @@ public:
 
     RtToken renameInput(const RtToken& name, const RtToken& newName)
     {
-        RtToken result = makeUniqueChildName(newName);
-        _inputs.rename(name, result);
-        return result;
+        return _inputs.rename(name, newName, this);
     }
 
     size_t numInputs() const
@@ -168,9 +166,7 @@ public:
 
     RtToken renameOutput(const RtToken& name, const RtToken& newName)
     {
-        RtToken result = makeUniqueChildName(newName);
-        _outputs.rename(name, result);
-        return result;
+        return _outputs.rename(name, newName, this);
     }
 
     size_t numOutputs() const
@@ -208,6 +204,11 @@ public:
     {
         PvtObject* obj = _prims.find(name);
         return obj ? obj->asA<PvtPrim>() : nullptr;
+    }
+
+    RtToken renameChild(const RtToken& name, const RtToken& newName)
+    {
+        return _prims.rename(name, newName, this);
     }
 
     RtPrimIterator getChildren(RtObjectPredicate predicate = nullptr) const;
@@ -336,7 +337,9 @@ public:
 
 private:
     RtTokenMap<RtAttributeSpec*> _map;
-    vector<RtAttributeSpec*> _vec;
+    RtAttributeSpecVec _vec;
+
+    friend class PvtPrimSpec;
 };
 
 
@@ -352,7 +355,14 @@ public:
         return _primAttr.find(name);
     }
 
+    const RtAttributeSpecVec& getAttributes() const override
+    {
+        return _primAttr._vec;
+    }
+
     const RtAttributeSpec* getPortAttribute(const RtPort& port, const RtToken& name) const override;
+
+    RtAttributeSpecVec getPortAttributes(const RtPort& port) const override;
 
     RtAttributeSpec* create(const RtToken& name, const RtToken& type, const string& value, bool exportable, bool custom);
 

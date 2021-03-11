@@ -34,8 +34,8 @@ public:
     /// Creating an invalid object.
     RtPrim() {}
 
-    /// Construct from a data handle.
-    RtPrim(PvtDataHandle hnd);
+    /// Construct from a handle.
+    RtPrim(PvtObjHandle hnd);
 
     /// Construct from an object.
     RtPrim(RtObject obj);
@@ -167,6 +167,8 @@ private:
     friend class PvtPrimSpec;
 };
 
+using RtAttributeSpecVec = vector<RtAttributeSpec*>;
+
 /// Abstract base class for prim specifications.
 class RtPrimSpec
 {
@@ -178,9 +180,15 @@ public:
     /// for this prim type, or return nullptr otherwise.
     virtual const RtAttributeSpec* getAttribute(const RtToken& name) const = 0;
 
+    /// Return a vector of all attribute specs defined for this prim type.
+    virtual const RtAttributeSpecVec& getAttributes() const = 0;
+
     /// Return an attribute spec if one has been defined for the given port
     /// on this prim type, or return nullptr otherwise.
     virtual const RtAttributeSpec* getPortAttribute(const RtPort& port, const RtToken& name) const = 0;
+
+    /// Return a vector of all attribute specs defined for the given port on this prim type.
+    virtual RtAttributeSpecVec getPortAttributes(const RtPort& port) const = 0;
 
 protected:
     /// Protected constructor.

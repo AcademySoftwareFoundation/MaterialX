@@ -99,13 +99,13 @@ public:
     }
 
     // Return a handle for the object.
-    PvtDataHandle hnd() const
+    PvtObjHandle hnd() const
     {
-        return PvtDataHandle(const_cast<PvtObject*>(this));
+        return PvtObjHandle(const_cast<PvtObject*>(this));
     }
 
     // Return a handle for the given object.
-    static PvtDataHandle hnd(const RtObject& obj)
+    static PvtObjHandle hnd(const RtObject& obj)
     {
         return obj.hnd();
     }
@@ -258,47 +258,9 @@ public:
         _vec.push_back(obj);
     }
 
-    PvtDataHandle remove(const RtToken& name)
-    {
-        auto it = _map.find(name);
-        if (it != _map.end())
-        {
-            PvtDataHandle hnd = it->second;
-            _map.erase(it);
+    PvtObjHandle remove(const RtToken& name);
 
-            for (auto it2 = _vec.begin(); it2 != _vec.end(); ++it2)
-            {
-                if (*it2 == hnd.get())
-                {
-                    _vec.erase(it2);
-                    break;
-                }
-            }
-
-            // Return the handled to keep the object alive
-            // if the intent is not to destroy it here.
-            return hnd;
-        }
-        return PvtDataHandle();
-    }
-
-    void rename(const RtToken& name, const RtToken& newName)
-    {
-        auto it = _map.find(name);
-        if (it == _map.end())
-        {
-            throw ExceptionRuntimeError("No object named '" + name.str() + "' exists, unable to rename.");
-        }
-        auto it2 = _map.find(newName);
-        if (newName != name && it2 != _map.end())
-        {
-            throw ExceptionRuntimeError("Another object named '" + newName.str() + "' already exists, unable to rename.");
-        }
-        PvtDataHandle hnd = it->second;
-        _map.erase(it);
-        hnd->setName(newName);
-        _map[newName] = hnd;
-    }
+    RtToken rename(const RtToken& name, const RtToken& newName, const PvtPrim* parent);
 
     void clear()
     {
@@ -312,7 +274,7 @@ public:
     }
 
 private:
-    RtTokenMap<PvtDataHandle> _map;
+    RtTokenMap<PvtObjHandle> _map;
     PvtObjectVec _vec;
 
     friend class RtPrimIterator;

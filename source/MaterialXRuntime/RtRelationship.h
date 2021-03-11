@@ -28,8 +28,8 @@ public:
     /// Creating an invalid object.
     RtRelationship() {}
 
-    /// Construct from a data handle.
-    RtRelationship(PvtDataHandle hnd);
+    /// Construct from a handle.
+    RtRelationship(PvtObjHandle hnd);
 
     /// Return the name of this relationship.
     const RtToken& getName() const;

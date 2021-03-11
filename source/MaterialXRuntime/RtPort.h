@@ -42,8 +42,8 @@ public:
     /// Creating an invalid object.
     RtPort() {}
 
-    /// Construct from a data handle.
-    RtPort(PvtDataHandle hnd);
+    /// Construct from a handle.
+    RtPort(PvtObjHandle hnd);
 
     /// Return the data type for this port.
     const RtToken& getType() const;
@@ -94,8 +94,8 @@ public:
     /// Creating an invalid object.
     RtInput() {}
 
-    /// Construct from a data handle.
-    RtInput(PvtDataHandle hnd);
+    /// Construct from a handle.
+    RtInput(PvtObjHandle hnd);
 
     /// Return true if this input is uniform.
     bool isUniform() const;
@@ -139,8 +139,8 @@ public:
     /// Creating an invalid object.
     RtOutput() {}
 
-    /// Construct from a data handle.
-    RtOutput(PvtDataHandle hnd);
+    /// Construct from a handle.
+    RtOutput(PvtObjHandle hnd);
 
     /// Return true if this output is connected.
     bool isConnected() const;

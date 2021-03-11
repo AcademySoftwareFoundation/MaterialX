@@ -495,7 +495,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     mx::RtNode graphNode(graphPrim);
     REQUIRE(graphNode);
     REQUIRE(graphNode.getName() == graph.getName());
-    mx::RtInput graph_in = graph.createInput(IN, mx::RtType::FLOAT);
+    mx::RtInput graph_in = graph.createInput(IN, mx::RtType::COLOR3);
     REQUIRE(graph_in);
     mx::RtOutput graph_out = graph.createOutput(OUT, mx::RtType::FLOAT);
     REQUIRE(graph_out);
@@ -552,6 +552,10 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(obj1.isA<mx::RtRelationship>());
 
     // Test attributes on prim specs.
+    const mx::RtAttributeSpecVec nodegraphAttrs = graph.getPrimSpec().getAttributes();
+    REQUIRE(nodegraphAttrs.size() == 12);
+    const mx::RtAttributeSpecVec nodegraphColor3InputAttrs = graph.getPrimSpec().getPortAttributes(graph_in);
+    REQUIRE(nodegraphColor3InputAttrs.size() == 6);
     const mx::RtAttributeSpec* version = nodedef.getPrimSpec().getAttribute(mx::Tokens::VERSION);
     REQUIRE(version);
     REQUIRE(version->getType() == mx::RtType::TOKEN);
@@ -568,6 +572,8 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(bitDepth);
     REQUIRE(bitDepth->getType() == mx::RtType::INTEGER);
     REQUIRE(!uiVisible->isCustom());
+
+
 
     // Test object life-time management
     mx::RtPrim node1 = stage->createPrim(graph.getPath(), mx::RtToken("node1"), nodedefPrim.getName());

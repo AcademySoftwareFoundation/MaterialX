@@ -226,6 +226,35 @@ const RtAttributeSpec* PvtPrimSpec::getPortAttribute(const RtPort& port, const R
     return list.find(name);
 }
 
+RtAttributeSpecVec PvtPrimSpec::getPortAttributes(const RtPort& port) const
+{
+    RtAttributeSpecVec result;
+
+    const bool input = port.isA<RtInput>();
+
+    // First search the input/output lists by port name.
+    const RtTokenMap<RtAttributeSpecList>& mapByName = (input ? _inputAttrByName : _outputAttrByName);
+    auto it = mapByName.find(port.getName());
+    if (it != mapByName.end())
+    {
+        result.insert(result.begin(), it->second._vec.begin(), it->second._vec.end());
+    }
+
+    // Second search the input/output lists by port type.
+    const RtTokenMap<RtAttributeSpecList>& mapByType = (input ? _inputAttrByType : _outputAttrByType);
+    it = mapByType.find(port.getType());
+    if (it != mapByType.end())
+    {
+        result.insert(result.begin(), it->second._vec.begin(), it->second._vec.end());
+    }
+
+    // Finally search the general input/output list.
+    const RtAttributeSpecList& list = (input ? _inputAttr : _outputAttr);
+    result.insert(result.begin(), list._vec.begin(), list._vec.end());
+
+    return result;
+}
+
 RtAttributeSpec* PvtPrimSpec::create(const RtToken& name, const RtToken& type, const string& value,
                                      bool exportable, bool custom)
 {

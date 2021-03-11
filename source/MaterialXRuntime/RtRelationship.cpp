@@ -12,7 +12,7 @@ namespace MaterialX
 
 RT_DEFINE_RUNTIME_OBJECT(RtRelationship, RtObjType::RELATIONSHIP, "RtRelationship")
 
-RtRelationship::RtRelationship(PvtDataHandle hnd) : 
+RtRelationship::RtRelationship(PvtObjHandle hnd) : 
     RtObject(hnd)
 {
 }

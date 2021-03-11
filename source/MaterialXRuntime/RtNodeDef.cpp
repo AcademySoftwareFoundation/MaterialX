@@ -70,6 +70,7 @@ namespace
             addInputAttributeByType(RtType::VECTOR2, Tokens::UISOFTMIN, RtType::VECTOR2);
             addInputAttributeByType(RtType::VECTOR2, Tokens::UISOFTMAX, RtType::VECTOR2);
             addInputAttributeByType(RtType::VECTOR2, Tokens::UISTEP, RtType::VECTOR2);
+            addInputAttributeByType(RtType::VECTOR2, Tokens::DEFAULTGEOMPROP, RtType::TOKEN);
 
             addInputAttributeByType(RtType::VECTOR3, Tokens::UNIT, RtType::TOKEN);
             addInputAttributeByType(RtType::VECTOR3, Tokens::UNITTYPE, RtType::TOKEN);
@@ -78,6 +79,7 @@ namespace
             addInputAttributeByType(RtType::VECTOR3, Tokens::UISOFTMIN, RtType::VECTOR3);
             addInputAttributeByType(RtType::VECTOR3, Tokens::UISOFTMAX, RtType::VECTOR3);
             addInputAttributeByType(RtType::VECTOR3, Tokens::UISTEP, RtType::VECTOR3);
+            addInputAttributeByType(RtType::VECTOR3, Tokens::DEFAULTGEOMPROP, RtType::TOKEN);
 
             addInputAttributeByType(RtType::VECTOR4, Tokens::UNIT, RtType::TOKEN);
             addInputAttributeByType(RtType::VECTOR4, Tokens::UNITTYPE, RtType::TOKEN);
@@ -100,7 +102,7 @@ RtPrim RtNodeDef::createPrim(const RtToken& typeName, const RtToken& name, RtPri
 {
     PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
 
-    PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, name, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, name, PvtObject::ptr<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->createAttribute(Tokens::NODE, RtType::TOKEN);

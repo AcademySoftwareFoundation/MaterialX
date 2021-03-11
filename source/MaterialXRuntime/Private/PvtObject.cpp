@@ -8,6 +8,7 @@
 #include <MaterialXRuntime/Private/PvtStage.h>
 
 #include <set>
+#include <algorithm>
 
 /// @file
 /// TODO: Docs
@@ -97,6 +98,46 @@ RtTypedValue* PvtObject::getAttribute(const RtToken& name, const RtToken& type)
         throw ExceptionRuntimeError("Attribute '" + name.str() + "' found with an unmatching datatype on object '" + getName().str() + "'");
     }
     return value;
+}
+
+
+PvtObjHandle PvtObjectList::remove(const RtToken& name)
+{
+    auto it = _map.find(name);
+    if (it != _map.end())
+    {
+        PvtObjHandle hnd = it->second;
+        _map.erase(it);
+        _vec.erase(std::find(_vec.begin(), _vec.end(), hnd.get()));
+
+        // Return the handle to keep the object alive
+        // in case the intent was to only remove it
+        // but not destroy it here.
+        return hnd;
+    }
+    return PvtObjHandle();
+}
+
+RtToken PvtObjectList::rename(const RtToken& name, const RtToken& newName, const PvtPrim* parent)
+{
+    auto it = _map.find(name);
+    if (it == _map.end())
+    {
+        throw ExceptionRuntimeError("No object named '" + name.str() + "' exists, unable to rename.");
+    }
+
+    // Remove it from the name map first.
+    // Make sure to hold on to the ref pointer
+    // to keep the object alive.
+    PvtObjHandle hnd = it->second;
+    _map.erase(it);
+
+    // Make sure the new name is unique within the parent.
+    const RtToken finalName = parent->makeUniqueChildName(newName);
+    hnd->setName(finalName);
+    _map[finalName] = hnd;
+
+    return finalName;
 }
 
 }

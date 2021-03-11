@@ -140,14 +140,14 @@ protected:
     explicit RtSchemaBase(const RtSchemaBase& other);
 
     /// Return the handle set for this API.
-    PvtDataHandle& hnd() { return _hnd; }
+    PvtObjHandle& hnd() { return _hnd; }
 
     /// Return the handle set for this API.
-    const PvtDataHandle& hnd() const { return _hnd; }
+    const PvtObjHandle& hnd() const { return _hnd; }
 
 protected:
     // Handle for the prim attached to the API.
-    PvtDataHandle _hnd;
+    PvtObjHandle _hnd;
 };
 
 

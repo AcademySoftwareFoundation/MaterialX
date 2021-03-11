@@ -32,7 +32,7 @@ PvtStage::PvtStage(const RtToken& name, RtStageWeakPtr owner) :
     _root(nullptr),
     _selfRefCount(0)
 {
-    _root = PvtDataHandle(new RootPrim(owner));
+    _root = PvtObjHandle(new RootPrim(owner));
 }
 
 PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName)
@@ -50,7 +50,7 @@ PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, co
         throw ExceptionRuntimeError("Given parent path '" + parentPath.asString() + "' does not point to a prim in this stage");
     }
 
-    PvtDataHandle primH;
+    PvtObjHandle primH;
 
     // First, try finding a registered creator function for this typename.
     RtPrimCreateFunc creator = RtApi::get().getCreateFunction(typeName);
@@ -157,13 +157,8 @@ RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
     {
         throw ExceptionRuntimeError("Given path '" + path.asString() + " does not point to a valid prim in this stage");
     }
-
     PvtPrim* parent = prim->getParent();
-    PvtDataHandle hnd = parent->_prims.remove(prim->getName());
-    prim->setName(parent->makeUniqueChildName(newName));
-    parent->_prims.add(hnd.get());
-
-    return prim->getName();
+    return parent->renameChild(prim->getName(), newName);
 }
 
 RtToken PvtStage::reparentPrim(const PvtPath& path, const PvtPath& newParentPath)

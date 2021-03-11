@@ -23,7 +23,7 @@ RtPrim RtSourceCodeImpl::createPrim(const RtToken& typeName, const RtToken& name
 
     static const RtToken DEFAULT_NAME("sourcecodeimpl1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtDataHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
 
     return primH;
 }

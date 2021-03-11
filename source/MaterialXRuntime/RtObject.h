@@ -25,7 +25,7 @@ class RtStage;
 class RtAttributeIterator;
 
 // A handle to private object data
-RT_DECLARE_REF_PTR_TYPE(PvtObject, PvtDataHandle)
+RT_DECLARE_REF_PTR_TYPE(PvtObject, PvtObjHandle)
 
 /// Shared pointer to a stage.
 using RtStagePtr = RtSharedPtr<RtStage>;
@@ -68,8 +68,8 @@ public:
     /// Creating an invalid object.
     RtObject();
 
-    /// Construct from a data handle.
-    RtObject(PvtDataHandle hnd);
+    /// Construct from a handle.
+    RtObject(PvtObjHandle hnd);
 
     /// Copy constructor.
     RtObject(const RtObject& other);
@@ -168,22 +168,22 @@ public:
 
 protected:
 #ifdef NDEBUG
-    /// Return the data handle.
-    const PvtDataHandle& hnd() const
+    /// Return the handle.
+    const PvtObjHandle& hnd() const
     {
         return _hnd;
     }
 #else
-    /// Return the data handle.
-    const PvtDataHandle& hnd() const;
+    /// Return the handle.
+    const PvtObjHandle& hnd() const;
 #endif
 
     /// Return true if this object is compatible
     /// with an object of the given type id.
     bool isCompatible(RtObjType typeId) const;
 
-    /// Internal data handle.
-    PvtDataHandle _hnd;
+    /// Internal handle.
+    PvtObjHandle _hnd;
 
     friend class PvtObject;
     friend class PvtStage;

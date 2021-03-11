@@ -25,7 +25,7 @@ RtObject::RtObject(const RtObject& other) :
 {
 }
 
-RtObject::RtObject(PvtDataHandle data) :
+RtObject::RtObject(PvtObjHandle data) :
     _hnd(data)
 {
 }
@@ -107,7 +107,7 @@ bool RtObject::isCompatible(RtObjType typeId) const
 }
 
 #ifndef NDEBUG
-const PvtDataHandle& RtObject::hnd() const
+const PvtObjHandle& RtObject::hnd() const
 {
     // In debug mode we check for object validity
     // to report any invalid access.

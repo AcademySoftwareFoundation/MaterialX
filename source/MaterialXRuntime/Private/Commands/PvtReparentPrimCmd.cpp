@@ -38,7 +38,7 @@ void PvtReparentPrimCmd::execute(RtCommandResult& result)
 
         // Construct the new path making sure the prim name is according to
         // any rename that might happen during the reparent operation.
-        PvtDataHandle newParentH = PvtObject::hnd(newParent);
+        PvtObjHandle newParentH = PvtObject::hnd(newParent);
         PvtPrim* newParentPtr = newParentH->asA<PvtPrim>();
         const RtToken newName = newParentPtr->makeUniqueChildName(prim.getName());
         RtPath newPath = _newParentPath;

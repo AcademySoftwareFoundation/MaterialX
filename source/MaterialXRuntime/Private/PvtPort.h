@@ -167,7 +167,7 @@ public:
     void clearConnection();
 
 protected:
-    PvtDataHandle _connection;
+    PvtObjHandle _connection;
     friend class PvtOutput;
 };
 

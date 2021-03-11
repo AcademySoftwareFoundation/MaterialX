@@ -48,7 +48,7 @@ public:
 
     PvtStageIterator& operator++();
 
-    const PvtDataHandle& operator*() const
+    const PvtObjHandle& operator*() const
     {
         return _current;
     }
@@ -76,7 +76,7 @@ public:
 
 private:
     using StackFrame = std::tuple<PvtStage*, int, int>;
-    PvtDataHandle _current;
+    PvtObjHandle _current;
     RtObjectPredicate _predicate;
     vector<StackFrame> _stack;
 };
@@ -177,7 +177,7 @@ protected:
     };
 
     RtToken _name;
-    PvtDataHandle _root;
+    PvtObjHandle _root;
 
     size_t _selfRefCount;
     RtStageVec _refStages;

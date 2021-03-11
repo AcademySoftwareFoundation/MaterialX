@@ -27,6 +27,7 @@ namespace Tokens
     extern const RtToken ENUM;
     extern const RtToken ENUMVALUES;
     extern const RtToken COLORSPACE;
+    extern const RtToken FILEPREFIX;
     extern const RtToken UINAME;
     extern const RtToken UICOLOR;
     extern const RtToken UIFOLDER;
