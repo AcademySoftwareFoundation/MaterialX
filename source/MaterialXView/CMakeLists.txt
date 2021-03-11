@@ -76,8 +76,7 @@ if (MATERIALX_BUILD_GEN_MDL)
 endif()
 
 target_link_libraries(
-     ${LIBS}
-    nanogui
+    ${LIBS}
     ${NANOGUI_LIBRARIES}
     ${NANOGUI_EXTRA_LIBS})
 
