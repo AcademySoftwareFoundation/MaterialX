@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="procedural_defs" type="multioutput" xpos="-29" ypos="-180" >
+    <input name="normalmap_filename" type="filename" uniform="true" value="resources/Images/mesh_wire_norm.png" />
+    <input name="bitmap_filename" type="filename" uniform="true" value="resources/Images/grid.png" />
+    <adsk:metal name="metal" type="surfaceshader" version="1.0.1" xpos="620" ypos="10">
+      <input name="surface_normal" type="vector3" nodename="normal_map" />
+    </adsk:metal>
+    <adsk:glazing name="glazing" type="surfaceshader" version="1.0.1" xpos="620" ypos="595">
+      <input name="surface_normal" type="vector3" nodename="normal_map" />
+      <input name="surface_roughness" type="float" value="0" />
+      <input name="glazing_transmission_color" type="color3" value="0.778836, 0.757817, 0.740302" colorspace="gamma24" />
+      <input name="glazing_transmission_roughness" type="float" value="0" />
+      <input name="glazing_f0" type="color3" value="0.25214, 0.246979, 0.242965" colorspace="gamma24" />
+    </adsk:glazing>
+    <adsk:normal_map name="normal_map" type="vector3" version="1.0.1" xpos="315" ypos="642">
+      <input name="file" type="filename" uniform="true" interfacename="normalmap_filename" value="resources/Images/mesh_wire_norm.png" />
+      <input name="realworld_scale" type="vector2" value="4, 4" />
+      <input name="uv_scale" type="vector2" value="0.5, 0.5" />
+      <input name="normal_scale" type="float" value="1" />
+    </adsk:normal_map>
+    <adsk:opaque name="opaque" type="surfaceshader" version="1.0.1" xpos="620" ypos="205">
+      <input name="surface_normal" type="vector3" nodename="normal_map" />
+      <input name="opaque_f0" type="float" value="0.1" />
+      <input name="opaque_translucency" type="boolean" value="true" />
+      <input name="opaque_mfp_modifier" type="color3" value="0.1, 0.1, 0.1" />
+    </adsk:opaque>
+    <adsk:layered name="layered" type="surfaceshader" version="1.0.1" xpos="620" ypos="400">
+      <input name="surface_roughness" type="float" value="0" />
+      <input name="surface_anisotropy" type="float" value="0" />
+      <input name="surface_rotation" type="float" value="0" />
+      <input name="layered_normal" type="vector3" nodename="normal_map" />
+      <input name="layered_f0" type="float" value="0.0602702" />
+      <input name="layered_roughness" type="float" value="0.0774597" />
+      <input name="layered_anisotropy" type="float" value="0" />
+      <input name="layered_rotation" type="float" value="0" />
+      <input name="layered_fraction" type="float" value="0.5" />
+      <input name="layered_fraction_invert" type="boolean" value="true" />
+    </adsk:layered>
+    <adsk:bitmap name="bitmap" type="color3" version="1.0.1" xpos="620" ypos="790">
+      <input name="file" type="filename" uniform="true" interfacename="bitmap_filename" value="resources/Images/grid.png" />
+      <input name="realworld_scale" type="vector2" value="1, 1" />
+    </adsk:bitmap>
+    <adsk:bitmap name="bitmap1" type="float" version="1.0.1" xpos="620" ypos="985">
+      <input name="file" type="filename" uniform="true" interfacename="bitmap_filename" value="resources/Images/grid.png" />
+      <input name="realworld_scale" type="vector2" value="1, 1" />
+    </adsk:bitmap>
+    <adsk:transparent name="transparent" type="surfaceshader" version="1.0.1" xpos="620" ypos="1180">
+      <input name="surface_normal" type="vector3" nodename="normal_map" />
+      <input name="surface_roughness" type="float" value="0.12" />
+      <input name="transparent_ior" type="float" value="2.3" />
+      <input name="transparent_color" type="color3" value="0.2, 0.3, 1" />
+    </adsk:transparent>
+    <adsk:bitmap_remap name="bitmap_remap" type="float" version="1.0.1" xpos="620" ypos="1375">
+      <input name="file" type="filename" uniform="true" interfacename="bitmap_filename" />
+      <input name="realworld_scale" type="vector2" value="1, 1" />
+      <input name="invert" type="boolean" value="true" />
+    </adsk:bitmap_remap>
+    <output name="normal_map_out" type="vector3" nodename="normal_map" />
+    <output name="metal_out" type="surfaceshader" nodename="metal" />
+    <output name="opaque_out" type="surfaceshader" nodename="opaque" />
+    <output name="layered_out" type="surfaceshader" nodename="layered" />
+    <output name="glazing_out" type="surfaceshader" nodename="glazing" />
+    <output name="bitmap_color_out" type="color3" nodename="bitmap" />
+    <output name="bitmap_float_out" type="float" nodename="bitmap1" />
+    <output name="trannsparent_out" type="surfaceshader" nodename="transparent" />
+    <output name="bitmap_remap1" type="float" nodename="bitmap_remap" />
+  </nodegraph>
+</materialx>

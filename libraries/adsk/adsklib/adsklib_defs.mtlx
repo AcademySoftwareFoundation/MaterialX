@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+  DESCRIPTION: Node Defintions for Autodesk Advanced Materials
+  VERSION: 1.0.1
+  SHA: $Id$
+  -->
+
+  <!-- <adsk_bitmap> -->
+  <nodedef name="ND_adsk_bitmap_color3" node="bitmap" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="file" type="filename" />
+    <!--  inputs with unit -->
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance"/>
+    <!--  inputs without unit -->
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <!-- wAngle - rotation -->
+    <input name="rotation_angle" type="float" value="0" />
+    <!-- rgbamount -->
+    <input name="rgbamount" type="float" value="1.0" />
+    <!-- invert -->
+    <input name="invert" type="boolean" value="false" />
+
+    <output name="out" type="color3"/>
+  </nodedef>
+
+  <nodedef name="ND_adsk_bitmap_float" node="bitmap" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="file" type="filename" />
+    <!--  inputs with unit -->
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance"/>
+    <!--  inputs without unit -->
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <!-- wAngle - rotation -->
+    <input name="rotation_angle" type="float" value="0" />
+    <!-- rgbamount -->
+    <input name="rgbamount" type="float" value="1.0" />
+    <!-- invert -->
+    <input name="invert" type="boolean" value="false" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <nodedef name="ND_adsk_bitmap_remap_float" node="bitmap_remap" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="file" type="filename" />
+    <!--  inputs with unit -->
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance"/>
+    <!--  inputs without unit -->
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <!-- wAngle - rotation -->
+    <input name="rotation_angle" type="float" value="0" />
+    <!-- rgbamount -->
+    <input name="rgbamount" type="float" value="1.0" />
+    <!-- invert -->
+    <input name="invert" type="boolean" value="false" />
+    <!-- remap -->
+    <input name="outlow"  type="float" value="0.0" />
+    <input name="outhigh" type="float" value="1.0" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!-- <adsk_normal_map> -->
+  <nodedef name="ND_adsk_normal_map" node="normal_map" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="file" type="filename" />
+    <!--  inputs with unit -->
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance" />
+    <!--  inputs without unit -->
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <!-- wAngle - rotation -->
+    <input name="rotation_angle" type="float" value="0" unittype="angle" />
+    <!-- normal scale -->
+    <input name="normal_scale" type="float" value="1.0" />
+    <output name="out" type="vector3" />
+  </nodedef>
+
+  <!-- <adsk_height_map> -->
+  <nodedef name="ND_adsk_height_map" node="height_map" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="file" type="filename" />
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance" />
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <input name="rotation_angle" type="float" value="0" unittype="angle" />
+    <input name="depth" type="float" unittype="distance" />
+    <output name="out" type="vector3" />
+  </nodedef>
+  
+  
+  <!--
+   Nodegraphs for Autodesk materials.
+   Based on Mapping rules define at https://wiki.autodesk.com/x/YmVwI 
+  -->
+  <nodedef name="ND_adsk_metal" node="metal" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="metal_f0" type="color3" value="1, 1, 1" />
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="surface_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nworld"/>
+    <input name="surface_cutout" type="color3" value="1, 1, 1" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <nodedef name="ND_adsk_opaque" node="opaque" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="surface_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nworld"/>
+    <input name="surface_cutout" type="color3" value="1, 1, 1" />
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="opaque_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="opaque_f0" type="float" value="1" />
+    <input name="opaque_translucency" type="boolean" value="false" />
+    <input name="opaque_mfp_modifier" type="color3" value="1, 1, 1" />
+    <input name="opaque_mfp" type="float" value="1" unittype="distance" />
+    <input name="opaque_emission" type="boolean" value="false" />
+    <input name="opaque_luminance" type="float" value="1.0" />
+    <input name="opaque_luminance_modifier" type="color3" value="1.0, 1.0, 1.0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <nodedef name="ND_adsk_transparent" node="transparent" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="surface_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nworld"/>
+    <input name="surface_cutout" type="color3" value="1, 1, 1" />
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="transparent_ior" type="float" value="1" />
+    <input name="transparent_color" type="color3" value="1, 1, 1" />
+    <input name="transparent_distance" type="float" value="1" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <nodedef name="ND_adsk_layered" node="layered" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="surface_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nworld"/>
+    <input name="surface_cutout" type="color3" value="1, 1, 1" />
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="layered_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nworld"/>
+    <input name="layered_f0" type="float" value="1" />
+    <input name="layered_roughness" type="float" value="0" />
+    <input name="layered_anisotropy" type="float" value="0" />
+    <input name="layered_rotation" type="float" value="0" />
+    <input name="layered_fraction" type="float" value="0.5" />
+    <input name="layered_fraction_invert" type="boolean" value="false" />
+    <input name="layered_diffuse" type="color3" value="1, 1, 1" />
+    <input name="layered_bottom_f0" type="color3" value="1, 1, 1" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <nodedef name="ND_adsk_glazing" node="glazing" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nworld"/>
+    <input name="surface_cutout" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0" />
+    <input name="surface_anisotropy" type="float" value="0" />
+    <input name="surface_rotation" type="float" value="0" />
+    <input name="glazing_transmission_color" type="color3" value="1, 1, 1" />
+    <input name="glazing_transmission_roughness" type="float" value="0" />
+    <input name="glazing_f0" type="color3" value="1,1,1" />
+    <input name="glazing_backface_culling" type="boolean" value="true" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!--
+      Node: <backface_util>
+      Utility to calculate a color value based on the backface culling mode, the input opacity value and backface test
+      (opacity || (backfacing && backface_cullingbool))
+    -->
+  <nodedef name="ND_backface_util" node="backface_util" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="backface_cullingbool" type="boolean" />
+    <input name="opacity" type="float" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+</materialx>

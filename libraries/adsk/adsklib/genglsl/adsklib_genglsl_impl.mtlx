@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.38">
+  <!--
+  DESCRIPTION: GLSL impl for Autodesk Advanced Materials
+  VERSION: 1.0.1
+  SHA: $Id$
+  -->
+  <!-- <backface_util> -->
+  <implementation name="IM_backface_util_genglsl" nodedef="adsk:ND_backface_util" file="adsk/adsklib/genglsl/mx_backface_util.glsl" function="mx_backface_util" target="genglsl"/>
+</materialx>

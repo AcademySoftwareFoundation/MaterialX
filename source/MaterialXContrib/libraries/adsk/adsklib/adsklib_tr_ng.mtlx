@@ -1,0 +1,716 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+  Copyright (c) 2021 Autodesk, Inc.
+  All rights reserved.
+
+  These coded instructions, statements, and computer programs contain
+  unpublished proprietary information written by Autodesk, Inc., and are
+  protected by Federal copyright law. They may not be disclosed to third
+  parties or copied or duplicated in any form, in whole or in part, without
+  the prior written consent of Autodesk, Inc.
+
+  DESCRIPTION: Translation Nodegraph to map Autodesk Advanced Materials to
+                USDPreviewSurface. Will be update as gaps are Identified.
+  VERSION: 0.1.0
+  SHA: $Id$
+  -->
+
+  <!-- <usd_normal_map> -->
+  <nodedef name="ND_Usd_normal_map" node="Usd_normal_map" nodegroup="texture2d" version="1.0.1" isdefaultversion="true">
+    <input name="file" type="filename" />
+    <!--  inputs with unit -->
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance" />
+    <!--  inputs without unit -->
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <!-- wAngle - rotation -->
+    <input name="rotation_angle" type="float" value="0" unittype="angle" />
+    <!-- normal scale -->
+    <input name="normal_scale" type="float" value="1.0" />
+    <output name="out" type="vector3" />
+  </nodedef>
+
+  <!-- <usd_normal_map> -->
+  <nodegraph name="NG_Usd_normal_map" nodedef="ND_Usd_normal_map">
+
+    <texcoord name="texcoord1" type="vector2" />
+    <image name="b_image" type="vector3" >
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+    </image>
+
+    <!-- Flip image -->
+    <multiply name="b_image_negate_y" type="vector3">
+      <input name="in1" type="vector3" nodename="b_image"/>
+      <input name="in2" type="vector3" value="1.0, -1.0, 1.0"/>
+    </multiply>
+    <add name="b_image_invert_y" type="vector3">
+      <input name="in1" type="vector3" value="0.0, 1.0, 0.0" />
+      <input name="in2" type="vector3" nodename="b_image_negate_y" />
+    </add>
+
+    <!-- use std::normal_map -->
+    <normalmap name="impl_normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="b_image_invert_y" />
+      <input name="scale" type="float" interfacename="normal_scale" />
+      <input name="space" type="string" value="object" />
+    </normalmap>
+    <output name="out" type="vector3" nodename="impl_normalmap" />
+  </nodegraph>
+
+  <!-- <Usd_height_map> -->
+  <nodedef name="ND_Usd_height_map" node="Usd_height_map" version="1.0.1" isdefaultversion="true">
+    <input name="file" type="filename" />
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance" />
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <input name="rotation_angle" type="float" value="0" unittype="angle" />
+    <input name="depth" type="float" unittype="distance" />
+    <output name="out" type="vector3" />
+  </nodedef>
+
+  <nodegraph name="NG_Usd_height_map" nodedef="ND_Usd_height_map">
+
+    <texcoord name="texcoord1" type="vector2" />
+    <image name="b_image" type="float" >
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+    </image>
+    <heighttonormal name="impl_heighttonormalmap" type="vector3">
+      <input name="in" type="float" nodename="b_image" />
+      <input name="scale" type="float" value="1.0" />
+    </heighttonormal>
+    <!-- use std::normal_map -->
+    <normalmap name="impl_normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="impl_heighttonormalmap" />
+      <input name="scale" type="float"  value="1.0" interfacename="depth"/>
+      <input name="space" type="string" value="object" />
+    </normalmap>
+    <output name="out" type="vector3" nodename="impl_normalmap" />
+  </nodegraph>
+
+<!-- Custom bitmap node that ignores realworld_scale, realworld_offset, uv_scale, uv_offset and rotation 
+     These transformations should be encoded into USD using UsdTransform2d, by the client
+-->
+<nodedef name="ND_usd_bitmap_float" node="Usd_bitmap" nodegroup="texture2d" version="1.0.1" isdefaultversion="true">
+    <input name="file" type="filename" />
+    <!--  inputs with unit -->
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance"/>
+    <!--  inputs without unit -->
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <!-- wAngle - rotation -->
+    <input name="rotation_angle" type="float" value="0" />
+    <!-- rgbamount -->
+    <input name="rgbamount" type="float" value="1.0" />
+    <!-- invert -->
+    <input name="invert" type="boolean" value="false" />
+    <output name="out" type="float" />
+</nodedef>
+
+<nodegraph name="NG_usd_bitmap_float" nodedef="ND_usd_bitmap_float">
+    <texcoord name="texcoord1" type="vector2" />
+    <image name="b_image" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+    </image>
+
+    <!-- apply rgbaamount -->
+    <multiply name="image_brightness" type="color3">
+      <input name="in1" type="color3" nodename="b_image" />
+      <input name="in2" type="float" interfacename="rgbamount" />
+    </multiply>
+
+    <!-- invert -->
+    <invert name="image_invert" type="color3">
+      <input name="in" type="color3" nodename="image_brightness" />
+    </invert>
+
+    <!-- apply invert if desired -->
+    <ifequal name="image_convert" type="color3">
+      <input name="in1" type="color3" nodename="image_invert" />
+      <input name="in2" type="color3" nodename="image_brightness" />
+      <input name="value1" type="boolean" interfacename="invert" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+    <!-- extract red channel -->
+    <extract name="extract1" type="float">
+      <input name="in" type="color3" nodename="image_convert" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+
+    <output name="out" type="float" nodename="extract1" />
+</nodegraph>
+
+<!-- Custom bitmap node that ignores realworld_scale, realworld_offset, uv_scale, uv_offset and rotation 
+     These transformations should be encoded into USD using UsdTransform2d, by the client
+-->
+<nodedef name="ND_usd_bitmap_color3" node="Usd_bitmap" nodegroup="texture2d" version="1.0.1" isdefaultversion="true">
+    <input name="file" type="filename" />
+    <!--  inputs with unit -->
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance"/>
+    <!--  inputs without unit -->
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <!-- wAngle - rotation -->
+    <input name="rotation_angle" type="float" value="0" />
+    <!-- rgbamount -->
+    <input name="rgbamount" type="float" value="1.0" />
+    <!-- invert -->
+    <input name="invert" type="boolean" value="false" />
+    <output name="out" type="color3"/>
+</nodedef>
+
+<nodegraph name="NG_usd_bitmap_color3" nodedef="ND_usd_bitmap_color3">
+    <texcoord name="texcoord1" type="vector2" />
+    <image name="b_image" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+    </image>
+
+    <!-- apply rgbaamount -->
+    <multiply name="image_brightness" type="color3">
+      <input name="in1" type="color3" nodename="b_image" />
+      <input name="in2" type="float" interfacename="rgbamount" />
+    </multiply>
+
+    <!-- invert -->
+    <invert name="image_invert" type="color3">
+      <input name="in" type="color3" nodename="image_brightness" />
+    </invert>
+
+    <!-- apply invert if desired -->
+    <ifequal name="image_convert" type="color3">
+      <input name="in1" type="color3" nodename="image_invert" />
+      <input name="in2" type="color3" nodename="image_brightness" />
+      <input name="value1" type="boolean" interfacename="invert" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+    <output name="out" type="color3" nodename="image_convert" />
+</nodegraph>
+
+<!-- adsk_metal to USDPreviewSurface -->
+<nodedef name="ND_adsk_metal_to_UsdPreviewSurface" node="adsk:metal_to_UsdPreviewSurface" nodegroup="translation" version="1.0.1" isdefaultversion="true">
+  <input name="surface_normal" type="vector3" value="0, 0, 1" />
+  <input name="surface_cutout" type="color3" value="1, 1, 1" />
+  <input name="surface_anisotropy" type="float" value="0" />
+  <input name="surface_rotation" type="float" value="0" />
+  <input name="metal_f0" type="color3" value="1.0, 1.0, 1.0" />
+  <input name="surface_albedo" type="color3" value="1.0, 1.0, 1.0" />
+  <input name="surface_roughness" type="float" value="0" />
+  <output name="diffuseColor_out" type="color3" />
+  <output name="specularColor_out" type="color3" />
+  <output name="roughness_out" type="float" />
+  <output name="metallic_out" type="float" />
+  <output name="ior_out" type="float" value="50.0"/>
+  <output name="opacity_out" type="float" value="1.0" />
+  <output name="opacityThreshold_out" type="float" value="1.0" />
+  <output name="normal_out" type="vector3" value="0, 0, 1" />
+</nodedef>
+<nodegraph name="NG_adsk:metal_to_UsdPreviewSurface" nodedef="ND_adsk_metal_to_UsdPreviewSurface">
+  <!-- base_color = metal_f0 * surface_albedo -->
+  <multiply name="base_color_value" type="color3">
+    <input name="in1" type="color3" interfacename="surface_albedo" />
+    <input name="in2" type="color3" interfacename="metal_f0" />
+  </multiply>
+  <!-- specular_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+  <subtract name="oneminus_surfaniso0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" interfacename="surface_anisotropy" />
+  </subtract>
+  <sqrt name="sqrt1minus_surfaniso0" type="float">
+    <input name="in" type="float" nodename="oneminus_surfaniso0" />
+  </sqrt>
+  <multiply name="specular_roughness_value" type="float">
+    <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+    <input name="in2" type="float" interfacename="surface_roughness" />
+  </multiply>
+  <!-- Note we only use the Red channel for the cutout -->
+  <extract name="cutout_red_channel" type="float">
+    <input name="in" type="color3" interfacename="surface_cutout" />
+    <input name="index" type="integer" value="0" />
+  </extract>
+  <subtract name="oneminus_cutout_red_channel" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="cutout_red_channel" />
+  </subtract>
+
+
+  <!-- Outputs -->
+  <dot name="surface_albedoTospecular" type="color3">
+      <input name="in" type="color3" interfacename="surface_albedo" />
+  </dot>
+  <!-- default values-->
+  <add name="iordefault" type="float" >
+    <input name="in1" type="float" value="50.0" />
+    <input name="in2" type="float" value="0.0"  />
+  </add>
+
+  <add name="metallicdefault" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" value="0.0" />
+  </add>
+
+  <add name="normal_value" type="vector3">
+    <input name="in1" type="vector3" interfacename="surface_normal" />
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
+  </add>
+
+  <output name="diffuseColor_out" type="color3" nodename="base_color_value" />
+  <output name="specularColor_out" type="color3" nodename="surface_albedoTospecular" />
+  <output name="roughness_out" type="float" nodename="specular_roughness_value" />
+  <!-- update IOR calculation -->
+  <output name="ior_out" type="float" nodename="iordefault" />
+  <output name="metallic_out" type="float" nodename="metallicdefault" />
+  <output name="opacity_out" type="float" nodename="cutout_red_channel" />
+  <output name="opacityThreshold_out" type="float" nodename="oneminus_cutout_red_channel" />
+  <output name="normal_out" type="vector3" nodename="normal_value" />
+</nodegraph>
+<!-- adsk_opaque to USDPreviewSurface -->
+<nodedef name="ND_adsk_opaque_to_UsdPreviewSurface" node="adsk:opaque_to_UsdPreviewSurface" nodegroup="translation" version="1.0.1" isdefaultversion="true">
+  <input name="surface_normal" type="vector3" value="0, 0, 1" />
+  <input name="surface_cutout" type="color3" value="1, 1, 1" />
+  <input name="surface_albedo" type="color3" value="1, 1, 1" />
+  <input name="opaque_albedo" type="color3" value="1, 1, 1" />
+  <input name="surface_roughness" type="float" value="0" />
+  <input name="surface_anisotropy" type="float" value="0" />
+  <input name="surface_rotation" type="float" value="0" />
+  <input name="opaque_f0" type="float" value="0.04" />
+  <input name="opaque_translucency" type="boolean" value="false" />
+  <input name="opaque_mfp_modifier" type="color3" value="1, 1, 1" />
+  <input name="opaque_mfp" type="float" value="1" unittype="distance" />
+  <input name="opaque_emission" type="boolean" value="false" />
+  <input name="opaque_luminance" type="float" value="0.0" />
+  <input name="opaque_luminance_modifier" type="color3" value="1.0, 1.0, 1.0" />
+  <output name="diffuseColor_out" type="color3" />
+  <output name="specularColor_out" type="color3" />
+  <output name="roughness_out" type="float" />
+  <output name="ior_out" type="float" value="1.5" />
+  <output name="metallic_out" type="float" value="0.0" />
+  <output name="emissiveColor_out" type="color3" value="0.0, 0.0, 0.0" />
+  <output name="opacity_out" type="float" value="0.0" />
+  <output name="normal_out" type="vector3" value="0, 0, 1" />
+</nodedef>
+<nodegraph name="NG_adsk:opaque_to_UsdPreviewSurface" nodedef="ND_adsk_opaque_to_UsdPreviewSurface">
+  <!-- specular_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+  <subtract name="oneminus_surfaniso0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" interfacename="surface_anisotropy" />
+  </subtract>
+  <sqrt name="sqrt1minus_surfaniso0" type="float">
+    <input name="in" type="float" nodename="oneminus_surfaniso0" />
+  </sqrt>
+  <multiply name="specular_roughness_value" type="float">
+    <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+    <input name="in2" type="float" interfacename="surface_roughness" />
+  </multiply>
+  <!-- specular_IOR = (1.0 + sqrt(opaque_f0)) / (1.0 - sqrt(opaque_f0)) -->
+  <sqrt name="sqrt_opaquef0" type="float">
+    <input name="in" type="float" interfacename="opaque_f0" />
+  </sqrt>
+  <add name="oneplus_sqrtopaquef0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="sqrt_opaquef0" />
+  </add>
+  <subtract name="oneminus_sqrtopaquef0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="sqrt_opaquef0" />
+  </subtract>
+  <divide name="specular_IOR_value" type="float">
+    <input name="in1" type="float" nodename="oneplus_sqrtopaquef0" />
+    <input name="in2" type="float" nodename="oneminus_sqrtopaquef0" />
+  </divide>
+  <!-- emission = opaque_emission ? opaque_luminance : 0.0 -->
+  <ifequal name="emission_value" type="float">
+    <input name="in1" type="float" interfacename="opaque_luminance" />
+    <input name="in2" type="float" value="0.0" />
+    <input name="value1" type="boolean" interfacename="opaque_emission" />
+    <input name="value2" type="boolean" value="true" />
+  </ifequal>
+  <multiply name="emission_value_scaled" type="float">
+    <input name="in1" type="float" value="0.001953125"/>
+    <input name="in2" type="float" nodename="emission_value"/>
+  </multiply>
+  <!-- emission_color  = opaque_luminance_modifier -->
+  <multiply name="emission_color_value" type="color3">
+    <input name="in1" type="color3" interfacename="opaque_luminance_modifier" />
+    <input name="in2" type="float" nodename="emission_value_scaled"/>
+  </multiply>
+  <!-- Note we only use the Red channel for the cutout -->
+  <extract name="cutout_red_channel" type="float">
+    <input name="in" type="color3" interfacename="surface_cutout" />
+    <input name="index" type="integer" value="0" />
+  </extract>
+  <!-- Outputs -->
+  <dot name="opaque_albedoTodiffuse" type="color3">
+      <input name="in" type="color3" interfacename="opaque_albedo" />
+  </dot>
+  <dot name="surface_albedoTospecular" type="color3">
+      <input name="in" type="color3" interfacename="surface_albedo" />
+  </dot>
+
+  <add name="metallicdefault" type="float">
+    <input name="in1" type="float" value="0.0" />
+    <input name="in2" type="float" value="0.0" />
+  </add>
+
+  <add name="normal_value" type="vector3">
+    <input name="in1" type="vector3" interfacename="surface_normal" />
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
+  </add>
+
+  <output name="diffuseColor_out" type="color3" nodename="opaque_albedoTodiffuse" />
+  <output name="specularColor_out" type="color3" nodename="surface_albedoTospecular" />
+  <output name="roughness_out" type="float" nodename="specular_roughness_value" />
+  <!-- TODO: fix IOR issues-->
+  <output name="ior_out" type="float" nodename="specular_IOR_value" />
+  <output name="metallic_out" type="float" nodename="metallicdefault" />
+  <output name="emissiveColor_out" type="color3" nodename="emission_color_value"/>
+  <output name="opacity_out" type="float" nodename="cutout_red_channel" />
+  <output name="normal_out" type="vector3" nodename="normal_value" />
+</nodegraph>
+<!-- adsk_transparent to USDPreviewSurface -->
+<nodedef name="ND_adsk_transparent_to_UsdPreviewSurface" node="adsk:transparent_to_UsdPreviewSurface" nodegroup="translation" version="1.0.1" isdefaultversion="true">
+  <input name="surface_normal" type="vector3" value="0, 0, 1" />
+  <input name="surface_cutout" type="color3" value="1, 1, 1" />
+  <input name="surface_albedo" type="color3" value="1, 1, 1" />
+  <input name="surface_roughness" type="float" value="0" />
+  <input name="surface_anisotropy" type="float" value="0" />
+  <input name="transparent_ior" type="float" value="1.5" />
+  <input name="transparent_color" type="color3" value="1, 1, 1" />
+  <input name="transparent_distance" type="float" value="1" />
+  <output name="diffuseColor_out" type="color3" />
+  <output name="specularColor_out" type="color3" />
+  <output name="roughness_out" type="float" />
+  <output name="metallic_out" type="float" value="0.0"/>
+  <output name="ior_out" type="float" value="1.5"/>
+  <output name="opacity_out" type="float" value="0.0" />
+  <output name="opacityThreshold_out" type="float" value="0.0" />
+  <output name="normal_out" type="vector3" value="0, 0, 1" />
+</nodedef>
+<nodegraph name="NG_adsk:transparent_to_UsdPreviewSurface" nodedef="ND_adsk_transparent_to_UsdPreviewSurface">
+  <!-- specular_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+  <subtract name="oneminus_surfaniso0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" interfacename="surface_anisotropy" />
+  </subtract>
+  <sqrt name="sqrt1minus_surfaniso0" type="float">
+    <input name="in" type="float" nodename="oneminus_surfaniso0" />
+  </sqrt>
+  <multiply name="specular_roughness_value" type="float">
+    <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+    <input name="in2" type="float" interfacename="surface_roughness" />
+  </multiply>
+  <!-- adhoc distance attenuation by e^(-0.1*sqrt(transparent_distance)) -->
+  <sqrt name="sqrt_transparent_distance_param" type="float">
+    <input name="in" type="float" interfacename="transparent_distance" />
+  </sqrt>
+  <divide name="negative_transparent_distance_scaled" type="float">
+    <input name="in1" type="float" nodename="sqrt_transparent_distance_param" />
+    <input name="in2" type="float" value="-10.0" />
+  </divide>
+  <exp name="transparency_amount_param" type="float">
+    <input name="in" type="float" nodename="negative_transparent_distance_scaled" />
+  </exp>
+  <!-- Outputs -->
+  <dot name="surface_albedoTospecular" type="color3">
+      <input name="in" type="color3" interfacename="surface_albedo" />
+  </dot>
+  <dot name="transparent_colorTodiffuse" type="color3">
+      <input name="in" type="color3" interfacename="transparent_color" />
+  </dot>
+  <dot name="transparent_iorToior" type="float">
+      <input name="in" type="float" interfacename="transparent_ior" />
+  </dot>
+
+  <add name="metallicdefault" type="float">
+    <input name="in1" type="float" value="0.0" />
+    <input name="in2" type="float" value="0.0" />
+  </add>
+
+  <add name="opacityThresholddefault" type="float">
+    <input name="in1" type="float" value="0.0" />
+    <input name="in2" type="float" value="0.0" />
+  </add>
+  <add name="normal_value" type="vector3">
+    <input name="in1" type="vector3" interfacename="surface_normal" />
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
+  </add>
+
+  <output name="diffuseColor_out" type="color3" nodename="transparent_colorTodiffuse" />
+  <output name="specularColor_out" type="color3" nodename="surface_albedoTospecular" />
+  <output name="roughness_out" type="float" nodename="specular_roughness_value" />
+  <!-- TODO: Fix IOR issues -->
+  <output name="ior_out" type="float" nodename="transparent_iorToior" />
+  <output name="metallic_out" type="float" nodename="metallicdefault" />
+  <output name="opacity_out" type="float" nodename="transparency_amount_param" />
+  <!-- TODO: Investigate whether cutouts are possible -->
+  <output name="opacityThreshold_out" type="float" nodename="opacityThresholddefault" />
+  <output name="normal_out" type="vector3" nodename="normal_value" />
+</nodegraph>
+<!-- adsk_layered to USDPreviewSurface -->
+<nodedef name="ND_adsk_layered_to_UsdPreviewSurface" node="adsk:layered_to_UsdPreviewSurface" nodegroup="translation" version="1.0.1" isdefaultversion="true">
+  <input name="surface_normal" type="vector3" value="0, 0, 1" />
+  <input name="surface_cutout" type="color3" value="1, 1, 1" />
+  <input name="surface_albedo" type="color3" value="1, 1, 1" />
+  <input name="surface_roughness" type="float" value="0" />
+  <input name="surface_anisotropy" type="float" value="0" />
+  <input name="surface_rotation" type="float" value="0" />
+  <input name="layered_normal" type="vector3" value="0, 0, 1" />
+  <input name="layered_f0" type="float" value="1" />
+  <input name="layered_roughness" type="float" value="0" />
+  <input name="layered_anisotropy" type="float" value="0" />
+  <input name="layered_rotation" type="float" value="0" />
+  <input name="layered_fraction" type="float" value="0.5" />
+  <input name="layered_fraction_invert" type="boolean" value="false" />
+  <input name="layered_diffuse" type="color3" value="1, 1, 1" />
+  <input name="layered_bottom_f0" type="color3" value="1, 1, 1" />
+  <output name="diffuseColor_out" type="color3" />
+  <output name="specularColor_out" type="color3" />
+  <output name="roughness_out" type="float" />
+  <output name="clearcoat_out" type="float" value="0.0" />
+  <output name="clearcoatRoughness_out" type="float" value="0.0" />
+  <output name="ior_out" type="float" value="1.5" />
+  <output name="metallic_out" type="float" value="0.0" />
+  <output name="emissiveColor_out" type="color3" value="0.0, 0.0, 0.0" />
+  <output name="opacity_out" type="float" value="0.0" />
+  <output name="opacityThreshold_out" type="float" value="0.0"/>
+  <output name="normal_out" type="vector3" value="0, 0, 1" />
+</nodedef>
+<!-- adsk_layered to USDPreviewSurface -->
+<nodegraph name="NG_adsk:layered_to_UsdPreviewSurface" nodedef="ND_adsk_layered_to_UsdPreviewSurface">
+  <!-- using mapping Option 1 - Blend the Metal and Diffuse colors -->
+  <luminance name="coat_value_color3" type="color3">
+    <input name="in" type="color3" interfacename="surface_albedo"/>
+  </luminance>
+  <!-- Note we only use the Red channel -->
+  <extract name="coat_value" type="float">
+    <input name="in" type="color3" nodename="coat_value_color3" />
+    <input name="index" type="integer" value="0" />
+  </extract>
+  <subtract name="oneminus_surfaniso0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" interfacename="surface_anisotropy" />
+  </subtract>
+  <sqrt name="sqrt1minus_surfaniso0" type="float">
+    <input name="in" type="float" nodename="oneminus_surfaniso0" />
+  </sqrt>
+  <multiply name="specular_roughness_value" type="float">
+    <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+    <input name="in2" type="float" interfacename="surface_roughness" />
+  </multiply>
+  <sqrt name="sqrt_layeredf0" type="float">
+    <input name="in" type="float" interfacename="layered_f0" />
+  </sqrt>
+  <add name="oneplus_sqrtlayeredf0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="sqrt_layeredf0" />
+  </add>
+  <subtract name="oneminus_sqrtlayeredf0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="sqrt_layeredf0" />
+  </subtract>
+  <divide name="coat_IOR_value" type="float">
+    <input name="in1" type="float" nodename="oneplus_sqrtlayeredf0" />
+    <input name="in2" type="float" nodename="oneminus_sqrtlayeredf0" />
+  </divide>
+  <subtract name="oneminus_layeraniso0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" interfacename="layered_anisotropy" />
+  </subtract>
+  <sqrt name="sqrt1minus_layeraniso0" type="float">
+    <input name="in" type="float" nodename="oneminus_layeraniso0" />
+  </sqrt>
+  <multiply name="coat_roughness_value" type="float">
+    <input name="in1" type="float" nodename="sqrt1minus_layeraniso0"/>
+    <input name="in2" type="float" interfacename="layered_roughness" />
+  </multiply>
+  <!-- base_color = layered_fraction * layered_bottom_f0 + (1.0 - layered_fraction) * layered_diffuse -->
+  <subtract name="oneminus_layerfraction" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" interfacename="layered_fraction" />
+  </subtract>
+  <multiply name="oneminuslf_x_layerdiffuse" type="color3">
+    <input name="in1" type="color3" interfacename="layered_diffuse" />
+    <input name="in2" type="float" nodename="oneminus_layerfraction" />
+  </multiply>
+  <multiply name="lfract_x_lbottomf0" type="color3">
+    <input name="in1" type="color3" interfacename="layered_bottom_f0" />
+    <input name="in2" type="float" interfacename="layered_fraction" />
+  </multiply>
+  <add name="base_color_value" type="color3">
+    <input name="in1" type="color3" nodename="lfract_x_lbottomf0" />
+    <input name="in2" type="color3" nodename="oneminuslf_x_layerdiffuse" />
+  </add>
+  <extract name="cutout_red_channel" type="float">
+    <input name="in" type="color3" interfacename="surface_cutout" />
+    <input name="index" type="integer" value="0" />
+  </extract>
+
+  <subtract name="oneminus_cutout_red_channel" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="cutout_red_channel" />
+  </subtract>
+  <ifequal name="layered_fraction_value" type="float">
+    <input name="in1" type="float" nodename="oneminus_layerfraction" />
+    <input name="in2" type="float" interfacename="layered_fraction" />
+    <input name="value1" type="boolean" interfacename="layered_fraction_invert" />
+    <input name="value2" type="boolean" value="true" />
+  </ifequal>
+  <!-- Outputs -->
+
+  <add name="emissiveColorDefault" type="color3">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="color3" value="0.0, 0.0, 0.0" />
+  </add>
+
+  <add name="specularColorDefault" type="color3">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
+  </add>
+
+  <add name="iordefault" type="float">
+    <input name="in1" type="float" value="1.5" />
+    <input name="in2" type="float" value="0.0" />
+  </add>
+
+  <add name="normal_value" type="vector3">
+    <input name="in1" type="vector3" interfacename="layered_normal" />
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
+  </add>
+
+  <output name="diffuseColor_out" type="color3" nodename="base_color_value" />
+  <output name="specularColor_out" type="color3" nodename="specularColorDefault" />
+  <output name="roughness_out" type="float" nodename="specular_roughness_value" />
+  <output name="clearcoat_out" type="float" nodename="coat_value" />
+  <output name="clearcoatRoughness_out" type="float" nodename="coat_roughness_value" />
+  <output name="ior_out" type="float" nodename="iordefault" />
+  <output name="metallic_out" type="float" nodename="layered_fraction_value" />
+  <output name="emissiveColor_out" type="color3" nodename="emissiveColorDefault" />
+  <output name="opacity_out" type="float" nodename="cutout_red_channel" />
+  <output name="opacityThreshold_out" type="float" nodename="oneminus_cutout_red_channel" />
+  <output name="normal_out" type="vector3" nodename="normal_value" />
+</nodegraph>
+<!-- adsk_glazing to USDPreviewSurface -->
+<nodedef name="ND_adsk_glazing_to_UsdPreviewSurface" node="adsk:glazing_to_UsdPreviewSurface" nodegroup="translation" version="1.0.1" isdefaultversion="true">
+  <input name="surface_normal" type="vector3" value="0, 0, 1" />
+  <input name="surface_albedo" type="color3" value="1, 1, 1" />
+  <input name="surface_cutout" type="color3" value="1, 1, 1" />
+  <input name="surface_roughness" type="float" value="0" />
+  <input name="surface_anisotropy" type="float" value="0" />
+  <input name="surface_rotation" type="float" value="0" />
+  <input name="glazing_transmission_color" type="color3" value="1, 1, 1" />
+  <input name="glazing_transmission_roughness" type="float" value="0" />
+  <input name="glazing_f0" type="color3" value="1,1,1" />
+  <input name="glazing_backface_culling" type="boolean" value="true" />
+  <output name="diffuseColor_out" type="color3" />
+  <output name="specularColor_out" type="color3" />
+  <output name="roughness_out" type="float" />
+  <output name="ior_out" type="float" />
+  <output name="metallic_out" type="float" value="0.0" />
+  <output name="opacity_out" type="float" value="0.2" />
+  <output name="opacityThreshold_out" type="float"/>
+  <output name="normal_out" type="vector3" value="0, 0, 1" />
+</nodedef>
+<nodegraph name="NG_adsk:glazing_to_UsdPreviewSurface" nodedef="ND_adsk_glazing_to_UsdPreviewSurface">
+
+  <subtract name="oneminus_surfaniso0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" interfacename="surface_anisotropy" />
+  </subtract>
+  <sqrt name="sqrt1minus_surfaniso0" type="float">
+    <input name="in" type="float" nodename="oneminus_surfaniso0" />
+  </sqrt>
+  <multiply name="coat_roughness_value" type="float">
+    <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+    <input name="in2" type="float" interfacename="surface_roughness" />
+  </multiply>
+  <subtract name="oneminus_surfaceaniso0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" interfacename="surface_anisotropy" />
+  </subtract>
+  <sqrt name="sqrt1minus_surfaceaniso0" type="float">
+    <input name="in" type="float" nodename="oneminus_surfaceaniso0" />
+  </sqrt>
+  <multiply name="specular_roughness_value" type="float">
+    <input name="in1" type="float" nodename="sqrt1minus_surfaceaniso0"/>
+    <input name="in2" type="float" interfacename="surface_roughness" />
+  </multiply>
+  <luminance name="lum_glazing_f0" type="color3">
+    <input name="in" type="color3" interfacename="glazing_f0" />
+  </luminance>
+  <!-- Note we only use the Red channel -->
+  <extract name="lum_glazing_f0_float" type="float">
+    <input name="in" type="color3" nodename="lum_glazing_f0" />
+    <input name="index" type="integer" value="0" />
+  </extract>
+  <sqrt name="sqrt_glazingf0" type="float">
+    <input name="in" type="float" nodename="lum_glazing_f0_float" />
+  </sqrt>
+  <add name="oneplus_sqrtglazingf0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="sqrt_glazingf0" />
+  </add>
+  <subtract name="oneminus_sqrtglazingf0" type="float">
+    <input name="in1" type="float" value="1.0" />
+    <input name="in2" type="float" nodename="sqrt_glazingf0" />
+  </subtract>
+  <divide name="specular_IOR_value" type="float">
+    <input name="in1" type="float" nodename="oneplus_sqrtglazingf0" />
+    <input name="in2" type="float" nodename="oneminus_sqrtglazingf0" />
+  </divide>
+  <multiply name="glazing_color_value" type="color3">
+    <input name="in1" type="color3" interfacename="glazing_transmission_color" />
+    <input name="in2" type="color3" interfacename="surface_albedo" />
+  </multiply>
+  <!-- Outputs -->
+  <dot name="surface_albedoTospecular" type="color3">
+      <input name="in" type="color3" interfacename="surface_albedo" />
+  </dot>
+
+
+  <add name="metallicdefault" type="float">
+    <input name="in1" type="float" value="0.0" />
+    <input name="in2" type="float" value="0.0" />
+  </add>
+
+  <add name="opacitydefault" type="float">
+    <input name="in1" type="float" value="0.2" />
+    <input name="in2" type="float" value="0.0" />
+  </add>
+
+  <add name="opacitythresholddefault" type="float">
+    <input name="in1" type="float" value="0.0" />
+    <input name="in2" type="float" value="0.0" />
+  </add>
+
+  <add name="normal_value" type="vector3">
+    <input name="in1" type="vector3" interfacename="surface_normal" />
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
+  </add>
+
+  <output name="diffuseColor_out" type="color3" nodename="glazing_color_value" />
+  <output name="specularColor_out" type="color3" nodename="surface_albedoTospecular" />
+  <output name="roughness_out" type="float" nodename="specular_roughness_value" />
+  <output name="ior_out" type="float" nodename="specular_IOR_value" />
+  <output name="metallic_out" type="float" nodename="metallicdefault" />
+  <output name="opacity_out" type="float" nodename="opacitydefault" />
+  <output name="opacityThreshold_out" type="float" nodename="opacitythresholddefault" />
+  <output name="normal_out" type="vector3" nodename="normal_value" />
+</nodegraph>
+</materialx>

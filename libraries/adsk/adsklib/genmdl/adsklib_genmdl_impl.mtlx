@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.38">
+  <!--
+  DESCRIPTION: MDL impl for Autodesk Advanced Materials
+  VERSION: 1.0.1
+  SHA: $Id$
+  -->
+
+  <!-- <backface_util> todo: temporary implementation -->
+  <implementation name="IM_backface_util_genmdl" nodedef="adsk:ND_backface_util" sourcecode="color(1, 1, 1)" target="genmdl"/>
+</materialx>

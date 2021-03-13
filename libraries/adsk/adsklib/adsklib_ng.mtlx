@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.38">
+  <!--
+  DESCRIPTION: Node Defintions for Autodesk Advanced Materials
+  VERSION: 1.0.1
+  SHA: $Id$
+  -->
+
+  <!-- 
+  <adsk_bitmap>
+  -->
+  <nodegraph name="NG_adsk_bitmap_color3" nodedef="adsk:ND_adsk_bitmap_color3" namespace="adsk">
+    <divide name="total_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+    </divide>
+    <!-- offset -->
+    <add name="total_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="realworld_offset"/>
+      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+    </add>
+
+    <!-- rotation angle - positive angle rotate counterclockwise -->
+    <multiply name="rotation_angle_param" type="float">
+      <input name="in1" type="float" interfacename="rotation_angle"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+
+    <!-- use placement node to transform uv -->
+    <texcoord name="texcoord1" type="vector2" />
+    <place2d name="a_place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="offset" type="vector2" nodename="total_offset" />
+      <input name="scale" type="vector2" nodename="total_scale" />
+      <input name="pivot" type="vector2" value="0.0, 0.0" />
+      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+    </place2d>
+    <image name="b_image" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="a_place2d" />
+    </image>
+
+    <!-- apply rgbaamount -->
+    <multiply name="image_brightness" type="color3">
+      <input name="in1" type="color3" nodename="b_image" />
+      <input name="in2" type="float" interfacename="rgbamount" />
+    </multiply>
+
+    <!-- invert -->
+    <invert name="image_invert" type="color3">
+      <input name="in" type="color3" nodename="image_brightness" />
+    </invert>
+
+    <!-- apply invert if desired -->
+    <ifequal name="image_convert" type="color3">
+      <input name="in1" type="color3" nodename="image_invert" />
+      <input name="in2" type="color3" nodename="image_brightness" />
+      <input name="value1" type="boolean" interfacename="invert" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+    <output name="out" type="color3" nodename="image_convert" />
+  </nodegraph>
+
+  <nodegraph name="NG_adsk_bitmap_float" nodedef="adsk:ND_adsk_bitmap_float" namespace="adsk">
+    <!-- divide scale by unit converted realworldscale -->
+    <divide name="total_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+    </divide>
+    <!-- offset -->
+    <add name="total_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="realworld_offset"/>
+      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+    </add>
+
+    <!-- rotation angle - positive angle rotate counterclockwise -->
+    <multiply name="rotation_angle_param" type="float">
+      <input name="in1" type="float" interfacename="rotation_angle"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+
+    <!-- use placement node to transform uv -->
+    <texcoord name="texcoord1" type="vector2" />
+    <place2d name="a_place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="offset" type="vector2" nodename="total_offset" />
+      <input name="scale" type="vector2" nodename="total_scale" />
+      <input name="pivot" type="vector2" value="0.0, 0.0" />
+      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+    </place2d>
+    <image name="b_image" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="a_place2d" />
+    </image>
+
+    <!-- apply rgbaamount -->
+    <multiply name="image_brightness" type="color3">
+      <input name="in1" type="color3" nodename="b_image" />
+      <input name="in2" type="float" interfacename="rgbamount" />
+    </multiply>
+
+    <!-- invert -->
+    <invert name="image_invert" type="color3">
+      <input name="in" type="color3" nodename="image_brightness" />
+    </invert>
+
+    <!-- apply invert if desired -->
+    <ifequal name="image_convert" type="color3">
+      <input name="in1" type="color3" nodename="image_invert" />
+      <input name="in2" type="color3" nodename="image_brightness" />
+      <input name="value1" type="boolean" interfacename="invert" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+    <!-- extract red channel -->
+    <extract name="extract1" type="float">
+      <input name="in" type="color3" nodename="image_convert" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+
+    <output name="out" type="float" nodename="extract1" />
+  </nodegraph>
+
+  <nodegraph name="NG_adsk_bitmap_remap_float" nodedef="adsk:ND_adsk_bitmap_remap_float" namespace="adsk">
+    <!-- divide scale by unit converted realworldscale -->
+    <divide name="total_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+    </divide>
+    <!-- offset -->
+    <add name="total_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="realworld_offset"/>
+      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+    </add>
+
+    <!-- rotation angle - positive angle rotate counterclockwise -->
+    <multiply name="rotation_angle_param" type="float">
+      <input name="in1" type="float" interfacename="rotation_angle"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+
+    <!-- use placement node to transform uv -->
+    <texcoord name="texcoord1" type="vector2" />
+    <place2d name="a_place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="offset" type="vector2" nodename="total_offset" />
+      <input name="scale" type="vector2" nodename="total_scale" />
+      <input name="pivot" type="vector2" value="0.0, 0.0" />
+      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+    </place2d>
+    <image name="b_image" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="a_place2d" />
+    </image>
+
+
+    <!-- apply rgbaamount -->
+    <multiply name="image_brightness" type="color3">
+      <input name="in1" type="color3" nodename="b_image" />
+      <input name="in2" type="float" interfacename="rgbamount" />
+    </multiply>
+
+    <!-- invert -->
+    <invert name="image_invert" type="color3">
+      <input name="in" type="color3" nodename="image_brightness" />
+    </invert>
+
+    <!-- apply invert if desired -->
+    <ifequal name="image_convert" type="color3">
+      <input name="in1" type="color3" nodename="image_invert" />
+      <input name="in2" type="color3" nodename="image_brightness" />
+      <input name="value1" type="boolean" interfacename="invert" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+
+    <!-- extract red channel -->
+    <extract name="extract1f" type="float">
+      <input name="in" type="color3" nodename="image_convert" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+
+    <!-- remap output range -->
+    <remap name="value_remapped" type="float">
+      <input name="in" type="float" nodename="extract1f" />
+      <input name="outlow" type="float" interfacename="outlow" />
+      <input name="outhigh" type="float" interfacename="outhigh" />
+    </remap>
+    <output name="out" type="float" nodename="value_remapped" />
+  </nodegraph>
+
+  <!-- 
+  <adsk_normal_map> 
+  -->
+  <nodegraph name="NG_adsk_normal_map" nodedef="adsk:ND_adsk_normal_map" namespace="adsk">
+    <!-- divide scale by unit converted realworldscale -->
+    <divide name="total_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+    </divide>
+    <!-- offset -->
+    <add name="total_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="realworld_offset"/>
+      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+    </add>
+    
+    <!-- rotation angle - positive angle rotate counterclockwise -->
+    <multiply name="rotation_angle_param" type="float">
+      <input name="in1" type="float" interfacename="rotation_angle"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+
+    <!-- use placement node to transform uv -->
+    <texcoord name="texcoord1" type="vector2" />
+    <place2d name="a_place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="offset" type="vector2" nodename="total_offset" />
+      <input name="scale" type="vector2" nodename="total_scale" />
+      <input name="pivot" type="vector2" value="0.0, 0.0" />
+      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+    </place2d>
+    <image name="b_image" type="vector3" >
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="a_place2d" />
+    </image>
+
+    <!-- Flip image -->
+    <multiply name="b_image_negate_y" type="vector3">
+      <input name="in1" type="vector3" nodename="b_image"/>
+      <input name="in2" type="vector3" value="1.0, -1.0, 1.0"/>
+    </multiply>
+    <add name="b_image_invert_y" type="vector3">
+      <input name="in1" type="vector3" value="0.0, 1.0, 0.0" />
+      <input name="in2" type="vector3" nodename="b_image_negate_y" />
+    </add>
+
+    <!-- use std::normal_map -->
+    <normalmap name="impl_normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="b_image_invert_y" />
+      <input name="scale" type="float" interfacename="normal_scale" />
+      <input name="space" type="string" value="tangent" />
+    </normalmap>
+    <output name="out" type="vector3" nodename="impl_normalmap" />
+  </nodegraph>
+
+  <!-- 
+  <adsk_height_map> 
+  -->
+  <nodegraph name="NG_adsk_height_map" nodedef="adsk:ND_adsk_height_map" namespace="adsk">
+    <!-- divide scale by unit converted realworldscale -->
+    <divide name="total_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+    </divide>
+    <add name="total_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="realworld_offset"/>
+      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+    </add>
+
+    <!-- rotation angle - positive angle rotate counterclockwise -->
+    <multiply name="rotation_angle_param" type="float">
+      <input name="in1" type="float" interfacename="rotation_angle"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+
+    <texcoord name="texcoord1" type="vector2" />
+    <place2d name="a_place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="offset" type="vector2" nodename="total_offset" />
+      <input name="scale" type="vector2" nodename="total_scale" />
+      <input name="pivot" type="vector2" value="0.0, 0.0" />
+      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+    </place2d>
+    <image name="b_image" type="color3" >
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="texcoord" type="vector2" nodename="a_place2d" />
+    </image>
+    <extract name="extract1" type="float">	
+        <input name="in" type="color3" nodename="b_image" />	
+        <input name="index" type="integer" value="0" />	
+    </extract>
+    <heighttonormal name="impl_heighttonormalmap" type="vector3">
+      <input name="in" type="float" nodename="extract1" />
+      <input name="scale" type="float" value="1.0" />
+    </heighttonormal>
+    <!-- use std::normal_map -->
+    <normalmap name="impl_normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="impl_heighttonormalmap" />
+      <input name="scale" type="float"  value="1.0" interfacename="depth" />
+      <input name="space" type="string" value="tangent" />
+    </normalmap>
+    <output name="out" type="vector3" nodename="impl_normalmap" />
+  </nodegraph>
+
+
+  <!-- 
+      ===================================
+      Nodegraphs for Autodesk materials.
+      ===================================
+  -->
+  <!-- <adsk_metal> -->
+  <nodegraph name="NG_adsk_metal" nodedef="adsk:ND_adsk_metal" namespace="adsk">
+    
+    <!-- base_color = metal_f0 * surface_albedo -->
+    <multiply name="base_color_value" type="color3">
+      <input name="in1" type="color3" interfacename="surface_albedo" />
+      <input name="in2" type="color3" interfacename="metal_f0" />
+    </multiply>
+
+    <!-- specular_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+    <subtract name="oneminus_surfaniso0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </subtract>
+    <sqrt name="sqrt1minus_surfaniso0" type="float">
+      <input name="in" type="float" nodename="oneminus_surfaniso0" />
+    </sqrt>
+    <multiply name="specular_roughness_value" type="float">
+      <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+      <input name="in2" type="float" interfacename="surface_roughness" />
+    </multiply>
+
+    <!-- specular_anisotropy = 2 * surface_anisotropy - surface_anisotropy * surface_anisotropy -->
+    <multiply name="twotimes_surfaniso0" type="float">
+      <input name="in1" type="float" value="2.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <multiply name="pow2_surfaniso0" type="float">
+      <input name="in1" type="float" interfacename="surface_anisotropy" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <subtract name="specular_anisotropy_value" type="float">
+      <input name="in1" type="float" nodename="twotimes_surfaniso0" />
+      <input name="in2" type="float" nodename="pow2_surfaniso0" />
+    </subtract>
+
+    <!-- specular_rotation = fmod(surface_rotation / 360.0, 1.0) -->
+    <divide name="div_rotation0" type="float">
+      <input name="in1" type="float" interfacename="surface_rotation" />
+      <input name="in2" type="float" value="360.0" />
+    </divide>
+    <modulo name="specular_rotation_value" type="float">
+      <input name="in1" type="float" nodename="div_rotation0" />
+    </modulo>
+
+    <!-- map values to standard surface -->
+    <output name="out" type="surfaceshader" nodename="standard_surface0" />
+    <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
+      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="metalness" type="float" value="1" />
+      <input name="base" type="float" value="1.0" />
+      <input name="base_color" type="color3" nodename="base_color_value" />
+      <input name="specular_color" type="color3" interfacename="surface_albedo" />
+      <input name="specular_roughness" type="float" nodename="specular_roughness_value" />
+      <input name="specular_anisotropy" type="float" nodename="specular_anisotropy_value" />
+      <input name="specular_rotation" type="float" nodename="specular_rotation_value" />
+    </standard_surface>
+  </nodegraph>
+
+  <!-- <adsk_opaque> -->
+  <nodegraph name="NG_adsk_opaque" nodedef="adsk:ND_adsk_opaque" namespace="adsk">
+    
+    <!-- specular_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+    <subtract name="oneminus_surfaniso0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </subtract>
+    <sqrt name="sqrt1minus_surfaniso0" type="float">
+      <input name="in" type="float" nodename="oneminus_surfaniso0" />
+    </sqrt>
+    <multiply name="specular_roughness_value" type="float">
+      <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+      <input name="in2" type="float" interfacename="surface_roughness" />
+    </multiply>
+
+    <!-- specular_anisotropy = 2 * surface_anisotropy - surface_anisotropy * surface_anisotropy -->
+    <multiply name="twotimes_surfaniso0" type="float">
+      <input name="in1" type="float" value="2.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <multiply name="pow2_surfaniso0" type="float">
+      <input name="in1" type="float" interfacename="surface_anisotropy" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <subtract name="specular_anisotropy_value" type="float">
+      <input name="in1" type="float" nodename="twotimes_surfaniso0" />
+      <input name="in2" type="float" nodename="pow2_surfaniso0" />
+    </subtract>
+
+    <constant name="surface_rotation_param" type="float">
+      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+    </constant>
+    <!-- specular_rotation = fmod(surface_rotation / 360.0, 1.0) -->
+    <divide name="div_rotation0" type="float">
+      <input name="in1" type="float" nodename="surface_rotation_param" />
+      <input name="in2" type="float" value="360.0" />
+    </divide>
+    <modulo name="specular_rotation_value" type="float" >
+      <input name="in1" type="float" nodename="div_rotation0" />
+    </modulo>
+
+
+    <!-- specular_IOR = (1.0 + sqrt(opaque_f0)) / (1.0 - sqrt(opaque_f0)) -->
+    <constant name="opaque_f0_param" type="float">
+      <input name="value" type="float" value="1" interfacename="opaque_f0" />
+    </constant>
+    <sqrt name="sqrt_opaquef0" type="float">
+      <input name="in" type="float" nodename="opaque_f0_param" />
+    </sqrt>
+    <add name="oneplus_sqrtopaquef0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="sqrt_opaquef0" />
+    </add>
+    <subtract name="oneminus_sqrtopaquef0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="sqrt_opaquef0" />
+    </subtract>
+    <divide name="specular_IOR_value" type="float">
+      <input name="in1" type="float" nodename="oneplus_sqrtopaquef0" />
+      <input name="in2" type="float" nodename="oneminus_sqrtopaquef0" />
+    </divide>
+
+    <!-- subsurface = opaque_translucency ? 1.0 : 0.0 -->
+    <ifequal name="subsurface_value" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" value="0.0" />
+      <input name="value1" type="boolean" interfacename="opaque_translucency" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+    <!-- emission = opaque_emission ? opaque_luminance : 0.0 -->
+    <ifequal name="emission_value" type="float">
+      <input name="in1" type="float" interfacename="opaque_luminance" />
+      <input name="in2" type="float" value="0.0" />
+      <input name="value1" type="boolean" interfacename="opaque_emission" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+    <multiply name="emission_value_scaled" type="float">
+      <input name="in1" type="float" value="0.001953125"/>
+      <input name="in2" type="float" nodename="emission_value"/>
+    </multiply>
+
+    <!-- emission_color  = opaque_luminance_modifier -->
+    <constant name="emission_color_value" type="color3">
+      <input name="value" type="color3" value="0, 0, 0" interfacename="opaque_luminance_modifier"/>
+    </constant>
+
+    <!-- map values to standard surface -->
+    <output name="out" type="surfaceshader" nodename="standard_surface0" />
+    <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
+      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="specular_color" type="color3" value="1, 1, 1" interfacename="surface_albedo" />
+      <input name="specular_roughness" type="float" nodename="specular_roughness_value" />
+      <input name="specular_anisotropy" type="float" nodename="specular_anisotropy_value" />
+      <input name="specular_rotation" type="float" nodename="specular_rotation_value" />
+      <input name="specular_IOR" type="float" nodename="specular_IOR_value" />
+      <input name="base" type="float" value="1.0" />
+      <input name="base_color" type="color3" interfacename="opaque_albedo" />
+      <input name="subsurface" type="float" nodename="subsurface_value" />
+      <input name="subsurface_color" type="color3" interfacename="opaque_albedo" />
+      <input name="subsurface_radius" type="color3" interfacename="opaque_mfp_modifier" />
+      <input name="subsurface_scale" type="float" interfacename="opaque_mfp" />
+      <input name="emission" type="float" nodename="emission_value_scaled" />
+      <input name="emission_color" type="color3" nodename="emission_color_value" />
+    </standard_surface>
+  </nodegraph>
+
+  <!-- <adsk_transparent> -->
+  <nodegraph name="NG_adsk_transparent" nodedef="adsk:ND_adsk_transparent" namespace="adsk">
+
+    <!-- specular_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+    <subtract name="oneminus_surfaniso0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </subtract>
+    <sqrt name="sqrt1minus_surfaniso0" type="float">
+      <input name="in" type="float" nodename="oneminus_surfaniso0" />
+    </sqrt>
+    <multiply name="specular_roughness_value" type="float">
+      <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+      <input name="in2" type="float" interfacename="surface_roughness" />
+    </multiply>
+
+    <!-- specular_anisotropy = 2 * surface_anisotropy - surface_anisotropy * surface_anisotropy -->
+    <multiply name="twotimes_surfaniso0" type="float">
+      <input name="in1" type="float" value="2.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <multiply name="pow2_surfaniso0" type="float">
+      <input name="in1" type="float" interfacename="surface_anisotropy" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <subtract name="specular_anisotropy_value" type="float">
+      <input name="in1" type="float" nodename="twotimes_surfaniso0" />
+      <input name="in2" type="float" nodename="pow2_surfaniso0" />
+    </subtract>
+
+    <constant name="surface_rotation_param" type="float">
+      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+    </constant>
+
+    <!-- specular_rotation = fmod(surface_rotation / 360.0, 1.0) -->
+    <divide name="div_rotation0" type="float">
+      <input name="in1" type="float" nodename="surface_rotation_param" />
+      <input name="in2" type="float" value="360.0" />
+    </divide>
+    <modulo name="specular_rotation_value" type="float" >
+      <input name="in1" type="float" nodename="div_rotation0" />
+    </modulo>
+
+    <!-- map values to standard surface -->
+    <output name="out" type="surfaceshader" nodename="standard_surface0" />
+    <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
+      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="specular" type="float" value="1.0" />
+      <input name="transmission" type="float" value="1.0" />
+      <input name="specular_color" type="color3" value="1, 1, 1" interfacename="surface_albedo" />
+      <input name="specular_roughness" type="float" nodename="specular_roughness_value" />
+      <input name="specular_anisotropy" type="float" nodename="specular_anisotropy_value" />
+      <input name="specular_rotation" type="float" nodename="specular_rotation_value" />
+      <input name="specular_IOR" type="float" interfacename="transparent_ior" />
+      <input name="transmission_color" type="color3" interfacename="transparent_color" />
+      <input name="transmission_depth" type="float" interfacename="transparent_distance" />
+    </standard_surface>
+  </nodegraph>
+
+
+  <!-- <adsk_layered> -->
+  <!-- using Option 1 - Blend the Metal and Diffuse colors -->
+  <nodegraph name="NG_adsk_layered" nodedef="adsk:ND_adsk_layered" namespace="adsk">
+
+    <!-- inputs and Interfaces for Autodesk Layered PBR Materials -->
+
+    <luminance name="coat_value_color3" type="color3">
+      <input name="in" type="color3" interfacename="surface_albedo"/>
+    </luminance>
+
+    <!-- extract red channel -->
+    <extract name="coat_value" type="float">
+      <input name="in" type="color3" nodename="coat_value_color3" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+
+    <!-- coat_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+    <subtract name="oneminus_surfaniso0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </subtract>
+    <sqrt name="sqrt1minus_surfaniso0" type="float">
+      <input name="in" type="float" nodename="oneminus_surfaniso0" />
+    </sqrt>
+    <multiply name="coat_roughness_value" type="float">
+      <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+      <input name="in2" type="float" interfacename="surface_roughness" />
+    </multiply>
+
+    <!-- coat_anisotropy = 2 * surface_anisotropy - surface_anisotropy * surface_anisotropy -->
+    <multiply name="twotimes_surfaniso0" type="float">
+      <input name="in1" type="float" value="2.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <multiply name="pow2_surfaniso0" type="float">
+      <input name="in1" type="float" interfacename="surface_anisotropy" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <subtract name="coat_anisotropy_value" type="float">
+      <input name="in1" type="float" nodename="twotimes_surfaniso0" />
+      <input name="in2" type="float" nodename="pow2_surfaniso0" />
+    </subtract>
+
+
+    <constant name="surface_rotation_param" type="float">
+      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+    </constant>
+
+    <!-- coat_rotation = fmod(surface_rotation / 360.0, 1.0) -->
+    <divide name="div_rotation0" type="float">
+      <input name="in1" type="float" nodename="surface_rotation_param" />
+      <input name="in2" type="float" value="360.0" />
+    </divide>
+    <modulo name="coat_rotation_value" type="float" >
+      <input name="in1" type="float" nodename="div_rotation0" />
+    </modulo>
+
+    <!-- coat_IOR = (1.0 + sqrt(layered_f0)) / (1.0 - sqrt(layered_f0)) -->
+    <constant name="layered_f0_param" type="float">
+      <input name="value" type="float" value="1" interfacename="layered_f0" />
+    </constant>
+    <sqrt name="sqrt_layeredf0" type="float">
+      <input name="in" type="float" nodename="layered_f0_param" />
+    </sqrt>
+    <add name="oneplus_sqrtlayeredf0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="sqrt_layeredf0" />
+    </add>
+    <subtract name="oneminus_sqrtlayeredf0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="sqrt_layeredf0" />
+    </subtract>
+    <divide name="coat_IOR_value" type="float">
+      <input name="in1" type="float" nodename="oneplus_sqrtlayeredf0" />
+      <input name="in2" type="float" nodename="oneminus_sqrtlayeredf0" />
+    </divide>
+
+
+    <constant name="layered_roughness_param" type="float">
+      <input name="value" type="float" value="1" interfacename="layered_roughness" />
+    </constant>
+
+    <constant name="layered_anisotropy_param" type="float">
+      <input name="value" type="float" value="1" interfacename="layered_anisotropy" />
+    </constant>
+
+    <!-- specular_roughness = layered_roughness * sqrt(1 - layered_anisotropy) -->
+    <subtract name="oneminus_layeraniso0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="layered_anisotropy_param" />
+    </subtract>
+    <sqrt name="sqrt1minus_layeraniso0" type="float">
+      <input name="in" type="float" nodename="oneminus_layeraniso0" />
+    </sqrt>
+    <multiply name="specular_roughness_value" type="float">
+      <input name="in1" type="float" nodename="sqrt1minus_layeraniso0"/>
+      <input name="in2" type="float" nodename="layered_roughness_param" />
+    </multiply>
+
+    <!-- specular_anisotropy = 2 * layered_anisotropy - layered_anisotropy * layered_anisotropy -->
+    <multiply name="twotimes_layeraniso0" type="float">
+      <input name="in1" type="float" value="2.0" />
+      <input name="in2" type="float" nodename="layered_anisotropy_param" />
+    </multiply>
+    <multiply name="pow2_layeraniso0" type="float">
+      <input name="in1" type="float" nodename="layered_anisotropy_param" />
+      <input name="in2" type="float" nodename="layered_anisotropy_param" />
+    </multiply>
+    <subtract name="specular_anisotropy_value" type="float">
+      <input name="in1" type="float" nodename="twotimes_layeraniso0" />
+      <input name="in2" type="float" nodename="pow2_layeraniso0" />
+    </subtract>
+
+
+    <constant name="layered_rotation_param" type="float">
+      <input name="value" type="float" value="0" interfacename="layered_rotation" />
+    </constant>
+    <!-- specular_rotation = fmod(layered_rotation / 360.0, 1.0) -->
+    <divide name="div_rotation1" type="float">
+      <input name="in1" type="float" nodename="layered_rotation_param" />
+      <input name="in2" type="float" value="360.0" />
+    </divide>
+    <modulo name="specular_rotation_value" type="float" >
+      <input name="in1" type="float" nodename="div_rotation1" />
+    </modulo>
+
+    <constant name="layered_fraction_param" type="float">
+      <input name="value" type="float" value="0" interfacename="layered_fraction" />
+    </constant>
+
+    <constant name="layered_diffuse_param" type="color3">
+      <input name="value" type="color3" value="1, 1, 1" interfacename="layered_diffuse" />
+    </constant>
+
+    <constant name="layered_bottom_f0_param" type="color3">
+      <input name="value" type="color3" value="1, 1, 1" interfacename="layered_bottom_f0" />
+    </constant>
+
+    <!-- base_color = layered_fraction * layered_bottom_f0 + (1.0 - layered_fraction) * layered_diffuse -->
+    <subtract name="oneminus_layerfraction" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="layered_fraction_param" />
+    </subtract>
+    <multiply name="oneminuslf_x_layerdiffuse" type="color3">
+      <input name="in1" type="color3" nodename="layered_diffuse_param" />
+      <input name="in2" type="float" nodename="oneminus_layerfraction" />
+    </multiply>
+
+    <multiply name="lfract_x_lbottomf0" type="color3">
+      <input name="in1" type="color3" nodename="layered_bottom_f0_param" />
+      <input name="in2" type="float" nodename="layered_fraction_param" />
+    </multiply>
+    <add name="base_color_value" type="color3">
+      <input name="in1" type="color3" nodename="lfract_x_lbottomf0" />
+      <input name="in2" type="color3" nodename="oneminuslf_x_layerdiffuse" />
+    </add>
+
+
+    <ifequal name="layered_fraction_value" type="float">
+      <input name="in1" type="float" nodename="oneminus_layerfraction" />
+      <input name="in2" type="float" nodename="layered_fraction_param" />
+      <input name="value1" type="boolean" interfacename="layered_fraction_invert" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+    <!-- map values to standard surface -->
+    <output name="out" type="surfaceshader" nodename="standard_surface0" />
+    <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
+      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="layered_normal" />
+      <input name="coat_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="coat" type="float" nodename="coat_value" />
+      <input name="metalness" type="float" nodename="layered_fraction_value" />
+      <input name="specular" type="float" value="0.0" />
+      <input name="base" type="float" value="1.0" />
+      <input name="coat_color" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="coat_roughness" type="float" nodename="coat_roughness_value" />
+      <input name="coat_anisotropy" type="float" nodename="coat_anisotropy_value" />
+      <input name="coat_rotation" type="float" nodename="coat_rotation_value" />
+      <input name="coat_IOR" type="float" nodename="coat_IOR_value" />
+      <input name="specular_roughness" type="float" nodename="specular_roughness_value" />
+      <input name="specular_anisotropy" type="float" nodename="specular_anisotropy_value" />
+      <input name="specular_rotation" type="float" nodename="specular_rotation_value" />
+      <input name="base_color" type="color3" nodename="base_color_value" />
+    </standard_surface>
+  </nodegraph>
+
+
+  <!-- <adsk_glazing> -->
+  <nodegraph name="NG_adsk_glazing" nodedef="adsk:ND_adsk_glazing" namespace="adsk">
+
+    <!-- coat_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+    <subtract name="oneminus_surfaniso0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </subtract>
+    <sqrt name="sqrt1minus_surfaniso0" type="float">
+      <input name="in" type="float" nodename="oneminus_surfaniso0" />
+    </sqrt>
+    <multiply name="coat_roughness_value" type="float">
+      <input name="in1" type="float" nodename="sqrt1minus_surfaniso0"/>
+      <input name="in2" type="float" interfacename="surface_roughness" />
+    </multiply>
+
+    <!-- coat_anisotropy = 2 * surface_anisotropy - surface_anisotropy * surface_anisotropy -->
+    <multiply name="twotimes_surfaniso0" type="float">
+      <input name="in1" type="float" value="2.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <multiply name="pow2_surfaniso0" type="float">
+      <input name="in1" type="float" interfacename="surface_anisotropy" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <subtract name="coat_anisotropy_value" type="float">
+      <input name="in1" type="float" nodename="twotimes_surfaniso0" />
+      <input name="in2" type="float" nodename="pow2_surfaniso0" />
+    </subtract>
+
+    <!-- specular_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
+    <subtract name="oneminus_surfaceaniso0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </subtract>
+    <sqrt name="sqrt1minus_surfaceaniso0" type="float">
+      <input name="in" type="float" nodename="oneminus_surfaceaniso0" />
+    </sqrt>
+    <multiply name="specular_roughness_value" type="float">
+      <input name="in1" type="float" nodename="sqrt1minus_surfaceaniso0"/>
+      <input name="in2" type="float" interfacename="surface_roughness" />
+    </multiply>
+
+    <!-- specular_anisotropy = 2 * surface_anisotropy - surface_anisotropy * surface_anisotropy -->
+    <multiply name="twotimes_surfaniso0" type="float">
+      <input name="in1" type="float" value="2.0" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <multiply name="pow2_surfaniso0" type="float">
+      <input name="in1" type="float" interfacename="surface_anisotropy" />
+      <input name="in2" type="float" interfacename="surface_anisotropy" />
+    </multiply>
+    <subtract name="specular_anisotropy_value" type="float">
+      <input name="in1" type="float" nodename="twotimes_surfaniso0" />
+      <input name="in2" type="float" nodename="pow2_surfaniso0" />
+    </subtract>
+
+
+    <constant name="surface_rotation_param" type="float">
+      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+    </constant>
+
+    <!-- specular_rotation = fmod(surface_rotation / 360.0, 1.0) -->
+    <divide name="div_rotation0" type="float">
+      <input name="in1" type="float" nodename="surface_rotation_param" />
+      <input name="in2" type="float" value="360.0" />
+    </divide>
+    <modulo name="specular_rotation_value" type="float" >
+      <input name="in1" type="float" nodename="div_rotation0" />
+    </modulo>
+
+    <!-- specular_IOR = (1.0 + sqrt(x)) / (1.0 - sqrt(x)), where x = luminance(glazing_f0) -->
+    <constant name="glazing_f0_param" type="color3">
+      <input name="value" type="color3" value="0.08,0.08,0.08" interfacename="glazing_f0" />
+    </constant>
+    <luminance name="lum_glazing_f0" type="color3">
+      <input name="in" type="color3" nodename="glazing_f0_param"/>
+    </luminance>
+
+    <!-- extract red channel -->
+    <extract name="lum_glazing_f0_float" type="float">
+      <input name="in" type="color3" nodename="lum_glazing_f0" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+
+    <sqrt name="sqrt_glazingf0" type="float">
+      <input name="in" type="float" nodename="lum_glazing_f0_float" />
+    </sqrt>
+    <add name="oneplus_sqrtglazingf0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="sqrt_glazingf0" />
+    </add>
+    <subtract name="oneminus_sqrtglazingf0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="sqrt_glazingf0" />
+    </subtract>
+    <divide name="specular_IOR_value" type="float">
+      <input name="in1" type="float" nodename="oneplus_sqrtglazingf0" />
+      <input name="in2" type="float" nodename="oneminus_sqrtglazingf0" />
+    </divide>
+
+    <!-- transmission_color = glazing_transmission_color / (1.0 - luminance(glazing_f0)) -->
+    <subtract name="oneminus_glazingf0" type="color3">
+      <input name="in1" type="color3" value="1.0,1.0,1.0" />
+      <input name="in2" type="color3" nodename="lum_glazing_f0" />
+    </subtract>
+    <!-- transparent_color defaults to 1 -->
+    <divide name="glazing_transmission_color_value" type="color3">
+      <input name="in1" type="color3" interfacename="glazing_transmission_color" />
+      <input name="in2" type="color3" nodename="oneminus_glazingf0" />
+    </divide>
+
+    <!-- transmission_extra_roughness = glazing_transmission_roughness - surface_roughness -->
+    <subtract name="transmission_extra_roughness_value" type="float">
+      <input name="in1" type="float" interfacename="glazing_transmission_roughness" />
+      <input name="in2" type="float" interfacename="surface_roughness" />
+    </subtract>
+
+    <!-- opacity = surface_cutout || (backfacing && glazing_backface_culling) -->
+    <constant name="surface_cutout_param" type="color3">
+      <input name="value" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+    </constant>
+
+    <!-- extract red channel -->
+    <extract name="surface_cutout_value" type="float">
+      <input name="in" type="color3" nodename="surface_cutout_param" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+
+    <adsk:backface_util name="opacity_value" type="color3">
+      <input name="backface_cullingbool" type="boolean" interfacename="glazing_backface_culling" />
+      <input name="opacity" type="float" nodename="surface_cutout_value" />
+    </adsk:backface_util>
+
+    <!-- map values to standard surface -->
+    <output name="out" type="surfaceshader" nodename="standard_surface0" />
+    <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
+      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="opacity" type="color3" nodename="opacity_value" />
+      <input name="specular" type="float" value="1.0" />
+      <input name="transmission" type="float" value="1.0" />
+      <input name="specular_color" type="color3" interfacename="surface_albedo" />
+      <input name="specular_roughness" type="float" nodename="specular_roughness_value" />
+      <input name="specular_anisotropy" type="float" nodename="specular_anisotropy_value" />
+      <input name="specular_rotation" type="float" nodename="specular_rotation_value" />
+      <input name="specular_IOR" type="float" nodename="specular_IOR_value" />
+      <input name="transmission_color" type="color3" nodename="glazing_transmission_color_value" />
+      <input name="transmission_extra_roughness" type="float" nodename="transmission_extra_roughness_value" />
+      <input name="thin_walled" type="boolean" value="true" />
+    </standard_surface>
+  </nodegraph>
+
+</materialx>

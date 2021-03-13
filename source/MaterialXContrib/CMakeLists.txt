@@ -46,3 +46,4 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXContrib.
         DESTINATION "${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
 
 add_subdirectory(MaterialXMaya)
+add_subdirectory(libraries)
