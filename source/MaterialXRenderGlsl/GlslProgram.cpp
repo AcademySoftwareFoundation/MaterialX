@@ -545,15 +545,14 @@ void GlslProgram::unbindGeometry()
 }
 
 ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
-                                  ImageHandlerPtr imageHandler, bool generateMipMaps,
-                                  const ImageSamplingProperties& samplingProperties)
+                                  ImageHandlerPtr imageHandler, const ImageSamplingProperties& samplingProperties)
 {
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
         // Acquire the image.
         string error;
-        ImagePtr image = imageHandler->acquireImage(filePath, generateMipMaps);
+        ImagePtr image = imageHandler->acquireImage(filePath);
         if (imageHandler->bindImage(image, samplingProperties))
         {
             GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
@@ -621,7 +620,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
             {
                 ImageSamplingProperties samplingProperties;
                 samplingProperties.setProperties(uniform.first, publicUniforms);
-                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties);
+                bindTexture(uniformType, uniformLocation, fileName, imageHandler, samplingProperties);
             }
         }
     }

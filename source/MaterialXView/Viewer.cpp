@@ -2204,7 +2204,7 @@ mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
     aoFilename.removeExtension();
     aoFilename = aoFilename.asString() + aoSuffix;
     aoFilename.addExtension(AO_FILENAME_EXTENSION);
-    return _imageHandler->acquireImage(aoFilename, true);
+    return _imageHandler->acquireImage(aoFilename);
 }
 
 void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc)
