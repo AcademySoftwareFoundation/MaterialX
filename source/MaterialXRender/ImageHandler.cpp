@@ -105,55 +105,32 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     return false;
 }
 
-ImagePtr ImageHandler::acquireImage(const FilePath& filePath, bool)
+ImagePtr ImageHandler::acquireImage(const FilePath& filePath)
 {
-    FilePath foundFilePath = _searchPath.find(filePath);
-    string extension = stringToLower(foundFilePath.getExtension());
-    bool extensionSupported = false;
-    for (ImageLoaderPtr loader : _imageLoaders[extension])
+    // Resolve the input filepath.
+    FilePath resolvedFilePath = filePath;
+    if (_resolver)
     {
-        extensionSupported = true;
-        ImagePtr image;
-        try
-        {
-            image = loader->loadImage(foundFilePath);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Exception in image I/O library: " << e.what() << std::endl;
-        }
-        if (image)
-        {
-            // Generated shaders interpret 1x1 textures as invalid images, so valid 1x1
-            // images must be resized.
-            if (image->getWidth() == 1 && image->getHeight() == 1)
-            {
-                image = createUniformImage(2, 2, image->getChannelCount(),
-                                            image->getBaseType(), image->getTexelColor(0, 0));
-            }
-
-            cacheImage(foundFilePath, image);
-            return image;
-        }
+        resolvedFilePath = _resolver->resolve(resolvedFilePath, FILENAME_TYPE_STRING);
     }
 
-    if (!foundFilePath.isEmpty())
+    // Return a cached image if available.
+    ImagePtr cachedImage = getCachedImage(resolvedFilePath);
+    if (cachedImage)
     {
-        if (!foundFilePath.exists())
-        {
-            std::cerr << string("Image file not found: ") + foundFilePath.asString() << std::endl;
-        }
-        else if (!extensionSupported)
-        {
-            std::cerr << string("Unsupported image extension: ") + foundFilePath.asString() << std::endl;
-        }
-        else
-        {
-            std::cerr << string("Image loader failed to parse image: ") + foundFilePath.asString() << std::endl;
-        }
+        return cachedImage;
     }
 
-    cacheImage(foundFilePath, _invalidImage);
+    // Load and cache the requested image.
+    ImagePtr image = loadImage(_searchPath.find(resolvedFilePath));
+    if (image)
+    {
+        cacheImage(resolvedFilePath, image);
+        return image;
+    }
+
+    // No valid image was found, so cache the sentinel invalid image.
+    cacheImage(resolvedFilePath, _invalidImage);
     return _invalidImage;
 }
 
@@ -182,6 +159,53 @@ bool ImageHandler::createRenderResources(ImagePtr, bool)
 
 void ImageHandler::releaseRenderResources(ImagePtr)
 {
+}
+
+ImagePtr ImageHandler::loadImage(const FilePath& filePath)
+{
+    string extension = stringToLower(filePath.getExtension());
+    for (ImageLoaderPtr loader : _imageLoaders[extension])
+    {
+        ImagePtr image;
+        try
+        {
+            image = loader->loadImage(filePath);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Exception in image I/O library: " << e.what() << std::endl;
+        }
+        if (image)
+        {
+            // Generated shaders interpret 1x1 textures as invalid images, so valid 1x1
+            // images must be resized.
+            if (image->getWidth() == 1 && image->getHeight() == 1)
+            {
+                image = createUniformImage(2, 2, image->getChannelCount(),
+                                           image->getBaseType(), image->getTexelColor(0, 0));
+            }
+
+            return image;
+        }
+    }
+
+    if (!filePath.isEmpty())
+    {
+        if (!filePath.exists())
+        {
+            std::cerr << string("Image file not found: ") + filePath.asString() << std::endl;
+        }
+        else if (!_imageLoaders.count(extension))
+        {
+            std::cerr << string("Unsupported image extension: ") + filePath.asString() << std::endl;
+        }
+        else
+        {
+            std::cerr << string("Image loader failed to parse image: ") + filePath.asString() << std::endl;
+        }
+    }
+
+    return nullptr;
 }
 
 void ImageHandler::cacheImage(const string& filePath, ImagePtr image)
