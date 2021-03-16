@@ -109,8 +109,8 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     _lightHandler->setLightSources(lights);
 
     // Load environment lights.
-    mx::ImagePtr envRadiance = _renderer->getImageHandler()->acquireImage(options.radianceIBLPath, true);
-    mx::ImagePtr envIrradiance = _renderer->getImageHandler()->acquireImage(options.irradianceIBLPath, true);
+    mx::ImagePtr envRadiance = _renderer->getImageHandler()->acquireImage(options.radianceIBLPath);
+    mx::ImagePtr envIrradiance = _renderer->getImageHandler()->acquireImage(options.irradianceIBLPath);
     REQUIRE(envRadiance);
     REQUIRE(envIrradiance);
     _lightHandler->setEnvRadianceMap(envRadiance);
