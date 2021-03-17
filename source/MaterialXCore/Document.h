@@ -333,12 +333,14 @@ class Document : public GraphElement
     /// @param node Node type for the new declaration
     /// @param version Version for the new declaration
     /// @param isDefaultVersion If a version is specified is thie definition the default version
+    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
     /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
     ///        modify the existing NodeGraph. Default value is an empty string.
-    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
+    /// @param namespaceString Optional namespace for the nodedef and functional graph created
     /// @return New declaration if successful.
     NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
-                                   bool isDefaultVersion, const string& nodeGroup, string& newGraphName);
+                                   bool isDefaultVersion, const string& nodeGroup, string& newGraphName,
+                                   const string& namespaceString = EMPTY_STRING);
 
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const

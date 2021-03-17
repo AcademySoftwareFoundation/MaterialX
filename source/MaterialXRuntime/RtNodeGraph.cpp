@@ -345,6 +345,19 @@ const RtToken& RtNodeGraph::getDefinition() const
     return attr ? attr->asToken() : EMPTY_TOKEN;
 }
 
+void RtNodeGraph::setNamespace(const RtToken& namespaceString)
+{
+    RtTypedValue* attr = prim()->createAttribute(Tokens::NAMESPACE, RtType::TOKEN);
+    attr->asToken() = namespaceString;
+}
+
+const RtToken& RtNodeGraph::getNamespace() const
+{
+    RtTypedValue* attr = prim()->getAttribute(Tokens::NAMESPACE, RtType::TOKEN);
+    return attr ? attr->asToken() : EMPTY_TOKEN;
+}
+
+
 string RtNodeGraph::asStringDot() const
 {
     string dot = "digraph {\n";

@@ -173,7 +173,8 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
                               const RtToken& nodeName, 
                               const RtToken& version,
                               bool isDefaultVersion,
-                              const RtToken& nodeGroup)
+                              const RtToken& nodeGroup,
+                              const RtToken& namespaceString)
 {
     // Must have a nodedef name and a node name
     if (nodeDefName == EMPTY_TOKEN || nodeName == EMPTY_TOKEN)
@@ -181,23 +182,27 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
         throw ExceptionRuntimeError("Cannot create nodedef '" + nodeDefName.str() + "', with node name: '" + nodeName.str() + "'");
     }
 
+    // Always used qualified namespace
+    bool isNameSpaced = namespaceString != EMPTY_TOKEN;
+    RtToken qualifiedNodeDefName = isNameSpaced ? RtToken(namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str()) : nodeDefName;
+
     // Make sure a nodedef with this name in not already registered.
-    if (RtApi::get().hasNodeDef(nodeDefName))
+    if (RtApi::get().hasNodeDef(qualifiedNodeDefName))
     {
-        throw ExceptionRuntimeError("A nodedef named '" + nodeDefName.str() + "' is already registered");
+        throw ExceptionRuntimeError("A nodedef named '" + qualifiedNodeDefName.str() + "' is already registered");
     }
 
     PvtStage* stage = _cast(_ptr);
 
     // Make sure the nodedef name is unique among all prims.
     PvtPath path(PvtPath::ROOT_NAME.str());
-    path.push(nodeDefName);
+    path.push(qualifiedNodeDefName);
     if (stage->getPrimAtPath(path))
     {
-        throw ExceptionRuntimeError("The nodedef named '" + nodeDefName.str() + "' is not unique");
+        throw ExceptionRuntimeError("The nodedef named '" + qualifiedNodeDefName.str() + "' is not unique");
     }
 
-    PvtPrim* prim = stage->createPrim(stage->getPath(), nodeDefName, RtNodeDef::typeName());
+    PvtPrim* prim = stage->createPrim(stage->getPath(), qualifiedNodeDefName, RtNodeDef::typeName());
     RtNodeDef nodedef(prim->hnd());
 
     // Set node, version and optional node group
@@ -225,6 +230,8 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
         RtValue::copy(input.getType(), input.getValue(), nodedefInput.getValue());
     }
 
+    // TODO : Add support for tokens
+
     // Add an output per nodegraph output
     for (RtOutput output : nodeGraph.getOutputs())
     {
@@ -232,8 +239,15 @@ RtPrim RtStage::createNodeDef(RtNodeGraph& nodeGraph,
         RtValue::copy(output.getType(), output.getValue(), nodedefOutput.getValue());
     }
 
+    // Set namespace for the nodegraph and nodedef
+    if (isNameSpaced)
+    {
+        nodedef.setNamespace(namespaceString);
+        nodeGraph.setNamespace(namespaceString);
+    }
+
     // Set the definition on the nodegraph
-    nodeGraph.setDefinition(nodeDefName);
+    nodeGraph.setDefinition(qualifiedNodeDefName);
 
     // Register this nodedef.
     RtApi::get().registerNodeDef(nodedef.getPrim());

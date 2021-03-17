@@ -51,7 +51,8 @@ public:
 
     /// Create a nodedef based on a nodegraph
     RtPrim createNodeDef(RtNodeGraph& nodeGraph, const RtToken& nodeDefName, const RtToken& nodeName,
-                         const RtToken& version, bool isDefaultVersion, const RtToken& nodeGroup = EMPTY_TOKEN);
+                         const RtToken& version, bool isDefaultVersion, const RtToken& nodeGroup,
+                         const RtToken& namespaceString);
 
     /// Return the implementation for a given nodedef if it exists.
     /// Currently only nodegraph implemenations are considered.

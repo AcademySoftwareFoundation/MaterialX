@@ -889,18 +889,21 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     const mx::RtToken MATH_GROUP("math");
     const mx::RtToken ADDGRAPH_VERSION("3.4");
     const mx::RtToken ADDGRAPH_TARGET("mytarget");
+    const mx::RtToken NAMESPACE("namespace1");
+    const mx::RtToken QUALIFIED_DEFINITION("namespace1:ND_addgraph");
     bool isDefaultVersion = false;
     stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
-    mx::RtPrim addgraphPrim = stage->createNodeDef(graph1, ND_ADDGRAPH, ADDGRAPH, ADDGRAPH_VERSION, isDefaultVersion, MATH_GROUP);
+    mx::RtPrim addgraphPrim = stage->createNodeDef(graph1, ND_ADDGRAPH, ADDGRAPH, ADDGRAPH_VERSION, isDefaultVersion, MATH_GROUP, NAMESPACE);
     mx::RtNodeDef addgraphDef(addgraphPrim);    
 
-    REQUIRE(graph1.getDefinition() == ND_ADDGRAPH);
+    REQUIRE(graph1.getDefinition() == QUALIFIED_DEFINITION);
     REQUIRE(graph1.getVersion() == mx::EMPTY_TOKEN);
+    REQUIRE(graph1.getNamespace() == NAMESPACE);
     REQUIRE(api->hasNodeDef(addgraphDef.getName()));
     REQUIRE(addgraphDef.numInputs() == 2);
     REQUIRE(addgraphDef.numOutputs() == 1);
     REQUIRE(addgraphDef.getOutput().getName() == OUT);
-    REQUIRE(addgraphDef.getName() == ND_ADDGRAPH);
+    REQUIRE(addgraphDef.getName() == QUALIFIED_DEFINITION);
     REQUIRE(addgraphDef.getNode() == ADDGRAPH);
     REQUIRE(addgraphDef.getNodeGroup() == MATH_GROUP);
     REQUIRE(addgraphDef.getVersion() == ADDGRAPH_VERSION);
@@ -913,7 +916,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(addGraphImpl.getPath() == graph1.getPath());
 
     // Check instance creation:
-    mx::RtPrim agPrim = stage->createPrim("addgraph1", ND_ADDGRAPH);
+    mx::RtPrim agPrim = stage->createPrim("addgraph1", QUALIFIED_DEFINITION);
     REQUIRE(agPrim.isValid());
     mx::RtNode agNode(agPrim);
     {
@@ -936,13 +939,13 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     // Check export to MTLX document:
     mx::RtFileIo stageIo(stage);
     mx::RtTokenVec names;
-    names.push_back(ND_ADDGRAPH);
+    names.push_back(QUALIFIED_DEFINITION);
     stageIo.writeDefinitions("ND_addgraph.mtlx", names);
 
     mx::DocumentPtr doc = mx::createDocument();
     mx::readFromXmlFile(doc, "ND_addgraph.mtlx");
     doc->validate();
-    mx::NodeDefPtr nodeDef = doc->getNodeDef(ND_ADDGRAPH.str());
+    mx::NodeDefPtr nodeDef = doc->getNodeDef(QUALIFIED_DEFINITION.str());
     {
         // 1. Check nodedef
         REQUIRE(nodeDef);

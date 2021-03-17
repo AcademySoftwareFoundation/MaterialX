@@ -76,6 +76,12 @@ public:
     /// Return any associated nodedef name.
     const RtToken& getDefinition() const;
 
+    /// Set the namespace for the nodegraph.
+    void setNamespace(const RtToken& nodedef);
+
+    /// Return the namespace name.
+    const RtToken& getNamespace() const;
+
     /// Convert this graph to a string in the DOT language syntax. This can be
     /// used to visualise the graph using GraphViz (http://www.graphviz.org).
     string asStringDot() const;
