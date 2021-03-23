@@ -595,10 +595,11 @@ closure color burley_diffuse_bsdf(normal N, color albedo, float roughness) BUILT
 // for a physically correct dielectric, but can be tweaked for artistic control or set
 // to 0.0 for disabling a lobe.
 // The closure may be vertically layered over a base BSDF for the surface beneath the
-// dielectric layer. By chaining multiple dielectric_bsdf closures you can describe a surface
-// with multiple specular lobes. If transmission is enabled (transmission_tint > 0.0) the
-// closure may be layered over a VDF closure describing the surface interior to handle
-// absorption and scattering inside the medium.
+// dielectric layer. This is done using the layer() closure. By chaining multiple 
+// dielectric_bsdf closures you can describe a surface with multiple specular lobes.
+// If transmission is enabled (transmission_tint > 0.0) the closure may be layered over
+// a VDF closure describing the surface interior to handle absorption and scattering
+// inside the medium.
 //
 closure color dielectric_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, float ior, string distribution) BUILTIN;
 ​
@@ -613,16 +614,16 @@ closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughn
 // and a generalized Schlick Fresnel curve. The two tint parameters control the contribution
 // of each reflection/transmission lobe.
 // The closure may be vertically layered over a base BSDF for the surface beneath the
-// dielectric layer. By chaining multiple dielectric_bsdf closures you can describe a surface
-// with multiple specular lobes. If transmission is enabled (transmission_tint > 0.0) the
-// closure may be layered over a VDF closure describing the surface interior to handle
-// absorption and scattering inside the medium.
+// dielectric layer. This is done using the layer() closure. By chaining multiple 
+// dielectric_bsdf closures you can describe a surface with multiple specular lobes.
+// If transmission is enabled (transmission_tint > 0.0) the closure may be layered over
+// a VDF closure describing the surface interior to handle absorption and scattering
+// inside the medium.
 //
 // TODO:
 // - Transmission handling for this node has not been fully defined yet in MaterialX.
 //   In particular how is IOR for refractions derived from the f0, f90 parameterization?
 //   Do we just derive it from f0? For an artist it seems hard to control refractions that way.
-//   @Jonathan Stone you mentioned Lucasfilm (Naty Hoffman) had some feedback and ideas for how to handle this?
 //
 closure color generalized_schlick_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, color f0, color f90, float exponent, string distribution) BUILTIN;
 ​
@@ -673,7 +674,7 @@ closure color thin_film_bsdf(float thickness, float ior) BUILTIN;
 //
 closure color uniform_edf(color emittance) BUILTIN;
 
-// Constructs an EDF emitting light inside a code around the normal direction.
+// Constructs an EDF emitting light inside a cone around the normal direction.
 //
 closure color conical_edf(color emittance, normal N, float inner_angle, float outer_angle) BUILTIN;
 
