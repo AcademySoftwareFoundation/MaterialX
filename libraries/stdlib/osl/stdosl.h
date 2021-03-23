@@ -573,6 +573,168 @@ closure color volume_matte() BUILTIN;
 closure color subsurface(float eta, float g, color mfp, color albedo) BUILTIN;
 #endif
 
+// ******************* MATERIALX PBS LIBRARY CLOSURES - DRAFT BEGIN ******************* //
+
+// -------------------------------------------------------------//
+// BSDF closures                                                //
+// -------------------------------------------------------------//
+​
+// Constructs a diffuse reflection BSDF based on the Oren-Nayar reflectance model.
+// A roughness of 0.0 gives Lambertian reflectance.
+//
+closure color oren_nayar_diffuse_bsdf(normal N, color albedo, float roughness) BUILTIN;
+​
+// Constructs a diffuse reflection BSDF based on the corresponding component of 
+// the Disney Principled shading model.
+//
+closure color burley_diffuse_bsdf(normal N, color albedo, float roughness) BUILTIN;
+​
+// Constructs a reflection and/or transmission BSDF based on a microfacet reflectance
+// model and a Fresnel curve for dielectrics. The two tint parameters control the 
+// contribution of each reflection/transmission lobe. The tints should remain 100% white
+// for a physically correct dielectric, but can be tweaked for artistic control or set
+// to 0.0 for disabling a lobe.
+// The closure may be vertically layered over a base BSDF for the surface beneath the
+// dielectric layer. By chaining multiple dielectric_bsdf closures you can describe a surface
+// with multiple specular lobes. If transmission is enabled (transmission_tint > 0.0) the
+// closure may be layered over a VDF closure describing the surface interior to handle
+// absorption and scattering inside the medium.
+//
+closure color dielectric_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, float ior, string distribution) BUILTIN;
+​
+// Constructs a reflection BSDF based on a microfacet reflectance model.
+// Uses a Fresnel curve with complex refraction index for conductors/metals.
+// If an artistic parametrization is preferred the artistic_ior() utility function
+// can be used to convert from artistic to physical parameters.
+//
+closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughness_y, color ior, color extinction, string distribution) BUILTIN;
+​
+// Constructs a reflection and/or transmission BSDF based on a microfacet reflectance model
+// and a generalized Schlick Fresnel curve. The two tint parameters control the contribution
+// of each reflection/transmission lobe.
+// The closure may be vertically layered over a base BSDF for the surface beneath the
+// dielectric layer. By chaining multiple dielectric_bsdf closures you can describe a surface
+// with multiple specular lobes. If transmission is enabled (transmission_tint > 0.0) the
+// closure may be layered over a VDF closure describing the surface interior to handle
+// absorption and scattering inside the medium.
+//
+// TODO:
+// - Transmission handling for this node has not been fully defined yet in MaterialX.
+//   In particular how is IOR for refractions derived from the f0, f90 parameterization?
+//   Do we just derive it from f0? For an artist it seems hard to control refractions that way.
+//   @Jonathan Stone you mentioned Lucasfilm (Naty Hoffman) had some feedback and ideas for how to handle this?
+//
+closure color generalized_schlick_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, color f0, color f90, float exponent, string distribution) BUILTIN;
+​
+// Constructs a translucent (diffuse transmission) BSDF based on the Lambert reflectance model.
+//
+closure color translucent_bsdf(normal N, color albedo) BUILTIN;
+
+// Constructs a closure that represents straight transmission through a surface.
+//
+// NOTE:
+//  - This is not a node in the MaterialX library, but the surface shader constructor
+//    node has an 'opacity' parameter to control textured cutout opacity.
+//
+closure color transparent_bsdf() BUILTIN;
+​
+// Constructs a BSSRDF for subsurface scattering within a homogeneous medium.
+//
+// TODO:
+// - Do we want/need this dedicated BSSRDF closure? We have had discussions before about
+//   describing this more rigorously as a BSDF layered over a VDF instead.
+//   In the MaterialX library we want this as a node for the user friendly interface,
+//   but for back-end implementation maybe a dedicated closure is not needed?
+//
+closure color subsurface_bssrdf(normal N, color albedo, color radius, float anisotropy) BUILTIN;
+​
+// Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials.
+// This closure may be vertically layered over a base BSDF, where energy that is not reflected
+// will be transmitted to the base closure.
+//
+closure color sheen_bsdf(normal N, color albedo, float roughness) BUILTIN;
+​
+// Adds an iridescent thin film layer over a microfacet base BSDF. This must be layered over
+// another base BSDF using the layer() closure, as this is a modifier and cannot be used as a
+// standalone closure.
+//
+// TODO:
+// - This might be better to represent as optional extra arguments on the closures that do support
+//   thin-film iridescence (dielectric_bsdf, conductor_bsdf and generalized_schlick_bsdf)?
+//
+closure color thin_film_bsdf(float thickness, float ior) BUILTIN;
+​
+​
+// -------------------------------------------------------------//
+// EDF closures                                                 //
+// -------------------------------------------------------------//
+​
+// Constructs an EDF emitting light uniformly in all directions.
+//
+closure color uniform_edf(color emittance) BUILTIN;
+
+// Constructs an EDF emitting light inside a code around the normal direction.
+//
+closure color conical_edf(color emittance, normal N, float inner_angle, float outer_angle) BUILTIN;
+
+// Constructs an EDF emitting light according to a measured IES light profile.
+//
+closure color measured_edf(color emittance, normal N, string file) BUILTIN;
+​
+​
+// -------------------------------------------------------------//
+// VDF closures                                                 //
+// -------------------------------------------------------------//
+​
+// Constructs a VDF for pure volumetric absorption.
+//
+closure color absorption_vdf(color absorption) BUILTIN;
+​
+// Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein
+// phase function. Forward, backward and uniform scattering is supported and controlled by the
+// anisotropy input.
+//
+closure color anisotropic_vdf(color absorption, color scattering, float anisotropy) BUILTIN;
+​
+​
+// -------------------------------------------------------------//
+// Layering closures                                            //
+// -------------------------------------------------------------//
+​
+// Vertically layer a layerable BSDF such as dielectric_bsdf, generalized_schlick_bsdf or
+// sheen_bsdf over a BSDF or VDF. The implementation is target specific, but a standard way
+// of handling this is by albedo scaling, using "base*(1-reflectance(top)) + top", where
+// reflectance() calculates the directional albedo of a given top BSDF.
+//
+// TODO:
+// - This could also be achived by closure nesting where each layerable closure takes
+//   a closure color "base" input instead.
+// - One advantage having a dedicated layer() closure is that in the future we may want to
+//   introduce parameters to describe the sandwitched medium between the layer interfaces.
+//   Such parameterization could then be added on this layer() closure as extra arguments.
+// - Do we want/need parameters for the medium here now, or do we look at that later?
+//
+closure color layer(closure color top, closure color base) BUILTIN;
+​
+// Mix two closures according to a weight. Performs horizontal layering by linear interpolation
+// between the two inputs: "bg∗(1−weight) + fg∗weight".
+//
+closure color mix(closure color bg, closure color fg, float weight);
+​
+​
+// -------------------------------------------------------------//
+// Utility functions                                            //
+// -------------------------------------------------------------//
+​
+// Converts the artistic parameterization reflectivity and edge_color to complex IOR values.
+// To be used with the conductor_bsdf() closure.
+//
+void artistic_ior(color reflectivity, color edge_color, output color ior, output color extinction);
+​
+
+// ******************* MATERIALX PBS LIBRARY CLOSURES - DRAFT END ******************* //
+
+
 // Renderer state
 int backfacing () BUILTIN;
 int raytype (string typename) BUILTIN;
