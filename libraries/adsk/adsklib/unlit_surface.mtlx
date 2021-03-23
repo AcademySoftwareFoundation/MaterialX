@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+ <!-- Unlit surface shader (color3 input) -->
+ <nodedef name="ND_unlit_surface_color3" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="npbr" namespace="adsk">
+    <input name="color" type="color3" value="1, 1, 1" />
+    <input name="opacity" type="float" value="1" />
+    <output name="out" type="surfaceshader" value="" />
+  </nodedef>
+  <nodegraph name="NG_unlit_surface_color3" nodedef="adsk:ND_unlit_surface_color3" namespace="adsk">
+    <input name="color" type="color3" value="1, 1, 1" />
+    <input name="opacity" type="float" value="1" />
+    <surface name="surface" type="surfaceshader" >
+      <input name="bsdf" type="BSDF" value="" uivisible="false" />
+      <input name="edf" type="EDF" nodename="uniform_edf" />
+      <input name="opacity" type="float" interfacename="opacity" value="1" />
+    </surface>
+    <uniform_edf name="uniform_edf" type="EDF" >
+      <input name="color" type="color3" interfacename="color" value="1, 1, 1" />
+    </uniform_edf>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+
+  <!-- Unlit surface shader (float input) -->
+  <nodedef name="ND_unlit_surface_float" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="npbr" namespace="adsk">
+    <input name="color" type="float" value="1" />
+    <input name="opacity" type="float" value="1" />
+    <output name="out" type="surfaceshader" value="" />
+  </nodedef>
+  <nodegraph name="unlit_surface_float" nodedef="adsk:ND_unlit_surface_float" namespace="adsk" >
+    <input name="color" type="float" value="1" />
+    <input name="opacity" type="float" value="1" />
+    <surface name="surface" type="surfaceshader" >
+      <input name="bsdf" type="BSDF" value="" uivisible="false" />
+      <input name="edf" type="EDF" nodename="uniform_edf" />
+      <input name="opacity" type="float" interfacename="opacity" value="1" />
+    </surface>
+    <uniform_edf name="uniform_edf" type="EDF" >
+      <input name="color" type="color3" nodename="convert" />
+    </uniform_edf>
+    <convert name="convert" type="color3" >
+      <input name="in" type="float" interfacename="color" value="1" />
+    </convert>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+
+  <!-- Unlit surface shader (vec3 input) -->
+  <nodedef name="ND_unlit_surface_vec3" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="npbr" namespace="adsk">
+    <input name="color" type="vector3" value="1, 1, 1" />
+    <input name="opacity" type="float" value="1" />
+    <output name="out" type="surfaceshader" value="" />
+  </nodedef>
+  <nodegraph name="unlit_surface_vec3" xpos="345.014"  nodedef="adsk:ND_unlit_surface_vec3" namespace="adsk" >
+    <input name="color" type="vector3" value="1, 1, 1" />
+    <input name="opacity" type="float" value="1" />
+    <surface name="surface" type="surfaceshader" >
+      <input name="bsdf" type="BSDF" value="" uivisible="false" />
+      <input name="edf" type="EDF" nodename="uniform_edf" />
+      <input name="opacity" type="float" interfacename="opacity" value="1" />
+    </surface>
+    <uniform_edf name="uniform_edf" type="EDF" >
+      <input name="color" type="color3" nodename="convert" />
+    </uniform_edf>
+    <convert name="convert" type="color3" >
+      <input name="in" type="vector3" interfacename="color" value="1, 1, 1" />
+    </convert>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+  
+  <!-- Unlit surface shader (vec2 input) -->
+  <nodedef name="ND_unlit_surface_vec2" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="npbr" namespace="adsk">
+    <input name="color" type="vector2" value="1, 1" />
+    <input name="opacity" type="float" value="1" />
+    <output name="out" type="surfaceshader" value="" />
+  </nodedef>
+  <nodegraph name="unlit_surface_vec2" nodedef="adsk:ND_unlit_surface_vec2" namespace="adsk" >
+    <input name="color" type="vector2" value="1, 1" />
+    <input name="opacity" type="float" value="1" />
+    <surface name="surface" type="surfaceshader" >
+      <input name="bsdf" type="BSDF" value="" uivisible="false" />
+      <input name="edf" type="EDF" nodename="uniform_edf" />
+      <input name="opacity" type="float" interfacename="opacity" value="1" />
+    </surface>
+    <uniform_edf name="uniform_edf" type="EDF" >
+      <input name="color" type="color3" nodename="convert1" />
+    </uniform_edf>
+    <convert name="convert" type="vector3" >
+      <input name="in" type="vector2" interfacename="color" value="1, 1" />
+    </convert>
+    <convert name="convert1" type="color3" >
+      <input name="in" type="vector3" nodename="convert" />
+    </convert>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+</materialx>
