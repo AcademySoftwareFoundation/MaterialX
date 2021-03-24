@@ -75,7 +75,7 @@ RtPrim RtLookGroup::createPrim(const RtToken& typeName, const RtToken& name, RtP
 
     static const RtToken DEFAULT_NAME("lookgroup1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->createRelationship(Tokens::LOOKS);
@@ -136,7 +136,7 @@ RtPrim RtLook::createPrim(const RtToken& typeName, const RtToken& name, RtPrim p
 
     static const RtToken DEFAULT_NAME("look1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->createRelationship(Tokens::INHERIT);
@@ -195,7 +195,7 @@ RtPrim RtMaterialAssign::createPrim(const RtToken& typeName, const RtToken& name
 
     static const RtToken DEFAULT_NAME("materialassign1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->createInput(Tokens::MATERIAL, RtType::MATERIAL);

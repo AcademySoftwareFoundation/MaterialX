@@ -86,7 +86,7 @@ RtPrim PvtCopyPrimCmd::createPrimCopy(const RtPrim& prim, const RtPath& parentPa
     }
 
     // Copy metadata that don't exists by default.
-    copyMetadata(PvtObject::ptr(prim), PvtObject::ptr(copy));
+    copyMetadata(PvtObject::cast(prim), PvtObject::cast(copy));
 
     // Copy any inputs & outputs that don't exists by default.
     RtNodeGraph ng(prim);
@@ -103,7 +103,7 @@ RtPrim PvtCopyPrimCmd::createPrimCopy(const RtPrim& prim, const RtPath& parentPa
                 portCopy = ngCopy.createInput(port->getName(), port->getType(), port->getFlags());
             }
             RtValue::copy(port->getType(), port->getValue(), portCopy.getValue());
-            copyMetadata(port, PvtObject::ptr(portCopy));
+            copyMetadata(port, PvtObject::cast(portCopy));
         }
         for (size_t i = 0; i < ng.prim()->numOutputs(); ++i)
         {
@@ -114,32 +114,32 @@ RtPrim PvtCopyPrimCmd::createPrimCopy(const RtPrim& prim, const RtPath& parentPa
                 portCopy = ngCopy.createOutput(port->getName(), port->getType(), port->getFlags());
             }
             RtValue::copy(port->getType(), port->getValue(), portCopy.getValue());
-            copyMetadata(port, PvtObject::ptr(portCopy));
+            copyMetadata(port, PvtObject::cast(portCopy));
         }
     }
     else
     {
         for (size_t i = 0; i < prim.numInputs(); ++i)
         {
-            const PvtInput* port = PvtPrim::ptr<PvtInput>(prim.getInput(i));
+            const PvtInput* port = PvtPrim::cast<PvtInput>(prim.getInput(i));
             RtInput portCopy = copy.getInput(port->getName());
             if (!portCopy)
             {
                 portCopy = copy.createInput(port->getName(), port->getType(), port->getFlags());
             }
             RtValue::copy(port->getType(), port->getValue(), portCopy.getValue());
-            copyMetadata(port, PvtObject::ptr(portCopy));
+            copyMetadata(port, PvtObject::cast(portCopy));
         }
         for (size_t i = 0; i < prim.numOutputs(); ++i)
         {
-            const PvtOutput* port = PvtPrim::ptr<PvtOutput>(prim.getOutput(i));
+            const PvtOutput* port = PvtPrim::cast<PvtOutput>(prim.getOutput(i));
             RtOutput portCopy = copy.getOutput(port->getName());
             if (!portCopy)
             {
                 portCopy = copy.createOutput(port->getName(), port->getType(), port->getFlags());
             }
             RtValue::copy(port->getType(), port->getValue(), portCopy.getValue());
-            copyMetadata(port, PvtObject::ptr(portCopy));
+            copyMetadata(port, PvtObject::cast(portCopy));
         }
     }
 

@@ -10,7 +10,6 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/RtApi.h>
-#include <MaterialXRuntime/RtStage.h>
 #include <MaterialXRuntime/RtSchema.h>
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtNodeImpl.h>
@@ -18,6 +17,7 @@
 
 #include <MaterialXRuntime/Private/PvtObject.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
+#include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtCommand.h>
 #include <MaterialXRuntime/Private/PvtMessage.h>
 
@@ -30,6 +30,11 @@ public:
     PvtApi()
     {
         reset();
+    }
+
+    static PvtApi* cast(RtApi& api)
+    {
+        return reinterpret_cast<PvtApi*>(api._ptr);
     }
 
     void reset();
@@ -96,11 +101,11 @@ public:
         {
             throw ExceptionRuntimeError("Given prim '" + prim.getName().str() + "' is not a valid nodedef");
         }
-        if (hasNodeDef(prim.getName()))
+        if (_nodedefs.count(prim.getName()))
         {
-            throw ExceptionRuntimeError("A nodedef with name '" + prim.getName().str() + "' is already registered");
+            _nodedefs.remove(prim.getName());
         }
-        _nodedefs.add(PvtObject::ptr(prim));
+        _nodedefs.add(PvtObject::cast(prim));
     }
 
     void unregisterNodeDef(const RtToken& name)
@@ -118,15 +123,52 @@ public:
         return _nodedefs.size();
     }
 
-    RtPrim getNodeDef(const RtToken& name)
+    PvtObject* getNodeDef(const RtToken& name)
     {
-        PvtObject* obj = _nodedefs.find(name);
-        return obj ? obj->hnd() : RtPrim();
+        return _nodedefs.find(name);
     }
 
-    RtPrim getNodeDef(size_t index)
+    PvtObject* getNodeDef(size_t index)
     {
-        return _nodedefs[index]->hnd();
+        return _nodedefs[index];
+    }
+
+    void registerNodeGraph(const RtPrim& prim)
+    {
+        if (!prim.hasApi<RtNodeGraph>())
+        {
+            throw ExceptionRuntimeError("Given prim '" + prim.getName().str() + "' is not a valid nodegraph");
+        }
+        if (_nodegraphs.count(prim.getName()))
+        {
+            _nodegraphs.remove(prim.getName());
+        }
+        _nodegraphs.add(PvtObject::cast(prim));
+    }
+
+    void unregisterNodeGraph(const RtToken& name)
+    {
+        _nodegraphs.remove(name);
+    }
+
+    bool hasNodeGraph(const RtToken& name)
+    {
+        return _nodegraphs.count(name);
+    }
+
+    size_t numNodeGraphs() const
+    {
+        return _nodegraphs.size();
+    }
+
+    PvtObject* getNodeGraph(const RtToken& name)
+    {
+        return _nodegraphs.find(name);
+    }
+
+    PvtObject* getNodeGraph(size_t index)
+    {
+        return _nodegraphs[index];
     }
 
     void registerNodeImpl(const RtPrim& prim)
@@ -135,11 +177,11 @@ public:
         {
             throw ExceptionRuntimeError("Given prim '" + prim.getName().str() + "' is not a valid nodeimpl");
         }
-        if (hasNodeImpl(prim.getName()))
+        if (_nodeimpls.count(prim.getName()))
         {
-            throw ExceptionRuntimeError("A nodeimpl with name '" + prim.getName().str() + "' is already registered");
+            _nodeimpls.remove(prim.getName());
         }
-        _nodeimpls.add(PvtObject::ptr(prim));
+        _nodeimpls.add(PvtObject::cast(prim));
     }
 
     void unregisterNodeImpl(const RtToken& name)
@@ -157,15 +199,14 @@ public:
         return _nodeimpls.size();
     }
 
-    RtPrim getNodeImpl(const RtToken& name)
+    PvtObject* getNodeImpl(const RtToken& name)
     {
-        PvtObject* obj = _nodeimpls.find(name);
-        return obj ? obj->hnd() : RtPrim();
+        return _nodeimpls.find(name);
     }
 
-    RtPrim getNodeImpl(size_t index)
+    PvtObject* getNodeImpl(size_t index)
     {
-        return _nodeimpls[index]->hnd();
+        return _nodeimpls[index];
     }
 
     void registerTargetDef(const RtPrim& prim)
@@ -174,11 +215,11 @@ public:
         {
             throw ExceptionRuntimeError("Given prim '" + prim.getName().str() + "' is not a valid targetdef");
         }
-        if (hasTargetDef(prim.getName()))
+        if (_targetdefs.count(prim.getName()))
         {
-            throw ExceptionRuntimeError("A targetdef with name '" + prim.getName().str() + "' is already registered");
+            _targetdefs.remove(prim.getName());
         }
-        _targetdefs.add(PvtObject::ptr(prim));
+        _targetdefs.add(PvtObject::cast(prim));
     }
 
     void unregisterTargetDef(const RtToken& name)
@@ -189,6 +230,21 @@ public:
     bool hasTargetDef(const RtToken& name)
     {
         return _targetdefs.count(name);
+    }
+
+    size_t numTargetDefs() const
+    {
+        return _targetdefs.size();
+    }
+
+    PvtObject* getTargetDef(const RtToken& name)
+    {
+        return _targetdefs.find(name);
+    }
+
+    PvtObject* getTargetDef(size_t index)
+    {
+        return _targetdefs[index];
     }
 
     void clearSearchPath()
@@ -236,62 +292,79 @@ public:
         return _implementationSearchPaths;
     }
 
-    void createLibrary(const RtToken& name);
-
-    void loadLibrary(const RtToken& name, const RtReadOptions& options);
-
+    RtStagePtr loadLibrary(const RtToken& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
     void unloadLibrary(const RtToken& name);
+    void unloadLibraries();
 
-    RtStagePtr getLibrary(const RtToken& name)
+    size_t numLibraries() const
+    {
+        return _librariesOrder.size();
+    }
+
+    RtStagePtr getLibrary(const RtToken& name) const
     {
         auto it = _libraries.find(name);
         return it != _libraries.end() ? it->second : nullptr;
     }
 
-    RtStagePtr getLibraryRoot()
+    RtStagePtr getLibrary(size_t index) const
     {
-        return _libraryRootStage;
+        return _librariesOrder[index];
     }
 
-    RtTokenVec getLibraryNames() const
-    {
-        RtTokenVec names;
-        for (auto it : _libraries)
-        {
-            names.push_back(it.first);
-        }
-        return names;
-    }
-
-   const FilePath& getUserDefinitionPath()
-    {
-        return _userDefinitionPath;
-    }
-
-    void setUserDefinitionPath(const FilePath& path)
-    {
-        _userDefinitionPath = path;
-    }
+    void setupNodeImplRelationships();
 
     RtToken makeUniqueStageName(const RtToken& name) const;
 
     RtStagePtr createStage(const RtToken& name)
     {
         const RtToken newName = makeUniqueStageName(name);
-        RtStagePtr stage = RtStage::createNew(newName);
+        RtStagePtr stage = PvtStage::createNew(newName);
         _stages[newName] = stage;
+        _stagesOrder.push_back(stage);
         return stage;
     }
 
     void deleteStage(const RtToken& name)
     {
-        _stages.erase(name);
+        auto it = _stages.find(name);
+        if (it != _stages.end())
+        {
+            RtStagePtr stage = it->second;
+            unregisterPrims(stage);
+
+            _stages.erase(it);
+            _stagesOrder.erase(std::find(_stagesOrder.begin(), _stagesOrder.end(), stage));
+        }
+    }
+
+    void deleteStages()
+    {
+        for (auto stage : _stagesOrder)
+        {
+            unregisterPrims(stage);
+        }
+        _stages.clear();
+        _stagesOrder.clear();
+    }
+
+    void registerPrims(RtStagePtr stage);
+    void unregisterPrims(RtStagePtr stage);
+
+    size_t numStages() const
+    {
+        return _stagesOrder.size();
     }
 
     RtStagePtr getStage(const RtToken& name) const
     {
         auto it = _stages.find(name);
         return it != _stages.end() ? it->second : RtStagePtr();
+    }
+
+    RtStagePtr getStage(size_t index) const
+    {
+        return _stagesOrder[index];
     }
 
     RtToken renameStage(const RtToken& name, const RtToken& newName)
@@ -308,24 +381,9 @@ public:
         return uniqueName;
     }
 
-    RtTokenVec getStageNames() const
-    {
-        RtTokenVec names;
-        for (auto it : _stages)
-        {
-            names.push_back(it.first);
-        }
-        return names;
-    }
-
     UnitConverterRegistryPtr& getUnitDefinitions()
     {
         return _unitDefinitions;
-    }
-
-    static PvtApi* cast(RtApi& api)
-    {
-        return reinterpret_cast<PvtApi*>(api._ptr);
     }
 
     vector<RtLoggerPtr> _loggers;
@@ -338,13 +396,16 @@ public:
     FileSearchPath _textureSearchPaths;
     FilePath _userDefinitionPath;
 
-    RtStagePtr _libraryRootStage;
-    RtTokenMap<RtStagePtr> _libraries;
-    UnitConverterRegistryPtr  _unitDefinitions;
+    UnitConverterRegistryPtr _unitDefinitions;
 
     RtTokenMap<RtPrimCreateFunc> _createFunctions;
+
+    RtTokenMap<RtStagePtr> _libraries;
+    vector<RtStagePtr> _librariesOrder;
     RtTokenMap<RtStagePtr> _stages;
+    vector<RtStagePtr> _stagesOrder;
     PvtObjectList _nodedefs;
+    PvtObjectList _nodegraphs;
     PvtObjectList _nodeimpls;
     PvtObjectList _targetdefs;
 };

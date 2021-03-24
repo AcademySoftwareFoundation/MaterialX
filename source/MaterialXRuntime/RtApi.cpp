@@ -120,79 +120,68 @@ RtPrimCreateFunc RtApi::getCreateFunction(const RtToken& typeName) const
     return _cast(_ptr)->getCreateFunction(typeName);
 }
 
-void RtApi::registerNodeDef(const RtPrim& prim)
+template<> void RtApi::registerDefinition<RtNodeDef>(const RtPrim& prim)
 {
-    _cast(_ptr)->registerNodeDef(prim);
+    return _cast(_ptr)->registerNodeDef(prim);
 }
 
-void RtApi::unregisterNodeDef(const RtToken& name)
+template<> void RtApi::unregisterDefinition<RtNodeDef>(const RtToken& name)
 {
-    _cast(_ptr)->unregisterNodeDef(name);
+    return _cast(_ptr)->unregisterNodeDef(name);
 }
 
-bool RtApi::hasNodeDef(const RtToken& name) const
+template<> bool RtApi::hasDefinition<RtNodeDef>(const RtToken& name) const
 {
     return _cast(_ptr)->hasNodeDef(name);
 }
 
-size_t RtApi::numNodeDefs() const
+template<> RtPrim RtApi::getDefinition<RtNodeDef>(const RtToken& name) const
+{
+    PvtObject* obj = _cast(_ptr)->getNodeDef(name);
+    return obj ? obj->hnd() : RtPrim();
+}
+
+template<> size_t RtApi::numDefinitions<RtNodeDef>() const
 {
     return _cast(_ptr)->numNodeDefs();
 }
 
-RtPrim RtApi::getNodeDef(size_t index) const
+template<> RtPrim RtApi::getDefinition<RtNodeDef>(size_t index) const
 {
-    return _cast(_ptr)->getNodeDef(index);
+    PvtObject* obj = _cast(_ptr)->getNodeDef(index);
+    return obj ? obj->hnd() : RtPrim();
 }
 
-RtPrim RtApi::getNodeDef(const RtToken& name) const
+template<> void RtApi::registerImplementation<RtNodeGraph>(const RtPrim& prim)
 {
-    return _cast(_ptr)->getNodeDef(name);
+    return _cast(_ptr)->registerNodeGraph(prim);
 }
 
-void RtApi::registerNodeImpl(const RtPrim& prim)
+template<> void RtApi::unregisterImplementation<RtNodeGraph>(const RtToken& name)
 {
-    _cast(_ptr)->registerNodeImpl(prim);
+    return _cast(_ptr)->unregisterNodeGraph(name);
 }
 
-void RtApi::unregisterNodeImpl(const RtToken& name)
+template<> bool RtApi::hasImplementation<RtNodeGraph>(const RtToken& name) const
 {
-    _cast(_ptr)->unregisterNodeImpl(name);
+    return _cast(_ptr)->hasNodeGraph(name);
 }
 
-bool RtApi::hasNodeImpl(const RtToken& name) const
+template<> RtPrim RtApi::getImplementation<RtNodeGraph>(const RtToken& name) const
 {
-    return _cast(_ptr)->hasNodeImpl(name);
+    PvtObject* obj = _cast(_ptr)->getNodeGraph(name);
+    return obj ? obj->hnd() : RtPrim();
 }
 
-size_t RtApi::numNodeImpls() const
+template<> size_t RtApi::numImplementations<RtNodeGraph>() const
 {
-    return _cast(_ptr)->numNodeImpls();
+    return _cast(_ptr)->numNodeGraphs();
 }
 
-RtPrim RtApi::getNodeImpl(size_t index) const
+template<> RtPrim RtApi::getImplementation<RtNodeGraph>(size_t index) const
 {
-    return _cast(_ptr)->getNodeImpl(index);
-}
-
-RtPrim RtApi::getNodeImpl(const RtToken& name) const
-{
-    return _cast(_ptr)->getNodeImpl(name);
-}
-
-void RtApi::registerTargetDef(const RtPrim& prim)
-{
-    _cast(_ptr)->registerTargetDef(prim);
-}
-
-void RtApi::unregisterTargetDef(const RtToken& name)
-{
-    _cast(_ptr)->unregisterTargetDef(name);
-}
-
-bool RtApi::hasTargetDef(const RtToken& name) const
-{
-    return _cast(_ptr)->hasTargetDef(name);
+    PvtObject* obj = _cast(_ptr)->getNodeGraph(index);
+    return obj ? obj->hnd() : RtPrim();
 }
 
 void RtApi::clearSearchPath()
@@ -240,44 +229,34 @@ const FileSearchPath& RtApi::getImplementationSearchPath() const
     return _cast(_ptr)->getImplementationSearchPath();
 }
 
-void RtApi::createLibrary(const RtToken& name)
+RtStagePtr RtApi::loadLibrary(const RtToken& name, const FilePath& path, const RtReadOptions* options, bool forceReload)
 {
-    _cast(_ptr)->createLibrary(name);
-}
-
-void RtApi::loadLibrary(const RtToken& name, const RtReadOptions& options)
-{
-    _cast(_ptr)->loadLibrary(name, options);
+    return _cast(_ptr)->loadLibrary(name, path, options, forceReload);
 }
 
 void RtApi::unloadLibrary(const RtToken& name)
 {
-    _cast(_ptr)->unloadLibrary(name);
+    return _cast(_ptr)->unloadLibrary(name);
 }
 
-RtTokenVec RtApi::getLibraryNames() const
+void RtApi::unloadLibraries()
 {
-    return _cast(_ptr)->getLibraryNames();
+    return _cast(_ptr)->unloadLibraries();
 }
 
-const FilePath& RtApi::getUserDefinitionPath() const
+size_t RtApi::numLibraries() const
 {
-    return _cast(_ptr)->getUserDefinitionPath();
+    return _cast(_ptr)->numLibraries();
 }
 
-void RtApi::setUserDefinitionPath(const FilePath& path)
-{
-    return _cast(_ptr)->setUserDefinitionPath(path);
-}
-
-RtStagePtr RtApi::getLibrary(const RtToken& name)
+RtStagePtr RtApi::getLibrary(const RtToken& name) const
 {
     return _cast(_ptr)->getLibrary(name);
 }
 
-RtStagePtr RtApi::getLibrary()
+RtStagePtr RtApi::getLibrary(size_t index) const
 {
-    return _cast(_ptr)->getLibraryRoot();
+    return _cast(_ptr)->getLibrary(index);
 }
 
 RtStagePtr RtApi::createStage(const RtToken& name)
@@ -290,19 +269,29 @@ void RtApi::deleteStage(const RtToken& name)
     _cast(_ptr)->deleteStage(name);
 }
 
+void RtApi::deleteStages()
+{
+    _cast(_ptr)->deleteStages();
+}
+
+size_t RtApi::numStages() const
+{
+    return _cast(_ptr)->numStages();
+}
+
 RtStagePtr RtApi::getStage(const RtToken& name) const
 {
     return _cast(_ptr)->getStage(name);
 }
 
+RtStagePtr RtApi::getStage(size_t index) const
+{
+    return _cast(_ptr)->getStage(index);
+}
+
 RtToken RtApi::renameStage(const RtToken& name, const RtToken& newName)
 {
     return _cast(_ptr)->renameStage(name, newName);
-}
-
-RtTokenVec RtApi::getStageNames() const
-{
-    return _cast(_ptr)->getStageNames();
 }
 
 UnitConverterRegistryPtr RtApi::getUnitDefinitions()

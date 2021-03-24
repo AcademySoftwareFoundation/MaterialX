@@ -17,7 +17,7 @@ namespace MaterialX
 
 class RtValue;
 class RtOutput;
-class RtInputIterator;
+class RtConnectionIterator;
 
 /// @class RtPortFlag
 /// Flags for tagging ports.
@@ -162,7 +162,7 @@ public:
     void clearConnections();
 
     /// Return an iterator for the connections downstream from this output.
-    RtInputIterator getConnections() const;
+    RtConnectionIterator getConnections() const;
 
     friend class RtInput;
 };

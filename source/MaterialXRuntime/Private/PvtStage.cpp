@@ -6,6 +6,7 @@
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
+#include <MaterialXRuntime/Private/PvtApi.h>
 
 #include <MaterialXRuntime/RtApi.h>
 #include <MaterialXRuntime/RtPrim.h>
@@ -29,10 +30,21 @@ PvtStage::RootPrim::RootPrim(RtStageWeakPtr stage) :
 
 PvtStage::PvtStage(const RtToken& name, RtStageWeakPtr owner) :
     _name(name),
-    _root(nullptr),
+    _root(new RootPrim(owner)),
     _selfRefCount(0)
 {
-    _root = PvtObjHandle(new RootPrim(owner));
+}
+
+RtStagePtr PvtStage::createNew(const RtToken& name)
+{
+    // Create the shared stage object.
+    RtStagePtr stage(new RtStage());
+
+    // Create the private stage implementation.
+    stage->_ptr = new PvtStage(name, RtStageWeakPtr(stage));
+
+    // Return the shared wrapper object.
+    return stage;
 }
 
 PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName)
@@ -50,34 +62,38 @@ PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, co
         throw ExceptionRuntimeError("Given parent path '" + parentPath.asString() + "' does not point to a prim in this stage");
     }
 
-    PvtObjHandle primH;
+    RtPrim prim;
 
     // First, try finding a registered creator function for this typename.
     RtPrimCreateFunc creator = RtApi::get().getCreateFunction(typeName);
     if (creator)
     {
-        primH = PvtObject::hnd(creator(typeName, name, parent->hnd()));
+        prim = creator(typeName, name, parent->hnd());
     }
     else
     {
         // Second, try finding a registered nodedef.
-        const RtPrim nodedef = RtApi::get().getNodeDef(typeName);
-        if (nodedef)
+        PvtApi* api = PvtApi::cast(RtApi::get());
+        const PvtObject* nodedef = api->getNodeDef(typeName);
+        if (!nodedef)
         {
-            // A nodedef exists with this name, so create a node instance.
-            RtPrimCreateFunc nodeCreator = RtApi::get().getCreateFunction(RtNode::typeName());
-            primH = PvtObject::hnd(nodeCreator(typeName, name, parent->hnd()));
+            // Third, try finding a nodedef loaded in this stage.
+            const PvtPath path(typeName);
+            nodedef = getPrimAtPath(path);
+            if (!nodedef || !nodedef->asA<PvtPrim>()->hasApi<RtNodeDef>())
+            {
+                // A nodedef was not found so we can't create a node.
+                throw ExceptionRuntimeError("Don't know how to create a prim with typename '" + typeName.str() + "'");
+            }
         }
-        else
-        {
-            throw ExceptionRuntimeError("Don't know how to create a prim with typename '" + typeName.str() + "'");
-        }
+        // Create a node instance from the nodedef.
+        prim = RtNode::createNode(nodedef->hnd(), name, parent->hnd());
     }
 
-    PvtPrim* prim = primH->asA<PvtPrim>();
-    parent->addChildPrim(prim);
+    PvtPrim* p = PvtObject::cast<PvtPrim>(prim);
+    parent->addChildPrim(p);
 
-    return prim;
+    return p;
 }
 
 void PvtStage::removePrim(const PvtPath& path)
@@ -201,7 +217,7 @@ PvtPrim* PvtStage::getPrimAtPath(const PvtPath& path)
         // Then search any referenced stages as well.
         for (const RtStagePtr& stage : _refStages)
         {
-            PvtStage* refStage = PvtStage::ptr(stage);
+            PvtStage* refStage = PvtStage::cast(stage);
             prim = refStage->getPrimAtPath(path);
             if (prim)
             {
@@ -250,7 +266,7 @@ void PvtStage::addReference(RtStagePtr stage)
         throw ExceptionRuntimeError("A reference to this stage already exists");
     }
 
-    PvtStage::ptr(stage)->_selfRefCount++;
+    PvtStage::cast(stage)->_selfRefCount++;
     _refStages.push_back(stage);
     _refStagesSet.insert(s);
 }
@@ -262,7 +278,7 @@ void PvtStage::removeReference(const RtToken& name)
         const RtStagePtr& s = *it;
         if (s->getName() == name)
         {
-            PvtStage::ptr(s)->_selfRefCount--;
+            PvtStage::cast(s)->_selfRefCount--;
             _refStages.erase(it);
             _refStagesSet.erase(s.get());
             break;
@@ -275,7 +291,7 @@ void PvtStage::removeReferences()
     // Decrease self ref count on all stages.
     for (const RtStagePtr& stage : _refStages)
     {
-        PvtStage::ptr(stage)->_selfRefCount--;
+        PvtStage::cast(stage)->_selfRefCount--;
     }
     // Removed them.
     _refStages.clear();
@@ -324,7 +340,7 @@ PvtStageIterator& PvtStageIterator::operator++()
         }
         else if (stageIndex + 1 < int(stage->getAllReferences().size()))
         {
-            PvtStage* refStage = PvtStage::ptr(stage->getAllReferences()[++stageIndex]);
+            PvtStage* refStage = PvtStage::cast(stage->getAllReferences()[++stageIndex]);
             if (!refStage->getRootPrim()->getAllChildren().empty())
             {
                 _stack.push_back(std::make_tuple(refStage, 0, stageIndex));

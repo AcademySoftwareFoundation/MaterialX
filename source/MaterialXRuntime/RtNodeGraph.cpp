@@ -150,7 +150,7 @@ RtPrim RtNodeGraph::createPrim(const RtToken& typeName, const RtToken& name, RtP
 
     static const RtToken DEFAULT_NAME("nodegraph1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew<PvtNodeGraphPrim>(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew<PvtNodeGraphPrim>(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     return primH;
 }

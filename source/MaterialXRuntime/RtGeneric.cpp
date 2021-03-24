@@ -19,7 +19,7 @@ RtPrim RtGeneric::createPrim(const RtToken& typeName, const RtToken& name, RtPri
 
     static const RtToken DEFAULT_NAME("generic1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     return primH;
 }

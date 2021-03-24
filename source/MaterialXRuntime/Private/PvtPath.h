@@ -31,14 +31,20 @@ public:
     {
     }
 
-    // Construct from an item.
-    PvtPath(const PvtObject* obj)
+    // Construct from an object.
+    explicit PvtPath(const PvtObject* obj)
     {
         setObject(obj);
     }
 
+    // Construct from a single path element.
+    explicit PvtPath(const RtToken& elem) :
+        _elements(elem != ROOT_NAME ? RtTokenVec({ ROOT_NAME, elem }) : RtTokenVec({ ROOT_NAME }))
+    {
+    }
+
     // Construct from a string path.
-    PvtPath(const string& path)
+    explicit PvtPath(const string& path)
     {
         const StringVec elementNames = splitString(path, SEPARATOR);
         _elements.resize(elementNames.size() + 1);

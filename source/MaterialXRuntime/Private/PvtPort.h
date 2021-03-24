@@ -209,15 +209,15 @@ public:
         return _connections[index]->hnd();
     }
 
-    RtInputIterator getConnections() const
+    RtConnectionIterator getConnections() const
     {
-        return RtInputIterator(this->obj());
+        return RtConnectionIterator(this->obj());
     }
 
     void clearConnections();
 
 protected:
-    PvtObjectVec _connections;
+    PvtObjHandleVec _connections;
 
     friend class PvtInput;
     friend class RtInputIterator;

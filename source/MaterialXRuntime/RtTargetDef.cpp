@@ -46,7 +46,7 @@ RtPrim RtTargetDef::createPrim(const RtToken& typeName, const RtToken& name, RtP
 
     static const RtToken DEFAULT_NAME("targetdef1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew<PvtTargetDefPrim>(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew<PvtTargetDefPrim>(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->asA<PvtTargetDefPrim>()->matchingTargets.insert(name);

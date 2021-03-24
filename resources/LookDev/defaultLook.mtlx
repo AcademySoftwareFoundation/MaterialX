@@ -1,16 +1,9 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <nodedef name="ND_default_shader" node="default_shader">
-    <output name="out" type="surfaceshader" />
-  </nodedef>
-  <nodegraph name="NG_default_shader" nodedef="ND_default_shader">
-    <standard_surface name="defaultShader" type="surfaceshader">
-      <input name="specular" type="float" value="0.2" />
-      <input name="specular_roughness" type="float" value="0.4" />      
-    </standard_surface>
-    <output name="out" type="surfaceshader" nodename="defaultShader" />
-  </nodegraph>
-  <default_shader name="defaultShader" type="surfaceshader" />
+  <standard_surface name="defaultShader" type="surfaceshader">
+    <input name="specular" type="float" value="0.2" />
+    <input name="specular_roughness" type="float" value="0.4" />
+  </standard_surface>
   <surfacematerial name="defaultMaterial" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="defaultShader" />
   </surfacematerial>

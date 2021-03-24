@@ -112,7 +112,7 @@ PvtObjHandle PvtObjectList::remove(const RtToken& name)
 
         // Return the handle to keep the object alive
         // in case the intent was to only remove it
-        // but not destroy it here.
+        // from the list but to keep its ref count.
         return hnd;
     }
     return PvtObjHandle();

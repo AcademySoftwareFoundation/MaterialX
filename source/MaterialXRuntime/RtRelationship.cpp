@@ -28,7 +28,7 @@ void RtRelationship::connect(const RtObject& obj)
     {
         throw ExceptionRuntimeError("Given object is not valid");
     }
-    return hnd()->asA<PvtRelationship>()->connect(PvtObject::ptr(obj));
+    return hnd()->asA<PvtRelationship>()->connect(PvtObject::cast(obj));
 }
 
 void RtRelationship::disconnect(const RtObject& obj)
@@ -37,7 +37,7 @@ void RtRelationship::disconnect(const RtObject& obj)
     {
         throw ExceptionRuntimeError("Given object is not valid");
     }
-    return hnd()->asA<PvtRelationship>()->disconnect(PvtObject::ptr(obj));
+    return hnd()->asA<PvtRelationship>()->disconnect(PvtObject::cast(obj));
 }
 
 bool RtRelationship::hasConnections() const

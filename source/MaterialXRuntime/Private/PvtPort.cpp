@@ -53,7 +53,7 @@ bool PvtInput::isConnectable(const PvtOutput* output) const
 void PvtInput::connect(PvtOutput* output)
 {
     // Check if this connection exists already.
-    if (_connection == output->hnd())
+    if (_connection.get() == output)
     {
         return;
     }
@@ -72,13 +72,13 @@ void PvtInput::connect(PvtOutput* output)
 
     // Make the connection.
     _connection = output->hnd();
-    output->_connections.push_back(this);
+    output->_connections.push_back(hnd());
 }
 
 void PvtInput::disconnect(PvtOutput* output)
 {
     // Make sure the connection exists, otherwise we can't break it.
-    if (_connection != output->hnd())
+    if (_connection.get() != output)
     {
         return;
     }
@@ -125,7 +125,7 @@ PvtOutput::PvtOutput(const RtToken& name, const RtToken& type, uint32_t flags, P
 void PvtOutput::clearConnections()
 {
     // Break connections to all destination inputs.
-    for (PvtObject* dest : _connections)
+    for (PvtObjHandle dest : _connections)
     {
         dest->asA<PvtInput>()->_connection = nullptr;
     }

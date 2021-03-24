@@ -5,6 +5,7 @@
 
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtNodeImpl.h>
+#include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtApi.h>
 #include <MaterialXRuntime/Tokens.h>
@@ -102,7 +103,7 @@ RtPrim RtNodeDef::createPrim(const RtToken& typeName, const RtToken& name, RtPri
 {
     PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
 
-    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, name, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, name, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->createAttribute(Tokens::NODE, RtType::TOKEN);
@@ -232,10 +233,15 @@ RtPrim RtNodeDef::getNodeImpl(const RtToken& target) const
     {
         if (obj.isA<RtPrim>())
         {
-            RtNodeImpl impl(obj);
-            if (impl.isValid() && (target == EMPTY_TOKEN || impl.getTarget() == target))
+            RtPrim prim(obj);
+            if (prim.hasApi<RtNodeImpl>() || prim.hasApi<RtNodeGraph>())
             {
-                return impl.getPrim();
+                const RtTypedValue* attr = prim.getAttribute(Tokens::TARGET, RtType::TOKEN);
+                const RtToken primTarget = attr ? attr->asToken() : EMPTY_TOKEN;
+                if (primTarget == EMPTY_TOKEN || primTarget == target)
+                {
+                    return prim;
+                }
             }
         }
     }

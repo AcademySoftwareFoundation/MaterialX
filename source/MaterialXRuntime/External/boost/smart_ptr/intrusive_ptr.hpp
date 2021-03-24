@@ -307,7 +307,7 @@ template<class T, class U> intrusive_ptr<T> dynamic_pointer_cast( intrusive_ptr<
 
 template< class T > struct hash;
 
-template< class T > std::size_t hash_value( boost::intrusive_ptr<T> const & p ) BOOST_SP_NOEXCEPT
+template< class T > size_t hash_value( boost::intrusive_ptr<T> const & p ) BOOST_SP_NOEXCEPT
 {
     return std::hash< T* >()(p.get());
 //    return boost::hash< T* >()(p.get());

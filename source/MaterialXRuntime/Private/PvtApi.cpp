@@ -4,10 +4,14 @@
 //
 
 #include <MaterialXRuntime/Private/PvtApi.h>
+#include <MaterialXRuntime/Private/PvtObject.h>
 
 #include <MaterialXRuntime/RtApi.h>
 #include <MaterialXRuntime/RtSchema.h>
 #include <MaterialXRuntime/RtNodeDef.h>
+#include <MaterialXRuntime/RtNodeGraph.h>
+#include <MaterialXRuntime/RtNodeImpl.h>
+#include <MaterialXRuntime/RtTargetDef.h>
 #include <MaterialXRuntime/RtFileIo.h>
 
 namespace MaterialX
@@ -15,70 +19,168 @@ namespace MaterialX
 
 namespace
 {
-    static const RtToken libRootName("api_lib_root");
+    const RtToken DEFAULT_LIBRARY_NAME("default");
+    const string NUMBERS("0123456789");
 }
 
 void PvtApi::reset()
 {
     _createFunctions.clear();
-    _stages.clear();
-    _nodedefs.clear();
-    _nodeimpls.clear();
-
-    _libraryRootStage.reset();
     _libraries.clear();
-    _libraryRootStage = RtStage::createNew(libRootName);
+    _librariesOrder.clear();
+    _stages.clear();
+    _stagesOrder.clear();
 
     _unitDefinitions = UnitConverterRegistry::create();
 }
 
-void PvtApi::createLibrary(const RtToken& name)
+RtStagePtr PvtApi::loadLibrary(const RtToken& name, const FilePath& path, const RtReadOptions* options, bool forceReload)
 {
-    // If already loaded unload the old first,
-    // to support reloading of updated libraries.
-    if (getLibrary(name))
+    auto it = _libraries.find(name);
+    if (it != _libraries.end())
     {
-        unloadLibrary(name);
+        if (forceReload)
+        {
+            unloadLibrary(name);
+        }
+        else
+        {
+            throw ExceptionRuntimeError("A library named '" + name.str() + "' has already been loaded");
+        }
     }
 
-    RtStagePtr lib = RtStage::createNew(name);
-    _libraries[name] = lib;
+    RtStagePtr stage = PvtStage::createNew(name);
+    _libraries[name] = stage;
+    _librariesOrder.push_back(stage);
 
-    _libraryRootStage->addReference(lib);
-}
-
-void PvtApi::loadLibrary(const RtToken& name, const RtReadOptions& options)
-{
-    // If already loaded unload the old first,
-    // to support reloading of updated libraries.
-    if (getLibrary(name))
+    // Load in the files(s).
+    RtFileIo fileApi(stage);
+    StringSet loadedFiles = fileApi.readLibrary(path, _searchPaths, options);
+    for (const string& file : loadedFiles)
     {
-        unloadLibrary(name);
+        stage->addSourceUri(file);
     }
 
-    RtStagePtr lib = RtStage::createNew(name);
-    _libraries[name] = lib;
+    // Register any definitions and implementations.
+    registerPrims(stage);
 
-    RtFileIo file(lib);
-    file.readLibraries({ name.str() }, _searchPaths, options);
+    // Reset nodeimpl relationsships since the registry of
+    // definitions and implementations have changed.
+    setupNodeImplRelationships();
 
-    _libraryRootStage->addReference(lib);
+    return stage;
 }
 
 void PvtApi::unloadLibrary(const RtToken& name)
 {
-    RtStagePtr lib = getLibrary(name);
-    if (lib)
+    auto it = _libraries.find(name);
+    if (it != _libraries.end())
     {
-        // Unregister any nodedefs from this library.
-        RtSchemaPredicate<RtNodeDef> nodedefFilter;
-        for (RtPrim nodedef : lib->getRootPrim().getChildren(nodedefFilter))
-        {
-            unregisterNodeDef(nodedef.getName());
-        }
+        RtStagePtr stage = it->second;
+        unregisterPrims(stage);
 
-        // Delete the library.
-        _libraries.erase(name);
+        _libraries.erase(it);
+        _librariesOrder.erase(std::find(_librariesOrder.begin(), _librariesOrder.end(), stage));
+
+        // Reset nodeimpl relationsships since the registry of
+        // definitions and implementations have changed.
+        setupNodeImplRelationships();
+    }
+}
+
+void PvtApi::unloadLibraries()
+{
+    for (auto stage : _librariesOrder)
+    {
+        unregisterPrims(stage);
+    }
+    _libraries.clear();
+    _librariesOrder.clear();
+}
+
+void PvtApi::registerPrims(RtStagePtr stage)
+{
+    for (RtPrim prim : stage->traverse())
+    {
+        if (prim.hasApi<RtNodeDef>())
+        {
+            registerNodeDef(prim);
+        }
+        else if (prim.hasApi<RtNodeGraph>())
+        {
+            RtNodeGraph nodegraph(prim);
+            if (nodegraph.getDefinition() != EMPTY_TOKEN)
+            {
+                registerNodeGraph(prim);
+            }
+        }
+        else if (prim.hasApi<RtNodeImpl>())
+        {
+            registerNodeImpl(prim);
+        }
+        else if (prim.hasApi<RtTargetDef>())
+        {
+            registerTargetDef(prim);
+        }
+    }
+}
+
+void PvtApi::unregisterPrims(RtStagePtr stage)
+{
+    for (RtPrim prim : stage->traverse())
+    {
+        if (prim.hasApi<RtNodeDef>())
+        {
+            unregisterNodeDef(prim.getName());
+        }
+        else if (prim.hasApi<RtNodeGraph>())
+        {
+            RtNodeGraph nodegraph(prim);
+            if (nodegraph.getDefinition() != EMPTY_TOKEN)
+            {
+                unregisterNodeGraph(prim.getName());
+            }
+        }
+        else if (prim.hasApi<RtNodeImpl>())
+        {
+            unregisterNodeImpl(prim.getName());
+        }
+        else if (prim.hasApi<RtTargetDef>())
+        {
+            unregisterTargetDef(prim.getName());
+        }
+    }
+}
+
+void PvtApi::setupNodeImplRelationships()
+{
+    // Break old relationsships.
+    for (PvtObject* obj : _nodedefs.vec())
+    {
+        RtNodeDef nodedef(obj->hnd());
+        nodedef.getNodeImpls().clearConnections();
+    }
+
+    // Make new relationsships.
+    for (PvtObject* obj : _nodeimpls.vec())
+    {
+        RtNodeImpl nodeimpl(obj->hnd());
+        PvtObject* nodedefObj  = _nodedefs.find(nodeimpl.getNodeDef());
+        if (nodedefObj)
+        {
+            RtNodeDef nodedef(nodedefObj->hnd());
+            nodedef.getNodeImpls().connect(nodeimpl.getPrim());
+        }
+    }
+    for (PvtObject* obj : _nodegraphs.vec())
+    {
+        RtNodeGraph nodegraph(obj->hnd());
+        PvtObject* nodedefObj = _nodedefs.find(nodegraph.getDefinition());
+        if (nodedefObj)
+        {
+            RtNodeDef nodedef(nodedefObj->hnd());
+            nodedef.getNodeImpls().connect(nodegraph.getPrim());
+        }
     }
 }
 
@@ -94,7 +196,7 @@ RtToken PvtApi::makeUniqueStageName(const RtToken& name) const
         // the counter until a unique name is found.
         string baseName = name.str();
         int i = 1;
-        const size_t n = name.str().find_last_not_of("0123456789") + 1;
+        const size_t n = name.str().find_last_not_of(NUMBERS) + 1;
         if (n < name.str().size())
         {
             const string number = name.str().substr(n);
@@ -110,6 +212,5 @@ RtToken PvtApi::makeUniqueStageName(const RtToken& name) const
 
     return newName;
 }
-
 
 }

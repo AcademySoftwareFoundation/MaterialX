@@ -168,7 +168,7 @@ RtPrimIterator::RtPrimIterator(const RtObject& obj, RtObjectPredicate predicate)
 {
     if (obj.isA<RtPrim>())
     {
-        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        PvtPrim* prim = PvtObject::cast<PvtPrim>(obj);
         _ptr = prim->_prims.empty() ? nullptr : &prim->_prims._vec;
     }
     ++*this;
@@ -179,12 +179,12 @@ RtInputIterator::RtInputIterator(const RtObject& obj) :
 {
     if (obj.isA<RtPrim>())
     {
-        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        PvtPrim* prim = PvtObject::cast<PvtPrim>(obj);
         _ptr = prim->_inputs.empty() ? nullptr : &prim->_inputs._vec;
     }
     else if (obj.isA<RtOutput>())
     {
-        PvtOutput* output = PvtObject::ptr<PvtOutput>(obj);
+        PvtOutput* output = PvtObject::cast<PvtOutput>(obj);
         _ptr = output->_connections.empty() ? nullptr : &output->_connections;
     }
     ++*this;
@@ -195,7 +195,7 @@ RtOutputIterator::RtOutputIterator(const RtObject& obj) :
 {
     if (obj.isA<RtPrim>())
     {
-        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        PvtPrim* prim = PvtObject::cast<PvtPrim>(obj);
         _ptr = prim->_outputs.empty() ? nullptr : &prim->_outputs._vec;
     }
     ++*this;
@@ -206,27 +206,60 @@ RtRelationshipIterator::RtRelationshipIterator(const RtObject& obj) :
 {
     if (obj.isA<RtPrim>())
     {
-        PvtPrim* prim = PvtObject::ptr<PvtPrim>(obj);
+        PvtPrim* prim = PvtObject::cast<PvtPrim>(obj);
         _ptr = prim->_rel.empty() ? nullptr : &prim->_rel._vec;
     }
     ++*this;
 }
 
 
+RtConnectionIterator::RtConnectionIterator() :
+    _ptr(nullptr),
+    _current(-1)
+{
+}
+
 RtConnectionIterator::RtConnectionIterator(const RtObject& obj) :
-    RtObjectIterator()
+    _ptr(nullptr),
+    _current(-1)
 {
     if (obj.isA<RtOutput>())
     {
-        PvtOutput* out = PvtObject::ptr<PvtOutput>(obj);
+        PvtOutput* out = PvtObject::cast<PvtOutput>(obj);
         _ptr = out->_connections.empty() ? nullptr : &out->_connections;
     }
     else if (obj.isA<RtRelationship>())
     {
-        PvtRelationship* rel = PvtObject::ptr<PvtRelationship>(obj);
+        PvtRelationship* rel = PvtObject::cast<PvtRelationship>(obj);
         _ptr = rel->_connections.empty() ? nullptr : &rel->_connections;
     }
     ++*this;
+}
+
+RtObject RtConnectionIterator::operator*() const
+{
+    const PvtObjHandleVec& vec = *static_cast<PvtObjHandleVec*>(_ptr);
+    return vec[_current];
+}
+
+RtConnectionIterator& RtConnectionIterator::operator++()
+{
+    if (!(_ptr && ++_current < int(static_cast<PvtObjHandleVec*>(_ptr)->size())))
+    {
+        abort();
+    }
+    return *this;
+}
+
+bool RtConnectionIterator::isDone() const
+{
+    return !(_ptr && _current < int(static_cast<PvtObjHandleVec*>(_ptr)->size()));
+}
+
+const RtConnectionIterator& RtConnectionIterator::end()
+{
+    static const RtConnectionIterator NULL_ITERATOR;
+    return NULL_ITERATOR;
 }
 
 
@@ -242,7 +275,7 @@ RtStageIterator::RtStageIterator(const RtStagePtr& stage, RtObjectPredicate pred
     StageIteratorData* data = new StageIteratorData();
     data->current = nullptr;
     data->predicate = predicate;
-    data->stack.push_back(std::make_tuple(PvtStage::ptr(stage), -1, -1));
+    data->stack.push_back(std::make_tuple(PvtStage::cast(stage), -1, -1));
 
     _ptr = data;
     ++*this;
@@ -330,7 +363,7 @@ RtStageIterator& RtStageIterator::operator++()
         }
         else if (stageIndex + 1 < int(stage->getAllReferences().size()))
         {
-            PvtStage* refStage = PvtStage::ptr(stage->getAllReferences()[++stageIndex]);
+            PvtStage* refStage = PvtStage::cast(stage->getAllReferences()[++stageIndex]);
             if (!refStage->getRootPrim()->getAllChildren().empty())
             {
                 data->stack.push_back(std::make_tuple(refStage, 0, stageIndex));

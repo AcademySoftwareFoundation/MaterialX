@@ -9,6 +9,7 @@
 #include <MaterialXRuntime/Private/PvtPort.h>
 #include <MaterialXRuntime/Private/PvtRelationship.h>
 
+#include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtPath.h>
 

@@ -13,12 +13,12 @@
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtTraversal.h>
 
+#include <MaterialXFormat/File.h>
+
 namespace MaterialX
 {
 
 class RtPath;
-class RtNodeGraph;
-class RtNodeDef;
 
 /// @class RtStage
 /// A stage is the root container of material description data.
@@ -33,11 +33,11 @@ public:
     /// Return the name of the stage.
     const RtToken& getName() const;
 
-    /// Add a source Uri for a stage
-    void addSourceUri(const RtToken& uri);
+    /// Add a source URI for a stage.
+    void addSourceUri(const FilePath& uri);
 
-    /// Return a list of source Uri loaded into a stage
-    const RtTokenVec& getSourceUri() const;
+    /// Return source URI for files loaded into the stage.
+    const FilePathVec& getSourceUri() const;
 
     /// Create a new prim at the root of the stage.
     RtPrim createPrim(const RtToken& typeName);
@@ -50,14 +50,10 @@ public:
     RtPrim createPrim(const RtPath& parentPath, const RtToken& name, const RtToken& typeName);
 
     /// Create a nodedef based on a nodegraph
-    RtPrim createNodeDef(RtNodeGraph& nodeGraph, const RtToken& nodeDefName, const RtToken& nodeName,
-                         const RtToken& version, bool isDefaultVersion, const RtToken& nodeGroup,
-                         const RtToken& namespaceString);
-
-    /// Return the implementation for a given nodedef if it exists.
-    /// Currently only nodegraph implemenations are considered.
-    /// If no implementation is found an invalid RtPrim will be returned.
-    RtPrim getImplementation(const RtNodeDef& nodedef) const;
+    RtPrim createNodeDef(RtPrim nodeGraph, const RtToken& nodeDefName, const RtToken& nodeName,
+                         const RtToken& version, bool isDefaultVersion, 
+                         const RtToken& nodeGroup = EMPTY_TOKEN,
+                         const RtToken& namespaceString = EMPTY_TOKEN);
 
     /// Remove a prim from the stage.
     void removePrim(const RtPath& path);
@@ -96,8 +92,6 @@ public:
 
 protected:
     RtStage();
-
-    static RtStagePtr createNew(const RtToken& name);
 
     void setName(const RtToken& name);
 

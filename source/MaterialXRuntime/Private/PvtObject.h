@@ -116,11 +116,11 @@ public:
         return RtObject(hnd());
     }
 
-    // Retreive a raw pointer to the private data of an RtObject.
+    // Cast a RtObject to a pointer of its private data.
     // NOTE: No type check is performed so the templated type 
     // must be a type supported by the object.
     template<class T = PvtObject>
-    static T* ptr(const RtObject& obj)
+    static T* cast(const RtObject& obj)
     {
         return static_cast<T*>(obj.hnd().get());
     }
@@ -219,6 +219,7 @@ protected:
 };
 
 
+using PvtObjHandleVec = vector<PvtObjHandle>;
 using PvtObjectVec = vector<PvtObject*>;
 
 // An object container with support for random access, 

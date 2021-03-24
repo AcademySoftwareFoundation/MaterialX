@@ -21,11 +21,11 @@ using RtLoggerPtr = std::shared_ptr<class RtLogger>;
 class RtLogger
 {
 public:
-    enum MessageType
+    enum class MessageType
     {
-        ERROR = 0,
-        WARNING = 1,
-        INFO = 2,
+        ERROR_MESSAGE = 0,
+        WARNING_MESSAGE = 1,
+        INFO_MESSAGE = 2
     };
 
     // Destructor.

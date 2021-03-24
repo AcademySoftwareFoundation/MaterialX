@@ -40,7 +40,7 @@ public:
 
     RtObject getConnection(size_t index = 0) const
     {
-        return _connections[index]->hnd();
+        return _connections[index];
     }
 
     RtConnectionIterator getConnections() const
@@ -54,7 +54,7 @@ public:
     }
 
 protected:
-    PvtObjectVec _connections;
+    PvtObjHandleVec _connections;
     friend class RtConnectionIterator;
 };
 

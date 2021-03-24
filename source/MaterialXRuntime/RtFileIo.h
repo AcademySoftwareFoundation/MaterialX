@@ -78,6 +78,7 @@ class RtWriteOptions
     unsigned int desiredMinorVersion;
 };
 
+
 /// API for read and write of data from MaterialX files
 /// to runtime stages.
 class RtFileIo
@@ -95,7 +96,7 @@ public:
         _stage = stage;
     }
 
-    /// Read contents from a stream
+    /// Read contents from a stream.
     /// If a filter is used only elements accepted by the filter
     /// will be red from the document.
     void read(std::istream& stream, const RtReadOptions* options = nullptr);
@@ -124,14 +125,14 @@ public:
     /// Write a prim to a stream.
     void writePrim(std::ostream& stream, const RtPath& primPath, const RtWriteOptions* options = nullptr);
 
-protected:
-    /// Read all contents from one or more libraries.
-    /// All MaterialX files found inside the given libraries will be read.
-    void readLibraries(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths, const RtReadOptions& options);
-    friend class PvtApi;
-
 private:
+    /// Read all contents from a file or folder into the attached stage.
+    /// If path is a directory all MaterialX files under this folder will be read.
+    /// Returns a set of all files read.
+    StringSet readLibrary(const FilePath& path, const FileSearchPath& searchPaths, const RtReadOptions* options = nullptr);
+
     RtStagePtr _stage;
+    friend class PvtApi;
 };
 
 }

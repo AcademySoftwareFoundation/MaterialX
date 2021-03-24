@@ -38,7 +38,7 @@ RtPrim RtNodeImpl::createPrim(const RtToken& typeName, const RtToken& name, RtPr
 
     static const RtToken DEFAULT_NAME("nodeimpl1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     return primH;
 }

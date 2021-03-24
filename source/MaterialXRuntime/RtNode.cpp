@@ -75,23 +75,27 @@ DEFINE_TYPED_SCHEMA(RtNode, "node");
 
 RtPrim RtNode::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
 {
-    RtPrim prim = RtApi::get().getNodeDef(typeName);
-    if (!prim)
+    RtPrim nodedef = RtApi::get().getDefinition<RtNodeDef>(typeName);
+    if (!nodedef)
     {
         throw ExceptionRuntimeError("No nodedef registered with name '" + typeName.str() + "'");
     }
+    return createNode(nodedef, name, parent);
+}
 
+RtPrim RtNode::createNode(RtPrim nodedef, const RtToken& name, RtPrim parent)
+{
     // Make sure this is a valid nodedef.
-    RtNodeDef nodedef(prim);
+    RtNodeDef nodedefSchema(nodedef);
     if (!nodedef)
     {
-        throw ExceptionRuntimeError("Nodedef with name '" + typeName.str() + "' is not valid");
+        throw ExceptionRuntimeError("Given nodedef with name '" + nodedef.getName().str() + "' is not valid");
     }
 
-    PvtPrim* nodedefPrim = PvtObject::ptr<PvtPrim>(prim);
+    PvtPrim* nodedefPrim = PvtObject::cast<PvtPrim>(nodedef);
 
-    const RtToken nodeName = name == EMPTY_TOKEN ? nodedef.getNode() : name;
-    PvtObjHandle nodeH = PvtPrim::createNew(&_typeInfo, nodeName, PvtObject::ptr<PvtPrim>(parent));
+    const RtToken nodeName = name == EMPTY_TOKEN ? nodedefSchema.getNode() : name;
+    PvtObjHandle nodeH = PvtPrim::createNew(&_typeInfo, nodeName, PvtObject::cast<PvtPrim>(parent));
     PvtPrim* node = nodeH->asA<PvtPrim>();
 
     // Save the nodedef in a relationship.
@@ -99,7 +103,7 @@ RtPrim RtNode::createPrim(const RtToken& typeName, const RtToken& name, RtPrim p
     nodedefRelation->connect(nodedefPrim);
 
     // Copy version tag if used.
-    const RtToken& version = nodedef.getVersion();
+    const RtToken& version = nodedefSchema.getVersion();
     if (version != EMPTY_TOKEN)
     {
         RtTypedValue* attr = node->createAttribute(Tokens::VERSION, RtType::TOKEN);
@@ -140,7 +144,7 @@ void RtNode::setNodeDef(RtPrim nodeDef)
     {
         nodedefRel->clearConnections();
     }
-    nodedefRel->connect(PvtObject::ptr(nodeDef));
+    nodedefRel->connect(PvtObject::cast(nodeDef));
 }
 
 RtPrim RtNode::getNodeDef() const

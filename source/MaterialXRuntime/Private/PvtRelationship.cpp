@@ -28,22 +28,24 @@ void PvtRelationship::connect(PvtObject* obj)
     // extra set/map if we can affor the storage.
     for (auto it = _connections.begin(); it != _connections.end(); ++it)
     {
-        if (*it == obj)
+        if (it->get() == obj)
         {
             // Relationship already exists
             return;
         }
     }
 
+    PvtObjHandle handle(obj->hnd());
+
     // Validate the relationship with this prims connectable API.
     RtConnectableApi* connectableApi = RtConnectableApi::get(getParent()->prim());
-    if (!(connectableApi && connectableApi->acceptRelationship(hnd(), obj->obj())))
+    if (!(connectableApi && connectableApi->acceptRelationship(hnd(), handle)))
     {
         throw ExceptionRuntimeError("'" + getPath().asString() + "' rejected the relationship");
     }
 
     // Create the relationship.
-    _connections.push_back(obj);
+    _connections.push_back(handle);
 }
 
 void PvtRelationship::disconnect(PvtObject* obj)

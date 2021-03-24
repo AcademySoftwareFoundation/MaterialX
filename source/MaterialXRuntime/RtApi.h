@@ -44,7 +44,7 @@ public:
     /// Logs a message with the registered loggers
     void log(RtLogger::MessageType type, const string& msg);
 
-    /// @name Create functions
+    /// @name Prim create functions
     /// @{
 
     /// Register a create function for a typename.
@@ -56,67 +56,9 @@ public:
     /// Return true if the given typename has a create function registered.
     bool hasCreateFunction(const RtToken& typeName) const;
 
-    /// Return the create function for given typename.
-    /// Or nullptr if no such create function has been registered.
+    /// Return the create function for given typename,
+    /// or nullptr if no such create function has been registered.
     RtPrimCreateFunc getCreateFunction(const RtToken& typeName) const;
-
-    /// @}
-    /// @name NodeDefs
-    /// @{
-
-    /// Register a nodedef prim to be used for creating node instances from.
-    void registerNodeDef(const RtPrim& prim);
-
-    /// Unregister a nodedef.
-    void unregisterNodeDef(const RtToken& name);
-
-    /// Return true if a nodedef prim with the given name has been registered.
-    bool hasNodeDef(const RtToken& name) const;
-
-    /// Return the number of registered nodedefs prims.
-    size_t numNodeDefs() const;
-
-    /// Return a registered nodedef prim by index.
-    RtPrim getNodeDef(size_t index) const;
-
-    /// Return a registered nodedef prim by name.
-    RtPrim getNodeDef(const RtToken& name) const;
-
-    /// @}
-    /// @name NodeImpls
-    /// @{
-
-    /// Register a node implementation prim to be used as the implementation
-    /// of a nodedef for a specific target.
-    void registerNodeImpl(const RtPrim& prim);
-
-    /// Unregister a node implementation prim.
-    void unregisterNodeImpl(const RtToken& name);
-
-    /// Return true if a node implementation prim with the given name has been registered.
-    bool hasNodeImpl(const RtToken& name) const;
-
-    /// Return the number of registered node implementation prims.
-    size_t numNodeImpls() const;
-
-    /// Return a registered node implementation prim by index.
-    RtPrim getNodeImpl(size_t index) const;
-
-    /// Return a registered noded implementation prim by name.
-    RtPrim getNodeImpl(const RtToken& name) const;
-
-    /// @}
-    /// @name TargetDefs
-    /// @{
-
-    /// Register a targetdef prim specifying the name and inheritance of an implementation target.
-    void registerTargetDef(const RtPrim& prim);
-
-    /// Unregister a targetdef prim.
-    void unregisterTargetDef(const RtToken& name);
-
-    /// Return true if a targetdef prim with the given name has been registered.
-    bool hasTargetDef(const RtToken& name) const;
 
     /// @}
     /// @name TypedSchema registration
@@ -137,6 +79,64 @@ public:
         unregisterCreateFunction(T::typeName());
         RtConnectableApi::unregisterApi<T>();
     }
+
+    /// @}
+    /// @name Definitions
+    /// @{
+
+     /// Register a definition of templated types.
+    template<class T>
+    void registerDefinition(const RtPrim& prim);
+
+    /// Unregister a definition of templated types.
+    template<class T>
+    void unregisterDefinition(const RtToken& name);
+
+    /// Return true if a definition of templates type
+    /// with the given name has been registered.
+    template<class T>
+    bool hasDefinition(const RtToken& name) const;
+
+    /// Return a registered definition prim by name.
+    template<class T>
+    RtPrim getDefinition(const RtToken& name) const;
+
+    /// Return a number of registered definitions.
+    template<class T>
+    size_t numDefinitions() const;
+
+    /// Return a registered definition prim by index.
+    template<class T>
+    RtPrim getDefinition(size_t index) const;
+
+    /// @}
+    /// @name Implementations
+    /// @{
+
+     /// Register an implementation of templated types.
+    template<class T>
+    void registerImplementation(const RtPrim& prim);
+
+    /// Unregister an implementation of templated types.
+    template<class T>
+    void unregisterImplementation(const RtToken& name);
+
+    /// Return true if an implementation of templates type
+    /// with the given name has been registered.
+    template<class T>
+    bool hasImplementation(const RtToken& name) const;
+
+    /// Return a registered implementation prim by name.
+    template<class T>
+    RtPrim getImplementation(const RtToken& name) const;
+
+    /// Return a number of registered implementations.
+    template<class T>
+    size_t numImplementations() const;
+
+    /// Return a registered implementation prim by index.
+    template<class T>
+    RtPrim getImplementation(size_t index) const;
 
     /// @}
     /// @name Search paths
@@ -172,33 +172,34 @@ public:
     /// Get search path for implementations used by libraries.
     const FileSearchPath& getImplementationSearchPath() const;
 
-    /// Set location for non-library user definitions
-    const FilePath& getUserDefinitionPath() const;
-
-    /// Set location for non-library user definitions
-    void setUserDefinitionPath(const FilePath& path);
-
     /// @}
     /// @name Library management
     /// @{
 
-    /// Create a library.
-    void createLibrary(const RtToken& name);
+    /// Load a file or folder of files into a new library. The search paths previously set
+    /// will be used to find the files if the given path is a relative path.
+    /// All definitions and implementations found will be registered and available to use
+    /// for content creation as long as the library remains loaded.
+    RtStagePtr loadLibrary(const RtToken& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
 
-    /// Load a library.
-    void loadLibrary(const RtToken& name, const RtReadOptions& options);
-
-    /// Unload a library.
+    /// Unload a previously loaded library.
+    /// All definitions and implementations in the library will be
+    /// unregistered and no longer available for content creation.
     void unloadLibrary(const RtToken& name);
 
-    /// Return a list of all loaded libraries.
-    RtTokenVec getLibraryNames() const;
+    /// Unload all previously loaded libraries.
+    /// All definitions and implementations will be unregistered
+    /// and no longer available for content creation.
+    void unloadLibraries();
 
-    /// Return a particular library stage
-    RtStagePtr getLibrary(const RtToken& name);
+    /// Return the number of loaded libraries.
+    size_t numLibraries() const;
 
-    /// Return the library stage containing all loaded libraries.
-    RtStagePtr getLibrary();
+    /// Return a library stage by name.
+    RtStagePtr getLibrary(const RtToken& name) const;
+
+    /// Return a library stage by index.
+    RtStagePtr getLibrary(size_t index) const;
 
     /// @}
     /// @name Stage management
@@ -210,14 +211,20 @@ public:
     /// Delete a stage.
     void deleteStage(const RtToken& name);
 
+    /// Delete all stages.
+    void deleteStages();
+
+    /// Return the number of stages.
+    size_t numStages() const;
+
     /// Return a stage by name.
     RtStagePtr getStage(const RtToken& name) const;
 
+    /// Return a stage by index.
+    RtStagePtr getStage(size_t index) const;
+
     /// Rename a stage.
     RtToken renameStage(const RtToken& name, const RtToken& newName);
-
-    /// Return a list of all stages created.
-    RtTokenVec getStageNames() const;
 
     /// @}
 

@@ -40,7 +40,7 @@ RtPrim RtBackdrop::createPrim(const RtToken& typeName, const RtToken& name, RtPr
 
     static const RtToken DEFAULT_NAME("backdrop1");
     const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::ptr<PvtPrim>(parent));
+    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
     prim->createRelationship(Tokens::CONTAINS);

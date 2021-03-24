@@ -20,6 +20,7 @@ namespace MaterialX
 class RtNode : public RtTypedSchema
 {
     DECLARE_TYPED_SCHEMA(RtNode)
+    static RtPrim createNode(RtPrim nodedef, const RtToken& name, RtPrim parent);
 
 public:
     /// Constructor.

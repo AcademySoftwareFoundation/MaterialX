@@ -17,7 +17,7 @@ RtPath::RtPath() :
 }
 
 RtPath::RtPath(const RtObject& obj) :
-    _ptr(new PvtPath(PvtObject::ptr<PvtObject>(obj)))
+    _ptr(new PvtPath(PvtObject::cast<PvtObject>(obj)))
 {
 }
 
@@ -50,7 +50,7 @@ RtPath::~RtPath()
 
 void RtPath::setObject(const RtObject& obj)
 {
-    static_cast<PvtPath*>(_ptr)->setObject(PvtObject::ptr<PvtObject>(obj));
+    static_cast<PvtPath*>(_ptr)->setObject(PvtObject::cast<PvtObject>(obj));
 }
 
 const RtToken& RtPath::getName() const
