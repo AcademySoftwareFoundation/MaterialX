@@ -245,6 +245,9 @@ else()
 endif()
 
 # Add core subdirectories
+if (MATERIALX_BUILD_GEN_ARNOLD)
+    add_definitions(-DSUPPORT_ARNOLD_CONTEXT_STRING)
+endif()
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 
