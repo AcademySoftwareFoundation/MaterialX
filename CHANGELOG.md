@@ -1,5 +1,22 @@
 # Change Log
 
+## [1.38.x] Work in progress
+
+#### Added
+ - Unlit surface shader definitions
+ - Look / Lookgroup management (in progress)
+
+#### Changed:
+ - Runtime "single stage" data model / refactoring (in progress)
+ - Fix for Arnold conductor_bsdf implemetnation signature.
+ - Patch to allow "context" keyword for shaderrefs during upgrade path. Unsupported and will be removed.
+
+## [1.38.0_adsk](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk)  
+ - 2021-03-12 : Autodesk 1.38 release
+ - Additional updates:
+   - transparency detection enhancement
+   - ArchViz core definitions + examples.
+
 ## [1.38.0] - 2021-03-02
 
 Updated the MaterialX library to the v1.38 specification.  See the [v1.38 changelist](http://www.materialx.org/assets/MaterialX.v1.38.Changelist.pdf) for full details.
