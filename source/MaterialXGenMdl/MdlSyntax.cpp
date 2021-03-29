@@ -37,13 +37,19 @@ class MdlFilenameTypeSyntax : public ScalarTypeSyntax
 
     string getValue(const Value& value, bool /*uniform*/) const override
     {
+        const string outputValue = value.getValueString();
+        if (outputValue.empty() || outputValue == "/")
+        {
+            return getDefaultValue(true);
+        }
+
         string pathSeparator("");
-        FilePath path(value.getValueString());
+        FilePath path(outputValue);
         if (!path.isAbsolute())
         {
             pathSeparator = "/";
         }
-        return getName() + "(\"" + pathSeparator + value.getValueString() + "\", tex::gamma_linear)";
+        return getName() + "(\"" + pathSeparator + outputValue + "\", tex::gamma_linear)";
     }
 };
 
