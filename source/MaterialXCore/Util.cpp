@@ -91,6 +91,16 @@ StringVec splitString(const string& str, const string& sep)
     return split;
 }
 
+string mergeStringVec(const StringVec& stringVec, const string& sep)
+{
+    string res;
+    for (const string& name : stringVec)
+    {
+        res = res.empty() ? name : res + sep + name;
+    }
+    return res;
+}
+
 string replaceSubstrings(string str, const StringMap& stringMap)
 {
     for (const auto& pair : stringMap)
@@ -145,11 +155,7 @@ StringVec splitNamePath(const string& namePath)
 
 string createNamePath(const StringVec& nameVec)
 {
-    string res;
-    for (const string& name : nameVec)
-    {
-        res = res.empty() ? name: res + NAME_PATH_SEPARATOR + name;
-    }
+    string res = mergeStringVec(nameVec, NAME_PATH_SEPARATOR);
     return res;
 }
 

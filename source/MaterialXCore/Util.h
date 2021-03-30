@@ -36,6 +36,10 @@ string incrementName(const string& name);
 /// separator characters.
 StringVec splitString(const string& str, const string& sep);
 
+/// Merge a string vector into a single string with each element
+/// seprated by the given separator
+string mergeStringVec(const StringVec& strVec, const string& sep);
+
 /// Apply the given substring substitutions to the input string.
 string replaceSubstrings(string str, const StringMap& stringMap);
 

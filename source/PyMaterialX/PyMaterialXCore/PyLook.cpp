@@ -46,6 +46,7 @@ void bindPyLook(py::module& mod)
         .def("getVisibilities", &mx::Look::getVisibilities)
         .def("getActiveVisibilities", &mx::Look::getActiveVisibilities)
         .def("removeVisibility", &mx::Look::removeVisibility)
+        .def("append", &mx::Look::append)
         .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
 
     py::class_<mx::LookGroup, mx::LookGroupPtr, mx::Element>(mod, "LookGroup")
@@ -53,6 +54,9 @@ void bindPyLook(py::module& mod)
         .def("setLooks", &mx::LookGroup::setLooks)
         .def("getActiveLook", &mx::LookGroup::getActiveLook)
         .def("setActiveLook", &mx::LookGroup::setActiveLook)
+        .def("getActiveLooks", &mx::LookGroup::getActiveLooks)       
+        .def("append", &mx::LookGroup::append)
+        .def("combineLooks", &mx::LookGroup::combineLooks)
         .def_readonly_static("CATEGORY", &mx::LookGroup::CATEGORY)
         .def_readonly_static("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
         .def_readonly_static("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE);
