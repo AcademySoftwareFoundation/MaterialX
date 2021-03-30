@@ -39,7 +39,7 @@ bool RtObject::isValid() const
     return _hnd && !_hnd->isDisposed();
 }
 
-const RtToken& RtObject::getName() const
+const RtIdentifier& RtObject::getName() const
 {
     return hnd()->asA<PvtObject>()->getName();
 }
@@ -66,32 +66,32 @@ RtStageWeakPtr RtObject::getStage() const
     return hnd()->asA<PvtObject>()->getStage();
 }
 
-RtTypedValue* RtObject::createAttribute(const RtToken& name, const RtToken& type)
+RtTypedValue* RtObject::createAttribute(const RtIdentifier& name, const RtIdentifier& type)
 {
     return hnd()->asA<PvtObject>()->createAttribute(name, type);
 }
 
-void RtObject::removeAttribute(const RtToken& name)
+void RtObject::removeAttribute(const RtIdentifier& name)
 {
     hnd()->asA<PvtObject>()->removeAttribute(name);
 }
 
-RtTypedValue* RtObject::getAttribute(const RtToken& name)
+RtTypedValue* RtObject::getAttribute(const RtIdentifier& name)
 {
     return hnd()->asA<PvtObject>()->getAttribute(name);
 }
 
-const RtTypedValue* RtObject::getAttribute(const RtToken& name) const
+const RtTypedValue* RtObject::getAttribute(const RtIdentifier& name) const
 {
     return hnd()->asA<PvtObject>()->getAttribute(name);
 }
 
-RtTypedValue* RtObject::getAttribute(const RtToken& name, const RtToken& type)
+RtTypedValue* RtObject::getAttribute(const RtIdentifier& name, const RtIdentifier& type)
 {
     return hnd()->asA<PvtObject>()->getAttribute(name, type);
 }
 
-const RtTypedValue* RtObject::getAttribute(const RtToken& name, const RtToken& type) const
+const RtTypedValue* RtObject::getAttribute(const RtIdentifier& name, const RtIdentifier& type) const
 {
     return hnd()->asA<PvtObject>()->getAttribute(name, type);
 }

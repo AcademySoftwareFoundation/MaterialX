@@ -23,8 +23,8 @@ class PvtStringResolverPair;
 /// Shared pointer to a PvtStringResolverPair
 using PvtStringResolverPairPtr = std::shared_ptr<class PvtStringResolverPair>;
 
-/// Map of token to RtStringResolverPairPtr
-using PvtStringResolverMap = RtTokenMap<PvtStringResolverPairPtr>;
+/// Map of identifier to RtStringResolverPairPtr
+using PvtStringResolverMap = RtIdentifierMap<PvtStringResolverPairPtr>;
 
 /// @class PvtStringResolverPair
 ///
@@ -78,7 +78,7 @@ public:
 
     /// \brief Deregisters a named pair of string resolvers
     /// \param name The name given to the pair of identifiers to deregister
-    void deregisterNameResolvers(const RtToken& name);
+    void deregisterNameResolvers(const RtIdentifier& name);
 
     /// \brief Resolves the provided string. Any registered custom resolvers are applied to determine
     /// the final resolved value. The resolvers are applied in the order that they are registered.
@@ -86,7 +86,7 @@ public:
     /// \param valueToResolve The value to resolve
     /// \param elementType The type of element to resolve
     /// \param toMaterialX Whether to convert to/from MaterialX
-    RtToken resolveIdentifier(const RtToken& valueToResolve, const RtNameResolverInfo::ElementType elementType, bool toMaterialX = true) const;                                              
+    RtIdentifier resolveIdentifier(const RtIdentifier& valueToResolve, const RtNameResolverInfo::ElementType elementType, bool toMaterialX = true) const;                                              
 
 private:
     PvtStringResolverMap _resolvers;

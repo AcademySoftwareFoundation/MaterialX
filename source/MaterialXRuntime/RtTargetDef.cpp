@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtTargetDef.h>
-#include <MaterialXRuntime/Tokens.h>
+#include <MaterialXRuntime/Identifiers.h>
 
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
@@ -18,11 +18,11 @@ namespace
     class PvtTargetDefPrim : public PvtPrim
     {
     public:
-        PvtTargetDefPrim(const RtTypeInfo* typeInfo, const RtToken& name, PvtPrim* parent) 
+        PvtTargetDefPrim(const RtTypeInfo* typeInfo, const RtIdentifier& name, PvtPrim* parent) 
             : PvtPrim(typeInfo, name, parent)
         {}
 
-        RtTokenSet matchingTargets;
+        RtIdentifierSet matchingTargets;
     };
 
     // TODO: We should derive this from a data driven XML schema.
@@ -31,8 +31,8 @@ namespace
     public:
         PvtTargetDefPrimSpec()
         {
-            addPrimAttribute(Tokens::DOC, RtType::STRING);
-            addPrimAttribute(Tokens::INHERIT, RtType::TOKEN);
+            addPrimAttribute(Identifiers::DOC, RtType::STRING);
+            addPrimAttribute(Identifiers::INHERIT, RtType::IDENTIFIER);
 
         }
     };
@@ -40,12 +40,12 @@ namespace
 
 DEFINE_TYPED_SCHEMA(RtTargetDef, "targetdef");
 
-RtPrim RtTargetDef::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
+RtPrim RtTargetDef::createPrim(const RtIdentifier& typeName, const RtIdentifier& name, RtPrim parent)
 {
     PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
 
-    static const RtToken DEFAULT_NAME("targetdef1");
-    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
+    static const RtIdentifier DEFAULT_NAME("targetdef1");
+    const RtIdentifier primName = name == EMPTY_IDENTIFIER ? DEFAULT_NAME : name;
     PvtObjHandle primH = PvtPrim::createNew<PvtTargetDefPrim>(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
@@ -60,21 +60,21 @@ const RtPrimSpec& RtTargetDef::getPrimSpec() const
     return s_primSpec;
 }
 
-void RtTargetDef::setInherit(const RtToken& target)
+void RtTargetDef::setInherit(const RtIdentifier& target)
 {
-    RtTypedValue* attr = createAttribute(Tokens::INHERIT, RtType::TOKEN);
-    attr->asToken() = target;
+    RtTypedValue* attr = createAttribute(Identifiers::INHERIT, RtType::IDENTIFIER);
+    attr->asIdentifier() = target;
 
     prim()->asA<PvtTargetDefPrim>()->matchingTargets.insert(target);
 }
 
-const RtToken& RtTargetDef::getInherit() const
+const RtIdentifier& RtTargetDef::getInherit() const
 {
-    const RtTypedValue* attr = getAttribute(Tokens::INHERIT, RtType::TOKEN);
-    return attr ? attr->asToken() : EMPTY_TOKEN;
+    const RtTypedValue* attr = getAttribute(Identifiers::INHERIT, RtType::IDENTIFIER);
+    return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
 }
 
-bool RtTargetDef::isMatching(const RtToken& target) const
+bool RtTargetDef::isMatching(const RtIdentifier& target) const
 {
     return prim()->asA<PvtTargetDefPrim>()->matchingTargets.count(target) != 0;
 }

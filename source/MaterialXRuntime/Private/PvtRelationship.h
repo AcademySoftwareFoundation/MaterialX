@@ -22,7 +22,7 @@ class PvtRelationship : public PvtObject
     RT_DECLARE_RUNTIME_OBJECT(PvtRelationship)
 
 public:
-    PvtRelationship(const RtToken& name, PvtPrim* parent);
+    PvtRelationship(const RtIdentifier& name, PvtPrim* parent);
 
     void connect(PvtObject* obj);
 

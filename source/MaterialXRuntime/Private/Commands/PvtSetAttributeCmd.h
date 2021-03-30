@@ -16,9 +16,9 @@ namespace MaterialX
 class PvtSetAttributeCmd : public PvtCommand
 {
 public:
-    PvtSetAttributeCmd(const RtObject& obj, const RtToken& name, const RtValue& value);
+    PvtSetAttributeCmd(const RtObject& obj, const RtIdentifier& name, const RtValue& value);
 
-    static PvtCommandPtr create(const RtObject& obj, const RtToken& name, const RtValue& value);
+    static PvtCommandPtr create(const RtObject& obj, const RtIdentifier& name, const RtValue& value);
 
     void execute(RtCommandResult& result) override;
     void undo(RtCommandResult& result) override;
@@ -26,7 +26,7 @@ public:
 
 private:
     RtObject _obj;
-    RtToken _name;
+    RtIdentifier _name;
     RtValue _value;
     RtValue _oldValue;
     bool _attrCreated;

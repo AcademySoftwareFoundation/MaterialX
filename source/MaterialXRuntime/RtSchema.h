@@ -74,7 +74,7 @@ public:
 
     /// Return the name of the attached prim.
     /// Shorthand for calling getPrim().getName().
-    const RtToken& getName() const
+    const RtIdentifier& getName() const
     {
         return getPrim().getName();
     }
@@ -88,49 +88,49 @@ public:
 
     /// Create a new attribute on the attached prim.
     /// Shorthand for calling getPrim().createAttribute().
-    RtTypedValue* createAttribute(const RtToken& name, const RtToken& type)
+    RtTypedValue* createAttribute(const RtIdentifier& name, const RtIdentifier& type)
     {
         return getPrim().createAttribute(name, type);
     }
 
     /// Remove an attribute from the attached prim.
     /// Shorthand for calling getPrim().removeAttribute().
-    void removeAttribute(const RtToken& name)
+    void removeAttribute(const RtIdentifier& name)
     {
         return getPrim().removeAttribute(name);
     }
 
     /// Return an attribute from the attached prim.
     /// Shorthand for calling getPrim().getAttribute(name).
-    RtTypedValue* getAttribute(const RtToken& name)
+    RtTypedValue* getAttribute(const RtIdentifier& name)
     {
         return getPrim().getAttribute(name);
     }
 
     /// Return an attribute from the attached prim.
     /// Shorthand for calling getPrim().getAttribute(name).
-    const RtTypedValue* getAttribute(const RtToken& name) const
+    const RtTypedValue* getAttribute(const RtIdentifier& name) const
     {
         return getPrim().getAttribute(name);
     }
 
     /// Return an attribute from the attached prim, including a type check.
     /// Shorthand for calling getPrim().getAttribute(name, type).
-    RtTypedValue* getAttribute(const RtToken& name, const RtToken& type)
+    RtTypedValue* getAttribute(const RtIdentifier& name, const RtIdentifier& type)
     {
         return getPrim().getAttribute(name, type);
     }
 
     /// Return an attribute from the attached prim, including a type check.
     /// Shorthand for calling getPrim().getAttribute(name, type).
-    const RtTypedValue* getAttribute(const RtToken& name, const RtToken& type) const
+    const RtTypedValue* getAttribute(const RtIdentifier& name, const RtIdentifier& type) const
     {
         return getPrim().getAttribute(name, type);
     }
 
     // Accessors.
     PvtPrim* prim() const;
-    PvtRelationship* rel(const RtToken& name) const;
+    PvtRelationship* rel(const RtIdentifier& name) const;
 
 protected:
     /// Constructor attaching a prim to the API.
@@ -180,9 +180,9 @@ private:                                                                        
 public:                                                                                     \
     const RtTypeInfo& getTypeInfo() const override { return _typeInfo; }                    \
     const RtPrimSpec& getPrimSpec() const override;                                         \
-    static const RtToken& typeName() { return _typeInfo.getShortTypeName(); }               \
+    static const RtIdentifier& typeName() { return _typeInfo.getShortTypeName(); }               \
     static const RtTypeInfo& typeInfo() { return _typeInfo; }                               \
-    static RtPrim createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent);  \
+    static RtPrim createPrim(const RtIdentifier& typeName, const RtIdentifier& name, RtPrim parent);  \
 
 /// Macro defining required methods and mambers on typed schemas.
 #define DEFINE_TYPED_SCHEMA(T, typeNameHierachy)                                            \

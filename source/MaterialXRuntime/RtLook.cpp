@@ -5,7 +5,7 @@
 
 #include <MaterialXRuntime/RtLook.h>
 #include <MaterialXRuntime/RtCollection.h>
-#include <MaterialXRuntime/Tokens.h>
+#include <MaterialXRuntime/Identifiers.h>
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
@@ -22,15 +22,15 @@ namespace
         PvtLookGroupPrimSpec()
         {
             // TODO: We should derive this from a data driven XML schema.
-            addPrimAttribute(Tokens::DOC, RtType::STRING);
-            addPrimAttribute(Tokens::XPOS, RtType::FLOAT);
-            addPrimAttribute(Tokens::YPOS, RtType::FLOAT);
-            addPrimAttribute(Tokens::WIDTH, RtType::INTEGER);
-            addPrimAttribute(Tokens::HEIGHT, RtType::INTEGER);
-            addPrimAttribute(Tokens::UICOLOR, RtType::COLOR3);
-            addPrimAttribute(Tokens::LOOKS, RtType::STRING);
-            addPrimAttribute(Tokens::ACTIVELOOK, RtType::STRING);
-            addPrimAttribute(Tokens::DEFAULT, RtType::STRING);
+            addPrimAttribute(Identifiers::DOC, RtType::STRING);
+            addPrimAttribute(Identifiers::XPOS, RtType::FLOAT);
+            addPrimAttribute(Identifiers::YPOS, RtType::FLOAT);
+            addPrimAttribute(Identifiers::WIDTH, RtType::INTEGER);
+            addPrimAttribute(Identifiers::HEIGHT, RtType::INTEGER);
+            addPrimAttribute(Identifiers::UICOLOR, RtType::COLOR3);
+            addPrimAttribute(Identifiers::LOOKS, RtType::STRING);
+            addPrimAttribute(Identifiers::ACTIVELOOK, RtType::STRING);
+            addPrimAttribute(Identifiers::DEFAULT, RtType::STRING);
         }
     };
 
@@ -40,12 +40,12 @@ namespace
         PvtLookPrimSpec()
         {
             // TODO: We should derive this from a data driven XML schema.
-            addPrimAttribute(Tokens::DOC, RtType::STRING);
-            addPrimAttribute(Tokens::XPOS, RtType::FLOAT);
-            addPrimAttribute(Tokens::YPOS, RtType::FLOAT);
-            addPrimAttribute(Tokens::WIDTH, RtType::INTEGER);
-            addPrimAttribute(Tokens::HEIGHT, RtType::INTEGER);
-            addPrimAttribute(Tokens::UICOLOR, RtType::COLOR3);
+            addPrimAttribute(Identifiers::DOC, RtType::STRING);
+            addPrimAttribute(Identifiers::XPOS, RtType::FLOAT);
+            addPrimAttribute(Identifiers::YPOS, RtType::FLOAT);
+            addPrimAttribute(Identifiers::WIDTH, RtType::INTEGER);
+            addPrimAttribute(Identifiers::HEIGHT, RtType::INTEGER);
+            addPrimAttribute(Identifiers::UICOLOR, RtType::COLOR3);
         }
     };
 
@@ -55,30 +55,30 @@ namespace
         PvtMaterialAssignPrimSpec()
         {
             // TODO: We should derive this from a data driven XML schema.
-            addPrimAttribute(Tokens::DOC, RtType::STRING);
-            addPrimAttribute(Tokens::XPOS, RtType::FLOAT);
-            addPrimAttribute(Tokens::YPOS, RtType::FLOAT);
-            addPrimAttribute(Tokens::WIDTH, RtType::INTEGER);
-            addPrimAttribute(Tokens::HEIGHT, RtType::INTEGER);
-            addPrimAttribute(Tokens::UICOLOR, RtType::COLOR3);
-            addPrimAttribute(Tokens::GEOM, RtType::STRING);
-            addPrimAttribute(Tokens::EXCLUSIVE, RtType::BOOLEAN);
+            addPrimAttribute(Identifiers::DOC, RtType::STRING);
+            addPrimAttribute(Identifiers::XPOS, RtType::FLOAT);
+            addPrimAttribute(Identifiers::YPOS, RtType::FLOAT);
+            addPrimAttribute(Identifiers::WIDTH, RtType::INTEGER);
+            addPrimAttribute(Identifiers::HEIGHT, RtType::INTEGER);
+            addPrimAttribute(Identifiers::UICOLOR, RtType::COLOR3);
+            addPrimAttribute(Identifiers::GEOM, RtType::STRING);
+            addPrimAttribute(Identifiers::EXCLUSIVE, RtType::BOOLEAN);
         }
     };
 }
 
 DEFINE_TYPED_SCHEMA(RtLookGroup, "bindelement:lookgroup");
 
-RtPrim RtLookGroup::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
+RtPrim RtLookGroup::createPrim(const RtIdentifier& typeName, const RtIdentifier& name, RtPrim parent)
 {
     PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
 
-    static const RtToken DEFAULT_NAME("lookgroup1");
-    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
+    static const RtIdentifier DEFAULT_NAME("lookgroup1");
+    const RtIdentifier primName = name == EMPTY_IDENTIFIER ? DEFAULT_NAME : name;
     PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->createRelationship(Tokens::LOOKS);
+    prim->createRelationship(Identifiers::LOOKS);
 
     return primH;
 }
@@ -91,13 +91,13 @@ const RtPrimSpec& RtLookGroup::getPrimSpec() const
 
 void RtLookGroup::setActiveLook(const string& look)
 {
-    RtTypedValue* attr = prim()->createAttribute(Tokens::ACTIVELOOK, RtType::STRING);
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::ACTIVELOOK, RtType::STRING);
     attr->asString() = look;
 }
 
 const string& RtLookGroup::getActiveLook() const
 {
-    const RtTypedValue* attr = prim()->getAttribute(Tokens::ACTIVELOOK);
+    const RtTypedValue* attr = prim()->getAttribute(Identifiers::ACTIVELOOK);
     return attr ? attr->asString() : EMPTY_STRING;
 }
 
@@ -113,12 +113,12 @@ void RtLookGroup::removeLook(const RtObject& look)
 
 RtRelationship RtLookGroup::getLooks() const
 {
-    return prim()->getRelationship(Tokens::LOOKS)->hnd();
+    return prim()->getRelationship(Identifiers::LOOKS)->hnd();
 }
 
 bool RtLookGroupConnectableApi::acceptRelationship(const RtRelationship& rel, const RtObject& target) const
 {
-    if (rel.getName() == Tokens::LOOKS)
+    if (rel.getName() == Identifiers::LOOKS)
     {
         // 'looks' relationship only accepts looks or lookgroups as target.
         return target.isA<RtPrim>() && 
@@ -130,17 +130,17 @@ bool RtLookGroupConnectableApi::acceptRelationship(const RtRelationship& rel, co
 
 DEFINE_TYPED_SCHEMA(RtLook, "bindelement:look");
 
-RtPrim RtLook::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
+RtPrim RtLook::createPrim(const RtIdentifier& typeName, const RtIdentifier& name, RtPrim parent)
 {
     PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
 
-    static const RtToken DEFAULT_NAME("look1");
-    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
+    static const RtIdentifier DEFAULT_NAME("look1");
+    const RtIdentifier primName = name == EMPTY_IDENTIFIER ? DEFAULT_NAME : name;
     PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->createRelationship(Tokens::INHERIT);
-    prim->createRelationship(Tokens::MATERIALASSIGN);
+    prim->createRelationship(Identifiers::INHERIT);
+    prim->createRelationship(Identifiers::MATERIALASSIGN);
 
     return primH;
 }
@@ -153,7 +153,7 @@ const RtPrimSpec& RtLook::getPrimSpec() const
 
 RtRelationship RtLook::getInherit() const
 {
-    return prim()->getRelationship(Tokens::INHERIT)->hnd();
+    return prim()->getRelationship(Identifiers::INHERIT)->hnd();
 }
 
 void RtLook::addMaterialAssign(const RtObject& assignment)
@@ -168,17 +168,17 @@ void RtLook::removeMaterialAssign(const RtObject& assignment)
 
 RtRelationship RtLook::getMaterialAssigns() const
 {
-    return prim()->getRelationship(Tokens::MATERIALASSIGN)->hnd();
+    return prim()->getRelationship(Identifiers::MATERIALASSIGN)->hnd();
 }
 
 bool RtLookConnectableApi::acceptRelationship(const RtRelationship& rel, const RtObject& target) const
 {
-    if (rel.getName() == Tokens::INHERIT)
+    if (rel.getName() == Identifiers::INHERIT)
     {
         // 'inherit' relationship only accepts other looks as target.
         return target.isA<RtPrim>() && target.asA<RtPrim>().hasApi<RtLook>();
     }
-    else if (rel.getName() == Tokens::MATERIALASSIGN)
+    else if (rel.getName() == Identifiers::MATERIALASSIGN)
     {
         // 'materialassign' relationship only accepts materialassigns as target.
         return target.isA<RtPrim>() && target.asA<RtPrim>().hasApi<RtMaterialAssign>();
@@ -189,17 +189,17 @@ bool RtLookConnectableApi::acceptRelationship(const RtRelationship& rel, const R
 
 DEFINE_TYPED_SCHEMA(RtMaterialAssign, "bindelement:materialassign");
 
-RtPrim RtMaterialAssign::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
+RtPrim RtMaterialAssign::createPrim(const RtIdentifier& typeName, const RtIdentifier& name, RtPrim parent)
 {
     PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
 
-    static const RtToken DEFAULT_NAME("materialassign1");
-    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
+    static const RtIdentifier DEFAULT_NAME("materialassign1");
+    const RtIdentifier primName = name == EMPTY_IDENTIFIER ? DEFAULT_NAME : name;
     PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->createInput(Tokens::MATERIAL, RtType::MATERIAL);
-    prim->createRelationship(Tokens::COLLECTION);
+    prim->createInput(Identifiers::MATERIAL, RtType::MATERIAL);
+    prim->createRelationship(Identifiers::COLLECTION);
 
     return primH;
 }
@@ -212,41 +212,41 @@ const RtPrimSpec& RtMaterialAssign::getPrimSpec() const
 
 RtInput RtMaterialAssign::getMaterial() const
 {
-    return prim()->getInput(Tokens::MATERIAL)->hnd();
+    return prim()->getInput(Identifiers::MATERIAL)->hnd();
 }
 
 RtRelationship RtMaterialAssign::getCollection() const
 {
-    return prim()->getRelationship(Tokens::COLLECTION)->hnd();
+    return prim()->getRelationship(Identifiers::COLLECTION)->hnd();
 }
 
 void RtMaterialAssign::setGeom(const string& geom)
 {
-    RtTypedValue* attr = prim()->createAttribute(Tokens::GEOM, RtType::STRING);
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::GEOM, RtType::STRING);
     attr->asString() = geom;
 }
 
 const string& RtMaterialAssign::getGeom() const
 {
-    const RtTypedValue* attr = prim()->getAttribute(Tokens::GEOM, RtType::STRING);
+    const RtTypedValue* attr = prim()->getAttribute(Identifiers::GEOM, RtType::STRING);
     return attr ? attr->asString() : EMPTY_STRING;
 }
 
 void RtMaterialAssign::setExclusive(bool exclusive)
 {
-    RtTypedValue* attr = prim()->createAttribute(Tokens::EXCLUSIVE, RtType::BOOLEAN);
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::EXCLUSIVE, RtType::BOOLEAN);
     attr->asBool() = exclusive;
 }
 
 bool RtMaterialAssign::getExclusive() const
 {
-    const RtTypedValue* attr = prim()->getAttribute(Tokens::EXCLUSIVE, RtType::BOOLEAN);
+    const RtTypedValue* attr = prim()->getAttribute(Identifiers::EXCLUSIVE, RtType::BOOLEAN);
     return attr ? attr->asBool() : false;
 }
 
 bool RtMaterialAssignConnectableApi::acceptRelationship(const RtRelationship& rel, const RtObject& target) const
 {
-    if (rel.getName() == Tokens::COLLECTION)
+    if (rel.getName() == Identifiers::COLLECTION)
     {
         // 'collection' relationship only accepts other collections as target.
         return target.isA<RtPrim>() && target.asA<RtPrim>().hasApi<RtCollection>();

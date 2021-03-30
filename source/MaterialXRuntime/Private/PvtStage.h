@@ -88,9 +88,9 @@ using RtStageSet = std::set<const RtStage*>;
 class PvtStage
 {
 public:
-    PvtStage(const RtToken& name, RtStageWeakPtr owner);
+    PvtStage(const RtIdentifier& name, RtStageWeakPtr owner);
 
-    static RtStagePtr createNew(const RtToken& name);
+    static RtStagePtr createNew(const RtIdentifier& name);
 
     static inline PvtStage* cast(const RtStagePtr& s)
     {
@@ -102,14 +102,14 @@ public:
         return static_cast<PvtStage*>(s->_ptr);
     }
 
-    const RtToken& getName() const
+    const RtIdentifier& getName() const
     {
         return _name;
     }
 
-    PvtPrim* createPrim(const PvtPath& path, const RtToken& typeName);
+    PvtPrim* createPrim(const PvtPath& path, const RtIdentifier& typeName);
 
-    PvtPrim* createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName);
+    PvtPrim* createPrim(const PvtPath& parentPath, const RtIdentifier& name, const RtIdentifier& typeName);
 
     void removePrim(const PvtPath& path);
 
@@ -117,9 +117,9 @@ public:
 
     void restorePrim(const PvtPath& parentPath, const RtPrim& prim);
 
-    RtToken renamePrim(const PvtPath& path, const RtToken& newName);
+    RtIdentifier renamePrim(const PvtPath& path, const RtIdentifier& newName);
 
-    RtToken reparentPrim(const PvtPath& path, const PvtPath& newParentPath);
+    RtIdentifier reparentPrim(const PvtPath& path, const PvtPath& newParentPath);
 
     PvtPrim* getPrimAtPath(const PvtPath& path);
 
@@ -147,11 +147,11 @@ public:
 
     void addReference(RtStagePtr stage);
 
-    void removeReference(const RtToken& name);
+    void removeReference(const RtIdentifier& name);
 
     void removeReferences();
 
-    RtStagePtr getReference(const RtToken& name) const;
+    RtStagePtr getReference(const RtIdentifier& name) const;
 
     const RtStageVec& getAllReferences() const
     {
@@ -166,7 +166,7 @@ public:
 protected:
     PvtPrim* getPrimAtPathLocal(const PvtPath& path);
 
-    void setName(const RtToken& name)
+    void setName(const RtIdentifier& name)
     {
         _name = name;
     }
@@ -183,7 +183,7 @@ protected:
         static const RtTypeInfo _typeInfo;
     };
 
-    RtToken _name;
+    RtIdentifier _name;
     PvtObjHandle _root;
 
     size_t _selfRefCount;

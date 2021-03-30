@@ -29,17 +29,17 @@ const RtTypeInfo* RtPrim::getTypeInfo() const
     return hnd()->asA<PvtPrim>()->getTypeInfo();
 }
 
-RtRelationship RtPrim::createRelationship(const RtToken& name)
+RtRelationship RtPrim::createRelationship(const RtIdentifier& name)
 {
     return hnd()->asA<PvtPrim>()->createRelationship(name)->hnd();
 }
 
-void RtPrim::removeRelationship(const RtToken& name)
+void RtPrim::removeRelationship(const RtIdentifier& name)
 {
     return hnd()->asA<PvtPrim>()->removeRelationship(name);
 }
 
-RtRelationship RtPrim::getRelationship(const RtToken& name) const
+RtRelationship RtPrim::getRelationship(const RtIdentifier& name) const
 {
     PvtRelationship* rel = hnd()->asA<PvtPrim>()->getRelationship(name);
     return rel ? rel->hnd() : RtRelationship();
@@ -50,18 +50,18 @@ RtRelationshipIterator RtPrim::getRelationships() const
     return RtRelationshipIterator(*this);
 }
 
-RtPort RtPrim::getPort(const RtToken& name) const
+RtPort RtPrim::getPort(const RtIdentifier& name) const
 {
     PvtPort* port = hnd()->asA<PvtPrim>()->getPort(name);
     return port ? port->hnd() : RtPort();
 }
 
-RtInput RtPrim::createInput(const RtToken& name, const RtToken& type, uint32_t flags)
+RtInput RtPrim::createInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags)
 {
     return hnd()->asA<PvtPrim>()->createInput(name, type, flags)->hnd();
 }
 
-void RtPrim::removeInput(const RtToken& name)
+void RtPrim::removeInput(const RtIdentifier& name)
 {
     return hnd()->asA<PvtPrim>()->removeInput(name);
 }
@@ -77,7 +77,7 @@ RtInput RtPrim::getInput(size_t index) const
     return input ? input->hnd() : RtInput();
 }
 
-RtInput RtPrim::getInput(const RtToken& name) const
+RtInput RtPrim::getInput(const RtIdentifier& name) const
 {
     PvtInput* input = hnd()->asA<PvtPrim>()->getInput(name);
     return input ? input->hnd() : RtInput();
@@ -88,12 +88,12 @@ RtInputIterator RtPrim::getInputs() const
     return RtInputIterator(*this);
 }
 
-RtOutput RtPrim::createOutput(const RtToken& name, const RtToken& type, uint32_t flags)
+RtOutput RtPrim::createOutput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags)
 {
     return hnd()->asA<PvtPrim>()->createOutput(name, type, flags)->hnd();
 }
 
-void RtPrim::removeOutput(const RtToken& name)
+void RtPrim::removeOutput(const RtIdentifier& name)
 {
     return hnd()->asA<PvtPrim>()->removeOutput(name);
 }
@@ -109,7 +109,7 @@ RtOutput RtPrim::getOutput(size_t index) const
     return output ? output->hnd() : RtOutput();
 }
 
-RtOutput RtPrim::getOutput(const RtToken& name) const
+RtOutput RtPrim::getOutput(const RtIdentifier& name) const
 {
     PvtOutput* output = hnd()->asA<PvtPrim>()->getOutput(name);
     return output ? output->hnd() : RtOutput();
@@ -131,7 +131,7 @@ RtPrim RtPrim::getChild(size_t index) const
     return child ? child->hnd() : RtPrim();
 }
 
-RtPrim RtPrim::getChild(const RtToken& name) const
+RtPrim RtPrim::getChild(const RtIdentifier& name) const
 {
     PvtPrim* child = hnd()->asA<PvtPrim>()->getChild(name);
     return child ? child->hnd() : RtPrim();
@@ -154,12 +154,12 @@ RtAttributeSpec::~RtAttributeSpec()
     delete static_cast<PvtAttributeSpec*>(_ptr);
 }
 
-const RtToken& RtAttributeSpec::getName() const
+const RtIdentifier& RtAttributeSpec::getName() const
 {
     return static_cast<PvtAttributeSpec*>(_ptr)->name;
 }
 
-const RtToken& RtAttributeSpec::getType() const
+const RtIdentifier& RtAttributeSpec::getType() const
 {
     return static_cast<PvtAttributeSpec*>(_ptr)->type;
 }

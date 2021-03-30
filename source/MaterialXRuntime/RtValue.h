@@ -10,7 +10,7 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtToken.h>
+#include <MaterialXRuntime/RtIdentifier.h>
 
 #include <MaterialXCore/Types.h>
 
@@ -37,7 +37,7 @@ public:
     explicit RtValue(const Vector2& v) { asVector2() = v; }
     explicit RtValue(const Vector3& v) { asVector3() = v; }
     explicit RtValue(const Vector4& v) { asVector4() = v; }
-    explicit RtValue(const RtToken& v) { asToken() = v; }
+    explicit RtValue(const RtIdentifier& v) { asIdentifier() = v; }
     explicit RtValue(void* v) { asPtr() = v; }
 
     /// Explicit value constructor for large values.
@@ -134,15 +134,15 @@ public:
         return *_reinterpret_cast<Vector4*>(&_data);
     }
 
-    /// Return token value.
-    const RtToken& asToken() const
+    /// Return identifier value.
+    const RtIdentifier& asIdentifier() const
     {
-        return *_reinterpret_cast<const RtToken*>(&_data);
+        return *_reinterpret_cast<const RtIdentifier*>(&_data);
     }
-    /// Return reference to token value.
-    RtToken& asToken()
+    /// Return reference to identifier value.
+    RtIdentifier& asIdentifier()
     {
-        return *_reinterpret_cast<RtToken*>(&_data);
+        return *_reinterpret_cast<RtIdentifier*>(&_data);
     }
 
     /// Return const pointer.
@@ -208,27 +208,27 @@ public:
     /// Create a new value of given type.
     /// If the type is a large value the given prim will take
     /// ownership of allocated data.
-    static RtValue createNew(const RtToken& type, RtPrim owner);
+    static RtValue createNew(const RtIdentifier& type, RtPrim owner);
 
     /// Clone a value of given type.
     /// If the type is a large value the given prim will take
     /// ownership of allocated data.
-    static RtValue clone(const RtToken& type, const RtValue& value, RtPrim owner);
+    static RtValue clone(const RtIdentifier& type, const RtValue& value, RtPrim owner);
 
     /// Copy a value from one instance to another.
     /// Both RtValue instances must be initialized for the given type.
-    static void copy(const RtToken& type, const RtValue& src, RtValue& dest);
+    static void copy(const RtIdentifier& type, const RtValue& src, RtValue& dest);
 
     /// Test if two values are equal.
     /// Both RtValue instances must be initialized for the given type.
-    static bool compare(const RtToken& type, const RtValue& a, const RtValue& b);
+    static bool compare(const RtIdentifier& type, const RtValue& a, const RtValue& b);
 
     /// Convert an RtValue of given type into a string representation.
-    static void toString(const RtToken& type, const RtValue& src, string& dest);
+    static void toString(const RtIdentifier& type, const RtValue& src, string& dest);
 
     /// Convert a value from a string representation into an RtValue of the given type.
     /// Destination RtValue must been initialized for the given type.
-    static void fromString(const RtToken& type, const string& src, RtValue& dest);
+    static void fromString(const RtIdentifier& type, const string& src, RtValue& dest);
 
 private:
     // 16 bytes of data storage to hold the main data types,
@@ -243,15 +243,15 @@ class RtTypedValue
 {
 public:
     RtTypedValue() :
-        _type(EMPTY_TOKEN)
+        _type(EMPTY_IDENTIFIER)
     {}
 
-    RtTypedValue(const RtToken& t, const RtValue& v) :
+    RtTypedValue(const RtIdentifier& t, const RtValue& v) :
         _type(t),
         _value(v)
     {}
 
-    const RtToken& getType() const
+    const RtIdentifier& getType() const
     {
         return _type;
     }
@@ -373,15 +373,15 @@ public:
         return _value.asVector4();
     }
 
-    /// Return token value.
-    const RtToken& asToken() const
+    /// Return identifier value.
+    const RtIdentifier& asIdentifier() const
     {
-        return _value.asToken();
+        return _value.asIdentifier();
     }
-    /// Return reference to token value.
-    RtToken& asToken()
+    /// Return reference to identifier value.
+    RtIdentifier& asIdentifier()
     {
-        return _value.asToken();
+        return _value.asIdentifier();
     }
 
     /// Return const pointer.
@@ -429,7 +429,7 @@ public:
     }
 
 private:
-    RtToken _type;
+    RtIdentifier _type;
     RtValue _value;
 };
 

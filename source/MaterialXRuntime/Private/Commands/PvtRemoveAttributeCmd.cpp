@@ -13,7 +13,7 @@
 namespace MaterialX
 {
 
-PvtRemoveAttributeCmd::PvtRemoveAttributeCmd(const RtObject& obj, const RtToken& name) :
+PvtRemoveAttributeCmd::PvtRemoveAttributeCmd(const RtObject& obj, const RtIdentifier& name) :
     PvtCommand(),
     _obj(obj),
     _name(name),
@@ -21,7 +21,7 @@ PvtRemoveAttributeCmd::PvtRemoveAttributeCmd(const RtObject& obj, const RtToken&
 {
 }
 
-PvtCommandPtr PvtRemoveAttributeCmd::create(const RtObject& obj, const RtToken& name)
+PvtCommandPtr PvtRemoveAttributeCmd::create(const RtObject& obj, const RtIdentifier& name)
 {
     return std::make_shared<PvtRemoveAttributeCmd>(obj, name);
 }

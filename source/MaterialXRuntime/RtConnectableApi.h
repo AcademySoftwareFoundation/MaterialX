@@ -38,10 +38,10 @@ public:
     virtual bool acceptRelationship(const RtRelationship& rel, const RtObject& target) const;
 
     /// Register a connectable API for a given prim typename.
-    static void registerApi(const RtToken& typeName, const RtConnectableApiPtr& api);
+    static void registerApi(const RtIdentifier& typeName, const RtConnectableApiPtr& api);
 
     /// Unregister a connectable API for a given prim typename.
-    static void unregisterApi(const RtToken& typeName);
+    static void unregisterApi(const RtIdentifier& typeName);
 
     /// Register a connectable API for a templated prim schema.
     template<class PrimSchema, class ConnectableApi = RtConnectableApi>

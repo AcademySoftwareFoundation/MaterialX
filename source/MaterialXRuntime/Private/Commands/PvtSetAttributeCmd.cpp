@@ -13,7 +13,7 @@
 namespace MaterialX
 {
 
-PvtSetAttributeCmd::PvtSetAttributeCmd(const RtObject& obj, const RtToken& name, const RtValue& value)
+PvtSetAttributeCmd::PvtSetAttributeCmd(const RtObject& obj, const RtIdentifier& name, const RtValue& value)
     : PvtCommand()
     , _obj(obj)
     , _name(name)
@@ -23,7 +23,7 @@ PvtSetAttributeCmd::PvtSetAttributeCmd(const RtObject& obj, const RtToken& name,
 {
 }
 
-PvtCommandPtr PvtSetAttributeCmd::create(const RtObject& obj, const RtToken& name, const RtValue& value)
+PvtCommandPtr PvtSetAttributeCmd::create(const RtObject& obj, const RtIdentifier& name, const RtValue& value)
 {
     return std::make_shared<PvtSetAttributeCmd>(obj, name, value);
 }

@@ -26,12 +26,12 @@ void RtNameResolverRegistry::registerNameResolvers(RtNameResolverInfo& info)
     _nameResolverRegistry->registerNameResolvers(info);
 }
 
-void RtNameResolverRegistry::deregisterNameResolvers(const RtToken& name)
+void RtNameResolverRegistry::deregisterNameResolvers(const RtIdentifier& name)
 {
     _nameResolverRegistry->deregisterNameResolvers(name);
 }
 
-RtToken RtNameResolverRegistry::resolveIdentifier(const RtToken& valueToResolve, const RtNameResolverInfo::ElementType elementType, bool toMaterialX) const
+RtIdentifier RtNameResolverRegistry::resolveIdentifier(const RtIdentifier& valueToResolve, const RtNameResolverInfo::ElementType elementType, bool toMaterialX) const
 {
     return _nameResolverRegistry->resolveIdentifier(valueToResolve, elementType, toMaterialX);
 }

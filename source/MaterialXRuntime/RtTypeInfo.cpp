@@ -12,10 +12,10 @@ namespace MaterialX
 
 struct PvtTypeNameInfo
 {
-    RtToken shortName;
-    RtToken longName;
-    RtTokenVec baseNames;
-    RtTokenSet allNames;
+    RtIdentifier shortName;
+    RtIdentifier longName;
+    RtIdentifierVec baseNames;
+    RtIdentifierSet allNames;
 };
 
 RtTypeInfo::RtTypeInfo(const char* typeNameHierachy) :
@@ -23,13 +23,13 @@ RtTypeInfo::RtTypeInfo(const char* typeNameHierachy) :
 {
     PvtTypeNameInfo* info = new PvtTypeNameInfo();
 
-    const RtToken longName(typeNameHierachy);
+    const RtIdentifier longName(typeNameHierachy);
     StringVec names = splitString(longName.str(), ":");
-    info->shortName = RtToken(names.back());
+    info->shortName = RtIdentifier(names.back());
     info->longName = longName;
     for (size_t i = 0; i < names.size() - 1; ++i)
     {
-        const RtToken name(names[i]);
+        const RtIdentifier name(names[i]);
         info->baseNames.push_back(name);
         info->allNames.insert(name);
     }
@@ -43,12 +43,12 @@ RtTypeInfo::~RtTypeInfo()
     delete static_cast<PvtTypeNameInfo*>(_ptr);
 }
 
-const RtToken& RtTypeInfo::getShortTypeName() const
+const RtIdentifier& RtTypeInfo::getShortTypeName() const
 {
     return static_cast<PvtTypeNameInfo*>(_ptr)->shortName;
 }
 
-const RtToken& RtTypeInfo::getLongTypeName() const
+const RtIdentifier& RtTypeInfo::getLongTypeName() const
 {
     return static_cast<PvtTypeNameInfo*>(_ptr)->longName;
 }
@@ -58,12 +58,12 @@ size_t RtTypeInfo::numBaseClasses() const
     return static_cast<PvtTypeNameInfo*>(_ptr)->baseNames.size();
 }
 
-const RtToken& RtTypeInfo::getBaseClassType(size_t index) const
+const RtIdentifier& RtTypeInfo::getBaseClassType(size_t index) const
 {
     return static_cast<PvtTypeNameInfo*>(_ptr)->baseNames[index];
 }
 
-bool RtTypeInfo::isCompatible(const RtToken& typeName) const
+bool RtTypeInfo::isCompatible(const RtIdentifier& typeName) const
 {
     return static_cast<PvtTypeNameInfo*>(_ptr)->allNames.count(typeName) > 0;
 }

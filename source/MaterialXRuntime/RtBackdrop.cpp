@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtBackdrop.h>
-#include <MaterialXRuntime/Tokens.h>
+#include <MaterialXRuntime/Identifiers.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
@@ -18,15 +18,15 @@ namespace
     public:
         PvtBackdropPrimSpec()
         {
-            addPrimAttribute(Tokens::DOC, RtType::STRING);
-            addPrimAttribute(Tokens::XPOS, RtType::FLOAT);
-            addPrimAttribute(Tokens::YPOS, RtType::FLOAT);
-            addPrimAttribute(Tokens::WIDTH, RtType::INTEGER);
-            addPrimAttribute(Tokens::HEIGHT, RtType::INTEGER);
-            addPrimAttribute(Tokens::UICOLOR, RtType::COLOR3);
-            addPrimAttribute(Tokens::UINAME, RtType::STRING);
-            addPrimAttribute(Tokens::CONTAINS, RtType::STRINGARRAY);
-            addPrimAttribute(Tokens::MINIMIZED, RtType::BOOLEAN);
+            addPrimAttribute(Identifiers::DOC, RtType::STRING);
+            addPrimAttribute(Identifiers::XPOS, RtType::FLOAT);
+            addPrimAttribute(Identifiers::YPOS, RtType::FLOAT);
+            addPrimAttribute(Identifiers::WIDTH, RtType::INTEGER);
+            addPrimAttribute(Identifiers::HEIGHT, RtType::INTEGER);
+            addPrimAttribute(Identifiers::UICOLOR, RtType::COLOR3);
+            addPrimAttribute(Identifiers::UINAME, RtType::STRING);
+            addPrimAttribute(Identifiers::CONTAINS, RtType::STRINGARRAY);
+            addPrimAttribute(Identifiers::MINIMIZED, RtType::BOOLEAN);
 
         }
     };
@@ -34,16 +34,16 @@ namespace
 
 DEFINE_TYPED_SCHEMA(RtBackdrop, "backdrop");
 
-RtPrim RtBackdrop::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
+RtPrim RtBackdrop::createPrim(const RtIdentifier& typeName, const RtIdentifier& name, RtPrim parent)
 {
     PvtPrim::validateCreation(_typeInfo, typeName, name);
 
-    static const RtToken DEFAULT_NAME("backdrop1");
-    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
+    static const RtIdentifier DEFAULT_NAME("backdrop1");
+    const RtIdentifier primName = name == EMPTY_IDENTIFIER ? DEFAULT_NAME : name;
     PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->createRelationship(Tokens::CONTAINS);
+    prim->createRelationship(Identifiers::CONTAINS);
 
     return primH;
 }
@@ -56,42 +56,42 @@ const RtPrimSpec& RtBackdrop::getPrimSpec() const
 
 RtRelationship RtBackdrop::getContains() const
 {
-    return prim()->getRelationship(Tokens::CONTAINS)->hnd();
+    return prim()->getRelationship(Identifiers::CONTAINS)->hnd();
 }
 
 void RtBackdrop::setNote(const string& note)
 {
-    RtTypedValue* attr = prim()->createAttribute(Tokens::NOTE, RtType::STRING);
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::NOTE, RtType::STRING);
     attr->asString() = note;
 }
 
 const string& RtBackdrop::getNote() const
 {
-    const RtTypedValue* attr = prim()->getAttribute(Tokens::NOTE, RtType::STRING);
+    const RtTypedValue* attr = prim()->getAttribute(Identifiers::NOTE, RtType::STRING);
     return attr ? attr->asString() : EMPTY_STRING;
 }
 
 void RtBackdrop::setWidth(float width)
 {
-    RtTypedValue* attr = prim()->createAttribute(Tokens::WIDTH, RtType::FLOAT);
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::WIDTH, RtType::FLOAT);
     attr->asFloat() = width;
 }
 
 float RtBackdrop::getWidth() const
 {
-    const RtTypedValue* attr = prim()->getAttribute(Tokens::WIDTH, RtType::FLOAT);
+    const RtTypedValue* attr = prim()->getAttribute(Identifiers::WIDTH, RtType::FLOAT);
     return attr ? attr->asFloat() : 0.0f;
 }
 
 void RtBackdrop::setHeight(float width)
 {
-    RtTypedValue* attr = prim()->createAttribute(Tokens::HEIGHT, RtType::FLOAT);
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::HEIGHT, RtType::FLOAT);
     attr->asFloat() = width;
 }
 
 float RtBackdrop::getHeight() const
 {
-    const RtTypedValue* attr = prim()->getAttribute(Tokens::HEIGHT, RtType::FLOAT);
+    const RtTypedValue* attr = prim()->getAttribute(Identifiers::HEIGHT, RtType::FLOAT);
     return attr ? attr->asFloat() : 0.0f;
 }
 

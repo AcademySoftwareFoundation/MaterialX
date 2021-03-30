@@ -8,7 +8,7 @@
 namespace MaterialX
 {
 
-PvtCommandPtr PvtCreatePrimCmd::create(RtStagePtr stage, const RtToken& typeName, const RtPath& parentPath, const RtToken& name)
+PvtCommandPtr PvtCreatePrimCmd::create(RtStagePtr stage, const RtIdentifier& typeName, const RtPath& parentPath, const RtIdentifier& name)
 {
     return std::make_shared<PvtCreatePrimCmd>(stage, typeName, parentPath, name);
 }

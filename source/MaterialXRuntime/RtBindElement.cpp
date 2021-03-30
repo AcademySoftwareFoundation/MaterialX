@@ -13,7 +13,7 @@ namespace MaterialX
 
 DEFINE_TYPED_SCHEMA(RtBindElement, "bindelement");
 
-RtPrim RtBindElement::createPrim(const RtToken&, const RtToken&, RtPrim)
+RtPrim RtBindElement::createPrim(const RtIdentifier&, const RtIdentifier&, RtPrim)
 {
     throw ExceptionRuntimeError("RtBindElement is an abstract base class and cannot create prims");
 }

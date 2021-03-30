@@ -10,14 +10,14 @@ namespace MaterialX
 
 namespace
 {
-    static const RtTokenVec DEFAULT_COLOR_SPACES_NAMES {
-        RtToken("gamma18"),
-        RtToken("gamma22"),
-        RtToken("gamma24"),
-        RtToken("acescg"),
-        RtToken("lin_rec709"),
-        RtToken("srgb_texture"),
-        RtToken("g22_ap1")
+    static const RtIdentifierVec DEFAULT_COLOR_SPACES_NAMES {
+        RtIdentifier("gamma18"),
+        RtIdentifier("gamma22"),
+        RtIdentifier("gamma24"),
+        RtIdentifier("acescg"),
+        RtIdentifier("lin_rec709"),
+        RtIdentifier("srgb_texture"),
+        RtIdentifier("g22_ap1")
     };
 }
 
@@ -26,7 +26,7 @@ RtDefaultColorManagementSystem::RtDefaultColorManagementSystem()
 {
 }
 
-const RtTokenVec& RtDefaultColorManagementSystem::getColorSpaceNames() const
+const RtIdentifierVec& RtDefaultColorManagementSystem::getColorSpaceNames() const
 {
     return DEFAULT_COLOR_SPACES_NAMES;
 }

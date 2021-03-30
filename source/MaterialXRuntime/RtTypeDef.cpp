@@ -10,54 +10,54 @@
 namespace MaterialX
 {
 
-const RtToken RtType::BOOLEAN("boolean");
-const RtToken RtType::INTEGER("integer");
-const RtToken RtType::FLOAT("float");
-const RtToken RtType::VECTOR2("vector2");
-const RtToken RtType::VECTOR3("vector3");
-const RtToken RtType::VECTOR4("vector4");
-const RtToken RtType::COLOR3("color3");
-const RtToken RtType::COLOR4("color4");
-const RtToken RtType::MATRIX33("matrix33");
-const RtToken RtType::MATRIX44("matrix44");
-const RtToken RtType::TOKEN("token");
-const RtToken RtType::STRING("string");
-const RtToken RtType::FILENAME("filename");
-const RtToken RtType::INTEGERARRAY("integerarray");
-const RtToken RtType::FLOATARRAY("floatarray");
-const RtToken RtType::COLOR3ARRAY("color3array");
-const RtToken RtType::COLOR4ARRAY("color4array");
-const RtToken RtType::VECTOR2ARRAY("vector2array");
-const RtToken RtType::VECTOR3ARRAY("vector3array");
-const RtToken RtType::VECTOR4ARRAY("vector4array");
-const RtToken RtType::STRINGARRAY("stringarray");
-const RtToken RtType::BSDF("BSDF");
-const RtToken RtType::EDF("EDF");
-const RtToken RtType::VDF("VDF");
-const RtToken RtType::SURFACESHADER("surfaceshader");
-const RtToken RtType::VOLUMESHADER("volumeshader");
-const RtToken RtType::DISPLACEMENTSHADER("displacementshader");
-const RtToken RtType::LIGHTSHADER("lightshader");
-const RtToken RtType::MATERIAL("material");
-const RtToken RtType::AUTO("auto");
+const RtIdentifier RtType::BOOLEAN("boolean");
+const RtIdentifier RtType::INTEGER("integer");
+const RtIdentifier RtType::FLOAT("float");
+const RtIdentifier RtType::VECTOR2("vector2");
+const RtIdentifier RtType::VECTOR3("vector3");
+const RtIdentifier RtType::VECTOR4("vector4");
+const RtIdentifier RtType::COLOR3("color3");
+const RtIdentifier RtType::COLOR4("color4");
+const RtIdentifier RtType::MATRIX33("matrix33");
+const RtIdentifier RtType::MATRIX44("matrix44");
+const RtIdentifier RtType::IDENTIFIER("identifier");
+const RtIdentifier RtType::STRING("string");
+const RtIdentifier RtType::FILENAME("filename");
+const RtIdentifier RtType::INTEGERARRAY("integerarray");
+const RtIdentifier RtType::FLOATARRAY("floatarray");
+const RtIdentifier RtType::COLOR3ARRAY("color3array");
+const RtIdentifier RtType::COLOR4ARRAY("color4array");
+const RtIdentifier RtType::VECTOR2ARRAY("vector2array");
+const RtIdentifier RtType::VECTOR3ARRAY("vector3array");
+const RtIdentifier RtType::VECTOR4ARRAY("vector4array");
+const RtIdentifier RtType::STRINGARRAY("stringarray");
+const RtIdentifier RtType::BSDF("BSDF");
+const RtIdentifier RtType::EDF("EDF");
+const RtIdentifier RtType::VDF("VDF");
+const RtIdentifier RtType::SURFACESHADER("surfaceshader");
+const RtIdentifier RtType::VOLUMESHADER("volumeshader");
+const RtIdentifier RtType::DISPLACEMENTSHADER("displacementshader");
+const RtIdentifier RtType::LIGHTSHADER("lightshader");
+const RtIdentifier RtType::MATERIAL("material");
+const RtIdentifier RtType::AUTO("auto");
 
-const RtToken RtTypeDef::BASETYPE_NONE("none");
-const RtToken RtTypeDef::BASETYPE_BOOLEAN("boolean");
-const RtToken RtTypeDef::BASETYPE_FLOAT("float");
-const RtToken RtTypeDef::BASETYPE_INTEGER("integer");
-const RtToken RtTypeDef::BASETYPE_STRING("string");
-const RtToken RtTypeDef::BASETYPE_STRUCT("struct");
+const RtIdentifier RtTypeDef::BASETYPE_NONE("none");
+const RtIdentifier RtTypeDef::BASETYPE_BOOLEAN("boolean");
+const RtIdentifier RtTypeDef::BASETYPE_FLOAT("float");
+const RtIdentifier RtTypeDef::BASETYPE_INTEGER("integer");
+const RtIdentifier RtTypeDef::BASETYPE_STRING("string");
+const RtIdentifier RtTypeDef::BASETYPE_STRUCT("struct");
 
-const RtToken RtTypeDef::SEMANTIC_NONE("none");
-const RtToken RtTypeDef::SEMANTIC_COLOR("color");
-const RtToken RtTypeDef::SEMANTIC_VECTOR("vector");
-const RtToken RtTypeDef::SEMANTIC_MATRIX("matrix");
-const RtToken RtTypeDef::SEMANTIC_FILENAME("filename");
-const RtToken RtTypeDef::SEMANTIC_CLOSURE("closure");
-const RtToken RtTypeDef::SEMANTIC_SHADER("shader");
-const RtToken RtTypeDef::SEMANTIC_MATERIAL("material");
+const RtIdentifier RtTypeDef::SEMANTIC_NONE("none");
+const RtIdentifier RtTypeDef::SEMANTIC_COLOR("color");
+const RtIdentifier RtTypeDef::SEMANTIC_VECTOR("vector");
+const RtIdentifier RtTypeDef::SEMANTIC_MATRIX("matrix");
+const RtIdentifier RtTypeDef::SEMANTIC_FILENAME("filename");
+const RtIdentifier RtTypeDef::SEMANTIC_CLOSURE("closure");
+const RtIdentifier RtTypeDef::SEMANTIC_SHADER("shader");
+const RtIdentifier RtTypeDef::SEMANTIC_MATERIAL("material");
 
-RtTypeDef::RtTypeDef(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs, const RtToken& semantic, size_t size) :
+RtTypeDef::RtTypeDef(const RtIdentifier& name, const RtIdentifier& basetype, const RtValueFuncs& funcs, const RtIdentifier& semantic, size_t size) :
     _ptr(new PvtTypeDef(name, basetype, funcs, semantic, size))
 {
 }
@@ -92,17 +92,17 @@ void RtTypeDef::fromStringValue(const string& src, RtValue& dest) const
     static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().fromString(src, dest);
 }
 
-const RtToken& RtTypeDef::getName() const
+const RtIdentifier& RtTypeDef::getName() const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getName();
 }
 
-const RtToken& RtTypeDef::getBaseType() const
+const RtIdentifier& RtTypeDef::getBaseType() const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getBaseType();
 }
 
-const RtToken& RtTypeDef::getSemantic() const
+const RtIdentifier& RtTypeDef::getSemantic() const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getSemantic();
 }
@@ -112,33 +112,33 @@ size_t RtTypeDef::getSize() const
     return static_cast<PvtTypeDef*>(_ptr)->getSize();
 }
 
-void RtTypeDef::setComponent(size_t index, const RtToken& name, const RtToken& basetype)
+void RtTypeDef::setComponent(size_t index, const RtIdentifier& name, const RtIdentifier& basetype)
 {
     static_cast<PvtTypeDef*>(_ptr)->setComponent(index, name, basetype);
 }
 
-size_t RtTypeDef::getComponentIndex(const RtToken& name) const
+size_t RtTypeDef::getComponentIndex(const RtIdentifier& name) const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getComponentIndex(name);
 }
 
-const RtToken& RtTypeDef::getComponentName(size_t index) const
+const RtIdentifier& RtTypeDef::getComponentName(size_t index) const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getComponentName(index);
 }
 
-const RtToken& RtTypeDef::getComponentBaseType(size_t index) const
+const RtIdentifier& RtTypeDef::getComponentBaseType(size_t index) const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getComponentBaseType(index);
 }
 
-const RtTokenSet& RtTypeDef::getValidConnectionTypes() const
+const RtIdentifierSet& RtTypeDef::getValidConnectionTypes() const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getValidConnectionTypes();
 }
 
-RtTypeDef* RtTypeDef::registerType(const RtToken& name, const RtToken& basetype, const RtValueFuncs& funcs,
-                                   const RtToken& semantic, size_t size)
+RtTypeDef* RtTypeDef::registerType(const RtIdentifier& name, const RtIdentifier& basetype, const RtValueFuncs& funcs,
+                                   const RtIdentifier& semantic, size_t size)
 {
     if (PvtTypeDefRegistry::get().findType(name))
     {
@@ -157,7 +157,7 @@ const RtTypeDef* RtTypeDef::getType(size_t index)
     return PvtTypeDefRegistry::get().getType(index);
 }
 
-const RtTypeDef* RtTypeDef::findType(const RtToken& name)
+const RtTypeDef* RtTypeDef::findType(const RtIdentifier& name)
 {
     return PvtTypeDefRegistry::get().findType(name);
 }

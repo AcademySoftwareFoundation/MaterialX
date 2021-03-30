@@ -28,14 +28,14 @@ PvtStage::RootPrim::RootPrim(RtStageWeakPtr stage) :
 {
 }
 
-PvtStage::PvtStage(const RtToken& name, RtStageWeakPtr owner) :
+PvtStage::PvtStage(const RtIdentifier& name, RtStageWeakPtr owner) :
     _name(name),
     _root(new RootPrim(owner)),
     _selfRefCount(0)
 {
 }
 
-RtStagePtr PvtStage::createNew(const RtToken& name)
+RtStagePtr PvtStage::createNew(const RtIdentifier& name)
 {
     // Create the shared stage object.
     RtStagePtr stage(new RtStage());
@@ -47,14 +47,14 @@ RtStagePtr PvtStage::createNew(const RtToken& name)
     return stage;
 }
 
-PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtToken& typeName)
+PvtPrim* PvtStage::createPrim(const PvtPath& path, const RtIdentifier& typeName)
 {
     PvtPath parentPath(path);
     parentPath.pop();
     return createPrim(parentPath, path.getName(), typeName);
 }
 
-PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtToken& name, const RtToken& typeName)
+PvtPrim* PvtStage::createPrim(const PvtPath& parentPath, const RtIdentifier& name, const RtIdentifier& typeName)
 {
     PvtPrim* parent = getPrimAtPathLocal(parentPath);
     if (!parent)
@@ -166,7 +166,7 @@ void PvtStage::restorePrim(const PvtPath& parentPath, const RtPrim& primH)
     parent->addChildPrim(prim);
 }
 
-RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
+RtIdentifier PvtStage::renamePrim(const PvtPath& path, const RtIdentifier& newName)
 {
     PvtPrim* prim = getPrimAtPathLocal(path);
     if (!(prim && prim->getParent()))
@@ -177,7 +177,7 @@ RtToken PvtStage::renamePrim(const PvtPath& path, const RtToken& newName)
     return parent->renameChild(prim->getName(), newName);
 }
 
-RtToken PvtStage::reparentPrim(const PvtPath& path, const PvtPath& newParentPath)
+RtIdentifier PvtStage::reparentPrim(const PvtPath& path, const PvtPath& newParentPath)
 {
     PvtPrim* prim = getPrimAtPathLocal(path);
     if (!(prim && prim->getParent()))
@@ -271,7 +271,7 @@ void PvtStage::addReference(RtStagePtr stage)
     _refStagesSet.insert(s);
 }
 
-void PvtStage::removeReference(const RtToken& name)
+void PvtStage::removeReference(const RtIdentifier& name)
 {
     for (auto it = _refStages.begin(); it != _refStages.end(); ++it)
     {
@@ -298,7 +298,7 @@ void PvtStage::removeReferences()
     _refStagesSet.clear();
 }
 
-RtStagePtr PvtStage::getReference(const RtToken& name) const
+RtStagePtr PvtStage::getReference(const RtIdentifier& name) const
 {
     for (const RtStagePtr& stage : _refStages)
     {

@@ -25,14 +25,14 @@ public:
     RtTargetDef(const RtPrim& prim) : RtTypedSchema(prim) {}
 
     /// Set the name of another targetdef this target inherits from.
-    void setInherit(const RtToken& inherit);
+    void setInherit(const RtIdentifier& inherit);
 
     /// Return the name of another targetdef this target inherits from.
-    const RtToken& getInherit() const;
+    const RtIdentifier& getInherit() const;
 
     /// Return true if the given target name is matching this target
     /// either through a direct match or inheritance.
-    bool isMatching(const RtToken& target) const;
+    bool isMatching(const RtIdentifier& target) const;
 };
 
 }

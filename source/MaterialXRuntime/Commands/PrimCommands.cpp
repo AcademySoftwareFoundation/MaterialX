@@ -20,13 +20,13 @@ namespace MaterialX
 namespace RtCommand
 {
 
-void createPrim(RtStagePtr stage, const RtToken& typeName, RtCommandResult& result)
+void createPrim(RtStagePtr stage, const RtIdentifier& typeName, RtCommandResult& result)
 {
-    PvtCommandPtr cmd = PvtCreatePrimCmd::create(stage, typeName, RtPath("/"), EMPTY_TOKEN);
+    PvtCommandPtr cmd = PvtCreatePrimCmd::create(stage, typeName, RtPath("/"), EMPTY_IDENTIFIER);
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
-void createPrim(RtStagePtr stage, const RtToken& typeName, const RtPath& path, RtCommandResult& result)
+void createPrim(RtStagePtr stage, const RtIdentifier& typeName, const RtPath& path, RtCommandResult& result)
 {
     RtPath parentPath(path);
     parentPath.pop();
@@ -34,7 +34,7 @@ void createPrim(RtStagePtr stage, const RtToken& typeName, const RtPath& path, R
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
-void createPrim(RtStagePtr stage, const RtToken& typeName, const RtPath& parentPath, const RtToken& name, RtCommandResult& result)
+void createPrim(RtStagePtr stage, const RtIdentifier& typeName, const RtPath& parentPath, const RtIdentifier& name, RtCommandResult& result)
 {
     PvtCommandPtr cmd = PvtCreatePrimCmd::create(stage, typeName, parentPath, name);
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
@@ -58,7 +58,7 @@ void removePrim(RtStagePtr stage, const RtPath& path, RtCommandResult& result)
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
-void renamePrim(RtStagePtr stage, const RtPath& path, const RtToken& newName, RtCommandResult& result)
+void renamePrim(RtStagePtr stage, const RtPath& path, const RtIdentifier& newName, RtCommandResult& result)
 {
     PvtCommandPtr cmd = PvtRenamePrimCmd::create(stage, path, newName);
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);

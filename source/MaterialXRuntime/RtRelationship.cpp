@@ -17,7 +17,7 @@ RtRelationship::RtRelationship(PvtObjHandle hnd) :
 {
 }
 
-const RtToken& RtRelationship::getName() const
+const RtIdentifier& RtRelationship::getName() const
 {
     return hnd()->asA<PvtRelationship>()->getName();
 }

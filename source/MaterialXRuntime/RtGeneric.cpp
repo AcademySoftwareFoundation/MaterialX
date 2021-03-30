@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtGeneric.h>
-#include <MaterialXRuntime/Tokens.h>
+#include <MaterialXRuntime/Identifiers.h>
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
@@ -13,12 +13,12 @@ namespace MaterialX
 
 DEFINE_TYPED_SCHEMA(RtGeneric, "generic");
 
-RtPrim RtGeneric::createPrim(const RtToken& typeName, const RtToken& name, RtPrim parent)
+RtPrim RtGeneric::createPrim(const RtIdentifier& typeName, const RtIdentifier& name, RtPrim parent)
 {
     PvtPrim::validateCreation(_typeInfo, typeName, name);
 
-    static const RtToken DEFAULT_NAME("generic1");
-    const RtToken primName = name == EMPTY_TOKEN ? DEFAULT_NAME : name;
+    static const RtIdentifier DEFAULT_NAME("generic1");
+    const RtIdentifier primName = name == EMPTY_IDENTIFIER ? DEFAULT_NAME : name;
     PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
 
     return primH;
@@ -30,16 +30,16 @@ const RtPrimSpec& RtGeneric::getPrimSpec() const
     return s_primSpec;
 }
 
-const RtToken& RtGeneric::getKind() const
+const RtIdentifier& RtGeneric::getKind() const
 {
-    RtTypedValue* v = prim()->getAttribute(Tokens::KIND, RtType::TOKEN);
-    return v ? v->getValue().asToken() : Tokens::UNKNOWN;
+    RtTypedValue* v = prim()->getAttribute(Identifiers::KIND, RtType::IDENTIFIER);
+    return v ? v->getValue().asIdentifier() : Identifiers::UNKNOWN;
 }
 
-void RtGeneric::setKind(const RtToken& kind)
+void RtGeneric::setKind(const RtIdentifier& kind)
 {
-    RtTypedValue* attr = prim()->createAttribute(Tokens::KIND, RtType::TOKEN);
-    attr->asToken() = kind;
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::KIND, RtType::IDENTIFIER);
+    attr->asIdentifier() = kind;
 }
 
 }

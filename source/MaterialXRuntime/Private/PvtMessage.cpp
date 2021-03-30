@@ -144,7 +144,7 @@ void PvtMessageHandler::sendRemovePrimMessage(RtStagePtr stage, const RtPrim& pr
     }
 }
 
-void PvtMessageHandler::sendRenamePrimMessage(RtStagePtr stage, const RtPrim& prim, const RtToken& newName)
+void PvtMessageHandler::sendRenamePrimMessage(RtStagePtr stage, const RtPrim& prim, const RtIdentifier& newName)
 {
     for (auto observer : _renamePrimObservers)
     {
@@ -168,7 +168,7 @@ void PvtMessageHandler::sendSetPortValueMessage(const RtPort& attr, const RtValu
     }
 }
 
-void PvtMessageHandler::sendSetAttributeMessage(const RtObject &obj, const RtToken& name, const RtValue& value)
+void PvtMessageHandler::sendSetAttributeMessage(const RtObject &obj, const RtIdentifier& name, const RtValue& value)
 {
     for (auto observer : _setAttrObservers)
     {
@@ -176,7 +176,7 @@ void PvtMessageHandler::sendSetAttributeMessage(const RtObject &obj, const RtTok
     }
 }
 
-void PvtMessageHandler::sendRemoveAttributeMessage(const RtObject &obj, const RtToken& name)
+void PvtMessageHandler::sendRemoveAttributeMessage(const RtObject &obj, const RtIdentifier& name)
 {
     for (auto observer : _removeAttributeObservers)
     {

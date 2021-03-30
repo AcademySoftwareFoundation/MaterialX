@@ -25,29 +25,29 @@ public:
     RtNodeImpl(const RtPrim& prim) : RtTypedSchema(prim) {}
 
     /// Set an identifier for the target used by this implementation.
-    void setTarget(const RtToken& target);
+    void setTarget(const RtIdentifier& target);
 
     /// Return an identifier for the target used by this implementation.
-    /// If an empty token is returned, this prim supports all targets.
-    const RtToken& getTarget() const;
+    /// If an empty identifier is returned, this prim supports all targets.
+    const RtIdentifier& getTarget() const;
 
     /// Set the name of the nodedef this implementation applies to.
-    void setNodeDef(const RtToken& nodedef);
+    void setNodeDef(const RtIdentifier& nodedef);
 
     /// Return the name of the nodedef this implementation applies to.
-    const RtToken& getNodeDef() const;
+    const RtIdentifier& getNodeDef() const;
 
     /// Set an alternative name for this node for this specific target.
     /// This allows one to say that for this particular target, the native
     /// node or shader is called something else but is functionally equivalent
     /// to the node described by the nodedef.
-    void setImplName(const RtToken& implname);
+    void setImplName(const RtIdentifier& implname);
 
     /// Return an alternative name for this node and this specific target.
     /// This allows one to say that for this particular target, the native
     /// node or shader is called something else but is functionally equivalent
     /// to the node described by the nodedef.
-    const RtToken& getImplName() const;
+    const RtIdentifier& getImplName() const;
 };
 
 }

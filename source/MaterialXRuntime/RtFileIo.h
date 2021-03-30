@@ -47,7 +47,7 @@ class RtWriteOptions
     using ObjectFilter = std::function<bool(const RtObject& obj)>;
 
     /// Filter function type for filtering attributes on object during write.
-    using AttributeFilter = std::function<bool(const RtObject& obj, const RtToken& name, const RtTypedValue* value)>;
+    using AttributeFilter = std::function<bool(const RtObject& obj, const RtIdentifier& name, const RtTypedValue* value)>;
 
   public:
     RtWriteOptions();
@@ -116,8 +116,8 @@ public:
     /// will be written to the document.
     void write(const FilePath& documentPath, const RtWriteOptions* options = nullptr);
 
-    void writeDefinitions(std::ostream& stream, const RtTokenVec& names, const RtWriteOptions* options = nullptr);
-    void writeDefinitions(const FilePath& documentPath, const RtTokenVec& names, const RtWriteOptions* options = nullptr);
+    void writeDefinitions(std::ostream& stream, const RtIdentifierVec& names, const RtWriteOptions* options = nullptr);
+    void writeDefinitions(const FilePath& documentPath, const RtIdentifierVec& names, const RtWriteOptions* options = nullptr);
 
     /// Read a prim from a stream.
     RtPrim readPrim(std::istream& stream, const RtPath& parentPrimPath, std::string& outOriginalPrimName, const RtReadOptions* options = nullptr);

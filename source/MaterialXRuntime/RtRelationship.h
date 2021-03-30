@@ -32,7 +32,7 @@ public:
     RtRelationship(PvtObjHandle hnd);
 
     /// Return the name of this relationship.
-    const RtToken& getName() const;
+    const RtIdentifier& getName() const;
 
     /// Connect an object to this relationship.
     void connect(const RtObject& obj);

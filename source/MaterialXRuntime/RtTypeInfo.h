@@ -7,7 +7,7 @@
 #define MATERIALX_RTTYPESCHEMA_H
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtToken.h>
+#include <MaterialXRuntime/RtIdentifier.h>
 
 /// @file
 /// TODO: Docs
@@ -30,20 +30,20 @@ public:
     ~RtTypeInfo();
 
     /// Return the single typename for the class.
-    const RtToken& getShortTypeName() const;
+    const RtIdentifier& getShortTypeName() const;
 
     /// Return the complete typename for the class including base classes.
-    const RtToken& getLongTypeName() const;
+    const RtIdentifier& getLongTypeName() const;
 
     /// Return the number of base classes for this class.
     size_t numBaseClasses() const;
 
     /// Return the short typename for a specific base class.
-    const RtToken& getBaseClassType(size_t index) const;
+    const RtIdentifier& getBaseClassType(size_t index) const;
 
     /// Return true if the given typename is part of the
     /// class hierarchy for this type.
-    bool isCompatible(const RtToken& typeName) const;
+    bool isCompatible(const RtIdentifier& typeName) const;
 
 private:
     // Private data.

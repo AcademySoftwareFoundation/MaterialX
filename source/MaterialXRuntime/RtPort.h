@@ -46,7 +46,7 @@ public:
     RtPort(PvtObjHandle hnd);
 
     /// Return the data type for this port.
-    const RtToken& getType() const;
+    const RtIdentifier& getType() const;
 
     /// Return the value for this port.
     const RtValue& getValue() const;
@@ -64,22 +64,22 @@ public:
     void setValueString(const string& v);
 
     /// Return the color space for this port.
-    const RtToken& getColorSpace() const;
+    const RtIdentifier& getColorSpace() const;
 
     /// Set the color space for this port.
-    void setColorSpace(const RtToken& colorspace);
+    void setColorSpace(const RtIdentifier& colorspace);
 
     /// Return the unit for this port.
-    const RtToken& getUnit() const;
+    const RtIdentifier& getUnit() const;
 
     /// Set the unit for this port.
-    void setUnit(const RtToken& unit);
+    void setUnit(const RtIdentifier& unit);
 
     /// Return the unit type for this port.
-    const RtToken& getUnitType() const;
+    const RtIdentifier& getUnitType() const;
 
     /// Set the unit type for this port.
-    void setUnitType(const RtToken& unit);
+    void setUnitType(const RtIdentifier& unit);
 };
 
 
