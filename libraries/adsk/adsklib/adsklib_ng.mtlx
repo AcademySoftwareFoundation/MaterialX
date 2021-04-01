@@ -37,8 +37,8 @@
     </place2d>
     <image name="b_image" type="color3">
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="a_place2d" />
     </image>
 
@@ -93,8 +93,8 @@
     </place2d>
     <image name="b_image" type="color3">
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="a_place2d" />
     </image>
 
@@ -155,8 +155,8 @@
     </place2d>
     <image name="b_image" type="color3">
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="a_place2d" />
     </image>
 
@@ -228,8 +228,8 @@
     </place2d>
     <image name="b_image" type="vector3" >
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="a_place2d" />
     </image>
 
@@ -282,8 +282,8 @@
     </place2d>
     <image name="b_image" type="color3" >
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="a_place2d" />
     </image>
     <extract name="extract1" type="float">	

@@ -29,6 +29,8 @@
     <input name="rotation_angle" type="float" value="0" unittype="angle" />
     <!-- normal scale -->
     <input name="normal_scale" type="float" value="1.0" />
+    <input name="uaddressmode" type="string" value="periodic"/>
+    <input name="vaddressmode" type="string" value="periodic"/>
     <output name="out" type="vector3" />
   </nodedef>
 
@@ -38,8 +40,8 @@
     <texcoord name="texcoord1" type="vector2" />
     <image name="b_image" type="vector3" >
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="texcoord1" />
     </image>
 
@@ -71,6 +73,8 @@
     <input name="uv_scale" type="vector2" value="1.0, 1.0" />
     <input name="rotation_angle" type="float" value="0" unittype="angle" />
     <input name="depth" type="float" unittype="distance" />
+    <input name="uaddressmode" type="string" value="periodic"/>
+    <input name="vaddressmode" type="string" value="periodic"/>
     <output name="out" type="vector3" />
   </nodedef>
 
@@ -79,8 +83,8 @@
     <texcoord name="texcoord1" type="vector2" />
     <image name="b_image" type="float" >
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="texcoord1" />
     </image>
     <heighttonormal name="impl_heighttonormalmap" type="vector3">
@@ -113,6 +117,8 @@
     <input name="rgbamount" type="float" value="1.0" />
     <!-- invert -->
     <input name="invert" type="boolean" value="false" />
+    <input name="uaddressmode" type="string" value="periodic"/>
+    <input name="vaddressmode" type="string" value="periodic"/>
     <output name="out" type="float" />
 </nodedef>
 
@@ -120,8 +126,8 @@
     <texcoord name="texcoord1" type="vector2" />
     <image name="b_image" type="color3">
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="texcoord1" />
     </image>
 
@@ -170,6 +176,8 @@
     <input name="rgbamount" type="float" value="1.0" />
     <!-- invert -->
     <input name="invert" type="boolean" value="false" />
+    <input name="uaddressmode" type="string" value="periodic"/>
+    <input name="vaddressmode" type="string" value="periodic"/>
     <output name="out" type="color3"/>
 </nodedef>
 
@@ -177,8 +185,8 @@
     <texcoord name="texcoord1" type="vector2" />
     <image name="b_image" type="color3">
       <input name="file" type="filename" interfacename="file" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="texcoord1" />
     </image>
 
