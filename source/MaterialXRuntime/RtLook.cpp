@@ -29,7 +29,7 @@ namespace
             addPrimAttribute(Identifiers::HEIGHT, RtType::INTEGER);
             addPrimAttribute(Identifiers::UICOLOR, RtType::COLOR3);
             addPrimAttribute(Identifiers::LOOKS, RtType::STRING);
-            addPrimAttribute(Identifiers::ACTIVELOOK, RtType::STRING);
+            addPrimAttribute(Identifiers::ENABLEDLOOKS, RtType::STRING);
             addPrimAttribute(Identifiers::DEFAULT, RtType::STRING);
         }
     };
@@ -89,15 +89,15 @@ const RtPrimSpec& RtLookGroup::getPrimSpec() const
     return s_lookGroupSpec;
 }
 
-void RtLookGroup::setActiveLook(const string& look)
+void RtLookGroup::setEnabledLooks(const string& looks)
 {
-    RtTypedValue* attr = prim()->createAttribute(Identifiers::ACTIVELOOK, RtType::STRING);
-    attr->asString() = look;
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::ENABLEDLOOKS, RtType::STRING);
+    attr->asString() = looks;
 }
 
-const string& RtLookGroup::getActiveLook() const
+const string& RtLookGroup::getEnabledLooks() const
 {
-    const RtTypedValue* attr = prim()->getAttribute(Identifiers::ACTIVELOOK);
+    const RtTypedValue* attr = prim()->getAttribute(Identifiers::ENABLEDLOOKS);
     return attr ? attr->asString() : EMPTY_STRING;
 }
 

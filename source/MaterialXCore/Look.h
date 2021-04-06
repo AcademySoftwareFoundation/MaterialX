@@ -272,20 +272,20 @@ class LookGroup : public Element
         return getAttribute(LOOKS_ATTRIBUTE);
     }
 
-    /// Set the active look.
-    void setActiveLook(const string& look)
+    /// Set the enabled looks.
+    void setEnabledLooks(const string& looks)
     {
-        setAttribute(ACTIVE_ATTRIBUTE, look);
+        setAttribute(ENABLED_ATTRIBUTE, looks);
     }
 
-    /// Return the active look, if any.
-    const string& getActiveLook() const
+    /// Return the enabled looks, if any.
+    const string& getEnabledLooksString() const
     {
-        return getAttribute(ACTIVE_ATTRIBUTE);
+        return getAttribute(ENABLED_ATTRIBUTE);
     }
 
-    /// Return list of look Elements which are active
-    LookVec getActiveLooks() const;
+    // Return the list of all look elements which are enabled
+    LookVec getEnabledLooks() const;
 
     /// Append the contents of another lookgroup to this lookgroup. 
     /// Optionally allow appending after a given look.
@@ -297,7 +297,7 @@ class LookGroup : public Element
   public:
     static const string CATEGORY;
     static const string LOOKS_ATTRIBUTE;
-    static const string ACTIVE_ATTRIBUTE;
+    static const string ENABLED_ATTRIBUTE;
 };
 
 /// @class MaterialAssign

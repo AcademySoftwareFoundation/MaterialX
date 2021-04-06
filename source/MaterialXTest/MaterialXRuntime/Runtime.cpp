@@ -1668,8 +1668,8 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     lookgroup1.removeLook(lo1);
     REQUIRE(lookgroup1.getLooks().numConnections() == 1);
 
-    lookgroup1.setActiveLook("look1");
-    REQUIRE(lookgroup1.getActiveLook() == "look1");
+    lookgroup1.setEnabledLooks("look1");
+    REQUIRE(lookgroup1.getEnabledLooks() == "look1");
 
     lookgroup1.addLook(lo1);
 
@@ -1807,7 +1807,7 @@ TEST_CASE("Runtime: Looks", "[runtime]")
         REQUIRE((*iter) == lo1);
         ++iter;
         REQUIRE(iter.isDone());
-        REQUIRE(lookgroup1.getActiveLook() == "look1");
+        REQUIRE(lookgroup1.getEnabledLooks() == "look1");
 
         // Try again, with options.
         useOptions = true;
@@ -1828,8 +1828,8 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     ++iter;
     REQUIRE(!iter.isDone());
     REQUIRE((*iter) == lo2);
-    lookgroup2.setActiveLook("child_lookgroup");
-    REQUIRE(lookgroup2.getActiveLook() == "child_lookgroup");
+    lookgroup2.setEnabledLooks("child_lookgroup");
+    REQUIRE(lookgroup2.getEnabledLooks() == "child_lookgroup");
 }
 
 mx::RtIdentifier toTestResolver(const mx::RtIdentifier& str, const mx::RtIdentifier& type)

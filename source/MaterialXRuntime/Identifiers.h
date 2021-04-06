@@ -49,11 +49,12 @@ namespace Identifiers
     extern const RtIdentifier GEOM;
     extern const RtIdentifier EXCLUSIVE;
     extern const RtIdentifier MATERIALASSIGN;
-    extern const RtIdentifier ACTIVELOOK;
+    extern const RtIdentifier ENABLEDLOOKS;
     extern const RtIdentifier FORMAT;
     extern const RtIdentifier FILE;
     extern const RtIdentifier FRAGMENT;
     extern const RtIdentifier FUNCTION;
+    extern const RtIdentifier LOOK;
     extern const RtIdentifier LOOKS;
     extern const RtIdentifier INCLUDEGEOM;
     extern const RtIdentifier EXCLUDEGEOM;

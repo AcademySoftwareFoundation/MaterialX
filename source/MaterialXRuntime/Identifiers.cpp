@@ -43,11 +43,12 @@ namespace Identifiers
     const RtIdentifier GEOM("geom");
     const RtIdentifier EXCLUSIVE("exclusive");
     const RtIdentifier MATERIALASSIGN("materialassign");
-    const RtIdentifier ACTIVELOOK("active");
+    const RtIdentifier ENABLEDLOOKS("enabled");
     const RtIdentifier FORMAT("format");
     const RtIdentifier FILE("file");
     const RtIdentifier FRAGMENT("fragment");
     const RtIdentifier FUNCTION("function");
+    const RtIdentifier LOOK("look");
     const RtIdentifier LOOKS("looks");
     const RtIdentifier INCLUDEGEOM("includegeom");
     const RtIdentifier EXCLUDEGEOM("excludegeom");

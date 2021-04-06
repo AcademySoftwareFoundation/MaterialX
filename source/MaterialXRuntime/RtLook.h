@@ -11,7 +11,7 @@
 /// This includes:
 ///     1. Material Assignments: which associate collections of geometry with materials
 ///     2. Looks: which contain one or more material assignments.
-///     3. Look Groups: which reference a collection of looks with one look being active.
+///     3. Look Groups: which reference a collection of looks with a list of enabled looks.
 
 #include <MaterialXRuntime/RtBindElement.h>
 #include <MaterialXRuntime/RtConnectableApi.h>
@@ -29,11 +29,11 @@ public:
     /// Constructor.
     RtLookGroup(const RtPrim& prim) : RtBindElement(prim) {}
 
-    /// Set the active look.
-    void setActiveLook(const string& look);
+    /// Set the enabled looks.
+    void setEnabledLooks(const string& looks);
 
-    /// Return the active look.
-    const string& getActiveLook() const;
+    /// Return the enabled looks.
+    const string& getEnabledLooks() const;
 
     /// Add a look
     void addLook(const RtObject& look);
