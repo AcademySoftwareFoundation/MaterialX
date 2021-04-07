@@ -41,6 +41,7 @@ namespace
             addInputAttribute(Identifiers::ENUMVALUES, RtType::STRING);
             addInputAttribute(Identifiers::UINAME, RtType::STRING);
             addInputAttribute(Identifiers::UIFOLDER, RtType::STRING);
+            addInputAttribute(Identifiers::UIVISIBLE, RtType::BOOLEAN);
 
             addInputAttributeByType(RtType::COLOR3, Identifiers::COLORSPACE, RtType::IDENTIFIER);
             addInputAttributeByType(RtType::COLOR3, Identifiers::UIMIN, RtType::COLOR3);

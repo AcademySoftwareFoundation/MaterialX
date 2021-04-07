@@ -830,11 +830,15 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     // Add an interface to the graph.
     mx::RtInput Ainput = graph1.createInput(A, mx::RtType::FLOAT);
     Ainput.setValueString("0.3");
+    Ainput.setIsUIVisible(false);
     mx::RtInput Binput = graph1.createInput(B, mx::RtType::FLOAT);
     Binput.setValueString("0.1");
+    Binput.setIsUIVisible(true);
     graph1.createOutput(OUT, mx::RtType::FLOAT);
     REQUIRE(graph1.getInput(A));
     REQUIRE(graph1.getInput(B));
+    REQUIRE(graph1.getInput(A).isUIVisible() == false);
+    REQUIRE(graph1.getInput(B).isUIVisible());
     REQUIRE(graph1.getOutput(OUT));
     REQUIRE(graph1.getInputSocket(A));
     REQUIRE(graph1.getInputSocket(B));
@@ -935,6 +939,10 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.getVersion() == mx::EMPTY_IDENTIFIER);
     REQUIRE(graph1.getNamespace() == NAMESPACE);
     REQUIRE(addgraphDef.numInputs() == 2);
+    REQUIRE(addgraphDef.getInput(A));
+    REQUIRE(addgraphDef.getInput(A).isUIVisible() == false);
+    REQUIRE(addgraphDef.getInput(B));
+    REQUIRE(addgraphDef.getInput(B).isUIVisible());
     REQUIRE(addgraphDef.numOutputs() == 1);
     REQUIRE(addgraphDef.getOutput().getName() == OUT);
     REQUIRE(addgraphDef.getName() == QUALIFIED_DEFINITION);
@@ -964,7 +972,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
         REQUIRE(!agNodeValue);
     }
 
-    // 2. The assocaited nodedef can be found.
+    // 2. The associated nodedef can be found.
     {
         mx::RtPrim agNodeDefinition = agNode.getNodeDef();
         REQUIRE(agNodeDefinition.getPath() == addgraphDef.getPath());
