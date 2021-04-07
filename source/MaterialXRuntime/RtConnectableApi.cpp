@@ -16,6 +16,12 @@ namespace
 
 bool RtConnectableApi::acceptConnection(const RtInput& input, const RtOutput& output) const
 {
+    // TODO: Tokens are not currently considered to be connectable
+    if (input.isToken())
+    {
+        return false;
+    }
+
     // Default implementation checks if the types are matching.
     //
     // TODO: Check if the data types are compatible/castable

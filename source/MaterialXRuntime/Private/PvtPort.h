@@ -13,6 +13,7 @@
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 #include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/Identifiers.h>
 
 /// @file
 /// TODO: Docs
@@ -106,6 +107,23 @@ public:
         attr->asIdentifier() = unit;
     }
 
+    bool isToken() const
+    {
+        return (_flags & RtPortFlag::TOKEN) != 0;
+    }
+
+    void setIsToken(bool val)
+    {
+        if (val)
+        {
+            _flags |= RtPortFlag::TOKEN;
+        }
+        else
+        {
+            _flags &= ~RtPortFlag::TOKEN;
+        }
+    }
+
     static const RtIdentifier DEFAULT_OUTPUT_NAME;
     static const RtIdentifier COLOR_SPACE;
     static const RtIdentifier UNIT;
@@ -146,6 +164,24 @@ public:
         {
             _flags &= ~RtPortFlag::UNIFORM;
         }
+    }
+
+    bool isUIVisible() const
+    {
+        // For now since connections require ports to be created and hence visible
+        // always assume a connection means visible.
+        if (isConnected())
+        {
+            return true;
+        }
+        const RtTypedValue* attr = getAttribute(Identifiers::UIVISIBLE, RtType::BOOLEAN);
+        return attr ? attr->asBool() : true;
+    }
+
+    void setIsUIVisible(bool val)
+    {
+        RtTypedValue* attr = createAttribute(Identifiers::UIVISIBLE, RtType::BOOLEAN);
+        attr->asBool() = val;
     }
 
     bool isConnected() const

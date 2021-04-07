@@ -200,6 +200,11 @@ namespace
                 const uint32_t flags = elem->asA<Input>()->getIsUniform() ? RtPortFlag::UNIFORM : 0;
                 port = schema.createInput(portName, portType, flags);
             }
+            else if (elem->isA<Token>())
+            {
+                const uint32_t flags = RtPortFlag::UNIFORM | RtPortFlag::TOKEN;
+                port = schema.createInput(portName, portType, flags);
+            }
 
             if (port)
             {
@@ -487,7 +492,9 @@ namespace
                         if (!socket)
                         {
                             const RtIdentifier inputType(elem->getType());
-                            RtInput input = nodegraph.createInput(socketName, inputType);
+
+                            const uint32_t flags = elem->isA<Token>() ? RtPortFlag::UNIFORM | RtPortFlag::TOKEN : 0;
+                            RtInput input = nodegraph.createInput(socketName, inputType, flags);
                             socket = nodegraph.getInputSocket(input.getName());
 
                             // Set the input value
@@ -902,7 +909,16 @@ namespace
         for (PvtObject* obj : src->getInputs())
         {
             const PvtInput* input = obj->asA<PvtInput>();
-            ValueElementPtr destPort = destNodeDef->addInput(input->getName().str(), input->getType().str());
+            ValueElementPtr destPort = nullptr;
+            if (input->isToken())
+            {
+                destPort = destNodeDef->addToken(input->getName().str());
+                destPort->setType(input->getType().str());
+            }
+            else
+            {
+                destPort = destNodeDef->addInput(input->getName().str(), input->getType().str());
+            }
             if (input->isUniform())
             {
                 destPort->setIsUniform(true);
@@ -945,10 +961,8 @@ namespace
             RtInput input = node.getInput(i);
             if (input)
             {
-                const RtTypedValue* uiVisible1 = input.getAttribute(Identifiers::UIVISIBLE, RtType::BOOLEAN);
-                const RtTypedValue* uiVisible2 = nodedefInput.getAttribute(Identifiers::UIVISIBLE, RtType::BOOLEAN);
-                const bool uiHidden1 = uiVisible1 && !uiVisible1->asBool();
-                const bool uiHidden2 = uiVisible2 && !uiVisible2->asBool();
+                const bool uiHidden1 = input.isUIVisible();
+                const bool uiHidden2 = nodedefInput.isUIVisible();
                 const bool writeUiVisibleData = uiHidden1 != uiHidden2;
 
                 // Write input if it's connected or different from default value.
@@ -959,7 +973,15 @@ namespace
                     ValueElementPtr valueElem;
                     if (input.isUniform())
                     {
-                        valueElem = destNode->addInput(input.getName().str(), input.getType().str());
+                        if (input.isToken())
+                        {
+                            valueElem = destNode->addToken(input.getName().str());
+                            valueElem->setType(input.getType().str());
+                        }
+                        else
+                        {
+                            valueElem = destNode->addInput(input.getName().str(), input.getType().str());
+                        }
                         valueElem->setIsUniform(true);
                         if (input.isConnected())
                         {
@@ -1053,7 +1075,15 @@ namespace
                 ValueElementPtr v = nullptr;
                 if (nodegraphInput.isUniform())
                 {
-                    v = destNodeGraph->addInput(nodegraphInput.getName().str(), nodegraphInput.getType().str());
+                    if (nodegraphInput.isToken())
+                    {
+                        v = destNodeGraph->addToken(nodegraphInput.getName().str());
+                        v->setType(nodegraphInput.getType().str());
+                    }
+                    else
+                    {
+                        v = destNodeGraph->addInput(nodegraphInput.getName().str(), nodegraphInput.getType().str());
+                    }
                     v->setIsUniform(true);
                 }
                 else

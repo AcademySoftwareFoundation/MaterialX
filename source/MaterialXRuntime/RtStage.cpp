@@ -189,11 +189,16 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
     for (RtInput input : nodegraph.getInputs())
     {
         RtInput nodedefInput = nodedef.createInput(input.getName(), input.getType());
-        nodedefInput.setUniform(input.isUniform());
+        PvtObject *src = PvtObject::cast(input);
+        for (const RtIdentifier& name : src->getAttributeNames())
+        {
+            const RtTypedValue* srcAttr = src->getAttribute(name);
+            RtTypedValue* destAttr = nodedefInput.createAttribute(name, srcAttr->getType());
+            RtValue::copy(srcAttr->getType(), srcAttr->getValue(), destAttr->getValue());
+        }
+        nodedefInput.setIsToken(input.isToken());
         RtValue::copy(input.getType(), input.getValue(), nodedefInput.getValue());
     }
-
-    // TODO : Add support for tokens
 
     // Add an output per nodegraph output
     for (RtOutput output : nodegraph.getOutputs())

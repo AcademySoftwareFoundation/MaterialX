@@ -80,7 +80,7 @@ namespace
         }
     };
 
-    // Commonly used tokens.
+    // Commonly used identifiers.
     const mx::RtIdentifier X("x");
     const mx::RtIdentifier Y("y");
     const mx::RtIdentifier Z("z");
@@ -95,6 +95,7 @@ namespace
     const mx::RtIdentifier IN3("in3");
     const mx::RtIdentifier OUT("out");
     const mx::RtIdentifier IN("in");
+    const mx::RtIdentifier TOKEN1("token1");
     const mx::RtIdentifier REFLECTIVITY("reflectivity");
     const mx::RtIdentifier SURFACESHADER("surfaceshader");
     const mx::RtIdentifier UIFOLDER("uifolder");
@@ -156,7 +157,7 @@ TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
     }
 }
 
-TEST_CASE("Runtime: Token", "[runtime]")
+TEST_CASE("Runtime: Identifiers", "[runtime]")
 {
     mx::RtIdentifier tok1("hej");
     mx::RtIdentifier tok2("hey");
@@ -1299,20 +1300,36 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     // Create a nodegraph.
     mx::RtNodeGraph graph = stage->createPrim(mx::RtNodeGraph::typeName());
     graph.createInput(IN, mx::RtType::FLOAT);
+    graph.createInput(TOKEN1, mx::RtType::FLOAT, mx::RtPortFlag::UNIFORM | mx::RtPortFlag::TOKEN);
     graph.createOutput(OUT, mx::RtType::FLOAT);
     mx::RtInput graphIn = graph.getInput(IN);
+    REQUIRE(graphIn.isUIVisible());
+    graphIn.setIsUIVisible(false);
+    REQUIRE(!graphIn.isUIVisible());
+    mx::RtInput graphToken = graph.getInput(TOKEN1);
+    REQUIRE(graphToken.isUniform());
     mx::RtOutput graphOut = graph.getOutput(OUT);
     mx::RtOutput graphInSocket = graph.getInputSocket(IN);
+    mx::RtOutput graphTokenSocket = graph.getInputSocket(TOKEN1);
     mx::RtInput graphOutSocket = graph.getOutputSocket(OUT);
     REQUIRE(graphIn);
+    REQUIRE(graphToken);
     REQUIRE(graphOut);
     REQUIRE(graphInSocket);
+    REQUIRE(graphTokenSocket);
     REQUIRE(graphOutSocket);
 
     // Add nodes to the graph.
     const mx::RtIdentifier ADD_FLOAT_NODEDEF("ND_add_float");
     mx::RtNode add1 = stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);
     mx::RtNode add2 = stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);
+    try {
+        graphTokenSocket.connect(add1.getInput(IN1));
+    }
+    catch (mx::Exception&)
+    {
+    }
+    REQUIRE(!graphTokenSocket.isConnected());
     graphInSocket.connect(add1.getInput(IN1));
     add1.getOutput(OUT).connect(add2.getInput(IN1));
     add2.getOutput(OUT).connect(graphOutSocket);

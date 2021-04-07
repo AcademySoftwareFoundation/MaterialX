@@ -39,6 +39,12 @@ PvtInput::PvtInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t 
 
 bool PvtInput::isConnectable(const PvtOutput* output) const
 {
+    // TODO : Tokens are not connectable for now.
+    if (isToken() || output->isToken())
+    {
+        return false;
+    }
+
     // We cannot connect to ourselves.
     if (_parent == output->_parent)
     {
