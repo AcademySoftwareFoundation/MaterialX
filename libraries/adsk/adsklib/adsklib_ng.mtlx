@@ -280,18 +280,15 @@
       <input name="pivot" type="vector2" value="0.0, 0.0" />
       <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
     </place2d>
-    <image name="b_image" type="color3" >
+    <image name="b_image" type="float" >
       <input name="file" type="filename" interfacename="file" />
       <input name="uaddressmode" type="string" interfacename="uaddressmode" />
       <input name="vaddressmode" type="string" interfacename="vaddressmode" />
       <input name="texcoord" type="vector2" nodename="a_place2d" />
     </image>
-    <extract name="extract1" type="float">	
-        <input name="in" type="color3" nodename="b_image" />	
-        <input name="index" type="integer" value="0" />	
-    </extract>
+
     <heighttonormal name="impl_heighttonormalmap" type="vector3">
-      <input name="in" type="float" nodename="extract1" />
+      <input name="in" type="float" nodename="b_image" />
       <input name="scale" type="float" value="1.0" />
     </heighttonormal>
     <!-- use std::normal_map -->
