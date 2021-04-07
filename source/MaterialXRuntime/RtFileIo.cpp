@@ -731,7 +731,7 @@ namespace
         mapper.addMapping(parent, name, prim->getName());
 
         RtLookGroup lookGroup(prim->hnd());
-	lookGroup.setEnabledLooks(src->getEnabledLooksString());
+        lookGroup.setEnabledLooks(src->getEnabledLooksString());
 
         // Link to looks
         const string& lookNamesString = src->getLooks();
@@ -933,6 +933,9 @@ namespace
         const string outputType = numOutputs > 1 ? "multioutput" : (numOutputs > 0 ? nodedef.getPrim().getOutput().getType().str() : EMPTY_STRING);
 
         NodePtr destNode = dest->addNode(nodedef.getNamespacedNode().str(), node.getName().str(), outputType);
+
+        // Always write out the associated nodedef to avoid ambiguity.
+        destNode->setNodeDefString(nodedef.getName().str());
 
         bool writeDefaultValues = options ? options->writeDefaultValues : false;
 
