@@ -72,8 +72,8 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
         return true;
     }
 
-    void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFilename,
-                 unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log) override;
+    void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FileSearchPath& codeSearchPath,
+                 const mx::FilePath& outputFilename, unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log) override;
 
     mx::GlslRendererPtr _renderer;
     mx::LightHandlerPtr _lightHandler;
@@ -701,8 +701,9 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
     return true;
 }
 
-void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
-                                      unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log)
+void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FileSearchPath& codeSearchPath, 
+                                     const mx::FilePath& outputFileName, unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, 
+                                     std::ostream& log)
 {
     bakeWidth = std::max(bakeWidth, (unsigned int) 2);
     bakeHeight = std::max(bakeHeight, (unsigned int) 2);
@@ -714,6 +715,7 @@ void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPa
     baker->setOptimizeConstants(true);
     baker->setAutoTextureResolution(true);
     baker->setHashImageNames(true);
+    baker->setCodeSearchPath(codeSearchPath);
     
     try
     {
