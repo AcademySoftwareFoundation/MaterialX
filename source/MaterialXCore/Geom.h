@@ -58,7 +58,7 @@ using ConstCollectionPtr = shared_ptr<const Collection>;
 /// @class GeomPath
 /// A MaterialX geometry path, representing the hierarchical location
 /// expressed by a geometry name.
-class GeomPath
+class MX_CORE_API GeomPath
 {
   public:
     GeomPath() :
@@ -150,7 +150,7 @@ class GeomPath
 /// @class GeomElement
 /// The base class for geometric elements, which support bindings to geometries
 /// and geometric collections.
-class GeomElement : public Element
+class MX_CORE_API GeomElement : public Element
 {
   protected:
     GeomElement(ElementPtr parent, const string& category, const string& name) :
@@ -235,7 +235,7 @@ class GeomElement : public Element
 
 /// @class GeomInfo
 /// A geometry info element within a Document.
-class GeomInfo : public GeomElement
+class MX_CORE_API GeomInfo : public GeomElement
 {
   public:
     GeomInfo(ElementPtr parent, const string& name) :
@@ -336,7 +336,7 @@ class GeomInfo : public GeomElement
 
 /// @class GeomProp
 /// A geometric property element within a GeomInfo.
-class GeomProp : public ValueElement
+class MX_CORE_API GeomProp : public ValueElement
 {
   public:
     GeomProp(ElementPtr parent, const string& name) :
@@ -357,7 +357,7 @@ class GeomProp : public ValueElement
 /// as a reference to the "normal" geometric node with a space setting of
 /// "world", or a specific set of texture coordinates can be declared as a
 /// reference to the "texcoord" geometric node with an index setting of "1".
-class GeomPropDef : public Element
+class MX_CORE_API GeomPropDef : public Element
 {
   public:
       GeomPropDef(ElementPtr parent, const string& name) :
@@ -442,7 +442,7 @@ class GeomPropDef : public Element
 
 /// @class Collection
 /// A collection element within a Document.
-class Collection : public Element
+class MX_CORE_API Collection : public Element
 {
   public:
     Collection(ElementPtr parent, const string& name) :

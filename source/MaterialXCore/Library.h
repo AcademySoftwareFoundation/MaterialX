@@ -10,6 +10,7 @@
 /// Library-wide includes and types.  This file should be the first include for
 /// any public header in the MaterialX library.
 
+#include <MaterialXCore/Api.h>
 #include <algorithm>
 #include <cstdlib>
 #include <exception>
@@ -38,7 +39,7 @@ using StringSet = std::set<string>;
 /// @class Exception
 /// The base class for exceptions that are propagated from the MaterialX library
 /// to the client application.
-class Exception : public std::exception
+class MX_CORE_API Exception : public std::exception
 {
   public:
     explicit Exception(const string& msg) :

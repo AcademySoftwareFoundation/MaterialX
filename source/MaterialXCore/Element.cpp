@@ -214,16 +214,6 @@ void Element::removeAttribute(const string& attrib)
     }
 }
 
-template<class T> shared_ptr<T> Element::asA()
-{
-    return std::dynamic_pointer_cast<T>(getSelf());
-}
-
-template<class T> shared_ptr<const T> Element::asA() const
-{
-    return std::dynamic_pointer_cast<const T>(getSelf());
-}
-
 ElementPtr Element::addChildOfCategory(const string& category, string name)
 {
     if (name.empty())
@@ -296,6 +286,17 @@ ConstElementPtr Element::getRoot() const
         throw ExceptionOrphanedElement("Requested root of orphaned element: " + asString());
     }
     return root;
+}
+
+DocumentPtr Element::getDocument()
+{
+    return getRoot()->asA<Document>();
+}
+
+/// Return the root document of our tree.
+ConstDocumentPtr Element::getDocument() const
+{
+    return getRoot()->asA<Document>();
 }
 
 bool Element::hasInheritedBase(ConstElementPtr base) const

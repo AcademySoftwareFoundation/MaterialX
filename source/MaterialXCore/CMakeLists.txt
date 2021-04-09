@@ -6,6 +6,7 @@ add_library(MaterialXCore ${materialx_source} ${materialx_headers})
 add_definitions(-DMATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION})
 add_definitions(-DMATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION})
 add_definitions(-DMATERIALX_BUILD_VERSION=${MATERIALX_BUILD_VERSION})
+add_definitions(-DMX_CORE_EXPORTS)
 
 set_target_properties(
     MaterialXCore PROPERTIES

@@ -71,7 +71,7 @@ using ElementPredicate = std::function<bool(ConstElementPtr)>;
 ///
 /// An Element is a named object within a Document, which may possess any
 /// number of child elements and attributes.
-class Element : public std::enable_shared_from_this<Element>
+class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 {
   protected:
     Element(ElementPtr parent, const string& category, const string& name) :
@@ -382,10 +382,12 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// Dynamic cast to an instance of the given subclass.
-    template<class T> shared_ptr<T> asA();
+    template<class T> shared_ptr<T> asA()
+    { return std::dynamic_pointer_cast<T>(getSelf()); }
 
     /// Dynamic cast to a const instance of the given subclass.
-    template<class T> shared_ptr<const T> asA() const;
+    template<class T> shared_ptr<const T> asA() const
+    { return std::dynamic_pointer_cast<const T>(getSelf()); }
 
     /// @}
     /// @name Child Elements
@@ -571,16 +573,10 @@ class Element : public std::enable_shared_from_this<Element>
     ConstElementPtr getRoot() const;
 
     /// Return the root document of our tree.
-    DocumentPtr getDocument()
-    {
-        return getRoot()->asA<Document>();
-    }
+    DocumentPtr getDocument();
 
     /// Return the root document of our tree.
-    ConstDocumentPtr getDocument() const
-    {
-        return getRoot()->asA<Document>();
-    }
+    ConstDocumentPtr getDocument() const;
 
     /// Return the first ancestor of the given subclass, or an empty shared
     /// pointer if no ancestor of this subclass is found.
@@ -832,7 +828,7 @@ class Element : public std::enable_shared_from_this<Element>
 
 /// @class TypedElement
 /// The base class for typed elements.
-class TypedElement : public Element
+class MX_CORE_API TypedElement : public Element
 {
   protected:
     TypedElement(ElementPtr parent, const string& category, const string& name) :
@@ -889,7 +885,7 @@ public:
 
 /// @class ValueElement
 /// The base class for elements that support typed values.
-class ValueElement : public TypedElement
+class MX_CORE_API ValueElement : public TypedElement
 {
   protected:
     ValueElement(ElementPtr parent, const string& category, const string& name) :
@@ -1123,7 +1119,7 @@ class ValueElement : public TypedElement
 ///
 /// Token elements are used to define input and output values for string
 /// substitutions in image filenames.
-class Token : public ValueElement
+class MX_CORE_API Token : public ValueElement
 {
   public:
     Token(ElementPtr parent, const string& name) :
@@ -1143,7 +1139,7 @@ class Token : public ValueElement
 /// The comment text may be accessed with the methods Element::setDocString and
 /// Element::getDocString.
 /// 
-class CommentElement : public Element
+class MX_CORE_API CommentElement : public Element
 {
   public:
     CommentElement(ElementPtr parent, const string& name) :
@@ -1158,7 +1154,7 @@ class CommentElement : public Element
 
 /// @class GenericElement
 /// A generic element subclass, for instantiating elements with unrecognized categories.
-class GenericElement : public Element
+class MX_CORE_API GenericElement : public Element
 {
   public:
     GenericElement(ElementPtr parent, const string& name) :
@@ -1184,7 +1180,7 @@ class GenericElement : public Element
 ///
 /// Methods such as StringResolver::setFilePrefix may be used to edit the
 /// stored string modifiers before calling StringResolver::resolve.
-class StringResolver
+class MX_CORE_API StringResolver
 {
   public:
     /// Create a new string resolver.
@@ -1295,7 +1291,7 @@ class StringResolver
 /// @class ExceptionOrphanedElement
 /// An exception that is thrown when an ElementPtr is used after its owning
 /// Document has gone out of scope.
-class ExceptionOrphanedElement : public Exception
+class MX_CORE_API ExceptionOrphanedElement : public Exception
 {
   public:
     using Exception::Exception;

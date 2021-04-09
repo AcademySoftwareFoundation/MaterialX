@@ -34,7 +34,7 @@ using ConstValuePtr = shared_ptr<const Value>;
 template <class T> class TypedValue;
 
 /// A generic, discriminated value, whose type may be queried dynamically.
-class Value
+class MX_CORE_API Value
 {
   public:
     /// Float formats to use when converting values to strings.
@@ -188,7 +188,7 @@ template <class T> class TypedValue : public Value
 
 /// @class ScopedFloatFormatting
 /// An RAII class for controlling the float formatting of values.
-class ScopedFloatFormatting
+class MX_CORE_API ScopedFloatFormatting
 {
   public:
     explicit ScopedFloatFormatting(Value::FloatFormat format, int precision = 6);
@@ -201,7 +201,7 @@ class ScopedFloatFormatting
 
 /// @class ExceptionTypeError
 /// An exception that is thrown when a type mismatch is encountered.
-class ExceptionTypeError : public Exception
+class MX_CORE_API ExceptionTypeError : public Exception
 {
   public:
     using Exception::Exception;
