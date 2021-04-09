@@ -6,6 +6,8 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXFormat ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_FORMAT_EXPORTS)
+
 set_target_properties(
     MaterialXFormat PROPERTIES
     OUTPUT_NAME MaterialXFormat

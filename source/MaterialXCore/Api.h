@@ -6,26 +6,17 @@
 #ifndef MATERIALX_CORE_API_H
 #define MATERIALX_CORE_API_H
 
-/// @file
-/// Macros for declaring imported and exported symbols.
+#include <MaterialXCore/Platform.h>
 
-#if defined(MATERIALX_BUILD_SHARED_LIBS)
-    #if defined(_WIN32)
-        #pragma warning(disable:4251)
-        #pragma warning(disable:4275)
-        #pragma warning(disable:4661)
-        #if defined(MX_CORE_EXPORTS)
-            #define MX_CORE_API __declspec(dllexport)
-        #else
-            #define MX_CORE_API __declspec(dllimport)
-        #endif
-    #else
-        // Presently non-Windows platforms just export all symbols from
-        // shared libraries rather than using the explicit declarations.
-        #define MX_CORE_API
-    #endif
+/// @file
+/// Import and export declarations for the Core library.
+
+#if defined(MATERIALX_CORE_EXPORTS)
+    #define MX_CORE_API MATERIALX_SYMBOL_EXPORT
+    #define MX_CORE_EXTERN_TEMPLATE(...) MATERIALX_EXPORT_EXTERN_TEMPLATE(__VA_ARGS__)
 #else
-    #define MX_CORE_API
+    #define MX_CORE_API MATERIALX_SYMBOL_IMPORT
+    #define MX_CORE_EXTERN_TEMPLATE(...) MATERIALX_IMPORT_EXTERN_TEMPLATE(__VA_ARGS__)
 #endif
 
 #endif

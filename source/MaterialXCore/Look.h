@@ -492,7 +492,7 @@ class MX_CORE_API Visibility : public GeomElement
 ///             By default, this argument is the universal geometry string "/",
 ///             and all material bindings are returned.
 /// @return Vector of MaterialAssign elements
-vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
+MX_CORE_API vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
 
 } // namespace MaterialX
 

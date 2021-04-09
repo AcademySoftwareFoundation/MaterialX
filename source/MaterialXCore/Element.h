@@ -383,11 +383,15 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Dynamic cast to an instance of the given subclass.
     template<class T> shared_ptr<T> asA()
-    { return std::dynamic_pointer_cast<T>(getSelf()); }
+    {
+        return std::dynamic_pointer_cast<T>(getSelf());
+    }
 
     /// Dynamic cast to a const instance of the given subclass.
     template<class T> shared_ptr<const T> asA() const
-    { return std::dynamic_pointer_cast<const T>(getSelf()); }
+    {
+        return std::dynamic_pointer_cast<const T>(getSelf());
+    }
 
     /// @}
     /// @name Child Elements

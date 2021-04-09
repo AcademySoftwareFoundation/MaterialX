@@ -75,12 +75,23 @@ class MX_CORE_API Value
     /// @{
 
     /// Return true if this value is of the given type.
-    template<class T> bool isA() const;
+    template<class T> bool isA() const
+    {
+        return dynamic_cast<const TypedValue<T>*>(this) != nullptr;
+    }
 
     /// Return our underlying data as an object of the given type.
     /// If the given type doesn't match our own data type, then an
     /// exception is thrown.
-    template<class T> const T& asA() const;
+    template<class T> const T& asA() const
+    {
+        const TypedValue<T>* typedVal = dynamic_cast<const TypedValue<T>*>(this);
+        if (!typedVal)
+        {
+            throw ExceptionTypeError("Incorrect type specified for value");
+        }
+        return typedVal->getData();
+    }
 
     /// Return the type string for this value.
     virtual const string& getTypeString() const = 0;
@@ -127,7 +138,7 @@ class MX_CORE_API Value
 };
 
 /// The class template for typed subclasses of Value
-template <class T> class TypedValue : public Value
+template <class T> class MX_CORE_API TypedValue : public Value
 {
   public:
     TypedValue() :
@@ -208,14 +219,38 @@ class MX_CORE_API ExceptionTypeError : public Exception
 };
 
 /// Return the type string associated with the given data type.
-template<class T> const string& getTypeString();
+template<class T> MX_CORE_API const string& getTypeString();
 
 /// Convert the given data value to a value string.
-template <class T> string toValueString(const T& data);
+template <class T> MX_CORE_API string toValueString(const T& data);
 
 /// Convert the given value string to a data value of the given type.
 /// @throws ExceptionTypeError if the conversion cannot be performed.
-template <class T> T fromValueString(const string& value);
+template <class T> MX_CORE_API T fromValueString(const string& value);
+
+/// Forward declaration of specific template instantiations.
+/// Base types
+MX_CORE_EXTERN_TEMPLATE(TypedValue<int>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<bool>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<float>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Color3>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Color4>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Vector2>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Vector3>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Vector4>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Matrix33>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Matrix44>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<string>);
+
+/// Array types
+MX_CORE_EXTERN_TEMPLATE(TypedValue<IntVec>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<BoolVec>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<FloatVec>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<StringVec>);
+
+/// Alias types
+MX_CORE_EXTERN_TEMPLATE(TypedValue<long>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<double>);
 
 } // namespace MaterialX
 

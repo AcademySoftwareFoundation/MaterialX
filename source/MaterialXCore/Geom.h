@@ -16,11 +16,11 @@
 namespace MaterialX
 {
 
-extern const string GEOM_PATH_SEPARATOR;
-extern const string UNIVERSAL_GEOM_NAME;
-extern const string UDIM_TOKEN;
-extern const string UDIMSET;
-extern const string UV_TILE_TOKEN;
+extern MX_CORE_API const string GEOM_PATH_SEPARATOR;
+extern MX_CORE_API const string UNIVERSAL_GEOM_NAME;
+extern MX_CORE_API const string UDIM_TOKEN;
+extern MX_CORE_API const string UDIMSET;
+extern MX_CORE_API const string UV_TILE_TOKEN;
 
 class GeomElement;
 class GeomInfo;
