@@ -640,14 +640,15 @@ closure color translucent_bsdf(normal N, color albedo) BUILTIN;
 closure color transparent_bsdf() BUILTIN;
 ​
 // Constructs a BSSRDF for subsurface scattering within a homogeneous medium.
+//  \param  N           Normal of the surface point beeing shaded.
+//  \param  albedo      Surface albedo.
+//  \param  sss_depth   Mean-free path in units of scene length.
+//  \param  sss_color   Scattering color / transmittance. The desired color resulting from white light transmitted a distance of 'sss_depth'
+//                      through the surface.
+//  \param  anisotropy  Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
+//                      and 0.0 gives uniform scattering.
 //
-// TODO:
-// - Do we want/need this dedicated BSSRDF closure? We have had discussions before about
-//   describing this more rigorously as a BSDF layered over a VDF instead.
-//   In the MaterialX library we want this as a node for the user friendly interface,
-//   but for back-end implementation maybe a dedicated closure is not needed?
-//
-closure color subsurface_bssrdf(normal N, color albedo, color radius, float anisotropy) BUILTIN;
+closure color subsurface_bssrdf(normal N, color albedo, float sss_depth, color sss_color, float anisotropy) BUILTIN;
 ​
 // Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials.
 // This closure may be vertically layered over a base BSDF, where energy that is not reflected
