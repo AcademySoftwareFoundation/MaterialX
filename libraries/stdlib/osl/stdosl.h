@@ -716,11 +716,8 @@ closure color anisotropic_vdf(color absorption, color scattering, float anisotro
 // - Do we want/need parameters for the medium here now, or do we look at that later?
 //
 closure color layer(closure color top, closure color base) BUILTIN;
-​
-// Mix two closures according to a weight. Performs horizontal layering by linear interpolation
-// between the two inputs: "bg∗(1−weight) + fg∗weight".
-//
-closure color mix(closure color bg, closure color fg, float weight);
+
+// NOTE: For "horisontal layering" closure mix() already exists in OSL.
 ​
 ​
 // -------------------------------------------------------------//
