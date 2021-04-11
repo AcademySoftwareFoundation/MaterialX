@@ -13,7 +13,7 @@
 
 #include <MaterialXCore/Document.h>
 
-#include <MaterialXFormat/Api.h>
+#include <MaterialXFormat/Export.h>
 #include <MaterialXFormat/File.h>
 
 namespace MaterialX

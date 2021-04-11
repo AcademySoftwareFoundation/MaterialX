@@ -3,10 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_CORE_API_H
-#define MATERIALX_CORE_API_H
-
-#include <MaterialXCore/Platform.h>
+#ifndef MATERIALX_CORE_EXPORT_H
+#define MATERIALX_CORE_EXPORT_H
 
 /// @file
 /// Import and export declarations for the Core library.

@@ -3,10 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_FORMAT_API_H
-#define MATERIALX_FORMAT_API_H
-
-#include <MaterialXCore/Platform.h>
+#ifndef MATERIALX_FORMAT_EXPORT_H
+#define MATERIALX_FORMAT_EXPORT_H
 
 /// @file
 /// Macros for declaring imported and exported symbols.

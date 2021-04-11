@@ -11,7 +11,7 @@
 
 #include <MaterialXCore/Util.h>
 
-#include <MaterialXFormat/Api.h>
+#include <MaterialXFormat/Export.h>
 
 namespace MaterialX
 {

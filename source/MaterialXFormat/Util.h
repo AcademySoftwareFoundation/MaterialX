@@ -13,7 +13,7 @@
 #include <MaterialXCore/Element.h>
 #include <MaterialXCore/Interface.h>
 
-#include <MaterialXFormat/Api.h>
+#include <MaterialXFormat/Export.h>
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
 
