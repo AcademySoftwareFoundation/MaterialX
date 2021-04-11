@@ -683,10 +683,6 @@ closure color conical_edf(color emittance, normal N, float inner_angle, float ou
 // VDF closures                                                 //
 // -------------------------------------------------------------//
 ​
-// Constructs a VDF for pure volumetric absorption.
-//
-closure color absorption_vdf(color absorption) BUILTIN;
-​
 // Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein
 // phase function. Forward, backward and uniform scattering is supported and controlled by the
 // anisotropy input.
