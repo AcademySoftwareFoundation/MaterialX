@@ -677,10 +677,6 @@ closure color uniform_edf(color emittance) BUILTIN;
 // Constructs an EDF emitting light inside a cone around the normal direction.
 //
 closure color conical_edf(color emittance, normal N, float inner_angle, float outer_angle) BUILTIN;
-
-// Constructs an EDF emitting light according to a measured IES light profile.
-//
-closure color measured_edf(color emittance, normal N, string file) BUILTIN;
 ​
 ​
 // -------------------------------------------------------------//
