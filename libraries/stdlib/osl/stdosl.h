@@ -580,12 +580,19 @@ closure color subsurface(float eta, float g, color mfp, color albedo) BUILTIN;
 // -------------------------------------------------------------//
 ​
 // Constructs a diffuse reflection BSDF based on the Oren-Nayar reflectance model.
-// A roughness of 0.0 gives Lambertian reflectance.
+//
+//  \param  N           Normal vector of the surface point beeing shaded.
+//  \param  albedo      Surface albedo.
+//  \param  roughness   Surface roughness [0,1]. A value of 0.0 gives Lambertian reflectance.
 //
 closure color oren_nayar_diffuse_bsdf(normal N, color albedo, float roughness) BUILTIN;
 ​
 // Constructs a diffuse reflection BSDF based on the corresponding component of 
 // the Disney Principled shading model.
+//
+//  \param  N           Normal vector of the surface point beeing shaded.
+//  \param  albedo      Surface albedo.
+//  \param  roughness   Surface roughness [0,1].
 //
 closure color burley_diffuse_bsdf(normal N, color albedo, float roughness) BUILTIN;
 ​
@@ -601,12 +608,31 @@ closure color burley_diffuse_bsdf(normal N, color albedo, float roughness) BUILT
 // a VDF closure describing the surface interior to handle absorption and scattering
 // inside the medium.
 //
+//  \param  N                 Normal vector of the surface point beeing shaded.
+//  \param  U                 Tangent vector of the surface point beeing shaded.
+//  \param  reflection_tint   Weight per color channel for the reflection lobe. Should be (1,1,1) for a physically-correct dielectric surface, 
+//                            but can be tweaked for artistic control. Set to (0,0,0) to disable reflection.
+//  \param  transmission_tint Weight per color channel for the transmission lobe. Should be (1,1,1) for a physically-correct dielectric surface, 
+//                            but can be tweaked for artistic control. Set to (0,0,0) to disable transmission.
+//  \param  roughness_x       Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_y       Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  ior               Refraction index.
+//  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
+//
 closure color dielectric_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, float ior, string distribution) BUILTIN;
 ​
 // Constructs a reflection BSDF based on a microfacet reflectance model.
 // Uses a Fresnel curve with complex refraction index for conductors/metals.
 // If an artistic parametrization is preferred the artistic_ior() utility function
 // can be used to convert from artistic to physical parameters.
+//
+//  \param  N                 Normal vector of the surface point beeing shaded.
+//  \param  U                 Tangent vector of the surface point beeing shaded.
+//  \param  roughness_x       Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_y       Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  ior               Refraction index.
+//  \param  extinction        Extinction coefficient.
+//  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
 //
 closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughness_y, color ior, color extinction, string distribution) BUILTIN;
 ​
@@ -620,14 +646,22 @@ closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughn
 // a VDF closure describing the surface interior to handle absorption and scattering
 // inside the medium.
 //
-// TODO:
-// - Transmission handling for this node has not been fully defined yet in MaterialX.
-//   In particular how is IOR for refractions derived from the f0, f90 parameterization?
-//   Do we just derive it from f0? For an artist it seems hard to control refractions that way.
+//  \param  N                 Normal vector of the surface point beeing shaded.
+//  \param  U                 Tangent vector of the surface point beeing shaded.
+//  \param  reflection_tint   Weight per color channel for the reflection lobe. Set to (0,0,0) to disable reflection.
+//  \param  transmission_tint Weight per color channel for the transmission lobe. Set to (0,0,0) to disable transmission.
+//  \param  roughness_x       Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_y       Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  f0                Reflectivity per color channel at facing angles.
+//  \param  f90               Reflectivity per color channel at grazing angles.
+//  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
 //
 closure color generalized_schlick_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, color f0, color f90, float exponent, string distribution) BUILTIN;
 ​
 // Constructs a translucent (diffuse transmission) BSDF based on the Lambert reflectance model.
+//
+//  \param  N           Normal vector of the surface point beeing shaded.
+//  \param  albedo      Surface albedo.
 //
 closure color translucent_bsdf(normal N, color albedo) BUILTIN;
 
@@ -640,7 +674,8 @@ closure color translucent_bsdf(normal N, color albedo) BUILTIN;
 closure color transparent_bsdf() BUILTIN;
 ​
 // Constructs a BSSRDF for subsurface scattering within a homogeneous medium.
-//  \param  N           Normal of the surface point beeing shaded.
+//
+//  \param  N           Normal vector of the surface point beeing shaded.
 //  \param  albedo      Surface albedo.
 //  \param  sss_depth   Mean-free path in units of scene length.
 //  \param  sss_color   Scattering color / transmittance. The desired color resulting from white light transmitted a distance of 'sss_depth'
@@ -654,6 +689,10 @@ closure color subsurface_bssrdf(normal N, color albedo, float sss_depth, color s
 // This closure may be vertically layered over a base BSDF, where energy that is not reflected
 // will be transmitted to the base closure.
 //
+//  \param  N           Normal vector of the surface point beeing shaded.
+//  \param  albedo      Surface albedo.
+//  \param  roughness   Surface roughness [0,1].
+//
 closure color sheen_bsdf(normal N, color albedo, float roughness) BUILTIN;
 ​
 // Adds an iridescent thin film layer over a microfacet base BSDF. This must be layered over
@@ -664,6 +703,9 @@ closure color sheen_bsdf(normal N, color albedo, float roughness) BUILTIN;
 // - This might be better to represent as optional extra arguments on the closures that do support
 //   thin-film iridescence (dielectric_bsdf, conductor_bsdf and generalized_schlick_bsdf)?
 //
+//  \param  thickness   Thickness of the thin film.
+//  \param  ior         Refraction index of the thin film.
+//
 closure color thin_film_bsdf(float thickness, float ior) BUILTIN;
 ​
 ​
@@ -673,9 +715,17 @@ closure color thin_film_bsdf(float thickness, float ior) BUILTIN;
 ​
 // Constructs an EDF emitting light uniformly in all directions.
 //
+//  \param  emittance   Radiant emittance of light leaving the surface.
+//
 closure color uniform_edf(color emittance) BUILTIN;
 
 // Constructs an EDF emitting light inside a cone around the normal direction.
+//
+//  \param  emittance   Radiant emittance of light leaving the surface.
+//  \param  N           Cone direction vector.
+//  \param  inner_angle Angle of inner cone where emission falloff starts.
+//  \param  outer_angle Angle of outer cone where emission goes to zero. If set to a smaller value 
+//                      than inner_angle no falloff will occur within the cone.
 //
 closure color conical_edf(color emittance, normal N, float inner_angle, float outer_angle) BUILTIN;
 ​
@@ -687,7 +737,8 @@ closure color conical_edf(color emittance, normal N, float inner_angle, float ou
 // Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein
 // phase function. Forward, backward and uniform scattering is supported and controlled by the
 // anisotropy input.
-//  \param  albedo      Volume albedo.
+//
+//  \param  albedo      Volume single scattering albedo.
 //  \param  extinction  Volume extinction coefficient.
 //  \param  anisotropy  Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
 //                      and 0.0 gives uniform scattering.
@@ -705,6 +756,9 @@ closure color anisotropic_vdf(color albedo, color extinction, float anisotropy) 
 // sheen_bsdf over a BSDF or VDF. The implementation is target specific, but a standard way
 // of handling this is by albedo scaling, using "base*(1-reflectance(top)) + top", where
 // reflectance() calculates the directional albedo of a given top BSDF.
+//
+//  \param  top   Closure defining the top layer.
+//  \param  base  Closure defining the base layer.
 //
 // TODO:
 // - This could also be achived by closure nesting where each layerable closure takes
@@ -725,8 +779,15 @@ closure color layer(closure color top, closure color base) BUILTIN;
 ​
 // Converts the artistic parameterization reflectivity and edge_color to complex IOR values.
 // To be used with the conductor_bsdf() closure.
+// [OG14] "Artist Friendly Metallic Fresnel", http://jcgt.org/published/0003/04/03/paper.pdf
 //
-void artistic_ior(color reflectivity, color edge_color, output color ior, output color extinction);
+//  \param  reflectivity  Reflectivity per color channel at facing angles ('r' parameter in [OG14]).
+//  \param  edge_tint     Color bias for grazing angles ('g' parameter in [OG14]).
+//                        NOTE: This is not equal to 'f90' in a Schlick Fresnel parameterization.
+//  \param  ior           Output refraction index.
+//  \param  extinction    Output extinction coefficient.
+//
+void artistic_ior(color reflectivity, color edge_tint, output color ior, output color extinction);
 ​
 
 // ******************* MATERIALX PBS LIBRARY CLOSURES - DRAFT END ******************* //
