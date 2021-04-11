@@ -687,8 +687,14 @@ closure color conical_edf(color emittance, normal N, float inner_angle, float ou
 // Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein
 // phase function. Forward, backward and uniform scattering is supported and controlled by the
 // anisotropy input.
+//  \param  albedo      Volume albedo.
+//  \param  extinction  Volume extinction coefficient.
+//  \param  anisotropy  Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
+//                      and 0.0 gives uniform scattering.
+//  \param  ior         Optional float parameter for refraction index of a homogeneous medium.
+//  \param  priority    Optional int parameter for priority of a homogeneous medium (for nested dielectrics).
 //
-closure color anisotropic_vdf(color absorption, color scattering, float anisotropy) BUILTIN;
+closure color anisotropic_vdf(color albedo, color extinction, float anisotropy) BUILTIN;
 ​
 ​
 // -------------------------------------------------------------//
