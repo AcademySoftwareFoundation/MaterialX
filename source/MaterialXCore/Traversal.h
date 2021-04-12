@@ -393,11 +393,11 @@ class MX_CORE_API ExceptionFoundCycle : public Exception
     using Exception::Exception;
 };
 
-extern const Edge NULL_EDGE;
+extern MX_CORE_API const Edge NULL_EDGE;
 
-extern const TreeIterator NULL_TREE_ITERATOR;
-extern const GraphIterator NULL_GRAPH_ITERATOR;
-extern const InheritanceIterator NULL_INHERITANCE_ITERATOR;
+extern MX_CORE_API const TreeIterator NULL_TREE_ITERATOR;
+extern MX_CORE_API const GraphIterator NULL_GRAPH_ITERATOR;
+extern MX_CORE_API const InheritanceIterator NULL_INHERITANCE_ITERATOR;
 
 } // namespace MaterialX
 
