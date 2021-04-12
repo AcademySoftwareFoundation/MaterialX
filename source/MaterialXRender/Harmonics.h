@@ -9,6 +9,7 @@
 /// @file
 /// Spherical harmonics functionality
 
+#include <MaterialXRender/Export.h>
 #include <MaterialXRender/Image.h>
 #include <MaterialXRender/Types.h>
 
@@ -67,27 +68,27 @@ using Sh3ColorCoeffs = ShCoeffs<Color3d, 3>;
 /// @param irradiance If true, then the returned signal will be convolved
 ///    by a clamped cosine kernel to generate irradiance.
 /// @return The projection of the environment to third-order SH.
-Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance = false);
+MX_RENDER_API Sh3ColorCoeffs projectEnvironment(ConstImagePtr env, bool irradiance = false);
 
 /// Normalize an environment to the given radiance.
 /// @param env An environment map in lat-long format.
 /// @param envRadiance The radiance to which the environment map should be normalized.
 /// @param maxTexelRadiance The maximum radiance allowed for any individual texel of the map.
 /// @return A new normalized environment map, in the same format as the original.
-ImagePtr normalizeEnvironment(ConstImagePtr env, float envRadiance, float maxTexelRadiance);
+MX_RENDER_API ImagePtr normalizeEnvironment(ConstImagePtr env, float envRadiance, float maxTexelRadiance);
 
 /// Compute the dominant light direction and color of an environment map.
 /// @param env An environment map in lat-long format.
 /// @param lightDir Returns the dominant light direction of the environment.
 /// @param lightColor Returns the color of the light from the dominant direction.
-void computeDominantLight(ConstImagePtr env, Vector3& lightDir, Color3& lightColor);
+MX_RENDER_API void computeDominantLight(ConstImagePtr env, Vector3& lightDir, Color3& lightColor);
 
 /// Render the given spherical harmonic signal to an environment map.
 /// @param shEnv The color signal of the environment encoded as third-order SH.
 /// @param width The width of the output environment map.
 /// @param height The height of the output environment map.
 /// @return An environment map in the lat-long format.
-ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsigned int height);
+MX_RENDER_API ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsigned int height);
 
 /// Render a reference irradiance map from the given environment map,
 /// using brute-force computations for a slow but accurate result.
@@ -95,7 +96,7 @@ ImagePtr renderEnvironment(const Sh3ColorCoeffs& shEnv, unsigned int width, unsi
 /// @param width The width of the output irradiance map.
 /// @param height The height of the output irradiance map.
 /// @return An irradiance map in the lat-long format.
-ImagePtr renderReferenceIrradiance(ConstImagePtr env, unsigned int width, unsigned int height);
+MX_RENDER_API ImagePtr renderReferenceIrradiance(ConstImagePtr env, unsigned int width, unsigned int height);
 
 } // namespace MaterialX
 

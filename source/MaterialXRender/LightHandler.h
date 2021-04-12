@@ -9,6 +9,7 @@
 /// @file
 /// Handler for hardware lights
 
+#include <MaterialXRender/Export.h>
 #include <MaterialXRender/Image.h>
 
 #include <MaterialXCore/Document.h>
@@ -27,7 +28,7 @@ using LightIdMap = std::unordered_map<string, unsigned int>;
 /// @class LightHandler
 /// Utility light handler for creating and providing
 /// light data for shader binding.
-class LightHandler
+class MX_RENDER_API LightHandler
 {
   public:
     LightHandler()

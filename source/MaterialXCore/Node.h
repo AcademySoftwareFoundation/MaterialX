@@ -9,7 +9,7 @@
 /// @file
 /// Node element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Definition.h>
 

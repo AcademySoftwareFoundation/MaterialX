@@ -18,6 +18,8 @@ endif()
 
 add_library(MaterialXRender ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_RENDER_EXPORTS)
+
 target_link_libraries(
     MaterialXRender
     MaterialXGenShader

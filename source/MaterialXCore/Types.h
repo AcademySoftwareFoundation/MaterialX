@@ -9,7 +9,7 @@
 /// @file
 /// Data type classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Util.h>
 

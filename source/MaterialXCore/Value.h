@@ -9,8 +9,9 @@
 /// @file
 /// Generic value classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
+#include <MaterialXCore/Exception.h>
 #include <MaterialXCore/Types.h>
 #include <MaterialXCore/Util.h>
 

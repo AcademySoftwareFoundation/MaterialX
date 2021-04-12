@@ -45,8 +45,6 @@
     #define MATERIALX_IMPORT_EXTERN_TEMPLATE(...)
 #endif
 
-#include <MaterialXCore/Export.h>
-
 namespace MaterialX
 {
 
@@ -61,41 +59,6 @@ using StringVec = vector<string>;
 using StringMap = std::unordered_map<string, string>;
 /// A set of strings.
 using StringSet = std::set<string>;
-
-/// @class Exception
-/// The base class for exceptions that are propagated from the MaterialX library
-/// to the client application.
-class MX_CORE_API Exception : public std::exception
-{
-  public:
-    explicit Exception(const string& msg) :
-        _msg(msg)
-    {
-    }
-
-    Exception(const Exception& e) :
-        _msg(e._msg)
-    {
-    }
-
-    Exception& operator=(const Exception& e)
-    {
-        _msg = e._msg;
-        return *this;
-    }
-
-    virtual ~Exception() noexcept
-    {
-    }
-
-    const char* what() const noexcept override
-    {
-        return _msg.c_str();
-    }
-
-  private:
-    string _msg;
-};
 
 } // namespace MaterialX
 

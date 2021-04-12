@@ -9,7 +9,7 @@
 /// @file
 /// Utility methods
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 namespace MaterialX
 {

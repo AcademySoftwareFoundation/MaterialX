@@ -5,6 +5,7 @@
 
 #include <MaterialXFormat/File.h>
 
+#include <MaterialXCore/Exception.h>
 #include <MaterialXFormat/Environ.h>
 
 #if defined(_WIN32)

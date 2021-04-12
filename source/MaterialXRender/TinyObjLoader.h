@@ -19,7 +19,7 @@ using TinyObjLoaderPtr = std::shared_ptr<class TinyObjLoader>;
 
 /// @class TinyObjLoader
 /// Wrapper for geometry loader to read in OBJ files using the TinyObj library.
-class TinyObjLoader : public GeometryLoader
+class MX_RENDER_API TinyObjLoader : public GeometryLoader
 {
   public:
     TinyObjLoader()

@@ -11,6 +11,7 @@
 
 #include <MaterialXGenShader/Library.h>
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/GenUserData.h>
 #include <MaterialXGenShader/ShaderNode.h>
@@ -23,7 +24,7 @@ namespace MaterialX
 /// @class GenContext 
 /// A context class for shader generation.
 /// Used for thread local storage of data needed during shader generation.
-class GenContext
+class MX_GENSHADER_API GenContext
 {
   public:
     /// Constructor.

@@ -15,6 +15,8 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXRenderHw ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_RENDERHW_EXPORTS)
+
 if(MSVC)
     target_link_libraries(
         MaterialXRenderHw

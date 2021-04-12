@@ -11,6 +11,7 @@
 
 #include <MaterialXGenShader/Library.h>
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
@@ -28,7 +29,7 @@ using UnitSystemPtr = shared_ptr<class UnitSystem>;
 
 /// @struct @UnitTransform
 /// Structure that represents unit transform information
-struct UnitTransform
+struct MX_GENSHADER_API UnitTransform
 {
     UnitTransform(const string& ss, const string& ts, const TypeDesc* t, const string& unittype);
 
@@ -49,7 +50,7 @@ struct UnitTransform
 
 /// @class UnitSystem
 /// Base unit system support
-class UnitSystem
+class MX_GENSHADER_API UnitSystem
 {
   public:
     virtual ~UnitSystem() { }

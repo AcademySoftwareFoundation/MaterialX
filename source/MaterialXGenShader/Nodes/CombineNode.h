@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Combine node implementation
-class CombineNode : public ShaderNodeImpl
+class MX_GENSHADER_API CombineNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

@@ -11,6 +11,7 @@
 
 #include <MaterialXGenShader/Library.h>
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
@@ -26,7 +27,7 @@ namespace MaterialX
 /// All third-party shader generators should derive from this class.
 /// Derived classes should use DECLARE_SHADER_GENERATOR / DEFINE_SHADER_GENERATOR
 /// in their declaration / definition, and register with the Registry class.
-class ShaderGenerator
+class MX_GENSHADER_API ShaderGenerator
 {
   public:
     /// Destructor

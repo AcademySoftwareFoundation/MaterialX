@@ -11,6 +11,7 @@
 
 #include <MaterialXGenShader/Library.h>
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/Syntax.h>
@@ -37,7 +38,7 @@ namespace Stage
     /// and only stage.
     /// Shader targets with multiple stages can add additional
     /// stage identifiers to the Stage namespace.
-    extern const string PIXEL;
+    extern MX_GENSHADER_API const string PIXEL;
 }
 
 class VariableBlock;
@@ -50,7 +51,7 @@ using ShaderPortPredicate = std::function<bool(ShaderPort*)>;
 
 /// @class VariableBlock
 /// A block of variables in a shader stage
-class VariableBlock
+class MX_GENSHADER_API VariableBlock
 {
   public:
     VariableBlock(const string& name, const string& instance) :
@@ -121,7 +122,7 @@ class VariableBlock
 /// @class ShaderStage
 /// A shader stage, containing the state and 
 /// resulting source code for the stage.
-class ShaderStage
+class MX_GENSHADER_API ShaderStage
 {
   public:
     /// Contructor.

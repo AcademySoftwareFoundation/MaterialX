@@ -6,6 +6,8 @@
 #ifndef MATERIALX_FORMAT_EXPORT_H
 #define MATERIALX_FORMAT_EXPORT_H
 
+#include <MaterialXCore/Library.h>
+
 /// @file
 /// Macros for declaring imported and exported symbols.
 

@@ -9,7 +9,7 @@
 /// @file
 /// Base and generic element classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Traversal.h>
 #include <MaterialXCore/Util.h>

@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Extending the HwSourceCodeNode with requirements for image nodes.
-class HwImageNode : public HwSourceCodeNode
+class MX_GENSHADER_API HwImageNode : public HwSourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();

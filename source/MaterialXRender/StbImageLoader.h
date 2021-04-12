@@ -19,7 +19,7 @@ using StbImageLoaderPtr = std::shared_ptr<class StbImageLoader>;
 
 /// @class StbImageLoader
 /// Stb image file loader
-class StbImageLoader : public ImageLoader
+class MX_RENDER_API StbImageLoader : public ImageLoader
 {
   public:
     StbImageLoader()

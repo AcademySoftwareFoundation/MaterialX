@@ -11,6 +11,7 @@
 
 #include <MaterialXGenShader/Library.h>
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/GenUserData.h>
@@ -39,7 +40,7 @@ using ShaderInputSet = std::set<ShaderInput*>;
 
 
 /// Metadata to be exported to generated shader.
-struct ShaderMetadata
+struct MX_GENSHADER_API ShaderMetadata
 {
     string name;
     const TypeDesc* type;
@@ -56,7 +57,7 @@ using ShaderMetadataVecPtr = shared_ptr<ShaderMetadataVec>;
 /// @class ShaderMetadataRegistry 
 /// A registry for metadata that will be exported to the generated shader
 /// if found on nodes and inputs during shader generation.
-class ShaderMetadataRegistry : public GenUserData
+class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
 {
   public:
     static const string USER_DATA_NAME;
@@ -111,7 +112,7 @@ using ShaderMetadataRegistryPtr = shared_ptr<ShaderMetadataRegistry>;
 
 
 /// Flags set on shader ports.
-class ShaderPortFlag
+class MX_GENSHADER_API ShaderPortFlag
 {
   public:
     static const uint32_t UNIFORM    = 1u << 0;
@@ -121,7 +122,7 @@ class ShaderPortFlag
 
 /// @class ShaderPort
 /// An input or output port on a ShaderNode
-class ShaderPort : public std::enable_shared_from_this<ShaderPort>
+class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPort>
 {
   public:
     /// Constructor.
@@ -252,7 +253,7 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
 
 /// @class ShaderInput
 /// An input on a ShaderNode
-class ShaderInput : public ShaderPort
+class MX_GENSHADER_API ShaderInput : public ShaderPort
 {
   public:
     ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name);
@@ -285,7 +286,7 @@ class ShaderInput : public ShaderPort
 
 /// @class ShaderOutput
 /// An output on a ShaderNode
-class ShaderOutput : public ShaderPort
+class MX_GENSHADER_API ShaderOutput : public ShaderPort
 {
   public:
     ShaderOutput(ShaderNode* node, const TypeDesc* type, const string& name);
@@ -322,7 +323,7 @@ enum class ShaderNodeFlag
 
 /// @class ShaderNode
 /// Class representing a node in the shader generation DAG
-class ShaderNode
+class MX_GENSHADER_API ShaderNode
 {
   public:
     virtual ~ShaderNode() { }

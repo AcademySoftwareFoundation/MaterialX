@@ -9,6 +9,7 @@
 /// @file
 /// User data base class for shader generation
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXGenShader/Library.h>
 
 namespace MaterialX
@@ -24,7 +25,7 @@ using ConstGenUserDataPtr = std::shared_ptr<const GenUserData>;
 
 /// @class GenUserData 
 /// Base class for custom user data needed during shader generation.
-class GenUserData : public std::enable_shared_from_this<GenUserData>
+class MX_GENSHADER_API GenUserData : public std::enable_shared_from_this<GenUserData>
 {
   public:
     virtual ~GenUserData() { }

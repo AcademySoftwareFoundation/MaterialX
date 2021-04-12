@@ -9,7 +9,7 @@
 /// @file
 /// Look element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Property.h>

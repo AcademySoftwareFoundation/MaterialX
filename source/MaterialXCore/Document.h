@@ -9,7 +9,7 @@
 /// @file
 /// The top-level Document class
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Node.h>

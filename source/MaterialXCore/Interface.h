@@ -9,7 +9,7 @@
 /// @file
 /// Interface element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Geom.h>
 

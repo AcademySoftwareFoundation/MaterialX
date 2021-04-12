@@ -28,6 +28,8 @@ endif()
 
 add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_RENDERGLSL_EXPORTS)
+
 if(MSVC)
     target_link_libraries(
         MaterialXRenderGlsl

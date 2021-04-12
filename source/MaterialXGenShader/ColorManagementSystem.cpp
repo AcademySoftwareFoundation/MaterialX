@@ -5,6 +5,8 @@
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
+#include <MaterialXCore/Exception.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>

@@ -6,6 +6,8 @@
 #ifndef MATERIALX_CORE_EXPORT_H
 #define MATERIALX_CORE_EXPORT_H
 
+#include <MaterialXCore/Library.h>
+
 /// @file
 /// Import and export declarations for the Core library.
 

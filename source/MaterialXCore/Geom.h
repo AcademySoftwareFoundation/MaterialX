@@ -9,7 +9,7 @@
 /// @file
 /// Geometric element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Element.h>
 

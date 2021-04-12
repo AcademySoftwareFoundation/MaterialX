@@ -9,7 +9,9 @@
 /// @file
 /// Graph traversal classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
+
+#include <MaterialXCore/Exception.h>
 
 namespace MaterialX
 {

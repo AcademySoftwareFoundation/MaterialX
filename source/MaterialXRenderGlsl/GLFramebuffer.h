@@ -9,6 +9,8 @@
 /// @file
 /// OpenGL framebuffer handling
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXRender/ImageHandler.h>
 
 namespace MaterialX
@@ -21,7 +23,7 @@ using GLFrameBufferPtr = std::shared_ptr<GLFramebuffer>;
 
 /// @class GLFramebuffer
 /// Wrapper for an OpenGL framebuffer
-class GLFramebuffer
+class MX_RENDERGLSL_API GLFramebuffer
 {
   public:
     /// Create a new framebuffer
