@@ -1321,11 +1321,11 @@ template<class T> shared_ptr<T> Element::addChild(const string& name)
 /// Given two target strings, each containing a string array of target names,
 /// return true if they have any targets in common.  An empty target string
 /// matches all targets.
-bool targetStringsMatch(const string& target1, const string& target2);
+MX_CORE_API bool targetStringsMatch(const string& target1, const string& target2);
 
 /// Pretty print the given element tree, calling asString recursively on each
 /// element in depth-first order.
-string prettyPrint(ConstElementPtr elem);
+MX_CORE_API string prettyPrint(ConstElementPtr elem);
 
 } // namespace MaterialX
 

@@ -9,8 +9,9 @@
 /// @file
 /// GLSL shader generator
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenGlsl/Export.h>
+
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 namespace MaterialX
 {

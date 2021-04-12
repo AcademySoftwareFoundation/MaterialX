@@ -9,6 +9,8 @@
 /// @file
 /// GLSL resource binding context
 
+#include <MaterialXGenGlsl/Export.h>
+
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
 namespace MaterialX
@@ -19,7 +21,7 @@ using GlslResourceBindingContextPtr = shared_ptr<class GlslResourceBindingContex
 
 /// @class GlslResourceBindingContext
 /// Class representing a resource binding for Glsl shader resources.
-class GlslResourceBindingContext : public HwResourceBindingContext
+class MX_GENGLSL_API GlslResourceBindingContext : public HwResourceBindingContext
 {
 public:
 

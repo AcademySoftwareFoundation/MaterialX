@@ -6,6 +6,8 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXRenderOsl ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_RENDEROSL_EXPORTS)
+
 set_target_properties(
     MaterialXRenderOsl PROPERTIES
     OUTPUT_NAME MaterialXRenderOsl

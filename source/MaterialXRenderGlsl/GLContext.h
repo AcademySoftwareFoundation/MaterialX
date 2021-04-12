@@ -9,6 +9,8 @@
 /// @file
 /// OpenGL context class
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXRenderHw/SimpleWindow.h>
 
 #if defined(__APPLE__)
@@ -37,7 +39,7 @@ using GLContextPtr = std::shared_ptr<class GLContext>;
 
 /// @class GLContext
 /// An OpenGL context singleton
-class GLContext
+class MX_RENDERGLSL_API GLContext
 {
   public:
     /// Create a new context

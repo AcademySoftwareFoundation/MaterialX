@@ -9,6 +9,8 @@
 /// @file
 /// OSL syntax class
 
+#include <MaterialXGenOsl/Export.h>
+
 #include <MaterialXGenShader/Syntax.h>
 
 namespace MaterialX
@@ -16,7 +18,7 @@ namespace MaterialX
 
 /// @class OslSyntax
 /// Syntax class for OSL (Open Shading Language)
-class OslSyntax : public Syntax
+class MX_GENOSL_API OslSyntax : public Syntax
 {
 public:
     OslSyntax();

@@ -6,6 +6,8 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXGenOsl ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_GENOSL_EXPORTS)
+
 set_target_properties(
     MaterialXGenOsl PROPERTIES
     OUTPUT_NAME MaterialXGenOsl

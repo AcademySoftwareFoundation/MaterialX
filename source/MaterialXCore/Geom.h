@@ -595,7 +595,7 @@ template<class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
 /// in the first string completely contains a geom path in the second string.
 ///
 /// @todo Geometry name expressions are not yet supported.
-bool geomStringsMatch(const string& geom1, const string& geom2, bool contains = false);
+MX_CORE_API bool geomStringsMatch(const string& geom1, const string& geom2, bool contains = false);
 
 } // namespace MaterialX
 

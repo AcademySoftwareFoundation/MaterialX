@@ -13,6 +13,8 @@
 
 #include <MaterialXCore/Unit.h>
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
@@ -31,7 +33,7 @@ using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
 /// A helper class for baking procedural material content to textures.
 /// TODO: Add support for graphs containing geometric nodes such as position
 ///       and normal.
-class TextureBaker : public GlslRenderer
+class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
 {
   public:
     static TextureBakerPtr create(unsigned int width = 1024, unsigned int height = 1024, Image::BaseType baseType = Image::BaseType::UINT8)
