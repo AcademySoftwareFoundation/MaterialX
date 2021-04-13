@@ -722,17 +722,6 @@ closure color sheen_bsdf(normal N, color albedo, float roughness) BUILTIN;
 //  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color uniform_edf(color emittance) BUILTIN;
-
-// Constructs an EDF emitting light inside a cone around the normal direction.
-//
-//  \param  emittance   Radiant emittance of light leaving the surface.
-//  \param  N           Cone direction vector.
-//  \param  inner_angle Angle of inner cone where emission falloff starts.
-//  \param  outer_angle Angle of outer cone where emission goes to zero. If set to a smaller value 
-//                      than inner_angle no falloff will occur within the cone.
-//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
-//
-closure color conical_edf(color emittance, normal N, float inner_angle, float outer_angle) BUILTIN;
 ​
 ​
 // -------------------------------------------------------------//
