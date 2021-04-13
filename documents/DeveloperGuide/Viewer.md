@@ -104,6 +104,7 @@ The following are common command-line options for MaterialXView, and a complete 
 - `--msaa [INTEGER]` : Specify the multisampling count for screen anti-aliasing (defaults to 0)
 - `--refresh [INTEGER]` : Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)
 - `--remap [TOKEN1:TOKEN2]` : Specify the remapping from one token to another when MaterialX document is loaded
+- `--srgbBuffer : Specify to use an SRGB hardware frame buffer. The default value of false indicates to use a shader to transform colors for display
 - `--skip [NAME]` : Specify to skip elements matching the given name attribute
 - `--terminator [STRING]` : Specify to enforce the given terminator string for file prefixes
 - `--help` : Display the complete list of command-line options
