@@ -584,6 +584,7 @@ closure color subsurface(float eta, float g, color mfp, color albedo) BUILTIN;
 //  \param  N           Normal vector of the surface point beeing shaded.
 //  \param  albedo      Surface albedo.
 //  \param  roughness   Surface roughness [0,1]. A value of 0.0 gives Lambertian reflectance.
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color oren_nayar_diffuse_bsdf(normal N, color albedo, float roughness) BUILTIN;
 ​
@@ -593,6 +594,7 @@ closure color oren_nayar_diffuse_bsdf(normal N, color albedo, float roughness) B
 //  \param  N           Normal vector of the surface point beeing shaded.
 //  \param  albedo      Surface albedo.
 //  \param  roughness   Surface roughness [0,1].
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color burley_diffuse_bsdf(normal N, color albedo, float roughness) BUILTIN;
 ​
@@ -618,6 +620,7 @@ closure color burley_diffuse_bsdf(normal N, color albedo, float roughness) BUILT
 //  \param  roughness_y       Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
 //  \param  ior               Refraction index.
 //  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
+//  \param  label             Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color dielectric_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, float ior, string distribution) BUILTIN;
 ​
@@ -633,6 +636,7 @@ closure color dielectric_bsdf(normal N, vector U, color reflection_tint, color t
 //  \param  ior               Refraction index.
 //  \param  extinction        Extinction coefficient.
 //  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
+//  \param  label             Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughness_y, color ior, color extinction, string distribution) BUILTIN;
 ​
@@ -655,6 +659,7 @@ closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughn
 //  \param  f0                Reflectivity per color channel at facing angles.
 //  \param  f90               Reflectivity per color channel at grazing angles.
 //  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
+//  \param  label             Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color generalized_schlick_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, color f0, color f90, float exponent, string distribution) BUILTIN;
 ​
@@ -662,10 +667,13 @@ closure color generalized_schlick_bsdf(normal N, vector U, color reflection_tint
 //
 //  \param  N           Normal vector of the surface point beeing shaded.
 //  \param  albedo      Surface albedo.
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color translucent_bsdf(normal N, color albedo) BUILTIN;
 
 // Constructs a closure that represents straight transmission through a surface.
+//
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 // NOTE:
 //  - This is not a node in the MaterialX library, but the surface shader constructor
@@ -682,6 +690,7 @@ closure color transparent_bsdf() BUILTIN;
 //                      through the surface.
 //  \param  anisotropy  Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
 //                      and 0.0 gives uniform scattering.
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color subsurface_bssrdf(normal N, color albedo, float sss_depth, color sss_color, float anisotropy) BUILTIN;
 ​
@@ -692,6 +701,7 @@ closure color subsurface_bssrdf(normal N, color albedo, float sss_depth, color s
 //  \param  N           Normal vector of the surface point beeing shaded.
 //  \param  albedo      Surface albedo.
 //  \param  roughness   Surface roughness [0,1].
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color sheen_bsdf(normal N, color albedo, float roughness) BUILTIN;
 ​
@@ -716,6 +726,7 @@ closure color thin_film_bsdf(float thickness, float ior) BUILTIN;
 // Constructs an EDF emitting light uniformly in all directions.
 //
 //  \param  emittance   Radiant emittance of light leaving the surface.
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color uniform_edf(color emittance) BUILTIN;
 
@@ -726,6 +737,7 @@ closure color uniform_edf(color emittance) BUILTIN;
 //  \param  inner_angle Angle of inner cone where emission falloff starts.
 //  \param  outer_angle Angle of outer cone where emission goes to zero. If set to a smaller value 
 //                      than inner_angle no falloff will occur within the cone.
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color conical_edf(color emittance, normal N, float inner_angle, float outer_angle) BUILTIN;
 ​
@@ -744,10 +756,11 @@ closure color conical_edf(color emittance, normal N, float inner_angle, float ou
 //                      and 0.0 gives uniform scattering.
 //  \param  ior         Optional float parameter for refraction index of a homogeneous medium.
 //  \param  priority    Optional int parameter for priority of a homogeneous medium (for nested dielectrics).
+//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color anisotropic_vdf(color albedo, color extinction, float anisotropy) BUILTIN;
 ​
-​
+
 // -------------------------------------------------------------//
 // Layering closures                                            //
 // -------------------------------------------------------------//
