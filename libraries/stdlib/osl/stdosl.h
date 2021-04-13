@@ -610,17 +610,19 @@ closure color burley_diffuse_bsdf(normal N, color albedo, float roughness) BUILT
 // a VDF closure describing the surface interior to handle absorption and scattering
 // inside the medium.
 //
-//  \param  N                 Normal vector of the surface point beeing shaded.
-//  \param  U                 Tangent vector of the surface point beeing shaded.
-//  \param  reflection_tint   Weight per color channel for the reflection lobe. Should be (1,1,1) for a physically-correct dielectric surface, 
-//                            but can be tweaked for artistic control. Set to (0,0,0) to disable reflection.
-//  \param  transmission_tint Weight per color channel for the transmission lobe. Should be (1,1,1) for a physically-correct dielectric surface, 
-//                            but can be tweaked for artistic control. Set to (0,0,0) to disable transmission.
-//  \param  roughness_x       Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  roughness_y       Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  ior               Refraction index.
-//  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
-//  \param  label             Optional string parameter to name this component. For use in AOVs / LPEs.
+//  \param  N                   Normal vector of the surface point beeing shaded.
+//  \param  U                   Tangent vector of the surface point beeing shaded.
+//  \param  reflection_tint     Weight per color channel for the reflection lobe. Should be (1,1,1) for a physically-correct dielectric surface, 
+//                              but can be tweaked for artistic control. Set to (0,0,0) to disable reflection.
+//  \param  transmission_tint   Weight per color channel for the transmission lobe. Should be (1,1,1) for a physically-correct dielectric surface, 
+//                              but can be tweaked for artistic control. Set to (0,0,0) to disable transmission.
+//  \param  roughness_x         Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_y         Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  ior                 Refraction index.
+//  \param  distribution        Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
+//  \param  thinfilm_thickness  Optional float parameter for thickness of an iridescent thin film layer on top of this BSDF. Given in nanometers.
+//  \param  thinfilm_ior        Optional float parameter for refraction index of the thin film layer.
+//  \param  label               Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color dielectric_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, float ior, string distribution) BUILTIN;
 ​
@@ -629,14 +631,16 @@ closure color dielectric_bsdf(normal N, vector U, color reflection_tint, color t
 // If an artistic parametrization is preferred the artistic_ior() utility function
 // can be used to convert from artistic to physical parameters.
 //
-//  \param  N                 Normal vector of the surface point beeing shaded.
-//  \param  U                 Tangent vector of the surface point beeing shaded.
-//  \param  roughness_x       Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  roughness_y       Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  ior               Refraction index.
-//  \param  extinction        Extinction coefficient.
-//  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
-//  \param  label             Optional string parameter to name this component. For use in AOVs / LPEs.
+//  \param  N                   Normal vector of the surface point beeing shaded.
+//  \param  U                   Tangent vector of the surface point beeing shaded.
+//  \param  roughness_x         Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_y         Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  ior                 Refraction index.
+//  \param  extinction          Extinction coefficient.
+//  \param  distribution        Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
+//  \param  thinfilm_thickness  Optional float parameter for thickness of an iridescent thin film layer on top of this BSDF. Given in nanometers.
+//  \param  thinfilm_ior        Optional float parameter for refraction index of the thin film layer.
+//  \param  label               Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughness_y, color ior, color extinction, string distribution) BUILTIN;
 ​
@@ -650,16 +654,18 @@ closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughn
 // a VDF closure describing the surface interior to handle absorption and scattering
 // inside the medium.
 //
-//  \param  N                 Normal vector of the surface point beeing shaded.
-//  \param  U                 Tangent vector of the surface point beeing shaded.
-//  \param  reflection_tint   Weight per color channel for the reflection lobe. Set to (0,0,0) to disable reflection.
-//  \param  transmission_tint Weight per color channel for the transmission lobe. Set to (0,0,0) to disable transmission.
-//  \param  roughness_x       Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  roughness_y       Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  f0                Reflectivity per color channel at facing angles.
-//  \param  f90               Reflectivity per color channel at grazing angles.
-//  \param  distribution      Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
-//  \param  label             Optional string parameter to name this component. For use in AOVs / LPEs.
+//  \param  N                   Normal vector of the surface point beeing shaded.
+//  \param  U                   Tangent vector of the surface point beeing shaded.
+//  \param  reflection_tint     Weight per color channel for the reflection lobe. Set to (0,0,0) to disable reflection.
+//  \param  transmission_tint   Weight per color channel for the transmission lobe. Set to (0,0,0) to disable transmission.
+//  \param  roughness_x         Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_y         Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  f0                  Reflectivity per color channel at facing angles.
+//  \param  f90                 Reflectivity per color channel at grazing angles.
+//  \param  distribution        Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
+//  \param  thinfilm_thickness  Optional float parameter for thickness of an iridescent thin film layer on top of this BSDF. Given in nanometers.
+//  \param  thinfilm_ior        Optional float parameter for refraction index of the thin film layer.
+//  \param  label               Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color generalized_schlick_bsdf(normal N, vector U, color reflection_tint, color transmission_tint, float roughness_x, float roughness_y, color f0, color f90, float exponent, string distribution) BUILTIN;
 ​
@@ -704,19 +710,6 @@ closure color subsurface_bssrdf(normal N, color albedo, float sss_depth, color s
 //  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color sheen_bsdf(normal N, color albedo, float roughness) BUILTIN;
-​
-// Adds an iridescent thin film layer over a microfacet base BSDF. This must be layered over
-// another base BSDF using the layer() closure, as this is a modifier and cannot be used as a
-// standalone closure.
-//
-// TODO:
-// - This might be better to represent as optional extra arguments on the closures that do support
-//   thin-film iridescence (dielectric_bsdf, conductor_bsdf and generalized_schlick_bsdf)?
-//
-//  \param  thickness   Thickness of the thin film.
-//  \param  ior         Refraction index of the thin film.
-//
-closure color thin_film_bsdf(float thickness, float ior) BUILTIN;
 ​
 ​
 // -------------------------------------------------------------//
