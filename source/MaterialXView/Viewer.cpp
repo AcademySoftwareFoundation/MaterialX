@@ -269,6 +269,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
+#if MATERIALX_BUILD_GEN_ARNOLD
+    _genContextArnold.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextArnold.getOptions().fileTextureVerticalFlip = false;
+#endif
 
     // Register the GLSL implementation for <viewdir> used by the environment shader.
     _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + mx::GlslShaderGenerator::TARGET, ViewDirGlsl::create);
@@ -748,6 +752,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
 #endif
 #if MATERIALX_BUILD_GEN_MDL
         _genContextMdl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#endif
+#if MATERIALX_BUILD_GEN_ARNOLD
+        _genContextArnold.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
         for (MaterialPtr material : _materials)
         {
