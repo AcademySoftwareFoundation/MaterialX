@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <!--
-    Test suite options file which is parsed when the "render" category units tests are executed.
+ <!--
+     Test suite options file which is parsed when the "render" category units tests are executed.
 
      Execution uses existing code generator instances to produce the code and corresponding validator
      instance to check the validity of the generated code by compiling and/or rendering
@@ -10,8 +10,7 @@
      Input uniform and stream checking as well as node implementation coverage and profiling
      can also be performed depending on the options enabled.
   -->
-
-
+    
   <!-- nodedefs for custom test settings -->
   <nodedef name="ND_BakingSettings" node="baker" >
     <input name="file" type="filename" />
@@ -27,7 +26,6 @@
     <input name="range" type="vector2" value="0.0, 1.0" />
     <input name="steps" type="integer" value="1.0" />
   </nodedef>
-
 
   <!-- Render test Suite Options -->
   <nodedef name="TestSuiteOptions">
