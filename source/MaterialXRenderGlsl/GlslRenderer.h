@@ -77,7 +77,7 @@ class GlslRenderer : public ShaderRenderer
     void render() override;
 
     /// Render the current program in texture space to an off-screen buffer.
-    void renderTextureSpace();
+    void renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax);
 
     /// @}
     /// @name Utilities
@@ -105,7 +105,7 @@ class GlslRenderer : public ShaderRenderer
     }
 
     /// Submit geometry for a screen-space quad.
-    void drawScreenSpaceQuad();
+    void drawScreenSpaceQuad(const Vector2& uvMin = Vector2(0.0f, 0.0f), const Vector2& uvMax = Vector2(1.0f, 1.0f));
 
     /// Sets the clear color
     void setClearColor(const Color4& clearColor);
