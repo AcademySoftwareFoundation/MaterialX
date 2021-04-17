@@ -127,12 +127,12 @@ class ImageLoader
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
                            ConstImagePtr image,
-                           bool verticalFlip = false) = 0;
+                           bool verticalFlip = false);
 
     /// Load an image from the file system. This method must be implemented by derived classes.
     /// @param filePath The requested image file path.
     /// @return On success, a shared pointer to the loaded image; otherwise an empty shared pointer.
-    virtual ImagePtr loadImage(const FilePath& filePath) = 0;
+    virtual ImagePtr loadImage(const FilePath& filePath);
 
   protected:
     // List of supported string extensions
@@ -216,6 +216,10 @@ class ImageHandler
     /// Release rendering resources for the given image.
     virtual void releaseRenderResources(ImagePtr image);
 
+    /// Clear the contents of the image cache, first releasing any
+    /// render resources associated with each image.
+    void clearImageCache();
+
     /// Return a fallback image with zeroes in all channels.
     ImagePtr getZeroImage() const
     {
@@ -242,10 +246,6 @@ class ImageHandler
     // Return the cached image, if found; otherwise return an empty
     // shared pointer.
     ImagePtr getCachedImage(const FilePath& filePath);
-
-    /// Clear the contents of the image cache, first releasing any
-    /// render resources associated with each image.
-    void clearImageCache();
 
   protected:
     ImageLoaderMap _imageLoaders;
