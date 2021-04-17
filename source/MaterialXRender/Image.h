@@ -42,8 +42,9 @@ class Image
     enum class BaseType
     {
         UINT8 = 0,
-        HALF = 1,
-        FLOAT = 2
+        UINT16 = 1,
+        HALF = 2,
+        FLOAT = 3
     };
 
   public:
