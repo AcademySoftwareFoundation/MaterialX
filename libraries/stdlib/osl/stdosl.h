@@ -689,14 +689,15 @@ closure color transparent_bsdf() BUILTIN;
 ​
 // Constructs a BSSRDF for subsurface scattering within a homogeneous medium.
 //
-//  \param  N           Normal vector of the surface point beeing shaded.
-//  \param  albedo      Surface albedo.
-//  \param  sss_depth   Mean-free path in units of scene length.
-//  \param  sss_color   Scattering color / transmittance. The desired color resulting from white light transmitted a distance of 'sss_depth'
-//                      through the surface.
-//  \param  anisotropy  Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
-//                      and 0.0 gives uniform scattering.
-//  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
+//  \param  N                   Normal vector of the surface point beeing shaded.
+//  \param  albedo              Single-scattering albedo of the medium.
+//  \param  transmission_depth  Distance travelled inside the medium by white light before its color becomes transmission_color by Beer's law.
+//                              Together with transmission_color this determines the extinction coefficient of the medium.
+//  \param  transmission_color  Desired color resulting from white light transmitted a distance of 'transmission_depth' through the medium.
+//                              Together with transmission_depth this determines the extinction coefficient of the medium.
+//  \param  anisotropy          Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
+//                              and 0.0 gives uniform scattering.
+//  \param  label               Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color subsurface_bssrdf(normal N, color albedo, float sss_depth, color sss_color, float anisotropy) BUILTIN;
 ​
