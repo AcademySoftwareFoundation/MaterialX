@@ -692,14 +692,15 @@ closure color transparent_bsdf() BUILTIN;
 //  \param  N                   Normal vector of the surface point beeing shaded.
 //  \param  albedo              Single-scattering albedo of the medium.
 //  \param  transmission_depth  Distance travelled inside the medium by white light before its color becomes transmission_color by Beer's law.
-//                              Together with transmission_color this determines the extinction coefficient of the medium.
+//                              Given in scene length units, range [0,infinity). Together with transmission_color this determines the extinction
+//                              coefficient of the medium.
 //  \param  transmission_color  Desired color resulting from white light transmitted a distance of 'transmission_depth' through the medium.
 //                              Together with transmission_depth this determines the extinction coefficient of the medium.
 //  \param  anisotropy          Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
 //                              and 0.0 gives uniform scattering.
 //  \param  label               Optional string parameter to name this component. For use in AOVs / LPEs.
 //
-closure color subsurface_bssrdf(normal N, color albedo, float sss_depth, color sss_color, float anisotropy) BUILTIN;
+closure color subsurface_bssrdf(normal N, color albedo, float transmission_depth, color transmission_color, float anisotropy) BUILTIN;
 ​
 // Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials.
 // This closure may be vertically layered over a base BSDF, where energy that is not reflected
@@ -729,20 +730,34 @@ closure color uniform_edf(color emittance) BUILTIN;
 // VDF closures                                                 //
 // -------------------------------------------------------------//
 ​
-// Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein
-// phase function. Forward, backward and uniform scattering is supported and controlled by the
-// anisotropy input.
+// Constructs a VDF scattering light for a general participating medium, based on the Henyey-Greenstein
+// phase function. Forward, backward and uniform scattering is supported and controlled by the anisotropy input.
 //
-//  \param  albedo      Volume single scattering albedo.
+//  \param  albedo      Volume single-scattering albedo.
 //  \param  extinction  Volume extinction coefficient.
 //  \param  anisotropy  Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
 //                      and 0.0 gives uniform scattering.
-//  \param  ior         Optional float parameter for refraction index of a homogeneous medium.
-//  \param  priority    Optional int parameter for priority of a homogeneous medium (for nested dielectrics).
 //  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color anisotropic_vdf(color albedo, color extinction, float anisotropy) BUILTIN;
-​
+
+// Constructs a VDF for light passing through a dielectric homogenous medium, such as glass or liquids.
+// The parameters transmission_depth and transmission_color control the extinction coefficient of the medium
+// in and artist-friendly way. A priority can be set to determine the ordering of overlapping media.
+//
+//  \param  albedo              Single-scattering albedo of the medium.
+//  \param  transmission_depth  Distance travelled inside the medium by white light before its color becomes transmission_color by Beer's law.
+//                              Given in scene length units, range [0,infinity). Together with transmission_color this determines the extinction
+//                              coefficient of the medium.
+//  \param  transmission_color  Desired color resulting from white light transmitted a distance of 'transmission_depth' through the medium.
+//                              Together with transmission_depth this determines the extinction coefficient of the medium.
+//  \param  anisotropy          Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
+//                              and 0.0 gives uniform scattering.
+//  \param  ior                 Refraction index of the medium.
+//  \param  priority            Priority of this medium (for nested dielectrics).
+//  \param  label               Optional string parameter to name this component. For use in AOVs / LPEs.
+//
+closure color media_vdf(color albedo, float transmission_depth, color transmission_color, float anisotropy, float ior, int priority) BUILTIN;
 
 // -------------------------------------------------------------//
 // Layering closures                                            //
