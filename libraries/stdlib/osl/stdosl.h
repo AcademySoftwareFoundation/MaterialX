@@ -616,8 +616,8 @@ closure color burley_diffuse_bsdf(normal N, color albedo, float roughness) BUILT
 //                              but can be tweaked for artistic control. Set to (0,0,0) to disable reflection.
 //  \param  transmission_tint   Weight per color channel for the transmission lobe. Should be (1,1,1) for a physically-correct dielectric surface, 
 //                              but can be tweaked for artistic control. Set to (0,0,0) to disable transmission.
-//  \param  roughness_x         Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  roughness_y         Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_x         Surface roughness in the U direction with a perceptually linear response over its range.
+//  \param  roughness_y         Surface roughness in the V direction with a perceptually linear response over its range.
 //  \param  ior                 Refraction index.
 //  \param  distribution        Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
 //  \param  thinfilm_thickness  Optional float parameter for thickness of an iridescent thin film layer on top of this BSDF. Given in nanometers.
@@ -633,8 +633,8 @@ closure color dielectric_bsdf(normal N, vector U, color reflection_tint, color t
 //
 //  \param  N                   Normal vector of the surface point beeing shaded.
 //  \param  U                   Tangent vector of the surface point beeing shaded.
-//  \param  roughness_x         Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  roughness_y         Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_x         Surface roughness in the U direction with a perceptually linear response over its range.
+//  \param  roughness_y         Surface roughness in the V direction with a perceptually linear response over its range.
 //  \param  ior                 Refraction index.
 //  \param  extinction          Extinction coefficient.
 //  \param  distribution        Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
@@ -658,8 +658,8 @@ closure color conductor_bsdf(normal N, vector U, float roughness_x, float roughn
 //  \param  U                   Tangent vector of the surface point beeing shaded.
 //  \param  reflection_tint     Weight per color channel for the reflection lobe. Set to (0,0,0) to disable reflection.
 //  \param  transmission_tint   Weight per color channel for the transmission lobe. Set to (0,0,0) to disable transmission.
-//  \param  roughness_x         Surface roughness in the U direction. Valid range [0,1] with a perceptually linear response over the range.
-//  \param  roughness_y         Surface roughness in the V direction. Valid range [0,1] with a perceptually linear response over the range.
+//  \param  roughness_x         Surface roughness in the U direction with a perceptually linear response over its range.
+//  \param  roughness_y         Surface roughness in the V direction with a perceptually linear response over its range.
 //  \param  f0                  Reflectivity per color channel at facing angles.
 //  \param  f90                 Reflectivity per color channel at grazing angles.
 //  \param  distribution        Microfacet distribution. An implementation is expected to support the following distributions: { "ggx" }
@@ -757,7 +757,7 @@ closure color anisotropic_vdf(color albedo, color extinction, float anisotropy) 
 //  \param  priority            Priority of this medium (for nested dielectrics).
 //  \param  label               Optional string parameter to name this component. For use in AOVs / LPEs.
 //
-closure color media_vdf(color albedo, float transmission_depth, color transmission_color, float anisotropy, float ior, int priority) BUILTIN;
+closure color medium_vdf(color albedo, float transmission_depth, color transmission_color, float anisotropy, float ior, int priority) BUILTIN;
 
 // -------------------------------------------------------------//
 // Layering closures                                            //
