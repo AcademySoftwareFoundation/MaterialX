@@ -175,7 +175,7 @@ TEST_CASE("LookGroup", "[look]")
     // Append check
     mx::LookGroupPtr mergedCopyLookGroup = doc->addLookGroup("lookgroup1_copy_merged");
     mergedCopyLookGroup->copyContentFrom(copyLookGroup);
-    mergedCopyLookGroup->append(lookGroup2);
+    mergedCopyLookGroup->appendLookGroup(lookGroup2);
     mx::writeToXmlFile(doc, "lookgroup_test_merged.mtlx");
 
     REQUIRE(mergedCopyLookGroup->getLooks() == std::string("look1, look2, look3, look4, look5, lookA, lookC, lookE"));
@@ -184,7 +184,7 @@ TEST_CASE("LookGroup", "[look]")
     // Insert check
     mx::LookGroupPtr mergedCopyLookGroup2 = doc->addLookGroup("lookgroup1_copy_merged2");
     mergedCopyLookGroup2->copyContentFrom(copyLookGroup);
-    mergedCopyLookGroup2->append(lookGroup2, std::string("look2"));
+    mergedCopyLookGroup2->appendLookGroup(lookGroup2, std::string("look2"));
     mx::writeToXmlFile(doc, "lookgroup_test_merged2.mtlx");
 
     REQUIRE(mergedCopyLookGroup2->getLooks() == std::string("look1, look2, lookA, lookC, lookE, look3, look4, look5"));
@@ -192,11 +192,15 @@ TEST_CASE("LookGroup", "[look]")
 
     mx::LookGroupPtr mergedCopyLookGroup3 = doc->addLookGroup("lookgroup1_copy_merged3");
     mergedCopyLookGroup3->copyContentFrom(copyLookGroup);
-    mergedCopyLookGroup3->append(lookGroup2, std::string("not found"));
+    mergedCopyLookGroup3->appendLookGroup(lookGroup2, std::string("not found"));
     mx::writeToXmlFile(doc, "lookgroup_test_merge3.mtlx");
 
     REQUIRE(mergedCopyLookGroup2->getLooks() == std::string("look1, look2, lookA, lookC, lookE, look3, look4, look5"));
     REQUIRE(mergedCopyLookGroup2->getEnabledLooksString() == std::string("look1, lookA, look3, lookE"));
+
+    doc->addLook("look6");
+    mergedCopyLookGroup2->appendLook("look6", "lookC");
+    REQUIRE(mergedCopyLookGroup2->getLooks() == std::string("look1, look2, lookA, lookC, look6, lookE, look3, look4, look5"));
 
     doc->removeLookGroup(lookGroup2->getName());
     doc->removeLookGroup(copyLookGroup->getName());

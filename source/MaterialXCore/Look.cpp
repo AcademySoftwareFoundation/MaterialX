@@ -191,25 +191,9 @@ LookVec LookGroup::getEnabledLooks() const
     return enabledLooks;
 }
 
-
-void LookGroup::append(const LookGroupPtr& sourceGroup, const string& appendAfterLook)
+static void appendLooks(StringVec& destLookList, const StringSet& destLookSet, const StringVec& sourceLookList, const string& appendAfterLook)
 {
-    string sourceLooks = sourceGroup->getLooks();
-    if (sourceLooks.empty())
-    {
-        return;
-    }
-
-    // If look already exists in the look list then append if
-     // not skipping duplicates
-    const StringVec& sourceLookList = splitString(sourceLooks, ARRAY_VALID_SEPARATORS);
-    StringVec destLookList = splitString(getLooks(), ARRAY_VALID_SEPARATORS);
-    const StringSet destLookSet(destLookList.begin(), destLookList.end());
-
     StringVec postList;
-
-    // If inserting after a given look, then append up to that look
-    // and then append the remainder after.
     if (!appendAfterLook.empty() && destLookSet.count(appendAfterLook))
     {
         StringVec prependList = destLookList;
@@ -233,8 +217,6 @@ void LookGroup::append(const LookGroupPtr& sourceGroup, const string& appendAfte
             }
         }
     }
-
-    // Append the source list
     for (const string& lookName : sourceLookList)
     {
         if (!destLookSet.count(lookName))
@@ -242,8 +224,6 @@ void LookGroup::append(const LookGroupPtr& sourceGroup, const string& appendAfte
             destLookList.push_back(lookName);
         }
     }
-
-    // Append anything remaining from destination list
     if (postList.size())
     {
         for (const string& lookName : postList)
@@ -251,6 +231,23 @@ void LookGroup::append(const LookGroupPtr& sourceGroup, const string& appendAfte
             destLookList.push_back(lookName);
         }
     }
+}
+
+void LookGroup::appendLookGroup(const LookGroupPtr& sourceGroup, const string& appendAfterLook)
+{
+    string sourceLooks = sourceGroup->getLooks();
+    if (sourceLooks.empty())
+    {
+        return;
+    }
+
+    // If look already exists in the look list then append if
+    // not skipping duplicates
+    const StringVec& sourceLookList = splitString(sourceLooks, ARRAY_VALID_SEPARATORS);
+    StringVec destLookList = splitString(getLooks(), ARRAY_VALID_SEPARATORS);
+    const StringSet destLookSet(destLookList.begin(), destLookList.end());
+
+    appendLooks(destLookList, destLookSet, sourceLookList, appendAfterLook);
 
     // Append looks to "active" look list. Order does no matter.
     string enabledSourceLooks = sourceGroup->getEnabledLooksString();
@@ -269,6 +266,26 @@ void LookGroup::append(const LookGroupPtr& sourceGroup, const string& appendAfte
     // Update look and active look lists
     setLooks(mergeStringVec(destLookList, ARRAY_VALID_SEPARATORS));
     setEnabledLooks(mergeStringVec(destEnabledLookList, ARRAY_VALID_SEPARATORS));
+}
+
+
+void LookGroup::appendLook(const string& sourceLook, const string& appendAfterLook)
+{
+    if (sourceLook.empty())
+    {
+        return;
+    }
+
+    // If look already exists in the look list then append if
+    // not skipping duplicates
+    const StringVec& sourceLookList { sourceLook };
+    StringVec destLookList = splitString(getLooks(), ARRAY_VALID_SEPARATORS);
+    const StringSet destLookSet(destLookList.begin(), destLookList.end());
+
+    appendLooks(destLookList, destLookSet, sourceLookList, appendAfterLook);
+
+    // Update look list
+    setLooks(mergeStringVec(destLookList, ARRAY_VALID_SEPARATORS));
 }
 
 LookPtr LookGroup::combineLooks() 

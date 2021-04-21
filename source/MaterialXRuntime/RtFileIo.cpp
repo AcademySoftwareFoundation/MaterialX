@@ -182,6 +182,565 @@ namespace
         }
     }
 
+    void writeTargetDef(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
+    {
+        RtTargetDef targetdef(src->hnd());
+        TargetDefPtr destTargetDef = dest->addTargetDef(targetdef.getName().str());
+
+        const RtIdentifier& inherit = targetdef.getInherit();
+        if (inherit != EMPTY_IDENTIFIER)
+        {
+            destTargetDef->setInheritString(inherit.str());
+        }
+
+        writeAttributes(src, destTargetDef, targetdefIgnoreList, options);
+    }
+
+    void writeNodeDef(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
+    {
+        RtNodeDef nodedef(src->hnd());
+        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName().str(), EMPTY_STRING, nodedef.getNode().str());
+
+        if (nodedef.getVersion() != EMPTY_IDENTIFIER)
+        {
+            destNodeDef->setVersionString(nodedef.getVersion().str());
+            if (nodedef.getIsDefaultVersion())
+            {
+                destNodeDef->setDefaultVersion(true);
+            }
+        }
+
+        writeAttributes(src, destNodeDef, nodedefIgnoreList, options);
+
+        for (PvtObject* obj : src->getInputs())
+        {
+            const PvtInput* input = obj->asA<PvtInput>();
+            ValueElementPtr destPort = nullptr;
+            if (input->isToken())
+            {
+                destPort = destNodeDef->addToken(input->getName().str());
+                destPort->setType(input->getType().str());
+            }
+            else
+            {
+                destPort = destNodeDef->addInput(input->getName().str(), input->getType().str());
+            }
+            if (input->isUniform())
+            {
+                destPort->setIsUniform(true);
+            }
+            destPort->setValueString(input->getValueString());
+            writeAttributes(input, destPort, portIgnoreList, options);
+        }
+        for (PvtObject* obj : src->getOutputs())
+        {
+            const PvtOutput* output = obj->asA<PvtOutput>();
+            ValueElementPtr destPort = destNodeDef->addOutput(output->getName().str(), output->getType().str());
+            destPort->setValueString(output->getValueString());
+            writeAttributes(output, destPort, portIgnoreList, options);
+        }
+    }
+
+    NodePtr writeNode(const PvtPrim* src, GraphElementPtr dest, const RtWriteOptions* options)
+    {
+        RtNode node(src->hnd());
+        RtNodeDef nodedef(node.getNodeDef());
+        if (!nodedef)
+        {
+            throw ExceptionRuntimeError("Prim '" + src->getName().str() + "' is not a node with a valid nodedef");
+        }
+
+        // Count output and get output type
+        const size_t numOutputs = nodedef.getPrim().numOutputs();
+        const string outputType = numOutputs > 1 ? "multioutput" : (numOutputs > 0 ? nodedef.getPrim().getOutput().getType().str() : EMPTY_STRING);
+
+        NodePtr destNode = dest->addNode(nodedef.getNamespacedNode().str(), node.getName().str(), outputType);
+
+        // Always write out the associated nodedef to avoid ambiguity.
+        destNode->setNodeDefString(nodedef.getName().str());
+
+        bool writeDefaultValues = options ? options->writeDefaultValues : false;
+
+        for (size_t i = 0; i < nodedef.numInputs(); ++i)
+        {
+            RtInput nodedefInput = nodedef.getInput(i);
+            RtInput input = node.getInput(i);
+            if (input)
+            {
+                const bool uiHidden1 = input.isUIVisible();
+                const bool uiHidden2 = nodedefInput.isUIVisible();
+                const bool writeUiVisibleData = uiHidden1 != uiHidden2;
+
+                // Write input if it's connected or different from default value.
+                // Write input if the uivisible value differs in the input from the nodedef
+                if (writeDefaultValues || writeUiVisibleData ||
+                    input.isConnected() || !RtValue::compare(input.getType(), input.getValue(), nodedefInput.getValue()))
+                {
+                    ValueElementPtr valueElem;
+                    if (input.isUniform())
+                    {
+                        if (input.isToken())
+                        {
+                            valueElem = destNode->addToken(input.getName().str());
+                            valueElem->setType(input.getType().str());
+                        }
+                        else
+                        {
+                            valueElem = destNode->addInput(input.getName().str(), input.getType().str());
+                        }
+                        valueElem->setIsUniform(true);
+                        if (input.isConnected())
+                        {
+                            RtOutput source = input.getConnection();
+                            if (source.isSocket())
+                            {
+                                // This is a connection to the internal socket of a graph
+                                valueElem->setInterfaceName(source.getName().str());
+                            }
+                        }
+                        const string& inputValueString = input.getValueString();
+                        if (!inputValueString.empty())
+                        {
+                            valueElem->setValueString(inputValueString);
+                        }
+                    }
+                    else
+                    {
+                        valueElem = destNode->addInput(input.getName().str(), input.getType().str());
+                        if (input.isConnected())
+                        {
+                            RtOutput source = input.getConnection();
+                            if (source.isSocket())
+                            {
+                                // This is a connection to the internal socket of a graph                                
+                                valueElem->setInterfaceName(source.getName().str());
+                                const string& inputValueString = input.getValueString();
+                                if (!inputValueString.empty())
+                                {
+                                    valueElem->setValueString(inputValueString);
+                                }
+                            }
+                            else
+                            {
+                                RtPrim sourcePrim = source.getParent();
+                                InputPtr inputElem = valueElem->asA<Input>();
+                                if (sourcePrim.hasApi<RtNodeGraph>())
+                                {
+                                    inputElem->setNodeGraphString(sourcePrim.getName().str());
+                                }
+                                else
+                                {
+                                    inputElem->setNodeName(sourcePrim.getName().str());
+                                }
+                                if (sourcePrim.numOutputs() > 1)
+                                {
+                                    inputElem->setOutputString(source.getName().str());
+                                }
+                            }
+                        }
+                        else
+                        {
+                            valueElem->setValueString(input.getValueString());
+                        }
+                    }
+
+                    writeAttributes(PvtObject::cast(input), valueElem, inputIgnoreList, options);
+                }
+            }
+        }
+
+        if (numOutputs > 1)
+        {
+            for (size_t i = 0; i < nodedef.numOutputs(); ++i)
+            {
+                RtOutput nodedefOutput = nodedef.getOutput(i);
+                destNode->addOutput(nodedefOutput.getName().str(), nodedefOutput.getType().str());
+            }
+        }
+
+        writeAttributes(src, destNode, nodeIgnoreList, options);
+
+        return destNode;
+    }
+
+    void writeNodeGraph(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
+    {
+        NodeGraphPtr destNodeGraph = dest->addNodeGraph(src->getName().str());
+        writeAttributes(src, destNodeGraph, nodegraphIgnoreList, options);
+
+        RtNodeGraph nodegraph(src->hnd());
+
+        if (!options || options->writeNodeGraphInputs)
+        {
+            // Write inputs.
+            for (size_t i = 0; i < src->numInputs(); ++i)
+            {
+                PvtPort* port = src->getInput(i);
+
+                RtInput nodegraphInput = nodegraph.getInput(port->getName());
+                ValueElementPtr v = nullptr;
+                if (nodegraphInput.isUniform())
+                {
+                    if (nodegraphInput.isToken())
+                    {
+                        v = destNodeGraph->addToken(nodegraphInput.getName().str());
+                        v->setType(nodegraphInput.getType().str());
+                    }
+                    else
+                    {
+                        v = destNodeGraph->addInput(nodegraphInput.getName().str(), nodegraphInput.getType().str());
+                    }
+                    v->setIsUniform(true);
+                }
+                else
+                {
+                    InputPtr input = destNodeGraph->addInput(nodegraphInput.getName().str(), nodegraphInput.getType().str());
+                    v = input->asA<ValueElement>();
+
+                    if (nodegraphInput.isConnected())
+                    {
+                        // Write connections to upstream nodes.
+                        RtOutput source = nodegraphInput.getConnection();
+                        RtPrim sourcePrim = source.getParent();
+                        if (sourcePrim.hasApi<RtNodeGraph>())
+                        {
+                            input->setNodeGraphString(sourcePrim.getName().str());
+                        }
+                        else
+                        {
+                            input->setNodeName(sourcePrim.getName().str());
+                        }
+                        if (sourcePrim.numOutputs() > 1)
+                        {
+                            input->setOutputString(source.getName().str());
+                        }
+                    }
+                }
+                if (v)
+                {
+                    v->setValueString(nodegraphInput.getValueString());
+                    writeAttributes(port, v, inputIgnoreList, options);
+                }
+            }
+        }
+
+        // Write nodes.
+        for (RtPrim node : nodegraph.getNodes())
+        {
+            writeNode(PvtObject::cast<PvtPrim>(node), destNodeGraph, options);
+        }
+
+        // Write outputs.
+        for (size_t i = 0; i < src->numOutputs(); ++i)
+        {
+            PvtPort* port = src->getOutput(i);
+
+            RtInput nodegraphOutput = nodegraph.getOutputSocket(port->getName());
+            OutputPtr output = destNodeGraph->addOutput(nodegraphOutput.getName().str(), nodegraphOutput.getType().str());
+            if (nodegraphOutput.isConnected())
+            {
+                RtOutput source = nodegraphOutput.getConnection();
+                if (source.isSocket())
+                {
+                    output->setInterfaceName(source.getName().str());
+                }
+                else
+                {
+                    RtNode sourceNode = source.getParent();
+                    output->setNodeName(sourceNode.getName().str());
+                    if (sourceNode.numOutputs() > 1)
+                    {
+                        output->setOutputString(source.getName().str());
+                    }
+                }
+            }
+        }
+    }
+
+    void writeImplementation(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
+    {
+        RtNodeImpl impl(src->hnd());
+        ImplementationPtr destImpl = dest->addImplementation(impl.getName().str());
+
+        if (src->hasApi<RtSourceCodeImpl>())
+        {
+            RtSourceCodeImpl sourceImpl(src->hnd());
+            const string& file = sourceImpl.getFile();
+            const string& source = sourceImpl.getSourceCode();
+            if (!file.empty())
+            {
+                destImpl->setFile(file);
+            }
+            if (!source.empty())
+            {
+                destImpl->setAttribute(Identifiers::SOURCECODE.str(), source);
+            }
+        }
+
+        writeAttributes(src, destImpl, nodeimplIgnoreList, options);
+    }
+
+    void writeCollections(PvtStage* stage, Document& dest, const RtWriteOptions* options)
+    {
+        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
+        {
+            const PvtPrim* prim = PvtObject::cast<PvtPrim>(child);
+            if (prim->hasApi<RtCollection>())
+            {
+                const string& name = prim->getName().str();
+                if (dest.getCollection(name))
+                {
+                    continue;
+                }
+
+                CollectionPtr collection = dest.addCollection(name);
+
+                RtCollection rtCollection(prim->hnd());
+                RtRelationship rtIncludeCollection = rtCollection.getIncludeCollection();
+                string includeList = rtIncludeCollection.getObjectNames();
+                collection->setIncludeCollectionString(includeList);
+
+                writeAttributes(prim, collection, collectionIgnoreList, options);
+            }
+        }
+    }
+
+    void writeLooks(PvtStage* stage, Document& dest, const RtWriteOptions* options)
+    {
+        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
+        {
+            const PvtPrim* prim = PvtObject::cast<PvtPrim>(child);
+            const RtIdentifier typeName = child.getTypeInfo()->getShortTypeName();
+            if (typeName == RtLook::typeName())
+            {
+                RtLook rtLook(prim->hnd());
+                const string name(prim->getName().str());
+
+                if (dest.getCollection(name))
+                {
+                    continue;
+                }
+
+                LookPtr look = dest.addLook(name);
+
+                // Add inherit
+                const string inheritList = rtLook.getInherit().getObjectNames();
+                if (!inheritList.empty())
+                {
+                    look->setInheritString(inheritList);
+                }
+
+                // Add in material assignments
+                for (RtObject obj : rtLook.getMaterialAssigns().getConnections())
+                {
+                    PvtPrim* pprim = PvtObject::cast<PvtPrim>(obj);
+                    RtMaterialAssign rtMatAssign(pprim->hnd());
+                    const string& assignName = rtMatAssign.getName().str();
+                    if (look->getMaterialAssign(assignName))
+                    {
+                        continue;
+                    }
+
+                    MaterialAssignPtr massign = look->addMaterialAssign(assignName);
+                    massign->setGeom(rtMatAssign.getGeom());
+
+                    if (rtMatAssign.getCollection().hasConnections())
+                    {
+                        massign->setCollectionString(rtMatAssign.getCollection().getConnection().getName().str());
+                    }
+
+                    if (rtMatAssign.getMaterial().isConnected())
+                    {
+                        massign->setMaterial(rtMatAssign.getMaterial().getConnection().getParent().getName().str());
+                    }
+
+                    writeAttributes(pprim, massign, mtrlAssignIgnoreList, options);
+                }
+
+                writeAttributes(prim, look, lookIgnoreList, options);
+            }
+        }
+    }
+
+    void writeLookGroups(PvtStage* stage, Document& dest, const RtWriteOptions* options)
+    {
+        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
+        {
+            const PvtPrim* prim = PvtObject::cast<PvtPrim>(child);
+            const RtIdentifier typeName = child.getTypeInfo()->getShortTypeName();
+            if (typeName == RtLookGroup::typeName())
+            {
+                RtLookGroup rtLookGroup(prim->hnd());
+                const string name(rtLookGroup.getName().str());
+
+                if (dest.getLookGroup(name))
+                {
+                    continue;
+                }
+
+                LookGroupPtr lookGroup = dest.addLookGroup(name);
+
+                const string lookList = rtLookGroup.getLooks().getObjectNames();
+                lookGroup->setLooks(lookList);
+
+                writeAttributes(prim, lookGroup, lookGroupIgnoreList, options);
+            }
+        }
+    }
+
+    void writeGenericPrim(const PvtPrim* src, ElementPtr dest, const RtWriteOptions* options)
+    {
+        RtGeneric generic(src->hnd());
+
+        ElementPtr elem = dest->addChildOfCategory(generic.getKind().str(), generic.getName().str());
+        writeAttributes(src, elem, genericIgnoreList, options);
+
+        for (auto child : src->getChildren())
+        {
+            writeGenericPrim(PvtObject::cast<PvtPrim>(child), elem, options);
+        }
+    }
+
+    void writeSourceUris(const PvtStage* stage, DocumentPtr doc)
+    {
+        for (const RtStagePtr& refPtr : stage->getAllReferences())
+        {
+            const PvtStage* ref = PvtStage::cast(refPtr);
+            if (ref->getAllReferences().size() > 0)
+            {
+                writeSourceUris(ref, doc);
+            }
+            const FilePathVec& uris = ref->getSourceUri();
+            if (!uris.empty())
+            {
+                for (const FilePath& uri : uris)
+                {
+                    prependXInclude(doc, uri);
+                }
+            }
+        }
+    }
+
+    void writePrimData(DocumentPtr& doc, const RtPrim& prim, const RtWriteOptions* options)
+    {
+        const PvtPrim* p = PvtObject::cast<PvtPrim>(prim);
+        const RtIdentifier typeName = prim.getTypeInfo()->getShortTypeName();
+        if (p->hasApi<RtNodeDef>())
+        {
+            writeNodeDef(p, doc, options);
+        }
+        else if (p->hasApi<RtNode>())
+        {
+            if (p->hasApi<RtNodeGraph>())
+            {
+                writeNodeGraph(p, doc, options);
+            }
+            else
+            {
+                writeNode(p, doc, options);
+            }
+        }
+        else if (p->hasApi<RtNodeImpl>())
+        {
+            writeImplementation(p, doc, options);
+        }
+        else if (p->hasApi<RtTargetDef>())
+        {
+            writeTargetDef(p, doc, options);
+        }
+        else if (p->hasApi<RtBackdrop>())
+        {
+            //writeBackdrop(prim, doc)
+        }
+        else if (!p->hasApi<RtBindElement>())
+        {
+            writeGenericPrim(p, doc->asA<Element>(), options);
+        }
+    }
+
+    void writeDocument(DocumentPtr& doc, PvtStage* stage, const RtWriteOptions* options)
+    {
+        writeAttributes(stage->getRootPrim(), doc, RtIdentifierSet(), options);
+
+        // Write out any dependent includes
+        if (options && options->writeIncludes)
+        {
+            writeSourceUris(stage, doc);
+        }
+
+        std::vector<NodePtr> materialElements;
+        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
+        {
+            writePrimData(doc, child, options);
+        }
+
+        // Write the existing look information
+        writeCollections(stage, *doc, options);
+        writeLooks(stage, *doc, options);
+        writeLookGroups(stage, *doc, options);
+    }
+
+    void writeNodeDefAndImplementation(DocumentPtr document, PvtStage* stage, PvtPrim* prim, const RtWriteOptions* options)
+    {
+        if (!prim || prim->isDisposed())
+        {
+            throw ExceptionRuntimeError("Trying to write invalid nodedef" +  (prim ? (": '" + prim->getName().str() + "'") :  EMPTY_STRING));
+        }
+
+        // Write the definition
+        writeNodeDef(prim, document, options);
+
+        // Write the corresponding nodegraph implementation if any.
+        // Currently there is no "implementation" association kept other than
+        // on the node graph referencing the definition it represents.
+        //
+        // TODO: Want to change this to keep this in <implementation>
+        // elements but requires a spec change plus support in the runtime
+        // for implementation associations.
+        RtNodeDef nodedef(prim->hnd());
+        RtIdentifier nodeDefName = prim->getName();
+        RtSchemaPredicate<RtNodeGraph> filter;
+        for (RtPrim child : stage->getRootPrim()->getChildren(filter))
+        {
+            // The association between a nodedef and a nodegraph is by name. No
+            // version check is required as nodegraphs are not versioned.
+            RtNodeGraph nodeGraph(child);
+            if (nodeGraph.getDefinition() == nodeDefName)
+            {
+                PvtPrim* graphPrim = PvtObject::cast<PvtPrim>(child);
+                writeNodeGraph(graphPrim, document, options);
+                break;
+            }
+        }
+    }
+
+    void writeNodeDefs(DocumentPtr document, PvtStage* stage, const RtIdentifierVec& names, const RtWriteOptions* options)
+    {
+        PvtApi* api = PvtApi::cast(RtApi::get());
+        if (names.empty())
+        {
+            // Write all nodedefs.
+            const size_t numNodeDefs = api->numNodeDefs();
+            for (size_t i = 0; i < numNodeDefs; ++i)
+            {
+                PvtPrim* prim = api->getNodeDef(i)->asA<PvtPrim>();
+                writeNodeDefAndImplementation(document, stage, prim, options);
+            }
+        }
+        else
+        {
+            // Write only the specified nodedefs.
+            for (const RtIdentifier& name : names)
+            {
+                PvtPrim* prim = api->getNodeDef(name)->asA<PvtPrim>();
+                if (prim)
+                {
+                    writeNodeDefAndImplementation(document, stage, prim, options);
+                }
+            }
+        }      
+    }
+
     template<class T>
     void createInterface(const ElementPtr& src, T schema)
     {
@@ -761,6 +1320,21 @@ namespace
     // look groups are read in first. Then relationship linkages are made.
     void readLookInformation(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* options, PvtRenamingMapper& mapper)
     {
+        // Create the mergedDoc
+        DocumentPtr mergedDoc;
+        if (options && options->lookModifier)
+        {
+            // Write the stage contents to the stageDoc
+            DocumentPtr stageDoc = createDocument();
+            RtWriteOptions wops;
+            writeDocument(stageDoc, stage, &wops);
+            mergedDoc = options->lookModifier(stageDoc, doc);
+        }
+        else
+        {
+            mergedDoc = doc;
+        }
+
         PvtPrim* parent = stage->getRootPrim();
         RtReadOptions::ElementFilter filter = options ? options->elementFilter : nullptr;
 
@@ -874,565 +1448,6 @@ namespace
         {
             readLookInformation(doc, stage, options, mapper);
         }
-    }
-
-    void writeTargetDef(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
-    {
-        RtTargetDef targetdef(src->hnd());
-        TargetDefPtr destTargetDef = dest->addTargetDef(targetdef.getName().str());
-
-        const RtIdentifier& inherit = targetdef.getInherit();
-        if (inherit != EMPTY_IDENTIFIER)
-        {
-            destTargetDef->setInheritString(inherit.str());
-        }
-
-        writeAttributes(src, destTargetDef, targetdefIgnoreList, options);
-    }
-
-    void writeNodeDef(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
-    {
-        RtNodeDef nodedef(src->hnd());
-        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName().str(), EMPTY_STRING, nodedef.getNode().str());
-
-        if (nodedef.getVersion() != EMPTY_IDENTIFIER)
-        {
-            destNodeDef->setVersionString(nodedef.getVersion().str());
-            if (nodedef.getIsDefaultVersion())
-            {
-                destNodeDef->setDefaultVersion(true);
-            }
-        }
-
-        writeAttributes(src, destNodeDef, nodedefIgnoreList, options);
-
-        for (PvtObject* obj : src->getInputs())
-        {
-            const PvtInput* input = obj->asA<PvtInput>();
-            ValueElementPtr destPort = nullptr;
-            if (input->isToken())
-            {
-                destPort = destNodeDef->addToken(input->getName().str());
-                destPort->setType(input->getType().str());
-            }
-            else
-            {
-                destPort = destNodeDef->addInput(input->getName().str(), input->getType().str());
-            }
-            if (input->isUniform())
-            {
-                destPort->setIsUniform(true);
-            }
-            destPort->setValueString(input->getValueString());
-            writeAttributes(input, destPort, portIgnoreList, options);
-        }
-        for (PvtObject* obj : src->getOutputs())
-        {
-            const PvtOutput* output = obj->asA<PvtOutput>();
-            ValueElementPtr destPort = destNodeDef->addOutput(output->getName().str(), output->getType().str());
-            destPort->setValueString(output->getValueString());
-            writeAttributes(output, destPort, portIgnoreList, options);
-        }
-    }
-
-    NodePtr writeNode(const PvtPrim* src, GraphElementPtr dest, const RtWriteOptions* options)
-    {
-        RtNode node(src->hnd());
-        RtNodeDef nodedef(node.getNodeDef());
-        if (!nodedef)
-        {
-            throw ExceptionRuntimeError("Prim '" + src->getName().str() + "' is not a node with a valid nodedef");
-        }
-
-        // Count output and get output type
-        const size_t numOutputs = nodedef.getPrim().numOutputs();
-        const string outputType = numOutputs > 1 ? "multioutput" : (numOutputs > 0 ? nodedef.getPrim().getOutput().getType().str() : EMPTY_STRING);
-
-        NodePtr destNode = dest->addNode(nodedef.getNamespacedNode().str(), node.getName().str(), outputType);
-
-        // Always write out the associated nodedef to avoid ambiguity.
-        destNode->setNodeDefString(nodedef.getName().str());
-
-        bool writeDefaultValues = options ? options->writeDefaultValues : false;
-
-        for (size_t i = 0; i < nodedef.numInputs(); ++i)
-        {
-            RtInput nodedefInput = nodedef.getInput(i);
-            RtInput input = node.getInput(i);
-            if (input)
-            {
-                const bool uiHidden1 = input.isUIVisible();
-                const bool uiHidden2 = nodedefInput.isUIVisible();
-                const bool writeUiVisibleData = uiHidden1 != uiHidden2;
-
-                // Write input if it's connected or different from default value.
-                // Write input if the uivisible value differs in the input from the nodedef
-                if (writeDefaultValues || writeUiVisibleData ||
-                    input.isConnected() || !RtValue::compare(input.getType(), input.getValue(), nodedefInput.getValue()))
-                {
-                    ValueElementPtr valueElem;
-                    if (input.isUniform())
-                    {
-                        if (input.isToken())
-                        {
-                            valueElem = destNode->addToken(input.getName().str());
-                            valueElem->setType(input.getType().str());
-                        }
-                        else
-                        {
-                            valueElem = destNode->addInput(input.getName().str(), input.getType().str());
-                        }
-                        valueElem->setIsUniform(true);
-                        if (input.isConnected())
-                        {
-                            RtOutput source = input.getConnection();
-                            if (source.isSocket())
-                            {
-                                // This is a connection to the internal socket of a graph
-                                valueElem->setInterfaceName(source.getName().str());
-                            }
-                        }
-                        const string& inputValueString = input.getValueString();
-                        if (!inputValueString.empty())
-                        {
-                            valueElem->setValueString(inputValueString);
-                        }
-                    }
-                    else
-                    {
-                        valueElem = destNode->addInput(input.getName().str(), input.getType().str());
-                        if (input.isConnected())
-                        {
-                            RtOutput source = input.getConnection();
-                            if (source.isSocket())
-                            {
-                                // This is a connection to the internal socket of a graph                                
-                                valueElem->setInterfaceName(source.getName().str());
-                                const string& inputValueString = input.getValueString();
-                                if (!inputValueString.empty())
-                                {
-                                    valueElem->setValueString(inputValueString);
-                                }
-                            }
-                            else
-                            {
-                                RtPrim sourcePrim = source.getParent();
-                                InputPtr inputElem = valueElem->asA<Input>();
-                                if (sourcePrim.hasApi<RtNodeGraph>())
-                                {
-                                    inputElem->setNodeGraphString(sourcePrim.getName().str());
-                                }
-                                else
-                                {
-                                    inputElem->setNodeName(sourcePrim.getName().str());
-                                }
-                                if (sourcePrim.numOutputs() > 1)
-                                {
-                                    inputElem->setOutputString(source.getName().str());
-                                }
-                            }
-                        }
-                        else
-                        {
-                            valueElem->setValueString(input.getValueString());
-                        }
-                    }
-
-                    writeAttributes(PvtObject::cast(input), valueElem, inputIgnoreList, options);
-                }
-            }
-        }
-
-        if (numOutputs > 1)
-        {
-            for (size_t i = 0; i < nodedef.numOutputs(); ++i)
-            {
-                RtOutput nodedefOutput = nodedef.getOutput(i);
-                destNode->addOutput(nodedefOutput.getName().str(), nodedefOutput.getType().str());
-            }
-        }
-
-        writeAttributes(src, destNode, nodeIgnoreList, options);
-
-        return destNode;
-    }
-
-    void writeNodeGraph(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
-    {
-        NodeGraphPtr destNodeGraph = dest->addNodeGraph(src->getName().str());
-        writeAttributes(src, destNodeGraph, nodegraphIgnoreList, options);
-
-        RtNodeGraph nodegraph(src->hnd());
-
-        if (!options || options->writeNodeGraphInputs)
-        {
-            // Write inputs.
-            for (size_t i = 0; i < src->numInputs(); ++i)
-            {
-                PvtPort* port = src->getInput(i);
-
-                RtInput nodegraphInput = nodegraph.getInput(port->getName());
-                ValueElementPtr v = nullptr;
-                if (nodegraphInput.isUniform())
-                {
-                    if (nodegraphInput.isToken())
-                    {
-                        v = destNodeGraph->addToken(nodegraphInput.getName().str());
-                        v->setType(nodegraphInput.getType().str());
-                    }
-                    else
-                    {
-                        v = destNodeGraph->addInput(nodegraphInput.getName().str(), nodegraphInput.getType().str());
-                    }
-                    v->setIsUniform(true);
-                }
-                else
-                {
-                    InputPtr input = destNodeGraph->addInput(nodegraphInput.getName().str(), nodegraphInput.getType().str());
-                    v = input->asA<ValueElement>();
-
-                    if (nodegraphInput.isConnected())
-                    {
-                        // Write connections to upstream nodes.
-                        RtOutput source = nodegraphInput.getConnection();
-                        RtPrim sourcePrim = source.getParent();
-                        if (sourcePrim.hasApi<RtNodeGraph>())
-                        {
-                            input->setNodeGraphString(sourcePrim.getName().str());
-                        }
-                        else
-                        {
-                            input->setNodeName(sourcePrim.getName().str());
-                        }
-                        if (sourcePrim.numOutputs() > 1)
-                        {
-                            input->setOutputString(source.getName().str());
-                        }
-                    }
-                }
-                if (v)
-                {
-                    v->setValueString(nodegraphInput.getValueString());
-                    writeAttributes(port, v, inputIgnoreList, options);
-                }
-            }
-        }
-
-        // Write nodes.
-        for (RtPrim node : nodegraph.getNodes())
-        {
-            writeNode(PvtObject::cast<PvtPrim>(node), destNodeGraph, options);
-        }
-
-        // Write outputs.
-        for (size_t i = 0; i < src->numOutputs(); ++i)
-        {
-            PvtPort* port = src->getOutput(i);
-
-            RtInput nodegraphOutput = nodegraph.getOutputSocket(port->getName());
-            OutputPtr output = destNodeGraph->addOutput(nodegraphOutput.getName().str(), nodegraphOutput.getType().str());
-            if (nodegraphOutput.isConnected())
-            {
-                RtOutput source = nodegraphOutput.getConnection();
-                if (source.isSocket())
-                {
-                    output->setInterfaceName(source.getName().str());
-                }
-                else
-                {
-                    RtNode sourceNode = source.getParent();
-                    output->setNodeName(sourceNode.getName().str());
-                    if (sourceNode.numOutputs() > 1)
-                    {
-                        output->setOutputString(source.getName().str());
-                    }
-                }
-            }
-        }
-    }
-
-    void writeImplementation(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
-    {
-        RtNodeImpl impl(src->hnd());
-        ImplementationPtr destImpl = dest->addImplementation(impl.getName().str());
-
-        if (src->hasApi<RtSourceCodeImpl>())
-        {
-            RtSourceCodeImpl sourceImpl(src->hnd());
-            const string& file = sourceImpl.getFile();
-            const string& source = sourceImpl.getSourceCode();
-            if (!file.empty())
-            {
-                destImpl->setFile(file);
-            }
-            if (!source.empty())
-            {
-                destImpl->setAttribute(Identifiers::SOURCECODE.str(), source);
-            }
-        }
-
-        writeAttributes(src, destImpl, nodeimplIgnoreList, options);
-    }
-
-    void writeCollections(PvtStage* stage, Document& dest, const RtWriteOptions* options)
-    {
-        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
-        {
-            const PvtPrim* prim = PvtObject::cast<PvtPrim>(child);
-            if (prim->hasApi<RtCollection>())
-            {
-                const string& name = prim->getName().str();
-                if (dest.getCollection(name))
-                {
-                    continue;
-                }
-
-                CollectionPtr collection = dest.addCollection(name);
-
-                RtCollection rtCollection(prim->hnd());
-                RtRelationship rtIncludeCollection = rtCollection.getIncludeCollection();
-                string includeList = rtIncludeCollection.getObjectNames();
-                collection->setIncludeCollectionString(includeList);
-
-                writeAttributes(prim, collection, collectionIgnoreList, options);
-            }
-        }
-    }
-
-    void writeLooks(PvtStage* stage, Document& dest, const RtWriteOptions* options)
-    {
-        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
-        {
-            const PvtPrim* prim = PvtObject::cast<PvtPrim>(child);
-            const RtIdentifier typeName = child.getTypeInfo()->getShortTypeName();
-            if (typeName == RtLook::typeName())
-            {
-                RtLook rtLook(prim->hnd());
-                const string name(prim->getName().str());
-
-                if (dest.getCollection(name))
-                {
-                    continue;
-                }
-
-                LookPtr look = dest.addLook(name);
-
-                // Add inherit
-                const string inheritList = rtLook.getInherit().getObjectNames();
-                if (!inheritList.empty())
-                {
-                    look->setInheritString(inheritList);
-                }
-
-                // Add in material assignments
-                for (RtObject obj : rtLook.getMaterialAssigns().getConnections())
-                {
-                    PvtPrim* pprim = PvtObject::cast<PvtPrim>(obj);
-                    RtMaterialAssign rtMatAssign(pprim->hnd());
-                    const string& assignName = rtMatAssign.getName().str();
-                    if (look->getMaterialAssign(assignName))
-                    {
-                        continue;
-                    }
-
-                    MaterialAssignPtr massign = look->addMaterialAssign(assignName);
-                    massign->setGeom(rtMatAssign.getGeom());
-
-                    if (rtMatAssign.getCollection().hasConnections())
-                    {
-                        massign->setCollectionString(rtMatAssign.getCollection().getConnection().getName().str());
-                    }
-
-                    if (rtMatAssign.getMaterial().isConnected())
-                    {
-                        massign->setMaterial(rtMatAssign.getMaterial().getConnection().getParent().getName().str());
-                    }
-
-                    writeAttributes(pprim, massign, mtrlAssignIgnoreList, options);
-                }
-
-                writeAttributes(prim, look, lookIgnoreList, options);
-            }
-        }
-    }
-
-    void writeLookGroups(PvtStage* stage, Document& dest, const RtWriteOptions* options)
-    {
-        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
-        {
-            const PvtPrim* prim = PvtObject::cast<PvtPrim>(child);
-            const RtIdentifier typeName = child.getTypeInfo()->getShortTypeName();
-            if (typeName == RtLookGroup::typeName())
-            {
-                RtLookGroup rtLookGroup(prim->hnd());
-                const string name(rtLookGroup.getName().str());
-
-                if (dest.getLookGroup(name))
-                {
-                    continue;
-                }
-
-                LookGroupPtr lookGroup = dest.addLookGroup(name);
-
-                const string lookList = rtLookGroup.getLooks().getObjectNames();
-                lookGroup->setLooks(lookList);
-
-                writeAttributes(prim, lookGroup, lookGroupIgnoreList, options);
-            }
-        }
-    }
-
-    void writeGenericPrim(const PvtPrim* src, ElementPtr dest, const RtWriteOptions* options)
-    {
-        RtGeneric generic(src->hnd());
-
-        ElementPtr elem = dest->addChildOfCategory(generic.getKind().str(), generic.getName().str());
-        writeAttributes(src, elem, genericIgnoreList, options);
-
-        for (auto child : src->getChildren())
-        {
-            writeGenericPrim(PvtObject::cast<PvtPrim>(child), elem, options);
-        }
-    }
-
-    void writeSourceUris(const PvtStage* stage, DocumentPtr doc)
-    {
-        for (const RtStagePtr& refPtr : stage->getAllReferences())
-        {
-            const PvtStage* ref = PvtStage::cast(refPtr);
-            if (ref->getAllReferences().size() > 0)
-            {
-                writeSourceUris(ref, doc);
-            }
-            const FilePathVec& uris = ref->getSourceUri();
-            if (!uris.empty())
-            {
-                for (const FilePath& uri : uris)
-                {
-                    prependXInclude(doc, uri);
-                }
-            }
-        }
-    }
-
-    void writePrimData(DocumentPtr& doc, const RtPrim& prim, const RtWriteOptions* options)
-    {
-        const PvtPrim* p = PvtObject::cast<PvtPrim>(prim);
-        const RtIdentifier typeName = prim.getTypeInfo()->getShortTypeName();
-        if (p->hasApi<RtNodeDef>())
-        {
-            writeNodeDef(p, doc, options);
-        }
-        else if (p->hasApi<RtNode>())
-        {
-            if (p->hasApi<RtNodeGraph>())
-            {
-                writeNodeGraph(p, doc, options);
-            }
-            else
-            {
-                writeNode(p, doc, options);
-            }
-        }
-        else if (p->hasApi<RtNodeImpl>())
-        {
-            writeImplementation(p, doc, options);
-        }
-        else if (p->hasApi<RtTargetDef>())
-        {
-            writeTargetDef(p, doc, options);
-        }
-        else if (p->hasApi<RtBackdrop>())
-        {
-            //writeBackdrop(prim, doc)
-        }
-        else if (!p->hasApi<RtBindElement>())
-        {
-            writeGenericPrim(p, doc->asA<Element>(), options);
-        }
-    }
-
-    void writeDocument(DocumentPtr& doc, PvtStage* stage, const RtWriteOptions* options)
-    {
-        writeAttributes(stage->getRootPrim(), doc, RtIdentifierSet(), options);
-
-        // Write out any dependent includes
-        if (options && options->writeIncludes)
-        {
-            writeSourceUris(stage, doc);
-        }
-
-        std::vector<NodePtr> materialElements;
-        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
-        {
-            writePrimData(doc, child, options);
-        }
-
-        // Write the existing look information
-        writeCollections(stage, *doc, options);
-        writeLooks(stage, *doc, options);
-        writeLookGroups(stage, *doc, options);
-    }
-
-    void writeNodeDefAndImplementation(DocumentPtr document, PvtStage* stage, PvtPrim* prim, const RtWriteOptions* options)
-    {
-        if (!prim || prim->isDisposed())
-        {
-            throw ExceptionRuntimeError("Trying to write invalid nodedef" +  (prim ? (": '" + prim->getName().str() + "'") :  EMPTY_STRING));
-        }
-
-        // Write the definition
-        writeNodeDef(prim, document, options);
-
-        // Write the corresponding nodegraph implementation if any.
-        // Currently there is no "implementation" association kept other than
-        // on the node graph referencing the definition it represents.
-        //
-        // TODO: Want to change this to keep this in <implementation>
-        // elements but requires a spec change plus support in the runtime
-        // for implementation associations.
-        RtNodeDef nodedef(prim->hnd());
-        RtIdentifier nodeDefName = prim->getName();
-        RtSchemaPredicate<RtNodeGraph> filter;
-        for (RtPrim child : stage->getRootPrim()->getChildren(filter))
-        {
-            // The association between a nodedef and a nodegraph is by name. No
-            // version check is required as nodegraphs are not versioned.
-            RtNodeGraph nodeGraph(child);
-            if (nodeGraph.getDefinition() == nodeDefName)
-            {
-                PvtPrim* graphPrim = PvtObject::cast<PvtPrim>(child);
-                writeNodeGraph(graphPrim, document, options);
-                break;
-            }
-        }
-    }
-
-    void writeNodeDefs(DocumentPtr document, PvtStage* stage, const RtIdentifierVec& names, const RtWriteOptions* options)
-    {
-        PvtApi* api = PvtApi::cast(RtApi::get());
-        if (names.empty())
-        {
-            // Write all nodedefs.
-            const size_t numNodeDefs = api->numNodeDefs();
-            for (size_t i = 0; i < numNodeDefs; ++i)
-            {
-                PvtPrim* prim = api->getNodeDef(i)->asA<PvtPrim>();
-                writeNodeDefAndImplementation(document, stage, prim, options);
-            }
-        }
-        else
-        {
-            // Write only the specified nodedefs.
-            for (const RtIdentifier& name : names)
-            {
-                PvtPrim* prim = api->getNodeDef(name)->asA<PvtPrim>();
-                if (prim)
-                {
-                    writeNodeDefAndImplementation(document, stage, prim, options);
-                }
-            }
-        }      
     }
 
 } // end anonymous namespace

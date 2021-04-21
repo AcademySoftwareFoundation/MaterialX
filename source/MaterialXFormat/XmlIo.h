@@ -42,6 +42,9 @@ class XmlReadOptions
     /// Defaults to false.
     bool readComments;
 
+    /// generating unique names for duplicates instead of skipping duplicates
+    bool generateUniqueNames;
+
     /// The vector of parent XIncludes at the scope of the current document.
     /// Defaults to an empty vector.
     StringVec parentXIncludes;

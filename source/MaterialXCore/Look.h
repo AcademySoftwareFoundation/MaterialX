@@ -289,7 +289,11 @@ class LookGroup : public Element
 
     /// Append the contents of another lookgroup to this lookgroup. 
     /// Optionally allow appending after a given look.
-    void append(const LookGroupPtr& lookgroup, const string& appendAfterLook = EMPTY_STRING);
+    void appendLookGroup(const LookGroupPtr& lookgroup, const string& appendAfterLook = EMPTY_STRING);
+
+    /// Append the contents of a look to this lookgroup
+    /// Optionally allow appending after a given look.
+    void appendLook(const string& lookName, const string& appendAfterLook = EMPTY_STRING);
 
     /// Get a single combined look wihch contains the contents of all the looks in the lookgroup
     LookPtr combineLooks();

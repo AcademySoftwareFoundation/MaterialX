@@ -25,6 +25,7 @@ class RtReadOptions
 {
   public:
     using ElementFilter = std::function<bool(const ElementPtr& elem)>;
+    using LookModifier = std::function<DocumentPtr(const DocumentPtr& stageDoc, const DocumentPtr& loadedDoc)>;
 
   public:
     RtReadOptions();
@@ -33,6 +34,9 @@ class RtReadOptions
     /// Filter function type used for filtering elements during read.
     /// If the filter returns false the element will not be read.
     ElementFilter elementFilter;
+
+    /// Callback function for modifying the look information.
+    LookModifier lookModifier;
 
     /// Read look information. The default value is false.
     bool readLookInformation;
