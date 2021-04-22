@@ -434,8 +434,21 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
     // Add element tokens
     addTokens(resolver);
 
+    // Add element tokens
+    addTokens(resolver);
+
     return resolver;
     }
+
+void Element::addTokens(StringResolverPtr& resolver) const
+{
+    // Check for any sibling token Elements
+    ConstElementPtr parent = getParent();
+    if (parent)
+    {
+        parent->addTokens(resolver);
+    }
+}
 
 void Element::addTokens(StringResolverPtr& resolver) const
 {
