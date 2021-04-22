@@ -34,6 +34,14 @@ using ConstValuePtr = shared_ptr<const Value>;
 
 template <class T> class TypedValue;
 
+/// @class ExceptionTypeError
+/// An exception that is thrown when a type mismatch is encountered.
+class MX_CORE_API ExceptionTypeError : public Exception
+{
+  public:
+    using Exception::Exception;
+};
+
 /// A generic, discriminated value, whose type may be queried dynamically.
 class MX_CORE_API Value
 {
@@ -209,14 +217,6 @@ class MX_CORE_API ScopedFloatFormatting
   private:
     Value::FloatFormat _format;
     int _precision;
-};
-
-/// @class ExceptionTypeError
-/// An exception that is thrown when a type mismatch is encountered.
-class MX_CORE_API ExceptionTypeError : public Exception
-{
-  public:
-    using Exception::Exception;
 };
 
 /// Return the type string associated with the given data type.
