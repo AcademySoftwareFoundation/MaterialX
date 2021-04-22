@@ -100,6 +100,7 @@ void bindPyElement(py::module& mod)
         .def("createValidChildName", &mx::Element::createValidChildName)
         .def("createStringResolver", &mx::Element::createStringResolver,
              py::arg("geom") = mx::EMPTY_STRING)
+        .def("addTokens", &mx::Element::addTokens)
         .def("asString", &mx::Element::asString)
         .def("__str__", &mx::Element::asString)
         BIND_ELEMENT_FUNC_INSTANCE(Collection)

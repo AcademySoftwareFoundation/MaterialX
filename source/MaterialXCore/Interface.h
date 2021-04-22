@@ -251,6 +251,13 @@ class Input : public PortElement
     InputPtr getInterfaceInput() const;
 
     /// @}
+    /// @name Tokens
+    /// @{
+
+    /// Add tokens to a given string resolver
+    void addTokens(StringResolverPtr& resolver) const override;
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -499,6 +506,9 @@ class InterfaceElement : public TypedElement
     /// Return a vector of all Token elements that belong to this interface,
     /// taking inheritance into account.
     vector<TokenPtr> getActiveTokens() const;
+
+    /// Add tokens to a given string resolver
+    void addTokens(StringResolverPtr& resolver) const override;
 
     /// @}
     /// @name Value Elements

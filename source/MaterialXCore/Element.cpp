@@ -416,16 +416,24 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
         {
             if (!geomStringsMatch(geom, geomInfo->getActiveGeom()))
                 continue;
-            for (TokenPtr token : geomInfo->getTokens())
-            {
-                string key = "<" + token->getName() + ">";
-                string value = token->getResolvedValueString();
-                resolver->setFilenameSubstitution(key, value);
-            }
+            geomInfo->addTokens(resolver);
         }
     }
 
+    // Add element tokens
+    addTokens(resolver);
+
     return resolver;
+}
+
+void Element::addTokens(StringResolverPtr& resolver) const
+{
+    // Check for any sibling token Elements
+    ConstElementPtr parent = getParent();
+    if (parent)
+    {
+        parent->addTokens(resolver);
+    }
 }
 
 string Element::asString() const
