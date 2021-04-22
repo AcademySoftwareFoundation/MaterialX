@@ -16,8 +16,8 @@
 namespace MaterialX
 {
 
-extern const string COLOR_SEMANTIC;
-extern const string SHADER_SEMANTIC;
+extern MX_CORE_API const string COLOR_SEMANTIC;
+extern MX_CORE_API const string SHADER_SEMANTIC;
 
 class NodeDef;
 class Implementation;
