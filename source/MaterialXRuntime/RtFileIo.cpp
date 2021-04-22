@@ -1289,8 +1289,6 @@ namespace
     // already been created.
     PvtPrim* readLookGroup(const LookGroupPtr& src, PvtStage* stage, PvtRenamingMapper& mapper)
     {
-        const string LIST_SEPARATOR(",");
-
         PvtPrim* parent = stage->getRootPrim();
         const RtIdentifier name(src->getName());
         PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtLookGroup::typeName());
@@ -1301,7 +1299,7 @@ namespace
 
         // Link to looks
         const string& lookNamesString = src->getLooks();
-        StringVec lookNamesList  = splitString(lookNamesString, LIST_SEPARATOR);
+        StringVec lookNamesList  = splitString(lookNamesString, ARRAY_VALID_SEPARATORS);
         for (auto lookName : lookNamesList)
         {
             if (!lookName.empty())
@@ -1339,7 +1337,7 @@ namespace
         RtReadOptions::ElementFilter filter = options ? options->elementFilter : nullptr;
 
         // Read collections
-        for (const ElementPtr& elem : doc->getCollections())
+        for (const ElementPtr& elem : mergedDoc->getCollections())
         {
             if (!filter || filter(elem))
             {
@@ -1348,7 +1346,7 @@ namespace
         }
 
         // Read looks
-        for (const LookPtr& elem : doc->getLooks())
+        for (const LookPtr& elem : mergedDoc->getLooks())
         {
             if (!filter || filter(elem))
             {
@@ -1357,7 +1355,7 @@ namespace
         }
 
         // Read look groups
-        for (const LookGroupPtr& elem : doc->getLookGroups())
+        for (const LookGroupPtr& elem : mergedDoc->getLookGroups())
         {
             if (!filter || filter(elem))
             {
@@ -1366,8 +1364,8 @@ namespace
         }
 
         // Create additional connections
-        makeCollectionIncludeConnections(doc->getCollections(), parent, mapper);
-        makeLookInheritConnections(doc->getLooks(), parent, mapper);
+        makeCollectionIncludeConnections(mergedDoc->getCollections(), parent, mapper);
+        makeLookInheritConnections(mergedDoc->getLooks(), parent, mapper);
     }
 
     void readDocument(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* options)
