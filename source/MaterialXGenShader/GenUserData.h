@@ -10,7 +10,6 @@
 /// User data base class for shader generation
 
 #include <MaterialXGenShader/Export.h>
-#include <MaterialXGenShader/Library.h>
 
 namespace MaterialX
 {

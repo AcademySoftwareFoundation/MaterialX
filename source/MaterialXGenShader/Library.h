@@ -14,8 +14,6 @@
 
 #include <MaterialXCore/Exception.h>
 
-#include <MaterialXGenShader/Export.h>
-
 namespace MaterialX
 {
 
@@ -46,14 +44,6 @@ using ShaderNodeImplPtr = shared_ptr<ShaderNodeImpl>;
 using GenContextPtr = shared_ptr<GenContext>;
 
 template<class T> using CreatorFunction = shared_ptr<T>(*)();
-
-/// @class ExceptionShaderGenError
-/// An exception that is thrown when shader generation fails.
-class MX_GENSHADER_API ExceptionShaderGenError : public Exception
-{
-  public:
-    using Exception::Exception;
-};
 
 } // namespace MaterialX
 

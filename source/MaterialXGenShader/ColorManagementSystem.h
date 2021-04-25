@@ -10,7 +10,6 @@
 /// Color management system classes
 
 #include <MaterialXGenShader/Export.h>
-#include <MaterialXGenShader/Library.h>
 
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>

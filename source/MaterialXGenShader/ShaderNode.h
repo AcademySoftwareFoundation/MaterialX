@@ -9,9 +9,8 @@
 /// @file
 /// Classes for nodes created during shader generation
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/GenUserData.h>

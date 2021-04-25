@@ -9,9 +9,8 @@
 /// @file
 /// Shader generation utility methods
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Element.h>
 #include <MaterialXCore/Interface.h>

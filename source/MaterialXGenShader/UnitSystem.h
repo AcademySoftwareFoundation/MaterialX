@@ -9,9 +9,8 @@
 /// @file
 /// Unit system classes
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>

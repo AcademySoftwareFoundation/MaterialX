@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <exception>
 #include <functional>
 #include <memory>
 #include <set>

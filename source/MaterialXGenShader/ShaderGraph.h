@@ -9,13 +9,12 @@
 /// @file
 /// Shader graph class
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderNode.h>
-#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Syntax.h>
+#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/UnitSystem.h>
 
 #include <MaterialXCore/Document.h>

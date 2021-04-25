@@ -8,6 +8,11 @@
 
 #include <MaterialXCore/Export.h>
 
+#include <exception>
+
+/// @file
+/// Base exception classes
+
 namespace MaterialX
 {
 

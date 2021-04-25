@@ -10,7 +10,6 @@
 /// Shader generation options class
 
 #include <MaterialXGenShader/Export.h>
-#include <MaterialXGenShader/Library.h>
 
 namespace MaterialX
 {

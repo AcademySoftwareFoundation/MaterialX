@@ -6,7 +6,7 @@
 #ifndef MATERIALX_GENSHADER_EXPORT_H
 #define MATERIALX_GENSHADER_EXPORT_H
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXGenShader/Library.h>
 
 /// @file
 /// Macros for declaring imported and exported symbols.

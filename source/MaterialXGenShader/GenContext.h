@@ -9,9 +9,8 @@
 /// @file
 /// Context classes for shader generation
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/GenUserData.h>
 #include <MaterialXGenShader/ShaderNode.h>

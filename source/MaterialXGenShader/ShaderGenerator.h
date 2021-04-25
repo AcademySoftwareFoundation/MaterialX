@@ -9,15 +9,14 @@
 /// @file
 /// Base shader generator class
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 
-#include <MaterialXCore/Util.h>
+#include <MaterialXCore/Exception.h>
 
 namespace MaterialX
 {
@@ -221,6 +220,14 @@ class MX_GENSHADER_API ShaderGenerator
     mutable StringMap _tokenSubstitutions;
 
     friend ShaderGraph;
+};
+
+/// @class ExceptionShaderGenError
+/// An exception that is thrown when shader generation fails.
+class MX_GENSHADER_API ExceptionShaderGenError : public Exception
+{
+  public:
+    using Exception::Exception;
 };
 
 } // namespace MaterialX

@@ -9,9 +9,8 @@
 /// @file
 /// Base class for syntax handling for shader generators
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Value.h>

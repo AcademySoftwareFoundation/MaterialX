@@ -9,14 +9,12 @@
 /// @file
 /// Class related to holding information for shader stages
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/Syntax.h>
 
-#include <MaterialXCore/Library.h>
 #include <MaterialXCore/Node.h>
 
 #include <sstream>

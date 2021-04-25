@@ -9,9 +9,8 @@
 /// @file
 /// Shader instance class created during shader generation
 
-#include <MaterialXGenShader/Library.h>
-
 #include <MaterialXGenShader/Export.h>
+
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderStage.h>
