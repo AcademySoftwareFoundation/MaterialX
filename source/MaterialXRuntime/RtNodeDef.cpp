@@ -214,6 +214,16 @@ const RtIdentifier& RtNodeDef::getNamespace() const
     return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
 }
 
+void RtNodeDef::setInfo(const RtIdentifier& info) {
+    RtTypedValue* attr = prim()->createAttribute(Identifiers::INFO, RtType::STRING);
+    attr->asIdentifier() = info;
+}
+
+const RtIdentifier& RtNodeDef::getInfo() const {
+    RtTypedValue* attr = prim()->getAttribute(Identifiers::INFO, RtType::STRING);
+    return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
+}
+
 bool RtNodeDef::isVersionCompatible(const RtIdentifier& version) const
 {
     // Test if either the version matches or if no version passed in if this is the default version.
