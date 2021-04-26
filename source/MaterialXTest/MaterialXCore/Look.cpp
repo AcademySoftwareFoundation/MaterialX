@@ -201,6 +201,7 @@ TEST_CASE("LookGroup", "[look]")
     doc->addLook("look6");
     mergedCopyLookGroup2->appendLook("look6", "lookC");
     REQUIRE(mergedCopyLookGroup2->getLooks() == std::string("look1, look2, lookA, lookC, look6, lookE, look3, look4, look5"));
+    REQUIRE(mergedCopyLookGroup2->getEnabledLooksString() == std::string("look1, lookA, look3, lookE, look6"));
 
     doc->removeLookGroup(lookGroup2->getName());
     doc->removeLookGroup(copyLookGroup->getName());

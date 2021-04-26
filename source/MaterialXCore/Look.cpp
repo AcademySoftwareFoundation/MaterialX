@@ -284,8 +284,17 @@ void LookGroup::appendLook(const string& sourceLook, const string& appendAfterLo
 
     appendLooks(destLookList, destLookSet, sourceLookList, appendAfterLook);
 
+    StringVec destEnabledLookList = splitString(getEnabledLooksString(), ARRAY_VALID_SEPARATORS);
+    const StringSet destEnabledLookSet(destEnabledLookList.begin(), destEnabledLookList.end());
+
+    if (destEnabledLookSet.count(sourceLook) == 0)
+    {
+        destEnabledLookList.push_back(sourceLook);
+    }
+
     // Update look list
     setLooks(mergeStringVec(destLookList, ARRAY_VALID_SEPARATORS));
+    setEnabledLooks(mergeStringVec(destEnabledLookList, ARRAY_VALID_SEPARATORS));
 }
 
 LookPtr LookGroup::combineLooks() 
