@@ -10,8 +10,6 @@
 /// Library-wide includes and types.  This file should be the first include for
 /// any public header in the MaterialXGenShader library.
 
-#include <MaterialXCore/Library.h>
-
 #include <MaterialXCore/Exception.h>
 
 namespace MaterialX

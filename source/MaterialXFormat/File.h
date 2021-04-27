@@ -9,9 +9,9 @@
 /// @file
 /// Cross-platform support for file and search paths
 
-#include <MaterialXCore/Util.h>
-
 #include <MaterialXFormat/Export.h>
+
+#include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {

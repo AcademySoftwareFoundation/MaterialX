@@ -5,7 +5,6 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXCore/Library.h>
 #include <MaterialXCore/Exception.h>
 
 namespace py = pybind11;
