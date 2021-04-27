@@ -668,7 +668,7 @@ template <class T> class ElementRegistry
 // Template instantiations
 //
 
-#define INSTANTIATE_SUBCLASS(T)                         \
+#define INSTANTIATE_SUBCLASS(T)                                     \
 template MX_CORE_API shared_ptr<T> Element::asA<T>();               \
 template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;
 
