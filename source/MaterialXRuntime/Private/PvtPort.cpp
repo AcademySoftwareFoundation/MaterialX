@@ -12,12 +12,6 @@
 namespace MaterialX
 {
 
-const RtIdentifier PvtPort::DEFAULT_OUTPUT_NAME("out");
-const RtIdentifier PvtPort::COLOR_SPACE("colorspace");
-const RtIdentifier PvtPort::UNIT("unit");
-const RtIdentifier PvtPort::UNIT_TYPE("unittype");
-
-
 RT_DEFINE_RUNTIME_OBJECT(PvtPort, RtObjType::PORT, "PvtPort")
 
 PvtPort::PvtPort(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent) :

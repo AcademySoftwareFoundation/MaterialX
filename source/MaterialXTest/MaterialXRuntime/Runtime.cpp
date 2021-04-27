@@ -1308,13 +1308,14 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     // Create a nodegraph.
     mx::RtNodeGraph graph = stage->createPrim(mx::RtNodeGraph::typeName());
     graph.createInput(IN, mx::RtType::FLOAT);
-    graph.createInput(TOKEN1, mx::RtType::FLOAT, mx::RtPortFlag::UNIFORM | mx::RtPortFlag::TOKEN);
+    graph.createInput(TOKEN1, mx::RtType::FLOAT, mx::RtPortFlag::TOKEN);
     graph.createOutput(OUT, mx::RtType::FLOAT);
     mx::RtInput graphIn = graph.getInput(IN);
     REQUIRE(graphIn.isUIVisible());
     graphIn.setIsUIVisible(false);
     REQUIRE(!graphIn.isUIVisible());
     mx::RtInput graphToken = graph.getInput(TOKEN1);
+    REQUIRE(graphToken.isToken());
     REQUIRE(graphToken.isUniform());
     mx::RtOutput graphOut = graph.getOutput(OUT);
     mx::RtOutput graphInSocket = graph.getInputSocket(IN);
@@ -1331,16 +1332,13 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     const mx::RtIdentifier ADD_FLOAT_NODEDEF("ND_add_float");
     mx::RtNode add1 = stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);
     mx::RtNode add2 = stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);
-    try {
-        graphTokenSocket.connect(add1.getInput(IN1));
-    }
-    catch (mx::Exception&)
-    {
-    }
-    REQUIRE(!graphTokenSocket.isConnected());
     graphInSocket.connect(add1.getInput(IN1));
     add1.getOutput(OUT).connect(add2.getInput(IN1));
     add2.getOutput(OUT).connect(graphOutSocket);
+
+    // Try connecting a token.
+    REQUIRE_THROWS(graphTokenSocket.connect(add1.getInput(IN2)));
+    REQUIRE(!graphTokenSocket.isConnected());
 
     // Add an unconnected node.
     stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);

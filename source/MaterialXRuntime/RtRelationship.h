@@ -31,9 +31,6 @@ public:
     /// Construct from a handle.
     RtRelationship(PvtObjHandle hnd);
 
-    /// Return the name of this relationship.
-    const RtIdentifier& getName() const;
-
     /// Connect an object to this relationship.
     void connect(const RtObject& obj);
 

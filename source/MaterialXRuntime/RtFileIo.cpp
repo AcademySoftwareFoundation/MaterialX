@@ -72,8 +72,8 @@ namespace
 
     class PvtRenamingMapper
     {
-        typedef RtIdentifierMap<RtIdentifier> TokenToToken;
-        typedef std::map<PvtPrim*, TokenToToken> PerPrimMap;
+        typedef RtIdentifierMap<RtIdentifier> IdToIdMap;
+        typedef std::map<PvtPrim*, IdToIdMap> PerPrimMap;
 
         PerPrimMap _map;
     public:
@@ -86,8 +86,8 @@ namespace
         const RtIdentifier& getFinalName(PvtPrim* parent, const RtIdentifier& originalName) const {
             PerPrimMap::const_iterator primTarget = _map.find(parent);
             if (primTarget != _map.cend()) {
-                const TokenToToken& nameMap = primTarget->second;
-                TokenToToken::const_iterator nameTarget = nameMap.find(originalName);
+                const IdToIdMap& nameMap = primTarget->second;
+                IdToIdMap::const_iterator nameTarget = nameMap.find(originalName);
                 if (nameTarget != nameMap.cend()) {
                     return nameTarget->second;
                 }
@@ -761,8 +761,7 @@ namespace
             }
             else if (elem->isA<Token>())
             {
-                const uint32_t flags = RtPortFlag::UNIFORM | RtPortFlag::TOKEN;
-                port = schema.createInput(portName, portType, flags);
+                port = schema.createInput(portName, portType, RtPortFlag::TOKEN);
             }
 
             if (port)
@@ -1046,30 +1045,27 @@ namespace
                     const string& interfaceName = elem->getInterfaceName();
                     if (!interfaceName.empty())
                     {
+                        const RtIdentifier inputName(elem->getName());
+                        PvtInput* input = findInputOrThrow(inputName, node);
+
                         const RtIdentifier socketName(interfaceName);
                         RtOutput socket = nodegraph.getInputSocket(socketName);
                         if (!socket)
                         {
                             const RtIdentifier inputType(elem->getType());
-
-                            const uint32_t flags = elem->isA<Token>() ? RtPortFlag::UNIFORM | RtPortFlag::TOKEN : 0;
-                            RtInput input = nodegraph.createInput(socketName, inputType, flags);
-                            socket = nodegraph.getInputSocket(input.getName());
+                            RtInput graphInput = nodegraph.createInput(socketName, inputType, input->getFlags());
+                            socket = nodegraph.getInputSocket(graphInput.getName());
 
                             // Set the input value
                             const string& valueStr = elem->getValueString();
                             if (!valueStr.empty())
                             {
-                                const RtIdentifier portType(elem->getType());
-                                RtValue::fromString(portType, valueStr, input.getValue());
+                                RtValue::fromString(inputType, valueStr, graphInput.getValue());
                             }
                         }
 
                         PvtOutput* output = PvtObject::cast<PvtOutput>(socket);
-                        const RtIdentifier inputName(elem->getName());
-                        PvtInput* input = findInputOrThrow(inputName, node);
                         const string& swizzle = elem->isA<Input>() ? elem->asA<Input>()->getChannels() : EMPTY_STRING;
-
                         createConnection(output, input, swizzle, stage);
                     }
                 }

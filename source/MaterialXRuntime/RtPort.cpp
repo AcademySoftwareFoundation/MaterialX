@@ -58,36 +58,6 @@ void RtPort::setColorSpace(const RtIdentifier& colorspace)
     return hnd()->asA<PvtPort>()->setColorSpace(colorspace);
 }
 
-const RtIdentifier& RtPort::getUnit() const
-{
-    return hnd()->asA<PvtPort>()->getUnit();
-}
-
-void RtPort::setUnit(const RtIdentifier& unit)
-{
-    return hnd()->asA<PvtPort>()->setUnit(unit);
-}
-
-const RtIdentifier& RtPort::getUnitType() const
-{
-    return hnd()->asA<PvtPort>()->getUnitType();
-}
-
-void RtPort::setUnitType(const RtIdentifier& unit)
-{
-    return hnd()->asA<PvtPort>()->setUnitType(unit);
-}
-
-bool RtPort::isToken() const
-{
-    return hnd()->asA<PvtPort>()->isToken();
-}
-
-void RtPort::setIsToken(bool uniform)
-{
-    hnd()->asA<PvtPort>()->setIsToken(uniform);
-}
-
 
 RT_DEFINE_RUNTIME_OBJECT(RtInput, RtObjType::INPUT, "RtInput")
 
@@ -101,9 +71,9 @@ bool RtInput::isUniform() const
     return hnd()->asA<PvtInput>()->isUniform();
 }
 
-void RtInput::setUniform(bool uniform)
+bool RtInput::isToken() const
 {
-    hnd()->asA<PvtInput>()->setUniform(uniform);
+    return hnd()->asA<PvtInput>()->isToken();
 }
 
 bool RtInput::isUIVisible() const
@@ -114,6 +84,26 @@ bool RtInput::isUIVisible() const
 void RtInput::setIsUIVisible(bool val)
 {
     hnd()->asA<PvtInput>()->setIsUIVisible(val);
+}
+
+const RtIdentifier& RtInput::getUnit() const
+{
+    return hnd()->asA<PvtInput>()->getUnit();
+}
+
+void RtInput::setUnit(const RtIdentifier& unit)
+{
+    return hnd()->asA<PvtInput>()->setUnit(unit);
+}
+
+const RtIdentifier& RtInput::getUnitType() const
+{
+    return hnd()->asA<PvtInput>()->getUnitType();
+}
+
+void RtInput::setUnitType(const RtIdentifier& unit)
+{
+    return hnd()->asA<PvtInput>()->setUnitType(unit);
 }
 
 bool RtInput::isConnected() const

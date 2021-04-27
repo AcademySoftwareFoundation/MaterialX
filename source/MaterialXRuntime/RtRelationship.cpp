@@ -17,11 +17,6 @@ RtRelationship::RtRelationship(PvtObjHandle hnd) :
 {
 }
 
-const RtIdentifier& RtRelationship::getName() const
-{
-    return hnd()->asA<PvtRelationship>()->getName();
-}
-
 void RtRelationship::connect(const RtObject& obj)
 {
     if (!obj)

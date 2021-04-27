@@ -71,40 +71,9 @@ public:
         return (_flags & RtPortFlag::SOCKET) != 0;
     }
 
-    const RtIdentifier& getColorSpace() const
+    bool isUniform() const
     {
-        const RtTypedValue* attr = getAttribute(PvtPort::COLOR_SPACE, RtType::IDENTIFIER);
-        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
-    }
-
-    void setColorSpace(const RtIdentifier& colorspace)
-    {
-        RtTypedValue* attr = createAttribute(PvtPort::COLOR_SPACE, RtType::IDENTIFIER);
-        attr->asIdentifier() = colorspace;
-    }
-
-    const RtIdentifier& getUnit() const
-    {
-        const RtTypedValue* attr = getAttribute(PvtPort::UNIT, RtType::IDENTIFIER);
-        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
-    }
-
-    void setUnit(const RtIdentifier& unit)
-    {
-        RtTypedValue* attr = createAttribute(PvtPort::UNIT, RtType::IDENTIFIER);
-        attr->asIdentifier() = unit;
-    }
-
-    const RtIdentifier& getUnitType() const
-    {
-        const RtTypedValue* attr = getAttribute(PvtPort::UNIT_TYPE, RtType::IDENTIFIER);
-        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
-    }
-
-    void setUnitType(const RtIdentifier& unit)
-    {
-        RtTypedValue* attr = createAttribute(PvtPort::UNIT_TYPE, RtType::IDENTIFIER);
-        attr->asIdentifier() = unit;
+        return (_flags & RtPortFlag::UNIFORM) != 0;
     }
 
     bool isToken() const
@@ -112,31 +81,23 @@ public:
         return (_flags & RtPortFlag::TOKEN) != 0;
     }
 
-    void setIsToken(bool val)
+    const RtIdentifier& getColorSpace() const
     {
-        if (val)
-        {
-            _flags |= RtPortFlag::TOKEN;
-        }
-        else
-        {
-            _flags &= ~RtPortFlag::TOKEN;
-        }
+        const RtTypedValue* attr = getAttribute(Identifiers::COLORSPACE, RtType::IDENTIFIER);
+        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
     }
 
-    static const RtIdentifier DEFAULT_OUTPUT_NAME;
-    static const RtIdentifier COLOR_SPACE;
-    static const RtIdentifier UNIT;
-    static const RtIdentifier UNIT_TYPE;
-    static const RtIdentifier ATTRIBUTE;
+    void setColorSpace(const RtIdentifier& colorspace)
+    {
+        RtTypedValue* attr = createAttribute(Identifiers::COLORSPACE, RtType::IDENTIFIER);
+        attr->asIdentifier() = colorspace;
+    }
 
 protected:
     PvtPort(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent);
 
     RtTypedValue _value;
     uint32_t _flags;
-
-    friend class RtConnectionIterator;
 };
 
 
@@ -148,23 +109,6 @@ class PvtInput : public PvtPort
 
 public:
     PvtInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent);
-
-    bool isUniform() const
-    {
-        return (_flags & RtPortFlag::UNIFORM) != 0;
-    }
-
-    void setUniform(bool uniform)
-    {
-        if (uniform)
-        {
-            _flags |= RtPortFlag::UNIFORM;
-        }
-        else
-        {
-            _flags &= ~RtPortFlag::UNIFORM;
-        }
-    }
 
     bool isUIVisible() const
     {
@@ -182,6 +126,30 @@ public:
     {
         RtTypedValue* attr = createAttribute(Identifiers::UIVISIBLE, RtType::BOOLEAN);
         attr->asBool() = val;
+    }
+
+    const RtIdentifier& getUnit() const
+    {
+        const RtTypedValue* attr = getAttribute(Identifiers::UNIT, RtType::IDENTIFIER);
+        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
+    }
+
+    void setUnit(const RtIdentifier& unit)
+    {
+        RtTypedValue* attr = createAttribute(Identifiers::UNIT, RtType::IDENTIFIER);
+        attr->asIdentifier() = unit;
+    }
+
+    const RtIdentifier& getUnitType() const
+    {
+        const RtTypedValue* attr = getAttribute(Identifiers::UNITTYPE, RtType::IDENTIFIER);
+        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
+    }
+
+    void setUnitType(const RtIdentifier& unit)
+    {
+        RtTypedValue* attr = createAttribute(Identifiers::UNITTYPE, RtType::IDENTIFIER);
+        attr->asIdentifier() = unit;
     }
 
     bool isConnected() const
