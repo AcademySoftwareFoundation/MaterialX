@@ -74,7 +74,6 @@ namespace Identifiers
     const RtIdentifier DEFAULT("default");
     const RtIdentifier DEFAULTINPUT("defaultinput");
     const RtIdentifier UNKNOWN("unknown");
-    const RtIdentifier INFO("info");
 }
 
 }
