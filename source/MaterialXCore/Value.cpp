@@ -217,6 +217,21 @@ ValuePtr Value::createValueFromStrings(const string& value, const string& type)
     return TypedValue<string>::createFromString(value);
 }
 
+template<class T> bool Value::isA() const
+{
+    return dynamic_cast<const TypedValue<T>*>(this) != nullptr;
+}
+
+template<class T> const T& Value::asA() const
+{
+    const TypedValue<T>* typedVal = dynamic_cast<const TypedValue<T>*>(this);
+    if (!typedVal)
+    {
+        throw ExceptionTypeError("Incorrect type specified for value");
+    }
+    return typedVal->getData();
+}
+
 ScopedFloatFormatting::ScopedFloatFormatting(Value::FloatFormat format, int precision) :
     _format(Value::getFloatFormat()),
     _precision(Value::getFloatPrecision())
@@ -256,9 +271,11 @@ template <class T> class ValueRegistry
 template <> const string TypedValue<T>::TYPE = name;                                          \
 template <> const string& TypedValue<T>::getTypeString() const { return TYPE; }               \
 template <> string TypedValue<T>::getValueString() const { return toValueString<T>(_data); }  \
-template MX_CORE_API const string& getTypeString<T>();                                  \
-template MX_CORE_API string toValueString(const T& data);                               \
-template MX_CORE_API T fromValueString(const string& value);                            \
+template MX_CORE_API bool Value::isA<T>() const;                                              \
+template MX_CORE_API const T& Value::asA<T>() const;                                          \
+template MX_CORE_API const string& getTypeString<T>();                                        \
+template MX_CORE_API string toValueString(const T& data);                                     \
+template MX_CORE_API T fromValueString(const string& value);                                  \
 ValueRegistry<T> registry##T;
 
 // Base types

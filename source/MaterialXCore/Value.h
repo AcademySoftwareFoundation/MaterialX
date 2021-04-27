@@ -84,23 +84,12 @@ class MX_CORE_API Value
     /// @{
 
     /// Return true if this value is of the given type.
-    template<class T> bool isA() const
-    {
-        return dynamic_cast<const TypedValue<T>*>(this) != nullptr;
-    }
+    template<class T> bool isA() const;
 
     /// Return our underlying data as an object of the given type.
     /// If the given type doesn't match our own data type, then an
     /// exception is thrown.
-    template<class T> const T& asA() const
-    {
-        const TypedValue<T>* typedVal = dynamic_cast<const TypedValue<T>*>(this);
-        if (!typedVal)
-        {
-            throw ExceptionTypeError("Incorrect type specified for value");
-        }
-        return typedVal->getData();
-    }
+    template<class T> const T& asA() const;
 
     /// Return the type string for this value.
     virtual const string& getTypeString() const = 0;

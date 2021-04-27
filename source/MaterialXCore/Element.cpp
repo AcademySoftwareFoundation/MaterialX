@@ -214,6 +214,16 @@ void Element::removeAttribute(const string& attrib)
     }
 }
 
+template<class T> shared_ptr<T> Element::asA()
+{
+    return std::dynamic_pointer_cast<T>(getSelf());
+}
+
+template<class T> shared_ptr<const T> Element::asA() const
+{
+    return std::dynamic_pointer_cast<const T>(getSelf());
+}
+
 ElementPtr Element::addChildOfCategory(const string& category, string name)
 {
     if (name.empty())
@@ -659,8 +669,8 @@ template <class T> class ElementRegistry
 //
 
 #define INSTANTIATE_SUBCLASS(T)                         \
-template shared_ptr<T> Element::asA<T>();               \
-template shared_ptr<const T> Element::asA<T>() const;
+template MX_CORE_API shared_ptr<T> Element::asA<T>();               \
+template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;
 
 INSTANTIATE_SUBCLASS(Element)
 INSTANTIATE_SUBCLASS(GeomElement)
