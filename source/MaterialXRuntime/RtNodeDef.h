@@ -81,6 +81,12 @@ public:
     /// Return the namespace for this nodedef.
     const RtIdentifier& getNamespace() const;
 
+    /// Set the doc metadata for this nodedef.
+    void setDoc(const RtIdentifier& doc);
+
+    /// Return the doc metadata fo this nodedef.
+    const RtIdentifier& getDoc() const;
+
     /// Add an input port to the interface.
     /// Shorthand for calling getPrim().createInput().
     RtInput createInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags = 0)

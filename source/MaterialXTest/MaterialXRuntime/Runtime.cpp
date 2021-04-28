@@ -924,11 +924,12 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     const mx::RtIdentifier ADDGRAPH_TARGET("mytarget");
     const mx::RtIdentifier NAMESPACE("namespace1");
     const mx::RtIdentifier QUALIFIED_DEFINITION("namespace1:ND_addgraph");
+    const mx::RtIdentifier DOC("Sample documentation string");
     bool isDefaultVersion = false;
     stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
     REQUIRE(!api->hasDefinition<mx::RtNodeDef>(ND_ADDGRAPH));
     REQUIRE(!api->hasImplementation<mx::RtNodeGraph>(NG_ADDGRAPH));
-    mx::RtPrim addgraphPrim = stage->createNodeDef(graph1.getPrim(), ND_ADDGRAPH, ADDGRAPH, ADDGRAPH_VERSION, isDefaultVersion, MATH_GROUP, NAMESPACE);
+    mx::RtPrim addgraphPrim = stage->createNodeDef(graph1.getPrim(), ND_ADDGRAPH, ADDGRAPH, ADDGRAPH_VERSION, isDefaultVersion, MATH_GROUP, NAMESPACE, DOC);
     api->registerDefinition<mx::RtNodeDef>(addgraphPrim);
     api->registerImplementation<mx::RtNodeGraph>(graph1.getPrim());
     REQUIRE(api->hasDefinition<mx::RtNodeDef>(QUALIFIED_DEFINITION));
@@ -949,6 +950,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(addgraphDef.getNode() == ADDGRAPH);
     REQUIRE(addgraphDef.getNodeGroup() == MATH_GROUP);
     REQUIRE(addgraphDef.getVersion() == ADDGRAPH_VERSION);
+    REQUIRE(addgraphDef.getDoc() == DOC);
     REQUIRE_FALSE(addgraphDef.getIsDefaultVersion());
     addgraphDef.setTarget(ADDGRAPH_TARGET);
     REQUIRE(addgraphDef.getTarget() == ADDGRAPH_TARGET);
