@@ -82,7 +82,6 @@ namespace Identifiers
     extern const RtIdentifier DEFAULT;
     extern const RtIdentifier DEFAULTINPUT;
     extern const RtIdentifier UNKNOWN;
-    extern const RtIdentifier INFO;
 };
 
 }
