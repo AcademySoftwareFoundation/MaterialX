@@ -214,14 +214,14 @@ const RtIdentifier& RtNodeDef::getNamespace() const
     return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
 }
 
-void RtNodeDef::setDoc(const RtIdentifier& info) {
+void RtNodeDef::setDoc(const string& doc) {
     RtTypedValue* attr = prim()->createAttribute(Identifiers::DOC, RtType::STRING);
-    attr->asString() = info.str();
+    attr->asString() = doc;
 }
 
-const RtIdentifier& RtNodeDef::getDoc() const {
+const string& RtNodeDef::getDoc() const {
     RtTypedValue* attr = prim()->getAttribute(Identifiers::DOC, RtType::STRING);
-    return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
+    return attr ? attr->asString() : EMPTY_STRING;
 }
 
 bool RtNodeDef::isVersionCompatible(const RtIdentifier& version) const

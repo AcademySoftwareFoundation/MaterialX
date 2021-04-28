@@ -924,7 +924,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     const mx::RtIdentifier ADDGRAPH_TARGET("mytarget");
     const mx::RtIdentifier NAMESPACE("namespace1");
     const mx::RtIdentifier QUALIFIED_DEFINITION("namespace1:ND_addgraph");
-    const mx::RtIdentifier DOC("Sample documentation string");
+    const std::string DOC("Sample documentation string");
     bool isDefaultVersion = false;
     stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
     REQUIRE(!api->hasDefinition<mx::RtNodeDef>(ND_ADDGRAPH));

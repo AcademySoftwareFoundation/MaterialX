@@ -143,7 +143,7 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
                               bool isDefaultVersion,
                               const RtIdentifier& nodeGroup,
                               const RtIdentifier& namespaceString,
-                              const RtIdentifier& doc)
+                              const string& doc)
 {
     // Must have a nodedef name and a node name
     if (nodeDefName == EMPTY_IDENTIFIER || nodeName == EMPTY_IDENTIFIER)
