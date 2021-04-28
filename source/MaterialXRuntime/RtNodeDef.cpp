@@ -214,12 +214,12 @@ const RtIdentifier& RtNodeDef::getNamespace() const
     return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
 }
 
-void RtNodeDef::setInfo(const RtIdentifier& info) {
+void RtNodeDef::setDoc(const RtIdentifier& info) {
     RtTypedValue* attr = prim()->createAttribute(Identifiers::DOC, RtType::STRING);
     attr->asString() = info.str();
 }
 
-const RtIdentifier& RtNodeDef::getInfo() const {
+const RtIdentifier& RtNodeDef::getDoc() const {
     RtTypedValue* attr = prim()->getAttribute(Identifiers::DOC, RtType::STRING);
     return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
 }
