@@ -153,6 +153,57 @@ void Document::initialize()
     setVersionIntegers(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
 }
 
+void Document::mergeLooks(const std::string& lookGroupName)
+{
+    LookGroupPtr mainLookGroup = getLookGroup(lookGroupName);
+    if (!mainLookGroup)
+    {
+        throw Exception("Invalid look group specified: " + lookGroupName);
+    }
+
+    std::set<std::string> looksInLookGroup;
+
+    for (LookGroupPtr lookgroup : getLookGroups())
+    {
+        if (lookgroup != mainLookGroup)
+        {
+            // Append lookgroup looks to looksInLookGroup if they aren't already part of the set
+            StringVec lookNamesList = splitString(lookgroup->getLooks(), ARRAY_VALID_SEPARATORS);
+            for (std::string lookName : lookNamesList)
+            {
+                if (looksInLookGroup.count(lookName) == 0)
+                {
+                    looksInLookGroup.emplace(lookName);
+                }
+            }
+            // Append the current lookgroup to the main lookgroup
+            mainLookGroup->appendLookGroup(lookgroup);
+            // Remove the current lookgroup
+            removeChild(lookgroup->getName());
+        }
+    }
+    // Append looks which are not a part of a lookgroup to the mainLookGroup
+    for (LookPtr look : getLooks())
+    {
+        if (looksInLookGroup.count(look->getName()) == 0)
+        {
+            mainLookGroup->appendLook(look->getName());
+        }
+    }
+    // Combine the mainLookGroup into a mainLook
+    LookPtr mainLook = mainLookGroup->combineLooks();
+    // Delete the mainLookGroup
+    removeChild(mainLookGroup->getName());
+    // Remove the looks which are not the main look
+    for (LookPtr look : getLooks())
+    {
+        if (look != mainLook)
+        {
+            removeChild(look->getName());
+        }
+    }
+}
+
 NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& category,
                                          const string& version, bool isDefaultVersion, const string& group, 
                                          string& newGraphName, const string& namespaceString)

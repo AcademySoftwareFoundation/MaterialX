@@ -202,6 +202,9 @@ class Document : public GraphElement
         removeChildOfType<Look>(name);
     }
 
+    /// Merge the looks into a single look
+    void mergeLooks(const std::string& lookGroupName);
+
     /// @}
     /// @name LookGroup Elements
     /// @{

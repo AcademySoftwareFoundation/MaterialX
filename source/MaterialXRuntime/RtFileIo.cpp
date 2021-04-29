@@ -1295,7 +1295,7 @@ namespace
 
         // Link to looks
         const string& lookNamesString = src->getLooks();
-        StringVec lookNamesList  = splitString(lookNamesString, ARRAY_VALID_SEPARATORS);
+        StringVec lookNamesList = splitString(lookNamesString, ARRAY_VALID_SEPARATORS);
         for (auto lookName : lookNamesList)
         {
             if (!lookName.empty())
@@ -1460,6 +1460,11 @@ RtWriteOptions::RtWriteOptions() :
     attributeFilter(nullptr),
     desiredMajorVersion(MATERIALX_MAJOR_VERSION),
     desiredMinorVersion(MATERIALX_MINOR_VERSION)
+{
+}
+
+RtExportOptions::RtExportOptions() :
+    mergeLooks(false)
 {
 }
 
@@ -1650,5 +1655,96 @@ void RtFileIo::writePrim(std::ostream& stream, const RtPath& primPath, const RtW
     writeToXmlStream(document, stream);
 }
 
+void mergeLooks(DocumentPtr document)
+{
+    LookGroupPtr mainLookGroup = document->addLookGroup(EMPTY_STRING);
+    std::vector<std::string> lookgroupNames;
+    std::set<std::string> looksInLookGroup;
+
+    for (LookGroupPtr lookgroup : document->getLookGroups())
+    {
+        if (lookgroup != mainLookGroup)
+        {
+            // Merge all other lookgroups into the mainLookGroup
+            mainLookGroup->appendLookGroup(lookgroup);
+            lookgroupNames.push_back(lookgroup->getName());
+
+            // Append lookgroup looks to looksInLookGroup if they aren't already part of the set
+            StringVec lookNamesList = splitString(lookgroup->getLooks(), ARRAY_VALID_SEPARATORS);
+            for (std::string lookName : lookNamesList)
+            {
+                if (looksInLookGroup.count(lookName) == 0)
+                {
+                    looksInLookGroup.emplace(lookName);
+                }
+            }
+        }
+    }
+    // Delete the non-mainLookGroup lookgroups
+    for (const std::string& lookgroupName : lookgroupNames)
+    {
+        document->removeChild(lookgroupName);
+    }
+    // Append looks which are not a part of a lookgroup to the mainLookGroup
+    for (LookPtr look : document->getLooks())
+    {
+        if (looksInLookGroup.count(look->getName()) == 0)
+        {
+            mainLookGroup->appendLook(look->getName());
+        }
+    }
+    // Combine the mainLookGroup into a mainLook
+    LookPtr mainLook = mainLookGroup->combineLooks();
+    // Delete the mainLookGroup
+    document->removeChild(mainLookGroup->getName());
+    // Append look names that don't belong to the mainLook to lookNames
+    std::vector<std::string> lookNames;
+    for (LookPtr look : document->getLooks())
+    {
+        if (look != mainLook)
+        {
+            lookNames.push_back(look->getName());
+        }
+    }
+    // Delete all the looks from the document that are in lookNames
+    for (const std::string& lookName : lookNames)
+    {
+        document->removeChild(lookName);
+    }
 }
 
+void RtFileIo::exportDocument(std::ostream& stream, const RtExportOptions* options)
+{
+    PvtStage* stage = PvtStage::cast(_stage.get());
+
+    DocumentPtr document = createDocument();
+    writeDocument(document, stage, options);
+
+    XmlExportOptions xmlExportOptions;
+    if (options)
+    {
+        xmlExportOptions.writeXIncludeEnable = options->writeIncludes;
+        xmlExportOptions.mergeLooks = options->mergeLooks;
+        xmlExportOptions.lookGroupToMerge = options->lookGroupToMerge;
+    }
+    exportToXmlStream(document, stream, &xmlExportOptions);
+}
+
+void RtFileIo::exportDocument(const FilePath& documentPath, const RtExportOptions* options)
+{
+    PvtStage* stage = PvtStage::cast(_stage.get());
+
+    DocumentPtr document = createDocument();
+    writeDocument(document, stage, options);
+
+    XmlExportOptions xmlExportOptions;
+    if (options)
+    {
+        xmlExportOptions.writeXIncludeEnable = options->writeIncludes;
+        xmlExportOptions.mergeLooks = options->mergeLooks;
+        xmlExportOptions.lookGroupToMerge = options->lookGroupToMerge;
+    }
+    exportToXmlFile(document, documentPath, &xmlExportOptions);
+}
+
+}

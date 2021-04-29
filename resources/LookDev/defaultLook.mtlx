@@ -11,5 +11,5 @@
   <look name="defaultLook">
     <materialassign name="defaultMaterialAssign" collection="defaultCollection" material="defaultMaterial"/>
   </look>
-  <lookgroup name="defaultLookGroup" looks="defaultLook" activeLook="defaultLook" />
+  <lookgroup name="defaultLookGroup" looks="defaultLook" enabled="defaultLook" />
 </materialx>

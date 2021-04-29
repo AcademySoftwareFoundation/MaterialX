@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <standard_surface name="shader1" type="surfaceshader">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="0.944, 0.776, 0.373" />
+    <input name="specular" type="float" value="1" />
+    <input name="specular_color" type="color3" value="0.998, 0.981, 0.751" />
+    <input name="specular_roughness" type="float" value="0.02" />
+    <input name="metalness" type="float" value="1" />
+  </standard_surface>
+  <standard_surface name="shader2" type="surfaceshader">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="specular" type="float" value="1" />
+    <input name="specular_color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="specular_roughness" type="float" value="0" />
+    <input name="metalness" type="float" value="1" />
+  </standard_surface>
+  <standard_surface name="shader3" type="surfaceshader">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="1, 1, 1" />
+    <input name="specular" type="float" value="0" />
+    <input name="specular_roughness" type="float" value="0.25" />
+    <input name="metalness" type="float" value="1" />
+    <input name="coat" type="float" value="1" />
+    <input name="coat_color" type="color3" value="0.96467984 0.37626296 0.25818297" />
+    <input name="coat_roughness" type="float" value="0.20000000298023224" />
+  </standard_surface>
+  <surfacematerial name="mat1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shader1" />
+  </surfacematerial>
+  <surfacematerial name="mat2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shader2" />
+  </surfacematerial>
+  <surfacematerial name="mat3" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shader3" />
+  </surfacematerial>
+  <look name="look1">
+    <materialassign name="ma1" geom="pSphere*" material="mat1" />
+  </look>
+  <look name="look2">
+    <materialassign name="ma2" geom="pTorus*" material="mat2" />
+  </look>
+  <look name="look3">
+    <materialassign name="ma3" geom="pCube*" material="mat3" />
+  </look>
+  <lookgroup name="lookgroup1" looks="look1, look2" enabled="look1" />
+</materialx>

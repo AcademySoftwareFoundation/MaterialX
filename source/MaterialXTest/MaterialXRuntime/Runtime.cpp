@@ -2721,3 +2721,55 @@ TEST_CASE("Runtime: duplicate name", "[runtime]")
     REQUIRE(graph1.getOutputSocket(ADD5));
     REQUIRE(duplicateCount(ADD5) == 1);
 }
+
+
+TEST_CASE("Export", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    api->setSearchPath(searchPath);
+    api->loadLibrary(TARGETS_NAME, RuntimeGlobals::TARGETS_PATH());
+    api->loadLibrary(STDLIB_NAME, RuntimeGlobals::STDLIB_PATH());
+    api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH());
+    api->loadLibrary(BXDFLIB_NAME, RuntimeGlobals::BXDFLIB_PATH());
+
+    mx::FileSearchPath testSearchPath(mx::FilePath::getCurrentPath() /
+        "resources" /
+        "Materials" /
+        "TestSuite" /
+        "stdlib" /
+        "looks" );
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtIdentifier("defaultStage"));
+    mx::RtFileIo fileIo(defaultStage);
+    fileIo.read("looks.mtlx", testSearchPath);
+    mx::RtExportOptions exportOptions;
+    exportOptions.mergeLooks = true;
+    exportOptions.lookGroupToMerge = "lookgroup1";
+    std::stringstream ss;
+    fileIo.exportDocument(ss, &exportOptions);
+    mx::RtStagePtr exportStage = api->createStage(mx::RtIdentifier("exportStage"));
+    mx::RtFileIo fileIo2(exportStage);
+    fileIo2.read(ss);
+    mx::RtSchemaPredicate<mx::RtLook> nodeFilter;
+    int lookCount = 0;
+    for (auto it = exportStage->traverse(nodeFilter); !it.isDone(); ++it)
+    {
+        const mx::RtIdentifier& typeName = (*it).getTypeName();
+        if (typeName == mx::RtLook::typeName())
+        {
+            lookCount++;
+        }
+    }
+    mx::RtSchemaPredicate<mx::RtLookGroup> nodeFilter2;
+    int lookGroupCount = 0;
+    for (auto it = exportStage->traverse(nodeFilter2); !it.isDone(); ++it)
+    {
+        const mx::RtIdentifier& typeName = (*it).getTypeName();
+        if (typeName == mx::RtLookGroup::typeName())
+        {
+            lookGroupCount++;
+        }
+    }
+    REQUIRE(lookGroupCount == 0);
+}
+

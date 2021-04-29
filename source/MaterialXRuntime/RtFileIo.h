@@ -82,6 +82,21 @@ class RtWriteOptions
     unsigned int desiredMinorVersion;
 };
 
+/// @class RtExportOptions
+/// A set of options for controlling the behavior of export.
+class RtExportOptions : public RtWriteOptions
+{
+  public:
+    RtExportOptions();
+
+    ~RtExportOptions() { }
+
+    // Whether to merge all of the looks/lookgroups into a single look
+    bool mergeLooks;
+
+    // The name of the lookgroup to merge
+    std::string lookGroupToMerge;
+};
 
 /// API for read and write of data from MaterialX files
 /// to runtime stages.
@@ -128,6 +143,12 @@ public:
 
     /// Write a prim to a stream.
     void writePrim(std::ostream& stream, const RtPath& primPath, const RtWriteOptions* options = nullptr);
+
+    // Export to a stream
+    void exportDocument(std::ostream& stream, const RtExportOptions* options = nullptr);
+
+    // Export to a document
+    void exportDocument(const FilePath& documentPath, const RtExportOptions* options = nullptr);
 
 private:
     /// Read all contents from a file or folder into the attached stage.
