@@ -5,8 +5,7 @@
 
 #include <MaterialXGenOsl/OslSyntax.h>
 
-#include <MaterialXGenShader/Library.h>
-#include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 #include <sstream>

@@ -18,6 +18,8 @@ endif()
 
 add_library(MaterialXRender ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_RENDER_EXPORTS)
+
 target_link_libraries(
     MaterialXRender
     MaterialXGenShader
@@ -50,7 +52,8 @@ set_target_properties(
 install(TARGETS MaterialXRender
     EXPORT MaterialX
     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    RUNTIME DESTINATION bin)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRender/ MESSAGE_NEVER

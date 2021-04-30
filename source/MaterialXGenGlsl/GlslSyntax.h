@@ -9,13 +9,15 @@
 /// @file
 /// GLSL syntax class
 
+#include <MaterialXGenGlsl/Export.h>
+
 #include <MaterialXGenShader/Syntax.h>
 
 namespace MaterialX
 {
 
 /// Syntax class for GLSL (OpenGL Shading Language)
-class GlslSyntax : public Syntax
+class MX_GENGLSL_API GlslSyntax : public Syntax
 {
   public:
     GlslSyntax();

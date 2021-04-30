@@ -9,6 +9,7 @@
 /// @file
 /// Geometry loader interfaces
 
+#include <MaterialXRender/Export.h>
 #include <MaterialXRender/Mesh.h>
 
 #include <MaterialXFormat/File.h>
@@ -24,7 +25,7 @@ using GeometryLoaderPtr = std::shared_ptr<class GeometryLoader>;
 /// @class GeometryLoader
 /// Base class representing a geometry loader. A loader can be
 /// associated with one or more file extensions.
-class GeometryLoader
+class MX_RENDER_API GeometryLoader
 {
   public:
     GeometryLoader()
@@ -59,7 +60,7 @@ using GeometryLoaderMap = std::multimap<string, GeometryLoaderPtr>;
 /// @class GeometryHandler
 /// Class which holds a set of geometry loaders. Each loader is associated with
 /// a given set of file extensions.
-class GeometryHandler
+class MX_RENDER_API GeometryHandler
 {
   public:
     GeometryHandler()

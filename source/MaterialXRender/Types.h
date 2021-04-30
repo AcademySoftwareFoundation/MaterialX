@@ -10,13 +10,14 @@
 /// Data types for rendering functionality
 
 #include <MaterialXCore/Types.h>
+#include <MaterialXRender/Export.h>
 
 namespace MaterialX
 {
 
 /// @class Vector3d
 /// A vector of three floating-point values (double-precision)
-class Vector3d : public VectorN<Vector3d, double, 3>
+class MX_RENDER_API Vector3d : public VectorN<Vector3d, double, 3>
 {
   public:
     using VectorN<Vector3d, double, 3>::VectorN;
@@ -29,7 +30,7 @@ class Vector3d : public VectorN<Vector3d, double, 3>
 
 /// @class Vector4d
 /// A vector of four floating-point values (double-precision)
-class Vector4d : public VectorN<Vector4d, double, 4>
+class MX_RENDER_API Vector4d : public VectorN<Vector4d, double, 4>
 {
   public:
     using VectorN<Vector4d, double, 4>::VectorN;
@@ -42,7 +43,7 @@ class Vector4d : public VectorN<Vector4d, double, 4>
 
 /// @class Color3d
 /// A three-component color value (double-precision)
-class Color3d : public VectorN<Color3d, double, 3>
+class MX_RENDER_API Color3d : public VectorN<Color3d, double, 3>
 {
   public:
     using VectorN<Color3d, double, 3>::VectorN;
@@ -56,7 +57,7 @@ class Color3d : public VectorN<Color3d, double, 3>
 /// @class Half
 /// A lightweight 16-bit half-precision float class.  Based on the public-domain
 /// implementation by Paul Tessier.
-class Half
+class MX_RENDER_API Half
 {
   public:
     explicit Half(float value) : _data(toFloat16(value)) { }

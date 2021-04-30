@@ -6,6 +6,7 @@
 #ifndef MATERIALX_SHADERTRANSLATOR_H
 #define MATERIALX_SHADERTRANSLATOR_H
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
@@ -17,7 +18,7 @@ namespace MaterialX
 using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
 
 /// @class ShaderTranslator
-class ShaderTranslator
+class MX_GENSHADER_API ShaderTranslator
 {
   public:
     static ShaderTranslatorPtr create()

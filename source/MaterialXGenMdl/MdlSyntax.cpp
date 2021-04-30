@@ -5,7 +5,7 @@
 
 #include <MaterialXGenMdl/MdlSyntax.h>
 
-#include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <MaterialXFormat/File.h>
 

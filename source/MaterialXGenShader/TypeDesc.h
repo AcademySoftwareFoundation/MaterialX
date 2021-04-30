@@ -9,7 +9,7 @@
 /// @file
 /// Type descriptor for a MaterialX data type.
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 namespace MaterialX
 {
@@ -25,7 +25,7 @@ using ChannelMap = std::unordered_map<char, int>;
 /// type descriptors can be accessed from the Type namespace, e.g. MaterialX::Type::FLOAT.
 /// If custom types are used they must be registered by calling TypeDesc::registerType().
 /// Descriptors for registered types can be retreived using TypeDesc::get(), see below.
-class TypeDesc
+class MX_GENSHADER_API TypeDesc
 {
   public:
     enum BaseType
@@ -123,28 +123,28 @@ namespace Type
     ///
     /// TODO: Add support for the standard array types.
     ///
-    extern const TypeDesc* NONE;
-    extern const TypeDesc* BOOLEAN;
-    extern const TypeDesc* INTEGER;
-    extern const TypeDesc* INTEGERARRAY;
-    extern const TypeDesc* FLOAT;
-    extern const TypeDesc* FLOATARRAY;
-    extern const TypeDesc* VECTOR2;
-    extern const TypeDesc* VECTOR3;
-    extern const TypeDesc* VECTOR4;
-    extern const TypeDesc* COLOR3;
-    extern const TypeDesc* COLOR4;
-    extern const TypeDesc* MATRIX33;
-    extern const TypeDesc* MATRIX44;
-    extern const TypeDesc* STRING;
-    extern const TypeDesc* FILENAME;
-    extern const TypeDesc* BSDF;
-    extern const TypeDesc* EDF;
-    extern const TypeDesc* VDF;
-    extern const TypeDesc* SURFACESHADER;
-    extern const TypeDesc* VOLUMESHADER;
-    extern const TypeDesc* DISPLACEMENTSHADER;
-    extern const TypeDesc* LIGHTSHADER;
+    extern MX_GENSHADER_API const TypeDesc* NONE;
+    extern MX_GENSHADER_API const TypeDesc* BOOLEAN;
+    extern MX_GENSHADER_API const TypeDesc* INTEGER;
+    extern MX_GENSHADER_API const TypeDesc* INTEGERARRAY;
+    extern MX_GENSHADER_API const TypeDesc* FLOAT;
+    extern MX_GENSHADER_API const TypeDesc* FLOATARRAY;
+    extern MX_GENSHADER_API const TypeDesc* VECTOR2;
+    extern MX_GENSHADER_API const TypeDesc* VECTOR3;
+    extern MX_GENSHADER_API const TypeDesc* VECTOR4;
+    extern MX_GENSHADER_API const TypeDesc* COLOR3;
+    extern MX_GENSHADER_API const TypeDesc* COLOR4;
+    extern MX_GENSHADER_API const TypeDesc* MATRIX33;
+    extern MX_GENSHADER_API const TypeDesc* MATRIX44;
+    extern MX_GENSHADER_API const TypeDesc* STRING;
+    extern MX_GENSHADER_API const TypeDesc* FILENAME;
+    extern MX_GENSHADER_API const TypeDesc* BSDF;
+    extern MX_GENSHADER_API const TypeDesc* EDF;
+    extern MX_GENSHADER_API const TypeDesc* VDF;
+    extern MX_GENSHADER_API const TypeDesc* SURFACESHADER;
+    extern MX_GENSHADER_API const TypeDesc* VOLUMESHADER;
+    extern MX_GENSHADER_API const TypeDesc* DISPLACEMENTSHADER;
+    extern MX_GENSHADER_API const TypeDesc* LIGHTSHADER;
 } // namespace Type
 
 } // namespace MaterialX

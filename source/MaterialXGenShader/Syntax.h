@@ -9,7 +9,7 @@
 /// @file
 /// Base class for syntax handling for shader generators
 
-#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Library.h>
@@ -36,7 +36,7 @@ using IdentifierMap = std::unordered_map<string, size_t>;
 /// @class Syntax
 /// Base class for syntax objects used by shader generators
 /// to emit code with correct syntax for each language.
-class Syntax
+class MX_GENSHADER_API Syntax
 {
   public:
     /// Punctuation types
@@ -212,7 +212,7 @@ class Syntax
 
 /// @class TypeSyntax
 /// Base class for syntax handling of types.
-class TypeSyntax
+class MX_GENSHADER_API TypeSyntax
 {
   public:
     virtual ~TypeSyntax() { }
@@ -258,7 +258,7 @@ class TypeSyntax
 };
 
 /// Specialization of TypeSyntax for scalar types.
-class ScalarTypeSyntax : public TypeSyntax
+class MX_GENSHADER_API ScalarTypeSyntax : public TypeSyntax
 {
   public:
     ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
@@ -269,7 +269,7 @@ class ScalarTypeSyntax : public TypeSyntax
 };
 
 /// Specialization of TypeSyntax for string types.
-class StringTypeSyntax : public ScalarTypeSyntax
+class MX_GENSHADER_API StringTypeSyntax : public ScalarTypeSyntax
 {
   public:
     StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
@@ -279,7 +279,7 @@ class StringTypeSyntax : public ScalarTypeSyntax
 };
 
 /// Specialization of TypeSyntax for aggregate types.
-class AggregateTypeSyntax : public TypeSyntax
+class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
 {
   public:
     AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,

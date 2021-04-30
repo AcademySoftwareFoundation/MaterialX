@@ -9,7 +9,7 @@
 /// @file
 /// Shader generation options class
 
-#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 namespace MaterialX
 {
@@ -61,7 +61,7 @@ enum HwDirectionalAlbedoMethod
 
 /// @class GenOptions 
 /// Class holding options to configure shader generation.
-class GenOptions
+class MX_GENSHADER_API GenOptions
 {
   public:
     GenOptions() :

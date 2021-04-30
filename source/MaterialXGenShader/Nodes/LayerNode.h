@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Layer node implementation
-class LayerNode : public ShaderNodeImpl
+class MX_GENSHADER_API LayerNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

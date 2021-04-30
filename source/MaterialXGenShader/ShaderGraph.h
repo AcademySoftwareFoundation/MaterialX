@@ -9,12 +9,12 @@
 /// @file
 /// Shader graph class
 
-#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderNode.h>
-#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Syntax.h>
+#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/UnitSystem.h>
 
 #include <MaterialXCore/Document.h>
@@ -41,7 +41,7 @@ using ShaderGraphPtr = shared_ptr<class ShaderGraph>;
 
 /// @class ShaderGraph
 /// Class representing a graph (DAG) for shader generation
-class ShaderGraph : public ShaderNode
+class MX_GENSHADER_API ShaderGraph : public ShaderNode
 {
   public:
     /// Constructor.
@@ -205,7 +205,7 @@ class ShaderGraph : public ShaderNode
 
 /// @class ShaderGraphEdge
 /// An edge returned during shader graph traversal.
-class ShaderGraphEdge
+class MX_GENSHADER_API ShaderGraphEdge
 {
   public:
     ShaderGraphEdge(ShaderOutput* up, ShaderInput* down) :
@@ -218,7 +218,7 @@ class ShaderGraphEdge
 
 /// @class ShaderGraphEdgeIterator
 /// Iterator class for traversing edges between nodes in a shader graph.
-class ShaderGraphEdgeIterator
+class MX_GENSHADER_API ShaderGraphEdgeIterator
 {
   public:
     ShaderGraphEdgeIterator(ShaderOutput* output);

@@ -19,7 +19,7 @@ using OiioImageLoaderPtr = std::shared_ptr<class OiioImageLoader>;
 
 /// @class OiioImageLoader
 /// OpenImageIO image file loader
-class OiioImageLoader : public ImageLoader
+class MX_RENDER_API OiioImageLoader : public ImageLoader
 {
   public:
     OiioImageLoader() 

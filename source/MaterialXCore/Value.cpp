@@ -271,11 +271,11 @@ template <class T> class ValueRegistry
 template <> const string TypedValue<T>::TYPE = name;                                            \
 template <> const string& TypedValue<T>::getTypeString() const { return TYPE; }                 \
 template <> string TypedValue<T>::getValueString() const { return toValueString<T>(_data); }    \
-template bool Value::isA<T>() const;                                                            \
-template const T& Value::asA<T>() const;                                                        \
-template const string& getTypeString<T>();                                                      \
-template string toValueString(const T& data);                                                   \
-template T fromValueString(const string& value);                                                \
+template MX_CORE_API bool Value::isA<T>() const;                                                \
+template MX_CORE_API const T& Value::asA<T>() const;                                            \
+template MX_CORE_API const string& getTypeString<T>();                                          \
+template MX_CORE_API string toValueString(const T& data);                                       \
+template MX_CORE_API T fromValueString(const string& value);                                    \
 ValueRegistry<T> registry##T;
 
 // Base types

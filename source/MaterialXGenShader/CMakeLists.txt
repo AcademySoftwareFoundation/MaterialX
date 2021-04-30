@@ -6,6 +6,8 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXGenShader ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_GENSHADER_EXPORTS)
+
 set_target_properties(
     MaterialXGenShader PROPERTIES
     OUTPUT_NAME MaterialXGenShader
@@ -30,7 +32,8 @@ target_include_directories(MaterialXGenShader
 install(TARGETS MaterialXGenShader
     EXPORT MaterialX
     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    RUNTIME DESTINATION bin)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXGenShader/ MESSAGE_NEVER

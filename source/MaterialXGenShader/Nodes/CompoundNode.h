@@ -14,7 +14,7 @@ namespace MaterialX
 {
 
 /// Compound node implementation
-class CompoundNode : public ShaderNodeImpl
+class MX_GENSHADER_API CompoundNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

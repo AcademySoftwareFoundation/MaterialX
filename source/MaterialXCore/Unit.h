@@ -9,7 +9,7 @@
 /// @file
 /// Unit classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
@@ -39,7 +39,7 @@ using ConstUnitConverterRegistryPtr = shared_ptr<const UnitConverterRegistry>;
 /// @class UnitConverter
 /// An abstract base class for unit converters.
 /// Each unit converter instance is responsible for a single unit type.
-class UnitConverter
+class MX_CORE_API UnitConverter
 {
   public:
     UnitConverter() { }
@@ -83,7 +83,7 @@ class UnitConverter
 
 /// @class LinearUnitConverter
 /// A converter class for linear units that require only a scalar multiplication.
-class LinearUnitConverter : public UnitConverter
+class MX_CORE_API LinearUnitConverter : public UnitConverter
 {
   public:
     virtual ~LinearUnitConverter() { }
@@ -167,7 +167,7 @@ using UnitConverterPtrMap = std::unordered_map<string, UnitConverterPtr>;
 
 /// @class UnitConverterRegistry
 /// A registry for unit converters.
-class UnitConverterRegistry
+class MX_CORE_API UnitConverterRegistry
 {
   public:
     virtual ~UnitConverterRegistry() { }

@@ -11,6 +11,7 @@
 
 #include <MaterialXGenShader/Library.h>
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXCore/Util.h>
 
 namespace MaterialX
@@ -27,7 +28,7 @@ using ShaderNodeImplPtr = shared_ptr<class ShaderNodeImpl>;
 /// Class handling the shader generation implementation for a node.
 /// Responsible for emitting the function definition and function call 
 /// that is the node implementation.
-class ShaderNodeImpl
+class MX_GENSHADER_API ShaderNodeImpl
 {
   public:
     virtual ~ShaderNodeImpl() { }
