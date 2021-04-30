@@ -9,12 +9,14 @@
 /// @file
 /// OpenGL utilities
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXCore/Library.h>
 
 namespace MaterialX
 {
 
-void checkGlErrors(const string& context);
+MX_RENDERGLSL_API void checkGlErrors(const string& context);
 
 } // namespace MaterialX
 

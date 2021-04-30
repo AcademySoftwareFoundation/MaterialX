@@ -9,7 +9,7 @@
 /// @file
 /// Graph traversal classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Exception.h>
 
 namespace MaterialX
 {
@@ -27,7 +27,7 @@ using ConstElementPtr = shared_ptr<const Element>;
 /// between two Node elements will contain a connecting element for the Input
 /// of the downstream Node.
 /// @sa Element::traverseGraph
-class Edge
+class MX_CORE_API Edge
 {
   public:
     Edge(ElementPtr elemDown, ElementPtr elemConnect, ElementPtr elemUp) :
@@ -86,7 +86,7 @@ class Edge
 /// An iterator object representing the state of a tree traversal.
 ///
 /// @sa Element::traverseTree
-class TreeIterator
+class MX_CORE_API TreeIterator
 {
   public:
     explicit TreeIterator(ElementPtr elem):
@@ -189,7 +189,7 @@ class TreeIterator
 /// An iterator object representing the state of an upstream graph traversal.
 ///
 /// @sa Element::traverseGraph
-class GraphIterator
+class MX_CORE_API GraphIterator
 {
   public:
     explicit GraphIterator(ElementPtr elem):
@@ -331,7 +331,7 @@ class GraphIterator
 /// An iterator object representing the current state of an inheritance traversal.
 ///
 /// @sa Element::traverseInheritance
-class InheritanceIterator
+class MX_CORE_API InheritanceIterator
 {
   public:
     explicit InheritanceIterator(ConstElementPtr elem) :
@@ -385,17 +385,17 @@ class InheritanceIterator
 
 /// @class ExceptionFoundCycle
 /// An exception that is thrown when a traversal call encounters a cycle.
-class ExceptionFoundCycle : public Exception
+class MX_CORE_API ExceptionFoundCycle : public Exception
 {
   public:
     using Exception::Exception;
 };
 
-extern const Edge NULL_EDGE;
+extern MX_CORE_API const Edge NULL_EDGE;
 
-extern const TreeIterator NULL_TREE_ITERATOR;
-extern const GraphIterator NULL_GRAPH_ITERATOR;
-extern const InheritanceIterator NULL_INHERITANCE_ITERATOR;
+extern MX_CORE_API const TreeIterator NULL_TREE_ITERATOR;
+extern MX_CORE_API const GraphIterator NULL_GRAPH_ITERATOR;
+extern MX_CORE_API const InheritanceIterator NULL_INHERITANCE_ITERATOR;
 
 } // namespace MaterialX
 

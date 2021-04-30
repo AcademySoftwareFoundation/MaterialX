@@ -11,17 +11,19 @@
 
 #include <MaterialXCore/Library.h>
 
+#include <MaterialXFormat/Export.h>
+
 namespace MaterialX
 {
 
 /// Return the value of an environment variable by name
-string getEnviron(const string& name);
+MX_FORMAT_API string getEnviron(const string& name);
 
 /// Set an environment variable to a specified value
-bool setEnviron(const string& name, const string& value);
+MX_FORMAT_API bool setEnviron(const string& name, const string& value);
 
 /// Remove an environment variable by name
-bool removeEnviron(const string& name);
+MX_FORMAT_API bool removeEnviron(const string& name);
 
 } // namespace MaterialX
 

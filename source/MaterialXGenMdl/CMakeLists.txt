@@ -6,14 +6,15 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXGenMdl ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_GENMDL_EXPORTS)
+
 set_target_properties(
     MaterialXGenMdl PROPERTIES
     OUTPUT_NAME MaterialXGenMdl
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
-    SOVERSION "${MATERIALX_MAJOR_VERSION}"
-    DEBUG_POSTFIX "${MATERIALX_DEBUG_POSTFIX}")
+    SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
 target_link_libraries(
     MaterialXGenMdl
@@ -31,7 +32,8 @@ target_include_directories(MaterialXGenMdl
 install(TARGETS MaterialXGenMdl
     EXPORT MaterialX
     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    RUNTIME DESTINATION bin)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXGenMdl/ MESSAGE_NEVER

@@ -13,7 +13,7 @@ namespace MaterialX
 {
 
 /// Extending the CompoundNode with requirements for HW.
-class HwCompoundNode : public CompoundNode
+class MX_GENSHADER_API HwCompoundNode : public CompoundNode
 {
 public:
     static ShaderNodeImplPtr create();

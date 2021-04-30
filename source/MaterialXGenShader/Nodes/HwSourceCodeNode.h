@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Extending the SourceCodeNode with requirements for HW.
-class HwSourceCodeNode : public SourceCodeNode
+class MX_GENSHADER_API HwSourceCodeNode : public SourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();

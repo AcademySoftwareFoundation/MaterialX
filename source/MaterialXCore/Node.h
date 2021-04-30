@@ -9,7 +9,7 @@
 /// @file
 /// Node element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Definition.h>
 
@@ -50,7 +50,7 @@ using NodePredicate = std::function<bool(NodePtr node)>;
 ///
 /// A Node represents an instance of a NodeDef within a graph, and its Input
 /// elements apply specific values and connections to that instance.
-class Node : public InterfaceElement
+class MX_CORE_API Node : public InterfaceElement
 {
   public:
     Node(ElementPtr parent, const string& name) :
@@ -173,7 +173,7 @@ class Node : public InterfaceElement
 
 /// @class GraphElement
 /// The base class for graph elements such as NodeGraph and Document.
-class GraphElement : public InterfaceElement
+class MX_CORE_API GraphElement : public InterfaceElement
 {
   protected:
     GraphElement(ElementPtr parent, const string& category, const string& name) :
@@ -312,7 +312,7 @@ class GraphElement : public InterfaceElement
 
 /// @class NodeGraph
 /// A node graph element within a Document.
-class NodeGraph : public GraphElement
+class MX_CORE_API NodeGraph : public GraphElement
 {
   public:
     NodeGraph(ElementPtr parent, const string& name) :
@@ -373,7 +373,7 @@ class NodeGraph : public GraphElement
 
 /// @class Backdrop
 /// A layout element used to contain, group and document nodes within a graph.
-class Backdrop : public Element
+class MX_CORE_API Backdrop : public Element
 {
   public:
     Backdrop(ElementPtr parent, const string& name) :

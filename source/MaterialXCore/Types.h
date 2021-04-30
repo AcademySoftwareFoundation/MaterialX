@@ -9,7 +9,7 @@
 /// @file
 /// Data type classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Util.h>
 
@@ -19,25 +19,25 @@
 namespace MaterialX
 {
 
-extern const string DEFAULT_TYPE_STRING;
-extern const string FILENAME_TYPE_STRING;
-extern const string GEOMNAME_TYPE_STRING;
-extern const string STRING_TYPE_STRING;
-extern const string SURFACE_SHADER_TYPE_STRING;
-extern const string DISPLACEMENT_SHADER_TYPE_STRING;
-extern const string VOLUME_SHADER_TYPE_STRING;
-extern const string LIGHT_SHADER_TYPE_STRING;
-extern const string MATERIAL_TYPE_STRING;
-extern const string SURFACE_MATERIAL_NODE_STRING;
-extern const string VOLUME_MATERIAL_NODE_STRING;
-extern const string MULTI_OUTPUT_TYPE_STRING;
-extern const string NONE_TYPE_STRING;
-extern const string VALUE_STRING_TRUE;
-extern const string VALUE_STRING_FALSE;
-extern const string NAME_PREFIX_SEPARATOR;
-extern const string NAME_PATH_SEPARATOR;
-extern const string ARRAY_VALID_SEPARATORS;
-extern const string ARRAY_PREFERRED_SEPARATOR;
+extern MX_CORE_API const string DEFAULT_TYPE_STRING;
+extern MX_CORE_API const string FILENAME_TYPE_STRING;
+extern MX_CORE_API const string GEOMNAME_TYPE_STRING;
+extern MX_CORE_API const string STRING_TYPE_STRING;
+extern MX_CORE_API const string SURFACE_SHADER_TYPE_STRING;
+extern MX_CORE_API const string DISPLACEMENT_SHADER_TYPE_STRING;
+extern MX_CORE_API const string VOLUME_SHADER_TYPE_STRING;
+extern MX_CORE_API const string LIGHT_SHADER_TYPE_STRING;
+extern MX_CORE_API const string MATERIAL_TYPE_STRING;
+extern MX_CORE_API const string SURFACE_MATERIAL_NODE_STRING;
+extern MX_CORE_API const string VOLUME_MATERIAL_NODE_STRING;
+extern MX_CORE_API const string MULTI_OUTPUT_TYPE_STRING;
+extern MX_CORE_API const string NONE_TYPE_STRING;
+extern MX_CORE_API const string VALUE_STRING_TRUE;
+extern MX_CORE_API const string VALUE_STRING_FALSE;
+extern MX_CORE_API const string NAME_PREFIX_SEPARATOR;
+extern MX_CORE_API const string NAME_PATH_SEPARATOR;
+extern MX_CORE_API const string ARRAY_VALID_SEPARATORS;
+extern MX_CORE_API const string ARRAY_PREFERRED_SEPARATOR;
 
 /// The base class for vectors of scalar values
 class VectorBase { };
@@ -280,7 +280,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
 
 /// @class Vector2
 /// A vector of two floating-point values
-class Vector2 : public VectorN<Vector2, float, 2>
+class MX_CORE_API Vector2 : public VectorN<Vector2, float, 2>
 {
   public:
     using VectorN<Vector2, float, 2>::VectorN;
@@ -299,7 +299,7 @@ class Vector2 : public VectorN<Vector2, float, 2>
 
 /// @class Vector3
 /// A vector of three floating-point values
-class Vector3 : public VectorN<Vector3, float, 3>
+class MX_CORE_API Vector3 : public VectorN<Vector3, float, 3>
 {
   public:
     using VectorN<Vector3, float, 3>::VectorN;
@@ -320,7 +320,7 @@ class Vector3 : public VectorN<Vector3, float, 3>
 
 /// @class Vector4
 /// A vector of four floating-point values
-class Vector4 : public VectorN<Vector4, float, 4>
+class MX_CORE_API Vector4 : public VectorN<Vector4, float, 4>
 {
   public:
     using VectorN<Vector4, float, 4>::VectorN;
@@ -333,7 +333,7 @@ class Vector4 : public VectorN<Vector4, float, 4>
 
 /// @class Quaternion
 /// A quaternion vector
-class Quaternion : public VectorN<Vector4, float, 4>
+class MX_CORE_API Quaternion : public VectorN<Vector4, float, 4>
 {
   public:
     using VectorN<Vector4, float, 4>::VectorN;
@@ -372,7 +372,7 @@ class Quaternion : public VectorN<Vector4, float, 4>
 
 /// @class Color3
 /// A three-component color value
-class Color3 : public VectorN<Color3, float, 3>
+class MX_CORE_API Color3 : public VectorN<Color3, float, 3>
 {
   public:
     using VectorN<Color3, float, 3>::VectorN;
@@ -385,7 +385,7 @@ class Color3 : public VectorN<Color3, float, 3>
 
 /// @class Color4
 /// A four-component color value
-class Color4 : public VectorN<Color4, float, 4>
+class MX_CORE_API Color4 : public VectorN<Color4, float, 4>
 {
   public:
     using VectorN<Color4, float, 4>::VectorN;
@@ -621,7 +621,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 ///
 /// Vector transformation methods follow the row-vector convention,
 /// with matrix-vector multiplication computed as v' = vM.
-class Matrix33 : public MatrixN<Matrix33, float, 3>
+class MX_CORE_API Matrix33 : public MatrixN<Matrix33, float, 3>
 {
   public:
     using MatrixN<Matrix33, float, 3>::MatrixN;
@@ -672,7 +672,7 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
 ///
 /// Vector transformation methods follow the row-vector convention,
 /// with matrix-vector multiplication computed as v' = vM.
-class Matrix44 : public MatrixN<Matrix44, float, 4>
+class MX_CORE_API Matrix44 : public MatrixN<Matrix44, float, 4>
 {
   public:
     using MatrixN<Matrix44, float, 4>::MatrixN;

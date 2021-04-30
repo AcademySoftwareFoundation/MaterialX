@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Blur node implementation
-class BlurNode : public ConvolutionNode
+class MX_GENSHADER_API BlurNode : public ConvolutionNode
 {
   public:
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
