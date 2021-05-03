@@ -80,6 +80,15 @@ class XmlExportOptions : public XmlWriteOptions
 
     /// The name of the lookgroup to merge
     std::string lookGroupToMerge;
+
+    /// Whether to flatten filenames
+    bool flattenFilenames;
+
+    /// Search path used for flattening filenames
+    FileSearchPath imageSearchPath;
+
+    /// String resolver applied during flattening filenames
+    StringResolverPtr stringResolver;
 };
 
 /// @class ExceptionParseError

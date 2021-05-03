@@ -6,6 +6,7 @@
 #include <MaterialXFormat/XmlIo.h>
 
 #include <MaterialXFormat/PugiXML/pugixml.hpp>
+#include <MaterialXFormat/Util.h>
 
 #include <MaterialXCore/Types.h>
 
@@ -383,18 +384,30 @@ string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions)
 void exportToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlExportOptions* exportOptions)
 {
     mergeLooks(doc, exportOptions);
+    if (exportOptions && exportOptions->flattenFilenames)
+    {
+        flattenFilenames(doc, exportOptions->imageSearchPath, exportOptions->stringResolver);
+    }
     writeToXmlStream(doc, stream, exportOptions);
 }
 
 void exportToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlExportOptions* exportOptions)
 {
     mergeLooks(doc, exportOptions);
+    if (exportOptions && exportOptions->flattenFilenames)
+    {
+        flattenFilenames(doc, exportOptions->imageSearchPath, exportOptions->stringResolver);
+    }
     writeToXmlFile(doc, filename, exportOptions);
 }
 
 string exportToXmlString(DocumentPtr doc, const XmlExportOptions* exportOptions)
 {
     mergeLooks(doc, exportOptions);
+    if (exportOptions && exportOptions->flattenFilenames)
+    {
+        flattenFilenames(doc, exportOptions->imageSearchPath, exportOptions->stringResolver);
+    }
     return writeToXmlString(doc, exportOptions);
 }
 

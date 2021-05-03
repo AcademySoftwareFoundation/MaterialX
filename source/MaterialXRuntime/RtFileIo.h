@@ -91,11 +91,20 @@ class RtExportOptions : public RtWriteOptions
 
     ~RtExportOptions() { }
 
-    // Whether to merge all of the looks/lookgroups into a single look
+    /// Whether to merge all of the looks/lookgroups into a single look
     bool mergeLooks;
 
-    // The name of the lookgroup to merge
+    /// The name of the lookgroup to merge
     std::string lookGroupToMerge;
+
+    /// Whether to flatten filenames
+    bool flattenFilenames;
+
+    /// Search path used for flattening filenames
+    FileSearchPath imageSearchPath;
+
+    /// String resolver applied during flattening filenames
+    StringResolverPtr stringResolver;
 };
 
 /// API for read and write of data from MaterialX files
