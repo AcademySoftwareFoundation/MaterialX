@@ -22,7 +22,7 @@ using DefaultColorManagementSystemPtr = shared_ptr<class DefaultColorManagementS
 /// the typical workflow for registering nodes with the exception that the target for the
 /// nodedefs is set to DefaultColorManagementSystem::CMS_NAME.
 ///
-class DefaultColorManagementSystem : public ColorManagementSystem
+class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSystem
 {
   public:
     virtual ~DefaultColorManagementSystem() { }

@@ -9,6 +9,8 @@
 /// @file
 /// Rendering utility methods
 
+#include <MaterialXRender/Export.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
@@ -22,18 +24,18 @@ namespace MaterialX
 /// @{
 
 /// Create a shader for a given element.
-ShaderPtr createShader(const string& shaderName, GenContext& context, ElementPtr elem);
+MX_RENDER_API ShaderPtr createShader(const string& shaderName, GenContext& context, ElementPtr elem);
 
 /// Create a shader with a constant color output, using the given standard libraries
 /// for code generation.
-ShaderPtr createConstantShader(GenContext& context,
+MX_RENDER_API ShaderPtr createConstantShader(GenContext& context,
                                DocumentPtr stdLib,
                                const string& shaderName,
                                const Color3& color);
 
 /// Create a shader to perform simple gamma correction, using the given standard libraries
 /// for code generation.
-ShaderPtr createGammaShader(GenContext& context,
+MX_RENDER_API ShaderPtr createGammaShader(GenContext& context,
                             DocumentPtr stdLib,
                             const string& shaderName,
                             const Color3& gamma,
@@ -41,18 +43,18 @@ ShaderPtr createGammaShader(GenContext& context,
 
 /// Create a shader with depth value output, using the given standard libraries
 /// for code generation.
-ShaderPtr createDepthShader(GenContext& context,
+MX_RENDER_API ShaderPtr createDepthShader(GenContext& context,
                             DocumentPtr stdLib,
                             const string& shaderName);
 
 /// Create a shader that generates a look-up table for directional albedo, using
 /// the given standard libraries for code generation.
-ShaderPtr createAlbedoTableShader(GenContext& context,
+MX_RENDER_API ShaderPtr createAlbedoTableShader(GenContext& context,
                                   DocumentPtr stdLib,
                                   const string& shaderName);
 
 /// Create a blur shader, using the given standard libraries for code generation.
-ShaderPtr createBlurShader(GenContext& context,
+MX_RENDER_API ShaderPtr createBlurShader(GenContext& context,
                            DocumentPtr stdLib,
                            const string& shaderName,
                            const string& filterType,
@@ -63,7 +65,7 @@ ShaderPtr createBlurShader(GenContext& context,
 /// @{
 
 /// Set of possible UI properties for an element
-struct UIProperties
+struct MX_RENDER_API UIProperties
 {
     /// UI name
     string uiName;
@@ -98,15 +100,15 @@ struct UIProperties
 
 /// Get the UI properties for a given nodedef element.
 /// Returns the number of properties found.
-unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& uiProperties);
+MX_RENDER_API unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& uiProperties);
 
 /// Get the UI properties for a given element path. If the path is to a node, a target
 /// identifier can be provided.
 /// Returns the number of properties found.
-unsigned int getUIProperties(const string& path, DocumentPtr doc, const string& target, UIProperties& uiProperties);
+MX_RENDER_API unsigned int getUIProperties(const string& path, DocumentPtr doc, const string& target, UIProperties& uiProperties);
 
 /// Interface for holding the UI properties associated shader port
-struct UIPropertyItem
+struct MX_RENDER_API UIPropertyItem
 {
     string label;
     ValuePtr value;
@@ -119,13 +121,13 @@ using UIPropertyGroup = std::multimap<string, UIPropertyItem>;
 
 /// Utility to group UI properties items based on Element group name from an element.
 /// Returns a list of named and unnamed groups.
-void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocument, TypedElementPtr materialElement,
+MX_RENDER_API void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocument, TypedElementPtr materialElement,
                             const string& pathSeparator, UIPropertyGroup& groups,
                             UIPropertyGroup& unnamedGroups, ShaderPort* uniform = nullptr);
 
 /// Utility to group UI properties items based on Element group name from a VariableBlock.
 /// Returns a list of named and unnamed groups.
-void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
+MX_RENDER_API void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
                             const string& pathSeparator, UIPropertyGroup& groups,
                             UIPropertyGroup& unnamedGroups, bool addFromDefinition);
 

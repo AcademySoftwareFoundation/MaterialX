@@ -6,6 +6,7 @@ add_library(MaterialXCore ${materialx_source} ${materialx_headers})
 add_definitions(-DMATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION})
 add_definitions(-DMATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION})
 add_definitions(-DMATERIALX_BUILD_VERSION=${MATERIALX_BUILD_VERSION})
+add_definitions(-DMATERIALX_CORE_EXPORTS)
 
 set_target_properties(
     MaterialXCore PROPERTIES
@@ -29,7 +30,8 @@ target_include_directories(MaterialXCore
 install(TARGETS MaterialXCore
     EXPORT MaterialX
     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    RUNTIME DESTINATION bin)
 
 install(FILES ${materialx_headers}
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXCore/)

@@ -13,7 +13,7 @@ namespace MaterialX
 {
 
 /// Dielectric BSDF node.
-class DielectricBsdfNode : public SourceCodeNode
+class MX_GENSHADER_API DielectricBsdfNode : public SourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();
@@ -22,7 +22,7 @@ public:
 };
 
 /// Dielectric BSDF node specifically for HW.
-class HwDielectricBsdfNode : public HwSourceCodeNode
+class MX_GENSHADER_API HwDielectricBsdfNode : public HwSourceCodeNode
 {
   public:
     static ShaderNodeImplPtr create();
@@ -31,7 +31,7 @@ class HwDielectricBsdfNode : public HwSourceCodeNode
 };
 
 /// Conductor BSDF node.
-class ConductorBsdfNode : public SourceCodeNode
+class MX_GENSHADER_API ConductorBsdfNode : public SourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();
@@ -40,7 +40,7 @@ public:
 };
 
 /// Conductor BSDF node specifically for HW.
-class HwConductorBsdfNode : public HwSourceCodeNode
+class MX_GENSHADER_API HwConductorBsdfNode : public HwSourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();
@@ -49,7 +49,7 @@ public:
 };
 
 /// Sheen BSDF node.
-class SheenBsdfNode : public SourceCodeNode
+class MX_GENSHADER_API SheenBsdfNode : public SourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();
@@ -58,7 +58,7 @@ public:
 };
 
 /// Sheen BSDF node specifically for HW.
-class HwSheenBsdfNode : public HwSourceCodeNode
+class MX_GENSHADER_API HwSheenBsdfNode : public HwSourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();

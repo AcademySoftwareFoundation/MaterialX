@@ -13,13 +13,13 @@
 namespace MaterialX
 {
 
-extern const std::array<float, 3> GAUSSIAN_KERNEL_3;
-extern const std::array<float, 5> GAUSSIAN_KERNEL_5;
-extern const std::array<float, 7> GAUSSIAN_KERNEL_7;
+extern MX_GENSHADER_API const std::array<float, 3> GAUSSIAN_KERNEL_3;
+extern MX_GENSHADER_API const std::array<float, 5> GAUSSIAN_KERNEL_5;
+extern MX_GENSHADER_API const std::array<float, 7> GAUSSIAN_KERNEL_7;
 
 /// Utility class for implementations of nodes which perform convolutions
 ///
-class ConvolutionNode : public ShaderNodeImpl
+class MX_GENSHADER_API ConvolutionNode : public ShaderNodeImpl
 {
   public:
      void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;

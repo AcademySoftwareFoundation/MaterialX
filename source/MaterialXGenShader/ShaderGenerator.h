@@ -9,14 +9,14 @@
 /// @file
 /// Base shader generator class
 
-#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 
-#include <MaterialXCore/Util.h>
+#include <MaterialXCore/Exception.h>
 
 namespace MaterialX
 {
@@ -26,7 +26,7 @@ namespace MaterialX
 /// All third-party shader generators should derive from this class.
 /// Derived classes should use DECLARE_SHADER_GENERATOR / DEFINE_SHADER_GENERATOR
 /// in their declaration / definition, and register with the Registry class.
-class ShaderGenerator
+class MX_GENSHADER_API ShaderGenerator
 {
   public:
     /// Destructor
@@ -220,6 +220,14 @@ class ShaderGenerator
     mutable StringMap _tokenSubstitutions;
 
     friend ShaderGraph;
+};
+
+/// @class ExceptionShaderGenError
+/// An exception that is thrown when shader generation fails.
+class MX_GENSHADER_API ExceptionShaderGenError : public Exception
+{
+  public:
+    using Exception::Exception;
 };
 
 } // namespace MaterialX

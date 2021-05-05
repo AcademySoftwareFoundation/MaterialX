@@ -22,7 +22,7 @@ jobs:
           os: windows-2016
           architecture: x86
           python: 2.7
-          cmake_config: -G "Visual Studio 15 2017" -A "Win32"
+          cmake_config: -G "Visual Studio 15 2017" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Windows_VS2017_x64_Python37
           os: windows-2016
@@ -67,6 +67,11 @@ jobs:
         echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
         echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
         echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+   
+    - name: Set Runtime Path (Windows)
+      if: runner.os == 'Windows'
+      run: echo "$PWD" | Out-File -FilePath $env:GITHUB_PATH -Append
+      working-directory: build/installed/bin
 
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config Release

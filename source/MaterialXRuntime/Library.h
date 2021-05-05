@@ -10,6 +10,7 @@
 /// Library-wide includes and types.  This file should be the first include for
 /// any public header in the MaterialXRuntime library.
 
+#include <MaterialXCore/Exception.h>
 #include <MaterialXCore/Library.h>
 
 #include <unordered_set>

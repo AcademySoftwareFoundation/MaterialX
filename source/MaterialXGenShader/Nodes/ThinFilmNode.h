@@ -14,11 +14,11 @@ namespace MaterialX
 namespace Type
 {
     // Type declaration for thinfilm data
-    extern const TypeDesc* THINFILM;
+    extern MX_GENSHADER_API const TypeDesc* THINFILM;
 }
 
 /// Thin-Film node.
-class ThinFilmNode : public ShaderNodeImpl
+class MX_GENSHADER_API ThinFilmNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

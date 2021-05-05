@@ -28,6 +28,8 @@ endif()
 
 add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_RENDERGLSL_EXPORTS)
+
 if(MSVC)
     target_link_libraries(
         MaterialXRenderGlsl
@@ -73,7 +75,8 @@ target_include_directories(MaterialXRenderGlsl
 install(TARGETS MaterialXRenderGlsl
     EXPORT MaterialX
     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    RUNTIME DESTINATION bin)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderGlsl/ MESSAGE_NEVER

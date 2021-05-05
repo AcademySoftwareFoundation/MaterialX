@@ -5,6 +5,8 @@
 
 #include <MaterialXGenShader/TypeDesc.h>
 
+#include <MaterialXCore/Exception.h>
+
 namespace MaterialX
 {
 

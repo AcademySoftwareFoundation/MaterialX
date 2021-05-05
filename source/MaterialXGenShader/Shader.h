@@ -9,7 +9,7 @@
 /// @file
 /// Shader instance class created during shader generation
 
-#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/ShaderGraph.h>
@@ -30,7 +30,7 @@ class Shader;
 /// Derived shaders can override this, as well as overriding all methods 
 /// that add code to the shader.
 ///
-class Shader
+class MX_GENSHADER_API Shader
 {
   public:
     /// Constructor

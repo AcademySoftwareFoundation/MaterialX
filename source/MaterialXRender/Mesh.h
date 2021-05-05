@@ -10,6 +10,7 @@
 /// Mesh interfaces
 
 #include <MaterialXCore/Types.h>
+#include <MaterialXRender/Export.h>
 
 namespace MaterialX
 {
@@ -27,7 +28,7 @@ using MeshStreamList = vector<MeshStreamPtr>;
 
 /// @class MeshStream
 /// Class to represent a mesh data stream
-class MeshStream
+class MX_RENDER_API MeshStream
 {
   public:
     static const string POSITION_ATTRIBUTE;
@@ -139,7 +140,7 @@ using MeshPartitionPtr = shared_ptr<class MeshPartition>;
 /// @class MeshPartition
 /// Class that describes a sub-region of a mesh using vertex indexing.
 /// Note that a face is considered to be a triangle.
-class MeshPartition
+class MX_RENDER_API MeshPartition
 {
   public:
     MeshPartition() :
@@ -213,7 +214,7 @@ using MeshMap = std::unordered_map<string, MeshPtr>;
 
 /// @class Mesh
 /// Container for mesh data
-class Mesh
+class MX_RENDER_API Mesh
 {
   public:
     Mesh(const string& identifier);

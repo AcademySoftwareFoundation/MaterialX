@@ -36,6 +36,20 @@ const string ImageLoader::TXT_EXTENSION = "txt";
 const string ImageLoader::TXR_EXTENSION = "txr";
 
 //
+// ImageLoader methods
+//
+
+bool ImageLoader::saveImage(const FilePath&, ConstImagePtr, bool)
+{
+    return false;
+}
+
+ImagePtr ImageLoader::loadImage(const FilePath&)
+{
+    return nullptr;
+}
+
+//
 // ImageHandler methods
 //
 

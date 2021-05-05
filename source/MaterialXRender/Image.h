@@ -11,6 +11,8 @@
 
 #include <MaterialXCore/Types.h>
 
+#include <MaterialXRender/Export.h>
+
 namespace MaterialX
 {
 
@@ -36,14 +38,15 @@ using ImageBufferDeallocator = std::function<void(void*)>;
 
 /// @class Image
 /// Class representing an image in system memory
-class Image
+class MX_RENDER_API Image
 {
   public:
     enum class BaseType
     {
         UINT8 = 0,
-        HALF = 1,
-        FLOAT = 2
+        UINT16 = 1,
+        HALF = 2,
+        FLOAT = 3
     };
 
   public:
@@ -192,10 +195,10 @@ class Image
 };
 
 /// Create a uniform-color image with the given properties.
-ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType, const Color4& color);
+MX_RENDER_API ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType, const Color4& color);
 
 /// Create a horizontal image strip from a vector of images with identical resolutions and formats.
-ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
+MX_RENDER_API ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
 
 } // namespace MaterialX
 

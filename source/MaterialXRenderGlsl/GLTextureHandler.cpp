@@ -249,6 +249,18 @@ void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned i
             default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
         }
     }
+    else if (baseType == Image::BaseType::UINT16)
+    {
+        glType = GL_UNSIGNED_SHORT;
+        switch (channelCount)
+        {
+            case 4: glInternalFormat = GL_RGBA16; break;
+            case 3: glInternalFormat = GL_RGB16; break;
+            case 2: glInternalFormat = GL_RG16; break;
+            case 1: glInternalFormat = GL_R16; break;
+            default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
+        }
+    }
     else if (baseType == Image::BaseType::HALF)
     {
         glType = GL_HALF_FLOAT;

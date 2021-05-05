@@ -14,7 +14,7 @@ namespace MaterialX
 /// Node implementation using data-driven static source code.
 /// This is the default implementation used for all nodes that 
 /// do not have a custom ShaderNodeImpl class.
-class SourceCodeNode : public ShaderNodeImpl
+class MX_GENSHADER_API SourceCodeNode : public ShaderNodeImpl
 {
 public:
     static ShaderNodeImplPtr create();

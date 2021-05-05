@@ -13,6 +13,7 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <MaterialXFormat/Export.h>
 #include <MaterialXFormat/File.h>
 
 namespace MaterialX
@@ -20,7 +21,7 @@ namespace MaterialX
 
 class XmlReadOptions;
 
-extern const string MTLX_EXTENSION;
+extern MX_FORMAT_API const string MTLX_EXTENSION;
 
 /// A standard function that reads from an XML file into a Document, with
 /// optional search path and read options.
@@ -28,7 +29,7 @@ using XmlReadFunction = std::function<void(DocumentPtr, const FilePath&, const F
 
 /// @class XmlReadOptions
 /// A set of options for controlling the behavior of XML read functions.
-class XmlReadOptions
+class MX_FORMAT_API XmlReadOptions
 {
   public:
     XmlReadOptions();
@@ -52,7 +53,7 @@ class XmlReadOptions
 
 /// @class XmlWriteOptions
 /// A set of options for controlling the behavior of XML write functions.
-class XmlWriteOptions
+class MX_FORMAT_API XmlWriteOptions
 {
   public:
     XmlWriteOptions();
@@ -69,7 +70,7 @@ class XmlWriteOptions
 
 /// @class XmlExportOptions
 /// A set of options for controlling the behavior of XML export functions.
-class XmlExportOptions : public XmlWriteOptions
+class MX_FORMAT_API XmlExportOptions : public XmlWriteOptions
 {
   public:
     XmlExportOptions();
@@ -93,7 +94,7 @@ class XmlExportOptions : public XmlWriteOptions
 
 /// @class ExceptionParseError
 /// An exception that is thrown when a requested document cannot be parsed.
-class ExceptionParseError : public Exception
+class MX_FORMAT_API ExceptionParseError : public Exception
 {
   public:
     using Exception::Exception;
@@ -101,7 +102,7 @@ class ExceptionParseError : public Exception
 
 /// @class ExceptionFileMissing
 /// An exception that is thrown when a requested file cannot be opened.
-class ExceptionFileMissing : public Exception
+class MX_FORMAT_API ExceptionFileMissing : public Exception
 {
   public:
     using Exception::Exception;
@@ -117,7 +118,7 @@ class ExceptionFileMissing : public Exception
 ///    If provided, then the given options will affect the behavior of the
 ///    read function.  Defaults to a null pointer.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readOptions = nullptr);
+MX_FORMAT_API void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readOptions = nullptr);
 
 /// Read a Document as XML from the given input stream.
 /// @param doc The Document into which data is read.
@@ -126,7 +127,7 @@ void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions
 ///    If provided, then the given options will affect the behavior of the
 ///    read function.  Defaults to a null pointer.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readOptions = nullptr);
+MX_FORMAT_API void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readOptions = nullptr);
 
 /// Read a Document as XML from the given filename.
 /// @param doc The Document into which data is read.
@@ -141,7 +142,7 @@ void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptio
 ///    function.  Defaults to a null pointer.
 /// @throws ExceptionParseError if the document cannot be parsed.
 /// @throws ExceptionFileMissing if the file cannot be opened.
-void readFromXmlFile(DocumentPtr doc,
+MX_FORMAT_API void readFromXmlFile(DocumentPtr doc,
                      FilePath filename,
                      FileSearchPath searchPath = FileSearchPath(),
                      const XmlReadOptions* readOptions = nullptr);
@@ -153,7 +154,7 @@ void readFromXmlFile(DocumentPtr doc,
 ///    If provided, then the given options will affect the behavior of the
 ///    read function.  Defaults to a null pointer.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readOptions = nullptr);
+MX_FORMAT_API void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readOptions = nullptr);
 
 /// @}
 /// @name Write Functions
@@ -165,7 +166,7 @@ void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions*
 /// @param writeOptions An optional pointer to an XmlWriteOptions object.
 ///    If provided, then the given options will affect the behavior of the
 ///    write function.  Defaults to a null pointer.
-void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptions* writeOptions = nullptr);
+MX_FORMAT_API void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptions* writeOptions = nullptr);
 
 /// Write a Document as XML to the given filename.
 /// @param doc The Document to be written.
@@ -174,7 +175,7 @@ void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptio
 /// @param writeOptions An optional pointer to an XmlWriteOptions object.
 ///    If provided, then the given options will affect the behavior of the
 ///    write function.  Defaults to a null pointer.
-void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions = nullptr);
+MX_FORMAT_API void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions = nullptr);
 
 /// Write a Document as XML to a new string, returned by value.
 /// @param doc The Document to be written.
@@ -182,7 +183,7 @@ void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOpt
 ///    If provided, then the given options will affect the behavior of the
 ///    write function.  Defaults to a null pointer.
 /// @return The output string, returned by value
-string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions = nullptr);
+MX_FORMAT_API string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions = nullptr);
 
 /// Export a Document as XML to the given output stream.
 /// @param doc The Document to be written.
@@ -190,7 +191,7 @@ string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions = n
 /// @param exportOptions An optional pointer to an XxmlExportOptions object.
 ///    If provided, then the given options will affect the behavior of the
 ///    export function.  Defaults to a null pointer.
-void exportToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlExportOptions* exportOptions = nullptr);
+MX_FORMAT_API void exportToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlExportOptions* exportOptions = nullptr);
 
 /// Export a Document as XML to the given filename.
 /// @param doc The Document to be written.
@@ -199,7 +200,7 @@ void exportToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlExportOpt
 /// @param exportOptions An optional pointer to an XmlExportOptions object.
 ///    If provided, then the given options will affect the behavior of the
 ///    write function.  Defaults to a null pointer.
-void exportToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlExportOptions* exportOptions = nullptr);
+MX_FORMAT_API void exportToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlExportOptions* exportOptions = nullptr);
 
 /// Export a Document as XML to a new string, returned by value.
 /// @param doc The Document to be written.
@@ -207,7 +208,7 @@ void exportToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlExportO
 ///    If provided, then the given options will affect the behavior of the
 ///    write function.  Defaults to a null pointer.
 /// @return The output string, returned by value
-string exportToXmlString(DocumentPtr doc, const XmlExportOptions* exportOptions = nullptr);
+MX_FORMAT_API string exportToXmlString(DocumentPtr doc, const XmlExportOptions* exportOptions = nullptr);
 
 /// @}
 /// @name Edit Functions
@@ -217,7 +218,7 @@ string exportToXmlString(DocumentPtr doc, const XmlExportOptions* exportOptions 
 /// element to hold the reference filename.
 /// @param doc The Document to be modified.
 /// @param filename The filename of the XInclude reference to be added.
-void prependXInclude(DocumentPtr doc, const FilePath& filename);
+MX_FORMAT_API void prependXInclude(DocumentPtr doc, const FilePath& filename);
 
 /// @}
 

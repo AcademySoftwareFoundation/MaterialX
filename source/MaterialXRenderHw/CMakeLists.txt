@@ -15,6 +15,8 @@ assign_source_group("Header Files" ${materialx_headers})
 
 add_library(MaterialXRenderHw ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_RENDERHW_EXPORTS)
+
 if(MSVC)
     target_link_libraries(
         MaterialXRenderHw
@@ -54,7 +56,8 @@ target_include_directories(MaterialXRenderHw
 install(TARGETS MaterialXRenderHw
     EXPORT MaterialX
     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    RUNTIME DESTINATION bin)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderHw/ MESSAGE_NEVER

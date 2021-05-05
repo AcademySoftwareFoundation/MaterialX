@@ -9,6 +9,8 @@
 /// @file
 /// MDL syntax class
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/Syntax.h>
 
 namespace MaterialX
@@ -21,7 +23,7 @@ using MdlSyntaxPtr = shared_ptr<MdlSyntax>;
 
 /// @class MdlSyntax
 /// Syntax class for MDL (Material Definition Language)
-class MdlSyntax : public Syntax
+class MX_GENMDL_API MdlSyntax : public Syntax
 {
   public:
     MdlSyntax();
@@ -68,11 +70,11 @@ class MdlSyntax : public Syntax
 
 namespace Type
 {
-    extern const TypeDesc* MDL_ADDRESSMODE;
-    extern const TypeDesc* MDL_COORDINATESPACE;
-    extern const TypeDesc* MDL_FILTERLOOKUPMODE;
-    extern const TypeDesc* MDL_FILTERTYPE;
-    extern const TypeDesc* MDL_DISTRIBUTIONTYPE;
+    extern MX_GENMDL_API const TypeDesc* MDL_ADDRESSMODE;
+    extern MX_GENMDL_API const TypeDesc* MDL_COORDINATESPACE;
+    extern MX_GENMDL_API const TypeDesc* MDL_FILTERLOOKUPMODE;
+    extern MX_GENMDL_API const TypeDesc* MDL_FILTERTYPE;
+    extern MX_GENMDL_API const TypeDesc* MDL_DISTRIBUTIONTYPE;
 }
 
 } // namespace MaterialX

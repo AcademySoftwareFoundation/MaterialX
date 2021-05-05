@@ -9,6 +9,8 @@
 /// @file
 /// GLSL Program interfaces
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
@@ -27,7 +29,7 @@ using GlslProgramPtr = std::shared_ptr<class GlslProgram>;
 ///
 /// There are two main interfaces which can be used.  One which takes in a HwShader and one which
 /// allows for explicit setting of shader stage code.
-class GlslProgram
+class MX_RENDERGLSL_API GlslProgram
 {
   public:
     /// Create a GLSL program instance
@@ -73,7 +75,7 @@ class GlslProgram
     /// The structure is populated by directly scanning the program so may not contain
     /// some inputs listed on any associated HwShader as those inputs may have been
     /// optimized out if they are unused.
-    struct Input
+    struct MX_RENDERGLSL_API Input
     {
         static int INVALID_OPENGL_TYPE;
 

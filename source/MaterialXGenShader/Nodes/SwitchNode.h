@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Switch node implementation
-class SwitchNode : public ShaderNodeImpl
+class MX_GENSHADER_API SwitchNode : public ShaderNodeImpl
 {
 public:
     static ShaderNodeImplPtr create();

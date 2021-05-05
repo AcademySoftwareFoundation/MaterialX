@@ -9,7 +9,7 @@
 /// @file
 /// Color management system classes
 
-#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
@@ -27,7 +27,7 @@ using ColorManagementSystemPtr = shared_ptr<class ColorManagementSystem>;
 
 /// @struct ColorSpaceTransform
 /// Structure that represents color space transform information
-struct ColorSpaceTransform
+struct MX_GENSHADER_API ColorSpaceTransform
 {
     ColorSpaceTransform(const string& ss, const string& ts, const TypeDesc* t);
 
@@ -46,7 +46,7 @@ struct ColorSpaceTransform
 
 /// @class ColorManagementSystem
 /// Abstract base class for color management systems
-class ColorManagementSystem
+class MX_GENSHADER_API ColorManagementSystem
 {
   public:
     virtual ~ColorManagementSystem() { }

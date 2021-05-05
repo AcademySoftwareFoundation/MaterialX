@@ -10,38 +10,6 @@
 namespace py = pybind11;
 namespace mx = MaterialX;
 
-class PyImageLoader : public mx::ImageLoader
-{
-  public:
-    PyImageLoader() :
-        mx::ImageLoader()
-    {
-    }
-
-    bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip) override
-    {
-        PYBIND11_OVERLOAD_PURE(
-            bool,
-            mx::ImageLoader,
-            saveImage,
-            filePath,
-            image,
-            verticalFlip
-        );
-    }
-
-    mx::ImagePtr loadImage(const mx::FilePath& filePath) override
-    {
-        PYBIND11_OVERLOAD_PURE(
-            mx::ImagePtr,
-            mx::ImageLoader,
-            loadImage,
-            filePath
-        );
-    }
-
-};
-
 void bindPyImageHandler(py::module& mod)
 {
     py::class_<mx::ImageSamplingProperties>(mod, "ImageSamplingProperties")
@@ -50,7 +18,7 @@ void bindPyImageHandler(py::module& mod)
         .def_readwrite("filterType", &mx::ImageSamplingProperties::filterType)
         .def_readwrite("defaultColor", &mx::ImageSamplingProperties::defaultColor);
 
-    py::class_<mx::ImageLoader, PyImageLoader, mx::ImageLoaderPtr>(mod, "ImageLoader")
+    py::class_<mx::ImageLoader, mx::ImageLoaderPtr>(mod, "ImageLoader")
         .def_readonly_static("BMP_EXTENSION", &mx::ImageLoader::BMP_EXTENSION)
         .def_readonly_static("EXR_EXTENSION", &mx::ImageLoader::EXR_EXTENSION)
         .def_readonly_static("GIF_EXTENSION", &mx::ImageLoader::GIF_EXTENSION)
@@ -82,6 +50,14 @@ void bindPyImageHandler(py::module& mod)
             })
         .def("bindImage", &mx::ImageHandler::bindImage)
         .def("unbindImage", &mx::ImageHandler::unbindImage)
+        .def("unbindImages", &mx::ImageHandler::unbindImages)
         .def("setSearchPath", &mx::ImageHandler::setSearchPath)
-        .def("getSearchPath", &mx::ImageHandler::getSearchPath);
+        .def("getSearchPath", &mx::ImageHandler::getSearchPath)
+        .def("setFilenameResolver", &mx::ImageHandler::setFilenameResolver)
+        .def("getFilenameResolver", &mx::ImageHandler::getFilenameResolver)
+        .def("createRenderResources", &mx::ImageHandler::createRenderResources)
+        .def("releaseRenderResources", &mx::ImageHandler::releaseRenderResources)
+        .def("clearImageCache", &mx::ImageHandler::clearImageCache)
+        .def("getZeroImage", &mx::ImageHandler::getZeroImage)
+        .def("getInvalidImage", &mx::ImageHandler::getInvalidImage);
 }

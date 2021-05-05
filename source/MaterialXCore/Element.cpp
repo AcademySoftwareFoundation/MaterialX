@@ -298,6 +298,17 @@ ConstElementPtr Element::getRoot() const
     return root;
 }
 
+DocumentPtr Element::getDocument()
+{
+    return getRoot()->asA<Document>();
+}
+
+/// Return the root document of our tree.
+ConstDocumentPtr Element::getDocument() const
+{
+    return getRoot()->asA<Document>();
+}
+
 bool Element::hasInheritedBase(ConstElementPtr base) const
 {
     for (ConstElementPtr elem : traverseInheritance())
@@ -665,9 +676,9 @@ template <class T> class ElementRegistry
 // Template instantiations
 //
 
-#define INSTANTIATE_SUBCLASS(T)                         \
-template shared_ptr<T> Element::asA<T>();               \
-template shared_ptr<const T> Element::asA<T>() const;
+#define INSTANTIATE_SUBCLASS(T)                                     \
+template MX_CORE_API shared_ptr<T> Element::asA<T>();               \
+template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;
 
 INSTANTIATE_SUBCLASS(Element)
 INSTANTIATE_SUBCLASS(GeomElement)

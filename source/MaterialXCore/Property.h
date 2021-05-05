@@ -9,7 +9,7 @@
 /// @file
 /// Property element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Geom.h>
 
@@ -43,7 +43,7 @@ using ConstPropertySetAssignPtr = shared_ptr<const PropertySetAssign>;
 
 /// @class Property
 /// A property element within a PropertySet.
-class Property : public ValueElement
+class MX_CORE_API Property : public ValueElement
 {
   public:
     Property(ElementPtr parent, const string& name) :
@@ -58,7 +58,7 @@ class Property : public ValueElement
 
 /// @class PropertyAssign
 /// A property assignment element within a Look.
-class PropertyAssign : public ValueElement
+class MX_CORE_API PropertyAssign : public ValueElement
 {
   public:
     PropertyAssign(ElementPtr parent, const string& name) :
@@ -149,7 +149,7 @@ class PropertyAssign : public ValueElement
 
 /// @class PropertySet
 /// A property set element within a Document.
-class PropertySet : public Element
+class MX_CORE_API PropertySet : public Element
 {
   public:
     PropertySet(ElementPtr parent, const string& name) :
@@ -224,7 +224,7 @@ public:
 
 /// @class PropertySetAssign
 /// A property set assignment element within a Look.
-class PropertySetAssign : public GeomElement
+class MX_CORE_API PropertySetAssign : public GeomElement
 {
   public:
     PropertySetAssign(ElementPtr parent, const string& name) :

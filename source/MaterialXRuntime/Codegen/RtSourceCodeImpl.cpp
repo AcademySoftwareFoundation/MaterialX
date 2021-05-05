@@ -11,6 +11,7 @@
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 #include <MaterialXFormat/Util.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
 {

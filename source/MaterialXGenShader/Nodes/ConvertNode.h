@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Convert node implementation
-class ConvertNode : public ShaderNodeImpl
+class MX_GENSHADER_API ConvertNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

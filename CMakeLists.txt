@@ -235,9 +235,6 @@ endfunction(assign_source_group)
 
 # Adjust settings for shared libraries if requested
 if(MATERIALX_BUILD_SHARED_LIBS)
-    if(MSVC)
-        message(FATAL_ERROR "Only static libraries are currently supported on Windows.")
-    endif()
     add_definitions(-DMATERIALX_BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS "ON")
 else()

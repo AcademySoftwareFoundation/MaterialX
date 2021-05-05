@@ -9,7 +9,7 @@
 /// @file
 /// Interface element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Geom.h>
 
@@ -49,7 +49,7 @@ using CharSet = std::set<char>;
 /// The base class for port elements such as Input and Output.
 ///
 /// Port elements support spatially-varying upstream connections to nodes.
-class PortElement : public ValueElement
+class MX_CORE_API PortElement : public ValueElement
 {
   protected:
     PortElement(ElementPtr parent, const string& category, const string& name) :
@@ -198,7 +198,7 @@ class PortElement : public ValueElement
 ///
 /// An Input holds either a uniform value or a connection to a spatially-varying
 /// Output, either of which may be modified within the scope of a Material.
-class Input : public PortElement
+class MX_CORE_API Input : public PortElement
 {
   public:
     Input(ElementPtr parent, const string& name) :
@@ -274,7 +274,7 @@ class Input : public PortElement
 
 /// @class Output
 /// A spatially-varying output element within a NodeGraph or NodeDef.
-class Output : public PortElement
+class MX_CORE_API Output : public PortElement
 {
   public:
     Output(ElementPtr parent, const string& name) :
@@ -320,7 +320,7 @@ class Output : public PortElement
 ///
 /// An InterfaceElement supports a set of Input and Output elements, with an API
 /// for setting their values.
-class InterfaceElement : public TypedElement
+class MX_CORE_API InterfaceElement : public TypedElement
 {
   protected:
     InterfaceElement(ElementPtr parent, const string& category, const string& name) :

@@ -11,6 +11,8 @@
 
 #include <MaterialXCore/Types.h>
 
+#include <MaterialXRender/Export.h>
+
 namespace MaterialX
 {
 
@@ -20,7 +22,7 @@ using ViewHandlerPtr = std::shared_ptr<class ViewHandler>;
 /// @class ViewHandler
 /// Utility view handler for creating and providing 
 /// View data for shader binding.
-class ViewHandler
+class MX_RENDER_API ViewHandler
 {
   public:
     ViewHandler()

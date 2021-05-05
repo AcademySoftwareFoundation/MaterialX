@@ -9,6 +9,8 @@
 /// @file
 /// OSL code renderer
 
+#include <MaterialXRenderOsl/Export.h>
+
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
@@ -28,7 +30,7 @@ using OslRendererPtr = std::shared_ptr<class OslRenderer>;
 ///     - Render validation: Use of "testrender" to output rendered images. Assumes source compliation was success
 ///       as it depends on the existence of corresponding .oso files.
 ///
-class OslRenderer : public ShaderRenderer
+class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
 {
   public:
     /// Create an OSL renderer instance

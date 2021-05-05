@@ -9,6 +9,8 @@
 /// @file
 /// MDL shading language generator
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
@@ -19,7 +21,7 @@ using MdlShaderGeneratorPtr = shared_ptr<class MdlShaderGenerator>;
 
 /// @class MdlShaderGenerator
 /// Shader generator for MDL (Material Definition Language).
-class MdlShaderGenerator : public ShaderGenerator
+class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 {
   public:
     MdlShaderGenerator();
@@ -59,8 +61,8 @@ class MdlShaderGenerator : public ShaderGenerator
 namespace MDL
 {
     // Identifiers for MDL variable blocks
-    extern const string INPUTS;
-    extern const string OUTPUTS;
+    extern MX_GENMDL_API const string INPUTS;
+    extern MX_GENMDL_API const string OUTPUTS;
 }
 
 } // namespace MaterialX

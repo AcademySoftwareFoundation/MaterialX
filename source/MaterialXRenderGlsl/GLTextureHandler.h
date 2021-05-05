@@ -9,6 +9,8 @@
 /// @file
 /// OpenGL texture handler
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXRender/ImageHandler.h>
 
 namespace MaterialX
@@ -19,7 +21,7 @@ using GLTextureHandlerPtr = std::shared_ptr<class GLTextureHandler>;
 
 /// @class GLTextureHandler
 /// An OpenGL texture handler class
-class GLTextureHandler : public ImageHandler
+class MX_RENDERGLSL_API GLTextureHandler : public ImageHandler
 {
   public:
     static ImageHandlerPtr create(ImageLoaderPtr imageLoader)

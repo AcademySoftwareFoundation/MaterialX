@@ -9,7 +9,7 @@
 /// @file
 /// Look element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Property.h>
@@ -50,7 +50,7 @@ using ConstVisibilityPtr = shared_ptr<const Visibility>;
 
 /// @class Look
 /// A look element within a Document.
-class Look : public Element
+class MX_CORE_API Look : public Element
 {
   public:
     Look(ElementPtr parent, const string& name) :
@@ -251,7 +251,7 @@ class Look : public Element
 
 /// @class LookGroup
 /// A look group element within a Document.
-class LookGroup : public Element
+class MX_CORE_API LookGroup : public Element
 {
   public:
     LookGroup(ElementPtr parent, const string& name) :
@@ -306,7 +306,7 @@ class LookGroup : public Element
 
 /// @class MaterialAssign
 /// A material assignment element within a Look.
-class MaterialAssign : public GeomElement
+class MX_CORE_API MaterialAssign : public GeomElement
 {
   public:
     MaterialAssign(ElementPtr parent, const string& name) :
@@ -408,7 +408,7 @@ class MaterialAssign : public GeomElement
 ///
 /// @todo Add a Look::geomIsVisible method that computes the visibility between
 ///     two geometries in the context of a specific Look.
-class Visibility : public GeomElement
+class MX_CORE_API Visibility : public GeomElement
 {
   public:
     Visibility(ElementPtr parent, const string& name) :
@@ -515,7 +515,7 @@ class Visibility : public GeomElement
 ///             By default, this argument is the universal geometry string "/",
 ///             and all material bindings are returned.
 /// @return Vector of MaterialAssign elements
-vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
+MX_CORE_API vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
 
 } // namespace MaterialX
 

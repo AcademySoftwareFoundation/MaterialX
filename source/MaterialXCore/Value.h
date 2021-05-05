@@ -9,7 +9,7 @@
 /// @file
 /// Generic value classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Exception.h>
 
 #include <MaterialXCore/Types.h>
 #include <MaterialXCore/Util.h>
@@ -33,8 +33,16 @@ using ConstValuePtr = shared_ptr<const Value>;
 
 template <class T> class TypedValue;
 
+/// @class ExceptionTypeError
+/// An exception that is thrown when a type mismatch is encountered.
+class MX_CORE_API ExceptionTypeError : public Exception
+{
+  public:
+    using Exception::Exception;
+};
+
 /// A generic, discriminated value, whose type may be queried dynamically.
-class Value
+class MX_CORE_API Value
 {
   public:
     /// Float formats to use when converting values to strings.
@@ -127,7 +135,7 @@ class Value
 };
 
 /// The class template for typed subclasses of Value
-template <class T> class TypedValue : public Value
+template <class T> class MX_CORE_API TypedValue : public Value
 {
   public:
     TypedValue() :
@@ -188,7 +196,7 @@ template <class T> class TypedValue : public Value
 
 /// @class ScopedFloatFormatting
 /// An RAII class for controlling the float formatting of values.
-class ScopedFloatFormatting
+class MX_CORE_API ScopedFloatFormatting
 {
   public:
     explicit ScopedFloatFormatting(Value::FloatFormat format, int precision = 6);
@@ -199,23 +207,39 @@ class ScopedFloatFormatting
     int _precision;
 };
 
-/// @class ExceptionTypeError
-/// An exception that is thrown when a type mismatch is encountered.
-class ExceptionTypeError : public Exception
-{
-  public:
-    using Exception::Exception;
-};
-
 /// Return the type string associated with the given data type.
-template<class T> const string& getTypeString();
+template<class T> MX_CORE_API const string& getTypeString();
 
 /// Convert the given data value to a value string.
-template <class T> string toValueString(const T& data);
+template <class T> MX_CORE_API string toValueString(const T& data);
 
 /// Convert the given value string to a data value of the given type.
 /// @throws ExceptionTypeError if the conversion cannot be performed.
-template <class T> T fromValueString(const string& value);
+template <class T> MX_CORE_API T fromValueString(const string& value);
+
+/// Forward declaration of specific template instantiations.
+/// Base types
+MX_CORE_EXTERN_TEMPLATE(TypedValue<int>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<bool>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<float>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Color3>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Color4>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Vector2>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Vector3>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Vector4>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Matrix33>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<Matrix44>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<string>);
+
+/// Array types
+MX_CORE_EXTERN_TEMPLATE(TypedValue<IntVec>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<BoolVec>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<FloatVec>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<StringVec>);
+
+/// Alias types
+MX_CORE_EXTERN_TEMPLATE(TypedValue<long>);
+MX_CORE_EXTERN_TEMPLATE(TypedValue<double>);
 
 } // namespace MaterialX
 

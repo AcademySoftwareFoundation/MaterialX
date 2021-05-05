@@ -32,7 +32,7 @@ jobs:
           python: 3.7
 
         - name: Linux_GCC_10_Python37
-          os: ubuntu-18.04
+          os: ubuntu-20.04
           compiler: gcc
           compiler_version: "10"
           python: 3.7

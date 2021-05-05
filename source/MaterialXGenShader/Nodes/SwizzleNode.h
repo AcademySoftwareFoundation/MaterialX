@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Swizzle node implementation
-class SwizzleNode : public ShaderNodeImpl
+class MX_GENSHADER_API SwizzleNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

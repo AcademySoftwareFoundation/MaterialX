@@ -9,7 +9,7 @@
 /// @file
 /// Material element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Geom.h>
 #include <MaterialXCore/Node.h>
@@ -27,12 +27,12 @@ namespace MaterialX
 ///                 all node types are returned. The default argument value is to return surface shaders.
 /// @param target Target attribute filter for nodes to return. The default argument value is an empty string
 ///               indicating to include nodes which match any target.
-std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode,
+MX_CORE_API std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode,
                                            const string& nodeType = SURFACE_SHADER_TYPE_STRING,
                                            const string& target = EMPTY_STRING);
 
 /// Return a vector of all outputs that this nodes inputs are connected to.
-vector<OutputPtr> getConnectedOutputs(const NodePtr& node);
+MX_CORE_API vector<OutputPtr> getConnectedOutputs(const NodePtr& node);
 
 } // namespace MaterialX
 

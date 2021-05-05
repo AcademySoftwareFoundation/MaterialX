@@ -9,6 +9,7 @@
 /// @file
 /// Base class for shader rendering
 
+#include <MaterialXRender/Export.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
@@ -24,7 +25,7 @@ using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
 
 /// @class ShaderRenderer
 /// Helper class for rendering generated shader code to produce images.
-class ShaderRenderer
+class MX_RENDER_API ShaderRenderer
 {
   public:
     /// A map with name and source code for each shader stage.
@@ -153,7 +154,7 @@ class ShaderRenderer
 /// An exception that is thrown when shader rendering fails.
 /// An error log of shader errors is cached as part of the exception.
 /// For example, if shader compilation fails, then a list of compilation errors is cached.
-class ExceptionShaderRenderError : public Exception
+class MX_RENDER_API ExceptionShaderRenderError : public Exception
 {
   public:
     ExceptionShaderRenderError(const string& msg, const StringVec& errorList) :

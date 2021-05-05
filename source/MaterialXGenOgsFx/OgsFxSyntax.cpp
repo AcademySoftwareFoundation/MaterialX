@@ -6,6 +6,7 @@
 #include <MaterialXGenOgsFx/OgsFxSyntax.h>
 
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <memory>
 

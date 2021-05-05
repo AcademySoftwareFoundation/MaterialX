@@ -9,48 +9,48 @@
 /// @file
 /// Utility methods
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 namespace MaterialX
 {
 
-extern const string EMPTY_STRING;
+extern MX_CORE_API const string EMPTY_STRING;
 
 /// Return the version of the MaterialX library as a string.
-string getVersionString();
+MX_CORE_API string getVersionString();
 
 /// Return the major, minor, and build versions of the MaterialX library
 /// as an integer tuple.
-std::tuple<int, int, int> getVersionIntegers();
+MX_CORE_API std::tuple<int, int, int> getVersionIntegers();
 
 /// Create a valid MaterialX name from the given string.
-string createValidName(string name, char replaceChar = '_');
+MX_CORE_API string createValidName(string name, char replaceChar = '_');
 
 /// Return true if the given string is a valid MaterialX name.
-bool isValidName(const string& name);
+MX_CORE_API bool isValidName(const string& name);
 
 /// Increment the numeric suffix of a name
-string incrementName(const string& name);
+MX_CORE_API string incrementName(const string& name);
 
 /// Split a string into a vector of substrings using the given set of
 /// separator characters.
-StringVec splitString(const string& str, const string& sep);
+MX_CORE_API StringVec splitString(const string& str, const string& sep);
 
 /// Merge a string vector into a single string with each element
 /// seprated by the given separator
-string mergeStringVec(const StringVec& strVec, const string& sep);
+MX_CORE_API string mergeStringVec(const StringVec& strVec, const string& sep);
 
 /// Apply the given substring substitutions to the input string.
-string replaceSubstrings(string str, const StringMap& stringMap);
+MX_CORE_API string replaceSubstrings(string str, const StringMap& stringMap);
 
 /// Return a copy of the given string with letters converted to lower case.
-string stringToLower(string str);
+MX_CORE_API string stringToLower(string str);
 
 /// Return true if the given string ends with the given suffix.
-bool stringEndsWith(const string& str, const string& suffix);
+MX_CORE_API bool stringEndsWith(const string& str, const string& suffix);
 
 /// Trim leading and trailing spaces from a string.
-string trimSpaces(const string& str);
+MX_CORE_API string trimSpaces(const string& str);
 
 /// Combine the hash of a value with an existing seed.
 template<typename T> void hashCombine(size_t& seed, const T& value)
@@ -59,13 +59,13 @@ template<typename T> void hashCombine(size_t& seed, const T& value)
 } 
 
 /// Split a name path into string vector
-StringVec splitNamePath(const string& namePath);
+MX_CORE_API StringVec splitNamePath(const string& namePath);
 
 /// Create a name path from a string vector
-string createNamePath(const StringVec& nameVec);
+MX_CORE_API string createNamePath(const StringVec& nameVec);
 
 /// Given a name path, return the parent name path
-string parentNamePath(const string& namePath);
+MX_CORE_API string parentNamePath(const string& namePath);
 
 } // namespace MaterialX
 

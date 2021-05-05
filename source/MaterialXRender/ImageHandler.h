@@ -9,6 +9,7 @@
 /// @file
 /// Image handler interfaces
 
+#include <MaterialXRender/Export.h>
 #include <MaterialXRender/Image.h>
 
 #include <MaterialXFormat/File.h>
@@ -18,11 +19,11 @@
 namespace MaterialX
 {
 
-extern const string IMAGE_PROPERTY_SEPARATOR;
-extern const string UADDRESS_MODE_SUFFIX;
-extern const string VADDRESS_MODE_SUFFIX;
-extern const string FILTER_TYPE_SUFFIX;
-extern const string DEFAULT_COLOR_SUFFIX;
+extern MX_RENDER_API const string IMAGE_PROPERTY_SEPARATOR;
+extern MX_RENDER_API const string UADDRESS_MODE_SUFFIX;
+extern MX_RENDER_API const string VADDRESS_MODE_SUFFIX;
+extern MX_RENDER_API const string FILTER_TYPE_SUFFIX;
+extern MX_RENDER_API const string DEFAULT_COLOR_SUFFIX;
 
 class ImageHandler;
 class ImageLoader;
@@ -39,7 +40,7 @@ using ImageLoaderMap = std::unordered_map< string, std::vector<ImageLoaderPtr> >
 
 /// @class ImageSamplingProperties
 /// Interface to describe sampling properties for images.
-class ImageSamplingProperties
+class MX_RENDER_API ImageSamplingProperties
 {
   public:
     /// Set the properties based on data in a uniform block.
@@ -88,7 +89,7 @@ class ImageSamplingProperties
 
 /// @class ImageLoader
 /// Abstract base class for file-system image loaders
-class ImageLoader
+class MX_RENDER_API ImageLoader
 {
   public:
     ImageLoader()
@@ -127,12 +128,12 @@ class ImageLoader
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
                            ConstImagePtr image,
-                           bool verticalFlip = false) = 0;
+                           bool verticalFlip = false);
 
     /// Load an image from the file system. This method must be implemented by derived classes.
     /// @param filePath The requested image file path.
     /// @return On success, a shared pointer to the loaded image; otherwise an empty shared pointer.
-    virtual ImagePtr loadImage(const FilePath& filePath) = 0;
+    virtual ImagePtr loadImage(const FilePath& filePath);
 
   protected:
     // List of supported string extensions
@@ -144,7 +145,7 @@ class ImageLoader
 /// disk via supplied ImageLoader. Derived classes are responsible for
 /// determinining how to perform the logic for "binding" of these resources
 /// for a given target (such as a given shading language).
-class ImageHandler
+class MX_RENDER_API ImageHandler
 {
   public:
     static ImageHandlerPtr create(ImageLoaderPtr imageLoader)
@@ -220,6 +221,10 @@ class ImageHandler
     /// Release rendering resources for the given image.
     virtual void releaseRenderResources(ImagePtr image);
 
+    /// Clear the contents of the image cache, first releasing any
+    /// render resources associated with each image.
+    void clearImageCache();
+
     /// Return a fallback image with zeroes in all channels.
     ImagePtr getZeroImage() const
     {
@@ -243,10 +248,6 @@ class ImageHandler
     // Return the cached image, if found; otherwise return an empty
     // shared pointer.
     ImagePtr getCachedImage(const FilePath& filePath);
-
-    /// Clear the contents of the image cache, first releasing any
-    /// render resources associated with each image.
-    void clearImageCache();
 
   protected:
     ImageLoaderMap _imageLoaders;
