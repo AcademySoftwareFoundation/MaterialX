@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<materialx version="1.38" cms="ocio" colorspace="lin_rec709">
+  <nodedef name="ND_simple_srf_surface" node="simple_srf">
+    <input name="diffColor" type="color3" value="0.18,0.18, 0.18"/>
+    <input name="specColor" type="color3" value="0.05, 0.05,0.05" />
+    <input name="normal" type="vector3" value="1,0.5,1" />
+    <input name="specRoughness" type="float" value="0.25" />
+    <input name="intensity" type="integer" value="-1" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+  <implementation name="IM_simple_srf" nodedef="ND_simple_srf_surface" />
+</materialx>
