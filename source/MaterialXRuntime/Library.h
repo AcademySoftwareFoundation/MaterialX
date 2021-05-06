@@ -52,6 +52,14 @@ public:
     using Exception::Exception;
 };
 
+/// @class ExceptionRuntimeTypeError
+/// An exception that is thrown when a type incompatibility error occur.
+class ExceptionRuntimeTypeError : public ExceptionRuntimeError
+{
+public:
+    using ExceptionRuntimeError::ExceptionRuntimeError;
+};
+
 /// A custom reinterpret cast function. To be used when casting between
 /// different interpretations of the same bits. This is a safer way to
 /// re-interpret the bits. The standard method of casting the address may

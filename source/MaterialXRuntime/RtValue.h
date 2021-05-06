@@ -10,7 +10,7 @@
 /// TODO: Docs
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtIdentifier.h>
+#include <MaterialXRuntime/RtType.h>
 
 #include <MaterialXCore/Types.h>
 
@@ -38,7 +38,6 @@ public:
     explicit RtValue(const Vector3& v) { asVector3() = v; }
     explicit RtValue(const Vector4& v) { asVector4() = v; }
     explicit RtValue(const RtIdentifier& v) { asIdentifier() = v; }
-    explicit RtValue(void* v) { asPtr() = v; }
 
     /// Explicit value constructor for large values.
     /// Allocated data is managed by the given prim.
@@ -143,17 +142,6 @@ public:
     RtIdentifier& asIdentifier()
     {
         return *_reinterpret_cast<RtIdentifier*>(&_data);
-    }
-
-    /// Return const pointer.
-    void* const& asPtr() const
-    {
-        return *_reinterpret_cast<void* const*>(&_data);
-    }
-    /// Return reference to pointer.
-    void*& asPtr()
-    {
-        return *_reinterpret_cast<void**>(&_data);
     }
 
     /// Return Matrix33 value.
@@ -288,143 +276,276 @@ public:
     /// Return bool value.
     const bool& asBool() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::BOOLEAN)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::BOOLEAN.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value .asBool();
     }
     /// Return reference to bool value.
     bool& asBool()
     {
+#ifndef NDEBUG
+        if (_type != RtType::BOOLEAN)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::BOOLEAN.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asBool();
     }
 
     /// Return int value.
     int asInt() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::INTEGER)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::INTEGER.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asInt();
     }
     /// Return reference to int value.
     int& asInt()
     {
+#ifndef NDEBUG
+        if (_type != RtType::INTEGER)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::INTEGER.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asInt();
     }
 
     /// Return float value.
     float asFloat() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::FLOAT)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::FLOAT.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asFloat();
     }
     /// Return reference to float value.
     float& asFloat()
     {
+#ifndef NDEBUG
+        if (_type != RtType::FLOAT)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::FLOAT.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asFloat();
     }
 
     /// Return Color3 value.
     const Color3& asColor3() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::COLOR3)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::COLOR3.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asColor3();
     }
     /// Return reference to Color3 value.
     Color3& asColor3()
     {
+#ifndef NDEBUG
+        if (_type != RtType::COLOR3)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::COLOR3.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asColor3();
     }
 
     /// Return Color4 value.
     const Color4& asColor4() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::COLOR4)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::COLOR4.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asColor4();
     }
     /// Return reference to Color4 value.
     Color4& asColor4()
     {
+#ifndef NDEBUG
+        if (_type != RtType::COLOR4)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::COLOR4.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asColor4();
     }
 
     /// Return Vector2 value.
     const Vector2& asVector2() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::VECTOR2)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::VECTOR2.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asVector2();
     }
     /// Return reference to Vector2 value.
     Vector2& asVector2()
     {
+#ifndef NDEBUG
+        if (_type != RtType::VECTOR2)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::VECTOR2.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asVector2();
     }
 
     /// Return Vector3 value.
     const Vector3& asVector3() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::VECTOR3)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::VECTOR3.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asVector3();
     }
     /// Return reference to Vector3 value.
     Vector3& asVector3()
     {
+#ifndef NDEBUG
+        if (_type != RtType::VECTOR3)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::VECTOR3.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asVector3();
     }
 
     /// Return Vector4 value.
     const Vector4& asVector4() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::VECTOR4)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::VECTOR4.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asVector4();
     }
     /// Return reference to Vector4 value.
     Vector4& asVector4()
     {
+#ifndef NDEBUG
+        if (_type != RtType::VECTOR4)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::VECTOR4.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asVector4();
     }
 
     /// Return identifier value.
     const RtIdentifier& asIdentifier() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::IDENTIFIER)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::IDENTIFIER.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asIdentifier();
     }
     /// Return reference to identifier value.
     RtIdentifier& asIdentifier()
     {
+#ifndef NDEBUG
+        if (_type != RtType::IDENTIFIER)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::IDENTIFIER.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asIdentifier();
-    }
-
-    /// Return const pointer.
-    void* const& asPtr() const
-    {
-        return _value.asPtr();
-    }
-    /// Return reference to pointer.
-    void*& asPtr()
-    {
-        return _value.asPtr();
     }
 
     /// Return Matrix33 value.
     const Matrix33& asMatrix33() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::MATRIX33)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::MATRIX33.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asMatrix33();
     }
     /// Return reference to Matrix33 value.
     Matrix33& asMatrix33()
     {
+#ifndef NDEBUG
+        if (_type != RtType::MATRIX33)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::MATRIX33.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asMatrix33();
     }
 
     /// Return Matrix44 value.
     const Matrix44& asMatrix44() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::MATRIX44)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::MATRIX44.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asMatrix44();
     }
     /// Return reference to Matrix44 value.
     Matrix44& asMatrix44()
     {
+#ifndef NDEBUG
+        if (_type != RtType::MATRIX44)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::MATRIX44.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asMatrix44();
     }
 
     /// Return string value.
     const string& asString() const
     {
+#ifndef NDEBUG
+        if (_type != RtType::STRING)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::STRING.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asString();
     }
     /// Return reference to string value.
     string& asString()
     {
+#ifndef NDEBUG
+        if (_type != RtType::STRING)
+        {
+            throw ExceptionRuntimeTypeError("Referencing a value as '" + RtType::STRING.str() + "' when the value is in fact a '" + _type.str() + "'");
+        }
+#endif
         return _value.asString();
     }
 

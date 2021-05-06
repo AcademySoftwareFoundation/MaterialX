@@ -221,12 +221,6 @@ TEST_CASE("Runtime: Values", "[runtime]")
     mx::RtValue v4 = vector4;
     REQUIRE(v4.asVector4()[0] == 4.0f);
 
-    mx::RtValue ptr;
-    ptr.asPtr() = &vector4;
-    REQUIRE(ptr.asPtr() == &vector4);
-    ptr.clear();
-    REQUIRE(ptr.asPtr() == (void*)0);
-
     // Test creating large values.
     // An stage is needed to take ownership of allocated data.
     mx::RtStagePtr stage = api->createStage(MAIN);
@@ -241,6 +235,15 @@ TEST_CASE("Runtime: Values", "[runtime]")
     REQUIRE(mtx33.asMatrix33().isEquivalent(testmatrix, 1e-6f));
     mtx33.asMatrix33()[0][0] = 42.0f;
     REQUIRE(!mtx33.asMatrix33().isEquivalent(testmatrix, 1e-6f));
+
+#ifndef NDEBUG
+    // Test referencing a typed value with the wrong type.
+    // Should throw in debug builds where type check is done.
+    mx::RtTypedValue tval(mx::RtType::COLOR3, color3);
+    REQUIRE_THROWS(tval.asBool());
+    REQUIRE_THROWS(tval.asString());
+    REQUIRE_NOTHROW(tval.asColor3());
+#endif
 
     // Test unmarshalling values from string representations.
     // For small values (<=16byts) the same value instance can be reused
@@ -2461,7 +2464,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtCommand::setAttributeFromString(foo, metadata, metadataValue, attrResult);
     REQUIRE(attrResult);
     REQUIRE(foo.getAttribute(metadata));
-    REQUIRE(foo.getAttribute(metadata)->asIdentifier() == metadataValue);
+    REQUIRE(foo.getAttribute(metadata)->asString() == metadataValue);
     REQUIRE(setAttributeCount == 1);
     REQUIRE(removeAttributeCount == 0);
 
@@ -2474,7 +2477,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtCommand::redo(result);
     REQUIRE(result);
     REQUIRE(foo.getAttribute(metadata));
-    REQUIRE(foo.getAttribute(metadata)->asIdentifier() == metadataValue);
+    REQUIRE(foo.getAttribute(metadata)->asString() == metadataValue);
     REQUIRE(setAttributeCount == 2);
     REQUIRE(removeAttributeCount == 1);
 

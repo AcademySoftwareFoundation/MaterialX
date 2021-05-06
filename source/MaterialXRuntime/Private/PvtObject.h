@@ -84,7 +84,7 @@ public:
         }
         if (!isCompatible(T::classType()))
         {
-            throw ExceptionRuntimeError("Types are incompatible for type cast, '" + getName().str() + "' is not a '" + T::className().str() + "'");
+            throw ExceptionRuntimeTypeError("Types are incompatible for type cast, '" + getName().str() + "' is not a '" + T::className().str() + "'");
         }
 // #endif
         return static_cast<T*>(this);

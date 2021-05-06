@@ -16,56 +16,20 @@
 namespace MaterialX
 {
 
-/// Class holding identifiers for the built in data types.
-class RtType
-{
-public:
-    static const RtIdentifier BOOLEAN;
-    static const RtIdentifier INTEGER;
-    static const RtIdentifier FLOAT;
-    static const RtIdentifier VECTOR2;
-    static const RtIdentifier VECTOR3;
-    static const RtIdentifier VECTOR4;
-    static const RtIdentifier COLOR3;
-    static const RtIdentifier COLOR4;
-    static const RtIdentifier MATRIX33;
-    static const RtIdentifier MATRIX44;
-    static const RtIdentifier IDENTIFIER;
-    static const RtIdentifier STRING;
-    static const RtIdentifier FILENAME;
-    static const RtIdentifier INTEGERARRAY;
-    static const RtIdentifier FLOATARRAY;
-    static const RtIdentifier COLOR3ARRAY;
-    static const RtIdentifier COLOR4ARRAY;
-    static const RtIdentifier VECTOR2ARRAY;
-    static const RtIdentifier VECTOR3ARRAY;
-    static const RtIdentifier VECTOR4ARRAY;
-    static const RtIdentifier STRINGARRAY;
-    static const RtIdentifier BSDF;
-    static const RtIdentifier EDF;
-    static const RtIdentifier VDF;
-    static const RtIdentifier SURFACESHADER;
-    static const RtIdentifier VOLUMESHADER;
-    static const RtIdentifier DISPLACEMENTSHADER;
-    static const RtIdentifier LIGHTSHADER;
-    static const RtIdentifier MATERIAL;
-    static const RtIdentifier AUTO;
-};
-
 /// Function type for creating a value of a specific data type.
-using RtValueCreateFunc = std::function<RtValue(RtPrim & owner)>;
+using RtValueCreateFunc = std::function<RtValue(RtPrim& owner)>;
 
 /// Function type for copying a value of a specific data type.
-using RtValueCopyFunc = std::function<void(const RtValue & src, RtValue & dest)>;
+using RtValueCopyFunc = std::function<void(const RtValue& src, RtValue& dest)>;
 
 /// Function type for comparing two values for equality.
-using RtValueCompareFunc = std::function<bool(const RtValue & a, const RtValue & b)>;
+using RtValueCompareFunc = std::function<bool(const RtValue& a, const RtValue& b)>;
 
 /// Function type for converting a value of a specific data type.
-using RtValueToStringFunc = std::function<void(const RtValue & src, string & dest)>;
+using RtValueToStringFunc = std::function<void(const RtValue& src, string& dest)>;
 
 /// Function type for converting a value of a specific data type.
-using RtValueFromStringFunc = std::function<void(const string & src, RtValue & dest)>;
+using RtValueFromStringFunc = std::function<void(const string& src, RtValue& dest)>;
 
 /// @struct RtValueFuncs
 /// Struct holding functions for creation and conversion
