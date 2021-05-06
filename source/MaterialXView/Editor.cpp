@@ -662,8 +662,8 @@ void PropertyEditor::updateContents(Viewer* viewer)
 
     // Shading model display
     mx::TypedElementPtr elem = material->getElement();
-    std::string shaderName = elem ? elem->getAttribute(mx::NodeDef::NODE_ATTRIBUTE) : mx::EMPTY_STRING;
-    if (!shaderName.empty())
+    std::string shaderName = elem ? elem->getCategory() : mx::EMPTY_STRING;
+    if (!shaderName.empty() && shaderName != "surface")
     {
         ng::Widget* twoColumns = new ng::Widget(_container);
         twoColumns->setLayout(_gridLayout2);
@@ -703,13 +703,12 @@ void PropertyEditor::updateContents(Viewer* viewer)
         }
 
         bool addedLabel = false;
-        const std::string otherString("Other");
         for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
         {
             const mx::UIPropertyItem& item = it2->second;
             if (material->findUniform(item.variable->getPath()))
             {
-                addItemToForm(item, addedLabel ? mx::EMPTY_STRING : otherString, _container, viewer, editable);
+                addItemToForm(item, addedLabel ? mx::EMPTY_STRING : "Shader Inputs", _container, viewer, editable);
                 addedLabel = true;
                 addedItems = true;
             }
@@ -717,7 +716,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
     }
     if (!addedItems)
     {
-        new ng::Label(_container, "No Input Parameters");
+        new ng::Label(_container, "No Shader Inputs");
         new ng::Label(_container, "");
     }
 
