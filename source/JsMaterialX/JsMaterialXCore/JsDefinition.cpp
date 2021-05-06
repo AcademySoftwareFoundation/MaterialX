@@ -22,7 +22,6 @@ extern "C"
             .function("hasNodeGroup", &mx::NodeDef::hasNodeGroup)
             .function("getNodeGroup", &mx::NodeDef::getNodeGroup)
             .function("getImplementation", &mx::NodeDef::getImplementation)
-            .function("getInstantiatingShaderRefs", &mx::NodeDef::getInstantiatingShaderRefs)
             .function("isVersionCompatible", &mx::NodeDef::isVersionCompatible)
             .class_property("CATEGORY", &mx::NodeDef::CATEGORY)
             .class_property("NODE_ATTRIBUTE", &mx::NodeDef::NODE_ATTRIBUTE)

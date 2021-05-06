@@ -6,8 +6,9 @@
   "scripts": {
     "clean": "node ./node_modules/rimraf/bin.js ./_build/",
     "copyBuild": "node ./node_modules/copyfiles/copyfiles -f ../../../build/source/JsMaterialX/JsMaterialX* _build",
+    "mocha": "mocha '*.spec.js' --require @babel/register --timeout 5000",
     "pretest": "npm run clean && npm run copyBuild",
-    "test": "mocha '*.spec.js' --require @babel/register --timeout 5000"
+    "test": "npm run mocha"
   },
   "keywords": [],
   "author": "",

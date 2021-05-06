@@ -4,7 +4,6 @@ addWrapper(function(Module, api) {
         'TypedValue_integer',
         'TypedValue_boolean',
         'TypedValue_float',
-        'TypedValue_color2',
         'TypedValue_color3',
         'TypedValue_color4',
         'TypedValue_vector2',

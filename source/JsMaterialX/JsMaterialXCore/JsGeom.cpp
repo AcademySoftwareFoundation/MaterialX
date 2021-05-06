@@ -41,7 +41,6 @@ extern "C"
             BIND_GEOMINFO_FUNC_INSTANCE(integer, int)
             BIND_GEOMINFO_FUNC_INSTANCE(boolean, bool)
             BIND_GEOMINFO_FUNC_INSTANCE(float, float)
-            BIND_GEOMINFO_FUNC_INSTANCE(color2, mx::Color2)
             BIND_GEOMINFO_FUNC_INSTANCE(color3, mx::Color3)
             BIND_GEOMINFO_FUNC_INSTANCE(color4, mx::Color4)
             BIND_GEOMINFO_FUNC_INSTANCE(vector2, mx::Vector2)

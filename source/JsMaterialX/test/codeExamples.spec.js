@@ -84,9 +84,7 @@ describe('Code Examples', () => {
 
         // Read a document from disk.
         const doc = mx.createDocument();
-        const readOptions = new mx.XmlReadOptions();
-        readOptions.applyFutureUpdates = true;
-        mx.readFromXmlString(doc, xmlStr, readOptions);
+        mx.readFromXmlString(doc, xmlStr);
 
         // Traverse the document tree in depth-first order.
         const elements = doc.traverseTree();
@@ -110,7 +108,7 @@ describe('Code Examples', () => {
             }
             elem = elements.next();
         }
-        expect(elementCount).to.equal(23);
+        expect(elementCount).to.equal(21);
         expect(nodeCount).to.equal(5);
         expect(fileCount).to.equal(1);
     });

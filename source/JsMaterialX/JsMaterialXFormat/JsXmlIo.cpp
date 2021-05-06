@@ -15,8 +15,7 @@ extern "C"
         ems::class_<mx::XmlReadOptions>("XmlReadOptions")
             .constructor<>()
             .property("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
-            .property("parentXIncludes", &mx::XmlReadOptions::parentXIncludes)
-            .property("applyFutureUpdates", &mx::XmlReadOptions::applyFutureUpdates);
+            .property("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
         ems::class_<mx::XmlWriteOptions>("XmlWriteOptions")
             .constructor<>()
             .property("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)

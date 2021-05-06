@@ -28,11 +28,9 @@ extern "C"
         ems::register_vector<mx::InterfaceElementPtr>("vector<mx::InterfaceElementPtr>");
         ems::register_vector<mx::BackdropPtr>("vector<mx::BackdropPtr>");
         ems::register_vector<mx::MaterialAssignPtr>("vector<mx::MaterialAssignPtr>");
-        ems::register_vector<mx::MaterialPtr>("vector<mx::MaterialPtr>");
         ems::register_vector<mx::PropertyAssignPtr>("vector<mx::PropertyAssignPtr>");
         ems::register_vector<mx::PropertySetAssignPtr>("vector<mx::PropertySetAssignPtr>");
         ems::register_vector<mx::VisibilityPtr>("vector<mx::VisibilityPtr>");
-        ems::register_vector<mx::ParameterPtr>("vector<mx::ParameterPtr>");
         ems::register_vector<mx::InputPtr>("vector<mx::InputPtr>");
         ems::register_vector<mx::OutputPtr>("vector<mx::OutputPtr>");
         ems::register_vector<mx::TokenPtr>("vector<mx::TokenPtr>");
@@ -45,10 +43,6 @@ extern "C"
         ems::register_vector<mx::MemberPtr>("vector<mx::MemberPtr>");
         ems::register_vector<mx::UnitPtr>("vector<mx::UnitPtr>");
         ems::register_vector<mx::UnitDefPtr>("vector<mx::UnitDefPtr>");
-        ems::register_vector<mx::ShaderRefPtr>("vector<mx::ShaderRefPtr>");
-        ems::register_vector<mx::BindParamPtr>("vector<mx::BindParamPtr>");
-        ems::register_vector<mx::BindInputPtr>("vector<mx::BindInputPtr>");
-        ems::register_vector<mx::BindTokenPtr>("vector<mx::BindTokenPtr>");
         ems::register_vector<mx::GeomInfoPtr>("vector<mx::GeomInfoPtr>");
         ems::register_vector<mx::GeomPropDefPtr>("vector<mx::GeomPropDefPtr>");
         ems::register_vector<mx::LookPtr>("vector<mx::LookPtr>");

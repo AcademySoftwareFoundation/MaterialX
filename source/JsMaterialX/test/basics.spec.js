@@ -9,7 +9,6 @@ describe('Basics', () => {
             integer: '1',
             boolean: 'true',
             float: '1.1',
-            color2: '0.1, 0.2',
             color3: '0.1, 0.2, 0.3',
             color4: '0.1, 0.2, 0.3, 0.4',
             vector2: '1.1, 2.1',

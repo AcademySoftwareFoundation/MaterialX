@@ -48,11 +48,11 @@ extern "C"
             .smart_ptr<std::shared_ptr<const mx::LookGroup>>("LookGroup")
             .function("getLooks", &mx::LookGroup::getLooks)
             .function("setLooks", &mx::LookGroup::setLooks)
-            .function("getActiveLook", &mx::LookGroup::getActiveLook)
-            .function("setActiveLook", &mx::LookGroup::setActiveLook)
+            .function("getEnabledLooksString", &mx::LookGroup::getEnabledLooksString)
+            .function("setEnabledLooks", &mx::LookGroup::setEnabledLooks)
             .class_property("CATEGORY", &mx::LookGroup::CATEGORY)
             .class_property("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
-            .class_property("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE);
+            .class_property("ENABLED_ATTRIBUTE", &mx::LookGroup::ENABLED_ATTRIBUTE);
 
         ems::class_<mx::MaterialAssign, ems::base<mx::GeomElement>>("MaterialAssign")
             .smart_ptr_constructor("MaterialAssign", &std::make_shared<mx::MaterialAssign, mx::ElementPtr, const std::string &>)
@@ -63,7 +63,6 @@ extern "C"
             .function("setExclusive", &mx::MaterialAssign::setExclusive)
             .function("getExclusive", &mx::MaterialAssign::getExclusive)
             .function("getReferencedMaterial", &mx::MaterialAssign::getReferencedMaterial)
-            .function("getReferencedMaterialNode", &mx::MaterialAssign::getReferencedMaterialNode)
             .class_property("CATEGORY", &mx::MaterialAssign::CATEGORY);
 
         ems::class_<mx::Visibility, ems::base<mx::GeomElement>>("Visibility")

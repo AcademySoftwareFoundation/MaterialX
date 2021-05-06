@@ -4,13 +4,13 @@ addWrapper(function (Module, api) {
     /** Setup the Element class */
     api.Element = wrapperFactory(Module.Element, {
         getNamePath: [null],
-        addChildOfCategory: [REQUIRED, '', true],
-        copyContentFrom: [REQUIRED, null],
-        getUpstreamEdge: [null, 0],
-        getUpstreamElement: [null, 0],
+        addChildOfCategory: [REQUIRED, api.EMPTY_STRING],
+        copyContentFrom: [REQUIRED],
+        getUpstreamEdge: [0],
+        getUpstreamElement: [0],
         validate: [''],
-        createStringResolver: ['', null, '', ''],
-        traverseGraph: [null],
+        createStringResolver: [api.EMPTY_STRING],
+        traverseGraph: [],
     });
 
     /** Setup the TypedElement class */
@@ -20,7 +20,6 @@ addWrapper(function (Module, api) {
         'setValueinteger',
         'setValueboolean',
         'setValuefloat',
-        'setValuecolor2',
         'setValuecolor3',
         'setValuecolor4',
         'setValuevector2',
@@ -41,7 +40,7 @@ addWrapper(function (Module, api) {
 
     for (var i = 0; i < funcs.length; i++) {
         var name = funcs[parseInt(i, 10)];
-        defaultArgs[String(name)] = [REQUIRED, ''];
+        defaultArgs[String(name)] = [REQUIRED, api.EMPTY_STRING];
     }
 
     /** Setup the ValueElement class */
@@ -52,4 +51,6 @@ addWrapper(function (Module, api) {
 
     /** Setup the StringResolver class */
     api.StringResolver = wrapperFactory(Module.StringResolver);
+
+    api.prettyPrint = Module.prettyPrint;
 });

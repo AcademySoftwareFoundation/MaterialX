@@ -14,7 +14,6 @@ addWrapper(function(Module, api) {
         'setInputValueinteger',
         'setInputValueboolean',
         'setInputValuefloat',
-        'setInputValuecolor2',
         'setInputValuecolor3',
         'setInputValuecolor4',
         'setInputValuevector2',
@@ -30,16 +29,16 @@ addWrapper(function(Module, api) {
     ];
 
     var defaultArgs = {
-        addInput: [api.DEFAULT_TYPE_STRING, api.DEFAULT_TYPE_STRING],
-        addOutput: ['', api.DEFAULT_TYPE_STRING],
-        addToken: [''],
-        getInputValue: [REQUIRED, ''],
-        getDeclaration: ['']
+        addInput: [api.EMPTY_STRING, api.DEFAULT_TYPE_STRING],
+        addOutput: [api.EMPTY_STRING, api.DEFAULT_TYPE_STRING],
+        addToken: [api.EMPTY_STRING],
+        getInputValue: [REQUIRED, api.EMPTY_STRING],
+        getDeclaration: [api.EMPTY_STRING]
     };
 
     for (var i = 0; i < funcs.length; i++) {
         var name = funcs[parseInt(i, 10)];
-        defaultArgs[String(name)] = [REQUIRED, REQUIRED, ''];
+        defaultArgs[String(name)] = [REQUIRED, REQUIRED, api.EMPTY_STRING];
     }
 
     /** Setup the InterfaceElement class */

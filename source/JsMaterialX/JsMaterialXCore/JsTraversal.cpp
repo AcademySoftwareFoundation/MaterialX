@@ -36,7 +36,7 @@ extern "C"
             }));
 
         ems::class_<mx::GraphIterator>("GraphIterator")
-            .smart_ptr_constructor("GraphIterator", &std::make_shared<mx::GraphIterator, mx::ElementPtr, mx::ConstMaterialPtr>)
+            .smart_ptr_constructor("GraphIterator", &std::make_shared<mx::GraphIterator, mx::ElementPtr>)
             .function("getDownstreamElement", &mx::GraphIterator::getDownstreamElement)
             .function("getConnectingElement", &mx::GraphIterator::getConnectingElement)
             .function("getUpstreamElement", &mx::GraphIterator::getUpstreamElement)

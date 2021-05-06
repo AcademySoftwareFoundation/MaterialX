@@ -4,23 +4,22 @@ addWrapper(function(Module, api) {
     api.createDocument = wrapperFunction(Module.createDocument);
 
     api.Document = wrapperFactory(Module.Document, {
-        addNodeGraph: [''],
+        addNodeGraph: [api.EMPTY_STRING],
         getMatchingPorts: [REQUIRED],
-        addMaterial: [''],
-        addGeomInfo: ['', api.UNIVERSAL_GEOM_NAME],
-        getGeomAttrValue: [REQUIRED, api.UNIVERSAL_GEOM_NAME],
-        addLook: [''],
-        addLookGroup: [''],
-        addCollection: [''],
-        getMatchingImplementations: [REQUIRED],
-        addPropertySet: [''],
-        addVariantSet: [''],
-        addTypeDef: [''],
-        addNodeDef: ['', api.DEFAULT_TYPE_STRING, ''],
-        getMatchingNodeDefs: [REQUIRED],
-        addImplementation: [''],
+        addGeomInfo: [api.EMPTY_STRING, api.UNIVERSAL_GEOM_NAME],
         getGeomPropValue: [REQUIRED, api.UNIVERSAL_GEOM_NAME],
-        addNodeDefFromGraph: [REQUIRED, REQUIRED, REQUIRED, REQUIRED, '']
+        addLook: [api.EMPTY_STRING],
+        addLookGroup: [api.EMPTY_STRING],
+        addCollection: [api.EMPTY_STRING],
+        getMatchingImplementations: [REQUIRED],
+        addPropertySet: [api.EMPTY_STRING],
+        addVariantSet: [api.EMPTY_STRING],
+        addTypeDef: [REQUIRED],
+        addNodeDef: [api.EMPTY_STRING, api.DEFAULT_TYPE_STRING, api.EMPTY_STRING],
+        getMatchingNodeDefs: [REQUIRED],
+        addImplementation: [api.EMPTY_STRING],
+        getGeomPropValue: [REQUIRED, api.UNIVERSAL_GEOM_NAME],
+        addNodeDefFromGraph: [REQUIRED, REQUIRED, REQUIRED, REQUIRED, REQUIRED, REQUIRED, REQUIRED, '']
     });
 
 });

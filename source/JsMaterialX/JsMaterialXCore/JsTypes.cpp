@@ -69,11 +69,6 @@ extern "C"
             .constructor<float, float, float, float>()
                 BIND_VECTOR_SUBCLASS(mx::Vector4);
 
-        ems::class_<mx::Color2, ems::base<mx::VectorBase>>("Color2")
-            .constructor<>()
-            .constructor<float, float>()
-                BIND_VECTOR_SUBCLASS(mx::Color2);
-
         ems::class_<mx::Color3, ems::base<mx::VectorBase>>("Color3")
             .constructor<>()
             .constructor<float, float, float>()
@@ -112,6 +107,9 @@ extern "C"
 
         ems::function("DEFAULT_TYPE_STRING", ems::optional_override([]() {
                      return mx::DEFAULT_TYPE_STRING;
+                 }));
+        ems::function("EMPTY_STRING", ems::optional_override([]() {
+                     return mx::EMPTY_STRING;
                  }));
         ems::function("FILENAME_TYPE_STRING", ems::optional_override([]() {
                      return mx::FILENAME_TYPE_STRING;

@@ -1,11 +1,11 @@
 // jsUtil
 addWrapper(function(Module, api) {
+    // TODO: Wrap functions and provide default args
     api.getVersionString = Module.getVersionString;
     api.createValidName = function(str, char) {
         return Module.createValidName(str, char.charCodeAt(0));
     };
 
-    api.makeVersionString = Module.makeVersionString;
     api.isValidName = Module.isValidName;
     api.incrementName = Module.incrementName;
 
@@ -13,6 +13,8 @@ addWrapper(function(Module, api) {
         var vec = Module.getVersionIntegers();
         return vecToArray(vec);
     };
+
+    // TODO: Do we really need to map such helper functions? JS already has a String.split method.
     api.splitString = function(str, spl) {
         var vecStr = Module.splitString(str, spl);
         var size = vecStr.size();
@@ -24,5 +26,4 @@ addWrapper(function(Module, api) {
     };
 
     api.replaceSubstrings = Module.replaceSubstrings;
-    api.prettyPrint = Module.prettyPrint;
 });

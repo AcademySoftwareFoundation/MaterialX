@@ -28,10 +28,6 @@ extern "C"
             .function("getNodeGraphs", &mx::Document::getNodeGraphs)
             .function("removeNodeGraph", &mx::Document::removeNodeGraph)
             .function("getMatchingPorts", &mx::Document::getMatchingPorts)
-            .function("addMaterial", &mx::Document::addMaterial)
-            .function("getMaterial", &mx::Document::getMaterial)
-            .function("getMaterials", &mx::Document::getMaterials)
-            .function("removeMaterial", &mx::Document::removeMaterial)
             .function("addGeomInfo", &mx::Document::addGeomInfo)
             .function("getGeomInfo", &mx::Document::getGeomInfo)
             .function("getGeomInfos", &mx::Document::getGeomInfos)
@@ -67,7 +63,7 @@ extern "C"
                           const std::string& version1 = version;
                           const std::string &nodeGroup1 = nodeGroup;
                           std::string &newGraphName1 = newGraphName;
-                          return self.mx::Document::addNodeDefFromGraph(nodeGraph, nodeDefName1, node1,  
+                          return self.addNodeDefFromGraph(nodeGraph, nodeDefName1, node1,
                                                 version1, isDefaultVersion, nodeGroup1, newGraphName1);
                       }))
             .function("getNodeDef", &mx::Document::getNodeDef)

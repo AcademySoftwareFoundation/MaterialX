@@ -2,7 +2,7 @@
 addWrapper(function(Module, api) {
     /** Setup the NodeDef class */
     api.NodeDef = wrapperFactory(Module.NodeDef, {
-        getImplementation: ['', '']
+        getImplementation: [api.EMPTY_STRING]
     });
 
     /** Setup the Implementation class */
@@ -10,7 +10,7 @@ addWrapper(function(Module, api) {
 
     /** Setup the TypeDef class */
     api.TypeDef = wrapperFactory(Module.TypeDef, {
-        addMember: ['']
+        addMember: [api.EMPTY_STRING]
     });
 
     /** Setup the Member class */
