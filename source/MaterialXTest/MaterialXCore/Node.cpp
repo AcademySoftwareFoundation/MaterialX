@@ -12,8 +12,6 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/Util.h>
 
-#include <iostream>
-
 namespace mx = MaterialX;
 
 bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
@@ -207,6 +205,34 @@ TEST_CASE("Flatten", "[nodegraph]")
         }
     }
     REQUIRE(totalNodeCount == 16);
+
+    // Read the example with upstream nodegraphs
+    doc = mx::createDocument();
+    const mx::FilePathVec libraryFolders;
+    mx::FileSearchPath libraryRoot(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::loadLibraries(libraryFolders, libraryRoot, doc);
+    mx::readFromXmlFile(doc, "PreFlattenedGraph.mtlx", searchPath);
+
+    doc->flattenSubgraphs(mx::EMPTY_STRING,
+        [](mx::NodePtr node)
+    {
+        // Skip standard surface
+        return (node->getCategory() != "standard_surface");
+    });
+
+    mx::NodeGraphPtr upstreamGraph = doc->getNodeGraph("layered_inputGraph");
+    if (upstreamGraph)
+    {
+        upstreamGraph->flattenSubgraphs();
+    }
+    mx::XmlWriteOptions writeOptions;
+    auto skipDefinition = [](mx::ConstElementPtr elem)
+    {
+        return !elem->isA<mx::NodeDef>() && elem->getAttribute("nodedef").empty();
+    };
+    writeOptions.elementPredicate = skipDefinition;
+    mx::writeToXmlFile(doc, "PostFlattenedGraph.mtlx", &writeOptions);
+    REQUIRE(doc->validate());
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")
