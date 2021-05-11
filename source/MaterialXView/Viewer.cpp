@@ -1550,7 +1550,7 @@ void Viewer::loadStandardLibraries()
     try
     {
         _stdLib = mx::createDocument();
-        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
+        _xincludeFiles = mx::loadCoreLibraries(_libraryFolders, _searchPath, _stdLib);
         if (_xincludeFiles.empty())
         {
             std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;

@@ -5,12 +5,19 @@
 
 #include <MaterialXFormat/Util.h>
 
+#include <MaterialXFormat/Environ.h>
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
 namespace MaterialX
 {
+
+FileSearchPath CORE_DEFINITION_PATH;
+const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
+const string MATERIALX_ASSET_DEFINITION_PATH_ENV_VAR = "MATERIALX_ASSET_DEFINITION_PATH";
+const string MATERIALX_ASSET_TEXTURE_PATH_ENV_VAR = "MATERIALX_ASSET_TEXTURE_PATH";
 
 string readFile(const FilePath& filePath)
 {
@@ -140,6 +147,32 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     return loadedLibraries;
 }
 
+MX_FORMAT_API StringSet loadCoreLibraries(const FilePathVec& libraryFolders,
+                                          const FileSearchPath& searchPath,
+                                          DocumentPtr doc,
+                                          const StringSet& excludeFiles,
+                                          XmlReadOptions* readOptions)
+{
+    FileSearchPath coreDefinitionPaths = getCoreDefinitionPath();
+    StringSet coreDefinitionPathsSet;
+    FilePathVec newCoreDefinitionPaths;
+    for (const FilePath& coreDefinitionPath : coreDefinitionPaths)
+    {
+        coreDefinitionPathsSet.emplace(coreDefinitionPath.asString());
+    }
+    for (const FilePath& libraryFolder : libraryFolders)
+    {
+        if (coreDefinitionPathsSet.count(libraryFolder.asString()) == 0)
+        {
+            newCoreDefinitionPaths.push_back(libraryFolder);
+            coreDefinitionPaths.append(libraryFolder);
+            coreDefinitionPathsSet.emplace(libraryFolder.asString());
+        }
+    }
+    setCoreDefinitionPath(coreDefinitionPaths);
+    return loadLibraries(newCoreDefinitionPaths, searchPath, doc, excludeFiles, readOptions);
+}
+
 void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringResolverPtr customResolver)
 {
     for (ElementPtr elem : doc->traverseTree())
@@ -199,6 +232,49 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
             elem->removeAttribute(Element::FILE_PREFIX_ATTRIBUTE);
         }
     }
+}
+
+FileSearchPath getEnvironmentPath(const string& sep)
+{
+    string searchPathEnv = getEnviron(MATERIALX_SEARCH_PATH_ENV_VAR);
+    return FileSearchPath(searchPathEnv, sep);
+}
+
+FileSearchPath getAssetDefinitionPath(const string& sep)
+{
+    string assetDefinitionPathEnv = getEnviron(MATERIALX_ASSET_DEFINITION_PATH_ENV_VAR);
+    return FileSearchPath(assetDefinitionPathEnv, sep);
+}
+
+FileSearchPath getAssetTexturePath(const string& sep)
+{
+    string assetTexturePathEnv = getEnviron(MATERIALX_ASSET_TEXTURE_PATH_ENV_VAR);
+    return FileSearchPath(assetTexturePathEnv, sep);
+}
+
+FileSearchPath getCoreDefinitionPath()
+{
+    return CORE_DEFINITION_PATH;
+}
+
+void setEnvironmentPath(const FileSearchPath& path)
+{
+    setEnviron(MATERIALX_SEARCH_PATH_ENV_VAR, path.asString());
+}
+
+void setAssetDefinitionPath(const FileSearchPath& path)
+{
+    setEnviron(MATERIALX_ASSET_DEFINITION_PATH_ENV_VAR, path.asString());
+}
+
+void setAssetTexturePath(const FileSearchPath& path)
+{
+    setEnviron(MATERIALX_ASSET_TEXTURE_PATH_ENV_VAR, path.asString());
+}
+
+void setCoreDefinitionPath(const FileSearchPath& path)
+{
+    CORE_DEFINITION_PATH = path;
 }
 
 } // namespace MaterialX

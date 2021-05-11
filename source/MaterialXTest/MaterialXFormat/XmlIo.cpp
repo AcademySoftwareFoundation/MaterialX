@@ -7,6 +7,7 @@
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
 
 namespace mx = MaterialX;

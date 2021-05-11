@@ -66,5 +66,4 @@ void bindPyFile(py::module& mod)
     py::implicitly_convertible<std::string, mx::FileSearchPath>();
 
     mod.attr("PATH_LIST_SEPARATOR") = mx::PATH_LIST_SEPARATOR;
-    mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
 }
