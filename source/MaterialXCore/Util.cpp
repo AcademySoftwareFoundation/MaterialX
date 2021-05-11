@@ -55,6 +55,11 @@ bool isValidName(const string& name)
     return it == name.end();
 }
 
+bool isValidNamespace(const string& name)
+{
+    return isValidName(name) && name.find(':') == std::string::npos;
+}
+
 string incrementName(const string& name)
 {
     size_t split = name.length();

@@ -29,6 +29,9 @@ MX_CORE_API string createValidName(string name, char replaceChar = '_');
 /// Return true if the given string is a valid MaterialX name.
 MX_CORE_API bool isValidName(const string& name);
 
+/// Return true if the given string is a valid MaterialX namespace.
+MX_CORE_API bool isValidNamespace(const string& name);
+
 /// Increment the numeric suffix of a name
 MX_CORE_API string incrementName(const string& name);
 
