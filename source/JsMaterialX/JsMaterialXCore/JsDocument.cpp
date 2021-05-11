@@ -7,6 +7,8 @@
 namespace ems = emscripten;
 namespace mx = MaterialX;
 
+using stRef = const std::string&;
+
 extern "C"
 {
     EMSCRIPTEN_BINDINGS(document)
@@ -23,29 +25,29 @@ extern "C"
                           int size = referenced.size();
                           return arrayToVec((std::string *)&referenced, size);
                       }))
-            .function("addNodeGraph", &mx::Document::addNodeGraph)
+            BIND_FUNC("addNodeGraph", mx::Document, addNodeGraph, 0, 1, stRef)
             .function("getNodeGraph", &mx::Document::getNodeGraph)
             .function("getNodeGraphs", &mx::Document::getNodeGraphs)
             .function("removeNodeGraph", &mx::Document::removeNodeGraph)
             .function("getMatchingPorts", &mx::Document::getMatchingPorts)
-            .function("addGeomInfo", &mx::Document::addGeomInfo)
+            BIND_FUNC("addGeomInfo", mx::Document, addGeomInfo, 0, 2, stRef, stRef)
             .function("getGeomInfo", &mx::Document::getGeomInfo)
             .function("getGeomInfos", &mx::Document::getGeomInfos)
             .function("removeGeomInfo", &mx::Document::removeGeomInfo)
-            .function("getGeomPropValue", &mx::Document::getGeomPropValue)
+            BIND_FUNC("getGeomPropValue", mx::Document, getGeomPropValue, 1, 2, stRef, stRef)
             .function("addGeomPropDef", &mx::Document::addGeomPropDef)
             .function("getGeomPropDef", &mx::Document::getGeomPropDef)
             .function("getGeomPropDefs", &mx::Document::getGeomPropDefs)
             .function("removeGeomPropDef", &mx::Document::removeGeomPropDef)
-            .function("addLook", &mx::Document::addLook)
+            BIND_FUNC("addLook", mx::Document, addLook, 0, 1, stRef)
             .function("getLook", &mx::Document::getLook)
             .function("getLooks", &mx::Document::getLooks)
             .function("removeLook", &mx::Document::removeLook)
-            .function("addLookGroup", &mx::Document::addLookGroup)
+            BIND_FUNC("addLookGroup", mx::Document, addLookGroup, 0, 1, stRef)
             .function("getLookGroup", &mx::Document::getLookGroup)
             .function("getLookGroups", &mx::Document::getLookGroups)
             .function("removeLookGroup", &mx::Document::removeLookGroup)
-            .function("addCollection", &mx::Document::addCollection)
+            BIND_FUNC("addCollection", mx::Document, addCollection, 0, 1, stRef)
             .function("getCollection", &mx::Document::getCollection)
             .function("getCollections", &mx::Document::getCollections)
             .function("removeCollection", &mx::Document::removeCollection)
@@ -53,33 +55,23 @@ extern "C"
             .function("getTypeDef", &mx::Document::getTypeDef)
             .function("getTypeDefs", &mx::Document::getTypeDefs)
             .function("removeTypeDef", &mx::Document::removeTypeDef)
-            .function("addNodeDef", &mx::Document::addNodeDef)
-            .function("addNodeDefFromGraph", ems::optional_override([](mx::Document &self, 
-                                mx::NodeGraphPtr nodeGraph, std::string nodeDefName, std::string node,
-                                std::string version, bool isDefaultVersion, std::string nodeGroup, std::string newGraphName)
-                      {
-                          const std::string &nodeDefName1 = nodeDefName;
-                          const std::string &node1 = node;
-                          const std::string& version1 = version;
-                          const std::string &nodeGroup1 = nodeGroup;
-                          std::string &newGraphName1 = newGraphName;
-                          return self.addNodeDefFromGraph(nodeGraph, nodeDefName1, node1,
-                                                version1, isDefaultVersion, nodeGroup1, newGraphName1);
-                      }))
+            BIND_FUNC("addNodeDef", mx::Document, addNodeDef, 0, 3, stRef, stRef, stRef)
+            BIND_FUNC("addNodeDefFromGraph", mx::Document, addNodeDefFromGraph, 7, 8, const mx::NodeGraphPtr, 
+              stRef, stRef, stRef, bool, stRef, std::string, stRef)
             .function("getNodeDef", &mx::Document::getNodeDef)
             .function("getNodeDefs", &mx::Document::getNodeDefs)
             .function("removeNodeDef", &mx::Document::removeNodeDef)
             .function("getMatchingNodeDefs", &mx::Document::getMatchingNodeDefs)
             .function("getMatchingImplementations", &mx::Document::getMatchingImplementations)
-            .function("addPropertySet", &mx::Document::addPropertySet)
+            BIND_FUNC("addPropertySet", mx::Document, addPropertySet, 0, 1, stRef)
             .function("getPropertySet", &mx::Document::getPropertySet)
             .function("getPropertySets", &mx::Document::getPropertySets)
             .function("removePropertySet", &mx::Document::removePropertySet)
-            .function("addVariantSet", &mx::Document::addVariantSet)
+            BIND_FUNC("addVariantSet", mx::Document, addVariantSet, 0, 1, stRef)
             .function("getVariantSet", &mx::Document::getVariantSet)
             .function("getVariantSets", &mx::Document::getVariantSets)
             .function("removeVariantSet", &mx::Document::removeVariantSet)
-            .function("addImplementation", &mx::Document::addImplementation)
+            BIND_FUNC("addImplementation", mx::Document, addImplementation, 0, 1, stRef)
             .function("getImplementation", &mx::Document::getImplementation)
             .function("getImplementations", &mx::Document::getImplementations)
             .function("removeImplementation", &mx::Document::removeImplementation)
