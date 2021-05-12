@@ -10,9 +10,7 @@
     <input name="uvtiling" type="vector2" value="3, 3" uimin="0, 0" uimax="25, 25" />
     <output name="base_color_output" type="color3" value="0, 0, 0" />
     <output name="specular_roughness_output" type="float" value="0" />
-    <output name="coat_normal_output" type="vector3" value="0, 0, 0" />
     <output name="normal_output" type="vector3" value="0, 0, 0" />
-    <output name="tangent_output" type="vector3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_BrickShader" nodedef="ND_BrickShader">
     <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" />
@@ -22,12 +20,6 @@
     <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" />
     <input name="dirt_amount" type="float" value="0.248" uimin="0" uimax="1" />
     <input name="uvtiling" type="vector2" value="3, 3" uimin="0, 0" uimax="25, 25" />
-    <normal name="onthefly_2" type="vector3" nodedef="ND_normal_vector3">
-      <input name="space" type="string" value="world" />
-    </normal>
-    <tangent name="onthefly_4" type="vector3" nodedef="ND_tangent_vector3">
-      <input name="space" type="string" value="world" />
-    </tangent>
     <multiply name="node_multiply_5" type="color3" nodedef="ND_multiply_color3FA">
       <input name="in1" type="color3" nodename="node_mix_6" />
       <input name="in2" type="float" nodename="node_tiledimage_float_7" />
@@ -144,9 +136,7 @@
     </tiledimage>
     <output name="base_color_output" type="color3" nodename="node_clamp_0" />
     <output name="specular_roughness_output" type="float" nodename="node_multiply_1" />
-    <output name="coat_normal_output" type="vector3" nodename="onthefly_2" />
     <output name="normal_output" type="vector3" nodename="node_normalmap_3" />
-    <output name="tangent_output" type="vector3" nodename="onthefly_4" />
   </nodegraph>
   <nodegraph name="BrickShader_Bind">
     <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" />
@@ -166,22 +156,16 @@
       <input name="uvtiling" type="vector2" interfacename="uvtiling" value="3, 3" />
       <output name="base_color_output" type="color3" />
       <output name="specular_roughness_output" type="float" />
-      <output name="coat_normal_output" type="vector3" />
       <output name="normal_output" type="vector3" />
-      <output name="tangent_output" type="vector3" />
     </BrickShader>
     <output name="base_color_output" type="color3" nodename="N_BrickShader" output="base_color_output" />
     <output name="specular_roughness_output" type="float" nodename="N_BrickShader" output="specular_roughness_output" />
-    <output name="coat_normal_output" type="vector3" nodename="N_BrickShader" output="coat_normal_output" />
     <output name="normal_output" type="vector3" nodename="N_BrickShader" output="normal_output" />
-    <output name="tangent_output" type="vector3" nodename="N_BrickShader" output="tangent_output" />
   </nodegraph>
   <standard_surface name="BrickShader2" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader" version="1.0.1">
     <input name="base_color" type="color3" nodegraph="BrickShader_Bind" output="base_color_output" />
     <input name="specular_roughness" type="float" nodegraph="BrickShader_Bind" output="specular_roughness_output" />
-    <input name="coat_normal" type="vector3" nodegraph="BrickShader_Bind" output="coat_normal_output" />
     <input name="normal" type="vector3" nodegraph="BrickShader_Bind" output="normal_output" />
-    <input name="tangent" type="vector3" nodegraph="BrickShader_Bind" output="tangent_output" />
   </standard_surface>
   <surfacematerial name="BrickShader" type="material" nodedef="ND_surfacematerial">
     <input name="surfaceshader" type="surfaceshader" nodename="BrickShader2" />
