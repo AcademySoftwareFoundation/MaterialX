@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" xmlns:xi="http://www.w3.org/2001/XInclude">
+<materialx version="1.38" xmlns:xi="http://www.w3.org/2001/XInclude" colorspace="lin_rec709" fileprefix="../../../Images/">
   <nodedef name="NDBrickShader" node="BrickShader">
     <input name="brick_color" type="color3" uniform="true" value="0.661876, 0.19088, 0" />
     <input name="hue_variation" type="float" uniform="true" value="0.083" uisoftmin="0" uisoftmax="1" uimin="0" uimax="1" />
@@ -108,36 +108,36 @@
       <input name="scale" type="float" value="1"  />
     </normalmap>
     <tiledimage name="node_tiledimage_vector3_27" type="vector3" nodedef="ND_tiledimage_vector3" expose="true">
-      <input name="file" type="filename" uniform="true" value="../../../Images/brick_normal.jpg"  />
+      <input name="file" type="filename" uniform="true" value="brick_normal.jpg"  />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5"  />
       <input name="frameoffset" type="integer" uniform="true" value="0"  />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_22" type="float" nodedef="ND_tiledimage_float" expose="true">
-      <input name="file" type="filename" uniform="true" value="../../../Images/brick_roughness.jpg"  />
+      <input name="file" type="filename" uniform="true" value="brick_roughness.jpg"  />
       <input name="default" type="float" value="0"  />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5"  />
       <input name="frameoffset" type="integer" uniform="true" value="0"  />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_10" type="float" nodedef="ND_tiledimage_float" expose="true">
-      <input name="file" type="filename" uniform="true" value="../../../Images/brick_mask.jpg"  />
+      <input name="file" type="filename" uniform="true" value="brick_mask.jpg"  />
       <input name="default" type="float" value="0"  />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5"  />
       <input name="frameoffset" type="integer" uniform="true" value="0"  />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_7" type="float" nodedef="ND_tiledimage_float" expose="true">
-      <input name="file" type="filename" uniform="true" value="../../../Images/brick_base_gray.jpg"  />
+      <input name="file" type="filename" uniform="true" value="brick_base_gray.jpg"  />
       <input name="default" type="float" value="0"  />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5"  />
       <input name="frameoffset" type="integer" uniform="true" value="0"  />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_26" type="float" nodedef="ND_tiledimage_float" expose="true">
-      <input name="file" type="filename" uniform="true" value="../../../Images/brick_variation_mask.jpg"  />
+      <input name="file" type="filename" uniform="true" value="brick_variation_mask.jpg"  />
       <input name="default" type="float" value="0"  />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5"  />
       <input name="frameoffset" type="integer" uniform="true" value="0"  />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_24" type="float" nodedef="ND_tiledimage_float" expose="true">
-      <input name="file" type="filename" uniform="true" value="../../../Images/brick_dirt_mask.jpg"  />
+      <input name="file" type="filename" uniform="true" value="brick_dirt_mask.jpg"  />
       <input name="default" type="float" value="0"  />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5"  />
       <input name="frameoffset" type="integer" uniform="true" value="0"  />
