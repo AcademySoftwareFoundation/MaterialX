@@ -214,9 +214,9 @@ extern "C"
             .function("getFilenameSubstitutions", ems::optional_override([](mx::StringResolver &self) {
                           std::unordered_map<std::string, std::string> res = self.mx::StringResolver::getFilenameSubstitutions();
                           ems::val obj = ems::val::object();
-                          for (const auto &[key, value] : res)
+                          for (std::pair<std::string, std::string> element : res)
                           {
-                              obj.set(key, value);
+                              obj.set(element.first, element.second);
                           }
 
                           return obj;
@@ -225,9 +225,9 @@ extern "C"
             .function("getGeomNameSubstitutions", ems::optional_override([](mx::StringResolver &self) {
                           std::unordered_map<std::string, std::string> res = self.mx::StringResolver::getGeomNameSubstitutions();
                           ems::val obj = ems::val::object();
-                          for (const auto &[key, value] : res)
+                          for (std::pair<std::string, std::string> element : res)
                           {
-                              obj.set(key, value);
+                              obj.set(element.first, element.second);
                           }
 
                           return obj;
