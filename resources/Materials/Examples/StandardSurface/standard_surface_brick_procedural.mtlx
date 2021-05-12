@@ -13,13 +13,6 @@
     <output name="normal_output" type="vector3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_BrickShader" nodedef="ND_BrickShader">
-    <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" />
-    <input name="hue_variation" type="float" value="0.083" uimin="0" uimax="1" />
-    <input name="value_variation" type="float" value="0.787" uimin="0" uimax="1" />
-    <input name="roughness_amount" type="float" value="0.853" uimin="0" uimax="1" />
-    <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" />
-    <input name="dirt_amount" type="float" value="0.248" uimin="0" uimax="1" />
-    <input name="uvtiling" type="vector2" value="3, 3" uimin="0, 0" uimax="25, 25" />
     <multiply name="node_multiply_5" type="color3" nodedef="ND_multiply_color3FA">
       <input name="in1" type="color3" nodename="node_mix_6" />
       <input name="in2" type="float" nodename="node_tiledimage_float_7" />
@@ -154,6 +147,5 @@
   </standard_surface>
   <surfacematerial name="M_BrickProcedural" type="material" nodedef="ND_surfacematerial">
     <input name="surfaceshader" type="surfaceshader" nodename="N_StandardSurface" />
-    <input name="displacementshader" type="displacementshader" value="" />
   </surfacematerial>
 </materialx>
