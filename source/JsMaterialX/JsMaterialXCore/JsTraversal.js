@@ -11,7 +11,11 @@ addWrapper(function(Module, api) {
         try {
             return _next1.apply(this, arguments);
         } catch (err) {
-            if (err.message && err.message.indexOf('Could not get the next element.') !== -1) {
+            let message = err.message ? err.message : '';
+            if (typeof err === 'number') {
+                message = Module.getExceptionMessage(err);
+            }
+            if (message && message.indexOf('Could not get the next element.') !== -1) {
                 return null;
             }
             throw err;
@@ -25,7 +29,11 @@ addWrapper(function(Module, api) {
         try {
             return _next2.apply(this, arguments);
         } catch (err) {
-            if (err.message && err.message.indexOf('Could not get the next element.') !== -1) {
+            let message = err.message ? err.message : '';
+            if (typeof err === 'number') {
+                message = Module.getExceptionMessage(err);
+            }
+            if (message && message.indexOf('Could not get the next element.') !== -1) {
                 return null;
             }
             throw err;
@@ -40,7 +48,11 @@ addWrapper(function(Module, api) {
         try {
             return _next3.apply(this, arguments);
         } catch (err) {
-            if (err.message && err.message.indexOf('Could not get the next element.') !== -1) {
+            let message = err.message ? err.message : '';
+            if (typeof err === 'number') {
+                message = Module.getExceptionMessage(err);
+            }
+            if (message && message.indexOf('Could not get the next element.') !== -1) {
                 return null;
             }
             throw err;

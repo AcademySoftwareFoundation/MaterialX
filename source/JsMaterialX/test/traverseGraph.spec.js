@@ -136,8 +136,9 @@ describe('Traverse Graph', () => {
     function isCycle(cb) {
         try {
             return cb();
-        } catch (err) {
-            if (err.message.indexOf('Encountered cycle') !== -1) {
+        } catch (exceptionPtr) {
+            const message = mx.getExceptionMessage(exceptionPtr);
+            if (message.indexOf('Encountered cycle') !== -1) {
                 return true;
             }
             return false;

@@ -12,8 +12,9 @@ describe('Build Document', () => {
     function expectError(type, cb) {
         try {
             cb();
-        } catch (err) {
-            expect(err.message.indexOf(type) !== -1).to.be.true;
+        } catch (exceptionPtr) {
+            const message = mx.getExceptionMessage(exceptionPtr);
+            expect(message.indexOf(type) !== -1).to.be.true;
         }
     }
 
