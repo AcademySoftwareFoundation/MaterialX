@@ -7,7 +7,7 @@
     <input name="roughness_amount" type="float" value="0.853" uimin="0" uimax="1" />
     <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" />
     <input name="dirt_amount" type="float" value="0.248" uimin="0" uimax="1" />
-    <input name="uvtiling" type="vector2" value="5, 5" uimin="0, 0" uimax="25, 25" />
+    <input name="uvtiling" type="vector2" value="3, 3" uimin="0, 0" uimax="25, 25" />
     <output name="base_color_output" type="color3" value="0, 0, 0" />
     <output name="specular_roughness_output" type="float" value="0" />
     <output name="coat_normal_output" type="vector3" value="0, 0, 0" />
@@ -21,7 +21,7 @@
     <input name="roughness_amount" type="float" value="0.853" uimin="0" uimax="1" />
     <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" />
     <input name="dirt_amount" type="float" value="0.248" uimin="0" uimax="1" />
-    <input name="uvtiling" type="vector2" value="5, 5" uimin="0, 0" uimax="25, 25" />
+    <input name="uvtiling" type="vector2" value="3, 3" uimin="0, 0" uimax="25, 25" />
     <normal name="onthefly_2" type="vector3" nodedef="ND_normal_vector3">
       <input name="space" type="string" value="world" />
     </normal>
@@ -163,7 +163,7 @@
       <input name="roughness_amount" type="float" interfacename="roughness_amount" value="0.853" />
       <input name="dirt_color" type="color3" interfacename="dirt_color" value="0.56372, 0.56372, 0.56372" />
       <input name="dirt_amount" type="float" interfacename="dirt_amount" value="0.248" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="3, 3" />
       <output name="base_color_output" type="color3" />
       <output name="specular_roughness_output" type="float" />
       <output name="coat_normal_output" type="vector3" />
