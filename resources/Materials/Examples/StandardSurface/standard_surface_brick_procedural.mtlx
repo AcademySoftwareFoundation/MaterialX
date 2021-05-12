@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38" xmlns:xi="http://www.w3.org/2001/XInclude" colorspace="lin_rec709" fileprefix="../../../Images/">
-  <nodedef name="NDBrickShader" node="BrickShader">
+  <nodedef name="ND_BrickShader" node="BrickShader">
     <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" />
     <input name="hue_variation" type="float" value="0.083" uimin="0" uimax="1" />
     <input name="value_variation" type="float" value="0.787" uimin="0" uimax="1" />
@@ -14,7 +14,7 @@
     <output name="normal_output" type="vector3" value="0, 0, 0" />
     <output name="tangent_output" type="vector3" value="0, 0, 0" />
   </nodedef>
-  <nodegraph name="BrickShader_graph" nodedef="NDBrickShader">
+  <nodegraph name="NG_BrickShader" nodedef="ND_BrickShader">
     <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" />
     <input name="hue_variation" type="float" value="0.083" uimin="0" uimax="1" />
     <input name="value_variation" type="float" value="0.787" uimin="0" uimax="1" />
@@ -156,7 +156,7 @@
     <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" />
     <input name="dirt_amount" type="float" value="0.248" />
     <input name="uvtiling" type="vector2" value="5, 5" />
-    <BrickShader name="BrickShader_Graph" type="multioutput" nodedef="NDBrickShader">
+    <BrickShader name="N_BrickShader" type="multioutput">
       <input name="brick_color" type="color3" interfacename="brick_color" value="0.661876, 0.19088, 0" />
       <input name="hue_variation" type="float" interfacename="hue_variation" value="0.083" />
       <input name="value_variation" type="float" interfacename="value_variation" value="0.787" />
@@ -170,11 +170,11 @@
       <output name="normal_output" type="vector3" />
       <output name="tangent_output" type="vector3" />
     </BrickShader>
-    <output name="base_color_output" type="color3" nodename="BrickShader_Graph" output="base_color_output" />
-    <output name="specular_roughness_output" type="float" nodename="BrickShader_Graph" output="specular_roughness_output" />
-    <output name="coat_normal_output" type="vector3" nodename="BrickShader_Graph" output="coat_normal_output" />
-    <output name="normal_output" type="vector3" nodename="BrickShader_Graph" output="normal_output" />
-    <output name="tangent_output" type="vector3" nodename="BrickShader_Graph" output="tangent_output" />
+    <output name="base_color_output" type="color3" nodename="N_BrickShader" output="base_color_output" />
+    <output name="specular_roughness_output" type="float" nodename="N_BrickShader" output="specular_roughness_output" />
+    <output name="coat_normal_output" type="vector3" nodename="N_BrickShader" output="coat_normal_output" />
+    <output name="normal_output" type="vector3" nodename="N_BrickShader" output="normal_output" />
+    <output name="tangent_output" type="vector3" nodename="N_BrickShader" output="tangent_output" />
   </nodegraph>
   <standard_surface name="BrickShader2" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader" version="1.0.1">
     <input name="base_color" type="color3" nodegraph="BrickShader_Bind" output="base_color_output" />
