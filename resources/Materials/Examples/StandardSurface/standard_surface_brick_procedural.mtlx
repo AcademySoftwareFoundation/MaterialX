@@ -30,7 +30,7 @@
       <input name="in2" type="float" nodename="node_tiledimage_float_7" />
     </multiply>
     <rgbtohsv name="node_rgbtohsv_12" type="color3" nodedef="ND_rgbtohsv_color3">
-      <input name="in" type="color3" interfacename="brick_color" value="0.661876, 0.19088, 0" />
+      <input name="in" type="color3" interfacename="brick_color" />
     </rgbtohsv>
     <combine3 name="node_combine3_color3_13" type="color3" nodedef="ND_combine3_color3">
       <input name="in1" type="float" nodename="node_multiply_14" />
@@ -50,7 +50,7 @@
     </subtract>
     <multiply name="node_multiply_14" type="float" nodedef="ND_multiply_float">
       <input name="in1" type="float" nodename="node_subtract_18" />
-      <input name="in2" type="float" interfacename="hue_variation" value="0.083" />
+      <input name="in2" type="float" interfacename="hue_variation" />
     </multiply>
     <multiply name="node_multiply_15" type="float" nodedef="ND_multiply_float">
       <input name="in1" type="float" nodename="node_add_19" />
@@ -64,20 +64,20 @@
       <input name="in2" type="float" nodename="node_tiledimage_float_22" />
     </multiply>
     <divide name="node_divide_21" type="float" nodedef="ND_divide_float">
-      <input name="in1" type="float" interfacename="roughness_amount" value="0.853" />
+      <input name="in1" type="float" interfacename="roughness_amount" />
       <input name="in2" type="float" nodename="node_tiledimage_float_10" />
     </divide>
     <mix name="node_mix_6" type="color3" nodedef="ND_mix_color3">
-      <input name="fg" type="color3" interfacename="dirt_color" value="0.56372, 0.56372, 0.56372" />
+      <input name="fg" type="color3" interfacename="dirt_color" />
       <input name="bg" type="color3" nodename="node_hsvtorgb_17" />
       <input name="mix" type="float" nodename="node_multiply_23" />
     </mix>
     <multiply name="node_multiply_23" type="float" nodedef="ND_multiply_float">
-      <input name="in1" type="float" interfacename="dirt_amount" value="0.248" />
+      <input name="in1" type="float" interfacename="dirt_amount" />
       <input name="in2" type="float" nodename="node_tiledimage_float_24" />
     </multiply>
     <multiply name="node_multiply_25" type="float" nodedef="ND_multiply_float">
-      <input name="in1" type="float" interfacename="hue_variation" value="0.083" />
+      <input name="in1" type="float" interfacename="hue_variation" />
       <input name="in2" type="float" nodename="node_tiledimage_float_26" />
     </multiply>
     <add name="node_add_19" type="float" nodedef="ND_add_float">
@@ -85,7 +85,7 @@
       <input name="in2" type="float" nodename="node_tiledimage_float_7" />
     </add>
     <multiply name="node_multiply_20" type="float" nodedef="ND_multiply_float">
-      <input name="in1" type="float" interfacename="value_variation" value="0.787" />
+      <input name="in1" type="float" interfacename="value_variation" />
       <input name="in2" type="float" nodename="node_tiledimage_float_26" />
     </multiply>
     <normalmap name="node_normalmap_3" type="vector3" nodedef="ND_normalmap">
@@ -94,58 +94,47 @@
     </normalmap>
     <tiledimage name="node_tiledimage_vector3_27" type="vector3" nodedef="ND_tiledimage_vector3" expose="true">
       <input name="file" type="filename" value="brick_normal.jpg" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5" />
-      <input name="frameoffset" type="integer" value="0" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_22" type="float" nodedef="ND_tiledimage_float" expose="true">
       <input name="file" type="filename" value="brick_roughness.jpg" />
-      <input name="default" type="float" value="0" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5" />
-      <input name="frameoffset" type="integer" value="0" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_10" type="float" nodedef="ND_tiledimage_float" expose="true">
       <input name="file" type="filename" value="brick_mask.jpg" />
-      <input name="default" type="float" value="0" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5" />
-      <input name="frameoffset" type="integer" value="0" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_7" type="float" nodedef="ND_tiledimage_float" expose="true">
       <input name="file" type="filename" value="brick_base_gray.jpg" />
-      <input name="default" type="float" value="0" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5" />
-      <input name="frameoffset" type="integer" value="0" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_26" type="float" nodedef="ND_tiledimage_float" expose="true">
       <input name="file" type="filename" value="brick_variation_mask.jpg" />
-      <input name="default" type="float" value="0" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5" />
-      <input name="frameoffset" type="integer" value="0" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_24" type="float" nodedef="ND_tiledimage_float" expose="true">
       <input name="file" type="filename" value="brick_dirt_mask.jpg" />
-      <input name="default" type="float" value="0" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="5, 5" />
-      <input name="frameoffset" type="integer" value="0" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
     <output name="base_color_output" type="color3" nodename="node_clamp_0" />
     <output name="specular_roughness_output" type="float" nodename="node_multiply_1" />
     <output name="normal_output" type="vector3" nodename="node_normalmap_3" />
   </nodegraph>
   <BrickShader name="N_BrickShader" type="multioutput">
-    <input name="brick_color" type="color3" interfacename="brick_color" value="0.661876, 0.19088, 0" />
-    <input name="hue_variation" type="float" interfacename="hue_variation" value="0.083" />
-    <input name="value_variation" type="float" interfacename="value_variation" value="0.787" />
-    <input name="roughness_amount" type="float" interfacename="roughness_amount" value="0.853" />
-    <input name="dirt_color" type="color3" interfacename="dirt_color" value="0.56372, 0.56372, 0.56372" />
-    <input name="dirt_amount" type="float" interfacename="dirt_amount" value="0.248" />
-    <input name="uvtiling" type="vector2" interfacename="uvtiling" value="3, 3" />
+    <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" />
+    <input name="hue_variation" type="float" value="0.083" />
+    <input name="value_variation" type="float" value="0.787" />
+    <input name="roughness_amount" type="float" value="0.853" />
+    <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" />
+    <input name="dirt_amount" type="float" value="0.248" />
+    <input name="uvtiling" type="vector2" value="3, 3" />
   </BrickShader>
-  <standard_surface name="N_StandardSurface" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader" version="1.0.1">
+  <standard_surface name="N_StandardSurface" type="surfaceshader">
     <input name="base_color" type="color3" nodename="N_BrickShader" output="base_color_output" />
     <input name="specular_roughness" type="float" nodename="N_BrickShader" output="specular_roughness_output" />
     <input name="normal" type="vector3" nodename="N_BrickShader" output="normal_output" />
   </standard_surface>
-  <surfacematerial name="M_BrickProcedural" type="material" nodedef="ND_surfacematerial">
+  <surfacematerial name="M_BrickProcedural" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="N_StandardSurface" />
   </surfacematerial>
 </materialx>
