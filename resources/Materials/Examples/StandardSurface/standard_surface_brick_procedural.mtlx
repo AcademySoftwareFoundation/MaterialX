@@ -92,27 +92,27 @@
       <input name="in" type="vector3" nodename="node_tiledimage_vector3_27" />
       <input name="scale" type="float" value="1" />
     </normalmap>
-    <tiledimage name="node_tiledimage_vector3_27" type="vector3" nodedef="ND_tiledimage_vector3" expose="true">
+    <tiledimage name="node_tiledimage_vector3_27" type="vector3" nodedef="ND_tiledimage_vector3">
       <input name="file" type="filename" value="brick_normal.jpg" />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
-    <tiledimage name="node_tiledimage_float_22" type="float" nodedef="ND_tiledimage_float" expose="true">
+    <tiledimage name="node_tiledimage_float_22" type="float" nodedef="ND_tiledimage_float">
       <input name="file" type="filename" value="brick_roughness.jpg" />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
-    <tiledimage name="node_tiledimage_float_10" type="float" nodedef="ND_tiledimage_float" expose="true">
+    <tiledimage name="node_tiledimage_float_10" type="float" nodedef="ND_tiledimage_float">
       <input name="file" type="filename" value="brick_mask.jpg" />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
-    <tiledimage name="node_tiledimage_float_7" type="float" nodedef="ND_tiledimage_float" expose="true">
+    <tiledimage name="node_tiledimage_float_7" type="float" nodedef="ND_tiledimage_float">
       <input name="file" type="filename" value="brick_base_gray.jpg" />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
-    <tiledimage name="node_tiledimage_float_26" type="float" nodedef="ND_tiledimage_float" expose="true">
+    <tiledimage name="node_tiledimage_float_26" type="float" nodedef="ND_tiledimage_float">
       <input name="file" type="filename" value="brick_variation_mask.jpg" />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
-    <tiledimage name="node_tiledimage_float_24" type="float" nodedef="ND_tiledimage_float" expose="true">
+    <tiledimage name="node_tiledimage_float_24" type="float" nodedef="ND_tiledimage_float">
       <input name="file" type="filename" value="brick_dirt_mask.jpg" />
       <input name="uvtiling" type="vector2" interfacename="uvtiling" />
     </tiledimage>
