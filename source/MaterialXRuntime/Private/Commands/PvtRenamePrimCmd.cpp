@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-PvtCommandPtr PvtRenamePrimCmd::create(RtStagePtr stage, const RtPath& path, const RtIdentifier& newName)
+PvtCommandPtr PvtRenamePrimCmd::create(RtStagePtr stage, const RtPath& path, const RtString& newName)
 {
     return std::make_shared<PvtRenamePrimCmd>(stage, path, newName);
 }
@@ -39,8 +39,8 @@ void PvtRenamePrimCmd::execute(RtCommandResult& result)
         // Send message that the prim is about to be renamed.
         msg().sendRenamePrimMessage(_stage, prim, _newName);
 
-        RtIdentifier oldName = _path.getName();
-        RtIdentifier resultName = _stage->renamePrim(_path, _newName);
+        RtString oldName = _path.getName();
+        RtString resultName = _stage->renamePrim(_path, _newName);
 
         // Update the path and name so we can undo later
         _path.pop();

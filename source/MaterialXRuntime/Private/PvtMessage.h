@@ -68,11 +68,11 @@ public:
 
     void sendCreatePrimMessage(RtStagePtr stage, const RtPrim& prim);
     void sendRemovePrimMessage(RtStagePtr stage, const RtPrim& prim);
-    void sendRenamePrimMessage(RtStagePtr stage, const RtPrim& prim, const RtIdentifier& newName);
+    void sendRenamePrimMessage(RtStagePtr stage, const RtPrim& prim, const RtString& newName);
     void sendReparentPrimMessage(RtStagePtr stage, const RtPrim& prim, const RtPath& newParentPath);
     void sendSetPortValueMessage(const RtPort& port, const RtValue& value);
-    void sendSetAttributeMessage(const RtObject &obj, const RtIdentifier& name, const RtValue& value);
-    void sendRemoveAttributeMessage(const RtObject& obj, const RtIdentifier& name);
+    void sendSetAttributeMessage(const RtObject &obj, const RtString& name, const RtValue& value);
+    void sendRemoveAttributeMessage(const RtObject& obj, const RtString& name);
     void sendConnectionMessage(const RtOutput& src, const RtInput& dest, ConnectionChange change);
     void sendRelationshipMessage(const RtRelationship& rel, const RtObject& target, ConnectionChange change);
 

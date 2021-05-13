@@ -31,7 +31,7 @@ public:
     ~RtStage();
 
     /// Return the name of the stage.
-    const RtIdentifier& getName() const;
+    const RtString& getName() const;
 
     /// Add a source URI for a stage.
     void addSourceUri(const FilePath& uri);
@@ -40,30 +40,30 @@ public:
     const FilePathVec& getSourceUri() const;
 
     /// Create a new prim at the root of the stage.
-    RtPrim createPrim(const RtIdentifier& typeName);
+    RtPrim createPrim(const RtString& typeName);
 
     /// Create a new prim at the given path.
-    RtPrim createPrim(const RtPath& path, const RtIdentifier& typeName);
+    RtPrim createPrim(const RtPath& path, const RtString& typeName);
 
     /// Create a new prim inside the parent given by path.
     /// If an empty name is given a name will be generated.
-    RtPrim createPrim(const RtPath& parentPath, const RtIdentifier& name, const RtIdentifier& typeName);
+    RtPrim createPrim(const RtPath& parentPath, const RtString& name, const RtString& typeName);
 
     /// Create a nodedef based on a nodegraph
-    RtPrim createNodeDef(RtPrim nodeGraph, const RtIdentifier& nodeDefName, const RtIdentifier& nodeName,
-                         const RtIdentifier& version, bool isDefaultVersion, 
-                         const RtIdentifier& nodeGroup = EMPTY_IDENTIFIER,
-                         const RtIdentifier& namespaceString = EMPTY_IDENTIFIER,
+    RtPrim createNodeDef(RtPrim nodeGraph, const RtString& nodeDefName, const RtString& nodeName,
+                         const RtString& version, bool isDefaultVersion, 
+                         const RtString& nodeGroup = RtString::EMPTY,
+                         const RtString& namespaceString = RtString::EMPTY,
                          const string& doc = EMPTY_STRING);
 
     /// Remove a prim from the stage.
     void removePrim(const RtPath& path);
 
     /// Rename a prim in the stage.
-    RtIdentifier renamePrim(const RtPath& path, const RtIdentifier& newName);
+    RtString renamePrim(const RtPath& path, const RtString& newName);
 
     /// Move a prim to a new parent.
-    RtIdentifier reparentPrim(const RtPath& path, const RtPath& newParentPath);
+    RtString reparentPrim(const RtPath& path, const RtPath& newParentPath);
 
     /// Find the prim at the given path, Returns a null object
     /// if no such prim is found.
@@ -83,10 +83,10 @@ public:
     void addReference(RtStagePtr stage);
 
     /// Return a referenced stage by name.
-    RtStagePtr getReference(const RtIdentifier& name) const;
+    RtStagePtr getReference(const RtString& name) const;
 
     /// Remove a reference to another stage.
-    void removeReference(const RtIdentifier& name);
+    void removeReference(const RtString& name);
 
     /// Remove all references to other stages
     void removeReferences();
@@ -94,7 +94,7 @@ public:
 protected:
     RtStage();
 
-    void setName(const RtIdentifier& name);
+    void setName(const RtString& name);
 
     void disposePrim(const RtPath& path);
     void restorePrim(const RtPath& parentPath, const RtPrim& prim);

@@ -19,7 +19,7 @@ namespace MaterialX
 
 namespace
 {
-    const RtIdentifier DEFAULT_LIBRARY_NAME("default");
+    const RtString DEFAULT_LIBRARY_NAME("default");
     const string NUMBERS("0123456789");
 }
 
@@ -34,7 +34,7 @@ void PvtApi::reset()
     _unitDefinitions = UnitConverterRegistry::create();
 }
 
-RtStagePtr PvtApi::loadLibrary(const RtIdentifier& name, const FilePath& path, const RtReadOptions* options, bool forceReload)
+RtStagePtr PvtApi::loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options, bool forceReload)
 {
     auto it = _libraries.find(name);
     if (it != _libraries.end())
@@ -71,7 +71,7 @@ RtStagePtr PvtApi::loadLibrary(const RtIdentifier& name, const FilePath& path, c
     return stage;
 }
 
-void PvtApi::unloadLibrary(const RtIdentifier& name)
+void PvtApi::unloadLibrary(const RtString& name)
 {
     auto it = _libraries.find(name);
     if (it != _libraries.end())
@@ -109,7 +109,7 @@ void PvtApi::registerPrims(RtStagePtr stage)
         else if (prim.hasApi<RtNodeGraph>())
         {
             RtNodeGraph nodegraph(prim);
-            if (nodegraph.getDefinition() != EMPTY_IDENTIFIER)
+            if (nodegraph.getDefinition())
             {
                 registerNodeGraph(prim);
             }
@@ -136,7 +136,7 @@ void PvtApi::unregisterPrims(RtStagePtr stage)
         else if (prim.hasApi<RtNodeGraph>())
         {
             RtNodeGraph nodegraph(prim);
-            if (nodegraph.getDefinition() != EMPTY_IDENTIFIER)
+            if (nodegraph.getDefinition())
             {
                 unregisterNodeGraph(prim.getName());
             }
@@ -184,9 +184,9 @@ void PvtApi::setupNodeImplRelationships()
     }
 }
 
-RtIdentifier PvtApi::makeUniqueStageName(const RtIdentifier& name) const
+RtString PvtApi::makeUniqueStageName(const RtString& name) const
 {
-    RtIdentifier newName = name;
+    RtString newName = name;
 
     // Check if there is another stage with this name.
     RtStagePtr otherStage = getStage(name);
@@ -205,7 +205,7 @@ RtIdentifier PvtApi::makeUniqueStageName(const RtIdentifier& name) const
         }
         // Iterate until there is no other stage with the resulting name.
         do {
-            newName = RtIdentifier(baseName + std::to_string(i++));
+            newName = RtString(baseName + std::to_string(i++));
             otherStage = getStage(newName);
         } while (otherStage);
     }

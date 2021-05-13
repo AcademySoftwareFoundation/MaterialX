@@ -18,7 +18,7 @@ RtPort::RtPort(PvtObjHandle hnd) :
 {
 }
 
-const RtIdentifier& RtPort::getType() const
+const RtString& RtPort::getType() const
 {
     return hnd()->asA<PvtPort>()->getType();
 }
@@ -48,12 +48,12 @@ void RtPort::setValueString(const string& v)
     hnd()->asA<PvtPort>()->setValueString(v);
 }
 
-const RtIdentifier& RtPort::getColorSpace() const
+const RtString& RtPort::getColorSpace() const
 {
     return hnd()->asA<PvtPort>()->getColorSpace();
 }
 
-void RtPort::setColorSpace(const RtIdentifier& colorspace)
+void RtPort::setColorSpace(const RtString& colorspace)
 {
     return hnd()->asA<PvtPort>()->setColorSpace(colorspace);
 }
@@ -86,22 +86,22 @@ void RtInput::setIsUIVisible(bool val)
     hnd()->asA<PvtInput>()->setIsUIVisible(val);
 }
 
-const RtIdentifier& RtInput::getUnit() const
+const RtString& RtInput::getUnit() const
 {
     return hnd()->asA<PvtInput>()->getUnit();
 }
 
-void RtInput::setUnit(const RtIdentifier& unit)
+void RtInput::setUnit(const RtString& unit)
 {
     return hnd()->asA<PvtInput>()->setUnit(unit);
 }
 
-const RtIdentifier& RtInput::getUnitType() const
+const RtString& RtInput::getUnitType() const
 {
     return hnd()->asA<PvtInput>()->getUnitType();
 }
 
-void RtInput::setUnitType(const RtIdentifier& unit)
+void RtInput::setUnitType(const RtString& unit)
 {
     return hnd()->asA<PvtInput>()->setUnitType(unit);
 }

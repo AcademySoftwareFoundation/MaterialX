@@ -44,7 +44,7 @@ namespace RtCommand
     void setPortValue(const RtPort& port, const Vector4& value, RtCommandResult& result);
 
     /// Set value on a string port.
-    void setPortValue(const RtPort& port, const RtIdentifier& value, RtCommandResult& result);
+    void setPortValue(const RtPort& port, const RtString& value, RtCommandResult& result);
 
     /// Set value on a pointer port.
     void setPortValue(const RtPort& port, void* value, RtCommandResult& result);

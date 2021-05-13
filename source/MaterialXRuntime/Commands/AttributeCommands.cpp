@@ -17,7 +17,7 @@ namespace MaterialX
 namespace RtCommand
 {
 
-void setAttributeFromString(const RtObject& obj, const RtIdentifier& name, const string& value, RtCommandResult& result)
+void setAttributeFromString(const RtObject& obj, const RtString& name, const string& value, RtCommandResult& result)
 {
     // Use try/catch since the conversion from string might fail and throw.
     try
@@ -33,7 +33,7 @@ void setAttributeFromString(const RtObject& obj, const RtIdentifier& name, const
     }
 }
 
-void removeAttribute(const RtObject& obj, const RtIdentifier& name, RtCommandResult& result)
+void removeAttribute(const RtObject& obj, const RtString& name, RtCommandResult& result)
 {
     try
     {

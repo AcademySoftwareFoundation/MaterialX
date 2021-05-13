@@ -16,9 +16,9 @@ namespace MaterialX
 class PvtRemoveAttributeCmd : public PvtCommand
 {
 public:
-    PvtRemoveAttributeCmd(const RtObject& obj, const RtIdentifier& name);
+    PvtRemoveAttributeCmd(const RtObject& obj, const RtString& name);
 
-    static PvtCommandPtr create(const RtObject& obj, const RtIdentifier& name);
+    static PvtCommandPtr create(const RtObject& obj, const RtString& name);
 
     void execute(RtCommandResult& result) override;
     void undo(RtCommandResult& result) override;
@@ -26,7 +26,7 @@ public:
 
 private:
     RtObject _obj;
-    RtIdentifier _name;
+    RtString _name;
     RtValue _oldValue;
 };
 

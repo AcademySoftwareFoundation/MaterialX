@@ -88,7 +88,7 @@ RtAttribute RtAttributeIterator::operator*() const
 {
     AttrIteratorData* data = static_cast<AttrIteratorData*>(_ptr);
     PvtObject* obj = data->obj->asA<PvtObject>();
-    const RtIdentifier& name = obj->_attrNames[data->index];
+    const RtString& name = obj->_attrNames[data->index];
     return RtAttribute(name, obj->getAttribute(name));
 }
 

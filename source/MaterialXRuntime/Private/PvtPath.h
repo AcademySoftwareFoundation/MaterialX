@@ -7,7 +7,7 @@
 #define MATERIALX_PVTPATH_H
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtIdentifier.h>
+#include <MaterialXRuntime/RtString.h>
 #include <MaterialXRuntime/RtPath.h>
 
 #include <MaterialXCore/Util.h>
@@ -38,8 +38,8 @@ public:
     }
 
     // Construct from a single path element.
-    explicit PvtPath(const RtIdentifier& elem) :
-        _elements(elem != ROOT_NAME ? RtIdentifierVec({ ROOT_NAME, elem }) : RtIdentifierVec({ ROOT_NAME }))
+    explicit PvtPath(const RtString& elem) :
+        _elements(elem != ROOT_NAME ? RtStringVec({ ROOT_NAME, elem }) : RtStringVec({ ROOT_NAME }))
     {
     }
 
@@ -51,7 +51,7 @@ public:
         _elements[0] = PvtPath::ROOT_NAME;
         for (size_t i = 0; i < elementNames.size(); ++i)
         {
-            _elements[i+1] = RtIdentifier(elementNames[i]);
+            _elements[i+1] = RtString(elementNames[i]);
         }
     }
 
@@ -70,9 +70,9 @@ public:
 
     void setObject(const PvtObject* obj);
 
-    const RtIdentifier& getName() const
+    const RtString& getName() const
     {
-        return _elements.size() ? _elements.back() : EMPTY_IDENTIFIER;
+        return _elements.size() ? _elements.back() : RtString::EMPTY;
     }
 
     string asString() const
@@ -89,7 +89,7 @@ public:
         return str;
     }
 
-    void push(const RtIdentifier& childName)
+    void push(const RtString& childName)
     {
         _elements.push_back(childName);
     }
@@ -112,7 +112,7 @@ public:
         return _elements.empty();
     }
 
-    const RtIdentifier& operator[](size_t index) const
+    const RtString& operator[](size_t index) const
     {
         return _elements[index];
     }
@@ -138,10 +138,10 @@ public:
     }
 
     static const string SEPARATOR;
-    static const RtIdentifier ROOT_NAME;
+    static const RtString ROOT_NAME;
 
 private:
-    vector<RtIdentifier> _elements;
+    vector<RtString> _elements;
 };
 
 }

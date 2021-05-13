@@ -7,7 +7,7 @@
 #define MATERIALX_PVTOBJECT_H
 
 #include <MaterialXRuntime/RtObject.h>
-#include <MaterialXRuntime/RtIdentifier.h>
+#include <MaterialXRuntime/RtString.h>
 #include <MaterialXRuntime/RtValue.h>
 
 #include <MaterialXRuntime/Private/PvtPath.h>
@@ -125,7 +125,7 @@ public:
         return static_cast<T*>(obj.hnd().get());
     }
 
-    const RtIdentifier& getName() const
+    const RtString& getName() const
     {
         return _name;
     }
@@ -141,46 +141,46 @@ public:
 
     RtStageWeakPtr getStage() const;
 
-    RtTypedValue* createAttribute(const RtIdentifier& name, const RtIdentifier& type);
+    RtTypedValue* createAttribute(const RtString& name, const RtString& type);
 
-    void removeAttribute(const RtIdentifier& name);
+    void removeAttribute(const RtString& name);
 
     // Get an attribute without a type check.
-    RtTypedValue* getAttribute(const RtIdentifier& name)
+    RtTypedValue* getAttribute(const RtString& name)
     {
         auto it = _attr.find(name);
         return it != _attr.end() ? it->second : nullptr;
     }
 
     // Get an attribute without a type check.
-    const RtTypedValue* getAttribute(const RtIdentifier& name) const
+    const RtTypedValue* getAttribute(const RtString& name) const
     {
         return const_cast<PvtObject*>(this)->getAttribute(name);
     }
 
     // Get an attribute with type check.
-    RtTypedValue* getAttribute(const RtIdentifier& name, const RtIdentifier& type);
+    RtTypedValue* getAttribute(const RtString& name, const RtString& type);
 
     // Get an attribute with type check.
-    const RtTypedValue* getAttribute(const RtIdentifier& name, const RtIdentifier& type) const
+    const RtTypedValue* getAttribute(const RtString& name, const RtString& type) const
     {
         return const_cast<PvtObject*>(this)->getAttribute(name, type);
     }
 
     // Get the map of all attributes.
-    const RtIdentifierMap<RtTypedValue*>& getAttributes() const
+    const RtStringMap<RtTypedValue*>& getAttributes() const
     {
         return _attr;
     }
 
     // Get the vector of all attributes.
-    const RtIdentifierVec& getAttributeNames() const
+    const RtStringVec& getAttributeNames() const
     {
         return _attrNames;
     }
 
 protected:
-    PvtObject(const RtIdentifier& name, PvtPrim* parent);
+    PvtObject(const RtString& name, PvtPrim* parent);
 
     template<typename T>
     void setTypeBit()
@@ -190,7 +190,7 @@ protected:
 
     // Protected as arbitrary renaming is not supported.
     // Must be done from the owning stage.
-    void setName(const RtIdentifier& name)
+    void setName(const RtString& name)
     {
         _name = name;
     }
@@ -203,10 +203,10 @@ protected:
     }
 
     TypeBits _typeBits;
-    RtIdentifier _name; // TODO: Store a path instead of name itenfier
+    RtString _name; // TODO: Store a path instead of name itenfier
     PvtPrim* _parent;
-    RtIdentifierMap<RtTypedValue*> _attr;
-    RtIdentifierVec _attrNames;
+    RtStringMap<RtTypedValue*> _attr;
+    RtStringVec _attrNames;
 
     friend class PvtPrim;
     friend class PvtPort;
@@ -237,12 +237,12 @@ public:
         return _vec.empty();
     }
 
-    size_t count(const RtIdentifier& name) const
+    size_t count(const RtString& name) const
     {
         return _map.count(name);
     }
 
-    PvtObject* find(const RtIdentifier& name) const
+    PvtObject* find(const RtString& name) const
     {
         auto it = _map.find(name);
         return it != _map.end() ? it->second.get() : nullptr;
@@ -259,9 +259,9 @@ public:
         _vec.push_back(obj);
     }
 
-    PvtObjHandle remove(const RtIdentifier& name);
+    PvtObjHandle remove(const RtString& name);
 
-    RtIdentifier rename(const RtIdentifier& name, const RtIdentifier& newName, const PvtPrim* parent);
+    RtString rename(const RtString& name, const RtString& newName, const PvtPrim* parent);
 
     void clear()
     {
@@ -275,7 +275,7 @@ public:
     }
 
 private:
-    RtIdentifierMap<PvtObjHandle> _map;
+    RtStringMap<PvtObjHandle> _map;
     PvtObjectVec _vec;
 
     friend class RtPrimIterator;

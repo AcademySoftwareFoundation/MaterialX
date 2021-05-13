@@ -30,7 +30,6 @@
 #include <MaterialXRuntime/RtLook.h>
 #include <MaterialXRuntime/RtCollection.h>
 #include <MaterialXRuntime/RtMessage.h>
-#include <MaterialXRuntime/Identifiers.h>
 
 #include <MaterialXRuntime/Commands/PrimCommands.h>
 #include <MaterialXRuntime/Commands/PortCommands.h>
@@ -81,38 +80,38 @@ namespace
     };
 
     // Commonly used identifiers.
-    const mx::RtIdentifier X("x");
-    const mx::RtIdentifier Y("y");
-    const mx::RtIdentifier Z("z");
-    const mx::RtIdentifier W("w");
-    const mx::RtIdentifier R("r");
-    const mx::RtIdentifier G("g");
-    const mx::RtIdentifier B("b");
-    const mx::RtIdentifier A("a");
-    const mx::RtIdentifier ADD("add");
-    const mx::RtIdentifier IN1("in1");
-    const mx::RtIdentifier IN2("in2");
-    const mx::RtIdentifier IN3("in3");
-    const mx::RtIdentifier OUT("out");
-    const mx::RtIdentifier IN("in");
-    const mx::RtIdentifier TOKEN1("token1");
-    const mx::RtIdentifier REFLECTIVITY("reflectivity");
-    const mx::RtIdentifier SURFACESHADER("surfaceshader");
-    const mx::RtIdentifier UIFOLDER("uifolder");
-    const mx::RtIdentifier FOO("foo");
-    const mx::RtIdentifier FOO1("foo1");
-    const mx::RtIdentifier BAR("bar");
-    const mx::RtIdentifier RESULT("result");
-    const mx::RtIdentifier VERSION("version");
-    const mx::RtIdentifier ROOT("root");
-    const mx::RtIdentifier MAIN("main");
-    const mx::RtIdentifier LIBS("libs");
-    const mx::RtIdentifier NONAME("");
-    const mx::RtIdentifier TARGETS_NAME("targets");
-    const mx::RtIdentifier STDLIB_NAME("stdlib");
-    const mx::RtIdentifier PBRLIB_NAME("pbrlib");
-    const mx::RtIdentifier BXDFLIB_NAME("bxdf");
-    const mx::RtIdentifier ADSKLIB_NAME("adsk");
+    const mx::RtString X("x");
+    const mx::RtString Y("y");
+    const mx::RtString Z("z");
+    const mx::RtString W("w");
+    const mx::RtString R("r");
+    const mx::RtString G("g");
+    const mx::RtString B("b");
+    const mx::RtString A("a");
+    const mx::RtString ADD("add");
+    const mx::RtString IN1("in1");
+    const mx::RtString IN2("in2");
+    const mx::RtString IN3("in3");
+    const mx::RtString OUT("out");
+    const mx::RtString IN("in");
+    const mx::RtString TOKEN1("token1");
+    const mx::RtString REFLECTIVITY("reflectivity");
+    const mx::RtString SURFACESHADER("surfaceshader");
+    const mx::RtString UIFOLDER("uifolder");
+    const mx::RtString FOO("foo");
+    const mx::RtString FOO1("foo1");
+    const mx::RtString BAR("bar");
+    const mx::RtString RESULT("result");
+    const mx::RtString VERSION("version");
+    const mx::RtString ROOT("root");
+    const mx::RtString MAIN("main");
+    const mx::RtString LIBS("libs");
+    const mx::RtString NONAME("");
+    const mx::RtString TARGETS_NAME("targets");
+    const mx::RtString STDLIB_NAME("stdlib");
+    const mx::RtString PBRLIB_NAME("pbrlib");
+    const mx::RtString BXDFLIB_NAME("bxdf");
+    const mx::RtString ADSKLIB_NAME("adsk");
 
     bool compareFiles(const mx::FilePath& filename1, const mx::FilePath& filename2)
     {
@@ -140,14 +139,14 @@ TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
         "TestSuite" /
         "stdlib" /
         "upgrade" );
-    mx::RtStagePtr defaultStage = api->createStage(mx::RtIdentifier("defaultStage"));
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("material_element_to_surface_material.mtlx", testSearchPath);
     mx::RtPrim mixNodeGraphPrim = defaultStage->getPrimAtPath("NG_aiMixColor31");
     REQUIRE(mixNodeGraphPrim);
     mx::RtNodeGraph mixNodeGraph(mixNodeGraphPrim);
     REQUIRE(mixNodeGraph);
-    mx::RtOutput mixNodeGraphOutput = mixNodeGraph.getOutput(mx::RtIdentifier("out"));
+    mx::RtOutput mixNodeGraphOutput = mixNodeGraph.getOutput(mx::RtString("out"));
     REQUIRE(mixNodeGraphOutput);
     mx::RtConnectionIterator iter = mixNodeGraphOutput.getConnections();
     while (!iter.isDone())
@@ -157,22 +156,26 @@ TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
     }
 }
 
-TEST_CASE("Runtime: Identifiers", "[runtime]")
+TEST_CASE("Runtime: RtString", "[runtime]")
 {
-    mx::RtIdentifier tok1("hej");
-    mx::RtIdentifier tok2("hey");
-    mx::RtIdentifier tok3("hej");
+    mx::RtString tok1("hej");
+    mx::RtString tok2("hey");
+    mx::RtString tok3("hej");
     REQUIRE(tok1 != tok2);
     REQUIRE(tok1 == tok3);
     REQUIRE(tok1 == "hej");
-    REQUIRE(tok1 == std::string("hej"));
-    REQUIRE("hej" == tok1);
-    REQUIRE(std::string("hej") == tok1);
+    REQUIRE(tok1 == mx::string("hej"));
 
-    mx::RtIdentifier one("one");
-    mx::RtIdentifier two("two");
-    mx::RtIdentifier three("three");
-    mx::RtIdentifierMap<int> intMap;
+    mx::RtString empty("");
+    REQUIRE(empty == mx::RtString::EMPTY);
+    REQUIRE(empty.hash() == mx::RtString::EMPTY.hash());
+    REQUIRE(empty.empty());
+    REQUIRE(!empty);
+
+    mx::RtString one("one");
+    mx::RtString two("two");
+    mx::RtString three("three");
+    mx::RtStringMap<int> intMap;
     intMap[one] = 1;
     intMap[two] = 2;
     intMap[three] = 3;
@@ -184,7 +187,7 @@ TEST_CASE("Runtime: Identifiers", "[runtime]")
     REQUIRE(intMap.count(three));
     REQUIRE(intMap[three] == 3);
 
-    mx::RtIdentifierSet intSet;
+    mx::RtStringSet intSet;
     intSet.insert(one);
     intSet.insert(two);
     intSet.insert(three);
@@ -265,8 +268,8 @@ TEST_CASE("Runtime: Values", "[runtime]")
     REQUIRE(value.asColor3() == mx::Color3(1.0, 2.0, 3.0));
     mx::RtValue::fromString(mx::RtType::COLOR4, "1.0, 2.0, 3.0, 4.0", value);
     REQUIRE(value.asColor4() == mx::Color4(1.0, 2.0, 3.0, 4.0));
-    mx::RtValue::fromString(mx::RtType::IDENTIFIER, "materialx", value);
-    REQUIRE(value.asIdentifier() == mx::RtIdentifier("materialx"));
+    mx::RtValue::fromString(mx::RtType::INTERNSTRING, "materialx", value);
+    REQUIRE(value.asInternString() == mx::RtString("materialx"));
     // For large values (>16bytes) we need to allocate a new value instance per type
     mx::RtValue matrix33Value = mx::RtValue::createNew(mx::RtType::MATRIX33, rootPrim);
     mx::RtValue::fromString(mx::RtType::MATRIX33, "1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0", matrix33Value);
@@ -358,7 +361,7 @@ TEST_CASE("Runtime: Types", "[runtime]")
     REQUIRE_THROWS(mx::RtTypeDef::registerType(mx::RtType::COLOR3, mx::RtTypeDef::BASETYPE_FLOAT, fooFuncs));
 
     // Make sure we can't request an unknown type
-    REQUIRE(mx::RtTypeDef::findType(mx::RtIdentifier("bar")) == nullptr);
+    REQUIRE(mx::RtTypeDef::findType(mx::RtString("bar")) == nullptr);
 
     // Make sure a type is connectable to its own type
     // TODO: Extend to test more types when type auto cast is implemented.
@@ -501,7 +504,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(nodedef);
     REQUIRE(nodedef.isValid());
     REQUIRE(nodedef.getTypeInfo().getShortTypeName() == mx::RtNodeDef::typeName());
-    REQUIRE(nodedef.getName() == mx::RtIdentifier("ND_foo_float"));
+    REQUIRE(nodedef.getName() == mx::RtString("ND_foo_float"));
     nodedef.setNode(FOO);
     REQUIRE(nodedef.getNode() == FOO);
     REQUIRE(stage->createPrim(nodedef.getName()));
@@ -512,7 +515,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     mx::RtNode node(nodePrim);
     REQUIRE(node);
     REQUIRE(node.getTypeInfo().getShortTypeName() == mx::RtNode::typeName());
-    REQUIRE(node.getName() == mx::RtIdentifier("foo1"));
+    REQUIRE(node.getName() == mx::RtString("foo1"));
     REQUIRE(node.getNodeDef() == nodedefPrim);
 
     mx::RtPrim graphPrim = stage->createPrim(mx::RtNodeGraph::typeName());
@@ -520,7 +523,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(graphPrim.hasApi<mx::RtNodeGraph>());
     mx::RtNodeGraph graph(graphPrim);
     REQUIRE(graph);
-    REQUIRE(graph.getName() == mx::RtIdentifier("nodegraph1"));
+    REQUIRE(graph.getName() == mx::RtString("nodegraph1"));
     REQUIRE(graph.getTypeInfo().getShortTypeName() == mx::RtNodeGraph::typeName());
     REQUIRE(graph.getTypeInfo().numBaseClasses() == 1);
     REQUIRE(graph.getTypeInfo().getBaseClassType(0) == mx::RtNode::typeName());
@@ -574,7 +577,7 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     mx::RtGeneric generic(genericPrim);
     REQUIRE(generic);
     REQUIRE(generic.getTypeInfo().getShortTypeName() == mx::RtGeneric::typeName());
-    mx::RtIdentifier kind("mykindofprim");
+    mx::RtString kind("mykindofprim");
     generic.setKind(kind);
     REQUIRE(generic.getKind() == kind);
 
@@ -590,26 +593,26 @@ TEST_CASE("Runtime: Prims", "[runtime]")
     REQUIRE(nodegraphAttrs.size() == 12);
     const mx::RtAttributeSpecVec nodegraphColor3InputAttrs = graph.getPrimSpec().getPortAttributes(graph_in);
     REQUIRE(nodegraphColor3InputAttrs.size() == 6);
-    const mx::RtAttributeSpec* version = nodedef.getPrimSpec().getAttribute(mx::Identifiers::VERSION);
+    const mx::RtAttributeSpec* version = nodedef.getPrimSpec().getAttribute(mx::RtString::VERSION);
     REQUIRE(version);
-    REQUIRE(version->getType() == mx::RtType::IDENTIFIER);
+    REQUIRE(version->getType() == mx::RtType::INTERNSTRING);
     REQUIRE(!version->isCustom());
-    const mx::RtAttributeSpec* isDefaultVersion = nodedef.getPrimSpec().getAttribute(mx::Identifiers::ISDEFAULTVERSION);
+    const mx::RtAttributeSpec* isDefaultVersion = nodedef.getPrimSpec().getAttribute(mx::RtString::ISDEFAULTVERSION);
     REQUIRE(isDefaultVersion);
     REQUIRE(isDefaultVersion->getType() == mx::RtType::BOOLEAN);
     REQUIRE(!isDefaultVersion->isCustom());
-    const mx::RtAttributeSpec* uiVisible = graph.getPrimSpec().getPortAttribute(graph_in, mx::Identifiers::UIVISIBLE);
+    const mx::RtAttributeSpec* uiVisible = graph.getPrimSpec().getPortAttribute(graph_in, mx::RtString::UIVISIBLE);
     REQUIRE(uiVisible);
     REQUIRE(uiVisible->getType() == mx::RtType::BOOLEAN);
     REQUIRE(!uiVisible->isCustom());
-    const mx::RtAttributeSpec* bitDepth = graph.getPrimSpec().getPortAttribute(graph_out, mx::Identifiers::BITDEPTH);
+    const mx::RtAttributeSpec* bitDepth = graph.getPrimSpec().getPortAttribute(graph_out, mx::RtString::BITDEPTH);
     REQUIRE(bitDepth);
     REQUIRE(bitDepth->getType() == mx::RtType::INTEGER);
     REQUIRE(!uiVisible->isCustom());
 
     // Test object life-time management
-    mx::RtPrim node1 = stage->createPrim(graph.getPath(), mx::RtIdentifier("node1"), nodedefPrim.getName());
-    mx::RtPrim node2 = stage->createPrim(graph.getPath(), mx::RtIdentifier("node1"), nodedefPrim.getName());
+    mx::RtPrim node1 = stage->createPrim(graph.getPath(), mx::RtString("node1"), nodedefPrim.getName());
+    mx::RtPrim node2 = stage->createPrim(graph.getPath(), mx::RtString("node1"), nodedefPrim.getName());
     REQUIRE(node1.isValid());
     stage->removePrim(node1.getPath());
     REQUIRE(!node1.isValid());
@@ -703,13 +706,13 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(!invalid_out);
 
     // Test setting input attributes.
-    const mx::RtIdentifier meter("meter");
-    const mx::RtIdentifier srgb("srgb");
+    const mx::RtString meter("meter");
+    const mx::RtString srgb("srgb");
     add1_in1.setUnit(meter);
     add1_in2.setColorSpace(srgb);
     REQUIRE(add1_in1.getUnit() == meter);
-    REQUIRE(add1_in1.getColorSpace() == mx::EMPTY_IDENTIFIER);
-    REQUIRE(add1_in2.getUnit() == mx::EMPTY_IDENTIFIER);
+    REQUIRE(add1_in1.getColorSpace().empty());
+    REQUIRE(add1_in2.getUnit().empty());
     REQUIRE(add1_in2.getColorSpace() == srgb);
     mx::RtTypedValue* fooData = add1_in1.createAttribute(FOO, mx::RtType::FLOAT);
     fooData->asFloat() = 7.0f;
@@ -732,8 +735,8 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     }
     REQUIRE(attrCount == 1);
     mx::RtAttributeIterator attrIt = add1_in1.getAttributes();
-    REQUIRE(mx::Identifiers::UNIT == (*attrIt).name);
-    REQUIRE(meter == (*attrIt).value->asIdentifier());
+    REQUIRE(mx::RtString::UNIT == (*attrIt).name);
+    REQUIRE(meter == (*attrIt).value->asInternString());
     ++attrIt;
     REQUIRE(FOO == (*attrIt).name);
     REQUIRE(fooData == (*attrIt).value);
@@ -919,14 +922,14 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(graph1.getPrim().getParent() == stage->getRootPrim());
 
     // Test creating a nodedef from a nodegraph
-    const mx::RtIdentifier NG_ADDGRAPH("NG_addgraph");
-    const mx::RtIdentifier ND_ADDGRAPH("ND_addgraph");
-    const mx::RtIdentifier ADDGRAPH("addgraph");
-    const mx::RtIdentifier MATH_GROUP("math");
-    const mx::RtIdentifier ADDGRAPH_VERSION("3.4");
-    const mx::RtIdentifier ADDGRAPH_TARGET("mytarget");
-    const mx::RtIdentifier NAMESPACE("namespace1");
-    const mx::RtIdentifier QUALIFIED_DEFINITION("namespace1:ND_addgraph");
+    const mx::RtString NG_ADDGRAPH("NG_addgraph");
+    const mx::RtString ND_ADDGRAPH("ND_addgraph");
+    const mx::RtString ADDGRAPH("addgraph");
+    const mx::RtString MATH_GROUP("math");
+    const mx::RtString ADDGRAPH_VERSION("3.4");
+    const mx::RtString ADDGRAPH_TARGET("mytarget");
+    const mx::RtString NAMESPACE("namespace1");
+    const mx::RtString QUALIFIED_DEFINITION("namespace1:ND_addgraph");
     const std::string DOC("Sample documentation string");
     bool isDefaultVersion = false;
     stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
@@ -940,7 +943,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 
     mx::RtNodeDef addgraphDef(addgraphPrim);
     REQUIRE(graph1.getDefinition() == QUALIFIED_DEFINITION);
-    REQUIRE(graph1.getVersion() == mx::EMPTY_IDENTIFIER);
+    REQUIRE(graph1.getVersion().empty());
     REQUIRE(graph1.getNamespace() == NAMESPACE);
     REQUIRE(addgraphDef.numInputs() == 2);
     REQUIRE(addgraphDef.getInput(A));
@@ -968,12 +971,12 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     mx::RtNode agNode(agPrim);
     {
         // 1. Metadata like version should be copied but not target or node.
-        mx::RtTypedValue* agVersion = agNode.getAttribute(mx::Identifiers::VERSION);
+        mx::RtTypedValue* agVersion = agNode.getAttribute(mx::RtString::VERSION);
         REQUIRE(agVersion);
         REQUIRE(agVersion->getValueString() == ADDGRAPH_VERSION);
-        mx::RtTypedValue* agTarget = agNode.getAttribute(mx::Identifiers::TARGET);
+        mx::RtTypedValue* agTarget = agNode.getAttribute(mx::RtString::TARGET);
         REQUIRE(!agTarget);
-        mx::RtTypedValue* agNodeValue = agNode.getAttribute(mx::Identifiers::NODE);
+        mx::RtTypedValue* agNodeValue = agNode.getAttribute(mx::RtString::NODE);
         REQUIRE(!agNodeValue);
     }
 
@@ -985,7 +988,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 
     // Check export to MTLX document:
     mx::RtFileIo stageIo(stage);
-    mx::RtIdentifierVec names;
+    mx::RtStringVec names;
     names.push_back(QUALIFIED_DEFINITION);
     stageIo.writeDefinitions("ND_addgraph.mtlx", names);
 
@@ -996,8 +999,8 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     {
         // 1. Check nodedef
         REQUIRE(nodeDef);
-        REQUIRE(nodeDef->getVersionString() == ADDGRAPH_VERSION.str());
-        REQUIRE(nodeDef->getTarget() == ADDGRAPH_TARGET.str());
+        REQUIRE(nodeDef->getVersionString() == ADDGRAPH_VERSION);
+        REQUIRE(nodeDef->getTarget() == ADDGRAPH_TARGET);
         std::vector<mx::InputPtr> inputs = nodeDef->getInputs();
         bool inputCheck =
             (inputs.size() == 2) &&
@@ -1054,11 +1057,11 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
         doc->validate();
         mx::ElementPtr agInstance = doc->getChild("addgraph1");
         REQUIRE(agInstance);
-        bool instanceVersionSaved = agInstance->getAttribute(mx::Identifiers::VERSION.str()) == ADDGRAPH_VERSION;
+        bool instanceVersionSaved = agInstance->getAttribute(mx::RtString::VERSION.str()) == ADDGRAPH_VERSION;
         REQUIRE(instanceVersionSaved);
-        bool instanceTargetNotSaved = agInstance->getAttribute(mx::Identifiers::TARGET.str()) == mx::EMPTY_STRING;
+        bool instanceTargetNotSaved = agInstance->getAttribute(mx::RtString::TARGET.str()) == mx::EMPTY_STRING;
         REQUIRE(instanceTargetNotSaved);
-        bool instanceNodeNotSaved = agInstance->getAttribute(mx::Identifiers::NODE.str()) == mx::EMPTY_STRING;
+        bool instanceNodeNotSaved = agInstance->getAttribute(mx::RtString::NODE.str()) == mx::EMPTY_STRING;
         REQUIRE(instanceNodeNotSaved);
     }
 }
@@ -1091,14 +1094,14 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         REQUIRE(graph1.getPath() == "/nodegraph1");
 
         // Get a nodedef and create two node instances in the graph.
-        const mx::RtIdentifier multiplyColor3("ND_multiply_color3");
+        const mx::RtString multiplyColor3("ND_multiply_color3");
         mx::RtNode mult1 = stage->createPrim(graph1.getPath(), NONAME, multiplyColor3);
         mx::RtNode mult2 = stage->createPrim(graph1.getPath(), NONAME, multiplyColor3);
         REQUIRE(mult1);
         REQUIRE(mult2);
 
         // Create a node instance at stage root.
-        const mx::RtIdentifier tiledimageFloat("ND_tiledimage_float");
+        const mx::RtString tiledimageFloat("ND_tiledimage_float");
         mx::RtNode tiledimage1 = stage->createPrim(tiledimageFloat);
         REQUIRE(tiledimage1);
 
@@ -1127,15 +1130,15 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         mx::RtStagePtr stage = api->createStage(MAIN);
 
         // Create a small node network.
-        const mx::RtIdentifier tiledimageDef("ND_tiledimage_color3");
-        const mx::RtIdentifier texcoordDef("ND_texcoord_vector2");
+        const mx::RtString tiledimageDef("ND_tiledimage_color3");
+        const mx::RtString texcoordDef("ND_texcoord_vector2");
         mx::RtNode tiledimage1 = stage->createPrim(tiledimageDef);
         mx::RtNode texcoord1 = stage->createPrim(texcoordDef);
         REQUIRE(tiledimage1);
         REQUIRE(texcoord1);
-        mx::RtInput tiledimage1_texcoord = tiledimage1.getInput(mx::RtIdentifier("texcoord"));
-        mx::RtInput tiledimage1_file = tiledimage1.getInput(mx::RtIdentifier("file"));
-        mx::RtInput texcoord1_index = texcoord1.getInput(mx::RtIdentifier("index"));
+        mx::RtInput tiledimage1_texcoord = tiledimage1.getInput(mx::RtString("texcoord"));
+        mx::RtInput tiledimage1_file = tiledimage1.getInput(mx::RtString("file"));
+        mx::RtInput texcoord1_index = texcoord1.getInput(mx::RtString("index"));
         mx::RtOutput texcoord1_out = texcoord1.getOutput(OUT);
         REQUIRE(tiledimage1_texcoord);
         REQUIRE(tiledimage1_file);
@@ -1178,7 +1181,7 @@ TEST_CASE("Runtime: DefaultLook", "[runtime]")
     api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH());
     api->loadLibrary(BXDFLIB_NAME, RuntimeGlobals::BXDFLIB_PATH());
 
-    mx::RtStagePtr defaultStage = api->createStage(mx::RtIdentifier("defaultStage"));
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
 
     mx::FileSearchPath lookSearchPath(mx::FilePath::getCurrentPath() / "resources" / "LookDev");
     mx::RtFileIo fileIo(defaultStage);
@@ -1207,7 +1210,7 @@ TEST_CASE("Runtime: Namespaced definitions", "[runtime]")
     api->loadLibrary(BXDFLIB_NAME, RuntimeGlobals::BXDFLIB_PATH());
     api->loadLibrary(ADSKLIB_NAME, RuntimeGlobals::ADSKLIB_PATH());
 
-    mx::RtStagePtr defaultStage = api->createStage(mx::RtIdentifier("defaultStage"));
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
 
     mx::FileSearchPath adskTestPath(mx::FilePath::getCurrentPath() /
         "resources" /
@@ -1230,7 +1233,7 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
     api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH());
     api->loadLibrary(BXDFLIB_NAME, RuntimeGlobals::BXDFLIB_PATH());
 
-    mx::RtStagePtr defaultStage = api->createStage(mx::RtIdentifier("defaultStage"));
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
     mx::FileSearchPath lookSearchPath(mx::FilePath::getCurrentPath() /
                                       "resources" /
                                       "LookDev");
@@ -1263,7 +1266,7 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
     REQUIRE(!iter.isDone());
     mx::RtPrim lk1 = (*iter).asA<mx::RtPrim>();
     REQUIRE(lk1);
-    REQUIRE(lk1.getName().str() == "defaultLook1");
+    REQUIRE(lk1.getName() == "defaultLook1");
     ++iter;
     REQUIRE(iter.isDone());
 
@@ -1272,7 +1275,7 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
     REQUIRE(!iter.isDone());
     mx::RtPrim ma1 = (*iter).asA<mx::RtPrim>();
     REQUIRE(ma1);
-    REQUIRE(ma1.getName().str() == "defaultMaterialAssign1");
+    REQUIRE(ma1.getName() == "defaultMaterialAssign1");
     ++iter;
     REQUIRE(iter.isDone());
 
@@ -1280,12 +1283,12 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
     REQUIRE(materialassign1.getMaterial().isConnected());
     mx::RtPrim mat1 = materialassign1.getMaterial().getConnection().getParent();
     REQUIRE(mat1);
-    REQUIRE(mat1.getName().str() == "defaultMaterial1");
+    REQUIRE(mat1.getName() == "defaultMaterial1");
     iter = materialassign1.getCollection();
     REQUIRE(!iter.isDone());
     mx::RtPrim co1 = (*iter).asA<mx::RtPrim>();
     REQUIRE(co1);
-    REQUIRE(co1.getName().str() == "defaultCollection1");
+    REQUIRE(co1.getName() == "defaultCollection1");
     ++iter;
     REQUIRE(iter.isDone());
 
@@ -1294,7 +1297,7 @@ TEST_CASE("Runtime: Conflict resolution", "[runtime]")
     REQUIRE(surfInput.isConnected());
     mx::RtPrim sh1 = surfInput.getConnection().getParent();
     REQUIRE(sh1);
-    REQUIRE(sh1.getName().str() == "defaultShader1");
+    REQUIRE(sh1.getName() == "defaultShader1");
 }
 
 TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
@@ -1334,7 +1337,7 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     REQUIRE(graphOutSocket);
 
     // Add nodes to the graph.
-    const mx::RtIdentifier ADD_FLOAT_NODEDEF("ND_add_float");
+    const mx::RtString ADD_FLOAT_NODEDEF("ND_add_float");
     mx::RtNode add1 = stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);
     mx::RtNode add2 = stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);
     graphInSocket.connect(add1.getInput(IN1));
@@ -1361,7 +1364,7 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     fileIo.write(filename, &options);
 
     // Read the saved file to another stage
-    mx::RtStagePtr anotherStage = api->createStage(mx::RtIdentifier("another"));
+    mx::RtStagePtr anotherStage = api->createStage(mx::RtString("another"));
     fileIo.setStage(anotherStage);
     fileIo.read(filename, searchPath);
 
@@ -1387,7 +1390,7 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     mx::RtStagePtr stage = api->createStage(MAIN);
 
     // Create some nodes.
-    const mx::RtIdentifier nodedefName("ND_add_float");
+    const mx::RtString nodedefName("ND_add_float");
     mx::RtNode node1 = stage->createPrim(nodedefName);
     mx::RtNode node2 = stage->createPrim(nodedefName);
     REQUIRE(node1);
@@ -1396,23 +1399,23 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     REQUIRE(node2.getName() == "add1");
 
     // Test node renaming
-    mx::RtIdentifier newName1 = stage->renamePrim(node1.getPath(), mx::RtIdentifier("foo"));
-    mx::RtIdentifier newName2 = stage->renamePrim(node2.getPath(), mx::RtIdentifier("foo"));
+    mx::RtString newName1 = stage->renamePrim(node1.getPath(), mx::RtString("foo"));
+    mx::RtString newName2 = stage->renamePrim(node2.getPath(), mx::RtString("foo"));
     REQUIRE(node1.getName() == newName1);
     REQUIRE(node2.getName() == newName2);
     REQUIRE(node1.getName() == "foo");
     REQUIRE(node2.getName() == "foo1");
 
-    stage->renamePrim(node1.getPath(), mx::RtIdentifier("add"));
+    stage->renamePrim(node1.getPath(), mx::RtString("add"));
     REQUIRE(node1.getName() == "add");
-    stage->renamePrim(node2.getPath(), mx::RtIdentifier("foo"));
+    stage->renamePrim(node2.getPath(), mx::RtString("foo"));
     REQUIRE(node2.getName() == "foo");
-    stage->renamePrim(node2.getPath(), mx::RtIdentifier("add1"));
+    stage->renamePrim(node2.getPath(), mx::RtString("add1"));
     REQUIRE(node2.getName() == "add1");
 
     // Test that a rename to existing "add" results in the
     // old name "add1" since that is still a unique name.
-    stage->renamePrim(node2.getPath(), mx::RtIdentifier("add"));
+    stage->renamePrim(node2.getPath(), mx::RtString("add"));
     REQUIRE(node2.getName() == "add1");
 }
 
@@ -1478,7 +1481,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
     for (mx::RtPrim prim : api->getLibrary(STDLIB_NAME)->traverse())
     {
-        const mx::RtIdentifier& typeName = prim.getTypeName();
+        const mx::RtString& typeName = prim.getTypeName();
         if (typeName == mx::RtNode::typeName())
         {
             nodeCount++;
@@ -1507,7 +1510,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     // Create a main stage
     mx::RtStagePtr stage = api->createStage(MAIN);
 
-    const mx::RtIdentifier nodedefName("ND_subtract_vector3");
+    const mx::RtString nodedefName("ND_subtract_vector3");
     mx::RtObject nodeObj = stage->createPrim(nodedefName);
     REQUIRE(nodeObj);
 
@@ -1516,7 +1519,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
     for (auto it = stage->traverse(nodeFilter); !it.isDone(); ++it)
     {
-        const mx::RtIdentifier& typeName = (*it).getTypeName();
+        const mx::RtString& typeName = (*it).getTypeName();
         if (typeName == mx::RtNode::typeName())
         {
             nodeCount++;
@@ -1576,7 +1579,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     size_t libBsdfCount = 0;
     for (auto it : doc->getNodeDefs())
     {
-        if (it->getOutputCount() == 1 && it->getOutput(OUT.str())->getType() == mx::RtType::BSDF.str())
+        if (it->getOutputCount() == 1 && it->getOutput(OUT.str())->getType() == mx::RtType::BSDF)
         {
             libBsdfCount++;
         }
@@ -1639,7 +1642,7 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     api->loadLibrary(STDLIB_NAME, RuntimeGlobals::STDLIB_PATH());
     api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH());
 
-    const mx::RtIdentifier matDef("ND_surfacematerial");
+    const mx::RtString matDef("ND_surfacematerial");
 
     mx::RtPath sm1Path("/surfacematerial1");
     mx::RtPrim sm1 = stage->createPrim(sm1Path, matDef);
@@ -1860,16 +1863,16 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     REQUIRE(lookgroup2.getEnabledLooks() == "child_lookgroup");
 }
 
-mx::RtIdentifier toTestResolver(const mx::RtIdentifier& str, const mx::RtIdentifier& type)
+mx::RtString toTestResolver(const mx::RtString& str, const mx::RtString& type)
 {
     mx::StringResolverPtr resolver = mx::StringResolver::create();
-    return mx::RtIdentifier(resolver->resolve(str.str(), type.str()) + "_toTestResolver");
+    return mx::RtString(resolver->resolve(str.str(), type.str()) + "_toTestResolver");
 }
 
-mx::RtIdentifier fromTestResolver(const mx::RtIdentifier& str, const mx::RtIdentifier& type)
+mx::RtString fromTestResolver(const mx::RtString& str, const mx::RtString& type)
 {
     mx::StringResolverPtr resolver = mx::StringResolver::create();
-    return mx::RtIdentifier(resolver->resolve(str.str(), type.str()) + "_fromTestResolver");
+    return mx::RtString(resolver->resolve(str.str(), type.str()) + "_fromTestResolver");
 }
 
 TEST_CASE("Runtime: NameResolvers", "[runtime]")
@@ -1878,34 +1881,34 @@ TEST_CASE("Runtime: NameResolvers", "[runtime]")
     REQUIRE(registry);
 
     mx::RtNameResolverInfo geomInfo;
-    geomInfo.identifier = mx::RtIdentifier("geom_resolver");
+    geomInfo.identifier = mx::RtString("geom_resolver");
     geomInfo.elementType = mx::RtNameResolverInfo::GEOMNAME_TYPE;
     geomInfo.toFunction = nullptr;
     geomInfo.fromFunction = nullptr;
-    mx::RtIdentifier pipe("|");
-    mx::RtIdentifier slash("/");
+    mx::RtString pipe("|");
+    mx::RtString slash("/");
     geomInfo.toSubstitutions.emplace(pipe, slash);
     geomInfo.fromSubstitutions.emplace(slash, pipe);
     registry->registerNameResolvers(geomInfo);
 
     mx::RtNameResolverInfo imageInfo;
-    imageInfo.identifier = mx::RtIdentifier("image_resolver");
+    imageInfo.identifier = mx::RtString("image_resolver");
     imageInfo.elementType = mx::RtNameResolverInfo::FILENAME_TYPE;
     imageInfo.toFunction = toTestResolver;
     imageInfo.fromFunction = fromTestResolver;
     registry->registerNameResolvers(imageInfo);
     
-    mx::RtIdentifier mayaPathToGeom("|path|to|geom");
-    mx::RtIdentifier mxPathToGeom("/path/to/geom");
-    mx::RtIdentifier result1 = registry->resolveIdentifier(mayaPathToGeom, mx::RtNameResolverInfo::GEOMNAME_TYPE, true);
+    mx::RtString mayaPathToGeom("|path|to|geom");
+    mx::RtString mxPathToGeom("/path/to/geom");
+    mx::RtString result1 = registry->resolveIdentifier(mayaPathToGeom, mx::RtNameResolverInfo::GEOMNAME_TYPE, true);
     REQUIRE(result1.str() == mxPathToGeom.str());
-    mx::RtIdentifier result2 = registry->resolveIdentifier(result1, mx::RtNameResolverInfo::GEOMNAME_TYPE, false);
+    mx::RtString result2 = registry->resolveIdentifier(result1, mx::RtNameResolverInfo::GEOMNAME_TYPE, false);
     REQUIRE(result2.str() == mayaPathToGeom.str());
     
-    mx::RtIdentifier pathToGeom("test");
-    mx::RtIdentifier result3 = registry->resolveIdentifier(pathToGeom, mx::RtNameResolverInfo::FILENAME_TYPE, true);
+    mx::RtString pathToGeom("test");
+    mx::RtString result3 = registry->resolveIdentifier(pathToGeom, mx::RtNameResolverInfo::FILENAME_TYPE, true);
     REQUIRE(result3.str() == "test_toTestResolver");
-    mx::RtIdentifier result4 = registry->resolveIdentifier(pathToGeom, mx::RtNameResolverInfo::FILENAME_TYPE, false);
+    mx::RtString result4 = registry->resolveIdentifier(pathToGeom, mx::RtNameResolverInfo::FILENAME_TYPE, false);
     REQUIRE(result4.str() == "test_fromTestResolver");
 }
 
@@ -1922,27 +1925,27 @@ TEST_CASE("Runtime: libraries", "[runtime]")
     api->loadLibrary(BXDFLIB_NAME, RuntimeGlobals::BXDFLIB_PATH());
 
     REQUIRE(api->numLibraries() == 4);
-    REQUIRE(api->getLibrary(0)->getName() == RuntimeGlobals::TARGETS_PATH());
-    REQUIRE(api->getLibrary(1)->getName() == RuntimeGlobals::STDLIB_PATH());
-    REQUIRE(api->getLibrary(2)->getName() == RuntimeGlobals::PBRLIB_PATH());
-    REQUIRE(api->getLibrary(3)->getName() == RuntimeGlobals::BXDFLIB_PATH());
+    REQUIRE(api->getLibrary(0)->getName() == RuntimeGlobals::TARGETS_PATH().asString());
+    REQUIRE(api->getLibrary(1)->getName() == RuntimeGlobals::STDLIB_PATH().asString());
+    REQUIRE(api->getLibrary(2)->getName() == RuntimeGlobals::PBRLIB_PATH().asString());
+    REQUIRE(api->getLibrary(3)->getName() == RuntimeGlobals::BXDFLIB_PATH().asString());
 
     // Loading an already loaded library should throw...
     REQUIRE_THROWS(api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH()));
     // ...unless we tell it to force reload.
     REQUIRE_NOTHROW(api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH(), nullptr, true));
 
-    const mx::RtIdentifier shaderNodeDefName("ND_standard_surface_surfaceshader");
-    const mx::RtIdentifier shaderNodeGraphName("IMPL_standard_surface_surfaceshader");
+    const mx::RtString shaderNodeDefName("ND_standard_surface_surfaceshader");
+    const mx::RtString shaderNodeGraphName("IMPL_standard_surface_surfaceshader");
     REQUIRE(api->getDefinition<mx::RtNodeDef>(shaderNodeDefName));
     REQUIRE(api->getImplementation<mx::RtNodeGraph>(shaderNodeGraphName));
     api->unloadLibrary(BXDFLIB_NAME);
     REQUIRE(!api->getDefinition<mx::RtNodeDef>(shaderNodeDefName));
     REQUIRE(!api->getImplementation<mx::RtNodeGraph>(shaderNodeGraphName));
     REQUIRE(api->numLibraries() == 3);
-    REQUIRE(api->getLibrary(0)->getName() == RuntimeGlobals::TARGETS_PATH());
-    REQUIRE(api->getLibrary(1)->getName() == RuntimeGlobals::STDLIB_PATH());
-    REQUIRE(api->getLibrary(2)->getName() == RuntimeGlobals::PBRLIB_PATH());
+    REQUIRE(api->getLibrary(0)->getName() == RuntimeGlobals::TARGETS_PATH().asString());
+    REQUIRE(api->getLibrary(1)->getName() == RuntimeGlobals::STDLIB_PATH().asString());
+    REQUIRE(api->getLibrary(2)->getName() == RuntimeGlobals::PBRLIB_PATH().asString());
 
     api->unloadLibraries();
     REQUIRE(api->numLibraries() == 0);
@@ -1994,7 +1997,7 @@ TEST_CASE("Runtime: units", "[runtime]")
                          "tiledimage_unit.mtlx" };
     for (auto test : tests)
     {
-        mx::RtStagePtr stage = api->createStage(mx::RtIdentifier("stage: " + test));
+        mx::RtStagePtr stage = api->createStage(mx::RtString("stage: " + test));
         mx::RtFileIo fileIo(stage);
 
         // Test read will take into account units read in via library load
@@ -2062,7 +2065,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     {
         ++(*reinterpret_cast<size_t*>(userData));
     };
-    auto renamePrimCB = [](const mx::RtStagePtr&, const mx::RtPrim&, const mx::RtIdentifier&, void* userData)
+    auto renamePrimCB = [](const mx::RtStagePtr&, const mx::RtPrim&, const mx::RtString&, void* userData)
     {
         ++(*reinterpret_cast<size_t*>(userData));
     };
@@ -2117,14 +2120,14 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     ng1.createInput(IN2, mx::RtType::FLOAT);
     ng1.createOutput(OUT, mx::RtType::FLOAT);
 
-    const mx::RtIdentifier addFloatNode("ND_add_float");
+    const mx::RtString addFloatNode("ND_add_float");
 
-    mx::RtCommand::createPrim(stage, addFloatNode, graph1.getPath(), mx::EMPTY_IDENTIFIER, result);
+    mx::RtCommand::createPrim(stage, addFloatNode, graph1.getPath(), mx::RtString::EMPTY, result);
     REQUIRE(result);
     REQUIRE(result.getObject().isA<mx::RtPrim>());
     mx::RtPrim add1(result.getObject().asA<mx::RtPrim>());
 
-    mx::RtCommand::createPrim(stage, addFloatNode, graph1.getPath(), mx::EMPTY_IDENTIFIER, result);
+    mx::RtCommand::createPrim(stage, addFloatNode, graph1.getPath(), mx::RtString::EMPTY, result);
     REQUIRE(result);
     REQUIRE(result.getObject().isA<mx::RtPrim>());
     mx::RtPrim add2(result.getObject().asA<mx::RtPrim>());
@@ -2252,7 +2255,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     REQUIRE(result);
     REQUIRE(result.getObject().isA<mx::RtPrim>());
     mx::RtPrim bob(result.getObject().asA<mx::RtPrim>());
-    mx::RtRelationship rel1 = bob.createRelationship(mx::RtIdentifier("rel1"));
+    mx::RtRelationship rel1 = bob.createRelationship(mx::RtString("rel1"));
 
     mx::RtCommand::makeRelationship(rel1, add1, result);
     REQUIRE(result);
@@ -2422,34 +2425,34 @@ TEST_CASE("Runtime: Commands", "[runtime]")
 
     // Look management nodes must be created at the root level
     mx::RtCommandResult colResult;
-    mx::RtCommand::createPrim(stage, mx::RtIdentifier("collection"), mx::RtPath("/test/"), mx::EMPTY_IDENTIFIER, colResult);
+    mx::RtCommand::createPrim(stage, mx::RtString("collection"), mx::RtPath("/test/"), mx::RtString::EMPTY, colResult);
     REQUIRE(!colResult);
 
     mx::RtCommandResult matAssignResult;
-    mx::RtCommand::createPrim(stage, mx::RtIdentifier("materialassign"), mx::RtPath("/test/"), mx::EMPTY_IDENTIFIER, matAssignResult);
+    mx::RtCommand::createPrim(stage, mx::RtString("materialassign"), mx::RtPath("/test/"), mx::RtString::EMPTY, matAssignResult);
     REQUIRE(!matAssignResult);
 
     mx::RtCommandResult lookResult;
-    mx::RtCommand::createPrim(stage, mx::RtIdentifier("look"), mx::RtPath("/test/"), mx::EMPTY_IDENTIFIER, lookResult);
+    mx::RtCommand::createPrim(stage, mx::RtString("look"), mx::RtPath("/test/"), mx::RtString::EMPTY, lookResult);
     REQUIRE(!lookResult);
 
     mx::RtCommandResult lookGroupResult;
-    mx::RtCommand::createPrim(stage, mx::RtIdentifier("lookgroup"), mx::RtPath("/test/"), mx::EMPTY_IDENTIFIER, lookGroupResult);
+    mx::RtCommand::createPrim(stage, mx::RtString("lookgroup"), mx::RtPath("/test/"), mx::RtString::EMPTY, lookGroupResult);
     REQUIRE(!lookResult);
 
     // Unknown node types cannot be created. Must be a look managment node, a material node, or have a nodedef.
     mx::RtCommandResult unknownResult;
-    mx::RtCommand::createPrim(stage, mx::RtIdentifier("unknown"), mx::RtPath("/"), mx::EMPTY_IDENTIFIER, unknownResult);
+    mx::RtCommand::createPrim(stage, mx::RtString("unknown"), mx::RtPath("/"), mx::RtString::EMPTY, unknownResult);
     REQUIRE(!unknownResult);
 
     //
     // Test setting attributes
     //
-    auto setAttributeCallback = [](const mx::RtObject&, const mx::RtIdentifier&, const mx::RtValue&, void* userData)
+    auto setAttributeCallback = [](const mx::RtObject&, const mx::RtString&, const mx::RtValue&, void* userData)
     {
         ++(*reinterpret_cast<size_t*>(userData));
     };
-    auto removeAttributeCallback = [](const mx::RtObject&, const mx::RtIdentifier&, void* userData)
+    auto removeAttributeCallback = [](const mx::RtObject&, const mx::RtString&, void* userData)
     {
         ++(*reinterpret_cast<size_t*>(userData));
     };
@@ -2459,7 +2462,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtCallbackId removeAttribute_id = mx::RtMessage::addRemoveAttributeCallback(removeAttributeCallback, &removeAttributeCount);
 
     mx::RtCommandResult attrResult;
-    mx::RtIdentifier metadata("metadata");
+    mx::RtString metadata("metadata");
     std::string metadataValue("some_value");
     mx::RtCommand::setAttributeFromString(foo, metadata, metadataValue, attrResult);
     REQUIRE(attrResult);
@@ -2560,7 +2563,7 @@ TEST_CASE("Runtime: graph output connection", "[runtime]")
         "    <input name=\"in\" type=\"color3\" nodegraph=\"Compound\" />\n"
         "  </clamp>\n"
         "</materialx>";
-    mx::RtStagePtr defaultStage = api->createStage(mx::RtIdentifier("defaultStage"));
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
     mx::RtFileIo   fileIo(defaultStage);
     std::stringstream ss;
     ss << mtlxDoc;
@@ -2658,13 +2661,13 @@ TEST_CASE("Runtime: duplicate name", "[runtime]")
     REQUIRE(graph1.getInputSocket(A));
     REQUIRE(graph1.getOutputSocket(OUT));
 
-    mx::RtIdentifier ADD1("add1");
-    mx::RtIdentifier ADD2("add2");
-    mx::RtIdentifier ADD3("add3");
-    mx::RtIdentifier ADD4("add4");
-    mx::RtIdentifier ADD5("add5");
+    mx::RtString ADD1("add1");
+    mx::RtString ADD2("add2");
+    mx::RtString ADD3("add3");
+    mx::RtString ADD4("add4");
+    mx::RtString ADD5("add5");
 
-    auto duplicateCount = [graph1](const mx::RtIdentifier& name)
+    auto duplicateCount = [graph1](const mx::RtString& name)
     {
         unsigned int count = 0;
         for (mx::RtInput input : graph1.getInputs())
@@ -2742,7 +2745,7 @@ TEST_CASE("Export", "[runtime]")
         "TestSuite" /
         "stdlib" /
         "looks" );
-    mx::RtStagePtr defaultStage = api->createStage(mx::RtIdentifier("defaultStage"));
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("looks.mtlx", testSearchPath);
     mx::RtExportOptions exportOptions;
@@ -2750,14 +2753,14 @@ TEST_CASE("Export", "[runtime]")
     exportOptions.lookGroupToMerge = "lookgroup1";
     std::stringstream ss;
     fileIo.exportDocument(ss, &exportOptions);
-    mx::RtStagePtr exportStage = api->createStage(mx::RtIdentifier("exportStage"));
+    mx::RtStagePtr exportStage = api->createStage(mx::RtString("exportStage"));
     mx::RtFileIo fileIo2(exportStage);
     fileIo2.read(ss);
     mx::RtSchemaPredicate<mx::RtLook> nodeFilter;
     int lookCount = 0;
     for (auto it = exportStage->traverse(nodeFilter); !it.isDone(); ++it)
     {
-        const mx::RtIdentifier& typeName = (*it).getTypeName();
+        const mx::RtString& typeName = (*it).getTypeName();
         if (typeName == mx::RtLook::typeName())
         {
             lookCount++;
@@ -2767,7 +2770,7 @@ TEST_CASE("Export", "[runtime]")
     int lookGroupCount = 0;
     for (auto it = exportStage->traverse(nodeFilter2); !it.isDone(); ++it)
     {
-        const mx::RtIdentifier& typeName = (*it).getTypeName();
+        const mx::RtString& typeName = (*it).getTypeName();
         if (typeName == mx::RtLookGroup::typeName())
         {
             lookGroupCount++;

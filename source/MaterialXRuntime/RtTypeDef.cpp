@@ -10,23 +10,23 @@
 namespace MaterialX
 {
 
-const RtIdentifier RtTypeDef::BASETYPE_NONE("none");
-const RtIdentifier RtTypeDef::BASETYPE_BOOLEAN("boolean");
-const RtIdentifier RtTypeDef::BASETYPE_FLOAT("float");
-const RtIdentifier RtTypeDef::BASETYPE_INTEGER("integer");
-const RtIdentifier RtTypeDef::BASETYPE_STRING("string");
-const RtIdentifier RtTypeDef::BASETYPE_STRUCT("struct");
+const RtString RtTypeDef::BASETYPE_NONE("none");
+const RtString RtTypeDef::BASETYPE_BOOLEAN("boolean");
+const RtString RtTypeDef::BASETYPE_FLOAT("float");
+const RtString RtTypeDef::BASETYPE_INTEGER("integer");
+const RtString RtTypeDef::BASETYPE_STRING("string");
+const RtString RtTypeDef::BASETYPE_STRUCT("struct");
 
-const RtIdentifier RtTypeDef::SEMANTIC_NONE("none");
-const RtIdentifier RtTypeDef::SEMANTIC_COLOR("color");
-const RtIdentifier RtTypeDef::SEMANTIC_VECTOR("vector");
-const RtIdentifier RtTypeDef::SEMANTIC_MATRIX("matrix");
-const RtIdentifier RtTypeDef::SEMANTIC_FILENAME("filename");
-const RtIdentifier RtTypeDef::SEMANTIC_CLOSURE("closure");
-const RtIdentifier RtTypeDef::SEMANTIC_SHADER("shader");
-const RtIdentifier RtTypeDef::SEMANTIC_MATERIAL("material");
+const RtString RtTypeDef::SEMANTIC_NONE("none");
+const RtString RtTypeDef::SEMANTIC_COLOR("color");
+const RtString RtTypeDef::SEMANTIC_VECTOR("vector");
+const RtString RtTypeDef::SEMANTIC_MATRIX("matrix");
+const RtString RtTypeDef::SEMANTIC_FILENAME("filename");
+const RtString RtTypeDef::SEMANTIC_CLOSURE("closure");
+const RtString RtTypeDef::SEMANTIC_SHADER("shader");
+const RtString RtTypeDef::SEMANTIC_MATERIAL("material");
 
-RtTypeDef::RtTypeDef(const RtIdentifier& name, const RtIdentifier& basetype, const RtValueFuncs& funcs, const RtIdentifier& semantic, size_t size) :
+RtTypeDef::RtTypeDef(const RtString& name, const RtString& basetype, const RtValueFuncs& funcs, const RtString& semantic, size_t size) :
     _ptr(new PvtTypeDef(name, basetype, funcs, semantic, size))
 {
 }
@@ -61,17 +61,17 @@ void RtTypeDef::fromStringValue(const string& src, RtValue& dest) const
     static_cast<PvtTypeDef*>(_ptr)->getValueFuncs().fromString(src, dest);
 }
 
-const RtIdentifier& RtTypeDef::getName() const
+const RtString& RtTypeDef::getName() const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getName();
 }
 
-const RtIdentifier& RtTypeDef::getBaseType() const
+const RtString& RtTypeDef::getBaseType() const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getBaseType();
 }
 
-const RtIdentifier& RtTypeDef::getSemantic() const
+const RtString& RtTypeDef::getSemantic() const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getSemantic();
 }
@@ -81,33 +81,33 @@ size_t RtTypeDef::getSize() const
     return static_cast<PvtTypeDef*>(_ptr)->getSize();
 }
 
-void RtTypeDef::setComponent(size_t index, const RtIdentifier& name, const RtIdentifier& basetype)
+void RtTypeDef::setComponent(size_t index, const RtString& name, const RtString& basetype)
 {
     static_cast<PvtTypeDef*>(_ptr)->setComponent(index, name, basetype);
 }
 
-size_t RtTypeDef::getComponentIndex(const RtIdentifier& name) const
+size_t RtTypeDef::getComponentIndex(const RtString& name) const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getComponentIndex(name);
 }
 
-const RtIdentifier& RtTypeDef::getComponentName(size_t index) const
+const RtString& RtTypeDef::getComponentName(size_t index) const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getComponentName(index);
 }
 
-const RtIdentifier& RtTypeDef::getComponentBaseType(size_t index) const
+const RtString& RtTypeDef::getComponentBaseType(size_t index) const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getComponentBaseType(index);
 }
 
-const RtIdentifierSet& RtTypeDef::getValidConnectionTypes() const
+const RtStringSet& RtTypeDef::getValidConnectionTypes() const
 {
     return static_cast<PvtTypeDef*>(_ptr)->getValidConnectionTypes();
 }
 
-RtTypeDef* RtTypeDef::registerType(const RtIdentifier& name, const RtIdentifier& basetype, const RtValueFuncs& funcs,
-                                   const RtIdentifier& semantic, size_t size)
+RtTypeDef* RtTypeDef::registerType(const RtString& name, const RtString& basetype, const RtValueFuncs& funcs,
+                                   const RtString& semantic, size_t size)
 {
     if (PvtTypeDefRegistry::get().findType(name))
     {
@@ -126,7 +126,7 @@ const RtTypeDef* RtTypeDef::getType(size_t index)
     return PvtTypeDefRegistry::get().getType(index);
 }
 
-const RtTypeDef* RtTypeDef::findType(const RtIdentifier& name)
+const RtTypeDef* RtTypeDef::findType(const RtString& name)
 {
     return PvtTypeDefRegistry::get().findType(name);
 }

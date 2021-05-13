@@ -12,7 +12,7 @@ namespace MaterialX
 
 namespace
 {
-    static const RtIdentifierVec EMPTY_ATTR_NAMES;
+    static const RtStringVec EMPTY_ATTR_NAMES;
 }
 
 RtSchemaBase::RtSchemaBase(const RtPrim& prim) :
@@ -35,7 +35,7 @@ PvtPrim* RtSchemaBase::prim() const
     return hnd()->asA<PvtPrim>();
 }
 
-PvtRelationship* RtSchemaBase::rel(const RtIdentifier& name) const
+PvtRelationship* RtSchemaBase::rel(const RtString& name) const
 {
     return prim()->getRelationship(name);
 }

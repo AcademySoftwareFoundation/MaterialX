@@ -15,7 +15,7 @@ namespace MaterialX
 
 RT_DEFINE_RUNTIME_OBJECT(PvtPrim, RtObjType::PRIM, "PvtPrim")
 
-PvtPrim::PvtPrim(const RtTypeInfo* typeInfo, const RtIdentifier& name, PvtPrim* parent) :
+PvtPrim::PvtPrim(const RtTypeInfo* typeInfo, const RtString& name, PvtPrim* parent) :
     PvtObject(name, parent),
     _typeInfo(typeInfo)
 {
@@ -77,7 +77,7 @@ void PvtPrim::destroy()
     dispose(true);
 }
 
-PvtRelationship* PvtPrim::createRelationship(const RtIdentifier& name)
+PvtRelationship* PvtPrim::createRelationship(const RtString& name)
 {
     if (getRelationship(name))
     {
@@ -90,7 +90,7 @@ PvtRelationship* PvtPrim::createRelationship(const RtIdentifier& name)
     return rel;
 }
 
-void PvtPrim::removeRelationship(const RtIdentifier& name)
+void PvtPrim::removeRelationship(const RtString& name)
 {
     PvtRelationship* rel = getRelationship(name);
     if (rel)
@@ -100,22 +100,22 @@ void PvtPrim::removeRelationship(const RtIdentifier& name)
     }
 }
 
-PvtInput* PvtPrim::createInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags)
+PvtInput* PvtPrim::createInput(const RtString& name, const RtString& type, uint32_t flags)
 {
-    // Tokens as well as inputs with type filename, identifier or string must always be uniform.
-    if (((flags & RtPortFlag::TOKEN) != 0) || type == RtType::FILENAME || type == RtType::IDENTIFIER || type == RtType::STRING)
+    // Tokens as well as inputs with type 'filename', 'string' or 'internstring' must always be uniform.
+    if (((flags & RtPortFlag::TOKEN) != 0) || type == RtType::FILENAME || type == RtType::STRING || type == RtType::INTERNSTRING)
     {
         flags |= RtPortFlag::UNIFORM;
     }
 
-    RtIdentifier uniqueName = makeUniqueChildName(name);
+    RtString uniqueName = makeUniqueChildName(name);
     PvtInput* port = new PvtInput(uniqueName, type, flags, this);
     _inputs.add(port);
 
     return port;
 }
 
-void PvtPrim::removeInput(const RtIdentifier& name)
+void PvtPrim::removeInput(const RtString& name)
 {
     PvtPort* port = getInput(name);
     if (!port)
@@ -126,9 +126,9 @@ void PvtPrim::removeInput(const RtIdentifier& name)
     _inputs.remove(name);
 }
 
-PvtOutput* PvtPrim::createOutput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags)
+PvtOutput* PvtPrim::createOutput(const RtString& name, const RtString& type, uint32_t flags)
 {
-    RtIdentifier uniqueName = makeUniqueChildName(name);
+    RtString uniqueName = makeUniqueChildName(name);
 
     PvtOutput* port = new PvtOutput(uniqueName, type, flags, this);
     _outputs.add(port);
@@ -136,7 +136,7 @@ PvtOutput* PvtPrim::createOutput(const RtIdentifier& name, const RtIdentifier& t
     return port;
 }
 
-void PvtPrim::removeOutput(const RtIdentifier& name)
+void PvtPrim::removeOutput(const RtString& name)
 {
     PvtPort* port = getOutput(name);
     if (!port)
@@ -152,9 +152,9 @@ RtPrimIterator PvtPrim::getChildren(RtObjectPredicate predicate) const
     return RtPrimIterator(hnd(), predicate);
 }
 
-RtIdentifier PvtPrim::makeUniqueChildName(const RtIdentifier& name) const
+RtString PvtPrim::makeUniqueChildName(const RtString& name) const
 {
-    RtIdentifier newName = name;
+    RtString newName = name;
 
     // Check if there is another child with this name.
     // We must check both prims, inputs and outputs since in
@@ -175,7 +175,7 @@ RtIdentifier PvtPrim::makeUniqueChildName(const RtIdentifier& name) const
         }
         // Iterate until there is no other child with the resulting name.
         do {
-            newName = RtIdentifier(baseName + std::to_string(i++));
+            newName = RtString(baseName + std::to_string(i++));
         } while (_prims.count(newName) || _inputs.count(newName) || _outputs.count(newName));
     }
 
@@ -193,12 +193,12 @@ void PvtPrim::removeChildPrim(PvtPrim* prim)
 }
 
 
-const RtAttributeSpec* PvtPrimSpec::getPortAttribute(const RtPort& port, const RtIdentifier& name) const
+const RtAttributeSpec* PvtPrimSpec::getPortAttribute(const RtPort& port, const RtString& name) const
 {
     const bool input = port.isA<RtInput>();
 
     // First search the input/output lists by port name.
-    const RtIdentifierMap<RtAttributeSpecList>& mapByName = (input ? _inputAttrByName : _outputAttrByName);
+    const RtStringMap<RtAttributeSpecList>& mapByName = (input ? _inputAttrByName : _outputAttrByName);
     auto it = mapByName.find(port.getName());
     if (it != mapByName.end())
     {
@@ -210,7 +210,7 @@ const RtAttributeSpec* PvtPrimSpec::getPortAttribute(const RtPort& port, const R
     }
 
     // Second search the input/output lists by port type.
-    const RtIdentifierMap<RtAttributeSpecList>& mapByType = (input ? _inputAttrByType : _outputAttrByType);
+    const RtStringMap<RtAttributeSpecList>& mapByType = (input ? _inputAttrByType : _outputAttrByType);
     it = mapByType.find(port.getType());
     if (it != mapByType.end())
     {
@@ -233,7 +233,7 @@ RtAttributeSpecVec PvtPrimSpec::getPortAttributes(const RtPort& port) const
     const bool input = port.isA<RtInput>();
 
     // First search the input/output lists by port name.
-    const RtIdentifierMap<RtAttributeSpecList>& mapByName = (input ? _inputAttrByName : _outputAttrByName);
+    const RtStringMap<RtAttributeSpecList>& mapByName = (input ? _inputAttrByName : _outputAttrByName);
     auto it = mapByName.find(port.getName());
     if (it != mapByName.end())
     {
@@ -241,7 +241,7 @@ RtAttributeSpecVec PvtPrimSpec::getPortAttributes(const RtPort& port) const
     }
 
     // Second search the input/output lists by port type.
-    const RtIdentifierMap<RtAttributeSpecList>& mapByType = (input ? _inputAttrByType : _outputAttrByType);
+    const RtStringMap<RtAttributeSpecList>& mapByType = (input ? _inputAttrByType : _outputAttrByType);
     it = mapByType.find(port.getType());
     if (it != mapByType.end())
     {
@@ -255,7 +255,7 @@ RtAttributeSpecVec PvtPrimSpec::getPortAttributes(const RtPort& port) const
     return result;
 }
 
-RtAttributeSpec* PvtPrimSpec::create(const RtIdentifier& name, const RtIdentifier& type, const string& value,
+RtAttributeSpec* PvtPrimSpec::create(const RtString& name, const RtString& type, const string& value,
                                      bool exportable, bool custom)
 {
     RtAttributeSpec* spec = new RtAttributeSpec();

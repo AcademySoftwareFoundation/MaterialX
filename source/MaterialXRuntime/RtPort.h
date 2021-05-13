@@ -49,7 +49,7 @@ public:
     RtPort(PvtObjHandle hnd);
 
     /// Return the data type for this port.
-    const RtIdentifier& getType() const;
+    const RtString& getType() const;
 
     /// Return the value for this port.
     const RtValue& getValue() const;
@@ -67,10 +67,10 @@ public:
     void setValueString(const string& v);
 
     /// Return the color space for this port.
-    const RtIdentifier& getColorSpace() const;
+    const RtString& getColorSpace() const;
 
     /// Set the color space for this port.
-    void setColorSpace(const RtIdentifier& colorspace);
+    void setColorSpace(const RtString& colorspace);
 };
 
 
@@ -101,16 +101,16 @@ public:
     void setIsUIVisible(bool val);
 
     /// Return the unit for this input.
-    const RtIdentifier& getUnit() const;
+    const RtString& getUnit() const;
 
     /// Set the unit for this input.
-    void setUnit(const RtIdentifier& unit);
+    void setUnit(const RtString& unit);
 
     /// Return the unit type for this input.
-    const RtIdentifier& getUnitType() const;
+    const RtString& getUnitType() const;
 
     /// Set the unit type for this input.
-    void setUnitType(const RtIdentifier& unit);
+    void setUnitType(const RtString& unit);
 
     /// Return true if this input is connected.
     bool isConnected() const;

@@ -7,7 +7,7 @@
 #define MATERIALX_RTOBJECT_H
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtIdentifier.h>
+#include <MaterialXRuntime/RtString.h>
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtPointer.h>
 
@@ -48,14 +48,14 @@ enum class RtObjType
 #define RT_DECLARE_RUNTIME_OBJECT(T)                         \
 private:                                                     \
     static const RtObjType _classType;                       \
-    static const RtIdentifier _className;                         \
+    static const RtString _className;                         \
 public:                                                      \
     static RtObjType classType() { return _classType; }      \
-    static const RtIdentifier& className() { return _className; } \
+    static const RtString& className() { return _className; } \
 
 #define RT_DEFINE_RUNTIME_OBJECT(T, type, name)              \
 const RtObjType T::_classType(type);                         \
-const RtIdentifier T::_className(name);                           \
+const RtString T::_className(name);                           \
 
 /// @class RtObject
 /// Base class for all runtime objects.
@@ -125,7 +125,7 @@ public:
     }
 
     /// Return the name of the object.
-    const RtIdentifier& getName() const;
+    const RtString& getName() const;
 
     /// Return the full path to the object.
     RtPath getPath() const;
@@ -140,28 +140,28 @@ public:
     RtStageWeakPtr getStage() const;
 
     /// Create a new attribute on the object.
-    RtTypedValue* createAttribute(const RtIdentifier& name, const RtIdentifier& type);
+    RtTypedValue* createAttribute(const RtString& name, const RtString& type);
 
     /// Remove an attribute from the object.
-    void removeAttribute(const RtIdentifier& name);
+    void removeAttribute(const RtString& name);
 
     /// Return an attribute by name.
     /// No type check is performed.
-    RtTypedValue* getAttribute(const RtIdentifier& name);
+    RtTypedValue* getAttribute(const RtString& name);
 
     /// Return an attribute by name.
     /// No type check is performed.
-    const RtTypedValue* getAttribute(const RtIdentifier& name) const;
+    const RtTypedValue* getAttribute(const RtString& name) const;
 
     /// Return an attribute by name.
     /// With a type check that throw exception if an attribute 
     /// exists but has a different deta type.
-    RtTypedValue* getAttribute(const RtIdentifier& name, const RtIdentifier& type);
+    RtTypedValue* getAttribute(const RtString& name, const RtString& type);
 
     /// Return an attribute by name.
     /// With a type check that throw exception if an attribute 
     /// exists but has a different deta type.
-    const RtTypedValue* getAttribute(const RtIdentifier& name, const RtIdentifier& type) const;
+    const RtTypedValue* getAttribute(const RtString& name, const RtString& type) const;
 
     /// Return an iterator over all attributes on this object.
     RtAttributeIterator getAttributes() const;

@@ -40,7 +40,7 @@ void PvtReparentPrimCmd::execute(RtCommandResult& result)
         // any rename that might happen during the reparent operation.
         PvtObjHandle newParentH = PvtObject::hnd(newParent);
         PvtPrim* newParentPtr = newParentH->asA<PvtPrim>();
-        const RtIdentifier newName = newParentPtr->makeUniqueChildName(prim.getName());
+        const RtString newName = newParentPtr->makeUniqueChildName(prim.getName());
         RtPath newPath = _newParentPath;
         newPath.push(newName);
 
@@ -48,7 +48,7 @@ void PvtReparentPrimCmd::execute(RtCommandResult& result)
         msg().sendReparentPrimMessage(_stage, prim, newPath);
 
         // Do the reparenting operation.
-        RtIdentifier resultName = _stage->reparentPrim(_path, _newParentPath);
+        RtString resultName = _stage->reparentPrim(_path, _newParentPath);
         if (resultName != newName)
         {
             result = RtCommandResult(false, "Reparent gave inconsistent naming. Expected new name '" + newName.str() + "' but got new name '" + resultName.str() + "'");
@@ -95,7 +95,7 @@ void PvtReparentPrimCmd::undo(RtCommandResult& result)
         // back to the original path.
         msg().sendReparentPrimMessage(_stage, prim, newPath);
 
-        RtIdentifier resultName = _stage->reparentPrim(_path, _newParentPath);
+        RtString resultName = _stage->reparentPrim(_path, _newParentPath);
 
         // Make sure we get back to the original name
         // in case the reparenting forced the prim name to change.

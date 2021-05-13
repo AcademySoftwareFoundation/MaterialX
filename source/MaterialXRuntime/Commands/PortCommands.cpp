@@ -88,7 +88,7 @@ void setPortValue(const RtPort& port, const Vector4& value, RtCommandResult& res
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
-void setPortValue(const RtPort& port, const RtIdentifier& value, RtCommandResult& result)
+void setPortValue(const RtPort& port, const RtString& value, RtCommandResult& result)
 {
     RtValue v(value);
     PvtCommandPtr cmd = PvtSetPortValueCmd::create(port, v);

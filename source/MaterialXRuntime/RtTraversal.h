@@ -22,9 +22,9 @@ class RtStage;
 /// Struct holding attribute information as returned from the RtAttributeIterator.
 struct RtAttribute
 {
-    RtIdentifier name;
+    RtString name;
     RtTypedValue* value;
-    RtAttribute(RtIdentifier n, RtTypedValue* v) : name(n), value(v) {}
+    RtAttribute(RtString n, RtTypedValue* v) : name(n), value(v) {}
 };
 
 /// @class RtAttributeIterator

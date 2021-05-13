@@ -11,7 +11,7 @@ namespace MaterialX
 
 namespace
 {
-    RtIdentifierMap<RtConnectableApiPtr> s_connectableApiRegistry;
+    RtStringMap<RtConnectableApiPtr> s_connectableApiRegistry;
 }
 
 bool RtConnectableApi::acceptConnection(const RtInput& input, const RtOutput& output) const
@@ -30,12 +30,12 @@ bool RtConnectableApi::acceptRelationship(const RtRelationship&, const RtObject&
     return true;
 }
 
-void RtConnectableApi::registerApi(const RtIdentifier& typeName, const RtConnectableApiPtr& api)
+void RtConnectableApi::registerApi(const RtString& typeName, const RtConnectableApiPtr& api)
 {
     s_connectableApiRegistry[typeName] = api;
 }
 
-void RtConnectableApi::unregisterApi(const RtIdentifier& typeName)
+void RtConnectableApi::unregisterApi(const RtString& typeName)
 {
     s_connectableApiRegistry.erase(typeName);
 }

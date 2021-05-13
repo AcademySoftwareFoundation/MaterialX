@@ -47,7 +47,7 @@ public:
     ~RtPath();
 
     /// Return the name of the object at the end of this path.
-    const RtIdentifier& getName() const;
+    const RtString& getName() const;
 
     /// Return a string representation of this path.
     string asString() const;
@@ -57,7 +57,7 @@ public:
     /// The given child must be an existing child object on the
     /// top most object pointed to by the path. If not the path
     /// becomes invalid after the push operation.
-    void push(const RtIdentifier& childName);
+    void push(const RtString& childName);
 
     /// Pop the top most object from the path.
     /// After this operation the path will point to

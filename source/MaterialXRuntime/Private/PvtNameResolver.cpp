@@ -30,7 +30,7 @@ public:
         // Use resolve function if defined
         if (_resolveFunction)
         {
-            result = _resolveFunction(RtIdentifier(str.c_str()), RtIdentifier(type.c_str())).str();
+            result = _resolveFunction(RtString(str.c_str()), RtString(type.c_str())).str();
         }
 
         // Call the parent class to perform any additional resolving
@@ -97,7 +97,7 @@ void PvtNameResolverRegistry::registerNameResolvers(RtNameResolverInfo& info)
     PvtStringResolverPairPtr resolverPair = nullptr;
     PvtUserStringResolverPtr toResolver = nullptr;
     PvtUserStringResolverPtr fromResolver = nullptr;
-    RtIdentifier elementTypeString("");
+    RtString elementTypeString("");
 
     if (info.toFunction || info.toSubstitutions.size())
     {
@@ -140,20 +140,20 @@ void PvtNameResolverRegistry::registerNameResolvers(RtNameResolverInfo& info)
     _resolvers[info.identifier] = resolverPair;
 }
 
-void PvtNameResolverRegistry::deregisterNameResolvers(const RtIdentifier& name)
+void PvtNameResolverRegistry::deregisterNameResolvers(const RtString& name)
 {
     _resolvers.erase(name);
 }
 
-RtIdentifier PvtNameResolverRegistry::resolveIdentifier(const RtIdentifier& valueToResolve, const RtNameResolverInfo::ElementType elementType, bool toMaterialX) const
+RtString PvtNameResolverRegistry::resolveIdentifier(const RtString& valueToResolve, const RtNameResolverInfo::ElementType elementType, bool toMaterialX) const
 {
-    RtIdentifier type(GEOMNAME_TYPE_STRING);
+    RtString type(GEOMNAME_TYPE_STRING);
     if (elementType == RtNameResolverInfo::ElementType::FILENAME_TYPE)
     {
-        type = RtIdentifier(FILENAME_TYPE_STRING);
+        type = RtString(FILENAME_TYPE_STRING);
     }
     
-    RtIdentifier result = valueToResolve;
+    RtString result = valueToResolve;
     for (const auto resolverPair : _resolvers)
     {
         if (resolverPair.second && resolverPair.second->getType() == elementType)
@@ -165,7 +165,7 @@ RtIdentifier PvtNameResolverRegistry::resolveIdentifier(const RtIdentifier& valu
                     PvtUserStringResolverPtr resolverPtr = std::dynamic_pointer_cast<PvtUserStringResolver>(resolverPair.second->getToMaterialXResolver());
                     if (resolverPtr)
                     {
-                        result = RtIdentifier(resolverPtr->resolve(result.str(), type.str()));
+                        result = RtString(resolverPtr->resolve(result.str(), type.str()));
                     }
                 }
             }
@@ -176,7 +176,7 @@ RtIdentifier PvtNameResolverRegistry::resolveIdentifier(const RtIdentifier& valu
                     PvtUserStringResolverPtr resolverPtr = std::dynamic_pointer_cast<PvtUserStringResolver>(resolverPair.second->getFromMaterialXResolver());
                     if (resolverPtr)
                     {
-                        result = RtIdentifier(resolverPtr->resolve(result.str(), type.str()));
+                        result = RtString(resolverPtr->resolve(result.str(), type.str()));
                     }
                 }
             }

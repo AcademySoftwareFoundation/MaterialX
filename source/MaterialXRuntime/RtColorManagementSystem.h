@@ -6,7 +6,7 @@
 #ifndef MATERIALX_RTCOLORMANAGEMENTSYSTEM_H
 #define MATERIALX_RTCOLORMANAGEMENTSYSTEM_H
 
-#include <MaterialXRuntime/RtIdentifier.h>
+#include <MaterialXRuntime/RtString.h>
 
 namespace MaterialX
 {
@@ -17,7 +17,7 @@ public:
     RtColorManagementSystem() = default;
     virtual ~RtColorManagementSystem() = default;
 
-    virtual const RtIdentifierVec& getColorSpaceNames() const = 0;
+    virtual const RtStringVec& getColorSpaceNames() const = 0;
 };
 
 class RtDefaultColorManagementSystem : public RtColorManagementSystem
@@ -26,7 +26,7 @@ public:
     RtDefaultColorManagementSystem();
     ~RtDefaultColorManagementSystem() override = default;
 
-    const RtIdentifierVec& getColorSpaceNames() const override;
+    const RtStringVec& getColorSpaceNames() const override;
 };
 
 }

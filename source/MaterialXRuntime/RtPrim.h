@@ -53,33 +53,33 @@ public:
     }
 
     /// Return the typename for this prim.
-    const RtIdentifier& getTypeName() const
+    const RtString& getTypeName() const
     {
         return getTypeInfo()->getShortTypeName();
     }
 
     /// Add a relationship to the prim.
-    RtRelationship createRelationship(const RtIdentifier& name);
+    RtRelationship createRelationship(const RtString& name);
 
     /// Remove a relationship from the prim.
-    void removeRelationship(const RtIdentifier& name);
+    void removeRelationship(const RtString& name);
 
     /// Return a relationship by name, or a null object
     /// if no such relationship exists.
-    RtRelationship getRelationship(const RtIdentifier& name) const;
+    RtRelationship getRelationship(const RtString& name) const;
 
     /// Return an iterator over all relationships of this prim.
     RtRelationshipIterator getRelationships() const;
 
     /// Return a port (input or output) by name, or a null object
     /// if no such port exists.
-    RtPort getPort(const RtIdentifier& name) const;
+    RtPort getPort(const RtString& name) const;
 
     /// Add an input port to the prim.
-    RtInput createInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags = 0);
+    RtInput createInput(const RtString& name, const RtString& type, uint32_t flags = 0);
 
     /// Remove an input port from the prim.
-    void removeInput(const RtIdentifier& name);
+    void removeInput(const RtString& name);
 
     /// Return the number of inputs on the prim.
     size_t numInputs() const;
@@ -89,16 +89,16 @@ public:
 
     /// Return an input port by name, or a null object
     /// if no such input port exists.
-    RtInput getInput(const RtIdentifier& name) const;
+    RtInput getInput(const RtString& name) const;
 
     /// Return an iterator over all inputs.
     RtInputIterator getInputs() const;
 
     /// Add an output port to the prim.
-    RtOutput createOutput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags = 0);
+    RtOutput createOutput(const RtString& name, const RtString& type, uint32_t flags = 0);
 
     /// Remove an output port from the prim.
-    void removeOutput(const RtIdentifier& name);
+    void removeOutput(const RtString& name);
 
     /// Return the number of outputs on the prim.
     size_t numOutputs() const;
@@ -108,7 +108,7 @@ public:
 
     /// Return an output port by name, or a null object
     /// if no such output port exists.
-    RtOutput getOutput(const RtIdentifier& name) const;
+    RtOutput getOutput(const RtString& name) const;
 
     /// Return an iterator over all outputs.
     RtOutputIterator getOutputs() const;
@@ -121,7 +121,7 @@ public:
 
     /// Return a child prim by name, or a null object
     /// if no such child prim exists.
-    RtPrim getChild(const RtIdentifier& name) const;
+    RtPrim getChild(const RtString& name) const;
 
     /// Return an iterator traversing all child prims (siblings).
     /// Using a predicate this method can be used to find all child prims
@@ -131,7 +131,7 @@ public:
 };
 
 /// Function type for creating prims for a typed schema.
-using RtPrimCreateFunc = std::function<RtPrim(const RtIdentifier& typeName, const RtIdentifier& name, RtPrim parent)>;
+using RtPrimCreateFunc = std::function<RtPrim(const RtString& typeName, const RtString& name, RtPrim parent)>;
 
 
 /// Class holding an attribute specification.
@@ -145,10 +145,10 @@ public:
     ~RtAttributeSpec();
 
     /// Return the attribute name.
-    const RtIdentifier& getName() const;
+    const RtString& getName() const;
 
     /// Return the attribute type.
-    const RtIdentifier& getType() const;
+    const RtString& getType() const;
 
     /// Return the attribute's default value.
     const string& getValue() const;
@@ -178,14 +178,14 @@ public:
 
     /// Return an attribute spec if one has been defined with the given name
     /// for this prim type, or return nullptr otherwise.
-    virtual const RtAttributeSpec* getAttribute(const RtIdentifier& name) const = 0;
+    virtual const RtAttributeSpec* getAttribute(const RtString& name) const = 0;
 
     /// Return a vector of all attribute specs defined for this prim type.
     virtual const RtAttributeSpecVec& getAttributes() const = 0;
 
     /// Return an attribute spec if one has been defined for the given port
     /// on this prim type, or return nullptr otherwise.
-    virtual const RtAttributeSpec* getPortAttribute(const RtPort& port, const RtIdentifier& name) const = 0;
+    virtual const RtAttributeSpec* getPortAttribute(const RtPort& port, const RtString& name) const = 0;
 
     /// Return a vector of all attribute specs defined for the given port on this prim type.
     virtual RtAttributeSpecVec getPortAttributes(const RtPort& port) const = 0;

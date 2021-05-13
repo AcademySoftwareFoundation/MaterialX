@@ -33,7 +33,7 @@ private:
     RtStagePtr _stage;
     RtPath _path;
     RtPath _newParentPath;
-    RtIdentifier _originalName;
+    RtString _originalName;
 };
 
 }

@@ -48,17 +48,17 @@ public:
     /// @{
 
     /// Register a create function for a typename.
-    void registerCreateFunction(const RtIdentifier& typeName, RtPrimCreateFunc func);
+    void registerCreateFunction(const RtString& typeName, RtPrimCreateFunc func);
 
     /// Unregister a create function.
-    void unregisterCreateFunction(const RtIdentifier& typeName);
+    void unregisterCreateFunction(const RtString& typeName);
 
     /// Return true if the given typename has a create function registered.
-    bool hasCreateFunction(const RtIdentifier& typeName) const;
+    bool hasCreateFunction(const RtString& typeName) const;
 
     /// Return the create function for given typename,
     /// or nullptr if no such create function has been registered.
-    RtPrimCreateFunc getCreateFunction(const RtIdentifier& typeName) const;
+    RtPrimCreateFunc getCreateFunction(const RtString& typeName) const;
 
     /// @}
     /// @name TypedSchema registration
@@ -90,16 +90,16 @@ public:
 
     /// Unregister a definition of templated types.
     template<class T>
-    void unregisterDefinition(const RtIdentifier& name);
+    void unregisterDefinition(const RtString& name);
 
     /// Return true if a definition of templates type
     /// with the given name has been registered.
     template<class T>
-    bool hasDefinition(const RtIdentifier& name) const;
+    bool hasDefinition(const RtString& name) const;
 
     /// Return a registered definition prim by name.
     template<class T>
-    RtPrim getDefinition(const RtIdentifier& name) const;
+    RtPrim getDefinition(const RtString& name) const;
 
     /// Return a number of registered definitions.
     template<class T>
@@ -119,16 +119,16 @@ public:
 
     /// Unregister an implementation of templated types.
     template<class T>
-    void unregisterImplementation(const RtIdentifier& name);
+    void unregisterImplementation(const RtString& name);
 
     /// Return true if an implementation of templates type
     /// with the given name has been registered.
     template<class T>
-    bool hasImplementation(const RtIdentifier& name) const;
+    bool hasImplementation(const RtString& name) const;
 
     /// Return a registered implementation prim by name.
     template<class T>
-    RtPrim getImplementation(const RtIdentifier& name) const;
+    RtPrim getImplementation(const RtString& name) const;
 
     /// Return a number of registered implementations.
     template<class T>
@@ -180,12 +180,12 @@ public:
     /// will be used to find the files if the given path is a relative path.
     /// All definitions and implementations found will be registered and available to use
     /// for content creation as long as the library remains loaded.
-    RtStagePtr loadLibrary(const RtIdentifier& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
+    RtStagePtr loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
 
     /// Unload a previously loaded library.
     /// All definitions and implementations in the library will be
     /// unregistered and no longer available for content creation.
-    void unloadLibrary(const RtIdentifier& name);
+    void unloadLibrary(const RtString& name);
 
     /// Unload all previously loaded libraries.
     /// All definitions and implementations will be unregistered
@@ -196,7 +196,7 @@ public:
     size_t numLibraries() const;
 
     /// Return a library stage by name.
-    RtStagePtr getLibrary(const RtIdentifier& name) const;
+    RtStagePtr getLibrary(const RtString& name) const;
 
     /// Return a library stage by index.
     RtStagePtr getLibrary(size_t index) const;
@@ -206,10 +206,10 @@ public:
     /// @{
 
     /// Create a new empty stage.
-    RtStagePtr createStage(const RtIdentifier& name);
+    RtStagePtr createStage(const RtString& name);
 
     /// Delete a stage.
-    void deleteStage(const RtIdentifier& name);
+    void deleteStage(const RtString& name);
 
     /// Delete all stages.
     void deleteStages();
@@ -218,13 +218,13 @@ public:
     size_t numStages() const;
 
     /// Return a stage by name.
-    RtStagePtr getStage(const RtIdentifier& name) const;
+    RtStagePtr getStage(const RtString& name) const;
 
     /// Return a stage by index.
     RtStagePtr getStage(size_t index) const;
 
     /// Rename a stage.
-    RtIdentifier renameStage(const RtIdentifier& name, const RtIdentifier& newName);
+    RtString renameStage(const RtString& name, const RtString& newName);
 
     /// @}
 

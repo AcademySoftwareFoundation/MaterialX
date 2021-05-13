@@ -37,10 +37,10 @@ public:
     const string& getSourceCode() const;
 
     /// Set the format used by the source code in this implementation.
-    void setFormat(const RtIdentifier& format);
+    void setFormat(const RtString& format);
 
     /// Return the format used by the source code in this implementation.
-    const RtIdentifier& getFormat() const;
+    const RtString& getFormat() const;
 
     /// Set the function name to use for this implementation.
     void setFunction(const string& function);

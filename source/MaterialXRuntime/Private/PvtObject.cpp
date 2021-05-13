@@ -19,7 +19,7 @@ namespace MaterialX
 RT_DEFINE_RUNTIME_OBJECT(PvtObject, RtObjType::OBJECT, "PvtObject")
 RT_DEFINE_REF_PTR_FUNCTIONS(PvtObject)
 
-PvtObject::PvtObject(const RtIdentifier& name, PvtPrim* parent) :
+PvtObject::PvtObject(const RtString& name, PvtPrim* parent) :
     _typeBits(0),
     _name(name),
     _parent(parent)
@@ -55,7 +55,7 @@ RtStageWeakPtr PvtObject::getStage() const
     return getRoot()->asA<PvtStage::RootPrim>()->getStage();
 }
 
-RtTypedValue* PvtObject::createAttribute(const RtIdentifier& name, const RtIdentifier& type)
+RtTypedValue* PvtObject::createAttribute(const RtString& name, const RtString& type)
 {
     RtTypedValue* value = getAttribute(name, type);
     if (value)
@@ -71,7 +71,7 @@ RtTypedValue* PvtObject::createAttribute(const RtIdentifier& name, const RtIdent
     return attr;
 }
 
-void PvtObject::removeAttribute(const RtIdentifier& name)
+void PvtObject::removeAttribute(const RtString& name)
 {
     auto it = _attr.find(name);
     if (it != _attr.end())
@@ -90,7 +90,7 @@ void PvtObject::removeAttribute(const RtIdentifier& name)
     }
 }
 
-RtTypedValue* PvtObject::getAttribute(const RtIdentifier& name, const RtIdentifier& type)
+RtTypedValue* PvtObject::getAttribute(const RtString& name, const RtString& type)
 {
     RtTypedValue* value = getAttribute(name);
     if (value && value->getType() != type)
@@ -101,7 +101,7 @@ RtTypedValue* PvtObject::getAttribute(const RtIdentifier& name, const RtIdentifi
 }
 
 
-PvtObjHandle PvtObjectList::remove(const RtIdentifier& name)
+PvtObjHandle PvtObjectList::remove(const RtString& name)
 {
     auto it = _map.find(name);
     if (it != _map.end())
@@ -118,7 +118,7 @@ PvtObjHandle PvtObjectList::remove(const RtIdentifier& name)
     return PvtObjHandle();
 }
 
-RtIdentifier PvtObjectList::rename(const RtIdentifier& name, const RtIdentifier& newName, const PvtPrim* parent)
+RtString PvtObjectList::rename(const RtString& name, const RtString& newName, const PvtPrim* parent)
 {
     auto it = _map.find(name);
     if (it == _map.end())
@@ -133,7 +133,7 @@ RtIdentifier PvtObjectList::rename(const RtIdentifier& name, const RtIdentifier&
     _map.erase(it);
 
     // Make sure the new name is unique within the parent.
-    const RtIdentifier finalName = parent->makeUniqueChildName(newName);
+    const RtString finalName = parent->makeUniqueChildName(newName);
     hnd->setName(finalName);
     _map[finalName] = hnd;
 

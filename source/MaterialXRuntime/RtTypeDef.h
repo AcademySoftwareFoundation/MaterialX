@@ -10,7 +10,7 @@
 /// Type identifiers and type descriptors for runtime data types.
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtIdentifier.h>
+#include <MaterialXRuntime/RtString.h>
 #include <MaterialXRuntime/RtValue.h>
 
 namespace MaterialX
@@ -54,38 +54,38 @@ class RtTypeDef
 {
 public:
     /// Identifiers for base types.
-    static const RtIdentifier BASETYPE_NONE;
-    static const RtIdentifier BASETYPE_BOOLEAN;
-    static const RtIdentifier BASETYPE_INTEGER;
-    static const RtIdentifier BASETYPE_FLOAT;
-    static const RtIdentifier BASETYPE_STRING;
-    static const RtIdentifier BASETYPE_STRUCT;
+    static const RtString BASETYPE_NONE;
+    static const RtString BASETYPE_BOOLEAN;
+    static const RtString BASETYPE_INTEGER;
+    static const RtString BASETYPE_FLOAT;
+    static const RtString BASETYPE_STRING;
+    static const RtString BASETYPE_STRUCT;
 
     /// Identifiers for type semantics.
-    static const RtIdentifier SEMANTIC_NONE;
-    static const RtIdentifier SEMANTIC_COLOR;
-    static const RtIdentifier SEMANTIC_VECTOR;
-    static const RtIdentifier SEMANTIC_MATRIX;
-    static const RtIdentifier SEMANTIC_FILENAME;
-    static const RtIdentifier SEMANTIC_CLOSURE;
-    static const RtIdentifier SEMANTIC_SHADER;
-    static const RtIdentifier SEMANTIC_MATERIAL;
+    static const RtString SEMANTIC_NONE;
+    static const RtString SEMANTIC_COLOR;
+    static const RtString SEMANTIC_VECTOR;
+    static const RtString SEMANTIC_MATRIX;
+    static const RtString SEMANTIC_FILENAME;
+    static const RtString SEMANTIC_CLOSURE;
+    static const RtString SEMANTIC_SHADER;
+    static const RtString SEMANTIC_MATERIAL;
 
 public:
     /// Constructor.
-    RtTypeDef(const RtIdentifier& name, const RtIdentifier& basetype, const RtValueFuncs& funcs, const RtIdentifier& semantic, size_t size);
+    RtTypeDef(const RtString& name, const RtString& basetype, const RtValueFuncs& funcs, const RtString& semantic, size_t size);
 
     /// Destructor.
     ~RtTypeDef();
 
     /// Return the name of the type.
-    const RtIdentifier& getName() const;
+    const RtString& getName() const;
 
     /// Return the basetype for the type.
-    const RtIdentifier& getBaseType() const;
+    const RtString& getBaseType() const;
 
     /// Return the semantic for the type.
-    const RtIdentifier& getSemantic() const;
+    const RtString& getSemantic() const;
 
     /// Return the number of components the type is composed of.
     /// Will return 1 for scalar types and a size greater than 1 for aggregate type.
@@ -112,23 +112,23 @@ public:
     }
 
     /// Set named and basetype for a component of an aggregate type.
-    void setComponent(size_t index, const RtIdentifier& name, const RtIdentifier& basetype);
+    void setComponent(size_t index, const RtString& name, const RtString& basetype);
 
     /// Returns the index for the given component name.
     /// Will return INVALID_INDEX on failure to find a matching component.
-    size_t getComponentIndex(const RtIdentifier& name) const;
+    size_t getComponentIndex(const RtString& name) const;
 
     /// Return the name of the aggregate component for the given index.
     /// Will throw exception if the index is larger than the type size.
-    const RtIdentifier& getComponentName(size_t index) const;
+    const RtString& getComponentName(size_t index) const;
 
     /// Return the basetype of the aggregate component for the given index.
     /// Will throw exception if the index is larger than the type size.
-    const RtIdentifier& getComponentBaseType(size_t index) const;
+    const RtString& getComponentBaseType(size_t index) const;
 
     /// Return a set of all types that this type can be connected to.
     /// The type itself is also included in this set.
-    const RtIdentifierSet& getValidConnectionTypes() const;
+    const RtStringSet& getValidConnectionTypes() const;
 
     /// Create a new value of this type.
     /// If the type is a large value the given prim will take
@@ -150,8 +150,8 @@ public:
 
     /// Register a type descriptor for a MaterialX data type.
     /// Throws an exception if a type with the same name is already registered.
-    static RtTypeDef* registerType(const RtIdentifier& name, const RtIdentifier& basetype, const RtValueFuncs& funcs,
-                                   const RtIdentifier& semantic = SEMANTIC_NONE, size_t size = 1);
+    static RtTypeDef* registerType(const RtString& name, const RtString& basetype, const RtValueFuncs& funcs,
+                                   const RtString& semantic = SEMANTIC_NONE, size_t size = 1);
 
     /// Return the number of registered types.
     static size_t numTypes();
@@ -162,7 +162,7 @@ public:
 
     /// Get the typedef for the given type name.
     /// Returns nullptr if no such type is registered.
-    static const RtTypeDef* findType(const RtIdentifier& name);
+    static const RtTypeDef* findType(const RtString& name);
 
 private:
     void* _ptr;

@@ -13,7 +13,7 @@
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 #include <MaterialXRuntime/RtTraversal.h>
-#include <MaterialXRuntime/Identifiers.h>
+#include <MaterialXRuntime/RtString.h>
 
 /// @file
 /// TODO: Docs
@@ -26,7 +26,7 @@ class PvtPort : public PvtObject
     RT_DECLARE_RUNTIME_OBJECT(PvtPort)
 
 public:
-    const RtIdentifier& getType() const
+    const RtString& getType() const
     {
         return _value.getType();
     }
@@ -81,20 +81,20 @@ public:
         return (_flags & RtPortFlag::TOKEN) != 0;
     }
 
-    const RtIdentifier& getColorSpace() const
+    const RtString& getColorSpace() const
     {
-        const RtTypedValue* attr = getAttribute(Identifiers::COLORSPACE, RtType::IDENTIFIER);
-        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
+        const RtTypedValue* attr = getAttribute(RtString::COLORSPACE, RtType::INTERNSTRING);
+        return attr ? attr->asInternString() : RtString::EMPTY;
     }
 
-    void setColorSpace(const RtIdentifier& colorspace)
+    void setColorSpace(const RtString& colorspace)
     {
-        RtTypedValue* attr = createAttribute(Identifiers::COLORSPACE, RtType::IDENTIFIER);
-        attr->asIdentifier() = colorspace;
+        RtTypedValue* attr = createAttribute(RtString::COLORSPACE, RtType::INTERNSTRING);
+        attr->asInternString() = colorspace;
     }
 
 protected:
-    PvtPort(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent);
+    PvtPort(const RtString& name, const RtString& type, uint32_t flags, PvtPrim* parent);
 
     RtTypedValue _value;
     uint32_t _flags;
@@ -108,7 +108,7 @@ class PvtInput : public PvtPort
     RT_DECLARE_RUNTIME_OBJECT(PvtInput)
 
 public:
-    PvtInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent);
+    PvtInput(const RtString& name, const RtString& type, uint32_t flags, PvtPrim* parent);
 
     bool isUIVisible() const
     {
@@ -118,38 +118,38 @@ public:
         {
             return true;
         }
-        const RtTypedValue* attr = getAttribute(Identifiers::UIVISIBLE, RtType::BOOLEAN);
+        const RtTypedValue* attr = getAttribute(RtString::UIVISIBLE, RtType::BOOLEAN);
         return attr ? attr->asBool() : true;
     }
 
     void setIsUIVisible(bool val)
     {
-        RtTypedValue* attr = createAttribute(Identifiers::UIVISIBLE, RtType::BOOLEAN);
+        RtTypedValue* attr = createAttribute(RtString::UIVISIBLE, RtType::BOOLEAN);
         attr->asBool() = val;
     }
 
-    const RtIdentifier& getUnit() const
+    const RtString& getUnit() const
     {
-        const RtTypedValue* attr = getAttribute(Identifiers::UNIT, RtType::IDENTIFIER);
-        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
+        const RtTypedValue* attr = getAttribute(RtString::UNIT, RtType::INTERNSTRING);
+        return attr ? attr->asInternString() : RtString::EMPTY;
     }
 
-    void setUnit(const RtIdentifier& unit)
+    void setUnit(const RtString& unit)
     {
-        RtTypedValue* attr = createAttribute(Identifiers::UNIT, RtType::IDENTIFIER);
-        attr->asIdentifier() = unit;
+        RtTypedValue* attr = createAttribute(RtString::UNIT, RtType::INTERNSTRING);
+        attr->asInternString() = unit;
     }
 
-    const RtIdentifier& getUnitType() const
+    const RtString& getUnitType() const
     {
-        const RtTypedValue* attr = getAttribute(Identifiers::UNITTYPE, RtType::IDENTIFIER);
-        return attr ? attr->asIdentifier() : EMPTY_IDENTIFIER;
+        const RtTypedValue* attr = getAttribute(RtString::UNITTYPE, RtType::INTERNSTRING);
+        return attr ? attr->asInternString() : RtString::EMPTY;
     }
 
-    void setUnitType(const RtIdentifier& unit)
+    void setUnitType(const RtString& unit)
     {
-        RtTypedValue* attr = createAttribute(Identifiers::UNITTYPE, RtType::IDENTIFIER);
-        attr->asIdentifier() = unit;
+        RtTypedValue* attr = createAttribute(RtString::UNITTYPE, RtType::INTERNSTRING);
+        attr->asInternString() = unit;
     }
 
     bool isConnected() const
@@ -181,7 +181,7 @@ class PvtOutput : public PvtPort
     RT_DECLARE_RUNTIME_OBJECT(PvtOutput)
 
 public:
-    PvtOutput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent);
+    PvtOutput(const RtString& name, const RtString& type, uint32_t flags, PvtPrim* parent);
 
     bool isConnectable(const PvtInput* input) const
     {

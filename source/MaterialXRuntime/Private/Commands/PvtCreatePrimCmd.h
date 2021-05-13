@@ -18,14 +18,14 @@ namespace MaterialX
 class PvtCreatePrimCmd : public PvtCommand
 {
 public:
-    PvtCreatePrimCmd(RtStagePtr stage, const RtIdentifier& typeName, const RtPath& parentPath, const RtIdentifier& name) :
+    PvtCreatePrimCmd(RtStagePtr stage, const RtString& typeName, const RtPath& parentPath, const RtString& name) :
         _stage(stage),
         _typeName(typeName),
         _parentPath(parentPath),
         _name(name)
     {}
 
-    static PvtCommandPtr create(RtStagePtr stage, const RtIdentifier& typeName, const RtPath& parentPath, const RtIdentifier& name);
+    static PvtCommandPtr create(RtStagePtr stage, const RtString& typeName, const RtPath& parentPath, const RtString& name);
 
     void execute(RtCommandResult& result) override;
     void undo(RtCommandResult& result) override;
@@ -33,9 +33,9 @@ public:
 
 private:
     RtStagePtr _stage;
-    const RtIdentifier _typeName;
+    const RtString _typeName;
     const RtPath _parentPath;
-    RtIdentifier _name;
+    RtString _name;
     RtPrim _prim;
 };
 

@@ -32,7 +32,7 @@ using RtCreatePrimCallbackFunc = std::function<void(RtStagePtr stage, const RtPr
 using RtRemovePrimCallbackFunc = std::function<void(RtStagePtr stage, const RtPrim& prim, void* userData)>;
 
 /// Function type for callback notifying when a prim is about to be renamed.
-using RtRenamePrimCallbackFunc = std::function<void(RtStagePtr stage, const RtPrim& prim, const RtIdentifier& newName, void* userData)>;
+using RtRenamePrimCallbackFunc = std::function<void(RtStagePtr stage, const RtPrim& prim, const RtString& newName, void* userData)>;
 
 /// Function type for callback notifying when a prim is about to be reparented.
 using RtReparentPrimCallbackFunc = std::function<void(RtStagePtr stage, const RtPrim& prim, const RtPath& newPath, void* userData)>;
@@ -41,10 +41,10 @@ using RtReparentPrimCallbackFunc = std::function<void(RtStagePtr stage, const Rt
 using RtSetPortValueCallbackFunc = std::function<void(const RtPort& port, const RtValue& value, void* userData)>;
 
 /// Function type for callback notifying when an attribute is set.
-using RtSetAttributeCallbackFunc = std::function<void(const RtObject& obj, const RtIdentifier& name, const RtValue& value, void* userData)>;
+using RtSetAttributeCallbackFunc = std::function<void(const RtObject& obj, const RtString& name, const RtValue& value, void* userData)>;
 
 /// Function type for callback notifying when a metadata value is removed.
-using RtRemoveAttributeCallbackFunc = std::function<void(const RtObject& obj, const RtIdentifier& name, void* userData)>;
+using RtRemoveAttributeCallbackFunc = std::function<void(const RtObject& obj, const RtString& name, void* userData)>;
 
 /// Function type for callback notifying when a connection is changed.
 using RtConnectionCallbackFunc = std::function<void(const RtOutput& src, const RtInput& dest, ConnectionChange change, void* userData)>;

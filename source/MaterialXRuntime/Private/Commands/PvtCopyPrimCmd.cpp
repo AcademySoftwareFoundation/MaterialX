@@ -219,7 +219,7 @@ RtPrim PvtCopyPrimCmd::createPrimCopy(const RtPrim& prim, const RtPath& parentPa
 
 void PvtCopyPrimCmd::copyMetadata(const PvtObject* src, PvtObject* dest)
 {
-    for (const RtIdentifier& name : src->getAttributeNames())
+    for (const RtString& name : src->getAttributeNames())
     {
         const RtTypedValue* srcAttr = src->getAttribute(name);
         RtTypedValue* destAttr = dest->createAttribute(name, srcAttr->getType());

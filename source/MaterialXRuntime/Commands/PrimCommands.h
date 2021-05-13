@@ -19,14 +19,14 @@ namespace MaterialX
 namespace RtCommand
 {
     /// Create a new prim at the root of the stage.
-    void createPrim(RtStagePtr stage, const RtIdentifier& typeName, RtCommandResult& result);
+    void createPrim(RtStagePtr stage, const RtString& typeName, RtCommandResult& result);
 
     /// Create a new prim at the given path.
-    void createPrim(RtStagePtr stage, const RtIdentifier& typeName, const RtPath& path, RtCommandResult& result);
+    void createPrim(RtStagePtr stage, const RtString& typeName, const RtPath& path, RtCommandResult& result);
 
     /// Create a new prim inside the parent given by path.
     /// If an empty name is given a name will be generated.
-    void createPrim(RtStagePtr stage, const RtIdentifier& typeName, const RtPath& parentPath, const RtIdentifier& name, RtCommandResult& result);
+    void createPrim(RtStagePtr stage, const RtString& typeName, const RtPath& parentPath, const RtString& name, RtCommandResult& result);
 
     /// Make a copy of the given prim and place the copy at the same parent path.
     void copyPrim(RtStagePtr stage, const RtPrim& prim, RtCommandResult& result);
@@ -38,7 +38,7 @@ namespace RtCommand
     void removePrim(RtStagePtr stage, const RtPath& path, RtCommandResult& result);
 
     /// Rename a prim.
-    void renamePrim(RtStagePtr stage, const RtPath& path, const RtIdentifier& newName, RtCommandResult& result);
+    void renamePrim(RtStagePtr stage, const RtPath& path, const RtString& newName, RtCommandResult& result);
 
     /// Reparent a prim.
     void reparentPrim(RtStagePtr stage, const RtPath& path, const RtPath& newParentPath, RtCommandResult& result);

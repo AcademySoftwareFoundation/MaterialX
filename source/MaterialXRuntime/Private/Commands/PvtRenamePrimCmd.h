@@ -17,13 +17,13 @@ namespace MaterialX
 class PvtRenamePrimCmd : public PvtCommand
 {
 public:
-    PvtRenamePrimCmd(RtStagePtr stage, const RtPath& path, const RtIdentifier& newName) :
+    PvtRenamePrimCmd(RtStagePtr stage, const RtPath& path, const RtString& newName) :
         _stage(stage),
         _path(path),
         _newName(newName)
     {}
 
-    static PvtCommandPtr create(RtStagePtr stage, const RtPath& path, const RtIdentifier& newName);
+    static PvtCommandPtr create(RtStagePtr stage, const RtPath& path, const RtString& newName);
 
     void execute(RtCommandResult& result) override;
     void undo(RtCommandResult& result) override;
@@ -31,7 +31,7 @@ public:
 private:
     RtStagePtr _stage;
     RtPath _path;
-    RtIdentifier _newName;
+    RtString _newName;
 };
 
 }

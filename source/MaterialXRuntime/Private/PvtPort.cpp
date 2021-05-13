@@ -14,7 +14,7 @@ namespace MaterialX
 
 RT_DEFINE_RUNTIME_OBJECT(PvtPort, RtObjType::PORT, "PvtPort")
 
-PvtPort::PvtPort(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent) :
+PvtPort::PvtPort(const RtString& name, const RtString& type, uint32_t flags, PvtPrim* parent) :
     PvtObject(name, parent),
     _value(type, RtValue::createNew(type, parent->prim())),
     _flags(flags)
@@ -25,7 +25,7 @@ PvtPort::PvtPort(const RtIdentifier& name, const RtIdentifier& type, uint32_t fl
 
 RT_DEFINE_RUNTIME_OBJECT(PvtInput, RtObjType::INPUT, "PvtInput")
 
-PvtInput::PvtInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent) :
+PvtInput::PvtInput(const RtString& name, const RtString& type, uint32_t flags, PvtPrim* parent) :
     PvtPort(name, type, flags, parent)
 {
     setTypeBit<PvtInput>();
@@ -116,7 +116,7 @@ void PvtInput::clearConnection()
 
 RT_DEFINE_RUNTIME_OBJECT(PvtOutput, RtObjType::OUTPUT, "PvtOutput")
 
-PvtOutput::PvtOutput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags, PvtPrim* parent) :
+PvtOutput::PvtOutput(const RtString& name, const RtString& type, uint32_t flags, PvtPrim* parent) :
     PvtPort(name, type, flags, parent)
 {
     setTypeBit<PvtOutput>();

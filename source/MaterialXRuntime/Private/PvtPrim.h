@@ -72,10 +72,10 @@ class PvtPrim : public PvtObject
 
 public:
     template<class T = PvtPrim>
-    static PvtObjHandle createNew(const RtTypeInfo* type, const RtIdentifier& name, PvtPrim* parent)
+    static PvtObjHandle createNew(const RtTypeInfo* type, const RtString& name, PvtPrim* parent)
     {
         // Make the name unique.
-        const RtIdentifier primName = parent->makeUniqueChildName(name);
+        const RtString primName = parent->makeUniqueChildName(name);
         return PvtObjHandle(new T(type, primName, parent));
     }
 
@@ -101,16 +101,16 @@ public:
         return _typeInfo->isCompatible(T::typeName());
     }
 
-    PvtRelationship* createRelationship(const RtIdentifier& name);
+    PvtRelationship* createRelationship(const RtString& name);
 
-    void removeRelationship(const RtIdentifier& name);
+    void removeRelationship(const RtString& name);
 
-    RtIdentifier renameRelationship(const RtIdentifier& name, const RtIdentifier& newName)
+    RtString renameRelationship(const RtString& name, const RtString& newName)
     {
         return _rel.rename(name, newName, this);
     }
 
-    PvtRelationship* getRelationship(const RtIdentifier& name)
+    PvtRelationship* getRelationship(const RtString& name)
     {
         PvtObject* obj = _rel.find(name);
         return obj ? obj->asA<PvtRelationship>() : nullptr;
@@ -121,7 +121,7 @@ public:
         return _rel.vec();
     }
 
-    PvtPort* getPort(const RtIdentifier& name) const
+    PvtPort* getPort(const RtString& name) const
     {
         PvtObject* obj = _inputs.find(name);
         if (!obj)
@@ -131,11 +131,11 @@ public:
         return obj ? obj->asA<PvtPort>() : nullptr;
     }
 
-    PvtInput* createInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags = 0);
+    PvtInput* createInput(const RtString& name, const RtString& type, uint32_t flags = 0);
 
-    void removeInput(const RtIdentifier& name);
+    void removeInput(const RtString& name);
 
-    RtIdentifier renameInput(const RtIdentifier& name, const RtIdentifier& newName)
+    RtString renameInput(const RtString& name, const RtString& newName)
     {
         return _inputs.rename(name, newName, this);
     }
@@ -150,7 +150,7 @@ public:
         return _inputs[index]->asA<PvtInput>();
     }
 
-    PvtInput* getInput(const RtIdentifier& name) const
+    PvtInput* getInput(const RtString& name) const
     {
         PvtObject* obj = _inputs.find(name);
         return obj ? obj->asA<PvtInput>() : nullptr;
@@ -161,11 +161,11 @@ public:
         return _inputs.vec();
     }
 
-    PvtOutput* createOutput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags = 0);
+    PvtOutput* createOutput(const RtString& name, const RtString& type, uint32_t flags = 0);
 
-    void removeOutput(const RtIdentifier& name);
+    void removeOutput(const RtString& name);
 
-    RtIdentifier renameOutput(const RtIdentifier& name, const RtIdentifier& newName)
+    RtString renameOutput(const RtString& name, const RtString& newName)
     {
         return _outputs.rename(name, newName, this);
     }
@@ -180,7 +180,7 @@ public:
         return _outputs[index]->asA<PvtOutput>();
     }
 
-    PvtOutput* getOutput(const RtIdentifier& name) const
+    PvtOutput* getOutput(const RtString& name) const
     {
         PvtObject* obj = _outputs.find(name);
         return obj ? obj->asA<PvtOutput>() : nullptr;
@@ -201,13 +201,13 @@ public:
         return _prims[index]->asA<PvtPrim>();
     }
 
-    PvtPrim* getChild(const RtIdentifier& name) const
+    PvtPrim* getChild(const RtString& name) const
     {
         PvtObject* obj = _prims.find(name);
         return obj ? obj->asA<PvtPrim>() : nullptr;
     }
 
-    RtIdentifier renameChild(const RtIdentifier& name, const RtIdentifier& newName)
+    RtString renameChild(const RtString& name, const RtString& newName)
     {
         return _prims.rename(name, newName, this);
     }
@@ -224,10 +224,10 @@ public:
         return _allocator;
     }
 
-    RtIdentifier makeUniqueChildName(const RtIdentifier& name) const;
+    RtString makeUniqueChildName(const RtString& name) const;
 
     // Validate that typenames match when creating a new prim.
-    static void validateCreation(const RtTypeInfo& typeInfo, const RtIdentifier& typeName, const RtIdentifier& name)
+    static void validateCreation(const RtTypeInfo& typeInfo, const RtString& typeName, const RtString& name)
     {
         if (typeName != typeInfo.getShortTypeName())
         {
@@ -236,7 +236,7 @@ public:
     }
 
     // Validate that typenames match and that parent path is at the root.
-    static void validateCreation(const RtTypeInfo& typeInfo, const RtIdentifier& typeName, const RtIdentifier& name, const RtPath& parentPath)
+    static void validateCreation(const RtTypeInfo& typeInfo, const RtString& typeName, const RtString& name, const RtPath& parentPath)
     {
         validateCreation(typeInfo, typeName, name);
 
@@ -247,7 +247,7 @@ public:
     }
 
 protected:
-    PvtPrim(const RtTypeInfo* typeInfo, const RtIdentifier& name, PvtPrim* parent);
+    PvtPrim(const RtTypeInfo* typeInfo, const RtString& name, PvtPrim* parent);
 
     void addChildPrim(PvtPrim* prim);
     void removeChildPrim(PvtPrim* prim);
@@ -280,8 +280,8 @@ protected:
 
 struct PvtAttributeSpec
 {
-    RtIdentifier name;
-    RtIdentifier type;
+    RtString name;
+    RtString type;
     // TODO: Use an RtValue instead of string value.
     //       Need better handling of ownership of large values
     //       for this, which is part of another change list.
@@ -320,12 +320,12 @@ public:
         return _vec.empty();
     }
 
-    size_t count(const RtIdentifier& name) const
+    size_t count(const RtString& name) const
     {
         return _map.count(name);
     }
 
-    RtAttributeSpec* find(const RtIdentifier& name) const
+    RtAttributeSpec* find(const RtString& name) const
     {
         auto it = _map.find(name);
         return it != _map.end() ? it->second : nullptr;
@@ -337,7 +337,7 @@ public:
     }
 
 private:
-    RtIdentifierMap<RtAttributeSpec*> _map;
+    RtStringMap<RtAttributeSpec*> _map;
     RtAttributeSpecVec _vec;
 
     friend class PvtPrimSpec;
@@ -351,7 +351,7 @@ public:
     {
     }
 
-    const RtAttributeSpec* getAttribute(const RtIdentifier& name) const override
+    const RtAttributeSpec* getAttribute(const RtString& name) const override
     {
         return _primAttr.find(name);
     }
@@ -361,49 +361,49 @@ public:
         return _primAttr._vec;
     }
 
-    const RtAttributeSpec* getPortAttribute(const RtPort& port, const RtIdentifier& name) const override;
+    const RtAttributeSpec* getPortAttribute(const RtPort& port, const RtString& name) const override;
 
     RtAttributeSpecVec getPortAttributes(const RtPort& port) const override;
 
-    RtAttributeSpec* create(const RtIdentifier& name, const RtIdentifier& type, const string& value, bool exportable, bool custom);
+    RtAttributeSpec* create(const RtString& name, const RtString& type, const string& value, bool exportable, bool custom);
 
-    void addPrimAttribute(const RtIdentifier& name, const RtIdentifier& type, const string& value = EMPTY_STRING,
+    void addPrimAttribute(const RtString& name, const RtString& type, const string& value = EMPTY_STRING,
                       bool exportable = false, bool custom = false)
     {
         _primAttr.add(create(name, type, value, exportable, custom));
     }
 
-    void addInputAttribute(const RtIdentifier& name, const RtIdentifier& type,
+    void addInputAttribute(const RtString& name, const RtString& type,
                            const string& value = EMPTY_STRING, bool exportable = false, bool custom = false)
     {
         _inputAttr.add(create(name, type, value, exportable, custom));
     }
 
-    void addInputAttributeByName(const RtIdentifier& portName, const RtIdentifier& name, const RtIdentifier& type,
+    void addInputAttributeByName(const RtString& portName, const RtString& name, const RtString& type,
                                 const string& value = EMPTY_STRING, bool exportable = false, bool custom = false)
     {
         _inputAttrByName[portName].add(create(name, type, value, exportable, custom));
     }
 
-    void addInputAttributeByType(const RtIdentifier& portType, const RtIdentifier& name, const RtIdentifier& type,
+    void addInputAttributeByType(const RtString& portType, const RtString& name, const RtString& type,
                                  const string& value = EMPTY_STRING, bool exportable = false, bool custom = false)
     {
         _inputAttrByType[portType].add(create(name, type, value, exportable, custom));
     }
 
-    void addOutputAttribute(const RtIdentifier& name, const RtIdentifier& type,
+    void addOutputAttribute(const RtString& name, const RtString& type,
                             const string& value = EMPTY_STRING, bool exportable = false, bool custom = false)
     {
         _outputAttr.add(create(name, type, value, exportable, custom));
     }
 
-    void addOutputAttributeByName(const RtIdentifier& portName, const RtIdentifier& name, const RtIdentifier& type,
+    void addOutputAttributeByName(const RtString& portName, const RtString& name, const RtString& type,
                                   const string& value = EMPTY_STRING, bool exportable = false, bool custom = false)
     {
         _outputAttrByName[portName].add(create(name, type, value, exportable, custom));
     }
 
-    void addOutputAttributeByType(const RtIdentifier& portType, const RtIdentifier& name, const RtIdentifier& type,
+    void addOutputAttributeByType(const RtString& portType, const RtString& name, const RtString& type,
                                   const string& value = EMPTY_STRING, bool exportable = false, bool custom = false)
     {
         _outputAttrByType[portType].add(create(name, type, value, exportable, custom));
@@ -412,10 +412,10 @@ public:
     RtAttributeSpecList _primAttr;
     RtAttributeSpecList _inputAttr;
     RtAttributeSpecList _outputAttr;
-    RtIdentifierMap<RtAttributeSpecList> _inputAttrByName;
-    RtIdentifierMap<RtAttributeSpecList> _inputAttrByType;
-    RtIdentifierMap<RtAttributeSpecList> _outputAttrByName;
-    RtIdentifierMap<RtAttributeSpecList> _outputAttrByType;
+    RtStringMap<RtAttributeSpecList> _inputAttrByName;
+    RtStringMap<RtAttributeSpecList> _inputAttrByType;
+    RtStringMap<RtAttributeSpecList> _outputAttrByName;
+    RtStringMap<RtAttributeSpecList> _outputAttrByType;
     PvtAllocator _allocator; // TODO: Start using this allocator, change default value from strings to actual value type.
 };
 

@@ -27,7 +27,7 @@ public:
 
     /// Return the named relationship.
     /// Shorthand for getPrim().getRelationship(name).
-    RtRelationship getRelationship(const RtIdentifier& name) const
+    RtRelationship getRelationship(const RtString& name) const
     {
         return getPrim().getRelationship(name);
     }

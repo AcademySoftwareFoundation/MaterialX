@@ -10,7 +10,7 @@
 /// Commands for attribute handling.
 
 #include <MaterialXRuntime/RtCommand.h>
-#include <MaterialXRuntime/RtIdentifier.h>
+#include <MaterialXRuntime/RtString.h>
 
 namespace MaterialX
 {
@@ -18,10 +18,10 @@ namespace MaterialX
 namespace RtCommand
 {
     /// Set an attribute value from data given as a value string. Creates the attribute if it doesn't exist.
-    void setAttributeFromString(const RtObject& obj, const RtIdentifier& name, const string& value, RtCommandResult& result);
+    void setAttributeFromString(const RtObject& obj, const RtString& name, const string& value, RtCommandResult& result);
 
     /// Remove an attribute.
-    void removeAttribute(const RtObject& obj, const RtIdentifier& name, RtCommandResult& result);
+    void removeAttribute(const RtObject& obj, const RtString& name, RtCommandResult& result);
 }
 
 }

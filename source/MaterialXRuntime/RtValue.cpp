@@ -44,7 +44,7 @@ RtValue::RtValue(const string& v, RtPrim& prim)
     asString() = v;
 }
 
-RtValue RtValue::createNew(const RtIdentifier& type, RtPrim owner)
+RtValue RtValue::createNew(const RtString& type, RtPrim owner)
 {
     const RtTypeDef* typeDef = RtTypeDef::findType(type);
     if (!typeDef)
@@ -54,14 +54,14 @@ RtValue RtValue::createNew(const RtIdentifier& type, RtPrim owner)
     return typeDef->createValue(owner);
 }
 
-RtValue RtValue::clone(const RtIdentifier& type, const RtValue& value, RtPrim owner)
+RtValue RtValue::clone(const RtString& type, const RtValue& value, RtPrim owner)
 {
     RtValue clonedValue = createNew(type, owner);
     copy(type, value, clonedValue);
     return clonedValue;
 }
 
-void RtValue::copy(const RtIdentifier& type, const RtValue& src, RtValue& dest)
+void RtValue::copy(const RtString& type, const RtValue& src, RtValue& dest)
 {
     const RtTypeDef* typeDef = RtTypeDef::findType(type);
     if (!typeDef)
@@ -71,7 +71,7 @@ void RtValue::copy(const RtIdentifier& type, const RtValue& src, RtValue& dest)
     typeDef->copyValue(src, dest);
 }
 
-bool RtValue::compare(const RtIdentifier& type, const RtValue& a, const RtValue& b)
+bool RtValue::compare(const RtString& type, const RtValue& a, const RtValue& b)
 {
     const RtTypeDef* typeDef = RtTypeDef::findType(type);
     if (!typeDef)
@@ -81,7 +81,7 @@ bool RtValue::compare(const RtIdentifier& type, const RtValue& a, const RtValue&
     return typeDef->compareValue(a, b);
 }
 
-void RtValue::toString(const RtIdentifier& type, const RtValue& src, string& dest)
+void RtValue::toString(const RtString& type, const RtValue& src, string& dest)
 {
     const RtTypeDef* typeDef = RtTypeDef::findType(type);
     if (!typeDef)
@@ -91,7 +91,7 @@ void RtValue::toString(const RtIdentifier& type, const RtValue& src, string& des
     typeDef->toStringValue(src, dest);
 }
 
-void RtValue::fromString(const RtIdentifier& type, const string& src, RtValue& dest)
+void RtValue::fromString(const RtString& type, const string& src, RtValue& dest)
 {
     const RtTypeDef* typeDef = RtTypeDef::findType(type);
     if (!typeDef)

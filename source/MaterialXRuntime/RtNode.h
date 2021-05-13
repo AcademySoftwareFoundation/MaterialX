@@ -20,7 +20,7 @@ namespace MaterialX
 class RtNode : public RtTypedSchema
 {
     DECLARE_TYPED_SCHEMA(RtNode)
-    static RtPrim createNode(RtPrim nodedef, const RtIdentifier& name, RtPrim parent);
+    static RtPrim createNode(RtPrim nodedef, const RtString& name, RtPrim parent);
 
 public:
     /// Constructor.
@@ -33,15 +33,15 @@ public:
     RtPrim getNodeDef() const;
 
     /// Set the version for this node.
-    void setVersion(const RtIdentifier& version);
+    void setVersion(const RtString& version);
 
     /// Return the version for this node.
-    const RtIdentifier& getVersion() const;
+    const RtString& getVersion() const;
 
     /// Return a port (input or output) by name, or a null object
     /// if no such port exists.
     /// Shorthand for calling getPrim().getPort().
-    RtPort getPort(const RtIdentifier& name) const
+    RtPort getPort(const RtString& name) const
     {
         return getPrim().getPort(name);
     }
@@ -62,7 +62,7 @@ public:
 
     /// Return an input by name.
     /// Shorthand for calling getPrim().getInput().
-    RtInput getInput(const RtIdentifier& name) const
+    RtInput getInput(const RtString& name) const
     {
         return getPrim().getInput(name);
     }
@@ -90,7 +90,7 @@ public:
 
     /// Return an output by name.
     /// Shorthand for calling getPrim().getOutput().
-    RtOutput getOutput(const RtIdentifier& name) const
+    RtOutput getOutput(const RtString& name) const
     {
         return getPrim().getOutput(name);
     }

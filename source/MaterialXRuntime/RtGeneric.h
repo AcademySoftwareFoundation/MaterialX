@@ -26,11 +26,11 @@ public:
 
     /// Get the kind for this generic prim,
     /// which gives its custom typename.
-    const RtIdentifier& getKind() const;
+    const RtString& getKind() const;
 
     /// Set the kind for this generic prim,
     /// giving its custom typename.
-    void setKind(const RtIdentifier& kind);
+    void setKind(const RtString& kind);
 };
 
 }

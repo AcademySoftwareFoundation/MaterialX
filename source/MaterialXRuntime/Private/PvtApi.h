@@ -70,7 +70,7 @@ public:
         }
     }
 
-    void registerCreateFunction(const RtIdentifier& typeName, RtPrimCreateFunc creator)
+    void registerCreateFunction(const RtString& typeName, RtPrimCreateFunc creator)
     {
         if (getCreateFunction(typeName))
         {
@@ -79,17 +79,17 @@ public:
         _createFunctions[typeName] = creator;
     }
 
-    void unregisterCreateFunction(const RtIdentifier& typeName)
+    void unregisterCreateFunction(const RtString& typeName)
     {
         _createFunctions.erase(typeName);
     }
 
-    bool hasCreateFunction(const RtIdentifier& typeName)
+    bool hasCreateFunction(const RtString& typeName)
     {
         return _createFunctions.count(typeName) > 0;
     }
 
-    RtPrimCreateFunc getCreateFunction(const RtIdentifier& typeName)
+    RtPrimCreateFunc getCreateFunction(const RtString& typeName)
     {
         auto it = _createFunctions.find(typeName);
         return it != _createFunctions.end() ? it->second : nullptr;
@@ -108,12 +108,12 @@ public:
         _nodedefs.add(PvtObject::cast(prim));
     }
 
-    void unregisterNodeDef(const RtIdentifier& name)
+    void unregisterNodeDef(const RtString& name)
     {
         _nodedefs.remove(name);
     }
 
-    bool hasNodeDef(const RtIdentifier& name)
+    bool hasNodeDef(const RtString& name)
     {
         return _nodedefs.count(name);
     }
@@ -123,7 +123,7 @@ public:
         return _nodedefs.size();
     }
 
-    PvtObject* getNodeDef(const RtIdentifier& name)
+    PvtObject* getNodeDef(const RtString& name)
     {
         return _nodedefs.find(name);
     }
@@ -146,12 +146,12 @@ public:
         _nodegraphs.add(PvtObject::cast(prim));
     }
 
-    void unregisterNodeGraph(const RtIdentifier& name)
+    void unregisterNodeGraph(const RtString& name)
     {
         _nodegraphs.remove(name);
     }
 
-    bool hasNodeGraph(const RtIdentifier& name)
+    bool hasNodeGraph(const RtString& name)
     {
         return _nodegraphs.count(name);
     }
@@ -161,7 +161,7 @@ public:
         return _nodegraphs.size();
     }
 
-    PvtObject* getNodeGraph(const RtIdentifier& name)
+    PvtObject* getNodeGraph(const RtString& name)
     {
         return _nodegraphs.find(name);
     }
@@ -184,12 +184,12 @@ public:
         _nodeimpls.add(PvtObject::cast(prim));
     }
 
-    void unregisterNodeImpl(const RtIdentifier& name)
+    void unregisterNodeImpl(const RtString& name)
     {
         _nodeimpls.remove(name);
     }
 
-    bool hasNodeImpl(const RtIdentifier& name)
+    bool hasNodeImpl(const RtString& name)
     {
         return _nodeimpls.count(name);
     }
@@ -199,7 +199,7 @@ public:
         return _nodeimpls.size();
     }
 
-    PvtObject* getNodeImpl(const RtIdentifier& name)
+    PvtObject* getNodeImpl(const RtString& name)
     {
         return _nodeimpls.find(name);
     }
@@ -222,12 +222,12 @@ public:
         _targetdefs.add(PvtObject::cast(prim));
     }
 
-    void unregisterTargetDef(const RtIdentifier& name)
+    void unregisterTargetDef(const RtString& name)
     {
         _targetdefs.remove(name);
     }
 
-    bool hasTargetDef(const RtIdentifier& name)
+    bool hasTargetDef(const RtString& name)
     {
         return _targetdefs.count(name);
     }
@@ -237,7 +237,7 @@ public:
         return _targetdefs.size();
     }
 
-    PvtObject* getTargetDef(const RtIdentifier& name)
+    PvtObject* getTargetDef(const RtString& name)
     {
         return _targetdefs.find(name);
     }
@@ -292,8 +292,8 @@ public:
         return _implementationSearchPaths;
     }
 
-    RtStagePtr loadLibrary(const RtIdentifier& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
-    void unloadLibrary(const RtIdentifier& name);
+    RtStagePtr loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
+    void unloadLibrary(const RtString& name);
     void unloadLibraries();
 
     size_t numLibraries() const
@@ -301,7 +301,7 @@ public:
         return _librariesOrder.size();
     }
 
-    RtStagePtr getLibrary(const RtIdentifier& name) const
+    RtStagePtr getLibrary(const RtString& name) const
     {
         auto it = _libraries.find(name);
         return it != _libraries.end() ? it->second : nullptr;
@@ -314,18 +314,18 @@ public:
 
     void setupNodeImplRelationships();
 
-    RtIdentifier makeUniqueStageName(const RtIdentifier& name) const;
+    RtString makeUniqueStageName(const RtString& name) const;
 
-    RtStagePtr createStage(const RtIdentifier& name)
+    RtStagePtr createStage(const RtString& name)
     {
-        const RtIdentifier newName = makeUniqueStageName(name);
+        const RtString newName = makeUniqueStageName(name);
         RtStagePtr stage = PvtStage::createNew(newName);
         _stages[newName] = stage;
         _stagesOrder.push_back(stage);
         return stage;
     }
 
-    void deleteStage(const RtIdentifier& name)
+    void deleteStage(const RtString& name)
     {
         auto it = _stages.find(name);
         if (it != _stages.end())
@@ -356,7 +356,7 @@ public:
         return _stagesOrder.size();
     }
 
-    RtStagePtr getStage(const RtIdentifier& name) const
+    RtStagePtr getStage(const RtString& name) const
     {
         auto it = _stages.find(name);
         return it != _stages.end() ? it->second : RtStagePtr();
@@ -367,14 +367,14 @@ public:
         return _stagesOrder[index];
     }
 
-    RtIdentifier renameStage(const RtIdentifier& name, const RtIdentifier& newName)
+    RtString renameStage(const RtString& name, const RtString& newName)
     {
         RtStagePtr stage = getStage(name);
         if (!stage)
         {
             throw ExceptionRuntimeError("Can't find a stage named '" + name.str() + "' to rename");
         }
-        const RtIdentifier uniqueName = makeUniqueStageName(newName);
+        const RtString uniqueName = makeUniqueStageName(newName);
         stage->setName(uniqueName);
         _stages[uniqueName] = stage;
         _stages.erase(name);
@@ -398,11 +398,11 @@ public:
 
     UnitConverterRegistryPtr _unitDefinitions;
 
-    RtIdentifierMap<RtPrimCreateFunc> _createFunctions;
+    RtStringMap<RtPrimCreateFunc> _createFunctions;
 
-    RtIdentifierMap<RtStagePtr> _libraries;
+    RtStringMap<RtStagePtr> _libraries;
     vector<RtStagePtr> _librariesOrder;
-    RtIdentifierMap<RtStagePtr> _stages;
+    RtStringMap<RtStagePtr> _stages;
     vector<RtStagePtr> _stagesOrder;
     PvtObjectList _nodedefs;
     PvtObjectList _nodegraphs;

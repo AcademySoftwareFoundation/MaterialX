@@ -15,20 +15,20 @@ namespace MaterialX
 class PvtTypeDef
 {
 public:
-    PvtTypeDef(const RtIdentifier& name, const RtIdentifier& basetype, const RtValueFuncs& funcs, 
-               const RtIdentifier& semantic, size_t size);
+    PvtTypeDef(const RtString& name, const RtString& basetype, const RtValueFuncs& funcs, 
+               const RtString& semantic, size_t size);
 
-    const RtIdentifier& getName() const
+    const RtString& getName() const
     {
         return _name;
     }
 
-    const RtIdentifier& getBaseType() const
+    const RtString& getBaseType() const
     {
         return _basetype;
     }
 
-    const RtIdentifier& getSemantic() const
+    const RtString& getSemantic() const
     {
         return _semantic;
     }
@@ -43,7 +43,7 @@ public:
         return _funcs;
     }
 
-    void setComponent(size_t index, const RtIdentifier& name, const RtIdentifier& basetype)
+    void setComponent(size_t index, const RtString& name, const RtString& basetype)
     {
         if (index >= _size)
         {
@@ -54,7 +54,7 @@ public:
         _componentIndices[name] = index;
     }
 
-    size_t getComponentIndex(const RtIdentifier& name) const
+    size_t getComponentIndex(const RtString& name) const
     {
         auto it = _componentIndices.find(name);
         if (it == _componentIndices.end())
@@ -64,7 +64,7 @@ public:
         return it->second;
     }
 
-    const RtIdentifier& getComponentName(size_t index) const
+    const RtString& getComponentName(size_t index) const
     {
         if (index >= _size)
         {
@@ -73,7 +73,7 @@ public:
         return _components[index].name;
     }
 
-    const RtIdentifier& getComponentBaseType(size_t index) const
+    const RtString& getComponentBaseType(size_t index) const
     {
         if (index >= _size)
         {
@@ -82,7 +82,7 @@ public:
         return _components[index].basetype;
     }
 
-    const RtIdentifierSet& getValidConnectionTypes() const
+    const RtStringSet& getValidConnectionTypes() const
     {
         return _connectionTypes;
     }
@@ -90,19 +90,18 @@ public:
 private:
     struct AggregateComponent
     {
-        AggregateComponent() : name(EMPTY_IDENTIFIER), basetype(EMPTY_IDENTIFIER) {}
-        RtIdentifier name;
-        RtIdentifier basetype;
+        RtString name;
+        RtString basetype;
     };
 
-    const RtIdentifier _name;
-    const RtIdentifier _basetype;
+    const RtString _name;
+    const RtString _basetype;
     const RtValueFuncs _funcs;
-    const RtIdentifier _semantic;
+    const RtString _semantic;
     const size_t _size;
     vector<AggregateComponent> _components;
-    RtIdentifierMap<size_t> _componentIndices;
-    RtIdentifierSet _connectionTypes;
+    RtStringMap<size_t> _componentIndices;
+    RtStringSet _connectionTypes;
 };
 
 class PvtTypeDefRegistry
@@ -110,8 +109,8 @@ class PvtTypeDefRegistry
 public:
     PvtTypeDefRegistry();
 
-    RtTypeDef* newType(const RtIdentifier& name, const RtIdentifier& basetype, const RtValueFuncs& funcs,
-        const RtIdentifier& sematic = RtTypeDef::SEMANTIC_NONE, size_t size = 1);
+    RtTypeDef* newType(const RtString& name, const RtString& basetype, const RtValueFuncs& funcs,
+        const RtString& sematic = RtTypeDef::SEMANTIC_NONE, size_t size = 1);
 
     size_t numTypes()
     {
@@ -123,7 +122,7 @@ public:
         return index < _types.size() ? _types[index].get() : nullptr;
     }
 
-    const RtTypeDef* findType(const RtIdentifier& name)
+    const RtTypeDef* findType(const RtString& name)
     {
         auto it = _typesByName.find(name);
         return it != _typesByName.end() ? it->second : nullptr;
@@ -138,7 +137,7 @@ public:
 private:
     using RtTypeDefPtr = std::unique_ptr<RtTypeDef>;
     vector<RtTypeDefPtr> _types;
-    RtIdentifierMap<RtTypeDef*> _typesByName;
+    RtStringMap<RtTypeDef*> _typesByName;
 };
 
 } // namespace MaterialX

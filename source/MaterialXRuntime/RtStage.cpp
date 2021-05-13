@@ -35,7 +35,7 @@ RtStage::~RtStage()
     delete _cast(_ptr);
 }
 
-const RtIdentifier& RtStage::getName() const
+const RtString& RtStage::getName() const
 {
     return _cast(_ptr)->getName();
 }
@@ -50,18 +50,18 @@ const FilePathVec& RtStage::getSourceUri() const
     return _cast(_ptr)->getSourceUri();
 }
 
-RtPrim RtStage::createPrim(const RtIdentifier& typeName)
+RtPrim RtStage::createPrim(const RtString& typeName)
 {
-    return createPrim(RtPath("/"), EMPTY_IDENTIFIER, typeName);
+    return createPrim(RtPath("/"), RtString::EMPTY, typeName);
 }
 
-RtPrim RtStage::createPrim(const RtPath& path, const RtIdentifier& typeName)
+RtPrim RtStage::createPrim(const RtPath& path, const RtString& typeName)
 {
     PvtPrim* prim = _cast(_ptr)->createPrim(*static_cast<PvtPath*>(path._ptr), typeName);
     return prim->hnd();
 }
 
-RtPrim RtStage::createPrim(const RtPath& parentPath, const RtIdentifier& name, const RtIdentifier& typeName)
+RtPrim RtStage::createPrim(const RtPath& parentPath, const RtString& name, const RtString& typeName)
 {
     PvtPrim* prim = _cast(_ptr)->createPrim(*static_cast<PvtPath*>(parentPath._ptr), name, typeName);
     return prim->hnd();
@@ -72,12 +72,12 @@ void RtStage::removePrim(const RtPath& path)
     _cast(_ptr)->removePrim(*static_cast<PvtPath*>(path._ptr));
 }
 
-RtIdentifier RtStage::renamePrim(const RtPath& path, const RtIdentifier& newName)
+RtString RtStage::renamePrim(const RtPath& path, const RtString& newName)
 {
     return _cast(_ptr)->renamePrim(*static_cast<PvtPath*>(path._ptr), newName);
 }
 
-RtIdentifier RtStage::reparentPrim(const RtPath& path, const RtPath& newParentPath)
+RtString RtStage::reparentPrim(const RtPath& path, const RtPath& newParentPath)
 {
     return _cast(_ptr)->reparentPrim(
         *static_cast<PvtPath*>(path._ptr),
@@ -106,12 +106,12 @@ void RtStage::addReference(RtStagePtr stage)
     _cast(_ptr)->addReference(stage);
 }
 
-RtStagePtr RtStage::getReference(const RtIdentifier& name) const
+RtStagePtr RtStage::getReference(const RtString& name) const
 {
     return _cast(_ptr)->getReference(name);
 }
 
-void RtStage::removeReference(const RtIdentifier& name)
+void RtStage::removeReference(const RtString& name)
 {
     _cast(_ptr)->removeReference(name);
 }
@@ -121,7 +121,7 @@ void RtStage::removeReferences()
     _cast(_ptr)->removeReferences();
 }
 
-void RtStage::setName(const RtIdentifier& name)
+void RtStage::setName(const RtString& name)
 {
     _cast(_ptr)->setName(name);
 }
@@ -137,23 +137,23 @@ void RtStage::restorePrim(const RtPath& parentPath, const RtPrim& prim)
 }
 
 RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
-                              const RtIdentifier& nodeDefName, 
-                              const RtIdentifier& nodeName, 
-                              const RtIdentifier& version,
+                              const RtString& nodeDefName, 
+                              const RtString& nodeName, 
+                              const RtString& version,
                               bool isDefaultVersion,
-                              const RtIdentifier& nodeGroup,
-                              const RtIdentifier& namespaceString,
+                              const RtString& nodeGroup,
+                              const RtString& namespaceString,
                               const string& doc)
 {
     // Must have a nodedef name and a node name
-    if (nodeDefName == EMPTY_IDENTIFIER || nodeName == EMPTY_IDENTIFIER)
+    if (nodeDefName.empty() || nodeName.empty())
     {
         throw ExceptionRuntimeError("Cannot create nodedef '" + nodeDefName.str() + "', with node name: '" + nodeName.str() + "'");
     }
 
     // Always used qualified namespace
-    const bool isNameSpaced = namespaceString != EMPTY_IDENTIFIER;
-    const RtIdentifier qualifiedNodeDefName = isNameSpaced ? RtIdentifier(namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str()) : nodeDefName;
+    const bool isNameSpaced = !namespaceString.empty();
+    const RtString qualifiedNodeDefName = isNameSpaced ? RtString(namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str()) : nodeDefName;
 
     PvtStage* stage = PvtStage::cast(this);
 
@@ -169,7 +169,7 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
 
     // Set node, version and optional node group
     nodedef.setNode(nodeName);
-    if (version != EMPTY_IDENTIFIER)
+    if (!version.empty())
     {
         nodedef.setVersion(version);
 
@@ -179,12 +179,12 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
             nodedef.setIsDefaultVersion(true);
         }
     }
-    if (nodeGroup != EMPTY_IDENTIFIER)
+    if (!nodeGroup.empty())
     {
         nodedef.setNodeGroup(nodeGroup);
     }
-
-    if (doc != EMPTY_IDENTIFIER) {
+    if (!doc.empty())
+    {
         nodedef.setDoc(doc);
     }
 
@@ -196,7 +196,7 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
         const uint32_t flags = PvtObject::cast<PvtInput>(input)->getFlags();
         RtInput nodedefInput = nodedef.createInput(input.getName(), input.getType(), flags);
         PvtObject *src = PvtObject::cast(input);
-        for (const RtIdentifier& name : src->getAttributeNames())
+        for (const RtString& name : src->getAttributeNames())
         {
             const RtTypedValue* srcAttr = src->getAttribute(name);
             RtTypedValue* destAttr = nodedefInput.createAttribute(name, srcAttr->getType());

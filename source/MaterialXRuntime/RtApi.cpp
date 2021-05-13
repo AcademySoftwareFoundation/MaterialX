@@ -100,22 +100,22 @@ void RtApi::log(RtLogger::MessageType type, const string& msg)
     _cast(_ptr)->log(type, msg);
 }
 
-void RtApi::registerCreateFunction(const RtIdentifier& typeName, RtPrimCreateFunc func)
+void RtApi::registerCreateFunction(const RtString& typeName, RtPrimCreateFunc func)
 {
     _cast(_ptr)->registerCreateFunction(typeName, func);
 }
 
-void RtApi::unregisterCreateFunction(const RtIdentifier& typeName)
+void RtApi::unregisterCreateFunction(const RtString& typeName)
 {
     _cast(_ptr)->unregisterCreateFunction(typeName);
 }
 
-bool RtApi::hasCreateFunction(const RtIdentifier& typeName) const
+bool RtApi::hasCreateFunction(const RtString& typeName) const
 {
     return _cast(_ptr)->hasCreateFunction(typeName);
 }
 
-RtPrimCreateFunc RtApi::getCreateFunction(const RtIdentifier& typeName) const
+RtPrimCreateFunc RtApi::getCreateFunction(const RtString& typeName) const
 {
     return _cast(_ptr)->getCreateFunction(typeName);
 }
@@ -125,17 +125,17 @@ template<> void RtApi::registerDefinition<RtNodeDef>(const RtPrim& prim)
     return _cast(_ptr)->registerNodeDef(prim);
 }
 
-template<> void RtApi::unregisterDefinition<RtNodeDef>(const RtIdentifier& name)
+template<> void RtApi::unregisterDefinition<RtNodeDef>(const RtString& name)
 {
     return _cast(_ptr)->unregisterNodeDef(name);
 }
 
-template<> bool RtApi::hasDefinition<RtNodeDef>(const RtIdentifier& name) const
+template<> bool RtApi::hasDefinition<RtNodeDef>(const RtString& name) const
 {
     return _cast(_ptr)->hasNodeDef(name);
 }
 
-template<> RtPrim RtApi::getDefinition<RtNodeDef>(const RtIdentifier& name) const
+template<> RtPrim RtApi::getDefinition<RtNodeDef>(const RtString& name) const
 {
     PvtObject* obj = _cast(_ptr)->getNodeDef(name);
     return obj ? obj->hnd() : RtPrim();
@@ -157,17 +157,17 @@ template<> void RtApi::registerImplementation<RtNodeGraph>(const RtPrim& prim)
     return _cast(_ptr)->registerNodeGraph(prim);
 }
 
-template<> void RtApi::unregisterImplementation<RtNodeGraph>(const RtIdentifier& name)
+template<> void RtApi::unregisterImplementation<RtNodeGraph>(const RtString& name)
 {
     return _cast(_ptr)->unregisterNodeGraph(name);
 }
 
-template<> bool RtApi::hasImplementation<RtNodeGraph>(const RtIdentifier& name) const
+template<> bool RtApi::hasImplementation<RtNodeGraph>(const RtString& name) const
 {
     return _cast(_ptr)->hasNodeGraph(name);
 }
 
-template<> RtPrim RtApi::getImplementation<RtNodeGraph>(const RtIdentifier& name) const
+template<> RtPrim RtApi::getImplementation<RtNodeGraph>(const RtString& name) const
 {
     PvtObject* obj = _cast(_ptr)->getNodeGraph(name);
     return obj ? obj->hnd() : RtPrim();
@@ -229,12 +229,12 @@ const FileSearchPath& RtApi::getImplementationSearchPath() const
     return _cast(_ptr)->getImplementationSearchPath();
 }
 
-RtStagePtr RtApi::loadLibrary(const RtIdentifier& name, const FilePath& path, const RtReadOptions* options, bool forceReload)
+RtStagePtr RtApi::loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options, bool forceReload)
 {
     return _cast(_ptr)->loadLibrary(name, path, options, forceReload);
 }
 
-void RtApi::unloadLibrary(const RtIdentifier& name)
+void RtApi::unloadLibrary(const RtString& name)
 {
     return _cast(_ptr)->unloadLibrary(name);
 }
@@ -249,7 +249,7 @@ size_t RtApi::numLibraries() const
     return _cast(_ptr)->numLibraries();
 }
 
-RtStagePtr RtApi::getLibrary(const RtIdentifier& name) const
+RtStagePtr RtApi::getLibrary(const RtString& name) const
 {
     return _cast(_ptr)->getLibrary(name);
 }
@@ -259,12 +259,12 @@ RtStagePtr RtApi::getLibrary(size_t index) const
     return _cast(_ptr)->getLibrary(index);
 }
 
-RtStagePtr RtApi::createStage(const RtIdentifier& name)
+RtStagePtr RtApi::createStage(const RtString& name)
 {
     return _cast(_ptr)->createStage(name);
 }
 
-void RtApi::deleteStage(const RtIdentifier& name)
+void RtApi::deleteStage(const RtString& name)
 {
     _cast(_ptr)->deleteStage(name);
 }
@@ -279,7 +279,7 @@ size_t RtApi::numStages() const
     return _cast(_ptr)->numStages();
 }
 
-RtStagePtr RtApi::getStage(const RtIdentifier& name) const
+RtStagePtr RtApi::getStage(const RtString& name) const
 {
     return _cast(_ptr)->getStage(name);
 }
@@ -289,7 +289,7 @@ RtStagePtr RtApi::getStage(size_t index) const
     return _cast(_ptr)->getStage(index);
 }
 
-RtIdentifier RtApi::renameStage(const RtIdentifier& name, const RtIdentifier& newName)
+RtString RtApi::renameStage(const RtString& name, const RtString& newName)
 {
     return _cast(_ptr)->renameStage(name, newName);
 }

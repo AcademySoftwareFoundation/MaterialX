@@ -27,34 +27,34 @@ public:
     RtNodeGraph(const RtPrim& prim) : RtNode(prim) {}
 
     /// Add an input attribute to the graph.
-    RtInput createInput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags = 0);
+    RtInput createInput(const RtString& name, const RtString& type, uint32_t flags = 0);
 
     /// Remove an input attribute from the graph.
-    void removeInput(const RtIdentifier& name);
+    void removeInput(const RtString& name);
 
     /// Rename an input attribute in the graph. Return the actual new name which may not
     /// match the provided newName as it may already exist as a child node, input or output
     /// name.
-    RtIdentifier renameInput(const RtIdentifier& name, const RtIdentifier& newName);
+    RtString renameInput(const RtString& name, const RtString& newName);
 
     /// Add an output attribute to the graph.
-    RtOutput createOutput(const RtIdentifier& name, const RtIdentifier& type, uint32_t flags = 0);
+    RtOutput createOutput(const RtString& name, const RtString& type, uint32_t flags = 0);
 
     /// Remove an output attribute from the graph.
-    void removeOutput(const RtIdentifier& name);
+    void removeOutput(const RtString& name);
 
     /// Rename an output attribute in the graph. Return the actual new name which may not
     /// match the provided newName as it may already exist as a child node, input or output
     /// name.
-    RtIdentifier renameOutput(const RtIdentifier& name, const RtIdentifier& newName);
+    RtString renameOutput(const RtString& name, const RtString& newName);
 
     /// Return the internal socket that corresponds
     /// to the named input port.
-    RtOutput getInputSocket(const RtIdentifier& name) const;
+    RtOutput getInputSocket(const RtString& name) const;
 
     /// Return the internal socket that corresponds
     /// to the named output port.
-    RtInput getOutputSocket(const RtIdentifier& name) const;
+    RtInput getOutputSocket(const RtString& name) const;
 
     /// Return a node layout struct for this graph.
     /// Containing its input ordering and uifolder hierarchy.
@@ -65,22 +65,22 @@ public:
     void setNodeLayout(const RtNodeLayout& layout);
 
     /// Return a node by name.
-    RtPrim getNode(const RtIdentifier& name) const;
+    RtPrim getNode(const RtString& name) const;
 
     /// Return an iterator over the nodes in the graph.
     RtPrimIterator getNodes() const;
 
     /// Set the associated nodedef name.
-    void setDefinition(const RtIdentifier& nodedef);
+    void setDefinition(const RtString& nodedef);
 
     /// Return any associated nodedef name.
-    const RtIdentifier& getDefinition() const;
+    const RtString& getDefinition() const;
 
     /// Set the namespace for the nodegraph.
-    void setNamespace(const RtIdentifier& nodedef);
+    void setNamespace(const RtString& nodedef);
 
     /// Return the namespace name.
-    const RtIdentifier& getNamespace() const;
+    const RtString& getNamespace() const;
 
     /// Convert this graph to a string in the DOT language syntax. This can be
     /// used to visualise the graph using GraphViz (http://www.graphviz.org).

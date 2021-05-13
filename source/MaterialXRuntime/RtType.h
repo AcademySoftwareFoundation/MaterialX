@@ -10,7 +10,7 @@
 /// Identifiers for runtime data types.
 
 #include <MaterialXRuntime/Library.h>
-#include <MaterialXRuntime/RtIdentifier.h>
+#include <MaterialXRuntime/RtString.h>
 
 namespace MaterialX
 {
@@ -19,36 +19,36 @@ namespace MaterialX
 class RtType
 {
 public:
-    static const RtIdentifier BOOLEAN;
-    static const RtIdentifier INTEGER;
-    static const RtIdentifier FLOAT;
-    static const RtIdentifier VECTOR2;
-    static const RtIdentifier VECTOR3;
-    static const RtIdentifier VECTOR4;
-    static const RtIdentifier COLOR3;
-    static const RtIdentifier COLOR4;
-    static const RtIdentifier MATRIX33;
-    static const RtIdentifier MATRIX44;
-    static const RtIdentifier IDENTIFIER;
-    static const RtIdentifier STRING;
-    static const RtIdentifier FILENAME;
-    static const RtIdentifier INTEGERARRAY;
-    static const RtIdentifier FLOATARRAY;
-    static const RtIdentifier COLOR3ARRAY;
-    static const RtIdentifier COLOR4ARRAY;
-    static const RtIdentifier VECTOR2ARRAY;
-    static const RtIdentifier VECTOR3ARRAY;
-    static const RtIdentifier VECTOR4ARRAY;
-    static const RtIdentifier STRINGARRAY;
-    static const RtIdentifier BSDF;
-    static const RtIdentifier EDF;
-    static const RtIdentifier VDF;
-    static const RtIdentifier SURFACESHADER;
-    static const RtIdentifier VOLUMESHADER;
-    static const RtIdentifier DISPLACEMENTSHADER;
-    static const RtIdentifier LIGHTSHADER;
-    static const RtIdentifier MATERIAL;
-    static const RtIdentifier AUTO;
+    static const RtString BOOLEAN;
+    static const RtString INTEGER;
+    static const RtString FLOAT;
+    static const RtString VECTOR2;
+    static const RtString VECTOR3;
+    static const RtString VECTOR4;
+    static const RtString COLOR3;
+    static const RtString COLOR4;
+    static const RtString MATRIX33;
+    static const RtString MATRIX44;
+    static const RtString INTERNSTRING;
+    static const RtString STRING;
+    static const RtString FILENAME;
+    static const RtString INTEGERARRAY;
+    static const RtString FLOATARRAY;
+    static const RtString COLOR3ARRAY;
+    static const RtString COLOR4ARRAY;
+    static const RtString VECTOR2ARRAY;
+    static const RtString VECTOR3ARRAY;
+    static const RtString VECTOR4ARRAY;
+    static const RtString STRINGARRAY;
+    static const RtString BSDF;
+    static const RtString EDF;
+    static const RtString VDF;
+    static const RtString SURFACESHADER;
+    static const RtString VOLUMESHADER;
+    static const RtString DISPLACEMENTSHADER;
+    static const RtString LIGHTSHADER;
+    static const RtString MATERIAL;
+    static const RtString AUTO;
 };
 
 } // namespace MaterialX

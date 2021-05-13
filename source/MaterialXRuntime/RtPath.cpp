@@ -53,7 +53,7 @@ void RtPath::setObject(const RtObject& obj)
     static_cast<PvtPath*>(_ptr)->setObject(PvtObject::cast<PvtObject>(obj));
 }
 
-const RtIdentifier& RtPath::getName() const
+const RtString& RtPath::getName() const
 {
     return static_cast<PvtPath*>(_ptr)->getName();
 }
@@ -63,7 +63,7 @@ string RtPath::asString() const
     return static_cast<PvtPath*>(_ptr)->asString();
 }
 
-void RtPath::push(const RtIdentifier& childName)
+void RtPath::push(const RtString& childName)
 {
     return static_cast<PvtPath*>(_ptr)->push(childName);
 }
