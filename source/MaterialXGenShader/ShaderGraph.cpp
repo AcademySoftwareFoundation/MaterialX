@@ -41,11 +41,28 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         if (!port->isA<Output>())
         {
             ShaderGraphInputSocket* inputSocket = nullptr;
-            const string& portValue = port->getResolvedValueString();
+            ValuePtr portValue = port->getResolvedValue();
+            if (!portValue)
+            {
+                InputPtr inputPort = port->asA<Input>();
+                if (inputPort)
+                {
+                    const string& interfaceName = inputPort->getInterfaceName();
+                    if (!interfaceName.empty())
+                    {
+                        InputPtr interfaceInput = inputPort->getInterfaceInput();
+                        if (interfaceInput)
+                        {
+                            portValue = interfaceInput->getValue();
+                        }
+                    }
+                }
+            }
+            const string& portValueString = portValue ? portValue->getValueString() : EMPTY_STRING;
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
             const TypeDesc* portType = TypeDesc::get(port->getType());
-            if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
+            if (context.getShaderGenerator().getSyntax().remapEnumeration(portValueString, portType, enumNames, enumResult))
             {
                 inputSocket = addInputSocket(port->getName(), enumResult.first);
                 inputSocket->setValue(enumResult.second);
@@ -53,9 +70,9 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
             else
             {
                 inputSocket = addInputSocket(port->getName(), portType);
-                if (!portValue.empty())
+                if (!portValueString.empty())
                 {
-                    inputSocket->setValue(port->getValue());
+                    inputSocket->setValue(portValue);
                 }
             }
             if (port->getIsUniform())
