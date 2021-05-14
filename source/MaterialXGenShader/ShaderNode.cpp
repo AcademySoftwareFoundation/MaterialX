@@ -370,20 +370,16 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
         ValueElementPtr nodeDefInput = nodeDef.getActiveValueElement(nodeValue->getName());
         if (input && nodeDefInput)
         {
+            InputPtr inputElem = nodeValue->asA<Input>();
             ValuePtr portValue = nodeValue->getResolvedValue();
             if (!portValue)
             {
-                InputPtr inputPort = nodeValue->asA<Input>();
-                if (inputPort)
+                if (inputElem)
                 {
-                    const string& interfaceName = inputPort->getInterfaceName();
-                    if (!interfaceName.empty())
+                    InputPtr interfaceInput = inputElem->getInterfaceInput();
+                    if (interfaceInput)
                     {
-                        InputPtr interfaceInput = inputPort->getInterfaceInput();
-                        if (interfaceInput)
-                        {
-                            portValue = interfaceInput->getValue();
-                        }
+                        portValue = interfaceInput->getValue();
                     }
                 }
             }
@@ -400,7 +396,6 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
                 input->setValue(portValue);
             }
 
-            InputPtr inputElem = nodeValue->asA<Input>();
             if (inputElem)
             {
                 input->setChannels(inputElem->getChannels());

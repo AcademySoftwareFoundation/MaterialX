@@ -42,22 +42,6 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         {
             ShaderGraphInputSocket* inputSocket = nullptr;
             ValuePtr portValue = port->getResolvedValue();
-            if (!portValue)
-            {
-                InputPtr inputPort = port->asA<Input>();
-                if (inputPort)
-                {
-                    const string& interfaceName = inputPort->getInterfaceName();
-                    if (!interfaceName.empty())
-                    {
-                        InputPtr interfaceInput = inputPort->getInterfaceInput();
-                        if (interfaceInput)
-                        {
-                            portValue = interfaceInput->getValue();
-                        }
-                    }
-                }
-            }
             const string& portValueString = portValue ? portValue->getValueString() : EMPTY_STRING;
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
