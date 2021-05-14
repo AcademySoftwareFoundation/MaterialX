@@ -100,8 +100,11 @@ class RtExportOptions : public RtWriteOptions
     /// Whether to flatten filenames
     bool flattenFilenames;
 
-    /// Search path used for flattening filenames
-    FileSearchPath imageSearchPath;
+    /// User definition path used for flattening filenames
+    FileSearchPath userDefinitionPath;
+
+    /// User texture path used for flattening filenames
+    FileSearchPath userTexturePath;
 
     /// String resolver applied during flattening filenames
     StringResolverPtr stringResolver;

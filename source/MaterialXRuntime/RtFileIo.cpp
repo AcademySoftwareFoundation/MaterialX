@@ -1726,7 +1726,8 @@ void RtFileIo::exportDocument(std::ostream& stream, const RtExportOptions* optio
         xmlExportOptions.mergeLooks = options->mergeLooks;
         xmlExportOptions.lookGroupToMerge = options->lookGroupToMerge;
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
-        xmlExportOptions.imageSearchPath = options->imageSearchPath;
+        xmlExportOptions.userDefinitionPath = options->userDefinitionPath;
+        xmlExportOptions.userTexturePath = options->userTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
     }
     exportToXmlStream(document, stream, &xmlExportOptions);
@@ -1746,7 +1747,8 @@ void RtFileIo::exportDocument(const FilePath& documentPath, const RtExportOption
         xmlExportOptions.mergeLooks = options->mergeLooks;
         xmlExportOptions.lookGroupToMerge = options->lookGroupToMerge;
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
-        xmlExportOptions.imageSearchPath = options->imageSearchPath;
+        xmlExportOptions.userDefinitionPath = options->userDefinitionPath;
+        xmlExportOptions.userTexturePath = options->userTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
     }
     exportToXmlFile(document, documentPath, &xmlExportOptions);

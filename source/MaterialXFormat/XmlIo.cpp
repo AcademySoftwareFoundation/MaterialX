@@ -386,7 +386,8 @@ void exportToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlExportOpt
     mergeLooks(doc, exportOptions);
     if (exportOptions && exportOptions->flattenFilenames)
     {
-        flattenFilenames(doc, exportOptions->imageSearchPath, exportOptions->stringResolver);
+        FileSearchPath texturePath = getResolvedTexturePath(exportOptions->userTexturePath, exportOptions->userDefinitionPath);
+        flattenFilenames(doc, texturePath, exportOptions->stringResolver);
     }
     writeToXmlStream(doc, stream, exportOptions);
 }
@@ -396,7 +397,8 @@ void exportToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlExportO
     mergeLooks(doc, exportOptions);
     if (exportOptions && exportOptions->flattenFilenames)
     {
-        flattenFilenames(doc, exportOptions->imageSearchPath, exportOptions->stringResolver);
+        FileSearchPath texturePath = getResolvedTexturePath(exportOptions->userTexturePath, exportOptions->userDefinitionPath);
+        flattenFilenames(doc, texturePath, exportOptions->stringResolver);
     }
     writeToXmlFile(doc, filename, exportOptions);
 }
@@ -406,7 +408,8 @@ string exportToXmlString(DocumentPtr doc, const XmlExportOptions* exportOptions)
     mergeLooks(doc, exportOptions);
     if (exportOptions && exportOptions->flattenFilenames)
     {
-        flattenFilenames(doc, exportOptions->imageSearchPath, exportOptions->stringResolver);
+        FileSearchPath texturePath = getResolvedTexturePath(exportOptions->userTexturePath, exportOptions->userDefinitionPath);
+        flattenFilenames(doc, texturePath, exportOptions->stringResolver);
     }
     return writeToXmlString(doc, exportOptions);
 }

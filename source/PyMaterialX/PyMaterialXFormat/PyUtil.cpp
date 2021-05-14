@@ -28,6 +28,11 @@ void bindPyUtil(py::module& mod)
     mod.def("flattenFilenames", &mx::flattenFilenames,
         py::arg("doc"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("customResolver") = (mx::StringResolverPtr) nullptr);
 
+    mod.def("getResolvedDefinitionPath", &mx::getResolvedDefinitionPath,
+        py::arg("userDefinitionPath"), py::arg("includeSubFolders") = true);
+    mod.def("getResolvedTexturePath", &mx::getResolvedTexturePath,
+        py::arg("userTexturePath"), py::arg("userDefinitionPath"), py::arg("includeSubFolders") = true);
+
     mod.def("getEnvironmentPath", &mx::getEnvironmentPath,
         py::arg("sep") = mx::PATH_LIST_SEPARATOR);
     mod.def("getAssetDefinitionPath", &mx::getAssetDefinitionPath,

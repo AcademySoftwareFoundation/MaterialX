@@ -14,6 +14,31 @@
 namespace MaterialX
 {
 
+namespace
+{
+
+FileSearchPath getSubDirectories(const FileSearchPath paths)
+{
+    std::set<std::string> childPathsSet;
+    FileSearchPath childPaths;
+    for (FileSearchPath::ConstIterator path = paths.begin(); path != paths.end(); ++path)
+    {
+        FilePath filePath = *path;
+        FilePathVec subdirs = filePath.getSubDirectories();
+        for (FilePath subdirPath : subdirs)
+        {
+            if (childPathsSet.count(subdirPath.asString()) == 0)
+            {
+                childPaths.append(subdirPath);
+                childPathsSet.emplace(subdirPath.asString());
+            }
+        }
+    }
+    return childPaths;
+}
+
+}
+
 FileSearchPath CORE_DEFINITION_PATH;
 const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
 const string MATERIALX_ASSET_DEFINITION_PATH_ENV_VAR = "MATERIALX_ASSET_DEFINITION_PATH";
@@ -147,11 +172,11 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     return loadedLibraries;
 }
 
-MX_FORMAT_API StringSet loadCoreLibraries(const FilePathVec& libraryFolders,
-                                          const FileSearchPath& searchPath,
-                                          DocumentPtr doc,
-                                          const StringSet& excludeFiles,
-                                          XmlReadOptions* readOptions)
+StringSet loadCoreLibraries(const FilePathVec& libraryFolders,
+                            const FileSearchPath& searchPath,
+                            DocumentPtr doc,
+                            const StringSet& excludeFiles,
+                            XmlReadOptions* readOptions)
 {
     FileSearchPath coreDefinitionPaths = getCoreDefinitionPath();
     StringSet coreDefinitionPathsSet;
@@ -232,6 +257,44 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
             elem->removeAttribute(Element::FILE_PREFIX_ATTRIBUTE);
         }
     }
+}
+
+FileSearchPath getResolvedDefinitionPath(const FileSearchPath& userDefinitionPath, bool includeSubFolders)
+{
+    const FileSearchPath coreDefinitionPath = getCoreDefinitionPath();
+    const FileSearchPath environmentPath = getEnvironmentPath();
+    const FileSearchPath assetDefinitionPath = getAssetDefinitionPath();
+
+    FileSearchPath resolvedDefinitionPath;
+    resolvedDefinitionPath.append(coreDefinitionPath);
+    resolvedDefinitionPath.append(environmentPath);
+    resolvedDefinitionPath.append(userDefinitionPath);
+    resolvedDefinitionPath.append(assetDefinitionPath);
+    if (includeSubFolders)
+    {
+        return getSubDirectories(resolvedDefinitionPath);
+    }
+    else
+    {
+        return resolvedDefinitionPath;
+    }
+}
+
+FileSearchPath getResolvedTexturePath(const FileSearchPath& userTexturePath, const FileSearchPath& userDefinitionPath, bool includeSubFolders)
+{
+    const FileSearchPath assetTexturePath = getAssetTexturePath();
+    const FileSearchPath resolvedDefinitionPath = getResolvedDefinitionPath(userDefinitionPath, includeSubFolders);
+
+    FileSearchPath resolvedTexturePath;
+    resolvedTexturePath.append(userTexturePath);
+    resolvedTexturePath.append(assetTexturePath);
+    if (includeSubFolders)
+    {
+        resolvedTexturePath = getSubDirectories(resolvedTexturePath);
+    }
+    resolvedTexturePath.append(resolvedDefinitionPath);
+
+    return resolvedTexturePath;
 }
 
 FileSearchPath getEnvironmentPath(const string& sep)

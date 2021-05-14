@@ -71,6 +71,9 @@ MX_FORMAT_API StringSet loadCoreLibraries(const FilePathVec& libraryFolders,
 /// @param customResolver An optional custom resolver to apply.
 MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr);
 
+MX_FORMAT_API FileSearchPath getResolvedDefinitionPath(const FileSearchPath& userDefinitionPath, bool includeSubFolders=true);
+MX_FORMAT_API FileSearchPath getResolvedTexturePath(const FileSearchPath& userTexturePath, const FileSearchPath& userDefinitionPath, bool includeSubFolders=true);
+
 MX_FORMAT_API FileSearchPath getEnvironmentPath(const string& sep = PATH_LIST_SEPARATOR);
 MX_FORMAT_API FileSearchPath getAssetDefinitionPath(const string& sep = PATH_LIST_SEPARATOR);
 MX_FORMAT_API FileSearchPath getAssetTexturePath(const string& sep = PATH_LIST_SEPARATOR);
