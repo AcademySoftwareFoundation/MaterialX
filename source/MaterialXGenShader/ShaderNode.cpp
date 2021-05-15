@@ -376,9 +376,10 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             {
                 if (inputElem)
                 {
-                    InputPtr interfaceInput = inputElem->getInterfaceInput();
+                    ValueElementPtr interfaceInput = inputElem->getInterfaceElement();
                     if (interfaceInput)
                     {
+                        nodeValue->getResolvedValue();
                         portValue = interfaceInput->getValue();
                     }
                 }

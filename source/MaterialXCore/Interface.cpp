@@ -184,7 +184,8 @@ bool PortElement::validChannelsString(const string& channels, const string& sour
 NodePtr Input::getConnectedNode() const
 {
     // Handle interface name references.
-    InputPtr graphInput = getInterfaceInput();
+    ValueElementPtr graphElement = getInterfaceElement();
+    InputPtr graphInput = graphElement ? graphElement->asA<Input>() : nullptr;
     if (graphInput && (graphInput->hasNodeName() || graphInput->hasNodeGraphString()))
     {
         return graphInput->getConnectedNode();
@@ -303,7 +304,7 @@ OutputPtr Input::getConnectedOutput() const
     return result;
 }
 
-InputPtr Input::getInterfaceInput() const
+ValueElementPtr Input::getInterfaceElement() const
 {
     const string& interfaceName = getInterfaceName();
     if (!interfaceName.empty())
@@ -335,7 +336,7 @@ bool Input::validate(string* message) const
     {
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
-    InputPtr interfaceInput = getInterfaceInput();
+    ValueElementPtr interfaceInput = getInterfaceElement();
     if (interfaceInput)
     {
         return interfaceInput->validate() && res;

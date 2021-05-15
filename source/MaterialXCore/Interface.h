@@ -248,7 +248,7 @@ class MX_CORE_API Input : public PortElement
 
     /// Return the input on the parent graph corresponding to the interface name
     /// for this input.
-    InputPtr getInterfaceInput() const;
+    ValueElementPtr getInterfaceElement() const override;
 
     /// @}
     /// @name Validation
