@@ -372,18 +372,6 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
         {
             InputPtr inputElem = nodeValue->asA<Input>();
             ValuePtr portValue = nodeValue->getResolvedValue();
-            if (!portValue)
-            {
-                if (inputElem)
-                {
-                    ValueElementPtr interfaceInput = inputElem->getInterfaceElement();
-                    if (interfaceInput)
-                    {
-                        nodeValue->getResolvedValue();
-                        portValue = interfaceInput->getValue();
-                    }
-                }
-            }
             const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
