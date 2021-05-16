@@ -676,6 +676,18 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @endcode
     InheritanceIterator traverseInheritance() const;
 
+    /// Return the breadth-first index of this element within the document tree.
+    int getTreeIndex() const
+    {
+        ConstElementPtr parent = getParent();
+        if (!parent)
+        {
+            return 0;
+        }
+        return parent->getTreeIndex() * (int) (parent->getChildren().size() + 1) +
+               parent->getChildIndex(getName()) + 1;
+    }
+
     /// @}
     /// @name Source URI
     /// @{
