@@ -7,8 +7,6 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/ShaderNodeImpl.h>
-#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
 
 namespace MaterialX
@@ -364,13 +362,22 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
 void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext& context)
 {
     // Copy input values from the given node
-    for (const ValueElementPtr& nodeValue : node.getActiveValueElements())
+    for (InputPtr nodeInput : node.getActiveInputs())
     {
-        ShaderInput* input = getInput(nodeValue->getName());
-        ValueElementPtr nodeDefInput = nodeDef.getActiveValueElement(nodeValue->getName());
+        ShaderInput* input = getInput(nodeInput->getName());
+        ValueElementPtr nodeDefInput = nodeDef.getActiveValueElement(nodeInput->getName());
         if (input && nodeDefInput)
         {
-            const string& valueString = nodeValue->getResolvedValueString();
+            ValuePtr portValue = nodeInput->getResolvedValue();
+            if (!portValue)
+            {
+                InputPtr interfaceInput = nodeInput->getInterfaceInput();
+                if (interfaceInput)
+                {
+                    portValue = interfaceInput->getValue();
+                }
+            }
+            const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
             const TypeDesc* type = TypeDesc::get(nodeDefInput->getType());
@@ -380,14 +387,10 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             }
             else if (!valueString.empty())
             {
-                input->setValue(nodeValue->getResolvedValue());
+                input->setValue(portValue);
             }
 
-            InputPtr inputElem = nodeValue->asA<Input>();
-            if (inputElem)
-            {
-                input->setChannels(inputElem->getChannels());
-            }
+            input->setChannels(nodeInput->getChannels());
         }
     }
 

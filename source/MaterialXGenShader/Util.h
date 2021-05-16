@@ -12,11 +12,6 @@
 #include <MaterialXGenShader/Export.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Element.h>
-#include <MaterialXCore/Interface.h>
-
-#include <MaterialXFormat/File.h>
-#include <MaterialXFormat/XmlIo.h>
 
 #include <unordered_set>
 
@@ -57,21 +52,20 @@ MX_GENSHADER_API bool elementRequiresShading(ConstTypedElementPtr element);
 /// @param includeReferencedGraphs Whether to check for outputs on referenced graphs
 /// @param processedSources List of elements examined. 
 MX_GENSHADER_API void findRenderableMaterialNodes(ConstDocumentPtr doc,
-                                 vector<TypedElementPtr>& elements, 
-                                 bool includeReferencedGraphs,
-                                 std::unordered_set<ElementPtr>& processedSources);
+                                                  vector<TypedElementPtr>& elements, 
+                                                  bool includeReferencedGraphs,
+                                                  std::unordered_set<ElementPtr>& processedSources);
 
 /// Find any elements which may be renderable from within a document.
 /// This includes all outputs on node graphs and shader references which are not
 /// part of any included library. Light shaders are not considered to be renderable.
 /// The option to include node graphs referened by shader references is disabled by default.
 MX_GENSHADER_API void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements,
-                            bool includeReferencedGraphs = false);
+                                             bool includeReferencedGraphs = false);
 
-/// Given a path to a element, find the corresponding element with the same name
-/// on an associated nodedef if it exists. A target string should be provided
-/// if the path is to a Node as definitions for Nodes can be target specific.
-MX_GENSHADER_API ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const string& target);
+/// Given a node input, return the corresponding input within its matching nodedef.
+/// The optional target string can be used to guide the selection of nodedef declarations.
+MX_GENSHADER_API InputPtr getNodeDefInput(InputPtr nodeInput, const string& target);
 
 /// Perform token substitutions on the given source string, using the given substituation map.
 /// Tokens are required to start with '$' and can only consist of alphanumeric characters.

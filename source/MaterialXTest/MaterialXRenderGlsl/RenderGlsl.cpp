@@ -611,7 +611,9 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                         }
 
                         mx::UIProperties uiProperties;
-                        if (getUIProperties(path, doc, target, uiProperties) > 0)
+                        mx::ElementPtr pathElement = doc->getDescendant(path);
+                        mx::InputPtr input = pathElement ? pathElement->asA<mx::Input>() : nullptr;
+                        if (getUIProperties(input, target, uiProperties) > 0)
                         {
                             log << "Program Uniform: " << uniform.first << ". Path: " << path;
                             if (!uiProperties.uiName.empty())
