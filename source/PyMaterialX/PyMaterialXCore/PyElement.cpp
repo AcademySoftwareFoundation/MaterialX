@@ -85,6 +85,7 @@ void bindPyElement(py::module& mod)
         .def("getUpstreamElement", &mx::Element::getUpstreamElement,
             py::arg("index") = 0)
         .def("traverseInheritance", &mx::Element::traverseInheritance)
+        .def("getTreeIndex", &mx::Element::getTreeIndex)
         .def("setSourceUri", &mx::Element::setSourceUri)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
         .def("getSourceUri", &mx::Element::getSourceUri)

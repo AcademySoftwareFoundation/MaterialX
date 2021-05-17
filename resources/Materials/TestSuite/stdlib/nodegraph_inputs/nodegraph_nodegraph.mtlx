@@ -102,7 +102,7 @@
 
   <!-- Nodegraph to node connection -->
   <image name="upstream_image" type="color3">
-    <input name="file" type="filename" interfacename="file" value="resources/Images/cloth.png" />
+    <input name="file" type="filename" value="resources/Images/cloth.png" />
   </image>
   <nodegraph name="graph_to_node">
     <input name="input" type="color3" nodename="upstream_image" value="0, 1, 0" />

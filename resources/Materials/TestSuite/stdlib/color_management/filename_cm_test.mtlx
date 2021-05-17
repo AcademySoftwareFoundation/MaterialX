@@ -27,15 +27,15 @@
   <!-- create nodegraph to use tm_retest, tm_test and image node -->
   <nodegraph name="nodegraph1">
     <tm_test name="bl" type="color3">
-      <input name="texture_file" type="filename" value="resources/Images/brass_old_spec.jpg" colorspace="srgb_texture" />
+      <input name="texture_file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
     </tm_test>
     <output name="tmtestout" type="color3" nodename="bl" />
     <tm_retest name="bl1" type="color3">
-      <input name="texture_file" type="filename" value="resources/Images/brass_old_spec.jpg" colorspace="srgb_texture" />
+      <input name="texture_file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
     </tm_retest>
     <output name="tmtestout2" type="color3" nodename="bl1" />
     <image name="tr1" type="color3">
-      <input name="file" type="filename" value="resources/Images/brass_old_spec.jpg" colorspace="srgb_texture" />
+      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
     </image>
     <output name="troutput" type="color3" nodename="tr1" />
   </nodegraph>
