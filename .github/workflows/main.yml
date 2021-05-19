@@ -56,6 +56,7 @@ jobs:
           compiler: xcode
           compiler_version: "12.2"
           python: 3.7
+          cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
         - name: Windows_VS2017_Win32_Python27
           os: windows-2016
