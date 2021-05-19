@@ -36,6 +36,7 @@ jobs:
           compiler: xcode
           compiler_version: "12.2"
           python: 3.7
+          cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
     steps:
     - name: Sync Repository
