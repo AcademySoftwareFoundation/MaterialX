@@ -95,6 +95,12 @@ class Viewer : public ng::Screen
         _modifiers = modifiers;
     }
 
+    // Return true if all inputs should be shown in the property editor.
+    bool getShowAllInputs() const
+    {
+        return _showAllInputs;
+    }
+
     // Return the underlying NanoGUI window.
     ng::Window* getWindow() const
     {
@@ -311,6 +317,7 @@ class Viewer : public ng::Screen
 
     // Material options
     bool _mergeMaterials;
+    bool _showAllInputs;
 
     // Unit options
     mx::StringVec _distanceUnitOptions;
