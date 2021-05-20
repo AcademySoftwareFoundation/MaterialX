@@ -1,18 +1,13 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="lin_rec709" fileprefix="../../../Images/">
-  <nodedef name="ND_BrickShader" node="BrickShader">
-    <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" />
-    <input name="hue_variation" type="float" value="0.083" uimin="0" uimax="1" />
-    <input name="value_variation" type="float" value="0.787" uimin="0" uimax="1" />
-    <input name="roughness_amount" type="float" value="0.853" uimin="0" uimax="1" />
-    <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" />
-    <input name="dirt_amount" type="float" value="0.248" uimin="0" uimax="1" />
-    <input name="uvtiling" type="vector2" value="3, 3" uimin="0, 0" uimax="25, 25" />
-    <output name="base_color_output" type="color3" value="0, 0, 0" />
-    <output name="specular_roughness_output" type="float" value="0" />
-    <output name="normal_output" type="vector3" value="0, 0, 0" />
-  </nodedef>
-  <nodegraph name="NG_BrickShader" nodedef="ND_BrickShader">
+  <nodegraph name="NG_BrickPattern">
+    <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" uiname="Brick Color" uifolder="Color" />
+    <input name="hue_variation" type="float" value="0.083" uimin="0" uimax="1" uiname="Hue Variation" uifolder="Color" />
+    <input name="value_variation" type="float" value="0.787" uimin="0" uimax="1" uiname="Value Variation" uifolder="Color" />
+    <input name="roughness_amount" type="float" value="0.853" uimin="0" uimax="1" uiname="Roughness Amount" uifolder="Roughness" />
+    <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" uiname="Dirt Color" uifolder="Dirt" />
+    <input name="dirt_amount" type="float" value="0.248" uimin="0" uimax="1" uiname="Dirt Amount" uifolder="Dirt" />
+    <input name="uvtiling" type="float" value="3" uisoftmin="1" uisoftmax="16" uiname="UV Tiling" uifolder="Texturing" />
     <multiply name="node_multiply_5" type="color3">
       <input name="in1" type="color3" nodename="node_mix_6" />
       <input name="in2" type="float" nodename="node_tiledimage_float_7" />
@@ -90,51 +85,44 @@
     </multiply>
     <normalmap name="node_normalmap_3" type="vector3">
       <input name="in" type="vector3" nodename="node_tiledimage_vector3_27" />
-      <input name="scale" type="float" value="1" />
     </normalmap>
+    <convert name="node_convert_1" type="vector2">
+      <input name="in" type="float" interfacename="uvtiling" />
+    </convert>
     <tiledimage name="node_tiledimage_vector3_27" type="vector3">
       <input name="file" type="filename" value="brick_normal.jpg" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
+      <input name="uvtiling" type="vector2" nodename="node_convert_1" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_22" type="float">
       <input name="file" type="filename" value="brick_roughness.jpg" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
+      <input name="uvtiling" type="vector2" nodename="node_convert_1" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_10" type="float">
       <input name="file" type="filename" value="brick_mask.jpg" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
+      <input name="uvtiling" type="vector2" nodename="node_convert_1" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_7" type="float">
       <input name="file" type="filename" value="brick_base_gray.jpg" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
+      <input name="uvtiling" type="vector2" nodename="node_convert_1" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_26" type="float">
       <input name="file" type="filename" value="brick_variation_mask.jpg" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
+      <input name="uvtiling" type="vector2" nodename="node_convert_1" />
     </tiledimage>
     <tiledimage name="node_tiledimage_float_24" type="float">
       <input name="file" type="filename" value="brick_dirt_mask.jpg" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" />
+      <input name="uvtiling" type="vector2" nodename="node_convert_1" />
     </tiledimage>
     <output name="base_color_output" type="color3" nodename="node_clamp_0" />
     <output name="specular_roughness_output" type="float" nodename="node_multiply_1" />
     <output name="normal_output" type="vector3" nodename="node_normalmap_3" />
   </nodegraph>
-  <BrickShader name="N_BrickShader" type="multioutput">
-    <input name="brick_color" type="color3" value="0.661876, 0.19088, 0" />
-    <input name="hue_variation" type="float" value="0.083" />
-    <input name="value_variation" type="float" value="0.787" />
-    <input name="roughness_amount" type="float" value="0.853" />
-    <input name="dirt_color" type="color3" value="0.56372, 0.56372, 0.56372" />
-    <input name="dirt_amount" type="float" value="0.248" />
-    <input name="uvtiling" type="vector2" value="3, 3" />
-  </BrickShader>
   <standard_surface name="N_StandardSurface" type="surfaceshader">
-    <input name="base_color" type="color3" nodename="N_BrickShader" output="base_color_output" />
-    <input name="specular_roughness" type="float" nodename="N_BrickShader" output="specular_roughness_output" />
-    <input name="normal" type="vector3" nodename="N_BrickShader" output="normal_output" />
+    <input name="base_color" type="color3" nodegraph="NG_BrickPattern" output="base_color_output" />
+    <input name="specular_roughness" type="float" nodegraph="NG_BrickPattern" output="specular_roughness_output" />
+    <input name="normal" type="vector3" nodegraph="NG_BrickPattern" output="normal_output" />
   </standard_surface>
-  <surfacematerial name="M_BrickProcedural" type="material">
+  <surfacematerial name="M_BrickPattern" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="N_StandardSurface" />
   </surfacematerial>
 </materialx>

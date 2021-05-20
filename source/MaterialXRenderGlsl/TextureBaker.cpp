@@ -11,6 +11,8 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
+#include <MaterialXFormat/XmlIo.h>
+
 namespace MaterialX
 {
 
