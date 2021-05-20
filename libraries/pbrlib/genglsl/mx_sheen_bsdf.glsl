@@ -1,10 +1,10 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_sheen.glsl"
 
-void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 N, BSDF base, out BSDF result)
+void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 N, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
-        result = base;
+        bsdf.throughput = vec3(1.0);
         return;
     }
 
@@ -26,15 +26,15 @@ void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float wei
 
     // We need to include NdotL from the light integral here
     // as in this case it's not cancelled out by the BRDF denominator.
-    result = fr * NdotL * occlusion * weight        // Top layer reflection
-           + base * (1.0 - dirAlbedo * weight);     // Base layer reflection attenuated by top layer
+    bsdf.eval = fr * NdotL * occlusion * weight;
+    bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
 }
 
-void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 N, BSDF base, out vec3 result)
+void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 N, inout BSDF bsdf)
 {
-    if (weight <= 0.0)
+    if (weight < M_FLOAT_EPS)
     {
-        result = base;
+        bsdf.throughput = vec3(1.0);
         return;
     }
 
@@ -45,6 +45,6 @@ void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
     float dirAlbedo = mx_imageworks_sheen_directional_albedo(NdotV, roughness);
 
     vec3 Li = mx_environment_irradiance(N);
-    result = Li * color * dirAlbedo * weight        // Top layer reflection
-             + base * (1.0 - dirAlbedo * weight);   // Base layer reflection attenuated by top layer
+    bsdf.eval = Li * color * dirAlbedo * weight;
+    bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
 }

@@ -459,14 +459,12 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         }
 
         match =
-            // For reflection and indirect we don't support pure transmissive closures.
+            // For reflection and indirect we support reflective closures.
             ((ccx->getType() == HwClosureContext::REFLECTION || ccx->getType() == HwClosureContext::INDIRECT) &&
-                classifyNode->hasClassification(ShaderNode::Classification::BSDF) &&
-                !classifyNode->hasClassification(ShaderNode::Classification::BSDF_T)) ||
-            // For transmissive we don't support pure reflective closures.
+                classifyNode->hasClassification(ShaderNode::Classification::BSDF_R)) ||
+            // For transmissive we support transmissive closures.
             (ccx->getType() == HwClosureContext::TRANSMISSION &&
-                classifyNode->hasClassification(ShaderNode::Classification::BSDF) &&
-                !classifyNode->hasClassification(ShaderNode::Classification::BSDF_R)) ||
+                classifyNode->hasClassification(ShaderNode::Classification::BSDF_T)) ||
             // For emission we only support emission closures.
             (ccx->getType() == HwClosureContext::EMISSION &&
                 classifyNode->hasClassification(ShaderNode::Classification::EDF));
@@ -619,7 +617,14 @@ void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<Hw
 {
     if (node.hasClassification(ShaderNode::Classification::BSDF))
     {
-        if (node.hasClassification(ShaderNode::Classification::BSDF_R))
+        if (node.hasClassification(ShaderNode::Classification::BSDF_R | ShaderNode::Classification::BSDF_T))
+        {
+            // A general BSDF handling both reflection and transmission
+            ccx.push_back(_defReflection);
+            ccx.push_back(_defTransmission);
+            ccx.push_back(_defIndirect);
+        }
+        else if (node.hasClassification(ShaderNode::Classification::BSDF_R))
         {
             // A BSDF for reflection only
             ccx.push_back(_defReflection);
@@ -629,13 +634,6 @@ void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<Hw
         {
             // A BSDF for transmission only
             ccx.push_back(_defTransmission);
-        }
-        else
-        {
-            // A general BSDF handling both reflection and transmission
-            ccx.push_back(_defReflection);
-            ccx.push_back(_defTransmission);
-            ccx.push_back(_defIndirect);
         }
     }
     else if (node.hasClassification(ShaderNode::Classification::EDF))

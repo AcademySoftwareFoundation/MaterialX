@@ -341,8 +341,8 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t CONSTANT      = 1 << 5;  /// A constant node
         // Specific closure types
         static const uint32_t BSDF          = 1 << 6;  /// A BSDF node
-        static const uint32_t BSDF_R        = 1 << 7;  /// A BSDF node only for reflection
-        static const uint32_t BSDF_T        = 1 << 8;  /// A BSDF node only for transmission
+        static const uint32_t BSDF_R        = 1 << 7;  /// A reflection BSDF node
+        static const uint32_t BSDF_T        = 1 << 8;  /// A transmission BSDF node
         static const uint32_t EDF           = 1 << 9;  /// A EDF node
         static const uint32_t VDF           = 1 << 10; /// A VDF node
         static const uint32_t LAYER         = 1 << 11; /// A node for vertical layering of other closure nodes

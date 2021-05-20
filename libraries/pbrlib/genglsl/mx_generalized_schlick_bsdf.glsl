@@ -1,10 +1,10 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
-void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, BSDF base, thinfilm tf, out BSDF result)
+void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
-        result = base;
+        bsdf.throughput = vec3(1.0);
         return;
     }
 
@@ -30,16 +30,18 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
     // Note: NdotL is cancelled out
-    result = D * F * G * comp * occlusion * weight / (4 * NdotV)    // Top layer reflection
-           + base * (1.0 - avgDirAlbedo * weight);                  // Base layer reflection attenuated by top layer
+    bsdf.eval = D * F * G * comp * occlusion * weight / (4 * NdotV);
+    bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 }
 
-void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, BSDF base, thinfilm tf, out BSDF result)
+void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     //
     // TODO: We need handling of transmission for generalized schlick
     //
 
+    bsdf.throughput = vec3(1.0);
+/*
     if (weight < M_FLOAT_EPS)
     {
         result = base;
@@ -58,13 +60,14 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
     result = base * (1.0 - avgDirAlbedo * weight); // Transmission attenuated by top layer
+*/
 }
 
-void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, BSDF base, thinfilm tf, out BSDF result)
+void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
-        result = base;
+        bsdf.throughput = vec3(1.0);
         return;
     }
 
@@ -81,6 +84,6 @@ void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec
 
     vec3 Li = mx_environment_radiance(N, V, X, roughness, distribution, fd);
 
-    result = Li * comp * weight                     // Top layer reflection
-           + base * (1.0 - avgDirAlbedo * weight);  // Base layer reflection attenuated by top layer
+    bsdf.eval = Li * comp * weight;
+    bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 }

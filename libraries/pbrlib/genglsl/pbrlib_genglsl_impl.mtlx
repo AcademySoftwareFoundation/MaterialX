@@ -26,10 +26,10 @@
   <implementation name="IM_sheen_bsdf_genglsl" nodedef="ND_sheen_bsdf" file="pbrlib/genglsl/mx_sheen_bsdf.glsl" function="mx_sheen_bsdf" target="genglsl" />
 
   <!-- <thin_film_bsdf> -->
-  <implementation name="IM_thin_film_bsdf_genglsl" nodedef="ND_thin_film_bsdf" target="genglsl" />
+  <implementation name="IM_thin_film_bsdf_genglsl" nodedef="ND_thin_film_bsdf" file="pbrlib/genglsl/mx_thin_film_bsdf.glsl" function="mx_thin_film_bsdf" target="genglsl" />
 
   <!-- <layer> -->
-  <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" target="genglsl" />
+  <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" file="pbrlib/genglsl/mx_layer_bsdf.glsl" function="mx_layer_bsdf" target="genglsl" />
 
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="pbrlib/genglsl/mx_mix_bsdf.glsl" function="mx_mix_bsdf" target="genglsl" />

@@ -1,10 +1,9 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl"
 
-void mx_burley_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 normal, out BSDF result)
+void mx_burley_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 normal, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
-        result = BSDF(0.0);
         return;
     }
 
@@ -12,16 +11,14 @@ void mx_burley_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, 
 
     float NdotL = clamp(dot(normal, L), M_FLOAT_EPS, 1.0);
 
-    result = color * occlusion * weight * NdotL * M_PI_INV;
-    result *= mx_burley_diffuse(L, V, normal, NdotL, roughness);
-    return;
+    bsdf.eval = color * occlusion * weight * NdotL * M_PI_INV;
+    bsdf.eval *= mx_burley_diffuse(L, V, normal, NdotL, roughness);
 }
 
-void mx_burley_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, out BSDF result)
+void mx_burley_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
-        result = BSDF(0.0);
         return;
     }
 
@@ -31,5 +28,5 @@ void mx_burley_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float rou
 
     vec3 Li = mx_environment_irradiance(normal) *
               mx_burley_diffuse_directional_albedo(NdotV, roughness);
-    result = Li * color * weight;
+    bsdf.eval = Li * color * weight;
 }

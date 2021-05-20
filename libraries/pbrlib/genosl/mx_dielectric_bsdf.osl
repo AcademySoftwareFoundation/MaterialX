@@ -1,6 +1,6 @@
 #include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
-void mx_dielectric_bsdf(float weight, color tint, float ior, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, BSDF base, thinfilm tf, output BSDF result)
+void mx_dielectric_bsdf(float weight, color tint, float ior, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, BSDF base, output BSDF result)
 {
     if (scatter_mode == "T")
     {

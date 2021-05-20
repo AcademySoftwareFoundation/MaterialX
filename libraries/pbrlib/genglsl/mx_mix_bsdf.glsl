@@ -1,14 +1,20 @@
-void mx_mix_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, BSDF fg, BSDF bg, float w, out BSDF result)
+void mx_mix_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, BSDF fg, BSDF bg, float mix_weight, out BSDF bsdf)
 {
-    result = mix(bg, fg, clamp(w, 0.0, 1.0));
+    float w = clamp(mix_weight, 0.0, 1.0);
+    bsdf.eval = mix(bg.eval, fg.eval, w);
+    bsdf.throughput = mix(bg.throughput, fg.throughput, w);
 }
 
-void mx_mix_bsdf_transmission(vec3 V, BSDF fg, BSDF bg, float w, out BSDF result)
+void mx_mix_bsdf_transmission(vec3 V, BSDF fg, BSDF bg, float mix_weight, out BSDF bsdf)
 {
-    result = mix(bg, fg, clamp(w, 0.0, 1.0));
+    float w = clamp(mix_weight, 0.0, 1.0);
+    bsdf.eval = mix(bg.eval, fg.eval, w);
+    bsdf.throughput = mix(bg.throughput, fg.throughput, w);
 }
 
-void mx_mix_bsdf_indirect(vec3 V, vec3 fg, vec3 bg, float w, out vec3 result)
+void mx_mix_bsdf_indirect(vec3 V, BSDF fg, BSDF bg, float mix_weight, out BSDF bsdf)
 {
-    result = mix(bg, fg, clamp(w, 0.0, 1.0));
+    float w = clamp(mix_weight, 0.0, 1.0);
+    bsdf.eval = mix(bg.eval, fg.eval, w);
+    bsdf.throughput = mix(bg.throughput, fg.throughput, w);
 }

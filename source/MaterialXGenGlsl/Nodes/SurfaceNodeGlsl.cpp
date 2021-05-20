@@ -165,7 +165,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitLineBreak(stage);
 
             shadergen.emitComment("Accumulate the light's contribution", stage);
-            shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf, stage);
+            shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf + ".eval", stage);
 
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
@@ -201,7 +201,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         string bsdf;
         shadergen.emitBsdfNodes(graph, node, _callIndirect, context, stage, bsdf);
         shadergen.emitLineBreak(stage);
-        shadergen.emitLine(outColor + " += occlusion * " + bsdf, stage);
+        shadergen.emitLine(outColor + " += occlusion * " + bsdf + ".eval", stage);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
 
