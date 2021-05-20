@@ -32,36 +32,28 @@ ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDoc
 
 void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& context)
 {
-    for (InputPtr nodeInput : elem.getActiveInputs())
+    for (InputPtr input : elem.getActiveInputs())
     {
         ShaderGraphInputSocket* inputSocket = nullptr;
-        ValuePtr portValue = nodeInput->getResolvedValue();
-        if (!portValue)
-        {
-            InputPtr interfaceInput = nodeInput->getInterfaceInput();
-            if (interfaceInput)
-            {
-                portValue = interfaceInput->getValue();
-            }
-        }
+        ValuePtr portValue = input->getResolvedValue();
         const string& portValueString = portValue ? portValue->getValueString() : EMPTY_STRING;
         std::pair<const TypeDesc*, ValuePtr> enumResult;
-        const string& enumNames = nodeInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-        const TypeDesc* portType = TypeDesc::get(nodeInput->getType());
+        const string& enumNames = input->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+        const TypeDesc* portType = TypeDesc::get(input->getType());
         if (context.getShaderGenerator().getSyntax().remapEnumeration(portValueString, portType, enumNames, enumResult))
         {
-            inputSocket = addInputSocket(nodeInput->getName(), enumResult.first);
+            inputSocket = addInputSocket(input->getName(), enumResult.first);
             inputSocket->setValue(enumResult.second);
         }
         else
         {
-            inputSocket = addInputSocket(nodeInput->getName(), portType);
+            inputSocket = addInputSocket(input->getName(), portType);
             if (!portValueString.empty())
             {
                 inputSocket->setValue(portValue);
             }
         }
-        if (nodeInput->getIsUniform())
+        if (input->getIsUniform())
         {
             inputSocket->setUniform();
         }
