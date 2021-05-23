@@ -7,6 +7,8 @@
 #define MATERIALX_THINFILMNODE_H
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 
 namespace MaterialX
 {
@@ -25,8 +27,6 @@ class MX_GENSHADER_API ThinFilmNode : public ShaderNodeImpl
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-    void addInputs(ShaderNode& node, GenContext&) const override;
-
     static void addThinFilmSupport(ShaderNode& node);
 
     /// String constants
@@ -34,6 +34,39 @@ class MX_GENSHADER_API ThinFilmNode : public ShaderNodeImpl
     static const string IOR;
     static const string THINFILM_INPUT;
 };
+
+/// BSDF with thin-film support.
+class MX_GENSHADER_API BsdfWithThinFilm : public SourceCodeNode
+{
+public:
+    static ShaderNodeImplPtr create()
+    {
+        return std::make_shared<BsdfWithThinFilm>();
+    }
+
+    void addInputs(ShaderNode& node, GenContext&) const override
+    {
+        // Add thin-film support.
+        ThinFilmNode::addThinFilmSupport(node);
+    }
+};
+
+/// BSDF with thin-film support specifically for HW.
+class MX_GENSHADER_API HwBsdfWithThinFilm : public HwSourceCodeNode
+{
+public:
+    static ShaderNodeImplPtr create()
+    {
+        return std::make_shared<HwBsdfWithThinFilm>();
+    }
+
+    void addInputs(ShaderNode& node, GenContext&) const override
+    {
+        // Add thin-film support.
+        ThinFilmNode::addThinFilmSupport(node);
+    }
+};
+
 
 } // namespace MaterialX
 

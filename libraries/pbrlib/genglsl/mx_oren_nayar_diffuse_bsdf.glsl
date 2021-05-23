@@ -1,6 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl"
 
-void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 normal, out BSDF result)
+void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 normal, out BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -11,14 +11,14 @@ void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusi
 
     float NdotL = clamp(dot(normal, L), M_FLOAT_EPS, 1.0);
 
-    result.eval = color * occlusion * weight * NdotL * M_PI_INV;
+    bsdf.eval = color * occlusion * weight * NdotL * M_PI_INV;
     if (roughness > 0.0)
     {
-        result.eval *= mx_oren_nayar_diffuse(L, V, normal, NdotL, roughness);
+        bsdf.eval *= mx_oren_nayar_diffuse(L, V, normal, NdotL, roughness);
     }
 }
 
-void mx_oren_nayar_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, out BSDF result)
+void mx_oren_nayar_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -28,5 +28,5 @@ void mx_oren_nayar_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float
     normal = mx_forward_facing_normal(normal, V);
 
     vec3 Li = mx_environment_irradiance(normal);
-    result.eval = Li * color * weight;
+    bsdf.eval = Li * color * weight;
 }

@@ -403,9 +403,8 @@ ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(const NodeGraph&
 }
 
 
-void ShaderGenerator::finalizeShaderGraph(ShaderGraph&)
+void ShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
 {
-/*
     // Find all thin-film nodes and reconnect them to the 'thinfilm' input
     // on BSDF nodes layered underneath.
     for (ShaderNode* node : graph.getNodes())
@@ -482,7 +481,6 @@ void ShaderGenerator::finalizeShaderGraph(ShaderGraph&)
             }
         }
     }
-*/
 }
 
 } // namespace MaterialX

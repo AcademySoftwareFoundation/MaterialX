@@ -312,7 +312,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         // Check specifically for the vertical layering node
         if (nodeDef.getName() == "ND_layer_bsdf")
         {
-//            newNode->_classification |= Classification::LAYER;
+            newNode->_classification |= Classification::LAYER;
         }
         // Check specifically for the thin-film node
         else if (nodeDef.getName() == "ND_thin_film_bsdf")

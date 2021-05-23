@@ -48,12 +48,6 @@ void ThinFilmNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-void ThinFilmNode::addInputs(ShaderNode& node, GenContext&) const
-{
-    // Add layering support.
-    LayerNode::addLayerSupport(node);
-}
-
 void ThinFilmNode::addThinFilmSupport(ShaderNode& node)
 {
     // Add the input to hold thinfilm data.

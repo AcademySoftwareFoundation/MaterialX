@@ -35,9 +35,7 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
 #include <MaterialXGenShader/Nodes/ThinFilmNode.h>
-#include <MaterialXGenShader/Nodes/BsdfNodes.h>
 
 namespace MaterialX
 {
@@ -247,16 +245,16 @@ GlslShaderGenerator::GlslShaderGenerator() :
 //    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, LayerNode::create);
 
     // <!-- <thin_film_bsdf> -->
-//    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, ThinFilmNode::create);
+    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, ThinFilmNode::create);
 
     // <!-- <dielectric_bsdf> -->
-//    registerImplementation("IM_dielectric_bsdf_" + GlslShaderGenerator::TARGET, HwDielectricBsdfNode::create);
+    registerImplementation("IM_dielectric_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
 
     // <!-- <generalized_schlick_bsdf> -->
-//    registerImplementation("IM_generalized_schlick_bsdf_" + GlslShaderGenerator::TARGET, HwDielectricBsdfNode::create);
+    registerImplementation("IM_generalized_schlick_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
 
     // <!-- <conductor_bsdf> -->
-//    registerImplementation("IM_conductor_bsdf_" + GlslShaderGenerator::TARGET, HwConductorBsdfNode::create);
+    registerImplementation("IM_conductor_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
 
     // <!-- <sheen_bsdf> -->
 //    registerImplementation("IM_sheen_bsdf_" + GlslShaderGenerator::TARGET, HwSheenBsdfNode::create);
