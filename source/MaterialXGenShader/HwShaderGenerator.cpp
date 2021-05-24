@@ -7,7 +7,6 @@
 
 #include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/HwCompoundNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
 #include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXCore/Document.h>
@@ -425,12 +424,6 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
 void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const
 {
-    // Omit node if it's tagged to be excluded.
-    if (node.getFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL))
-    {
-        return;
-    }
-
     // Omit node if it's only used inside a conditional branch
     if (checkScope && node.referencedConditionally())
     {
@@ -446,28 +439,16 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
 
     if (ccx && node.hasClassification(ShaderNode::Classification::CLOSURE))
     {
-        // If a layer operator is used the node to check classification on
-        // is the node connected to the top layer input.
-        const ShaderNode* classifyNode = &node;
-        if (node.hasClassification(ShaderNode::Classification::LAYER))
-        {
-            const ShaderInput* top = node.getInput(LayerNode::TOP);
-            if (top && top->getConnection())
-            {
-                classifyNode = top->getConnection()->getNode();
-            }
-        }
-
         match =
             // For reflection and indirect we support reflective closures.
             ((ccx->getType() == HwClosureContext::REFLECTION || ccx->getType() == HwClosureContext::INDIRECT) &&
-                classifyNode->hasClassification(ShaderNode::Classification::BSDF_R)) ||
+                node.hasClassification(ShaderNode::Classification::BSDF_R)) ||
             // For transmissive we support transmissive closures.
             (ccx->getType() == HwClosureContext::TRANSMISSION &&
-                classifyNode->hasClassification(ShaderNode::Classification::BSDF_T)) ||
+                node.hasClassification(ShaderNode::Classification::BSDF_T)) ||
             // For emission we only support emission closures.
             (ccx->getType() == HwClosureContext::EMISSION &&
-                classifyNode->hasClassification(ShaderNode::Classification::EDF));
+                node.hasClassification(ShaderNode::Classification::EDF));
     }
 
     if (match)

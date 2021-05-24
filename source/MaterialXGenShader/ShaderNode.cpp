@@ -131,7 +131,6 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
     _parent(parent),
     _name(name),
     _classification(0),
-    _flags(0),
     _impl(nullptr)
 {
 }

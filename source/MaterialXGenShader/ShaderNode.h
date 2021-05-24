@@ -312,14 +312,6 @@ class MX_GENSHADER_API ShaderOutput : public ShaderPort
     friend class ShaderInput;
 };
 
-
-/// Flags for tagging shader nodes.
-enum class ShaderNodeFlag
-{
-    /// Omit the function call for this node.
-    EXCLUDE_FUNCTION_CALL = 1 << 0,
-};
-
 /// @class ShaderNode
 /// Class representing a node in the shader generation DAG
 class MX_GENSHADER_API ShaderNode
@@ -518,18 +510,6 @@ class MX_GENSHADER_API ShaderNode
         return (!_impl || _impl->isEditable(input));
     }
 
-    /// Set the on|off state of a given flag.
-    void setFlag(ShaderNodeFlag flag, bool value)
-    {
-        _flags = value ? (_flags | uint32_t(flag)) : (_flags & ~uint32_t(flag));
-    }
-
-    /// Return the on|off state of a given flag.
-    bool getFlag(ShaderNodeFlag flag) const
-    {
-        return ((_flags & uint32_t(flag)) != 0);
-    }
-
   protected:
     /// Create metadata from the nodedef according to registered metadata.
     void createMetadata(const NodeDef& nodeDef, GenContext& context);
@@ -537,7 +517,6 @@ class MX_GENSHADER_API ShaderNode
     const ShaderGraph* _parent;
     string _name;
     uint32_t _classification;
-    uint32_t _flags;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;
     vector<ShaderInput*> _inputOrder;
