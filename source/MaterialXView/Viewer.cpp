@@ -12,8 +12,12 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
+#if MATERIALX_BUILD_GEN_MDL
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
+#endif
+#if MATERIALX_BUILD_GEN_OSL
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+#endif
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
