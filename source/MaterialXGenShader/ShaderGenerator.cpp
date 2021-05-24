@@ -246,9 +246,15 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-ShaderNodeImplPtr ShaderGenerator::getImplementation(const InterfaceElement& element, GenContext& context) const
+ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
 {
-    const string& name = element.getName();
+    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
+    if (!implElement)
+    {
+        return nullptr;
+    }
+
+    const string& name = implElement->getName();
 
     // Check if it's created and cached already.
     ShaderNodeImplPtr impl = context.findNodeImplementation(name);
@@ -257,26 +263,27 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const InterfaceElement& ele
         return impl;
     }
 
-    if (element.isA<NodeGraph>())
+    if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        impl = createCompoundImplementation(static_cast<const NodeGraph&>(element));
+        impl = CompoundNode::create();
     }
-    else if (element.isA<Implementation>())
+    else if (implElement->isA<Implementation>())
     {
         // Try creating a new in the factory.
         impl = _implFactory.create(name);
         if (!impl)
         {
             // Fall back to the source code implementation.
-            impl = createSourceCodeImplementation(static_cast<const Implementation&>(element));
+            impl = SourceCodeNode::create();
         }
     }
-    else
+    if (!impl)
     {
-        throw ExceptionShaderGenError("Element '" + name + "' is neither an Implementation nor an NodeGraph");
+        return nullptr;
     }
-    impl->initialize(element, context);
+
+    impl->initialize(*implElement, context);
 
     // Cache it.
     context.addNodeImplementation(name, impl);
@@ -382,23 +389,9 @@ ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) 
     return shader.createStage(name, _syntax);
 }
 
-ShaderNodeImplPtr ShaderGenerator::createSourceCodeImplementation(const Implementation&) const
+void ShaderGenerator::finalizeShaderGraph(ShaderGraph& /*graph*/)
 {
-    // The standard source code implementation
-    // is the implementation to use by default
-    return SourceCodeNode::create();
-}
-
-ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(const NodeGraph&) const
-{
-    // The standard compound implementation
-    // is the compound implementation to us by default
-    return CompoundNode::create();
-}
-
-
-void ShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
-{
+/*
     // Find all thin-film nodes and reconnect them to the 'thinfilm' input
     // on BSDF nodes layered underneath.
     for (ShaderNode* node : graph.getNodes())
@@ -475,6 +468,7 @@ void ShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
             }
         }
     }
+*/
 }
 
 } // namespace MaterialX

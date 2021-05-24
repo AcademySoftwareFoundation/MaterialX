@@ -1,7 +1,9 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl"
 
-void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 normal, out BSDF bsdf)
+void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 normal, inout BSDF bsdf)
 {
+    bsdf.throughput = vec3(0.0);
+
     if (weight < M_FLOAT_EPS)
     {
         return;
@@ -20,6 +22,8 @@ void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusi
 
 void mx_oren_nayar_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, inout BSDF bsdf)
 {
+    bsdf.throughput = vec3(0.0);
+
     if (weight < M_FLOAT_EPS)
     {
         return;

@@ -309,10 +309,10 @@ GlslSyntax::GlslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(vec3(0.0),vec3(0.0))",
+            "BSDF(vec3(0.0),vec3(0.0), 0.0, 0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct BSDF { vec3 eval; vec3 throughput; };")
+            "struct BSDF { vec3 eval; vec3 throughput; float tf_thickness; float tf_ior; };")
     );
 
     registerTypeSyntax

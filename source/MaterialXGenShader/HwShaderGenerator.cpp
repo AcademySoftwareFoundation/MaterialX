@@ -4,10 +4,8 @@
 //
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
-
-#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/HwCompoundNode.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
@@ -622,20 +620,6 @@ void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<Hw
         // An EDF
         ccx.push_back(_defEmission);
     }
-}
-
-ShaderNodeImplPtr HwShaderGenerator::createSourceCodeImplementation(const Implementation&) const
-{
-    // The standard source code implementation
-    // is the implementation to use by default
-    return HwSourceCodeNode::create();
-}
-
-ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(const NodeGraph&) const
-{
-    // The standard compound implementation
-    // is the compound implementation to us by default
-    return HwCompoundNode::create();
 }
 
 void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStage& stage) const

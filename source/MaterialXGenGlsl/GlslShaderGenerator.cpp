@@ -26,15 +26,15 @@
 #include <MaterialXGenGlsl/Nodes/TransformPointNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/LayerNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/BsdfSourceCodeNodeGlsl.h>
 
-#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 namespace MaterialX
 {
@@ -241,19 +241,19 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_image_vector4_" + GlslShaderGenerator::TARGET, HwImageNode::create);
 
     // <!-- <layer> -->
-//    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, LayerNode::create);
+    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, LayerNodeGlsl::create);
 
     // <!-- <thin_film_bsdf> -->
-    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, ThinFilmNode::create);
+//    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, ThinFilmNode::create);
 
     // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
+//    registerImplementation("IM_dielectric_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
 
     // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
+//    registerImplementation("IM_generalized_schlick_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
 
     // <!-- <conductor_bsdf> -->
-    registerImplementation("IM_conductor_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
+//    registerImplementation("IM_conductor_bsdf_" + GlslShaderGenerator::TARGET, HwBsdfWithThinFilm::create);
 
     // <!-- <sheen_bsdf> -->
 //    registerImplementation("IM_sheen_bsdf_" + GlslShaderGenerator::TARGET, HwSheenBsdfNode::create);
@@ -754,18 +754,70 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
     }
 }
 
-ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(const NodeGraph& impl) const
+ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
 {
-    NodeDefPtr nodeDef = impl.getNodeDef();
-    if (!nodeDef)
+    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
+    if (!implElement)
     {
-        throw ExceptionShaderGenError("Error creating compound implementation. Given nodegraph '" + impl.getName() + "' has no nodedef set");
+        return nullptr;
     }
-    if (TypeDesc::get(nodeDef->getType()) == Type::LIGHTSHADER)
+
+    const string& name = implElement->getName();
+
+    // Check if it's created and cached already.
+    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
+    if (impl)
     {
-        return LightCompoundNodeGlsl::create();
+        return impl;
     }
-    return HwShaderGenerator::createCompoundImplementation(impl);
+
+    vector<OutputPtr> outputs = nodedef.getOutputs();
+    const TypeDesc* outputType = outputs.empty() ? nullptr : TypeDesc::get(outputs[0]->getType());
+
+    if (implElement->isA<NodeGraph>())
+    {
+        // Use a compound implementation.
+        if (outputType == Type::BSDF)
+        {
+//            impl = HwCompoundNode::create();
+        }
+        else if (outputType == Type::LIGHTSHADER)
+        {
+            impl = LightCompoundNodeGlsl::create();
+        }
+        else
+        {
+            impl = CompoundNode::create();
+        }
+    }
+    else if (implElement->isA<Implementation>())
+    {
+        // Try creating a new in the factory.
+        impl = _implFactory.create(name);
+        if (!impl)
+        {
+            // Fall back to source code implementation.
+            if (outputType == Type::BSDF)
+            {
+                impl = BsdfSourceCodeNodeGlsl::create();
+            }
+            else
+            {
+                impl = SourceCodeNode::create();
+            }
+        }
+    }
+    if (!impl)
+    {
+        return nullptr;
+    }
+
+    impl->initialize(*implElement, context);
+
+    // Cache it.
+    context.addNodeImplementation(name, impl);
+
+    return impl;
 }
 
 

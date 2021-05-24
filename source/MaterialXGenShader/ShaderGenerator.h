@@ -132,6 +132,9 @@ class MX_GENSHADER_API ShaderGenerator
     /// Determine if a shader node implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;
 
+    /// Return a registered shader node implementation for the given nodedef.
+    virtual ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const;
+
     /// Sets the color management system
     void setColorManagementSystem(ColorManagementSystemPtr colorManagementSystem)
     {
@@ -156,12 +159,6 @@ class MX_GENSHADER_API ShaderGenerator
         return _unitSystem;
     }
 
-    /// Return a registered shader node implementation given an implementation element.
-    /// The element must be an Implementation or a NodeGraph acting as implementation.
-    /// If no registered implementation is found a 'default' implementation instance
-    /// will be returned, as defined by the createDefaultImplementation method.
-    ShaderNodeImplPtr getImplementation(const InterfaceElement& element, GenContext& context) const;
-
     /// Return the map of token substitutions used by the generator.
     const StringMap& getTokenSubstitutions() const
     {
@@ -185,16 +182,6 @@ class MX_GENSHADER_API ShaderGenerator
 
     /// Create a new stage in a shader.
     virtual ShaderStagePtr createStage(const string& name, Shader& shader) const;
-
-    /// Create a source code implementation which is the implementation class to use
-    /// for nodes that has no specific C++ implementation registered for it.
-    /// Derived classes can override this to use custom source code implementations.
-    virtual ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const;
-
-    /// Create a compound implementation which is the implementation class to use
-    /// for nodes using a nodegraph as their implementation.
-    /// Derived classes can override this to use custom compound implementations.
-    virtual ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const;
 
     /// Method called on all created shader graphs. By default it does nothing,
     /// but shader generators can override this to perform custom edits on the graph

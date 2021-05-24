@@ -404,12 +404,6 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
-    /// Override the source code implementation creator.
-    ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const override;
-
-    /// Override the compound implementation creator.
-    ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
-
     /// Closure contexts for defining closure functions.
     HwClosureContextPtr _defReflection;
     HwClosureContextPtr _defTransmission;

@@ -205,11 +205,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Find the implementation for this nodedef
-    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget());
-    if (impl)
-    {
-        newNode->_impl = shadergen.getImplementation(*impl, context);
-    }
+    newNode->_impl = shadergen.getImplementation(nodeDef, context);
     if (!newNode->_impl)
     {
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
