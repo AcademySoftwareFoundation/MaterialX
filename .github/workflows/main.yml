@@ -1,4 +1,4 @@
-name: build_mac
+name: main
 
 on:
   push:
@@ -11,13 +11,33 @@ on:
 
 jobs:
 
-  build_mac:
-    name: Build_Mac
+  build:
+    name: Build
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
+        - name: Linux_GCC_5_Python27
+          os: ubuntu-18.04
+          compiler: gcc
+          compiler_version: "5"
+          python: 2.7
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
+
+        - name: Linux_GCC_6_Python37
+          os: ubuntu-18.04
+          compiler: gcc
+          compiler_version: "6"
+          python: 3.7
+
+        - name: Linux_GCC_10_Python37
+          os: ubuntu-20.04
+          compiler: gcc
+          compiler_version: "10"
+          python: 3.7
+          test_render: ON
+
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
           compiler: xcode
@@ -38,11 +58,44 @@ jobs:
           python: 3.7
           cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
+        - name: Windows_VS2017_Win32_Python27
+          os: windows-2016
+          architecture: x86
+          python: 2.7
+          cmake_config: -G "Visual Studio 15 2017" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
+
+        - name: Windows_VS2017_x64_Python37
+          os: windows-2016
+          architecture: x64
+          python: 3.7
+          cmake_config: -G "Visual Studio 15 2017" -A "x64"
+
+        - name: Windows_VS2019_x64_Python38
+          os: windows-2019
+          architecture: x64
+          python: 3.8
+          cmake_config: -G "Visual Studio 16 2019" -A "x64"
+
     steps:
     - name: Sync Repository
       uses: actions/checkout@v2
       with:
         submodules: recursive
+
+    - name: Install Dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install libglu1-mesa-dev xorg-dev
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+          echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+        else
+          sudo apt-get install -y clang-${{ matrix.compiler_version }} g++-multilib
+          echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+        fi
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
@@ -83,6 +136,11 @@ jobs:
         echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
         echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
         echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+
+    - name: Set Runtime Path (Windows)
+      if: runner.os == 'Windows'
+      run: echo "$PWD" | Out-File -FilePath $env:GITHUB_PATH -Append
+      working-directory: build/installed/bin
 
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config Release
