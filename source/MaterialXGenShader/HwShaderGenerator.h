@@ -260,7 +260,7 @@ class MX_GENSHADER_API HwClosureContext : public GenUserData
     using Arguments = vector<Argument>;
 
     /// Constructor
-    HwClosureContext(int type) : _type(type) {}
+    HwClosureContext(int type) : _type(type), _thinfilm(nullptr) {}
 
     /// Create and return a new instance.
     static HwClosureContextPtr create(int type)
@@ -297,10 +297,23 @@ class MX_GENSHADER_API HwClosureContext : public GenUserData
         return it != _suffix.end() ? it->second : EMPTY_STRING;
     }
 
+    /// Apply a thin-film node to be used for evaluating BSDFs in this context.
+    void setThinFilm(const ShaderNode* thinfilm)
+    {
+        _thinfilm = thinfilm;
+    }
+
+    /// Return a thin-film node if one is set for evaluating BSDFs in this context.
+    const ShaderNode* getThinFilm() const
+    {
+        return _thinfilm;
+    }
+
   protected:
     const int _type;
     std::unordered_map<const TypeDesc*, Arguments> _arguments;
     std::unordered_map<const TypeDesc*, string> _suffix;
+    const ShaderNode* _thinfilm;
     static const Arguments EMPTY_ARGUMENTS;
 };
 
@@ -360,20 +373,13 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, 
                           bool checkScope = true) const override;
 
-    /// Emit code for all texturing nodes.
+    /// Emit function calls for all texturing nodes.
     virtual void emitTextureNodes(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
-    /// Emit code for calculating BSDF response for a shader, 
-    /// given the incident and outgoing light directions.
-    /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
-                               GenContext& context, ShaderStage& stage, string& bsdf) const;
-
-    /// Emit code for calculating emission for a surface or light shader,
-    /// given the normal direction of the EDF and the evaluation direction.
-    /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
-                              GenContext& context, ShaderStage& stage, string& edf) const;
+    /// Emit function calls for nodes connected upstream from the given node.
+    /// If a classification is given only nodes matching this classification
+    /// will be emitted.
+    virtual void emitDependentNodes(const ShaderNode& node, GenContext& context, ShaderStage& stage, uint32_t classification = 0u) const;
 
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;

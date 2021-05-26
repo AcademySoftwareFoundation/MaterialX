@@ -25,13 +25,8 @@ void HwSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& cont
         {
             const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-            // Declare the output variables
-            for (size_t i = 0; i < node.numOutputs(); ++i)
-            {
-                shadergen.emitLineBegin(stage);
-                shadergen.emitOutput(node.getOutput(i), true, true, context, stage);
-                shadergen.emitLineEnd(stage);
-            }
+            // Declare the output variables.
+            emitOutputVariables(node, context, stage);
 
             shadergen.emitLineBegin(stage);
             string delim = "";

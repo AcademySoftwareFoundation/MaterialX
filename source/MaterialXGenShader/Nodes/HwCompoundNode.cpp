@@ -127,12 +127,7 @@ void HwCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // Declare the output variables
-        for (size_t i = 0; i < node.numOutputs(); ++i)
-        {
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(i), true, true, context, stage);
-            shadergen.emitLineEnd(stage);
-        }
+        emitOutputVariables(node, context, stage);
 
         shadergen.emitLineBegin(stage);
         string delim = "";

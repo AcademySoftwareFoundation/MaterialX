@@ -27,7 +27,7 @@
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LayerNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/BsdfSourceCodeNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/SourceCodeClosureNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
@@ -797,9 +797,9 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType == Type::BSDF)
+            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE)
             {
-                impl = BsdfSourceCodeNodeGlsl::create();
+                impl = SourceCodeClosureNodeGlsl::create();
             }
             else
             {

@@ -122,6 +122,14 @@ class MX_GENSHADER_API VariableBlock
 /// resulting source code for the stage.
 class MX_GENSHADER_API ShaderStage
 {
+public:
+    struct Scope
+    {
+        Syntax::Punctuation punctuation;
+        std::set<const ShaderNode*> nodes;
+        Scope(Syntax::Punctuation p) : punctuation(p) {}
+    };
+
   public:
     /// Contructor.
     ShaderStage(const string& name, ConstSyntaxPtr syntax);
@@ -186,7 +194,6 @@ class MX_GENSHADER_API ShaderStage
         return _outputs;
     }
  
-  protected:
     /// Start a new scope using the given bracket type.
     void beginScope(Syntax::Punctuation punc = Syntax::CURLY_BRACKETS);
 
@@ -227,8 +234,14 @@ class MX_GENSHADER_API ShaderStage
         _code += str.str();
     }
 
-    /// Add the function definition for a node.
+    /// Add the function definition for a node's implementation.
     void addFunctionDefinition(const ShaderNode& node, GenContext& context);
+
+    /// Add the function call for the given node.
+    void addFunctionCall(const ShaderNode& node, GenContext& context);
+
+    /// Return true if the function has been called for the given node in the current scope.
+    bool isCalled(const ShaderNode& node) const;
 
     /// Set stage function name.
     void setFunctionName(const string& functionName) 
@@ -250,7 +263,7 @@ class MX_GENSHADER_API ShaderStage
     int _indentations;
 
     /// Current scope.
-    vector<Syntax::Punctuation> _scopes;
+    vector<Scope> _scopes;
 
     /// Set of include files that has been included.
     StringSet _includes;

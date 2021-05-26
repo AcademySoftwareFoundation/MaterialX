@@ -213,7 +213,7 @@ void ShaderStage::beginScope(Syntax::Punctuation punc)
     }
 
     ++_indentations;
-    _scopes.push_back(punc);
+    _scopes.push_back(Scope(punc));
 }
 
 void ShaderStage::endScope(bool semicolon, bool newline)
@@ -223,7 +223,7 @@ void ShaderStage::endScope(bool semicolon, bool newline)
         throw ExceptionShaderGenError("End scope called with no scope active, please check your beginScope/endScope calls");
     }
 
-    Syntax::Punctuation punc = _scopes.back();
+    Syntax::Punctuation punc = _scopes.back().punctuation;
     _scopes.pop_back();
     --_indentations;
 
@@ -347,11 +347,34 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& cont
     const ShaderNodeImpl& impl = node.getImplementation();
     const size_t id = impl.getHash();
 
+    // Make sure it's not already defined.
     if (!_definedFunctions.count(id))
     {
         _definedFunctions.insert(id);
         impl.emitFunctionDefinition(node, context, *this);
     }
+}
+
+void ShaderStage::addFunctionCall(const ShaderNode& node, GenContext& context)
+{
+    // Make sure it's not already called in scope.
+    if (!isCalled(node))
+    {
+        _scopes.back().nodes.insert(&node);
+        node.getImplementation().emitFunctionCall(node, context, *this);
+    }
+}
+
+bool ShaderStage::isCalled(const ShaderNode& node) const
+{
+    for (const Scope& s : _scopes)
+    {
+        if (s.nodes.count(&node))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 }

@@ -100,9 +100,7 @@ void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& conte
                     node.getScopeInfo().conditionalNode->getName() + "'", stage);
         return;
     }
-
-    // Emit the function call.
-    node.getImplementation().emitFunctionCall(node, context, stage);
+    stage.addFunctionCall(node, context);
 }
 
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const

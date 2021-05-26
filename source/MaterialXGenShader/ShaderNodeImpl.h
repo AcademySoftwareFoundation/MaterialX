@@ -75,6 +75,9 @@ class MX_GENSHADER_API ShaderNodeImpl
     /// Emit the function call or inline source code for given node instance in the given context.
     virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
+    /// Emit declaration and initialization of output variables to use in a function call.
+    virtual void emitOutputVariables(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+
     /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenGlsl/Nodes/LayerNodeGlsl.h>
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNode.h>
@@ -25,7 +26,7 @@ ShaderNodeImplPtr LayerNodeGlsl::create()
 void LayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
         ShaderNode& node = const_cast<ShaderNode&>(_node);
 
@@ -37,23 +38,58 @@ void LayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& contex
             throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid layer node");
         }
 
-        // Declare the output variable.
-        shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(output, true, true, context, stage);
-        shadergen.emitLineEnd(stage);
-
         if (!(top->getConnection() && base->getConnection()))
         {
+            // Just declare the output variable with default value.
+            //
+            // TODO: Here we could do a pass through instead if one
+            //       of the inputs is connected.
+            //
+            emitOutputVariables(node, context, stage);
             return;
         }
 
+        ShaderNode* topBsdf = top->getConnection()->getNode();
+        ShaderNode* baseBsdf = base->getConnection()->getNode();
 
+        if (topBsdf->hasClassification(ShaderNode::Classification::THINFILM))
+        {
+            // This is a layer node with thin-film as top layer.
+            // Here we call only the base BSDF but with thin-film parameters set.
+            HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
+            if (!ccx)
+            {
+                throw ExceptionShaderGenError("No closure context set to evaluate node '" + node.getName() + "'");
+            }
+            ccx->setThinFilm(topBsdf);
+            const string oldVariable = baseBsdf->getOutput()->getVariable();
+            baseBsdf->getOutput()->setVariable(output->getVariable());
+            shadergen.emitFunctionCall(*baseBsdf, context, stage);
+            baseBsdf->getOutput()->setVariable(oldVariable);
+        }
+        else
+        {
+            // Evaluate top BSDF and base BSDF and combine their result
+            // according to throughput from the top BSDF.
+            //
+            // TODO: Should we emit code to evaluate the top throughput before
+            //       calling the base BSDF? If the throughput is zero we could
+            //       early out.
+            //
+            shadergen.emitComment("Evaluate top BSDF for " + node.getName(), stage);
+            shadergen.emitFunctionCall(*topBsdf, context, stage);
+            shadergen.emitComment("Evaluate base BSDF for " + node.getName(), stage);
+            shadergen.emitFunctionCall(*baseBsdf, context, stage);
 
-        const string& topResult = top->getConnection()->getVariable();
-        const string& baseResult = base->getConnection()->getVariable();
+            // Declare the output variable.
+            emitOutputVariables(node, context, stage);
 
-        shadergen.emitLine(output->getVariable() + ".eval = " + topResult + ".eval + " + topResult + ".throughput * " + baseResult + ".eval", stage);
-        shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
+            // Calculate the layering result.
+            const string& topResult = top->getConnection()->getVariable();
+            const string& baseResult = base->getConnection()->getVariable();
+            shadergen.emitLine(output->getVariable() + ".eval = " + topResult + ".eval + " + topResult + ".throughput * " + baseResult + ".eval", stage);
+            shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
+        }
 
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
