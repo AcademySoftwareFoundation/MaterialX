@@ -73,4 +73,10 @@ ShaderGraph* ShaderNodeImpl::getGraph() const
     return nullptr;
 }
 
+
+ShaderNodeImplPtr NopNode::create()
+{
+    return std::make_shared<NopNode>();
+}
+
 } // namespace MaterialX

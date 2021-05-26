@@ -109,6 +109,13 @@ class MX_GENSHADER_API ShaderNodeImpl
     size_t _hash;
 };
 
+/// A no operation node, to be used for organizational nodes that has no code to execute.
+class MX_GENSHADER_API NopNode : public ShaderNodeImpl
+{
+public:
+    static ShaderNodeImplPtr create();
+};
+
 } // namespace MaterialX
 
 #endif

@@ -451,12 +451,6 @@ class MX_GENSHADER_API ShaderNode
     /// Returns true if this node is only referenced by a conditional.
     bool referencedConditionally() const;
 
-    /// Returns true if the given node is a closure used by this node.
-    bool isUsedClosure(const ShaderNode* node) const
-    {
-        return _usedClosures.count(node) > 0;
-    }
-
     /// Initialize this shader node with all required data
     /// from the given node and nodedef.
     void initialize(const Node& node, const NodeDef& nodeDef, GenContext& context);
@@ -527,7 +521,6 @@ class MX_GENSHADER_API ShaderNode
     ShaderNodeImplPtr _impl;
     ShaderMetadataVecPtr _metadata;
     ScopeInfo _scopeInfo;
-    std::set<const ShaderNode*> _usedClosures;
 
     friend class ShaderGraph;
 };

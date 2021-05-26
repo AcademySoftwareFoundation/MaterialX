@@ -6,7 +6,6 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 namespace MaterialX
 {
@@ -378,17 +377,6 @@ GlslSyntax::GlslSyntax()
             EMPTY_STRING,
             EMPTY_STRING,
             "struct lightshader { vec3 intensity; vec3 direction; };")
-    );
-
-    registerTypeSyntax
-    (
-        Type::THINFILM,
-        std::make_shared<AggregateTypeSyntax>(
-            "thinfilm",
-            "thinfilm(0.0,1.5)",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            "struct thinfilm { float thickness; float ior; };")
     );
 }
 

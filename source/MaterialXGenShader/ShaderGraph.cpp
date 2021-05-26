@@ -901,9 +901,6 @@ void ShaderGraph::finalize(GenContext& context)
     // Optimize the graph, removing redundant paths.
     optimize(context);
 
-    // Let the generator perform any custom edits on the graph
-    context.getShaderGenerator().finalizeShaderGraph(*this);
-
     // Sort the nodes in topological order.
     topologicalSort();
 
@@ -913,30 +910,6 @@ void ShaderGraph::finalize(GenContext& context)
     // conditional nodes are improved.
     //
     // calculateScopes();
-
-    // Analyze the graph and extract information needed by shader nodes and BSDF nodes.
-    bool layerOperatorUsed = false;
-    for (ShaderNode* node : _nodeOrder)
-    {
-        // Track closure nodes used by surface shaders.
-        if (node->hasClassification(ShaderNode::Classification::SHADER))
-        {
-            // TODO: Optimize this search for closures.
-            //       No need to do a full traversal when 
-            //       texture nodes are reached.
-            for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(node->getOutput()))
-            {
-                if (edge.upstream && edge.upstream->getNode()->hasClassification(ShaderNode::Classification::CLOSURE))
-                {
-                    node->_usedClosures.insert(edge.upstream->getNode());
-                }
-            }
-        }
-        else if (node->hasClassification(ShaderNode::Classification::LAYER))
-        {
-            layerOperatorUsed = true;
-        }
-    }
 
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
