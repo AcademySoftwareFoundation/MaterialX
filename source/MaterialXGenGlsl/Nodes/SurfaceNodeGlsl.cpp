@@ -69,186 +69,186 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 {
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
-BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    const string prefix = vertexData.getInstance() + ".";
-    ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
-    if (!position->isEmitted())
-    {
-        position->setEmitted();
-        shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
-    }
-    ShaderPort* normal = vertexData[HW::T_NORMAL_WORLD];
-    if (!normal->isEmitted())
-    {
-        normal->setEmitted();
-        shadergen.emitLine(prefix + normal->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_NORMAL + ", 0)).xyz)", stage);
-    }
-    if (context.getOptions().hwAmbientOcclusion)
-    {
-        ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
-        if (!texcoord->isEmitted())
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
+        if (!position->isEmitted())
         {
-            texcoord->setEmitted();
-            shadergen.emitLine(prefix + texcoord->getVariable() + " = " + HW::T_IN_TEXCOORD + "_0", stage);
+            position->setEmitted();
+            shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
         }
-    }
-END_SHADER_STAGE(stage, Stage::VERTEX)
-
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-    const string prefix = vertexData.getInstance() + ".";
-
-    // Declare the output variable
-    const ShaderOutput* output = node.getOutput();
-    shadergen.emitLineBegin(stage);
-    shadergen.emitOutput(output, true, true, context, stage);
-    shadergen.emitLineEnd(stage);
-
-    shadergen.emitScopeBegin(stage);
-
-    const string outColor = output->getVariable() + ".color";
-    const string outTransparency = output->getVariable() + ".transparency";
-
-    const ShaderInput* bsdfInput = node.getInput("bsdf");
-    const ShaderNode* bsdf = bsdfInput->getConnection() ? bsdfInput->getConnection()->getNode() : nullptr;
-    if (bsdf)
-    {
-        if (context.getOptions().hwTransparency)
+        ShaderPort* normal = vertexData[HW::T_NORMAL_WORLD];
+        if (!normal->isEmitted())
         {
-            shadergen.emitLineBegin(stage);
-            shadergen.emitString("float surfaceOpacity = ", stage);
-            shadergen.emitInput(node.getInput("opacity"), context, stage);
-            shadergen.emitLineEnd(stage);
+            normal->setEmitted();
+            shadergen.emitLine(prefix + normal->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_NORMAL + ", 0)).xyz)", stage);
+        }
+        if (context.getOptions().hwAmbientOcclusion)
+        {
+            ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
+            if (!texcoord->isEmitted())
+            {
+                texcoord->setEmitted();
+                shadergen.emitLine(prefix + texcoord->getVariable() + " = " + HW::T_IN_TEXCOORD + "_0", stage);
+            }
+        }
+    END_SHADER_STAGE(stage, Stage::VERTEX)
+
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+
+        // Declare the output variable
+        const ShaderOutput* output = node.getOutput();
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(output, true, true, context, stage);
+        shadergen.emitLineEnd(stage);
+
+        shadergen.emitScopeBegin(stage);
+
+        const string outColor = output->getVariable() + ".color";
+        const string outTransparency = output->getVariable() + ".transparency";
+
+        const ShaderInput* bsdfInput = node.getInput("bsdf");
+        const ShaderNode* bsdf = bsdfInput->getConnection() ? bsdfInput->getConnection()->getNode() : nullptr;
+        if (bsdf)
+        {
+            if (context.getOptions().hwTransparency)
+            {
+                shadergen.emitLineBegin(stage);
+                shadergen.emitString("float surfaceOpacity = ", stage);
+                shadergen.emitInput(node.getInput("opacity"), context, stage);
+                shadergen.emitLineEnd(stage);
+                shadergen.emitLineBreak(stage);
+            }
+
+            //
+            // Handle direct lighting
+            //
+            shadergen.emitComment("Shadow occlusion", stage);
+            if (context.getOptions().hwShadowMap)
+            {
+                shadergen.emitLine("vec3 shadowCoord = (" + HW::T_SHADOW_MATRIX + " * vec4(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
+                shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
+                shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
+                shadergen.emitLine("float occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
+            }
+            else
+            {
+                shadergen.emitLine("float occlusion = 1.0", stage);
+            }
             shadergen.emitLineBreak(stage);
-        }
 
-        //
-        // Handle direct lighting
-        //
-        shadergen.emitComment("Shadow occlusion", stage);
-        if (context.getOptions().hwShadowMap)
-        {
-            shadergen.emitLine("vec3 shadowCoord = (" + HW::T_SHADOW_MATRIX + " * vec4(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
-            shadergen.emitLine("shadowCoord = shadowCoord * 0.5 + 0.5", stage);
-            shadergen.emitLine("vec2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
-            shadergen.emitLine("float occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
-        }
-        else
-        {
-            shadergen.emitLine("float occlusion = 1.0", stage);
-        }
-        shadergen.emitLineBreak(stage);
+            shadergen.emitLine("vec3 N = normalize(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_NORMAL_WORLD + ")", stage);
+            shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ")", stage);
+            shadergen.emitLine("vec3 P = " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD, stage);
 
-        shadergen.emitLine("vec3 N = normalize(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_NORMAL_WORLD + ")", stage);
-        shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ")", stage);
-        shadergen.emitLine("vec3 P = " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD, stage);
+            // Generate Light loop if requested
+            if (context.getOptions().hwMaxActiveLightSources > 0)
+            {
+                shadergen.emitComment("Light loop", stage);
+                shadergen.emitLine("int numLights = numActiveLightSources()", stage);
+                shadergen.emitLine("lightshader lightShader", stage);
+                shadergen.emitLine("for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)", stage, false);
 
-        // Generate Light loop if requested
-        if (context.getOptions().hwMaxActiveLightSources > 0)
-        {
-            shadergen.emitComment("Light loop", stage);
-            shadergen.emitLine("int numLights = numActiveLightSources()", stage);
-            shadergen.emitLine("lightshader lightShader", stage);
-            shadergen.emitLine("for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)", stage, false);
+                shadergen.emitScopeBegin(stage);
 
+                shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", lightShader)", stage);
+                shadergen.emitLine("vec3 L = lightShader.direction", stage);
+                shadergen.emitLineBreak(stage);
+
+                shadergen.emitComment("Calculate the BSDF response for this light source", stage);
+                context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callReflection);
+                shadergen.emitFunctionCall(*bsdf, context, stage);
+                context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+
+                shadergen.emitLineBreak(stage);
+
+                shadergen.emitComment("Accumulate the light's contribution", stage);
+                shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf->getOutput()->getVariable() + ".eval", stage);
+
+                shadergen.emitScopeEnd(stage);
+                shadergen.emitLineBreak(stage);
+            }
+
+            //
+            // Handle indirect lighting.
+            //
+            shadergen.emitComment("Ambient occlusion", stage);
+            if (context.getOptions().hwAmbientOcclusion)
+            {
+                ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
+                shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
+                shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+            }
+            else
+            {
+                shadergen.emitLine("occlusion = 1.0", stage);
+            }
+            shadergen.emitLineBreak(stage);
+
+            shadergen.emitComment("Add indirect contribution", stage);
             shadergen.emitScopeBegin(stage);
 
-            shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", lightShader)", stage);
-            shadergen.emitLine("vec3 L = lightShader.direction", stage);
-            shadergen.emitLineBreak(stage);
-
-            shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-            context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callReflection);
+            context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callIndirect);
             shadergen.emitFunctionCall(*bsdf, context, stage);
             context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
 
             shadergen.emitLineBreak(stage);
-
-            shadergen.emitComment("Accumulate the light's contribution", stage);
-            shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf->getOutput()->getVariable() + ".eval", stage);
-
+            shadergen.emitLine(outColor + " += occlusion * " + bsdf->getOutput()->getVariable() + ".eval", stage);
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
         }
 
         //
-        // Handle indirect lighting.
+        // Handle surface emission.
         //
-        shadergen.emitComment("Ambient occlusion", stage);
-        if (context.getOptions().hwAmbientOcclusion)
+        const ShaderInput* edfInput = node.getInput("edf");
+        const ShaderNode* edf = edfInput->getConnection() ? edfInput->getConnection()->getNode() : nullptr;
+        if (edf)
         {
-            ShaderPort* texcoord = vertexData[HW::T_TEXCOORD + "_0"];
-            shadergen.emitLine("vec2 ambOccUv = mx_transform_uv(" + prefix + texcoord->getVariable() + ", vec2(1.0), vec2(0.0))", stage);
-            shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+            shadergen.emitComment("Add surface emission", stage);
+            shadergen.emitScopeBegin(stage);
+
+            context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callEmission);
+            shadergen.emitFunctionCall(*edf, context, stage);
+            context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+
+            shadergen.emitLine(outColor + " += " + edf->getOutput()->getVariable(), stage);
+            shadergen.emitScopeEnd(stage);
+            shadergen.emitLineBreak(stage);
+        }
+
+        //
+        // Handle surface transparency
+        //
+        if (bsdf && context.getOptions().hwTransparency)
+        {
+            shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
+            shadergen.emitScopeBegin(stage);
+  
+            context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callIndirect);
+            shadergen.emitFunctionCall(*bsdf, context, stage);
+            context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+
+            shadergen.emitLine(outTransparency + " = " + bsdf->getOutput()->getVariable() + ".eval", stage);
+            shadergen.emitScopeEnd(stage);
+            shadergen.emitLineBreak(stage);
+
+            shadergen.emitComment("Mix in opacity which affect the total result", stage);
+            shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
+            shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", surfaceOpacity)", stage);
         }
         else
         {
-            shadergen.emitLine("occlusion = 1.0", stage);
+            shadergen.emitLine(outTransparency + " = vec3(0.0)", stage);
         }
-        shadergen.emitLineBreak(stage);
 
-        shadergen.emitComment("Add indirect contribution", stage);
-        shadergen.emitScopeBegin(stage);
-
-        context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callIndirect);
-        shadergen.emitFunctionCall(*bsdf, context, stage);
-        context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
-
-        shadergen.emitLineBreak(stage);
-        shadergen.emitLine(outColor + " += occlusion * " + bsdf->getOutput()->getVariable() + ".eval", stage);
-        shadergen.emitScopeEnd(stage);
-        shadergen.emitLineBreak(stage);
-    }
-
-    //
-    // Handle surface emission.
-    //
-    const ShaderInput* edfInput = node.getInput("edf");
-    const ShaderNode* edf = edfInput->getConnection() ? edfInput->getConnection()->getNode() : nullptr;
-    if (edf)
-    {
-        shadergen.emitComment("Add surface emission", stage);
-        shadergen.emitScopeBegin(stage);
-
-        context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callEmission);
-        shadergen.emitFunctionCall(*edf, context, stage);
-        context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
-
-        shadergen.emitLine(outColor + " += " + edf->getOutput()->getVariable(), stage);
-        shadergen.emitScopeEnd(stage);
-        shadergen.emitLineBreak(stage);
-    }
-
-    //
-    // Handle surface transparency
-    //
-    if (bsdf && context.getOptions().hwTransparency)
-    {
-        shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
-        shadergen.emitScopeBegin(stage);
-  
-        context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callIndirect);
-        shadergen.emitFunctionCall(*bsdf, context, stage);
-        context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
-
-        shadergen.emitLine(outTransparency + " = " + bsdf->getOutput()->getVariable() + ".eval", stage);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
 
-        shadergen.emitComment("Mix in opacity which affect the total result", stage);
-        shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
-        shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", surfaceOpacity)", stage);
-    }
-    else
-    {
-        shadergen.emitLine(outTransparency + " = vec3(0.0)", stage);
-    }
-
-    shadergen.emitScopeEnd(stage);
-    shadergen.emitLineBreak(stage);
-
-END_SHADER_STAGE(stage, Stage::PIXEL)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX
