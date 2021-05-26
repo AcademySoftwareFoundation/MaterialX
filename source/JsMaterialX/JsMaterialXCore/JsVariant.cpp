@@ -1,7 +1,13 @@
-#include "../helpers.h"
+//
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#include "../VectorHelper.h"
+#include "../Helpers.h"
+
 #include <MaterialXCore/Variant.h>
 
-#include <emscripten.h>
 #include <emscripten/bind.h>
 
 namespace ems = emscripten;
@@ -19,7 +25,7 @@ extern "C"
         ems::class_<mx::VariantSet, ems::base<mx::Element>>("VariantSet")
             .smart_ptr_constructor("VariantSet", &std::make_shared<mx::VariantSet, mx::ElementPtr, const std::string &>)
             .smart_ptr<std::shared_ptr<const mx::VariantSet>>("VariantSet")
-            .function("addVariant", &mx::VariantSet::addVariant)
+            BIND_MEMBER_FUNC("addVariant", mx::VariantSet, addVariant, 0, 1, stRef)
             .function("getVariant", &mx::VariantSet::getVariant)
             .function("getVariants", &mx::VariantSet::getVariants)
             .function("removeVariant", &mx::VariantSet::removeVariant)
@@ -34,6 +40,8 @@ extern "C"
             .function("setVariantString", &mx::VariantAssign::setVariantString)
             .function("hasVariantString", &mx::VariantAssign::hasVariantString)
             .function("getVariantString", &mx::VariantAssign::getVariantString)
-            .class_property("CATEGORY", &mx::VariantAssign::CATEGORY);
+            .class_property("CATEGORY", &mx::VariantAssign::CATEGORY)
+            .class_property("VARIANT_SET_ATTRIBUTE", &mx::VariantAssign::VARIANT_SET_ATTRIBUTE)
+            .class_property("VARIANT_ATTRIBUTE", &mx::VariantAssign::VARIANT_ATTRIBUTE);
     }
 }

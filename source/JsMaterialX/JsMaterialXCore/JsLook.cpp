@@ -1,7 +1,13 @@
-#include "../helpers.h"
+//
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#include "../VectorHelper.h"
+#include "../Helpers.h"
+
 #include <MaterialXCore/Look.h>
 
-#include <emscripten.h>
 #include <emscripten/bind.h>
 
 namespace ems = emscripten;
@@ -14,42 +20,45 @@ extern "C"
         ems::class_<mx::Look, ems::base<mx::Element>>("Look")
             .smart_ptr_constructor("Look", &std::make_shared<mx::Look, mx::ElementPtr, const std::string &>)
             .smart_ptr<std::shared_ptr<const mx::Look>>("Look")
-            .function("addMaterialAssign", &mx::Look::addMaterialAssign)
+            BIND_MEMBER_FUNC("addMaterialAssign", mx::Look, addMaterialAssign, 0, 2, stRef, stRef)
             .function("getMaterialAssign", &mx::Look::getMaterialAssign)
             .function("getMaterialAssigns", &mx::Look::getMaterialAssigns)
             .function("getActiveMaterialAssigns", &mx::Look::getActiveMaterialAssigns)
             .function("removeMaterialAssign", &mx::Look::removeMaterialAssign)
-
-            .function("addPropertyAssign", &mx::Look::addPropertyAssign) 
+            BIND_MEMBER_FUNC("addPropertyAssign", mx::Look, addPropertyAssign, 0, 1, stRef) 
             .function("getPropertyAssign", &mx::Look::getPropertyAssign)
             .function("getPropertyAssigns", &mx::Look::getPropertyAssigns)
             .function("getActivePropertyAssigns", &mx::Look::getActivePropertyAssigns)
             .function("removePropertyAssign", &mx::Look::removePropertyAssign)
-            .function("addPropertySetAssign", &mx::Look::addPropertySetAssign)
+            BIND_MEMBER_FUNC("addPropertySetAssign", mx::Look, addPropertySetAssign, 0, 1, stRef)
             .function("getPropertySetAssign", &mx::Look::getPropertySetAssign)
             .function("getPropertySetAssigns", &mx::Look::getPropertySetAssigns)
             .function("getActivePropertySetAssigns", &mx::Look::getActivePropertySetAssigns)
             .function("removePropertySetAssign", &mx::Look::removePropertySetAssign)
-            .function("addVariantAssign", &mx::Look::addVariantAssign)
+            BIND_MEMBER_FUNC("addVariantAssign", mx::Look, addVariantAssign, 0, 1, stRef)
             .function("getVariantAssign", &mx::Look::getVariantAssign)
             .function("getVariantAssigns", &mx::Look::getVariantAssigns)
             .function("getActiveVariantAssigns", &mx::Look::getActiveVariantAssigns)
             .function("removeVariantAssign", &mx::Look::removeVariantAssign)
-            .function("addVisibility", &mx::Look::addVisibility)
+            BIND_MEMBER_FUNC("addVisibility", mx::Look, addVisibility, 0, 1, stRef)
             .function("getVisibility", &mx::Look::getVisibility)
             .function("getVisibilities", &mx::Look::getVisibilities)
             .function("getActiveVisibilities", &mx::Look::getActiveVisibilities)
             .function("removeVisibility", &mx::Look::removeVisibility)
-
+            .function("append", &mx::Look::append)
             .class_property("CATEGORY", &mx::Look::CATEGORY);
 
         ems::class_<mx::LookGroup, ems::base<mx::Element>>("LookGroup")
             .smart_ptr_constructor("LookGroup", &std::make_shared<mx::LookGroup, mx::ElementPtr, const std::string &>)
             .smart_ptr<std::shared_ptr<const mx::LookGroup>>("LookGroup")
-            .function("getLooks", &mx::LookGroup::getLooks)
             .function("setLooks", &mx::LookGroup::setLooks)
-            .function("getEnabledLooksString", &mx::LookGroup::getEnabledLooksString)
+            .function("getLooks", &mx::LookGroup::getLooks)
             .function("setEnabledLooks", &mx::LookGroup::setEnabledLooks)
+            .function("getEnabledLooksString", &mx::LookGroup::getEnabledLooksString)
+            .function("getEnabledLooks", &mx::LookGroup::getEnabledLooks)
+            BIND_MEMBER_FUNC("appendLookGroup", mx::LookGroup, appendLookGroup, 1, 2, mx::LookGroupPtr, stRef)
+            BIND_MEMBER_FUNC("appendLook", mx::LookGroup, appendLook, 1, 2, stRef, stRef)
+            .function("combineLooks", &mx::LookGroup::combineLooks)
             .class_property("CATEGORY", &mx::LookGroup::CATEGORY)
             .class_property("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
             .class_property("ENABLED_ATTRIBUTE", &mx::LookGroup::ENABLED_ATTRIBUTE);
@@ -63,7 +72,14 @@ extern "C"
             .function("setExclusive", &mx::MaterialAssign::setExclusive)
             .function("getExclusive", &mx::MaterialAssign::getExclusive)
             .function("getReferencedMaterial", &mx::MaterialAssign::getReferencedMaterial)
-            .class_property("CATEGORY", &mx::MaterialAssign::CATEGORY);
+            BIND_MEMBER_FUNC("addVariantAssign", mx::MaterialAssign, addVariantAssign, 0, 1, stRef)
+            .function("getVariantAssign", &mx::MaterialAssign::getVariantAssign)
+            .function("getVariantAssigns", &mx::MaterialAssign::getVariantAssigns)
+            .function("getActiveVariantAssigns", &mx::MaterialAssign::getActiveVariantAssigns)
+            .function("removeVariantAssign", &mx::MaterialAssign::removeVariantAssign)
+            .class_property("CATEGORY", &mx::MaterialAssign::CATEGORY)
+            .class_property("MATERIAL_ATTRIBUTE", &mx::MaterialAssign::MATERIAL_ATTRIBUTE)
+            .class_property("EXCLUSIVE_ATTRIBUTE", &mx::MaterialAssign::EXCLUSIVE_ATTRIBUTE);
 
         ems::class_<mx::Visibility, ems::base<mx::GeomElement>>("Visibility")
             .smart_ptr_constructor("Visibility", &std::make_shared<mx::Visibility, mx::ElementPtr, const std::string &>)
@@ -79,6 +95,12 @@ extern "C"
             .function("getVisibilityType", &mx::Visibility::getVisibilityType)
             .function("setVisible", &mx::Visibility::setVisible)
             .function("getVisible", &mx::Visibility::getVisible)
-            .class_property("CATEGORY", &mx::Visibility::CATEGORY);
+            .class_property("CATEGORY", &mx::Visibility::CATEGORY)
+            .class_property("VIEWER_GEOM_ATTRIBUTE", &mx::Visibility::VIEWER_GEOM_ATTRIBUTE)
+            .class_property("VIEWER_COLLECTION_ATTRIBUTE", &mx::Visibility::VIEWER_COLLECTION_ATTRIBUTE)
+            .class_property("VISIBILITY_TYPE_ATTRIBUTE", &mx::Visibility::VISIBILITY_TYPE_ATTRIBUTE)
+            .class_property("VISIBLE_ATTRIBUTE", &mx::Visibility::VISIBLE_ATTRIBUTE);
+
+        ems::function("getGeometryBindings", &mx::getGeometryBindings);
     }
 }

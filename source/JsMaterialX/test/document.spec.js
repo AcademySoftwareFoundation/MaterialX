@@ -43,24 +43,24 @@ describe('Build Document', () => {
 
     it('Set constant node color', () => {
         const color = new mx.Color3(0.1, 0.2, 0.3);
-        constant.setInputValuecolor3('value', color);
+        constant.setInputValueColor3('value', color);
         expect(constant.getInputValue('value').getData()).to.eql(color);
     });
 
     it('Set image node file', () => {
         const file = 'image1.tif';
-        image.setInputValuestring('file', file, 'filename');
+        image.setInputValueString('file', file, 'filename');
         expect(image.getInputValue('file').getData()).to.eql(file);
     });
 
     it('Create a custom nodedef', () => {
         const nodeDef = doc.addNodeDef('nodeDef1', 'float', 'turbulence3d');
-        nodeDef.setInputValueinteger('octaves', 3);
-        nodeDef.setInputValuefloat('lacunarity', 2.0);
-        nodeDef.setInputValuefloat('gain', 0.5);
+        nodeDef.setInputValueInteger('octaves', 3);
+        nodeDef.setInputValueFloat('lacunarity', 2.0);
+        nodeDef.setInputValueFloat('gain', 0.5);
         const custom = nodeGraph.addNode('turbulence3d', 'turbulence1', 'float');
         expect(custom.getInputValue('octaves').getData()).to.equal(3);
-        custom.setInputValueinteger('octaves', 5);
+        custom.setInputValueInteger('octaves', 5);
         expect(custom.getInputValue('octaves').getData()).to.equal(5);
     });
 
@@ -78,9 +78,9 @@ describe('Build Document', () => {
     // let diffColor, specColor, roughness, texId;
     // it('Create a simple shader interface', () => {
     //     const shaderDef = doc.addNodeDef('shader1', 'surfaceshader', 'simpleSrf');
-    //     diffColor = shaderDef.setInputValuecolor3('diffColor', new mx.Color3(1.0, 1.0, 1.0));
-    //     specColor = shaderDef.setInputValuecolor3('specColor', new mx.Color3(0.0, 0.0, 0.0));
-    //     roughness = shaderDef.setInputValuefloat('roughness', 0.25);
+    //     diffColor = shaderDef.setInputValueColor3('diffColor', new mx.Color3(1.0, 1.0, 1.0));
+    //     specColor = shaderDef.setInputValueColor3('specColor', new mx.Color3(0.0, 0.0, 0.0));
+    //     roughness = shaderDef.setInputValueFloat('roughness', 0.25);
     //     texId = shaderDef.setTokenValue('texId', '01');
     //     expect(roughness.getIsUniform()).to.equal(false);
     //     roughness.setIsUniform(true);

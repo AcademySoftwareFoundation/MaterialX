@@ -1,14 +1,12 @@
-#include "../helpers.h"
-#include <MaterialXCore/Node.h>
+//
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#include "../VectorHelper.h"
+
 #include <MaterialXCore/Util.h>
 
-#include <MaterialXFormat/File.h>
-#include <iostream>
-#include <vector>
-#include <iterator>
-#include <map>
-
-#include <emscripten.h>
 #include <emscripten/bind.h>
 
 namespace ems = emscripten;
@@ -16,38 +14,41 @@ namespace mx = MaterialX;
 
 extern "C"
 {
-    EMSCRIPTEN_BINDINGS(my_module)
+    EMSCRIPTEN_BINDINGS(util)
     {
+        ems::constant("EMPTY_STRING", mx::EMPTY_STRING);
+
         ems::function("getVersionString", &mx::getVersionString);
-        ems::function("createValidName", &mx::createValidName); // arg0 === {std::string}, arg1 === {unicode representing character}
+
+        ems::value_array<std::pair<int, int>>("IntegerPair")
+            .element(&std::pair<int, int>::first)
+            .element(&std::pair<int, int>::second);
+
+        ems::value_array<std::array<int, 3>>("Integer3Array")
+            .element(emscripten::index<0>())
+            .element(emscripten::index<1>())
+            .element(emscripten::index<2>());
+
+        ems::function("getVersionIntegers", ems::optional_override([]() {
+            std::tuple<int, int, int> version = mx::getVersionIntegers();
+            return std::array<int, 3> { std::get<0>(version), std::get<1>(version), std::get<02>(version) };
+        }));
+
+        // Emscripten expects to provide a number from JS for a cpp 'char' parameter. 
+        // Using a string seems to be the better interface for JS
+        ems::function("createValidName", ems::optional_override([](std::string name) {
+            return mx::createValidName(name);
+        }));
+        ems::function("createValidName", ems::optional_override([](std::string name, std::string replaceChar) {
+            return mx::createValidName(name, replaceChar.front());
+        }));
+
         ems::function("isValidName", &mx::isValidName);
+        ems::function("isValidNamespace", &mx::isValidNamespace);
         ems::function("incrementName", &mx::incrementName);
 
-        // The following function throw: Cannot call {function name} due to unbound types: XXXXX
-        ems::function("getVersionIntegers", ems::optional_override([]() {
-                     std::tuple<int, int, int> version = mx::getVersionIntegers();
-                     return arrayToVec((int *)&version, 3);
-                 }));
-
-        ems::function("splitString", ems::optional_override([](std::string str, std::string sep) {
-                     const std::string &str1 = str;
-                     const std::string &sep2 = sep;
-                     return mx::splitString(str1, sep2);
-                 }));
-
-        ems::function("replaceSubstrings", ems::optional_override([](std::string str, ems::val newValue) {
-                     mx::StringMap separatorMapper;
-                     ems::val keys = ems::val::global("Object").call<ems::val>("keys", newValue);
-                     int length = keys["length"].as<int>();
-                     for (int i = 0; i < length; ++i)
-                     {
-                         std::string key = keys[i].as<std::string>().c_str();
-                         std::string value = newValue[key].as<std::string>();
-                         separatorMapper[key] = value;
-                     }
-                     return mx::replaceSubstrings(str, separatorMapper);
-                 }));
-
-        ems::function("prettyPrint", &mx::prettyPrint);
+        ems::function("splitNamePath", &mx::splitNamePath);
+        ems::function("createNamePath", &mx::createNamePath);
+        ems::function("parentNamePath", &mx::parentNamePath);
     }
 }

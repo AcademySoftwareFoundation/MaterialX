@@ -1,21 +1,7 @@
-/**
- * Creates a js array from the passed in vector instance
- * @param {Vector} vec - Wasm vector
- * @param {Boolean} [needDelete=true] - deletes the vector after generating the array.
- * @return {Array} - Array representing the wasm vector
- */
-function vecToArray(vec, needDelete=true) {
-    var size = vec.size();
-    var result = [];
-    for (var i = 0; i < size; i++) {
-        result.push(vec.get(i));
-    }
-    if(needDelete) {
-        // avoid memory leak
-        vec.delete();
-    }
-    return result;
-}
+//
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
 
 /**
  * Generates valid arguments when calling the function
@@ -70,10 +56,6 @@ function wrapperFunction(func, defaultArgs = []) {
     return function() {
         var args = argGen(arguments, defaultArgs);
         var ret = func.apply(this, args);
-        // Convert the vector into an array.
-        if (ret && ret.constructor && ret.constructor.name && ret.constructor.name.indexOf('vector') === 0) {
-            ret = vecToArray(ret);
-        }
         return ret;
     };
 }
@@ -109,14 +91,13 @@ function addWrapper(wrapperCb) {
 }
 
 Module.onRuntimeInitialized = function() {
-    var MaterialX = {};
     // Generate wrappers
     for (var i = 0; i < _wrappers.length; i++) {
-        var wrapper = _wrappers[parseInt(i)];
-        wrapper(Module, MaterialX);
+        try {
+            var wrapper = _wrappers[parseInt(i)];
+            wrapper(Module, Module);
+        } catch(e) {
+            console.log(e);
+        }
     }
-    MaterialX['getExceptionMessage'] = Module.getExceptionMessage;
-    Module['getMaterialX'] = function() {
-        return MaterialX;
-    };
 };

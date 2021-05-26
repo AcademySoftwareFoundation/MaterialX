@@ -1,13 +1,17 @@
-#include "../helpers.h"
+//
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#include "../VectorHelper.h"
+#include "../Helpers.h"
+
 #include <MaterialXCore/Document.h>
 
-#include <emscripten.h>
 #include <emscripten/bind.h>
 
 namespace ems = emscripten;
 namespace mx = MaterialX;
-
-using stRef = const std::string&;
 
 extern "C"
 {
@@ -17,14 +21,15 @@ extern "C"
         ems::class_<mx::Document, ems::base<mx::GraphElement>>("Document")
             .smart_ptr_constructor("Document", &std::make_shared<mx::Document, mx::ElementPtr, const std::string &>)
             .smart_ptr<std::shared_ptr<const mx::Document>>("Document")
+             // At the moment only the Document type is used. Once more types are added this binding needs to be adapted accordingly.
+            .class_function("createDocument", &mx::Document::createDocument<mx::Document>)
             .function("initialize", &mx::Document::initialize)
             .function("copy", &mx::Document::copy)
             .function("importLibrary", &mx::Document::importLibrary)
             .function("getReferencedSourceUris", ems::optional_override([](mx::Document &self) {
-                          mx::StringSet referenced = self.mx::Document::getReferencedSourceUris();
-                          int size = referenced.size();
-                          return arrayToVec((std::string *)&referenced, size);
-                      }))
+                mx::StringSet set = self.getReferencedSourceUris();
+                return ems::val::array(set.begin(), set.end());
+            }))
             BIND_MEMBER_FUNC("addNodeGraph", mx::Document, addNodeGraph, 0, 1, stRef)
             .function("getNodeGraph", &mx::Document::getNodeGraph)
             .function("getNodeGraphs", &mx::Document::getNodeGraphs)
@@ -43,6 +48,7 @@ extern "C"
             .function("getLook", &mx::Document::getLook)
             .function("getLooks", &mx::Document::getLooks)
             .function("removeLook", &mx::Document::removeLook)
+            .function("mergeLooks", &mx::Document::mergeLooks)
             BIND_MEMBER_FUNC("addLookGroup", mx::Document, addLookGroup, 0, 1, stRef)
             .function("getLookGroup", &mx::Document::getLookGroup)
             .function("getLookGroups", &mx::Document::getLookGroups)
@@ -62,7 +68,14 @@ extern "C"
             .function("getNodeDefs", &mx::Document::getNodeDefs)
             .function("removeNodeDef", &mx::Document::removeNodeDef)
             .function("getMatchingNodeDefs", &mx::Document::getMatchingNodeDefs)
-            .function("getMatchingImplementations", &mx::Document::getMatchingImplementations)
+            BIND_MEMBER_FUNC("addAttributeDef", mx::Document, addAttributeDef, 0, 1, stRef)
+            .function("getAttributeDef", &mx::Document::getAttributeDef)
+            .function("getAttributeDefs", &mx::Document::getAttributeDefs)
+            .function("removeAttributeDef", &mx::Document::removeAttributeDef)
+            BIND_MEMBER_FUNC("addTargetDef", mx::Document, addTargetDef, 0, 1, stRef)
+            .function("getTargetDef", &mx::Document::getTargetDef)
+            .function("getTargetDefs", &mx::Document::getTargetDefs)
+            .function("removeTargetDef", &mx::Document::removeTargetDef)
             BIND_MEMBER_FUNC("addPropertySet", mx::Document, addPropertySet, 0, 1, stRef)
             .function("getPropertySet", &mx::Document::getPropertySet)
             .function("getPropertySets", &mx::Document::getPropertySets)
@@ -75,6 +88,7 @@ extern "C"
             .function("getImplementation", &mx::Document::getImplementation)
             .function("getImplementations", &mx::Document::getImplementations)
             .function("removeImplementation", &mx::Document::removeImplementation)
+            .function("getMatchingImplementations", &mx::Document::getMatchingImplementations)
             .function("addUnitDef", &mx::Document::addUnitDef)
             .function("getUnitDef", &mx::Document::getUnitDef)
             .function("getUnitDefs", &mx::Document::getUnitDefs)
@@ -83,12 +97,17 @@ extern "C"
             .function("getUnitTypeDef", &mx::Document::getUnitTypeDef)
             .function("getUnitTypeDefs", &mx::Document::getUnitTypeDefs)
             .function("removeUnitTypeDef", &mx::Document::removeUnitTypeDef)
+            .function("getVersionIntegers", &mx::Document::getVersionIntegers)
             .function("upgradeVersion", &mx::Document::upgradeVersion)
             .function("setColorManagementSystem", &mx::Document::setColorManagementSystem)
             .function("hasColorManagementSystem", &mx::Document::hasColorManagementSystem)
             .function("getColorManagementSystem", &mx::Document::getColorManagementSystem)
             .function("setColorManagementConfig", &mx::Document::setColorManagementConfig)
             .function("hasColorManagementConfig", &mx::Document::hasColorManagementConfig)
-            .function("getColorManagementConfig", &mx::Document::getColorManagementConfig);
+            .function("getColorManagementConfig", &mx::Document::getColorManagementConfig)
+            .function("invalidateCache", &mx::Document::invalidateCache)
+            .class_property("CATEGORY", &mx::Document::CATEGORY)
+            .class_property("CMS_ATTRIBUTE", &mx::Document::CMS_ATTRIBUTE)
+            .class_property("CMS_CONFIG_ATTRIBUTE", &mx::Document::CMS_CONFIG_ATTRIBUTE);
     }
 }

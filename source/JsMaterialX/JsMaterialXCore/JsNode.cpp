@@ -1,7 +1,13 @@
-#include "../helpers.h"
+//
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#include "../VectorHelper.h"
+#include "../Helpers.h"
+
 #include <MaterialXCore/Node.h>
 
-#include <emscripten.h>
 #include <emscripten/bind.h>
 
 namespace ems = emscripten;
@@ -18,24 +24,34 @@ extern "C"
             .function("getConnectedNode", &mx::Node::getConnectedNode)
             .function("setConnectedNodeName", &mx::Node::setConnectedNodeName)
             .function("getConnectedNodeName", &mx::Node::getConnectedNodeName)
-            .function("getNodeDef", &mx::Node::getNodeDef)
-            .function("getImplementation", &mx::Node::getImplementation)
+            .function("setConnectedOutput", &mx::Node::setConnectedOutput)
+            .function("getConnectedOutput", &mx::Node::getConnectedOutput)
+            BIND_MEMBER_FUNC("getNodeDef", mx::Node, getNodeDef, 0, 1, stRef)
+            BIND_MEMBER_FUNC("getImplementation", mx::Node, getImplementation, 0, 1, stRef)
+            BIND_MEMBER_FUNC("getUpstreamEdge", mx::Node, getUpstreamEdge, 0, 1, size_t)
+            .function("getUpstreamEdgeCount", &mx::Node::getUpstreamEdgeCount)
+            .function("getNodeDefOutput", &mx::Node::getNodeDefOutput)
             .function("getDownstreamPorts", &mx::Node::getDownstreamPorts)
+            BIND_MEMBER_FUNC("getDeclaration", mx::Node, getDeclaration, 0, 1, stRef)
+            .function("addInputFromNodeDef", &mx::Node::addInputFromNodeDef)
             .class_property("CATEGORY", &mx::Node::CATEGORY);
-
+ 
         ems::class_<mx::GraphElement, ems::base<mx::InterfaceElement>>("GraphElement")
             .smart_ptr<std::shared_ptr<mx::GraphElement>>("GraphElement")
             .smart_ptr<std::shared_ptr<const mx::GraphElement>>("GraphElement")
-            .function("addNode", &mx::GraphElement::addNode)
-            .function("addNodeInstance", &mx::GraphElement::addNodeInstance)
+            BIND_MEMBER_FUNC("addNode", mx::GraphElement, addNode, 1, 3, stRef, stRef, stRef)
+            BIND_MEMBER_FUNC("addNodeInstance", mx::GraphElement, addNodeInstance, 1, 2, mx::ConstNodeDefPtr, stRef)
             .function("getNode", &mx::GraphElement::getNode)
-            .function("getNodes", &mx::GraphElement::getNodes)
+            BIND_MEMBER_FUNC("getNodes", mx::GraphElement, getNodes, 0, 1, stRef)
+            .function("getNodesOfType", &mx::GraphElement::getNodesOfType)
             .function("removeNode", &mx::GraphElement::removeNode)
-            .function("addBackdrop", &mx::GraphElement::addBackdrop)
+            BIND_MEMBER_FUNC("addMaterialNode", mx::GraphElement, addMaterialNode, 0, 2, stRef, mx::ConstNodePtr)
+            .function("getMaterialNodes", &mx::GraphElement::getMaterialNodes)
+            BIND_MEMBER_FUNC("addBackdrop", mx::GraphElement, addBackdrop, 0, 1, stRef)
             .function("getBackdrop", &mx::GraphElement::getBackdrop)
             .function("getBackdrops", &mx::GraphElement::getBackdrops)
             .function("removeBackdrop", &mx::GraphElement::removeBackdrop)
-            .function("flattenSubgraphs", &mx::GraphElement::flattenSubgraphs)
+            BIND_MEMBER_FUNC("flattenSubgraphs", mx::GraphElement, flattenSubgraphs, 0, 2, stRef, mx::NodePredicate)
             .function("topologicalSort", &mx::GraphElement::topologicalSort)
             .function("asStringDot", &mx::GraphElement::asStringDot);
 
@@ -44,6 +60,11 @@ extern "C"
             .smart_ptr<std::shared_ptr<const mx::NodeGraph>>("NodeGraph")
             .function("setNodeDef", &mx::NodeGraph::setNodeDef)
             .function("getNodeDef", &mx::NodeGraph::getNodeDef)
+            .function("getImplementation", &mx::NodeGraph::getImplementation)
+            BIND_MEMBER_FUNC("getDeclaration", mx::NodeGraph, getDeclaration, 0, 1, stRef)
+            .function("addInterfaceName", &mx::NodeGraph::addInterfaceName)
+            .function("removeInterfaceName", &mx::NodeGraph::removeInterfaceName)
+            .function("modifyInterfaceName", &mx::NodeGraph::modifyInterfaceName)
             .class_property("CATEGORY", &mx::NodeGraph::CATEGORY);
 
         ems::class_<mx::Backdrop, ems::base<mx::Element>>("Backdrop")

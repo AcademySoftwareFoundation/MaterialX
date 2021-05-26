@@ -1,10 +1,15 @@
 import { expect } from 'chai';
 import { traverse, initMaterialX } from './testHelpers';
 
-describe('Traverse Graph', () => {
-    let mx, doc, image2, constant, multiply, contrast, mix, output;
+describe('Traversal', () => {
+    let mx;
     before(async () => {
         mx = await initMaterialX();
+    });
+
+    it('Traverse Graph', async () => {
+        let doc, image2, constant, multiply, contrast, mix, output;
+    
         // Create a document.
         doc = mx.createDocument();
         // Create a node graph with the following structure:
@@ -33,13 +38,11 @@ describe('Traverse Graph', () => {
         mix.setConnectedNode('bg', contrast);
         mix.setConnectedNode('mask', noise3d);
         output.setConnectedNode(mix);
-    });
-
-    it('Validate the document', () => {
+    
         expect(doc.validate()).to.be.true;
-    });
-
-    it('Traverse the document tree (implicit iterator)', () => {
+        // TODO: select check message
+    
+        // Traverse the document tree (implicit iterator).
         const elements = doc.traverseTree();
         let nodeCount = 0;
         traverse(elements, (elem) => {
@@ -49,11 +52,10 @@ describe('Traverse Graph', () => {
             }
         });
         expect(nodeCount).to.equal(7);
-    });
-
-    it('Traverse the document tree (explicit iterator)', () => {
-        const treeIter = doc.traverseTree();
-        let nodeCount = 0;
+    
+        // Traverse the document tree (explicit iterator)
+        let treeIter = doc.traverseTree();
+        nodeCount = 0;
         let maxElementDepth = 0;
         traverse(treeIter, (elem) => {
             // Display the filename of each image node.
@@ -62,14 +64,13 @@ describe('Traverse Graph', () => {
             }
             maxElementDepth = Math.max(maxElementDepth, treeIter.getElementDepth());
         });
-
+    
         expect(nodeCount).to.equal(7);
         expect(maxElementDepth).to.equal(3);
-    });
-
-    it('Traverse the document tree (prune subtree)', () => {
-        const treeIter = doc.traverseTree();
-        let nodeCount = 0;
+    
+        // Traverse the document tree (prune subtree).
+        nodeCount = 0;
+        treeIter = doc.traverseTree();
         traverse(treeIter, (elem) => {
             // Display the filename of each image node.
             if (elem instanceof mx.Node) {
@@ -79,12 +80,11 @@ describe('Traverse Graph', () => {
                 treeIter.setPruneSubtree(true);
             }
         });
-
+    
         expect(nodeCount).to.equal(0);
-    });
-
-    it('Traverse upstream from the graph output (implicit iterator)', () => {
-        let nodeCount = 0;
+        
+        // Traverse upstream from the graph output (implicit iterator)
+        nodeCount = 0;
         traverse(output.traverseGraph(), (edge) => {
             const upstreamElem = edge.getUpstreamElement();
             const connectingElem = edge.getConnectingElement();
@@ -97,13 +97,12 @@ describe('Traverse Graph', () => {
             }
         });
         expect(nodeCount).to.equal(7);
-    });
-
-    it('Traverse upstream from the graph output (explicit iterator)', () => {
-        let nodeCount = 0;
-        let maxElementDepth = 0;
+    
+        // Traverse upstream from the graph output (explicit iterator)
+        nodeCount = 0;
+        maxElementDepth = 0;
         let maxNodeDepth = 0;
-        const graphIter = output.traverseGraph();
+        let graphIter = output.traverseGraph();
         traverse(graphIter, (edge) => {
             const upstreamElem = edge.getUpstreamElement();
             if (upstreamElem instanceof mx.Node) {
@@ -112,17 +111,17 @@ describe('Traverse Graph', () => {
             maxElementDepth = Math.max(maxElementDepth, graphIter.getElementDepth());
             maxNodeDepth = Math.max(maxNodeDepth, graphIter.getNodeDepth());
         });
-
+    
         expect(nodeCount).to.equal(7);
         expect(maxElementDepth).to.equal(3);
         expect(maxNodeDepth).to.equal(3);
-    });
-
-    it('Traverse upstream from the graph output (prune subgraph)', () => {
-        let nodeCount = 0;
-        const graphIter = output.traverseGraph();
+    
+        // Traverse upstream from the graph output (prune subgraph)
+        nodeCount = 0;
+        graphIter = output.traverseGraph();
         traverse(graphIter, (edge) => {
             const upstreamElem = edge.getUpstreamElement();
+            expect(upstreamElem.getSelf()).to.be.an.instanceof(mx.Element);
             if (upstreamElem instanceof mx.Node) {
                 nodeCount++;
             }
@@ -131,67 +130,60 @@ describe('Traverse Graph', () => {
             }
         });
         expect(nodeCount).to.equal(5);
-    });
-
-    function isCycle(cb) {
-        try {
-            return cb();
-        } catch (exceptionPtr) {
-            const message = mx.getExceptionMessage(exceptionPtr);
-            if (message.indexOf('Encountered cycle') !== -1) {
-                return true;
-            }
-            return false;
-        }
-    }
-    it('Create and detect a cycle', () => {
+    
+        // Create and detect a cycle
         multiply.setConnectedNode('in2', mix);
-
-        expect(
-            isCycle(() => {
-                return output.hasUpstreamCycle();
-            })
-        ).to.be.true;
-        expect(
-            isCycle(() => {
-                return doc.validate();
-            })
-        ).to.be.true;
+        expect(output.hasUpstreamCycle()).to.be.true;
+        expect(doc.validate()).to.be.false;
         multiply.setConnectedNode('in2', constant);
-        expect(
-            isCycle(() => {
-                return output.hasUpstreamCycle();
-            })
-        ).to.be.false;
-        expect(
-            isCycle(() => {
-                return doc.validate();
-            })
-        ).to.be.true;
-    });
-
-    it('Create and detect a loop', () => {
+        expect(output.hasUpstreamCycle()).to.be.false;
+        expect(doc.validate()).to.be.true;
+    
+        // Create and detect a loop
         contrast.setConnectedNode('in', contrast);
-        expect(
-            isCycle(() => {
-                return output.hasUpstreamCycle();
-            })
-        ).to.be.true;
-        expect(
-            isCycle(() => {
-                return doc.validate();
-            })
-        ).to.be.true;
+        expect(output.hasUpstreamCycle()).to.be.true;
+        expect(doc.validate()).to.be.false;
         contrast.setConnectedNode('in', image2);
-        expect(
-            isCycle(() => {
-                return output.hasUpstreamCycle();
-            })
-        ).to.be.false;
-        expect(
-            isCycle(() => {
-                return doc.validate();
-            })
-        ).to.be.true;
+        expect(output.hasUpstreamCycle()).to.be.false;
+        expect(doc.validate()).to.be.true;
+    });
+    
+    describe("Traverse inheritance", () => {
+        let nodeDefInheritanceLevel2, nodeDefInheritanceLevel1, nodeDefParent;
+        beforeEach(() => {
+            const doc = mx.createDocument();
+            nodeDefParent = doc.addNodeDef();
+            nodeDefParent.setName('BaseClass');
+            nodeDefInheritanceLevel1 = doc.addNodeDef();
+            nodeDefInheritanceLevel1.setName('InheritanceLevel1');
+            nodeDefInheritanceLevel2 = doc.addNodeDef();
+            nodeDefInheritanceLevel2.setName('InheritanceLevel2');
+            nodeDefInheritanceLevel2.setInheritsFrom(nodeDefInheritanceLevel1);
+            nodeDefInheritanceLevel1.setInheritsFrom(nodeDefParent);
+        });
+
+        it('for of loop', () => {
+            const inheritanceIterator = nodeDefInheritanceLevel2.traverseInheritance();
+            let inheritanceChainLength = 0;
+            for(const elem of inheritanceIterator) {
+                if (elem instanceof mx.NodeDef) {
+                    inheritanceChainLength++;
+                }
+            }
+            expect(inheritanceChainLength).to.equal(2);;
+        });
+
+        it('while loop', () => {
+            const inheritanceIterator = nodeDefInheritanceLevel2.traverseInheritance();
+            let inheritanceChainLength = 0;
+            let elem = inheritanceIterator.next();
+            while (!elem.done) {
+                if (elem.value instanceof mx.NodeDef) {
+                    inheritanceChainLength++;
+                }
+                elem = inheritanceIterator.next();
+            }
+            expect(inheritanceChainLength).to.equal(2);;
+        });
     });
 });

@@ -217,6 +217,9 @@ else()
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(-Werror)
     endif()
+    if(MATERIALX_BUILD_JS)
+        add_compile_options(-fexceptions)
+    endif()
 endif()
 
 # Shared functions

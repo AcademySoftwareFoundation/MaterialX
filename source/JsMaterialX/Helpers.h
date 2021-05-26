@@ -1,15 +1,14 @@
+//
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef JSMATERIALX_HELPERS_H
 #define JSMATERIALX_HELPERS_H
 
 #include <vector>
 
-template <class myClass>
-std::vector<myClass> arrayToVec(myClass *arr, int size)
-{
-    std::vector<myClass> dest(arr, arr + size);
-    return dest;
-}
-
+using stRef = const std::string&;
 
 // Binding helpers
 
