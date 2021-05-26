@@ -34,6 +34,8 @@
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
+#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/HwCompoundNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 
 namespace MaterialX
@@ -787,7 +789,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         }
         else
         {
-            impl = CompoundNode::create();
+            impl = HwCompoundNode::create();
         }
     }
     else if (implElement->isA<Implementation>())

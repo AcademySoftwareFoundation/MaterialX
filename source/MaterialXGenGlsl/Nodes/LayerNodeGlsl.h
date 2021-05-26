@@ -6,13 +6,13 @@
 #ifndef MATERIALX_LAYERNODEGLSL_H
 #define MATERIALX_LAYERNODEGLSL_H
 
-#include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace MaterialX
 {
 
 /// Layer node implementation for GLSL.
-class LayerNodeGlsl : public ShaderNodeImpl
+class LayerNodeGlsl : public GlslImplementation
 {
   public:
     static ShaderNodeImplPtr create();

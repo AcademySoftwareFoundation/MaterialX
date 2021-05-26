@@ -14,6 +14,11 @@ ShaderNodeImplPtr SourceCodeClosureNodeGlsl::create()
     return std::make_shared<SourceCodeClosureNodeGlsl>();
 }
 
+const string& SourceCodeClosureNodeGlsl::getTarget() const
+{
+    return GlslShaderGenerator::TARGET;
+}
+
 void SourceCodeClosureNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)

@@ -17,6 +17,8 @@ class SourceCodeClosureNodeGlsl : public SourceCodeNode
 public:
     static ShaderNodeImplPtr create();
 
+    const string& getTarget() const override;
+
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 

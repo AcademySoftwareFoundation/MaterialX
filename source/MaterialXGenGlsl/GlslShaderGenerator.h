@@ -83,7 +83,7 @@ class MX_GENGLSL_API GlslImplementation : public ShaderNodeImpl
   protected:
     GlslImplementation() {}
 
-    // Integer identifiers for corrdinate spaces
+    // Integer identifiers for coordinate spaces.
     // The order must match the order given for
     // the space enum string in stdlib.
     enum Space
