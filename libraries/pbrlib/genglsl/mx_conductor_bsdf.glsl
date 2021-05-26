@@ -19,7 +19,7 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
     float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
     float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
-    FresnelData fd = bsdf.tf.thickness > 0.0 ? mx_init_fresnel_conductor_airy(ior_n, ior_k, bsdf.tf_thickness, bsdf.tf_ior) : mx_init_fresnel_conductor(ior_n, ior_k);
+    FresnelData fd = bsdf.tf_thickness > 0.0 ? mx_init_fresnel_conductor_airy(ior_n, ior_k, bsdf.tf_thickness, bsdf.tf_ior) : mx_init_fresnel_conductor(ior_n, ior_k);
     vec3 F = mx_compute_fresnel(VdotH, fd);
 
     float avgRoughness = mx_average_roughness(roughness);
