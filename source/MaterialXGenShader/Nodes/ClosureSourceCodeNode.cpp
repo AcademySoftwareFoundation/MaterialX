@@ -36,7 +36,6 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         emitOutputVariables(node, context, stage);
 
         // Check if we have a closure context to modify the function call.
-//        ClosureContextPtr ccx = context.getUserData<ClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
         ClosureContext* cct = context.getClosureContext();
         if (cct)
         {
@@ -52,8 +51,8 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
                 {
                     throw ExceptionShaderGenError("Node '" + thinfilm->getName() + "' is not a valid thin_film_bsdf node");
                 }
-                shadergen.emitLine(output->getVariable() + ".tf_thickness = " + shadergen.getUpstreamResult(thickness, context), stage);
-                shadergen.emitLine(output->getVariable() + ".tf_ior = " + shadergen.getUpstreamResult(ior, context), stage);
+                shadergen.emitLine(output->getVariable() + ".thickness = " + shadergen.getUpstreamResult(thickness, context), stage);
+                shadergen.emitLine(output->getVariable() + ".ior = " + shadergen.getUpstreamResult(ior, context), stage);
 
                 // Once the thinfilm has been applied we reset it on the context
                 // since we don't want any upstream BSDF to also pick this up.

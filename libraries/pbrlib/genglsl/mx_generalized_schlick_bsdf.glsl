@@ -30,7 +30,7 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
     // Note: NdotL is cancelled out
-    bsdf.eval = D * F * G * comp * occlusion * weight / (4 * NdotV);
+    bsdf.result = D * F * G * comp * occlusion * weight / (4 * NdotV);
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 }
 
@@ -84,6 +84,6 @@ void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec
 
     vec3 Li = mx_environment_radiance(N, V, X, roughness, distribution, fd);
 
-    bsdf.eval = Li * comp * weight;
+    bsdf.result = Li * comp * weight;
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 }

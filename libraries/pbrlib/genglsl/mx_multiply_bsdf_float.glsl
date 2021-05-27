@@ -1,20 +1,20 @@
 void mx_multiply_bsdf_float_reflection(vec3 L, vec3 V, vec3 P, float occlusion, BSDF in1, float in2, out BSDF bsdf)
 {
     float w = clamp(in2, 0.0, 1.0);
-    bsdf.eval = in1.eval * w;
+    bsdf.result = in1.result * w;
     bsdf.throughput = in1.throughput * w;
 }
 
 void mx_multiply_bsdf_float_transmission(vec3 V, BSDF in1, float in2, out BSDF bsdf)
 {
     float w = clamp(in2, 0.0, 1.0);
-    bsdf.eval = in1.eval * w;
+    bsdf.result = in1.result * w;
     bsdf.throughput = in1.throughput * w;
 }
 
 void mx_multiply_bsdf_float_indirect(vec3 V, BSDF in1, float in2, out BSDF bsdf)
 {
     float w = clamp(in2, 0.0, 1.0);
-    bsdf.eval = in1.eval * w;
+    bsdf.result = in1.result * w;
     bsdf.throughput = in1.throughput * w;
 }

@@ -167,7 +167,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
                 shadergen.emitLineBreak(stage);
 
                 shadergen.emitComment("Accumulate the light's contribution", stage);
-                shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf->getOutput()->getVariable() + ".eval", stage);
+                shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf->getOutput()->getVariable() + ".result", stage);
 
                 shadergen.emitScopeEnd(stage);
                 shadergen.emitLineBreak(stage);
@@ -197,7 +197,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             context.popClosureContext();
 
             shadergen.emitLineBreak(stage);
-            shadergen.emitLine(outColor + " += occlusion * " + bsdf->getOutput()->getVariable() + ".eval", stage);
+            shadergen.emitLine(outColor + " += occlusion * " + bsdf->getOutput()->getVariable() + ".result", stage);
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
         }
@@ -233,7 +233,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitFunctionCall(*bsdf, context, stage);
             context.popClosureContext();
 
-            shadergen.emitLine(outTransparency + " = " + bsdf->getOutput()->getVariable() + ".eval", stage);
+            shadergen.emitLine(outTransparency + " = " + bsdf->getOutput()->getVariable() + ".result", stage);
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
 

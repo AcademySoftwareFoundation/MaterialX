@@ -26,7 +26,7 @@ void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float wei
 
     // We need to include NdotL from the light integral here
     // as in this case it's not cancelled out by the BRDF denominator.
-    bsdf.eval = fr * NdotL * occlusion * weight;
+    bsdf.result = fr * NdotL * occlusion * weight;
     bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
 }
 
@@ -45,6 +45,6 @@ void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
     float dirAlbedo = mx_imageworks_sheen_directional_albedo(NdotV, roughness);
 
     vec3 Li = mx_environment_irradiance(N);
-    bsdf.eval = Li * color * dirAlbedo * weight;
+    bsdf.result = Li * color * dirAlbedo * weight;
     bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
 }

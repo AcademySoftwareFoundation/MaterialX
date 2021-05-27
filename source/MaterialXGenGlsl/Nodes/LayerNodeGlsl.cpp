@@ -87,7 +87,7 @@ void LayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& contex
             // Calculate the layering result.
             const string& topResult = top->getConnection()->getVariable();
             const string& baseResult = base->getConnection()->getVariable();
-            shadergen.emitLine(output->getVariable() + ".eval = " + topResult + ".eval + " + topResult + ".throughput * " + baseResult + ".eval", stage);
+            shadergen.emitLine(output->getVariable() + ".result = " + topResult + ".result + " + topResult + ".throughput * " + baseResult + ".result", stage);
             shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
         }
 

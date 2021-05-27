@@ -9,7 +9,7 @@ void mx_translucent_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, flo
         return;
     }
 
-    bsdf.eval = color * weight * NdotL * M_PI_INV;
+    bsdf.result = color * weight * NdotL * M_PI_INV;
 }
 
 void mx_translucent_bsdf_indirect(vec3 V, float weight, vec3 color, vec3 normal, inout BSDF bsdf)
@@ -21,5 +21,5 @@ void mx_translucent_bsdf_indirect(vec3 V, float weight, vec3 color, vec3 normal,
 
     // Invert normal since we're transmitting light from the other side
     vec3 Li = mx_environment_irradiance(-normal);
-    bsdf.eval = Li * color * weight;
+    bsdf.result = Li * color * weight;
 }
