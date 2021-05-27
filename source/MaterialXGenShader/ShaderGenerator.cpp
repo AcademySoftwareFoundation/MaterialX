@@ -117,12 +117,14 @@ void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& conte
     stage.addFunctionCall(node, context);
 }
 
-void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
 {
-    // Emit function calls for all nodes in the graph.
     for (ShaderNode* node : graph.getNodes())
     {
-        emitFunctionCall(*node, context, stage);
+        if (!classification || node->hasClassification(classification))
+        {
+            emitFunctionCall(*node, context, stage);
+        }
     }
 }
 

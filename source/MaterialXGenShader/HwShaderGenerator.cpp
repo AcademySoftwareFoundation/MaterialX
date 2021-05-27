@@ -158,6 +158,7 @@ const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT("_indirect");
 
 HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     ShaderGenerator(syntax),
+    _defDefault(HwShaderGenerator::ClosureContextType::DEFAULT),
     _defReflection(HwShaderGenerator::ClosureContextType::REFLECTION),
     _defTransmission(HwShaderGenerator::ClosureContextType::TRANSMISSION),
     _defIndirect(HwShaderGenerator::ClosureContextType::INDIRECT),
@@ -217,7 +218,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
 
-    // Create closure contexts for defining closure functions
+    // Setup closure contexts for defining closure functions
     //
     // Reflection context
     _defReflection.setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_REFLECTION);
@@ -425,7 +426,7 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
     // Check if it's emitted already.
     if (stage.isEmitted(node))
     {
-        emitComment("Omitted node '" + node.getName() + "'. Already called above.", stage);
+        emitComment("Omitted node '" + node.getName() + "'. Function already called in this scope.", stage);
         return;
     }
 
@@ -472,24 +473,6 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         emitLineBegin(stage);
         emitOutput(node.getOutput(), true, true, context, stage);
         emitLineEnd(stage);
-    }
-}
-
-void HwShaderGenerator::emitTextureNodes(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
-{
-    // Emit function calls for all texturing nodes
-    bool found = false;
-    for (const ShaderNode* node : graph.getNodes())
-    {
-        if (node->hasClassification(ShaderNode::Classification::TEXTURE) && !node->referencedConditionally())
-        {
-            emitFunctionCall(*node, context, stage, false);
-            found = true;
-        }
-    }
-    if (found)
-    {
-        emitLineBreak(stage);
     }
 }
 
@@ -575,6 +558,11 @@ void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<Cl
     {
         // An EDF
         ccts.push_back(&_defEmission);
+    }
+    else if (node.hasClassification(ShaderNode::Classification::SHADER))
+    {
+        // A shader
+        ccts.push_back(&_defDefault);
     }
 }
 

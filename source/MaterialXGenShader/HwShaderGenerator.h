@@ -287,9 +287,6 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, 
                           bool checkScope = true) const override;
 
-    /// Emit function calls for all texturing nodes.
-    virtual void emitTextureNodes(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
-
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
@@ -311,6 +308,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Types of closure contexts for HW.
     enum ClosureContextType
     {
+        DEFAULT,
         REFLECTION,
         TRANSMISSION,
         INDIRECT,
@@ -329,6 +327,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     /// Closure contexts for defining closure functions.
+    mutable ClosureContext _defDefault;
     mutable ClosureContext _defReflection;
     mutable ClosureContext _defTransmission;
     mutable ClosureContext _defIndirect;

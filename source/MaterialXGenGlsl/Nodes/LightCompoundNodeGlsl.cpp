@@ -106,33 +106,26 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ClosureContext* cct, GenConte
 
     shadergen.emitScopeBegin(stage);
 
-    // Handle all texturing nodes. These are inputs to any
+    // Emit all texturing nodes. These are inputs to any
     // closure/shader nodes and need to be emitted first.
-    shadergen.emitTextureNodes(*_rootGraph, context, stage);
+    shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
 
+    // Emit function calls for all light shader nodes.
+    // These will internally emit their closure function calls.
     if (cct)
     {
         context.pushClosureContext(cct);
-    }
-
-    // Emit function calls for all light shader nodes
-    for (const ShaderNode* childNode : _rootGraph->getNodes())
-    {
-        if (childNode->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT))
-        {
-            shadergen.emitFunctionCall(*childNode, context, stage, false);
-        }
-    }
-
-    if (cct)
-    {
+        shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT);
         context.popClosureContext();
+    }
+    else
+    {
+        shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT);
     }
 
     shadergen.emitScopeEnd(stage);
     shadergen.emitLineBreak(stage);
 }
-
 
 void LightCompoundNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {

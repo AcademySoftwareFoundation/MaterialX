@@ -349,7 +349,14 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitScopeBegin(stage);
     emitLine("vec4 hPositionWorld = " + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_POSITION + ", 1.0)", stage);
     emitLine("gl_Position = " + HW::T_VIEW_PROJECTION_MATRIX + " * hPositionWorld", stage);
-    emitFunctionCalls(graph, context, stage);
+
+    // For vertex stage just emit all function calls in order
+    // and ignore conditional scope.
+    for (const ShaderNode* node : graph.getNodes())
+    {
+        emitFunctionCall(*node, context, stage, false);
+    }
+
     emitScopeEnd(stage);
     emitLineBreak(stage);
 }
@@ -517,7 +524,27 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitInclude(ShaderGenerator::T_FILE_TRANSFORM_UV, context, stage);
     }
 
-    // Add all functions for node implementations
+    // Emit Light function definitions if requested.
+    if (context.getOptions().hwMaxActiveLightSources > 0 &&
+        graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+    {
+        // Emit function definitions for all bound light shaders.
+        HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+        if (lightShaders)
+        {
+            for (const auto& it : lightShaders->get())
+            {
+                emitFunctionDefinition(*it.second, context, stage);
+            }
+        }
+        // Emit function definitions for light sampling.
+        for (const auto& it : _lightSamplingNodes)
+        {
+            emitFunctionDefinition(*it, context, stage);
+        }
+    }
+
+    // Emit function definitions for all nodes in the graph.
     emitFunctionDefinitions(graph, context, stage);
 
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
@@ -544,8 +571,25 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
     else
     {
-        // Add all function calls
-        emitFunctionCalls(graph, context, stage);
+        // Add all function calls.
+        //
+        // Surface shaders need special handling.
+        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+        {
+            // Emit all texturing nodes. These are inputs to any
+            // closure/shader nodes and need to be emitted first.
+            emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
+
+            // Emit function calls for all surface shader nodes.
+            // These will internally emit their closure function calls.
+            emitFunctionCalls(graph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE);
+        }
+        else
+        {
+            // No surface shader graph so just generate all
+            // function calls in order.
+            emitFunctionCalls(graph, context, stage);
+        }
 
         // Emit final output
         const ShaderOutput* outputConnection = outputSocket->getConnection();
@@ -603,75 +647,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // End main function
     emitScopeEnd(stage);
     emitLineBreak(stage);
-}
-
-void GlslShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
-{
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-
-    // Emit Light functions if requested
-    if (context.getOptions().hwMaxActiveLightSources > 0)
-    {
-        // For surface shaders we need light shaders
-        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
-        {
-            // Emit functions for all bound light shaders
-            HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
-            if (lightShaders)
-            {
-                for (const auto& it : lightShaders->get())
-                {
-                    emitFunctionDefinition(*it.second, context, stage);
-                }
-            }
-            // Emit functions for light sampling
-            for (const auto& it : _lightSamplingNodes)
-            {
-                emitFunctionDefinition(*it, context, stage);
-            }
-        }
-    }
-END_SHADER_STAGE(stage, Stage::PIXEL)
-
-    // Call parent to emit all other functions
-    HwShaderGenerator::emitFunctionDefinitions(graph, context, stage);
-}
-
-void GlslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
-{
-BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-    // For vertex stage just emit all function calls in order
-    // and ignore conditional scope.
-    for (const ShaderNode* node : graph.getNodes())
-    {
-        emitFunctionCall(*node, context, stage, false);
-    }
-END_SHADER_STAGE(stage, Stage::VERTEX)
-
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    // For pixel stage surface shaders need special handling
-    if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
-    {
-        // Handle all texturing nodes. These are inputs to any
-        // closure/shader nodes and need to be emitted first.
-        emitTextureNodes(graph, context, stage);
-
-        // Emit function calls for all surface shader nodes
-        for (const ShaderNode* node : graph.getNodes())
-        {
-            if (node->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
-            {
-                emitFunctionCall(*node, context, stage, false);
-            }
-        }
-    }
-    else
-    {
-        // No surface shader or closure graph,
-        // so generate a normel function call.
-        HwShaderGenerator::emitFunctionCalls(graph, context, stage);
-    }
-END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
@@ -768,7 +743,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         // Use a compound implementation.
         if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE)
         {
-//            impl = HwCompoundNode::create();
+            impl = HwCompoundNode::create();
         }
         else if (outputType == Type::LIGHTSHADER)
         {
@@ -776,7 +751,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         }
         else
         {
-            impl = HwCompoundNode::create();
+            impl = CompoundNode::create();
         }
     }
     else if (implElement->isA<Implementation>())

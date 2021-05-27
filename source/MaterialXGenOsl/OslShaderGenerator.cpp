@@ -372,13 +372,13 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     return shader;
 }
 
-void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
 {
     if (!graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {
         emitLine("closure color null_closure = 0", stage);
     }
-    ShaderGenerator::emitFunctionCalls(graph, context, stage);
+    ShaderGenerator::emitFunctionCalls(graph, context, stage, classification);
 }
 
 void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) const
