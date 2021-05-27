@@ -3,17 +3,17 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_HWCOMPOUNDNODE_H
-#define MATERIALX_HWCOMPOUNDNODE_H
+#ifndef MATERIALX_CLOSURECOMPOUNDNODE_H
+#define MATERIALX_CLOSURECOMPOUNDNODE_H
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
 
-/// Extending the CompoundNode with requirements for HW.
-class MX_GENSHADER_API HwCompoundNode : public CompoundNode
+/// Extending the CompoundNode with requirements for closures.
+class MX_GENSHADER_API ClosureCompoundNode : public CompoundNode
 {
 public:
     static ShaderNodeImplPtr create();

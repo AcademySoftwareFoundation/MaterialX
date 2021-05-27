@@ -135,7 +135,7 @@ void ShaderGenerator::emitDependentFunctionCalls(const ShaderNode& node, GenCont
         if (input->getConnection())
         {
             const ShaderNode* upstream = input->getConnection()->getNode();
-            if (!classification || upstream->hasClassification(classification))
+            if (!upstream->isAGraph() && (!classification || upstream->hasClassification(classification)))
             {
                 emitFunctionCall(*upstream, context, stage);
             }
@@ -230,6 +230,10 @@ void ShaderGenerator::emitOutput(const ShaderOutput* output, bool includeType, b
             stage.addString(" = " + value);
         }
     }
+}
+
+void ShaderGenerator::getClosureContexts(const ShaderNode&, vector<ClosureContext*>&) const
+{
 }
 
 string ShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& context) const

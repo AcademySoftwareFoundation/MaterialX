@@ -33,9 +33,9 @@
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
-#include <MaterialXGenShader/Nodes/HwCompoundNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 
 namespace MaterialX
 {
@@ -741,13 +741,14 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE)
-        {
-            impl = HwCompoundNode::create();
-        }
-        else if (outputType == Type::LIGHTSHADER)
+        if (outputType == Type::LIGHTSHADER)
         {
             impl = LightCompoundNodeGlsl::create();
+        }
+        else if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                 outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        {
+            impl = ClosureCompoundNode::create();
         }
         else
         {
@@ -761,7 +762,8 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE)
+            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
             {
                 impl = ClosureSourceCodeNode::create();
             }

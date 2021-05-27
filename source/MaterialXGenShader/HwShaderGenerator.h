@@ -291,7 +291,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
     /// Return the closure contexts defined for the given node.
-    void getNodeClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const;
+    void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const override;
 
     /// Bind a light shader to a light type id, for usage in surface shaders created 
     /// by the generator. The lightTypeId should be a unique identifier for the light 

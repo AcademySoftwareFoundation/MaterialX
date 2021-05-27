@@ -531,7 +531,7 @@ void HwShaderGenerator::unbindLightShaders(GenContext& context)
     }
 }
 
-void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<ClosureContext*>& ccts) const
+void HwShaderGenerator::getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& ccts) const
 {
     if (node.hasClassification(ShaderNode::Classification::BSDF))
     {

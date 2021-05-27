@@ -72,7 +72,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenCo
         // Find any closure contexts used by this node
         // and emit the function for each context.
         vector<ClosureContext*> ccts;
-        shadergen.getNodeClosureContexts(node, ccts);
+        shadergen.getClosureContexts(node, ccts);
         if (ccts.empty())
         {
             emitFunctionDefinition(nullptr, context, stage);
