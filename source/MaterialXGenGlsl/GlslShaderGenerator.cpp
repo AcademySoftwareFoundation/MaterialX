@@ -27,7 +27,6 @@
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LayerNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/SourceCodeClosureNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
@@ -36,6 +35,7 @@
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/HwCompoundNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
 namespace MaterialX
 {
@@ -766,7 +766,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType == Type::BSDF)
+        if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE)
         {
 //            impl = HwCompoundNode::create();
         }
@@ -788,7 +788,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
             // Fall back to source code implementation.
             if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE)
             {
-                impl = SourceCodeClosureNodeGlsl::create();
+                impl = ClosureSourceCodeNode::create();
             }
             else
             {

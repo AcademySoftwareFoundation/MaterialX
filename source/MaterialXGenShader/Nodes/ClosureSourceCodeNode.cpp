@@ -3,29 +3,25 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenGlsl/Nodes/SourceCodeClosureNodeGlsl.h>
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
 
-ShaderNodeImplPtr SourceCodeClosureNodeGlsl::create()
+ShaderNodeImplPtr ClosureSourceCodeNode::create()
 {
-    return std::make_shared<SourceCodeClosureNodeGlsl>();
+    return std::make_shared<ClosureSourceCodeNode>();
 }
 
-const string& SourceCodeClosureNodeGlsl::getTarget() const
-{
-    return GlslShaderGenerator::TARGET;
-}
-
-void SourceCodeClosureNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void ClosureSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Emit calls for any closure dependencies upstream from this node.
-    shadergen.emitDependentNodes(node, context, stage, ShaderNode::Classification::CLOSURE);
+    shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
 
     if (_inlined)
     {
@@ -40,12 +36,13 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         emitOutputVariables(node, context, stage);
 
         // Check if we have a closure context to modify the function call.
-        HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
-        if (ccx)
+//        ClosureContextPtr ccx = context.getUserData<ClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
+        ClosureContext* cct = context.getClosureContext();
+        if (cct)
         {
             // Check if thin-film has been added to the BSDF context.
             const TypeDesc* closureType = output->getType();
-            const ShaderNode* thinfilm = ccx->getThinFilm();
+            const ShaderNode* thinfilm = cct->getThinFilm();
             if (closureType == Type::BSDF && thinfilm)
             {
                 // Set thin-film parameters on the BSDF.
@@ -60,15 +57,15 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
                 // Once the thinfilm has been applied we reset it on the context
                 // since we don't want any upstream BSDF to also pick this up.
-                ccx->setThinFilm(nullptr);
+                cct->setThinFilm(nullptr);
             }
 
             // Emit function name.
             shadergen.emitLineBegin(stage);
-            shadergen.emitString(_functionName + ccx->getSuffix(closureType) + "(", stage);
+            shadergen.emitString(_functionName + cct->getSuffix(closureType) + "(", stage);
 
             // Emit extra argument.
-            for (const HwClosureContext::Argument& arg : ccx->getArguments(closureType))
+            for (const ClosureContext::Argument& arg : cct->getArguments(closureType))
             {
                 shadergen.emitString(delim + arg.second, stage);
                 delim = ", ";

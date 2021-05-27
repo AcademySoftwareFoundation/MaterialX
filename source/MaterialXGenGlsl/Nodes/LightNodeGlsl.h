@@ -24,7 +24,7 @@ class LightNodeGlsl : public GlslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   private:
-      HwClosureContextPtr _callEmission;
+      mutable ClosureContext _callEmission;
 };
 
 } // namespace MaterialX

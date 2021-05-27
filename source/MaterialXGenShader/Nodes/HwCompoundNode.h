@@ -23,7 +23,7 @@ public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:
-    void emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const;
+    void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
 };
 
 } // namespace MaterialX

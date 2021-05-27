@@ -6,6 +6,7 @@
 #include <MaterialXGenShader/Nodes/HwCompoundNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
@@ -25,23 +26,23 @@ void HwCompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
 
         // Find any closure contexts used by this node
         // and emit the function for each context.
-        vector<HwClosureContextPtr> ccxs;
-        shadergen.getNodeClosureContexts(node, ccxs);
-        if (ccxs.empty())
+        vector<ClosureContext*> ccts;
+        shadergen.getNodeClosureContexts(node, ccts);
+        if (ccts.empty())
         {
             emitFunctionDefinition(nullptr, context, stage);
         }
         else
         {
-            for (HwClosureContextPtr ccx : ccxs)
+            for (ClosureContext* cct : ccts)
             {
-                emitFunctionDefinition(ccx, context, stage);
+                emitFunctionDefinition(cct, context, stage);
             }
         }
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-void HwCompoundNode::emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const
+void HwCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
     const Syntax& syntax = shadergen.getSyntax();
@@ -50,16 +51,16 @@ void HwCompoundNode::emitFunctionDefinition(HwClosureContextPtr ccx, GenContext&
 
     // Begin function signature
     shadergen.emitLineBegin(stage);
-    if (ccx)
+    if (cct)
     {
         // Use the first output for classifying node type for the closure context.
         // This is only relevent for closures, and they only have a single output.
         const TypeDesc* nodeType = _rootGraph->getOutputSocket()->getType();
 
-        shadergen.emitString("void " + _functionName + ccx->getSuffix(nodeType) + "(", stage);
+        shadergen.emitString("void " + _functionName + cct->getSuffix(nodeType) + "(", stage);
 
         // Add any extra argument inputs first
-        for (const HwClosureContext::Argument& arg : ccx->getArguments(nodeType))
+        for (const ClosureContext::Argument& arg : cct->getArguments(nodeType))
         {
             const string& type = syntax.getTypeName(arg.first);
             shadergen.emitString(delim + type + " " + arg.second, stage);
@@ -92,11 +93,11 @@ void HwCompoundNode::emitFunctionDefinition(HwClosureContextPtr ccx, GenContext&
     // Begin function body
     shadergen.emitScopeBegin(stage);
 
-    if (ccx)
+    if (cct)
     {
-        context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
+        context.pushClosureContext(cct);
         shadergen.emitFunctionCalls(*_rootGraph, context, stage);
-        context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+        context.popClosureContext();
     }
     else
     {
@@ -133,19 +134,18 @@ void HwCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         string delim = "";
 
         // Check if we have a closure context to modify the function call.
-        HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
-
-        if (ccx)
+        ClosureContext* cct = context.getClosureContext();
+        if (cct)
         {
             // Use the first output for classifying node type for the closure context.
             // This is only relevent for closures, and they only have a single output.
             const TypeDesc* nodeType = _rootGraph->getOutputSocket()->getType();
 
             // Emit function name.
-            shadergen.emitString(_functionName + ccx->getSuffix(nodeType) + "(", stage);
+            shadergen.emitString(_functionName + cct->getSuffix(nodeType) + "(", stage);
 
             // Emit extra argument.
-            for (const HwClosureContext::Argument& arg : ccx->getArguments(nodeType))
+            for (const ClosureContext::Argument& arg : cct->getArguments(nodeType))
             {
                 shadergen.emitString(delim + arg.second, stage);
                 delim = ", ";

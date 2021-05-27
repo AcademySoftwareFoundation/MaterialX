@@ -357,15 +357,11 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& cont
 
 void ShaderStage::addFunctionCall(const ShaderNode& node, GenContext& context)
 {
-    // Make sure it's not already called in scope.
-    if (!isCalled(node))
-    {
-        _scopes.back().nodes.insert(&node);
-        node.getImplementation().emitFunctionCall(node, context, *this);
-    }
+    _scopes.back().nodes.insert(&node);
+    node.getImplementation().emitFunctionCall(node, context, *this);
 }
 
-bool ShaderStage::isCalled(const ShaderNode& node) const
+bool ShaderStage::isEmitted(const ShaderNode& node) const
 {
     for (const Scope& s : _scopes)
     {

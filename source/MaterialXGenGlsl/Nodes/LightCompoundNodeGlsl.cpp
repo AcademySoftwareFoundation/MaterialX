@@ -71,33 +71,33 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenCo
 
         // Find any closure contexts used by this node
         // and emit the function for each context.
-        vector<HwClosureContextPtr> ccxs;
-        shadergen.getNodeClosureContexts(node, ccxs);
-        if (ccxs.empty())
+        vector<ClosureContext*> ccts;
+        shadergen.getNodeClosureContexts(node, ccts);
+        if (ccts.empty())
         {
             emitFunctionDefinition(nullptr, context, stage);
         }
         else
         {
-            for (HwClosureContextPtr ccx : ccxs)
+            for (ClosureContext* cct : ccts)
             {
-                emitFunctionDefinition(ccx, context, stage);
+                emitFunctionDefinition(cct, context, stage);
             }
         }
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-void LightCompoundNodeGlsl::emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const
+void LightCompoundNodeGlsl::emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const
 {
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
     // Emit function signature
-    if (ccx)
+    if (cct)
     {
         // Use the first output for classifying node type for the closure context.
         // This is only relevent for closures, and they only have a single output.
         const TypeDesc* nodeType = _rootGraph->getOutputSocket()->getType();
-        shadergen.emitLine("void " + _functionName + ccx->getSuffix(nodeType) + "(LightData light, vec3 position, out lightshader result)", stage, false);
+        shadergen.emitLine("void " + _functionName + cct->getSuffix(nodeType) + "(LightData light, vec3 position, out lightshader result)", stage, false);
     }
     else
     {
@@ -110,9 +110,9 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(HwClosureContextPtr ccx, GenC
     // closure/shader nodes and need to be emitted first.
     shadergen.emitTextureNodes(*_rootGraph, context, stage);
 
-    if (ccx)
+    if (cct)
     {
-        context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
+        context.pushClosureContext(cct);
     }
 
     // Emit function calls for all light shader nodes
@@ -124,9 +124,9 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(HwClosureContextPtr ccx, GenC
         }
     }
 
-    if (ccx)
+    if (cct)
     {
-        context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+        context.popClosureContext();
     }
 
     shadergen.emitScopeEnd(stage);

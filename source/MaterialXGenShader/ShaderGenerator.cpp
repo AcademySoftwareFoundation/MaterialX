@@ -89,19 +89,6 @@ void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext&
     stage.addFunctionDefinition(node, context);
 }
 
-void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
-                                       bool checkScope) const
-{
-    // Omit node if it's only used inside a conditional branch
-    if (checkScope && node.referencedConditionally())
-    {
-        emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
-                    node.getScopeInfo().conditionalNode->getName() + "'", stage);
-        return;
-    }
-    stage.addFunctionCall(node, context);
-}
-
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     // Emit function definitions for all nodes in the graph.
@@ -111,12 +98,46 @@ void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenConte
     }
 }
 
+void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
+    bool checkScope) const
+{
+    // Check if it's emitted already.
+    if (stage.isEmitted(node))
+    {
+        emitComment("Omitted node '" + node.getName() + "'. Already called above.", stage);
+        return;
+    }
+    // Omit node if it's only used inside a conditional branch
+    if (checkScope && node.referencedConditionally())
+    {
+        emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
+            node.getScopeInfo().conditionalNode->getName() + "'", stage);
+        return;
+    }
+    stage.addFunctionCall(node, context);
+}
+
 void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     // Emit function calls for all nodes in the graph.
     for (ShaderNode* node : graph.getNodes())
     {
         emitFunctionCall(*node, context, stage);
+    }
+}
+
+void ShaderGenerator::emitDependentFunctionCalls(const ShaderNode& node, GenContext& context, ShaderStage& stage, uint32_t classification) const
+{
+    for (ShaderInput* input : node.getInputs())
+    {
+        if (input->getConnection())
+        {
+            const ShaderNode* upstream = input->getConnection()->getNode();
+            if (!classification || upstream->hasClassification(classification))
+            {
+                emitFunctionCall(*upstream, context, stage);
+            }
+        }
     }
 }
 

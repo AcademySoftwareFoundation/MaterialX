@@ -20,6 +20,8 @@
 namespace MaterialX
 {
 
+class ClosureContext;
+
 /// @class GenContext 
 /// A context class for shader generation.
 /// Used for thread local storage of data needed during shader generation.
@@ -91,6 +93,27 @@ class MX_GENSHADER_API GenContext
 
     /// Clear all cached shader node implementation.
     void clearNodeImplementations();
+
+    /// Push a new closure context to use for closure evaluation.
+    void pushClosureContext(ClosureContext* cct)
+    {
+        _closureContexts.push_back(cct);
+    }
+
+    /// Pop the current closure context.
+    void popClosureContext()
+    {
+        if (_closureContexts.size())
+        {
+            _closureContexts.pop_back();
+        }
+    }
+
+    /// Return the current closure context.
+    ClosureContext* getClosureContext()
+    {
+        return _closureContexts.size() ? _closureContexts.back() : nullptr;
+    }
 
     /// Add user data to the context to make it
     /// available during shader generator.
@@ -183,6 +206,77 @@ class MX_GENSHADER_API GenContext
 
     // List of output suffixes
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
+
+    // Contexts for closure evaluation.
+    vector<ClosureContext*> _closureContexts;
+};
+
+
+/// @class ClosureContext
+/// Class representing a context for closure evaluation.
+/// On hardware BSDF closures are evaluated differently in reflection, transmission
+/// or environment/indirect contexts. This class represents the context we are in
+/// and if extra arguments and function decorators are needed for that context.
+class MX_GENSHADER_API ClosureContext
+{
+public:
+    /// An extra argument for closure functions.
+    /// An argument is a pair of strings holding the
+    /// 'type' and 'name' of the argument.
+    using Argument = std::pair<const TypeDesc*, string>;
+    /// An array of arguments
+    using Arguments = vector<Argument>;
+
+    /// Constructor
+    ClosureContext(int type) : _type(type), _thinfilm(nullptr) {}
+
+    /// Return the identifier for this context.
+    int getType() const { return _type; }
+
+    /// For the given node type add an extra argument to be used for the function in this context.
+    void addArgument(const TypeDesc* nodeType, const Argument& arg)
+    {
+        _arguments[nodeType].push_back(arg);
+    }
+
+    /// Return a list of extra argument to be used for the given node in this context.
+    const Arguments& getArguments(const TypeDesc* nodeType) const
+    {
+        auto it = _arguments.find(nodeType);
+        return it != _arguments.end() ? it->second : EMPTY_ARGUMENTS;
+    }
+
+    /// For the given node type set a function name suffix to be used for the function in this context.
+    void setSuffix(const TypeDesc* nodeType, const string& suffix)
+    {
+        _suffix[nodeType] = suffix;
+    }
+
+    /// Return the function name suffix to be used for the given node in this context.
+    const string& getSuffix(const TypeDesc* nodeType) const
+    {
+        auto it = _suffix.find(nodeType);
+        return it != _suffix.end() ? it->second : EMPTY_STRING;
+    }
+
+    /// Apply a thin-film node to be used for evaluating BSDFs in this context.
+    void setThinFilm(const ShaderNode* thinfilm)
+    {
+        _thinfilm = thinfilm;
+    }
+
+    /// Return a thin-film node if one is set for evaluating BSDFs in this context.
+    const ShaderNode* getThinFilm() const
+    {
+        return _thinfilm;
+    }
+
+protected:
+    const int _type;
+    std::unordered_map<const TypeDesc*, Arguments> _arguments;
+    std::unordered_map<const TypeDesc*, string> _suffix;
+    const ShaderNode* _thinfilm;
+    static const Arguments EMPTY_ARGUMENTS;
 };
 
 } // namespace MaterialX

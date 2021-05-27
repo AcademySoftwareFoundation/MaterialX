@@ -7,33 +7,34 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
 
-SurfaceNodeGlsl::SurfaceNodeGlsl()
+SurfaceNodeGlsl::SurfaceNodeGlsl() :
+    _callReflection(HwShaderGenerator::ClosureContextType::REFLECTION),
+    _callTransmission(HwShaderGenerator::ClosureContextType::TRANSMISSION),
+    _callIndirect(HwShaderGenerator::ClosureContextType::INDIRECT),
+    _callEmission(HwShaderGenerator::ClosureContextType::EMISSION)
 {
     // Create closure contexts for calling closure functions.
     //
     // Reflection context
-    _callReflection = HwClosureContext::create(HwClosureContext::REFLECTION);
-    _callReflection->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
-    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
-    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
-    _callReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
+    _callReflection.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
+    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
+    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
+    _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
     // Transmission context
-    _callTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
-    _callTransmission->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION);
-    _callTransmission->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    // Indirect context
-    _callIndirect = HwClosureContext::create(HwClosureContext::INDIRECT);
-    _callIndirect->setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT);
-    _callIndirect->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    _callTransmission.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION);
+    _callTransmission.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    // Environment context
+    _callIndirect.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT);
+    _callIndirect.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Emission context
-    _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
-    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
+    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
 }
 
 ShaderNodeImplPtr SurfaceNodeGlsl::create()
@@ -159,9 +160,9 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
                 shadergen.emitLineBreak(stage);
 
                 shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-                context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callReflection);
+                context.pushClosureContext(&_callReflection);
                 shadergen.emitFunctionCall(*bsdf, context, stage);
-                context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+                context.popClosureContext();
 
                 shadergen.emitLineBreak(stage);
 
@@ -188,12 +189,12 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             }
             shadergen.emitLineBreak(stage);
 
-            shadergen.emitComment("Add indirect contribution", stage);
+            shadergen.emitComment("Add environment contribution", stage);
             shadergen.emitScopeBegin(stage);
 
-            context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callIndirect);
+            context.pushClosureContext(&_callIndirect);
             shadergen.emitFunctionCall(*bsdf, context, stage);
-            context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+            context.popClosureContext();
 
             shadergen.emitLineBreak(stage);
             shadergen.emitLine(outColor + " += occlusion * " + bsdf->getOutput()->getVariable() + ".eval", stage);
@@ -211,9 +212,9 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitComment("Add surface emission", stage);
             shadergen.emitScopeBegin(stage);
 
-            context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callEmission);
+            context.pushClosureContext(&_callEmission);
             shadergen.emitFunctionCall(*edf, context, stage);
-            context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+            context.popClosureContext();
 
             shadergen.emitLine(outColor + " += " + edf->getOutput()->getVariable(), stage);
             shadergen.emitScopeEnd(stage);
@@ -228,9 +229,9 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
             shadergen.emitScopeBegin(stage);
   
-            context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callIndirect);
+            context.pushClosureContext(&_callTransmission);
             shadergen.emitFunctionCall(*bsdf, context, stage);
-            context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+            context.popClosureContext();
 
             shadergen.emitLine(outTransparency + " = " + bsdf->getOutput()->getVariable() + ".eval", stage);
             shadergen.emitScopeEnd(stage);

@@ -55,13 +55,13 @@ void LayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& contex
         if (topBsdf->hasClassification(ShaderNode::Classification::THINFILM))
         {
             // This is a layer node with thin-film as top layer.
-            // Here we call only the base BSDF but with thin-film parameters set.
-            HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
-            if (!ccx)
+            // Call only the base BSDF but with thin-film parameters set.
+            ClosureContext* cct = context.getClosureContext();
+            if (!cct)
             {
                 throw ExceptionShaderGenError("No closure context set to evaluate node '" + node.getName() + "'");
             }
-            ccx->setThinFilm(topBsdf);
+            cct->setThinFilm(topBsdf);
             const string oldVariable = baseBsdf->getOutput()->getVariable();
             baseBsdf->getOutput()->setVariable(output->getVariable());
             shadergen.emitFunctionCall(*baseBsdf, context, stage);

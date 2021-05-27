@@ -240,8 +240,8 @@ public:
     /// Add the function call for the given node.
     void addFunctionCall(const ShaderNode& node, GenContext& context);
 
-    /// Return true if the function has been called for the given node in the current scope.
-    bool isCalled(const ShaderNode& node) const;
+    /// Return true if the function for the given node has been emitted in the current scope.
+    bool isEmitted(const ShaderNode& node) const;
 
     /// Set stage function name.
     void setFunctionName(const string& functionName) 

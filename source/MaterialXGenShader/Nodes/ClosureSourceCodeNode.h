@@ -3,21 +3,18 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_SOURCECODECLOSURENODEGLSL_H
-#define MATERIALX_SOURCECODECLOSURENODEGLSL_H
+#ifndef MATERIALX_CLOSURESOURCECODENODE_H
+#define MATERIALX_CLOSURESOURCECODENODE_H
 
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/TypeDesc.h>
 
 namespace MaterialX
 {
 
-class SourceCodeClosureNodeGlsl : public SourceCodeNode
+class ClosureSourceCodeNode : public SourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();
-
-    const string& getTarget() const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };

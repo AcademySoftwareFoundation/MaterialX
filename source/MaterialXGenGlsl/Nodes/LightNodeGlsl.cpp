@@ -19,12 +19,12 @@ namespace
         "result.direction = L;\n";
 }
 
-LightNodeGlsl::LightNodeGlsl()
+LightNodeGlsl::LightNodeGlsl() : 
+    _callEmission(HwShaderGenerator::ClosureContextType::EMISSION)
 {
     // Emission context
-    _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, "light.direction"));
-    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, "-L"));
+    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, "light.direction"));
+    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, "-L"));
 }
 
 ShaderNodeImplPtr LightNodeGlsl::create()
@@ -54,9 +54,9 @@ void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context
         shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, context, stage);
         shadergen.emitLineBreak(stage);
 
-        context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, _callEmission);
+        context.pushClosureContext(&_callEmission);
         shadergen.emitFunctionCall(node, context, stage);
-        context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+        context.popClosureContext();
 
         shadergen.emitLineBreak(stage);
 
