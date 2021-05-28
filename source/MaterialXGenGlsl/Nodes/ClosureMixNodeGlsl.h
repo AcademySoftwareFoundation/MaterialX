@@ -3,16 +3,16 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_CLOSURELAYERNODEGLSL_H
-#define MATERIALX_CLOSURELAYERNODEGLSL_H
+#ifndef MATERIALX_CLOSUREMIXNODEGLSL_H
+#define MATERIALX_CLOSUREMIXNODEGLSL_H
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace MaterialX
 {
 
-/// Closure layer node implementation for GLSL.
-class ClosureLayerNodeGlsl : public GlslImplementation
+/// Closure mix node implementation for GLSL.
+class ClosureMixNodeGlsl : public GlslImplementation
 {
   public:
     static ShaderNodeImplPtr create();
@@ -20,8 +20,9 @@ class ClosureLayerNodeGlsl : public GlslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     /// String constants
-    static const string TOP;
-    static const string BASE;
+    static const string FG;
+    static const string BG;
+    static const string MIX;
 };
 
 } // namespace MaterialX

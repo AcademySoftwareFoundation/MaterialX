@@ -27,6 +27,7 @@
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/ClosureLayerNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/ClosureMixNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
@@ -243,6 +244,10 @@ GlslShaderGenerator::GlslShaderGenerator() :
 
     // <!-- <layer> -->
     registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, ClosureLayerNodeGlsl::create);
+
+    // <!-- <mix> -->
+    registerImplementation("IM_mix_bsdf_" + GlslShaderGenerator::TARGET, ClosureMixNodeGlsl::create);
+    registerImplementation("IM_mix_edf_" + GlslShaderGenerator::TARGET, ClosureMixNodeGlsl::create);
 
     // <!-- <thin_film> -->
     registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);

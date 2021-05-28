@@ -32,8 +32,8 @@
   <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" target="genglsl" />
 
   <!-- <mix> -->
-  <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="pbrlib/genglsl/mx_mix_bsdf.glsl" function="mx_mix_bsdf" target="genglsl" />
-  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" file="pbrlib/genglsl/mx_mix_edf.glsl" function="mx_mix_edf" target="genglsl" />
+  <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" target="genglsl" />
+  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" target="genglsl" />
 
   <!-- <add> -->
   <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" file="pbrlib/genglsl/mx_add_bsdf.glsl" function="mx_add_bsdf" target="genglsl" />
