@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenGlsl/Nodes/LayerNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/ClosureLayerNodeGlsl.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -15,15 +15,15 @@
 namespace MaterialX
 {
 
-const string LayerNodeGlsl::TOP = "top";
-const string LayerNodeGlsl::BASE = "base";
+const string ClosureLayerNodeGlsl::TOP = "top";
+const string ClosureLayerNodeGlsl::BASE = "base";
 
-ShaderNodeImplPtr LayerNodeGlsl::create()
+ShaderNodeImplPtr ClosureLayerNodeGlsl::create()
 {
-    return std::make_shared<LayerNodeGlsl>();
+    return std::make_shared<ClosureLayerNodeGlsl>();
 }
 
-void LayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
+void ClosureLayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
@@ -33,18 +33,11 @@ void LayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& contex
         ShaderInput* top = node.getInput(TOP);
         ShaderInput* base = node.getInput(BASE);
         ShaderOutput* output = node.getOutput();
-        if (!(top && base && output))
-        {
-            throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid layer node");
-        }
 
+        // Make sure the layer is fully connected.
         if (!(top->getConnection() && base->getConnection()))
         {
             // Just declare the output variable with default value.
-            //
-            // TODO: Here we could do a pass through instead if one
-            //       of the inputs is connected.
-            //
             emitOutputVariables(node, context, stage);
             return;
         }
@@ -72,8 +65,8 @@ void LayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& contex
             // Evaluate top BSDF and base BSDF and combine their result
             // according to throughput from the top BSDF.
             //
-            // TODO: Should we emit code to evaluate the top throughput before
-            //       calling the base BSDF? If the throughput is zero we could
+            // TODO: Should we emit code to check the top throughput before
+            //       calling the base BSDF? When the throughput is zero we could
             //       early out.
             //
             shadergen.emitComment("Evaluate top BSDF for " + node.getName(), stage);

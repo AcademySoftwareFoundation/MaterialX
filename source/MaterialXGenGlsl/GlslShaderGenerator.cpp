@@ -26,7 +26,7 @@
 #include <MaterialXGenGlsl/Nodes/TransformPointNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LayerNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/ClosureLayerNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
@@ -242,7 +242,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_image_vector4_" + GlslShaderGenerator::TARGET, HwImageNode::create);
 
     // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, LayerNodeGlsl::create);
+    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, ClosureLayerNodeGlsl::create);
 
     // <!-- <thin_film> -->
     registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);

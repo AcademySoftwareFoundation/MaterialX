@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_LAYERNODEGLSL_H
-#define MATERIALX_LAYERNODEGLSL_H
+#ifndef MATERIALX_CLOSURELAYERNODEGLSL_H
+#define MATERIALX_CLOSURELAYERNODEGLSL_H
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Layer node implementation for GLSL.
-class LayerNodeGlsl : public GlslImplementation
+class ClosureLayerNodeGlsl : public GlslImplementation
 {
   public:
     static ShaderNodeImplPtr create();
