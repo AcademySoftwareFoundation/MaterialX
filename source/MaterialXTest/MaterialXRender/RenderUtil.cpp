@@ -349,7 +349,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                     }
                 }
 
-                for (size_t i=0; i < nodeDefs.size(); ++i)
+                for (size_t i=0; i < targetElements.size(); ++i)
                 {
                     const mx::NodeDefPtr& nodeDef = nodeDefs[i];
                     const mx::TypedElementPtr& targetElement = targetElements[i];

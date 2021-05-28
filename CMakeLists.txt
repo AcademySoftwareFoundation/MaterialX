@@ -59,9 +59,11 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 
 # Helpers for OSL validation
-set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
+set(MATERIALX_TESTOSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
 set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.g. location of stdosl.h")
+set(MATERIALX_ARNOLD_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary for Arnold.")
+set(MATERIALX_ARNOLD_EXECUTABLE "" CACHE FILEPATH "Full path to the test renderer for Arnold.")
 
 # Helpers for MDL validation
 if (MATERIALX_BUILD_GEN_MDL)
@@ -94,9 +96,10 @@ mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 mark_as_advanced(MATERIALX_OIIO_DIR)
-mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
+mark_as_advanced(MATERIALX_TESTOSLC_EXECUTABLE)
 mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
 mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
+mark_as_advanced(MATERIALX_ARNOLD_EXECUTABLE)
 mark_as_advanced(MATERIALX_INSTALL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
 mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
@@ -158,9 +161,11 @@ if (MATERIALX_BUILD_GEN_MDL)
 endif()
 
 # Add global definitions
-add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
+add_definitions(-DMATERIALX_TESTOSLC_EXECUTABLE=\"${MATERIALX_TESTOSLC_EXECUTABLE}\")
 add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
 add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
+add_definitions(-DMATERIALX_ARNOLD_OSLC_EXECUTABLE=\"${MATERIALX_ARNOLD_OSLC_EXECUTABLE}\")
+add_definitions(-DMATERIALX_ARNOLD_EXECUTABLE=\"${MATERIALX_ARNOLD_EXECUTABLE}\")
 if(MATERIALX_BUILD_OIIO)
     add_definitions(-DMATERIALX_BUILD_OIIO)
 endif()
