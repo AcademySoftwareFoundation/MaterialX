@@ -24,6 +24,6 @@ void bindPyUtil(py::module& mod)
     mod.def("tokenSubstitution", &mx::tokenSubstitution);
     mod.def("getUdimCoordinates", &mx::getUdimCoordinates);
     mod.def("getUdimScaleAndOffset", &mx::getUdimScaleAndOffset);
-    mod.def("connectsToNodeOfCategory", &mx::connectsToNodeOfCategory);
+    mod.def("connectsToWorldSpaceNode", &mx::connectsToWorldSpaceNode);
     mod.def("hasElementAttributes", &mx::hasElementAttributes);
 }

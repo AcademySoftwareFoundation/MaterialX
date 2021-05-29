@@ -516,41 +516,13 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
     offsetUV[1] = -minUV[1];
 }
 
-NodePtr connectsToNodeOfCategory(OutputPtr output, const StringSet& categories)
+NodePtr connectsToWorldSpaceNode(OutputPtr output)
 {
-    ElementPtr connectedElement = output ? output->getConnectedNode() : nullptr;
-    NodePtr connectedNode = connectedElement ? connectedElement->asA<Node>() : nullptr;
-    if (!connectedNode)
-    {
-        return nullptr;
-    }
-    
-    // Check the direct node type
-    if (categories.count(connectedNode->getCategory()))
+    const StringSet WORLD_SPACE_NODE_CATEGORIES{ "normalmap" };
+    NodePtr connectedNode = output ? output->getConnectedNode() : nullptr;
+    if (connectedNode && WORLD_SPACE_NODE_CATEGORIES.count(connectedNode->getCategory()))
     {
         return connectedNode;
-    }
-
-    // Check if it's a definition which has a root which of the node type
-    NodeDefPtr nodedef = connectedNode->getNodeDef();
-    if (nodedef)
-    {
-        InterfaceElementPtr inter = nodedef->getImplementation();
-        if (inter)
-        {
-            NodeGraphPtr graph = inter->asA<NodeGraph>();
-            if (graph)
-            {
-                for (OutputPtr outputPtr : graph->getOutputs())
-                {
-                    NodePtr outputNode = outputPtr->getConnectedNode();
-                    if (outputNode && categories.count(outputNode->getCategory()))
-                    {
-                        return outputNode;
-                    }
-                }
-            }
-        }
     }
     return nullptr;
 }
