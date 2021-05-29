@@ -81,11 +81,11 @@ MX_GENSHADER_API vector<Vector2> getUdimCoordinates(const StringVec& udimIdentif
 /// 0..1 space.
 MX_GENSHADER_API void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scaleUV, Vector2& offsetUV);
 
-/// Check if an output is connected to nodes of a given category.
+/// Determine whether the given output is directly connected to a node that
+/// generates world-space coordinates (e.g. the "normalmap" node).
 /// @param output Output to check
-/// @param categories Categories to check
 /// @return Return the node if found.
-MX_GENSHADER_API NodePtr connectsToNodeOfCategory(OutputPtr output, const StringSet& categories);
+MX_GENSHADER_API NodePtr connectsToWorldSpaceNode(OutputPtr output);
 
 /// Returns true if there is are any value elements with a given set of attributes either on the
 /// starting node or any graph upsstream of that node.
