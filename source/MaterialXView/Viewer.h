@@ -168,6 +168,7 @@ class Viewer : public ng::Screen
     // existing assignment if the given material is nullptr.
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
 
+    // Mark the given material as currently selected in the viewer.
     void setSelectedMaterial(MaterialPtr material)
     {
         for (size_t i = 0; i < _materials.size(); i++)
@@ -179,6 +180,9 @@ class Viewer : public ng::Screen
             }
         }
     }
+
+    // Generate a base output filepath for data derived from the current material.
+    mx::FilePath getBaseOutputPath();
 
     void initCamera();
     void updateViewHandlers();

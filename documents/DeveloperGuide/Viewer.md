@@ -64,10 +64,10 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 ### Keyboard Shortcuts
 
 - `R`: Reload the current material from file.  Hold `SHIFT` to reload all standard libraries as well.
-- `S`: Save the current GLSL shader source to file.
+- `G`: Save the current GLSL shader source to file.
 - `O`: Save the current OSL shader source to file.
 - `M`: Save the current MDL shader source to file.
-- `L`: Load shader source from file.  Editing the source files before loading provides a way to debug and experiment with shader source code.
+- `L`: Load GLSL shader source from file.  Editing the source files before loading provides a way to debug and experiment with shader source code.
 - `D`: Save each node graph in the current material as a DOT file.  See www.graphviz.org for more details on this format.
 - `F`: Capture the current frame and save to file.
 - `W`: Create a wedge rendering and save to file.
