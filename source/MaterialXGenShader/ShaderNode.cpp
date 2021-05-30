@@ -61,6 +61,16 @@ void ShaderInput::breakConnection()
     }
 }
 
+ShaderNode* ShaderInput::getConnectedSibling() const
+{
+    if (_connection && _connection->getNode()->getParent() == _node->getParent())
+    {
+        return _connection->getNode();
+    }
+    return nullptr;
+}
+
+
 //
 // ShaderOutput methods
 //

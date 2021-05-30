@@ -132,13 +132,10 @@ void ShaderGenerator::emitDependentFunctionCalls(const ShaderNode& node, GenCont
 {
     for (ShaderInput* input : node.getInputs())
     {
-        if (input->getConnection())
+        const ShaderNode* upstream = input->getConnectedSibling();
+        if (upstream && (!classification || upstream->hasClassification(classification)))
         {
-            const ShaderNode* upstream = input->getConnection()->getNode();
-            if (!upstream->isAGraph() && (!classification || upstream->hasClassification(classification)))
-            {
-                emitFunctionCall(*upstream, context, stage);
-            }
+            emitFunctionCall(*upstream, context, stage);
         }
     }
 }

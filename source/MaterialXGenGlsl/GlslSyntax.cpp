@@ -328,11 +328,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
-            "VDF",
-            "VDF(vec3(0.0),vec3(0.0))",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            "struct VDF { vec3 absorption; vec3 scattering; };")
+            "BSDF",
+            "BSDF(vec3(0.0),vec3(1.0), 0.0, 0.0)",
+            EMPTY_STRING)
     );
 
     registerTypeSyntax
@@ -351,10 +349,10 @@ GlslSyntax::GlslSyntax()
         Type::VOLUMESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "volumeshader",
-            "volumeshader(VDF(vec3(0.0),vec3(0.0)),EDF(0.0))",
+            "volumeshader(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct volumeshader { VDF vdf; EDF edf; };")
+            "struct volumeshader { vec3 color; vec3 transparency; };")
     );
 
     registerTypeSyntax

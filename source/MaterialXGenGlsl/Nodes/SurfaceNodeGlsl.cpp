@@ -22,15 +22,18 @@ SurfaceNodeGlsl::SurfaceNodeGlsl() :
     //
     // Reflection context
     _callReflection.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
+    _callReflection.setSuffix(Type::VDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
     _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
     _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
     _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
     // Transmission context
     _callTransmission.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION);
+    _callTransmission.setSuffix(Type::VDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION);
     _callTransmission.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    // Environment context
+    // Indirect/Environment context
     _callIndirect.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT);
+    _callIndirect.setSuffix(Type::VDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
     _callIndirect.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Emission context
     _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
@@ -117,7 +120,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         const string outTransparency = output->getVariable() + ".transparency";
 
         const ShaderInput* bsdfInput = node.getInput("bsdf");
-        const ShaderNode* bsdf = bsdfInput->getConnection() ? bsdfInput->getConnection()->getNode() : nullptr;
+        const ShaderNode* bsdf = bsdfInput->getConnectedSibling();
         if (bsdf)
         {
             if (context.getOptions().hwTransparency)
@@ -207,7 +210,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         // Handle surface emission.
         //
         const ShaderInput* edfInput = node.getInput("edf");
-        const ShaderNode* edf = edfInput->getConnection() ? edfInput->getConnection()->getNode() : nullptr;
+        const ShaderNode* edf = edfInput->getConnectedSibling();
         if (edf)
         {
             shadergen.emitComment("Add surface emission", stage);

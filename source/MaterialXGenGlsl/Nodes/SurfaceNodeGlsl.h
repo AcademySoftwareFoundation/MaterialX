@@ -24,6 +24,8 @@ class SurfaceNodeGlsl : public GlslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   private:
+    ShaderNode* getConnectedNode() const;
+
     /// Closure contexts for calling closure functions.
     mutable ClosureContext _callReflection;
     mutable ClosureContext _callTransmission;

@@ -277,6 +277,10 @@ class MX_GENSHADER_API ShaderInput : public ShaderPort
     /// Get optional channels value
     const string& getChannels() const { return _channels; }
 
+    /// Return the sibling node connected upstream,
+    /// or nullptr if there is no sibling upstream.
+    ShaderNode* getConnectedSibling() const;
+
   protected:
     ShaderOutput* _connection;
     string _channels;

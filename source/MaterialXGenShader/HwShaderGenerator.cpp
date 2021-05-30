@@ -449,10 +449,10 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
             match =
                 // For reflection and environment we support reflective closures.
                 ((cct->getType() == ClosureContextType::REFLECTION || cct->getType() == ClosureContextType::INDIRECT) &&
-                    node.hasClassification(ShaderNode::Classification::BSDF_R)) ||
+                    (node.hasClassification(ShaderNode::Classification::BSDF_R) || node.hasClassification(ShaderNode::Classification::VDF))) ||
                 // For transmissive we support transmissive closures.
                 (cct->getType() == ClosureContextType::TRANSMISSION &&
-                    node.hasClassification(ShaderNode::Classification::BSDF_T)) ||
+                    node.hasClassification(ShaderNode::Classification::BSDF_T || node.hasClassification(ShaderNode::Classification::VDF))) ||
                 // For emission we only support emission closures.
                 (cct->getType() == ClosureContextType::EMISSION &&
                     node.hasClassification(ShaderNode::Classification::EDF));

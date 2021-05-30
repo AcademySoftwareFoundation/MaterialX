@@ -246,6 +246,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
 
     // <!-- <layer> -->
     registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, ClosureLayerNodeGlsl::create);
+    registerImplementation("IM_layer_vdf_" + GlslShaderGenerator::TARGET, ClosureLayerNodeGlsl::create);
     // <!-- <mix> -->
     registerImplementation("IM_mix_bsdf_" + GlslShaderGenerator::TARGET, ClosureMixNodeGlsl::create);
     registerImplementation("IM_mix_edf_" + GlslShaderGenerator::TARGET, ClosureMixNodeGlsl::create);
