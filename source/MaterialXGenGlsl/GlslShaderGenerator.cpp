@@ -29,6 +29,7 @@
 #include <MaterialXGenGlsl/Nodes/ClosureLayerNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/ClosureMixNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/ClosureAddNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/ClosureMultiplyNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
@@ -251,6 +252,11 @@ GlslShaderGenerator::GlslShaderGenerator() :
     // <!-- <add> -->
     registerImplementation("IM_add_bsdf_" + GlslShaderGenerator::TARGET, ClosureAddNodeGlsl::create);
     registerImplementation("IM_add_edf_" + GlslShaderGenerator::TARGET, ClosureAddNodeGlsl::create);
+    // <!-- <multiply> -->
+    registerImplementation("IM_multiply_bsdfC_" + GlslShaderGenerator::TARGET, ClosureMultiplyNodeGlsl::create);
+    registerImplementation("IM_multiply_bsdfF_" + GlslShaderGenerator::TARGET, ClosureMultiplyNodeGlsl::create);
+    registerImplementation("IM_multiply_edfC_" + GlslShaderGenerator::TARGET, ClosureMultiplyNodeGlsl::create);
+    registerImplementation("IM_multiply_edfF_" + GlslShaderGenerator::TARGET, ClosureMultiplyNodeGlsl::create);
 
     // <!-- <thin_film> -->
     registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);
