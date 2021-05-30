@@ -1,0 +1,54 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#include <MaterialXGenGlsl/Nodes/ClosureAddNodeGlsl.h>
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/TypeDesc.h>
+
+namespace MaterialX
+{
+
+const string ClosureAddNodeGlsl::IN1 = "in1";
+const string ClosureAddNodeGlsl::IN2 = "in2";
+
+ShaderNodeImplPtr ClosureAddNodeGlsl::create()
+{
+    return std::make_shared<ClosureAddNodeGlsl>();
+}
+
+void ClosureAddNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
+{
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+
+    ShaderNode& node = const_cast<ShaderNode&>(_node);
+
+    // Emit calls for the closure dependencies upstream from this node.
+    shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+
+    // Get their results.
+    const string in1Result = shadergen.getUpstreamResult(node.getInput(IN1), context);
+    const string in2Result = shadergen.getUpstreamResult(node.getInput(IN2), context);
+
+    ShaderOutput* output = node.getOutput();
+    if (output->getType() == Type::BSDF)
+    {
+        emitOutputVariables(node, context, stage);
+        shadergen.emitLine(output->getVariable() + ".result = " + in1Result + ".result + " + in2Result + ".result", stage);
+        shadergen.emitLine(output->getVariable() + ".throughput = " + in1Result + ".throughput * " + in2Result + ".throughput", stage);
+    }
+    else if (output->getType() == Type::EDF)
+    {
+        shadergen.emitLine(shadergen.getSyntax().getTypeName(Type::EDF) + " " + output->getVariable() + " = " + in1Result + " + " + in2Result, stage);
+    }
+END_SHADER_STAGE(stage, Stage::PIXEL)
+}
+
+} // namespace MaterialX

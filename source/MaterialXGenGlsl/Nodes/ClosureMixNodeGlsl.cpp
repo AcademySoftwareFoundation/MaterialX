@@ -39,16 +39,15 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const string bgResult = shadergen.getUpstreamResult(node.getInput(BG), context);
     const string mixResult = shadergen.getUpstreamResult(node.getInput(MIX), context);
 
-    emitOutputVariables(node, context, stage);
-
     if (output->getType() == Type::BSDF)
     {
+        emitOutputVariables(node, context, stage);
         shadergen.emitLine(output->getVariable() + ".result = mix(" + bgResult + ".result, " + fgResult + ".result, " + mixResult + ")", stage);
         shadergen.emitLine(output->getVariable() + ".throughput = mix(" + bgResult + ".throughput, " + fgResult + ".throughput, " + mixResult + ")", stage);
     }
     else if (output->getType() == Type::EDF)
     {
-        shadergen.emitLine(output->getVariable() + " = mix(" + bgResult + ", " + fgResult + ", " + mixResult + ")", stage);
+        shadergen.emitLine(shadergen.getSyntax().getTypeName(Type::EDF) + " " + output->getVariable() + " = mix(" + bgResult + ", " + fgResult + ", " + mixResult + ")", stage);
     }
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
