@@ -79,7 +79,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     void render() override;
 
     /// Render the current program in texture space to an off-screen buffer.
-    void renderTextureSpace();
+    void renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax);
 
     /// @}
     /// @name Utilities

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <!--
-    TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+    TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
     All rights reserved.  See LICENSE.txt for license.
 
     Declarations of standard data types and nodes included in the MaterialX specification.
@@ -246,8 +246,46 @@
     <input name="exposure" type="float" value="0.0" doc="Exposure control for the light intensity" />
     <output name="out" type="lightshader" />
   </nodedef>
-
+   
   <!--
+    Node: unlit_surface
+    Uniform emission surface shader. Variants exist for the following input types: color3, color4, vec2, vec3, vec4, and float.
+  -->
+  <nodedef name="ND_unlit_surface_color4" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="pbr" doc="Uniform emission surface shader which accepts a color4 input" >
+      <input name="color" type="color4" value="1, 1, 1, 1" />
+      <output name="out" type="surfaceshader" value="" />
+   </nodedef>   
+
+  <nodedef name="ND_unlit_surface_color3" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="pbr" doc="Uniform emission surface shader which accepts a color3 and opacity input" >
+    <input name="color" type="color3" value="1, 1, 1" />
+    <input name="opacity" type="float" value="1" />
+    <output name="out" type="surfaceshader" value="" />
+  </nodedef>
+
+  <nodedef name="ND_unlit_surface_float" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="pbr" doc="Uniform emission surface shader which accepts a float and opacity input" >
+    <input name="color" type="float" value="1" />
+    <input name="opacity" type="float" value="1" />
+    <output name="out" type="surfaceshader" value="" />
+  </nodedef>
+
+  <nodedef name="ND_unlit_surface_vec4" node="unlit_surface" version="1.0" isdefaultversion="true" doc="Uniform emission surface shader which accepts a vec4 input" >
+    <input name="color" type="vector4" value="1, 1, 1, 1" />
+    <output name="out" type="surfaceshader" value="" />
+  </nodedef>
+
+   <nodedef name="ND_unlit_surface_vec3" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="pbr" doc="Uniform emission surface shader which accepts a vec3 and opacity input" >
+      <input name="color" type="vector3" value="1, 1, 1" />
+      <input name="opacity" type="float" value="1" />
+      <output name="out" type="surfaceshader" value="" />
+   </nodedef>
+
+   <nodedef name="ND_unlit_surface_vec2" node="unlit_surface" version="1.0" isdefaultversion="true" nodegroup="pbr" doc="Uniform emission surface shader which accepts a vec2 and opaciy input" >
+      <input name="color" type="vector2" value="1, 1" />
+      <input name="opacity" type="float" value="1" />
+      <output name="out" type="surfaceshader" value="" />
+   </nodedef>
+
+   <!--
     Node: <displacement>
     Construct a displacement shader.
   -->

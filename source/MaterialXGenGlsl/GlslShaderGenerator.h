@@ -58,6 +58,8 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     virtual void emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
     virtual void emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
+    bool requiresLighting(const ShaderGraph& graph) const;
+
     /// Emit specular environment lookup code
     void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
 

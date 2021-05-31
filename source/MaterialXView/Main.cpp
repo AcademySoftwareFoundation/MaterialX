@@ -31,6 +31,7 @@ const std::string options =
 "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
 "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
 "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
+"    --srgbBuffer                   Specify to use SRGB hardware frame buffer. Default false meaing to use a shader to perform output color transforms\n"
 "    --help                         Display the complete list of command-line options\n";
 
 template<class T> void parseToken(std::string token, std::string type, T& res)
@@ -93,6 +94,7 @@ int main(int argc, char* const argv[])
     std::string captureFilename;
     int multiSampleCount = 0;
     int refresh = 50;
+    bool srgbBuffer = false;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -201,6 +203,10 @@ int main(int argc, char* const argv[])
         {
             modifiers.filePrefixTerminator = nextToken;
         }
+        else if (token == "--srgbBuffer")
+        {
+            srgbBuffer = true;
+        }
         else if (token == "--help")
         {
             std::cout << " MaterialXView version " << mx::getVersionString() << std::endl;
@@ -245,6 +251,7 @@ int main(int argc, char* const argv[])
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setLightRotation(lightRotation);
         viewer->setDocumentModifiers(modifiers);
+        viewer->setSRGBBuffer(srgbBuffer);
         if (!captureFilename.empty())
         {
             viewer->requestFrameCapture(captureFilename);

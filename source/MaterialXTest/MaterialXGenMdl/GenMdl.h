@@ -74,7 +74,7 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_angle", "IM_worleynoise",
             "geompropvalue", "surfacematerial", "volumematerial", "IM_absorption_vdf_", "IM_mix_vdf_",
             "IM_anisotropic_vdf_", "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", "IM_thin_film_bsdf_",
-            "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_"
+            "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_", "ND_backface_util"
         };
     }
 };

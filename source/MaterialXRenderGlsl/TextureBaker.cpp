@@ -69,6 +69,9 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _hashImageNames(false),
     _generator(GlslShaderGenerator::create())
 {
+    // Set default texture space
+    _textureSpace = std::make_pair(Vector2(0.0f, 0.0f), Vector2(1.0f, 1.0f));
+
     if (baseType == Image::BaseType::UINT8)
     {
 #if MATERIALX_BUILD_OIIO
@@ -184,7 +187,8 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
         (output->getType() == "color3" || output->getType() == "color4");
     getFrameBuffer()->setEncodeSrgb(encodeSrgb);
 
-    renderTextureSpace();
+    auto textureSpaceRange = getTextureSpace();
+    renderTextureSpace(textureSpaceRange.first, textureSpaceRange.second);
 
     BakedImage baked;
     baked.image = captureImage();
@@ -435,6 +439,10 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
 
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
     cms->loadLibrary(doc);
+    if (!_codeSearchPath.isEmpty())
+    {
+        genContext.registerSourceCodeSearchPath(_codeSearchPath);
+    }
     for (const FilePath& path : searchPath)
     {
         genContext.registerSourceCodeSearchPath(path / "libraries");

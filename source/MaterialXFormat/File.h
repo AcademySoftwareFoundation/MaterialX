@@ -193,6 +193,9 @@ class MX_FORMAT_API FilePath
     /// Create a directory on the file system at the given path.
     void createDirectory() const;
 
+    /// Set the current working directory of the file system.
+    bool setCurrentPath();
+
     /// @}
 
     /// Return the current working directory of the file system.

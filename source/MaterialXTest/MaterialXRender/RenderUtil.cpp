@@ -214,10 +214,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     mx::StringSet usedImpls;
 
-    const mx::StringVec& bakeFiles = options.bakeFiles;
-    const mx::IntVec& bakeResolution = options.bakeResolutions;
-    const mx::BoolVec& bakeHdr = options.bakeHdrs;
-
     const std::string MTLX_EXTENSION("mtlx");
     for (const auto& dir : dirs)
     {
@@ -286,18 +282,18 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             outputPath.removeExtension();
 
             // Perform bake and use that file for rendering
-            if (canBake() && (bakeFiles.size() == bakeResolution.size()) && 
-                (bakeFiles.size() == bakeHdr.size()))
+            if (canBake())
             {
-                for (size_t i = 0; i < bakeFiles.size(); i++)
+                for (auto& doctoBake : options.bakeSettings)
                 {
                     mx::FilePath outputBakeFile = file;
-                    if (bakeFiles[i] == outputBakeFile.asString())
+                    if (doctoBake.bakeFile == outputBakeFile.asString())
                     {
                         outputBakeFile.removeExtension();
                         outputBakeFile = outputPath / (outputBakeFile.asString() + "_baked.mtlx");
-                        runBake(doc, imageSearchPath, outputBakeFile, bakeResolution[i], bakeResolution[i], bakeHdr[i], log);
+                        runBake(doc, imageSearchPath, searchPath, outputBakeFile, doctoBake, log);
                         break;
+
                     }
                 }
             }
@@ -353,7 +349,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                     }
                 }
 
-                for (size_t i=0; i < nodeDefs.size(); ++i)
+                for (size_t i=0; i < targetElements.size(); ++i)
                 {
                     const mx::NodeDefPtr& nodeDef = nodeDefs[i];
                     const mx::TypedElementPtr& targetElement = targetElements[i];
@@ -371,38 +367,30 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
 
-                            const mx::StringVec& wedgeParameters = options.wedgeParameters;
-                            const mx::FloatVec& wedgeRangeMin = options.wedgeRangeMin;
-                            const mx::FloatVec& wedgeRangeMax = options.wedgeRangeMax;
-                            const mx::IntVec& wedgeSteps = options.wedgeSteps;
-                            const mx::StringVec& wedgeFiles = options.wedgeFiles;
-                            mx::StringSet wedgeFileSet(wedgeFiles.begin(), wedgeFiles.end());
+                            auto it = std::find_if(options.wedgeSettings.begin(), options.wedgeSettings.end(),
+                                [&file] (const GenShaderUtil::TestSuiteOptions::WedgeSetting& setting) {
+                                    return (file.asString() == setting.wedgeFile);
+                                });
 
-                            bool performWedge = (!wedgeFiles.empty()) &&
-                                wedgeFileSet.count(file) &&
-                                wedgeFiles.size() == wedgeParameters.size() &&
-                                wedgeFiles.size() == wedgeRangeMin.size() &&
-                                wedgeFiles.size() == wedgeRangeMax.size() &&
-                                wedgeFiles.size() == wedgeSteps.size();
-
+                            bool performWedge = (it != options.wedgeSettings.end()) ? true : false;
                             if (!performWedge)
                             {
                                 runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
                             }
                             else
                             {
-                                for (size_t f = 0; f < wedgeFiles.size(); f++)
+                                for (auto &wedgesetting: options.wedgeSettings)
                                 {
                                     mx::ImageVec imageVec;
 
-                                    const std::string& wedgeFile = wedgeFiles[f];
+                                    const std::string& wedgeFile = wedgesetting.wedgeFile;
                                     if (wedgeFile != file.asString())
                                     {
                                         continue;
                                     }
 
                                     // Make this a utility
-                                    std::string parameterPath = wedgeParameters[f];
+                                    std::string parameterPath = wedgesetting.parameter;
                                     mx::ElementPtr uniformElement = doc->getDescendant(parameterPath);
                                     if (!uniformElement)
                                     {
@@ -428,9 +416,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                     mx::ValuePtr origPropertyValue(valueElement ? valueElement->getValue() : nullptr);
                                     mx::ValuePtr newValue = valueElement->getValue();
 
-                                    float wedgePropertyMin = wedgeRangeMin[f];
-                                    float wedgePropertyMax = wedgeRangeMax[f];
-                                    int wedgeImageCount = std::max(wedgeSteps[f], 2);
+                                    float wedgePropertyMin = wedgesetting.range[0];
+                                    float wedgePropertyMax = wedgesetting.range[1];
+                                    int wedgeImageCount = std::max(wedgesetting.steps, 2);
 
                                     float wedgePropertyStep = (wedgePropertyMax - wedgePropertyMin) / (wedgeImageCount - 1);
                                     for (int w = 0; w < wedgeImageCount; w++)

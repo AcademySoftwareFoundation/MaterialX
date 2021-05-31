@@ -941,14 +941,8 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
-    const std::string WEDGE_FILES("wedgeFiles");
-    const std::string WEDGE_PARAMETERS("wedgeParameters");
-    const std::string WEDGE_RANGE_MIN("wedgeRangeMin");
-    const std::string WEDGE_RANGE_MAX("wedgeRangeMax");
-    const std::string WEDGE_STEPS("wedgeSteps");
-    const std::string BAKE_FILES("bakeFiles");
-    const std::string BAKE_HDRS("bakeHdrs");
-    const std::string BAKE_RESOLUTIONS("bakeResolutions");
+    const std::string WEDGE_SETTING("wedgerender");
+    const std::string BAKER_SETTINGS("baker");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -967,6 +961,70 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
         MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
         {
+            // Read Wedge Render Settings
+            for (MaterialX::ElementPtr p : optionDefs->getChildrenOfType<MaterialX::Element>(WEDGE_SETTING))
+            {
+                WedgeSetting setting;
+                for (auto child : p->getChildren())
+                {
+                    mx::InputPtr input = child->asA<mx::Input>();
+                    const std::string& name = input->getName();
+                    MaterialX::ValuePtr val = input->getValue();
+
+                    if (name == "file")
+                    {
+                        setting.wedgeFile = val->asA<std::string>();
+                    }
+                    else if (name == "parameter")
+                    {
+                        setting.parameter = val->asA<std::string>();
+                    }
+                    else if (name == "range")
+                    {
+                        setting.range = val->asA<mx::Vector2>();
+                    }
+                    else if (name == "steps")
+                    {
+                        setting.steps = val->asA<int>();
+                    }
+                }
+                wedgeSettings.push_back(setting);
+            }
+
+            // Read Baker Settings
+            for (MaterialX::ElementPtr p : optionDefs->getChildrenOfType<MaterialX::Element>(BAKER_SETTINGS))
+            {
+                BakeSetting setting;
+                for (auto child : p->getChildren())
+                {
+                    mx::InputPtr input = child->asA<mx::Input>();
+                    const std::string& name = input->getName();
+                    MaterialX::ValuePtr val = input->getValue();
+
+                    if (name == "file")
+                    {
+                        setting.bakeFile = val->asA<std::string>();
+                    }
+                    else if (name == "resolution")
+                    {
+                        setting.resolution = val->asA<int>();
+                    }
+                    else if (name == "hdr")
+                    {
+                        setting.hdr = val->asA<bool>();
+                    }
+                    else if (name == "uvmin")
+                    {
+                        setting.uvmin = val->asA<mx::Vector2>();
+                    }
+                    else if (name == "uvmax")
+                    {
+                        setting.uvmax = val->asA<mx::Vector2>();
+                    }
+                }
+                bakeSettings.push_back(setting);
+            }
+
             for (auto p : optionDefs->getInputs())
             {
                 const std::string& name = p->getName();
@@ -1076,38 +1134,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                         {
                             externalTestPaths.append(mx::FilePath(l));
                         }
-                    }
-                    else if (name == WEDGE_FILES)
-                    {
-                        wedgeFiles = mx::splitString(p->getValueString(), ",");
-                    }
-                    else if (name == WEDGE_PARAMETERS)
-                    {
-                        wedgeParameters = mx::splitString(p->getValueString(), ",");
-                    }
-                    else if (name == WEDGE_STEPS)
-                    {
-                        wedgeSteps = val->asA<mx::IntVec>();
-                    }
-                    else if (name == WEDGE_RANGE_MIN)
-                    {
-                        wedgeRangeMin = val->asA<mx::FloatVec>();
-                    }
-                    else if (name == WEDGE_RANGE_MAX)
-                    {
-                        wedgeRangeMax = val->asA<mx::FloatVec>();
-                    }
-                    else if (name == BAKE_FILES)
-                    {
-                        bakeFiles = mx::splitString(p->getValueString(), ",");
-                    }
-                    else if (name == BAKE_RESOLUTIONS)
-                    {
-                        bakeResolutions = val->asA<mx::IntVec>();
-                    }
-                    else if (name == BAKE_HDRS)
-                    {
-                        bakeHdrs = val->asA<mx::BoolVec>();
                     }
                 }
             }

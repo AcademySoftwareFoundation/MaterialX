@@ -71,9 +71,8 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
     {
         return true;
     }
-
-    void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFilename,
-                 unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log) override;
+    void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FileSearchPath& codeSearchPath,
+                 const mx::FilePath& outputFilename, const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions, std::ostream& log) override;
 
     mx::GlslRendererPtr _renderer;
     mx::LightHandlerPtr _lightHandler;

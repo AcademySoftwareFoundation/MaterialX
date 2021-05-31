@@ -28,6 +28,10 @@ class Visibility;
 using LookPtr = shared_ptr<Look>;
 /// A shared pointer to a const Look
 using ConstLookPtr = shared_ptr<const Look>;
+/// Look vector
+using LookVec = vector<LookPtr>;
+/// Constant look vector
+using ConstLookVec = vector<ConstLookPtr>;
 
 /// A shared pointer to a LookGroup
 using LookGroupPtr = shared_ptr<LookGroup>;

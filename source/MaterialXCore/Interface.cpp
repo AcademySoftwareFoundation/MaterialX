@@ -317,6 +317,22 @@ InputPtr Input::getInterfaceInput() const
     return nullptr;
 }
 
+void Input::addTokens(StringResolverPtr& resolver) const
+{
+    // If this input has an interface Input then use the tokens associated with that Input
+    // otherwise use the tokens directly associated with this Input.
+    InputPtr interfaceInput = getInterfaceInput();
+    if (interfaceInput)
+    {
+        interfaceInput->addTokens(resolver);
+    }
+    else
+    {
+        PortElement::addTokens(resolver);
+    }
+}
+
+
 GeomPropDefPtr Input::getDefaultGeomProp() const
 {
     const string& defaultGeomProp = getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
@@ -511,6 +527,17 @@ vector<TokenPtr> InterfaceElement::getActiveTokens() const
         activeTokens.insert(activeTokens.end(), tokens.begin(), tokens.end());
     }
     return activeTokens;
+}
+
+void InterfaceElement::addTokens(StringResolverPtr& resolver) const
+{
+    // Apply any interface tokens to the filename
+    for (auto token : getActiveTokens())
+    {
+        string key = "[" + token->getName() + "]";
+        string value = token->getResolvedValueString();
+        resolver->setFilenameSubstitution(key, value);
+    }
 }
 
 ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) const

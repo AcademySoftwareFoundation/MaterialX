@@ -307,6 +307,17 @@ class MX_CORE_API GeomInfo : public GeomElement
         removeChildOfType<Token>(name);
     }
 
+    /// Add tokens to a given string resolver
+    void addTokens(StringResolverPtr& resolver) const override
+    {
+        for (TokenPtr token : getTokens())
+        {
+            string key = "<" + token->getName() + ">";
+            string value = token->getResolvedValueString();
+            resolver->setFilenameSubstitution(key, value);
+        }
+    }
+
     /// @}
     /// @name Values
     /// @{
