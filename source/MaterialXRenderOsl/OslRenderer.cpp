@@ -426,7 +426,7 @@ ImagePtr OslRenderer::captureImage()
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    ImagePtr returnImage = _imageHandler->acquireImage(_oslOutputFileName, false);
+    ImagePtr returnImage = _imageHandler->acquireImage(_oslOutputFileName);
     if (!returnImage)
     {
         errors.push_back("Failed to save image to file: " + _oslOutputFileName.asString());

@@ -224,7 +224,7 @@ class MX_RENDERGLSL_API GlslProgram
 
     // Bind an individual texture to a program uniform location
     ImagePtr bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
-                         ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
+                         ImageHandlerPtr imageHandler, const ImageSamplingProperties& imageProperties);
 
     // Delete any currently created shader program
     void deleteProgram();

@@ -11,6 +11,7 @@
      can also be performed depending on the options enabled.
   -->
     
+
   <!-- nodedefs for custom test settings -->
   <nodedef name="ND_BakingSettings" node="baker" >
     <input name="file" type="filename" />
@@ -27,6 +28,7 @@
     <input name="steps" type="integer" value="1.0" />
   </nodedef>
 
+
   <!-- Render test Suite Options -->
   <nodedef name="TestSuiteOptions">
     <!-- List of comma separated file names acts as a filter to only test documents with these names -->
@@ -37,7 +39,7 @@
 
     <!-- Comma separated list of target" specifiers to indicate which
          code generators to use. -->
-    <input name="targets" type="string" value="genglsl,genosl,genmdl,arnold,ogsfx,ogsxml" />
+    <input name="targets" type="string" value="genglsl,genosl,genmdl" />
 
     <!-- Check the count of number of implementations used for a given generator -->
     <input name="checkImplCount" type="boolean" value="true" />
@@ -59,7 +61,7 @@
     <input name="renderImages" type="boolean" value="true" />
 
     <!-- Rendered image size if render validation test enabled -->
-    <input name="renderSize" type="vector2" value="512, 512" />
+    <input name="renderSize" type="vector2" value="256, 256" />
 
     <!-- Perform saving of image. Can only be disabled for GLSL tests -->
     <input name="saveImages" type="boolean" value="true" />
