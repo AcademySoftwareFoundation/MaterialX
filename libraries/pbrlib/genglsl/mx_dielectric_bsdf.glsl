@@ -4,7 +4,6 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
 {
     if (weight < M_FLOAT_EPS)
     {
-        bsdf.throughput = vec3(1.0);
         return;
     }
 
@@ -28,32 +27,23 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
     float F0 = mx_ior_to_f0(ior);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
     vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
+    bsdf.throughput = 1.0 - dirAlbedo * weight;
 
     // Note: NdotL is cancelled out
     bsdf.result = D * F * G * comp * tint * occlusion * weight / (4 * NdotV);
-    bsdf.throughput = 1.0 - dirAlbedo * weight;
 }
 
 void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
-    bsdf.throughput = vec3(1.0);
-/*
     if (scatter_mode == 1)
     {
-        result = tint * weight;
+        bsdf.result = tint * weight;
+        bsdf.throughput = bsdf.result;
         return;
-    }
-
-    if (scatter_mode == 2)
-    {
-        // No external layering in RT mode,
-        // the base is always T in this case.
-        base = tint * weight;
     }
 
     if (weight < M_FLOAT_EPS)
     {
-        result = base;
         return;
     }
 
@@ -67,16 +57,15 @@ void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     float F0 = mx_ior_to_f0(ior);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
     vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
+    bsdf.throughput = 1.0 - dirAlbedo * weight;
 
-    result = base * (1.0 - dirAlbedo * weight); // Transmission attenuated by reflection amount
-*/
+    bsdf.result = (scatter_mode == 2) ? tint * weight * bsdf.throughput : vec3(0.0);
 }
 
 void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
-        bsdf.throughput = vec3(1.0);
         return;
     }
 
@@ -91,9 +80,8 @@ void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
     float F0 = mx_ior_to_f0(ior);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
     vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
+    bsdf.throughput = 1.0 - dirAlbedo * weight;
 
     vec3 Li = mx_environment_radiance(N, V, X, roughness, distribution, fd);
-
     bsdf.result = Li * tint * comp * weight;
-    bsdf.throughput = 1.0 - dirAlbedo * weight;
 }
