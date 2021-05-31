@@ -54,6 +54,11 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         {
             throw ExceptionShaderGenError("No closure context set to evaluate node '" + node.getName() + "'");
         }
+        // Make sure the connection to base is a sibling node and not the graph interface.
+        if (base->getParent() != node.getParent())
+        {
+            throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
+        }
         cct->setThinFilm(top);
         const string oldVariable = base->getOutput()->getVariable();
         base->getOutput()->setVariable(output->getVariable());
@@ -68,10 +73,18 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // TODO: In the BSDF over BSDF case should we emit code
         //       to check the top throughput amount before calling
         //       the base BSDF?
-        //
-        shadergen.emitFunctionCall(*top, context, stage);
-        shadergen.emitFunctionCall(*base, context, stage);
 
+        // Make sure the connections are sibling nodes and not the graph interface.
+        if (top->getParent() == node.getParent())
+        {
+            shadergen.emitFunctionCall(*top, context, stage);
+        }
+        if (base->getParent() == node.getParent())
+        {
+            shadergen.emitFunctionCall(*base, context, stage);
+        }
+
+        // Get the result variables.
         const string& topResult = topInput->getConnection()->getVariable();
         const string& baseResult = baseInput->getConnection()->getVariable();
 

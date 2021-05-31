@@ -315,7 +315,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         }
 
         // Check specifically for the vertical layering node
-        if (nodeDef.getName() == "ND_layer_bsdf")
+        if (nodeDef.getName() == "ND_layer_bsdf" || nodeDef.getName() == "ND_layer_vdf")
         {
             newNode->_classification |= Classification::LAYER;
         }

@@ -102,16 +102,15 @@ void ClosureCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext
     // closure nodes and need to be emitted first.
     shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
 
-    // Emit function calls for all closures nodes.
-    // These will internally emit function calls for any dependent
-    // closure nodes upstream.
+    // Emit function calls for internal closures nodes connected to the graph sockets.
+    // These will in turn emit function calls for any dependent closure nodes upstream.
     for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
         if (outputSocket->getConnection())
         {
             const ShaderNode* upstream = outputSocket->getConnection()->getNode();
-            if (!upstream->isAGraph() && 
-                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+            if (upstream->getParent() == _rootGraph.get() &&
+               (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
             {
                 shadergen.emitFunctionCall(*upstream, context, stage);
             }
@@ -145,6 +144,10 @@ BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
 END_SHADER_STAGE(stage, Stage::VERTEX)
 
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+
+    // Emit calls for any closure dependencies upstream from this node.
+    shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+
     // Declare the output variables
     emitOutputVariables(node, context, stage);
 

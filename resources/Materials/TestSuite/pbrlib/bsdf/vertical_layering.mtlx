@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-
     <nodegraph name="vertical_layering_ex1">
       <dielectric_bsdf name="dielectric_bsdf" type="BSDF" nodedef="ND_dielectric_bsdf" >
         <input name="ior" type="float" value="2.0" />
@@ -160,7 +159,6 @@
       <output name="out" type="surfaceshader" nodename="surface" />
     </nodegraph>
 
-    <!-- Define a custom bsdf node and use and instance of this in a layer. -->
     <nodedef name="ND_mybsdf" node="mybsdf">
       <input name="diffuse" type="float" value="0.8" />
       <input name="diffuseColor" type="color3" value="0.0, 1.0, 0.0" />
@@ -206,4 +204,63 @@
       <output name="out" type="surfaceshader" nodename="surface1" />
     </nodegraph>
 
+    <nodegraph name="vertical_layering_ex8" type="surfaceshader">
+      <dielectric_bsdf name="dielectric" type="BSDF" />
+      <conductor_bsdf name="conductor" type="BSDF" />
+      <multiply name="multiply" type="BSDF">
+          <input name="in1" type="BSDF" nodename="dielectric" />
+          <input name="in2" type="float" value="0.5" />
+      </multiply>
+      <layer name="layer" type="BSDF">
+          <input name="top" type="BSDF" nodename="multiply" />
+          <input name="base" type="BSDF" nodename="conductor" />
+      </layer>
+      <surface name="surface1" type="surfaceshader">
+          <input name="bsdf" type="BSDF" nodename="layer" />
+      </surface>
+      <output name="out" type="surfaceshader" nodename="surface1" />
+    </nodegraph>
+
+    <nodedef name="ND_custom_layer" node="custom_layer">
+        <input name="top" type="BSDF" />
+        <input name="base" type="BSDF" />
+        <input name="scale_top" type="float" value="1.0"/>
+        <input name="scale_base" type="float" value="1.0"/>
+        <input name="scale_layer" type="float" value="1.0"/>
+        <output name="out" type="BSDF" />
+    </nodedef>
+    <nodegraph name="NG_custom_layer" nodedef="ND_custom_layer">
+        <multiply name="top_scaled" type="BSDF">
+            <input name="in1" type="BSDF" interfacename="top" />
+            <input name="in2" type="float" interfacename="scale_top" />
+        </multiply>
+        <multiply name="base_scaled" type="BSDF">
+            <input name="in1" type="BSDF" interfacename="base" />
+            <input name="in2" type="float" interfacename="scale_base" />
+        </multiply>
+        <layer name="layer" type="BSDF">
+            <input name="top" type="BSDF" nodename="top_scaled" />
+            <input name="base" type="BSDF" nodename="base_scaled" />
+        </layer>
+        <multiply name="layer_scaled" type="BSDF">
+            <input name="in1" type="BSDF" nodename="layer" />
+            <input name="in2" type="float" interfacename="scale_layer" />
+        </multiply>
+        <output name="out" type="BSDF" nodename="layer_scaled" />
+    </nodegraph>
+    <nodegraph name="vertical_layering_ex9" type="surfaceshader">
+      <dielectric_bsdf name="dielectric" type="BSDF" />
+      <conductor_bsdf name="conductor" type="BSDF" />
+      <custom_layer name="custom_layer" type="BSDF">
+          <input name="top" type="BSDF" nodename="dielectric" />
+          <input name="base" type="BSDF" nodename="conductor" />
+          <input name="scale_top" type="float" value="0.8"/>
+          <input name="scale_base" type="float" value="0.3"/>
+          <input name="scale_layer" type="float" value="0.9"/>
+      </custom_layer>
+      <surface name="surface1" type="surfaceshader">
+          <input name="bsdf" type="BSDF" nodename="custom_layer" />
+      </surface>
+      <output name="out" type="surfaceshader" nodename="surface1" />
+    </nodegraph>
 </materialx>
