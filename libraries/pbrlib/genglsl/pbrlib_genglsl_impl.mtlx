@@ -40,8 +40,8 @@
   <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" target="genglsl" />
 
   <!-- <add> -->
-  <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" file="pbrlib/genglsl/mx_add_bsdf.glsl" function="mx_add_bsdf" target="genglsl" />
-  <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" file="pbrlib/genglsl/mx_add_edf.glsl" function="mx_add_edf" target="genglsl" />
+  <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" target="genglsl" />
+  <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" target="genglsl" />
 
   <!-- <multiply> -->
   <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" target="genglsl" />
