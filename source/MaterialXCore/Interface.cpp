@@ -137,7 +137,7 @@ bool PortElement::validate(string* message) const
             bool valid = validChannelsString(getChannels(), connectedNode->getType(), getType());
             validateRequire(valid, res, message, "Invalid channels string in port connection");
         }
-        else
+        else if (connectedNode->getType() != MULTI_OUTPUT_TYPE_STRING)
         {
             validateRequire(getType() == connectedNode->getType(), res, message, "Mismatched types in port connection");
         }
@@ -351,10 +351,31 @@ bool Input::validate(string* message) const
     {
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
-    InputPtr interfaceInput = getInterfaceInput();
-    if (interfaceInput)
+    if (hasInterfaceName())
     {
-        return interfaceInput->validate() && res;
+        ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
+        NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
+        if (nodeDef)
+        {
+            InputPtr interfaceInput = nodeDef->getActiveInput(getInterfaceName());
+            validateRequire(interfaceInput != nullptr, res, message, "Interface name not found in referenced NodeDef");
+            if (interfaceInput)
+            {
+                if (hasChannels())
+                {
+                    bool valid = validChannelsString(getChannels(), interfaceInput->getType(), getType());
+                    validateRequire(valid, res, message, "Invalid channels string for interface name");
+                }
+                else
+                {
+                    validateRequire(getType() == interfaceInput->getType(), res, message, "Interface name refers to input of a different type");
+                }
+            }
+        }
+        else
+        {
+            validateRequire(getInterfaceInput() != nullptr, res, message, "Interface name not found in containing NodeGraph");
+        }
     }
     return PortElement::validate(message) && res;
 }

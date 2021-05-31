@@ -154,7 +154,7 @@ void testImageHandler(ImageHandlerTestOptions& options)
         for (const mx::FilePath& file : files)
         {
             const mx::FilePath filePath = imagePath / file;
-            mx::ImagePtr image = options.imageHandler->acquireImage(filePath, false);
+            mx::ImagePtr image = options.imageHandler->acquireImage(filePath);
             CHECK(image);
             image->releaseResourceBuffer();
             CHECK(!image->getResourceBuffer());

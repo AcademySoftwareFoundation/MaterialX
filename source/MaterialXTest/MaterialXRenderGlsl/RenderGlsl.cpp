@@ -108,8 +108,8 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     _lightHandler->setLightSources(lights);
 
     // Load environment lights.
-    mx::ImagePtr envRadiance = _renderer->getImageHandler()->acquireImage(options.radianceIBLPath, true);
-    mx::ImagePtr envIrradiance = _renderer->getImageHandler()->acquireImage(options.irradianceIBLPath, true);
+    mx::ImagePtr envRadiance = _renderer->getImageHandler()->acquireImage(options.radianceIBLPath);
+    mx::ImagePtr envIrradiance = _renderer->getImageHandler()->acquireImage(options.irradianceIBLPath);
     REQUIRE(envRadiance);
     REQUIRE(envIrradiance);
     _lightHandler->setEnvRadianceMap(envRadiance);
@@ -610,7 +610,9 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                         }
 
                         mx::UIProperties uiProperties;
-                        if (getUIProperties(path, doc, target, uiProperties) > 0)
+                        mx::ElementPtr pathElement = doc->getDescendant(path);
+                        mx::InputPtr input = pathElement ? pathElement->asA<mx::Input>() : nullptr;
+                        if (getUIProperties(input, target, uiProperties) > 0)
                         {
                             log << "Program Uniform: " << uniform.first << ". Path: " << path;
                             if (!uiProperties.uiName.empty())

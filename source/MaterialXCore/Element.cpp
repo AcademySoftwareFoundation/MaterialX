@@ -546,30 +546,6 @@ bool ValueElement::validate(string* message) const
     {
         validateRequire(getValue() != nullptr, res, message, "Invalid value");
     }
-    if (hasInterfaceName())
-    {
-        validateRequire(isA<Input>(), res, message, "Only input elements support interface names");
-        ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
-        NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
-        if (nodeDef)
-        {
-            ValueElementPtr valueElem = nodeDef->getActiveValueElement(getInterfaceName());
-            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced NodeDef");
-            if (valueElem)
-            {
-                ConstPortElementPtr portElem = asA<PortElement>();
-                if (portElem && portElem->hasChannels())
-                {
-                    bool valid = portElem->validChannelsString(portElem->getChannels(), valueElem->getType(), getType());
-                    validateRequire(valid, res, message, "Invalid channels string for interface name");
-                }
-                else
-                {
-                    validateRequire(getType() == valueElem->getType(), res, message, "Interface name refers to value element of a different type");
-                }
-            }
-        }
-    }
     UnitTypeDefPtr unitTypeDef;
     if (hasUnitType())
     {

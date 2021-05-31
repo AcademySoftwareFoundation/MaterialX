@@ -3,7 +3,7 @@
   <!-- create nodegraph to test cm conversion on image node before feeding to heighttonormal  -->
   <nodegraph name="height_to_normal_cm">
     <image name="b_image" type="color3">
-      <input name="file" type="filename" value="resources/Images/brass_old_spec.jpg" colorspace="srgb_texture" />
+      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
     </image>
@@ -20,7 +20,7 @@
   <!-- create nodegraph to test cm conversion on image node before feeding to normalmap  -->
   <nodegraph name="normalmap_cm">
     <image name="b_image" type="color3">
-      <input name="file" type="filename" value="resources/Images/brass_old_spec.jpg" colorspace="srgb_texture" />
+      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
     </image>

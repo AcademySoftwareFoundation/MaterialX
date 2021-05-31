@@ -167,17 +167,13 @@ class MX_RENDER_API ImageHandler
     /// @param image The image to be saved
     /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
-    virtual bool saveImage(const FilePath& filePath,
-                           ConstImagePtr image,
-                           bool verticalFlip = false);
+    bool saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip = false);
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
     /// @param filePath File path of the image.
-    /// @param generateMipMaps Generate mip maps if supported.
-    /// @return On success, a shared pointer to the acquired Image.
-    virtual ImagePtr acquireImage(const FilePath& filePath,
-                                  bool generateMipMaps = true);
+    /// @return On success, a shared pointer to the acquired image.
+    ImagePtr acquireImage(const FilePath& filePath);
 
     /// Bind an image for rendering.
     /// @param image The image to bind.
@@ -241,6 +237,9 @@ class MX_RENDER_API ImageHandler
   protected:
     // Protected constructor.
     ImageHandler(ImageLoaderPtr imageLoader);
+
+    // Load an image from the file system.
+    ImagePtr loadImage(const FilePath& filePath);
 
     // Add an image to the cache.
     void cacheImage(const string& filePath, ImagePtr image);

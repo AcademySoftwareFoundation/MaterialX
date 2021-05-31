@@ -249,8 +249,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     using BakedImageMap = std::unordered_map<OutputPtr, BakedImageVec>;
     using BakedConstantMap = std::unordered_map<OutputPtr, BakedConstant>;
 
-    using WorldSpaceInputs = std::unordered_map<string, NodePtr>;
-
   protected:
     string _extension;
     string _colorSpace;
@@ -268,9 +266,10 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
 
     ShaderGeneratorPtr _generator;
     ConstNodePtr _material;
-    WorldSpaceInputs _worldSpaceShaderInputs;
     BakedImageMap _bakedImageMap;
     BakedConstantMap _bakedConstantMap;
+
+    std::unordered_map<string, NodePtr> _worldSpaceNodes;
 };
 
 } // namespace MaterialX

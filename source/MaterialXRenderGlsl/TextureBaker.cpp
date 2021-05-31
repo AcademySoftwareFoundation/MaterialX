@@ -11,6 +11,8 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
+#include <MaterialXFormat/XmlIo.h>
+
 namespace MaterialX
 {
 
@@ -19,7 +21,6 @@ namespace {
 const string SRGB_TEXTURE = "srgb_texture";
 const string LIN_REC709 = "lin_rec709";
 const string BAKED_POSTFIX = "_baked";
-const string NORMAL_MAP_CATEGORY = "normalmap";
 
 StringVec getRenderablePaths(ConstDocumentPtr doc)
 {
@@ -118,24 +119,19 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
     }
 
     std::set<OutputPtr> bakedOutputs;
-    StringSet categories;
-    categories.insert(NORMAL_MAP_CATEGORY);
-
     for (InputPtr input : shader->getInputs())
     {
         OutputPtr output = input->getConnectedOutput();
         if (output && !bakedOutputs.count(output))
         {
             bakedOutputs.insert(output);
-            NodePtr normalMapNode = connectsToNodeOfCategory(output, categories);
-            if (normalMapNode)
+
+            // When possible, nodes with world-space outputs are applied outside of the baking process.
+            NodePtr worldSpaceNode = connectsToWorldSpaceNode(output);
+            if (worldSpaceNode)
             {
-                NodePtr sampleNode = output->getParent()->getChild(output->getNodeName())->asA<Node>();
-                if (sampleNode == normalMapNode)
-                {
-                    output->setNodeName(sampleNode->getInput("in")->getNodeName());
-                }
-                _worldSpaceShaderInputs[input->getName()] = sampleNode;
+                output->setConnectedNode(worldSpaceNode->getConnectedNode("in"));
+                _worldSpaceNodes[input->getName()] = worldSpaceNode;
             }
             FilePath texturefilepath = FilePath(_outputImagePath / generateTextureFilename(output, shader->getName(), udim));
             bakeGraphOutput(output, context, texturefilepath);
@@ -366,23 +362,22 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
                 InputPtr input = bakedImage->addInput("file", "filename");
                 input->setValueString(generateTextureFilename(output, shader->getName(), udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN));
 
-                // Check if is a normal node and transform normals into world space
-                auto worldSpaceShaderInput = _worldSpaceShaderInputs.find(sourceInput->getName());
-                if (worldSpaceShaderInput != _worldSpaceShaderInputs.end())
+                // Reconstruct any world-space nodes that were excluded from the baking process.
+                auto worldSpacePair = _worldSpaceNodes.find(sourceInput->getName());
+                if (worldSpacePair != _worldSpaceNodes.end())
                 {
-                    NodePtr origNormalMapNode = worldSpaceShaderInput->second;
-                    NodePtr normalMapNode = bakedNodeGraph->addNode(NORMAL_MAP_CATEGORY, sourceName + BAKED_POSTFIX + "_map", sourceType);
-                    if (origNormalMapNode && (origNormalMapNode->getCategory() == NORMAL_MAP_CATEGORY))
+                    NodePtr origWorldSpaceNode = worldSpacePair->second;
+                    if (origWorldSpaceNode)
                     {
-                        normalMapNode->copyContentFrom(origNormalMapNode);
+                        NodePtr newWorldSpaceNode = bakedNodeGraph->addNode(origWorldSpaceNode->getCategory(), sourceName + BAKED_POSTFIX + "_map", sourceType);
+                        newWorldSpaceNode->copyContentFrom(origWorldSpaceNode);
+                        InputPtr mapInput = newWorldSpaceNode->getInput("in");
+                        if (mapInput)
+                        {
+                            mapInput->setNodeName(bakedImage->getName());
+                        }
+                        bakedImage = newWorldSpaceNode;
                     }
-                    InputPtr mapInput = normalMapNode->getInput("in");
-                    if (!mapInput)
-                    {
-                        mapInput = normalMapNode->addInput("in", sourceType);
-                    }
-                    mapInput->setNodeName(bakedImage->getName());
-                    bakedImage = normalMapNode;
                 }
 
                 // Add the graph output.
@@ -425,7 +420,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     // Clear cached information after each material bake
     _bakedImageMap.clear();
     _bakedConstantMap.clear();
-    _worldSpaceShaderInputs.clear();
+    _worldSpaceNodes.clear();
     _material = nullptr;
 
     // Return the baked document on success.

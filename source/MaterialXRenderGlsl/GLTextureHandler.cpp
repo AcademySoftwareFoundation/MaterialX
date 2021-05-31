@@ -28,27 +28,6 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
     _boundTextureLocations.resize(maxTextureUnits, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
 }
 
-ImagePtr GLTextureHandler::acquireImage(const FilePath& filePath,
-                                        bool generateMipMaps)
-{
-    // Resolve the input filepath.
-    FilePath resolvedFilePath = filePath;
-    if (_resolver)
-    {
-        resolvedFilePath = _resolver->resolve(resolvedFilePath, FILENAME_TYPE_STRING);
-    }
-
-    // Return a cached image if available.
-    ImagePtr cachedImage = getCachedImage(resolvedFilePath);
-    if (cachedImage)
-    {
-        return cachedImage;
-    }
-
-    // Call the base acquire method.
-    return ImageHandler::acquireImage(resolvedFilePath, generateMipMaps);
-}
-
 bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
 {
     // Create renderer resources if needed.

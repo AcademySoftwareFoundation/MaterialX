@@ -98,20 +98,14 @@ struct MX_RENDER_API UIProperties
     bool uiAdvanced = false;
 };
 
-/// Get the UI properties for a given nodedef element.
+/// Get the UI properties for a given input element and target.
 /// Returns the number of properties found.
-MX_RENDER_API unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& uiProperties);
-
-/// Get the UI properties for a given element path. If the path is to a node, a target
-/// identifier can be provided.
-/// Returns the number of properties found.
-MX_RENDER_API unsigned int getUIProperties(const string& path, DocumentPtr doc, const string& target, UIProperties& uiProperties);
+MX_RENDER_API unsigned int getUIProperties(InputPtr input, const string& target, UIProperties& uiProperties);
 
 /// Interface for holding the UI properties associated shader port
 struct MX_RENDER_API UIPropertyItem
 {
     string label;
-    ValuePtr value;
     ShaderPort* variable = nullptr;
     UIProperties ui;
 };
@@ -119,17 +113,10 @@ struct MX_RENDER_API UIPropertyItem
 /// A grouping of property items by name
 using UIPropertyGroup = std::multimap<string, UIPropertyItem>;
 
-/// Utility to group UI properties items based on Element group name from an element.
-/// Returns a list of named and unnamed groups.
-MX_RENDER_API void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocument, TypedElementPtr materialElement,
-                            const string& pathSeparator, UIPropertyGroup& groups,
-                            UIPropertyGroup& unnamedGroups, ShaderPort* uniform = nullptr);
-
 /// Utility to group UI properties items based on Element group name from a VariableBlock.
 /// Returns a list of named and unnamed groups.
-MX_RENDER_API void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
-                            const string& pathSeparator, UIPropertyGroup& groups,
-                            UIPropertyGroup& unnamedGroups, bool addFromDefinition);
+MX_RENDER_API void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPropertyGroup& groups,
+                                          UIPropertyGroup& unnamedGroups, const string& pathSeparator, bool showAllInputs);
 
 /// @}
 

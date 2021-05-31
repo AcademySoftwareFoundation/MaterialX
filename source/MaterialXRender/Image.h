@@ -88,6 +88,12 @@ class MX_RENDER_API Image
     /// Return the stride of our base type in bytes.
     unsigned int getBaseStride() const;
 
+    /// Return the stride of an image row in bytes.
+    unsigned int getRowStride() const
+    {
+        return _width * _channelCount * getBaseStride();
+    }
+
     /// Return the maximum number of mipmaps for this image.
     unsigned int getMaxMipCount() const;
 

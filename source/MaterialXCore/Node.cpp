@@ -603,30 +603,20 @@ void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
     }
 }
 
-ValueElementPtr Node::addInputFromNodeDef(const string& name)
+InputPtr Node::addInputFromNodeDef(const string& name)
 {
-    ValueElementPtr newChild = nullptr;
-    NodeDefPtr elemNodeDef = getNodeDef();
-    if (elemNodeDef)
+    InputPtr nodeInput = getInput(name);
+    if (!nodeInput)
     {
-        ValueElementPtr nodeDefElem = elemNodeDef->getChildOfType<ValueElement>(name);
-        const string& inputName = nodeDefElem->getName();
-        ElementPtr existingElement = getChild(inputName);
-        if (existingElement && existingElement->isA<ValueElement>())
+        NodeDefPtr nodeDef = getNodeDef();
+        InputPtr nodeDefInput = nodeDef ? nodeDef->getInput(name) : nullptr;
+        if (nodeDefInput)
         {
-            return existingElement->asA<ValueElement>();
-        }
-
-        if (nodeDefElem->isA<Input>())
-        {
-            newChild = addInput(inputName, nodeDefElem->getType());
-        }
-        if (newChild)
-        {
-            newChild->copyContentFrom(nodeDefElem);
+            nodeInput = addInput(nodeDefInput->getName());
+            nodeInput->copyContentFrom(nodeDefInput);
         }
     }
-    return newChild;
+    return nodeInput;
 }
 
 void NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)
@@ -708,33 +698,7 @@ bool NodeGraph::validate(string* message) const
             validateRequire(getOutputCount() == nodeDef->getActiveOutputs().size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
         }
     }
-    // Check interfaces on nodegraphs which are not definitions
-    if (!hasNodeDefString())
-    {
-        for (NodePtr node : getNodes())
-        {
-            for (InputPtr input : node->getInputs())
-            {
-                const string& interfaceName = input->getInterfaceName();
-                if (!interfaceName.empty())
-                {
-                    InputPtr interfaceInput = input->getInterfaceInput();
-                    validateRequire(interfaceInput != nullptr, res, message, "NodeGraph interface input: \"" + interfaceName + "\" does not exist on nodegraph");
-                    string connectedNodeName = interfaceInput ? interfaceInput->getNodeName() : EMPTY_STRING;
-                    if (connectedNodeName.empty())
-                    {
-                        connectedNodeName = interfaceInput->getNodeGraphString();
-                    }
-                    if (interfaceInput && !connectedNodeName.empty())
-                    {
-                        NodePtr connectedNode = input->getConnectedNode();
-                        validateRequire(connectedNode != nullptr, res, message, "Nodegraph input: \"" + interfaceInput->getNamePath() +
-                            "\" specifies connection to non existent node: \"" + connectedNodeName + "\"");
-                    }
-                }
-            }
-        }
-    }
+
     return GraphElement::validate(message) && res;
 }
 

@@ -14,8 +14,6 @@ void bindPyGLTextureHandler(py::module& mod)
 {
     py::class_<mx::GLTextureHandler, mx::ImageHandler, mx::GLTextureHandlerPtr>(mod, "GLTextureHandler")
         .def_static("create", &mx::GLTextureHandler::create)
-        .def("acquireImage", &mx::GLTextureHandler::acquireImage,
-            py::arg("filePath"), py::arg("generateMipMaps") = true)
         .def("bindImage", &mx::GLTextureHandler::bindImage)
         .def("mapAddressModeToGL", &mx::GLTextureHandler::mapAddressModeToGL)
         .def("mapFilterTypeToGL", &mx::GLTextureHandler::mapFilterTypeToGL);

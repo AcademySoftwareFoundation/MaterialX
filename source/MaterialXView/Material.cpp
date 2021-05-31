@@ -269,7 +269,7 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
     imageHandler->setFilenameResolver(resolver);
 
     // Acquire the given image.
-    mx::ImagePtr image = imageHandler->acquireImage(filePath, true);
+    mx::ImagePtr image = imageHandler->acquireImage(filePath);
     if (!image)
     {
         return nullptr;

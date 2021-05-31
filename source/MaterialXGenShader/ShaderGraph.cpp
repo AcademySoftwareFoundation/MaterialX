@@ -6,12 +6,8 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <MaterialXCore/Document.h>
 
 #include <iostream>
 #include <queue>
@@ -36,33 +32,30 @@ ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDoc
 
 void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& context)
 {
-    for (ValueElementPtr port : elem.getActiveValueElements())
+    for (InputPtr input : elem.getActiveInputs())
     {
-        if (!port->isA<Output>())
+        ShaderGraphInputSocket* inputSocket = nullptr;
+        ValuePtr portValue = input->getResolvedValue();
+        const string& portValueString = portValue ? portValue->getValueString() : EMPTY_STRING;
+        std::pair<const TypeDesc*, ValuePtr> enumResult;
+        const string& enumNames = input->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+        const TypeDesc* portType = TypeDesc::get(input->getType());
+        if (context.getShaderGenerator().getSyntax().remapEnumeration(portValueString, portType, enumNames, enumResult))
         {
-            ShaderGraphInputSocket* inputSocket = nullptr;
-            ValuePtr portValue = port->getResolvedValue();
-            const string& portValueString = portValue ? portValue->getValueString() : EMPTY_STRING;
-            std::pair<const TypeDesc*, ValuePtr> enumResult;
-            const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-            const TypeDesc* portType = TypeDesc::get(port->getType());
-            if (context.getShaderGenerator().getSyntax().remapEnumeration(portValueString, portType, enumNames, enumResult))
+            inputSocket = addInputSocket(input->getName(), enumResult.first);
+            inputSocket->setValue(enumResult.second);
+        }
+        else
+        {
+            inputSocket = addInputSocket(input->getName(), portType);
+            if (!portValueString.empty())
             {
-                inputSocket = addInputSocket(port->getName(), enumResult.first);
-                inputSocket->setValue(enumResult.second);
+                inputSocket->setValue(portValue);
             }
-            else
-            {
-                inputSocket = addInputSocket(port->getName(), portType);
-                if (!portValueString.empty())
-                {
-                    inputSocket->setValue(portValue);
-                }
-            }
-            if (port->getIsUniform())
-            {
-                inputSocket->setUniform();
-            }
+        }
+        if (input->getIsUniform())
+        {
+            inputSocket->setUniform();
         }
     }
 }
@@ -444,7 +437,8 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
     NodeDefPtr nodeDef = node->getNodeDef();
     if (!nodeDef)
     {
-        throw ExceptionShaderGenError("Could not find a nodedef for shadernode '" + node->getName() + "'");
+        throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getName() +
+                                      "' with category '" + node->getCategory() + "'");
     }
 
     ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, name, node->getDocument(), context.getReservedWords());

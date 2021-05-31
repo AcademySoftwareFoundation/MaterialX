@@ -5,8 +5,6 @@
 
 #include <MaterialXRender/Util.h>
 
-#include <MaterialXCore/Util.h>
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
@@ -141,25 +139,34 @@ ShaderPtr createBlurShader(GenContext& context,
     return createShader(shaderName, blurContext, output);
 }
 
-unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& uiProperties)
+unsigned int getUIProperties(InputPtr input, const string& target, UIProperties& uiProperties)
 {
-    if (!nodeDefElement)
+    if (!input)
     {
         return 0;
     }
+    InputPtr nodeDefInput = getNodeDefInput(input, target);
+    if (nodeDefInput)
+    {
+        input = nodeDefInput;
+    }
 
     unsigned int propertyCount = 0;
-    uiProperties.uiName = nodeDefElement->getAttribute(ValueElement::UI_NAME_ATTRIBUTE);
+    uiProperties.uiName = input->getAttribute(ValueElement::UI_NAME_ATTRIBUTE);
     if (!uiProperties.uiName.empty())
-        propertyCount++;
-
-    uiProperties.uiFolder = nodeDefElement->getAttribute(ValueElement::UI_FOLDER_ATTRIBUTE);
-    if (!uiProperties.uiFolder.empty())
-        propertyCount++;
-
-    if (nodeDefElement->getIsUniform())
     {
-        string enumString = nodeDefElement->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+        propertyCount++;
+    }
+
+    uiProperties.uiFolder = input->getAttribute(ValueElement::UI_FOLDER_ATTRIBUTE);
+    if (!uiProperties.uiFolder.empty())
+    {
+        propertyCount++;
+    }
+
+    if (input->getIsUniform())
+    {
+        string enumString = input->getAttribute(ValueElement::ENUM_ATTRIBUTE);
         if (!enumString.empty())
         {
             uiProperties.enumeration = splitString(enumString, ",");
@@ -167,10 +174,10 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
                 propertyCount++;
         }
 
-        const string& enumerationValues = nodeDefElement->getAttribute(ValueElement::ENUM_VALUES_ATTRIBUTE);
+        const string& enumerationValues = input->getAttribute(ValueElement::ENUM_VALUES_ATTRIBUTE);
         if (!enumerationValues.empty())
         {
-            const string& elemType = nodeDefElement->getType();
+            const string& elemType = input->getType();
             const TypeDesc* typeDesc = TypeDesc::get(elemType);
             if (typeDesc->isScalar() || typeDesc->isFloat2() || typeDesc->isFloat3() ||
                 typeDesc->isFloat4())
@@ -208,10 +215,10 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         }
     }
 
-    const string& uiMinString = nodeDefElement->getAttribute(ValueElement::UI_MIN_ATTRIBUTE);
+    const string& uiMinString = input->getAttribute(ValueElement::UI_MIN_ATTRIBUTE);
     if (!uiMinString.empty())
     {
-        ValuePtr value = Value::createValueFromStrings(uiMinString, nodeDefElement->getType());
+        ValuePtr value = Value::createValueFromStrings(uiMinString, input->getType());
         if (value)
         {
             uiProperties.uiMin = value;
@@ -219,10 +226,10 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         }
     }
 
-    const string& uiMaxString = nodeDefElement->getAttribute(ValueElement::UI_MAX_ATTRIBUTE);
+    const string& uiMaxString = input->getAttribute(ValueElement::UI_MAX_ATTRIBUTE);
     if (!uiMaxString.empty())
     {
-        ValuePtr value = Value::createValueFromStrings(uiMaxString, nodeDefElement->getType());
+        ValuePtr value = Value::createValueFromStrings(uiMaxString, input->getType());
         if (value)
         {
             uiProperties.uiMax = value;
@@ -230,10 +237,10 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         }
     }
 
-    const string& uiSoftMinString = nodeDefElement->getAttribute(ValueElement::UI_SOFT_MIN_ATTRIBUTE);
+    const string& uiSoftMinString = input->getAttribute(ValueElement::UI_SOFT_MIN_ATTRIBUTE);
     if (!uiSoftMinString.empty())
     {
-        ValuePtr value = Value::createValueFromStrings(uiSoftMinString, nodeDefElement->getType());
+        ValuePtr value = Value::createValueFromStrings(uiSoftMinString, input->getType());
         if (value)
         {
             uiProperties.uiSoftMin = value;
@@ -241,10 +248,10 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         }
     }
 
-    const string& uiSoftMaxString = nodeDefElement->getAttribute(ValueElement::UI_SOFT_MAX_ATTRIBUTE);
+    const string& uiSoftMaxString = input->getAttribute(ValueElement::UI_SOFT_MAX_ATTRIBUTE);
     if (!uiSoftMaxString.empty())
     {
-        ValuePtr value = Value::createValueFromStrings(uiSoftMaxString, nodeDefElement->getType());
+        ValuePtr value = Value::createValueFromStrings(uiSoftMaxString, input->getType());
         if (value)
         {
             uiProperties.uiSoftMax = value;
@@ -252,10 +259,10 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         }
     }
 
-    const string& uiStepString = nodeDefElement->getAttribute(ValueElement::UI_STEP_ATTRIBUTE);
+    const string& uiStepString = input->getAttribute(ValueElement::UI_STEP_ATTRIBUTE);
     if (!uiStepString.empty())
     {
-        ValuePtr value = Value::createValueFromStrings(uiStepString, nodeDefElement->getType());
+        ValuePtr value = Value::createValueFromStrings(uiStepString, input->getType());
         if (value)
         {
             uiProperties.uiStep = value;
@@ -263,7 +270,7 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         }
     }
 
-    const string& uiAdvancedString = nodeDefElement->getAttribute(ValueElement::UI_ADVANCED_ATTRIBUTE);
+    const string& uiAdvancedString = input->getAttribute(ValueElement::UI_ADVANCED_ATTRIBUTE);
     uiProperties.uiAdvanced = (uiAdvancedString == "true");
     if (!uiAdvancedString.empty())
     {
@@ -273,51 +280,90 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
     return propertyCount;
 }
 
-unsigned int getUIProperties(const string& path, DocumentPtr doc, const string& target, UIProperties& uiProperties)
+void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPropertyGroup& groups,
+                            UIPropertyGroup& unnamedGroups, const string& pathSeparator, bool showAllInputs)
 {
-    ValueElementPtr valueElement = findNodeDefChild(path, doc, target);
-    if (valueElement)
+    // Generated an ordered map of shader inputs.
+    using ShaderInputPair = std::pair<InputPtr, ShaderPort*>;
+    std::map<int, ShaderInputPair> shaderInputMap;
+    for (ShaderPort* variable : block.getVariableOrder())
     {
-        return getUIProperties(valueElement, uiProperties);
+        if (!variable->getValue())
+        {
+            continue;
+        }
+
+        // Get the input associated with this variable.
+        ElementPtr pathElement = doc->getDescendant(variable->getPath());
+        InputPtr input = pathElement ? pathElement->asA<Input>() : nullptr;
+
+        // Redirect to interface inputs when present.
+        if (input)
+        {
+            InputPtr interfaceInput = input->getInterfaceInput();
+            if (interfaceInput)
+            {
+                input = interfaceInput;
+            }
+        }
+
+        // If requested, add missing inputs from the associated nodedef.
+        if (showAllInputs && !input)
+        {
+            string nodePath = parentNamePath(variable->getPath());
+            ElementPtr parent = doc->getDescendant(nodePath);
+            if (parent)
+            {
+                NodePtr parentNode = parent->asA<Node>();
+                if (parentNode)
+                {
+                    StringVec pathVec = splitNamePath(variable->getPath());
+                    input = parentNode->addInputFromNodeDef(pathVec[pathVec.size() - 1]);
+                }
+            }
+        }
+
+        // Add the shader input if unique.
+        if (input)
+        {
+            int treeIndex = input->getTreeIndex();
+            if (shaderInputMap.count(treeIndex))
+            {
+                continue;
+            }
+            shaderInputMap[treeIndex] = ShaderInputPair(input, variable);
+        }
     }
-    return 0;
-}
 
-void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocument, TypedElementPtr materialElement,
-                            const string& pathSeparator, UIPropertyGroup& groups,
-                            UIPropertyGroup& unnamedGroups, ShaderPort* uniform)
-{
-    if (uniformElement && uniformElement->isA<ValueElement>())
+    // Generate UI properties for each shader input
+    for (const auto& it : shaderInputMap)
     {
+        // Retrieve the shader input pair.
+        ShaderInputPair pair = it.second;
+
+        // Gather the UI properties for this input.
         UIPropertyItem item;
-        item.variable = uniform;
-        item.value = uniformElement->asA<ValueElement>()->getValue();
-        getUIProperties(uniformElement->getNamePath(), contentDocument, EMPTY_STRING, item.ui);
+        item.variable = pair.second;
+        getUIProperties(pair.first, EMPTY_STRING, item.ui);
 
-        string parentLabel;
-        ElementPtr parent = uniformElement->getParent();
-        if (parent && parent != contentDocument && parent != materialElement)
-        {
-            parentLabel = parent->getNamePath();
-        }
-        if (!materialElement || parentLabel == materialElement->getAttribute(PortElement::NODE_NAME_ATTRIBUTE))
-        {
-            parentLabel.clear();
-        }
-        if (!parentLabel.empty())
-        {
-            parentLabel += pathSeparator;
-        }
-
+        // Generate the item label.
         if (!item.ui.uiName.empty())
         {
-            item.label = parentLabel + item.ui.uiName;
+            item.label = item.ui.uiName;
         }
         if (item.label.empty())
         {
-            item.label = parentLabel + uniformElement->getName();
+            item.label = pair.first->getName();
         }
 
+        // Prepend a parent label for unlabeled node inputs.
+        ElementPtr parent = pair.first->getParent();
+        if (item.ui.uiFolder.empty() && parent && parent->isA<Node>())
+        {
+            item.label = parent->getName() + pathSeparator + item.label;
+        }
+
+        // Add the new item.
         if (!item.ui.uiFolder.empty())
         {
             groups.emplace(item.ui.uiFolder, item);
@@ -325,42 +371,6 @@ void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocume
         else
         {
             unnamedGroups.emplace(EMPTY_STRING, item);
-        }
-    }
-}
-
-void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
-                            const string& pathSeparator, UIPropertyGroup& groups, UIPropertyGroup& unnamedGroups, bool addFromDefinition)
-{
-    const vector<ShaderPort*>& blockVariables = block.getVariableOrder();
-    for (const auto& blockVariable : blockVariables)
-    {
-        const string& path = blockVariable->getPath();
-
-        if (!blockVariable->getPath().empty())
-        {
-            // Optionally add the input if it does not exist
-            ElementPtr uniformElement = contentDocument->getDescendant(path);
-            if (!uniformElement && addFromDefinition)
-            {
-                string nodePath = parentNamePath(path);
-                ElementPtr uniformParent = contentDocument->getDescendant(nodePath);
-                if (uniformParent)
-                {
-                    NodePtr uniformNode = uniformParent->asA<Node>();
-                    if (uniformNode)
-                    {
-                        StringVec pathVec = splitNamePath(path);
-                        uniformNode->addInputFromNodeDef(pathVec[pathVec.size() - 1]);
-                    }
-                }
-            }
-
-            uniformElement = contentDocument->getDescendant(path);
-            if (uniformElement && blockVariable->getValue())
-            {
-                createUIPropertyGroups(uniformElement, contentDocument, materialElement, pathSeparator, groups, unnamedGroups, blockVariable);
-            }
         }
     }
 }

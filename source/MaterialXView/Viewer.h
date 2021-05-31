@@ -100,6 +100,12 @@ class Viewer : public ng::Screen
         _srgbFrameBuffer = val;
     }
 
+    // Return true if all inputs should be shown in the property editor.
+    bool getShowAllInputs() const
+    {
+        return _showAllInputs;
+    }
+
     // Return the underlying NanoGUI window.
     ng::Window* getWindow() const
     {
@@ -167,6 +173,7 @@ class Viewer : public ng::Screen
     // existing assignment if the given material is nullptr.
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
 
+    // Mark the given material as currently selected in the viewer.
     void setSelectedMaterial(MaterialPtr material)
     {
         for (size_t i = 0; i < _materials.size(); i++)
@@ -178,6 +185,9 @@ class Viewer : public ng::Screen
             }
         }
     }
+
+    // Generate a base output filepath for data derived from the current material.
+    mx::FilePath getBaseOutputPath();
 
     void initCamera();
     void updateViewHandlers();
@@ -325,6 +335,7 @@ class Viewer : public ng::Screen
 
     // Material options
     bool _mergeMaterials;
+    bool _showAllInputs;
 
     // Unit options
     mx::StringVec _distanceUnitOptions;

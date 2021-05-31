@@ -228,7 +228,8 @@ bool isTransparentSurface(ElementPtr element, const string& target)
         NodeDefPtr nodeDef = node->getNodeDef();
         if (!nodeDef)
         {
-            throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getNamePath());
+            throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getName() +
+                                          "' with category '" + node->getCategory() + "'");
         }
         InterfaceElementPtr impl = nodeDef->getImplementation(target);
         if (!impl)
@@ -436,38 +437,20 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
     }
 }
 
-ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const string& target)
+InputPtr getNodeDefInput(InputPtr nodeInput, const string& target)
 {
-    if (path.empty() || !doc)
+    ElementPtr parent = nodeInput ? nodeInput->getParent() : nullptr;
+    NodePtr node = parent ? parent->asA<Node>() : nullptr;
+    if (node)
     {
-        return nullptr;
-    }
-    ElementPtr pathElement = doc->getDescendant(path);
-    if (!pathElement || pathElement == doc)
-    {
-        return nullptr;
-    }
-    ElementPtr parent = pathElement->getParent();
-    if (!parent || parent == doc)
-    {
-        return nullptr;
+        NodeDefPtr nodeDef = node->getNodeDef(target);
+        if (nodeDef)
+        {
+            return nodeDef->getActiveInput(nodeInput->getName());
+        }
     }
 
-    // Note that we must cast to a specific type derived instance as getNodeDef() is not
-    // a virtual method which is overridden in derived classes.
-    NodePtr node = parent->asA<Node>();
-    NodeDefPtr nodeDef = node ? node->getNodeDef(target) : nullptr;
-    if (!nodeDef)
-    {
-        return nullptr;
-    }
-
-    // Use the path element name to look up in the equivalent element
-    // in the nodedef as only the nodedef elements contain the information.
-    const string& valueElementName = pathElement->getName();
-    ValueElementPtr valueElement = nodeDef->getActiveValueElement(valueElementName);
-
-    return valueElement;
+    return nullptr;
 }
 
 namespace
@@ -574,41 +557,13 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
     offsetUV[1] = -minUV[1];
 }
 
-NodePtr connectsToNodeOfCategory(OutputPtr output, const StringSet& categories)
+NodePtr connectsToWorldSpaceNode(OutputPtr output)
 {
-    ElementPtr connectedElement = output ? output->getConnectedNode() : nullptr;
-    NodePtr connectedNode = connectedElement ? connectedElement->asA<Node>() : nullptr;
-    if (!connectedNode)
-    {
-        return nullptr;
-    }
-    
-    // Check the direct node type
-    if (categories.count(connectedNode->getCategory()))
+    const StringSet WORLD_SPACE_NODE_CATEGORIES{ "normalmap" };
+    NodePtr connectedNode = output ? output->getConnectedNode() : nullptr;
+    if (connectedNode && WORLD_SPACE_NODE_CATEGORIES.count(connectedNode->getCategory()))
     {
         return connectedNode;
-    }
-
-    // Check if it's a definition which has a root which of the node type
-    NodeDefPtr nodedef = connectedNode->getNodeDef();
-    if (nodedef)
-    {
-        InterfaceElementPtr inter = nodedef->getImplementation();
-        if (inter)
-        {
-            NodeGraphPtr graph = inter->asA<NodeGraph>();
-            if (graph)
-            {
-                for (OutputPtr outputPtr : graph->getOutputs())
-                {
-                    NodePtr outputNode = outputPtr->getConnectedNode();
-                    if (outputNode && categories.count(outputNode->getCategory()))
-                    {
-                        return outputNode;
-                    }
-                }
-            }
-        }
     }
     return nullptr;
 }
