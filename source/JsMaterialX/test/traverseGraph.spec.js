@@ -1,10 +1,11 @@
 import { expect } from 'chai';
-import { traverse, initMaterialX } from './testHelpers';
+import { traverse } from './testHelpers';
+import Module from './_build/JsMaterialX.js';
 
 describe('Traversal', () => {
     let mx;
     before(async () => {
-        mx = await initMaterialX();
+        mx = await Module();
     });
 
     it('Traverse Graph', async () => {

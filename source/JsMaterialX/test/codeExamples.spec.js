@@ -1,9 +1,10 @@
 import { expect } from 'chai';
-import { initMaterialX, getMtlxStrings } from './testHelpers';
+import Module from './_build/JsMaterialX.js';
+import { getMtlxStrings } from './testHelpers';
 
 describe('Code Examples', () => {
     it('Building a MaterialX Document', async () => {
-        const mx = await initMaterialX();
+        const mx = await Module();
         // Create a document.
         const doc = mx.createDocument();
 
@@ -80,7 +81,7 @@ describe('Code Examples', () => {
             ['standard_surface_greysphere_calibration.mtlx'],
             '../../../resources/Materials/Examples/StandardSurface'
         )[0];
-        const mx = await initMaterialX();
+        const mx = await Module();
 
         // Read a document from disk.
         const doc = mx.createDocument();
@@ -112,7 +113,7 @@ describe('Code Examples', () => {
 
     it('Building a MaterialX Document', async () => {
         const xmlStr = getMtlxStrings(['MaterialBasic.mtlx'], '../../../resources/Materials/Examples/Syntax')[0];
-        const mx = await initMaterialX();
+        const mx = await Module();
 
         // Read a document from disk.
         const doc = mx.createDocument();

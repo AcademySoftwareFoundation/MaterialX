@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { traverse, initMaterialX, getMtlxStrings } from './testHelpers';
+import Module from './_build/JsMaterialX.js';
+import { getMtlxStrings } from './testHelpers';
 
 const _libraryFilenames = ['stdlib_defs.mtlx', 'stdlib_ng.mtlx', 'osl/stdlib_osl_impl.mtlx'];
 const _exampleFilenames = [
@@ -16,7 +17,7 @@ const _exampleFilenames = [
 it('Read XML', async () => {
     let mx;
 
-    mx = await initMaterialX();
+    mx = await Module();
 
     // Read the standard library'
     let mtlxStrs = getMtlxStrings(_libraryFilenames, '../../../libraries/stdlib');

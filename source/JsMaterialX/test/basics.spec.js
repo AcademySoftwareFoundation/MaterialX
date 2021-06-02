@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import { initMaterialX } from './testHelpers';
+import { expect } from 'chai';;
+import Module from './_build/JsMaterialX.js';
 
 describe('Basics', () => {
     let mx;
     before(async () => {
-        mx = await initMaterialX();
+        mx = await Module();
     });
 
     it('DataTypes', () => {

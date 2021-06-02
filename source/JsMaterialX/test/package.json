@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "node ./node_modules/rimraf/bin.js ./_build/",
-    "copyBuild": "node ./node_modules/copyfiles/copyfiles -f ../../../build/source/JsMaterialX/JsMaterialX* _build",
+    "copyBuild": "copyfiles -f ../../../build/source/JsMaterialX/JsMaterialX* _build",
     "mocha": "mocha '*.spec.js' --require @babel/register --timeout 5000",
     "pretest": "npm run clean && npm run copyBuild",
     "test": "npm run mocha"
@@ -22,7 +22,6 @@
     "chai": "^4.2.0",
     "copyfiles": "^2.2.0",
     "mocha": "^7.1.2",
-    "regenerator-runtime": "^0.13.5",
     "rimraf": "^3.0.2"
   }
 }

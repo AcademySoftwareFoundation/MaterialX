@@ -85,7 +85,7 @@ BIND_ ##MINARGS ## _ ##MAXARGS(.class_function, JSNAME, , ( ), CLASSNAME ::, FUN
  * @param ... The types of all parameters, as a comma-separated list (e.g. const std::string&, float, bool)
  */
 #define BIND_FUNC(JSNAME, FUNCNAME, MINARGS, MAXARGS, ...) \
-BIND_ ##MINARGS ## _ ##MAXARGS(ems::function, JSNAME, , ( ), mx::, FUNCNAME, ( ), ;, __VA_ARGS__)
+BIND_ ##MINARGS ## _ ##MAXARGS(ems::function, JSNAME, , ( ), , FUNCNAME, ( ), ;, __VA_ARGS__)
 
 /**
  * Use this macro to conveniently create bindings for global (utility) functions with optional parameters,
@@ -99,7 +99,7 @@ BIND_ ##MINARGS ## _ ##MAXARGS(ems::function, JSNAME, , ( ), mx::, FUNCNAME, ( )
  * @param ... The types of all parameters, as a comma-separated list (e.g. const std::string&, float, bool)
  */
 #define BIND_FUNC_RAW_PTR(JSNAME, FUNCNAME, MINARGS, MAXARGS, ...) \
-BIND_ ##MINARGS ## _ ##MAXARGS(ems::function, JSNAME, , ( ), mx::, FUNCNAME, (, ems::allow_raw_pointers()), ;, __VA_ARGS__)
+BIND_ ##MINARGS ## _ ##MAXARGS(ems::function, JSNAME, , ( ), , FUNCNAME, (, ems::allow_raw_pointers()), ;, __VA_ARGS__)
 
 
 #define BIND_8(API, JSNAME, SELF, SEP, SCOPE, FUNCNAME, OPTIONS, SEMICOLON, \
