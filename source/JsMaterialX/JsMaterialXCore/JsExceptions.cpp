@@ -9,18 +9,15 @@
 
 namespace ems = emscripten;
 
-namespace exceptions
+namespace jsexceptions
 {
 std::string getExceptionMessage(int exceptionPtr)
 {
     return std::string(reinterpret_cast<std::exception *>(exceptionPtr)->what());
 }
-} // namespace exceptions
+} // namespace jsexceptions
 
-extern "C"
+EMSCRIPTEN_BINDINGS(exceptions)
 {
-    EMSCRIPTEN_BINDINGS(exceptions)
-    {
-        ems::function("getExceptionMessage", &exceptions::getExceptionMessage);
-    }
+    ems::function("getExceptionMessage", &jsexceptions::getExceptionMessage);
 }
