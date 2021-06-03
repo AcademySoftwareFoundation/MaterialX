@@ -157,10 +157,10 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
     PvtPath path(nodeDefName);
     if (stage->getPrimAtPath(path))
     {
-        throw ExceptionRuntimeError("The nodedef name '" + qualifiedNodeDefName.str() + "' is not unique");
+        throw ExceptionRuntimeError("The nodedef name '" + nodeDefName.str() + "' is not unique");
     }
 
-    PvtPrim* nodedefPrim = stage->createPrim(stage->getPath(), qualifiedNodeDefName, RtNodeDef::typeName());
+    PvtPrim* nodedefPrim = stage->createPrim(stage->getPath(), nodeDefName, RtNodeDef::typeName());
     RtNodeDef nodedef(nodedefPrim->hnd());
 
     // Set node, version and optional node group
