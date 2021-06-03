@@ -151,10 +151,6 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
         throw ExceptionRuntimeError("Cannot create nodedef '" + nodeDefName.str() + "', with node name: '" + nodeName.str() + "'");
     }
 
-    // Always used qualified namespace
-    const bool isNameSpaced = !namespaceString.empty();
-    const RtString qualifiedNodeDefName = isNameSpaced ? RtString(namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str()) : nodeDefName;
-
     PvtStage* stage = PvtStage::cast(this);
 
     // Make sure the nodedef name is unique among all prims in the stage.
@@ -213,6 +209,7 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
     }
 
     // Set namespace for the nodegraph and nodedef
+    const bool isNameSpaced = !namespaceString.empty();  
     if (isNameSpaced)
     {
         nodedef.setNamespace(namespaceString);
@@ -221,7 +218,8 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
 
     // Set the definition on the nodegraph
     // turning this into a functional graph
-    nodegraph.setDefinition(qualifiedNodeDefName);
+    // Note that the nodeDefName is a Qualified node def name.
+    nodegraph.setDefinition(nodeDefName);
 
     // Create the relationship between nodedef and it's implementation.
     nodedef.getNodeImpls().connect(nodegraph.getPrim());
