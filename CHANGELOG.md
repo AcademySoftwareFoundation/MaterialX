@@ -2,6 +2,16 @@
 
 ## [1.38.1] - Development
 
+### Added
+- Added support for shared library builds on Windows.
+- Added support for 16-bit unsigned integer images in MaterialXRender.
+
+### Changed
+- Improved support for compound nodegraphs in shader and UI generation.
+
+### Fixed
+- Fixed the Color3.asTuple and Color4.asTuple methods in Python
+
 ## [1.38.0] - 2021-03-02
 
 Updated the MaterialX library to the v1.38 specification.  See the [v1.38 changelist](http://www.materialx.org/assets/MaterialX.v1.38.Changelist.pdf) for full details.
