@@ -208,8 +208,11 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
         RtValue::copy(output.getType(), output.getValue(), nodedefOutput.getValue());
     }
 
+    // Always used qualified namespace
+    const bool isNameSpaced = !namespaceString.empty();
+    const RtString qualifiedNodeDefName = isNameSpaced ? RtString(namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str()) : nodeDefName;
+
     // Set namespace for the nodegraph and nodedef
-    const bool isNameSpaced = !namespaceString.empty();  
     if (isNameSpaced)
     {
         nodedef.setNamespace(namespaceString);
@@ -219,7 +222,7 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
     // Set the definition on the nodegraph
     // turning this into a functional graph
     // Note that the nodeDefName is a Qualified node def name.
-    nodegraph.setDefinition(nodeDefName);
+    nodegraph.setDefinition(qualifiedNodeDefName);
 
     // Create the relationship between nodedef and it's implementation.
     nodedef.getNodeImpls().connect(nodegraph.getPrim());
