@@ -8,11 +8,6 @@ describe('XmlIo', () => {
       mx = await Module();
   });
 
-  it('should convert FilePath to string', () => {
-    const exportOptions = new mx.XmlExportOptions();
-    expect(typeof exportOptions.userTexturePath).to.equal("string");
-  });
-
   it('should prepend include tag', () => {
     const doc = mx.createDocument();
     const includePath = "SomePath";

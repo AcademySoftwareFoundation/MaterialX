@@ -226,25 +226,6 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
 }
 
-TEST_CASE("Export Document", "[xmlio]")
-{
-    mx::FileSearchPath searchPath("libraries/stdlib");
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/looks/looks.mtlx", searchPath);
-
-    mx::XmlExportOptions exportOptions;
-    exportOptions.mergeLooks = true;
-    exportOptions.lookGroupToMerge = "lookgroup1";
-    std::stringstream ss;
-    mx::exportToXmlStream(doc, ss, &exportOptions);
-
-    mx::DocumentPtr exportedDoc = mx::createDocument();
-    mx::readFromXmlStream(exportedDoc, ss);
-
-    REQUIRE(exportedDoc->getLookGroups().size() == 0);
-    REQUIRE(exportedDoc->getLooks().size() == 1);
-}
-
 TEST_CASE("Load locale content", "[xmlio_locale]")
 {
     /// Test locale region

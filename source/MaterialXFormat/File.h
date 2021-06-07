@@ -20,6 +20,7 @@ class FilePath;
 using FilePathVec = vector<FilePath>;
 
 extern MX_FORMAT_API const string PATH_LIST_SEPARATOR;
+extern MX_FORMAT_API const string MATERIALX_SEARCH_PATH_ENV_VAR;
 
 /// @class FilePath
 /// A generic file path, supporting both syntactic and file system operations.
@@ -343,6 +344,9 @@ class MX_FORMAT_API FileSearchPath
   private:
     FilePathVec _paths;
 };
+
+/// Return a FileSearchPath object from search path environment variable.
+MX_FORMAT_API FileSearchPath getEnvironmentPath(const string& sep = PATH_LIST_SEPARATOR);
 
 } // namespace MaterialX
 

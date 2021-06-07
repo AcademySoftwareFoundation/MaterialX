@@ -24,11 +24,6 @@ void bindPyXmlIo(py::module& mod)
         .def_readwrite("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
         .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate);
 
-    py::class_<mx::XmlExportOptions>(mod, "XmlExportOptions")
-        .def(py::init())
-        .def_readwrite("mergeLooks", &mx::XmlExportOptions::mergeLooks)
-        .def_readwrite("lookGroupToMerge", &mx::XmlExportOptions::lookGroupToMerge);
-
     mod.def("readFromXmlFileBase", &mx::readFromXmlFile,
         py::arg("doc"), py::arg("filename"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
     mod.def("readFromXmlString", &mx::readFromXmlString,
@@ -37,11 +32,13 @@ void bindPyXmlIo(py::module& mod)
         py::arg("doc"), py::arg("filename"), py::arg("writeOptions") = (mx::XmlWriteOptions*) nullptr);
     mod.def("writeToXmlString", mx::writeToXmlString,
         py::arg("doc"), py::arg("writeOptions") = nullptr);
-    mod.def("exportToXmlFile", mx::exportToXmlFile,
-        py::arg("doc"), py::arg("filename"), py::arg("exportOptions") = (mx::XmlExportOptions*) nullptr);
-    mod.def("exportToXmlString", mx::exportToXmlString,
-        py::arg("doc"), py::arg("exportOptions") = nullptr);
     mod.def("prependXInclude", mx::prependXInclude);
+
+    mod.def("getEnvironmentPath", &mx::getEnvironmentPath,
+        py::arg("sep") = mx::PATH_LIST_SEPARATOR);
+
+    mod.attr("PATH_LIST_SEPARATOR") = mx::PATH_LIST_SEPARATOR;
+    mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
 
     py::register_exception<mx::ExceptionParseError>(mod, "ExceptionParseError");
     py::register_exception<mx::ExceptionFileMissing>(mod, "ExceptionFileMissing");

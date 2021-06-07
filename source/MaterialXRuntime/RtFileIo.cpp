@@ -27,6 +27,7 @@
 #include <MaterialXCore/Types.h>
 
 #include <MaterialXFormat/Util.h>
+#include <MaterialXFormat/XmlExport.h>
 
 #include <sstream>
 #include <fstream>
@@ -1726,8 +1727,7 @@ void RtFileIo::exportDocument(std::ostream& stream, const RtExportOptions* optio
         xmlExportOptions.mergeLooks = options->mergeLooks;
         xmlExportOptions.lookGroupToMerge = options->lookGroupToMerge;
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
-        xmlExportOptions.userDefinitionPath = options->userDefinitionPath;
-        xmlExportOptions.userTexturePath = options->userTexturePath;
+        xmlExportOptions.resolvedTexturePath = options->resolvedTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
     }
     exportToXmlStream(document, stream, &xmlExportOptions);
@@ -1747,8 +1747,7 @@ void RtFileIo::exportDocument(const FilePath& documentPath, const RtExportOption
         xmlExportOptions.mergeLooks = options->mergeLooks;
         xmlExportOptions.lookGroupToMerge = options->lookGroupToMerge;
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
-        xmlExportOptions.userDefinitionPath = options->userDefinitionPath;
-        xmlExportOptions.userTexturePath = options->userTexturePath;
+        xmlExportOptions.resolvedTexturePath = options->resolvedTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
     }
     exportToXmlFile(document, documentPath, &xmlExportOptions);
