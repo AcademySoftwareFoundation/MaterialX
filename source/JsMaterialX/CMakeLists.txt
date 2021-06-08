@@ -23,7 +23,8 @@ set(CORE_DEPS ${OUTPUT_CORE}JsTypes.cpp
 
 set(FORMAT_DEPS
     ${OUTPUT_FORMAT}JsUtil.cpp
-    ${OUTPUT_FORMAT}JsXmlIo.cpp)
+    ${OUTPUT_FORMAT}JsXmlIo.cpp
+    ${OUTPUT_FORMAT}JsXmlExport.cpp)
 
 # Linker flags
 set(JS_LINK_FLAGS "-I${SOURCE_FOLDER} \
