@@ -36,6 +36,9 @@ set(JS_LINK_FLAGS "-I${SOURCE_FOLDER} \
     -s 'EXPORTED_RUNTIME_METHODS=[\"FS\"]' \
     -s ALLOW_MEMORY_GROWTH=1 ")
 
+# Add the post javascript core files 
+string(APPEND JS_LINK_FLAGS "--post-js ${OUTPUT_CORE}post.js ")
+
 if (EXTERNAL_LINK_FLAGS)
     string(APPEND JS_LINK_FLAGS "${EXTERNAL_LINK_FLAGS} ")
 endif()

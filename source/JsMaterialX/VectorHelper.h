@@ -57,12 +57,34 @@ struct BindingType<std::vector<T>> {
     using ValBinding = BindingType<val>;
     using WireType = ValBinding::WireType;
 
-    static WireType toWireType(const std::vector<T> &vec) {
-        return ValBinding::toWireType(val::array(vec));
+    static WireType toWireType(const std::vector<T> &vec) {        
+        WireType result = ValBinding::toWireType(val::array(vec));
+        return result;
     }
 
     static std::vector<T> fromWireType(WireType value) {
         return vecFromJSArray<T>(ValBinding::fromWireType(value));
+    }
+};
+
+// std<bool> are stored using bits, therefore the default emscripten
+// implementation doesn't work for them and need to be specialized
+template <>
+struct BindingType<std::vector<bool>> {
+    using ValBinding = BindingType<val>;
+    using WireType = ValBinding::WireType;
+
+     static WireType toWireType(const std::vector<bool> &vec) {
+        val out = val::array();
+        for (auto i: vec) {
+          out.call<void>("push", i == 1 ? true : false);
+        }
+        WireType result = ValBinding::toWireType(out);
+        return result;
+    }
+
+    static std::vector<bool> fromWireType(WireType value) {        
+        return vecFromJSArray<bool>(ValBinding::fromWireType(value));
     }
 };
 
