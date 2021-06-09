@@ -24,14 +24,16 @@ ImplementationPtr DefaultColorManagementSystem::getImplementation(const ColorSpa
     }
 
     TargetDefPtr targetDef = _document->getTargetDef(_target);
-    const StringVec targets = targetDef->getMatchingTargets();
-    for (const string& target : targets)
+    if (targetDef)
     {
-        const string implName = "IM_" + transform.sourceSpace + "_to_" + transform.targetSpace + "_" + transform.type->getName() + "_" + target;
-        ImplementationPtr impl = _document->getImplementation(implName);
-        if (impl)
+        for (const string& target : targetDef->getMatchingTargets())
         {
-            return impl;
+            const string implName = "IM_" + transform.sourceSpace + "_to_" + transform.targetSpace + "_" + transform.type->getName() + "_" + target;
+            ImplementationPtr impl = _document->getImplementation(implName);
+            if (impl)
+            {
+                return impl;
+            }
         }
     }
 

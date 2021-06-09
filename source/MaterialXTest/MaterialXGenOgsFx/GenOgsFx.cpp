@@ -104,6 +104,7 @@ class OgsFxShaderGeneratorTester : public GlslShaderGeneratorTester
             "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl", "IM_angle", "material", "ND_material",
             "ND_backface_util", "IM_backface_util_genglsl"
         };
+        ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
 };
 

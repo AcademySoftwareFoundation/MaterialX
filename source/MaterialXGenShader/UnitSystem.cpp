@@ -147,14 +147,16 @@ ImplementationPtr UnitSystem::getImplementation(const UnitTransform& transform, 
 {
     // Search up the targetdef derivation hierarchy for a matching implementation.
     TargetDefPtr targetDef = _document->getTargetDef(_target);
-    const StringVec targets = targetDef->getMatchingTargets();
-    for (const string& target : targets)
+    if (targetDef)
     {
-        const string implName = "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + target;
-        ImplementationPtr impl = _document->getImplementation(implName);
-        if (impl)
+        for (const string& target : targetDef->getMatchingTargets())
         {
-            return impl;
+            const string implName = "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + target;
+            ImplementationPtr impl = _document->getImplementation(implName);
+            if (impl)
+            {
+                return impl;
+            }
         }
     }
     return nullptr;

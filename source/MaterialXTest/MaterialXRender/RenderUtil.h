@@ -156,6 +156,11 @@ class ShaderRenderTester
 
     bool validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath);
 
+    void setColorManagementConfigFile(const mx::FilePath& path)
+    {
+        _colorManagementConfigFile = path;
+    }
+
   protected:
     // Check if testing should be performed based in input options
 #if defined(MATERIALX_TEST_RENDER)
@@ -243,6 +248,10 @@ class ShaderRenderTester
 
     // Files to skip
     mx::StringSet _skipFiles;
+
+    // Color management information
+    mx::ColorManagementSystemPtr _colorManagementSystem;
+    mx::FilePath _colorManagementConfigFile;
 };
 
 } // namespace RenderUtil

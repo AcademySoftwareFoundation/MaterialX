@@ -27,6 +27,8 @@ class Syntax;
 class ShaderGraphEdge;
 class ShaderGraphEdgeIterator;
 class GenOptions;
+class ColorManagementSystem;
+
 
 /// An internal input socket in a shader graph,
 /// used for connecting internal nodes to the outside
@@ -201,6 +203,8 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     std::unordered_map<ShaderOutput*, ColorSpaceTransform> _outputColorTransformMap;
     // Temporary storage for outputs that require unit transformations
     std::unordered_map<ShaderOutput*, UnitTransform> _outputUnitTransformMap;
+
+    friend class ColorManagementSystem;
 };
 
 /// @class ShaderGraphEdge

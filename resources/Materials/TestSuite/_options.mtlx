@@ -111,6 +111,9 @@
 
     <!-- External testing: extra comma separated list of test root paths -->
     <input name="externalTestPaths" type="string" value="" />
+     
+    <!-- Color management configuration file. Only applicable if building with OCIO -->
+    <input name="colorManagementConfigFile" type="string" value="" />
 
     <!-- Wedge rendering options -->
     <wedgerender name="wedge_conductor">

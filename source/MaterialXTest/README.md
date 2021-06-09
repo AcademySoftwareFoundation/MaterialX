@@ -64,7 +64,11 @@ Note that it is possible to directly run the MaterialXTest executable with the t
 
 If rendering tests are enabled via the build options then code for each Element tested will be compiled and rendered if the appropriate backend support is available.
 - `GLSL`:
-    - Will execute on a Windows machine which supports OpenGL 4.0 or above.
+    - Will execute on a machine which supports OpenGL 4.0 or above.
+      - The OCIO library can be used during code generation instead of the default system provided the following is set up: 
+        - The MATERIALX_BUILD_OCIO build option is set to be ON. 
+        - The MATERIALX_OCIO_DIR build option is set to point to the root of the OCIO installation.
+        - For unit tests: A valid OCIO configuration file is specified for the `colorManagementConfigFile` option in the `_options.mtlx` options file.
 - `OSL`: Uses utilities from the
     [OSL distribution](https://github.com/imageworks/OpenShadingLanguage).
     - The utilities are not generated as part of the MaterialX build.

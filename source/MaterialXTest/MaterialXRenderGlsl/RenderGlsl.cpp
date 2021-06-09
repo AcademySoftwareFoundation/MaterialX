@@ -745,5 +745,10 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
 
+    GenShaderUtil::TestSuiteOptions options;
+    if (options.readOptions(optionsFilePath))
+    {
+        renderTester.setColorManagementConfigFile(options.colorManagementConfigFile);
+    }
     renderTester.validate(testRootPaths, optionsFilePath);
 }

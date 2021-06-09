@@ -37,6 +37,7 @@ option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires t
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
+option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." OFF)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
@@ -57,6 +58,8 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
     "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
 
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
+
+set(MATERIALX_OCIO_DIR "" CACHE PATH "Path to the root folder of the OpenColorIO installation.")
 
 # Helpers for OSL validation
 set(MATERIALX_TESTOSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
@@ -85,6 +88,7 @@ mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
+mark_as_advanced(MATERIALX_BUILD_OCIO)
 mark_as_advanced(MATERIALX_BUILD_TESTS)
 mark_as_advanced(MATERIALX_BUILD_SHARED_LIBS)
 mark_as_advanced(MATERIALX_PYTHON_LTO)
@@ -168,6 +172,9 @@ add_definitions(-DMATERIALX_ARNOLD_OSLC_EXECUTABLE=\"${MATERIALX_ARNOLD_OSLC_EXE
 add_definitions(-DMATERIALX_ARNOLD_EXECUTABLE=\"${MATERIALX_ARNOLD_EXECUTABLE}\")
 if(MATERIALX_BUILD_OIIO)
     add_definitions(-DMATERIALX_BUILD_OIIO)
+endif()
+if(MATERIALX_BUILD_OCIO)
+    add_definitions(-DMATERIALX_BUILD_OCIO)
 endif()
 if(MATERIALX_TEST_RENDER)
     add_definitions(-DMATERIALX_TEST_RENDER)
