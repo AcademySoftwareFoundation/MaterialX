@@ -29,7 +29,7 @@ EMSCRIPTEN_BINDINGS(util)
 
     ems::function("getVersionIntegers", ems::optional_override([]() {
         std::tuple<int, int, int> version = mx::getVersionIntegers();
-        return std::array<int, 3> { std::get<0>(version), std::get<1>(version), std::get<02>(version) };
+        return std::array<int, 3> { std::get<0>(version), std::get<1>(version), std::get<2>(version) };
     }));
 
     // Emscripten expects to provide a number from JS for a cpp 'char' parameter. 
