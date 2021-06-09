@@ -698,8 +698,8 @@ namespace
         // for implementation associations.
         RtNodeDef nodedef(prim->hnd());
         RtString nodeDefName = prim->getName();
-        RtString defNamesapce = nodedef.getNamespace();
-        RtString qualifiedName = !defNamesapce.empty() ? RtString(defNamesapce.str() + NAME_PREFIX_SEPARATOR  + nodeDefName.str()) : nodeDefName;
+        RtString defNamespace = nodedef.getNamespace();
+        RtString qualifiedName = !defNamespace.empty() ? RtString(defNamespace.str() + NAME_PREFIX_SEPARATOR  + nodeDefName.str()) : nodeDefName;
         RtSchemaPredicate<RtNodeGraph> filter;
         for (RtPrim child : stage->getRootPrim()->getChildren(filter))
         {
