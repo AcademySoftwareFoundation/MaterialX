@@ -21,12 +21,23 @@ class OCIOInformation;
 /// A shared pointer to a OCIOColorManagementSystem
 using OCIOColorManagementSystemPtr = shared_ptr<class OCIOColorManagementSystem>;
 
+/// Set of mappings between a uniform name and it's associated value
+using OCIOResourceMap = std::unordered_map<std::string, ValuePtr>;
+
 /// @class OCIOColorManagementSystem
 /// Class for a color management system which uses OCIO.
 ///
 class MX_GENSHADER_API OCIOColorManagementSystem : public ColorManagementSystem
 {
   public:
+    enum class ResourceType : int
+    {
+        UNIFORM = 0,
+        TEXTURE1D = 1,
+        TEXTURE2D = 2,
+        TEXTURE3D = 3
+    };
+
     virtual ~OCIOColorManagementSystem();
 
     /// Create a new OCIOColorManagementSystem
@@ -49,6 +60,9 @@ class MX_GENSHADER_API OCIOColorManagementSystem : public ColorManagementSystem
     {
         return _configFile;
     }
+
+    /// Get reosurce information to bind with
+    const OCIOResourceMap* getResource(ResourceType resourceType) const;
 
     /// Return the OCIOColorManagementSystem name
     const string& getName() const override

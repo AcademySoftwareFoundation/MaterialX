@@ -40,7 +40,151 @@ class OCIOInformation
     int language = OCIO_UNSUPPORT_LANGUAGE;
     // MaterialX target
     std::string target;
+
+    // Uniform resources 
+    void updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc);
+
+    // Texture resources 
+    void updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc);
+
+    OCIOResourceMap resourceMap[int(OCIOColorManagementSystem::ResourceType::TEXTURE3D)+1];
 };
+
+
+void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc)
+{
+    int mapIndex = (int)OCIOColorManagementSystem::ResourceType::UNIFORM;
+    resourceMap[mapIndex].clear();
+
+    if (!shaderDesc)
+    {
+        return;
+    }
+
+    unsigned int uniformCount = shaderDesc->getNumUniforms();
+    for (unsigned int i = 0; i < uniformCount; i++)
+    {
+        OCIO::GpuShaderDesc::UniformData uniformData;
+        std::string uniformName = shaderDesc->getUniform(i, uniformData);
+        switch (uniformData.m_type)
+        {
+            case OCIO::UniformDataType::UNIFORM_BOOL:
+            {
+                // Note: Booleans become float uniforms
+                resourceMap[mapIndex][uniformName] = Value::createValue(uniformData.m_getBool() ? 1.0f : 0.0f);
+                break;
+            }
+            case OCIO::UniformDataType::UNIFORM_DOUBLE:
+            {
+                resourceMap[mapIndex][uniformName] = Value::createValue(static_cast<float>(uniformData.m_getDouble()));
+                break;
+            }
+            case OCIO::UniformDataType::UNIFORM_FLOAT3:
+            {
+                Vector3 vec3 = { static_cast<float>(uniformData.m_getFloat3()[0]),
+                                 static_cast<float>(uniformData.m_getFloat3()[1]),
+                                 static_cast<float>(uniformData.m_getFloat3()[2]) };
+                resourceMap[mapIndex][uniformName] = Value::createValue(vec3);
+                break;
+            }
+            case OCIO::UniformDataType::UNIFORM_VECTOR_FLOAT:
+            {
+                size_t vectorSize = static_cast<size_t>(uniformData.m_vectorFloat.m_getSize());
+                const float* data = static_cast<const float*>(uniformData.m_vectorFloat.m_getVector());
+                FloatVec vecarray(data, data+vectorSize);
+                resourceMap[mapIndex][uniformName] = Value::createValue(vecarray);
+                break;
+            }
+            case OCIO::UniformDataType::UNIFORM_VECTOR_INT:
+            {
+                size_t vectorSize = static_cast<size_t>(uniformData.m_vectorInt.m_getSize());
+                const int* data = static_cast<const int*>(uniformData.m_vectorInt.m_getVector());
+
+                IntVec vecarray(data, data+vectorSize);
+                resourceMap[mapIndex][uniformName] = Value::createValue(vecarray);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        };
+    }
+}
+
+void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc)
+{
+    // Update 3d textures
+    int mapIndex = (int)OCIOColorManagementSystem::ResourceType::TEXTURE3D;
+    resourceMap[mapIndex].clear();
+    unsigned int textureCount = shaderDesc->getNum3DTextures();
+    for (unsigned idx = 0; idx < textureCount; ++idx)
+    {
+        const char * textureName = nullptr;
+        const char * samplerName = nullptr;
+        unsigned int edgeLength = 0;
+        OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+        shaderDesc->get3DTexture(idx, textureName, samplerName, edgeLength, interpolation);
+
+        if (!textureName || !*textureName
+            || !samplerName || !*samplerName
+            || edgeLength == 0)
+        {
+            throw Exception("OCIO 3D texture data is corrupted: " + std::string(textureName));
+        }
+
+        const float* data = nullptr;
+        shaderDesc->get3DTextureValues(idx, data);
+        if (!data)
+        {
+            throw Exception("OCIO 3D texture values are missing: " + std::string(textureName));
+        }
+
+        size_t offset = static_cast<size_t>(edgeLength * edgeLength*edgeLength);
+        FloatVec vecarray(data, data + offset);
+        resourceMap[mapIndex][textureName] = Value::createValue(vecarray);
+    }
+
+    // Process 1D and 2D Textures
+    resourceMap[(int)OCIOColorManagementSystem::ResourceType::TEXTURE1D].clear();
+    resourceMap[(int)OCIOColorManagementSystem::ResourceType::TEXTURE2D].clear();
+    textureCount = shaderDesc->getNumTextures();
+    for (unsigned idx = 0; idx < textureCount; ++idx)
+    {
+        const char * textureName = nullptr;
+        const char * samplerName = nullptr;
+        unsigned width = 0;
+        unsigned height = 0;
+        OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+        OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
+        shaderDesc->getTexture(idx, textureName, samplerName, width, height, channel, interpolation);
+
+        if (!textureName || !*textureName
+            || !samplerName || !*samplerName
+            || width == 0)
+        {
+            throw Exception("OCIO 1D texture data is corrupted: " + std::string(textureName));
+        }
+
+        const float* data = 0x0;
+        shaderDesc->getTextureValues(idx, data);
+        if (!data)
+        {
+            throw Exception("OCIO 1D texture values are missing: " + std::string(textureName));
+        }
+
+        size_t offset = static_cast<size_t>(width*height);
+        FloatVec vecarray(data, data + offset);
+        if (height > 1)
+        {
+            resourceMap[(int)OCIOColorManagementSystem::ResourceType::TEXTURE2D][textureName] = Value::createValue(vecarray);
+        }
+        else
+        {
+            resourceMap[(int)OCIOColorManagementSystem::ResourceType::TEXTURE1D][textureName] = Value::createValue(vecarray);
+        }
+    }
+}
 
 OCIOColorManagementSystemPtr OCIOColorManagementSystem::create(const string& target)
 {
@@ -222,6 +366,7 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
         // a valid function name is created here
         std::string transformFunctionName = "IM_" + createValidName(transform.sourceSpace) + "_to_" + createValidName(transform.targetSpace) + "_" + typeName + "_ocio";
         shaderDesc->setFunctionName(transformFunctionName.c_str());
+        shaderDesc->setResourcePrefix(transformFunctionName.c_str());
         
         // Retrieve information
         gpu->extractGpuShaderInfo(shaderDesc);
@@ -254,6 +399,10 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
         }
         */
 
+        // Cache binding information
+        _ocioInfo->updateUniformResources(shaderDesc);
+        _ocioInfo->updateTextureResources(shaderDesc);
+       
         // Create an implementation based on source code
         ImplementationPtr impl = _document->getImplementation(transformFunctionName);
         if (!impl)
@@ -275,6 +424,15 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
             transform.sourceSpace + "' to '" + transform.targetSpace + "'. Type: '" + transform.type->getName()  + "' : " + e.what());
     }
 
+    return nullptr;
+}
+
+const OCIOResourceMap* OCIOColorManagementSystem::getResource(ResourceType resourceType) const
+{
+    if (_ocioInfo)
+    {
+        return &(_ocioInfo->resourceMap[(int)resourceType]);
+    }
     return nullptr;
 }
 
