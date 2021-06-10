@@ -11,6 +11,13 @@
 namespace py = pybind11;
 namespace mx = MaterialX;
 
+std::vector<mx::TypedElementPtr> findRenderableElements(mx::ConstDocumentPtr doc, bool includeReferencedGraphs)
+{
+    std::vector<mx::TypedElementPtr> elements;
+    mx::findRenderableElements(doc, elements, includeReferencedGraphs);
+    return elements;
+}
+
 void bindPyUtil(py::module& mod)
 {
     mod.def("isTransparentSurface", &mx::isTransparentSurface);
@@ -18,8 +25,7 @@ void bindPyUtil(py::module& mod)
     mod.def("requiresImplementation", &mx::requiresImplementation);
     mod.def("elementRequiresShading", &mx::elementRequiresShading);
     mod.def("findRenderableMaterialNodes", &mx::findRenderableMaterialNodes);
-    mod.def("findRenderableMaterialNodes", &mx::findRenderableMaterialNodes);
-    mod.def("findRenderableElements", &mx::findRenderableElements);
+    mod.def("findRenderableElements", &findRenderableElements);
     mod.def("getNodeDefInput", &mx::getNodeDefInput);
     mod.def("tokenSubstitution", &mx::tokenSubstitution);
     mod.def("getUdimCoordinates", &mx::getUdimCoordinates);

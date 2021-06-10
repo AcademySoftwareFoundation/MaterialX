@@ -36,6 +36,7 @@ jobs:
           compiler: gcc
           compiler_version: "10"
           python: 3.7
+          test_generate: ON
           test_render: ON
 
         - name: MacOS_Xcode_10_Python27
@@ -57,6 +58,7 @@ jobs:
           compiler_version: "12.2"
           python: 3.7
           cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          test_generate: ON
 
         - name: Windows_VS2017_Win32_Python27
           os: windows-2016
@@ -75,6 +77,7 @@ jobs:
           architecture: x64
           python: 3.8
           cmake_config: -G "Visual Studio 16 2019" -A "x64"
+          test_generate: ON
 
     steps:
     - name: Sync Repository
@@ -155,6 +158,14 @@ jobs:
         python Scripts/mxdoc.py ../libraries/pbrlib/pbrlib_defs.mtlx
       working-directory: python
 
+    - name: Generation Tests
+      if: matrix.test_generate == 'ON'
+      run: |
+        mkdir build/generate
+        python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build_public_rel/generate/" --target "glsl"
+        python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build_public_rel/generate/" --target "osl"
+        python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build_public_rel/generate/" --target "mdl"
+
     - name: Render Tests
       if: matrix.test_render == 'ON'
       run: |
@@ -175,3 +186,10 @@ jobs:
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/
+
+    - name: Upload Shaders
+      uses: actions/upload-artifact@v2
+      if: matrix.test_generate == 'ON'
+      with:
+        name: Shaders_${{ matrix.name }}
+        path: build/generate/
