@@ -47,13 +47,13 @@ class OCIOInformation
     // Texture resources 
     void updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc);
 
-    OCIOResourceMap resourceMap[int(OCIOColorManagementSystem::ResourceType::TEXTURE3D)+1];
+    ColorManagementResourceMap resourceMap[int(ColorManagementSystem::ResourceType::TEXTURE3D)+1];
 };
 
 
 void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc)
 {
-    int mapIndex = (int)OCIOColorManagementSystem::ResourceType::UNIFORM;
+    int mapIndex = (int)ColorManagementSystem::ResourceType::UNIFORM;
     resourceMap[mapIndex].clear();
 
     if (!shaderDesc)
@@ -115,7 +115,7 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
 void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc)
 {
     // Update 3d textures
-    int mapIndex = (int)OCIOColorManagementSystem::ResourceType::TEXTURE3D;
+    int mapIndex = (int)ColorManagementSystem::ResourceType::TEXTURE3D;
     resourceMap[mapIndex].clear();
     unsigned int textureCount = shaderDesc->getNum3DTextures();
     for (unsigned idx = 0; idx < textureCount; ++idx)
@@ -146,8 +146,8 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
     }
 
     // Process 1D and 2D Textures
-    resourceMap[(int)OCIOColorManagementSystem::ResourceType::TEXTURE1D].clear();
-    resourceMap[(int)OCIOColorManagementSystem::ResourceType::TEXTURE2D].clear();
+    resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE1D].clear();
+    resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE2D].clear();
     textureCount = shaderDesc->getNumTextures();
     for (unsigned idx = 0; idx < textureCount; ++idx)
     {
@@ -177,11 +177,11 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
         FloatVec vecarray(data, data + offset);
         if (height > 1)
         {
-            resourceMap[(int)OCIOColorManagementSystem::ResourceType::TEXTURE2D][textureName] = Value::createValue(vecarray);
+            resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE2D][textureName] = Value::createValue(vecarray);
         }
         else
         {
-            resourceMap[(int)OCIOColorManagementSystem::ResourceType::TEXTURE1D][textureName] = Value::createValue(vecarray);
+            resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE1D][textureName] = Value::createValue(vecarray);
         }
     }
 }
@@ -257,7 +257,6 @@ bool OCIOColorManagementSystem::readConfigFile(const FilePath& configFile)
         }
         catch (const OCIO::Exception& e)
         {
-            std::cout << "Error reading config file: '" + configFile.asString() + "' Error : " + e.what() << std::endl;
             // Do not continue to throw an exception but instead use return status code
         }
     }
@@ -277,8 +276,9 @@ bool OCIOColorManagementSystem::supportsTransform(const ColorSpaceTransform& tra
     {
         processor = _ocioInfo->config->getProcessor(transform.sourceSpace.c_str(), transform.targetSpace.c_str());
     }
-    catch (const OCIO::Exception&)
+    catch (const OCIO::Exception&e)
     {
+        std::cout << "FAILED supports transform: " + transform.sourceSpace + " to: " + transform.targetSpace + std::string(e.what()) << std::endl;
         // Do not throw an exception here but just return a status
         return false;
     }
@@ -427,7 +427,7 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
     return nullptr;
 }
 
-const OCIOResourceMap* OCIOColorManagementSystem::getResource(ResourceType resourceType) const
+const ColorManagementResourceMap* OCIOColorManagementSystem::getResource(ResourceType resourceType) const
 {
     if (_ocioInfo)
     {

@@ -32,6 +32,9 @@ const std::string options =
 "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
 "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
 "    --srgbBuffer                   Specify to use SRGB hardware frame buffer. Default false meaing to use a shader to perform output color transforms\n"
+#ifdef MATERIALX_BUILD_OCIO
+"    --ocioConfigFile [STRING]      Specify a OCIO configuration file to use for color management.\n"
+#endif
 "    --help                         Display the complete list of command-line options\n";
 
 template<class T> void parseToken(std::string token, std::string type, T& res)
@@ -95,6 +98,9 @@ int main(int argc, char* const argv[])
     int multiSampleCount = 0;
     int refresh = 50;
     bool srgbBuffer = false;
+#ifdef MATERIALX_BUILD_OCIO
+    mx::FilePath ocioConfigFile;
+#endif
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -207,6 +213,12 @@ int main(int argc, char* const argv[])
         {
             srgbBuffer = true;
         }
+#ifdef MATERIALX_BUILD_OCIO
+        else if (token == "--ocioConfigFile")
+        {
+            ocioConfigFile = nextToken;
+        }
+#endif
         else if (token == "--help")
         {
             std::cout << " MaterialXView version " << mx::getVersionString() << std::endl;
@@ -252,6 +264,9 @@ int main(int argc, char* const argv[])
         viewer->setLightRotation(lightRotation);
         viewer->setDocumentModifiers(modifiers);
         viewer->setSRGBBuffer(srgbBuffer);
+#ifdef MATERIALX_BUILD_OCIO
+        viewer->setOCIOConfigFile(ocioConfigFile);
+#endif
         if (!captureFilename.empty())
         {
             viewer->requestFrameCapture(captureFilename);

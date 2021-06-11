@@ -500,6 +500,16 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
     }
 }
 
+void Material::bindColorManagement(mx::ColorManagementSystemPtr& cms, mx::ImageHandlerPtr imageHandler)
+{
+    if (cms && imageHandler)
+    {
+
+    }
+    //mx::ColorManagementResourceMap* uniforms = cms->getResource()
+    //return nullptr;
+}
+
 void Material::drawPartition(mx::MeshPartitionPtr part) const
 {
     if (!part || !bindPartition(part))

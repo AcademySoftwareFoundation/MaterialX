@@ -11,6 +11,9 @@
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#ifdef MATERIALX_BUILD_OCIO
+#include <MaterialXGenShader/OCIOColorManagementSystem.h>
+#endif
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
@@ -1553,8 +1556,26 @@ void Viewer::initContext(mx::GenContext& context)
     }
 
     // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
-    cms->loadLibrary(_stdLib);
+    mx::ColorManagementSystemPtr cms = nullptr;
+#ifdef MATERIALX_BUILD_OCIO
+    if (!_ocioConfigFile.isEmpty())
+    {
+        mx::OCIOColorManagementSystemPtr ocio_cms = mx::OCIOColorManagementSystem::create(context.getShaderGenerator().getTarget());
+        if (ocio_cms)
+        {
+            if (ocio_cms->readConfigFile(_ocioConfigFile))
+            {
+                ocio_cms->loadLibrary(_stdLib);
+                cms = ocio_cms;
+            }
+        }
+    }
+#endif
+    if (!cms)
+    {
+        cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+        cms->loadLibrary(_stdLib);
+    }
     context.getShaderGenerator().setColorManagementSystem(cms);
 
     // Initialize unit management.

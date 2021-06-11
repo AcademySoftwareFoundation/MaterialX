@@ -164,6 +164,9 @@ class Material
     /// Bind units.
     void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);
 
+    /// Bind color management
+    void bindColorManagement(mx::ColorManagementSystemPtr& cms, mx::ImageHandlerPtr imageHandler);
+
     /// Bind the given mesh to this material.
     void bindMesh(mx::MeshPtr mesh) const;
 

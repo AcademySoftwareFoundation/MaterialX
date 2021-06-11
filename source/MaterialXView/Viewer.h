@@ -100,6 +100,13 @@ class Viewer : public ng::Screen
         _srgbFrameBuffer = val;
     }
 
+#ifdef MATERIALX_BUILD_OCIO
+    void setOCIOConfigFile(const mx::FilePath& ocioConfigFile)
+    {
+        _ocioConfigFile = ocioConfigFile;
+    }
+#endif
+
     // Return true if all inputs should be shown in the property editor.
     bool getShowAllInputs() const
     {
@@ -283,6 +290,11 @@ class Viewer : public ng::Screen
     float _gammaValue;
     bool _srgbFrameBuffer;
     mx::Color3 _screenColor;
+
+    // Color management
+#ifdef MATERIALX_BUILD_OCIO
+    mx::FilePath _ocioConfigFile;
+#endif
 
     // Geometry selections
     std::vector<mx::MeshPartitionPtr> _geometryList;

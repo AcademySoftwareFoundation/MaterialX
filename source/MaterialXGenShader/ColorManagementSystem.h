@@ -25,6 +25,9 @@ class ShaderGenerator;
 /// A shared pointer to a ColorManagementSystem
 using ColorManagementSystemPtr = shared_ptr<class ColorManagementSystem>;
 
+/// Set of mappings between a uniform name and it's associated value
+using ColorManagementResourceMap = std::unordered_map<std::string, ValuePtr>;
+
 /// @struct ColorSpaceTransform
 /// Structure that represents color space transform information
 struct MX_GENSHADER_API ColorSpaceTransform
@@ -49,6 +52,14 @@ struct MX_GENSHADER_API ColorSpaceTransform
 class MX_GENSHADER_API ColorManagementSystem
 {
   public:
+    enum class ResourceType : int
+    {
+        UNIFORM = 0,
+        TEXTURE1D = 1,
+        TEXTURE2D = 2,
+        TEXTURE3D = 3
+    };
+
     virtual ~ColorManagementSystem() { }
 
     /// Return the ColorManagementSystem name
@@ -70,6 +81,12 @@ class MX_GENSHADER_API ColorManagementSystem
 
     /// Connect node to graph output
     void connectNodeToShaderOutput(ShaderGraph* graph, ShaderNode* node, ShaderOutput* shaderOutput, GenContext& context);
+
+    /// Get resource information to bind with
+    virtual const ColorManagementResourceMap* getResource(ResourceType /*resourceType*/) const
+    {
+        return nullptr;
+    }
 
   protected:
     /// Protected constructor
