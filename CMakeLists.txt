@@ -296,7 +296,7 @@ endif()
 
 if (MATERIALX_BUILD_CROSS)
     add_definitions(-DMATERIALX_BUILD_CROSS)
-    add_subdirectory(source/MaterialXCross)
+    add_subdirectory(source/MaterialXContrib/MaterialXCross)
 endif()
 
 # Add render module subdirectories
