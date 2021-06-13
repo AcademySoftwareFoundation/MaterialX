@@ -7,32 +7,27 @@
 #define MATERIALX_MATERIAL_H
 
 /// @file
-/// Material element subclasses
+/// Material node helper functions
 
 #include <MaterialXCore/Export.h>
 
-#include <MaterialXCore/Geom.h>
 #include <MaterialXCore/Node.h>
-#include <MaterialXCore/Value.h>
-
-#include <unordered_set>
 
 namespace MaterialX
 {
 
-/// Return a vector of all nodes connected to a Material node's inputs. The default behavior
-/// is to return connected surface shader nodes.
-/// @param materialNode Node to examine.
-/// @param nodeType Type of node to return. If an empty string is specified then
-///                 all node types are returned. The default argument value is to return surface shaders.
-/// @param target Target attribute filter for nodes to return. The default argument value is an empty string
-///               indicating to include nodes which match any target.
-MX_CORE_API std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode,
+/// Return a vector of all shader nodes connected to the given material node's inputs,
+/// filtered by the given shader type and target.  By default, all surface shader nodes
+/// are returned.
+/// @param materialNode The node to examine.
+/// @param nodeType THe shader node type to return.  Defaults to the surface shader type.
+/// @param target An optional target name, which will be used to filter the returned nodes.
+MX_CORE_API vector<NodePtr> getShaderNodes(NodePtr materialNode,
                                            const string& nodeType = SURFACE_SHADER_TYPE_STRING,
                                            const string& target = EMPTY_STRING);
 
-/// Return a vector of all outputs that this nodes inputs are connected to.
-MX_CORE_API vector<OutputPtr> getConnectedOutputs(const NodePtr& node);
+/// Return a vector of all outputs connected to the given node's inputs.
+MX_CORE_API vector<OutputPtr> getConnectedOutputs(NodePtr node);
 
 } // namespace MaterialX
 
