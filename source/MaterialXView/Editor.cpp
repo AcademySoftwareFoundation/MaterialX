@@ -655,23 +655,26 @@ void PropertyEditor::updateContents(Viewer* viewer)
     create(*viewer);
 
     MaterialPtr material = viewer->getSelectedMaterial();
-    if (!material)
+    mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
+    if (!material || !elem)
     {
         return;
     }
 
     // Shading model display
-    mx::TypedElementPtr elem = material->getElement();
-    std::string shaderName = elem ? elem->getCategory() : mx::EMPTY_STRING;
-    if (elem->isA<mx::Node>() && !shaderName.empty() && shaderName != "surface")
+    if (elem->isA<mx::Node>())
     {
-        ng::Widget* twoColumns = new ng::Widget(_container);
-        twoColumns->setLayout(_gridLayout2);
-        ng::Label* modelLabel = new ng::Label(twoColumns, "Shading Model");
-        modelLabel->setFontSize(20);
-        modelLabel->setFont("sans-bold");
-        ng::Label* nameLabel = new ng::Label(twoColumns, shaderName);
-        nameLabel->setFontSize(20);
+        std::string shaderName = elem->getCategory();
+        if (!shaderName.empty() && shaderName != "surface")
+        {
+            ng::Widget* twoColumns = new ng::Widget(_container);
+            twoColumns->setLayout(_gridLayout2);
+            ng::Label* modelLabel = new ng::Label(twoColumns, "Shading Model");
+            modelLabel->setFontSize(20);
+            modelLabel->setFont("sans-bold");
+            ng::Label* nameLabel = new ng::Label(twoColumns, shaderName);
+            nameLabel->setFontSize(20);
+        }
     }
 
     bool addedItems = false;

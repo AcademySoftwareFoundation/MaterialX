@@ -86,13 +86,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// @{
 
     /// Capture the current contents of the off-screen hardware buffer as an image.
-    ImagePtr captureImage() override;
-
-    /// Save the current contents of the off-screen hardware buffer to disk.
-    void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) override;
-
-    /// Load images referenced by shader program and return list of images loaded
-    ImageVec getReferencedImages(const ShaderPtr& shader) override;
+    ImagePtr captureImage(ImagePtr image = nullptr) override;
 
     /// Return the GL frame buffer.
     GLFrameBufferPtr getFrameBuffer() const
