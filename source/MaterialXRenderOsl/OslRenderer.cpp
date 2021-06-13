@@ -414,7 +414,7 @@ void OslRenderer::render()
     }
 }
 
-ImagePtr OslRenderer::captureImage()
+ImagePtr OslRenderer::captureImage(ImagePtr)
 {
     // As rendering goes to disk need to read the image back from disk
     StringVec errors;
@@ -434,18 +434,6 @@ ImagePtr OslRenderer::captureImage()
     }
 
     return returnImage;
-}
-
-void OslRenderer::saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip)
-{
-    StringVec errors;
-    const string errorType("GLSL image save error.");
-
-    if (!_imageHandler->saveImage(filePath, image, verticalFlip))
-    {
-        errors.push_back("Failed to save to file: " + filePath.asString());
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
 }
 
 } // namespace MaterialX

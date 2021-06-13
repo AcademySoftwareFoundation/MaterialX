@@ -155,20 +155,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
         return _outputStream;
     }
 
-    /// Set baked texture resolution automatically. Defaults to false.
-    /// If any images are found upstream from a shader input, then the output baked texture is the largest image resolution. 
-    /// If no images are found, then the fixed resolution of the baker is used.
-    void setAutoTextureResolution(bool enable)
-    {
-        _autoTextureResolution = enable;
-    }
-
-    /// Return whether automatic baked texture resolution is set.
-    bool getAutoTextureResolution() const
-    {
-        return _autoTextureResolution;
-    }
-
     /// Set whether to create a short name for baked images by hashing the baked image filenames
     /// This is useful for file systems which may have a maximum limit on filename size.
     /// By default names are not hashed.
@@ -206,19 +192,12 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFileName);
 
   protected:
-    TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
-
-    // Generate a texture filename for the given graph output.
-    FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);
-
-  protected:
     class BakedImage
     {
       public:
-        ImagePtr image;
-        bool isUniform = false;
-        Color4 uniformColor;
         FilePath filename;
+        Color4 uniformColor;
+        bool isUniform = false;
     };
     class BakedConstant
     {
@@ -231,6 +210,15 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     using BakedConstantMap = std::unordered_map<OutputPtr, BakedConstant>;
 
   protected:
+    TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
+
+    // Generate a texture filename for the given graph output.
+    FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);
+
+    // Write a baked image to disk, returning true if the write was successful.
+    bool writeBakedImage(const BakedImage& baked, ImagePtr image);
+
+  protected:
     string _extension;
     string _colorSpace;
     string _distanceUnit;
@@ -240,11 +228,11 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     string _bakedGraphName;
     string _bakedGeomInfoName;
     std::ostream* _outputStream;
-    bool _autoTextureResolution;
     bool _hashImageNames;
 
     ShaderGeneratorPtr _generator;
     ConstNodePtr _material;
+    ImagePtr _frameCaptureImage;
     BakedImageMap _bakedImageMap;
     BakedConstantMap _bakedConstantMap;
 
