@@ -30,22 +30,37 @@ using ColorSpaceUniformPtr = shared_ptr<class ColorSpaceUniform>;
 class MX_GENSHADER_API ColorSpaceUniform
 {
   public:
-    static ColorSpaceUniformPtr create(const std::string& name, const ValuePtr value);
-
-    ColorSpaceUniform(const string name, const ValuePtr value);
+    ColorSpaceUniform(const string name)
+        : _name(name)
+    {
+    }
 
     string _name;
+};
+
+/// Set of mappings between a uniform name and it's associated value
+using ColorSpaceConstantPtr = shared_ptr<class ColorSpaceConstant>;
+class MX_GENSHADER_API ColorSpaceConstant : public ColorSpaceUniform
+{
+  public:
+    static ColorSpaceConstantPtr create(const std::string& name, const ValuePtr value);
+
+    ColorSpaceConstant(const string name, const ValuePtr value);
+
     ValuePtr _value;
 };
+
 
 using ColorSpaceTexturePtr = shared_ptr<class ColorSpaceTexture>;
 class MX_GENSHADER_API ColorSpaceTexture : public ColorSpaceUniform
 {
   public:
-    static ColorSpaceTexturePtr create(const std::string& name, const ValuePtr value);
+    static ColorSpaceTexturePtr create(const std::string& name, const FloatVec& data);
 
-    ColorSpaceTexture(const string name, const ValuePtr value);
+    ColorSpaceTexture(const string name, const FloatVec& data);
 
+    // TBD : Could replace this with Image
+    FloatVec _data;
     unsigned int _channelCount = 3; // 1 or 3
     unsigned int _width = 0;
     unsigned int _height = 0;

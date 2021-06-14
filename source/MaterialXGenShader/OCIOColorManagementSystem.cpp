@@ -88,13 +88,13 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
             {
                 // Note: Booleans become float uniforms
                 ValuePtr val = Value::createValue(uniformData.m_getBool() ? 1.0f : 0.0f);
-                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_DOUBLE:
             {
                 ValuePtr val = Value::createValue(static_cast<float>(uniformData.m_getDouble()));
-                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_FLOAT3:
@@ -103,7 +103,7 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
                                  static_cast<float>(uniformData.m_getFloat3()[1]),
                                  static_cast<float>(uniformData.m_getFloat3()[2]) };
                 ValuePtr val = Value::createValue(vec3);
-                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_VECTOR_FLOAT:
@@ -112,7 +112,7 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
                 const float* data = static_cast<const float*>(uniformData.m_vectorFloat.m_getVector());
                 FloatVec vecarray(data, data+vectorSize);
                 ValuePtr val = Value::createValue(vecarray);
-                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_VECTOR_INT:
@@ -122,7 +122,7 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
 
                 IntVec vecarray(data, data+vectorSize);
                 ValuePtr val = Value::createValue(vecarray);
-                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
                 break;
             }
             default:
@@ -163,8 +163,7 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
 
         size_t offset = static_cast<size_t>(edgeLength * edgeLength* edgeLength);
         FloatVec vecarray(data, data + offset);
-        ValuePtr newValue = Value::createValue(vecarray);
-        ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, newValue);
+        ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, vecarray);
         newTexture->_width = newTexture->_height = newTexture->_depth = edgeLength;
         newTexture->_channelCount = 3;
         rmap3D[samplerName] = newTexture;
@@ -202,23 +201,20 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
         size_t offset = static_cast<size_t>(width*height);
         FloatVec vecarray(data, data + offset);        
 
-        ValuePtr newValue = Value::createValue(vecarray);
-        ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, newValue);
+        //ValuePtr newValue = Value::createValue(vecarray);
+        ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, vecarray);
         newTexture->_width = width;
         newTexture->_height = height;
         newTexture->_depth = 1;
         newTexture->_channelCount = (channel == OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL) ? 3 : 1;
 
-        if (newValue)
+        if (height > 1)
         {
-            if (height > 1)
-            {
-                rmap2D[samplerName] = newTexture;
-            }
-            else
-            {
-                rmap1D[samplerName] = newTexture;
-            }
+            rmap2D[samplerName] = newTexture;
+        }
+        else
+        {
+            rmap1D[samplerName] = newTexture;
         }
     }
 }
@@ -463,15 +459,37 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
             // Add all of the additional uniforms as additional inputs on the impl so it can be accessed later one in the shader node ?
             for (auto rmap : _ocioInfo->resourceMap)
             {
-                for (auto rmapItem : *rmap)
+                if (_ocioInfo->resourceMap[(int)ColorManagementSystem::ResourceType::UNIFORM] == rmap)
                 {
-                    ColorSpaceUniformPtr uniformItem = rmapItem.second;
-                    ValuePtr uniformValue = uniformItem->_value;
-                    InputPtr newInput = impl->addInput(rmapItem.first, uniformValue->getTypeString());
-                    if (newInput)
+                    for (auto rmapItem : *rmap)
                     {
-                        newInput->setValue(uniformValue->getValueString(), uniformValue->getTypeString());
-                        newInput->setIsUniform(true);
+                        ColorSpaceConstantPtr uniformItem = std::static_pointer_cast<ColorSpaceConstant>(rmapItem.second);
+                        ValuePtr uniformValue = uniformItem->_value;
+                        InputPtr newInput = impl->addInput(rmapItem.first, uniformValue->getTypeString());
+                        if (newInput)
+                        {
+                            newInput->setValue(uniformValue->getValueString(), uniformValue->getTypeString());
+                            newInput->setIsUniform(true);
+                        }
+                    }
+                }
+                else
+                {
+                    for (auto rmapItem : *rmap)
+                    {
+                        ColorSpaceTexturePtr uniformItem = std::static_pointer_cast<ColorSpaceTexture>(rmapItem.second);
+                        const FloatVec& vecarray = uniformItem->_data;
+                        ValuePtr uniformValue = Value::createValue(vecarray);
+                        InputPtr newInput = impl->addInput(rmapItem.first, uniformValue->getTypeString());
+                        if (newInput)
+                        {
+                            newInput->setValue(uniformValue->getValueString(), uniformValue->getTypeString());
+                            newInput->setAttribute("width", std::to_string(uniformItem->_width));
+                            newInput->setAttribute("height", std::to_string(uniformItem->_height));
+                            newInput->setAttribute("depth", std::to_string(uniformItem->_depth));
+                            newInput->setAttribute("channels", std::to_string(uniformItem->_channelCount));
+                            newInput->setIsUniform(true);
+                        }
                     }
                 }
             }

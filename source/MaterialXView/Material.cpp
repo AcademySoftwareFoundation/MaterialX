@@ -522,7 +522,7 @@ void Material::bindColorManagement(mx::ColorManagementSystemPtr cms, mx::ImageHa
             for (auto uniformItem : *uniformItems)
             {
                 std::string uniformName = uniformItem.first;
-                mx::ColorSpaceUniformPtr uniformPtr = uniformItem.second;
+                mx::ColorSpaceConstantPtr uniformPtr = std::static_pointer_cast<mx::ColorSpaceConstant>(uniformItem.second);
                 mx::ValuePtr uniformValue = uniformPtr->_value;
                 if (_glProgram->hasUniform(uniformName))
                 {
@@ -545,7 +545,7 @@ void Material::bindColorManagement(mx::ColorManagementSystemPtr cms, mx::ImageHa
             {
                 std::string uniformName = uniformItem.first;
                 mx::ColorSpaceTexturePtr uniformTexture = std::static_pointer_cast<mx::ColorSpaceTexture>(uniformItem.second);
-                mx::ValuePtr uniformValue = uniformTexture->_value;
+                mx::FloatVec& data= uniformTexture->_data;
 
                 // To do : add 3d texture support
                 if (_glProgram->hasUniform(uniformName))
@@ -560,8 +560,8 @@ void Material::bindColorManagement(mx::ColorManagementSystemPtr cms, mx::ImageHa
                     }
 
                     uniformImage->createResourceBuffer();
-                    //float* pixels = static_cast<float*>(uniformImage->getResourceBuffer());
-                    //memcpy(pixels, uniformValue->)
+                    float* pixels = static_cast<float*>(uniformImage->getResourceBuffer());
+                    memcpy(pixels, data.data(), data.size()*sizeof(float));
 
                     // Bind the image.
                     if (imageHandler->bindImage(uniformImage, samplingProperties))
