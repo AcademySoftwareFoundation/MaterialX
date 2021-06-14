@@ -26,7 +26,33 @@ class ShaderGenerator;
 using ColorManagementSystemPtr = shared_ptr<class ColorManagementSystem>;
 
 /// Set of mappings between a uniform name and it's associated value
-using ColorManagementResourceMap = std::unordered_map<std::string, ValuePtr>;
+using ColorSpaceUniformPtr = shared_ptr<class ColorSpaceUniform>;
+class MX_GENSHADER_API ColorSpaceUniform
+{
+  public:
+    static ColorSpaceUniformPtr create(const std::string& name, const ValuePtr value);
+
+    ColorSpaceUniform(const string name, const ValuePtr value);
+
+    string _name;
+    ValuePtr _value;
+};
+
+using ColorSpaceTexturePtr = shared_ptr<class ColorSpaceTexture>;
+class MX_GENSHADER_API ColorSpaceTexture : public ColorSpaceUniform
+{
+  public:
+    static ColorSpaceTexturePtr create(const std::string& name, const ValuePtr value);
+
+    ColorSpaceTexture(const string name, const ValuePtr value);
+
+    unsigned int _channelCount = 3; // 1 or 3
+    unsigned int _width = 0;
+    unsigned int _height = 0;
+    unsigned int _depth = 0;
+};
+
+using ColorManagementResourceMap = std::unordered_map<std::string, ColorSpaceUniformPtr>;
 using ColorManagementResourceMapPtr = shared_ptr<ColorManagementResourceMap>;
 
 /// @struct ColorSpaceTransform

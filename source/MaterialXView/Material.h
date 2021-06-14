@@ -153,9 +153,13 @@ class Material
     /// Unbbind all images for this material.
     void unbindImages(mx::ImageHandlerPtr imageHandler);
 
-    /// Bind a single image.
-    mx::ImagePtr bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
+    /// Bind a single image from memory.
+    mx::ImagePtr bindImage(const mx::ImagePtr image, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
                            const mx::ImageSamplingProperties& samplingProperties);
+
+    /// Bind a single image from file.
+    mx::ImagePtr bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
+        const mx::ImageSamplingProperties& samplingProperties);
 
     /// Bind lights to shader.
     void bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
@@ -165,7 +169,7 @@ class Material
     void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);
 
     /// Bind color management
-    void bindColorManagement(mx::ColorManagementSystemPtr& cms, mx::ImageHandlerPtr imageHandler);
+    void bindColorManagement(mx::ColorManagementSystemPtr cms, mx::ImageHandlerPtr imageHandler);
 
     /// Bind the given mesh to this material.
     void bindMesh(mx::MeshPtr mesh) const;

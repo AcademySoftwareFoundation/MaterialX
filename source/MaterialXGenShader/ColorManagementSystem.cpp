@@ -12,6 +12,27 @@
 namespace MaterialX
 {
 
+ColorSpaceUniform::ColorSpaceUniform(const string name, const ValuePtr value)
+    : _name(name),
+    _value(value)
+{
+}
+
+ColorSpaceUniformPtr ColorSpaceUniform::create(const std::string& name, const ValuePtr value)
+{
+    return std::make_shared<ColorSpaceUniform>(name, value);
+}
+
+ColorSpaceTexture::ColorSpaceTexture(const string name, const ValuePtr value)
+    : ColorSpaceUniform(name, value)
+{
+}
+
+ColorSpaceTexturePtr ColorSpaceTexture::create(const std::string& name, const ValuePtr value)
+{
+    return std::make_shared<ColorSpaceTexture>(name, value);
+}
+
 //
 // ColorSpaceTransform methods
 //

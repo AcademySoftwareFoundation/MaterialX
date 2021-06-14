@@ -399,7 +399,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
                         ShaderPort* filename = psPublicUniforms->add(Type::FILENAME, input->getVariable(), input->getValue());
                         filename->setPath(input->getPath());
 
-                        // Assing the uniform name to the input value
+                        // Assign the uniform name to the input value
                         // so we can reference it during code generation.
                         input->setValue(Value::createValue(input->getVariable()));
                     }

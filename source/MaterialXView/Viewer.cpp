@@ -1918,6 +1918,7 @@ void Viewer::renderFrame()
         material->bindViewInformation(world, view, proj);
         material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
         material->bindImages(_imageHandler, _searchPath);
+        material->bindColorManagement(_genContext.getShaderGenerator().getColorManagementSystem(), _imageHandler);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
         if (material->getShader()->getName() == "__WIRE_SHADER__")

@@ -87,12 +87,14 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
             case OCIO::UniformDataType::UNIFORM_BOOL:
             {
                 // Note: Booleans become float uniforms
-                rmap[uniformName] = Value::createValue(uniformData.m_getBool() ? 1.0f : 0.0f);
+                ValuePtr val = Value::createValue(uniformData.m_getBool() ? 1.0f : 0.0f);
+                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_DOUBLE:
             {
-                rmap[uniformName] = Value::createValue(static_cast<float>(uniformData.m_getDouble()));
+                ValuePtr val = Value::createValue(static_cast<float>(uniformData.m_getDouble()));
+                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_FLOAT3:
@@ -100,7 +102,8 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
                 Vector3 vec3 = { static_cast<float>(uniformData.m_getFloat3()[0]),
                                  static_cast<float>(uniformData.m_getFloat3()[1]),
                                  static_cast<float>(uniformData.m_getFloat3()[2]) };
-                rmap[uniformName] = Value::createValue(vec3);
+                ValuePtr val = Value::createValue(vec3);
+                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_VECTOR_FLOAT:
@@ -108,7 +111,8 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
                 size_t vectorSize = static_cast<size_t>(uniformData.m_vectorFloat.m_getSize());
                 const float* data = static_cast<const float*>(uniformData.m_vectorFloat.m_getVector());
                 FloatVec vecarray(data, data+vectorSize);
-                rmap[uniformName] = Value::createValue(vecarray);
+                ValuePtr val = Value::createValue(vecarray);
+                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_VECTOR_INT:
@@ -117,7 +121,8 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
                 const int* data = static_cast<const int*>(uniformData.m_vectorInt.m_getVector());
 
                 IntVec vecarray(data, data+vectorSize);
-                rmap[uniformName] = Value::createValue(vecarray);
+                ValuePtr val = Value::createValue(vecarray);
+                rmap[uniformName] = ColorSpaceUniform::create(uniformName, val);
                 break;
             }
             default:
@@ -130,7 +135,7 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
 
 void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc)
 {
-    // Update 3d textures
+    // Process 3d textures
     ColorManagementResourceMap& rmap3D = *(resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE3D]);
 
     unsigned int textureCount = shaderDesc->getNum3DTextures();
@@ -156,9 +161,13 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
             throw Exception("OCIO 3D texture values are missing: " + std::string(textureName));
         }
 
-        size_t offset = static_cast<size_t>(edgeLength * edgeLength*edgeLength);
+        size_t offset = static_cast<size_t>(edgeLength * edgeLength* edgeLength);
         FloatVec vecarray(data, data + offset);
-        rmap3D[textureName] = Value::createValue(vecarray);
+        ValuePtr newValue = Value::createValue(vecarray);
+        ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, newValue);
+        newTexture->_width = newTexture->_height = newTexture->_depth = edgeLength;
+        newTexture->_channelCount = 3;
+        rmap3D[samplerName] = newTexture;
     }
 
     // Process 1D and 2D Textures
@@ -191,14 +200,25 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
         }
 
         size_t offset = static_cast<size_t>(width*height);
-        FloatVec vecarray(data, data + offset);
-        if (height > 1)
+        FloatVec vecarray(data, data + offset);        
+
+        ValuePtr newValue = Value::createValue(vecarray);
+        ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, newValue);
+        newTexture->_width = width;
+        newTexture->_height = height;
+        newTexture->_depth = 1;
+        newTexture->_channelCount = (channel == OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL) ? 3 : 1;
+
+        if (newValue)
         {
-            rmap2D[textureName] = Value::createValue(vecarray);
-        }
-        else
-        {
-            rmap1D[textureName] = Value::createValue(vecarray);
+            if (height > 1)
+            {
+                rmap2D[samplerName] = newTexture;
+            }
+            else
+            {
+                rmap1D[samplerName] = newTexture;
+            }
         }
     }
 }
@@ -389,6 +409,12 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
         gpu->extractGpuShaderInfo(shaderDesc);
 
         std::string fullFunction = shaderDesc->getShaderText();
+        // TODO: Comment out uniforms as a workaround as the uniforms are always embedded as
+        // part of the function string
+        StringMap uniformDecl;
+        uniformDecl["uniform"] = "//uniform";
+        fullFunction = replaceSubstrings(fullFunction, uniformDecl);
+
         std::string functionName = shaderDesc->getFunctionName();
         std::string outputName = shaderDesc->getPixelName();
 
@@ -427,7 +453,8 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
             impl = _document->addImplementation(transformFunctionName);
 
             // Note: There is only one input so we just use the default name: "inPixel".
-            impl->addInput(IN_PIXEL_STRING, typeName);
+            InputPtr pixelInput = impl->addInput(IN_PIXEL_STRING, typeName);
+            pixelInput->setIsUniform(false);
             impl->addOutput(outputName, typeName);
             impl->setAttribute("sourcecode", fullFunction);
             impl->setAttribute("function", functionName);
@@ -438,10 +465,12 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
             {
                 for (auto rmapItem : *rmap)
                 {
-                    InputPtr newInput = impl->addInput(rmapItem.first, rmapItem.second->getTypeString());
+                    ColorSpaceUniformPtr uniformItem = rmapItem.second;
+                    ValuePtr uniformValue = uniformItem->_value;
+                    InputPtr newInput = impl->addInput(rmapItem.first, uniformValue->getTypeString());
                     if (newInput)
                     {
-                        newInput->setValue(rmapItem.second->getValueString());
+                        newInput->setValue(uniformValue->getValueString(), uniformValue->getTypeString());
                         newInput->setIsUniform(true);
                     }
                 }
@@ -499,9 +528,17 @@ void OCIOSourceCodeNode::initialize(const InterfaceElement& element, GenContext&
     {
         if (nodeInput->getName() != IN_PIXEL_STRING)
         {
-            // TODO:
-            // This is outputing the incorrect type and samplers need to add the word "Sampler" at the end.
-            //_cmUniforms.add(TypeDesc::get(nodeInput->getType()), nodeInput->getName(), nodeInput->getValue());
+            string uniformType = nodeInput->getType();
+            if (uniformType == "floatarray" || uniformType == "intarray")
+            {
+                // This will create a sampler. 
+                // NOTE: The value is never set here even though it is storable as is. 
+                _cmUniforms.add(Type::FILENAME, nodeInput->getName());
+            }
+            else
+            {
+                _cmUniforms.add(TypeDesc::get(nodeInput->getType()), nodeInput->getName(), nodeInput->getValue());
+            }
         }
     }
 }

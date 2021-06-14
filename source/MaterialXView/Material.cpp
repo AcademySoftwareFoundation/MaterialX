@@ -252,6 +252,28 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
     }
 }
 
+mx::ImagePtr Material::bindImage(const mx::ImagePtr image, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
+                                 const mx::ImageSamplingProperties& samplingProperties)
+{
+    if (!_glProgram || !image)
+    {
+        return nullptr;
+    }
+
+    // Bind the image and set its sampling properties.
+    if (imageHandler->bindImage(image, samplingProperties))
+    {
+        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+        int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
+        if (textureLocation >= 0)
+        {
+            _glProgram->bindUniform(uniformName, mx::Value::createValue(textureLocation), false);
+            return image;
+        }
+    }
+    return nullptr;
+}
+
 mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
                                  const mx::ImageSamplingProperties& samplingProperties)
 {
@@ -275,18 +297,7 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
         return nullptr;
     }
 
-    // Bind the image and set its sampling properties.
-    if (imageHandler->bindImage(image, samplingProperties))
-    {
-        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
-        int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
-        if (textureLocation >= 0)
-        {
-            _glProgram->bindUniform(uniformName, mx::Value::createValue(textureLocation), false);
-            return image;
-        }
-    }
-    return nullptr;
+    return bindImage(image, uniformName, imageHandler, samplingProperties);   
 }
 
 void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
@@ -500,13 +511,73 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
     }
 }
 
-void Material::bindColorManagement(mx::ColorManagementSystemPtr& cms, mx::ImageHandlerPtr imageHandler)
+void Material::bindColorManagement(mx::ColorManagementSystemPtr cms, mx::ImageHandlerPtr imageHandler)
 {
     if (cms && imageHandler)
     {
+        // Handle non-texture uniforms
+        mx::ColorManagementResourceMapPtr uniformItems = cms->getResource(mx::ColorManagementSystem::ResourceType::UNIFORM);
+        if (uniformItems)
+        {
+            for (auto uniformItem : *uniformItems)
+            {
+                std::string uniformName = uniformItem.first;
+                mx::ColorSpaceUniformPtr uniformPtr = uniformItem.second;
+                mx::ValuePtr uniformValue = uniformPtr->_value;
+                if (_glProgram->hasUniform(uniformName))
+                {
+                    _glProgram->bindUniform(uniformName, uniformValue);
+                }
+            }
+        }
 
+        // Handle texture uniforms
+        uniformItems = cms->getResource(mx::ColorManagementSystem::ResourceType::TEXTURE1D);
+        uniformItems = cms->getResource(mx::ColorManagementSystem::ResourceType::TEXTURE2D);
+        if (uniformItems)
+        {
+            mx::ImageSamplingProperties samplingProperties;
+            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+
+            for (auto uniformItem : *uniformItems)
+            {
+                std::string uniformName = uniformItem.first;
+                mx::ColorSpaceTexturePtr uniformTexture = std::static_pointer_cast<mx::ColorSpaceTexture>(uniformItem.second);
+                mx::ValuePtr uniformValue = uniformTexture->_value;
+
+                // To do : add 3d texture support
+                if (_glProgram->hasUniform(uniformName))
+                {
+                    mx::ImagePtr uniformImage = mx::Image::create(uniformTexture->_width,
+                        uniformTexture->_height,
+                        uniformTexture->_channelCount,
+                        mx::Image::BaseType::FLOAT);
+                    if (!uniformImage)
+                    {
+                        continue;
+                    }
+
+                    uniformImage->createResourceBuffer();
+                    //float* pixels = static_cast<float*>(uniformImage->getResourceBuffer());
+                    //memcpy(pixels, uniformValue->)
+
+                    // Bind the image.
+                    if (imageHandler->bindImage(uniformImage, samplingProperties))
+                    {
+                        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+                        int textureLocation = textureHandler->getBoundTextureLocation(uniformImage->getResourceId());
+                        if (textureLocation >= 0)
+                        {
+                            _glProgram->bindUniform(uniformName, mx::Value::createValue(textureLocation));
+                        }
+                    }
+                }
+            }
+        }
+        uniformItems = cms->getResource(mx::ColorManagementSystem::ResourceType::TEXTURE3D);
     }
-    //mx::ColorManagementResourceMap* uniforms = cms->getResource()
     //return nullptr;
 }
 
