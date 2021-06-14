@@ -7,7 +7,9 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXCore/Document.h>
+#include <MaterialXCore/Value.h>
 #include <iostream>
 
 #ifdef OpenColorIO_SKIP_IMPORTS
@@ -19,7 +21,6 @@ namespace OCIO = OCIO_NAMESPACE;
 
 namespace MaterialX
 {
-
 const string OCIOColorManagementSystem::CMS_NAME = "ocio_cms";
 
 // Defines an unsupported language.
@@ -28,10 +29,27 @@ const int OCIO_UNSUPPORT_LANGUAGE = -1;
 // Mapping from supported MaterialX targets to OCIO shading languages
 using OCIOLanguageMap = std::unordered_map<std::string, OCIO::GpuLanguage>;
 
+// Input name on implementation
+const string IN_PIXEL_STRING = "inPixel";
+
+const size_t OCIO_RESOURCEMAP_SIZE = size_t(ColorManagementSystem::ResourceType::TEXTURE3D) + 1;
+
 // OCIO related information
 class OCIOInformation
 {
   public:
+    OCIOInformation::OCIOInformation()
+    {
+        for (size_t i = 0; i < OCIO_RESOURCEMAP_SIZE; i++)
+        {
+            resourceMap[i] = std::make_shared<ColorManagementResourceMap>();
+        }
+    }
+    virtual OCIOInformation::~OCIOInformation()
+    {
+        resourceMap->reset();
+    }
+
     // OCIO config file to use
     OCIO::ConstConfigRcPtr config = nullptr;
     // Target to language map
@@ -47,14 +65,12 @@ class OCIOInformation
     // Texture resources 
     void updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc);
 
-    ColorManagementResourceMap resourceMap[int(ColorManagementSystem::ResourceType::TEXTURE3D)+1];
+    ColorManagementResourceMapPtr resourceMap[OCIO_RESOURCEMAP_SIZE];
 };
-
 
 void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc)
 {
-    int mapIndex = (int)ColorManagementSystem::ResourceType::UNIFORM;
-    resourceMap[mapIndex].clear();
+    ColorManagementResourceMap& rmap = *(resourceMap[(int)ColorManagementSystem::ResourceType::UNIFORM]);
 
     if (!shaderDesc)
     {
@@ -71,12 +87,12 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
             case OCIO::UniformDataType::UNIFORM_BOOL:
             {
                 // Note: Booleans become float uniforms
-                resourceMap[mapIndex][uniformName] = Value::createValue(uniformData.m_getBool() ? 1.0f : 0.0f);
+                rmap[uniformName] = Value::createValue(uniformData.m_getBool() ? 1.0f : 0.0f);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_DOUBLE:
             {
-                resourceMap[mapIndex][uniformName] = Value::createValue(static_cast<float>(uniformData.m_getDouble()));
+                rmap[uniformName] = Value::createValue(static_cast<float>(uniformData.m_getDouble()));
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_FLOAT3:
@@ -84,7 +100,7 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
                 Vector3 vec3 = { static_cast<float>(uniformData.m_getFloat3()[0]),
                                  static_cast<float>(uniformData.m_getFloat3()[1]),
                                  static_cast<float>(uniformData.m_getFloat3()[2]) };
-                resourceMap[mapIndex][uniformName] = Value::createValue(vec3);
+                rmap[uniformName] = Value::createValue(vec3);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_VECTOR_FLOAT:
@@ -92,7 +108,7 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
                 size_t vectorSize = static_cast<size_t>(uniformData.m_vectorFloat.m_getSize());
                 const float* data = static_cast<const float*>(uniformData.m_vectorFloat.m_getVector());
                 FloatVec vecarray(data, data+vectorSize);
-                resourceMap[mapIndex][uniformName] = Value::createValue(vecarray);
+                rmap[uniformName] = Value::createValue(vecarray);
                 break;
             }
             case OCIO::UniformDataType::UNIFORM_VECTOR_INT:
@@ -101,7 +117,7 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
                 const int* data = static_cast<const int*>(uniformData.m_vectorInt.m_getVector());
 
                 IntVec vecarray(data, data+vectorSize);
-                resourceMap[mapIndex][uniformName] = Value::createValue(vecarray);
+                rmap[uniformName] = Value::createValue(vecarray);
                 break;
             }
             default:
@@ -115,8 +131,8 @@ void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc
 void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc)
 {
     // Update 3d textures
-    int mapIndex = (int)ColorManagementSystem::ResourceType::TEXTURE3D;
-    resourceMap[mapIndex].clear();
+    ColorManagementResourceMap& rmap3D = *(resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE3D]);
+
     unsigned int textureCount = shaderDesc->getNum3DTextures();
     for (unsigned idx = 0; idx < textureCount; ++idx)
     {
@@ -142,12 +158,13 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
 
         size_t offset = static_cast<size_t>(edgeLength * edgeLength*edgeLength);
         FloatVec vecarray(data, data + offset);
-        resourceMap[mapIndex][textureName] = Value::createValue(vecarray);
+        rmap3D[textureName] = Value::createValue(vecarray);
     }
 
     // Process 1D and 2D Textures
-    resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE1D].clear();
-    resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE2D].clear();
+    ColorManagementResourceMap& rmap1D = *(resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE1D]);
+    ColorManagementResourceMap& rmap2D = *(resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE2D]);
+
     textureCount = shaderDesc->getNumTextures();
     for (unsigned idx = 0; idx < textureCount; ++idx)
     {
@@ -177,11 +194,11 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
         FloatVec vecarray(data, data + offset);
         if (height > 1)
         {
-            resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE2D][textureName] = Value::createValue(vecarray);
+            rmap2D[textureName] = Value::createValue(vecarray);
         }
         else
         {
-            resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE1D][textureName] = Value::createValue(vecarray);
+            rmap1D[textureName] = Value::createValue(vecarray);
         }
     }
 }
@@ -255,7 +272,7 @@ bool OCIOColorManagementSystem::readConfigFile(const FilePath& configFile)
                 return (_ocioInfo->config->getNumColorSpaces() > 0);
             }
         }
-        catch (const OCIO::Exception& e)
+        catch (const OCIO::Exception& /*e*/)
         {
             // Do not continue to throw an exception but instead use return status code
         }
@@ -410,11 +427,25 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
             impl = _document->addImplementation(transformFunctionName);
 
             // Note: There is only one input so we just use the default name: "inPixel".
-            impl->addInput("inPixel", typeName);
+            impl->addInput(IN_PIXEL_STRING, typeName);
             impl->addOutput(outputName, typeName);
             impl->setAttribute("sourcecode", fullFunction);
             impl->setAttribute("function", functionName);
             impl->setAttribute("target", _ocioInfo->target);
+
+            // Add all of the additional uniforms as additional inputs on the impl so it can be accessed later one in the shader node ?
+            for (auto rmap : _ocioInfo->resourceMap)
+            {
+                for (auto rmapItem : *rmap)
+                {
+                    InputPtr newInput = impl->addInput(rmapItem.first, rmapItem.second->getTypeString());
+                    if (newInput)
+                    {
+                        newInput->setValue(rmapItem.second->getValueString());
+                        newInput->setIsUniform(true);
+                    }
+                }
+            }
         }
         return impl;
     }
@@ -427,22 +458,69 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
     return nullptr;
 }
 
-const ColorManagementResourceMap* OCIOColorManagementSystem::getResource(ResourceType resourceType) const
+const ColorManagementResourceMapPtr OCIOColorManagementSystem::getResource(ResourceType resourceType) const
 {
     if (_ocioInfo)
     {
-        return &(_ocioInfo->resourceMap[(int)resourceType]);
+        return _ocioInfo->resourceMap[(int)resourceType];
     }
     return nullptr;
 }
+
+void OCIOColorManagementSystem::clearResources()
+{
+    if (_ocioInfo)
+    {
+        _ocioInfo->resourceMap->reset();
+    }
+}
+
 
 //
 // OCIO source code node method
 //
 
+OCIOSourceCodeNode::OCIOSourceCodeNode()
+    : _cmUniforms("ColorManagmentUniforms", EMPTY_STRING)
+{
+}
+
 ShaderNodeImplPtr OCIOSourceCodeNode::create()
 {
     return std::make_shared<OCIOSourceCodeNode>();
+}
+
+void OCIOSourceCodeNode::initialize(const InterfaceElement& element, GenContext& context)
+{
+    SourceCodeNode::initialize(element, context);
+
+    // Cache a uniform block
+    for (auto nodeInput : element.getInputs())
+    {
+        if (nodeInput->getName() != IN_PIXEL_STRING)
+        {
+            // TODO:
+            // This is outputing the incorrect type and samplers need to add the word "Sampler" at the end.
+            //_cmUniforms.add(TypeDesc::get(nodeInput->getType()), nodeInput->getName(), nodeInput->getValue());
+        }
+    }
+}
+
+void OCIOSourceCodeNode::createVariables(const ShaderNode& /*node*/, GenContext& /*context*/, Shader& shader) const
+{
+    // Add to CM uniform block
+    if (!_cmUniforms.empty())
+    {
+        ShaderStage& stage = shader.getStage(Stage::PIXEL);
+        stage.createUniformBlock("ColorManagmentUniforms");
+        VariableBlock& uniformBlock = stage.getUniformBlock("ColorManagmentUniforms");
+
+        for (size_t i = 0; i < _cmUniforms.size(); ++i)
+        {
+            ShaderPort* u = const_cast<ShaderPort*>(_cmUniforms[i]);
+            uniformBlock.add(u->getSelf());
+        }
+    }
 }
 
 void OCIOSourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
