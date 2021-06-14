@@ -942,9 +942,6 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(api->hasDefinition<mx::RtNodeDef>(QUALIFIED_DEFINITION));
     REQUIRE(api->hasImplementation<mx::RtNodeGraph>(NG_ADDGRAPH));
 
-
-    std::cout << graph1.getDefinition().c_str() << std::endl;
-
     mx::RtNodeDef addgraphDef(addgraphPrim);
     REQUIRE(graph1.getDefinition() == NAMESPACED_QUALIFIED_DEFINITION);
     REQUIRE(graph1.getVersion().empty());
