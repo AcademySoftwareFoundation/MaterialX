@@ -24,6 +24,7 @@
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtApi.h>
 
+#include <MaterialXCore/LookUtil.h>
 #include <MaterialXCore/Types.h>
 
 #include <MaterialXFormat/Util.h>
@@ -1291,7 +1292,7 @@ namespace
         mapper.addMapping(parent, name, prim->getName());
 
         RtLookGroup lookGroup(prim->hnd());
-        lookGroup.setEnabledLooks(src->getEnabledLooksString());
+        lookGroup.setActiveLooks(src->getActiveLook());
 
         // Link to looks
         const string& lookNamesString = src->getLooks();
@@ -1666,7 +1667,7 @@ void mergeLooks(DocumentPtr document)
         if (lookgroup != mainLookGroup)
         {
             // Merge all other lookgroups into the mainLookGroup
-            mainLookGroup->appendLookGroup(lookgroup);
+            appendLookGroup(mainLookGroup, lookgroup);
             lookgroupNames.push_back(lookgroup->getName());
 
             // Append lookgroup looks to looksInLookGroup if they aren't already part of the set
@@ -1690,11 +1691,11 @@ void mergeLooks(DocumentPtr document)
     {
         if (looksInLookGroup.count(look->getName()) == 0)
         {
-            mainLookGroup->appendLook(look->getName());
+            appendLook(mainLookGroup, look->getName());
         }
     }
     // Combine the mainLookGroup into a mainLook
-    LookPtr mainLook = mainLookGroup->combineLooks();
+    LookPtr mainLook = combineLooks(mainLookGroup);
     // Delete the mainLookGroup
     document->removeChild(mainLookGroup->getName());
     // Append look names that don't belong to the mainLook to lookNames

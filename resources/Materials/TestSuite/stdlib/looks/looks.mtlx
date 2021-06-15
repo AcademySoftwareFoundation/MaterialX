@@ -44,5 +44,5 @@
   <look name="look3">
     <materialassign name="ma3" geom="pCube*" material="mat3" />
   </look>
-  <lookgroup name="lookgroup1" looks="look1, look2" enabled="look1" />
+  <lookgroup name="lookgroup1" looks="look1, look2" active="look1" />
 </materialx>

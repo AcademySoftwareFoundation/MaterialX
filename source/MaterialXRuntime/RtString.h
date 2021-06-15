@@ -243,7 +243,7 @@ public:
     static const RtString GEOM;
     static const RtString EXCLUSIVE;
     static const RtString MATERIALASSIGN;
-    static const RtString ENABLEDLOOKS;
+    static const RtString ACTIVELOOKS;
     static const RtString FORMAT;
     static const RtString FILE;
     static const RtString FRAGMENT;

@@ -5,6 +5,7 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <MaterialXCore/LookUtil.h>
 #include <MaterialXCore/Util.h>
 
 #include <mutex>
@@ -177,7 +178,7 @@ void Document::mergeLooks(const std::string& lookGroupName)
                 }
             }
             // Append the current lookgroup to the main lookgroup
-            mainLookGroup->appendLookGroup(lookgroup);
+            appendLookGroup(mainLookGroup, lookgroup);
             // Remove the current lookgroup
             removeChild(lookgroup->getName());
         }
@@ -187,11 +188,11 @@ void Document::mergeLooks(const std::string& lookGroupName)
     {
         if (looksInLookGroup.count(look->getName()) == 0)
         {
-            mainLookGroup->appendLook(look->getName());
+            appendLook(mainLookGroup, look->getName());
         }
     }
     // Combine the mainLookGroup into a mainLook
-    LookPtr mainLook = mainLookGroup->combineLooks();
+    LookPtr mainLook = combineLooks(mainLookGroup);
     // Delete the mainLookGroup
     removeChild(mainLookGroup->getName());
     // Remove the looks which are not the main look
@@ -1472,16 +1473,6 @@ void Document::upgradeVersion()
                         input->setIsUniform(true);
                     }
                 }
-            }
-        }
-
-        for (LookGroupPtr lookGroup : getLookGroups())
-        {
-            if (lookGroup->hasAttribute(ACTIVE_LOOK_STRING))
-            {
-                const string active = lookGroup->getAttribute(ACTIVE_LOOK_STRING);
-                lookGroup->setEnabledLooks(active);
-                lookGroup->removeAttribute(ACTIVE_LOOK_STRING);
             }
         }
 

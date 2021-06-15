@@ -105,7 +105,7 @@ const RtString RtString::COLLECTION("collection");
 const RtString RtString::GEOM("geom");
 const RtString RtString::EXCLUSIVE("exclusive");
 const RtString RtString::MATERIALASSIGN("materialassign");
-const RtString RtString::ENABLEDLOOKS("enabled");
+const RtString RtString::ACTIVELOOKS("active");
 const RtString RtString::FORMAT("format");
 const RtString RtString::FILE("file");
 const RtString RtString::FRAGMENT("fragment");

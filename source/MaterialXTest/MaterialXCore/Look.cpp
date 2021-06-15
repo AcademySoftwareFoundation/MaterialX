@@ -6,6 +6,8 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
+#include <MaterialXCore/LookUtil.h>
+
 #include <MaterialXFormat/XmlIo.h>
 
 namespace mx = MaterialX;
@@ -129,17 +131,17 @@ TEST_CASE("LookGroup", "[look]")
     mx::StringVec looksVec2 = mx::splitString(looks2, mx::ARRAY_VALID_SEPARATORS);
     REQUIRE(looksVec.size() == looksVec2.size());
 
-    REQUIRE(lookGroup->getEnabledLooksString().empty());
-    lookGroup->setEnabledLooks("look1");
-    REQUIRE(lookGroup->getEnabledLooksString() == "look1");
+    REQUIRE(lookGroup->getActiveLook().empty());
+    lookGroup->setActiveLook("look1");
+    REQUIRE(lookGroup->getActiveLook() == "look1");
 
     mx::LookGroupPtr copyLookGroup = doc->addLookGroup("lookgroup1_copy");
     copyLookGroup->copyContentFrom(lookGroup);
     mx::writeToXmlFile(doc, "looks_test.mtlx");
 
     // Combine looks in lookgroup test
-    lookGroup->setEnabledLooks(looks);
-    mx::LookPtr mergedLook = lookGroup->combineLooks();
+    lookGroup->setActiveLook(looks);
+    mx::LookPtr mergedLook = combineLooks(lookGroup);
     REQUIRE(mergedLook->getMaterialAssigns().size() == 15);
     for (auto ma : mergedLook->getMaterialAssigns())
     {
@@ -170,38 +172,38 @@ TEST_CASE("LookGroup", "[look]")
         look->addMaterialAssign("matC", "materialC");
     }
     lookGroup2->setLooks(lookGroup2_looks);
-    lookGroup2->setEnabledLooks("lookA,look3,lookE");
+    lookGroup2->setActiveLook("lookA,look3,lookE");
 
     // Append check
     mx::LookGroupPtr mergedCopyLookGroup = doc->addLookGroup("lookgroup1_copy_merged");
     mergedCopyLookGroup->copyContentFrom(copyLookGroup);
-    mergedCopyLookGroup->appendLookGroup(lookGroup2);
+    appendLookGroup(mergedCopyLookGroup, lookGroup2);
     mx::writeToXmlFile(doc, "lookgroup_test_merged.mtlx");
 
     REQUIRE(mergedCopyLookGroup->getLooks() == std::string("look1, look2, look3, look4, look5, lookA, lookC, lookE"));
-    REQUIRE(mergedCopyLookGroup->getEnabledLooksString() == std::string("look1, lookA, look3, lookE"));
+    REQUIRE(mergedCopyLookGroup->getActiveLook() == std::string("look1, lookA, look3, lookE"));
 
     // Insert check
     mx::LookGroupPtr mergedCopyLookGroup2 = doc->addLookGroup("lookgroup1_copy_merged2");
     mergedCopyLookGroup2->copyContentFrom(copyLookGroup);
-    mergedCopyLookGroup2->appendLookGroup(lookGroup2, std::string("look2"));
+    appendLookGroup(mergedCopyLookGroup2, lookGroup2, std::string("look2"));
     mx::writeToXmlFile(doc, "lookgroup_test_merged2.mtlx");
 
     REQUIRE(mergedCopyLookGroup2->getLooks() == std::string("look1, look2, lookA, lookC, lookE, look3, look4, look5"));
-    REQUIRE(mergedCopyLookGroup2->getEnabledLooksString() == std::string("look1, lookA, look3, lookE"));
+    REQUIRE(mergedCopyLookGroup2->getActiveLook() == std::string("look1, lookA, look3, lookE"));
 
     mx::LookGroupPtr mergedCopyLookGroup3 = doc->addLookGroup("lookgroup1_copy_merged3");
     mergedCopyLookGroup3->copyContentFrom(copyLookGroup);
-    mergedCopyLookGroup3->appendLookGroup(lookGroup2, std::string("not found"));
+    appendLookGroup(mergedCopyLookGroup3, lookGroup2, std::string("not found"));
     mx::writeToXmlFile(doc, "lookgroup_test_merge3.mtlx");
 
     REQUIRE(mergedCopyLookGroup2->getLooks() == std::string("look1, look2, lookA, lookC, lookE, look3, look4, look5"));
-    REQUIRE(mergedCopyLookGroup2->getEnabledLooksString() == std::string("look1, lookA, look3, lookE"));
+    REQUIRE(mergedCopyLookGroup2->getActiveLook() == std::string("look1, lookA, look3, lookE"));
 
     doc->addLook("look6");
-    mergedCopyLookGroup2->appendLook("look6", "lookC");
+    appendLook(mergedCopyLookGroup2, "look6", "lookC");
     REQUIRE(mergedCopyLookGroup2->getLooks() == std::string("look1, look2, lookA, lookC, look6, lookE, look3, look4, look5"));
-    REQUIRE(mergedCopyLookGroup2->getEnabledLooksString() == std::string("look1, lookA, look3, lookE, look6"));
+    REQUIRE(mergedCopyLookGroup2->getActiveLook() == std::string("look1, lookA, look3, lookE, look6"));
 
     doc->removeLookGroup(lookGroup2->getName());
     doc->removeLookGroup(copyLookGroup->getName());

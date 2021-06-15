@@ -51,15 +51,11 @@ EMSCRIPTEN_BINDINGS(look)
         .smart_ptr<std::shared_ptr<const mx::LookGroup>>("LookGroup")
         .function("setLooks", &mx::LookGroup::setLooks)
         .function("getLooks", &mx::LookGroup::getLooks)
-        .function("setEnabledLooks", &mx::LookGroup::setEnabledLooks)
-        .function("getEnabledLooksString", &mx::LookGroup::getEnabledLooksString)
-        .function("getEnabledLooks", &mx::LookGroup::getEnabledLooks)
-        BIND_MEMBER_FUNC("appendLookGroup", mx::LookGroup, appendLookGroup, 1, 2, mx::LookGroupPtr, stRef)
-        BIND_MEMBER_FUNC("appendLook", mx::LookGroup, appendLook, 1, 2, stRef, stRef)
-        .function("combineLooks", &mx::LookGroup::combineLooks)
+        .function("setActiveLook", &mx::LookGroup::setActiveLook)
+        .function("getActiveLook", &mx::LookGroup::getActiveLook)
         .class_property("CATEGORY", &mx::LookGroup::CATEGORY)
         .class_property("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
-        .class_property("ENABLED_ATTRIBUTE", &mx::LookGroup::ENABLED_ATTRIBUTE);
+        .class_property("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE);
 
     ems::class_<mx::MaterialAssign, ems::base<mx::GeomElement>>("MaterialAssign")
         .smart_ptr_constructor("MaterialAssign", &std::make_shared<mx::MaterialAssign, mx::ElementPtr, const std::string &>)
