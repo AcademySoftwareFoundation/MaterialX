@@ -121,6 +121,7 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
         MaterialXFormat
         MaterialXGenShader
         MaterialXGenOgsXml
+        MaterialXGenGlsl
         MaterialXRender
         ${CMAKE_DL_LIBS}
     )

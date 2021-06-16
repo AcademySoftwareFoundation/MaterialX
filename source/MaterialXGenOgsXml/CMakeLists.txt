@@ -1,3 +1,5 @@
+file(GLOB pugixml_source "${CMAKE_CURRENT_SOURCE_DIR}/../MaterialXFormat/PugiXML/*.cpp")
+file(GLOB pugixml_headers "${CMAKE_CURRENT_SOURCE_DIR}/../MaterialXFormat/PugiXML/*.hpp")
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
@@ -17,10 +19,14 @@ endfunction(assign_source_group)
 assign_source_group("Header Files" ${materialx_header})
 assign_source_group("Source Files" ${materialx_source})
 
-add_library(MaterialXGenOgsXml STATIC 
-    ${materialx_source} 
+add_library(MaterialXGenOgsXml
+    ${materialx_source}
     ${materialx_header}
+    ${pugixml_source}
+    ${pugixml_headers}
 )
+
+add_definitions(-DMATERIALX_GENOGSXML_EXPORTS)
 
 set_target_properties(
     MaterialXGenOgsXml PROPERTIES
@@ -35,6 +41,7 @@ target_link_libraries(
     MaterialXGenGlsl
     MaterialXGenShader
     MaterialXCore
+    MaterialXRender
     $<$<BOOL:${MATERIALX_BUILD_CROSS}>:MaterialXCross>
     ${CMAKE_DL_LIBS})
 

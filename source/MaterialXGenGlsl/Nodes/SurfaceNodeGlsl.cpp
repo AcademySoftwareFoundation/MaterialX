@@ -143,33 +143,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ")", stage);
         shadergen.emitLine("vec3 P = " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD, stage);
 
-        // 
-        // Generate Light loop if requested
-        //
-        if (context.getOptions().hwMaxActiveLightSources > 0)
-        {
-            shadergen.emitComment("Light loop", stage);
-            shadergen.emitLine("int numLights = numActiveLightSources()", stage);
-            shadergen.emitLine("lightshader lightShader", stage);
-            shadergen.emitLine("for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)", stage, false);
-
-            shadergen.emitScopeBegin(stage);
-
-            shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", lightShader)", stage);
-            shadergen.emitLine("vec3 L = lightShader.direction", stage);
-            shadergen.emitLineBreak(stage);
-
-            shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-            string bsdf;
-            shadergen.emitBsdfNodes(graph, node, _callReflection, context, stage, bsdf);
-            shadergen.emitLineBreak(stage);
-
-            shadergen.emitComment("Accumulate the light's contribution", stage);
-            shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf, stage);
-
-            shadergen.emitScopeEnd(stage);
-            shadergen.emitLineBreak(stage);
-        }
+        emitLightLoop(node, context, stage, outColor);
 
         //
         // Handle indirect lighting.
@@ -231,6 +205,40 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitLineBreak(stage);
 
     END_SHADER_STAGE(stage, Stage::PIXEL)
+}
+
+void SurfaceNodeGlsl::emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const
+{
+    // 
+    // Generate Light loop if requested
+    //
+    if (context.getOptions().hwMaxActiveLightSources > 0)
+    {
+        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+        const ShaderGraph& graph = *node.getParent();
+
+        shadergen.emitComment("Light loop", stage);
+        shadergen.emitLine("int numLights = numActiveLightSources()", stage);
+        shadergen.emitLine("lightshader lightShader", stage);
+        shadergen.emitLine("for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)", stage, false);
+
+        shadergen.emitScopeBegin(stage);
+
+        shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", lightShader)", stage);
+        shadergen.emitLine("vec3 L = lightShader.direction", stage);
+        shadergen.emitLineBreak(stage);
+
+        shadergen.emitComment("Calculate the BSDF response for this light source", stage);
+        string bsdf;
+        shadergen.emitBsdfNodes(graph, node, _callReflection, context, stage, bsdf);
+        shadergen.emitLineBreak(stage);
+
+        shadergen.emitComment("Accumulate the light's contribution", stage);
+        shadergen.emitLine(outColor + " += lightShader.intensity * " + bsdf, stage);
+
+        shadergen.emitScopeEnd(stage);
+        shadergen.emitLineBreak(stage);
+    }
 }
 
 } // namespace MaterialX

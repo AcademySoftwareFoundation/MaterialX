@@ -8,13 +8,13 @@
 
 /// @file
 /// OGS XML fragments generator
-
+#include <MaterialXGenOgsXml/Export.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
 {
 
-class OgsXmlGenerator
+class MX_GENOGSXML_API OgsXmlGenerator
 {
 public:
     /// Generate OSG XML for the given shader fragments, output to the given stream.
@@ -38,8 +38,13 @@ public:
     static const string OUTPUT_NAME;
     static const string VP_TRANSPARENCY_NAME;
 
+    /// Use Maya's latest external light functions
+    static bool useLightAPIV2();
+    static void setUseLightAPIV2(bool);
+
 private:
     static const string SAMPLER_SUFFIX;
+    static bool sUseLightAPIV2;
 };
 
 }

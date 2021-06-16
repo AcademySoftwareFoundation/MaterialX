@@ -22,12 +22,32 @@ Maya provides fragment entry points for environment lighting. The lighting graph
 
 ### Superior environmental lighting
 
-If you have ever hooked an OpenGL or DirectX debugger and looked at the fragment code generated for environment lighting, you will have noticed that the environment computation depends on the following functions:
+Recent versions of Maya provide a new shader lighting API. Enabling the API in MaterialX requires calling `MaterialX::OgsXmlGenerator::setUseLightAPIV2(true);` before translating your MaterialX document.
 
-*   `SampleLatLongReflect` to fetch a radiance sample from the environment texture
-*   `SampleLatLongVolumeReflect` to compute a glossy sample from the pre computed glossy 3D texture. The glossiness is controlled by a phong exponent
-*   `adjustGain` to adjust the gain on the environment samples based provided uniform parameters
-*   `mayaRoughnessToPhongExp` to compute a phong exponent from a (0..1) roughness value
-*   `blendGlossyAndRadianceEnvironment` to compute the final radiance value based on previously computed radiance and glossy samples.
+The version 2 API relies on Maya injecting the following 5 functions into the shader code at compile time:
 
-So it would be extremely nice if those functions could be used in `mx_environment_radiance()` to compute the light value. The big problem is that if there are no environment lights present in the scene, then none of these functions will be present and the compilation will fail. It would be extremely nice if Maya could somehow advertise the presence of these functions at the precompiler level. The deeply nested `#ifdef` code block in `GlslFragmeentGenerator::MX_ENVIRONMENT_MAYA` gives a hint of how this code could look for these functions in a future version of Maya, but it will not work at all with the current version of the software.
+`int mayaGetNumLights()`\
+Returns the number of active Maya lights in the scene at the moment the shader was last compiled.
+
+`irradiance mayaGetLightIrradiance(int lightIndex, float3 Pw, float3 Nw, float3 Vw)`\
+Returns a filled irradiance struct {`diffuseI`, `specularI`, `Ld`, `Ls`, `Lg`, `lightType`}\
+`lightIndex` -> the index of the light to compute\
+`Pw` -> world position of the surface point\
+`Nw` -> world normal of the surface point (for rectArea lights)\
+`Vw` -> world view direction (for rectArea lights)
+
+`float3 mayaGetSpecularEnvironment(float3 Nw, float3 Vw, float phongExponent)`\
+Returns a specular environment sample\
+`Nw` -> world normal of the surface point\
+`Vw` -> world view direction\
+`phongExponent` -> \[0.0001, 2048\] tightness of the specular highlight
+
+`float3 mayaGetIrradianceEnvironment(float3 Nw)`\
+Returns an irradiance environment sample\
+`Nw` -> world normal of the surface point
+
+`float mayaRoughnessToPhongExp(float roughness)`\
+Converts a normalized surface roughness value into a phongExponent compatible with mayaGetSpecularEnvironment()\
+`roughness` -> \[0, 1\] Roughness of the surface
+
+The OgsXml generator will fully use these function to provide improved illumination.
