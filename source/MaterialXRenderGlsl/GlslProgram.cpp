@@ -14,6 +14,7 @@
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
+#include <cstring>
 
 namespace MaterialX
 {
@@ -692,7 +693,7 @@ void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandler
                             {
                                 continue;
                             }
-                            memcpy(pixels, data.data(), data.size() * uniformImage->getBaseStride());
+                            std::memcpy(pixels, data.data(), data.size() * uniformImage->getBaseStride());
                         }
                     }
                     if (!uniformImage || !uniformImage->getResourceBuffer())
