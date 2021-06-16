@@ -201,7 +201,6 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
         size_t offset = static_cast<size_t>(width*height);
         FloatVec vecarray(data, data + offset);        
 
-        //ValuePtr newValue = Value::createValue(vecarray);
         ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, vecarray);
         newTexture->_width = width;
         newTexture->_height = height;

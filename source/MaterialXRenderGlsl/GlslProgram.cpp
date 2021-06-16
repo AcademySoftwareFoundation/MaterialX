@@ -688,7 +688,7 @@ void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandler
                                                                  Image::BaseType::FLOAT);
                         if (uniformImage)
                         {
-                            void* pixels = uniformImage ? uniformImage->getResourceBuffer() : nullptr;
+                            void* pixels = uniformImage->getResourceBuffer();
                             if (!pixels)
                             {
                                 continue;
