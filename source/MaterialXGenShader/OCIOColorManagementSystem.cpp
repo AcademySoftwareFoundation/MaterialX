@@ -528,7 +528,7 @@ void OCIOColorManagementSystem::clearResources()
 //
 
 OCIOSourceCodeNode::OCIOSourceCodeNode()
-    : _cmUniforms("ColorManagmentUniforms", EMPTY_STRING)
+    : _cmUniforms(ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS, EMPTY_STRING)
 {
 }
 
@@ -567,8 +567,8 @@ void OCIOSourceCodeNode::createVariables(const ShaderNode& /*node*/, GenContext&
     if (!_cmUniforms.empty())
     {
         ShaderStage& stage = shader.getStage(Stage::PIXEL);
-        stage.createUniformBlock("ColorManagmentUniforms");
-        VariableBlock& uniformBlock = stage.getUniformBlock("ColorManagmentUniforms");
+        stage.createUniformBlock(ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS);
+        VariableBlock& uniformBlock = stage.getUniformBlock(ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS);
 
         for (size_t i = 0; i < _cmUniforms.size(); ++i)
         {

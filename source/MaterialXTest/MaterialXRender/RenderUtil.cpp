@@ -177,8 +177,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Create renderers and generators
     RenderUtil::AdditiveScopedTimer setupTime(profileTimes.languageTimes.setupTime, "Setup time");
 
-    createRenderer(log);
-
     _colorManagementSystem = nullptr;
 #ifdef MATERIALX_BUILD_OCIO
     if (!_colorManagementConfigFile.isEmpty())
@@ -207,6 +205,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
         _colorManagementSystem->loadLibrary(dependLib);
         _shaderGenerator->setColorManagementSystem(_colorManagementSystem);
     }
+
+    createRenderer(log);
 
     // Setup Unit system and working space
     mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_shaderGenerator->getTarget());

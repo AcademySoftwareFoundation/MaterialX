@@ -178,6 +178,9 @@ class MX_RENDERGLSL_API GlslProgram
     /// Bind any input textures
     void bindTextures(ImageHandlerPtr imageHandler);
 
+    /// Bind color management uniforms
+    void bindColorManagement(ColorManagementSystemPtr cms, ImageHandlerPtr imageHandler);
+
     /// Bind lighting
     void bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imageHandler);
 

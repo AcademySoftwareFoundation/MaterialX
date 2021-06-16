@@ -261,6 +261,10 @@ void GlslRenderer::render()
                 // Bind the program to use
                 _program->bind();
                 _program->bindInputs(_viewHandler, _geometryHandler, _imageHandler, _lightHandler);
+                if (_colorManagementSystem)
+                {
+                    _program->bindColorManagement(_colorManagementSystem, _imageHandler);
+                }
 
                 // Draw all the partitions of all the meshes in the handler
                 for (const auto& mesh : _geometryHandler->getMeshes())

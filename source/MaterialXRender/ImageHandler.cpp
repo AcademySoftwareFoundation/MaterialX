@@ -124,29 +124,51 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath)
     // Resolve the input filepath.
     FilePath resolvedFilePath = filePath;
     if (_resolver)
-        {
+    {
         resolvedFilePath = _resolver->resolve(resolvedFilePath, FILENAME_TYPE_STRING);
-        }
+    }
 
     // Return a cached image if available.
     ImagePtr cachedImage = getCachedImage(resolvedFilePath);
     if (cachedImage)
-        {
+    {
         return cachedImage;
-        }
+    }
 
     // Load and cache the requested image.
     ImagePtr image = loadImage(_searchPath.find(resolvedFilePath));
-        if (image)
-        {
+    if (image)
+    {
         cacheImage(resolvedFilePath, image);
-            return image;
-        }
+        return image;
+    }
 
     // No valid image was found, so cache the sentinel invalid image.
     cacheImage(resolvedFilePath, _invalidImage);
     return _invalidImage;
 }
+
+ImagePtr ImageHandler::createImage(const string& identifier, unsigned int width, unsigned int height, 
+                                   unsigned int channelCount, Image::BaseType baseType)
+{
+    ImagePtr cachedImage = getCachedImage(identifier);
+    if (cachedImage)
+    {
+        return cachedImage;
+    }
+
+    ImagePtr newImage = Image::create(width, height, channelCount, baseType);
+
+    if (newImage)
+    {
+        newImage->createResourceBuffer();
+        cacheImage(identifier, newImage);
+        return newImage;
+    }
+
+    return nullptr;
+}
+
 
 bool ImageHandler::bindImage(ImagePtr, const ImageSamplingProperties&)
 {
@@ -225,6 +247,15 @@ ImagePtr ImageHandler::loadImage(const FilePath& filePath)
 void ImageHandler::cacheImage(const string& filePath, ImagePtr image)
 {
     _imageCache[filePath] = image;
+}
+
+ImagePtr ImageHandler::getImage(const string& identifier)
+{
+    if (_imageCache.count(identifier))
+    {
+        return _imageCache[identifier];
+    }
+    return nullptr;
 }
 
 ImagePtr ImageHandler::getCachedImage(const FilePath& filePath)

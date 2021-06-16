@@ -12,6 +12,12 @@
 namespace MaterialX
 {
 
+// Color management uniform block name
+std::string ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS = "ColorManagmentUniforms";
+
+//
+// Color management uniform methods
+//
 ColorSpaceConstant::ColorSpaceConstant(const string name, const ValuePtr value)
     : ColorSpaceUniform(name),
     _value(value)

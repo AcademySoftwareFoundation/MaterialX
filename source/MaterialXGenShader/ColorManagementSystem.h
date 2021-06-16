@@ -135,6 +135,9 @@ class MX_GENSHADER_API ColorManagementSystem
     {
     }
 
+    /// Name of block for color management uniforms
+    static string COLOR_MANAGEMENT_UNIFORMS;
+
   protected:
     /// Protected constructor
     ColorManagementSystem();
