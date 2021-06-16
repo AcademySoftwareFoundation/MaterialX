@@ -671,7 +671,6 @@ void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandler
             {
                 std::string uniformName = uniformItem.first;
                 ColorSpaceTexturePtr uniformTexture = std::static_pointer_cast<ColorSpaceTexture>(uniformItem.second);
-                FloatVec& data = uniformTexture->_data;
 
                 // Create an new image if needed and bind it to the appropriate location
                 // Note that if the image with the uniform name already exists then it will be
@@ -693,6 +692,7 @@ void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandler
                             {
                                 continue;
                             }
+                            FloatVec& data = uniformTexture->_data;
                             std::memcpy(pixels, data.data(), data.size() * uniformImage->getBaseStride());
                         }
                     }
