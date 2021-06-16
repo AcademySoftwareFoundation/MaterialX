@@ -45,7 +45,7 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
 
     void getPortConnections(mx::ShaderGraph* graph, mx::ShaderNode* colorTransformNode,
                             const mx::TypeDesc* targetType, mx::GenContext& context,
-                            mx::ShaderInput*& inputToConnect, mx::ShaderOutput*& outputToConnect)
+                            mx::ShaderInput*& inputToConnect, mx::ShaderOutput*& outputToConnect) override
     {
         PYBIND11_OVERLOAD_PURE(
             void,
