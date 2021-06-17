@@ -60,6 +60,15 @@ class PyUnitConverter : public mx::UnitConverter
             outputUnit
         );
     }
+
+    void write(mx::DocumentPtr doc) const override
+    {
+        PYBIND11_OVERLOAD_PURE(
+            void,
+            mx::UnitConverter,
+            write
+        );
+    }
 };
 
 PYBIND11_DECLARE_HOLDER_TYPE(T, std::shared_ptr<T>);
@@ -72,7 +81,8 @@ void bindPyUnitConverters(py::module& mod)
         .def("convert", (mx::Vector3 (mx::UnitConverter::*)(const mx::Vector3&, const std::string&, const std::string&)const) &mx::UnitConverter::convert)
         .def("convert", (mx::Vector4 (mx::UnitConverter::*)(const mx::Vector4&, const std::string&, const std::string&)const) &mx::UnitConverter::convert)
         .def("getUnitAsInteger", &mx::UnitConverter::getUnitAsInteger)
-        .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger);
+        .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger)
+        .def("write", &mx::UnitConverter::write);
 
     py::class_<mx::LinearUnitConverter, mx::UnitConverter, mx::LinearUnitConverterPtr>(mod, "LinearUnitConverter")
         .def_static("create", &mx::LinearUnitConverter::create)
@@ -82,12 +92,16 @@ void bindPyUnitConverters(py::module& mod)
         .def("convert", (mx::Vector3 (mx::LinearUnitConverter::*)(const mx::Vector3&, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
         .def("convert", (mx::Vector4 (mx::LinearUnitConverter::*)(const mx::Vector4&, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
         .def("getUnitAsInteger", &mx::LinearUnitConverter::getUnitAsInteger)
-        .def("getUnitFromInteger", &mx::LinearUnitConverter::getUnitFromInteger);
+        .def("getUnitFromInteger", &mx::LinearUnitConverter::getUnitFromInteger)
+        .def("write", &mx::UnitConverter::write);
 
     py::class_<mx::UnitConverterRegistry, mx::UnitConverterRegistryPtr>(mod, "UnitConverterRegistry")
         .def_static("create", &mx::UnitConverterRegistry::create)
         .def("addUnitConverter", &mx::UnitConverterRegistry::addUnitConverter)
         .def("removeUnitConverter", &mx::UnitConverterRegistry::removeUnitConverter)
         .def("getUnitConverter", &mx::UnitConverterRegistry::getUnitConverter)
-        .def("clearUnitConverters", &mx::UnitConverterRegistry::clearUnitConverters);
+        .def("clearUnitConverters", &mx::UnitConverterRegistry::clearUnitConverters)
+        .def("getUnitAsInteger", &mx::UnitConverterRegistry::getUnitAsInteger)
+        .def("write", &mx::UnitConverterRegistry::write)
+        .def("convertToUnit", &mx::UnitConverterRegistry::convertToUnit);
 }

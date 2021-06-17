@@ -133,7 +133,8 @@ TEST_CASE("UnitDocument", "[unit]")
         mx::readFromXmlFile(doc, filename, searchPath);
         mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
 
-        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
+        const std::string DISTANCE_TYPE_STRING("distance");
+        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(DISTANCE_TYPE_STRING);
         REQUIRE(distanceTypeDef);
 
         mx::UnitConverterPtr uconverter = mx::LinearUnitConverter::create(distanceTypeDef);
@@ -142,6 +143,8 @@ TEST_CASE("UnitDocument", "[unit]")
         registry->addUnitConverter(distanceTypeDef, uconverter);
         uconverter = registry->getUnitConverter(distanceTypeDef);
         REQUIRE(uconverter);
+
+        mx::StringMap results;
 
         // Traverse the document tree
         for (mx::ElementPtr elem : doc->traverseTree())
@@ -160,6 +163,7 @@ TEST_CASE("UnitDocument", "[unit]")
                                 float originalval = value->asA<float>();
                                 float convertedValue = uconverter->convert(originalval, input->getUnit(), DISTANCE_DEFAULT);
                                 float reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, input->getUnit());
+                                results[input->getNamePath()] = mx::Value::createValue<float>(convertedValue)->getValueString();
                                 REQUIRE((originalval - reconvert) < EPSILON);
                             }
                             else if (type == "vector2")
@@ -167,6 +171,7 @@ TEST_CASE("UnitDocument", "[unit]")
                                 mx::Vector2 originalval = value->asA<mx::Vector2>();
                                 mx::Vector2 convertedValue = uconverter->convert(originalval, input->getUnit(), DISTANCE_DEFAULT);
                                 mx::Vector2 reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, input->getUnit());
+                                results[input->getNamePath()] = mx::Value::createValue<mx::Vector2>(convertedValue)->getValueString();
                                 REQUIRE(originalval == reconvert);
                             }
                             else if (type == "vector3")
@@ -174,6 +179,7 @@ TEST_CASE("UnitDocument", "[unit]")
                                 mx::Vector3 originalval = value->asA<mx::Vector3>();
                                 mx::Vector3 convertedValue = uconverter->convert(originalval, input->getUnit(), DISTANCE_DEFAULT);
                                 mx::Vector3 reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, input->getUnit());
+                                results[input->getNamePath()] = mx::Value::createValue<mx::Vector3>(convertedValue)->getValueString();
                                 REQUIRE(originalval == reconvert);
                             }
                             else if (type == "vector4")
@@ -181,12 +187,29 @@ TEST_CASE("UnitDocument", "[unit]")
                                 mx::Vector4 originalval = value->asA<mx::Vector4>();
                                 mx::Vector4 convertedValue = uconverter->convert(originalval, input->getUnit(), DISTANCE_DEFAULT);
                                 mx::Vector4 reconvert = uconverter->convert(convertedValue, DISTANCE_DEFAULT, input->getUnit());
+                                results[input->getNamePath()] = mx::Value::createValue<mx::Vector4>(convertedValue)->getValueString();
                                 REQUIRE(originalval == reconvert);
                             }
                         }
                     }
                 }
             }
+        }
+
+        if (!results.empty())
+        {
+            registry->convertToUnit(doc, DISTANCE_TYPE_STRING, DISTANCE_DEFAULT);
+            for (auto result : results)
+            {
+                mx::ElementPtr elem = doc->getDescendant(result.first);
+                REQUIRE(elem);
+                mx::InputPtr input = elem->asA<mx::Input>();
+                REQUIRE(input);
+                const std::string& currentValue = input->getValueString();
+                REQUIRE(result.second == currentValue);
+                REQUIRE(input->getUnit().empty());
+                REQUIRE(input->getUnitType().empty());
+            }            
         }
     }
 }
