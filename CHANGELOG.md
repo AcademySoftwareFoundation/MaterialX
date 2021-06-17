@@ -5,9 +5,15 @@
 ### Added
 - Added support for shared library builds on Windows.
 - Added support for 16-bit unsigned integer images in MaterialXRender.
+- Added support for compound nodegraphs with user interfaces in shader and UI generation.
+- Added headers for newly proposed MaterialX closures in OSL.
+- Added a shader translation command to the viewer, assigned to the 'T' hotkey.
 
 ### Changed
-- Improved support for compound nodegraphs in shader and UI generation.
+- Improved the memory efficiency of texture baking operations.
+- Improved the compatibility of generated MDL code with Omniverse.
+- Refactored image resolution logic into new methods ImageHandler\:\:getReferencedImages and MaterialX\:\:getMaxDimensions.
+- Moved the viewer hotkey for GLSL code generation from 'S' to 'G' for consistency with other languages.
 
 ### Fixed
 - Fixed the Color3.asTuple and Color4.asTuple methods in Python
