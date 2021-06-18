@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.38.1] - Development
+## [1.38.1] - 2021-06-18
 
 ### Added
 - Added support for shared library builds on Windows.
