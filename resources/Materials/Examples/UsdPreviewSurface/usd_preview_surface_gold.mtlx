@@ -2,8 +2,6 @@
 <materialx version="1.38" colorspace="lin_rec709">
   <UsdPreviewSurface name="SR_gold" type="surfaceshader">
     <input name="diffuseColor" type="color3" value="0.944, 0.776, 0.373" />
-    <input name="useSpecularWorkflow" type="integer" value="0" />
-    <input name="specularColor" type="color3" value="0, 0, 0" />
     <input name="metallic" type="float" value="1" />
     <input name="roughness" type="float" value="0.02" />
   </UsdPreviewSurface>
