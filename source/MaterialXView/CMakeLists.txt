@@ -93,7 +93,7 @@ target_include_directories(
 if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
     add_custom_command(TARGET MaterialXView POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
+        ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_BINARY_DIR}/bin)
 endif()
 
 install(TARGETS MaterialXView
@@ -105,7 +105,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb
 # Copy over libraries and resources to local build area
 add_custom_command(TARGET MaterialXView POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
+	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_BINARY_DIR}/bin/libraries)
 add_custom_command(TARGET MaterialXView POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
+	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_BINARY_DIR}/bin/resources)
