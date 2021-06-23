@@ -169,6 +169,9 @@ class Viewer : public ng::Screen
     void loadShaderSource();
     void saveDotFiles();
 
+    // Translate the current material to the target shading model.
+    mx::DocumentPtr translateMaterial();
+
     // Assign the given material to the given geometry, or remove any
     // existing assignment if the given material is nullptr.
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
@@ -188,6 +191,9 @@ class Viewer : public ng::Screen
 
     // Generate a base output filepath for data derived from the current material.
     mx::FilePath getBaseOutputPath();
+
+    // Return an element predicate for documents written from the viewer.
+    mx::ElementPredicate getElementPredicate();
 
     void initCamera();
     void updateViewHandlers();
@@ -348,6 +354,9 @@ class Viewer : public ng::Screen
     int _envSampleCount;
     bool _drawEnvironment;
 
+    // Shader translation
+    std::string _targetShader;
+
     // Frame capture
     bool _captureRequested;
     mx::FilePath _captureFilename;
@@ -366,7 +375,6 @@ class Viewer : public ng::Screen
     bool _bakeHdr;
     bool _bakeAverage;
     bool _bakeOptimize;
-    int _bakeTextureRes;
     bool _bakeRequested;
     mx::FilePath _bakeFilename;
 };

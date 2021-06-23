@@ -93,7 +93,7 @@ bool ImageHandler::saveImage(const FilePath& filePath,
         return false;
     }
 
-    FilePath foundFilePath =  _searchPath.find(filePath);
+    FilePath foundFilePath = _searchPath.find(filePath);
     if (foundFilePath.isEmpty())
     {
         return false;
@@ -175,6 +175,30 @@ void ImageHandler::releaseRenderResources(ImagePtr)
 {
 }
 
+ImageVec ImageHandler::getReferencedImages(DocumentPtr doc)
+{
+    ImageVec imageVec;
+    for (ElementPtr elem : doc->traverseTree())
+    {
+        if (elem->getActiveSourceUri() != doc->getSourceUri())
+        {
+            continue;
+        }
+
+        NodePtr node = elem->asA<Node>();
+        InputPtr file = node ? node->getInput("file") : nullptr;
+        if (file)
+        {
+            ImagePtr image = acquireImage(file->getResolvedValueString());
+            if (image && image != _invalidImage)
+            {
+                imageVec.push_back(image);
+            }
+        }
+    }
+    return imageVec;
+}
+
 ImagePtr ImageHandler::loadImage(const FilePath& filePath)
 {
     string extension = stringToLower(filePath.getExtension());
@@ -245,15 +269,6 @@ ImagePtr ImageHandler::getCachedImage(const FilePath& filePath)
         }
     }
     return nullptr;
-}
-
-void ImageHandler::clearImageCache()
-{
-    for (auto iter : _imageCache)
-    {
-        releaseRenderResources(iter.second);
-    }
-    _imageCache.clear();
 }
 
 //

@@ -40,7 +40,7 @@ class GlslGeneratorWrapperBase
             mx::NodePtr outputNode = element->asA<mx::Node>();
             if (outputNode->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::unordered_set<mx::NodePtr> shaderNodes =
+                std::vector<mx::NodePtr> shaderNodes =
                     mx::getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
                 if (!shaderNodes.empty())
                 {

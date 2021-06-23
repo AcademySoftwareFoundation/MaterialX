@@ -11,6 +11,7 @@
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/ShaderTranslator.h>
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
@@ -42,10 +43,6 @@ const int SHADOW_MAP_SIZE = 2048;
 const int ALBEDO_TABLE_SIZE = 64;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
-
-const int MIN_TEXTURE_RES = 256;
-const int MAX_TEXTURE_RES = 8192;
-const int DEFAULT_TEXTURE_RES = 1024;
 
 const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
@@ -247,6 +244,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _outlineSelection(false),
     _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
     _drawEnvironment(false),
+    _targetShader("standard_surface"),
     _captureRequested(false),
     _exitRequested(false),
     _wedgeRequested(false),
@@ -258,7 +256,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeHdr(false),
     _bakeAverage(false),
     _bakeOptimize(true),
-    _bakeTextureRes(DEFAULT_TEXTURE_RES),
     _bakeRequested(false)
 {
     // Set the requested background color.
@@ -584,6 +581,18 @@ mx::FilePath Viewer::getBaseOutputPath()
     return baseFilename;
 }
 
+mx::ElementPredicate Viewer::getElementPredicate()
+{
+    return [this](mx::ConstElementPtr elem)
+    {
+        if (elem->hasSourceUri())
+        {
+            return (_xincludeFiles.count(elem->getSourceUri()) == 0);
+        }
+        return true;
+    };
+}
+
 void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
 {
     ng::Button* meshButton = new ng::Button(parent, label);
@@ -668,18 +677,8 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 filename.addExtension(mx::MTLX_EXTENSION);
             }
 
-            // Add element predicate to prune out writing elements from included files
-            auto skipXincludes = [this](mx::ConstElementPtr elem)
-            {
-                if (elem->hasSourceUri())
-                {
-                    return (_xincludeFiles.count(elem->getSourceUri()) == 0);
-                }
-                return true;
-            };
             mx::XmlWriteOptions writeOptions;
-            writeOptions.writeXIncludeEnable = true;
-            writeOptions.elementPredicate = skipXincludes;
+            writeOptions.elementPredicate = getElementPredicate();
             mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
 
             // Update material file name
@@ -942,6 +941,22 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _envSampleCount = MIN_ENV_SAMPLES * (int) std::pow(4, index);
     });
 
+    ng::Label* translationLabel = new ng::Label(advancedPopup, "Translation Options (T)");
+    translationLabel->setFontSize(20);
+    translationLabel->setFont("sans-bold");
+
+    ng::Widget* targetShaderGroup = new ng::Widget(advancedPopup);
+    targetShaderGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(targetShaderGroup, "Target Shader");
+    ng::TextBox* targetShaderBox = new ng::TextBox(targetShaderGroup, _targetShader);
+    targetShaderBox->setCallback([this](const std::string& choice)
+    {
+        _targetShader = choice;
+        return true;
+    });
+    targetShaderBox->setFontSize(16);
+    targetShaderBox->setEditable(true);
+
     ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options (B)");
     textureLabel->setFontSize(20);
     textureLabel->setFont("sans-bold");
@@ -960,29 +975,11 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _bakeAverage = enable;
     });
 
-    ng::CheckBox* bakeOptimized = new ng::CheckBox(advancedPopup, "Optimize Baked Materials");
+    ng::CheckBox* bakeOptimized = new ng::CheckBox(advancedPopup, "Optimize Baked Constants");
     bakeOptimized->setChecked(_bakeOptimize);
     bakeOptimized->setCallback([this](bool enable)
     {
         _bakeOptimize = enable;
-    });
-
-    Widget* textureResGroup = new Widget(advancedPopup);
-    textureResGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    new ng::Label(textureResGroup, "Texture Res:");
-    mx::StringVec textureResOptions;
-    for (int i = MIN_TEXTURE_RES; i <= MAX_TEXTURE_RES; i *= 2)
-    {
-        mProcessEvents = false;
-        textureResOptions.push_back(std::to_string(i));
-        mProcessEvents = true;
-    }
-    ng::ComboBox* textureResBox = new ng::ComboBox(textureResGroup, textureResOptions);
-    textureResBox->setChevronIcon(-1);
-    textureResBox->setSelectedIndex((int)std::log2(DEFAULT_TEXTURE_RES / MIN_TEXTURE_RES));
-    textureResBox->setCallback([this](int index)
-    {
-        _bakeTextureRes = MIN_TEXTURE_RES * (int) std::pow(2, index);
     });
 
     ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Render Options (W)");
@@ -1225,10 +1222,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             mx::NodePtr node = elem->asA<mx::Node>();
             if (node && node->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(node, mx::SURFACE_SHADER_TYPE_STRING);
+                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(node);
                 if (!shaderNodes.empty())
                 {
-                    renderableElem = *shaderNodes.begin();
+                    renderableElem = shaderNodes[0];
                 }
                 materialNodes.push_back(node);
             }
@@ -1544,6 +1541,30 @@ void Viewer::saveDotFiles()
     }
 }
 
+mx::DocumentPtr Viewer::translateMaterial()
+{
+    MaterialPtr material = getSelectedMaterial();
+    mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
+    if (!doc)
+    {
+        return nullptr;
+    }
+
+    mx::DocumentPtr translatedDoc = doc->copy();
+    mx::ShaderTranslatorPtr translator = mx::ShaderTranslator::create();
+    try
+    {
+        translator->translateAllMaterials(translatedDoc, _targetShader);
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to translate material", e.what());
+        return nullptr;
+    }
+
+    return translatedDoc;
+}
+
 void Viewer::initContext(mx::GenContext& context)
 {
     // Initialize search paths.
@@ -1730,6 +1751,25 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             }
             _wedgeRequested = true;
         }
+    }
+
+    // Request shader translation for the current material.
+    if (key == GLFW_KEY_T && action == GLFW_PRESS)
+    {
+        mx::DocumentPtr translatedDoc = translateMaterial();
+        if (translatedDoc)
+        {
+            mx::FilePath translatedFilename = getBaseOutputPath();
+            translatedFilename = translatedFilename.asString() + "_" + _targetShader;
+            translatedFilename.addExtension(mx::MTLX_EXTENSION);
+
+            mx::XmlWriteOptions writeOptions;
+            writeOptions.elementPredicate = getElementPredicate();
+            mx::writeToXmlFile(translatedDoc, translatedFilename, &writeOptions);
+
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved translated material: ", translatedFilename);
+        }
+        return true;
     }
 
     // Request a bake of the current material.
@@ -2072,20 +2112,30 @@ mx::ImagePtr Viewer::renderWedge()
 void Viewer::bakeTextures()
 {
     MaterialPtr material = getSelectedMaterial();
-    mx::DocumentPtr doc = material->getDocument();
+    mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
     if (!doc)
     {
         return;
     }
 
     {
+        // Compute baking resolution.
+        mx::ImageVec imageVec = _imageHandler->getReferencedImages(doc);
+        auto maxImageSize = mx::getMaxDimensions(imageVec);
+        unsigned int bakeWidth = std::max(maxImageSize.first, (unsigned int) 4);
+        unsigned int bakeHeight = std::max(maxImageSize.second, (unsigned int) 4);
+
         // Construct a texture baker.
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
-        mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
+        mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
         baker->setupUnitSystem(_stdLib);
         baker->setDistanceUnit(_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
+
+        // Assign our existing image handler, releasing any existing render resources for cached images.
+        _imageHandler->releaseRenderResources();
+        baker->setImageHandler(_imageHandler);
 
         // Extend the image search path to include the source material folder.
         mx::FilePath materialFilename = mx::FilePath(doc->getSourceUri());
@@ -2101,6 +2151,9 @@ void Viewer::bakeTextures()
         {
             std::cerr << "Error in texture baking: " << e.what() << std::endl;
         }
+
+        // Release any render resources generated by the baking process.
+        _imageHandler->releaseRenderResources();
     }
 
     // After the baker has been destructed, restore state for scene rendering.
@@ -2414,7 +2467,7 @@ void Viewer::updateShadowMap()
         mx::MeshPartitionPtr geom = assignment.first;
         _shadowMaterial->drawPartition(geom);
     }
-    _shadowMap = framebuffer->createColorImage();
+    _shadowMap = framebuffer->getColorImage();
 
     // Apply Gaussian blurring.
     for (unsigned int i = 0; i < _shadowSoftness; i++)
@@ -2433,7 +2486,7 @@ void Viewer::updateShadowMap()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         renderScreenSpaceQuad(_shadowBlurMaterial);
         _imageHandler->releaseRenderResources(_shadowMap);
-        _shadowMap = framebuffer->createColorImage();
+        _shadowMap = framebuffer->getColorImage();
     }
 
     // Restore state for scene rendering.
@@ -2487,7 +2540,7 @@ void Viewer::updateAlbedoTable()
 
     // Store albedo table image.
     _imageHandler->releaseRenderResources(_lightHandler->getAlbedoTable());
-    _lightHandler->setAlbedoTable(framebuffer->createColorImage());
+    _lightHandler->setAlbedoTable(framebuffer->getColorImage());
     if (_saveGeneratedLights)
     {
         _imageHandler->saveImage("AlbedoTable.exr", _lightHandler->getAlbedoTable());

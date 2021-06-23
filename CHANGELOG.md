@@ -1,15 +1,47 @@
 # Change Log
 
-## [1.38.1] Development
+## [1.38.2_adsk] - Development
 
-#### Added
- - Unlit surface shader definitions
- - Look / Lookgroup management (in progress)
+- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (wip)
+- OCIO-v2 support (wip)
+- SPIR-V support (wip)
+- Token support (wip)
 
-#### Changed:
- - Runtime "single stage" data model / refactoring (in progress)
- - Fix for Arnold conductor_bsdf implemetnation signature.
- - Patch to allow "context" keyword for shaderrefs during upgrade path. Unsupported and will be removed.
+## [1.38.1_adsk] - 2021-06-21
+
+### Added
+- Add support for local for numierc Value types.
+- Addition of new unlit shader surface shader to standard pbr library.
+- Add in new baking option to allow for baking to image using non-normalized texture coordinates. Required sometime for real-world unit mapping.
+- Allow for "gamma" shader to be used instead of sRGB buffers. This allows for some color output transformation without relying on hardware SRGB buffers which are not support in MESA configurations. Gamma control is part of MaterialXView.
+- Enable arm64 for macOS Xcode 12 CI build.
+
+### Changed
+- Enhance hardware transparency check including handling when transparency is defined by an graph definition.
+- Add token resolving to generic string resolvers. Fix code generation to use resolved values.
+- Fixes so that derived targets can use units and color management properly. (Was not finding base class targets)
+- Add requiresLighting() to shader generators to allow derived class to use this logic for custom direct lighting.
+- Fixes to node definition "flattening" to take into account upstream nodegraphs, baking from surface shaders and handling baking when multiple children within a nodegraph are flattened.
+- Minor MDL fix for texture pathing.
+- Update unit test configuration to have more modular sets of options texture baing and wedging.
+
+## [1.38.1] - 2021-06-18
+
+### Added
+- Added support for shared library builds on Windows.
+- Added support for 16-bit unsigned integer images in MaterialXRender.
+- Added support for compound nodegraphs with user interfaces in shader and UI generation.
+- Added headers for newly proposed MaterialX closures in OSL.
+- Added a shader translation command to the viewer, assigned to the 'T' hotkey.
+
+### Changed
+- Improved the memory efficiency of texture baking operations.
+- Improved the compatibility of generated MDL code with Omniverse.
+- Refactored image resolution logic into new methods ImageHandler\:\:getReferencedImages and MaterialX\:\:getMaxDimensions.
+- Moved the viewer hotkey for GLSL code generation from 'S' to 'G' for consistency with other languages.
+
+### Fixed
+- Fixed the Color3.asTuple and Color4.asTuple methods in Python
 
 ## [1.38.0_adsk](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk)  
  - 2021-03-12 : Autodesk 1.38 release
@@ -21,7 +53,7 @@
 
 Updated the MaterialX library to the v1.38 specification.  See the [v1.38 changelist](http://www.materialx.org/assets/MaterialX.v1.38.Changelist.pdf) for full details.
 
-#### Added
+### Added
 - Added support for the generalized 'layer' node in Physically Based Shading.
 - Added user controls for texture baking and wedge rendering in the [MaterialX Viewer](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
 - Added support for Nvidia's Material Definition Language (MDL) in MaterialX code generation.
@@ -30,7 +62,7 @@ Updated the MaterialX library to the v1.38 specification.  See the [v1.38 change
 - Added viewer rendering to cloud-based tests in GitHub Actions.
 - Added support for Xcode 12.
 
-#### Changed
+### Changed
 - Updated the set of standard nodes to match the v1.38 specification, including significant improvements to the [Physically Based Shading](http://www.materialx.org/assets/MaterialX.v1.38.PBRSpec.pdf) nodes.
 - Replaced specialized Material elements with material nodes, allowing more flexible material definitions and more consistent traversal.
 - Unified the Input and Parameter element classes, simplifying the MaterialX API and client code.

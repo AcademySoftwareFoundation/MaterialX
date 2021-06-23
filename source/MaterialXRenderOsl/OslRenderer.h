@@ -91,15 +91,8 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     /// @name Utilities
     /// @{
 
-    /// Capture the current contents of rendering to an image. Note that this method
-    /// does not perform any action as render() produces images as part of it's
-    /// execution.
-    ImagePtr captureImage() override;
-
-    /// Save the current contents of rendering to disk. Note that this method
-    /// does not perform any action as render() produces images as part if it's
-    /// execution.
-    void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) override;
+    /// Capture the current rendered output as an image.
+    ImagePtr captureImage(ImagePtr image = nullptr) override;
 
     /// @}
     /// @name Compilation settings

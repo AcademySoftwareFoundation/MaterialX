@@ -185,10 +185,13 @@ void GLFramebuffer::unbind()
     glDrawBuffer(GL_NONE);
 }
 
-ImagePtr GLFramebuffer::createColorImage()
+ImagePtr GLFramebuffer::getColorImage(ImagePtr image)
 {
-    ImagePtr image = Image::create(_width, _height, _channelCount, _baseType);
-    image->createResourceBuffer();
+    if (!image)
+    {
+        image = Image::create(_width, _height, _channelCount, _baseType);
+        image->createResourceBuffer();
+    }
 
     int glType, glFormat, glInternalFormat;
     GLTextureHandler::mapTextureFormatToGL(_baseType, _channelCount, false, glType, glFormat, glInternalFormat);

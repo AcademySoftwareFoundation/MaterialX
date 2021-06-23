@@ -181,7 +181,7 @@ void GlslRenderer::setSize(unsigned int width, unsigned int height)
         }
         else
         {
-            _frameBuffer = GLFramebuffer::create(width, height, 4, Image::BaseType::UINT8);
+            _frameBuffer = GLFramebuffer::create(width, height, 4, _baseType);
         }
         _width = width;
         _height = height;
@@ -290,7 +290,7 @@ void GlslRenderer::render()
     _frameBuffer->unbind();
 }
 
-ImagePtr GlslRenderer::captureImage()
+ImagePtr GlslRenderer::captureImage(ImagePtr image)
 {
     StringVec errors;
     const string errorType("GLSL image capture error.");
@@ -301,44 +301,7 @@ ImagePtr GlslRenderer::captureImage()
         throw ExceptionShaderRenderError(errorType, errors);
     }
 
-    return _frameBuffer->createColorImage();
-}
-
-void GlslRenderer::saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip)
-{
-    StringVec errors;
-    const string errorType("GLSL image save error.");
-
-    if (!_imageHandler->saveImage(filePath, image, verticalFlip))
-    {
-        errors.push_back("Failed to save to file:" + filePath.asString());
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-}
-
-ImageVec GlslRenderer::getReferencedImages(const ShaderPtr& /*shader*/)
-{
-    ImageVec imageList;
-    const GlslProgram::InputMap& uniformList = _program->getUniformsList();
-    for (const auto& uniform : uniformList)
-    {
-        GLenum uniformType = uniform.second->gltype;
-        GLint uniformLocation = uniform.second->location;
-        if (uniformLocation >= 0 && uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
-        {
-            const string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
-            if (fileName != HW::ENV_RADIANCE &&
-                fileName != HW::ENV_IRRADIANCE)
-            {
-                ImagePtr image = _imageHandler->acquireImage(fileName);
-                if (image)
-                {
-                    imageList.push_back(image);
-                }
-            }
-        }
-    }
-    return imageList;
+    return _frameBuffer->getColorImage(image);
 }
 
 void GlslRenderer::drawScreenSpaceQuad(const Vector2& uvMin, const Vector2& uvMax)

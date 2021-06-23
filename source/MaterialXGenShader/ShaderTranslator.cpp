@@ -6,7 +6,6 @@
 #include <MaterialXGenShader/ShaderTranslator.h>
 
 #include <MaterialXCore/Material.h>
-#include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
@@ -14,10 +13,6 @@ namespace MaterialX
 //
 // ShaderTranslator methods
 //
-
-ShaderTranslator::ShaderTranslator()
-{
-}
 
 void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr translationNodeDef)
 {
@@ -27,34 +22,45 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
     {
         if (translationNodeDef->getInput(shaderInput->getName()))
         {
-            OutputPtr output = shaderInput->getConnectedOutput();
-            if (output)
+            InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
+
+            OutputPtr connectedOutput = shaderInput->getConnectedOutput();
+            if (connectedOutput)
             {
-                InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
-                input->setConnectedNode(_graph->getNode(output->getNodeName()));
-                if (!shaderInput->getColorSpace().empty())
+                NodePtr connectedNode = connectedOutput->getConnectedNode();
+
+                // Nodes with world-space outputs are skipped, with translation being applied to
+                // the node directly upstream.
+                NodePtr worldSpaceNode = connectsToWorldSpaceNode(connectedOutput);
+                if (worldSpaceNode)
                 {
-                    input->setColorSpace(shaderInput->getColorSpace());
+                    NodePtr upstreamNode = worldSpaceNode->getConnectedNode("in");
+                    if (upstreamNode)
+                    {
+                        connectedNode = upstreamNode;
+                    }
                 }
-                origOutputs.insert(output);
+
+                input->setConnectedNode(connectedNode);
+                origOutputs.insert(connectedOutput);
             }
-            else if (!shaderInput->getValueString().empty())
+            else if (shaderInput->hasValueString())
             { 
-                InputPtr input = _translationNode->addInput(shaderInput->getName(), shaderInput->getType());
                 input->setValueString(shaderInput->getValueString());
-                if (!shaderInput->getColorSpace().empty())
-                {
-                    input->setColorSpace(shaderInput->getColorSpace());
-                }
-                if (!shaderInput->getUnit().empty())
-                {
-                    input->setUnit(shaderInput->getUnit());
-                    input->setUnitType(shaderInput->getUnitType());
-                }
             }
             else
             {
-                throw Exception("No associated output with " + shaderInput->getName());
+                throw Exception("Shader input has no associated output or value " + shaderInput->getName());
+            }
+
+            if (shaderInput->hasColorSpace())
+            {
+                input->setColorSpace(shaderInput->getColorSpace());
+            }
+            if (shaderInput->hasUnit())
+            {
+                input->setUnit(shaderInput->getUnit());
+                input->setUnitType(shaderInput->getUnitType());
             }
         }
     }
@@ -104,16 +110,14 @@ void ShaderTranslator::connectTranslationOutputs(NodePtr shader)
             if (nodeInput && nodeInput->hasInterfaceName())
             {
                 InputPtr interfaceInput = _translationNode->getInput(nodeInput->getInterfaceName());
-                if (interfaceInput)
+                NodePtr sourceNode = interfaceInput ? interfaceInput->getConnectedNode() : nullptr;
+                if (!sourceNode)
                 {
-                    NodePtr sourceNode = interfaceInput->getConnectedNode();
-                    if (sourceNode)
-                    {
-                        translatedStreamNode = _graph->addNode(worldSpaceNode->getCategory(), worldSpaceNode->getName(), worldSpaceNode->getType());
-                        translatedStreamNode->setConnectedNode("in", sourceNode);
-                        translatedStreamOutput = EMPTY_STRING;
-                    }
+                    continue;
                 }
+                translatedStreamNode = _graph->addNode(worldSpaceNode->getCategory(), worldSpaceNode->getName(), worldSpaceNode->getType());
+                translatedStreamNode->setConnectedNode("in", sourceNode);
+                translatedStreamOutput = EMPTY_STRING;
             }
         }
 
@@ -193,8 +197,7 @@ void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destCategor
         {
             continue;
         }
-        std::unordered_set<NodePtr> shaderNodes = getShaderNodes(materialNode);
-        for (auto shaderNode : shaderNodes)
+        for (NodePtr shaderNode : getShaderNodes(materialNode))
         {
             translateShader(shaderNode, destCategory);
         }
