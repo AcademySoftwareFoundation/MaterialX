@@ -1,13 +1,13 @@
 # Change Log
 
-## [1.38.2_adsk] - Development
+## [1.38.2_adsk] - In Development for 1.38.2
 
 - Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (wip)
 - OCIO-v2 support (wip)
 - SPIR-V support (wip)
 - Token support (wip)
 
-## [1.38.1_adsk] - 2021-06-21
+## [1.38.1_adsk] - 2021-06-23
 
 ### Added
 - Add support for local for numierc Value types.
