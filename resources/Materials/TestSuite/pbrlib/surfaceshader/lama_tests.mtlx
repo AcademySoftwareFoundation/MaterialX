@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.38" colorspace="acescg" xmlns:xi="http://www.w3.org/2001/XInclude">
-    <xi:include href="LamaAdd.mtlx" />
-    <xi:include href="LamaMix.mtlx" />
-    <xi:include href="LamaLayer.mtlx" />
-    <xi:include href="LamaConductor.mtlx" />
-    <xi:include href="LamaDielectric.mtlx" />
-    <xi:include href="LamaDiffuse.mtlx" />
-    <xi:include href="LamaEmission.mtlx" />
-    <xi:include href="LamaSheen.mtlx" />
-    <xi:include href="LamaSSS.mtlx" />
-    <xi:include href="LamaTranslucent.mtlx" />
-
+<materialx version="1.38" colorspace="acescg">
     <!-- LamaConductor --> 
 
     <LamaConductor name="LamaConductor" type="BSDF">
