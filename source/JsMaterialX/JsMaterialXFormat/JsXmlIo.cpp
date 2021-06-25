@@ -27,7 +27,7 @@ EMSCRIPTEN_BINDINGS(xmlio)
       .property("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
       .property("elementPredicate", &mx::XmlWriteOptions::elementPredicate);
 
-  BIND_FUNC_RAW_PTR("readFromXmlString", mx::readFromXmlString, 2, 3, mx::DocumentPtr , const std::string& , const mx::XmlReadOptions*);
+  BIND_FUNC_RAW_PTR("readFromXmlString", mx::readFromXmlString, 2, 4, mx::DocumentPtr , const std::string& , const mx::FileSearchPath&, const mx::XmlReadOptions*);
   BIND_FUNC_RAW_PTR("writeToXmlFile", mx::writeToXmlFile, 2, 3, mx::DocumentPtr, const mx::FilePath&, const mx::XmlWriteOptions *);
   BIND_FUNC_RAW_PTR("writeToXmlString", mx::writeToXmlString, 1, 2, mx::DocumentPtr, const mx::XmlWriteOptions *);
   ems::function("prependXInclude", &mx::prependXInclude);

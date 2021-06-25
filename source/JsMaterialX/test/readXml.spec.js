@@ -80,6 +80,7 @@ it('Read XML', async () => {
     mtlxStrs = getMtlxStrings(filenames, '../../../resources/Materials/Examples/Syntax');
     mx.readFromXmlString(doc, mtlxStrs[0]);
     const readOptions = new mx.XmlReadOptions();
-    mx.readFromXmlString(doc, mtlxStrs[0], readOptions);
+    const path = '';
+    mx.readFromXmlString(doc, mtlxStrs[0], path, readOptions);
     expect(doc.validate()).to.be.true;    
 });
