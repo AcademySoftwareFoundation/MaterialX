@@ -33,9 +33,6 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     _colorTexture(0),
     _depthTexture(0)
 {
-    StringVec errors;
-    const string errorType("OpenGL target creation failure.");
-
     if (!glGenFramebuffers)
     {
         glewInit();
@@ -76,40 +73,39 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
         glDeleteFramebuffers(1, &_frameBuffer);
         _frameBuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
 
-        string errorMessage("Frame buffer object setup failed: ");
+        string errorMessage;
         switch (status)
         {
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
             break;
         case GL_FRAMEBUFFER_UNSUPPORTED:
-            errorMessage += "GL_FRAMEBUFFER_UNSUPPORTED";
+            errorMessage = "GL_FRAMEBUFFER_UNSUPPORTED";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
             break;
         case GL_FRAMEBUFFER_UNDEFINED:
-            errorMessage += "GL_FRAMEBUFFER_UNDEFINED";
+            errorMessage = "GL_FRAMEBUFFER_UNDEFINED";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
             break;
         default:
-            errorMessage += std::to_string(status);
+            errorMessage = std::to_string(status);
             break;
         }
 
-        errors.push_back(errorMessage);
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Frame buffer object setup failed: " + errorMessage);
     }
 
     // Unbind on cleanup
@@ -158,9 +154,7 @@ void GLFramebuffer::bind()
 {
     if (!_frameBuffer)
     {
-        StringVec errors;
-        errors.push_back("No framebuffer exists to bind.");
-        throw ExceptionShaderRenderError("OpenGL target bind failure.", errors);
+        throw ExceptionRenderError("No framebuffer exists to bind");
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
