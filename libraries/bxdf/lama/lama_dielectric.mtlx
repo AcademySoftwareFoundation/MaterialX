@@ -84,6 +84,10 @@
       <input name="in1" type="vector2" nodename="roughness_linear" />
       <input name="in2" type="float" value="2" />
     </power>
+    <max name="roughness_anisotropic_squared_clamped" type="vector2">
+      <input name="in1" type="vector2" nodename="roughness_anisotropic_squared" />
+      <input name="in2" type="float" value="0.000001" />
+    </max>
 
     <!-- Tangent -->
     <multiply name="tangent_rotate_degree" type="float">
@@ -125,7 +129,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="transmissionTint" />
       <input name="ior" type="float" nodename="relative_ior" />
-      <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared" />
+      <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
       <input name="distribution" type="string" value="ggx" />
@@ -143,7 +147,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="reflectionTint" />
       <input name="ior" type="float" nodename="relative_ior" />
-      <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared" />
+      <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
       <input name="distribution" type="string" value="ggx" />
