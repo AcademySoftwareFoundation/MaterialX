@@ -145,7 +145,7 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
 
         initialized = true;
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {
@@ -676,7 +676,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 validated = true;
             }
-            catch (mx::ExceptionShaderRenderError& e)
+            catch (mx::ExceptionRenderError& e)
             {
                 // Always dump shader stages on error
                 std::ofstream file;

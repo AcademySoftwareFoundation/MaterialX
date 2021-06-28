@@ -144,26 +144,26 @@ class MX_RENDER_API ShaderRenderer
     ViewHandlerPtr _viewHandler;
 };
 
-/// @class ExceptionShaderRenderError
-/// An exception that is thrown when shader rendering fails.
-/// An error log of shader errors is cached as part of the exception.
-/// For example, if shader compilation fails, then a list of compilation errors is cached.
-class MX_RENDER_API ExceptionShaderRenderError : public Exception
+/// @class ExceptionRenderError
+/// An exception that is thrown when a rendering operation fails.
+/// Optionally stores an additional error log, which can be used to
+/// store and retrieve shader compilation errors.
+class MX_RENDER_API ExceptionRenderError : public Exception
 {
   public:
-    ExceptionShaderRenderError(const string& msg, const StringVec& errorList) :
+    ExceptionRenderError(const string& msg, const StringVec& errorLog = StringVec()) :
         Exception(msg),
-        _errorLog(errorList)
+        _errorLog(errorLog)
     {
     }
 
-    ExceptionShaderRenderError(const ExceptionShaderRenderError& e) :
+    ExceptionRenderError(const ExceptionRenderError& e) :
         Exception(e),
         _errorLog(e._errorLog)
     {
     }
 
-    ExceptionShaderRenderError& operator=(const ExceptionShaderRenderError& e)         
+    ExceptionRenderError& operator=(const ExceptionRenderError& e)         
     {
         Exception::operator=(e);
         _errorLog = e._errorLog;
