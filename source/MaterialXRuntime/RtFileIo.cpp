@@ -1730,6 +1730,7 @@ void RtFileIo::exportDocument(std::ostream& stream, const RtExportOptions* optio
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
         xmlExportOptions.resolvedTexturePath = options->resolvedTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
+        xmlExportOptions.exportResolvers = options->exportResolvers;
     }
     exportToXmlStream(document, stream, &xmlExportOptions);
 }
@@ -1750,6 +1751,7 @@ void RtFileIo::exportDocument(const FilePath& documentPath, const RtExportOption
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
         xmlExportOptions.resolvedTexturePath = options->resolvedTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
+        xmlExportOptions.exportResolvers = options->exportResolvers;
     }
     exportToXmlFile(document, documentPath, &xmlExportOptions);
 }

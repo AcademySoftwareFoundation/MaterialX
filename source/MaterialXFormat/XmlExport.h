@@ -11,6 +11,14 @@
 namespace MaterialX
 {
 
+class ExportResolver
+{
+  public:
+    virtual void resolve(DocumentPtr document) = 0;
+};
+
+using ExportResolverPtr = shared_ptr<ExportResolver>;
+
 /// @class XmlExportOptions
 /// A set of options for controlling the behavior of XML export functions.
 class MX_FORMAT_API XmlExportOptions : public XmlWriteOptions
@@ -33,6 +41,9 @@ class MX_FORMAT_API XmlExportOptions : public XmlWriteOptions
 
     /// String resolver applied during flattening filenames
     StringResolverPtr stringResolver;
+
+    /// A vector of resolvers
+    std::vector<ExportResolverPtr> exportResolvers;
 };
 
 /// @name Export Functions
