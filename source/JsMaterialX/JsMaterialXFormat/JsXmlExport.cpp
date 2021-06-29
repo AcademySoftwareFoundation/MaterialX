@@ -7,7 +7,7 @@
 #include "./StrContainerTypeRegistration.h"
 #include <MaterialXFormat/XmlExport.h>
 
-#include <emscripten.h>
+#include <emscripten/bind.h>
 
 namespace ems = emscripten;
 namespace mx = MaterialX;

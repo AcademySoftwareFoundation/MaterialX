@@ -1,20 +1,246 @@
-import * as path from 'path';
 import Module from './_build/JsMaterialX.js';
 import { expect } from 'chai';
+import { getMtlxStrings } from './testHelpers';
 
 describe('XmlIo', () => {
-  let mx;
-  before(async () => {
-      mx = await Module();
-  });
+    let mx;
 
-  it('should prepend include tag', () => {
-    const doc = mx.createDocument();
-    const includePath = "SomePath";
-    const writeOptions = new mx.XmlWriteOptions();
-    mx.prependXInclude(doc, includePath);
-    const xmlString = mx.writeToXmlString(doc, writeOptions);
-    expect(xmlString).to.include(includePath);
-  });
+    // These should be relative to cwd
+    const includeTestPath = 'data/includes';
+    const libraryPath = '../../../libraries/stdlib';
+    const examplesPath = '../../../resources/Materials/Examples/Syntax';
+    // TODO: Is there a better way to get these filenames than hardcoding them here?
+    // The C++ tests load all files in the given directories. This would work in Node, but not in the browser.
+    // Should we use a pre-test script that fetches the files and makes them available somehow?
+    const libraryFilenames = ['stdlib_defs.mtlx', 'stdlib_ng.mtlx'];
+    const examplesWithIncludes = [
+        'Looks.mtlx',
+        'PaintMaterials.mtlx',
+        'PostShaderComposite.mtlx',
+    ];
+    const examplesWithoutIncludes = [
+        'CustomNode.mtlx',
+        'GeomInfos.mtlx',
+        'MaterialBasic.mtlx',
+        'MultiOutput.mtlx',
+        'NodeGraphs.mtlx',
+        'PreFlattenedGraph.mtlx',
+        'PreShaderComposite.mtlx',
+        'SimpleSrf.mtlx',
+        'SubGraphs.mtlx',
+    ];
+    const exampleFilenames = examplesWithIncludes.concat(examplesWithoutIncludes);
+
+    async function readStdLibrary(asString = false) {
+        const libs = [];
+        let iterable = libraryFilenames;
+        if (asString) {
+            const libraryMtlxStrings = getMtlxStrings(libraryFilenames, libraryPath);
+            iterable = libraryMtlxStrings;
+        }
+        for (let file of iterable) {
+            const lib = mx.createDocument();
+            if (asString) {
+                await mx.readFromXmlString(lib, file, libraryPath);
+            } else {
+                await mx.readFromXmlFile(lib, file, libraryPath);
+            }
+            libs.push(lib);
+        };
+        return libs;
+    }
+
+    async function readAndValidateExamples(examples, libraries, readFunc, searchPath = undefined) {
+        for (let file of examples) {
+            const doc = mx.createDocument();
+            await readFunc(doc, file, searchPath);
+            // Import stdlib into the current document and validate it.
+            for (let lib of libraries) {
+                doc.importLibrary(lib);
+            }
+            expect(doc.validate()).to.be.true;
+
+            // Make sure the document does actually contain something.
+            let valueElementCount = 0;
+            const treeIter = doc.traverseTree();
+            for(const elem of treeIter) {
+                if (elem instanceof mx.ValueElement) {
+                    valueElementCount++;
+                }
+            }
+            expect(valueElementCount).to.be.greaterThan(0);
+        };
+    }
+
+    before(async () => {
+        mx = await Module();
+    });
+
+    it('Read XML without includes from file', async () => {
+        // Read the standard library
+        const libs = await readStdLibrary(false);
+
+        // Read and validate the example documents.
+        await readAndValidateExamples(examplesWithoutIncludes, libs,
+            async (document, file, sp) => {
+                await mx.readFromXmlFile(document, file, sp);
+            }, examplesPath);
+
+        // Read the same document twice, and verify that duplicate elements
+        // are skipped.
+        const doc = mx.createDocument();
+        const filename = 'CustomNode.mtlx';
+        await mx.readFromXmlFile(doc, filename, examplesPath);
+        const copy = doc.copy();
+        await mx.readFromXmlFile(doc, filename, examplesPath);
+        expect(doc.validate()).to.be.true;
+        expect(copy.equals(doc)).to.be.true;
+    }).timeout(8000);
+
+    it('Read XML without includes from string', async () => {
+        // Read the standard library
+        const libs = await readStdLibrary(true);
+
+        // Read and validate each example document.
+        const examplesWithoutIncludesStrings = getMtlxStrings(examplesWithoutIncludes, examplesPath);
+        await readAndValidateExamples(examplesWithoutIncludesStrings, libs,
+            async (document, file) => {
+                await mx.readFromXmlString(document, file);
+            });
+
+        // Read the same document twice, and verify that duplicate elements
+        // are skipped.
+        const doc = mx.createDocument();
+        const file = examplesWithoutIncludesStrings[examplesWithoutIncludes.indexOf('CustomNode.mtlx')];
+        await mx.readFromXmlString(doc, file);
+        const copy = doc.copy();
+        await mx.readFromXmlString(doc, file);
+        expect(doc.validate()).to.be.true;
+        expect(copy.equals(doc)).to.be.true;
+    }).timeout(8000);
+
+    it('Read XML with includes', async () => {
+        const searchPath = libraryPath + ';' + examplesPath;
+
+        // Read the standard library
+        const libs = await readStdLibrary(false);
+
+        // Read and validate the example documents from files
+        await readAndValidateExamples(examplesWithIncludes, libs,
+            async (document, file, sp) => {
+                await mx.readFromXmlFile(document, file, sp);
+            }, searchPath);
+
+        // Read and validate the example documents as strings
+        const examplesWithIncludesStrings = getMtlxStrings(examplesWithIncludes, searchPath);
+        await readAndValidateExamples(examplesWithIncludesStrings, libs,
+            async (document, file, sp) => {
+                expect(async () => await mx.readFromXmlString(document, file)).to.throw;
+                await mx.readFromXmlString(document, file, sp);
+            }, searchPath);
+    }).timeout(8000);
+
+    it('Read XML with recursive includes', async () => {
+        const doc = mx.createDocument();
+        await mx.readFromXmlFile(doc, includeTestPath + '/root.mtlx');
+        expect(doc.getChild('paint_semigloss')).to.exist;
+        expect(doc.validate()).to.be.true;
+    });
+
+    it('Locate XML includes via search path', async () => {
+        const searchPath = includeTestPath + ';' + includeTestPath + '/folder';
+        const filename = 'non_relative_includes.mtlx';
+        const doc = mx.createDocument();
+        expect(async () => await mx.readFromXmlFile(doc, filename, includeTestPath)).to.throw;
+        await mx.readFromXmlFile(doc, filename, searchPath);
+        expect(doc.getChild('paint_semigloss')).to.exist;
+        expect(doc.validate()).to.be.true;
+
+        const doc2 = mx.createDocument();
+        const mtlxString = getMtlxStrings([filename], includeTestPath);
+        expect(async () => await mx.readFromXmlString(doc2, mtlxString[0])).to.throw;
+        await mx.readFromXmlString(doc2, mtlxString[0], searchPath);
+        expect(doc2.getChild('paint_semigloss')).to.exist;
+        expect(doc2.validate()).to.be.true;
+        expect(doc2.equals(doc)).to.be.true;
+    });
+
+    it('Locate XML includes via environment variable', async () => {
+        const searchPath = includeTestPath + ';' + includeTestPath + '/folder';
+        const filename = 'non_relative_includes.mtlx';
+
+        const doc = mx.createDocument();
+        expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/' + filename)).to.throw;
+        mx.setEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR, searchPath);
+        await mx.readFromXmlFile(doc, filename);
+        mx.removeEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR);
+        expect(doc.getChild('paint_semigloss')).to.exist;
+        expect(doc.validate()).to.be.true;
+
+        const doc2 = mx.createDocument();
+        const mtlxString = getMtlxStrings([filename], includeTestPath);
+        expect(async () => await mx.readFromXmlString(doc2, mtlxString[0])).to.throw;
+        mx.setEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR, searchPath);
+        await mx.readFromXmlString(doc2, mtlxString[0]);
+        mx.removeEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR);
+        expect(doc2.getChild('paint_semigloss')).to.exist;
+        expect(doc2.validate()).to.be.true;
+        expect(doc2.equals(doc)).to.be.true;
+    });
+
+    it('Locate XML includes via absolute search paths', async () => {
+        let absolutePath;
+        if (typeof window === 'object') {
+            // We're in the browser
+            const cwd = window.location.origin + window.location.pathname;
+            absolutePath = cwd + '/' + includeTestPath;
+        } else if (typeof process === 'object') {
+            // We're in Node
+            const nodePath = require('path');
+            absolutePath = nodePath.resolve(includeTestPath);
+        }
+        const doc = mx.createDocument();
+        await mx.readFromXmlFile(doc, 'root.mtlx', absolutePath);
+    });
+
+    it('Detect XML include cycles', async () => {
+        const doc = mx.createDocument();
+        expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx')).to.throw;
+    });
+
+    it('Disabling XML includes', async () => {
+        const doc = mx.createDocument();
+        const readOptions = new mx.XmlReadOptions();
+        readOptions.readXIncludes = false;
+        expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx', readOptions)).to.not.throw;
+    });
+
+    it('Write to XML string', async () => {
+        // Read all example documents and write them to an XML string
+        const searchPath = libraryPath + ';' + examplesPath;
+        for (let filename of exampleFilenames) {
+            const doc = mx.createDocument();
+            await mx.readFromXmlFile(doc, filename, searchPath);
+
+            // Serialize to XML.
+            const writeOptions = new mx.XmlWriteOptions();
+            writeOptions.writeXIncludeEnable = false;
+            const xmlString = mx.writeToXmlString(doc, writeOptions);
+
+            // Verify that the serialized document is identical.
+            const writtenDoc = mx.createDocument();
+            await mx.readFromXmlString(writtenDoc, xmlString);
+            expect(writtenDoc).to.eql(doc);
+        };
+    });
+
+    it('Prepend include tag', () => {
+        const doc = mx.createDocument();
+        const includePath = "SomePath";
+        const writeOptions = new mx.XmlWriteOptions();
+        mx.prependXInclude(doc, includePath);
+        const xmlString = mx.writeToXmlString(doc, writeOptions);
+        expect(xmlString).to.include(includePath);
+    });
 });
 

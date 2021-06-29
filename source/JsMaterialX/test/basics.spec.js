@@ -194,4 +194,10 @@ describe('Basics', () => {
         trans2.setItem(0, 0, trans2.getItem(0, 0) + 1);
         expect(trans2.notEquals(trans)).to.be.true;
     });
+
+    it('Environment variables', () => {
+        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('');
+        mx.setEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR, 'test');
+        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('test');
+    })
 });

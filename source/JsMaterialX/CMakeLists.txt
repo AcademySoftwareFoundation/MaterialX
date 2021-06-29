@@ -1,47 +1,50 @@
-set(OUTPUT_CORE ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXCore/)
-set(OUTPUT_FORMAT ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXFormat/)
-set(OUTPUT_LIBS ${PROJECT_BINARY_DIR}/source/)
+set(CORE ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXCore/)
+set(FORMAT ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXFormat/)
 
 set(SOURCE_FOLDER ${CMAKE_SOURCE_DIR}/source)
 
-set(CORE_DEPS ${OUTPUT_CORE}JsTypes.cpp
-    ${OUTPUT_CORE}JsMaterial.cpp
-    ${OUTPUT_CORE}JsUnit.cpp
-    ${OUTPUT_CORE}JsExceptions.cpp
-    ${OUTPUT_CORE}JsUtil.cpp
-    ${OUTPUT_CORE}JsElement.cpp
-    ${OUTPUT_CORE}JsInterface.cpp
-    ${OUTPUT_CORE}JsNode.cpp
-    ${OUTPUT_CORE}JsDefinition.cpp
-    ${OUTPUT_CORE}JsDocument.cpp
-    ${OUTPUT_CORE}JsLook.cpp
-    ${OUTPUT_CORE}JsProperty.cpp
-    ${OUTPUT_CORE}JsGeom.cpp
-    ${OUTPUT_CORE}JsVariant.cpp
-    ${OUTPUT_CORE}JsValue.cpp
-    ${OUTPUT_CORE}JsTraversal.cpp)
+set(CORE_DEPS ${CORE}JsTypes.cpp
+    ${CORE}JsMaterial.cpp
+    ${CORE}JsUnit.cpp
+    ${CORE}JsExceptions.cpp
+    ${CORE}JsUtil.cpp
+    ${CORE}JsElement.cpp
+    ${CORE}JsInterface.cpp
+    ${CORE}JsNode.cpp
+    ${CORE}JsDefinition.cpp
+    ${CORE}JsDocument.cpp
+    ${CORE}JsLook.cpp
+    ${CORE}JsProperty.cpp
+    ${CORE}JsGeom.cpp
+    ${CORE}JsVariant.cpp
+    ${CORE}JsValue.cpp
+    ${CORE}JsTraversal.cpp)
 
 set(FORMAT_DEPS
-    ${OUTPUT_FORMAT}JsUtil.cpp
-    ${OUTPUT_FORMAT}JsXmlIo.cpp
-    ${OUTPUT_FORMAT}JsXmlExport.cpp)
+    ${FORMAT}JsUtil.cpp
+    ${FORMAT}JsXmlIo.cpp
+    ${FORMAT}JsXmlExport.cpp
+    ${FORMAT}JsEnviron.cpp)
 
 # Linker flags
-set(JS_LINK_FLAGS "-I${SOURCE_FOLDER} \
+set(JS_LINK_FLAGS "")
+if (EXTERNAL_LINK_FLAGS)
+    string(APPEND JS_LINK_FLAGS "${EXTERNAL_LINK_FLAGS} ")
+endif()
+
+string(APPEND JS_LINK_FLAGS " -I${SOURCE_FOLDER} \
     -s WASM=1 \
     -s DISABLE_EXCEPTION_CATCHING=0 \
     -s MODULARIZE=1 \
     -s USE_ES6_IMPORT_META=0 \
     -s MEMORY_GROWTH_LINEAR_STEP=32MB \
-    -s 'EXPORTED_RUNTIME_METHODS=[\"FS\"]' \
-    -s ALLOW_MEMORY_GROWTH=1 ")
+    -s ALLOW_MEMORY_GROWTH=1 \
+    -s FORCE_FILESYSTEM=1 ")
 
-# Add the post javascript core files 
-string(APPEND JS_LINK_FLAGS "--post-js ${OUTPUT_CORE}post.js ")
-
-if (EXTERNAL_LINK_FLAGS)
-    string(APPEND JS_LINK_FLAGS "${EXTERNAL_LINK_FLAGS} ")
-endif()
+# Add the post javascript files
+string(APPEND JS_LINK_FLAGS "--post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js \
+ --post-js ${CORE}post.js \
+ --post-js ${FORMAT}post.js ")
 
 # Compiler flags
 set(JS_COMPILE_FLAGS "")

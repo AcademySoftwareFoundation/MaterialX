@@ -167,6 +167,19 @@ try {
 }
 ```
 
+#### Loading MaterialX files
+The bindings expose the `readFromXmlString` and `readFromXmlFile` functions. Their usage is similar to C++ and should work in browsers and NodeJs. Note that these functions are asynchronous in JavaScript, so you need to either `await` them or place depending code in a `.then()` block.
+
+By default, the functions will resolve referenced (i.e. included) documents. This can be disabled by setting the `readOptions.readXIncludes` to `false`:
+```javascript
+const readOptions = new mx.XmlReadOptions();
+readOptions.readXIncludes = false;
+await readFromXmlFile(doc, filename, searchPath, readOptions); // will only read the top-level file, no includes
+```
+Note that the `readXIncludesFunction` option that exists on the C++ read options is not supported in JavaScript.
+
+The `searchPath` is a semicolon-separated list of absolute or relative paths. Relative paths will be evaluated with regards to the current working directory. In case of using absolute search paths in web browsers (i.e. urls), note that urls like `mydomain.com/path` or `localhost/path` might be considered relative paths. To ensure they're used as absolute paths, make them fully formed urls, i.e. have a protocol prefix like `https://`.
+
 ## Maintaining the Bindings
 This section provides some background on binding creation for contributors. In general, we recommed to look at existing bindings for examples.
 
@@ -190,6 +203,18 @@ Generic functions that deal with multiple types cannot be bound directly to Java
 
 ### Array <-> Vector conversion
 As explained in the user documentation, types are automatically converted between C++ and JavaScript. While there are multiple examples for custom marshalling of types (e.g. `std::pair<int, int>` to array, or `FileSearchPath` to string), the most common use case is the conversion of C++ vectors to JS arrays, and vice versa. This conversion can automatically be achieved by including the `VectorHelper.h` header in each binding file that covers functions which either accept or return vectors in C++.
+
+### Custom JavaScript Code
+Some bindings cannot be direct mappings to a C++ function. In particular when operations are asynchronous in JavaScript (e.g. loading files), it's easier to provide custom JavaScript implementations for the affected functions. This is how `readFromXmlString` and `readFromXmlFile` are implemented, for example. Such JavaScript code can be provided using the post-JS feature of emscripten. There should be one `post.js` file per MaterialX module, if that module requires any custom JS code. Note that these files need to be added to `CMakeLists.txt` in the `JsMaterialX` source folder. We recommend to provide custom code that dependes on the WebAssembly module like this:
+```javascript
+onModuleReady(function () {
+    <your code here>
+});
+```
+This will register your code after the module has been initialized. The wasm module will be available as `Module`.
+Since the module itself is ES5 code, we recommend to write custom code in ES5 as well, even though ES6 should work as well in most cases.
+
+In order to avoid conflicting definitions in post.js files, we recommend to wrap custom code in an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) (Immediately Invoked Function Expression).
 
 ### Testing strategy
 Testing every binding doesn't seem desirable, since most of them will directly map to the C++ implementation, which should already be tested in the C++ tests. Instead, we only test common workflows (e.g. iterating/parsing a document), bindings with custom implementations, and our custom binding mechanisms. The latter involves custom marshalling, e.g. of the vector <-> array conversion, or support for optional parameters. Additionally, all features that might behave different on the web, compared to desktop, should be tested as well.

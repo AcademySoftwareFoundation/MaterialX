@@ -85,7 +85,7 @@ describe('Code Examples', () => {
 
         // Read a document from disk.
         const doc = mx.createDocument();
-        mx.readFromXmlString(doc, xmlStr);
+        await mx.readFromXmlString(doc, xmlStr);
 
         // Traverse the document tree in depth-first order.
         const elements = doc.traverseTree();
@@ -117,7 +117,7 @@ describe('Code Examples', () => {
 
         // Read a document from disk.
         const doc = mx.createDocument();
-        mx.readFromXmlString(doc, xmlStr);
+        await mx.readFromXmlString(doc, xmlStr);
 
         // let materialCount = 0;
         // let shaderInputCount = 0;
