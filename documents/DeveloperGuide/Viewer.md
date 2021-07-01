@@ -65,6 +65,7 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 
 - `R`: Reload the current material from file.  Hold `SHIFT` to reload all standard libraries as well.
 - `G`: Save the current GLSL shader source to file.
+- `E`: Save the current ESSL (OpenGL ES 3.0) shader source to file.
 - `O`: Save the current OSL shader source to file.
 - `M`: Save the current MDL shader source to file.
 - `L`: Load GLSL shader source from file.  Editing the source files before loading provides a way to debug and experiment with shader source code.

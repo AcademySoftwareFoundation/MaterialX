@@ -18,6 +18,9 @@
 #ifdef MATERIALX_BUILD_GEN_ARNOLD
 #include <MaterialXGenArnold/ArnoldShaderGenerator.h>
 #endif
+#ifdef MATERIALX_BUILD_GEN_ESSL
+#include <MaterialXGenEssl/EsslShaderGenerator.h>
+#endif
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
@@ -235,6 +238,9 @@ Viewer::Viewer(const std::string& materialFilename,
 #if MATERIALX_BUILD_GEN_ARNOLD
     _genContextArnold(mx::ArnoldShaderGenerator::create()),
 #endif
+#if MATERIALX_BUILD_GEN_ESSL
+    _genContextEssl(mx::EsslShaderGenerator::create()),
+#endif
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(true),
     _mergeMaterials(false),
@@ -280,6 +286,14 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextArnold.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextArnold.getOptions().fileTextureVerticalFlip = false;
 #endif
+#if MATERIALX_BUILD_GEN_ESSL
+    _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextEssl.getOptions().fileTextureVerticalFlip = false;
+    _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
+    _genContextEssl.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
+    _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
+#endif
+    
 
     // Register the GLSL implementation for <viewdir> used by the environment shader.
     _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + mx::GlslShaderGenerator::TARGET, ViewDirGlsl::create);
@@ -533,6 +547,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
         std::vector<mx::NodePtr> lights;
         _lightHandler->findLights(doc, lights);
         _lightHandler->registerLights(doc, lights, _genContext);
+        _lightHandler->registerLights(doc, lights, _genContextEssl);
         _lightHandler->setLightSources(lights);
     }
     catch (std::exception& e)
@@ -764,6 +779,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
 #if MATERIALX_BUILD_GEN_ARNOLD
         _genContextArnold.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
+#if MATERIALX_BUILD_GEN_ESSL
+        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#endif        
         for (MaterialPtr material : _materials)
         {
             material->bindShader();
@@ -911,6 +929,8 @@ void Viewer::createAdvancedSettings(Widget* parent)
     referenceQualityBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_IS : mx::DIRECTIONAL_ALBEDO_TABLE;
+        // No Albedo Table support for Essl yet.
+        _genContextEssl.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_IS : mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
         reloadShaders();
     });
 
@@ -919,6 +939,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     importanceSampleBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
+        _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
         reloadShaders();
     });
 
@@ -1169,6 +1190,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
     // Clear user data on the generator.
     _genContext.clearUserData();
+#if MATERIALX_BUILD_GEN_ESSL
+    _genContextEssl.clearUserData();
+#endif
 
     // Clear materials if merging is not requested.
     if (!_mergeMaterials)
@@ -1290,6 +1314,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             {
                 // Clear cached implementations, in case libraries on the file system have changed.
                 _genContext.clearNodeImplementations();
+#if MATERIALX_BUILD_GEN_ESSL
+                _genContextEssl.clearNodeImplementations();
+#endif
 
                 mx::TypedElementPtr elem = mat->getElement();
 
@@ -1469,6 +1496,18 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                     new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Arnold OSL source: ", sourceFilename);
                 }
 #endif
+#if MATERIALX_BUILD_GEN_ESSL
+                else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
+                {
+                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                    writeTextFile(vertexShader, sourceFilename.asString() + "_essl_vs.glsl");
+                    writeTextFile(pixelShader, sourceFilename.asString() + "_essl_ps.glsl");
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Essl source: ",
+                        sourceFilename.asString() + "_essl_*.glsl");
+                }
+#endif
+                
             }
         }
     }
@@ -1632,6 +1671,9 @@ void Viewer::loadStandardLibraries()
 #if MATERIALX_BUILD_GEN_ARNOLD
     initContext(_genContextArnold);
 #endif
+#if MATERIALX_BUILD_GEN_ESSL
+    initContext(_genContextEssl);
+#endif
 }
 
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
@@ -1703,8 +1745,17 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     }
 #endif
 
-    // Load GLSL shader source from file.  Editing the source files before
-    // loading provides a way to debug and experiment with shader source code.
+#if MATERIALX_BUILD_GEN_ESSL
+    // Save Essl shader source to file.
+    if (key == GLFW_KEY_E && action == GLFW_PRESS)
+    {
+        saveShaderSource(_genContextEssl);
+        return true;
+    }
+#endif
+
+    // Load shader source from file.  Editing the source files before loading
+    // provides a way to debug and experiment with shader source code.
     if (key == GLFW_KEY_L && action == GLFW_PRESS)
     {
         loadShaderSource();

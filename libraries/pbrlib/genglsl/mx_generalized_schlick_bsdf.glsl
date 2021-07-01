@@ -30,7 +30,7 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
     // Note: NdotL is cancelled out
-    result = D * F * G * comp * occlusion * weight / (4 * NdotV)    // Top layer reflection
+    result = D * F * G * comp * occlusion * weight / (4.0 * NdotV)    // Top layer reflection
            + base * (1.0 - avgDirAlbedo * weight);                  // Base layer reflection attenuated by top layer
 }
 
