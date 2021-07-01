@@ -923,13 +923,14 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 
     // Test creating a nodedef from a nodegraph
     const mx::RtString NG_ADDGRAPH("NG_addgraph");
-    const mx::RtString ND_ADDGRAPH("ND_addgraph");
-    const mx::RtString ADDGRAPH("addgraph");
+    const mx::RtString ND_ADDGRAPH("ND_namespace1_addgraph_float_v3_4");
+    const mx::RtString ADDGRAPH("addgraph_float");
     const mx::RtString MATH_GROUP("math");
     const mx::RtString ADDGRAPH_VERSION("3.4");
     const mx::RtString ADDGRAPH_TARGET("mytarget");
     const mx::RtString NAMESPACE("namespace1");
-    const mx::RtString QUALIFIED_DEFINITION("namespace1:ND_addgraph");
+    const mx::RtString QUALIFIED_DEFINITION("ND_namespace1_addgraph_float_v3_4");
+    const mx::RtString NAMESPACED_QUALIFIED_DEFINITION(NAMESPACE.str() + mx::NAME_PREFIX_SEPARATOR + QUALIFIED_DEFINITION.str());
     const std::string DOC("Sample documentation string");
     bool isDefaultVersion = false;
     stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
@@ -942,7 +943,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(api->hasImplementation<mx::RtNodeGraph>(NG_ADDGRAPH));
 
     mx::RtNodeDef addgraphDef(addgraphPrim);
-    REQUIRE(graph1.getDefinition() == QUALIFIED_DEFINITION);
+    REQUIRE(graph1.getDefinition() == NAMESPACED_QUALIFIED_DEFINITION);
     REQUIRE(graph1.getVersion().empty());
     REQUIRE(graph1.getNamespace() == NAMESPACE);
     REQUIRE(addgraphDef.numInputs() == 2);
