@@ -1,39 +1,10 @@
 import { expect } from 'chai';;
 import Module from './_build/JsMaterialX.js';
 
-describe('Basics', () => {
+describe('Types', () => {
     let mx;
     before(async () => {
         mx = await Module();
-    });
-
-    it('DataTypes', () => {
-        const testValues = {
-            integer: '1',
-            boolean: 'true',
-            float: '1.1',
-            color3: '0.1, 0.2, 0.3',
-            color4: '0.1, 0.2, 0.3, 0.4',
-            vector2: '1.1, 2.1',
-            vector3: '1.1, 2.1, 3.1',
-            vector4: '1.1, 2.1, 3.1, 4.1',
-            matrix33: '0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1',
-            matrix44: '1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1',
-            string: 'value',
-            integerarray: '1, 2, 3',
-            booleanarray: 'false, true, false',
-            floatarray: '1.1, 2.1, 3.1',
-            stringarray: "'one', 'two', 'three'",
-        };
-
-        for (let type in testValues) {
-            const value = testValues[String(type)];
-            const newValue = mx.Value.createValueFromStrings(value, type);
-            const typeString = newValue.getTypeString();
-            const valueString = newValue.getValueString();
-            expect(typeString).to.equal(type);
-            expect(valueString).to.equal(value);
-        }
     });
 
     it('Vectors', () => {
@@ -194,10 +165,4 @@ describe('Basics', () => {
         trans2.setItem(0, 0, trans2.getItem(0, 0) + 1);
         expect(trans2.notEquals(trans)).to.be.true;
     });
-
-    it('Environment variables', () => {
-        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('');
-        mx.setEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR, 'test');
-        expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('test');
-    })
 });

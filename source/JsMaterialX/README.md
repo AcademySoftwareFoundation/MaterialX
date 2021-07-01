@@ -219,9 +219,7 @@ In order to avoid conflicting definitions in post.js files, we recommend to wrap
 ### Testing strategy
 Testing every binding doesn't seem desirable, since most of them will directly map to the C++ implementation, which should already be tested in the C++ tests. Instead, we only test common workflows (e.g. iterating/parsing a document), bindings with custom implementations, and our custom binding mechanisms. The latter involves custom marshalling, e.g. of the vector <-> array conversion, or support for optional parameters. Additionally, all features that might behave different on the web, compared to desktop, should be tested as well.
 
-<!--
-TODO: Tests and other best practices
--->
+The C++ and [Python binding tests](../../python/MaterialXTest/main.py) follow a different approach than the JS unit tests, by testing larger workflows instead of single features. In order to cover at least as much functionality in JS as in Python, the tests have been ported to JS. However, JS tests are organized in the same file structure as the bindings, so these workflow tests have been added to the file where they fit in best (e.g. the `Traverse Graph` test is in `traversal.spec.js`). This is equivalent to how tests are organized in C++. 
 
 ## CI
 Emscripten builds and test runs are specified in `.github/workflows/build_wasm.yml`.

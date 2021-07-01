@@ -86,7 +86,8 @@
                     } else {
                         var parsedPath = nodePath.parse(filePath);
                         var path = filePath.substring(parsedPath.root.length);
-                        path = path.replace(new RegExp(pathSep, "g"), wasmPathSep);
+                        var sep = pathSep === "\\" ? "\\\\" : pathSep;
+                        path = path.replace(new RegExp(sep, "g"), wasmPathSep);
                         resolve({
                             data: data,         // file content
                             filePath: path,     // file path relative to root
@@ -130,7 +131,8 @@
                     var parsed = nodePath.parse(path);
                     path = wasmRootFolder + wasmPathSep + parsed.dir.substring(parsed.root.length);
                 }
-                path.replace(new RegExp(pathSep, "g"), wasmPathSep);
+                var sep = pathSep === "\\" ? "\\\\" : pathSep;
+                path.replace(new RegExp(sep, "g"), wasmPathSep);
             } else if (ENVIRONMENT_IS_WEB) {
                 var link = document.createElement("a");
                 link.href = path;
@@ -246,7 +248,8 @@
             var cwd = nodeProcess.cwd();
             var parsed = nodePath.parse(cwd);
             var wasmCwd = wasmRootFolder + wasmPathSep + cwd.substring(parsed.root.length);
-            return wasmCwd.replace(new RegExp(pathSep, "g"), wasmPathSep);
+            var sep = pathSep === "\\" ? "\\\\" : pathSep;
+            return wasmCwd.replace(new RegExp(sep, "g"), wasmPathSep);
         } else if (ENVIRONMENT_IS_WEB) {
             var cwd = window.location.pathname;
             cwd = cwd.substring(0, cwd.lastIndexOf(pathSep));
@@ -320,7 +323,8 @@
             var wasmCwd = getWasmCwd(wasmRootFolder);
             var initialFileName = wasmCwd + "/ChosenToHopefullyNotClashWithAnyOtherFile123";
             if (initialFilePath) {
-                initialFileName = initialFilePath.replace(new RegExp(pathSep, "g"), wasmPathSep);
+                var sep = pathSep === "\\" ? "\\\\" : pathSep;
+                initialFileName = initialFilePath.replace(new RegExp(sep, "g"), wasmPathSep);
                 initialFileName = createFilePath(initialFileName, wasmRootFolder, wasmPathSep);
                 // initialFilePath being set means the user called readFromXmlFile, which might have resolved the
                 // initial file outside of cwd, so we have to create cwd in the wasm fs explicitly, since we cd into it
