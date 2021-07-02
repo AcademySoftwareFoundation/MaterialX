@@ -95,6 +95,42 @@ class Viewer : public ng::Screen
         _modifiers = modifiers;
     }
 
+    // Set the bake width of the image.
+    void setBakeWidth(int bakeWidth)
+    {
+        _bakeWidth = bakeWidth;
+    }
+
+    // Return the bake width of the image.
+    int getBakeWidth() const
+    {
+        return _bakeWidth;
+    }
+
+    // Set the bake height of the image.
+    void setBakeHeight(int bakeHeight)
+    {
+        _bakeHeight = bakeHeight;
+    }
+
+    // Return the bake width of the image.
+    int getBakeHeight() const
+    {
+        return _bakeHeight;
+    }
+        
+    // Set the bake filename of the image.
+    void setBakeFilename(const mx::FilePath &bakeFilename)
+    {
+        _bakeFilename = bakeFilename;
+    }
+
+    // Return the bake filename of the image.
+    mx::FilePath getBakeFilename() const
+    {
+        return _bakeFilename;
+    }
+
     // Return true if all inputs should be shown in the property editor.
     bool getShowAllInputs() const
     {
@@ -145,6 +181,8 @@ class Viewer : public ng::Screen
     {
         _exitRequested = true;
     }
+
+    void bakeTextures();
 
   private:
     void drawContents() override;
@@ -218,7 +256,6 @@ class Viewer : public ng::Screen
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
     void renderScreenSpaceQuad(MaterialPtr material);
-    void bakeTextures();
 
     // Update the directional albedo table.
     void updateAlbedoTable();
@@ -362,6 +399,9 @@ class Viewer : public ng::Screen
     bool _bakeAverage;
     bool _bakeOptimize;
     bool _bakeRequested;
+
+    int _bakeWidth;
+    int _bakeHeight;
     mx::FilePath _bakeFilename;
 };
 

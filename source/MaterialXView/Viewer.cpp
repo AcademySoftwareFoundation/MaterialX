@@ -247,7 +247,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeHdr(false),
     _bakeAverage(false),
     _bakeOptimize(true),
-    _bakeRequested(false)
+    _bakeRequested(false),
+    _bakeWidth(0),
+    _bakeHeight(0)
 {
     // Set the requested background color.
     setBackground(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
@@ -401,7 +403,6 @@ void Viewer::initialize()
     // Finalize the UI.
     _propertyEditor.setVisible(false);
     performLayout();
-    setVisible(true);
 }
 
 void Viewer::loadEnvironmentLight()
