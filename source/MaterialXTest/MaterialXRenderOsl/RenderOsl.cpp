@@ -108,7 +108,7 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
             _renderer->setOslUtilityOSOPath(shaderPath);
         }
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {
@@ -313,7 +313,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 validated = true;
             }
-            catch (mx::ExceptionShaderRenderError& e)
+            catch (mx::ExceptionRenderError& e)
             {
                 // Always dump shader on error
                 std::ofstream file;

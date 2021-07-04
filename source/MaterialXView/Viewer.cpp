@@ -1314,7 +1314,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             }
         }
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const std::string& error : e.errorLog())
         {
@@ -1345,7 +1345,7 @@ void Viewer::reloadShaders()
         }
         return;
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const std::string& error : e.errorLog())
         {

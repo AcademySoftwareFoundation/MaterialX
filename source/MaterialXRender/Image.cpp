@@ -10,6 +10,7 @@
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
 #include <cstring>
+#include <limits>
 
 namespace MaterialX
 {
