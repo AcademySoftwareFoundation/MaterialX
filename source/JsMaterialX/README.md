@@ -86,7 +86,7 @@ cmake --build .
 
 
 ### Output
-After building the project the `JsMaterialX.wasm` and `JsMaterialX.js` files can be found in the global install directory of this project.
+After building the project the `JsMaterialXCore.wasm`, `JsMaterialXCore.js`, `JsMaterialXGenShader.wasm`, `JsMaterialXGenShader.js` and `JsMaterialXGenShader.data` files can be found in the global install directory of this project.
 
 ### Install
 To install the results into the test directory run
@@ -116,7 +116,7 @@ npm run test
 <!-- TODO: Change to official export name -->
 The JavaScript bindings can be consumed via a script tag in the browser:
 ```html
-<script src="./JsMaterialX.js" type="text/javascript"></script>
+<script src="./JsMaterialXCore.js" type="text/javascript"></script>
 <script type="text/javascript">
     Module().then((mx) => {
         mx.createDocument();
@@ -127,7 +127,7 @@ The JavaScript bindings can be consumed via a script tag in the browser:
 
 In NodeJs, simply `require` the module like this:
 ```javascript
-const Module = require('./JsMaterialX.js');
+const Module = require('./JsMaterialXCore.js');
 
 Module().then(mx => {
     mx.createDocument();

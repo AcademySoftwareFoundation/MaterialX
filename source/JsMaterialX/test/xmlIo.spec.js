@@ -1,6 +1,8 @@
-import Module from './_build/JsMaterialX.js';
+import Module from './_build/JsMaterialXCore.js';
 import { expect } from 'chai';
 import { getMtlxStrings } from './testHelpers';
+
+const TIMEOUT = 60000;
 
 describe('XmlIo', () => {
     let mx;
@@ -95,7 +97,7 @@ describe('XmlIo', () => {
         await mx.readFromXmlFile(doc, filename, examplesPath);
         expect(doc.validate()).to.be.true;
         expect(copy.equals(doc)).to.be.true;
-    }).timeout(8000);
+    }).timeout(TIMEOUT);
 
     it('Read XML without includes from string', async () => {
         // Read the standard library
@@ -117,7 +119,7 @@ describe('XmlIo', () => {
         await mx.readFromXmlString(doc, file);
         expect(doc.validate()).to.be.true;
         expect(copy.equals(doc)).to.be.true;
-    }).timeout(8000);
+    }).timeout(TIMEOUT);
 
     it('Read XML with includes', async () => {
         const searchPath = libraryPath + ';' + examplesPath;
@@ -138,7 +140,7 @@ describe('XmlIo', () => {
                 expect(async () => await mx.readFromXmlString(document, file)).to.throw;
                 await mx.readFromXmlString(document, file, sp);
             }, searchPath);
-    }).timeout(8000);
+    }).timeout(TIMEOUT);
 
     it('Read XML with recursive includes', async () => {
         const doc = mx.createDocument();

@@ -75,9 +75,9 @@ print str(roughness.getBoundValue(material))
 #### JavaScript
 
 ~~~{.js}
-import Module from './JsMaterialX.js';
+import MaterialX from './JsMaterialXCore.js';
 
-Module().then((_module) => {
+MaterialX().then((_module) => {
     // Get the MaterialX namespace.
     const mx = _module.getMaterialX();
 
@@ -165,16 +165,16 @@ for elem in doc.traverseTree():
 #### JavaScript
 
 ~~~{.js}
-import Module from './JsMaterialX.js';
+import MaterialX from './JsMaterialXCore.js';
 
-Module().then((_module) => {
+MaterialX().then(async (_module) => {
     // Get the MaterialX namespace.
     const mx = _module.getMaterialX();
 
     // Read a document from disk.
     const doc = mx.createDocument();
     // Note: The xmlStr should be defined.
-    mx.readFromXmlString(doc, xmlStr);
+    await mx.readFromXmlString(doc, xmlStr);
 
     // Traverse the document tree in depth-first order.
     const elements = doc.traverseTree();
@@ -264,16 +264,16 @@ for material in doc.getMaterials():
 #### JavaScript
 
 ~~~{.js}
-import Module from './JsMaterialX.js';
+import MaterialX from './JsMaterialXCore.js';
 
-Module().then((_module) => {
+MaterialX().then(async (_module) => {
     // Get the MaterialX namespace.
     const mx = _module.getMaterialX();
 
     // Read a document from disk.
     const doc = mx.createDocument();
     // Note: The xmlStr should be defined.
-    mx.readFromXmlString(doc, xmlStr);
+    await mx.readFromXmlString(doc, xmlStr);
 
     // Iterate through materials.
     const materials = doc.getMaterials();

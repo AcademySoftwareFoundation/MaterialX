@@ -354,4 +354,43 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& cont
     }
 }
 
+string ShaderStage::getUniformValues() const {
+    string result = "{";
+    
+    for (const auto& it : getUniformBlocks())
+    {
+        const VariableBlock& uniforms = *it.second;
+        if (!uniforms.empty())
+        {
+            for (size_t i=0; i<uniforms.size(); ++i)
+            {
+                auto variable = uniforms[i];
+                string str = "\"" + variable->getVariable() + "\": {";
+                str += "\"type\": \"" + _syntax->getTypeName(variable->getType()) + "\"";
+
+                if (variable->getValue()) {
+                    str +=  ", \"value\": ";
+                    if (variable->getType()->isAggregate())
+                        str += "[";
+                    if (variable->getType()->getBaseType() == TypeDesc::BaseType::BASETYPE_STRING) {
+                        str +=  "\"" + variable->getValue()->getValueString() + "\"";
+                    } else {
+                        str +=  variable->getValue()->getValueString();
+                    }
+                    if (variable->getType()->isAggregate())
+                        str += "]";
+                }
+                result += str + " },\n";
+            }
+        }
+    }
+
+    if (result.size() != 1)
+       result = result.substr(0, result.size()-2);
+ 
+    result += "}";
+
+    return result;
+}
+
 }

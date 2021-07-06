@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Module from './_build/JsMaterialX.js';
+import Module from './_build/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers';
 
 describe('Code Examples', () => {

@@ -13,6 +13,14 @@
 namespace ems = emscripten;
 namespace mx = MaterialX;
 
+mx::LinearUnitConverterPtr LinearUnitConverterCreate(mx::UnitTypeDefPtr unitTypeDef) {
+    return mx::LinearUnitConverter::create(unitTypeDef);
+}
+
+mx::UnitConverterPtr UnitConverterRegistryGetUnitConverter(mx::UnitConverterRegistry& registry,mx::UnitTypeDefPtr def){
+    return registry.getUnitConverter(def);
+}
+
 EMSCRIPTEN_BINDINGS(unit)
 {
 
@@ -30,7 +38,7 @@ EMSCRIPTEN_BINDINGS(unit)
     ems::class_<mx::LinearUnitConverter, ems::base<mx::UnitConverter>>("LinearUnitConverter")
         .smart_ptr<std::shared_ptr<mx::LinearUnitConverter>>("LinearUnitConverter")
         .smart_ptr<std::shared_ptr<const mx::LinearUnitConverter>>("LinearUnitConverter")
-        .class_function("create", &mx::LinearUnitConverter::create)
+        .class_function("create", &LinearUnitConverterCreate)
         .function("getUnitType", &mx::LinearUnitConverter::getUnitType)
         .function("write", &mx::LinearUnitConverter::write)
         .function("getUnitScale", &mx::LinearUnitConverter::getUnitScale)
@@ -48,7 +56,7 @@ EMSCRIPTEN_BINDINGS(unit)
         .class_function("create", &mx::UnitConverterRegistry::create)
         .function("addUnitConverter", &mx::UnitConverterRegistry::addUnitConverter)
         .function("removeUnitConverter", &mx::UnitConverterRegistry::removeUnitConverter)
-        .function("getUnitConverter", &mx::UnitConverterRegistry::getUnitConverter)
+        .function("getUnitConverter", &UnitConverterRegistryGetUnitConverter)
         .function("clearUnitConverters", &mx::UnitConverterRegistry::clearUnitConverters)
         .function("getUnitAsInteger", &mx::UnitConverterRegistry::getUnitAsInteger)
         .function("write", &mx::UnitConverterRegistry::write)

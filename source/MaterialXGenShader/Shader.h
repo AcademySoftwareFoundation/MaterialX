@@ -98,6 +98,9 @@ class MX_GENSHADER_API Shader
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(const string& stage = Stage::PIXEL) const { return getStage(stage).getSourceCode(); }
 
+    /// Return the uniform values for a given stage
+    string getUniformValues(const string& stage = Stage::PIXEL) const { return getStage(stage).getUniformValues(); }
+
   protected: 
     /// Create a new stage in the shader.
     ShaderStagePtr createStage(const string& name, ConstSyntaxPtr syntax);

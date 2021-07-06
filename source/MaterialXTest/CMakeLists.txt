@@ -126,11 +126,6 @@ endif()
 add_custom_command(TARGET MaterialXTest POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_BINARY_DIR}/bin/libraries)
-if(MATERIALX_BUILD_GEN_ESSL)
-  add_custom_command(TARGET MaterialXTest POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-      ${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenEssl/libraries ${CMAKE_BINARY_DIR}/bin/libraries)
-endif()
 
 if(MATERIALX_BUILD_GEN_OSL)
     install(DIRECTORY DESTINATION ${CMAKE_BINARY_DIR}/bin/libraries/stdlib/reference/osl)

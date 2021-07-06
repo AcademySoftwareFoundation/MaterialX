@@ -346,4 +346,37 @@ API(JSNAME, ems::optional_override([](SELF) { \
 #define BIND_0_0(...) \
 BIND_0(__VA_ARGS__)
 
+
+/* Creates a wrapper converting a member function returning a reference to one returning
+   a pointer. Emscripten converts references to copies and the wrapper emulates
+   the expected behavior */
+template<typename RetTypeRef, RetTypeRef method> struct ptrReturnHelper;
+template<
+    typename Class,
+    typename RetType,
+    typename... ArgType,
+    RetType &(Class::*method)(ArgType...)
+> struct ptrReturnHelper<RetType &(Class::*)(ArgType...), method> {
+    auto getWrapper()->auto(*)(Class &, ArgType...)->RetType * {
+        return [](Class &obj, ArgType ...arg) -> RetType * {
+            return &(obj.*method)(arg...);
+        };
+    }
+};
+
+/**
+ * Creates a wrapper converting a non-overloaded member function returning a reference to one returning a pointer.
+ * @param METHOD Function pointer to the member function
+ */
+#define PTR_RETURN(METHOD) \
+    (ptrReturnHelper<decltype(METHOD),METHOD>().getWrapper())
+
+/**
+ * Creates a wrapper converting an overloaded member function returning a reference to one returning a pointer.
+ * @param DECL   Declaration of the function to wrap
+ * @param METHOD Function pointer to the member function
+ */
+#define PTR_RETURN_OVERLOAD(DECL, METHOD) \
+    (ptrReturnHelper<DECL,METHOD>().getWrapper())
+
 #endif // JSMATERIALX_HELPERS_H

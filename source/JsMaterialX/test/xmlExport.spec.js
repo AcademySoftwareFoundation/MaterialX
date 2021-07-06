@@ -1,4 +1,4 @@
-import Module from './_build/JsMaterialX.js';
+import Module from './_build/JsMaterialXCore.js';
 import { expect } from 'chai';
 
 describe('XmlExport', () => {
