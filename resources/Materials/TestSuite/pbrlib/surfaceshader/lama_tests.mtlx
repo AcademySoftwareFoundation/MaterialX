@@ -214,23 +214,4 @@
     </surfacematerial>
     
     -->
-  <!-- LamaLayer with EDFs -->
-  <!-- TODO: re-enable this test once layering of EDFs is supported.
-    
-    <LamaLayer name="LamaLayerEDF" type="EDF">
-        <input name="materialTop" type="EDF" nodename="LamaEmission1" />
-        <input name="materialBase" type="EDF" nodename="LamaEmission2" />
-        <input name="topMix" type="float" value="1.0" />
-        <input name="topThickness" type="float" value="0.0" />
-    </LamaLayer>
-
-    <surface name="LamaLayerEDFSurface" type="surfaceshader">
-        <input name="edf" type="EDF" nodename="LamaLayerEDF" />
-    </surface>
-
-    <surfacematerial name="LamaLayerEDFTest" type="material">
-        <input name="surfaceshader" type="surfaceshader" nodename="LamaLayerEDFSurface" />
-    </surfacematerial>
-    
-    -->
-</materialx>
+ </materialx>
