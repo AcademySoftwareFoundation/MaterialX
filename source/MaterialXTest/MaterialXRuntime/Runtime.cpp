@@ -2750,7 +2750,6 @@ TEST_CASE("Export", "[runtime]")
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("looks.mtlx", testSearchPath);
     mx::RtExportOptions exportOptions;
-    exportOptions.mergeLooks = true;
     exportOptions.lookGroupToMerge = "lookgroup1";
     std::stringstream ss;
     fileIo.exportDocument(ss, &exportOptions);

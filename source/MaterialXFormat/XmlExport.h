@@ -27,13 +27,14 @@ class MX_FORMAT_API XmlExportOptions : public XmlWriteOptions
     XmlExportOptions();
     ~XmlExportOptions() { }
 
-    /// Whether to merge all of the looks/lookgroups into a single look
+    /// Whether to merge all of the looks/lookgroups into a single look.
+    /// By default looks will be merged.
     bool mergeLooks;
 
     /// The name of the lookgroup to merge
     std::string lookGroupToMerge;
 
-    /// Whether to flatten filenames
+    /// Whether to flatten filenames. By default filenames are flattened.
     bool flattenFilenames;
 
     /// Resolved texture path for flattening filenames
@@ -44,6 +45,10 @@ class MX_FORMAT_API XmlExportOptions : public XmlWriteOptions
 
     /// A vector of resolvers
     std::vector<ExportResolverPtr> exportResolvers;
+
+    /// Whether to modify the the document or create a copy.
+    /// By default the the document is modified in place.
+    bool modifyInPlace;
 };
 
 /// @name Export Functions

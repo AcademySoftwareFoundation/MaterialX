@@ -163,7 +163,7 @@ MStatus CreateMaterialXNodeCmd::doIt(const MArgList& args)
             mx::NodePtr outputNode = targetElement->asA<mx::Node>();
             if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::unordered_set<mx::NodePtr> shaderNodes = mx::getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
                 if (!shaderNodes.empty())
                 {
                     renderableElements.push_back(*shaderNodes.begin());
