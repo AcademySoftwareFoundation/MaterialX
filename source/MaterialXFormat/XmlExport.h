@@ -46,6 +46,9 @@ class MX_FORMAT_API XmlExportOptions : public XmlWriteOptions
     /// A vector of resolvers
     std::vector<ExportResolverPtr> exportResolvers;
 
+    // Libraries to load
+    DocumentPtr libraries;
+
     /// Whether to modify the the document or create a copy.
     /// By default the the document is modified in place.
     bool modifyInPlace;

@@ -110,6 +110,9 @@ class RtExportOptions : public RtWriteOptions
 
     /// Export resolvers
     std::vector<ExportResolverPtr> exportResolvers;
+
+    // Libraries to load
+    DocumentPtr libraries;
 };
 
 /// API for read and write of data from MaterialX files

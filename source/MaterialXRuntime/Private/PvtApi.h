@@ -29,7 +29,7 @@ class PvtApi
 public:
     PvtApi()
     {
-        reset();
+        init();
     }
 
     static PvtApi* cast(RtApi& api)
@@ -37,6 +37,7 @@ public:
         return reinterpret_cast<PvtApi*>(api._ptr);
     }
 
+    void init();
     void reset();
 
     PvtCommandEngine& getCommandEngine()

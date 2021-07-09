@@ -309,5 +309,4 @@ bool UnitConverterRegistry::convertToUnit(DocumentPtr doc, const string& unitTyp
     return convertedUnits;
 }
 
-
 } // namespace MaterialX
