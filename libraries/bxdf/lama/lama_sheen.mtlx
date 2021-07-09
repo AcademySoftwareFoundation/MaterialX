@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="acescg">
-  <nodedef name="ND_lama_sheen" node="LamaSheen" nodegroup="pbr" doc="Lama sheen">
+  <nodedef name="ND_lama_sheen" node="LamaSheen" nodegroup="pbr" doc="Lama sheen" version="1.0" isdefaultversion="true">
     <input name="color" type="color3" value="1, 1, 1" uiname="Color" uifolder="Main"
            doc="Amount of sheen to add, per channel. When this node is used as top material in a stack, the more sheen is added, the less energy will be transmitted to the base material." />
     <input name="roughness" type="float" value="0.1" uimin="0.0" uimax="1.0" uiname="Roughness" uifolder="Main"

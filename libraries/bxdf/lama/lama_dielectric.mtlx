@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="acescg">
-  <nodedef name="ND_lama_dielectric" node="LamaDielectric" nodegroup="pbr" doc="Lama dielectric">
+  <nodedef name="ND_lama_dielectric" node="LamaDielectric" nodegroup="pbr" doc="Lama dielectric" version="1.0" isdefaultversion="true">
     <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Reflection Tint" uifolder="Main"
            doc="Color multiplier for external reflection. It should be used with parcimony, as a non-white value breaks physicality." />
     <input name="transmissionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Transmission Tint" uifolder="Main"
@@ -155,10 +155,10 @@
     </dielectric_bsdf>
 
     <!-- BSDF -->
-    <add name="dielectric_bsdf" type="BSDF">
-      <input name="in1" type="BSDF" nodename="reflection_bsdf" />
-      <input name="in2" type="BSDF" nodename="transmission_layer" />
-    </add>
+    <layer name="dielectric_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="reflection_bsdf" />
+      <input name="base" type="BSDF" nodename="transmission_layer" />
+    </layer>
 
     <!-- Output -->
     <output name="out" type="BSDF" nodename="dielectric_bsdf" />

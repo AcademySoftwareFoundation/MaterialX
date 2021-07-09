@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="acescg">
-  <nodedef name="ND_lama_conductor" node="LamaConductor" nodegroup="pbr" doc="Lama conductor">
+  <nodedef name="ND_lama_conductor" node="LamaConductor" nodegroup="pbr" doc="Lama conductor" version="1.0" isdefaultversion="true">
     <input name="tint" type="color3" value="1, 1, 1" uiname="Tint" uifolder="Main"
            doc="Overall color multiplier. It should be used with parcimony, as a non-white value breaks physicality. The prefered way to define the color of a conductor is through the Fresnel attributes right below." />
     <input name="fresnelMode" type="integer" uniform="true" enum="Scientific,Artistic" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
