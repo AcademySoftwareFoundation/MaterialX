@@ -24,6 +24,5 @@ EMSCRIPTEN_BINDINGS(xmlexport)
       .property("resolvedTexturePath", &mx::XmlExportOptions::resolvedTexturePath)
       .property("stringResolver", &mx::XmlExportOptions::stringResolver);
 
-  BIND_FUNC_RAW_PTR("exportToXmlFile", mx::exportToXmlFile, 2, 3, mx::DocumentPtr, const mx::FilePath&, const mx::XmlExportOptions*);
   BIND_FUNC_RAW_PTR("exportToXmlString", mx::exportToXmlString, 1, 2, mx::DocumentPtr, const mx::XmlExportOptions*);
 }

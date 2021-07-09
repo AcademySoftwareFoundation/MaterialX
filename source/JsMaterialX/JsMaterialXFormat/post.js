@@ -259,6 +259,30 @@
         }
     }
 
+    // Store a file to disk or download it in the browser
+    function storeFileToDisk(fileName, content) {
+        if (ENVIRONMENT_IS_NODE) {
+            // Write file to local file system
+            try {
+                nodeFs.writeFileSync(fileName, content);
+            } catch (e) {
+                throw new Error("Failed to write file '" + fileName + "': " + e.message);
+            }
+        } else if (ENVIRONMENT_IS_WEB) {
+            // Only take the name of the file (fileName might be a path)
+            var pos = fileName.lastIndexOf(pathSep);
+            fileName = fileName.substring(pos > -1 ? pos + 1 : 0);
+            // Download file in the browser
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+            element.setAttribute('download', fileName);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+    }
+
     onModuleReady(function () {
         // Determine environment and load dependencies as required.
         ENVIRONMENT_IS_WEB = typeof window === "object";
@@ -420,7 +444,7 @@
         // Read a document from a string.
         Module.readFromXmlString = function (doc, str, searchPath = "", readOptions = null) {
             if (arguments.length < 2 || arguments.length > 4) {
-                throw new Error("Function readFromXlString called with an invalid number of arguments (" +
+                throw new Error("Function readFromXmlString called with an invalid number of arguments (" +
                     arguments.length + ") - expects 2 to 4!");
             }
 
@@ -431,7 +455,7 @@
         // Read a document from file.
         Module.readFromXmlFile = function (doc, fileName, searchPath = "", readOptions = null) {
             if (arguments.length < 2 || arguments.length > 4) {
-                throw new Error("Function readFromXlFile called with an invalid number of arguments (" +
+                throw new Error("Function readFromXmlFile called with an invalid number of arguments (" +
                     arguments.length + ") - expects 2 to 4!");
             }
 
@@ -450,6 +474,30 @@
                 // Pass file content to internal method
                 return _readFromXmlString(doc, result.data, searchPath, readOptions, filesLoaded, result.filePath);
             });
+        };
+
+        // Write a document to a file.
+        Module.writeToXmlFile = function(doc, fileName, writeOptions = null) {
+            if (arguments.length < 2 || arguments.length > 3) {
+                throw new Error("Function writeToXmlFile called with an invalid number of arguments (" +
+                    arguments.length + ") - expects 2 to 3!");
+            }
+
+            var file = Module.writeToXmlString(doc, writeOptions);
+
+            storeFileToDisk(fileName, file);
+        };
+
+        // Export a document to a file.
+        Module.exportToXmlFile = function(doc, fileName, exportOptions = null) {
+            if (arguments.length < 2 || arguments.length > 3) {
+                throw new Error("Function exportToXmlFile called with an invalid number of arguments (" +
+                    arguments.length + ") - expects 2 to 3!");
+            }
+
+            var file = Module.exportToXmlString(doc, exportOptions);
+
+            storeFileToDisk(fileName, file);
         };
     });
 })();

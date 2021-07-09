@@ -244,5 +244,38 @@ describe('XmlIo', () => {
         const xmlString = mx.writeToXmlString(doc, writeOptions);
         expect(xmlString).to.include(includePath);
     });
+
+    // Node only, because we cannot read from a downloaded file in the browser
+    it('Write XML to file', async () => {
+        const filename = '_build/testFile.mtlx';
+        const includeRegex = /<xi:include href="(.*)"\s*\/>/g;
+        const doc = mx.createDocument();
+        await mx.readFromXmlFile(doc, 'root.mtlx', includeTestPath);
+
+        // Write using includes
+        mx.writeToXmlFile(doc, filename);
+        // Read written document and compare with the original
+        const doc2 = mx.createDocument();
+        await mx.readFromXmlFile(doc2, filename, includeTestPath);
+        expect(doc2.equals(doc));
+        // Read written file content and verify that includes are preserved
+        let fileString = getMtlxStrings([filename], '')[0];
+        let matches = Array.from(fileString.matchAll(includeRegex));
+        expect(matches.length).to.be.greaterThan(0);
+
+        // Write inlining included content
+        const writeOptions = new mx.XmlWriteOptions();
+        writeOptions.writeXIncludeEnable = false;
+        mx.writeToXmlFile(doc, filename, writeOptions);
+        // Read written document and compare with the original
+        const doc3 = mx.createDocument();
+        await mx.readFromXmlFile(doc3, filename);
+        expect(doc3.equals(doc));
+        expect(doc.getChild('paint_semigloss')).to.exist;
+        // Read written file content and verify that includes are inlined
+        fileString = getMtlxStrings([filename], '')[0];
+        matches = Array.from(fileString.matchAll(includeRegex));
+        expect(matches.length).to.equal(0);
+    });
 });
 

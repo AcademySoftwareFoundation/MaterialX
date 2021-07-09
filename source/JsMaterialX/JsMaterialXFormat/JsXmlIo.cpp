@@ -34,8 +34,7 @@ EMSCRIPTEN_BINDINGS(xmlio)
 
     ems::class_<mx::XmlWriteOptions>("XmlWriteOptions")
         .constructor<>()
-        .property("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
-        .property("elementPredicate", &mx::XmlWriteOptions::elementPredicate);
+        .property("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable);
 
     BIND_FUNC_RAW_PTR("_readFromXmlFile", mx::readFromXmlFile, 2, 4, mx::DocumentPtr, mx::FilePath,
         mx::FileSearchPath, const mx::XmlReadOptions*);

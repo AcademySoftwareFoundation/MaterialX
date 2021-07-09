@@ -143,6 +143,11 @@ Note that the `readXIncludesFunction` option that exists on the C++ read options
 
 The `searchPath` is a semicolon-separated list of absolute or relative paths. Relative paths will be evaluated with regards to the current working directory. In case of using absolute search paths in web browsers (i.e. urls), note that urls like `mydomain.com/path` or `localhost/path` might be considered relative paths. To ensure they're used as absolute paths, make them fully formed urls, i.e. have a protocol prefix like `https://`.
 
+#### Writing MaterialX files
+Documents can be written to strings via the `writeToXmlString` method, and to files with the `writeToXmlFile` method. In NodeJs, the latter will write the file to the path provided to the method (relative paths will be evaluated with respect to the current working directory). In the browser, the written file will be downloaded automatically, so only the file name matters.
+
+Note that the `XmlWriteOptions.elementPredicate` option is not supported in JavaScript.
+
 ## Maintaining the Bindings
 This section provides some background on binding creation for contributors. In general, we recommed to look at existing bindings for examples.
 
