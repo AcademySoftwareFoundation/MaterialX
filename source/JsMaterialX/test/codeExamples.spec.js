@@ -95,7 +95,7 @@ describe('Code Examples', () => {
         for(let elem of elements) {
             elementCount++;
             // Display the filename of each image node.
-            if (elem instanceof mx.Node) {
+            if (elem.isANode('image')) {
                 nodeCount++;
                 const input = elem.getInput('file');
                 if (input) {
@@ -107,7 +107,7 @@ describe('Code Examples', () => {
             }
         }
         expect(elementCount).to.equal(21);
-        expect(nodeCount).to.equal(5);
+        expect(nodeCount).to.equal(1);
         expect(fileCount).to.equal(1);
     });
 

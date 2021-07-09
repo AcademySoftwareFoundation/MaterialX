@@ -1,105 +1,68 @@
-## MaterialX JavaScript Bindings
+# MaterialX JavaScript Bindings
 
-## JavaScript Support
-
-A JavaScript package is created from the following modules.
-
-- [JsMaterialXCore](JsMaterialXCore): Contains all of the core classes and util functions.
-- [JsMaterialXFormat](JsMaterialXFormat): Contains the `readFromXmlString` function to read a MaterialX string.
+This folder contains the JavaScript bindings for the MaterialX library. The bindings are generated using the emscripten SDK.
 
 ## Generating the Bindings
 
 ### Prerequisites
 
-The emscripten SDK is required to generate the JavaScript bindings. On Linux and MacOS, the SDK can be installed directly, following the instructions below. On Windows, we recommend to use a Docker image instead (See instructions below. Using the SDK directly might still work, but hasn't been tested). Alternatively, WSL2 can be used on Windows (with an Ubuntu image). In this case, the same steps apply on all platforms.
+The emscripten SDK is required to generate the JavaScript bindings. There are several ways of using the SDK on different platforms. In general, we recommend to install the SDK directly, following the instructions below. Alternative options are explained [below](#alternative-options-to-use-the-emscripten-sdk).
 
-Make sure to clone the [emsdk repository](https://github.com/emscripten-core/emsdk), install and enable the latest emsdk environment.
+To install the SDK directly, follow the instructions of the [emscripten SDK installation Guide](https://emscripten.org/docs/getting_started/downloads.html#installation-instructions-using-the-emsdk-recommended). Make sure to install prerequisites depending on your platform and read usage hints first (e.g. differences between Unix / Windows scripts).
+
+Note that following the instructions will set some environment variables that are required to use the SDK. These variables are only set temporarily for the current terminal, though. Setting the environment variables in other terminals can be achieved by running
 ```sh
-# Get the emsdk repo
-git clone https://github.com/emscripten-core/emsdk.git
-
-# Enter that directory
-cd emsdk
-
-# Download and install the latest SDK tools.
-./emsdk install latest
-
-# Make the "latest" SDK "active" for the current user. (writes ~/.emscripten file)
-./emsdk activate latest
+source ./emsdk_env.sh
 ```
+inside of the `emsdk` folder (check the documentation for the Windows equivalent). In case of the MaterialX project, it is not required to have these environment variables set. You can also use a CMake build flag instead, as described in the [build instructions](#build-steps) below.
 
-For more information, follow the steps described in the [emscripten documentation](https://emscripten.org/docs/getting_started/downloads.html).
-The emscripten toolchain is documented [here](https://emscripten.org/docs/building_from_source/toolchain_what_is_needed.html).
+Setting the environment variables permanently is also possible, either by adding a `--permanent` flag to the `activate` command, or by sourcing the `emsdk_env` script every time a shell is launched, e.g. by adding the `source` call to `~/.bash_profile` or an equivalent file. Note however, that the environment variables set by the emscripten SDK might override existing system settings, like the default Python, Java or NodeJs version, so setting them permanently might not be desired on all systems.
 
-### Build
-In the root of directory of this repository run the following:
+### Alternative options to use the emscripten SDK
+If installing the emscripten SDK directly isn't desired, e.g. because you prefer to keep development environments cleanly separated, it can be provided in different ways.
 
-#### Docker
-It is recommended to build the project with Docker, here are the required steps:
+On Windows, using WSL2 (e.g. with an Ubuntu image) is a viable alternative to isolate the build environment from your main system. Simply set up the build environment in that Linux container.
 
-  1. Download and install [Docker](https://docs.docker.com/) as instructed on the documentation.
+Another alternative is to use a [Docker](https://docs.docker.com/) image. With Docker installed, use the [emscripten Docker image](https://hub.docker.com/r/emscripten/emsdk) as described in the [Docker build instructions](#docker) below.
 
-     For Windows make sure to use Linux containers and that File Sharing is set up to allow local directories on Windows to be shared with Linux containers. 
+### Build Steps
+Run the following commands in the root folder of this repository.
 
-     For example, if the path to MaterialX is ```"c:\git\MaterialXrepo"``` then the ```"c"``` drive should be set. (See https://docs.docker.com/docker-for-windows/#file-sharing for more details)
-
-     If you work on WSL (Windows Subsystem for Linux), install [Docker](https://docs.docker.com/docker-for-windows/install/) for Windows.
-
-  2. Get the `emscripten` docker image
-     ```sh
-     docker run -p 8080:8080 -dit --name emscripten -v {path_to_MaterialX}:/src trzeci/emscripten:1.39.7-upstream bash
-     ```
-     For WSL, make sure to run the command on a Windows terminal and also to adjust the path (e.g, `"C:\Users\{windows_username}\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_{local_code}\LocalState\rootfs\{WSL_path_to_MaterialX}"`).
-
-  3. Create a build directory.
-     ```sh
-     docker exec -it emscripten sh -c "[ -d build ] || mkdir build"
-     ``` 
-  4. Build the JavaScript bindings.
-     ```sh
-     docker exec -it emscripten sh -c "cd build && cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_EMSDK_PATH=/emsdk_portable/ && cmake --build . --target install"
-     ```
-#### CMake
-The JavaScript library can be built using cmake and make.
-
-1. Create a build folder from in the *root* of the repository.
+Create a build folder in the *root* of the repository and navigate to that folder:
 ```sh
-mkdir -p ./build
+mkdir ./build
 cd ./build
 ```
 
-2. Run cmake and make
-When building the JavaScript output the user can specify the emsdk path with the `MATERIALX_EMSDK_PATH` option.
-This option can be omitted if the `emsdk/emsdk_env.sh` script was run beforehand.
+If you are using the emsdk directly on Windows, note that the emscripten SDK doesn't work with Microsoft's Visual Studio build tools. You need to use an alternative CMake generator like [MinGW](http://mingw-w64.org/doku.php) Makefiles or [Ninja](https://ninja-build.org/). We recommend to use Ninja (unless you already have MinGW installed), since it's pretty lightweight and a pure build system, instead of a full compiler suite.
 
+Generate the build files with CMake. When building the JavaScript bindings, you can optionally specify the emsdk path with the `MATERIALX_EMSDK_PATH` option. This option can be omitted if the `emsdk/emsdk_env.sh` script was run beforehand.
 ```sh
-# This will generate the release library
-cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_EMSDK_PATH=/mnt/c/GitHub/PUBLIC/emsdk
-cmake --build .
+cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_GLSL=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF -DMATERIALX_BUILD_GEN_OGSXML=OFF -DMATERIALX_BUILD_GEN_OGSFX=OFF -DMATERIALX_BUILD_GEN_ARNOLD=OFF -DMATERIALX_BUILD_VIEWER=OFF -DMATERIALX_EMSDK_PATH=/path/to/emsdk
+```
+On Windows, remember to set the CMake generator via the `-G` flag , e.g. `-G "Ninja"`.
+
+To build the project, run
+```sh
+cmake --build . --target install -j8
+```
+Change the value of the `-j` option to the number of threads you want to build with.
+#### Docker
+In order to build using the Docker image, execute the following command in a terminal (in the root of this repository, after creating the build folder), using the CMake commands introduced above.
+```sh
+docker run --rm -v {path_to_MaterialX_repo}:/src emscripten/emsdk sh -c "cd build && <cmake generator command> && <cmake build command>"
 ```
 
-For Windows use [Ninja](https://ninja-build.org/) as the cmake generator.
-```sh
-cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_EMSDK_PATH=C:\GitHub\PUBLIC\emsdk -G "Ninja"
-cmake --build .
-```
-
+For follow-up builds (i.e. after changing the source code), remove the `<cmake generator command>` step from the above call.
 
 ### Output
 After building the project the `JsMaterialXCore.wasm`, `JsMaterialXCore.js`, `JsMaterialXGenShader.wasm`, `JsMaterialXGenShader.js` and `JsMaterialXGenShader.data` files can be found in the global install directory of this project.
 
-### Install
-To install the results into the test directory run
-```sh
-cmake --build . --target install
-```
-from the build directory.
-
 ## Testing
-The JavaScript tests are located in the `test` folder and are defined with the `.spec.js` suffix.
+The JavaScript tests are located in the `test` folder and use the `.spec.js` suffix.
 
 #### Setup
-These tests require `node.js`, which is shipped with the emscripten environment. Make sure to `source` the `emsdk/emsdk_env.sh` script before running the steps described below.
+These tests require `node.js`, which is shipped with the emscripten environment. Make sure to `source` the `emsdk/emsdk_env.sh` script before running the steps described below, if you don't have NodeJs installed on your system already (running the command is not required otherwise).
 
 1. From the test directory, install the npm packages.
 ```sh
