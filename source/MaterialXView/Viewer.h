@@ -107,7 +107,7 @@ class Viewer : public ng::Screen
         _bakeHeight = bakeHeight;
     }
 
-    // Set the output filename for texture baking.
+    // Set the output document filename for texture baking.
     void setBakeFilename(const mx::FilePath& bakeFilename)
     {
         _bakeFilename = bakeFilename;
