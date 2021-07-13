@@ -4,7 +4,8 @@
   "description": "MaterialX Web Viewer",
   "main": "src/index.js",
   "scripts": {
-    "start": "webpack serve"
+    "start": "webpack serve",
+    "build": "webpack"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "copy-webpack-plugin": "^8.1.1",
+    "html-webpack-plugin": "^5.3.2",
     "webpack-cli": "^4.7.0",
     "webpack-dev-server": "^3.11.2"
   }

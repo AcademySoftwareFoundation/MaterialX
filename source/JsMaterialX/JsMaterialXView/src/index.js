@@ -4,15 +4,17 @@
 //
 
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
-import { generateTangents, prepareEnvTexture, toThreeUniforms } from './helper.js'
+import { prepareEnvTexture, toThreeUniforms } from './helper.js'
 
 let camera, scene, model, renderer, composer, controls, mx;
 
@@ -23,7 +25,6 @@ let worldViewPos = new THREE.Vector3();
 const materialFilename = new URLSearchParams(document.location.search).get("file");
 
 init();
-
 
 // If no material file is selected, we programmatically create a jade material as a fallback
 function fallbackMaterial(doc) {
@@ -79,7 +80,15 @@ function fallbackMaterial(doc) {
 
 function init() {
     let canvas = document.getElementById('webglcanvas');
+    let materialsSelect = document.getElementById('materials');
+    if (materialFilename) {
+      materialsSelect.value = materialFilename;
+    }
     let context = canvas.getContext('webgl2');
+
+    materialsSelect.addEventListener('change', (e) => {
+      window.location.href = `${window.location.origin}${window.location.pathname}?file=${e.target.value}`;
+    });
 
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 100);
 
@@ -100,7 +109,6 @@ function init() {
     };
 
     renderer = new THREE.WebGLRenderer({canvas, context});
-    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     composer = new EffectComposer( renderer );
@@ -115,21 +123,24 @@ function init() {
     controls = new OrbitControls(camera, renderer.domElement);
 
     // Load model and shaders
-    var fileloader = new THREE.FileLoader();
-    const objLoader = new OBJLoader();
+    const fileloader = new THREE.FileLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath( '/draco/' );
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.setDRACOLoader( dracoLoader );
     const hdrloader = new RGBELoader();
     const textureLoader = new THREE.TextureLoader();
 
     Promise.all([
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
-        new Promise(resolve => objLoader.load('Geometry/shaderball.obj', resolve)),
+        new Promise(resolve => gltfLoader.load('Geometry/shaderball.glb', resolve)),
         new Promise(function (resolve) { 
           MaterialX().then((module) => { 
             resolve(module); 
           }); }),
         new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
-    ]).then(async ([loadedRadianceTexture, loadedIrradianceTexture, obj, mxIn, mtlxMaterial]) => {
+    ]).then(async ([loadedRadianceTexture, loadedIrradianceTexture, {scene: obj}, mxIn, mtlxMaterial]) => {
         // Initialize MaterialX and the shader generation context
         mx = mxIn;
         let doc = mx.createDocument();
@@ -186,7 +197,7 @@ function init() {
         });
         obj.traverse((child) => {
             if (child.isMesh) {
-              generateTangents(child.geometry);
+              child.geometry.computeTangents();
               child.geometry.attributes.uv_0 = child.geometry.attributes.uv
               child.material = threeMaterial;
             }
@@ -222,6 +233,7 @@ function onWindowResize() {
 
 function animate() {  
     requestAnimationFrame(animate);
+
     composer.render();
 
     model.traverse((child) => {
