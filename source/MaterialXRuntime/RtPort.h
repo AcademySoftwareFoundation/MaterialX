@@ -94,6 +94,9 @@ public:
     /// Return true if this input is a token.
     bool isToken() const;
 
+    /// Set input to be a token
+    void setIsToken(bool value); 
+
     /// Return true if this input should be visible in the UI.
     bool isUIVisible() const;
 

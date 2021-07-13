@@ -66,8 +66,10 @@ class MX_RENDERGLSL_API GLFramebuffer
         return _depthTexture;
     }
 
-    /// Create an image from our color texture.
-    ImagePtr createColorImage();
+    /// Return the color data of this framebuffer as an image.
+    /// If an input image is provided, it will be used to store the color data;
+    /// otherwise a new image of the required format will be created.
+    ImagePtr getColorImage(ImagePtr image = nullptr);
 
     /// Blit our color texture to the back buffer.
     void blit();

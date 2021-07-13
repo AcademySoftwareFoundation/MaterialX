@@ -29,7 +29,9 @@ void mergeLooks(DocumentPtr doc, const XmlExportOptions* exportOptions)
 
 XmlExportOptions::XmlExportOptions() :
     XmlWriteOptions(),
-    mergeLooks(false)
+    mergeLooks(true),
+    flattenFilenames(true),
+    modifyInPlace(true)
 {
 }
 
@@ -39,32 +41,83 @@ XmlExportOptions::XmlExportOptions() :
 
 void exportToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlExportOptions* exportOptions)
 {
-    mergeLooks(doc, exportOptions);
-    if (exportOptions && exportOptions->flattenFilenames)
+    DocumentPtr exportDoc = doc;
+    if (exportOptions && !exportOptions->modifyInPlace)
     {
-        flattenFilenames(doc, exportOptions->resolvedTexturePath, exportOptions->stringResolver);
+        exportDoc = doc->copy();
     }
-    writeToXmlStream(doc, stream, exportOptions);
+
+    mergeLooks(exportDoc, exportOptions);
+    if (exportOptions)
+    {
+        if (exportOptions->libraries)
+        {
+            exportDoc->importLibrary(exportOptions->libraries);
+        }
+        if (exportOptions->flattenFilenames)
+        {
+            flattenFilenames(exportDoc, exportOptions->resolvedTexturePath, exportOptions->stringResolver);
+        }
+        for (ExportResolverPtr exportResolver : exportOptions->exportResolvers)
+        {
+            exportResolver->resolve(exportDoc);
+        }
+    }
+    writeToXmlStream(exportDoc, stream, exportOptions);
 }
 
 void exportToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlExportOptions* exportOptions)
 {
-    mergeLooks(doc, exportOptions);
-    if (exportOptions && exportOptions->flattenFilenames)
+    DocumentPtr exportDoc = doc;
+    if (exportOptions && !exportOptions->modifyInPlace)
     {
-        flattenFilenames(doc, exportOptions->resolvedTexturePath, exportOptions->stringResolver);
+        exportDoc = doc->copy();
     }
-    writeToXmlFile(doc, filename, exportOptions);
+
+    mergeLooks(exportDoc, exportOptions);
+    if (exportOptions)
+    {
+        if (exportOptions->libraries)
+        {
+            exportDoc->importLibrary(exportOptions->libraries);
+        }
+        if (exportOptions->flattenFilenames)
+        {
+            flattenFilenames(exportDoc, exportOptions->resolvedTexturePath, exportOptions->stringResolver);
+        }
+        for (ExportResolverPtr exportResolver : exportOptions->exportResolvers)
+        {
+            exportResolver->resolve(exportDoc);
+        }
+    }
+    writeToXmlFile(exportDoc, filename, exportOptions);
 }
 
 string exportToXmlString(DocumentPtr doc, const XmlExportOptions* exportOptions)
 {
-    mergeLooks(doc, exportOptions);
-    if (exportOptions && exportOptions->flattenFilenames)
+    DocumentPtr exportDoc = doc;
+    if (exportOptions && !exportOptions->modifyInPlace)
     {
-        flattenFilenames(doc, exportOptions->resolvedTexturePath, exportOptions->stringResolver);
+        exportDoc = doc->copy();
     }
-    return writeToXmlString(doc, exportOptions);
+
+    mergeLooks(exportDoc, exportOptions);
+    if (exportOptions)
+    {
+        if (exportOptions->libraries)
+        {
+            exportDoc->importLibrary(exportOptions->libraries);
+        }
+        if (exportOptions->flattenFilenames)
+        {
+            flattenFilenames(exportDoc, exportOptions->resolvedTexturePath, exportOptions->stringResolver);
+        }
+        for (ExportResolverPtr exportResolver : exportOptions->exportResolvers)
+        {
+            exportResolver->resolve(exportDoc);
+        }
+    }
+    return writeToXmlString(exportDoc, exportOptions);
 }
 
 } // namespace MaterialX

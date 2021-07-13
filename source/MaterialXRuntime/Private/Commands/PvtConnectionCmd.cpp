@@ -5,6 +5,8 @@
 
 #include <MaterialXRuntime/Private/Commands/PvtConnectionCmd.h>
 #include <MaterialXRuntime/RtPath.h>
+#include <MaterialXRuntime/RtPrim.h>
+#include <MaterialXRuntime/RtNodeGraph.h>
 
 namespace MaterialX
 {
@@ -50,9 +52,12 @@ void PvtConnectionCmd::makeConnection(RtCommandResult& result)
             result = RtCommandResult(false, string("PvtConnectionCmd: Command operands are no longer valid"));
             return;
         }
-
+        
         // Make the connection
         _dest.connect(_src);
+
+        // Update any required connection properties
+        updateConnectionProperties(_src, _dest, result);
 
         // Send message that the connection has been made.
         msg().sendConnectionMessage(_src, _dest, ConnectionChange::MAKE_CONNECTION);
@@ -87,6 +92,35 @@ void PvtConnectionCmd::breakConnection(RtCommandResult& result)
     catch (const ExceptionRuntimeError& e)
     {
         result = RtCommandResult(false, string(e.what()));
+    }
+}
+
+void PvtConnectionCmd::updateConnectionProperties(const RtOutput& /*src*/, const RtInput& /*dest*/, RtCommandResult& /*result*/) 
+{
+    // No-op
+}
+
+
+PvtCommandPtr PvtInterfaceConnectionCmd::create(const RtOutput& src, const RtInput& dest, ConnectionChange change)
+{
+    return std::make_shared<PvtInterfaceConnectionCmd>(src, dest, change);
+}
+
+void PvtInterfaceConnectionCmd::updateConnectionProperties(const RtOutput& src, const RtInput& dest, RtCommandResult& /*result*/)
+{
+    // Copy token information over
+    if (dest.isToken())
+    {
+        RtPrim parent = src.getParent();
+        if (parent.hasApi<RtNodeGraph>())
+        {
+            RtNodeGraph graph(parent);
+            RtInput socketInput = graph.getInput(src.getName());
+            if (socketInput)
+            {
+                socketInput.setIsToken(true);
+            }
+        }
     }
 }
 

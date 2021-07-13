@@ -107,75 +107,18 @@ bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
     mx::flattenFilenames(doc, flattenSearchPath, separatorReplacer);
 
     // Prepocess to convert units to the final values.
-    // TODO: Make this a utility.
     mx::UnitSystemPtr unitSystem = shadergen.getUnitSystem();
     if (unitSystem)
     {
         const std::string DISTANCE_TYPE_STRING("distance");
         const std::string& targetDistanceUnit = context.getOptions().targetDistanceUnit;
         mx::UnitConverterRegistryPtr unitRegistry = unitSystem->getUnitConverterRegistry();
-        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(DISTANCE_TYPE_STRING);
-        mx::UnitConverterPtr distanceConverter = unitRegistry->getUnitConverter(distanceTypeDef);
-
-        bool convertedUnits = false;
-        for (mx::ElementPtr elem : doc->traverseTree())
+        if (unitRegistry)
         {
-            mx::NodePtr pNode = elem->asA<mx::Node>();
-            if (pNode)
+            if (unitRegistry->convertToUnit(doc, DISTANCE_TYPE_STRING, targetDistanceUnit))
             {
-                if (pNode->getInputCount()) 
-                {
-                    for (mx::InputPtr input : pNode->getInputs()) 
-                    {
-                        const std::string type = input->getType();
-                        const mx::ValuePtr value = input->getValue();
-                        if (value && input->hasUnit() && (input->getUnitType() == DISTANCE_TYPE_STRING) && value) 
-                        {
-                            if (type == "float")
-                            {
-                                float originalval = value->asA<float>();
-                                float convertedValue = distanceConverter->convert(originalval, input->getUnit(), targetDistanceUnit);
-                                input->setValue<float>(convertedValue);
-                                input->removeAttribute(mx::ValueElement::UNIT_ATTRIBUTE);
-                                input->removeAttribute(mx::ValueElement::UNITTYPE_ATTRIBUTE);
-                                convertedUnits = true;
-                            }
-                            else if (type == "vector2")
-                            {
-                                mx::Vector2 originalval = value->asA<mx::Vector2>();
-                                mx::Vector2 convertedValue = distanceConverter->convert(originalval, input->getUnit(), targetDistanceUnit);
-                                input->setValue<mx::Vector2>(convertedValue);
-                                input->removeAttribute(mx::ValueElement::UNIT_ATTRIBUTE);
-                                input->removeAttribute(mx::ValueElement::UNITTYPE_ATTRIBUTE);
-                                convertedUnits = true;
-                            }
-                            else if (type == "vector3")
-                            {
-                                mx::Vector3 originalval = value->asA<mx::Vector3>();
-                                mx::Vector3 convertedValue = distanceConverter->convert(originalval, input->getUnit(), targetDistanceUnit);
-                                input->setValue<mx::Vector3>(convertedValue);
-                                input->removeAttribute(mx::ValueElement::UNIT_ATTRIBUTE);
-                                input->removeAttribute(mx::ValueElement::UNITTYPE_ATTRIBUTE);
-                                convertedUnits = true;
-                            }
-                            else if (type == "vector4")
-                            {
-                                mx::Vector4 originalval = value->asA<mx::Vector4>();
-                                mx::Vector4 convertedValue = distanceConverter->convert(originalval, input->getUnit(), targetDistanceUnit);
-                                input->setValue<mx::Vector4>(convertedValue);
-                                input->removeAttribute(mx::ValueElement::UNIT_ATTRIBUTE);
-                                input->removeAttribute(mx::ValueElement::UNITTYPE_ATTRIBUTE);
-                                convertedUnits = true;
-                            }
-                        }
-                    }
-                }
+                log << "- Performed inlined unit converstion" << std::endl;
             }
-        }
-
-        if (convertedUnits)
-        {
-            log << "- Performed inlined unit converstion" << std::endl;
         }
     }
 

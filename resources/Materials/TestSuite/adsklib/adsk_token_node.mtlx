@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+   <!-- Sample graph using with nodes and token node member -->
+   <nodegraph name="token_node_graph" fileprefix="resources/Images/" xpos="-7.2995" ypos="123.242" >
+    <token name="name" type="string" value="grid" />
+    <token name="extension" type="string" value="png" />
+    <adsk:token_node name="token_node" type="" nodedef="adsk:ND_token_node" xpos="-128" ypos="-367">
+      <token name="token1" type="string" interfacename="extension" value="png" />
+      <token name="token2" type="string" interfacename="name" value="grid" />
+    </adsk:token_node>
+    <image name="image" type="color3" nodedef="ND_image_color3" xpos="-127.5" ypos="-78">
+      <input name="file" type="filename" uniform="true" value="[name].[extension]" />
+    </image>
+    <output name="grid_out_via_token_node" type="color3" nodename="image" />
+  </nodegraph>
+
+  <!-- Sample graph as a definition -->
+  <nodedef name="ND_tokenized_image_node" node="token_image_node" >
+   <token name="name" type="string" value="ND_grid" />
+   <token name="extension" type="string" value="ND_png" />
+   <input name="file" type="filename" uniform="true" value="[name].[extension]" />
+   <output name="grid_out_via_token_node" type="color3" value="0, 0, 0" />
+  </nodedef>
+  <nodegraph name="NG_tokenized_image_node" nodedef="ND_tokenized_image_node">
+   <token name="name" type="string" value="NG_grid" />
+   <token name="extension" type="string" value="NG_png" />
+   <input name="file" type="filename" uniform="true" value="[name].[extension]" />
+   <adsk:token_node name="token_node" type="" nodedef="adsk:ND_token_node" xpos="-128" ypos="-367">
+      <token name="token1" type="string" interfacename="extension" value="N_png" />
+      <token name="token2" type="string" interfacename="name" value="N_grid" />
+   </adsk:token_node>
+     <image name="image" type="color3" nodedef="ND_image_color3" xpos="-127.5" ypos="-78">
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+   </image>
+   <output name="grid_out_via_token_node" type="color3" nodename="image" />
+  </nodegraph>
+
+   <!-- Definition instance usage -->
+  <nodegraph name="token_image_graph" fileprefix="resources/Images/" >
+    <token_image_node name="token_image_node1" type="color3" nodedef="ND_tokenized_image_node" >
+      <token name="name" type="string" value="cloth" />
+      <token name="extension" type="string" value="png" />
+      <input name="file" type="filename" uniform="true" value="[name].[extension]" />
+    </token_image_node>
+    <output name="token_image_node1_out" type="color3" nodename="token_image_node1" /> 
+  </nodegraph>
+   
+</materialx>

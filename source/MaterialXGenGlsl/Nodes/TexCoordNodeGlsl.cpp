@@ -30,7 +30,7 @@ void TexCoordNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shad
 
 void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
     const ShaderInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
@@ -38,7 +38,7 @@ void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* texcoord = vertexData[variable];
         if (!texcoord->isEmitted())
         {
@@ -49,9 +49,9 @@ void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* texcoord = vertexData[variable];
-            shadergen.emitLineBegin(stage);
+        shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + prefix + texcoord->getVariable(), stage);
         shadergen.emitLineEnd(stage);

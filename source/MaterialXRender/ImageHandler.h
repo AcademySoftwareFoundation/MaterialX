@@ -14,7 +14,7 @@
 
 #include <MaterialXFormat/File.h>
 
-#include <MaterialXCore/Element.h>
+#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
@@ -219,12 +219,17 @@ class MX_RENDER_API ImageHandler
     /// Create rendering resources for the given image.
     virtual bool createRenderResources(ImagePtr image, bool generateMipMaps);
 
-    /// Release rendering resources for the given image.
-    virtual void releaseRenderResources(ImagePtr image);
+    /// Release rendering resources for the given image, or for all cached images
+    /// if no image pointer is specified.
+    virtual void releaseRenderResources(ImagePtr image = nullptr);
 
-    /// Clear the contents of the image cache, first releasing any
-    /// render resources associated with each image.
-    void clearImageCache();
+    /// Clear the contents of the image cache, first releasing any render
+    /// resources associated with cached images.
+    void clearImageCache()
+    {
+        releaseRenderResources();
+        _imageCache.clear();
+    }
 
     /// Return a fallback image with zeroes in all channels.
     ImagePtr getZeroImage() const
@@ -242,6 +247,10 @@ class MX_RENDER_API ImageHandler
     /// Return the cached image for a identifier, if found; otherwise return an empty
     /// shared pointer.
     ImagePtr getImage(const string& identifier);
+
+    /// Acquire all images referenced by the given document, and return the
+    /// images in a vector.
+    ImageVec getReferencedImages(DocumentPtr doc);
 
   protected:
     // Protected constructor.

@@ -171,7 +171,7 @@ TEST_CASE("Load content", "[xmlio]")
 
     // Reconstruct and verify that the document contains no images.
     mx::DocumentPtr writtenDoc = mx::createDocument();
-    mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
+    mx::readFromXmlString(writtenDoc, xmlString, mx::FileSearchPath(), &readOptions);
     REQUIRE(*writtenDoc != *doc);
     unsigned imageElementCount = 0;
     for (mx::ElementPtr elem : writtenDoc->traverseTree())
@@ -204,7 +204,7 @@ TEST_CASE("Load content", "[xmlio]")
 
     // Verify that the document contains no XIncludes.
     writtenDoc = mx::createDocument();
-    mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
+    mx::readFromXmlString(writtenDoc, xmlString, mx::FileSearchPath(), &readOptions);
     bool hasSourceUri = false;
     for (mx::ElementPtr elem : writtenDoc->traverseTree())
     {
@@ -224,6 +224,35 @@ TEST_CASE("Load content", "[xmlio]")
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
+}
+
+TEST_CASE("In memory xincludes", "[xmlio]")
+{
+    mx::FilePath libraryPath("libraries/stdlib");
+    mx::FilePath examplesPath("resources/Materials/Examples/Syntax");
+    mx::FileSearchPath searchPath = libraryPath.asString() +
+        mx::PATH_LIST_SEPARATOR +
+        examplesPath.asString();
+
+    mx::DocumentPtr mainDoc = mx::createDocument();
+    mx::readFromXmlFile(mainDoc, "Xincludes.mtlx", searchPath);
+    REQUIRE(mainDoc->getChild("NG_range_float"));
+    REQUIRE(mainDoc->getChild("testlooks"));
+
+    mx::DocumentPtr mainDoc2 = mx::createDocument();
+    mx::writeToXmlFile(mainDoc, "rootXinclude.mtlx");
+    REQUIRE_THROWS(mx::readFromXmlFile(mainDoc2, "rootXinclude.mtlx"));
+    mx::readFromXmlFile(mainDoc2, "rootXinclude.mtlx", searchPath);
+    REQUIRE(mainDoc2->getChild("NG_range_float"));
+    REQUIRE(mainDoc2->getChild("testlooks"));
+
+    std::string mainDocString;
+    mainDocString = mx::writeToXmlString(mainDoc);
+    mx::DocumentPtr mainDoc3 = mx::createDocument();
+    REQUIRE_THROWS(mx::readFromXmlString(mainDoc3, mainDocString));
+    mx::readFromXmlString(mainDoc3, mainDocString, searchPath);
+    REQUIRE(mainDoc3->getChild("NG_range_float"));
+    REQUIRE(mainDoc3->getChild("testlooks"));
 }
 
 TEST_CASE("Load locale content", "[xmlio_locale]")
@@ -302,3 +331,4 @@ TEST_CASE("Load locale content", "[xmlio_locale]")
         REQUIRE(uiattributeCount > 0);
     }
 }
+

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Module from './_build/JsMaterialX.js';
+import Module from './_build/JsMaterialXCore.js';
 
 describe('Element', () => {
   let mx, doc, valueTypes;

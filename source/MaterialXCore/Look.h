@@ -272,36 +272,22 @@ class MX_CORE_API LookGroup : public Element
         return getAttribute(LOOKS_ATTRIBUTE);
     }
 
-    /// Set the enabled looks.
-    void setEnabledLooks(const string& looks)
+    /// Set the active looks.
+    void setActiveLook(const string& look)
     {
-        setAttribute(ENABLED_ATTRIBUTE, looks);
+        setAttribute(ACTIVE_ATTRIBUTE, look);
     }
 
-    /// Return the enabled looks, if any.
-    const string& getEnabledLooksString() const
+    /// Return the active look, if any.
+    const string& getActiveLook() const
     {
-        return getAttribute(ENABLED_ATTRIBUTE);
+        return getAttribute(ACTIVE_ATTRIBUTE);
     }
-
-    // Return the list of all look elements which are enabled
-    LookVec getEnabledLooks() const;
-
-    /// Append the contents of another lookgroup to this lookgroup. 
-    /// Optionally allow appending after a given look.
-    void appendLookGroup(const LookGroupPtr& lookgroup, const string& appendAfterLook = EMPTY_STRING);
-
-    /// Append the contents of a look to this lookgroup
-    /// Optionally allow appending after a given look.
-    void appendLook(const string& lookName, const string& appendAfterLook = EMPTY_STRING);
-
-    /// Get a single combined look wihch contains the contents of all the looks in the lookgroup
-    LookPtr combineLooks();
 
   public:
     static const string CATEGORY;
     static const string LOOKS_ATTRIBUTE;
-    static const string ENABLED_ATTRIBUTE;
+    static const string ACTIVE_ATTRIBUTE;
 };
 
 /// @class MaterialAssign

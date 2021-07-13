@@ -23,6 +23,12 @@ namespace
     const string NUMBERS("0123456789");
 }
 
+void PvtApi::init()
+{
+    reset();
+    _unitDefinitions = UnitConverterRegistry::create();
+}
+
 void PvtApi::reset()
 {
     _createFunctions.clear();
@@ -30,8 +36,6 @@ void PvtApi::reset()
     _librariesOrder.clear();
     _stages.clear();
     _stagesOrder.clear();
-
-    _unitDefinitions = UnitConverterRegistry::create();
 }
 
 RtStagePtr PvtApi::loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options, bool forceReload)

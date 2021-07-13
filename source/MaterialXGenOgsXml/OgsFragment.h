@@ -4,6 +4,7 @@
 /// @file
 /// OGS fragment wrapper.
 
+#include <MaterialXGenOgsXml/Export.h>
 #include <MaterialXCore/Document.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXRender/ImageHandler.h>
@@ -17,7 +18,7 @@ namespace MaterialXMaya
 /// and outputs and embedding source code in one or potentially multiple target
 /// shading languages (GLSL is the only such language currently supported).
 ///
-class OgsFragment
+class MX_GENOGSXML_API OgsFragment
 {
   public:
     /// Creates a local GLSL fragment generator

@@ -76,6 +76,11 @@ bool RtInput::isToken() const
     return hnd()->asA<PvtInput>()->isToken();
 }
 
+void RtInput::setIsToken(bool value) 
+{
+    hnd()->asA<PvtInput>()->setIsToken(value);
+}
+
 bool RtInput::isUIVisible() const
 {
     return hnd()->asA<PvtInput>()->isUIVisible();

@@ -40,7 +40,7 @@ class GlslGeneratorWrapperBase
             mx::NodePtr outputNode = element->asA<mx::Node>();
             if (outputNode->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::unordered_set<mx::NodePtr> shaderNodes =
+                std::vector<mx::NodePtr> shaderNodes =
                     mx::getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
                 if (!shaderNodes.empty())
                 {
@@ -68,7 +68,11 @@ class GlslGeneratorWrapperBase
         genOptions.hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_NONE;
 
         // Set to use no direct lighting
-        genOptions.hwMaxActiveLightSources = _isSurface ? 16 : 0;
+        if (mx::OgsXmlGenerator::useLightAPIV2()) {
+            genOptions.hwMaxActiveLightSources = 0;
+        } else {
+            genOptions.hwMaxActiveLightSources = _isSurface ? 16 : 0;
+        }
 
         // Maya images require a texture coordinates to be flipped in V.
         genOptions.fileTextureVerticalFlip = true;
@@ -357,7 +361,7 @@ OgsFragment::OgsFragment(
     const mx::ShaderGraph& graph = _glslShader->getGraph();
     bool lighting = graph.hasClassification(mx::ShaderNode::Classification::SHADER | mx::ShaderNode::Classification::SURFACE) ||
                     graph.hasClassification(mx::ShaderNode::Classification::BSDF);
-    if (lighting)
+    if (lighting && !mx::OgsXmlGenerator::useLightAPIV2())
     {
         _lightRigName = generateLightRig(
             _lightRigSource, *_glslShader, _fragmentName

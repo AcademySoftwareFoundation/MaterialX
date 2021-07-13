@@ -321,6 +321,11 @@ bool requiresImplementation(ConstNodeDefPtr nodeDef)
     {
         return false;
     }
+    static string ORGANIZATION_STRING("organization");
+    if (nodeDef->getNodeGroup() == ORGANIZATION_STRING)
+    {
+        return false;
+    }
     static string TYPE_NONE("none");
     const string& typeAttribute = nodeDef->getType();
     return !typeAttribute.empty() && typeAttribute != TYPE_NONE;
@@ -346,7 +351,7 @@ void findRenderableMaterialNodes(ConstDocumentPtr doc,
     {
         // Scan for any upstream shader outputs and put them on the "processed" list
         // if we don't want to consider them for rendering.
-        std::unordered_set<NodePtr> shaderNodes = getShaderNodes(material);
+        vector<NodePtr> shaderNodes = getShaderNodes(material);
         if (!shaderNodes.empty())
         {
             // Push the material node only once if any shader nodes are found

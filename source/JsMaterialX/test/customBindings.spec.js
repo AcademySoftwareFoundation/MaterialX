@@ -1,8 +1,10 @@
 import { expect } from 'chai';
-import Module from './_build/JsMaterialX.js';
+import Module from './_build/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers';
 
 describe('Custom Bindings', () => {
+    const examplesPath = '../../../resources/Materials/Examples/Syntax';
+
     let mx; 
     before(async () => {
         mx = await Module();
@@ -85,23 +87,15 @@ describe('Custom Bindings', () => {
         }
     });
 
-    // TODO: This requires reference support. Enable the test and wrap it up (i.e. remove the try / catch) as soon as we have it.
-    it.skip('getReferencedSourceUris', () => {
-        try {
-            const doc = mx.createDocument();
-            const filenames = ['PaintMaterials.mtlx'];
-            const mtlxStrs = getMtlxStrings(filenames, '../../../resources/Materials/Examples/Syntax');
-            mx.readFromXmlString(doc, mtlxStrs[0]);
-            const sourceUris = doc.getReferencedSourceUris();
-            expect(sourceUris).to.be.instanceof(Array);
-            expect(sourceUris.lenght).to.equal(1);
-            expect(sourceUris[1]).to.be.instanceof(String);
-            expect(sourceUris[1]).to.include('SimpleSrf.mtlx');
-        } catch (errPtr) {
-            errPtr instanceof Number ?
-                console.log(mx.getExceptionMessage(errPtr)) :
-                console.log(errPtr);
-        }
+    it('getReferencedSourceUris', async () => {
+        const doc = mx.createDocument();
+        const filename = 'PaintMaterials.mtlx';
+        await mx.readFromXmlFile(doc, filename, examplesPath);
+        const sourceUris = doc.getReferencedSourceUris();
+        expect(sourceUris).to.be.instanceof(Array);
+        expect(sourceUris.length).to.equal(2);
+        expect(sourceUris[0]).to.be.a('string');
+        expect(sourceUris.includes('SimpleSrf.mtlx')).to.be.true;
     });
 
     it('Should invoke correct instance of \'validate\'', () => {
@@ -164,12 +158,11 @@ describe('Custom Bindings', () => {
         expect(gnSubs).to.deep.equal(gnTestData);
     });
 
-    it('getShaderNodes', () => {
+    it('getShaderNodes', async () => {
         const doc = mx.createDocument();
         const fileNames = ['MaterialBasic.mtlx'];
-        const subPath = '../../../resources/Materials/Examples/Syntax';
-        const mtlxStrs = getMtlxStrings(fileNames, subPath);
-        mx.readFromXmlString(doc, mtlxStrs[0]);
+        const mtlxStrs = getMtlxStrings(fileNames, examplesPath);
+        await mx.readFromXmlString(doc, mtlxStrs[0]);
         let matNodes = doc.getMaterialNodes();
         expect(matNodes.length).to.equal(2);
         const matNode = matNodes[0];

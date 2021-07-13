@@ -19,7 +19,7 @@ namespace mx = MaterialX;
 EMSCRIPTEN_BINDINGS(material)
 {
     ems::function("getShaderNodes", ems::optional_override([](mx::NodePtr materialNode) {
-        std::unordered_set<mx::NodePtr> set =  mx::getShaderNodes(materialNode);
+        std::vector<mx::NodePtr> set =  mx::getShaderNodes(materialNode);
         // Put all elements into an std::vector
         std::vector<mx::NodePtr> vec;
         vec.insert(vec.end(), set.begin(), set.end());
@@ -27,7 +27,7 @@ EMSCRIPTEN_BINDINGS(material)
     }));
     ems::function("getShaderNodes", ems::optional_override([](mx::NodePtr materialNode,
                                                                 const std::string& nodeType) {
-        std::unordered_set<mx::NodePtr> set = mx::getShaderNodes(materialNode, nodeType);
+        std::vector<mx::NodePtr> set = mx::getShaderNodes(materialNode, nodeType);
         // Put all elements into an std::vector
         std::vector<mx::NodePtr> vec;
         vec.insert(vec.end(), set.begin(), set.end());
@@ -36,7 +36,7 @@ EMSCRIPTEN_BINDINGS(material)
     ems::function("getShaderNodes", ems::optional_override([](mx::NodePtr materialNode,
                                                                 const std::string& nodeType,
                                                                 const std::string& target) {
-        std::unordered_set<mx::NodePtr> set = mx::getShaderNodes(materialNode, nodeType, target);
+        std::vector<mx::NodePtr> set = mx::getShaderNodes(materialNode, nodeType, target);
         // Put all elements into an std::vector
         std::vector<mx::NodePtr> vec;
         vec.insert(vec.end(), set.begin(), set.end());

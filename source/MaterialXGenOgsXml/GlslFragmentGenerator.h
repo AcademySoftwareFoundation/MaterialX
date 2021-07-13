@@ -9,6 +9,7 @@
 /// @file
 /// GLSL fragment generator
 
+#include <MaterialXGenOgsXml/Export.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
@@ -24,7 +25,7 @@ namespace Stage
 }
 
 /// Syntax class for GLSL fragments.
-class GlslFragmentSyntax : public GlslSyntax
+class MX_GENOGSXML_API GlslFragmentSyntax : public GlslSyntax
 {
   public:
     string getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const override;
@@ -33,7 +34,7 @@ class GlslFragmentSyntax : public GlslSyntax
 using GlslFragmentGeneratorPtr = shared_ptr<class GlslFragmentGenerator>;
 
 /// GLSL shader generator specialized for usage in OGS fragment wrappers.
-class GlslFragmentGenerator : public GlslShaderGenerator
+class MX_GENOGSXML_API GlslFragmentGenerator : public GlslShaderGenerator
 {
   public:
     GlslFragmentGenerator();

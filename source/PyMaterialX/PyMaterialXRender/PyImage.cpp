@@ -32,6 +32,7 @@ void bindPyImage(py::module& mod)
         .def("setTexelColor", &mx::Image::setTexelColor)
         .def("getTexelColor", &mx::Image::getTexelColor)
         .def("isUniformColor", &mx::Image::isUniformColor)
+        .def("setUniformColor", &mx::Image::setUniformColor)
         .def("applyBoxBlur", &mx::Image::applyBoxBlur)
         .def("applyGaussianBlur", &mx::Image::applyGaussianBlur)
         .def("splitByLuminance", &mx::Image::splitByLuminance)
@@ -44,4 +45,5 @@ void bindPyImage(py::module& mod)
 
         mod.def("createUniformImage", &mx::createUniformImage);
         mod.def("createImageStrip", &mx::createImageStrip);
+        mod.def("getMaxDimensions", &mx::getMaxDimensions);
 }

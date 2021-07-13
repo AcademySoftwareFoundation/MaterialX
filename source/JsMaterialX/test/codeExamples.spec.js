@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Module from './_build/JsMaterialX.js';
+import Module from './_build/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers';
 
 describe('Code Examples', () => {
@@ -85,7 +85,7 @@ describe('Code Examples', () => {
 
         // Read a document from disk.
         const doc = mx.createDocument();
-        mx.readFromXmlString(doc, xmlStr);
+        await mx.readFromXmlString(doc, xmlStr);
 
         // Traverse the document tree in depth-first order.
         const elements = doc.traverseTree();
@@ -95,7 +95,7 @@ describe('Code Examples', () => {
         for(let elem of elements) {
             elementCount++;
             // Display the filename of each image node.
-            if (elem instanceof mx.Node) {
+            if (elem.isANode('image')) {
                 nodeCount++;
                 const input = elem.getInput('file');
                 if (input) {
@@ -107,7 +107,7 @@ describe('Code Examples', () => {
             }
         }
         expect(elementCount).to.equal(21);
-        expect(nodeCount).to.equal(5);
+        expect(nodeCount).to.equal(1);
         expect(fileCount).to.equal(1);
     });
 
@@ -117,7 +117,7 @@ describe('Code Examples', () => {
 
         // Read a document from disk.
         const doc = mx.createDocument();
-        mx.readFromXmlString(doc, xmlStr);
+        await mx.readFromXmlString(doc, xmlStr);
 
         // let materialCount = 0;
         // let shaderInputCount = 0;

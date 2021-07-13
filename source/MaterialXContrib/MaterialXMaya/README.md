@@ -172,7 +172,6 @@ If the specified path is empty or invalid, Maya won't dump the intermediate file
 ## Limitations
 
 *   No DirectX11/HLSL support.
-*   No support for Maya light sources and shadow maps. Image-based lighting defined by the `environmentRadianceMap` and `environmentIrradianceMap` node attributes is the only type of lighting currently supported.
 
 ## Usage
 

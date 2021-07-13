@@ -923,13 +923,14 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
 
     // Test creating a nodedef from a nodegraph
     const mx::RtString NG_ADDGRAPH("NG_addgraph");
-    const mx::RtString ND_ADDGRAPH("ND_addgraph");
-    const mx::RtString ADDGRAPH("addgraph");
+    const mx::RtString ND_ADDGRAPH("ND_namespace1_addgraph_float_v3_4");
+    const mx::RtString ADDGRAPH("addgraph_float");
     const mx::RtString MATH_GROUP("math");
     const mx::RtString ADDGRAPH_VERSION("3.4");
     const mx::RtString ADDGRAPH_TARGET("mytarget");
     const mx::RtString NAMESPACE("namespace1");
-    const mx::RtString QUALIFIED_DEFINITION("namespace1:ND_addgraph");
+    const mx::RtString QUALIFIED_DEFINITION("ND_namespace1_addgraph_float_v3_4");
+    const mx::RtString NAMESPACED_QUALIFIED_DEFINITION(NAMESPACE.str() + mx::NAME_PREFIX_SEPARATOR + QUALIFIED_DEFINITION.str());
     const std::string DOC("Sample documentation string");
     bool isDefaultVersion = false;
     stage->renamePrim(graph1.getPath(), NG_ADDGRAPH);
@@ -942,7 +943,7 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     REQUIRE(api->hasImplementation<mx::RtNodeGraph>(NG_ADDGRAPH));
 
     mx::RtNodeDef addgraphDef(addgraphPrim);
-    REQUIRE(graph1.getDefinition() == QUALIFIED_DEFINITION);
+    REQUIRE(graph1.getDefinition() == NAMESPACED_QUALIFIED_DEFINITION);
     REQUIRE(graph1.getVersion().empty());
     REQUIRE(graph1.getNamespace() == NAMESPACE);
     REQUIRE(addgraphDef.numInputs() == 2);
@@ -1345,8 +1346,8 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     add2.getOutput(OUT).connect(graphOutSocket);
 
     // Try connecting a token.
-    REQUIRE_THROWS(graphTokenSocket.connect(add1.getInput(IN2)));
-    REQUIRE(!graphTokenSocket.isConnected());
+    graphTokenSocket.connect(add1.getInput(IN2));
+    REQUIRE(graphTokenSocket.isConnected());
 
     // Add an unconnected node.
     stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);
@@ -1699,8 +1700,8 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     lookgroup1.removeLook(lo1);
     REQUIRE(lookgroup1.getLooks().numConnections() == 1);
 
-    lookgroup1.setEnabledLooks("look1");
-    REQUIRE(lookgroup1.getEnabledLooks() == "look1");
+    lookgroup1.setActiveLooks("look1");
+    REQUIRE(lookgroup1.getActiveLooks() == "look1");
 
     lookgroup1.addLook(lo1);
 
@@ -1838,7 +1839,7 @@ TEST_CASE("Runtime: Looks", "[runtime]")
         REQUIRE((*iter) == lo1);
         ++iter;
         REQUIRE(iter.isDone());
-        REQUIRE(lookgroup1.getEnabledLooks() == "look1");
+        REQUIRE(lookgroup1.getActiveLooks() == "look1");
 
         // Try again, with options.
         useOptions = true;
@@ -1859,8 +1860,8 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     ++iter;
     REQUIRE(!iter.isDone());
     REQUIRE((*iter) == lo2);
-    lookgroup2.setEnabledLooks("child_lookgroup");
-    REQUIRE(lookgroup2.getEnabledLooks() == "child_lookgroup");
+    lookgroup2.setActiveLooks("child_lookgroup");
+    REQUIRE(lookgroup2.getActiveLooks() == "child_lookgroup");
 }
 
 mx::RtString toTestResolver(const mx::RtString& str, const mx::RtString& type)
@@ -2749,7 +2750,6 @@ TEST_CASE("Export", "[runtime]")
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("looks.mtlx", testSearchPath);
     mx::RtExportOptions exportOptions;
-    exportOptions.mergeLooks = true;
     exportOptions.lookGroupToMerge = "lookgroup1";
     std::stringstream ss;
     fileIo.exportDocument(ss, &exportOptions);

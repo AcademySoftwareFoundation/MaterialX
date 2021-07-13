@@ -18,7 +18,10 @@ void bindPyXmlExport(py::module& mod)
         .def_readwrite("lookGroupToMerge", &mx::XmlExportOptions::lookGroupToMerge)
         .def_readwrite("flattenFilenames", &mx::XmlExportOptions::flattenFilenames)
         .def_readwrite("resolvedTexturePath", &mx::XmlExportOptions::resolvedTexturePath)
-        .def_readwrite("stringResolver", &mx::XmlExportOptions::stringResolver);
+        .def_readwrite("stringResolver", &mx::XmlExportOptions::stringResolver)
+        .def_readwrite("exportResolvers", &mx::XmlExportOptions::exportResolvers)
+        .def_readwrite("libraries", &mx::XmlExportOptions::libraries)
+        .def_readwrite("modifyInPlace", &mx::XmlExportOptions::modifyInPlace);
 
     mod.def("exportToXmlFile", mx::exportToXmlFile,
         py::arg("doc"), py::arg("filename"), py::arg("exportOptions") = (mx::XmlExportOptions*) nullptr);

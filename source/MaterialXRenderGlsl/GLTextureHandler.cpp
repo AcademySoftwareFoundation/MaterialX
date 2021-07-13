@@ -145,7 +145,18 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     
 void GLTextureHandler::releaseRenderResources(ImagePtr image)
 {
-    if (!image || image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
+    if (!image)
+    {
+        for (auto iter : _imageCache)
+        {
+            if (iter.second)
+            {
+                releaseRenderResources(iter.second);
+            }
+        }
+        return;
+    }
+    if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
         return;
     }

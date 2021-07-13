@@ -5,6 +5,7 @@
 
 #include <MaterialXGenOgsXml/GlslFragmentGenerator.h>
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
+#include <MaterialXGenOgsXml/Nodes/SurfaceNodeMaya.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenShader/Shader.h>
@@ -26,26 +27,12 @@ namespace
     // A more precise roughness computation can be done using Maya samplers, but this requires
     // knowing that the Maya sampling functions are there, otherwise compilation will fail unless
     // there is an IBL active in the Maya lighting.
-    //
-    // **Maya does not currently declare the list of defines you see below** so do not expect correct
-    // environment at this point in time.
     const string MX_ENVIRONMENT_MAYA =
         "#include \"pbrlib/genglsl/lib/mx_microfacet_specular.glsl\"\r\n"
         "vec3 mx_environment_irradiance(vec3 N)\r\n"
         "{\r\n"
         "    return g_diffuseI;\r\n"
         "}\r\n"
-        "#ifdef MAYA_HAS_mayaRoughnessToPhongExp\r\n"
-        "#ifdef MAYA_HAS_adjustGain\r\n"
-        "#ifdef MAYA_HAS_SampleLatLongReflect\r\n"
-        "#ifdef MAYA_HAS_SampleLatLongVolumeReflect\r\n"
-        "#ifdef MAYA_HAS_blendGlossyAndRadianceEnvironment\r\n"
-        "#define MATERIALX_USE_MAYA_SAMPLERS\r\n"
-        "#endif\r\n"
-        "#endif\r\n"
-        "#endif\r\n"
-        "#endif\r\n"
-        "#endif\r\n"
         "vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)\r\n"
         "{\r\n"
         "    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);\r\n"
@@ -53,14 +40,7 @@ namespace
         "    vec3 F = mx_compute_fresnel(NdotV, fd);\r\n"
         "    float G = mx_ggx_smith_G(NdotV, NdotV, avgRoughness);\r\n"
         "    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);\r\n"
-        "#ifdef MATERIALX_USE_MAYA_SAMPLERS\r\n"
-        "    float phongExp = mayaRoughnessToPhongExp(sqrt(avgRoughness));\r\n"
-        "    vec3 radiance = adjustGain(SampleLatLongReflect(radiance_samp, radiance_transform, radiance_reflectionCoeff, V, N), radiance_gain);\r\n"
-        "    vec3 glossy = adjustGain( SampleLatLongVolumeReflect(glossy_samp, glossy_transform, glossy_reflectionCoeff, V, N, phongExp, minExponent, maxExponent, exponentCount), glossy_gain);\r\n"
-        "    vec3 Li = blendGlossyAndRadianceEnvironment(phongExp, maxExponent, glossy, radiance);\r\n"
-        "#else\r\n"
         "    vec3 Li = mix(g_specularI, g_diffuseI, avgRoughness);\r\n"
-        "#endif\r\n"
         "    return Li * F * G * comp;\r\n"
         "}\r\n";
 
@@ -70,6 +50,25 @@ namespace
     const string MAYA_ENV_IRRADIANCE_SAMPLE = "diffuseI";
     const string MAYA_ENV_RADIANCE_SAMPLE = "specularI";
     const string MAYA_ENV_ROUGHNESS = "roughness";
+
+    // More recent versions of Maya have external lighting functions that can be called:
+    const string MX_ENVIRONMENT_MAYA_EXTERNAL =
+        "#include \"pbrlib/genglsl/lib/mx_microfacet_specular.glsl\"\r\n"
+        "vec3 mx_environment_irradiance(vec3 N)\r\n"
+        "{\r\n"
+        "    return mayaGetIrradianceEnvironment(N);\r\n"
+        "}\r\n"
+        "vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)\r\n"
+        "{\r\n"
+        "    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);\r\n"
+        "    float avgRoughness = mx_average_roughness(roughness);\r\n"
+        "    vec3 F = mx_compute_fresnel(NdotV, fd);\r\n"
+        "    float G = mx_ggx_smith_G(NdotV, NdotV, avgRoughness);\r\n"
+        "    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);\r\n"
+        "    float phongExp = mayaRoughnessToPhongExp(sqrt(avgRoughness));\r\n"
+        "    vec3 Li = mayaGetSpecularEnvironment(N, V, phongExp);\r\n"
+        "    return Li * F * G * comp;\r\n"
+        "}\r\n";
 }
 
 string GlslFragmentSyntax::getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const
@@ -107,8 +106,15 @@ GlslFragmentGenerator::GlslFragmentGenerator() :
     _tokenSubstitutions[HW::T_BITANGENT_WORLD]      = "Bw";
     _tokenSubstitutions[HW::T_BITANGENT_OBJECT]     = "Bm";
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = "g_mxVertexData"; // name of a global non-const variable
-    _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE]  = "g_lightData"; // Store Maya lights in global non-const
-    _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = "g_numActiveLightSources";
+    if (OgsXmlGenerator::useLightAPIV2()) {
+        // Use a Maya 2022.1-aware surface node implementation.
+        registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeMaya::create);
+    } else {
+        _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE]  = "g_lightData"; // Store Maya lights in global non-const
+        _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = "g_numActiveLightSources";
+    }
+
+
 }
 
 ShaderGeneratorPtr GlslFragmentGenerator::create()
@@ -123,7 +129,7 @@ ShaderPtr GlslFragmentGenerator::createShader(const string& name, ElementPtr ele
     ShaderStage& pixelStage = shader->getStage(Stage::PIXEL);
 
     // Add uniforms for environment lighting.
-    if (requiresLighting(graph))
+    if (requiresLighting(graph) && !OgsXmlGenerator::useLightAPIV2())
     {
         VariableBlock& psPrivateUniforms = pixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS);
         psPrivateUniforms.add(Type::COLOR3, LIGHT_LOOP_RESULT, Value::createValue(Color3(0.0f, 0.0f, 0.0f)));
@@ -203,7 +209,11 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
 
     if (lighting)
     {
-        emitBlock(MX_ENVIRONMENT_MAYA, context, pixelStage);
+        if (OgsXmlGenerator::useLightAPIV2()) {
+            emitBlock(MX_ENVIRONMENT_MAYA_EXTERNAL, context, pixelStage);
+        } else {
+            emitBlock(MX_ENVIRONMENT_MAYA, context, pixelStage);
+        }
     }
 
     // Set the include file to use for uv transformations,
@@ -315,7 +325,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
             emitLineEnd(pixelStage, true);
         }
 
-        if (lighting) {
+        if (lighting && !OgsXmlGenerator::useLightAPIV2()) {
             // Store environment samples from light rig:
             emitLine("g_" + MAYA_ENV_IRRADIANCE_SAMPLE + " = " + MAYA_ENV_IRRADIANCE_SAMPLE, pixelStage);
             emitLine("g_" + MAYA_ENV_RADIANCE_SAMPLE + " = " + MAYA_ENV_RADIANCE_SAMPLE, pixelStage);

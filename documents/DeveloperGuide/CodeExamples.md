@@ -75,9 +75,9 @@ print str(roughness.getBoundValue(material))
 #### JavaScript
 
 ~~~{.js}
-import Module from './JsMaterialX.js';
+import MaterialX from './JsMaterialXCore.js';
 
-Module().then((_module) => {
+MaterialX().then((_module) => {
     // Get the MaterialX namespace.
     const mx = _module.getMaterialX();
 
@@ -165,30 +165,24 @@ for elem in doc.traverseTree():
 #### JavaScript
 
 ~~~{.js}
-import Module from './JsMaterialX.js';
+import MaterialX from './JsMaterialXCore.js';
 
-Module().then((_module) => {
-    // Get the MaterialX namespace.
-    const mx = _module.getMaterialX();
-
+MaterialX().then(async (mx) => {
     // Read a document from disk.
     const doc = mx.createDocument();
-    // Note: The xmlStr should be defined.
-    mx.readFromXmlString(doc, xmlStr);
+    await mx.readFromXmlFile(doc, 'ExampleFile.mtlx');
 
     // Traverse the document tree in depth-first order.
     const elements = doc.traverseTree();
-    let elem = elements.next();
-    while(elem) {                
+    for (let elem of elements) {
         // Display the filename of each image node.
-        if (elem instanceof mx.Node) {
-            const param = elem.getParameter('file');
+        if (elem.isANode('image')) {
+            const param = elem.getInput('file');
             if (param) {
                 filename = param.getValueString();
                 console.log('Image node ' + elem.getName() + ' references ' + filename);
             }
         }
-        elem = elements.next();
     }
 }
 ~~~
@@ -264,16 +258,16 @@ for material in doc.getMaterials():
 #### JavaScript
 
 ~~~{.js}
-import Module from './JsMaterialX.js';
+import MaterialX from './JsMaterialXCore.js';
 
-Module().then((_module) => {
+MaterialX().then(async (_module) => {
     // Get the MaterialX namespace.
     const mx = _module.getMaterialX();
 
     // Read a document from disk.
     const doc = mx.createDocument();
     // Note: The xmlStr should be defined.
-    mx.readFromXmlString(doc, xmlStr);
+    await mx.readFromXmlString(doc, xmlStr);
 
     // Iterate through materials.
     const materials = doc.getMaterials();

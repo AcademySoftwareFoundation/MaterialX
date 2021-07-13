@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">  
+    <title>Getting Started</title>
+    <link rel="icon" type="image/x-icon" href="public/favicon.ico" />
+  </head>
+  <body style="margin: 0px; overflow: hidden;">
+    <div id="container">
+      <div style="position: absolute;margin: 10px;">
+        <label for="materials" style="color: white;">Choose a material:</label>
+        <select name="materials" id="materials">
+          <% materials.forEach(function(m){ %>
+            <option value="<%-m.value%>"><%-m.name%></option>
+          <% }); %>
+        </select>
+      </div>
+      
+      <canvas id="webglcanvas"></canvas>
+    </div>
+    <script src="JsMaterialXGenShader.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

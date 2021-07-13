@@ -334,7 +334,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                     if (doctoBake.bakeFile == outputBakeFile.asString())
                     {
                         outputBakeFile.removeExtension();
-                        outputBakeFile = outputPath / (outputBakeFile.asString() + "_baked.mtlx");
+                        // Bake to "xml" to avoid trying to render baked in render tests
+                        outputBakeFile = outputPath / (outputBakeFile.asString() + "_baked.xml");
                         runBake(doc, imageSearchPath, searchPath, outputBakeFile, doctoBake, log);
                         break;
 
@@ -381,8 +382,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 // Get connected shader nodes if a material node.
                 if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
                 {
-                    std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
-                    for (auto node : shaderNodes)
+                    for (mx::NodePtr node : getShaderNodes(outputNode))
                     {
                         mx::NodeDefPtr nodeDef = node->getNodeDef();
                         if (nodeDef)

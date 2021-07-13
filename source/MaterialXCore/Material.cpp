@@ -8,17 +8,71 @@
 namespace MaterialX
 {
 
-std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, const string& target)
+vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, const string& target)
 {
-    ElementPtr parent = materialNode->getParent();
-    if (!parent)
+    vector<NodePtr> shaderNodeVec;
+    std::set<NodePtr> shaderNodeSet;
+
+    vector<InputPtr> inputs = materialNode->getActiveInputs();
+    for (InputPtr input : inputs) 
     {
-        throw Exception("Could not find a parent for material node '" + (materialNode ? materialNode->getNamePath() : EMPTY_STRING) + "'");
+        // Scan for a node directly connected to the input.
+        // Note that this will handle traversing through interfacename associations.
+        NodePtr shaderNode = input->getConnectedNode();
+        if (shaderNode && !shaderNodeSet.count(shaderNode))
+        {
+            if (!nodeType.empty() && shaderNode->getType() != nodeType)
+            {
+                continue;
+            }
+                
+            if (!target.empty())
+            {
+                NodeDefPtr nodeDef = shaderNode->getNodeDef(target);
+                if (!nodeDef)
+                {
+                    continue;
+                }
+            }
+
+            shaderNodeVec.push_back(shaderNode);
+            shaderNodeSet.insert(shaderNode);
+        }
+        else if (input->hasNodeGraphString())
+        {
+            // Check upstream nodegraph connected to the input.
+            // If no explicit output name given then scan all outputs on the nodegraph.
+            ElementPtr parent = materialNode->getParent();
+            NodeGraphPtr nodeGraph = parent->getChildOfType<NodeGraph>(input->getNodeGraphString());
+            if (!nodeGraph)
+            {
+                continue;
+            }
+            vector<OutputPtr> outputs;
+            if (input->hasOutputString())
+            {
+                outputs.push_back(nodeGraph->getOutput(input->getOutputString()));
+            }
+            else
+            {
+                outputs = nodeGraph->getOutputs();
+            }
+            for (OutputPtr output : outputs)
+            {
+                NodePtr upstreamNode = output->getConnectedNode();
+                if (upstreamNode && !shaderNodeSet.count(upstreamNode))
+                {
+                    if (!target.empty() && !upstreamNode->getNodeDef(target))
+                    {
+                        continue;
+                    }
+                    shaderNodeVec.push_back(upstreamNode);
+                    shaderNodeSet.insert(upstreamNode);
+                }
+            }
+        }
     }
 
-    std::unordered_set<NodePtr> shaderNodes;
-
-    std::vector<InputPtr> inputs = materialNode->getActiveInputs();
     if (inputs.empty())
     {
         // Try to find material nodes in the implementation graph if any.
@@ -30,7 +84,7 @@ std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode, const string& n
             if (impl->isA<NodeGraph>())
             {
                 NodeGraphPtr implGraph = impl->asA<NodeGraph>();
-                for (auto defOutput : materialNodeDef->getOutputs())
+                for (OutputPtr defOutput : materialNodeDef->getOutputs())
                 {
                     if (defOutput->getType() == MATERIAL_TYPE_STRING)
                     {
@@ -46,10 +100,13 @@ std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode, const string& n
                             NodePtr upstreamNode = upstreamElem->asA<Node>();
                             if (upstreamNode && upstreamNode->getType() == MATERIAL_TYPE_STRING)
                             {
-                                std::unordered_set<NodePtr> newShaderNodes = getShaderNodes(upstreamNode, nodeType, target);
-                                if (!newShaderNodes.empty())
+                                for (NodePtr shaderNode : getShaderNodes(upstreamNode, nodeType, target))
                                 {
-                                    shaderNodes.insert(newShaderNodes.begin(), newShaderNodes.end());
+                                    if (!shaderNodeSet.count(shaderNode))
+                                    {
+                                        shaderNodeVec.push_back(shaderNode);
+                                        shaderNodeSet.insert(shaderNode);
+                                    }
                                 }
                             }
                         }
@@ -59,75 +116,10 @@ std::unordered_set<NodePtr> getShaderNodes(NodePtr materialNode, const string& n
         }
     }
 
-    for (const InputPtr& input : inputs) 
-    {
-        // Scan for a node directly connected to the input.
-        // Note that this will handle traversing through interfacename associations.
-        //
-        NodePtr shaderNode = input->getConnectedNode();
-        if (shaderNode)
-        {
-            if (!nodeType.empty() && shaderNode->getType() != nodeType)
-            {
-                continue;
-            }
-                
-            if (!target.empty())
-            {
-                NodeDefPtr nodeDef = shaderNode->getNodeDef(target);
-                if (!nodeDef)
-                {
-                    continue;
-                }
-            }
-            shaderNodes.insert(shaderNode);
-        }
-
-        // Check upstream nodegraph connected to the input.
-        // If no explicit output name given then scan all outputs on the nodegraph.
-        //
-        else
-        {
-            const string& inputGraph = input->getNodeGraphString();
-            if (!inputGraph.empty())
-            {
-                NodeGraphPtr nodeGraph = parent->getChildOfType<NodeGraph>(inputGraph);
-                if (nodeGraph)
-                {
-                    const string& nodeGraphOutput = input->getOutputString();
-                    std::vector<OutputPtr> outputs;
-                    if (!nodeGraphOutput.empty())
-                    {
-                        outputs.push_back(nodeGraph->getOutput(nodeGraphOutput));
-                    }
-                    else
-                    {
-                        outputs = nodeGraph->getOutputs();
-                    }
-                    for (OutputPtr output : outputs)
-                    {
-                        NodePtr upstreamNode = output->getConnectedNode();
-                        if (upstreamNode)
-                        {
-                            if (!target.empty())
-                            {
-                                NodeDefPtr nodeDef = upstreamNode->getNodeDef(target);
-                                if (!nodeDef)
-                                {
-                                    continue;
-                                }
-                            }
-                            shaderNodes.insert(upstreamNode);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return shaderNodes;
+    return shaderNodeVec;
 }
 
-vector<OutputPtr> getConnectedOutputs(const NodePtr& node)
+vector<OutputPtr> getConnectedOutputs(NodePtr node)
 {
     vector<OutputPtr> outputVec;
     std::set<OutputPtr> outputSet;

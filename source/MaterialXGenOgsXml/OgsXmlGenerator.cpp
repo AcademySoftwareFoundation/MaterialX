@@ -480,4 +480,14 @@ string OgsXmlGenerator::generateLightRig(
     return stream.str();
 }
 
+bool OgsXmlGenerator::sUseLightAPIV2 = false;
+
+bool OgsXmlGenerator::useLightAPIV2() {
+    return sUseLightAPIV2;
+}
+void OgsXmlGenerator::setUseLightAPIV2(bool val) {
+    sUseLightAPIV2 = val;
+}
+
+
 } // namespace MaterialX

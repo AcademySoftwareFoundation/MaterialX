@@ -15,7 +15,7 @@ namespace MaterialX
 
 class PvtConnectionCmd : public PvtCommand
 {
-public:
+  public:
     PvtConnectionCmd(const RtOutput& src, const RtInput& dest, ConnectionChange change) :
         _src(src),
         _dest(dest),
@@ -27,13 +27,28 @@ public:
     void execute(RtCommandResult& result) override;
     void undo(RtCommandResult& result) override;
 
-private:
+  private:
     void makeConnection(RtCommandResult& result);
     void breakConnection(RtCommandResult& result);
+    
+    virtual void updateConnectionProperties(const RtOutput& src, const RtInput& dest, RtCommandResult& result);
 
     RtOutput _src;
     RtInput _dest;
     ConnectionChange _change;
+};
+
+class PvtInterfaceConnectionCmd : public PvtConnectionCmd
+{
+  public:
+    PvtInterfaceConnectionCmd(const RtOutput& src, const RtInput& dest, ConnectionChange change) :
+        PvtConnectionCmd(src,dest,change)
+    {}
+
+    static PvtCommandPtr create(const RtOutput& src, const RtInput& dest, ConnectionChange change);
+
+  private:
+    void updateConnectionProperties(const RtOutput& src, const RtInput& dest, RtCommandResult& result) override;
 };
 
 }

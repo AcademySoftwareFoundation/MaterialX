@@ -29,7 +29,7 @@ namespace
             addPrimAttribute(RtString::HEIGHT, RtType::INTEGER);
             addPrimAttribute(RtString::UICOLOR, RtType::COLOR3);
             addPrimAttribute(RtString::LOOKS, RtType::STRING);
-            addPrimAttribute(RtString::ENABLEDLOOKS, RtType::STRING);
+            addPrimAttribute(RtString::ACTIVELOOKS, RtType::STRING);
             addPrimAttribute(RtString::DEFAULT, RtType::STRING);
         }
     };
@@ -89,15 +89,35 @@ const RtPrimSpec& RtLookGroup::getPrimSpec() const
     return s_lookGroupSpec;
 }
 
-void RtLookGroup::setEnabledLooks(const string& looks)
+void RtLookGroup::setActiveLooks(const string& looks)
 {
-    RtTypedValue* attr = prim()->createAttribute(RtString::ENABLEDLOOKS, RtType::STRING);
+    RtTypedValue* attr = prim()->createAttribute(RtString::ACTIVELOOKS, RtType::STRING);
     attr->asString() = looks;
 }
 
-const string& RtLookGroup::getEnabledLooks() const
+void RtLookGroup::appendActiveLook(const string& look)
 {
-    const RtTypedValue* attr = prim()->getAttribute(RtString::ENABLEDLOOKS);
+    RtTypedValue* attr = prim()->createAttribute(RtString::ACTIVELOOKS, RtType::STRING);
+    StringVec activeLookVec = splitNamePath(attr->asString());
+
+    // Append the look to the active looks if it isn't already in the vector
+    if (std::find(activeLookVec.begin(), activeLookVec.end(), look) == activeLookVec.end())
+    {
+        activeLookVec.push_back(look);
+        attr->asString() = createNamePath(activeLookVec);
+    }
+}
+
+void RtLookGroup::removeActiveLook(const string& look)
+{
+    RtTypedValue* attr = prim()->createAttribute(RtString::ACTIVELOOKS, RtType::STRING);
+    StringVec activeLookVec = splitNamePath(attr->asString());
+    activeLookVec.erase(std::remove(activeLookVec.begin(), activeLookVec.end(), look), activeLookVec.end());
+}
+
+const string& RtLookGroup::getActiveLooks() const
+{
+    const RtTypedValue* attr = prim()->getAttribute(RtString::ACTIVELOOKS);
     return attr ? attr->asString() : EMPTY_STRING;
 }
 

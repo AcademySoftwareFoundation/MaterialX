@@ -197,6 +197,10 @@ class MX_CORE_API UnitConverterRegistry
     /// Create unit definitions in a document based on registered converters
     void write(DocumentPtr doc) const;
 
+    /// Convert input values which have a source unit to a given target unit.
+    /// Returns if any unit conversion occured.
+    bool convertToUnit(DocumentPtr doc, const string& unitType, const string& targetUnit);
+
   private:
     UnitConverterRegistry(const UnitConverterRegistry&) = delete;
     UnitConverterRegistry() { }

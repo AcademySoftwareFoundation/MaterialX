@@ -24,6 +24,7 @@
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtApi.h>
 
+#include <MaterialXCore/LookUtil.h>
 #include <MaterialXCore/Types.h>
 
 #include <MaterialXFormat/Util.h>
@@ -699,13 +700,15 @@ namespace
         // for implementation associations.
         RtNodeDef nodedef(prim->hnd());
         RtString nodeDefName = prim->getName();
+        RtString defNamespace = nodedef.getNamespace();
+        RtString qualifiedName = !defNamespace.empty() ? RtString(defNamespace.str() + NAME_PREFIX_SEPARATOR  + nodeDefName.str()) : nodeDefName;
         RtSchemaPredicate<RtNodeGraph> filter;
         for (RtPrim child : stage->getRootPrim()->getChildren(filter))
         {
             // The association between a nodedef and a nodegraph is by name. No
             // version check is required as nodegraphs are not versioned.
             RtNodeGraph nodeGraph(child);
-            if (nodeGraph.getDefinition() == nodeDefName)
+            if (nodeGraph.getDefinition() == qualifiedName)
             {
                 PvtPrim* graphPrim = PvtObject::cast<PvtPrim>(child);
                 writeNodeGraph(graphPrim, document, options);
@@ -1291,7 +1294,7 @@ namespace
         mapper.addMapping(parent, name, prim->getName());
 
         RtLookGroup lookGroup(prim->hnd());
-        lookGroup.setEnabledLooks(src->getEnabledLooksString());
+        lookGroup.setActiveLooks(src->getActiveLook());
 
         // Link to looks
         const string& lookNamesString = src->getLooks();
@@ -1464,7 +1467,8 @@ RtWriteOptions::RtWriteOptions() :
 }
 
 RtExportOptions::RtExportOptions() :
-    mergeLooks(false)
+    mergeLooks(true),
+    flattenFilenames(true)
 {
 }
 
@@ -1666,7 +1670,7 @@ void mergeLooks(DocumentPtr document)
         if (lookgroup != mainLookGroup)
         {
             // Merge all other lookgroups into the mainLookGroup
-            mainLookGroup->appendLookGroup(lookgroup);
+            appendLookGroup(mainLookGroup, lookgroup);
             lookgroupNames.push_back(lookgroup->getName());
 
             // Append lookgroup looks to looksInLookGroup if they aren't already part of the set
@@ -1690,11 +1694,11 @@ void mergeLooks(DocumentPtr document)
     {
         if (looksInLookGroup.count(look->getName()) == 0)
         {
-            mainLookGroup->appendLook(look->getName());
+            appendLook(mainLookGroup, look->getName());
         }
     }
     // Combine the mainLookGroup into a mainLook
-    LookPtr mainLook = mainLookGroup->combineLooks();
+    LookPtr mainLook = combineLooks(mainLookGroup);
     // Delete the mainLookGroup
     document->removeChild(mainLookGroup->getName());
     // Append look names that don't belong to the mainLook to lookNames
@@ -1729,7 +1733,11 @@ void RtFileIo::exportDocument(std::ostream& stream, const RtExportOptions* optio
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
         xmlExportOptions.resolvedTexturePath = options->resolvedTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
+        xmlExportOptions.exportResolvers = options->exportResolvers;
+        xmlExportOptions.libraries = options->libraries;
     }
+
+    xmlExportOptions.modifyInPlace = true;
     exportToXmlStream(document, stream, &xmlExportOptions);
 }
 
@@ -1749,7 +1757,10 @@ void RtFileIo::exportDocument(const FilePath& documentPath, const RtExportOption
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
         xmlExportOptions.resolvedTexturePath = options->resolvedTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
+        xmlExportOptions.exportResolvers = options->exportResolvers;
+        xmlExportOptions.libraries = options->libraries;
     }
+    xmlExportOptions.modifyInPlace = true;
     exportToXmlFile(document, documentPath, &xmlExportOptions);
 }
 

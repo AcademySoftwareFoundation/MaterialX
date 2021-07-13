@@ -7,7 +7,7 @@
 #define MATERIALX_SHADERTRANSLATOR_H
 
 #include <MaterialXGenShader/Export.h>
-#include <MaterialXGenShader/Library.h>
+
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -26,7 +26,7 @@ class MX_GENSHADER_API ShaderTranslator
         return ShaderTranslatorPtr(new ShaderTranslator());
     }
 
-    /// Translate a shader  to the destination shading model.
+    /// Translate a shader node to the destination shading model.
     void translateShader(NodePtr shader, const string& destCategory);
 
     /// Translate each material in the input document to the destination
@@ -34,7 +34,7 @@ class MX_GENSHADER_API ShaderTranslator
     void translateAllMaterials(DocumentPtr doc, string destShader);
 
   protected:
-    ShaderTranslator();
+    ShaderTranslator() { }
 
     // Connect translation node inputs from the original shader
     void connectTranslationInputs(NodePtr shader, NodeDefPtr translationNodeDef);

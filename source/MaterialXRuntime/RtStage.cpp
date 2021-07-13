@@ -151,20 +151,16 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
         throw ExceptionRuntimeError("Cannot create nodedef '" + nodeDefName.str() + "', with node name: '" + nodeName.str() + "'");
     }
 
-    // Always used qualified namespace
-    const bool isNameSpaced = !namespaceString.empty();
-    const RtString qualifiedNodeDefName = isNameSpaced ? RtString(namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str()) : nodeDefName;
-
     PvtStage* stage = PvtStage::cast(this);
 
     // Make sure the nodedef name is unique among all prims in the stage.
     PvtPath path(nodeDefName);
     if (stage->getPrimAtPath(path))
     {
-        throw ExceptionRuntimeError("The nodedef name '" + qualifiedNodeDefName.str() + "' is not unique");
+        throw ExceptionRuntimeError("The nodedef name '" + nodeDefName.str() + "' is not unique");
     }
 
-    PvtPrim* nodedefPrim = stage->createPrim(stage->getPath(), qualifiedNodeDefName, RtNodeDef::typeName());
+    PvtPrim* nodedefPrim = stage->createPrim(stage->getPath(), nodeDefName, RtNodeDef::typeName());
     RtNodeDef nodedef(nodedefPrim->hnd());
 
     // Set node, version and optional node group
@@ -212,6 +208,10 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
         RtValue::copy(output.getType(), output.getValue(), nodedefOutput.getValue());
     }
 
+    // Always used qualified namespace
+    const bool isNameSpaced = !namespaceString.empty();
+    const RtString qualifiedNodeDefName = isNameSpaced ? RtString(namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str()) : nodeDefName;
+
     // Set namespace for the nodegraph and nodedef
     if (isNameSpaced)
     {
@@ -221,6 +221,7 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
 
     // Set the definition on the nodegraph
     // turning this into a functional graph
+    // Note that the nodeDefName is a Qualified node def name.
     nodegraph.setDefinition(qualifiedNodeDefName);
 
     // Create the relationship between nodedef and it's implementation.
