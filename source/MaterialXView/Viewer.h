@@ -95,40 +95,22 @@ class Viewer : public ng::Screen
         _modifiers = modifiers;
     }
 
-    // Set the bake width of the image.
+    // Set the target width for texture baking.
     void setBakeWidth(int bakeWidth)
     {
         _bakeWidth = bakeWidth;
     }
 
-    // Return the bake width of the image.
-    int getBakeWidth() const
-    {
-        return _bakeWidth;
-    }
-
-    // Set the bake height of the image.
+    // Set the target height for texture baking.
     void setBakeHeight(int bakeHeight)
     {
         _bakeHeight = bakeHeight;
     }
 
-    // Return the bake width of the image.
-    int getBakeHeight() const
-    {
-        return _bakeHeight;
-    }
-        
-    // Set the bake filename of the image.
-    void setBakeFilename(const mx::FilePath &bakeFilename)
+    // Set the output filename for texture baking.
+    void setBakeFilename(const mx::FilePath& bakeFilename)
     {
         _bakeFilename = bakeFilename;
-    }
-
-    // Return the bake filename of the image.
-    mx::FilePath getBakeFilename() const
-    {
-        return _bakeFilename;
     }
 
     // Return true if all inputs should be shown in the property editor.
