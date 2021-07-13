@@ -1346,8 +1346,8 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     add2.getOutput(OUT).connect(graphOutSocket);
 
     // Try connecting a token.
-    REQUIRE_THROWS(graphTokenSocket.connect(add1.getInput(IN2)));
-    REQUIRE(!graphTokenSocket.isConnected());
+    graphTokenSocket.connect(add1.getInput(IN2));
+    REQUIRE(graphTokenSocket.isConnected());
 
     // Add an unconnected node.
     stage->createPrim(graph.getPath(), NONAME, ADD_FLOAT_NODEDEF);

@@ -126,6 +126,12 @@ void setPortValue(const RtPort& port, const string& value, RtCommandResult& resu
     PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
 }
 
+void makeInterfaceConnection(const RtOutput& src, const RtInput& dest, RtCommandResult& result)
+{
+    PvtCommandPtr cmd = PvtInterfaceConnectionCmd::create(src, dest, ConnectionChange::MAKE_CONNECTION);
+    PvtApi::cast(RtApi::get())->getCommandEngine().execute(cmd, result);
+}
+
 void makeConnection(const RtOutput& src, const RtInput& dest, RtCommandResult& result)
 {
     PvtCommandPtr cmd = PvtConnectionCmd::create(src, dest, ConnectionChange::MAKE_CONNECTION);

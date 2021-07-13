@@ -319,17 +319,12 @@ InputPtr Input::getInterfaceInput() const
 
 void Input::addTokens(StringResolverPtr& resolver) const
 {
-    // If this input has an interface Input then use the tokens associated with that Input
-    // otherwise use the tokens directly associated with this Input.
-    InputPtr interfaceInput = getInterfaceInput();
-    if (interfaceInput)
+    ConstNodeGraphPtr graph = getAncestorOfType<NodeGraph>();
+    if (graph)
     {
-        interfaceInput->addTokens(resolver);
+        graph->addTokens(resolver);
     }
-    else
-    {
-        PortElement::addTokens(resolver);
-    }
+    PortElement::addTokens(resolver);
 }
 
 

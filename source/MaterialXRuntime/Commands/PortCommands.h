@@ -58,10 +58,13 @@ namespace RtCommand
     /// Set value on a string port.
     void setPortValue(const RtPort& port, const string& value, RtCommandResult& result);
 
-    /// Make a connection from src output to dest input.
+    /// Make a connection from a source output to destination input.
     void makeConnection(const RtOutput& src, const RtInput& dest, RtCommandResult& result);
 
-    /// Break a connection from src output to dest input.
+    /// Make a connection from a compound's interface output to a destination input 
+    void makeInterfaceConnection(const RtOutput& src, const RtInput& dest, RtCommandResult& result);
+
+    /// Break a connection from source output to destination input.
     void breakConnection(const RtOutput& src, const RtInput& dest, RtCommandResult& result);
 
 } // RtCommand

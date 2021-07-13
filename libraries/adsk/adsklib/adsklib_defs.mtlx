@@ -190,4 +190,16 @@
     <output name="out" type="color3" />
   </nodedef>
 
+  <!--
+    Node: token_node
+    Non-rendering node used to hold a set of token values
+  -->
+  <nodedef name="ND_token_node" node="token_node" nodegroup="organization" namespace="adsk">
+    <token name="token1" type="string" value="" />
+    <token name="token2" type="string" value=""  />
+    <token name="token3" type="string" value=""  />
+    <token name="token4" type="string" value=""  />
+    <token name="token5" type="string" value=""  />
+  </nodedef>
+
 </materialx>

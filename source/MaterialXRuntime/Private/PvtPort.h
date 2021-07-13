@@ -81,6 +81,11 @@ public:
         return (_flags & RtPortFlag::TOKEN) != 0;
     }
 
+    void setIsToken(bool value)
+    {
+        _flags = value ? (_flags | RtPortFlag::TOKEN) : (_flags & ~RtPortFlag::TOKEN);
+    }    
+
     const RtString& getColorSpace() const
     {
         const RtTypedValue* attr = getAttribute(RtString::COLORSPACE, RtType::INTERNSTRING);
