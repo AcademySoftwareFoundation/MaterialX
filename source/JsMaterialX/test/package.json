@@ -4,31 +4,29 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "clean": "node ./node_modules/rimraf/bin.js ./_build/",
+    "clean": "rimraf ./_build/",
     "copyBuild": "copyfiles -f ../../../build/bin/JsMaterialX* _build",
-    "mocha": "mocha '*.spec.js' --require @babel/register --timeout 5000",
     "pretest": "npm run clean && npm run copyBuild",
     "test": "npm run mocha",
-    "test:browser": "webpack serve --config browser/webpack.config.js"
+    "test:browser": "npm run karma -- --browsers ChromeHeadless --singleRun true",
+    "mocha": "mocha '*.spec.js' --require @babel/register --timeout 5000",
+    "karma": "karma start browser/karma.conf.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.6",
-    "@babel/node": "^7.8.7",
-    "@babel/preset-env": "7.9.6",
-    "@babel/register": "^7.9.0",
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/register": "^7.14.5",
     "chai": "^4.2.0",
-    "copy-webpack-plugin": "^8.1.1",
     "copyfiles": "^2.2.0",
+    "karma": "^6.3.4",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-mocha": "^2.0.1",
+    "karma-mocha-reporter": "^2.2.5",
     "mocha": "^7.1.2",
-    "mocha-loader": "^5.1.5",
-    "regenerator-runtime": "^0.13.5",
-    "rimraf": "^3.0.2",
-    "webpack": "^5.37.1",
-    "webpack-cli": "^4.7.0",
-    "webpack-dev-server": "^3.11.2"
+    "rimraf": "^3.0.2"
   }
 }

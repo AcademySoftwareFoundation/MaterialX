@@ -1,5 +1,4 @@
-const chai = require('chai');
-const expect = chai.expect;
+// MaterialX is served through a script tag in the test setup.
 
 function createStandardSurfaceMaterial(mx) {
     const doc = mx.createDocument();
@@ -14,26 +13,28 @@ function createStandardSurfaceMaterial(mx) {
     return doc;
 }
 
-describe('Generate ESSL Shaders', () => {
+describe('Generate ESSL Shaders', function () {
     let mx;
-    let canvas = document.getElementById('canvas');
-    let gl = canvas.getContext('webgl2');
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl2');
+    
+    this.timeout(60000);
 
-    before(async () => {
+    before(async function () {
         mx = await MaterialX();
     });
 
     it('Compile Shaders', () => {
-        let doc = createStandardSurfaceMaterial(mx);
+        const doc = createStandardSurfaceMaterial(mx);
 
-        let gen = new mx.EsslShaderGenerator();
-        let genContext = new mx.GenContext(gen);
-        let stdlib = mx.loadStandardLibraries(genContext);
+        const gen = new mx.EsslShaderGenerator();
+        const genContext = new mx.GenContext(gen);
+        const stdlib = mx.loadStandardLibraries(genContext);
 
         doc.importLibrary(stdlib);
 
-        let elem = mx.findRenderableElement(doc);
-        let mxShader = gen.generate(elem.getNamePath(), elem, genContext);
+        const elem = mx.findRenderableElement(doc);
+        const mxShader = gen.generate(elem.getNamePath(), elem, genContext);
 
         const fShader = mxShader.getSourceCode("pixel");
         const vShader = mxShader.getSourceCode("vertex");
@@ -49,4 +50,4 @@ describe('Generate ESSL Shaders', () => {
         expect(gl.getShaderParameter(glVertexShader, gl.COMPILE_STATUS)).to.equal(true);
         expect(gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS)).to.equal(true);
     });
-}).timeout(100000);
+});
