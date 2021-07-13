@@ -70,12 +70,6 @@ jobs:
         npm run test:browser
       working-directory: source/JsMaterialX/test/
 
-    - name: Upload Installed Package
-      uses: actions/upload-artifact@v2
-      with:
-        name: MaterialX_${{ matrix.name }}
-        path: build/installed/
-
     - name: Build Sample App
       if: github.ref == matrix.deploy_branch
       run: |

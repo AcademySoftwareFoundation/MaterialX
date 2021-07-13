@@ -125,7 +125,7 @@ function init() {
     // Load model and shaders
     const fileloader = new THREE.FileLoader();
     const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath( '/draco/' );
+    dracoLoader.setDecoderPath( 'draco/' );
     const gltfLoader = new GLTFLoader();
     gltfLoader.setDRACOLoader( dracoLoader );
     const hdrloader = new RGBELoader();
