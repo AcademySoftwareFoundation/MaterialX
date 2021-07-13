@@ -32,6 +32,12 @@ public:
     /// Set the active looks.
     void setActiveLooks(const string& looks);
 
+    /// Append an active look
+    void appendActiveLook(const string& look);
+
+    /// Remove an active look
+    void removeActiveLook(const string& look);
+
     /// Return the active looks.
     const string& getActiveLooks() const;
 

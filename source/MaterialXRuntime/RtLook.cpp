@@ -95,6 +95,26 @@ void RtLookGroup::setActiveLooks(const string& looks)
     attr->asString() = looks;
 }
 
+void RtLookGroup::appendActiveLook(const string& look)
+{
+    RtTypedValue* attr = prim()->createAttribute(RtString::ACTIVELOOKS, RtType::STRING);
+    StringVec activeLookVec = splitNamePath(attr->asString());
+
+    // Append the look to the active looks if it isn't already in the vector
+    if (std::find(activeLookVec.begin(), activeLookVec.end(), look) == activeLookVec.end())
+    {
+        activeLookVec.push_back(look);
+        attr->asString() = createNamePath(activeLookVec);
+    }
+}
+
+void RtLookGroup::removeActiveLook(const string& look)
+{
+    RtTypedValue* attr = prim()->createAttribute(RtString::ACTIVELOOKS, RtType::STRING);
+    StringVec activeLookVec = splitNamePath(attr->asString());
+    activeLookVec.erase(std::remove(activeLookVec.begin(), activeLookVec.end(), look), activeLookVec.end());
+}
+
 const string& RtLookGroup::getActiveLooks() const
 {
     const RtTypedValue* attr = prim()->getAttribute(RtString::ACTIVELOOKS);
