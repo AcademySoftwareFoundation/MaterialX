@@ -9,6 +9,8 @@ const IMAGE_PROPERTY_SEPARATOR = "_";
 const UADDRESS_MODE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "uaddressmode";
 const VADDRESS_MODE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "vaddressmode";
 const FILTER_TYPE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "filtertype";
+const FILE_PREFIX = '../../../Images/';
+const TARGET_FILE_PREFIX = 'Images/';
 
 export function prepareEnvTexture(texture, capabilities) {
     const rgbaTexture = RGBToRGBA_Float(texture);
@@ -104,7 +106,8 @@ function toThreeUniform(type, value, name, uniformJSON, textureLoader) {
             break;
         case 'sampler2D':
             if (value) {
-                const texture = textureLoader.load(value);
+                const mappedValue = value.replace(FILE_PREFIX, TARGET_FILE_PREFIX)
+                const texture = textureLoader.load(mappedValue);
                 // Set address & filtering mode
                 setTextureParameters(texture, name, uniformJSON);
                 outValue = texture;
