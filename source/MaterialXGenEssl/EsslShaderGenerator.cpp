@@ -21,12 +21,6 @@ EsslShaderGenerator::EsslShaderGenerator()
     // ESSL specific keywords
     const StringSet reservedWords = { "precision", "highp", "mediump", "lowp" };
     _syntax->registerReservedWords(reservedWords);
-
-    // Temporary overwrites for three.js
-    _tokenSubstitutions[HW::T_IN_POSITION] = "position";
-    _tokenSubstitutions[HW::T_IN_NORMAL] = "normal";
-    _tokenSubstitutions[HW::T_IN_TEXCOORD] = "uv";
-    _tokenSubstitutions[HW::T_IN_TANGENT] = "tangent";
 }
 
 void EsslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const

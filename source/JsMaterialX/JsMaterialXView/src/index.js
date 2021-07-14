@@ -14,7 +14,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
-import { generateTangents, prepareEnvTexture, toThreeUniforms, findLights, registerLights } from './helper.js'
+import { prepareEnvTexture, toThreeUniforms, findLights, registerLights } from './helper.js'
 
 let camera, scene, model, renderer, composer, controls, mx;
 
@@ -194,10 +194,17 @@ function init() {
           blendSrc: THREE.OneMinusSrcAlphaFactor,
           blendDst: THREE.SrcAlphaFactor
         });
+
         obj.traverse((child) => {
             if (child.isMesh) {
               child.geometry.computeTangents();
-              child.geometry.attributes.uv_0 = child.geometry.attributes.uv
+             
+              // Use default MaterialX naming convention.
+              child.geometry.attributes.i_position = child.geometry.attributes.position;
+              child.geometry.attributes.i_normal = child.geometry.attributes.normal;
+              child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
+              child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
+
               child.material = threeMaterial;
             }
         });
