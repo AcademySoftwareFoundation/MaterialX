@@ -247,7 +247,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeHdr(false),
     _bakeAverage(false),
     _bakeOptimize(true),
-    _bakeRequested(false)
+    _bakeRequested(false),
+    _bakeWidth(0),
+    _bakeHeight(0)
 {
     // Set the requested background color.
     setBackground(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
@@ -401,7 +403,6 @@ void Viewer::initialize()
     // Finalize the UI.
     _propertyEditor.setVisible(false);
     performLayout();
-    setVisible(true);
 }
 
 void Viewer::loadEnvironmentLight()
@@ -1997,6 +1998,14 @@ void Viewer::bakeTextures()
         auto maxImageSize = mx::getMaxDimensions(imageVec);
         unsigned int bakeWidth = std::max(maxImageSize.first, (unsigned int) 4);
         unsigned int bakeHeight = std::max(maxImageSize.second, (unsigned int) 4);
+        if (_bakeWidth)
+        {
+            bakeWidth = std::max(_bakeWidth, (unsigned int) 4);
+        }
+        if (_bakeHeight)
+        {
+            bakeHeight = std::max(_bakeHeight, (unsigned int) 4);
+        }
 
         // Construct a texture baker.
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;

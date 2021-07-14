@@ -26,6 +26,9 @@ const std::string options =
 "    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
 "    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
 "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+"    --bakeWidth [INTEGER]          Specify the target width for texture baking (defaults to maximum image width of the source document)\n"
+"    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
+"    --bakeFilename [STRING]        Specify the output document filename for texture baking\n"
 "    --msaa [INTEGER]               Specify the multisampling count for screen anti-aliasing (defaults to 0)\n"
 "    --refresh [INTEGER]            Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
 "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
@@ -91,6 +94,9 @@ int main(int argc, char* const argv[])
     int screenHeight = 960;
     mx::Color3 screenColor(0.3f, 0.3f, 0.32f);
     std::string captureFilename;
+    int bakeWidth = 0;
+    int bakeHeight = 0;
+    std::string bakeFilename;
     int multiSampleCount = 0;
     int refresh = 50;
 
@@ -173,6 +179,18 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "string", captureFilename);
         }
+        else if (token == "--bakeWidth")
+        {
+            parseToken(nextToken, "integer", bakeWidth);
+        }
+        else if (token == "--bakeHeight")
+        {
+            parseToken(nextToken, "integer", bakeHeight);
+        }
+        else if (token == "--bakeFilename")
+        {
+            parseToken(nextToken, "string", bakeFilename);
+        }
         else if (token == "--msaa")
         {
             parseToken(nextToken, "integer", multiSampleCount);
@@ -245,12 +263,24 @@ int main(int argc, char* const argv[])
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setLightRotation(lightRotation);
         viewer->setDocumentModifiers(modifiers);
+        viewer->setBakeWidth(bakeWidth);
+        viewer->setBakeHeight(bakeHeight);
+        viewer->setBakeFilename(bakeFilename);
+        viewer->initialize();
+        if (!bakeFilename.empty()) 
+        {
+            viewer->bakeTextures();
+            viewer->requestExit();
+        } 
+        else 
+        {            
+            viewer->setVisible(true);
+        }
         if (!captureFilename.empty())
         {
             viewer->requestFrameCapture(captureFilename);
             viewer->requestExit();
         }
-        viewer->initialize();
         ng::mainloop(refresh);
     }
     ng::shutdown();
