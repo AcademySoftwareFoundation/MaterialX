@@ -1997,13 +1997,16 @@ void Viewer::bakeTextures()
         mx::ImageVec imageVec = _imageHandler->getReferencedImages(doc);
         auto maxImageSize = mx::getMaxDimensions(imageVec);
         unsigned int bakeWidth = std::max(maxImageSize.first, (unsigned int) 4);
-        if (_bakeWidth) {
+        unsigned int bakeHeight = std::max(maxImageSize.second, (unsigned int) 4);
+        if (_bakeWidth)
+        {
             bakeWidth = std::max(_bakeWidth, (unsigned int) 4);
         }
-        unsigned int bakeHeight = std::max(maxImageSize.second, (unsigned int) 4);
-        if (_bakeHeight) {
+        if (_bakeHeight)
+        {
             bakeHeight = std::max(_bakeHeight, (unsigned int) 4);
         }
+
         // Construct a texture baker.
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
         mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
