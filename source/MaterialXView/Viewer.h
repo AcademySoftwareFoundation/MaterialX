@@ -95,6 +95,24 @@ class Viewer : public ng::Screen
         _modifiers = modifiers;
     }
 
+    // Set the target width for texture baking.
+    void setBakeWidth(unsigned int bakeWidth)
+    {
+        _bakeWidth = bakeWidth;
+    }
+
+    // Set the target height for texture baking.
+    void setBakeHeight(unsigned int bakeHeight)
+    {
+        _bakeHeight = bakeHeight;
+    }
+
+    // Set the output document filename for texture baking.
+    void setBakeFilename(const mx::FilePath& bakeFilename)
+    {
+        _bakeFilename = bakeFilename;
+    }
+
     // Return true if all inputs should be shown in the property editor.
     bool getShowAllInputs() const
     {
@@ -145,6 +163,8 @@ class Viewer : public ng::Screen
     {
         _exitRequested = true;
     }
+
+    void bakeTextures();
 
   private:
     void drawContents() override;
@@ -218,7 +238,6 @@ class Viewer : public ng::Screen
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
     void renderScreenSpaceQuad(MaterialPtr material);
-    void bakeTextures();
 
     // Update the directional albedo table.
     void updateAlbedoTable();
@@ -362,6 +381,8 @@ class Viewer : public ng::Screen
     bool _bakeAverage;
     bool _bakeOptimize;
     bool _bakeRequested;
+    unsigned int _bakeWidth;
+    unsigned int _bakeHeight;
     mx::FilePath _bakeFilename;
 };
 
