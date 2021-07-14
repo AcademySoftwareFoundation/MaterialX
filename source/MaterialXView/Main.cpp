@@ -94,8 +94,8 @@ int main(int argc, char* const argv[])
     int screenHeight = 960;
     mx::Color3 screenColor(0.3f, 0.3f, 0.32f);
     std::string captureFilename;
-    int bakeWidth = -1;
-    int bakeHeight = -1;
+    int bakeWidth = 0;
+    int bakeHeight = 0;
     std::string bakeFilename;
     int multiSampleCount = 0;
     int refresh = 50;

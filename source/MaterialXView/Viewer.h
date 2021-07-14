@@ -96,13 +96,13 @@ class Viewer : public ng::Screen
     }
 
     // Set the target width for texture baking.
-    void setBakeWidth(int bakeWidth)
+    void setBakeWidth(unsigned int bakeWidth)
     {
         _bakeWidth = bakeWidth;
     }
 
     // Set the target height for texture baking.
-    void setBakeHeight(int bakeHeight)
+    void setBakeHeight(unsigned int bakeHeight)
     {
         _bakeHeight = bakeHeight;
     }
@@ -382,8 +382,8 @@ class Viewer : public ng::Screen
     bool _bakeOptimize;
     bool _bakeRequested;
 
-    int _bakeWidth;
-    int _bakeHeight;
+    unsigned int _bakeWidth;
+    unsigned int _bakeHeight;
     mx::FilePath _bakeFilename;
 };
 
