@@ -14,7 +14,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
-import { prepareEnvTexture, toThreeUniforms } from './helper.js'
+import { generateTangents, prepareEnvTexture, toThreeUniforms, findLights, registerLights } from './helper.js'
 
 let camera, scene, model, renderer, composer, controls, mx;
 
@@ -97,16 +97,6 @@ function init() {
     scene.background = new THREE.Color(0x4c4c52);
     scene.background.convertSRGBToLinear();
 
-    scene.add(new THREE.AmbientLight( 0x222222));
-    const directionalLight = new THREE.DirectionalLight(new THREE.Color(1, 0.894474, 0.567234), 2.52776);
-    directionalLight.position.set(-1, 1, 1).normalize();
-    scene.add(directionalLight);
-    const lightData = {
-      type: 1,
-      direction: directionalLight.position.negate(), 
-      color: new THREE.Vector3(...directionalLight.color.toArray()), 
-      intensity: directionalLight.intensity
-    };
 
     renderer = new THREE.WebGLRenderer({canvas, context});
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -133,6 +123,7 @@ function init() {
 
     Promise.all([
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
+        new Promise(resolve => fileloader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => gltfLoader.load('Geometry/shaderball.glb', resolve)),
         new Promise(function (resolve) { 
@@ -140,7 +131,7 @@ function init() {
             resolve(module); 
           }); }),
         new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
-    ]).then(async ([loadedRadianceTexture, loadedIrradianceTexture, {scene: obj}, mxIn, mtlxMaterial]) => {
+    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, {scene: obj}, mxIn, mtlxMaterial]) => {
         // Initialize MaterialX and the shader generation context
         mx = mxIn;
         let doc = mx.createDocument();
@@ -157,8 +148,18 @@ function init() {
 
         let elem = mx.findRenderableElement(doc);
 
+        // Handle transparent materials
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
+
+        // Load lighting setup into document
+        const lightRigDoc = mx.createDocument();
+        await mx.readFromXmlString(lightRigDoc, loadedLightSetup);
+        doc.importLibrary(lightRigDoc);
+
+        // Register lights with generation context
+        const lights = findLights(doc);
+        const lightData = registerLights(mx, lights, genContext);
 
         let shader = gen.generate(elem.getNamePath(), elem, genContext);
 
@@ -174,10 +175,8 @@ function init() {
         const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
 
         Object.assign(uniforms, {
-          time: { value: 0.0 },
-          u_numActiveLightSources: {value: 1},
-          u_lightData: {value: [ lightData ]},
-
+          u_numActiveLightSources: {value: lights.length},
+          u_lightData: {value: lightData},
           u_envMatrix: {value: new THREE.Matrix4().makeRotationY(Math.PI)},
           u_envRadiance: {value: radianceTexture},
           u_envRadianceMips: {value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1},
@@ -240,11 +239,14 @@ function animate() {
       if (child.isMesh) {
         const uniforms = child.material.uniforms;
         if(uniforms) {
-          uniforms.time.value = performance.now() / 1000;
-          uniforms.u_viewPosition.value = camera.getWorldPosition(worldViewPos);
           uniforms.u_worldMatrix.value = child.matrixWorld;
           uniforms.u_viewProjectionMatrix.value = viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-          uniforms.u_worldInverseTransposeMatrix.value = new THREE.Matrix4().setFromMatrix3(normalMat.getNormalMatrix(child.matrixWorld));
+          
+          if (uniforms.u_viewPosition) 
+            uniforms.u_viewPosition.value = camera.getWorldPosition(worldViewPos);
+
+          if (uniforms.u_worldInverseTransposeMatrix)
+            uniforms.u_worldInverseTransposeMatrix.value = new THREE.Matrix4().setFromMatrix3(normalMat.getNormalMatrix(child.matrixWorld));
         }
       }
     });

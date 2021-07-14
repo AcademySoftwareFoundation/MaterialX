@@ -12,6 +12,12 @@ const FILTER_TYPE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "filtertype";
 const FILE_PREFIX = '../../../Images/';
 const TARGET_FILE_PREFIX = 'Images/';
 
+/**
+ * Initialized the environment texture as MaterialX expects it
+ * @param {THREE.Texture} texture
+ * @param {Object} capabilities
+ * @returns {THREE.Texture}
+ */
 export function prepareEnvTexture(texture, capabilities) {
     const rgbaTexture = RGBToRGBA_Float(texture);
     // RGBELoader sets flipY to true by default
@@ -28,7 +34,7 @@ export function prepareEnvTexture(texture, capabilities) {
 
 /**
  * Create a new (half)float texture containing an alpha channel with a value of 1 from a RGB (half)float texture.
- * @param {THREE.Texture} texture 
+ * @param {THREE.Texture} texture
  */
  function RGBToRGBA_Float(texture) {
     const rgbData = texture.image.data;
@@ -123,6 +129,9 @@ function toThreeUniform(type, value, name, uniformJSON, textureLoader) {
     return outValue;
 }
 
+/**
+ * Takes a uniform json object from MaterialX and maps it to Three
+ */
 export function toThreeUniforms(uniformJSON, textureLoader) {
     let threeUniforms = {};
     for (const [name, description] of Object.entries(uniformJSON)) {
@@ -175,4 +184,59 @@ function setTextureParameters(texture, name, uniformJSON, generateMipmaps = true
     const filterType = uniformJSON[base + FILTER_TYPE_SUFFIX] ? uniformJSON[base + FILTER_TYPE_SUFFIX].value : -1;
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = getMinFilter(filterType, generateMipmaps);
+}
+
+/**
+ * Returns all lights nodes in the document
+ * @param {mx.Document} doc 
+ * @returns {Array.<mx.Node>}
+ */
+export function findLights(doc) {
+    let lights = [];
+    for (let node of doc.getNodes())
+    {
+        if (node.getType() === "lightshader")
+            lights.push(node);
+    }
+
+    return lights;
+}
+
+/**
+ * Register lights in shader generation context
+ * @param {Object} mx MaterialX Module
+ * @param {Array.<mx.Node>} lights Light nodes
+ * * @param {mx.GenContext} genContext Shader generation context
+ * @returns {Array.<mx.Node>}
+ */
+export function registerLights(mx, lights, genContext) {
+    mx.HwShaderGenerator.unbindLightShaders(genContext);
+
+    const lightTypesBound = {};
+    const lightData = [];
+    let lightId = 1;
+    for (let light of lights) {
+        let nodeDef = light.getNodeDef();
+        let nodeName = nodeDef.getName();
+        if (!lightTypesBound[nodeName]) {
+            lightTypesBound[nodeName] = lightId;
+            mx.HwShaderGenerator.bindLightShader(nodeDef, lightId++, genContext);
+        }
+
+        const lightDirection = light.getValueElement("direction").getValue().data();
+        const lightColor = light.getValueElement("color").getValue().data();
+        const lightIntensity = light.getValueElement("intensity").getValue();
+
+        lightData.push({
+            type: lightTypesBound[nodeName],
+            direction: new THREE.Vector3(...lightDirection),
+            color: new THREE.Vector3(...lightColor), 
+            intensity: lightIntensity
+        });
+    }
+
+    // Make sure max light count is large enough
+    genContext.getOptions().hwMaxActiveLightSources = Math.max(genContext.getOptions().hwMaxActiveLightSources, lights.length);
+
+    return lightData;
 }

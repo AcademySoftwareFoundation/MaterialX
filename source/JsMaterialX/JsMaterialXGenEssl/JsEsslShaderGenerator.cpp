@@ -47,7 +47,7 @@ mx::ElementPtr findRenderableElement(mx::DocumentPtr doc)
 
 EMSCRIPTEN_BINDINGS(EsslShaderGenerator)
 {
-    ems::class_<mx::EsslShaderGenerator, ems::base<mx::ShaderGenerator>>("EsslShaderGenerator")
+    ems::class_<mx::EsslShaderGenerator, ems::base<mx::HwShaderGenerator>>("EsslShaderGenerator")
         .smart_ptr_constructor("EsslShaderGenerator", &std::make_shared<mx::EsslShaderGenerator>)
         ;
 
