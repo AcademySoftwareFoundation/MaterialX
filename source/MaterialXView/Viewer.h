@@ -381,7 +381,6 @@ class Viewer : public ng::Screen
     bool _bakeAverage;
     bool _bakeOptimize;
     bool _bakeRequested;
-
     unsigned int _bakeWidth;
     unsigned int _bakeHeight;
     mx::FilePath _bakeFilename;
