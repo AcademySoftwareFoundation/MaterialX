@@ -13,12 +13,19 @@
 namespace ems = emscripten;
 namespace mx = MaterialX;
 
+// The following 3 functions should not be necessary, but due to unexpected behaviour of emscripten,
+// it reports signature mismatches if the functions are bound directly
+
 mx::LinearUnitConverterPtr LinearUnitConverterCreate(mx::UnitTypeDefPtr unitTypeDef) {
     return mx::LinearUnitConverter::create(unitTypeDef);
 }
 
 mx::UnitConverterPtr UnitConverterRegistryGetUnitConverter(mx::UnitConverterRegistry& registry,mx::UnitTypeDefPtr def){
     return registry.getUnitConverter(def);
+}
+
+mx::UnitConverterRegistryPtr UnitConverterRegistrycreate() {
+    return mx::UnitConverterRegistry::create();
 }
 
 EMSCRIPTEN_BINDINGS(unit)
@@ -53,7 +60,7 @@ EMSCRIPTEN_BINDINGS(unit)
     ems::class_<mx::UnitConverterRegistry>("UnitConverterRegistry")
         .smart_ptr<std::shared_ptr<mx::UnitConverterRegistry>>("UnitConverterRegistry")
         .smart_ptr<std::shared_ptr<const mx::UnitConverterRegistry>>("UnitConverterRegistry")
-        .class_function("create", &mx::UnitConverterRegistry::create)
+        .class_function("create", &UnitConverterRegistrycreate)
         .function("addUnitConverter", &mx::UnitConverterRegistry::addUnitConverter)
         .function("removeUnitConverter", &mx::UnitConverterRegistry::removeUnitConverter)
         .function("getUnitConverter", &UnitConverterRegistryGetUnitConverter)

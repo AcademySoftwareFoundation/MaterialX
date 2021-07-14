@@ -5,6 +5,7 @@
 
 #include "../Helpers.h"
 
+#include <MaterialXCore/Unit.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
@@ -50,7 +51,7 @@ mx::DocumentPtr loadStandardLibraries(mx::GenContext& context)
     mx::DocumentPtr stdLib;
     mx::LinearUnitConverterPtr _distanceUnitConverter;
     mx::StringVec _distanceUnitOptions;
-    mx::UnitConverterRegistryPtr unitRegistry;
+    mx::UnitConverterRegistryPtr unitRegistry(mx::UnitConverterRegistry::create());
     mx::FilePathVec libraryFolders = { "libraries" };
     mx::FileSearchPath searchPath;
     searchPath.append("/");
