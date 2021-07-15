@@ -141,6 +141,17 @@ void ShaderGenerator::emitDependentFunctionCalls(const ShaderNode& node, GenCont
     }
 }
 
+void ShaderGenerator::emitFunctionBodyBegin(const ShaderNode&, GenContext&, ShaderStage& stage, Syntax::Punctuation punc) const
+{
+    emitScopeBegin(stage, punc);
+}
+
+void ShaderGenerator::emitFunctionBodyEnd(const ShaderNode&, GenContext&, ShaderStage& stage) const
+{
+    emitScopeEnd(stage);
+    emitLineBreak(stage);
+}
+
 void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
 {
     // Emit typedef statements for all data types that have an alias

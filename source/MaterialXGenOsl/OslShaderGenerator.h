@@ -39,6 +39,9 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     /// nodes matching this classification will be emitted.
     void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification = 0u) const override;
 
+    /// Emit code for starting a new function body.
+    void emitFunctionBodyBegin(const ShaderNode& node, GenContext& context, ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const override;
+
     /// Unique identifier for this generator target
     static const string TARGET;
 

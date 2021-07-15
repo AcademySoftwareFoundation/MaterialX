@@ -89,7 +89,7 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
         shadergen.emitLineEnd(stage, false);
 
         // Begin function body.
-        shadergen.emitScopeBegin(stage);
+        shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
         shadergen.emitFunctionCalls(*_rootGraph, context, stage);
 
         // Emit final results
@@ -100,8 +100,7 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
         }
 
         // End function body.
-        shadergen.emitScopeEnd(stage);
-        shadergen.emitLineBreak(stage);
+        shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 

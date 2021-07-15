@@ -104,7 +104,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ClosureContext* cct, GenConte
         shadergen.emitLine("void " + _functionName + "(LightData light, vec3 position, out lightshader result)", stage, false);
     }
 
-    shadergen.emitScopeBegin(stage);
+    shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
 
     // Emit all texturing nodes. These are inputs to any
     // closure/shader nodes and need to be emitted first.
@@ -123,8 +123,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ClosureContext* cct, GenConte
         shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT);
     }
 
-    shadergen.emitScopeEnd(stage);
-    shadergen.emitLineBreak(stage);
+    shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
 }
 
 void LightCompoundNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const

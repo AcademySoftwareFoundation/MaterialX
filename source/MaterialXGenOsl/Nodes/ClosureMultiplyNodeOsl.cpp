@@ -1,0 +1,57 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#include <MaterialXGenOsl/Nodes/ClosureMultiplyNodeOsl.h>
+
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/TypeDesc.h>
+
+namespace MaterialX
+{
+
+const string ClosureMultiplyNodeOsl::IN1 = "in1";
+const string ClosureMultiplyNodeOsl::IN2 = "in2";
+
+ShaderNodeImplPtr ClosureMultiplyNodeOsl::create()
+{
+    return std::make_shared<ClosureMultiplyNodeOsl>();
+}
+
+void ClosureMultiplyNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
+{
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    const Syntax& syntax = shadergen.getSyntax();
+
+    ShaderNode& node = const_cast<ShaderNode&>(_node);
+
+    // Emit calls for the closure dependencies upstream from this node.
+    shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+
+    // Get their results.
+    const string in1Result = shadergen.getUpstreamResult(node.getInput(IN1), context);
+    const string in2Result = shadergen.getUpstreamResult(node.getInput(IN2), context);
+
+    ShaderOutput* output = node.getOutput();
+
+    if (output->getType() == Type::BSDF)
+    {
+        ShaderInput* in2 = node.getInput(IN2);
+        const string in2clamped = output->getVariable() + "_in2_clamped";
+        shadergen.emitLine(syntax.getTypeName(in2->getType()) + " " + in2clamped + " = clamp(" + in2Result + ", 0.0, 1.0)", stage);
+
+        emitOutputVariables(node, context, stage);
+        shadergen.emitLine(output->getVariable() + ".result = " + in1Result + ".result * " + in2clamped, stage);
+        shadergen.emitLine(output->getVariable() + ".throughput = " + in1Result + ".throughput * " + in2clamped, stage);
+    }
+    else if (output->getType() == Type::EDF)
+    {
+        shadergen.emitLine(shadergen.getSyntax().getTypeName(Type::EDF) + " " + output->getVariable() + " = " + in1Result + " * " + in2Result, stage);
+    }
+END_SHADER_STAGE(stage, Stage::PIXEL)
+}
+
+} // namespace MaterialX

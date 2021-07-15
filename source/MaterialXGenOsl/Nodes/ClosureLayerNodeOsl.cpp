@@ -49,21 +49,23 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     {
         // This is a layer node with thin-film as top layer.
         // Call only the base BSDF but with thin-film parameters set.
-        ClosureContext* cct = context.getClosureContext();
-        if (!cct)
-        {
-            throw ExceptionShaderGenError("No closure context set to evaluate node '" + node.getName() + "'");
-        }
+
         // Make sure the connection to base is a sibling node and not the graph interface.
         if (base->getParent() != node.getParent())
         {
             throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
         }
-        cct->setThinFilm(top);
+
+        ClosureContext cct(0);
+        cct.setThinFilm(top);
+        context.pushClosureContext(&cct);
+
         const string oldVariable = base->getOutput()->getVariable();
         base->getOutput()->setVariable(output->getVariable());
         shadergen.emitFunctionCall(*base, context, stage);
         base->getOutput()->setVariable(oldVariable);
+
+        context.popClosureContext();
     }
     else if (base->getOutput()->getType() == Type::VDF)
     {

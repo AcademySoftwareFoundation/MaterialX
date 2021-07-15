@@ -18,6 +18,9 @@
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 #include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/ClosureAddNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/ClosureMixNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/ClosureMultiplyNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 
 namespace MaterialX
@@ -160,6 +163,20 @@ OslShaderGenerator::OslShaderGenerator() :
 
     // <!-- <layer> -->
     registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
+    // <!-- <mix> -->
+    registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNodeOsl::create);
+    registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNodeOsl::create);
+    // <!-- <add> -->
+    registerImplementation("IM_add_bsdf_" + OslShaderGenerator::TARGET, ClosureAddNodeOsl::create);
+    registerImplementation("IM_add_edf_" + OslShaderGenerator::TARGET, ClosureAddNodeOsl::create);
+    // <!-- <multiply> -->
+    registerImplementation("IM_multiply_bsdfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNodeOsl::create);
+    registerImplementation("IM_multiply_bsdfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNodeOsl::create);
+    registerImplementation("IM_multiply_edfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNodeOsl::create);
+    registerImplementation("IM_multiply_edfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNodeOsl::create);
+
+    // <!-- <thin_film> -->
+    registerImplementation("IM_thin_film_bsdf_" + OslShaderGenerator::TARGET, NopNode::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -253,7 +270,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitScopeEnd(stage);
 
     // Begin shader body
-    emitScopeBegin(stage);
+    emitFunctionBodyBegin(graph, context, stage);
 
     // Emit constants
     const VariableBlock& constants = stage.getConstantBlock();
@@ -279,7 +296,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     }
 
     // End shader body
-    emitScopeEnd(stage);
+    emitFunctionBodyEnd(graph, context, stage);
 
     // Perform token substitution
     replaceTokens(_tokenSubstitutions, stage);
@@ -365,8 +382,6 @@ void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext&
     // Special handling for closures functions.
     if ((classification & ShaderNode::Classification::CLOSURE) == classification)
     {
-        emitLine("closure color null_closure = 0", stage);
-
         // Emit function calls for closures connected to the outputs.
         // These will internally emit other closure function calls 
         // for upstream nodes if needed.
@@ -384,6 +399,16 @@ void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext&
         // Not a closures graph so just generate all
         // function calls in order.
         ShaderGenerator::emitFunctionCalls(graph, context, stage, classification);
+    }
+}
+
+void OslShaderGenerator::emitFunctionBodyBegin(const ShaderNode& node, GenContext&, ShaderStage& stage, Syntax::Punctuation punc) const
+{
+    emitScopeBegin(stage, punc);
+
+    if (node.hasClassification(ShaderNode::Classification::CLOSURE))
+    {
+        emitLine("closure color null_closure = 0", stage);
     }
 }
 

@@ -361,7 +361,7 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     // Add main function
     setFunctionName("main", stage);
     emitLine("void main()", stage, false);
-    emitScopeBegin(stage);
+    emitFunctionBodyBegin(graph, context, stage);
     emitLine("vec4 hPositionWorld = " + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_POSITION + ", 1.0)", stage);
     emitLine("gl_Position = " + HW::T_VIEW_PROJECTION_MATRIX + " * hPositionWorld", stage);
 
@@ -372,8 +372,7 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
         emitFunctionCall(*node, context, stage, false);
     }
 
-    emitScopeEnd(stage);
-    emitLineBreak(stage);
+    emitFunctionBodyEnd(graph, context, stage);
 }
 
 void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const
@@ -567,7 +566,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Add main function
     setFunctionName("main", stage);
     emitLine("void main()", stage, false);
-    emitScopeBegin(stage);
+    emitFunctionBodyBegin(graph, context, stage);
 
     if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
     {
@@ -660,8 +659,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
 
     // End main function
-    emitScopeEnd(stage);
-    emitLineBreak(stage);
+    emitFunctionBodyEnd(graph, context, stage);
 }
 
 void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)

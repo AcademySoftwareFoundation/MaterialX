@@ -48,7 +48,7 @@ void ScalarUnitNode::initialize(const InterfaceElement& element, GenContext& /*c
     _hash = std::hash<string>{}(_unitRatioFunctionName);
 }
 
-void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
+void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     // Emit the helper funtion mx_<unittype>_unit_ratio that embeds a look up table for unit scale
@@ -69,12 +69,12 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
     shadergen.emitLine("float " + _unitRatioFunctionName + "(int unit_from, int unit_to)", stage, false);
-    shadergen.emitScopeBegin(stage);
+    shadergen.emitFunctionBodyBegin(node, context, stage);  
     shadergen.emitVariableDeclarations(unitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
     shadergen.emitLine("return ("+ VAR_UNIT_SCALE + "[unit_from] / " + VAR_UNIT_SCALE + "[unit_to])", stage);
-    shadergen.emitScopeEnd(stage);
-    shadergen.emitLineBreak(stage);
-END_SHADER_STAGE(shader, Stage::PIXEL)
+    shadergen.emitFunctionBodyEnd(node, context, stage);
+
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 void ScalarUnitNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const

@@ -95,6 +95,12 @@ class MX_GENSHADER_API ShaderGenerator
     /// will be emitted.
     virtual void emitDependentFunctionCalls(const ShaderNode& node, GenContext& context, ShaderStage& stage, uint32_t classification = 0u) const;
 
+    /// Emit code for starting a new function body.
+    virtual void emitFunctionBodyBegin(const ShaderNode& node, GenContext& context, ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const;
+
+    /// Emit code for ending a function body.
+    virtual void emitFunctionBodyEnd(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+
     /// Emit type definitions for all data types that needs it.
     virtual void emitTypeDefinitions(GenContext& context, ShaderStage& stage) const;
 

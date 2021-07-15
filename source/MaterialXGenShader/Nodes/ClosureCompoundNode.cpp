@@ -86,12 +86,12 @@ void ClosureCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext
         delim = ", ";
     }
 
-    // End function sginature
+    // End function signature
     shadergen.emitString(")", stage);
     shadergen.emitLineEnd(stage, false);
 
     // Begin function body
-    shadergen.emitScopeBegin(stage);
+    shadergen.emitFunctionBodyBegin(*_rootGraph, context, stage);
 
     if (cct)
     {
@@ -130,8 +130,7 @@ void ClosureCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext
     }
 
     // End function body
-    shadergen.emitScopeEnd(stage);
-    shadergen.emitLineBreak(stage);
+    shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
 }
 
 void ClosureCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
