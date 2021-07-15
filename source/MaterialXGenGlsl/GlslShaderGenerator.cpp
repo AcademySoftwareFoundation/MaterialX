@@ -568,7 +568,8 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitLine("void main()", stage, false);
     emitFunctionBodyBegin(graph, context, stage);
 
-    if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (graph.hasClassification(ShaderNode::Classification::CLOSURE) && 
+        !graph.hasClassification(ShaderNode::Classification::SHADER))
     {
         // Handle the case where the graph is a direct closure.
         // We don't support rendering closures without attaching 
