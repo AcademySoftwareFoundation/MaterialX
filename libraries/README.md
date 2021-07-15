@@ -45,6 +45,7 @@ This folder contains the standard data libraries for MaterialX, providing declar
 - [bxdf](bxdf)
     - [standard_surface.mtlx](bxdf/standard_surface.mtlx) : Graph definition of the [Autodesk Standard Surface](https://autodesk.github.io/standard-surface/) shading model.
     - [usd_preview_surface.mtlx](bxdf/usd_preview_surface.mtlx) : Graph definition of the [UsdPreviewSurface](https://graphics.pixar.com/usd/docs/UsdPreviewSurface-Proposal.html) shading model.
+    - [lama](bxdf/lama) : Graph definitions of the [MaterialX Lama](https://rmanwiki.pixar.com/display/REN24/MaterialX+Lama) node set.
 
 ## Target Definitions
 - Each target implementation requires a target definition for declaration / implementation correspondence to work.
