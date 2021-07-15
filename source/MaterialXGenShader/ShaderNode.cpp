@@ -289,11 +289,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderOutput* primaryOutput = newNode->getOutput();
     if (primaryOutput->getType() == Type::SURFACESHADER)
     {
-        newNode->_classification = Classification::SURFACE | Classification::SHADER;
+        newNode->_classification = Classification::SURFACE | Classification::SHADER | Classification::CLOSURE;
     }
     else if (primaryOutput->getType() == Type::LIGHTSHADER)
     {
-        newNode->_classification = Classification::LIGHT | Classification::SHADER;
+        newNode->_classification = Classification::LIGHT | Classification::SHADER | Classification::CLOSURE;
     }
     else if (primaryOutput->getType() == Type::BSDF)
     {

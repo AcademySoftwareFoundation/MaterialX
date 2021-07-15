@@ -357,15 +357,22 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& cont
 
 void ShaderStage::addFunctionCall(const ShaderNode& node, GenContext& context)
 {
-    _scopes.back().nodes.insert(&node);
+    const ClosureContext* cct = context.getClosureContext();
+    const FunctionCallId id(&node, cct ? cct->getType() : 0);
+
+    _scopes.back().functions.insert(id);
+
     node.getImplementation().emitFunctionCall(node, context, *this);
 }
 
-bool ShaderStage::isEmitted(const ShaderNode& node) const
+bool ShaderStage::isEmitted(const ShaderNode& node, GenContext& context) const
 {
+    const ClosureContext* cct = context.getClosureContext();
+    const FunctionCallId id(&node, cct ? cct->getType() : 0);
+
     for (const Scope& s : _scopes)
     {
-        if (s.nodes.count(&node))
+        if (s.functions.count(id))
         {
             return true;
         }

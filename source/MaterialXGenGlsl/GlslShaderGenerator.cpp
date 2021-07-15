@@ -760,8 +760,9 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         {
             impl = LightCompoundNodeGlsl::create();
         }
-        else if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                 outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        else if (outputType &&
+                 (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                    outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER))
         {
             impl = ClosureCompoundNode::create();
         }
@@ -777,8 +778,9 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+            if (outputType &&
+                (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                    outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER))
             {
                 impl = ClosureSourceCodeNode::create();
             }

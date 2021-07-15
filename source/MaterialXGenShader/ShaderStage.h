@@ -123,10 +123,11 @@ class MX_GENSHADER_API VariableBlock
 class MX_GENSHADER_API ShaderStage
 {
 public:
+    using FunctionCallId = std::pair<const ShaderNode*, int>;
     struct Scope
     {
         Syntax::Punctuation punctuation;
-        std::set<const ShaderNode*> nodes;
+        std::set<FunctionCallId> functions;
         Scope(Syntax::Punctuation p) : punctuation(p) {}
     };
 
@@ -241,7 +242,7 @@ public:
     void addFunctionCall(const ShaderNode& node, GenContext& context);
 
     /// Return true if the function for the given node has been emitted in the current scope.
-    bool isEmitted(const ShaderNode& node) const;
+    bool isEmitted(const ShaderNode& node, GenContext& context) const;
 
     /// Set stage function name.
     void setFunctionName(const string& functionName) 

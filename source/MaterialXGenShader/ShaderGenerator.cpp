@@ -9,7 +9,8 @@
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
+#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXFormat/File.h>
@@ -102,7 +103,7 @@ void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& conte
     bool checkScope) const
 {
     // Check if it's emitted already.
-    if (stage.isEmitted(node))
+    if (stage.isEmitted(node, context))
     {
         emitComment("Omitted node '" + node.getName() + "'. Already called above.", stage);
         return;
@@ -284,10 +285,22 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         return impl;
     }
 
+    vector<OutputPtr> outputs = nodedef.getOutputs();
+    const TypeDesc* outputType = outputs.empty() ? nullptr : TypeDesc::get(outputs[0]->getType());
+
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        impl = CompoundNode::create();
+        if (outputType &&
+            (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER))
+        {
+            impl = ClosureCompoundNode::create();
+        }
+        else
+        {
+            impl = CompoundNode::create();
+        }
     }
     else if (implElement->isA<Implementation>())
     {
@@ -295,8 +308,17 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         impl = _implFactory.create(name);
         if (!impl)
         {
-            // Fall back to the source code implementation.
-            impl = SourceCodeNode::create();
+            // Fall back to source code implementation.
+            if (outputType &&
+                (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                    outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER))
+            {
+                impl = ClosureSourceCodeNode::create();
+            }
+            else
+            {
+                impl = SourceCodeNode::create();
+            }
         }
     }
     if (!impl)

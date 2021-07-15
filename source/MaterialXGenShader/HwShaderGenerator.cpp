@@ -424,7 +424,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const
 {
     // Check if it's emitted already.
-    if (stage.isEmitted(node))
+    if (stage.isEmitted(node, context))
     {
         emitComment("Omitted node '" + node.getName() + "'. Function already called in this scope.", stage);
         return;
