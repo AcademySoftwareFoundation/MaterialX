@@ -15,11 +15,10 @@
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
-#include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
-#include <MaterialXGenShader/Nodes/BsdfNodes.h>
+
+#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 
 namespace MaterialX
 {
@@ -160,22 +159,7 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
     // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, LayerNode::create);
-
-    // <!-- <thin_film_bsdf> -->
-    registerImplementation("IM_thin_film_bsdf_" + OslShaderGenerator::TARGET, ThinFilmNode::create);
-
-    // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + OslShaderGenerator::TARGET, DielectricBsdfNode::create);
-
-    // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + OslShaderGenerator::TARGET, DielectricBsdfNode::create);
-
-    // <!-- <conductor_bsdf> -->
-    registerImplementation("IM_conductor_bsdf_" + OslShaderGenerator::TARGET, ConductorBsdfNode::create);
-
-    // <!-- <sheen_bsdf> -->
-    registerImplementation("IM_sheen_bsdf_" + OslShaderGenerator::TARGET, SheenBsdfNode::create);
+    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -279,8 +263,12 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLineBreak(stage);
     }
 
-    // Emit function calls for all nodes
-    emitFunctionCalls(graph, context, stage);
+    // Emit all texturing nodes. These are inputs to any
+    // closure/shader nodes and need to be emitted first.
+    emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
+
+    // Emit any closure nodes.
+    emitFunctionCalls(graph, context, stage, ShaderNode::Classification::CLOSURE);
 
     // Emit final outputs
     for (size_t i = 0; i < outputs.size(); ++i)
@@ -374,11 +362,29 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
 
 void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
 {
-    if (!graph.hasClassification(ShaderNode::Classification::TEXTURE))
+    // Special handling for closures functions.
+    if ((classification & ShaderNode::Classification::CLOSURE) == classification)
     {
         emitLine("closure color null_closure = 0", stage);
+
+        // Emit function calls for closures connected to the outputs.
+        // These will internally emit other closure function calls 
+        // for upstream nodes if needed.
+        for (ShaderGraphOutputSocket* outputSocket : graph.getOutputSockets())
+        {
+            const ShaderNode* upstream = outputSocket->getConnection() ? outputSocket->getConnection()->getNode() : nullptr;
+            if (upstream && upstream->hasClassification(ShaderNode::Classification::CLOSURE))
+            {
+                emitFunctionCall(*upstream, context, stage, false);
+            }
+        }
     }
-    ShaderGenerator::emitFunctionCalls(graph, context, stage, classification);
+    else
+    {
+        // Not a closures graph so just generate all
+        // function calls in order.
+        ShaderGenerator::emitFunctionCalls(graph, context, stage, classification);
+    }
 }
 
 void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) const

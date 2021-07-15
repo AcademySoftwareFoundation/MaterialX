@@ -6,7 +6,6 @@
 #include <MaterialXGenOsl/OslSyntax.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 #include <sstream>
 
@@ -417,11 +416,12 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::BSDF,
-        std::make_shared<ScalarTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "null_closure",
-            "0",
-            "closure color")
+            "BSDF(null_closure, color(1.0), 0.0, 0.0)",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "struct BSDF { closure color result; color throughput; float thickness; float ior; };")
     );
 
     registerTypeSyntax
@@ -482,17 +482,6 @@ OslSyntax::OslSyntax()
             "null_closure",
             "0",
             "closure color")
-    );
-
-    registerTypeSyntax
-    (
-        Type::THINFILM,
-        std::make_shared<AggregateTypeSyntax>(
-            "thinfilm",
-            "thinfilm(0.0, 1.5)",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            "struct thinfilm { float thickness; float ior; };")
     );
 }
 

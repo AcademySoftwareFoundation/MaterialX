@@ -2,7 +2,7 @@
 <materialx version="1.38">
 
   <!-- <oren_nayar_diffuse_bsdf> -->
-  <implementation name="IM_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_oren_nayar_diffuse_bsdf" file="pbrlib/genosl/mx_oren_nayar_diffuse_bsdf.inline" target="genosl" />
+  <implementation name="IM_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_oren_nayar_diffuse_bsdf" file="pbrlib/genosl/mx_oren_nayar_diffuse_bsdf.osl" function="mx_oren_nayar_diffuse_bsdf" target="genosl" />
 
   <!-- <burley_diffuse_bsdf> -->
   <implementation name="IM_burley_diffuse_bsdf_genosl" nodedef="ND_burley_diffuse_bsdf" file="pbrlib/genosl/mx_burley_diffuse_bsdf.osl" function="mx_burley_diffuse_bsdf" target="genosl" />
