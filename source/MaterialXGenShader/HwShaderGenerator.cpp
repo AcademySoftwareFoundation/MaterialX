@@ -440,7 +440,7 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
 
     bool match = true;
 
-    if (node.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (node.hasClassification(ShaderNode::Classification::CLOSURE) && !node.hasClassification(ShaderNode::Classification::SHADER))
     {
         // Check if we have a closure context to modify the function call.
         ClosureContext* cct = context.getClosureContext();
