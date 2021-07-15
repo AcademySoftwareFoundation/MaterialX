@@ -665,7 +665,6 @@ void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandler
             ImageSamplingProperties samplingProperties;
             samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
-            samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
 
             for (auto uniformItem : *uniformItems)
             {
@@ -681,9 +680,9 @@ void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandler
                     if (!uniformImage)
                     {
                         uniformImage = imageHandler->createImage(uniformName,
-                                                                 uniformTexture->_width,
-                                                                 uniformTexture->_height,
-                                                                 uniformTexture->_channelCount,
+                                                                 uniformTexture->width,
+                                                                 uniformTexture->height,
+                                                                 uniformTexture->channelCount,
                                                                  Image::BaseType::FLOAT);
                         if (uniformImage)
                         {
@@ -692,8 +691,8 @@ void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandler
                             {
                                 continue;
                             }
-                            FloatVec& data = uniformTexture->_data;
-                            std::memcpy(pixels, data.data(), data.size() * uniformImage->getBaseStride());
+                            FloatVec& pixelData = uniformTexture->data;
+                            std::memcpy(pixels, pixelData.data(), pixelData.size() * uniformImage->getBaseStride());
                         }
                     }
                     if (!uniformImage || !uniformImage->getResourceBuffer())
@@ -702,6 +701,15 @@ void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandler
                     }
 
                     // Bind the image.
+                    samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
+                    if (uniformTexture->interpolation == ColorSpaceTexture::InterpolationType::NEAREST)
+                    {
+                        samplingProperties.filterType = ImageSamplingProperties::FilterType::CLOSEST;
+                    }
+                    else if (uniformTexture->interpolation == ColorSpaceTexture::InterpolationType::CUBIC)
+                    {
+                        samplingProperties.filterType = ImageSamplingProperties::FilterType::CUBIC;
+                    }
                     if (imageHandler->bindImage(uniformImage, samplingProperties))
                     {
                         GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);

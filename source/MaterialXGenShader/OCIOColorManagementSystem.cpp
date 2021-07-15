@@ -164,8 +164,20 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
         size_t offset = static_cast<size_t>(edgeLength * edgeLength* edgeLength);
         FloatVec vecarray(data, data + offset);
         ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, vecarray);
-        newTexture->_width = newTexture->_height = newTexture->_depth = edgeLength;
-        newTexture->_channelCount = 3;
+        newTexture->width = newTexture->height = newTexture->depth = edgeLength;
+        newTexture->channelCount = 3;
+        if (interpolation == OCIO::INTERP_LINEAR)
+        {
+            newTexture->interpolation = ColorSpaceTexture::InterpolationType::LINEAR;
+        }
+        else if (interpolation == OCIO::INTERP_CUBIC)
+        {
+            newTexture->interpolation = ColorSpaceTexture::InterpolationType::CUBIC;
+        }
+        else
+        {
+            newTexture->interpolation = ColorSpaceTexture::InterpolationType::NEAREST;
+        }
         rmap3D[samplerName] = newTexture;
     }
 
@@ -202,10 +214,10 @@ void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc
         FloatVec vecarray(data, data + offset);        
 
         ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, vecarray);
-        newTexture->_width = width;
-        newTexture->_height = height;
-        newTexture->_depth = 1;
-        newTexture->_channelCount = (channel == OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL) ? 3 : 1;
+        newTexture->width = width;
+        newTexture->height = height;
+        newTexture->depth = 1;
+        newTexture->channelCount = (channel == OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL) ? 3 : 1;
 
         if (height > 1)
         {
@@ -477,16 +489,16 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
                     for (auto rmapItem : *rmap)
                     {
                         ColorSpaceTexturePtr uniformItem = std::static_pointer_cast<ColorSpaceTexture>(rmapItem.second);
-                        const FloatVec& vecarray = uniformItem->_data;
+                        const FloatVec& vecarray = uniformItem->data;
                         ValuePtr uniformValue = Value::createValue(vecarray);
                         InputPtr newInput = impl->addInput(rmapItem.first, uniformValue->getTypeString());
                         if (newInput)
                         {
                             newInput->setValue(uniformValue->getValueString(), uniformValue->getTypeString());
-                            newInput->setAttribute("width", std::to_string(uniformItem->_width));
-                            newInput->setAttribute("height", std::to_string(uniformItem->_height));
-                            newInput->setAttribute("depth", std::to_string(uniformItem->_depth));
-                            newInput->setAttribute("channels", std::to_string(uniformItem->_channelCount));
+                            newInput->setAttribute("width", std::to_string(uniformItem->width));
+                            newInput->setAttribute("height", std::to_string(uniformItem->height));
+                            newInput->setAttribute("depth", std::to_string(uniformItem->depth));
+                            newInput->setAttribute("channels", std::to_string(uniformItem->channelCount));
                             newInput->setIsUniform(true);
                         }
                     }

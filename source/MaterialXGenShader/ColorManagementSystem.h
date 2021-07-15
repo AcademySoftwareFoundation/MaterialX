@@ -55,16 +55,23 @@ using ColorSpaceTexturePtr = shared_ptr<class ColorSpaceTexture>;
 class MX_GENSHADER_API ColorSpaceTexture : public ColorSpaceUniform
 {
   public:
+    enum class InterpolationType : int
+    {
+        NEAREST = 1,     
+        LINEAR = 2,      
+        CUBIC = 3
+    };
+
     static ColorSpaceTexturePtr create(const std::string& name, const FloatVec& data);
 
     ColorSpaceTexture(const string name, const FloatVec& data);
 
-    // TBD : Could replace this with Image
-    FloatVec _data;
-    unsigned int _channelCount = 3; // 1 or 3
-    unsigned int _width = 0;
-    unsigned int _height = 0;
-    unsigned int _depth = 0;
+    FloatVec data;
+    unsigned int channelCount = 3; // 1 or 3
+    unsigned int width = 0;
+    unsigned int height = 0;
+    unsigned int depth = 0;
+    InterpolationType interpolation = InterpolationType::LINEAR;
 };
 
 using ColorManagementResourceMap = std::unordered_map<std::string, ColorSpaceUniformPtr>;

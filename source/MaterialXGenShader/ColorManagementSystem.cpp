@@ -29,10 +29,9 @@ ColorSpaceConstantPtr ColorSpaceConstant::create(const std::string& name, const 
     return std::make_shared<ColorSpaceConstant>(name, value);
 }
 
-ColorSpaceTexture::ColorSpaceTexture(const string name, const FloatVec& data)
+ColorSpaceTexture::ColorSpaceTexture(const string name, const FloatVec& inputData)
     : ColorSpaceUniform(name),
-      _data(data.begin(), data.end())
-
+      data(inputData.begin(), inputData.end())
 {
 }
 
