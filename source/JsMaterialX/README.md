@@ -184,6 +184,54 @@ Since the module itself is ES5 code, we recommend to write custom code in ES5 as
 
 In order to avoid conflicting definitions in post.js files, we recommend to wrap custom code in an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) (Immediately Invoked Function Expression).
 
+### Using the EsslShaderGenerator JavaScript bindings
+#### Setup
+Make sure to consume `JsMaterialXGenShader.js` instead of `JsMaterialXCore.js` as described [here](#consuming-the-module). Additionally, ensure that the app serves `JsMaterialXGenShader.data` and `JsMaterialXGenShader.wasm`. The `.data` file includes the prepackaged library files containing the shader snippets and MaterialX node definitions/implementations required for generating the shader code.
+
+#### Generating Essl Shader Code & Compiling with WebGL
+To generate WebGL 2 compatible shader code a generator context and an instance of the `EsslShaderGenerator` class is required. 
+```javascript
+const gen = new mx.EsslShaderGenerator();
+const genContext = new mx.GenContext(gen);
+```
+The standard libraries need to be loaded and imported into the document. This step is required as the standard libraries contain all the definitions and snippets needed for assembly of the shader code.
+```javascript
+const stdlib = mx.loadStandardLibraries(genContext);
+const doc = mx.createDocument();
+doc.importLibrary(stdlib);
+```
+Now it is either time to load a document from a file as outline [here](#loading-materialx-files) or create one using the API.
+Generating the code consists of finding a renderable element (the javascript binding returns the first renderable element) and calling the `generate` method from the `EsslShaderGenerator` class. The shader code for the vertex/pixel shader may be requested from the resulting `Shader` instance.
+```javascript
+const elem = mx.findRenderableElement(doc);
+const shader = gen.generate(elem.getNamePath(), elem, genContext);
+const fShader = shader.getSourceCode("pixel");    
+const vShader = shader.getSourceCode("vertex");
+```
+Shader generation options may be changed by getting the options from the context and altering its properties. Changes to these options must occur after the standard libraries have been loaded as the call to `mx.loadStandardLibraries(genContext)` sets the options to some defaults.
+```javascript
+genContext.getOptions().fileTextureVerticalFlip = false;
+```
+Compilation using a WebGL 2 context (`gl`) is straight forward.
+```javascript
+const glVertexShader = gl.createShader(gl.VERTEX_SHADER);
+gl.shaderSource(glVertexShader, vShader);
+gl.compileShader(glVertexShader);
+const glPixelShader = gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(glPixelShader, fShader);
+gl.compileShader(glPixelShader);
+```
+However, any rendering framework that supports custom shaders should do. In the [JsMaterialXView sample app](./JsMaterialXView/src/index.js) we use the [RawShaderMaterial](https://threejs.org/docs/index.html?q=RawSh#api/en/materials/RawShaderMaterial) class from [three.js](https://threejs.org/).
+
+#### Getting the shader uniforms
+The uniform values can be obtained from the shader as a JSON, either for the vertex or the pixel shader.
+```javascript
+shader.getUniformValues("vertex");
+shader.getUniformValues("pixel")
+```
+Each entry corresponds to a uniform name and the value is an object which contains the type as specified in the generators Syntax class and the stringified value. Some of the commonly used uniform names in the generated shader are listed [here](../../documents/DeveloperGuide/ShaderGeneration.md#162-variable-naming-convention).
+An example that parses the JSON and feeds the uniform data to a three.js based application can be found in the [JsMaterialXView Sample App](./JsMaterialXView/src/index.js).
+
 ### Testing strategy
 Testing every binding doesn't seem desirable, since most of them will directly map to the C++ implementation, which should already be tested in the C++ tests. Instead, we only test common workflows (e.g. iterating/parsing a document), bindings with custom implementations, and our custom binding mechanisms. The latter involves custom marshalling, e.g. of the vector <-> array conversion, or support for optional parameters. Additionally, all features that might behave different on the web, compared to desktop, should be tested as well.
 

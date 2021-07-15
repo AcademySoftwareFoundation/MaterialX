@@ -30,6 +30,7 @@ set(FORMAT_DEPS
 
 set(GENSHADER_DEPS ${GENSHADER}JsGenContext.cpp
 	${GENSHADER}JsGenOptions.cpp
+    ${GENSHADER}JsHwShaderGenerator.cpp
     ${GENSHADER}JsShader.cpp
     ${GENSHADER}JsShaderGenerator.cpp
     ${GENSHADER}JsUtil.cpp)
