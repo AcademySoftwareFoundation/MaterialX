@@ -34,14 +34,14 @@ const float u_sheenAlbedo[SHEEN_ALBEDO_TABLE_SIZE*SHEEN_ALBEDO_TABLE_SIZE] = flo
 
 float mx_imageworks_sheen_directional_albedo(float cosTheta, float roughness)
 {
-    float x = cosTheta  * (SHEEN_ALBEDO_TABLE_SIZE - 1);
-    float y = roughness * (SHEEN_ALBEDO_TABLE_SIZE - 1);
+    float x = cosTheta  * float(SHEEN_ALBEDO_TABLE_SIZE - 1);
+    float y = roughness * float(SHEEN_ALBEDO_TABLE_SIZE - 1);
     int ix = int(x);
     int iy = int(y);
     int ix2 = clamp(ix + 1, 0, SHEEN_ALBEDO_TABLE_SIZE - 1);
     int iy2 = clamp(iy + 1, 0, SHEEN_ALBEDO_TABLE_SIZE - 1);
-    float fx = x - ix;
-    float fy = y - iy;
+    float fx = x - float(ix);
+    float fy = y - float(iy);
 
     // Bi-linear interpolation of the LUT values
     float v1 = mix(u_sheenAlbedo[iy  * SHEEN_ALBEDO_TABLE_SIZE + ix], u_sheenAlbedo[iy  * SHEEN_ALBEDO_TABLE_SIZE + ix2], fx);

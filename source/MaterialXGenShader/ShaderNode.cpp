@@ -238,7 +238,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             newNode->addOutput(port->getName(), portType);
         }
-        else
+        else if (port->isA<Input>())
         {
             ShaderInput* input;
             const string& portValue = port->getResolvedValueString();

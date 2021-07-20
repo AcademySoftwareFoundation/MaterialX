@@ -33,6 +33,14 @@ MX_RENDER_API ShaderPtr createConstantShader(GenContext& context,
                                const string& shaderName,
                                const Color3& color);
 
+/// Create a shader to perform simple gamma correction, using the given standard libraries
+/// for code generation.
+MX_RENDER_API ShaderPtr createGammaShader(GenContext& context,
+                            DocumentPtr stdLib,
+                            const string& shaderName,
+                            const Color3& gamma,
+                            bool verticalFlip=true);
+
 /// Create a shader with depth value output, using the given standard libraries
 /// for code generation.
 MX_RENDER_API ShaderPtr createDepthShader(GenContext& context,

@@ -52,9 +52,9 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
             // input may be float, integer or boolean.
             shadergen.emitString("if (float(", stage); 
             shadergen.emitInput(which, context, stage);
-            shadergen.emitString(") < ", stage);
+            shadergen.emitString(") < float(", stage);
             shadergen.emitValue(float(branch + 1), stage);
-            shadergen.emitString(")", stage);
+            shadergen.emitString("))", stage);
             shadergen.emitLineEnd(stage, false);
 
             shadergen.emitScopeBegin(stage);

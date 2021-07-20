@@ -43,9 +43,11 @@ void SurfaceShaderNodeGlsl::createVariables(const ShaderNode&, GenContext& conte
 
 void SurfaceShaderNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
         if (!position->isEmitted())
         {
