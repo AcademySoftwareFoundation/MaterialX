@@ -25,6 +25,9 @@
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" file="pbrlib/genosl/mx_sheen_bsdf.osl" function="mx_sheen_bsdf" target="genosl" />
 
+  <!-- <anisotropic_vdf> -->
+  <implementation name="IM_anisotropic_vdf_genosl" nodedef="ND_anisotropic_vdf" file="pbrlib/genosl/mx_anisotropic_vdf.osl" function="mx_anisotropic_vdf" target="genosl" />
+
   <!-- <thin_film_bsdf> -->
   <implementation name="IM_thin_film_bsdf_genosl" nodedef="ND_thin_film_bsdf" target="genosl" />
 

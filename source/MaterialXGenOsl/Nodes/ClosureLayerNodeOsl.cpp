@@ -67,10 +67,6 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
         context.popClosureContext();
     }
-    else if (base->getOutput()->getType() == Type::VDF)
-    {
-        throw ExceptionShaderGenError("Layering over a VDF is not implement yet, '" + node.getName() + "'");
-    }
     else
     {
         // Evaluate top and base nodes and combine their result
@@ -96,8 +92,16 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
         // Calculate the layering result.
         emitOutputVariables(node, context, stage);
-        shadergen.emitLine(output->getVariable() + ".result = " + topResult + ".result + " + baseResult + ".result * " + topResult + ".throughput", stage);
-        shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
+        if (base->getOutput()->getType() == Type::VDF)
+        {
+            shadergen.emitLine(output->getVariable() + ".result = " + topResult + ".result + " + baseResult, stage);
+            shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput", stage);
+        }
+        else
+        {
+            shadergen.emitLine(output->getVariable() + ".result = " + topResult + ".result + " + baseResult + ".result * " + topResult + ".throughput", stage);
+            shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
+        }
     }
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }

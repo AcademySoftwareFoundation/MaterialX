@@ -163,6 +163,7 @@ OslShaderGenerator::OslShaderGenerator() :
 
     // <!-- <layer> -->
     registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
+    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
     // <!-- <mix> -->
     registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNodeOsl::create);
     registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNodeOsl::create);
@@ -380,7 +381,7 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
 void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
 {
     // Special handling for closures functions.
-    if ((classification & ShaderNode::Classification::CLOSURE) == classification)
+    if ((classification & ShaderNode::Classification::CLOSURE) != 0)
     {
         // Emit function calls for closures connected to the outputs.
         // These will internally emit other closure function calls 
@@ -388,7 +389,7 @@ void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext&
         for (ShaderGraphOutputSocket* outputSocket : graph.getOutputSockets())
         {
             const ShaderNode* upstream = outputSocket->getConnection() ? outputSocket->getConnection()->getNode() : nullptr;
-            if (upstream && upstream->hasClassification(ShaderNode::Classification::CLOSURE))
+            if (upstream && upstream->hasClassification(classification))
             {
                 emitFunctionCall(*upstream, context, stage, false);
             }
