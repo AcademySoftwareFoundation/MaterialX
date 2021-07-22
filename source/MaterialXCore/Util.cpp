@@ -6,6 +6,8 @@
 #include <MaterialXCore/Types.h>
 
 #include <cctype>
+#include <sstream>
+#include <iomanip> 
 
 namespace MaterialX
 {
@@ -173,6 +175,23 @@ string parentNamePath(const string& namePath)
         return createNamePath(nameVec);
     }
     return EMPTY_STRING;
+}
+
+string getBaseCompoundName(const string& nodeName, const string& typeNames, const string& version, const string& namespaceString) {
+    std::ostringstream tempStream;
+
+    tempStream << nodeName;
+    tempStream << typeNames;
+
+    tempStream << version;
+
+    const bool isNameSpaced = !namespaceString.empty();   
+    if (isNameSpaced) {
+        tempStream << "_";
+        tempStream << namespaceString;
+    }
+
+    return tempStream.str();
 }
 
 } // namespace MaterialX
