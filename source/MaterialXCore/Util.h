@@ -70,7 +70,7 @@ MX_CORE_API string createNamePath(const StringVec& nameVec);
 /// Given a name path, return the parent name path
 MX_CORE_API string parentNamePath(const string& namePath);
 
-/// Generates the Base Compiund Name given the input
+/// Generates the Base Compound Name given the input
 MX_CORE_API string getBaseCompoundName(const string& nodeName, const string& typeNames, const string& version, const string& namespaceString);
 
 } // namespace MaterialX
