@@ -136,27 +136,30 @@ namespace
                 {
                     InputPtr interfaceInput = getInputInterface(interfaceName, node);
                     if (interfaceInput)
-            {
+                    {
                         checkInput = interfaceInput;
-            }
-            else
-            {
+                    }
+                    else
+                    {
                         return false;
-            }
-        }
-                if (checkInput->getConnectedNode())
-            {
-                return true;
-            }
-            else
-            {
-                    ValuePtr value = checkInput->getValue();
-                    if (value && !isEqual(value, inputPair.second))
+                    }
+                }
+                if (checkInput)
                 {
-                    return true;
+                    if (checkInput->getConnectedNode() && checkInput->getAttribute("channels").empty())
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        ValuePtr value = checkInput->getValue();
+                        if (value && !isEqual(value, inputPair.second))
+                        {
+                            return true;
+                        }
+                    }
                 }
             }
-        }
         }
         return false;
     }
