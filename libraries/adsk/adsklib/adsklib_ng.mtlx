@@ -11,8 +11,8 @@
   -->
   <nodegraph name="NG_adsk_bitmap_color3" nodedef="adsk:ND_adsk_bitmap_color3" namespace="adsk">
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
-      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+      <input name="in1" type="vector2" interfacename="realworld_scale"/>
+      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
@@ -65,10 +65,10 @@
   </nodegraph>
 
   <nodegraph name="NG_adsk_bitmap_float" nodedef="adsk:ND_adsk_bitmap_float" namespace="adsk">
-    <!-- divide scale by unit converted realworldscale -->
+    <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
-      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+      <input name="in1" type="vector2" interfacename="realworld_scale"/>
+      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
@@ -127,10 +127,10 @@
   </nodegraph>
 
   <nodegraph name="NG_adsk_bitmap_remap_float" nodedef="adsk:ND_adsk_bitmap_remap_float" namespace="adsk">
-    <!-- divide scale by unit converted realworldscale -->
+    <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
-      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+      <input name="in1" type="vector2" interfacename="realworld_scale"/>
+      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
@@ -200,17 +200,17 @@
   <adsk_normal_map> 
   -->
   <nodegraph name="NG_adsk_normal_map" nodedef="adsk:ND_adsk_normal_map" namespace="adsk">
-    <!-- divide scale by unit converted realworldscale -->
+    <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
-      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+      <input name="in1" type="vector2" interfacename="realworld_scale"/>
+      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset"/>
       <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
     </add>
-    
+
     <!-- rotation angle - positive angle rotate counterclockwise -->
     <multiply name="rotation_angle_param" type="float">
       <input name="in1" type="float" interfacename="rotation_angle"/>
@@ -256,10 +256,10 @@
   <adsk_height_map> 
   -->
   <nodegraph name="NG_adsk_height_map" nodedef="adsk:ND_adsk_height_map" namespace="adsk">
-    <!-- divide scale by unit converted realworldscale -->
+    <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
-      <input name="in2" type="vector2" interfacename="realworld_scale"/>
+      <input name="in1" type="vector2" interfacename="realworld_scale"/>
+      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
     </divide>
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset"/>
@@ -308,7 +308,7 @@
   -->
   <!-- <adsk_metal> -->
   <nodegraph name="NG_adsk_metal" nodedef="adsk:ND_adsk_metal" namespace="adsk">
-    
+
     <!-- base_color = metal_f0 * surface_albedo -->
     <multiply name="base_color_value" type="color3">
       <input name="in1" type="color3" interfacename="surface_albedo" />
@@ -368,7 +368,7 @@
 
   <!-- <adsk_opaque> -->
   <nodegraph name="NG_adsk_opaque" nodedef="adsk:ND_adsk_opaque" namespace="adsk">
-    
+
     <!-- specular_roughness = surface_roughness * sqrt(1 - surface_anisotropy) -->
     <subtract name="oneminus_surfaniso0" type="float">
       <input name="in1" type="float" value="1.0" />
