@@ -293,7 +293,7 @@ public:
         return _implementationSearchPaths;
     }
 
-    RtStagePtr loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
+    RtStagePtr loadLibrary(const RtString& name, const FilePathVec& libraryPaths, const RtReadOptions* options = nullptr, bool forceReload = false);
     void unloadLibrary(const RtString& name);
     void unloadLibraries();
 

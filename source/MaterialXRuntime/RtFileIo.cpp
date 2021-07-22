@@ -1504,13 +1504,12 @@ void RtFileIo::read(std::istream& stream, const RtReadOptions* options)
     }
 }
 
-StringSet RtFileIo::readLibrary(const FilePath& path, const FileSearchPath& searchPaths, const RtReadOptions* options)
+StringSet RtFileIo::readLibrary(const FilePathVec& libraryPaths, const FileSearchPath& searchPaths, const RtReadOptions* options)
 {
     PvtStage* stage = PvtStage::cast(_stage.get());
 
     // Load all content into a core document.
     DocumentPtr doc = createDocument();
-    FilePathVec libraryPaths = { path };
     StringSet loadedFiles = MaterialX::loadLibraries(libraryPaths, searchPaths, doc);
 
     // Read this document.
