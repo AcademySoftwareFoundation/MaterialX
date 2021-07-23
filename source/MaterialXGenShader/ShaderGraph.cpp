@@ -675,11 +675,8 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             // Handle node input ports
             for (const ValueElementPtr& nodedefPort : nodeDef->getActiveValueElements())
             {
-                InputPtr nodedefInputPort = nodedefPort->asA<Input>();
-                if (!nodedefInputPort)
-                {
+                if (nodedefPort->isA<Output>())
                     continue;
-                }
 
                 ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodedefPort->getName());
                 ShaderInput* input = newNode->getInput(nodedefPort->getName());

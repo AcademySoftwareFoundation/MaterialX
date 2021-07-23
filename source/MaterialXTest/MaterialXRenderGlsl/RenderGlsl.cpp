@@ -463,7 +463,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             try
             {
                 RenderUtil::AdditiveScopedTimer transpTimer(profileTimes.languageTimes.transparencyTime, "GLSL transparency time");
-                options.hwTransparency = mx::isTransparentSurface(element, shadergen.getTarget());
+                options.hwTransparency = mx::isTransparentSurface(element, shadergen);
                 transpTimer.endTimer();
 
                 RenderUtil::AdditiveScopedTimer generationTimer(profileTimes.languageTimes.generationTime, "GLSL generation time");

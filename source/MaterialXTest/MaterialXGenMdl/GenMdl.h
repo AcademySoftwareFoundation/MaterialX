@@ -76,7 +76,6 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             "IM_anisotropic_vdf_", "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", "IM_thin_film_bsdf_",
             "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_"
         };
-        ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
 };
 
