@@ -76,23 +76,24 @@ npm run test
 
 ## Using the Bindings
 ### Consuming the Module
-<!-- TODO: Change to official export name -->
-The JavaScript bindings can be consumed via a script tag in the browser:
+The JavaScript bindings come in two different flavors. `JsMaterialXCore.js` contains all bindings for the MaterialXCore and MaterialXFormat packages, allowing to load, traverse, modify and write MaterialX documents. `JsMaterialXGenShader.js` contains the Core and Format bindings, as well as the bindings required to generate WebGL-compatible shader code from a MaterialX document. Since this involves shipping additional data, we recommend to the `JsMaterialXCore.js` if shader generation is not required.
+
+The bindings can be consumed via a script tag in the browser:
 ```html
 <script src="./JsMaterialXCore.js" type="text/javascript"></script>
 <script type="text/javascript">
-    Module().then((mx) => {
+    MaterialX().then((mx) => {
         mx.createDocument();
         ...
     });
 </script>
 ```
 
-In NodeJs, simply `require` the module like this:
+In NodeJs, simply `require` the MaterialX module like this:
 ```javascript
-const Module = require('./JsMaterialXCore.js');
+const MaterialX = require('./JsMaterialXCore.js');
 
-Module().then(mx => {
+MaterialX().then(mx => {
     mx.createDocument();
     ...
 });
@@ -148,42 +149,6 @@ Documents can be written to strings via the `writeToXmlString` method, and to fi
 
 Note that the `XmlWriteOptions.elementPredicate` option is not supported in JavaScript.
 
-## Maintaining the Bindings
-This section provides some background on binding creation for contributors. In general, we recommed to look at existing bindings for examples.
-
-### What to Bind?
-In general, we aim for 100% coverage of the MaterialX API, at least for the Core and Format packages. However, there are functions and even classes where creating bindings wouldn't make much sense. The `splitString` utility function is such an example, because the JavaScript string class does already have a `split` method. The `FilePath` and `FileSearchPath` classes of the Format package are simply represented as strings on the JavaScript side, even though they provide complex APIs in C++. This is because most of their APIs do not apply to browsers, since they are specific to file system operations. In NodeJs, they would present a competing implementation of the core `fs` module, and therefore be redundant (even though they might be convenient in some cases).
-
-The examples above illustrate that it does not always make sense to create bindings, if there is no easy way to map them to both browsers and NodeJs, or if there is already an alternative in native JS. The overhead, both in maintenance and bundle size, wouldn't pay off.
-
-### Emscripten's optional_override
-Emscripten's `optional_override` allows to provide custom binding implementations in-place and enables function overloading by parameter count, which is otherwise not supported in JavaScript. Contributors need to be careful when using it, though, since there is a small pitfall.
-
-If a function binding has multiple overloads defined via `optional_override` to support optional parameters, this binding must only be defined once on the base class (i.e. the class that defines the function initially). Virtual functions that are overriden in deriving classes must not be bound again when creating bindings for these derived classes. Doing so can lead to the wrong function (i.e. base class' vs derived class' implementation) being called at runtime.
-
-### Optional Parameters
-Many C++ functions have optional parameters. Unfortunately, emscripten does not automatically deal with optional parameters. Binding these functions the 'normal' way will require users to provide all parameters in JavaScript, including optional ones. We provide helper macros to cicumvent this issue. Different flavors of the `BIND_*_FUNC` macros defined in `Helpers.h` can be used to conveniently bind functions with optional parameters. See uses of these macros in the existing bindings for examples.
-
-NOTE: Since these macros use `optional_override` internally, the restrictions explained above go for them as well. Only define bindings for virtual functions once on the base class with these macros.
-
-### Template Functions
-Generic functions that deal with multiple types cannot be bound directly to JavaScript. Instead, we create multiple bindings, one per type. The binding name follows the pattern `functionName<Type>`. For convenience, we usually provide a custom macro that takes the type and constructs the corresponding binding. See the existing bindings for examples.
-
-### Array <-> Vector conversion
-As explained in the user documentation, types are automatically converted between C++ and JavaScript. While there are multiple examples for custom marshalling of types (e.g. `std::pair<int, int>` to array, or `FileSearchPath` to string), the most common use case is the conversion of C++ vectors to JS arrays, and vice versa. This conversion can automatically be achieved by including the `VectorHelper.h` header in each binding file that covers functions which either accept or return vectors in C++.
-
-### Custom JavaScript Code
-Some bindings cannot be direct mappings to a C++ function. In particular when operations are asynchronous in JavaScript (e.g. loading files), it's easier to provide custom JavaScript implementations for the affected functions. This is how `readFromXmlString` and `readFromXmlFile` are implemented, for example. Such JavaScript code can be provided using the post-JS feature of emscripten. There should be one `post.js` file per MaterialX module, if that module requires any custom JS code. Note that these files need to be added to `CMakeLists.txt` in the `JsMaterialX` source folder. We recommend to provide custom code that dependes on the WebAssembly module like this:
-```javascript
-onModuleReady(function () {
-    <your code here>
-});
-```
-This will register your code after the module has been initialized. The wasm module will be available as `Module`.
-Since the module itself is ES5 code, we recommend to write custom code in ES5 as well, even though ES6 should work as well in most cases.
-
-In order to avoid conflicting definitions in post.js files, we recommend to wrap custom code in an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) (Immediately Invoked Function Expression).
-
 ### Using the EsslShaderGenerator JavaScript bindings
 #### Setup
 Make sure to consume `JsMaterialXGenShader.js` instead of `JsMaterialXCore.js` as described [here](#consuming-the-module). Additionally, ensure that the app serves `JsMaterialXGenShader.data` and `JsMaterialXGenShader.wasm`. The `.data` file includes the prepackaged library files containing the shader snippets and MaterialX node definitions/implementations required for generating the shader code.
@@ -231,6 +196,42 @@ shader.getUniformValues("pixel")
 ```
 Each entry corresponds to a uniform name and the value is an object which contains the type as specified in the generators Syntax class and the stringified value. Some of the commonly used uniform names in the generated shader are listed [here](../../documents/DeveloperGuide/ShaderGeneration.md#162-variable-naming-convention).
 An example that parses the JSON and feeds the uniform data to a three.js based application can be found in the [JsMaterialXView Sample App](./JsMaterialXView/src/index.js).
+
+## Maintaining the Bindings
+This section provides some background on binding creation for contributors. In general, we recommed to look at existing bindings for examples.
+
+### What to Bind?
+In general, we aim for 100% coverage of the MaterialX API, at least for the Core and Format packages. However, there are functions and even classes where creating bindings wouldn't make much sense. The `splitString` utility function is such an example, because the JavaScript string class does already have a `split` method. The `FilePath` and `FileSearchPath` classes of the Format package are simply represented as strings on the JavaScript side, even though they provide complex APIs in C++. This is because most of their APIs do not apply to browsers, since they are specific to file system operations. In NodeJs, they would present a competing implementation of the core `fs` module, and therefore be redundant (even though they might be convenient in some cases).
+
+The examples above illustrate that it does not always make sense to create bindings, if there is no easy way to map them to both browsers and NodeJs, or if there is already an alternative in native JS. The overhead, both in maintenance and bundle size, wouldn't pay off.
+
+### Emscripten's optional_override
+Emscripten's `optional_override` allows to provide custom binding implementations in-place and enables function overloading by parameter count, which is otherwise not supported in JavaScript. Contributors need to be careful when using it, though, since there is a small pitfall.
+
+If a function binding has multiple overloads defined via `optional_override` to support optional parameters, this binding must only be defined once on the base class (i.e. the class that defines the function initially). Virtual functions that are overriden in deriving classes must not be bound again when creating bindings for these derived classes. Doing so can lead to the wrong function (i.e. base class' vs derived class' implementation) being called at runtime.
+
+### Optional Parameters
+Many C++ functions have optional parameters. Unfortunately, emscripten does not automatically deal with optional parameters. Binding these functions the 'normal' way will require users to provide all parameters in JavaScript, including optional ones. We provide helper macros to cicumvent this issue. Different flavors of the `BIND_*_FUNC` macros defined in `Helpers.h` can be used to conveniently bind functions with optional parameters. See uses of these macros in the existing bindings for examples.
+
+NOTE: Since these macros use `optional_override` internally, the restrictions explained above go for them as well. Only define bindings for virtual functions once on the base class with these macros.
+
+### Template Functions
+Generic functions that deal with multiple types cannot be bound directly to JavaScript. Instead, we create multiple bindings, one per type. The binding name follows the pattern `functionName<Type>`. For convenience, we usually provide a custom macro that takes the type and constructs the corresponding binding. See the existing bindings for examples.
+
+### Array <-> Vector conversion
+As explained in the user documentation, types are automatically converted between C++ and JavaScript. While there are multiple examples for custom marshalling of types (e.g. `std::pair<int, int>` to array, or `FileSearchPath` to string), the most common use case is the conversion of C++ vectors to JS arrays, and vice versa. This conversion can automatically be achieved by including the `VectorHelper.h` header in each binding file that covers functions which either accept or return vectors in C++.
+
+### Custom JavaScript Code
+Some bindings cannot be direct mappings to a C++ function. In particular when operations are asynchronous in JavaScript (e.g. loading files), it's easier to provide custom JavaScript implementations for the affected functions. This is how `readFromXmlString` and `readFromXmlFile` are implemented, for example. Such JavaScript code can be provided using the post-JS feature of emscripten. There should be one `post.js` file per MaterialX module, if that module requires any custom JS code. Note that these files need to be added to `CMakeLists.txt` in the `JsMaterialX` source folder. We recommend to provide custom code that dependes on the WebAssembly module like this:
+```javascript
+onModuleReady(function () {
+    <your code here>
+});
+```
+This will register your code after the module has been initialized. The wasm module will be available as `Module`.
+Since the module itself is ES5 code, we recommend to write custom code in ES5 as well, even though ES6 should work as well in most cases.
+
+In order to avoid conflicting definitions in post.js files, we recommend to wrap custom code in an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) (Immediately Invoked Function Expression).
 
 ### Testing strategy
 Testing every binding doesn't seem desirable, since most of them will directly map to the C++ implementation, which should already be tested in the C++ tests. Instead, we only test common workflows (e.g. iterating/parsing a document), bindings with custom implementations, and our custom binding mechanisms. The latter involves custom marshalling, e.g. of the vector <-> array conversion, or support for optional parameters. Additionally, all features that might behave different on the web, compared to desktop, should be tested as well.
