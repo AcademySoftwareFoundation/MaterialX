@@ -26,14 +26,14 @@ namespace
         if (value->isA<float>() && isEqual(value->asA<float>(), value2))
         {
             return true;
-    }
+        }
         else if (value->isA<Color3>())
-    {
+        {
             const Color3& value3 = value->asA<Color3>();
             if (isEqual(value3[0], value2) && isEqual(value3[1], value2) && isEqual(value3[2], value2))
-        {
-            return true;
-        }
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -53,11 +53,11 @@ namespace
         {
             NodeDefPtr nodeDef = nodeGraph->getNodeDef();
             if (nodeDef)
-    {
+            {
                 interfaceInput = nodeDef->getInput(interfaceName);
-    }
+            }
             else
-    {
+            {
                 interfaceInput = nodeGraph->getInput(interfaceName);
             }
         }
@@ -72,14 +72,14 @@ namespace
             if (interfaceInput)
             {
                 if (interfaceInput->getConnectedNode())
-        {
-            return true;
-        }
+                {
+                    return true;
+                }
                 ValuePtr value = interfaceInput->getValue();
                 if (value && !isEqual(value, opaqueInput.second))
-        {
-            return true;
-        }
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -103,10 +103,10 @@ namespace
         if (interfaceNode)
         {
             for (auto inputPair : inputPairList)
-        {
+            {
                 InputPtr checkInput = node->getActiveInput(inputPair.first);
                 if (checkInput)
-            {
+                {
                     const string& interfaceName = checkInput->getInterfaceName();
                     if (!interfaceName.empty())
                     {
