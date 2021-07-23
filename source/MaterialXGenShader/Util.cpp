@@ -144,9 +144,16 @@ namespace
                         return false;
                     }
                 }
-                if (checkInput->getConnectedNode())
+
+                // If mapped but not an adjustment then assume transparency
+                NodePtr inputNode = checkInput->getConnectedNode();
+                if (inputNode)
                 {
-                    return true;
+                    NodeDefPtr nodeDef = inputNode->getNodeDef();
+                    if (nodeDef && nodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) != NodeDef::ADJUSTMENT_NODE_GROUP)
+                    {
+                        return true;
+                    }
                 }
                 else
                 {
