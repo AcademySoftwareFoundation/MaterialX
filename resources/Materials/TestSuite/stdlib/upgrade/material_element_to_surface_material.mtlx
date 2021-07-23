@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.37">
+  <material name="my_surface">
+    <shaderref name="my_surface" node="standard_surface">
+      <bindinput name="base_color" type="color3" nodegraph="NG_aiMixColor31" output="out" />
+    </shaderref>
+  </material>
   <nodegraph name="NG_aiMixColor31">
     <mix name="aiMixColor31" type="color3">
       <input name="fg" type="color3" nodename="aiAbsvalColor31" />
@@ -14,10 +19,4 @@
     </absval>
     <output name="out" type="color3" nodename="aiMixColor31" />
   </nodegraph>
-  <standard_surface name="my_surface2" type="surfaceshader">
-    <input name="base_color" type="color3" nodegraph="NG_aiMixColor31" output="out" />
-  </standard_surface>
-  <surfacematerial name="my_surface" type="material">
-    <input name="surfaceshader" type="surfaceshader" nodename="my_surface2" />
-  </surfacematerial>
 </materialx>
