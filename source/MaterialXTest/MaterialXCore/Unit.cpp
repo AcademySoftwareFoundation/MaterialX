@@ -133,8 +133,7 @@ TEST_CASE("UnitDocument", "[unit]")
         mx::readFromXmlFile(doc, filename, searchPath);
         mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
 
-        const std::string DISTANCE_TYPE_STRING("distance");
-        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(DISTANCE_TYPE_STRING);
+        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
         REQUIRE(distanceTypeDef);
 
         mx::UnitConverterPtr uconverter = mx::LinearUnitConverter::create(distanceTypeDef);

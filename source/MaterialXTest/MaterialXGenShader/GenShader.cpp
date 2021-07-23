@@ -94,7 +94,7 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE(mx::TypeDesc::get("bar") == nullptr);
 }
 
-TEST_CASE("GenShader: Translation Check", "[genshader]")
+TEST_CASE("GenShader: Graph + Nodedf Translation Check", "[genshader]")
 {
     mx::FileSearchPath searchPath;
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
@@ -155,7 +155,7 @@ TEST_CASE("GenShader: Translation Check", "[genshader]")
     mx::writeToXmlFile(doc, "transparency_test_nodedefs.mtlx");
 }
 
-TEST_CASE("GenShader: Transparency ", "[genshader]")
+TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
 {
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
     mx::DocumentPtr libraries = mx::createDocument();
@@ -207,7 +207,7 @@ TEST_CASE("GenShader: Transparency ", "[genshader]")
         }
         catch (mx::Exception& e)
         {
-            INFO(std::string("Test filed: ") + std::string(e.what()));
+            INFO(std::string("Test failed: ") + std::string(e.what()));
         }
     }
     for (auto failedTest : failedTests)

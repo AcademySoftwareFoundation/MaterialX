@@ -34,7 +34,7 @@ void GeomPropValueNodeGlsl::createVariables(const ShaderNode& node, GenContext&,
 
 void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
     if (!geomPropInput)
@@ -46,7 +46,7 @@ void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext&
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix = vertexData.getInstance() + ".";
         ShaderPort* geomprop = vertexData[variable];
         if (!geomprop->isEmitted())
         {
@@ -57,7 +57,7 @@ void GeomPropValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext&
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix = vertexData.getInstance() + ".";
         ShaderPort* geomprop = vertexData[variable];
             shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
