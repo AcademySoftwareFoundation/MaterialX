@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="transpGraph_image" xpos="475.085" ypos="425.724">
+    <input name="opacity_file" type="filename" uniform="true" value="resources/Images/grid.png" />
+    <burley_diffuse_bsdf name="burley_diffuse_bsdf" type="BSDF" xpos="315" ypos="401">
+      <input name="color" type="color3" value="0.8, 0.8, 0.8" />
+    </burley_diffuse_bsdf>
+    <convert name="convert" type="color3" xpos="620" ypos="258">
+      <input name="in" type="float" nodename="image" />
+    </convert>
+    <image name="image" type="float" xpos="315" ypos="668">
+      <input name="file" type="filename" uniform="true" interfacename="opacity_file" />
+    </image>
+    <standard_surface name="ss_opacity" type="surfaceshader" version="1.0.1" xpos="925" ypos="1269">
+      <input name="opacity" type="color3" value="1, 0.1, 0.2" />
+    </standard_surface>
+    <standard_surface name="ss_opacity_mapped" type="surfaceshader" version="1.0.1" xpos="925" ypos="9">
+      <input name="opacity" type="color3" nodename="convert" />
+    </standard_surface>
+    <standard_surface name="ss_transmission" type="surfaceshader" version="1.0.1" xpos="925" ypos="1656">
+      <input name="transmission" type="float" value="0.1" />
+      <input name="transmission_color" type="color3" value="0, 1, 0" />
+      <input name="transmission_depth" type="float" value="20" />
+      <input name="transmission_scatter" type="color3" value="1, 1, 1" />
+      <input name="transmission_dispersion" type="float" value="20" />
+    </standard_surface>
+    <standard_surface name="ss_transmission_mapped" type="surfaceshader" version="1.0.1" xpos="925" ypos="639">
+      <input name="transmission" type="float" nodename="image" />
+    </standard_surface>
+    <surface name="surface_opacity_mapped" type="surfaceshader" xpos="925" ypos="1026">
+      <input name="bsdf" type="BSDF" nodename="mix" />
+      <input name="edf" type="EDF" value="" />
+      <input name="opacity" type="float" nodename="image" />
+    </surface>
+    <surface name="surface_opacity_unmapped" type="surfaceshader" xpos="925" ypos="396">
+      <input name="bsdf" type="BSDF" nodename="burley_diffuse_bsdf" />
+      <input name="edf" type="EDF" value="" />
+      <input name="opacity" type="float" value="0.2" />
+    </surface>
+    <conductor_bsdf name="conductor_bsdf" type="BSDF" xpos="315" ypos="1079" />
+    <mix name="mix" type="BSDF" xpos="656.186" ypos="938.924">
+      <input name="fg" type="BSDF" nodename="burley_diffuse_bsdf" />
+      <input name="bg" type="BSDF" nodename="conductor_bsdf" />
+      <input name="mix" type="float" value="0.5" />
+    </mix>
+    <output name="ss_opacity_mapped_out" type="surfaceshader" nodename="ss_opacity_mapped" />
+    <output name="surf_opacity_out" type="surfaceshader" nodename="surface_opacity_unmapped" />
+    <output name="ss_transmission_mapped_out" type="surfaceshader" nodename="ss_transmission_mapped" />
+    <output name="surf_opacity_mapped" type="surfaceshader" nodename="surface_opacity_mapped" />
+    <output name="ss_opacity_unmapped_out" type="surfaceshader" nodename="ss_opacity" />
+    <output name="ss_transm_unmapped_out" type="surfaceshader" nodename="ss_transmission" />
+  </nodegraph>
+  <nodegraph name="transpGraph_proc" xpos="766.624" ypos="438.194">
+    <input name="diffuse_color" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="repeat" type="vector2" value="4, 4" />
+    <burley_diffuse_bsdf name="burley_diffuse_bsdf" type="BSDF" xpos="811.986" ypos="945.964">
+      <input name="color" type="color3" interfacename="diffuse_color" value="0.18, 0.18, 0.18" />
+    </burley_diffuse_bsdf>
+    <convert name="convert" type="color3" xpos="1230" ypos="99">
+      <input name="in" type="float" nodename="ramp4" />
+    </convert>
+    <standard_surface name="ss_opacity_mapped" type="surfaceshader" version="1.0.1" xpos="1535" ypos="11.3131">
+      <input name="opacity" type="color3" nodename="convert" />
+    </standard_surface>
+    <standard_surface name="ss_transmission_mapped" type="surfaceshader" version="1.0.1" xpos="1535" ypos="396">
+      <input name="transmission" type="float" nodename="ramp4" />
+    </standard_surface>
+    <surface name="surface_opacity_mapped" type="surfaceshader" xpos="1421.99" ypos="938.708">
+      <input name="bsdf" type="BSDF" nodename="mix" />
+      <input name="edf" type="EDF" value="" />
+      <input name="opacity" type="float" nodename="ramp4" />
+    </surface>
+    <ramp4 name="ramp4" type="float" xpos="811.986" ypos="315.964">
+      <input name="valuetr" type="float" value="1" />
+      <input name="valuebl" type="float" value="1" />
+      <input name="valuebr" type="float" value="0" />
+      <input name="texcoord" type="vector2" nodename="modulo" />
+    </ramp4>
+    <texcoord name="texcoord" type="vector2" xpos="-103.014" ypos="585.964" />
+    <multiply name="multiply" type="vector2" xpos="201.986" ypos="580.964">
+      <input name="in1" type="vector2" nodename="texcoord" />
+      <input name="in2" type="vector2" interfacename="repeat" value="4, 4" />
+    </multiply>
+    <modulo name="modulo" type="vector2" xpos="506.986" ypos="495.964">
+      <input name="in1" type="vector2" nodename="multiply" />
+    </modulo>
+    <conductor_bsdf name="conductor_bsdf" type="BSDF" xpos="811.986" ypos="606.964" />
+    <mix name="mix" type="BSDF" xpos="1095.64" ypos="869.527">
+      <input name="fg" type="BSDF" nodename="conductor_bsdf" />
+      <input name="bg" type="BSDF" nodename="burley_diffuse_bsdf" />
+      <input name="mix" type="float" value="0.5" />
+    </mix>
+    <output name="ss_opacity_ramp_out" type="surfaceshader" nodename="ss_opacity_mapped" />
+    <output name="ss_transmission_ramp_out" type="surfaceshader" nodename="ss_transmission_mapped" />
+    <output name="surf_opacity_ramp" type="surfaceshader" nodename="surface_opacity_mapped" />
+  </nodegraph>
+</materialx>

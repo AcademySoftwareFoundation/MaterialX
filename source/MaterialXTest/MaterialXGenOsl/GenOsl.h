@@ -63,6 +63,7 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_angle", "material", "ND_material",
             "ND_backface_util"
         };
+        ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
 };
 

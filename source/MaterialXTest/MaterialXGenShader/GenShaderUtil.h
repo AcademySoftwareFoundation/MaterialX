@@ -238,7 +238,10 @@ class ShaderGeneratorTester
 
     // Get implementation "whitelist" for those implementations that have
     // been skipped for checking
-    virtual void getImplementationWhiteList(mx::StringSet& whiteList) = 0;
+    virtual void getImplementationWhiteList(mx::StringSet& /*whiteList*/)
+    {
+        return;
+    }
 
     mx::ShaderGeneratorPtr _shaderGenerator;
     const std::string _targetString;

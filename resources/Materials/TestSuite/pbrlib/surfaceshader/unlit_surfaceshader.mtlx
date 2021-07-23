@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <standard_surface name="defaultShader" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader" version="1.0.1" xpos="-1220" ypos="22">
+    <input name="specular" type="float" value="0.2" />
+    <input name="specular_roughness" type="float" value="0.4" />
+  </standard_surface>
+  <surfacematerial name="defaultMaterial" type="material" nodedef="ND_surfacematerial" xpos="-915" ypos="-1">
+    <input name="surfaceshader" type="surfaceshader" nodename="defaultShader" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <nodegraph name="Toon_Graph" >
+    <input name="Light_Direction" type="vector3" value="-0.4, -0.77, 0.4" />
+    <input name="Toon_Color_1" type="color3" value="0.03, 0.8, 0.9" />
+    <input name="Toon_Color_2" type="color3" value="1, 0.03, 0.01" />
+    <input name="Threshold" type="float" value="0.001" />
+    <constant name="lightVector" type="vector3" nodedef="ND_constant_vector3" xpos="315" ypos="67">
+      <input name="value" type="vector3" interfacename="Light_Direction" value="-0.4, -0.77, 0.4" />
+    </constant>
+    <dotproduct name="dotproduct" type="float" nodedef="ND_dotproduct_vector3" xpos="925" ypos="98">
+      <input name="in1" type="vector3" nodename="normalize2" />
+      <input name="in2" type="vector3" nodename="normalize" />
+    </dotproduct>
+    <normal name="normal" type="vector3" nodedef="ND_normal_vector3" xpos="315" ypos="262" />
+    <normalize name="normalize" type="vector3" nodedef="ND_normalize_vector3" xpos="620" ypos="62">
+      <input name="in" type="vector3" nodename="lightVector" />
+    </normalize>
+    <ramplr name="ramplr1" type="color3" nodedef="ND_ramplr_color3" xpos="2145" ypos="10">
+      <input name="valuel" type="color3" interfacename="Toon_Color_1" value="0.03, 0.8, 0.9" />
+      <input name="valuer" type="color3" interfacename="Toon_Color_2" value="1, 0.03, 0.01" />
+      <input name="texcoord" type="vector2" nodename="convert" defaultgeomprop="UV0" />
+    </ramplr>
+    <ifgreater name="ifgreater" type="float" nodedef="ND_ifgreater_float" xpos="1535" ypos="127">
+      <input name="value1" type="float" nodename="smoothstep" />
+      <input name="value2" type="float" interfacename="Threshold" value="0.001" />
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" value="0" />
+    </ifgreater>
+    <convert name="convert" type="vector2" nodedef="ND_convert_float_vector2" xpos="1840" ypos="92">
+      <input name="in" type="float" nodename="ifgreater" />
+    </convert>
+    <dotproduct name="dotproduct1" type="float" nodedef="ND_dotproduct_vector3" xpos="2450" ypos="330">
+      <input name="in1" type="vector3" nodename="normalize2" />
+      <input name="in2" type="vector3" nodename="normalize1" />
+    </dotproduct>
+    <normalize name="normalize1" type="vector3" nodedef="ND_normalize_vector3" xpos="2145" ypos="386">
+      <input name="in" type="vector3" nodename="constant" />
+    </normalize>
+    <normalize name="normalize2" type="vector3" nodedef="ND_normalize_vector3" xpos="620" ypos="257">
+      <input name="in" type="vector3" nodename="normal" />
+    </normalize>
+    <smoothstep name="smoothstep" type="float" nodedef="ND_smoothstep_float" xpos="1230" ypos="54">
+      <input name="in" type="float" nodename="dotproduct" />
+      <input name="low" type="float" value="0" />
+      <input name="high" type="float" value="1" />
+    </smoothstep>
+    <constant name="constant" type="vector3" nodedef="ND_constant_vector3" xpos="1840" ypos="410" />
+    <output name="out" type="color3" nodename="ramplr1" />
+    <output name="out1" type="vector2" />
+  </nodegraph>
+  <unlit_surface name="unlit_surface2" type="surfaceshader" nodedef="ND_unlit_surface_color3" version="1.0" xpos="925" ypos="31.5812">
+    <input name="color" type="color3" nodegraph="Toon_Graph" output="out" />
+  </unlit_surface>
+  <surfacematerial name="surfacematerial" type="material" nodedef="ND_surfacematerial" xpos="1230" ypos="227.216">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <surfacematerial name="surfacematerial1" type="material" nodedef="ND_surfacematerial" xpos="1230" ypos="666">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface1" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <surfacematerial name="surfacematerial2" type="material" nodedef="ND_surfacematerial" xpos="1230" ypos="9">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface2" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <surfacematerial name="surfacematerial3" type="material" nodedef="ND_surfacematerial" xpos="1230" ypos="447">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface3" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <unlit_surface name="unlit_surface1" type="surfaceshader" nodedef="ND_unlit_surface_float" version="1.0" xpos="925" ypos="688.881">
+    <input name="color" type="float" nodename="swizzle" />
+  </unlit_surface>
+  <unlit_surface name="unlit_surface" type="surfaceshader" nodedef="ND_unlit_surface_vec2" version="1.0" xpos="926.419" ypos="252">
+    <input name="color" type="vector2" nodename="convert1" />
+  </unlit_surface>
+  <unlit_surface name="unlit_surface3" type="surfaceshader" nodedef="ND_unlit_surface_vec3" version="1.0" xpos="926.122" ypos="471">
+    <input name="color" type="vector3" nodename="swizzle1" />
+  </unlit_surface>
+  <convert name="convert1" type="vector2" nodedef="ND_convert_vector3_vector2" xpos="625.88" ypos="313.328">
+    <input name="in" type="vector3" nodename="swizzle1" />
+  </convert>
+  <luminance name="luminance" type="color3" nodedef="ND_luminance_color3" xpos="315" ypos="621">
+    <input name="in" type="color3" nodegraph="Toon_Graph" output="out" />
+  </luminance>
+  <swizzle name="swizzle" type="float" nodedef="ND_swizzle_color3_float" xpos="620" ypos="706">
+    <input name="in" type="color3" nodename="luminance" />
+  </swizzle>
+  <swizzle name="swizzle1" type="vector3" nodedef="ND_swizzle_color3_vector3" xpos="315" ypos="402">
+    <input name="in" type="color3" nodegraph="Toon_Graph" output="out" />
+    <input name="channels" type="string" uniform="true" value="rgb" />
+  </swizzle>
+  <unlit_surface name="unlit_surface4" type="surfaceshader" nodedef="ND_unlit_surface_color4" version="1.0" xpos="914.35" ypos="-179.981">
+    <input name="color" type="color4" nodename="swizzle2" />
+  </unlit_surface>
+  <surfacematerial name="surfacematerial4" type="material" nodedef="ND_surfacematerial" xpos="1246.91" ypos="-224.8">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface4" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <swizzle name="swizzle2" type="color4" nodedef="ND_swizzle_color3_color4" xpos="290.104" ypos="-134.477">
+    <input name="in" type="color3" nodegraph="Toon_Graph" output="out" />
+    <input name="channels" type="string" uniform="true" value="rgb1" />
+  </swizzle>
+  <unlit_surface name="unlit_surface5" type="surfaceshader" nodedef="ND_unlit_surface_vec4" version="1.0" xpos="953.868" ypos="944.759">
+    <input name="color" type="vector4" nodename="swizzle3" />
+  </unlit_surface>
+  <swizzle name="swizzle3" type="vector4" nodedef="ND_swizzle_color3_vector4" xpos="626.099" ypos="936.674">
+    <input name="in" type="color3" nodegraph="Toon_Graph" output="out" />
+    <input name="channels" type="string" uniform="true" value="rgb1" />
+  </swizzle>
+  <surfacematerial name="surfacematerial5" type="material" nodedef="ND_surfacematerial" xpos="1230.78" ypos="927.07">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface5" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+</materialx>
