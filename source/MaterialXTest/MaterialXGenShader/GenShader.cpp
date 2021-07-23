@@ -155,4 +155,65 @@ TEST_CASE("GenShader: Translation Check", "[genshader]")
     mx::writeToXmlFile(doc, "transparency_test_nodedefs.mtlx");
 }
 
+TEST_CASE("GenShader: Transparency ", "[genshader]")
+{
+    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::FileSearchPath searchPath(currentPath);
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    const mx::FilePath resourcePath(currentPath / "resources");
+    mx::StringVec failedTests;
+    mx::FilePathVec testFiles = { 
+        "Materials/Examples/StandardSurface/standard_surface_default.mtlx", 
+        "Materials/Examples/StandardSurface/standard_surface_glass.mtlx",
+        "Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx",
+        "Materials/TestStuie/pbrlib/surfaceshader/transparency_nodedef_test.mtlx",
+        "Materials/TestStuie/pbrlib/surfaceshader/transparency_test.mtlx",
+    };
+    std::vector<bool> transparencyTest = { false, true, true, true };
+    for (size_t i=0; i<testFiles.size(); i++)
+    {
+        const mx::FilePath& testFile = resourcePath / testFiles[i];
+        bool testValue = transparencyTest[i];
+
+        mx::DocumentPtr testDoc = mx::createDocument();
+        testDoc->importLibrary(libraries);
+
+        try
+        {
+            mx::readFromXmlFile(testDoc, testFile, searchPath);
+            std::vector<mx::TypedElementPtr> renderables;
+            mx::findRenderableElements(testDoc, renderables);
+            for (auto renderable : renderables)
+            {
+                mx::NodePtr node = renderable->asA<mx::Node>();
+                if (!node)
+                {
+                    continue;
+                }
+                if (node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING)
+                {
+                    std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
+                    if (!shaderNodes.empty())
+                        node = shaderNodes[0];
+                }
+                if (testValue != mx::isTransparentSurface(node))
+                {
+                    failedTests.push_back(std::string("File: ") + testFile.asString() + std::string(". Element: ")
+                        + renderable->getNamePath() + std::string(" should be:" + std::to_string(testValue)));
+                }
+            }
+        }
+        catch (mx::Exception& e)
+        {
+            INFO(std::string("Test filed: ") + std::string(e.what()));
+        }
+    }
+    for (auto failedTest : failedTests)
+    {
+        INFO(failedTest);
+    }
+    CHECK(failedTests.empty());
+}
 

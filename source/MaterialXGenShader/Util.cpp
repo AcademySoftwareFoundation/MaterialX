@@ -136,27 +136,34 @@ namespace
                 {
                     InputPtr interfaceInput = getInputInterface(interfaceName, node);
                     if (interfaceInput)
-            {
+                    {
                         checkInput = interfaceInput;
-            }
-            else
-            {
+                    }
+                    else
+                    {
                         return false;
-            }
-        }
-                if (checkInput->getConnectedNode())
-            {
-                return true;
-            }
-            else
-            {
+                    }
+                }
+
+                // If mapped but not an adjustment then assume transparency
+                NodePtr inputNode = checkInput->getConnectedNode();
+                if (inputNode)
+                {
+                    NodeDefPtr nodeDef = inputNode->getNodeDef();
+                    if (nodeDef && nodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) != NodeDef::ADJUSTMENT_NODE_GROUP)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
                     ValuePtr value = checkInput->getValue();
                     if (value && !isEqual(value, inputPair.second))
-                {
-                    return true;
+                    {
+                        return true;
+                    }
                 }
             }
-        }
         }
         return false;
     }
