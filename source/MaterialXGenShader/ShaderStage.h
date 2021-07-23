@@ -185,9 +185,6 @@ class MX_GENSHADER_API ShaderStage
     {
         return _outputs;
     }
-
-    /// Return the uniform values
-    string getUniformValues() const;
  
   protected:
     /// Start a new scope using the given bracket type.

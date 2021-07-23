@@ -65,61 +65,71 @@ export function prepareEnvTexture(texture, capabilities) {
     return texture;
 }
 
-function toArray(value, dimension) {
+function fromVector(value, dimension) {
     let outValue;
-    if (Array.isArray(value) && value.length === dimension)
-        outValue = value;
+    if (value)
+        outValue = value.data();
     else {
         outValue = []; 
-        value = value ? value : 0.0;
         for(let i = 0; i < dimension; ++i)
-            outValue.push(value);
+            outValue.push(0.0);
     }
 
     return outValue;
 }
 
-function toThreeUniform(type, value, name, uniformJSON, textureLoader) {
+function fromMatrix(matrix, dimension) {
+    let vec = [];
+    if (matrix) {
+        for (let i = 0; i < matrix.numRows(); ++i) {
+            for (let k = 0; k < matrix.numColumns(); ++k) {
+                vec.push(matrix.getItem(i, k));
+            }
+        }    
+    } else {
+        for (let i = 0; i < dimension; ++i)
+            vec.push(0.0);
+    }
+     
+    return vec;
+}
+
+function toThreeUniform(type, value, name, uniforms, textureLoader) {
     let outValue;  
     switch(type) {
-        case 'int':
-        case 'uint':
         case 'float':
-        case 'bool':
+        case 'integer':
+        case 'boolean':
             outValue = value;
             break;
-        case 'vec2':
-        case 'ivec2':
-        case 'bvec2':      
-            outValue = toArray(value, 2);
+        case 'vector2':      
+            outValue = fromVector(value, 2);
             break;
-        case 'vec3':
-        case 'ivec3':
-        case 'bvec3':
-            outValue = toArray(value, 3);
+        case 'vector3':
+        case 'color3':
+            outValue = fromVector(value, 3);
             break;
-        case 'vec4':
-        case 'ivec4':
-        case 'bvec4':
-        case 'mat2':
-            outValue = toArray(value, 4);
+        case 'vector4':
+        case 'color4':
+            outValue = fromVector(value, 4);
             break;
-        case 'mat3':
-            outValue = toArray(value, 9);
+        case 'matrix33':
+            outValue = fromMatrix(value, 9);
             break;
-        case 'mat4':
-            outValue = toArray(value, 16);
+        case 'matrix44':
+            outValue = fromMatrix(value, 16);
             break;
-        case 'sampler2D':
+        case 'filename':
             if (value) {
                 const mappedValue = value.replace(FILE_PREFIX, TARGET_FILE_PREFIX)
                 const texture = textureLoader.load(mappedValue);
                 // Set address & filtering mode
-                setTextureParameters(texture, name, uniformJSON);
+                setTextureParameters(texture, name, uniforms);
                 outValue = texture;
             } 
             break;
         case 'samplerCube':
+        case 'string':
               break;        
         default:
             // struct
@@ -127,18 +137,6 @@ function toThreeUniform(type, value, name, uniformJSON, textureLoader) {
     }
 
     return outValue;
-}
-
-/**
- * Takes a uniform json object from MaterialX and maps it to Three
- */
-export function toThreeUniforms(uniformJSON, textureLoader) {
-    let threeUniforms = {};
-    for (const [name, description] of Object.entries(uniformJSON)) {
-        threeUniforms[name] = new THREE.Uniform(toThreeUniform(description.type, description.value, name, uniformJSON, textureLoader));
-    }
-
-    return threeUniforms;
 }
 
 function getWrapping(mode) {
@@ -169,19 +167,19 @@ function getMinFilter(type, generateMipmaps) {
     return filterType;
 }
 
-function setTextureParameters(texture, name, uniformJSON, generateMipmaps = true) {
+function setTextureParameters(texture, name, uniforms, generateMipmaps = true) {
     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
     const base = name.substring(0, idx) || name;
 
     texture.generateMipmaps = generateMipmaps;
 
-    const uaddressmode = uniformJSON[base + UADDRESS_MODE_SUFFIX] ? uniformJSON[base + UADDRESS_MODE_SUFFIX].value : -1;
-    const vaddressmode = uniformJSON[base + VADDRESS_MODE_SUFFIX] ? uniformJSON[base + VADDRESS_MODE_SUFFIX].value : -1;
+    const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX)?.getValue().getData();
+    const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX)?.getValue().getData();
 
     texture.wrapS = getWrapping(uaddressmode);
     texture.wrapT = getWrapping(vaddressmode);
 
-    const filterType = uniformJSON[base + FILTER_TYPE_SUFFIX] ? uniformJSON[base + FILTER_TYPE_SUFFIX].value : -1;
+    const filterType = uniforms.get(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = getMinFilter(filterType, generateMipmaps);
 }
@@ -239,4 +237,22 @@ export function registerLights(mx, lights, genContext) {
     genContext.getOptions().hwMaxActiveLightSources = Math.max(genContext.getOptions().hwMaxActiveLightSources, lights.length);
 
     return lightData;
+}
+
+export function getUniformValues(shaderStage, textureLoader) {
+    let threeUniforms = {};
+
+    const uniformBlocks = Object.values(shaderStage.getUniformBlocks());
+    uniformBlocks.forEach(uniforms => {
+        if (!uniforms.empty()) {
+            for (let i=0; i < uniforms.size(); ++i) {
+                const variable = uniforms.get(i);                
+                const value = variable.getValue()?.getData();
+                const name = variable.getVariable();
+                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, textureLoader));
+            }
+        }
+    });
+
+    return threeUniforms;
 }

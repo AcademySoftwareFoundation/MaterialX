@@ -33,6 +33,9 @@ set(GENSHADER_DEPS ${GENSHADER}JsGenContext.cpp
     ${GENSHADER}JsHwShaderGenerator.cpp
     ${GENSHADER}JsShader.cpp
     ${GENSHADER}JsShaderGenerator.cpp
+    ${GENSHADER}JsShaderNode.cpp
+    ${GENSHADER}JsShaderStage.cpp
+    ${GENSHADER}JsTypeDesc.cpp
     ${GENSHADER}JsUtil.cpp)
 
 set(GENESSL_DEPS ${GENESSL}JsEsslShaderGenerator.cpp)
