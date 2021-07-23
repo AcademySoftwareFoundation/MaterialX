@@ -13,8 +13,8 @@
 namespace MaterialX
 {
 // Additional implementaton arguments for image nodes
-string HwImageNode::UV_SCALE = "uv_scale";
-string HwImageNode::UV_OFFSET = "uv_offset";
+const string UV_SCALE = "uv_scale";
+const string UV_OFFSET = "uv_offset";
 
 ShaderNodeImplPtr HwImageNode::create()
 {

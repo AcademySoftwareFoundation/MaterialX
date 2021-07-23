@@ -19,12 +19,6 @@ public:
 
     void addInputs(ShaderNode& node, GenContext& context) const override;
     void setValues(const Node& node, ShaderNode& shaderNode, GenContext& context) const override;
-
-    // Aguments which may be added as part of the signature for image nodes
-    // to allow for additional texture coordinate transformations.
-    // Currently these are added to support UDIM texture atlas lookup.
-    static string UV_SCALE;
-    static string UV_OFFSET;
 };
 
 } // namespace MaterialX

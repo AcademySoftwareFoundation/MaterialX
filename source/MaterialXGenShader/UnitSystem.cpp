@@ -143,35 +143,23 @@ UnitSystemPtr UnitSystem::create(const string& language)
     return UnitSystemPtr(new UnitSystem(language));
 }
 
-ImplementationPtr UnitSystem::getImplementation(const UnitTransform& transform, const string& unitname) const
+string UnitSystem::getImplementationName(const UnitTransform& transform, const string& unitname) const
 {
-    // Search up the targetdef derivation hierarchy for a matching implementation.
-    TargetDefPtr targetDef = _document->getTargetDef(_target);
-    if (targetDef)
-    {
-        for (const string& target : targetDef->getMatchingTargets())
-        {
-            const string implName = "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + target;
-            ImplementationPtr impl = _document->getImplementation(implName);
-            if (impl)
-            {
-                return impl;
-            }
-        }
-    }
-    return nullptr;
+    return "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + _target;
 }
 
 bool UnitSystem::supportsTransform(const UnitTransform& transform) const
 {
-    ImplementationPtr impl = getImplementation(transform, transform.unitType);
+    const string implName = getImplementationName(transform, transform.unitType);
+    ImplementationPtr impl = _document->getImplementation(implName);
     return impl != nullptr;
 }
 
 ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& transform, const string& name,
                                      GenContext& context) const
 {
-    ImplementationPtr impl = getImplementation(transform, transform.unitType);
+    const string implName = getImplementationName(transform, transform.unitType);
+    ImplementationPtr impl = _document->getImplementation(implName);
     if (!impl)
     {
         throw ExceptionShaderGenError("No implementation found for transform: ('" + transform.sourceUnit + "', '" + transform.targetUnit + "').");
@@ -187,12 +175,12 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
 
     // Check if it's created and cached already,
     // otherwise create and cache it.
-    ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(impl->getName());
+    ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(implName);
     if (!nodeImpl)
     {
         nodeImpl = ScalarUnitNode::create(scalarConverter);
         nodeImpl->initialize(*impl, context);
-        context.addNodeImplementation(impl->getName(), nodeImpl);
+        context.addNodeImplementation(implName, nodeImpl);
     }
 
     // Create the node.
