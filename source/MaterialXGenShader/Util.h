@@ -32,7 +32,7 @@ class ShaderGenerator;
 /// function and transprency for such nodes must be tracked separately by the
 /// target application.
 ///
-MX_GENSHADER_API bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen);
+MX_GENSHADER_API bool isTransparentSurface(ElementPtr element, const string& target = EMPTY_STRING);
 
 /// Maps a value to a four channel color if it is of the appropriate type.
 /// Supported types include float, Vector2, Vector3, Vector4,
