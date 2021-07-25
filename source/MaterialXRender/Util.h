@@ -35,7 +35,7 @@ MX_RENDER_API ShaderPtr createConstantShader(GenContext& context,
 
 /// Create a shader to perform simple gamma correction, using the given standard libraries
 /// for code generation.
-ShaderPtr createGammaShader(GenContext& context,
+MX_RENDER_API ShaderPtr createGammaShader(GenContext& context,
                             DocumentPtr stdLib,
                             const string& shaderName,
                             const Color3& gamma,
