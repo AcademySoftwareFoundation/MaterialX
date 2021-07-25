@@ -57,14 +57,6 @@ void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
 
     stream << "---------------------------------------" << std::endl;
     options.print(stream);
-
-    //if (options.checkImplCount)
-    //{
-    //    stream << "---------------------------------------" << std::endl;
-    //    mx::StringSet whiteList;
-    //    getImplementationWhiteList(whiteList);
-    //    GenShaderUtil::checkImplementationUsage(language, usedImpls, whiteList, dependLib, context, stream);
-    //}
 }
 
 void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath, mx::DocumentPtr& dependLib)

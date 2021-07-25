@@ -72,7 +72,7 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
     // Set up additional utilities required to run OSL testing including
     // oslc and testrender paths and OSL include path
     //
-    const std::string oslcExecutable(MATERIALX_OSLC_EXECUTABLE);
+    const std::string oslcExecutable(MATERIALX_TESTOSLC_EXECUTABLE);
     _renderer->setOslCompilerExecutable(oslcExecutable);
     const std::string testRenderExecutable(MATERIALX_TESTRENDER_EXECUTABLE);
     _renderer->setOslTestRenderExecutable(testRenderExecutable);
@@ -340,7 +340,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
 TEST_CASE("Render: OSL TestSuite", "[renderosl]")
 {
-    if (std::string(MATERIALX_OSLC_EXECUTABLE).empty() &&
+    if (std::string(MATERIALX_TESTOSLC_EXECUTABLE).empty() &&
         std::string(MATERIALX_TESTRENDER_EXECUTABLE).empty())
     {
         INFO("Skipping the OSL test suite as its executable locations haven't been set.");
