@@ -36,14 +36,14 @@ void PositionNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shad
 
 void PositionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix = vertexData.getInstance() + ".";
         if (space == WORLD_SPACE)
         {
             ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
@@ -66,7 +66,7 @@ void PositionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = shadergen.getVertexDataPrefix(vertexData);
+        const string prefix = vertexData.getInstance() + ".";
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         if (space == WORLD_SPACE)

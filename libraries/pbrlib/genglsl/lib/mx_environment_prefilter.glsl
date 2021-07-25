@@ -4,7 +4,7 @@ float mx_latlong_compute_lod(float roughness)
 {
     // Select a mip level based on input roughness.
     float lodBias = roughness < 0.25 ? sqrt(roughness) : 0.5*roughness + 0.375;
-    return lodBias * float($envRadianceMips);
+    return lodBias * $envRadianceMips;
 }
 
 vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)

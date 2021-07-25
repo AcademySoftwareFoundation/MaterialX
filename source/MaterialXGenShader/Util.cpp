@@ -183,7 +183,7 @@ namespace
             {
                 // Handle shader nodes.
                 NodePtr node = upstreamElem->asA<Node>();
-                if (isTransparentShaderNode(node, interfaceNode))
+                if (isTransparentShaderNode(node))
                 {
                     return true;
                 }
@@ -195,7 +195,7 @@ namespace
                     const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
                     if (nodeDefType == Type::BSDF)
                     {
-                        InterfaceElementPtr impl = nodeDef->getImplementation(target);
+                        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
                         if (impl && impl->isA<NodeGraph>())
                         {
                             NodeGraphPtr graph = impl->asA<NodeGraph>();
@@ -204,8 +204,7 @@ namespace
                             if (outputs.size() > 0)
                             {
                                 const OutputPtr& graphOutput = outputs[0];
-                                OpaqueTestPairList opaqueInputList;
-                                if (isTransparentShaderGraph(graphOutput, target, node))
+                                if (isTransparentShaderGraph(graphOutput, shadergen))
                                 {
                                     return true;
                                 }
@@ -220,13 +219,13 @@ namespace
     }
 }
 
-bool isTransparentSurface(ElementPtr element, const string& target)
+bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
 {
     NodePtr node = element->asA<Node>();
     if (node)
     {
         // Handle shader nodes.
-        if (isTransparentShaderNode(node, nullptr))
+        if (isTransparentShaderNode(node))
         {
             return true;
         }
@@ -238,11 +237,11 @@ bool isTransparentSurface(ElementPtr element, const string& target)
             throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getName() +
                                           "' with category '" + node->getCategory() + "'");
         }
-        InterfaceElementPtr impl = nodeDef->getImplementation(target);
+        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget());
         if (!impl)
         {
             throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef->getNodeString() +
-                                          "' matching target '" + target + "'");
+                                          "' matching target '" + shadergen.getTarget() + "'");
         }
         if (impl->isA<NodeGraph>())
         {
@@ -254,11 +253,12 @@ bool isTransparentSurface(ElementPtr element, const string& target)
                 const OutputPtr& output = outputs[0];
                 if (output->getType() == SURFACE_SHADER_TYPE_STRING)
                 {
-                    OpaqueTestPairList opaqueInputList;
-                    if (isTransparentShaderGraph(output, target, node))
+                    if (isTransparentShaderGraph(output, shadergen))
                     {
                         return true;
                     }
+
+                    return false;
                 }
             }
         }
@@ -267,11 +267,7 @@ bool isTransparentSurface(ElementPtr element, const string& target)
     {
         // Handle output elements.
         OutputPtr output = element->asA<Output>();
-        NodePtr outputNode = output->getConnectedNode();
-        if (outputNode)
-        {
-            return isTransparentSurface(outputNode, target);
-        }
+        return isTransparentShaderGraph(output, shadergen);
     }
 
     return false;
@@ -325,11 +321,6 @@ void mapValueToColor(ConstValuePtr value, Color4& color)
 bool requiresImplementation(ConstNodeDefPtr nodeDef)
 {
     if (!nodeDef)
-    {
-        return false;
-    }
-    static string ORGANIZATION_STRING("organization");
-    if (nodeDef->getNodeGroup() == ORGANIZATION_STRING)
     {
         return false;
     }
@@ -560,11 +551,11 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
         }
     }
     // Extend to upper right corner of a tile
-    maxUV[0] += ONE_VALUE;
-    maxUV[1] += ONE_VALUE;
+    maxUV[0] += 1.0f;
+    maxUV[1] += 1.0f;
 
-    scaleUV[0] = ONE_VALUE / (maxUV[0] - minUV[0]);
-    scaleUV[1] = ONE_VALUE / (maxUV[1] - minUV[1]);
+    scaleUV[0] = 1.0f / (maxUV[0] - minUV[0]);
+    scaleUV[1] = 1.0f / (maxUV[1] - minUV[1]);
     offsetUV[0] = -minUV[0];
     offsetUV[1] = -minUV[1];
 }
