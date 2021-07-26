@@ -91,11 +91,11 @@ vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, v
         float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
         
         // Add the contribution of this sample.
-        AB += vec2(Gvis * (1 - Fc), Gvis * Fc);
+        AB += vec2(Gvis * (1.0 - Fc), Gvis * Fc);
     }
 
     // Normalize integrated terms.
-    AB /= SAMPLE_COUNT;
+    AB /= float(SAMPLE_COUNT);
 
     // Return the final directional albedo.
     return F0 * AB.x + F90 * AB.y;
@@ -184,7 +184,7 @@ void mx_fresnel_dielectric_polarized(float cosTheta, float n1, float n2, out vec
         return;
     }
 
-    float cosTheta_t = sqrt(1 - eta2 * st2);
+    float cosTheta_t = sqrt(1.0 - eta2 * st2);
     vec2 r = vec2((n2*cosTheta - n1*cosTheta_t) / (n2*cosTheta + n1*cosTheta_t),
                   (n1*cosTheta - n2*cosTheta_t) / (n1*cosTheta + n2*cosTheta_t));
     F = mx_square(r);
@@ -196,7 +196,7 @@ void mx_fresnel_dielectric_polarized(float cosTheta, float n1, float n2, out vec
 // TODO: Optimize this functions and support wavelength dependent complex refraction index.
 void mx_fresnel_conductor_polarized(float cosTheta, float n1, float n2, float k, out vec2 F, out vec2 phi)
 {
-    if (k == 0)
+    if (k == 0.0)
     {
         // Use dielectric formula to avoid numerical issues
         mx_fresnel_dielectric_polarized(cosTheta, n1, n2, F, phi);
@@ -213,7 +213,7 @@ void mx_fresnel_conductor_polarized(float cosTheta, float n1, float n2, float k,
 
     F.x = (mx_square(mx_square(n2) * (1.0 - mx_square(k)) * cosTheta - n1*U) + mx_square(2.0 * mx_square(n2) * k * cosTheta - n1*V)) /
             (mx_square(mx_square(n2) * (1.0 - mx_square(k)) * cosTheta + n1*U) + mx_square(2.0 * mx_square(n2) * k * cosTheta + n1*V));
-    phi.x = atan(2.0 * n1 * mx_square(n2) * cosTheta * (2*k*U - (1.0 - mx_square(k)) * V), mx_square(mx_square(n2) * (1.0 + mx_square(k)) * cosTheta) - mx_square(n1) * (mx_square(U) + mx_square(V)));
+    phi.x = atan(2.0 * n1 * mx_square(n2) * cosTheta * (2.0*k*U - (1.0 - mx_square(k)) * V), mx_square(mx_square(n2) * (1.0 + mx_square(k)) * cosTheta) - mx_square(n1) * (mx_square(U) + mx_square(V)));
 }
 
 // XYZ to CIE 1931 RGB color space (using neutral E illuminant)
@@ -233,12 +233,12 @@ vec3 mx_depolarize(vec3 s, vec3 p)
 vec3 mx_eval_sensitivity(float opd, float shift)
 {
     // Use Gaussian fits, given by 3 parameters: val, pos and var
-    float phase = 2*M_PI * opd;
+    float phase = 2.0*M_PI * opd;
     vec3 val = vec3(5.4856e-13, 4.4201e-13, 5.2481e-13);
     vec3 pos = vec3(1.6810e+06, 1.7953e+06, 2.2084e+06);
     vec3 var = vec3(4.3278e+09, 9.3046e+09, 6.6121e+09);
-    vec3 xyz = val * sqrt(2*M_PI * var) * cos(pos * phase + shift) * exp(- var * phase*phase);
-    xyz.x   += 9.7470e-14 * sqrt(2*M_PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift) * exp(- 4.5282e+09 * phase*phase);
+    vec3 xyz = val * sqrt(2.0*M_PI * var) * cos(pos * phase + shift) * exp(- var * phase*phase);
+    xyz.x   += 9.7470e-14 * sqrt(2.0*M_PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift) * exp(- 4.5282e+09 * phase*phase);
     return xyz / 1.0685e-7;
 }
 
@@ -275,7 +275,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     vec3 R = vec3(0.0);
     vec2 R123 = R12*R23;
     vec2 r123 = sqrt(R123);
-    vec2 Rs   = mx_square(T121)*R23 / (1-R123);
+    vec2 Rs   = mx_square(T121)*R23 / (1.0-R123);
 
     // Reflectance term for m=0 (DC term amplitude)
     vec2 C0 = R12 + Rs;
@@ -287,8 +287,8 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     for (int m=1; m<=3; ++m)
     {
         Cm *= r123;
-        vec3 SmS = 2.0 * mx_eval_sensitivity(m*D, m*phi2.x);
-        vec3 SmP = 2.0 * mx_eval_sensitivity(m*D, m*phi2.y);
+        vec3 SmS = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*phi2.x);
+        vec3 SmP = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*phi2.y);
         R += mx_depolarize(Cm.x*SmS, Cm.y*SmP);
     }
 
@@ -311,7 +311,7 @@ struct FresnelData
 
 FresnelData mx_init_fresnel_dielectric(float ior)
 {
-    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
+    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
     fd.model = 0;
     fd.ior = vec3(ior);
     fd.tf_thickness = 0.0f;
@@ -320,7 +320,7 @@ FresnelData mx_init_fresnel_dielectric(float ior)
 
 FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction)
 {
-    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
+    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
     fd.model = 1;
     fd.ior = ior;
     fd.extinction = extinction;
@@ -330,7 +330,7 @@ FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction)
 
 FresnelData mx_init_fresnel_schlick(vec3 F0)
 {
-    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
+    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
     fd.model = 2;
     fd.ior = F0;
     fd.extinction = vec3(1.0);
@@ -341,7 +341,7 @@ FresnelData mx_init_fresnel_schlick(vec3 F0)
 
 FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F90, float exponent)
 {
-    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
+    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
     fd.model = 2;
     fd.ior = F0;
     fd.extinction = F90;
@@ -352,7 +352,7 @@ FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F90, float exponent)
 
 FresnelData mx_init_fresnel_dielectric_airy(float ior, float tf_thickness, float tf_ior)
 {
-    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
+    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
     fd.model = 3;
     fd.ior = vec3(ior);
     fd.extinction = vec3(0.0);
@@ -363,7 +363,7 @@ FresnelData mx_init_fresnel_dielectric_airy(float ior, float tf_thickness, float
 
 FresnelData mx_init_fresnel_conductor_airy(vec3 ior, vec3 extinction, float tf_thickness, float tf_ior)
 {
-    FresnelData fd = FresnelData(vec3(0), vec3(0), 0, 0, 0, -1);
+    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
     fd.model = 3;
     fd.ior = ior;
     fd.extinction = extinction;

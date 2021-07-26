@@ -38,14 +38,14 @@ void BitangentNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Sha
 
 void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
         if (space == WORLD_SPACE)
         {
             ShaderPort* bitangent = vertexData[HW::T_BITANGENT_WORLD];
@@ -69,7 +69,7 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         if (space == WORLD_SPACE)
