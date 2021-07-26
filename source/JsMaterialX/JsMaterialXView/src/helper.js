@@ -221,9 +221,9 @@ export function registerLights(mx, lights, genContext) {
             mx.HwShaderGenerator.bindLightShader(nodeDef, lightId++, genContext);
         }
 
-        const lightDirection = light.getValueElement("direction").getValue().data();
-        const lightColor = light.getValueElement("color").getValue().data();
-        const lightIntensity = light.getValueElement("intensity").getValue();
+        const lightDirection = light.getValueElement("direction").getValue().getData().data();
+        const lightColor = light.getValueElement("color").getValue().getData().data();
+        const lightIntensity = light.getValueElement("intensity").getValue().getData();
 
         lightData.push({
             type: lightTypesBound[nodeName],
