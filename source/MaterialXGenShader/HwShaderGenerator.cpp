@@ -13,8 +13,6 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
 
-#include <queue>
-
 namespace MaterialX
 {
 
@@ -149,7 +147,6 @@ namespace Stage
 }
 
 const HwClosureContext::Arguments HwClosureContext::EMPTY_ARGUMENTS;
-
 
 //
 // HwShaderGenerator methods
@@ -368,7 +365,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     //
 
     // Start with top level graphs.
-    std::deque<ShaderGraph*> graphQueue = { graph.get() };
+    vector<ShaderGraph*> graphStack = { graph.get() };
     if (lightShaders)
     {
         for (const auto& it : lightShaders->get())
@@ -377,15 +374,15 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
             ShaderGraph* lightGraph = node->getImplementation().getGraph();
             if (lightGraph)
             {
-                graphQueue.push_back(lightGraph);
+                graphStack.push_back(lightGraph);
             }
         }
     }
 
-    while (!graphQueue.empty())
+    while (!graphStack.empty())
     {
-        ShaderGraph* g = graphQueue.back();
-        graphQueue.pop_back();
+        ShaderGraph* g = graphStack.back();
+        graphStack.pop_back();
 
         for (ShaderNode* node : g->getNodes())
         {
@@ -405,11 +402,11 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
                     }
                 }
             }
-            // Push subgraphs on the queue to process these as well.
+            // Push subgraphs on the stack to process these as well.
             ShaderGraph* subgraph = node->getImplementation().getGraph();
             if (subgraph)
             {
-                graphQueue.push_back(subgraph);
+                graphStack.push_back(subgraph);
             }
         }
     }
