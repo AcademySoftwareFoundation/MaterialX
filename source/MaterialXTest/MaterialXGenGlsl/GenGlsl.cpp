@@ -133,7 +133,7 @@ static void generateGlslCode(bool generateLayout = false)
     testRootPaths.push_back(testRootPath3);
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    bool writeShadersToDisk = false;   
+    bool writeShadersToDisk = false;
 
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");

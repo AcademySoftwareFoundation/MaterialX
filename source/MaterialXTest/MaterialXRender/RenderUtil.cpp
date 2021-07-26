@@ -61,21 +61,13 @@ void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
 
     stream << "---------------------------------------" << std::endl;
     options.print(stream);
-
-    //if (options.checkImplCount)
-    //{
-    //    stream << "---------------------------------------" << std::endl;
-    //    mx::StringSet whiteList;
-    //    getImplementationWhiteList(whiteList);
-    //    GenShaderUtil::checkImplementationUsage(language, usedImpls, whiteList, dependLib, context, stream);
-    //}
 }
 
 void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath, mx::DocumentPtr& dependLib)
 {
     dependLib = mx::createDocument();
 
-    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "bxdf", "lights" };
     mx::loadLibraries(libraries, searchPath, dependLib);
     for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
     {
@@ -86,10 +78,6 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
             mx::loadLibrary((libraryPath / libraryFile), dependLib);
         }
     }
-
-    // Load shader definitions used in the test suite.
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
 
     // Load any addition per renderer libraries
     loadAdditionalLibraries(dependLib, options);

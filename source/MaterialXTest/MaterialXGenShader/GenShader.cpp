@@ -94,7 +94,7 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE(mx::TypeDesc::get("bar") == nullptr);
 }
 
-TEST_CASE("GenShader: Translation Check", "[genshader]")
+TEST_CASE("GenShader: Graph + Nodedf Transparency Check", "[genshader]")
 {
     mx::FileSearchPath searchPath;
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
@@ -213,7 +213,7 @@ TEST_CASE("GenShader: Transparency ", "[genshader]")
         "Materials/TestStuie/pbrlib/surfaceshader/transparency_test.mtlx",
     };
     std::vector<bool> transparencyTest = { false, true, true, true, true };
-    for (size_t i = 0; i < testFiles.size(); i++)
+    for (size_t i=0; i < testFiles.size(); i++)
     {
         const mx::FilePath& testFile = resourcePath / testFiles[i];
         bool testValue = transparencyTest[i];
@@ -248,7 +248,7 @@ TEST_CASE("GenShader: Transparency ", "[genshader]")
         }
         catch (mx::Exception& e)
         {
-            INFO(std::string("Test filed: ") + std::string(e.what()));
+            INFO(std::string("Test failed: ") + std::string(e.what()));
         }
     }
     for (auto failedTest : failedTests)
@@ -257,3 +257,4 @@ TEST_CASE("GenShader: Transparency ", "[genshader]")
     }
     CHECK(failedTests.empty());
 }
+

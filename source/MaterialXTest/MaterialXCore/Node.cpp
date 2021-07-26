@@ -184,9 +184,10 @@ TEST_CASE("Flatten", "[nodegraph]")
 
     // Test filtered flattening. Leave one node unflattened
     flatGraph->copyContentFrom(graph);
-    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [] (mx::NodePtr node)
+    const std::string& colorChecker = "color_checker";
+    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [colorChecker] (mx::NodePtr node)
     {
-        return (node->getCategory() != "color_checker");
+        return (node->getCategory() != colorChecker);
     });
     totalNodeCount = 0;
     for (mx::ElementPtr elem : flatGraph->traverseTree())

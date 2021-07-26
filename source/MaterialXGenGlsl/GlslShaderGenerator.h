@@ -70,6 +70,7 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     
     virtual const HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
 
+    /// Does the graph require lighting
     virtual bool requiresLighting(const ShaderGraph& graph) const;
 
     /// Emit specular environment lookup code

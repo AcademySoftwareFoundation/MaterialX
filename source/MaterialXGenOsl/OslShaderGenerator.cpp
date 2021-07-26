@@ -424,6 +424,21 @@ namespace
 
 void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
 {
+    const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
+    {
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
+        { Type::BOOLEAN,  ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
+    };
+
+    const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
+    {
+        Type::VECTOR2, // Vector2, Vector4 and Color4 are custom struct types
+        Type::VECTOR4, // in OSL and these doesn't support metadata declarations.
+        Type::COLOR4   // 
+    };
+
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         const ShaderPort* input = inputs[i];
@@ -451,39 +466,43 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         // Add shader input metadata.
         //
 
-        const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
-        {
-            { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-            { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-            { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
-            { Type::BOOLEAN,  ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
-        };
-
         auto widgetMetadataIt = UI_WIDGET_METADATA.find(input->getType());
         const ShaderMetadata* widgetMetadata = widgetMetadataIt != UI_WIDGET_METADATA.end() ? &widgetMetadataIt->second : nullptr;
         const ShaderMetadataVecPtr& metadata = input->getMetadata();
+
         if (widgetMetadata || (metadata && metadata->size()))
         {
-            emitLineEnd(stage, false);
-            emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+            StringVec metadataLines;
             if (metadata)
             {
                 for (size_t j = 0; j < metadata->size(); ++j)
                 {
                     const ShaderMetadata& data = metadata->at(j);
+                    if (METADATA_TYPE_BLACKLIST.count(data.type) == 0)
+                    {
                     const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
                     const string& dataType = _syntax->getTypeName(data.type);
                     const string dataValue = _syntax->getValue(data.type, *data.value, true);
-                    emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
+                        metadataLines.push_back(dataType + " " + data.name + " = " + dataValue + delim);
+                    }
                 }
             }
             if (widgetMetadata)
             {
                 const string& dataType = _syntax->getTypeName(widgetMetadata->type);
                 const string dataValue = _syntax->getValue(widgetMetadata->type, *widgetMetadata->value, true);
-                emitLine(dataType + " " + widgetMetadata->name + " = " + dataValue, stage, false);
+                metadataLines.push_back(dataType + " " + widgetMetadata->name + " = " + dataValue);
+            }
+            if (metadataLines.size())
+            {
+                emitLineEnd(stage, false);
+                emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+                for (auto line : metadataLines)
+                {
+                    emitLine(line, stage, false);
             }
             emitScopeEnd(stage, false, false);
+        }
         }
 
         if (i < inputs.size())

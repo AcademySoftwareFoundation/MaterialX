@@ -51,9 +51,6 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
 
 void GlslRenderer::initialize()
 {
-    StringVec errors;
-    const string errorType("OpenGL utilities initialization.");
-
     if (!_initialized)
     {
         // Create window
@@ -61,16 +58,14 @@ void GlslRenderer::initialize()
 
         if (!_window->initialize("Renderer Window", _width, _height, nullptr))
         {
-            errors.push_back("Failed to create window for testing.");
-            throw ExceptionShaderRenderError(errorType, errors);
+            throw ExceptionRenderError("Failed to initialize renderer window");
         }
 
         // Create offscreen context
         _context = GLContext::create(_window);
         if (!_context)
         {
-            errors.push_back("Failed to create OpenGL context for testing.");
-            throw ExceptionShaderRenderError(errorType, errors);
+            throw ExceptionRenderError("Failed to create OpenGL context for renderer");
         }
 
         if (_context->makeCurrent())
@@ -80,14 +75,12 @@ void GlslRenderer::initialize()
 #if !defined(__APPLE__)
             if (!glewIsSupported("GL_VERSION_4_0"))
             {
-                errors.push_back("OpenGL version 4.0 not supported");
-                throw ExceptionShaderRenderError(errorType, errors);
+                throw ExceptionRenderError("OpenGL version 4.0 is required");
             }
 #endif
             glClearStencil(0);
 
             _frameBuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
-
             _initialized = true;
         }
     }
@@ -95,19 +88,9 @@ void GlslRenderer::initialize()
 
 void GlslRenderer::createProgram(ShaderPtr shader)
 {
-    StringVec errors;
-    const string errorType("GLSL program creation error.");
-
-    if (!_context)
+    if (!_context || !_context->makeCurrent())
     {
-        errors.push_back("No valid OpenGL context to create program with.");
-        throw ExceptionShaderRenderError(errorType, errors);
-
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to create program.");
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Invalid OpenGL context in createProgram");
     }
 
     _program->setStages(shader);
@@ -116,19 +99,9 @@ void GlslRenderer::createProgram(ShaderPtr shader)
 
 void GlslRenderer::createProgram(const StageMap& stages)
 {
-    StringVec errors;
-    const string errorType("GLSL program creation error.");
-
-    if (!_context)
+    if (!_context || !_context->makeCurrent())
     {
-        errors.push_back("No valid OpenGL context to create program with.");
-        throw ExceptionShaderRenderError(errorType, errors);
-
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to create program.");
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Invalid OpenGL context in createProgram");
     }
 
     for (const auto& it : stages)
@@ -152,18 +125,9 @@ void GlslRenderer::renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax
 
 void GlslRenderer::validateInputs()
 {
-    StringVec errors;
-    const string errorType("GLSL program input error.");
-
-    if (!_context)
+    if (!_context || !_context->makeCurrent())
     {
-        errors.push_back("No valid OpenGL context to validate inputs.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to validate inputs.");
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Invalid OpenGL context in validateInputs");
     }
 
     // Check that the generated uniforms and attributes are valid
@@ -217,18 +181,9 @@ void GlslRenderer::updateWorldInformation()
 
 void GlslRenderer::render()
 {
-    StringVec errors;
-    const string errorType("GLSL rendering error.");
-
-    if (!_context)
+    if (!_context || !_context->makeCurrent())
     {
-        errors.push_back("No valid OpenGL context to render to.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to render to.");
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Invalid OpenGL context in render");
     }
 
     // Set up target
@@ -253,8 +208,7 @@ void GlslRenderer::render()
             // there is nothing to draw
             if (!_program->hasActiveAttributes())
             {
-                errors.push_back("Program has no input vertex data.");
-                throw ExceptionShaderRenderError(errorType, errors);
+                throw ExceptionRenderError("Program has no input vertex data");
             }
             else
             {
@@ -280,7 +234,7 @@ void GlslRenderer::render()
             }
         }
     }
-    catch (ExceptionShaderRenderError& /*e*/)
+    catch (ExceptionRenderError& /*e*/)
     {
         _frameBuffer->unbind();
         throw;
@@ -292,15 +246,6 @@ void GlslRenderer::render()
 
 ImagePtr GlslRenderer::captureImage(ImagePtr image)
 {
-    StringVec errors;
-    const string errorType("GLSL image capture error.");
-
-    if (!_imageHandler)
-    {
-        errors.push_back("No image handler specified.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-
     return _frameBuffer->getColorImage(image);
 }
 

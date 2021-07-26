@@ -28,7 +28,7 @@ void bindPyShaderRenderer(py::module& mod)
         .def("setSize", &mx::ShaderRenderer::setSize)
         .def("render", &mx::ShaderRenderer::render);
 
-    static py::exception<mx::ExceptionShaderRenderError> pyExceptionShaderRenderError(mod, "ExceptionShaderRenderError");
+    static py::exception<mx::ExceptionRenderError> pyExceptionShaderRenderError(mod, "ExceptionShaderRenderError");
 
     py::register_exception_translator(
         [](std::exception_ptr errPtr)
@@ -38,7 +38,7 @@ void bindPyShaderRenderer(py::module& mod)
                 if (errPtr != NULL)
                     std::rethrow_exception(errPtr);
             }
-            catch (const mx::ExceptionShaderRenderError& err)
+            catch (const mx::ExceptionRenderError& err)
             {
                 std::string errorMsg = err.what();
                 for (std::string error : err.errorLog())
