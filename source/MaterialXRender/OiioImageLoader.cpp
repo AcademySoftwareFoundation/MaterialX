@@ -25,11 +25,7 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
                                 ConstImagePtr image,
                                 bool verticalFlip)
 {
-    OIIO::ImageSpec imageSpec;
-    imageSpec.width = image->getWidth();
-    imageSpec.height = image->getHeight();
-    imageSpec.nchannels = image->getChannelCount();
-
+    OIIO::ImageSpec imageSpec(image->getWidth(), image->getHeight(), image->getChannelCount());
     OIIO::TypeDesc format;
     switch (image->getBaseType())
     {
