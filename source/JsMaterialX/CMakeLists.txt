@@ -56,10 +56,9 @@ string(APPEND JS_LINK_FLAGS_CORE " -I${SOURCE_FOLDER} \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s FORCE_FILESYSTEM=1 ")
 
-# Add the post javascript files
+# Add the post javascript files. The one in the root folder of this project needs to come first.
 string(APPEND JS_LINK_FLAGS_CORE "--post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js \
- --post-js ${CORE}post.js \
- --post-js ${FORMAT}post.js ")
+    --post-js ${FORMAT}post.js ")
 
 # Compiler flags
 set(JS_COMPILE_FLAGS "")

@@ -35,7 +35,7 @@ describe('Element', () => {
       Object.keys(types).forEach((typeName) => {
         const setFn = `setValue${typeName}`;
         elem[setFn](types[typeName]);
-        assertionCallback(elem.getValue(), typeName);
+        assertionCallback(elem.getValue().getData(), typeName);
       });
     };
 

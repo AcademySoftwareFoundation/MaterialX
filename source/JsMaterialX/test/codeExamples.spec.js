@@ -19,7 +19,7 @@ describe('Code Examples', () => {
         image.setInputValueString('file', 'image1.tif', 'filename');
         const input = image.getInput('file');
         expect(input).to.not.be.null;
-        expect(input.getValue()).to.equal('image1.tif');
+        expect(input.getValue().getData()).to.equal('image1.tif');
 
         const output = nodeGraph.addOutput();
         const outputs = nodeGraph.getOutputs();

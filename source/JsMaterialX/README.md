@@ -110,9 +110,6 @@ C++ vectors will be converted to JS arrays (and vice versa). Other C++ container
 #### Template Functions
 Functions that handle generic types in C++ via templates are mapped to JavaScript by creating multiple bindings, one for each type. For example, the `InterfaceElement::setInputValue` function is mapped as `setInputValueString`, `setInputValueBoolean`, `setInputValueInteger` and so on.
 
-#### Value Getters
-Some functions suggest to return values (e.g. `ValueElement::getValue`), but return `Value` pointers instead. Getting the actual value requires to call `getData` on that pointer, given that the pointer is valid. In order to align with the Python bindings and simplify the consumption of values in JavaScript, `getValue` and related functions return the value directly, or `null` if no value is set. In case that the underlying `Value` pointer is of interest, the original behaviour is available through a function that is prefixed with `_`, e.g. `_getValue`.
-
 #### Iterators
 MaterialX comes with a number of iterators (e.g. `TreeIterator`, `GraphIterator`). These iterators implement the iterable (and iterator) protocol in JS, and can therefore be used in `for ... of` loops.
 
@@ -222,7 +219,7 @@ Generic functions that deal with multiple types cannot be bound directly to Java
 As explained in the user documentation, types are automatically converted between C++ and JavaScript. While there are multiple examples for custom marshalling of types (e.g. `std::pair<int, int>` to array, or `FileSearchPath` to string), the most common use case is the conversion of C++ vectors to JS arrays, and vice versa. This conversion can automatically be achieved by including the `VectorHelper.h` header in each binding file that covers functions which either accept or return vectors in C++.
 
 ### Custom JavaScript Code
-Some bindings cannot be direct mappings to a C++ function. In particular when operations are asynchronous in JavaScript (e.g. loading files), it's easier to provide custom JavaScript implementations for the affected functions. This is how `readFromXmlString` and `readFromXmlFile` are implemented, for example. Such JavaScript code can be provided using the post-JS feature of emscripten. There should be one `post.js` file per MaterialX module, if that module requires any custom JS code. Note that these files need to be added to `CMakeLists.txt` in the `JsMaterialX` source folder. We recommend to provide custom code that dependes on the WebAssembly module like this:
+Some bindings cannot be direct mappings to a C++ function. In particular when operations are asynchronous in JavaScript (e.g. loading files), it's easier to provide custom JavaScript implementations for the affected functions. This is how `readFromXmlString` and `readFromXmlFile` are implemented, for example. Such JavaScript code can be provided using the post-JS feature of emscripten. There should be one `post.js` file per MaterialX module, if that module requires any custom JS code. Note that these files need to be added to `CMakeLists.txt` in the `JsMaterialX` source folder. We recommend to provide custom code that depends on the WebAssembly module like this:
 ```javascript
 onModuleReady(function () {
     <your code here>
