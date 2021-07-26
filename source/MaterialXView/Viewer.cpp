@@ -313,7 +313,12 @@ void Viewer::initialize()
 #if MATERIALX_BUILD_OIIO
     _imageHandler->addLoader(mx::OiioImageLoader::create());
 #endif
-    _imageHandler->setSearchPath(_searchPath);
+    mx::FileSearchPath imageSearchPath = _searchPath;
+    for (auto ipath : _searchPath)
+    {
+        _searchPath.append(ipath / "libraries");
+    }
+    _imageHandler->setSearchPath(imageSearchPath);
 
     // Initialize user interfaces.
     createLoadMeshInterface(_window, "Load Mesh");
