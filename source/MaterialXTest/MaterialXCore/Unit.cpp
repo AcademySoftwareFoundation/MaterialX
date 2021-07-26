@@ -216,7 +216,7 @@ TEST_CASE("UnitDocument", "[unit]")
 
 TEST_CASE("ComboundBaseName", "[compound]")
 {
-    const std::string baseName = mx::getBaseCompoundName("BaseName", "_color3", "_v1.0", "adsk");
+    const std::string baseName = mx::getBaseCompoundName("BaseName", "color3", "v1.0", "adsk");
 
     REQUIRE(baseName == "BaseName_color3_v1.0_adsk");
 }

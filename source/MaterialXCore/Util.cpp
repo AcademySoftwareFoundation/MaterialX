@@ -181,8 +181,11 @@ string getBaseCompoundName(const string& nodeName, const string& typeNames, cons
     std::ostringstream tempStream;
 
     tempStream << nodeName;
+
+    tempStream << "_";
     tempStream << typeNames;
 
+    tempStream << "_";
     tempStream << version;
 
     const bool isNameSpaced = !namespaceString.empty();   
