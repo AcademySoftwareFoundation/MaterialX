@@ -139,7 +139,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 
         // Handle case where it's an input to a top level output
         InputPtr connectedInput = connectingElement->asA<Input>();
-        OutputPtr output = OutputPtr();
+        OutputPtr output;
         if (connectedInput)
         {
             InputPtr interfaceInput = nullptr;
