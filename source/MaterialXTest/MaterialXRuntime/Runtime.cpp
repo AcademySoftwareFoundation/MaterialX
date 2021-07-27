@@ -2543,6 +2543,7 @@ TEST_CASE("Runtime: graph output connection", "[runtime]")
 
     // Load in all libraries required for materials
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    searchPath.append(mx::FilePath::getCurrentPath() / RuntimeGlobals::LIBRARY_PATH());
     api->setSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
