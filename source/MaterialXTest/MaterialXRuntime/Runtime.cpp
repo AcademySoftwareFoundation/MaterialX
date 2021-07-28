@@ -2816,3 +2816,62 @@ TEST_CASE("Missing Definition", "[runtime]")
     }
 }
 
+TEST_CASE("Runtime File Path Predicate", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
+    api->setSearchPath(searchPath);
+    api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
+
+    mx::FileSearchPath testSearchPath(mx::FilePath::getCurrentPath() /
+        "resources" /
+        "Materials" /
+        "TestSuite" /
+        "stdlib" /
+        "export" );
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
+    mx::RtFileIo fileIo(defaultStage);
+    fileIo.read("export.mtlx", testSearchPath);
+    mx::RtExportOptions exportOptions;
+    exportOptions.mergeLooks = true;
+    exportOptions.lookGroupToMerge = "defaultLookGroup";
+    exportOptions.resolvedTexturePath = testSearchPath;
+    mx::FileSearchPath textureSearchPath("resources");
+    exportOptions.skipFlattening = [textureSearchPath](const mx::FilePath& filePath) -> bool
+    {
+        return textureSearchPath.find(filePath) != filePath;
+    };
+    mx::RtStagePtr exportStage = api->createStage(mx::RtString("exportStage"));
+    std::stringstream ss;
+    fileIo.exportDocument(ss, &exportOptions);
+    mx::RtFileIo fileIo2(exportStage);
+    fileIo2.read(ss);
+    mx::RtSchemaPredicate<mx::RtNode> nodeFilter;
+    int count = 0;
+    for (auto it = exportStage->traverse(nodeFilter); !it.isDone(); ++it)
+    {
+        const mx::RtString& typeName = (*it).getTypeName();
+        if (typeName == mx::RtNode::typeName())
+        {
+            mx::RtNode node(*it);
+            if (node.getName() == "image_color3")
+            {
+                mx::RtInput input = node.getInput(mx::RtString("file"));
+                if (input.getValueString() == "Images/grid.png")
+                {
+                    count++;
+                }
+            }
+	        else if (node.getName() == "image_color3_2")
+            {
+                mx::RtInput input = node.getInput(mx::RtString("file"));
+                if (mx::FileSearchPath(input.getValueString()).asString() == testSearchPath.find("black_image.png").asString())
+                {
+                    count++;
+                }
+            }
+        }
+    }
+    REQUIRE(count == 2);
+}

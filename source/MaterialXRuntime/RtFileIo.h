@@ -102,6 +102,9 @@ class RtExportOptions : public RtWriteOptions
     /// Whether to flatten filenames. By default filenames are flattened.
     bool flattenFilenames;
 
+    // Predicate to use to skip flattening when flatten filenames is enabled.
+    FilePathPredicate skipFlattening;
+
     /// Resolved texture path
     FileSearchPath resolvedTexturePath;
 

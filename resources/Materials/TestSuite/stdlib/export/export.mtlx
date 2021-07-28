@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="srgb_texture">
+  <standard_surface name="defaultShader" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader" version="1.0.1" xpos="10" ypos="34">
+    <input name="specular" type="float" value="0.2" uivisible="true" />
+    <input name="specular_roughness" type="float" value="0.4" uivisible="true" />
+  </standard_surface>
+  <surfacematerial name="defaultMaterial" type="material" nodedef="ND_surfacematerial" xpos="315" ypos="10">
+    <input name="surfaceshader" type="surfaceshader" nodename="defaultShader" uivisible="true" />
+    <input name="displacementshader" type="displacementshader" value="" uivisible="true" />
+  </surfacematerial>
+  <image name="image_color3" type="color3" nodedef="ND_image_color3" xpos="1230" ypos="468">
+    <input name="file" type="filename" uniform="true" value="Images/grid.png" uivisible="true" />
+  </image>
+  <output name="image_color3_output" type="color3" nodename="image_color3" />
+  <image name="image_color3_2" type="color3" nodedef="ND_image_color3" xpos="1230" ypos="899">
+    <input name="file" type="filename" uniform="true" value="black_image.png" uivisible="true" />
+  </image>
+  <output name="image_color3_2_output" type="color3" nodename="image_color3_2" />
+  <surfacematerial name="surfacematerial" type="material" nodedef="ND_surfacematerial" xpos="2107.31" ypos="539.68">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface" uivisible="true" />
+    <input name="displacementshader" type="displacementshader" value="" uivisible="true" />
+  </surfacematerial>
+  <unlit_surface name="unlit_surface" type="surfaceshader" nodedef="ND_unlit_surface_color3" version="1.0" xpos="1541.91" ypos="628.632">
+    <input name="color" type="color3" nodename="image_color3" uivisible="true" />
+  </unlit_surface>
+  <unlit_surface name="unlit_surface1" type="surfaceshader" nodedef="ND_unlit_surface_color3" version="1.0" xpos="1540.7" ypos="888.175">
+    <input name="color" type="color3" nodename="image_color3_2" uivisible="true" />
+  </unlit_surface>
+  <surfacematerial name="surfacematerial1" type="material" nodedef="ND_surfacematerial" xpos="1939.15" ypos="1012.46">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface1" uivisible="true" />
+    <input name="displacementshader" type="displacementshader" value="" uivisible="true" />
+  </surfacematerial>
+  <collection name="defaultCollection" includecollection="" includegeom="/*" xpos="315" ypos="229" />
+  <collection name="collection1" includecollection="" xpos="2145.08" ypos="806.534" includegeom="/pSphere1/pSphereShape1" />
+  <collection name="collection2" includecollection="" xpos="1908.69" ypos="1307.34" includegeom="/pSphere2/pSphereShape2" />
+  <look name="defaultLook" xpos="925" ypos="35">
+    <materialassign name="defaultMaterialAssign" geom="" collection="defaultCollection" material="defaultMaterial" xpos="620" ypos="83" />
+  </look>
+  <look name="look1" xpos="2693.41" ypos="573.798">
+    <materialassign name="materialassign1" geom="" collection="collection1" material="surfacematerial" xpos="2371.72" ypos="598.168" />
+    <materialassign name="materialassign2" geom="" collection="collection2" material="surfacematerial1" xpos="2201.13" ypos="1052.67" />
+  </look>
+  <lookgroup name="defaultLookGroup" looks="defaultLook" active="defaultLook" xpos="1230" ypos="11" />
+</materialx>

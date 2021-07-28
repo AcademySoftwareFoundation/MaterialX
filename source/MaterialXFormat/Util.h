@@ -15,6 +15,7 @@
 
 #include <MaterialXFormat/Export.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/XmlExport.h>
 #include <MaterialXFormat/XmlIo.h>
 
 namespace MaterialX
@@ -56,7 +57,8 @@ MX_FORMAT_API StringSet loadLibraries(const FilePathVec& libraryFolders,
 /// @param doc The document to modify.
 /// @param searchPath An optional search path for relative to absolute path conversion.
 /// @param customResolver An optional custom resolver to apply.
-MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr);
+/// @param skipFlattening An optional parameter that skips converting a path to an absolute one when it returns true.
+MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr, const FilePathPredicate& skipFlattening = nullptr);
 
 } // namespace MaterialX
 

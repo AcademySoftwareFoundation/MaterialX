@@ -1734,6 +1734,7 @@ void RtFileIo::exportDocument(std::ostream& stream, const RtExportOptions* optio
         xmlExportOptions.stringResolver = options->stringResolver;
         xmlExportOptions.exportResolvers = options->exportResolvers;
         xmlExportOptions.libraries = options->libraries;
+        xmlExportOptions.skipFlattening = options->skipFlattening;
     }
 
     xmlExportOptions.modifyInPlace = true;
@@ -1758,6 +1759,7 @@ void RtFileIo::exportDocument(const FilePath& documentPath, const RtExportOption
         xmlExportOptions.stringResolver = options->stringResolver;
         xmlExportOptions.exportResolvers = options->exportResolvers;
         xmlExportOptions.libraries = options->libraries;
+        xmlExportOptions.skipFlattening = options->skipFlattening;
     }
     xmlExportOptions.modifyInPlace = true;
     exportToXmlFile(document, documentPath, &xmlExportOptions);
