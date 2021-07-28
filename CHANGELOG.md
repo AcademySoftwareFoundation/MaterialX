@@ -2,6 +2,14 @@
 
 ## [1.38.2] - Development
 
+### Added
+- Added graph definitions for the MaterialX Lama node set.
+- Added support for GCC 11.
+
+### Fixed
+- Fixed the default value of the roughness input of UsdPreviewSurface.
+- Fixed the assignment of channel names in EXR files written through OpenImageIO.
+
 ## [1.38.1] - 2021-06-18
 
 ### Added
