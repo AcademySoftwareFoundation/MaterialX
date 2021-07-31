@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rimraf ./_build/",
-    "copyBuild": "copyfiles -f ../../../build/bin/JsMaterialX* _build",
+    "copyBuild": "copyfiles -f ../../../javascript_build/bin/JsMaterialX* _build",
     "pretest": "npm run clean && npm run copyBuild",
     "test": "npm run mocha",
     "test:browser": "npm run karma -- --browsers ChromeHeadless --singleRun true",

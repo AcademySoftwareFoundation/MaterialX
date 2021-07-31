@@ -38,9 +38,9 @@ module.exports = {
         { from: "../../../resources/Lights/san_giuseppe_bridge_split.mtlx", to: "Lights" },
         { from: "../../../resources/Lights/irradiance/san_giuseppe_bridge_split.hdr", to: "Lights/irradiance" },
         { from: stdSurfaceMaterials, to: stdSurfaceMaterialsBaseURL },
-        { from: "../../../build/bin/JsMaterialXGenShader.wasm" },
-        { from: "../../../build/bin/JsMaterialXGenShader.js" },
-        { from: "../../../build/bin/JsMaterialXGenShader.data" },
+        { from: "../../../javascript_build/bin/JsMaterialXGenShader.wasm" },
+        { from: "../../../javascript_build/bin/JsMaterialXGenShader.js" },
+        { from: "../../../javascript_build/bin/JsMaterialXGenShader.data" },
       ],
     }),
   ]
