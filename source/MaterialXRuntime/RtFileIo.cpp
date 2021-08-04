@@ -747,35 +747,42 @@ namespace
     template<class T>
     void createInterface(const ElementPtr& src, T schema)
     {
-        for (auto elem : src->getChildrenOfType<ValueElement>())
+        StringSet elementsAdded;
+        for (ConstElementPtr interface : src->traverseInheritance())
         {
-            const RtString portName(elem->getName());
-            const RtString portType(elem->getType());
-
-            RtPort port;
-            if (elem->isA<Output>())
+            for (auto elem : interface->getChildrenOfType<ValueElement>())
             {
-                port = schema.createOutput(portName, portType);
-            }
-            else if (elem->isA<Input>())
-            {
-                const uint32_t flags = elem->asA<Input>()->getIsUniform() ? RtPortFlag::UNIFORM : 0;
-                port = schema.createInput(portName, portType, flags);
-            }
-            else if (elem->isA<Token>())
-            {
-                port = schema.createInput(portName, portType, RtPortFlag::TOKEN);
-            }
-
-            if (port)
-            {
-                const string& valueStr = elem->getValueString();
-                if (!valueStr.empty())
+                if (elementsAdded.insert(elem->getName()).second)
                 {
-                    RtValue::fromString(portType, valueStr, port.getValue());
-                }
+                    const RtString portName(elem->getName());
+                    const RtString portType(elem->getType());
 
-                readAttributes(elem, PvtObject::cast(port), schema.getPrimSpec(), portIgnoreList);
+                    RtPort port;
+                    if (elem->isA<Output>())
+                    {
+                        port = schema.createOutput(portName, portType);
+                    }
+                    else if (elem->isA<Input>())
+                    {
+                        const uint32_t flags = elem->asA<Input>()->getIsUniform() ? RtPortFlag::UNIFORM : 0;
+                        port = schema.createInput(portName, portType, flags);
+                    }
+                    else if (elem->isA<Token>())
+                    {
+                        port = schema.createInput(portName, portType, RtPortFlag::TOKEN);
+                    }
+
+                    if (port)
+                    {
+                        const string& valueStr = elem->getValueString();
+                        if (!valueStr.empty())
+                        {
+                            RtValue::fromString(portType, valueStr, port.getValue());
+                        }
+
+                        readAttributes(elem, PvtObject::cast(port), schema.getPrimSpec(), portIgnoreList);
+                    }
+                }
             }
         }
     }
@@ -836,6 +843,7 @@ namespace
             }
         }
     }
+
 
     void createNodeConnections(const vector<NodePtr>& nodeElements, PvtPrim* parent, PvtStage* stage, const PvtRenamingMapper& mapper)
     {

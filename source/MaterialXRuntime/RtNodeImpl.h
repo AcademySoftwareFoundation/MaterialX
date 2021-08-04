@@ -37,6 +37,12 @@ public:
     /// Return the name of the nodedef this implementation applies to.
     const RtString& getNodeDef() const;
 
+    /// Set the name of the nodegraph this implementation is represented by.
+    void setNodeGraph(const RtString& nodegraph);
+
+    /// Return the name of the nodegraph this implementation is represented by.
+    const RtString& getNodeGraph() const;
+
     /// Set an alternative name for this node for this specific target.
     /// This allows one to say that for this particular target, the native
     /// node or shader is called something else but is functionally equivalent

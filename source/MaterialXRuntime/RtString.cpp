@@ -125,6 +125,7 @@ const RtString RtString::KIND("kind");
 const RtString RtString::NAMESPACE("namespace");
 const RtString RtString::NODE("node");
 const RtString RtString::NODEDEF("nodedef");
+const RtString RtString::NODEGRAPH("nodegraph");
 const RtString RtString::NODEGROUP("nodegroup");
 const RtString RtString::NODEIMPL("nodeimpl");
 const RtString RtString::NOTE("note");

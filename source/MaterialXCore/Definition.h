@@ -243,6 +243,29 @@ class MX_CORE_API Implementation : public InterfaceElement
     }
 
     /// @}
+    /// @name Nodegraph String
+    /// @{
+
+    /// Set the nodegraph string for the Implementation.
+    void setNodeGraph(const string& nodegraph)
+    {
+        setAttribute(NODE_GRAPH_ATTRIBUTE, nodegraph);
+    }
+
+    /// Return true if the given Implementation has a nodegraph string.
+    bool hasNodeGraph() const
+    {
+        return hasAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+
+    /// Return the nodegraph string for the Implementation.
+    const string& getNodeGraph() const
+    {
+        return getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
+    }
+
+
+    /// @}
     /// @name NodeDef References
     /// @{
 
@@ -274,6 +297,7 @@ class MX_CORE_API Implementation : public InterfaceElement
     static const string CATEGORY;
     static const string FILE_ATTRIBUTE;
     static const string FUNCTION_ATTRIBUTE;
+    static const string NODE_GRAPH_ATTRIBUTE;
 };
 
 /// @class TypeDef

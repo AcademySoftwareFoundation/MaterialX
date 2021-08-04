@@ -20,6 +20,7 @@ namespace
         {
             addPrimAttribute(RtString::DOC, RtType::STRING);
             addPrimAttribute(RtString::NODEDEF, RtType::INTERNSTRING);
+            addPrimAttribute(RtString::NODEGRAPH, RtType::INTERNSTRING);
             addPrimAttribute(RtString::TARGET, RtType::INTERNSTRING);
             addPrimAttribute(RtString::FILE, RtType::STRING);
             addPrimAttribute(RtString::SOURCECODE, RtType::STRING);
@@ -69,6 +70,18 @@ void RtNodeImpl::setNodeDef(const RtString& language)
 const RtString& RtNodeImpl::getNodeDef() const
 {
     const RtTypedValue* attr = getAttribute(RtString::NODEDEF, RtType::INTERNSTRING);
+    return attr ? attr->asInternString() : RtString::EMPTY;
+}
+
+void RtNodeImpl::setNodeGraph(const RtString& nodegraph)
+{
+    RtTypedValue* attr = createAttribute(RtString::NODEGRAPH, RtType::INTERNSTRING);
+    attr->asInternString() = nodegraph;
+}
+
+const RtString& RtNodeImpl::getNodeGraph() const
+{
+    const RtTypedValue* attr = getAttribute(RtString::NODEGRAPH, RtType::INTERNSTRING);
     return attr ? attr->asInternString() : RtString::EMPTY;
 }
 

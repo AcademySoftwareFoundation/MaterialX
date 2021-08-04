@@ -1933,9 +1933,23 @@ TEST_CASE("Runtime: libraries", "[runtime]")
     REQUIRE_NOTHROW(api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH(), nullptr, true));
 
     const mx::RtString shaderNodeDefName("ND_standard_surface_surfaceshader");
-    const mx::RtString shaderNodeGraphName("IMPL_standard_surface_surfaceshader");
-    REQUIRE(api->getDefinition<mx::RtNodeDef>(shaderNodeDefName));
+    const mx::RtString shaderNodeGraphName("NG_standard_surface_surfaceshader_100");
+    mx::RtPrim nodedefPrim = api->getDefinition<mx::RtNodeDef>(shaderNodeDefName);
+    REQUIRE(nodedefPrim);
     REQUIRE(api->getImplementation<mx::RtNodeGraph>(shaderNodeGraphName));
+    mx::RtNodeDef nodedef(nodedefPrim);
+    mx::RtPrim nodegraphPrim = nodedef.getNodeImpl(mx::RtString());
+    mx::RtNodeGraph nodegraph(nodegraphPrim);
+    REQUIRE(nodegraph.getName() == shaderNodeGraphName);
+
+    const mx::RtString shaderNodeDefName2("ND_standard_surface_surfaceshader_100");
+    mx::RtPrim nodedefPrim2 = api->getDefinition<mx::RtNodeDef>(shaderNodeDefName2);
+    REQUIRE(nodedefPrim2);
+    mx::RtNodeDef nodedef2(nodedefPrim2);
+    mx::RtPrim nodegraphPrim2 = nodedef2.getNodeImpl(mx::RtString());
+    mx::RtNodeGraph nodegraph2(nodegraphPrim2);
+    REQUIRE(nodegraph2.getName() == shaderNodeGraphName);
+
     api->unloadLibrary(BXDFLIB_NAME);
     REQUIRE(!api->getDefinition<mx::RtNodeDef>(shaderNodeDefName));
     REQUIRE(!api->getImplementation<mx::RtNodeGraph>(shaderNodeGraphName));

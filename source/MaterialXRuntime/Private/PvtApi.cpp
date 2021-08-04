@@ -13,6 +13,7 @@
 #include <MaterialXRuntime/RtNodeImpl.h>
 #include <MaterialXRuntime/RtTargetDef.h>
 #include <MaterialXRuntime/RtFileIo.h>
+#include <MaterialXRuntime/RtPath.h>
 
 namespace MaterialX
 {
@@ -121,6 +122,16 @@ void PvtApi::registerPrims(RtStagePtr stage)
         else if (prim.hasApi<RtNodeImpl>())
         {
             registerNodeImpl(prim);
+            RtNodeImpl nodeImpl(prim);
+            RtString nodeGraphName = nodeImpl.getNodeGraph();
+            if (nodeGraphName != RtString::EMPTY)
+            {
+                RtPrim nodeGraphPrim = stage->getPrimAtPath(RtPath(nodeGraphName.str()));
+                if (nodeGraphPrim)
+                {
+                    registerNodeGraph(nodeGraphPrim);
+                }
+            }
         }
         else if (prim.hasApi<RtTargetDef>())
         {
@@ -148,6 +159,16 @@ void PvtApi::unregisterPrims(RtStagePtr stage)
         else if (prim.hasApi<RtNodeImpl>())
         {
             unregisterNodeImpl(prim.getName());
+            RtNodeImpl nodeImpl(prim);
+            RtString nodeGraphName = nodeImpl.getNodeGraph();
+            if (nodeGraphName != RtString::EMPTY)
+            {
+                RtPrim nodeGraphPrim = stage->getPrimAtPath(RtPath(nodeGraphName.str()));
+                if (nodeGraphPrim)
+                {
+                    unregisterNodeGraph(nodeGraphPrim.getName());
+                }
+            }
         }
         else if (prim.hasApi<RtTargetDef>())
         {
@@ -173,7 +194,23 @@ void PvtApi::setupNodeImplRelationships()
         if (nodedefObj)
         {
             RtNodeDef nodedef(nodedefObj->hnd());
-            nodedef.getNodeImpls().connect(nodeimpl.getPrim());
+            RtString nodeGraphString = nodeimpl.getNodeGraph();
+            if (nodeGraphString == RtString::EMPTY)
+            {
+                nodedef.getNodeImpls().connect(nodeimpl.getPrim());
+            }
+            // Handle case where the implementation specifies the nodedef - nodegraph implementation
+            // relationship
+            else
+            {
+                PvtObject* nodeGraphObj = _nodegraphs.find(nodeGraphString);
+                if (nodeGraphObj)
+                {
+                    RtNodeGraph nodegraph(nodeGraphObj->hnd());
+                    nodegraph.setDefinition(RtString(nodedef.getName()));
+                    nodedef.getNodeImpls().connect(nodeGraphObj->hnd());
+                }
+            }
         }
     }
     for (PvtObject* obj : _nodegraphs.vec())
