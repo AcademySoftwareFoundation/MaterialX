@@ -2889,3 +2889,37 @@ TEST_CASE("Runtime File Path Predicate", "[runtime]")
     }
     REQUIRE(count == 2);
 }
+
+TEST_CASE("NodeDef in file", "[runtime]")
+{
+    mx::RtScopedApiHandle api;
+
+    mx::FilePath librariesPath = mx::FilePath::getCurrentPath();
+    mx::FilePathVec rootPaths;
+    rootPaths.push_back(librariesPath);
+    mx::FileSearchPath searchPath(librariesPath);
+    mx::FilePathVec childFolders;
+    mx::getSubdirectories(rootPaths, searchPath, childFolders);
+    for (const auto& childFolder : childFolders)
+    {
+        searchPath.append(childFolder);
+    }
+    api->setSearchPath(searchPath);
+    api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
+
+    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
+
+    mx::FileSearchPath adskTestPath(mx::FilePath::getCurrentPath() /
+        "resources" /
+        "Materials" /
+        "TestSuite" /
+        "stdlib" /
+	"nodedef");
+
+    mx::RtFileIo fileIo(defaultStage);
+    fileIo.read("nodedef.mtlx", adskTestPath);
+
+    const mx::RtString ND_NODEDEF_TEST("ND_nodedef_test");
+    REQUIRE(mx::RtApi::get().hasDefinition<mx::RtNodeDef>(ND_NODEDEF_TEST));
+}
+
