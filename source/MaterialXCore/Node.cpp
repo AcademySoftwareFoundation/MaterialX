@@ -268,6 +268,7 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
             NodeGraphPtr sourceSubGraph = pair.second;
             std::unordered_map<NodePtr, NodePtr> subNodeMap;
          
+            // Create a new instance of each original subnode.
             for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
             {
                 string origName = sourceSubNode->getName();
@@ -353,7 +354,7 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
             }
 
             // Connect any nodegraph outputs within the graph which point to another 
-            // flatten node within the nodegraph. As it's been flattend the previous
+            // flatten node within the nodegraph. As it's been flattened the previous
             // reference is incorrect and needs to be updated.
             if (sourceSubGraph->getOutputCount())
             {
