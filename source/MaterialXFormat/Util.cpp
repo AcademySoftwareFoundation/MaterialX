@@ -210,4 +210,12 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
     }
 }
 
+
+bool isValidPath(const string& path)
+{
+    // The column and semicolumn chars are used to separate paths in env vars on different os.
+    // Do not allow both of them to have more portable values.
+    return path.find(PATH_LIST_SEPARATOR) == std::string::npos;
+}
+
 } // namespace MaterialX

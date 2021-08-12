@@ -32,9 +32,6 @@ MX_CORE_API bool isValidName(const string& name);
 /// Return true if the given string is a valid MaterialX namespace.
 MX_CORE_API bool isValidNamespace(const string& name);
 
-/// Return true if the given string is valid environment path value.
-MX_CORE_API bool isValidEnvironmentPath(const string& path);
-
 /// Increment the numeric suffix of a name
 MX_CORE_API string incrementName(const string& name);
 

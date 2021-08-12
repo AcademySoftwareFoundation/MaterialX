@@ -62,14 +62,6 @@ bool isValidNamespace(const string& name)
     return isValidName(name) && name.find(':') == std::string::npos;
 }
 
-bool isValidEnvironmentPath(const string& path)
-{
-    // The column and semicolumn chars are used to separate paths in env vars on different os.
-    // Do not allow both of them to have more portable values.
-    return path.find(':') == std::string::npos 
-            && path.find(';') == std::string::npos;
-}
-
 string incrementName(const string& name)
 {
     size_t split = name.length();
