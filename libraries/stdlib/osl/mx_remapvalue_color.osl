@@ -1,0 +1,36 @@
+// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
+// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+//
+// Copyright 2019 Autodesk Inc, All rights reserved. This file is licensed under Apache 2.0 license
+//    https://github.com/ADN-DevTech/3dsMax-OSL-Shaders/blob/master/LICENSE.txt
+
+#include "mx_funcs.h"
+
+shader mx_remapvalue_color
+    [[ string help = "Color Curve lookup using maximum values" ]]
+(
+    int interpolation[] = {}
+    [[
+        string interpolation = "interpolation", // index of interpolation methods (int) array
+        string positions = "positions",           // Name of the positions (float) array
+        string values   = "values",             // Name of the value array (float or color)
+        int connectable = 0,
+    ]],
+    color values[] = {},
+    float positions[] = {},
+    color in = 0,
+    output color out = 0,
+)
+{
+    float r = in[0];
+    float g = in[1];
+    float b = in[2];
+    float maxColor = 0;
+    // OSL does not have max operator for "color" types. get maximum color
+    maxColor = max(r, g);
+    maxColor = max(maxColor, b);
+    // interpolate all the maximum colors
+    float interpol = curve_interpolate(maxColor, positions, values, interpolation, 0);
+    color maxdiv = in / maxColor;
+    out = maxdiv * interpol;
+}

@@ -161,6 +161,24 @@
     </remap>
     <output name="out" type="vector4" nodename="remap1" />
   </nodegraph>
+  <nodegraph name="curveadjust_color3" type="" xpos="8.13078" ypos="34.351">
+    <curveadjust name="curveadjust1" type="color3" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
+      <parameter name="interpolation" type="intarray" value="[0, 0, 0, 0]"  />
+      <parameter name="positions" type="floatarray" value="[0.0, 0.25, 0.50, 1.0]" />
+      <parameter name="values" type="color3array" value="[[0.0, 0.0, 0.0], [0.65, 0.65, 0.65], [0.0, 0.0, 0.0], [1.0, 1.0, 1.0]]"  />
+    </curveadjust>
+    <output name="out" type="color3" nodename="curveadjust1" />
+  </nodegraph>
+  <nodegraph name="remapvalue_color3" type="" xpos="8.13078" ypos="34.351">
+    <remapvalue name="remapvalue1" type="color3" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
+      <parameter name="interpolation" type="intarray" value="[0, 0, 0, 0]"  />
+      <parameter name="positions" type="floatarray" value="[0.0, 0.25, 0.50, 1.0]" />
+      <parameter name="values" type="color3array" value="[[0.0, 0.0, 0.0], [0.65, 0.65, 0.65], [0.0, 0.0, 0.0], [1.0, 1.0, 1.0]]"  />
+    </remapvalue>
+    <output name="out" type="color3" nodename="remapvalue1" />
+  </nodegraph>
   <!--
   <nodegraph name="curveadjust_float" type="" xpos="6.08445" ypos="34.3366">
     <curveadjust name="curveadjust1" type="float" xpos="5.74483" ypos="4.74">
@@ -175,13 +193,6 @@
       <parameter name="knots" type="vector2array" value="" />
     </curveadjust>
     <output name="out" type="color2" nodename="curveadjust1" />
-  </nodegraph>
-  <nodegraph name="curveadjust_color3" type="" xpos="8.13078" ypos="34.351">
-    <curveadjust name="curveadjust1" type="color3" xpos="5.74483" ypos="4.74">
-      <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
-      <parameter name="knots" type="vector2array" value="" />
-    </curveadjust>
-    <output name="out" type="color3" nodename="curveadjust1" />
   </nodegraph>
   <nodegraph name="curveadjust_color4" type="" xpos="9.17608" ypos="34.3372">
     <curveadjust name="curveadjust1" type="color4" xpos="5.74483" ypos="4.74">

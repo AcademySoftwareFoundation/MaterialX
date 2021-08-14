@@ -207,7 +207,159 @@ vector4 remap(vector4 in, float inLow, float inHigh, float outLow, float outHigh
                     remap(in.w, inLow, inHigh, outLow, outHigh, doClamp));
 }
 
+float catmull_rom_curve(int i0, int i1, int i2, int i3, color values[], float along, int c)
+{
+        // geometry matrix (tension = 0.5):
+        //
+        // [  0.0  1.0  0.0  0.0 ]
+        // [ -0.5  0.0  0.5  0.0 ]
+        // [  1.0 -2.5  2.0 -0.5 ]
+        // [ -0.5  1.5 -1.5  0.5 ]
 
+        float M12 =  1.0;
+        float M21 = -0.5;
+        float M23 =  0.5;
+        float M31 =  1.0;
+        float M32 = -2.5;
+        float M33 =  2.0;
+        float M34 = -0.5;
+        float M41 = -0.5;
+        float M42 =  1.5;
+        float M43 = -1.5;
+        float M44 =  0.5;
+
+        float v0 = values[i0][c];
+        float v1 = values[i1][c];
+        float v2 = values[i2][c];
+        float v3 = values[i3][c];
+
+        float c1 = M12 * v1;
+        float c2 = M21 * v0 + M23 * v2;
+        float c3 = M31 * v0 + M32 * v1 + M33 * v2 + M34 * v3;
+        float c4 = M41 * v0 + M42 * v1 + M43 * v2 + M44 * v3;
+
+        return ((c4 * along + c3) * along + c2) * along + c1;
+}
+    
+float fritsch_carlson_curve(int i0, int i1, int i2, int i3, color values[], float positions[], int last, float along, int c)
+{
+        float i1_tangent = 0;
+        float i2_tangent = 0;
+
+        float i0_interval = positions[i1] - positions[i0];
+        float i1_interval = positions[i2] - positions[i1];
+        float i2_interval = positions[i3] - positions[i2];
+
+        float i0_delta = (values[i1][c] - values[i0][c]) / i0_interval;
+        float i1_delta = (values[i2][c] - values[i1][c]) / i1_interval;
+        float i2_delta = (values[i3][c] - values[i2][c]) / i2_interval;
+
+        if (i1 > 0 && (i1_delta * i0_delta) >= 0.0) {
+            i1_tangent = 3.0 * (i0_interval + i1_interval)
+                        / ((2.0 * i1_interval + i0_interval) / i0_delta
+                        + (i1_interval + 2.0  * i0_interval) / i1_delta);
+        }
+
+        if (i2 < (last) && (i2_delta * i1_delta) >= 0.0) {
+                        i2_tangent = 3.0 * (i1_interval + i2_interval)
+                        / ((2.0 * i2_interval + i1_interval) / i1_delta
+                        + (i2_interval + 2.0 * i1_interval) / i2_delta);
+        }
+
+        float invint = 1.0 / i1_interval;
+        float si = i1_delta;
+        float ci = (3.0 * si - 2.0 * i1_tangent - i2_tangent) * invint;
+        float di = (i1_tangent + i2_tangent - 2.0 * si) * invint * invint;
+
+        float t = along * i1_interval;
+        float t2 = t * t;
+        float t3 = t * t2;
+        return values[i1][c] + i1_tangent * t + ci * t2 + di * t3;
+}
+
+float hermite_curve(int i0, int i1, int i2, int i3, color values[], float along, int c)
+{
+    // Tension: 1 is high, 0 normal, -1 is low
+    // Bias: 0 is even,
+    //    positive is towards first segment,
+    //    negative towards the other
+
+    float tension = 0.5;
+    float bias = 0.0;
+
+    float y0 = values[i0][c];
+    float y1 = values[i1][c];
+    float y2 = values[i2][c];
+    float y3 = values[i3][c];
+
+    float mu2 = along * along;
+    float mu3 = mu2 * along;
+    float m0  = (y1-y0)*(1+bias)*(1-tension)/2 + (y2-y1)*(1-bias)*(1-tension)/2;
+    float m1  = (y2-y1)*(1+bias)*(1-tension)/2 + (y3-y2)*(1-bias)*(1-tension)/2;
+    float a0 =  2*mu3 - 3*mu2 + 1;
+    float a1 =    mu3 - 2*mu2 + along;
+    float a2 =    mu3 -   mu2;
+    float a3 = -2*mu3 + 3*mu2;
+
+    return(a0 * y1 + a1 * m0 + a2 * m1 + a3 * y2);
+}
+
+float curve_interpolate(float in, float positions[], color values[], int interpolationMode[], int c)
+{
+    // Curve interpolation utility adapted for MaterialX from Sean Willis based on:
+    // ColorCurves.osl, by Zap Andersson
+    //    https://github.com/ADN-DevTech/3dsMax-OSL-Shaders/blob/master/3ds%20Max%20Shipping%20Shaders/ColorCurves.osl
+    //
+    int l = arraylength(positions);
+    int last = l-1;
+    // clip floor
+    if (in < 0)
+        return 0;
+    // clip ceil
+    if (in > 1)
+        return 0;
+
+    // Out of range below
+    if (in < positions[0])
+        return values[0][c];    
+
+
+    if (in > positions[last])
+        return values[last][c];
+
+    // Find the segment
+    int i;
+    for (i = 0; i < last; i++)
+    {
+        if (in >= positions[i] and in <= positions[i+1])
+            break;
+    }
+
+    int i0 = max(0, i-1);
+    int i1 = i;
+    int i2 = i+1;
+    int i3 = min(last, i+2);
+
+    // Get interpolationMode
+    int interp = interpolationMode[i1];
+
+    float delta = positions[i2] - positions[i1];
+    // Segment length zero (or less) Return start
+    if (delta <= 0.0)
+        return values[i1][c];
+
+    // Figure out where in the range we are....
+    float along = (in - positions[i1]) / delta;
+    // Simple linear interpolation
+    if (interp == 0)
+        return mix(values[i1][c], values[i2][c], along);
+    if (interp == 1)
+        return catmull_rom_curve(i0, i1, i2, i3, values, along, c);
+    if (interp == 2)
+        return fritsch_carlson_curve(i0, i1, i2, i3, values, positions, last, along, c);
+    if (interp == 3)
+        return hermite_curve(i0, i1, i2, i3, values, along, c);
+}
 
 float fgamma(float in, float g)
 {

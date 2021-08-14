@@ -66,5 +66,4 @@ This folder contains the standard data libraries for MaterialX, providing declar
 - Code generation does not currently support:
     - `ambientocclusion` node.
     - `arrayappend` node.
-    - `curveadjust` node.
     - `displacementshader` and `volumeshader` nodes and associated operations (`add`, `multiply`, `mix`) for GLSL targets.
