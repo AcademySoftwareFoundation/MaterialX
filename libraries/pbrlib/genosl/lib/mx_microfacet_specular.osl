@@ -1,6 +1,6 @@
 #include "pbrlib/genosl/lib/mx_microfacet.osl"
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.2 Equation 15
 vector mx_ggx_importance_sample_NDF(vector2 Xi, vector X, vector Y, vector N, float alphaX, float alphaY)
 {
