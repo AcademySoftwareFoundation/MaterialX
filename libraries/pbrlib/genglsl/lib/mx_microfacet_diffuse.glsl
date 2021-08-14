@@ -16,7 +16,7 @@ float mx_oren_nayar_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness
     return A + B * stinv;
 }
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Section 5.3
 float mx_burley_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 {
