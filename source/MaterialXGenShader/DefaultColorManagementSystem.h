@@ -7,7 +7,7 @@
 #define MATERIALX_DEFAULT_COLOR_MANAGEMENT_SYSTEM_H
 
 /// @file
-/// Sample default color management system implementation
+/// Default color management system implementation
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
@@ -18,10 +18,7 @@ namespace MaterialX
 using DefaultColorManagementSystemPtr = shared_ptr<class DefaultColorManagementSystem>;
 
 /// @class DefaultColorManagementSystem
-/// Class for a default color management system. The default color management system users
-/// the typical workflow for registering nodes with the exception that the target for them
-/// nodedefs is set to DefaultColorManagementSystem::CMS_NAME.
-///
+/// Class for a default color management system.
 class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSystem
 {
   public:
@@ -31,12 +28,7 @@ class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSyst
     static DefaultColorManagementSystemPtr create(const string& target);
 
     /// Return the DefaultColorManagementSystem name
-    const string& getName() const override
-    {
-        return DefaultColorManagementSystem::CMS_NAME;
-    }
-
-    static const string CMS_NAME;
+    const string& getName() const override;
 
   protected:
     /// Returns an implementation for a given transform

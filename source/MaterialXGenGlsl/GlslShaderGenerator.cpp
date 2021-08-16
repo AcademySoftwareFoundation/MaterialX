@@ -413,17 +413,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
     emitLineBreak(stage);
 
-    // Add global constants and type definitions
-    emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_defines.glsl", context, stage);
-
-    if (context.getOptions().hwMaxActiveLightSources > 0)
-    {
-        const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
-        emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
-    }
-    emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
-    emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), stage, false);
-    emitLineBreak(stage);
+    // Add type definitions
     emitTypeDefinitions(context, stage);
 
     // Add all constants
@@ -455,33 +445,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         }
     }
 
-    bool lighting = requiresLighting(graph);
-    bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
-                     context.getOptions().hwWriteDepthMoments;
-
-    // Add light data block if needed
-    if (lighting && context.getOptions().hwMaxActiveLightSources > 0)
-    {
-        const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
-        const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
-        const string structName        = lightData.getInstance();
-        if (resourceBindingCtx)
-        {
-            resourceBindingCtx->emitStructuredResourceBindings(
-                context, lightData, stage, structName, structArraySuffix);
-        }
-        else
-        {
-            emitLine("struct " + lightData.getName(), stage, false);
-            emitScopeBegin(stage);
-            emitVariableDeclarations(lightData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
-            emitScopeEnd(stage, true);
-            emitLineBreak(stage);
-            emitLine("uniform " + lightData.getName() + " " + structName + structArraySuffix, stage);
-        }
-        emitLineBreak(stage);
-    }
-
     // Add vertex data inputs block
     const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
     if (!vertexData.empty())
@@ -495,29 +458,63 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitLineBreak(stage);
     }
 
-    // Add the pixel shader output. This needs to be a vec4 for rendering
-    // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
+    // Add pixel shader outputs
     emitComment("Pixel shader outputs", stage);
     const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
     emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
     emitLineBreak(stage);
 
-    // Emit common math functions
-    emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
+    // Add common math functions
+    emitInclude("stdlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
-    // Emit lighting and shadowing code
+    // Add lighting support
+    bool lighting = requiresLighting(graph);
     if (lighting)
     {
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+            const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
+            emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
+        }
+        emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
+        emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), stage, false);
+        emitLineBreak(stage);
         emitSpecularEnvironment(context, stage);
+
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+            const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
+            const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
+            const string structName = lightData.getInstance();
+            if (resourceBindingCtx)
+            {
+                resourceBindingCtx->emitStructuredResourceBindings(
+                    context, lightData, stage, structName, structArraySuffix);
+            }
+            else
+            {
+                emitLine("struct " + lightData.getName(), stage, false);
+                emitScopeBegin(stage);
+                emitVariableDeclarations(lightData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+                emitScopeEnd(stage, true);
+                emitLineBreak(stage);
+                emitLine("uniform " + lightData.getName() + " " + structName + structArraySuffix, stage);
+            }
+            emitLineBreak(stage);
+        }
     }
+
+    // Add shadowing support
+    bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
+                     context.getOptions().hwWriteDepthMoments;
     if (shadowing)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_shadow.glsl", context, stage);
     }
 
     // Emit directional albedo table code.
-    if (context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
+    if ((lighting && context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE) ||
         context.getOptions().hwWriteAlbedoTable)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_table.glsl", context, stage);
@@ -634,7 +631,7 @@ void GlslShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenC
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
     // Emit Light functions if requested
-    if (context.getOptions().hwMaxActiveLightSources > 0)
+    if (requiresLighting(graph) && context.getOptions().hwMaxActiveLightSources > 0)
     {
         // For surface shaders we need light shaders
         if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))

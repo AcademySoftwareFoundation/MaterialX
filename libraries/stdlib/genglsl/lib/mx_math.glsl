@@ -1,3 +1,7 @@
+#define M_FLOAT_EPS 1e-8
+#define M_PI 3.1415926535897932
+#define M_PI_INV (1.0 / M_PI)
+
 float mx_square(float x)
 {
     return x*x;
@@ -54,30 +58,4 @@ float mx_mix(float v00, float v01, float v10, float v11,
    float v0_ = mix(v00, v01, x);
    float v1_ = mix(v10, v11, x);
    return mix(v0_, v1_, y);
-}
-
-vec2 mx_latlong_projection(vec3 dir)
-{
-    float latitude = -asin(dir.y) * M_PI_INV + 0.5;
-    float longitude = atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
-    return vec2(longitude, latitude);
-}
-
-vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D sampler)
-{
-    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
-    vec2 uv = mx_latlong_projection(envDir);
-    return textureLod(sampler, uv, lod).rgb;
-}
-
-vec3 mx_forward_facing_normal(vec3 N, vec3 V)
-{
-    if (dot(N, V) < 0.0)
-    {
-        return -N;
-    }
-    else
-    {
-        return N;
-    }
 }

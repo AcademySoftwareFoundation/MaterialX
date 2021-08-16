@@ -59,8 +59,8 @@ This folder contains the standard data libraries for MaterialX, providing declar
 - GLSL target support is for version 4.0 or higher.
 - OSL target support is for version 1.9.10 or higher.
 - MDL target support is for version 1.6.
-- "Default" color management support includes OSL, GLSL, and MDL implementations for the following non-LUT transforms:
-    - lin_rec709, gamma18, gamma22, gamma24, acescg, g22_ap1, srgb_texture
+- "Default" color management support includes OSL, GLSL, and MDL implementations for the following color spaces:
+    - lin_rec709, g18_rec709, g22_rec709, g24_rec709, lin_ap1/acescg, g22_ap1, srgb_texture
 - Basic GLSL `lightshader` node definitions and implementations are provided for the following light types:
     - point, directional, spot
 - Code generation does not currently support:
