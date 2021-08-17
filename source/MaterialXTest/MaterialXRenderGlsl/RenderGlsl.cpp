@@ -692,10 +692,12 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     log << e.what() << " " << error << std::endl;
                 }
                 log << ">> Refer to shader code in dump files: " << shaderPath << "_ps.glsl and _vs.glsl files" << std::endl;
+                WARN(std::string(e.what()) + " in " + shaderPath);
             }
             catch (mx::Exception& e)
             {
                 log << e.what() << std::endl;
+                WARN(std::string(e.what()) + " in " + shaderPath);
             }
             CHECK(validated);
         }

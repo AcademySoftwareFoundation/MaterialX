@@ -15,17 +15,16 @@ import.::swizzle::*;
 import::math::*;
 
 // Threshold utility
-float4 aboveThreshold(float4 value, float4 threshold)
+float3 aboveThreshold(float3 value, float3 threshold)
 {
-    return float4(value.x > threshold.x ? 1.0 : 0.0,
-                value.y > threshold.y ? 1.0 : 0.0,
-                value.z > threshold.z ? 1.0 : 0.0,
-                value.w > threshold.w ? 1.0 : 0.0 );
+    return float3(value.x > threshold.x ? 1.0 : 0.0,
+                  value.y > threshold.y ? 1.0 : 0.0,
+                  value.z > threshold.z ? 1.0 : 0.0);
 }
 
-export float3 mx_acescg_to_linear_color3(float3 mxp_in)
+export float3 mx_ap1_to_rec709_color3(float3 mxp_in)
 [[
-    anno::description("ACES CG to linear transform for color3")
+    anno::description("AP1 to Rec709 transform for color3")
 ]]
 {
     float4 outColor = float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
@@ -37,14 +36,14 @@ export float3 mx_acescg_to_linear_color3(float3 mxp_in)
     return result;
 }
 
-export color mx_acescg_to_linear_color3(color mxp_in)
+export color mx_ap1_to_rec709_color3(color mxp_in)
 {
-    return color(mx_acescg_to_linear_color3(float3(mxp_in)));
+    return color(mx_ap1_to_rec709_color3(float3(mxp_in)));
 }
 
-export float4 mx_acescg_to_linear_color4(float4 mxp_in)
+export float4 mx_ap1_to_rec709_color4(float4 mxp_in)
 [[
-    anno::description("ACES CG to linear transform for color4")
+    anno::description("AP1 to Rec709 transform for color4")
 ]]
 {
     float4 outColor = float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
@@ -57,9 +56,9 @@ export float4 mx_acescg_to_linear_color4(float4 mxp_in)
     return result;
 }
 
-export color4 mx_acescg_to_linear_color4(color4 mxp_in)
+export color4 mx_ap1_to_rec709_color4(color4 mxp_in)
 {
-    return mk_color4(mx_acescg_to_linear_color4(mk_float4(mxp_in)));
+    return mk_color4(mx_ap1_to_rec709_color4(mk_float4(mxp_in)));
 }
 
 export float3 mx_gamma18_to_linear_color3(float3 mxp_in)
@@ -146,50 +145,38 @@ export color4 mx_gamma24_to_linear_color4(color4 mxp_in)
     return mk_color4(mx_gamma24_to_linear_color4(mk_float4(mxp_in)));
 }
 
-export float3 mx_srgb_texture_to_linear_color3(float3 mxp_in)
+export float3 mx_srgb_texture_to_lin_rec709_color3(float3 mxp_in)
 [[
-    anno::description("SRGB-texture to linear transform for color3")
+    anno::description("SRGB-texture to linear Rec709 transform for color3")
 ]]
 {
-    float4 outColor = float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
-    float4 breakPnt = float4(0.03928571566939354, 0.03928571566939354, 0.03928571566939354, 1.0);
-    float4 slope = float4(0.07738015800714493, 0.07738015800714493, 0.07738015800714493, 1.0);
-    float4 scale = float4(0.9478672742843628, 0.9478672742843628, 0.9478672742843628, 1.0);
-    float4 offset = float4(0.05213269963860512, 0.05213269963860512, 0.05213269963860512, 0.0);
-    float4 gamma = float4(2.4, 2.4, 2.4, 1.0);
-    float4 isAboveBreak = aboveThreshold(outColor, breakPnt);
-    float4 linSeg = outColor * slope;
-    float4 powSeg = ::math::pow( ::math::max( float4(0.0, 0.0, 0.0, 0.0), scale * outColor + offset), gamma);
-    float4 result4 = isAboveBreak * powSeg + float4( float4(1.0, 1.0, 1.0, 1.0) - isAboveBreak ) * linSeg;
-    float3 result = ::swizzle::xyz(result4);
-    return result;
+    float3 outColor = float3(mxp_in.x, mxp_in.y, mxp_in.z);
+    float3 breakPnt = float3(0.03928571566939354, 0.03928571566939354, 0.03928571566939354);
+    float3 slope = float3(0.07738015800714493, 0.07738015800714493, 0.07738015800714493);
+    float3 scale = float3(0.9478672742843628, 0.9478672742843628, 0.9478672742843628);
+    float3 offset = float3(0.05213269963860512, 0.05213269963860512, 0.05213269963860512);
+    float3 gamma = float3(2.4, 2.4, 2.4);
+    float3 isAboveBreak = aboveThreshold(outColor, breakPnt);
+    float3 linSeg = outColor * slope;
+    float3 powSeg = ::math::pow( ::math::max( float4(0.0, 0.0, 0.0, 0.0), scale * outColor + offset), gamma);
+    return isAboveBreak * powSeg + float3(float3(1.0, 1.0, 1.0) - isAboveBreak) * linSeg;
 }
 
-export color mx_srgb_texture_to_linear_color3(color mxp_in)
+export color mx_srgb_texture_to_lin_rec709_color3(color mxp_in)
 {
-    return color(mx_srgb_texture_to_linear_color3(float3(mxp_in)));
+    return color(mx_srgb_texture_to_lin_rec709_color3(float3(mxp_in)));
 }
 
-export float4 mx_srgb_texture_to_linear_color4(float4 mxp_in)
+export float4 mx_srgb_texture_to_lin_rec709_color4(float4 mxp_in)
 [[
-    anno::description("SRGB-texture to linear transform for color4")
+    anno::description("SRGB-texture to linear Rec709 transform for color4")
 ]]
 {
-    float4 outColor = float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
-    float4 breakPnt = float4(0.03928571566939354, 0.03928571566939354, 0.03928571566939354, 1.0);
-    float4 slope = float4(0.07738015800714493, 0.07738015800714493, 0.07738015800714493, 1.0);
-    float4 scale = float4(0.9478672742843628, 0.9478672742843628, 0.9478672742843628, 1.0);
-    float4 offset = float4(0.05213269963860512, 0.05213269963860512, 0.05213269963860512, 0.0);
-    float4 gamma = float4(2.4, 2.4, 2.4, 1.0);
-    float4 isAboveBreak = aboveThreshold(outColor, breakPnt);
-    float4 linSeg = outColor * slope;
-    float4 powSeg = ::math::pow( ::math::max( float4(0.0, 0.0, 0.0, 0.0), scale * outColor + offset), gamma);
-    float3 result3 = ::swizzle::xyz(isAboveBreak * powSeg + float4( float4(1.0, 1.0, 1.0, 1.0) - isAboveBreak ) * linSeg);
-    float4 result = float4(result3.x, result3.y, result3.z, mxp_in.w);
-    return result;
+    float3 outColor = mx_srgb_texture_to_lin_rec709_color3(float3(mxp_in.x, mxp_in.y, mxp_in.z));
+    return float4(outColor.x, outColor.y, outColor.z, mxp_in.w);
 }
 
-export color4 mx_srgb_texture_to_linear_color4(color4 mxp_in)
+export color4 mx_srgb_texture_to_lin_rec709_color4(color4 mxp_in)
 {
-    return mk_color4(mx_srgb_texture_to_linear_color4(mk_float4(mxp_in)));
+    return mk_color4(mx_srgb_texture_to_lin_rec709_color4(mk_float4(mxp_in)));
 }
