@@ -55,12 +55,7 @@ float mx_average_roughness(vec2 roughness)
 // Enforce that the given normal is forward-facing from the specified view direction.
 vec3 mx_forward_facing_normal(vec3 N, vec3 V)
 {
-    if (dot(N, V) < 0.0)
-    {
-        return -N;
-    }
-
-    return N;
+    return (dot(N, V) < 0.0) ? -N : N;
 }
 
 // https://www.graphics.rwth-aachen.de/publication/2/jgt.pdf

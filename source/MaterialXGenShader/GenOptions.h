@@ -76,8 +76,7 @@ class MX_GENSHADER_API GenOptions
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
-        hwWriteAlbedoTable(false),
-        hwMaxRadianceSamples(1024)
+        hwWriteAlbedoTable(false)
     {
     }
     virtual ~GenOptions() { }
@@ -150,10 +149,6 @@ class MX_GENSHADER_API GenOptions
     /// Enables the writing of a directional albedo table.
     /// Defaults to false.
     bool hwWriteAlbedoTable;
-
-    /// Sets the maximum number of radiance samples 
-    unsigned int hwMaxRadianceSamples;
-
 };
 
 } // namespace MaterialX
