@@ -883,7 +883,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
     sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(sampleGroup, "Environment Samples:");
     mx::StringVec sampleOptions;
-    _genContext.getOptions().hwMaxRadianceSamples = MAX_ENV_SAMPLES;
     for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
     {
         mProcessEvents = false;
