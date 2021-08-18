@@ -478,7 +478,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
             emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
         }
         emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
-        emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), stage, false);
         emitLineBreak(stage);
         emitSpecularEnvironment(context, stage);
 
@@ -514,8 +513,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
 
     // Emit directional albedo table code.
-    if ((lighting && context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE) ||
-        context.getOptions().hwWriteAlbedoTable)
+    if (context.getOptions().hwWriteAlbedoTable)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_table.glsl", context, stage);
         emitLineBreak(stage);

@@ -1,10 +1,5 @@
 #include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
-int numRadianceSamples()
-{
-    return min($envRadianceSamples, MAX_ENV_RADIANCE_SAMPLES);
-}
-
 // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
 // Section 20.4 Equation 13
 float mx_latlong_compute_lod(vec3 dir, float pdf, float maxMipLevel, int envSamples)
@@ -26,7 +21,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
     // Integrate outgoing radiance using filtered importance sampling.
     // http://cgg.mff.cuni.cz/~jaroslav/papers/2008-egsr-fis/2008-egsr-fis-final-embedded.pdf
     vec3 radiance = vec3(0.0);
-    int envRadianceSamples = numRadianceSamples();	
+    int envRadianceSamples = $envRadianceSamples;
     for (int i = 0; i < envRadianceSamples; i++)
     {
         vec2 Xi = mx_spherical_fibonacci(i, envRadianceSamples);
