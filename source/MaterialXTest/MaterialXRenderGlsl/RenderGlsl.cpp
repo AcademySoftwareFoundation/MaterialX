@@ -3,21 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#if defined(__linux__)
-#define NonePrev None
-#undef None
-#endif
 #include <MaterialXTest/Catch/catch.hpp>
-#if defined(__linux__)
-#define None NonePrev
-#endif
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
-#include <MaterialXCore/Types.h>
-
-#include <MaterialXFormat/Util.h>
-
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXRenderGlsl/TextureBaker.h>
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -25,10 +14,7 @@
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
 
-#include <MaterialXRenderGlsl/GlslRenderer.h>
-#include <MaterialXRenderGlsl/TextureBaker.h>
-
-#include <cmath>
+#include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
 
@@ -419,7 +405,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
-    RenderUtil::AdditiveScopedTimer totalGLSLTime(profileTimes.languageTimes.totalTime, "GLSL total time");
+    mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -454,7 +440,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
             // Note: mkdir will fail if the directory already exists which is ok.
             {
-                RenderUtil::AdditiveScopedTimer ioDir(profileTimes.languageTimes.ioTime, "GLSL dir time");
+                mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
                 outputFilePath.createDirectory();
             }
 
@@ -462,11 +448,11 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             mx::ShaderPtr shader;
             try
             {
-                RenderUtil::AdditiveScopedTimer transpTimer(profileTimes.languageTimes.transparencyTime, "GLSL transparency time");
+                mx::ScopedTimer transpTimer(&profileTimes.languageTimes.transparencyTime);
                 options.hwTransparency = mx::isTransparentSurface(element, shadergen.getTarget());
                 transpTimer.endTimer();
 
-                RenderUtil::AdditiveScopedTimer generationTimer(profileTimes.languageTimes.generationTime, "GLSL generation time");
+                mx::ScopedTimer generationTimer(&profileTimes.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -493,7 +479,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
             if (testOptions.dumpGeneratedCode)
             {
-                RenderUtil::AdditiveScopedTimer dumpTimer(profileTimes.languageTimes.ioTime, "GLSL I/O time");
+                mx::ScopedTimer dumpTimer(&profileTimes.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + "_vs.glsl");
                 file << vertexSourceCode;
@@ -586,14 +572,14 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 }
 
                 {
-                    RenderUtil::AdditiveScopedTimer compileTimer(profileTimes.languageTimes.compileTime, "GLSL compile time");
+                    mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
                     _renderer->createProgram(shader);
                     _renderer->validateInputs();
                 }
 
                 if (testOptions.dumpUniformsAndAttributes)
                 {
-                    RenderUtil::AdditiveScopedTimer printTimer(profileTimes.languageTimes.ioTime, "GLSL io time");
+                    mx::ScopedTimer printTimer(&profileTimes.languageTimes.ioTime);
                     log << "* Uniform:" << std::endl;
                     program->printUniforms(log);
                     log << "* Attributes:" << std::endl;
@@ -652,7 +638,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 if (testOptions.renderImages)
                 {
                     {
-                        RenderUtil::AdditiveScopedTimer renderTimer(profileTimes.languageTimes.renderTime, "GLSL render time");
+                        mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
                         _renderer->getImageHandler()->setSearchPath(imageSearchPath);
                         _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
                         _renderer->render();
@@ -660,7 +646,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                     if (testOptions.saveImages)
                     {
-                        RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.languageTimes.imageSaveTime, "GLSL image save time");
+                        mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
                         std::string fileName = shaderPath + "_glsl.png";
                         mx::ImagePtr image = _renderer->captureImage();
                         if (image)
