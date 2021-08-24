@@ -165,8 +165,8 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
         }
     }
 
-    // Unbind all images used to generate this set of shader inputs.
-    _imageHandler->unbindImages();
+    // Release all images used to generate this set of shader inputs.
+    _imageHandler->clearImageCache();
 }
 
 void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& texturefilepath)
