@@ -29,14 +29,14 @@ class MX_RENDER_API ScopedTimer
     /// Return the elapsed time in seconds since our start time.
     double elapsedTime();
 
-    /// Set our start time to the current moment.
+    /// Activate the timer, and set our start time to the current moment.
     void startTimer();
 
-    /// Add the current elapsed time to our external counter, and reset
-    /// our start time to the current moment.
+    /// Deactivate the timer, and add the elapsed time to our external counter.
     void endTimer();
 
   protected:
+    bool _active;
     double* _externalCounter;
     std::chrono::time_point<clock> _startTime;
 };

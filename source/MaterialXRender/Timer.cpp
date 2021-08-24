@@ -16,10 +16,7 @@ ScopedTimer::ScopedTimer(double* externalCounter) :
 
 ScopedTimer::~ScopedTimer()
 {
-    if (_externalCounter)
-    {
-        endTimer();
-    }
+    endTimer();
 }
 
 double ScopedTimer::elapsedTime()
@@ -31,16 +28,17 @@ double ScopedTimer::elapsedTime()
 
 void ScopedTimer::startTimer()
 {
+    _active = true;
     _startTime = clock::now();
 }
 
 void ScopedTimer::endTimer()
 {
-    if (_externalCounter)
+    if (_active && _externalCounter)
     {
         *_externalCounter += elapsedTime();
     }
-    _startTime = clock::now();
+    _active = false;
 }
 
 } // namespace MaterialX
