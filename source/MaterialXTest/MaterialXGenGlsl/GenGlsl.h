@@ -57,6 +57,7 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             "IM_light_genglsl", "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl",
             "IM_angle", "surfacematerial", "volumematerial", "ND_surfacematerial", "ND_volumematerial", "ND_backface_util", "IM_backface_util_genglsl"
         };
+        ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
 };
 

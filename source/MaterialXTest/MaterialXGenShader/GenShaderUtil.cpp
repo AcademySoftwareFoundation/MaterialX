@@ -419,6 +419,7 @@ bool ShaderGeneratorTester::generateCode(mx::GenContext& context, const std::str
     catch (mx::Exception& e)
     {
         log << ">> Code generation failure: " << e.what() << "\n";
+        WARN(std::string(e.what()) + " in " + shaderName);
         shader = nullptr;
     }
     CHECK(shader);
@@ -491,12 +492,8 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "bxdf", "lights" };
     loadLibraries(libraries, _libSearchPath, _dependLib, _skipLibraryFiles);
-
-    // Load shader definitions used in the test suite.
-    loadLibrary(mx::FilePath("bxdf/standard_surface.mtlx"), _dependLib, _libSearchPath);
-    loadLibrary(mx::FilePath("bxdf/usd_preview_surface.mtlx"), _dependLib, _libSearchPath);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -745,11 +742,11 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             // Handle material node checking. For now only check first surface shader if any
             if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(outputNode, mx::SURFACE_SHADER_TYPE_STRING);
+                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
                 if (!shaderNodes.empty())
                 {
-                    nodeDef = (*shaderNodes.begin())->getNodeDef();
-                    targetElement = *shaderNodes.begin();
+                    nodeDef = shaderNodes[0]->getNodeDef();
+                    targetElement = shaderNodes[0];
                 }
             }
 

@@ -124,6 +124,9 @@ class MX_RENDER_API Image
     /// @name Image Processing
     /// @{
 
+    /// Set all texels of this image to a uniform color.
+    void setUniformColor(const Color4& color);
+
     /// Apply a 3x3 box blur to this image, returning a new blurred image.
     ImagePtr applyBoxBlur();
 
@@ -205,6 +208,9 @@ MX_RENDER_API ImagePtr createUniformImage(unsigned int width, unsigned int heigh
 
 /// Create a horizontal image strip from a vector of images with identical resolutions and formats.
 MX_RENDER_API ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
+
+/// Compute the maximum width and height of all images in the given vector.
+MX_RENDER_API std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec);
 
 } // namespace MaterialX
 

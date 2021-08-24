@@ -189,7 +189,6 @@ namespace HW
     extern MX_GENSHADER_API const string VERTEX_DATA_INSTANCE;
     extern MX_GENSHADER_API const string LIGHT_DATA_INSTANCE;
     extern MX_GENSHADER_API const string LIGHT_DATA_MAX_LIGHT_SOURCES;
-    extern MX_GENSHADER_API const string ENV_RADIANCE_MAX_SAMPLES;
 
     /// Variable blocks names.
     extern MX_GENSHADER_API const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.

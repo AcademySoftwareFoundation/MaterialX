@@ -10,33 +10,24 @@
 namespace MaterialX
 {
 
-const string DefaultColorManagementSystem::CMS_NAME = "default_cms";
+namespace {
+
+const string CMS_NAME = "default_cms";
+
+// Remap from legacy color space names to their ACES 1.2 equivalents.
+const StringMap COLOR_SPACE_REMAP =
+{
+    { "gamma18", "g18_rec709" },
+    { "gamma22", "g22_rec709" },
+    { "gamma24", "g24_rec709" },
+    { "acescg", "lin_ap1" }
+};
+
+} // anonymous namespace
 
 //
 // DefaultColorManagementSystem methods
 //
-
-ImplementationPtr DefaultColorManagementSystem::getImplementation(const ColorSpaceTransform& transform) const
-{
-    if (!_document)
-    {
-        throw ExceptionShaderGenError("No library loaded for color management system");
-    }
-
-    TargetDefPtr targetDef = _document->getTargetDef(_target);
-    const StringVec targets = targetDef->getMatchingTargets();
-    for (const string& target : targets)
-    {
-        const string implName = "IM_" + transform.sourceSpace + "_to_" + transform.targetSpace + "_" + transform.type->getName() + "_" + target;
-        ImplementationPtr impl = _document->getImplementation(implName);
-        if (impl)
-        {
-            return impl;
-        }
-    }
-
-    return nullptr;
-}
 
 DefaultColorManagementSystemPtr DefaultColorManagementSystem::create(const string& target)
 {
@@ -46,6 +37,34 @@ DefaultColorManagementSystemPtr DefaultColorManagementSystem::create(const strin
 DefaultColorManagementSystem::DefaultColorManagementSystem(const string& target) :
     _target(target)
 {
+}
+
+const string& DefaultColorManagementSystem::getName() const
+{
+    return CMS_NAME;
+}
+
+ImplementationPtr DefaultColorManagementSystem::getImplementation(const ColorSpaceTransform& transform) const
+{
+    if (!_document)
+    {
+        throw ExceptionShaderGenError("No library loaded for color management system");
+    }
+
+    TargetDefPtr targetDef = _document->getTargetDef(_target);
+    string sourceSpace = COLOR_SPACE_REMAP.count(transform.sourceSpace) ? COLOR_SPACE_REMAP.at(transform.sourceSpace) : transform.sourceSpace;
+    string targetSpace = COLOR_SPACE_REMAP.count(transform.targetSpace) ? COLOR_SPACE_REMAP.at(transform.targetSpace) : transform.targetSpace;
+    for (const string& target : targetDef->getMatchingTargets())
+    {
+        string implName = "IM_" + sourceSpace + "_to_" + targetSpace + "_" + transform.type->getName() + "_" + target;
+        ImplementationPtr impl = _document->getImplementation(implName);
+        if (impl)
+        {
+            return impl;
+        }
+    }
+
+    return nullptr;
 }
 
 } // namespace MaterialX

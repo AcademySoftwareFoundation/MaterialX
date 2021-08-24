@@ -1,6 +1,32 @@
 # Change Log
 
-## [1.38.1] - Development
+## [1.38.2] - Development
+
+### Added
+- Added graph definitions for the MaterialX Lama node set.
+- Added support for GCC 11.
+
+### Fixed
+- Fixed the default value of the roughness input of UsdPreviewSurface.
+- Fixed the assignment of channel names in EXR files written through OpenImageIO.
+
+## [1.38.1] - 2021-06-18
+
+### Added
+- Added support for shared library builds on Windows.
+- Added support for 16-bit unsigned integer images in MaterialXRender.
+- Added support for compound nodegraphs with user interfaces in shader and UI generation.
+- Added headers for newly proposed MaterialX closures in OSL.
+- Added a shader translation command to the viewer, assigned to the 'T' hotkey.
+
+### Changed
+- Improved the memory efficiency of texture baking operations.
+- Improved the compatibility of generated MDL code with Omniverse.
+- Refactored image resolution logic into new methods ImageHandler\:\:getReferencedImages and MaterialX\:\:getMaxDimensions.
+- Moved the viewer hotkey for GLSL code generation from 'S' to 'G' for consistency with other languages.
+
+### Fixed
+- Fixed the Color3.asTuple and Color4.asTuple methods in Python
 
 ## [1.38.0] - 2021-03-02
 

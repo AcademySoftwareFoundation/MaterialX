@@ -6,17 +6,14 @@
 #include <MaterialXTest/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
-#include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/Util.h>
-
-#include <MaterialXGenOsl/OslShaderGenerator.h>
-
 #include <MaterialXRenderOsl/OslRenderer.h>
 
 #include <MaterialXRender/StbImageLoader.h>
 #if defined(MATERIALX_BUILD_OIIO)
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
+
+#include <MaterialXGenOsl/OslShaderGenerator.h>
 
 namespace mx = MaterialX;
 
@@ -72,7 +69,7 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
     // Set up additional utilities required to run OSL testing including
     // oslc and testrender paths and OSL include path
     //
-    const std::string oslcExecutable(MATERIALX_OSLC_EXECUTABLE);
+    const std::string oslcExecutable(MATERIALX_TESTOSLC_EXECUTABLE);
     _renderer->setOslCompilerExecutable(oslcExecutable);
     const std::string testRenderExecutable(MATERIALX_TESTRENDER_EXECUTABLE);
     _renderer->setOslTestRenderExecutable(testRenderExecutable);
@@ -108,7 +105,7 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
             _renderer->setOslUtilityOSOPath(shaderPath);
         }
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {
@@ -130,7 +127,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                                          const std::string& outputPath,
                                          mx::ImageVec* imageVec)
 {
-    RenderUtil::AdditiveScopedTimer totalOSLTime(profileTimes.languageTimes.totalTime, "OSL total time");
+    mx::ScopedTimer totalOSLTime(&profileTimes.languageTimes.totalTime);
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -159,7 +156,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
             mx::ShaderPtr shader;
             try
             {
-                RenderUtil::AdditiveScopedTimer genTimer(profileTimes.languageTimes.generationTime, "OSL generation time");
+                mx::ScopedTimer genTimer(&profileTimes.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -188,7 +185,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
             // Note: mkdir will fail if the directory already exists which is ok.
             {
-                RenderUtil::AdditiveScopedTimer ioDir(profileTimes.languageTimes.ioTime, "OSL dir time");
+                mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
                 outputFilePath.createDirectory();
             }
 
@@ -197,7 +194,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
             // Write out osl file
             if (testOptions.dumpGeneratedCode)
             {
-                RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.languageTimes.ioTime, "OSL I/O time");
+                mx::ScopedTimer ioTimer(&profileTimes.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + ".osl");
                 file << shader->getSourceCode();
@@ -219,7 +216,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 // Validate compilation
                 {
-                    RenderUtil::AdditiveScopedTimer compileTimer(profileTimes.languageTimes.compileTime, "OSL compile time");
+                    mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
                     _renderer->createProgram(shader);
                 }
 
@@ -296,7 +293,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                         // Validate rendering
                         {
-                            RenderUtil::AdditiveScopedTimer renderTimer(profileTimes.languageTimes.renderTime, "OSL render time");
+                            mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
                             _renderer->render();
                             if (imageVec)
                             {
@@ -313,7 +310,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 validated = true;
             }
-            catch (mx::ExceptionShaderRenderError& e)
+            catch (mx::ExceptionRenderError& e)
             {
                 // Always dump shader on error
                 std::ofstream file;
@@ -340,7 +337,7 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
 TEST_CASE("Render: OSL TestSuite", "[renderosl]")
 {
-    if (std::string(MATERIALX_OSLC_EXECUTABLE).empty() &&
+    if (std::string(MATERIALX_TESTOSLC_EXECUTABLE).empty() &&
         std::string(MATERIALX_TESTRENDER_EXECUTABLE).empty())
     {
         INFO("Skipping the OSL test suite as its executable locations haven't been set.");

@@ -59,7 +59,7 @@ int mx_floor(float x)
 float mx_floorfrac(float x, out int i)
 {
     i = mx_floor(x);
-    return x - i;
+    return x - float(i);
 }
 
 float mx_bilerp(float v0, float v1, float v2, float v3, float s, float t)

@@ -45,6 +45,9 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
+    /// Determine the prefix of vertex data variables. 
+    virtual const string getVertexDataPrefix(const VariableBlock& vertexData) const;
+
   public:
     /// Unique identifier for this generator target
     static const string TARGET;
@@ -55,6 +58,11 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
   protected:
     virtual void emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
     virtual void emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
+
+    /// Logic to indicate whether code to support direct lighting should be emitted.
+    /// By default if the graph is classified as a shader, or BSDF node then lighting is assumed to be required.
+    /// Derived classes can override this logic.
+    virtual bool requiresLighting(const ShaderGraph& graph) const;
 
     /// Emit specular environment lookup code
     void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;

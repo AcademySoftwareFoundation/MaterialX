@@ -655,23 +655,26 @@ void PropertyEditor::updateContents(Viewer* viewer)
     create(*viewer);
 
     MaterialPtr material = viewer->getSelectedMaterial();
-    if (!material)
+    mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
+    if (!material || !elem)
     {
         return;
     }
 
     // Shading model display
-    mx::TypedElementPtr elem = material->getElement();
-    std::string shaderName = elem ? elem->getCategory() : mx::EMPTY_STRING;
-    if (!shaderName.empty() && shaderName != "surface")
+    if (elem->isA<mx::Node>())
     {
-        ng::Widget* twoColumns = new ng::Widget(_container);
-        twoColumns->setLayout(_gridLayout2);
-        ng::Label* modelLabel = new ng::Label(twoColumns, "Shading Model");
-        modelLabel->setFontSize(20);
-        modelLabel->setFont("sans-bold");
-        ng::Label* nameLabel = new ng::Label(twoColumns, shaderName);
-        nameLabel->setFontSize(20);
+        std::string shaderName = elem->getCategory();
+        if (!shaderName.empty() && shaderName != "surface")
+        {
+            ng::Widget* twoColumns = new ng::Widget(_container);
+            twoColumns->setLayout(_gridLayout2);
+            ng::Label* modelLabel = new ng::Label(twoColumns, "Shading Model");
+            modelLabel->setFontSize(20);
+            modelLabel->setFont("sans-bold");
+            ng::Label* nameLabel = new ng::Label(twoColumns, shaderName);
+            nameLabel->setFontSize(20);
+        }
     }
 
     bool addedItems = false;
@@ -681,34 +684,34 @@ void PropertyEditor::updateContents(Viewer* viewer)
         mx::UIPropertyGroup groups;
         mx::UIPropertyGroup unnamedGroups;
         const std::string pathSeparator(":");
-        mx::createUIPropertyGroups(*publicUniforms, material->getDocument(), elem,
-                                    pathSeparator, groups, unnamedGroups, false); 
+        bool showAllInputs = viewer->getShowAllInputs();
+        mx::createUIPropertyGroups(elem->getDocument(), *publicUniforms, groups, unnamedGroups,
+                                   pathSeparator, showAllInputs); 
 
+        // First add items with named groups.
         std::string previousFolder;
-        // Make all inputs editable for now. Could make this read-only as well.
-        const bool editable = true;
         for (auto it = groups.begin(); it != groups.end(); ++it)
         {
             const std::string& folder = it->first;
             const mx::UIPropertyItem& item = it->second;
 
-            // Find out if the uniform is editable. Some
-            // inputs may be optimized out during compilation.
+            // Verify that the uniform is editable, as some inputs may be optimized out during compilation.
             if (material->findUniform(item.variable->getPath()))
             {
-                addItemToForm(item, (previousFolder == folder) ? mx::EMPTY_STRING : folder, _container, viewer, editable);
+                addItemToForm(item, (previousFolder == folder) ? mx::EMPTY_STRING : folder, _container, viewer, true);
                 previousFolder.assign(folder);
                 addedItems = true;
             }
         }
 
+        // Then add items with unnamed groups.
         bool addedLabel = false;
         for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
         {
             const mx::UIPropertyItem& item = it2->second;
             if (material->findUniform(item.variable->getPath()))
             {
-                addItemToForm(item, addedLabel ? mx::EMPTY_STRING : "Shader Inputs", _container, viewer, editable);
+                addItemToForm(item, addedLabel ? mx::EMPTY_STRING : "Shader Inputs", _container, viewer, true);
                 addedLabel = true;
                 addedItems = true;
             }

@@ -5,6 +5,7 @@
 
 #include <MaterialXRender/Mesh.h>
 
+#include <limits>
 #include <map>
 
 namespace MaterialX

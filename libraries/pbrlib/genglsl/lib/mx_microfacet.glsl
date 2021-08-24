@@ -1,3 +1,11 @@
+#define M_PI 3.1415926535897932
+#define M_PI_INV (1.0 / M_PI)
+
+float mx_pow5(float x)
+{
+    return mx_square(mx_square(x)) * x;
+}
+
 // Standard Schlick Fresnel
 float mx_fresnel_schlick(float cosTheta, float F0)
 {
@@ -44,10 +52,17 @@ float mx_average_roughness(vec2 roughness)
     return sqrt(roughness.x * roughness.y);
 }
 
+// Enforce that the given normal is forward-facing from the specified view direction.
+vec3 mx_forward_facing_normal(vec3 N, vec3 V)
+{
+    return (dot(N, V) < 0.0) ? -N : N;
+}
+
 // https://www.graphics.rwth-aachen.de/publication/2/jgt.pdf
 float mx_golden_ratio_sequence(int i)
 {
-    return fract((float(i) + 1.0) * M_GOLDEN_RATIO);
+    const float GOLDEN_RATIO = 1.6180339887498948;
+    return fract((float(i) + 1.0) * GOLDEN_RATIO);
 }
 
 // https://people.irisa.fr/Ricardo.Marques/articles/2013/SF_CGF.pdf

@@ -50,8 +50,10 @@ void bindPyImageHandler(py::module& mod)
         .def("setFilenameResolver", &mx::ImageHandler::setFilenameResolver)
         .def("getFilenameResolver", &mx::ImageHandler::getFilenameResolver)
         .def("createRenderResources", &mx::ImageHandler::createRenderResources)
-        .def("releaseRenderResources", &mx::ImageHandler::releaseRenderResources)
+        .def("releaseRenderResources", &mx::ImageHandler::releaseRenderResources,
+            py::arg("image") = nullptr)
         .def("clearImageCache", &mx::ImageHandler::clearImageCache)
         .def("getZeroImage", &mx::ImageHandler::getZeroImage)
-        .def("getInvalidImage", &mx::ImageHandler::getInvalidImage);
+        .def("getInvalidImage", &mx::ImageHandler::getInvalidImage)
+        .def("getReferencedImages", &mx::ImageHandler::getReferencedImages);
 }

@@ -20,10 +20,10 @@ void bindPyUtil(py::module& mod)
     mod.def("findRenderableMaterialNodes", &mx::findRenderableMaterialNodes);
     mod.def("findRenderableMaterialNodes", &mx::findRenderableMaterialNodes);
     mod.def("findRenderableElements", &mx::findRenderableElements);
-    mod.def("findNodeDefChild", &mx::findNodeDefChild);
+    mod.def("getNodeDefInput", &mx::getNodeDefInput);
     mod.def("tokenSubstitution", &mx::tokenSubstitution);
     mod.def("getUdimCoordinates", &mx::getUdimCoordinates);
     mod.def("getUdimScaleAndOffset", &mx::getUdimScaleAndOffset);
-    mod.def("connectsToNodeOfCategory", &mx::connectsToNodeOfCategory);
+    mod.def("connectsToWorldSpaceNode", &mx::connectsToWorldSpaceNode);
     mod.def("hasElementAttributes", &mx::hasElementAttributes);
 }

@@ -75,7 +75,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
         if (!position->isEmitted())
         {
@@ -101,7 +101,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
 
         // Declare the output variable
         const ShaderOutput* output = node.getOutput();

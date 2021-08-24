@@ -8,8 +8,11 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
+#include <limits>
+
 namespace MaterialX
 {
+
 void GeometryHandler::addLoader(GeometryLoaderPtr loader)
 {
     const StringSet& extensions = loader->supportedExtensions();

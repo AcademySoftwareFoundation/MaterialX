@@ -139,7 +139,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 
         // Handle case where it's an input to a top level output
         InputPtr connectedInput = connectingElement->asA<Input>();
-        OutputPtr output = OutputPtr();
+        OutputPtr output;
         if (connectedInput)
         {
             InputPtr interfaceInput = nullptr;
@@ -271,8 +271,10 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
             // Create a new instance of each original subnode.
             for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
             {
-                string destName = createValidChildName(sourceSubGraph->getName() + "_" + sourceSubNode->getName());
+                string origName = sourceSubNode->getName();
+                string destName = createValidChildName(origName);
                 NodePtr destSubNode = addNode(sourceSubNode->getCategory(), destName);
+
                 destSubNode->copyContentFrom(sourceSubNode);
                 setChildIndex(destSubNode->getName(), getChildIndex(processNode->getName()));
 
@@ -310,6 +312,10 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                             {
                                 newInput->setOutputString(refInput->getOutputString());
                             }
+                            if (refInput->hasNodeGraphString())
+                            {
+                                newInput->setNodeGraphString(refInput->getNodeGraphString());
+                            }
                         }
                     }
                     destValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
@@ -345,6 +351,77 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                         }
                     }
                 }
+            }
+
+            // Connect any nodegraph outputs within the graph which point to another 
+            // flatten node within the nodegraph. As it's been flattened the previous
+            // reference is incorrect and needs to be updated.
+            if (sourceSubGraph->getOutputCount())
+            {
+                for (OutputPtr sourceOutput : getOutputs())
+                {
+                    const string& nodeNameString = sourceOutput->getNodeName(); 
+                    const string& outputString = sourceOutput->getOutputString(); 
+
+                    if (nodeNameString != processNode->getName())
+                    {
+                        continue;
+                    }
+
+                    // Look for what the original output pointed to.
+                    OutputPtr sourceSubGraphOutput = outputString.empty() ? sourceSubGraph->getOutputs()[0] : sourceSubGraph->getOutput(outputString);
+                    if (!sourceSubGraphOutput)
+                    {
+                        continue;
+                    }
+
+                    string destName = sourceSubGraphOutput->getNodeName();
+                    if (destName.empty())
+                    {
+                        destName = sourceSubGraphOutput->getNodeGraphString();
+                    }
+                    NodePtr sourceSubNode = sourceSubGraph->getNode(destName);
+                    NodePtr destNode = sourceSubNode ? subNodeMap[sourceSubNode] : nullptr;
+                    if (destNode)
+                    {
+                        destName = destNode->getName();
+                    }
+
+                    // Point original output to this one
+                    sourceOutput->setNodeName(destName);
+                }
+            }
+
+            // If the node was flattened then any downstream references
+            // need to be updated to point to the new root of the flatten node.
+            PortElementVec downstreamPorts = downstreamPortMap[processNode];
+            for (auto downstreamPort : downstreamPorts)
+            {
+                const string& outputString = downstreamPort->getOutputString();
+
+                // Look for an output on the flattened graph
+                OutputPtr sourceSubGraphOutput = outputString.empty() ? sourceSubGraph->getOutputs()[0] : sourceSubGraph->getOutput(outputString);
+                if (!sourceSubGraphOutput)
+                {
+                    continue;
+                }
+
+                // Find connected node to the output
+                string destName = sourceSubGraphOutput->getNodeName();
+                if (destName.empty())
+                {
+                    destName = sourceSubGraphOutput->getNodeGraphString();
+                }
+                NodePtr sourceSubNode = sourceSubGraph->getNode(destName);
+                NodePtr destNode = sourceSubNode ? subNodeMap[sourceSubNode] : nullptr;
+                if (destNode)
+                {
+                    destName = destNode->getName();
+                }
+
+                // Use that node to overwrite downstream port connection
+                downstreamPort->setNodeName(destName);
+                downstreamPort->setOutputString(EMPTY_STRING);
             }
 
             // The processed node has been replaced, so remove it from the graph.
@@ -527,30 +604,20 @@ void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
     }
 }
 
-ValueElementPtr Node::addInputFromNodeDef(const string& name)
+InputPtr Node::addInputFromNodeDef(const string& name)
 {
-    ValueElementPtr newChild = nullptr;
-    NodeDefPtr elemNodeDef = getNodeDef();
-    if (elemNodeDef)
+    InputPtr nodeInput = getInput(name);
+    if (!nodeInput)
     {
-        ValueElementPtr nodeDefElem = elemNodeDef->getChildOfType<ValueElement>(name);
-        const string& inputName = nodeDefElem->getName();
-        ElementPtr existingElement = getChild(inputName);
-        if (existingElement && existingElement->isA<ValueElement>())
+        NodeDefPtr nodeDef = getNodeDef();
+        InputPtr nodeDefInput = nodeDef ? nodeDef->getInput(name) : nullptr;
+        if (nodeDefInput)
         {
-            return existingElement->asA<ValueElement>();
-        }
-
-        if (nodeDefElem->isA<Input>())
-        {
-            newChild = addInput(inputName, nodeDefElem->getType());
-        }
-        if (newChild)
-        {
-            newChild->copyContentFrom(nodeDefElem);
+            nodeInput = addInput(nodeDefInput->getName());
+            nodeInput->copyContentFrom(nodeDefInput);
         }
     }
-    return newChild;
+    return nodeInput;
 }
 
 void NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)
@@ -632,33 +699,7 @@ bool NodeGraph::validate(string* message) const
             validateRequire(getOutputCount() == nodeDef->getActiveOutputs().size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
         }
     }
-    // Check interfaces on nodegraphs which are not definitions
-    if (!hasNodeDefString())
-    {
-        for (NodePtr node : getNodes())
-        {
-            for (InputPtr input : node->getInputs())
-            {
-                const string& interfaceName = input->getInterfaceName();
-                if (!interfaceName.empty())
-                {
-                    InputPtr interfaceInput = input->getInterfaceInput();
-                    validateRequire(interfaceInput != nullptr, res, message, "NodeGraph interface input: \"" + interfaceName + "\" does not exist on nodegraph");
-                    string connectedNodeName = interfaceInput ? interfaceInput->getNodeName() : EMPTY_STRING;
-                    if (connectedNodeName.empty())
-                    {
-                        connectedNodeName = interfaceInput->getNodeGraphString();
-                    }
-                    if (interfaceInput && !connectedNodeName.empty())
-                    {
-                        NodePtr connectedNode = input->getConnectedNode();
-                        validateRequire(connectedNode != nullptr, res, message, "Nodegraph input: \"" + interfaceInput->getNamePath() +
-                            "\" specifies connection to non existent node: \"" + connectedNodeName + "\"");
-                    }
-                }
-            }
-        }
-    }
+
     return GraphElement::validate(message) && res;
 }
 
