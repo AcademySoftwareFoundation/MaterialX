@@ -284,7 +284,7 @@ class MX_CORE_API Vector2 : public VectorN<Vector2, float, 2>
 {
   public:
     using VectorN<Vector2, float, 2>::VectorN;
-    Vector2() { }
+    Vector2() = default;
     Vector2(float x, float y) : VectorN(Uninit{})
     {
         _arr = {x, y};
@@ -303,7 +303,7 @@ class MX_CORE_API Vector3 : public VectorN<Vector3, float, 3>
 {
   public:
     using VectorN<Vector3, float, 3>::VectorN;
-    Vector3() { }
+    Vector3() = default;
     Vector3(float x, float y, float z) : VectorN(Uninit{})
     {
         _arr = {x, y, z};
@@ -324,7 +324,7 @@ class MX_CORE_API Vector4 : public VectorN<Vector4, float, 4>
 {
   public:
     using VectorN<Vector4, float, 4>::VectorN;
-    Vector4() { }
+    Vector4() = default;
     Vector4(float x, float y, float z, float w) : VectorN(Uninit{})
     {
         _arr = {x, y, z, w};
@@ -337,7 +337,7 @@ class MX_CORE_API Quaternion : public VectorN<Vector4, float, 4>
 {
   public:
     using VectorN<Vector4, float, 4>::VectorN;
-    Quaternion() { }
+    Quaternion() = default;
     Quaternion(float x, float y, float z, float w) : VectorN(Uninit{})
     {
         _arr = {x, y, z, w};
@@ -376,7 +376,7 @@ class MX_CORE_API Color3 : public VectorN<Color3, float, 3>
 {
   public:
     using VectorN<Color3, float, 3>::VectorN;
-    Color3() { }
+    Color3() = default;
     Color3(float r, float g, float b) : VectorN(Uninit{})
     {
         _arr = {r, g, b};
@@ -389,7 +389,7 @@ class MX_CORE_API Color4 : public VectorN<Color4, float, 4>
 {
   public:
     using VectorN<Color4, float, 4>::VectorN;
-    Color4() { }
+    Color4() = default;
     Color4(float r, float g, float b, float a) : VectorN(Uninit{})
     {
         _arr = {r, g, b, a};
@@ -625,7 +625,7 @@ class MX_CORE_API Matrix33 : public MatrixN<Matrix33, float, 3>
 {
   public:
     using MatrixN<Matrix33, float, 3>::MatrixN;
-    Matrix33() { }
+    Matrix33() = default;
     Matrix33(float m00, float m01, float m02,
              float m10, float m11, float m12,
              float m20, float m21, float m22) :
@@ -676,7 +676,7 @@ class MX_CORE_API Matrix44 : public MatrixN<Matrix44, float, 4>
 {
   public:
     using MatrixN<Matrix44, float, 4>::MatrixN;
-    Matrix44() { }
+    Matrix44() = default;
     Matrix44(float m00, float m01, float m02, float m03,
              float m10, float m11, float m12, float m13,
              float m20, float m21, float m22, float m23,

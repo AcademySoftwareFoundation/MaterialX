@@ -30,7 +30,7 @@ namespace
 
 ShaderNodeImplPtr HeightToNormalNodeMdl::create()
 {
-    return std::shared_ptr<HeightToNormalNodeMdl>(new HeightToNormalNodeMdl());
+    return std::make_shared<HeightToNormalNodeMdl>();
 }
 
 void HeightToNormalNodeMdl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
