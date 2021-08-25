@@ -13,14 +13,9 @@
 namespace MaterialX
 {
 
-BlurNodeMdl::BlurNodeMdl() :
-    BlurNode()
-{
-}
-
 ShaderNodeImplPtr BlurNodeMdl::create()
 {
-    return std::shared_ptr<BlurNodeMdl>(new BlurNodeMdl());
+    return std::make_shared<BlurNodeMdl>();
 }
 
 void BlurNodeMdl::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType, 
