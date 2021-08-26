@@ -419,7 +419,7 @@ OslSyntax::OslSyntax()
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
             "BSDF(null_closure, color(1.0), 0.0, 0.0)",
-            EMPTY_STRING,
+            "{ 0, color(1.0), 0.0, 0.0 }",
             EMPTY_STRING,
             "struct BSDF { closure color result; color throughput; float thickness; float ior; };")
     );
