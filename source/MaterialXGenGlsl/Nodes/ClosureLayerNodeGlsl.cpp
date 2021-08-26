@@ -59,11 +59,13 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         {
             throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
         }
+        const ShaderNode* oldThinFilm = cct->getThinFilm();
         cct->setThinFilm(top);
         const string oldVariable = base->getOutput()->getVariable();
         base->getOutput()->setVariable(output->getVariable());
         shadergen.emitFunctionCall(*base, context, stage);
         base->getOutput()->setVariable(oldVariable);
+        cct->setThinFilm(oldThinFilm);
     }
     else
     {
