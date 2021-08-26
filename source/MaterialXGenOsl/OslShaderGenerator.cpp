@@ -465,9 +465,10 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
 
     const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
     {
-        Type::VECTOR2, // Vector2, Vector4 and Color4 are custom struct types
-        Type::VECTOR4, // in OSL and these doesn't support metadata declarations.
-        Type::COLOR4   // 
+        Type::VECTOR2, // Custom struct types doesn't support metadata declarations.
+        Type::VECTOR4, //
+        Type::COLOR4,  //
+        Type::BSDF     //
     };
 
     for (size_t i = 0; i < inputs.size(); ++i)
