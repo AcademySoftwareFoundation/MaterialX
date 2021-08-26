@@ -55,7 +55,7 @@ jobs:
           compiler: xcode
           compiler_version: "11.7"
           python: 3.7
-          run_on_push : ON
+          run_on_push : OFF
 
         - name: MacOS_Xcode_12_Python37
           os: macos-10.15
@@ -64,7 +64,7 @@ jobs:
           python: 3.7
           cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
           test_generate: ON
-          run_on_push : OFF
+          run_on_push : ON
 
         - name: Windows_VS2017_Win32_Python27
           os: windows-2016
@@ -137,7 +137,7 @@ jobs:
       
     - name: CMake Generate
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
-      run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
+      run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_RUNTIME=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
       working-directory: build
 
     - name: CMake Build

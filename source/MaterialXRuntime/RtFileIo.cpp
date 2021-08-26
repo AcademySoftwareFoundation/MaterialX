@@ -1244,7 +1244,7 @@ namespace
         RtLook look(lookPrim->hnd());
 
         // Create material assignments
-        for (const MaterialAssignPtr matAssign : src->getMaterialAssigns())
+        for (const MaterialAssignPtr& matAssign : src->getMaterialAssigns())
         {
             const RtString matAssignName(matAssign->getName());
             PvtPrim* assignPrim = stage->createPrim(parent->getPath(), matAssignName, RtMaterialAssign::typeName());
@@ -1344,7 +1344,7 @@ namespace
         RtReadOptions::ElementFilter filter = options ? options->elementFilter : nullptr;
 
         // Read collections
-        for (const ElementPtr& elem : mergedDoc->getCollections())
+        for (const CollectionPtr& elem : mergedDoc->getCollections())
         {
             if (!filter || filter(elem))
             {

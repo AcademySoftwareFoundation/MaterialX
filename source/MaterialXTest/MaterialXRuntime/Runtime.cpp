@@ -727,15 +727,17 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
 
     // Test traversing attributes.
     size_t attrCount = 0;
-    for (auto it : add1_in1.getAttributes())
+    for (const mx::RtAttribute attr : add1_in1.getAttributes())
     {
-        ++attrCount;
+        if (attr.value)
+            ++attrCount;
     }
     REQUIRE(attrCount == 3);
     attrCount = 0;
-    for (auto it : add1_in2.getAttributes())
+    for (const mx::RtAttribute attr : add1_in2.getAttributes())
     {
-        ++attrCount;
+        if (attr.value)
+            ++attrCount;
     }
     REQUIRE(attrCount == 1);
     mx::RtAttributeIterator attrIt = add1_in1.getAttributes();

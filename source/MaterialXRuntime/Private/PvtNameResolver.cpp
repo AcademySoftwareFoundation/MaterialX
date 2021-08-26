@@ -154,7 +154,7 @@ RtString PvtNameResolverRegistry::resolveIdentifier(const RtString& valueToResol
     }
     
     RtString result = valueToResolve;
-    for (const auto resolverPair : _resolvers)
+    for (const auto& resolverPair : _resolvers)
     {
         if (resolverPair.second && resolverPair.second->getType() == elementType)
         {
