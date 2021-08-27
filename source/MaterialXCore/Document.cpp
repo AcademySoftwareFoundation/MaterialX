@@ -896,7 +896,6 @@ void Document::upgradeVersion()
         // Convert material elements to material nodes
         for (ElementPtr mat : getChildrenOfType<Element>("material"))
         {
-            string materialName = mat->getName();
             NodePtr materialNode = nullptr;
 
             for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
@@ -962,11 +961,18 @@ void Document::upgradeVersion()
                 }
             }
 
-            // Remove the material element and transfer its name to the material node.
-            removeChild(materialName);
+            // Remove the material element, transferring its name and attributes to the material node.
+            removeChild(mat->getName());
             if (materialNode)
             {
-                materialNode->setName(materialName);
+                materialNode->setName(mat->getName());
+                for (const string& attr : mat->getAttributeNames())
+                {
+                    if (!materialNode->hasAttribute(attr))
+                    {
+                        materialNode->setAttribute(attr, mat->getAttribute(attr));
+                    }
+                }
             }
         }
 
