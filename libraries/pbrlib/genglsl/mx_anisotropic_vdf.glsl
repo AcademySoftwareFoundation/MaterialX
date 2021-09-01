@@ -1,5 +1,3 @@
-#include "pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl"
-
 void mx_anisotropic_vdf_reflection(vec3 absorption, vec3 scattering, float anisotropy, inout BSDF bsdf)
 {
     // TODO: Add some approximation for volumetric light absorption.
