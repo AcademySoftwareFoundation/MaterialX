@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Closure mix node implementation for GLSL.
-class ClosureMixNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API ClosureMixNodeGlsl : public GlslImplementation
 {
   public:
     static ShaderNodeImplPtr create();

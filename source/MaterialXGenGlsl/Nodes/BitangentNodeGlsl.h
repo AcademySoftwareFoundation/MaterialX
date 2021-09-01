@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Bitangent node implementation for GLSL
-class BitangentNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API BitangentNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();

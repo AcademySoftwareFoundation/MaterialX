@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Light node implementation for GLSL
-class LightNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API LightNodeGlsl : public GlslImplementation
 {
   public:
     LightNodeGlsl();

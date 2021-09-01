@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// TransformPoint node implementation for GLSL
-class TransformPointNodeGlsl : public TransformVectorNodeGlsl
+class MX_GENGLSL_API TransformPointNodeGlsl : public TransformVectorNodeGlsl
 {
 public:
     static ShaderNodeImplPtr create();

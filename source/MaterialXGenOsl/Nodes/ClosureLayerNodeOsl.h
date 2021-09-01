@@ -6,6 +6,8 @@
 #ifndef MATERIALX_CLOSURELAYERNODEOSL_H
 #define MATERIALX_CLOSURELAYERNODEOSL_H
 
+#include <MaterialXGenOsl/Export.h>
+
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 
@@ -13,7 +15,7 @@ namespace MaterialX
 {
 
 /// Closure layer node implementation for OSL.
-class ClosureLayerNodeOsl : public ShaderNodeImpl
+class MX_GENOSL_API ClosureLayerNodeOsl : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

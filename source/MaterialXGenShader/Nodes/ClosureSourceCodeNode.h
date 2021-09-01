@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-class ClosureSourceCodeNode : public SourceCodeNode
+class MX_GENSHADER_API ClosureSourceCodeNode : public SourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();
