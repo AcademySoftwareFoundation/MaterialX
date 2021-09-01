@@ -27,13 +27,9 @@ namespace
     const float filterOffset = 0.0;
 }
 
-HeightToNormalNodeGlsl::HeightToNormalNodeGlsl()
-{
-}
-
 ShaderNodeImplPtr HeightToNormalNodeGlsl::create()
 {
-    return std::shared_ptr<HeightToNormalNodeGlsl>(new HeightToNormalNodeGlsl());
+    return std::make_shared<HeightToNormalNodeGlsl>();
 }
 
 void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 

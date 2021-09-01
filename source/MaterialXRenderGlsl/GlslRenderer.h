@@ -46,7 +46,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
 
     /// Destructor
-    virtual ~GlslRenderer() { };
+    virtual ~GlslRenderer() { }
 
     /// @name Setup
     /// @{

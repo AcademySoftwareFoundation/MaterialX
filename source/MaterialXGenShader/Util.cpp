@@ -248,7 +248,6 @@ bool isTransparentSurface(ElementPtr element, const string& target)
                 const OutputPtr& output = outputs[0];
                 if (output->getType() == SURFACE_SHADER_TYPE_STRING)
                 {
-                    OpaqueTestPairList opaqueInputList;
                     if (isTransparentShaderGraph(output, target, node))
                     {
                         return true;
