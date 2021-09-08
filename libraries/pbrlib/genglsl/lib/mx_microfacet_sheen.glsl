@@ -29,7 +29,7 @@ float mx_imageworks_sheen_dir_albedo_curve_fit(float NdotV, float roughness)
 {
     float a = 5.25248 - 7.66024 * NdotV + 14.26377 * roughness;
     float b = 1.0 + 30.66449 * NdotV + 32.53420 * roughness;
-    return clamp(a / b, 0.0, 1.0);
+    return a / b;
 }
 
 float mx_imageworks_sheen_dir_albedo_table_lookup(float NdotV, float roughness)
@@ -78,10 +78,11 @@ float mx_imageworks_sheen_dir_albedo_monte_carlo(float NdotV, float roughness)
 float mx_imageworks_sheen_dir_albedo(float NdotV, float roughness)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_imageworks_sheen_dir_albedo_curve_fit(NdotV, roughness);
+    float dirAlbedo = mx_imageworks_sheen_dir_albedo_curve_fit(NdotV, roughness);
 #elif DIRECTIONAL_ALBEDO_METHOD == 1
-    return mx_imageworks_sheen_dir_albedo_table_lookup(NdotV, roughness);
+    float dirAlbedo = mx_imageworks_sheen_dir_albedo_table_lookup(NdotV, roughness);
 #else
-    return mx_imageworks_sheen_dir_albedo_monte_carlo(NdotV, roughness);
+    float dirAlbedo = mx_imageworks_sheen_dir_albedo_monte_carlo(NdotV, roughness);
 #endif
+    return clamp(dirAlbedo, 0.0, 1.0);
 }
