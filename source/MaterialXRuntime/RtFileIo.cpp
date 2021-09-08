@@ -200,7 +200,21 @@ namespace
     void writeNodeDef(const PvtPrim* src, DocumentPtr dest, const RtWriteOptions* options)
     {
         RtNodeDef nodedef(src->hnd());
-        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef.getName().str(), EMPTY_STRING, nodedef.getNode().str());
+        string nodedefName = nodedef.getName().str();
+
+        // Strip out any extraneous namespace prefix in the name
+        string namespaceString = nodedef.getNamespace().str();
+        if (!namespaceString.empty())
+        {
+            namespaceString += NAME_PREFIX_SEPARATOR;
+            auto location = nodedefName.find(namespaceString);
+            if (location != string::npos)
+            {
+                nodedefName.erase(location, namespaceString.length());
+            }
+        }
+
+        NodeDefPtr destNodeDef = dest->addNodeDef(nodedefName, EMPTY_STRING, nodedef.getNode().str());
 
         const RtString& version = nodedef.getVersion();
         if (!version.empty())
@@ -701,7 +715,11 @@ namespace
         RtNodeDef nodedef(prim->hnd());
         RtString nodeDefName = prim->getName();
         RtString defNamespace = nodedef.getNamespace();
-        RtString qualifiedName = !defNamespace.empty() ? RtString(defNamespace.str() + NAME_PREFIX_SEPARATOR  + nodeDefName.str()) : nodeDefName;
+        RtString qualifiedName = nodeDefName;
+        //The Node Definition name can already have a namespace prefix attached at the front, so don't bother doing it again.
+        if(!defNamespace.empty() && qualifiedName.str().rfind(defNamespace.str() + NAME_PREFIX_SEPARATOR , 0) != 0) {
+            qualifiedName = RtString(defNamespace.str() + NAME_PREFIX_SEPARATOR  + nodeDefName.str());
+        }
         RtSchemaPredicate<RtNodeGraph> filter;
         for (RtPrim child : stage->getRootPrim()->getChildren(filter))
         {
