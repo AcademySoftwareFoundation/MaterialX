@@ -23,7 +23,7 @@ void mx_generalized_schlick_bsdf(float weight, color color0, color color90, floa
 
     // Calculate directional albedo since we need
     // to attenuate the base layer according to this.
-    color dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    color dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, color(1.0 / 3.0));
 
     // Set ior to 0.0 to disable the internal dielectric fresnel

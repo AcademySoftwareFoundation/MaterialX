@@ -27,7 +27,7 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
     float G = mx_ggx_smith_G(NdotL, NdotV, avgRoughness);
 
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
     // Note: NdotL is cancelled out
@@ -56,7 +56,7 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
     vec2 safeRoughness = clamp(roughness, M_FLOAT_EPS, 1.0);
     float avgRoughness = mx_average_roughness(safeRoughness);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
     result = base * (1.0 - avgDirAlbedo * weight); // Transmission attenuated by top layer
@@ -79,7 +79,7 @@ void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec
     vec2 safeRoughness = clamp(roughness, M_FLOAT_EPS, 1.0);
     float avgRoughness = mx_average_roughness(safeRoughness);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
 
     vec3 Li = mx_environment_radiance(N, V, X, safeRoughness, distribution, fd);

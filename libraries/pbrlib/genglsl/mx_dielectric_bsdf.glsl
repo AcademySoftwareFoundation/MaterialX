@@ -28,7 +28,7 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
 
     float F0 = mx_ior_to_f0(ior);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
 
     // Note: NdotL is cancelled out
     result = D * F * G * comp * tint * occlusion * weight / (4.0 * NdotV) // Top layer reflection
@@ -71,7 +71,7 @@ void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     float avgRoughness = mx_average_roughness(safeRoughness);
     float F0 = mx_ior_to_f0(ior);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
 
     result = base * (1.0 - dirAlbedo * weight); // Transmission attenuated by reflection amount
 }
@@ -100,7 +100,7 @@ void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
     float avgRoughness = mx_average_roughness(safeRoughness);
     float F0 = mx_ior_to_f0(ior);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
 
     vec3 Li = mx_environment_radiance(N, V, X, safeRoughness, distribution, fd);
 

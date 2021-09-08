@@ -55,8 +55,8 @@ enum HwDirectionalAlbedoMethod
     /// Use a table look-up for directional albedo.
     DIRECTIONAL_ALBEDO_TABLE,
 
-    /// Use importance sampling for directional albedo.
-    DIRECTIONAL_ALBEDO_IS
+    /// Use Monte Carlo integration for directional albedo.
+    DIRECTIONAL_ALBEDO_MONTE_CARLO
 };
 
 /// @class GenOptions 
