@@ -55,23 +55,21 @@ float mx_imageworks_sheen_dir_albedo_monte_carlo(float NdotV, float roughness)
     {
         vec2 Xi = mx_spherical_fibonacci(i, SAMPLE_COUNT);
 
-        // Compute the half vector and incoming light direction.
-        vec3 H = mx_uniform_sample_hemisphere(Xi);
-        vec3 L = -reflect(V, H);
+        // Compute the incoming light direction and half vector.
+        vec3 L = mx_uniform_sample_hemisphere(Xi);
+        vec3 H = normalize(L + V);
         
         // Compute dot products for this sample.
         float NdotL = clamp(L.z, M_FLOAT_EPS, 1.0);
         float NdotH = clamp(H.z, M_FLOAT_EPS, 1.0);
-        float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
         // Compute sheen reflectance.
         float reflectance = mx_imageworks_sheen_brdf(NdotL, NdotV, NdotH, roughness);
 
         // Add the radiance contribution of this sample.
         //   uniform_pdf = 1 / (2 * PI)
-        //   Jacobian = 1 / (4 * VdotH)
-        //   radiance = reflectance * NdotL / (uniform_pdf * Jacobian)
-        radiance += reflectance * NdotL * 8.0 * M_PI * VdotH;
+        //   radiance = reflectance * NdotL / uniform_pdf;
+        radiance += reflectance * NdotL * 2.0 * M_PI;
     }
 
     // Return the final directional albedo.
