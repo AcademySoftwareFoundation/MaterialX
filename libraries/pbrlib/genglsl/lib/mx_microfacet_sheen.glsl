@@ -49,7 +49,7 @@ float mx_imageworks_sheen_dir_albedo_monte_carlo(float NdotV, float roughness)
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
     vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
 
-    float sum = 0.0;
+    float radiance = 0.0;
     const int SAMPLE_COUNT = 64;
     for (int i = 0; i < SAMPLE_COUNT; i++)
     {
@@ -68,11 +68,14 @@ float mx_imageworks_sheen_dir_albedo_monte_carlo(float NdotV, float roughness)
         float reflectance = mx_imageworks_sheen_brdf(NdotL, NdotV, NdotH, roughness);
 
         // Add the radiance contribution of this sample.
-        sum += reflectance * NdotL * 8.0 * M_PI * VdotH;
+        //   uniform_pdf = 1 / (2 * PI)
+        //   Jacobian = 1 / (4 * VdotH)
+        //   radiance = reflectance / (uniform_pdf * Jacobian)
+        radiance += reflectance * NdotL * 8.0 * M_PI * VdotH;
     }
 
     // Return the final directional albedo.
-    return sum / float(SAMPLE_COUNT);
+    return radiance / float(SAMPLE_COUNT);
 }
 
 float mx_imageworks_sheen_dir_albedo(float NdotV, float roughness)
