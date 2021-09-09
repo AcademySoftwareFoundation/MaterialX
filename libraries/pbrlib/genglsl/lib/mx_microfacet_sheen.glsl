@@ -70,7 +70,7 @@ float mx_imageworks_sheen_dir_albedo_monte_carlo(float NdotV, float roughness)
         // Add the radiance contribution of this sample.
         //   uniform_pdf = 1 / (2 * PI)
         //   Jacobian = 1 / (4 * VdotH)
-        //   radiance = reflectance / (uniform_pdf * Jacobian)
+        //   radiance = reflectance * NdotL / (uniform_pdf * Jacobian)
         radiance += reflectance * NdotL * 8.0 * M_PI * VdotH;
     }
 
