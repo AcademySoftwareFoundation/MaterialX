@@ -154,7 +154,7 @@ RtPrimIterator PvtPrim::getChildren(RtObjectPredicate predicate) const
 
 RtString PvtPrim::makeUniqueChildName(const RtString& name) const
 {
-    RtString newName = name;
+    RtString newName = RtString(createValidName(name.str()));
 
     // Check if there is another child with this name.
     // We must check both prims, inputs and outputs since in
