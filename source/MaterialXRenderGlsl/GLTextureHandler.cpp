@@ -30,6 +30,11 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
 
 bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
 {
+    if (!image)
+    {
+        return false;
+    }
+
     // Create renderer resources if needed.
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {

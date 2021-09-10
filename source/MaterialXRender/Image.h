@@ -9,9 +9,11 @@
 /// @file
 /// Image class
 
-#include <MaterialXCore/Types.h>
-
 #include <MaterialXRender/Export.h>
+
+#include <MaterialXFormat/File.h>
+
+#include <MaterialXCore/Types.h>
 
 namespace MaterialX
 {
@@ -136,6 +138,10 @@ class MX_RENDER_API Image
     /// Split this image by the given luminance threshold, returning the
     /// resulting underflow and overflow images.
     ImagePair splitByLuminance(float luminance);
+
+    /// Save a channel of this image to disk as a text table, in a format
+    /// that can be used for curve and surface fitting.
+    void writeTable(const FilePath& filePath, unsigned int channel);
 
     /// @}
     /// @name Resource Buffers
