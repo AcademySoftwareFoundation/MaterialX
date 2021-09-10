@@ -337,7 +337,9 @@ class Viewer : public ng::Screen
 #if MATERIALX_BUILD_GEN_MDL
     mx::GenContext _genContextMdl;
 #endif
-
+#if MATERIALX_BUILD_GEN_ESSL
+    mx::GenContext _genContextEssl;
+#endif  
     // Unit registry
     mx::UnitConverterRegistryPtr _unitRegistry;
 

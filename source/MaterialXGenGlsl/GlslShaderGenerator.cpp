@@ -352,12 +352,6 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
     emitLineBreak(stage);
 }
 
-bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
-{
-    return graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
-           graph.hasClassification(ShaderNode::Classification::BSDF);
-}
-
 void GlslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     emitLine("#version " + getVersion(), stage, false);
@@ -479,6 +473,12 @@ const string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& verte
     return vertexData.getInstance() + ".";
 }
 
+bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
+{
+    return graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
+           graph.hasClassification(ShaderNode::Classification::BSDF);
+}
+
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
@@ -491,16 +491,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
     emitLineBreak(stage);
 
-    // Add global constants and type definitions
-    emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_defines.glsl", context, stage);
-
-    if (context.getOptions().hwMaxActiveLightSources > 0)
-    {
-        const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
-        emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
-    }
-    emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
-    emitLineBreak(stage);
+    // Add type definitions
     emitTypeDefinitions(context, stage);
 
     // Add all constants
@@ -509,17 +500,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Add all uniforms
     emitUniforms(context, stage, resourceBindingCtx);
 
-    bool lighting = requiresLighting(graph);
-
-    bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
-                     context.getOptions().hwWriteDepthMoments;
-
-    // Add light data block if needed
-    if (lighting && context.getOptions().hwMaxActiveLightSources > 0)
-            {
-        emitLightData(context, stage, resourceBindingCtx);
-    }
-
     // Add vertex data inputs block
     emitInputs(context, stage);
 
@@ -527,23 +507,39 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     emitOutputs(context, stage);
 
-    // Emit common math functions
-    emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
+    // Add common math functions
+    emitInclude("stdlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
-    // Emit lighting and shadowing code
+    // Add lighting support
+    bool lighting = requiresLighting(graph);
     if (lighting)
     {
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+            const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
+            emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
+        }
+        emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
+        emitLineBreak(stage);
         emitSpecularEnvironment(context, stage);
-            }
+
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+          emitLightData(context, stage, resourceBindingCtx);
+        }
+    }
+
+    // Add shadowing support
+    bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
+                     context.getOptions().hwWriteDepthMoments;
     if (shadowing)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_shadow.glsl", context, stage);
     }
 
     // Emit directional albedo table code.
-    if (context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
-        context.getOptions().hwWriteAlbedoTable)
+    if (context.getOptions().hwWriteAlbedoTable)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_table.glsl", context, stage);
         emitLineBreak(stage);

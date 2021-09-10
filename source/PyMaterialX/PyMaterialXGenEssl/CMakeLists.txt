@@ -4,7 +4,7 @@ file(GLOB pymaterialxgenessl_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 pybind11_add_module(PyMaterialXGenEssl SHARED ${PYBIND11_MODULE_FLAGS} ${pymaterialxgenessl_source} ${pymaterialxgenessl_headers})
 
 if(APPLE)
-    set_target_properties(PyMaterialXGenessl PROPERTIES CXX_VISIBILITY_PRESET "default")
+    set_target_properties(PyMaterialXGenEssl PROPERTIES CXX_VISIBILITY_PRESET "default")
 endif()
 
 set_target_properties(
