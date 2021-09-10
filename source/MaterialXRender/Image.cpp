@@ -10,6 +10,7 @@
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
 #include <cstring>
+#include <fstream>
 #include <limits>
 
 namespace MaterialX
@@ -438,6 +439,22 @@ ImagePair Image::splitByLuminance(float luminance)
     }
 
     return std::make_pair(underflowImage, overflowImage);
+}
+
+void Image::writeTable(const FilePath& filePath, unsigned int channel)
+{
+    std::ofstream ofs(filePath.asString());
+    ofs << "X Y Z" << std::endl;
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            double dx = ((double) x + 0.5) / (double) getWidth();
+            double dy = ((double) y + 0.5) / (double) getHeight();
+            double dz = getTexelColor(x, y)[channel];
+            ofs << dx << " " << dy << " " << dz << std::endl;
+        }
+    }
 }
 
 void Image::createResourceBuffer()
