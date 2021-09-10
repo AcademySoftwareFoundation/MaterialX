@@ -30,6 +30,6 @@ void mx_burley_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float rou
     float NdotV = clamp(dot(normal, V), M_FLOAT_EPS, 1.0);
 
     vec3 Li = mx_environment_irradiance(normal) *
-              mx_burley_diffuse_directional_albedo(NdotV, roughness);
+              mx_burley_diffuse_dir_albedo(NdotV, roughness);
     result = Li * color * weight;
 }
