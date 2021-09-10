@@ -48,6 +48,9 @@ public:
         ShaderStage& stage, const std::string& structInstanceName,
         const std::string& arraySuffix) override;
 
+    // Emit separate binding locations for sampler and uniform table
+    void enableSeparateBindingLocations(bool separateBindingLocation) { _separateBindingLocation = separateBindingLocation; };
+
 protected:
     // List of required extensions
     StringSet _requiredExtensions;
@@ -63,6 +66,10 @@ protected:
 
     // Initial value of sampler binding location
     size_t _hwInitSamplerBindLocation = 0;
+
+    // Separate binding locations
+    // Shared binding counter for samplers and uniforms v/s separate 
+    bool _separateBindingLocation = false;
 
 };
 

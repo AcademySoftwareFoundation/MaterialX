@@ -20,7 +20,7 @@ namespace MaterialX
 
 #if defined(_WIN32)
 
-GLContext::GLContext(SimpleWindowPtr window, HardwareContextHandle sharedWithContext) :
+GLContext::GLContext(const SimpleWindowPtr window, HardwareContextHandle sharedWithContext) :
     _window(window),
     _contextHandle(nullptr),
     _isValid(false)

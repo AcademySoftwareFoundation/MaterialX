@@ -8,6 +8,7 @@
 - Added graph definitions for the MaterialX Lama node set.
 - Added UI properties to the interface of UsdPreviewSurface.
 - Added support for GCC 11.
+- Added ESSL shader generator
 
 ### Changed
 - Updated default color space names to follow ACES 1.2 conventions (e.g. g22_rec709), while maintaining compatibility with legacy names (e.g. gamma22).

@@ -32,6 +32,19 @@ void GlslResourceBindingContext::emitDirectives(GenContext& context, ShaderStage
 {
     ShaderGenerator& generator = context.getShaderGenerator();
 
+    // write shader stage directives for Vulkan compliance
+    if( _separateBindingLocation )
+    {
+        std::string shaderStage;
+        if( stage.getName() == Stage::VERTEX )
+            shaderStage = "vertex";
+        else if( stage.getName() == Stage::PIXEL )
+            shaderStage = "fragment";
+
+        if( shaderStage.length() > 0 )
+            generator.emitLine("#pragma shader_stage(" + shaderStage + ")", stage, false);
+    }
+
     for (auto& extension : _requiredExtensions)
     {
         generator.emitLine("#extension " + extension + " : enable", stage, false);
@@ -77,7 +90,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     {
         if (uniform->getType() == Type::FILENAME)
         {
-            generator.emitString("layout (binding=" + std::to_string(_hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
+            generator.emitString("layout (binding=" + std::to_string( _separateBindingLocation ? _hwUniformBindLocation++ : _hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
             generator.emitLineEnd(stage, true);
         }
