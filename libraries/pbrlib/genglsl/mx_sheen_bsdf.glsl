@@ -16,13 +16,8 @@ void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float wei
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
     float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
 
-    float D = mx_imageworks_sheen_NDF(NdotH, roughness);
-
-    // Geometry term is skipped and we use a smoother denominator, as in:
-    // https://blog.selfshadow.com/publications/s2013-shading-course/rad/s2013_pbs_rad_notes.pdf
-    vec3 fr = D * color / (4.0 * (NdotL + NdotV - NdotL*NdotV));
-
-    float dirAlbedo = mx_imageworks_sheen_directional_albedo(NdotV, roughness);
+    vec3 fr = color * mx_imageworks_sheen_brdf(NdotL, NdotV, NdotH, roughness);
+    float dirAlbedo = mx_imageworks_sheen_dir_albedo(NdotV, roughness);
 
     // We need to include NdotL from the light integral here
     // as in this case it's not cancelled out by the BRDF denominator.
@@ -42,7 +37,7 @@ void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
 
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
-    float dirAlbedo = mx_imageworks_sheen_directional_albedo(NdotV, roughness);
+    float dirAlbedo = mx_imageworks_sheen_dir_albedo(NdotV, roughness);
 
     vec3 Li = mx_environment_irradiance(N);
     result = Li * color * dirAlbedo * weight        // Top layer reflection

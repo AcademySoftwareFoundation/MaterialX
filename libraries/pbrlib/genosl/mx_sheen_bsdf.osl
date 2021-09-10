@@ -1,10 +1,4 @@
-// Rational curve fit approximation for the directional albedo of Imageworks sheen.
-float mx_imageworks_sheen_directional_albedo(float cosTheta, float roughness)
-{
-    float a = 1.59053 - 2.00439 * cosTheta + 3.45331 * roughness;
-    float b = 1.0 + 7.99160 * cosTheta + 8.25488 * roughness;
-    return clamp(a / b, 0.0, 1.0);
-}
+#include "pbrlib/genosl/lib/mx_microfacet_sheen.osl"
 
 // TODO: Vanilla OSL doesn't have a proper sheen closure,
 // so use 'diffuse' scaled by sheen directional albedo for now.
@@ -19,7 +13,7 @@ void mx_sheen_bsdf(float weight, color Ks, float roughness, vector N, BSDF base,
 
         float NdotV = fabs(dot(N,V));
         float alpha = clamp(roughness, M_FLOAT_EPS, 1.0);
-        float albedo = weight * mx_imageworks_sheen_directional_albedo(NdotV, alpha);
+        float albedo = weight * mx_imageworks_sheen_dir_albedo(NdotV, alpha);
         result = albedo * Ks * diffuse(N) + (1.0 - albedo) * base;
     }
     else

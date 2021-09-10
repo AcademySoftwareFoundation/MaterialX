@@ -40,7 +40,7 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
 }
 
 // https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-vec3 mx_ggx_directional_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
     const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
     const vec4 c1 = vec4( 1,  0.0425,  1.04, -0.04 );
@@ -50,7 +50,7 @@ vec3 mx_ggx_directional_albedo_curve_fit(float NdotV, float roughness, vec3 F0, 
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
     vec2 res = textureSize($albedoTable, 0);
@@ -64,7 +64,7 @@ vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F
 }
 
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
     vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
@@ -101,27 +101,27 @@ vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, v
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_directional_albedo_curve_fit(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_curve_fit(NdotV, roughness, F0, F90);
 #elif DIRECTIONAL_ALBEDO_METHOD == 1
-    return mx_ggx_directional_albedo_table_lookup(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
 #else
-    return mx_ggx_directional_albedo_importance_sample(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_monte_carlo(NdotV, roughness, F0, F90);
 #endif
 }
 
-float mx_ggx_directional_albedo(float NdotV, float roughness, float F0, float F90)
+float mx_ggx_dir_albedo(float NdotV, float roughness, float F0, float F90)
 {
-    return mx_ggx_directional_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
+    return mx_ggx_dir_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
 }
 
 // https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 // Equations 14 and 16
 vec3 mx_ggx_energy_compensation(float NdotV, float roughness, vec3 Fss)
 {
-    float Ess = mx_ggx_directional_albedo(NdotV, roughness, 1.0, 1.0);
+    float Ess = mx_ggx_dir_albedo(NdotV, roughness, 1.0, 1.0);
     return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 
