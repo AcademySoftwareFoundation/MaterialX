@@ -39,14 +39,16 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
     return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
 }
 
-// https://www.unrealengine.com/blog/physically-based-shading-on-mobile
+// Rational curve fit approximation for GGX directional albedo.
 vec3 mx_ggx_dir_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
-    const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
-    const vec4 c1 = vec4( 1,  0.0425,  1.04, -0.04 );
-    vec4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+    vec4 r = vec4(-0.03056, 0.91808, 1.0, 1.0) +
+             vec4(5.73633, -2.21942, 4.23817, -0.05271) * NdotV +
+             vec4(8.03663, -0.02122, 4.90296, 10.64834) * roughness +
+             vec4(-16.71761, 0.05680, -6.25996, -5.42338) * NdotV * roughness +
+             vec4(6.94236, 1.34623, 6.45697, 11.04905) * mx_square(NdotV) +
+             vec4(0.40356, -0.05725, 3.81770, 21.41884) * mx_square(roughness);
+    vec2 AB = r.xy / r.zw;
     return F0 * AB.x + F90 * AB.y;
 }
 
