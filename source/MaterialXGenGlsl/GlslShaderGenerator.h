@@ -63,8 +63,8 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
 
     virtual void emitDirectives(GenContext& context, ShaderStage& stage) const;
     virtual void emitConstants(GenContext& context, ShaderStage& stage) const;
-    virtual void emitUniforms(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr &resourceBindingCtx) const;
-    virtual void emitLightData(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr& resourceBindingCtx) const;
+    virtual void emitUniforms(GenContext& context, ShaderStage& stage) const;
+    virtual void emitLightData(GenContext& context, ShaderStage& stage) const;
     virtual void emitInputs(GenContext& context, ShaderStage& stage) const;
     virtual void emitOutputs(GenContext& context, ShaderStage& stage) const;
     

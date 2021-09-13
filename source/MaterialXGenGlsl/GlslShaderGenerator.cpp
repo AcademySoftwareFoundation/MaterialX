@@ -275,7 +275,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     // Make sure we initialize/reset the binding context before generation.
-    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+    const HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
     if (resourceBindingCtx)
     {
         resourceBindingCtx->initialize();
@@ -309,7 +309,7 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitConstants(context, stage);
 
     // Add all uniforms
-    emitUniforms(context, stage, resourceBindingCtx);
+    emitUniforms(context, stage);
 
     // Add vertex inputs
     emitInputs(context, stage);
@@ -367,7 +367,7 @@ void GlslShaderGenerator::emitConstants(GenContext& context, ShaderStage& stage)
     }
 }
 
-void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr& resourceBindingCtx) const
+void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) const
 {
     for (const auto& it : stage.getUniformBlocks())
     {
@@ -377,6 +377,7 @@ void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage, 
         if (!uniforms.empty() && uniforms.getName() != HW::LIGHT_DATA)
         {
             emitComment("Uniform block: " + uniforms.getName(), stage);
+            HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
             if (resourceBindingCtx)
             {
                 resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
@@ -390,11 +391,12 @@ void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage, 
     }
 }
 
-void GlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr& resourceBindingCtx) const
+void GlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage) const
 {
     const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
     const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
     const string structName        = lightData.getInstance();
+    const HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
     if (resourceBindingCtx)
     {
         resourceBindingCtx->emitStructuredResourceBindings(
@@ -481,7 +483,7 @@ bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+    const HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
 
     // Add directives
     emitDirectives(context, stage);
@@ -498,7 +500,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitConstants(context, stage);
 
     // Add all uniforms
-    emitUniforms(context, stage, resourceBindingCtx);
+    emitUniforms(context, stage);
 
     // Add vertex data inputs block
     emitInputs(context, stage);
@@ -526,7 +528,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
         if (context.getOptions().hwMaxActiveLightSources > 0)
         {
-          emitLightData(context, stage, resourceBindingCtx);
+          emitLightData(context, stage);
         }
     }
 

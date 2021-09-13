@@ -90,13 +90,13 @@ jobs:
 
     steps:
     - name: Sync Repository
-      if: ${{ github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' }}
+      if: ${{ github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' }}
       uses: actions/checkout@v2
       with:
         submodules: recursive
 
     - name: Install Dependencies (Linux)
-      if: ${{ runner.os == 'Linux' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ runner.os == 'Linux' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' ) }}
       run: |
         sudo apt-get update
         sudo apt-get install libglu1-mesa-dev xorg-dev
@@ -111,7 +111,7 @@ jobs:
         fi
 
     - name: Install Dependencies (MacOS)
-      if: ${{ runner.os == 'macOS' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ runner.os == 'macOS' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' ) }}
       run: |
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
           brew install gcc@${{ matrix.compiler_version }}
@@ -125,28 +125,28 @@ jobs:
         fi
 
     - name: Install Python ${{ matrix.python }}
-      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' ) }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
 
     - name: Create Build Directory
-      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' ) }}
       run: mkdir build
       
     - name: CMake Generate
-      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' ) }}
       run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_RUNTIME=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
       working-directory: build
 
     - name: CMake Build
-      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' ) }}
       run: cmake --build . --target install --config Release --parallel 2
       working-directory: build
 
     - name: Initialize Virtual Framebuffer
-      if: ${{ matrix.test_render == 'ON' && runner.os == 'Linux' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ matrix.test_render == 'ON' && runner.os == 'Linux' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/main' ) }}
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
@@ -155,17 +155,17 @@ jobs:
         echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
 
     - name: Set Runtime Path (Windows)
-      if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev') }}
+      if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main') }}
       run: echo "$PWD" | Out-File -FilePath $env:GITHUB_PATH -Append
       working-directory: build/installed/bin
 
     - name: CMake Unit Tests
-      if: ${{ github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' }}
+      if: ${{ github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' }}
       run: ctest -VV --output-on-failure --build-config Release
       working-directory: build
 
     - name: Python Tests
-      if: ${{ github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' }}
+      if: ${{ github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' }}
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
@@ -175,15 +175,16 @@ jobs:
       working-directory: python
 
     - name: Generation Tests
-      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_generate == 'ON' }}
+      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/main' ) && matrix.test_generate == 'ON' }}
       run: |
         mkdir build/generate
         python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "glsl"
         python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "osl"
         python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "mdl"
+        python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "essl"
 
     - name: Render Tests
-      if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/main' ) }}
       run: |
         mkdir build/render
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average --path .
@@ -193,21 +194,21 @@ jobs:
 
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2
-      if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' }}
+      if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Renders
       uses: actions/upload-artifact@v2
-      if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/main' ) }}
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/
 
     - name: Upload Shaders
       uses: actions/upload-artifact@v2
-      if: ${{  matrix.test_generate == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      if: ${{  matrix.test_generate == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/main' ) }}
       with:
         name: Shaders_${{ matrix.name }}
         path: build/generate/
