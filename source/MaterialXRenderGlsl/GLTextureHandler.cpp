@@ -30,6 +30,11 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
 
 bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
 {
+    if (!image)
+    {
+        return false;
+    }
+
     // Create renderer resources if needed.
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
@@ -181,7 +186,7 @@ int GLTextureHandler::getNextAvailableTextureLocation()
 
 int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum)
 {
-    const vector<int> addressModes
+    const std::array<int, 4> ADDRESS_MODES
     {
         // Constant color. Use clamp to border
         // with border color to achieve this
@@ -200,7 +205,7 @@ int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode ad
     int addressMode = GL_REPEAT;
     if (addressModeEnum != ImageSamplingProperties::AddressMode::UNSPECIFIED)
     {
-        addressMode = addressModes[static_cast<int>(addressModeEnum)];
+        addressMode = ADDRESS_MODES[static_cast<int>(addressModeEnum)];
     }
     return addressMode;
 }

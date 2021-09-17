@@ -18,7 +18,7 @@
     </roughness_anisotropy>
     <output name="out" type="vector2" nodename="roughness1" />
   </nodegraph>
-   
+
   <!-- Uniform emission surface shader which accepts a color4 input. -->
   <nodegraph name="NG_unlit_surface_color4"  nodedef="ND_unlit_surface_color4" >
      <input name="color" type="color4" value="1, 1, 1, 1" />

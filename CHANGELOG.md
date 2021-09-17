@@ -1,11 +1,25 @@
 # Change Log
 
-## [1.38.2_adsk] - In Development for 1.38.2
+## [1.38.2_adsk] - ADSK Development 
 
-- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (wip)
-- OCIO-v2 support (wip)
-- SPIR-V support (wip)
-- Token support (wip)
+- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader 
+
+## [1.38.2] - Development
+
+### Added
+- Added an initial shader translation graph from Autodesk Standard Surface to UsdPreviewSurface.
+- Added example script translateshader.py with validation in GitHub Actions.
+- Added graph definitions for the MaterialX Lama node set.
+- Added UI properties to the interface of UsdPreviewSurface.
+- Added support for GCC 11.
+- Added ESSL shader generator
+
+### Changed
+- Updated default color space names to follow ACES 1.2 conventions (e.g. g22_rec709), while maintaining compatibility with legacy names (e.g. gamma22).
+
+### Fixed
+- Fixed the default value of the roughness input of UsdPreviewSurface.
+- Fixed the assignment of channel names in EXR files written through OpenImageIO.
 
 ## [1.38.1_adsk] - 2021-06-23
 

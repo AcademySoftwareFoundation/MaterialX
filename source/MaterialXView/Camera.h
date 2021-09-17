@@ -19,7 +19,7 @@ class Camera
         _speedFactor(2.f)
     {
     }
-    ~Camera() { };
+    ~Camera() { }
 
     // Set the size of a virtual window for click-drag interaction.
     void setSize(const mx::Vector2& size)

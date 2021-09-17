@@ -234,7 +234,7 @@ void GlslRenderer::render()
             }
         }
     }
-    catch (ExceptionRenderError& /*e*/)
+    catch (ExceptionRenderError&)
     {
         _frameBuffer->unbind();
         throw;

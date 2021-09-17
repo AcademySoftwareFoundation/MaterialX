@@ -93,7 +93,7 @@ bool OgsFxShaderRenderTester::runRenderer(const std::string& shaderName,
                                            const std::string& outputPath,
                                            mx::ImageVec* /*imageVec*/)
 {
-    RenderUtil::AdditiveScopedTimer totalTime(profileTimes.languageTimes.totalTime, "OgsFx total time");
+    mx::ScopedTimer totalTime(&profileTimes.languageTimes.totalTime);
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -128,7 +128,7 @@ bool OgsFxShaderRenderTester::runRenderer(const std::string& shaderName,
 
             // Note: mkdir will fail if the directory already exists which is ok.
             {
-                RenderUtil::AdditiveScopedTimer ioDir(profileTimes.languageTimes.ioTime, "OgsFx dir time");
+                mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
                 outputFilePath.createDirectory();
             }
 
@@ -136,11 +136,11 @@ bool OgsFxShaderRenderTester::runRenderer(const std::string& shaderName,
             mx::ShaderPtr shader;
             try
             {
-                RenderUtil::AdditiveScopedTimer transpTimer(profileTimes.languageTimes.transparencyTime, "OgsFx transparency time");
+                mx::ScopedTimer transpTimer(&profileTimes.languageTimes.transparencyTime);
                 options.hwTransparency = mx::isTransparentSurface(element, shadergen.getTarget());
                 transpTimer.endTimer();
 
-                RenderUtil::AdditiveScopedTimer generationTimer(profileTimes.languageTimes.generationTime, "OgsFx generation time");
+                mx::ScopedTimer generationTimer(&profileTimes.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -166,7 +166,7 @@ bool OgsFxShaderRenderTester::runRenderer(const std::string& shaderName,
 
             if (testOptions.dumpGeneratedCode)
             {
-                RenderUtil::AdditiveScopedTimer dumpTimer(profileTimes.languageTimes.ioTime, "OgsFx I/O time");
+                mx::ScopedTimer dumpTimer(&profileTimes.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + ".ogsfx");
                 file << fxSourceCode;

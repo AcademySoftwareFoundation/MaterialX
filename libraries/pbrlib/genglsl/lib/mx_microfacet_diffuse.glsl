@@ -16,7 +16,7 @@ float mx_oren_nayar_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness
     return A + B * stinv;
 }
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Section 5.3
 float mx_burley_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 {
@@ -32,7 +32,7 @@ float mx_burley_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 
 // Compute the directional albedo component of Burley diffuse for the given
 // view angle and roughness.  Curve fit provided by Stephen Hill.
-float mx_burley_diffuse_directional_albedo(float NdotV, float roughness)
+float mx_burley_diffuse_dir_albedo(float NdotV, float roughness)
 {
     float x = NdotV;
     float fit0 = 0.97619 - 0.488095 * mx_pow5(1.0 - x);

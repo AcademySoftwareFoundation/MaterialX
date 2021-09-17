@@ -77,7 +77,7 @@ bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
                                             const std::string& outputPath,
                                             mx::ImageVec* /*returnImage*/)
 {
-    RenderUtil::AdditiveScopedTimer totalArnoldTime(profileTimes.languageTimes.totalTime, "Arnold total time");
+    mx::ScopedTimer totalArnoldTime(&profileTimes.languageTimes.totalTime);
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -241,7 +241,7 @@ bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
             mx::ShaderPtr shader;
             try
             {
-                RenderUtil::AdditiveScopedTimer genTimer(profileTimes.languageTimes.generationTime, "Arnold generation time");
+                mx::ScopedTimer genTimer(&profileTimes.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
@@ -270,7 +270,7 @@ bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
 
             // Note: mkdir will fail if the directory already exists which is ok.
             {
-                RenderUtil::AdditiveScopedTimer ioDir(profileTimes.languageTimes.ioTime, "Arnold dir time");
+                mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
                 outputFilePath.createDirectory();
             }
 
@@ -280,7 +280,7 @@ bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
             // Write out osl file
             if (testOptions.dumpGeneratedCode || testOptions.renderImages)
             {
-                RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.languageTimes.ioTime, "Arnold I/O time");
+                mx::ScopedTimer ioTimer(&profileTimes.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath.asString() + ".osl");
                 file << shader->getSourceCode();

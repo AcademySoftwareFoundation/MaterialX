@@ -37,9 +37,9 @@ class EsslShaderGenerator : public GlslShaderGenerator
     static const string TARGET;
     static const string VERSION;
 
-   protected:
+  protected:
     void emitDirectives(GenContext& context, ShaderStage& stage) const override;
-    void emitUniforms(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr &resourceBindingCtx) const override;
+    void emitUniforms(GenContext& context, ShaderStage& stage) const override;
     void emitInputs(GenContext& context, ShaderStage& stage) const override;
     void emitOutputs(GenContext& context, ShaderStage& stage) const override;
     const HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const override;

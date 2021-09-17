@@ -196,7 +196,7 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
     }
 }
 
-TEST_CASE("GenShader: Transparency ", "[genshader]")
+TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
 {
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
     mx::DocumentPtr libraries = mx::createDocument();

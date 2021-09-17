@@ -114,8 +114,6 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     emitLineBreak(fx);
 
     // Add global constants and type definitions
-    emitInclude("pbrlib/genglsl/lib/mx_defines.glsl", context, fx);
-    emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), fx, false);
     emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(context.getOptions().hwMaxActiveLightSources), fx, false);
     emitLineBreak(fx);
     emitTypeDefinitions(context, fx);
@@ -300,7 +298,7 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
     }
 
     // Emit common math functions
-    emitInclude("pbrlib/genglsl/lib/mx_math.glsl", context, stage);
+    emitInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
     // Set the include file to use for uv transformations,

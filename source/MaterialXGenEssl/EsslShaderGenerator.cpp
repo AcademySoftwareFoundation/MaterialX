@@ -12,13 +12,13 @@ namespace MaterialX
 {
 
 const string EsslShaderGenerator::TARGET = "essl";
-const string EsslShaderGenerator::VERSION = "300 es"; // Target WebGL 2.0
+const string EsslShaderGenerator::VERSION = "300 es"; // Current target is WebGL 2.0
 
 EsslShaderGenerator::EsslShaderGenerator()
     : GlslShaderGenerator()
 {
     _syntax = EsslSyntax::create();
-    // ESSL specific keywords
+    // Add in ESSL specific keywords
     const StringSet reservedWords = { "precision", "highp", "mediump", "lowp" };
     _syntax->registerReservedWords(reservedWords);
 }
@@ -30,7 +30,7 @@ void EsslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("precision mediump float", stage);
 }
 
-void EsslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr&) const
+void EsslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) const
 {
     for (const auto& it : stage.getUniformBlocks())
     {
@@ -89,13 +89,14 @@ END_SHADER_STAGE(stage, Stage::PIXEL)
 
 const string EsslShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
 {
-    return "";
+    return EMPTY_STRING;
 }
 
 const HwResourceBindingContextPtr EsslShaderGenerator::getResourceBindingContext(GenContext& context) const
 {
     HwResourceBindingContextPtr resoureBindingCtx = GlslShaderGenerator::getResourceBindingContext(context);
-    if (resoureBindingCtx) {
+    if (resoureBindingCtx) 
+    {
       throw ExceptionShaderGenError("The EsslShaderGenerator does not support resource binding.");
     }
     return resoureBindingCtx;

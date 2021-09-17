@@ -63,14 +63,16 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
 
     virtual void emitDirectives(GenContext& context, ShaderStage& stage) const;
     virtual void emitConstants(GenContext& context, ShaderStage& stage) const;
-    virtual void emitUniforms(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr &resourceBindingCtx) const;
-    virtual void emitLightData(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr& resourceBindingCtx) const;
+    virtual void emitUniforms(GenContext& context, ShaderStage& stage) const;
+    virtual void emitLightData(GenContext& context, ShaderStage& stage) const;
     virtual void emitInputs(GenContext& context, ShaderStage& stage) const;
     virtual void emitOutputs(GenContext& context, ShaderStage& stage) const;
     
     virtual const HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
 
-    /// Does the graph require lighting
+    /// Logic to indicate whether code to support direct lighting should be emitted.
+    /// By default if the graph is classified as a shader, or BSDF node then lighting is assumed to be required.
+    /// Derived classes can override this logic.
     virtual bool requiresLighting(const ShaderGraph& graph) const;
 
     /// Emit specular environment lookup code

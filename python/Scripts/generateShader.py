@@ -10,6 +10,7 @@ import MaterialX.PyMaterialXGenShader as mx_gen_shader
 import MaterialX.PyMaterialXGenGlsl as mx_gen_glsl
 import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
+import MaterialX.PyMaterialXGenEssl as mx_gen_essl
 
 def main():
     parser = argparse.ArgumentParser(description='Generate shader code for each material / shader in a document.')
@@ -55,6 +56,8 @@ def main():
         shadergen = mx_gen_osl.OslShaderGenerator.create()
     elif gentarget == 'mdl':
         shadergen = mx_gen_mdl.MdlShaderGenerator.create()
+    elif gentarget == 'essl':
+        shadergen = mx_gen_essl.EsslShaderGenerator.create()
     else:
         shadergen = mx_gen_glsl.GlslShaderGenerator.create()
     context = mx_gen_shader.GenContext(shadergen)
@@ -112,7 +115,7 @@ def main():
             file.write(pixelSource)
             file.close()                   
 
-            if gentarget == 'glsl':            
+            if gentarget == 'glsl' or gentarget == 'essl':            
                 vertexSource = shader.getSourceCode(mx_gen_shader.VERTEX_STAGE)
                 filename = pathPrefix + shader.getName() + '_vs.' + gentarget
                 print('--- Wrote vertex shader to: ' + filename)

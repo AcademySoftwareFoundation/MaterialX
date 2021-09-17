@@ -26,7 +26,7 @@ EMSCRIPTEN_BINDINGS(GenOptions)
     ems::enum_<mx::HwDirectionalAlbedoMethod>("HwDirectionalAlbedoMethod")
         .value("DIRECTIONAL_ALBEDO_CURVE_FIT",mx::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_CURVE_FIT)
         .value("DIRECTIONAL_ALBEDO_TABLE", mx::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_TABLE)
-        .value("DIRECTIONAL_ALBEDO_IS", mx::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_IS)
+        .value("DIRECTIONAL_ALBEDO_MONTE_CARLO", mx::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_MONTE_CARLO)
         ;
         
     ems::class_<mx::GenOptions>("GenOptions")
@@ -42,6 +42,5 @@ EMSCRIPTEN_BINDINGS(GenOptions)
         .property("hwMaxActiveLightSources", &mx::GenOptions::hwMaxActiveLightSources)
         .property("hwNormalizeUdimTexCoords", &mx::GenOptions::hwNormalizeUdimTexCoords)
         .property("hwWriteAlbedoTable", &mx::GenOptions::hwWriteAlbedoTable)
-        .property("hwMaxRadianceSamples", &mx::GenOptions::hwMaxRadianceSamples)
         ;
 }

@@ -55,8 +55,8 @@ enum HwDirectionalAlbedoMethod
     /// Use a table look-up for directional albedo.
     DIRECTIONAL_ALBEDO_TABLE,
 
-    /// Use importance sampling for directional albedo.
-    DIRECTIONAL_ALBEDO_IS
+    /// Use Monte Carlo integration for directional albedo.
+    DIRECTIONAL_ALBEDO_MONTE_CARLO
 };
 
 /// @class GenOptions 
@@ -76,8 +76,7 @@ class MX_GENSHADER_API GenOptions
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
-        hwWriteAlbedoTable(false),
-        hwMaxRadianceSamples(1024)
+        hwWriteAlbedoTable(false)
     {
     }
     virtual ~GenOptions() { }
@@ -150,10 +149,6 @@ class MX_GENSHADER_API GenOptions
     /// Enables the writing of a directional albedo table.
     /// Defaults to false.
     bool hwWriteAlbedoTable;
-
-    /// Sets the maximum number of radiance samples 
-    unsigned int hwMaxRadianceSamples;
-
 };
 
 } // namespace MaterialX

@@ -117,7 +117,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Profiling times
     RenderUtil::RenderProfileTimes profileTimes;
     // Global setup timer
-    RenderUtil::AdditiveScopedTimer totalTime(profileTimes.totalTime, "Global total time");
+    mx::ScopedTimer totalTime(&profileTimes.totalTime);
 
     // Add files to override the files in the test suite to be tested.
     mx::StringSet testfileOverride;
@@ -126,7 +126,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
         testfileOverride.insert(filterFile);
     }
 
-    RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.ioTime, "Global I/O time");
+    mx::ScopedTimer ioTimer(&profileTimes.ioTime);
     mx::FilePathVec dirs;
     if (options.externalTestPaths.size() == 0)
     {
@@ -163,7 +163,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     ioTimer.endTimer();
 
     // Create renderers and generators
-    RenderUtil::AdditiveScopedTimer setupTime(profileTimes.languageTimes.setupTime, "Setup time");
+    mx::ScopedTimer setupTime(&profileTimes.languageTimes.setupTime);
 
     createRenderer(log);
 
@@ -226,8 +226,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     pathMap["/"] = "_";
     pathMap[":"] = "_";
 
-    RenderUtil::AdditiveScopedTimer validateTimer(profileTimes.validateTime, "Global validation time");
-    RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");
+    mx::ScopedTimer validateTimer(&profileTimes.validateTime);
+    mx::ScopedTimer renderableSearchTimer(&profileTimes.renderableSearchTime);
 
     mx::StringSet usedImpls;
 

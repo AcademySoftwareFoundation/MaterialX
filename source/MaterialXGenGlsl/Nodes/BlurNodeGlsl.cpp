@@ -15,7 +15,7 @@ namespace MaterialX
 
 ShaderNodeImplPtr BlurNodeGlsl::create()
 {
-    return std::shared_ptr<BlurNodeGlsl>(new BlurNodeGlsl());
+    return std::make_shared<BlurNodeGlsl>();
 }
 
 void BlurNodeGlsl::emitSamplingFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const

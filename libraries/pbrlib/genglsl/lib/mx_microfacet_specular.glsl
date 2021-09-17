@@ -1,6 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_microfacet.glsl"
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.2 Equation 13
 float mx_ggx_NDF(vec3 X, vec3 Y, vec3 H, float NdotH, float alphaX, float alphaY)
 {
@@ -10,14 +10,14 @@ float mx_ggx_NDF(vec3 X, vec3 Y, vec3 H, float NdotH, float alphaX, float alphaY
     return 1.0 / (M_PI * alphaX * alphaY * mx_square(denom));
 }
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.1 Equation 3
 float mx_ggx_PDF(vec3 X, vec3 Y, vec3 H, float NdotH, float LdotH, float alphaX, float alphaY)
 {
     return mx_ggx_NDF(X, Y, H, NdotH, alphaX, alphaY) * NdotH / (4.0 * LdotH);
 }
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.2 Equation 15
 vec3 mx_ggx_importance_sample_NDF(vec2 Xi, vec3 X, vec3 Y, vec3 N, float alphaX, float alphaY)
 {
@@ -40,7 +40,7 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
 }
 
 // https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-vec3 mx_ggx_directional_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
     const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
     const vec4 c1 = vec4( 1,  0.0425,  1.04, -0.04 );
@@ -50,7 +50,7 @@ vec3 mx_ggx_directional_albedo_curve_fit(float NdotV, float roughness, vec3 F0, 
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
     vec2 res = textureSize($albedoTable, 0);
@@ -64,7 +64,7 @@ vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F
 }
 
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
     vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
@@ -101,27 +101,27 @@ vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, v
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_directional_albedo_curve_fit(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_curve_fit(NdotV, roughness, F0, F90);
 #elif DIRECTIONAL_ALBEDO_METHOD == 1
-    return mx_ggx_directional_albedo_table_lookup(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
 #else
-    return mx_ggx_directional_albedo_importance_sample(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_monte_carlo(NdotV, roughness, F0, F90);
 #endif
 }
 
-float mx_ggx_directional_albedo(float NdotV, float roughness, float F0, float F90)
+float mx_ggx_dir_albedo(float NdotV, float roughness, float F0, float F90)
 {
-    return mx_ggx_directional_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
+    return mx_ggx_dir_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
 }
 
 // https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 // Equations 14 and 16
 vec3 mx_ggx_energy_compensation(float NdotV, float roughness, vec3 Fss)
 {
-    float Ess = mx_ggx_directional_albedo(NdotV, roughness, 1.0, 1.0);
+    float Ess = mx_ggx_dir_albedo(NdotV, roughness, 1.0, 1.0);
     return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 
@@ -383,4 +383,18 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
         return mx_fresnel_schlick(cosTheta, fd.ior, fd.extinction, fd.exponent);
     else
         return mx_fresnel_airy(cosTheta, fd.ior, fd.extinction, fd.tf_thickness, fd.tf_ior);
+}
+
+vec2 mx_latlong_projection(vec3 dir)
+{
+    float latitude = -asin(dir.y) * M_PI_INV + 0.5;
+    float longitude = atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
+    return vec2(longitude, latitude);
+}
+
+vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D sampler)
+{
+    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
+    vec2 uv = mx_latlong_projection(envDir);
+    return textureLod(sampler, uv, lod).rgb;
 }

@@ -246,7 +246,7 @@
     <input name="exposure" type="float" value="0.0" doc="Exposure control for the light intensity" />
     <output name="out" type="lightshader" />
   </nodedef>
-   
+
   <!--
     Node: unlit_surface
     Uniform emission surface shader. Variants exist for the following input types: color3, color4, vec2, vec3, vec4, and float.

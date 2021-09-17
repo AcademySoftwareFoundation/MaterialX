@@ -8,21 +8,10 @@
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
-#include <MaterialXCore/Document.h>
-
-#include <MaterialXFormat/XmlIo.h>
-
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/UnitSystem.h>
-
-#include <MaterialXRender/Util.h>
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/ImageHandler.h>
-
-#include <chrono>
-#include <ctime>
+#include <MaterialXRender/Timer.h>
+#include <MaterialXRender/Util.h>
 
 #define LOG_TO_FILE
 
@@ -42,56 +31,6 @@ namespace mx = MaterialX;
 //
 namespace RenderUtil
 {
-
-// Scoped timer which adds a duration to a given externally reference timing duration
-//
-class AdditiveScopedTimer
-{
-  public:
-    AdditiveScopedTimer(double& durationRefence, const std::string& label)
-        : _duration(durationRefence)
-        , _debugUpdate(false)
-        , _label(label)
-    {
-        startTimer();
-    }
-
-    ~AdditiveScopedTimer()
-    {
-        endTimer();
-    }
-
-    void startTimer()
-    {
-        _startTime = std::chrono::system_clock::now();
-
-        if (_debugUpdate)
-        {
-            std::cout << "Start time for timer (" << _label << ") is: " << _duration << std::endl;
-        }
-    }
-
-    void endTimer()
-    {
-        std::chrono::time_point<std::chrono::system_clock> endTime = std::chrono::system_clock::now();
-        std::chrono::duration<double> timeDuration = endTime - _startTime;
-        double currentDuration = timeDuration.count();
-        _duration += currentDuration;
-        _startTime = endTime;
-
-        if (_debugUpdate)
-        {
-            std::cout << "Current duration for timer (" << _label << ") is: " << currentDuration << ". Total duration: " << _duration << std::endl;
-        }
-    }
-
-  protected:
-    double &_duration;
-    bool _debugUpdate;
-    std::string _label;
-    std::chrono::time_point<std::chrono::system_clock> _startTime;
-};
-
 
 // Per language profile times
 //
@@ -218,7 +157,7 @@ class ShaderRenderTester
         mx::DocumentPtr doc,
         std::ostream& log,
         const GenShaderUtil::TestSuiteOptions& testOptions,
-        RenderUtil::RenderProfileTimes& profileTimes,
+        RenderProfileTimes& profileTimes,
         const mx::FileSearchPath& imageSearchPath,
         const std::string& outputPath = ".",
         mx::ImageVec* imageVec = nullptr) = 0;

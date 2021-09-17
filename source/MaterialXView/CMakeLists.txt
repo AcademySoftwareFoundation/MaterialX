@@ -83,7 +83,6 @@ endif()
 
 target_link_libraries(
      ${LIBS}
-    nanogui
     ${NANOGUI_LIBRARIES}
     ${NANOGUI_EXTRA_LIBS})
 

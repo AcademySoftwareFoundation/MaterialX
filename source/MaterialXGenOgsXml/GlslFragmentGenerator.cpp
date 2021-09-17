@@ -185,11 +185,8 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     }
 
     // Add global constants and type definitions
-    emitInclude("pbrlib/genglsl/lib/mx_defines.glsl", context, pixelStage);
-
     const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
     emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), pixelStage, false);
-    emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), pixelStage, false);
     emitLineBreak(pixelStage);
     emitTypeDefinitions(context, pixelStage);
 
@@ -204,7 +201,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     const bool lighting = requiresLighting(graph);
 
     // Emit common math functions
-    emitInclude("pbrlib/genglsl/lib/mx_math.glsl", context, pixelStage);
+    emitInclude("stdlib/genglsl/lib/mx_math.glsl", context, pixelStage);
     emitLineBreak(pixelStage);
 
     if (lighting)

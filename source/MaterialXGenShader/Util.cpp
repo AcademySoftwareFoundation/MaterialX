@@ -165,8 +165,7 @@ namespace
         return false;
     }
 
-    bool isTransparentShaderGraph(OutputPtr output, const string& target,
-                                  NodePtr& interfaceNode)
+    bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr interfaceNode)
     {
         for (GraphIterator it = output->traverseGraph().begin(); it != GraphIterator::end(); ++it)
         {
@@ -196,12 +195,10 @@ namespace
                         if (impl && impl->isA<NodeGraph>())
                         {
                             NodeGraphPtr graph = impl->asA<NodeGraph>();
-
                             vector<OutputPtr> outputs = graph->getActiveOutputs();
                             if (outputs.size() > 0)
                             {
                                 const OutputPtr& graphOutput = outputs[0];
-                                OpaqueTestPairList opaqueInputList;
                                 if (isTransparentShaderGraph(graphOutput, target, node))
                                 {
                                     return true;
@@ -251,7 +248,6 @@ bool isTransparentSurface(ElementPtr element, const string& target)
                 const OutputPtr& output = outputs[0];
                 if (output->getType() == SURFACE_SHADER_TYPE_STRING)
                 {
-                    OpaqueTestPairList opaqueInputList;
                     if (isTransparentShaderGraph(output, target, node))
                     {
                         return true;

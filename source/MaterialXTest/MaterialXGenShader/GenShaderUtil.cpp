@@ -423,6 +423,7 @@ bool ShaderGeneratorTester::generateCode(mx::GenContext& context, const std::str
     catch (mx::Exception& e)
     {
         log << ">> Code generation failure: " << e.what() << "\n";
+        WARN(std::string(e.what()) + " in " + shaderName);
         shader = nullptr;
     }
     CHECK(shader);
