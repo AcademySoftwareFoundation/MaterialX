@@ -35,7 +35,7 @@ float mx_imageworks_sheen_dir_albedo_curve_fit(float NdotV, float roughness)
 float mx_imageworks_sheen_dir_albedo_table_lookup(float NdotV, float roughness)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
-    vec2 res = textureSize($albedoTable, 0);
+    vec2 res = textureSize($albedoTable, 0.0);
     if (res.x > 1)
     {
         return texture($albedoTable, vec2(NdotV, roughness)).b;
@@ -47,7 +47,7 @@ float mx_imageworks_sheen_dir_albedo_table_lookup(float NdotV, float roughness)
 float mx_imageworks_sheen_dir_albedo_monte_carlo(float NdotV, float roughness)
 {
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
-    vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
+    vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0.0, NdotV);
 
     float radiance = 0.0;
     const int SAMPLE_COUNT = 64;
