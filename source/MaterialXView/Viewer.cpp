@@ -37,7 +37,7 @@ const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
 
 const int SHADOW_MAP_SIZE = 2048;
-const int ALBEDO_TABLE_SIZE = 64;
+const int ALBEDO_TABLE_SIZE = 128;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
 

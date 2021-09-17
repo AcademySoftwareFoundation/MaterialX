@@ -27,9 +27,13 @@ float mx_imageworks_sheen_brdf(float NdotL, float NdotV, float NdotH, float roug
 // Rational curve fit approximation for the directional albedo of Imageworks sheen.
 float mx_imageworks_sheen_dir_albedo_curve_fit(float NdotV, float roughness)
 {
-    float a = 5.25248 - 7.66024 * NdotV + 14.26377 * roughness;
-    float b = 1.0 + 30.66449 * NdotV + 32.53420 * roughness;
-    return a / b;
+    vec2 r = vec2(13.67300, 1.0) +
+             vec2(-68.78018, 61.57746) * NdotV +
+             vec2(799.08825, 442.78211) * roughness +
+             vec2(-905.00061, 2597.49308) * NdotV * roughness +
+             vec2(60.28956, 121.81241) * mx_square(NdotV) +
+             vec2(1086.96473, 3045.55075) * mx_square(roughness);
+    return r.x / r.y;
 }
 
 float mx_imageworks_sheen_dir_albedo_table_lookup(float NdotV, float roughness)
