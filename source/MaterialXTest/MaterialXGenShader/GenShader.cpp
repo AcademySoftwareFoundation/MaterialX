@@ -170,7 +170,7 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
     for (mx::FilePath& mtlxFile : testPath.getFilesInDirectory("mtlx"))
     {
         mx::DocumentPtr doc = mx::createDocument();
-        loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf", "translation" }, searchPath, doc);
+        loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
 
         mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
         mtlxFile.removeExtension();
