@@ -42,12 +42,19 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
 // Rational curve fit approximation for GGX directional albedo.
 vec3 mx_ggx_dir_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
-    vec4 r = vec4(-0.03056, 0.91808, 1.0, 1.0) +
-             vec4(5.73633, -2.21942, 4.23817, -0.05271) * NdotV +
-             vec4(8.03663, -0.02122, 4.90296, 10.64834) * roughness +
-             vec4(-16.71761, 0.05680, -6.25996, -5.42338) * NdotV * roughness +
-             vec4(6.94236, 1.34623, 6.45697, 11.04905) * mx_square(NdotV) +
-             vec4(0.40356, -0.05725, 3.81770, 21.41884) * mx_square(roughness);
+    float x = NdotV;
+    float y = roughness;
+    float x2 = mx_square(NdotV);
+    float y2 = mx_square(roughness);
+    vec4 r = vec4(0.08450, 0.96298, 1.0, 1.0) +
+             vec4(-0.36165, -2.43215, -1.93044, 0.57282) * x +
+             vec4(9.89773, 0.60451, 7.45723, 13.97512) * y +
+             vec4(-0.89027, 0.11949, 16.71279, -43.43587) * x * y +
+             vec4(25.88029, 1.51522, 26.08112, 11.47484) * x2 +
+             vec4(-7.59353, -0.03927, -6.00600, 22.68142) * y2 +
+             vec4(-9.67803, -0.89065, -25.40702, 29.05581) * x2 * y +
+             vec4(26.63159, -1.39136, 22.64064, 225.10503) * x * y2 +
+             vec4(-26.72404, 1.63585, 21.08303, -189.10043) * x2 * y2;
     vec2 AB = r.xy / r.zw;
     return F0 * AB.x + F90 * AB.y;
 }
