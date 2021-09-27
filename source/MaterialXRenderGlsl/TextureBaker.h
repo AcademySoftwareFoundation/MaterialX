@@ -143,6 +143,28 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
         return _bakedGeomInfoName;
     }
 
+    /// Get the texture filename template.
+    const string& getTextureFilenameTemplate() const
+    {
+        return _textureFilenameTemplate;
+    }
+
+    /// Set the texture filename template.
+    void setTextureFilenameTemplate(const string& filenameTemplate)
+    {
+        _textureFilenameTemplate = (filenameTemplate.find("$EXTENSION") == string::npos) ?
+            filenameTemplate + ".$EXTENSION" : filenameTemplate;
+    }
+
+    /// Set texFilenameOverrides if template variable exists.
+    void setFilenameTemplateVarOverride(const string& key, const string& value)
+    {
+        if (_permittedOverrides.count(key))
+        {
+            _texTemplateOverrides[key] = value;
+        }
+    }
+
     /// Set the output stream for reporting progress and warnings.  Defaults to std::cout.
     void setOutputStream(std::ostream* outputStream)
     {
@@ -176,7 +198,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     void bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const string& udim = EMPTY_STRING);
 
     /// Bake a texture for the given graph output.
-    void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& filename);
+    void bakeGraphOutput(OutputPtr output, GenContext& context, const StringMap& filenameTemplateMap);
 
     /// Optimize baked textures before writing.
     void optimizeBakedTextures(NodePtr shader);
@@ -212,8 +234,14 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
   protected:
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
+    // Populate file template variable naming map
+    StringMap initializeFileTemplateMap(OutputPtr output, NodePtr shader, const string& udim = EMPTY_STRING);
+
+    // Find first occurence of variable in filename from start index onwards
+    size_t findVarInTemplate(const string& filename, const string& var, size_t start = 0);
+
     // Generate a texture filename for the given graph output.
-    FilePath generateTextureFilename(OutputPtr output, const string& srName, const string& udim);
+    FilePath generateTextureFilename(const StringMap& fileTemplateMap);
 
     // Write a baked image to disk, returning true if the write was successful.
     bool writeBakedImage(const BakedImage& baked, ImagePtr image);
@@ -227,6 +255,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     FilePath _outputImagePath;
     string _bakedGraphName;
     string _bakedGeomInfoName;
+    string _textureFilenameTemplate;
     std::ostream* _outputStream;
     bool _hashImageNames;
 
@@ -235,6 +264,8 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     ImagePtr _frameCaptureImage;
     BakedImageMap _bakedImageMap;
     BakedConstantMap _bakedConstantMap;
+    StringSet _permittedOverrides;
+    StringMap _texTemplateOverrides;
 
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
 };

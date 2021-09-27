@@ -64,9 +64,11 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _optimizeConstants(true),
     _bakedGraphName("NG_baked"),
     _bakedGeomInfoName("GI_baked"),
+    _textureFilenameTemplate("$ASSET_$INPUT$UDIMPREFIX$UDIM.$EXTENSION"),
     _outputStream(&std::cout),
     _hashImageNames(false),
-    _generator(GlslShaderGenerator::create())
+    _generator(GlslShaderGenerator::create()),
+    _permittedOverrides({ "$ASSET","$NAMEPATH", "$SHADER", "$UDIMPREFIX" })
 {
     if (baseType == Image::BaseType::UINT8)
     {
@@ -101,20 +103,55 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _frameCaptureImage->createResourceBuffer();
 }
 
-FilePath TextureBaker::generateTextureFilename(OutputPtr output, const string& shaderName, const string& udim)
+size_t TextureBaker::findVarInTemplate(const string& filename, const string& var, size_t start)
 {
-    string outputName = createValidName(output->getNamePath());
-    string shaderSuffix = shaderName.empty() ? EMPTY_STRING : "_" + shaderName;
-    string udimSuffix = udim.empty() ? EMPTY_STRING : "_" + udim;
-    std::string bakedImageName; 
-    bakedImageName = outputName + shaderSuffix + BAKED_POSTFIX + udimSuffix;
-    if (_hashImageNames)
+    size_t i = filename.find(var, start);
+    if (var == "$UDIM" && i != string::npos)
     {
-        std::stringstream hashStream;
-        hashStream << std::hash<std::string>{}(bakedImageName);
-        bakedImageName = hashStream.str();
+        size_t udimPrefix = filename.find("$UDIMPREFIX", start);
+        if (i == udimPrefix)
+        {
+            i = filename.find(var, i + 1);
+        }
     }
-    return FilePath(bakedImageName + "." + _extension);
+    return i;
+}
+
+FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplateMap)
+{
+    string bakedImageName = _textureFilenameTemplate;
+
+    for (auto& pair : filenameTemplateMap)
+    {
+        string replacement = (_texTemplateOverrides.count(pair.first)) ?
+            _texTemplateOverrides[pair.first] : pair.second;
+        replacement = (filenameTemplateMap.at("$UDIM").empty() && pair.first == "$UDIMPREFIX") ?
+            EMPTY_STRING : replacement;
+
+        for (size_t i = 0; (i = findVarInTemplate(bakedImageName, pair.first, i)) != string::npos; i++)
+        {
+            bakedImageName.replace(i, pair.first.length(), replacement);
+        }
+    }
+    return _outputImagePath / bakedImageName;
+}
+
+StringMap TextureBaker::initializeFileTemplateMap(OutputPtr output, NodePtr shader, const string& udim)
+{
+    string inputName = output->getName();
+    size_t endPos = inputName.rfind("_out");
+    inputName = (endPos != string::npos) ? inputName.substr(0, endPos) : inputName;
+    FilePath assetPath = FilePath(output->getActiveSourceUri());
+    assetPath.removeExtension();
+    StringMap filenameTemplateMap;
+    filenameTemplateMap["$ASSET"] = assetPath.getBaseName();
+    filenameTemplateMap["$INPUT"] = inputName;
+    filenameTemplateMap["$EXTENSION"] = _extension;
+    filenameTemplateMap["$NAMEPATH"] = createValidName(output->getNamePath());
+    filenameTemplateMap["$SHADER"] = shader->getName();
+    filenameTemplateMap["$UDIM"] = udim;
+    filenameTemplateMap["$UDIMPREFIX"] = "_";
+    return filenameTemplateMap;
 }
 
 bool TextureBaker::writeBakedImage(const BakedImage& baked, ImagePtr image)
@@ -160,8 +197,8 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
                 output->setConnectedNode(worldSpaceNode->getConnectedNode("in"));
                 _worldSpaceNodes[input->getName()] = worldSpaceNode;
             }
-            FilePath texturefilepath = FilePath(_outputImagePath / generateTextureFilename(output, shader->getName(), udim));
-            bakeGraphOutput(output, context, texturefilepath);
+            StringMap filenameTemplateMap = initializeFileTemplateMap(output, shader, udim);
+            bakeGraphOutput(output, context, filenameTemplateMap);
         }
     }
 
@@ -169,7 +206,7 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
     _imageHandler->clearImageCache();
 }
 
-void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& texturefilepath)
+void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const StringMap& filenameTemplateMap)
 {
     if (!output)
     {
@@ -185,6 +222,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
 
     // Render and capture the requested image.
     renderTextureSpace();
+    string texturefilepath = generateTextureFilename(filenameTemplateMap);
     captureImage(_frameCaptureImage);
 
     // Construct a baked image record.
@@ -330,6 +368,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         {
             continue;
         }
+
         OutputPtr output = sourceInput->getConnectedOutput();
 
         // Skip uniform outputs at their default values.
@@ -339,8 +378,8 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         }
 
         // Find or create the baked input.
-        const std::string& sourceName = sourceInput->getName();
-        const std::string& sourceType = sourceInput->getType();
+        const string& sourceName = sourceInput->getName();
+        const string& sourceType = sourceInput->getType();
         InputPtr bakedInput = bakedShader->getInput(sourceName);
         if (!bakedInput)
         {
@@ -368,7 +407,8 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
                 // Add the image node.
                 NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName + BAKED_POSTFIX, sourceType);
                 InputPtr input = bakedImage->addInput("file", "filename");
-                input->setValueString(generateTextureFilename(output, shader->getName(), udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN));
+                StringMap filenameTemplateMap = initializeFileTemplateMap(output, shader, udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN);
+                input->setValueString(generateTextureFilename(filenameTemplateMap));
 
                 // Reconstruct any world-space nodes that were excluded from the baking process.
                 auto worldSpacePair = _worldSpaceNodes.find(sourceInput->getName());
@@ -533,7 +573,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
             if (bakedDocuments[i].second)
             {
                 FilePath writeFilename = outputFilename;
-                const std::string extension = writeFilename.getExtension();
+                const string extension = writeFilename.getExtension();
                 writeFilename.removeExtension();
                 writeFilename = FilePath(writeFilename.asString() + "_" + bakedDocuments[i].first + "." + extension);
                 writeToXmlFile(bakedDocuments[i].second, writeFilename);
