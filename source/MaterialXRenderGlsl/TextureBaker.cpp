@@ -136,18 +136,16 @@ FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplate
     return _outputImagePath / bakedImageName;
 }
 
-StringMap TextureBaker::initializeFileTemplateMap(OutputPtr output, NodePtr shader, const string& udim)
+StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader, const string& udim)
 {
-    string inputName = output->getName();
-    size_t endPos = inputName.rfind("_out");
-    inputName = (endPos != string::npos) ? inputName.substr(0, endPos) : inputName;
-    FilePath assetPath = FilePath(output->getActiveSourceUri());
+    string inputName = input->getName();
+    FilePath assetPath = FilePath(input->getActiveSourceUri());
     assetPath.removeExtension();
     StringMap filenameTemplateMap;
     filenameTemplateMap["$ASSET"] = assetPath.getBaseName();
     filenameTemplateMap["$INPUT"] = inputName;
     filenameTemplateMap["$EXTENSION"] = _extension;
-    filenameTemplateMap["$NAMEPATH"] = createValidName(output->getNamePath());
+    filenameTemplateMap["$NAMEPATH"] = createValidName(input->getNamePath());
     filenameTemplateMap["$SHADER"] = shader->getName();
     filenameTemplateMap["$UDIM"] = udim;
     filenameTemplateMap["$UDIMPREFIX"] = "_";
@@ -197,7 +195,7 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
                 output->setConnectedNode(worldSpaceNode->getConnectedNode("in"));
                 _worldSpaceNodes[input->getName()] = worldSpaceNode;
             }
-            StringMap filenameTemplateMap = initializeFileTemplateMap(output, shader, udim);
+            StringMap filenameTemplateMap = initializeFileTemplateMap(input, shader, udim);
             bakeGraphOutput(output, context, filenameTemplateMap);
         }
     }
@@ -407,7 +405,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
                 // Add the image node.
                 NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName + BAKED_POSTFIX, sourceType);
                 InputPtr input = bakedImage->addInput("file", "filename");
-                StringMap filenameTemplateMap = initializeFileTemplateMap(output, shader, udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN);
+                StringMap filenameTemplateMap = initializeFileTemplateMap(bakedInput, shader, udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN);
                 input->setValueString(generateTextureFilename(filenameTemplateMap));
 
                 // Reconstruct any world-space nodes that were excluded from the baking process.

@@ -235,7 +235,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType);
 
     // Populate file template variable naming map
-    StringMap initializeFileTemplateMap(OutputPtr output, NodePtr shader, const string& udim = EMPTY_STRING);
+    StringMap initializeFileTemplateMap(InputPtr input, NodePtr shader, const string& udim = EMPTY_STRING);
 
     // Find first occurence of variable in filename from start index onwards
     size_t findVarInTemplate(const string& filename, const string& var, size_t start = 0);
