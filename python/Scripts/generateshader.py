@@ -4,7 +4,7 @@ Utility to generate the shader for materials found in a MaterialX document. One 
 for each material / shader found. The currently supported target languages are GLSL, OSL, MDL and ESSL.
 '''
 
-import sys, os, argparse
+import sys, os, argparse, subprocess
 import MaterialX as mx
 import MaterialX.PyMaterialXGenShader as mx_gen_shader
 import MaterialX.PyMaterialXGenGlsl as mx_gen_glsl
@@ -12,12 +12,31 @@ import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
 import MaterialX.PyMaterialXGenEssl as mx_gen_essl
 
+
+def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
+    if codevalidator and os.path.isfile(codevalidator):
+        cmd = codevalidator + ' ' + sourceCodeFile 
+        if codevalidatorArgs:
+            cmd + ' ' + codevalidatorArgs
+        print('----- Run: '+ cmd)
+        try:
+            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            result = output.decode(encoding='utf-8')
+            print('----- Validation success: ' + result)
+        except subprocess.CalledProcessError as out:                                                                                                   
+            print('----- Validation failed: ', out.returncode)
+            print('    Result: ' + out.output.decode(encoding='utf-8'))
+    else:
+        print('--- No validation performed')
+
 def main():
     parser = argparse.ArgumentParser(description='Generate shader code for each material / shader in a document.')
     parser.add_argument('--path', dest='paths', action='append', nargs='+', help='An additional absolute search path location (e.g. "/projects/MaterialX")')
     parser.add_argument('--library', dest='libraries', action='append', nargs='+', help='An additional relative path to a custom data library folder (e.g. "libraries/custom")')
     parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "genglsl"). Default is genglsl.')
     parser.add_argument('--outputPath', dest='outputPath', help='File path to output shaders to.')
+    parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
+    parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
     parser.add_argument(dest='inputFilename', help='Filename of the input document.')
     opts = parser.parse_args()
 
@@ -108,20 +127,32 @@ def main():
         shaderNodeName = mx.createValidName(shaderNodeName)
         shader = shadergen.generate(shaderNodeName, shaderNode, context)        
         if shader:
+            # Use extension of .vert and .frag as it's type is
+            # recognized by glslangValidator
+            if gentarget == 'glsl' or gentarget == 'essl':
             pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
-            filename = pathPrefix + shader.getName() + "." + gentarget
+                filename = pathPrefix + shader.getName() + "." + gentarget + ".frag"
             print('--- Wrote pixel shader to: ' + filename)
             file = open(filename, 'w+')
             file.write(pixelSource)
             file.close()                   
+                validateCode(filename, opts.validator, opts.validatorArgs)
 
-            if gentarget == 'glsl' or gentarget == 'essl':            
                 vertexSource = shader.getSourceCode(mx_gen_shader.VERTEX_STAGE)
-                filename = pathPrefix + shader.getName() + '_vs.' + gentarget
+                filename = pathPrefix + shader.getName() + "." + gentarget + ".vert"
                 print('--- Wrote vertex shader to: ' + filename)
                 file = open(filename, 'w+')
                 file.write(vertexSource)
+                file.close()
+                validateCode(filename, opts.validator, opts.validatorArgs)
+            else:
+                pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
+                filename = pathPrefix + shader.getName() + "." + gentarget
+                print('--- Wrote pixel shader to: ' + filename)
+                file = open(filename, 'w+')
+                file.write(pixelSource)
                 file.close()                    
+
         else:
             print('--- Failed to generate code for: ' + shaderNode.getName())
 
