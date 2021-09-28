@@ -143,7 +143,7 @@ StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader
     assetPath.removeExtension();
     StringMap filenameTemplateMap;
     filenameTemplateMap["$ASSET"] = assetPath.getBaseName();
-    filenameTemplateMap["$INPUT"] = inputName;
+    filenameTemplateMap["$INPUT"] = _bakedInputOverlapMap.count(inputName)? _bakedInputOverlapMap[inputName] : inputName;
     filenameTemplateMap["$EXTENSION"] = _extension;
     filenameTemplateMap["$NAMEPATH"] = createValidName(input->getNamePath());
     filenameTemplateMap["$SHADER"] = shader->getName();
@@ -180,13 +180,13 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
         return;
     }
 
-    std::set<OutputPtr> bakedOutputs;
+    std::unordered_map<OutputPtr, InputPtr> bakedOutputs;
     for (InputPtr input : shader->getInputs())
     {
         OutputPtr output = input->getConnectedOutput();
         if (output && !bakedOutputs.count(output))
         {
-            bakedOutputs.insert(output);
+            bakedOutputs[output] = input;
 
             // When possible, nodes with world-space outputs are applied outside of the baking process.
             NodePtr worldSpaceNode = connectsToWorldSpaceNode(output);
@@ -197,6 +197,10 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
             }
             StringMap filenameTemplateMap = initializeFileTemplateMap(input, shader, udim);
             bakeGraphOutput(output, context, filenameTemplateMap);
+        }
+        else if (bakedOutputs.count(output))
+        {
+            _bakedInputOverlapMap[input->getName()] = bakedOutputs[output]->getName();
         }
     }
 
@@ -456,6 +460,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     _bakedImageMap.clear();
     _bakedConstantMap.clear();
     _worldSpaceNodes.clear();
+    _bakedInputOverlapMap.clear();
     _material = nullptr;
 
     // Return the baked document on success.

@@ -266,6 +266,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     BakedConstantMap _bakedConstantMap;
     StringSet _permittedOverrides;
     StringMap _texTemplateOverrides;
+    StringMap _bakedInputOverlapMap;
 
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
 };
