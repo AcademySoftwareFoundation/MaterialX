@@ -139,7 +139,7 @@ FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplate
 StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader, const string& udim)
 {
     string inputName = input->getName();
-    FilePath assetPath = FilePath(input->getActiveSourceUri());
+    FilePath assetPath = FilePath(shader->getActiveSourceUri());
     assetPath.removeExtension();
     StringMap filenameTemplateMap;
     filenameTemplateMap["$ASSET"] = assetPath.getBaseName();
