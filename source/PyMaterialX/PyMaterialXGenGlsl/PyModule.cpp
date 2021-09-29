@@ -9,6 +9,7 @@ namespace py = pybind11;
 
 void bindPyGlslShaderGenerator(py::module& mod);
 void bindPyGlslResourceBindingContext(py::module &mod);
+void bindPyEsslShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 {
@@ -16,4 +17,8 @@ PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 
     bindPyGlslShaderGenerator(mod);
     bindPyGlslResourceBindingContext(mod);
+
+    bindPyEsslShaderGenerator(mod);
 }
+
+

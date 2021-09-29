@@ -10,8 +10,6 @@ import MaterialX.PyMaterialXGenShader as mx_gen_shader
 import MaterialX.PyMaterialXGenGlsl as mx_gen_glsl
 import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
-import MaterialX.PyMaterialXGenEssl as mx_gen_essl
-
 
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
     if codevalidator and os.path.isfile(codevalidator):
@@ -76,7 +74,7 @@ def main():
     elif gentarget == 'mdl':
         shadergen = mx_gen_mdl.MdlShaderGenerator.create()
     elif gentarget == 'essl':
-        shadergen = mx_gen_essl.EsslShaderGenerator.create()
+        shadergen = mx_gen_glsl.EsslShaderGenerator.create()
     else:
         shadergen = mx_gen_glsl.GlslShaderGenerator.create()
     context = mx_gen_shader.GenContext(shadergen)
