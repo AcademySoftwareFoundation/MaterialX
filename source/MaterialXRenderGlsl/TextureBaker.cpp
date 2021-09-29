@@ -138,12 +138,11 @@ FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplate
 
 StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader, const string& udim)
 {
-    string inputName = input->getName();
     FilePath assetPath = FilePath(shader->getActiveSourceUri());
     assetPath.removeExtension();
     StringMap filenameTemplateMap;
     filenameTemplateMap["$ASSET"] = assetPath.getBaseName();
-    filenameTemplateMap["$INPUT"] = _bakedInputOverlapMap.count(inputName)? _bakedInputOverlapMap[inputName] : inputName;
+    filenameTemplateMap["$INPUT"] = _bakedInputMap[input->getName()];
     filenameTemplateMap["$EXTENSION"] = _extension;
     filenameTemplateMap["$NAMEPATH"] = createValidName(input->getNamePath());
     filenameTemplateMap["$SHADER"] = shader->getName();
@@ -180,13 +179,14 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
         return;
     }
 
-    std::unordered_map<OutputPtr, InputPtr> bakedOutputs;
+    std::unordered_map<OutputPtr, InputPtr> bakedOutputMap;
     for (InputPtr input : shader->getInputs())
     {
         OutputPtr output = input->getConnectedOutput();
-        if (output && !bakedOutputs.count(output))
+        if (output && !bakedOutputMap.count(output))
         {
-            bakedOutputs[output] = input;
+            bakedOutputMap[output] = input;
+            _bakedInputMap[input->getName()] = input->getName();
 
             // When possible, nodes with world-space outputs are applied outside of the baking process.
             NodePtr worldSpaceNode = connectsToWorldSpaceNode(output);
@@ -198,9 +198,10 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
             StringMap filenameTemplateMap = initializeFileTemplateMap(input, shader, udim);
             bakeGraphOutput(output, context, filenameTemplateMap);
         }
-        else if (bakedOutputs.count(output))
+        else if (bakedOutputMap.count(output))
         {
-            _bakedInputOverlapMap[input->getName()] = bakedOutputs[output]->getName();
+            // When the input shares the same output as a previously baked input, we use the already baked input.
+            _bakedInputMap[input->getName()] = bakedOutputMap[output]->getName();
         }
     }
 
@@ -460,7 +461,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     _bakedImageMap.clear();
     _bakedConstantMap.clear();
     _worldSpaceNodes.clear();
-    _bakedInputOverlapMap.clear();
+    _bakedInputMap.clear();
     _material = nullptr;
 
     // Return the baked document on success.
