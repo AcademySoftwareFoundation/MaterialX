@@ -56,14 +56,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         ConstElementPtr previous = elem->getChild(name);
         if (previous)
         {
-            if (!readOptions || !readOptions->generateUniqueNames)
-            {
                 continue;
-            }
-            else
-            {
-                name = elem->createValidChildName(name);
-            }
         }
 
         // Create the new element.

@@ -24,7 +24,6 @@
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtApi.h>
 
-#include <MaterialXCore/LookUtil.h>
 #include <MaterialXCore/Types.h>
 
 #include <MaterialXFormat/Util.h>
@@ -49,7 +48,6 @@ namespace
     static const RtStringSet targetdefIgnoreList  = { RtString("name"), RtString("inherit") };
     static const RtStringSet nodeimplIgnoreList   = { RtString("name"), RtString("file"), RtString("sourcecode") };
     static const RtStringSet lookIgnoreList       = { RtString("name"), RtString("inherit") };
-    static const RtStringSet lookGroupIgnoreList  = { RtString("name"), RtString("looks") };
     static const RtStringSet mtrlAssignIgnoreList = { RtString("name"), RtString("geom"), RtString("collection"), RtString("material") };
     static const RtStringSet collectionIgnoreList = { RtString("name"), RtString("includecollection") };
     static const RtStringSet genericIgnoreList    = { RtString("name"), RtString("kind") };
@@ -578,32 +576,6 @@ namespace
         }
     }
 
-    void writeLookGroups(PvtStage* stage, Document& dest, const RtWriteOptions* options)
-    {
-        for (RtPrim child : stage->getRootPrim()->getChildren(options ? options->objectFilter : nullptr))
-        {
-            const PvtPrim* prim = PvtObject::cast<PvtPrim>(child);
-            const RtString typeName = child.getTypeInfo()->getShortTypeName();
-            if (typeName == RtLookGroup::typeName())
-            {
-                RtLookGroup rtLookGroup(prim->hnd());
-                const string name(rtLookGroup.getName().str());
-
-                if (dest.getLookGroup(name))
-                {
-                    continue;
-                }
-
-                LookGroupPtr lookGroup = dest.addLookGroup(name);
-
-                const string lookList = rtLookGroup.getLooks().getObjectNames();
-                lookGroup->setLooks(lookList);
-
-                writeAttributes(prim, lookGroup, lookGroupIgnoreList, options);
-            }
-        }
-    }
-
     void writeGenericPrim(const PvtPrim* src, ElementPtr dest, const RtWriteOptions* options)
     {
         RtGeneric generic(src->hnd());
@@ -692,7 +664,6 @@ namespace
         // Write the existing look information
         writeCollections(stage, *doc, options);
         writeLooks(stage, *doc, options);
-        writeLookGroups(stage, *doc, options);
     }
 
     void writeNodeDefAndImplementation(DocumentPtr document, PvtStage* stage, PvtPrim* prim, const RtWriteOptions* options)
@@ -1310,53 +1281,12 @@ namespace
         }
     }
 
-    // Read in a look group. This assumes that all referenced looks have
-    // already been created.
-    PvtPrim* readLookGroup(const LookGroupPtr& src, PvtStage* stage, PvtRenamingMapper& mapper)
-    {
-        PvtPrim* parent = stage->getRootPrim();
-        const RtString name(src->getName());
-        PvtPrim* prim = stage->createPrim(parent->getPath(), name, RtLookGroup::typeName());
-        mapper.addMapping(parent, name, prim->getName());
-
-        RtLookGroup lookGroup(prim->hnd());
-        lookGroup.setActiveLooks(src->getActiveLook());
-
-        // Link to looks
-        const string& lookNamesString = src->getLooks();
-        StringVec lookNamesList = splitString(lookNamesString, ARRAY_VALID_SEPARATORS);
-        for (auto lookName : lookNamesList)
-        {
-            if (!lookName.empty())
-            {
-                PvtPrim* lookPrim = findPrimOrThrow(RtString(lookName), parent, mapper);
-                lookGroup.addLook(lookPrim->hnd());
-            }
-        }
-
-        readAttributes(src, prim, lookGroup.getPrimSpec(), lookGroupIgnoreList);
-
-        return prim;
-    }
-
     // Read in all look information from a document. Collections, looks and
     // look groups are read in first. Then relationship linkages are made.
     void readLookInformation(const DocumentPtr& doc, PvtStage* stage, const RtReadOptions* options, PvtRenamingMapper& mapper)
     {
         // Create the mergedDoc
-        DocumentPtr mergedDoc;
-        if (options && options->lookModifier)
-        {
-            // Write the stage contents to the stageDoc
-            DocumentPtr stageDoc = createDocument();
-            RtWriteOptions wops;
-            writeDocument(stageDoc, stage, &wops);
-            mergedDoc = options->lookModifier(stageDoc, doc);
-        }
-        else
-        {
-            mergedDoc = doc;
-        }
+        DocumentPtr mergedDoc = doc;
 
         PvtPrim* parent = stage->getRootPrim();
         RtReadOptions::ElementFilter filter = options ? options->elementFilter : nullptr;
@@ -1376,15 +1306,6 @@ namespace
             if (!filter || filter(elem))
             {
                 readLook(elem, stage, mapper);
-            }
-        }
-
-        // Read look groups
-        for (const LookGroupPtr& elem : mergedDoc->getLookGroups())
-        {
-            if (!filter || filter(elem))
-            {
-                readLookGroup(elem, stage, mapper);
             }
         }
 
@@ -1448,7 +1369,6 @@ namespace
                     readImplementation(elem->asA<Implementation>(), stage);
                 }
                 else if (!(elem->isA<Look>() ||
-                           elem->isA<LookGroup>() ||
                            elem->isA<MaterialAssign>() ||
                            elem->isA<Collection>() ||
                            elem->isA<NodeDef>() ||
@@ -1500,7 +1420,6 @@ RtWriteOptions::RtWriteOptions() :
 }
 
 RtExportOptions::RtExportOptions() :
-    mergeLooks(true),
     flattenFilenames(true)
 {
 }
@@ -1666,7 +1585,6 @@ RtPrim RtFileIo::readPrim(std::istream& stream, const RtPath& parentPrimPath, st
             {
                 const RtString category(elem->getCategory());
                 if (category != RtLook::typeName() &&
-                    category != RtLookGroup::typeName() &&
                     category != RtMaterialAssign::typeName() &&
                     category != RtCollection::typeName() &&
                     category != RtNodeDef::typeName()) {
@@ -1695,64 +1613,6 @@ void RtFileIo::writePrim(std::ostream& stream, const RtPath& primPath, const RtW
     writeToXmlStream(document, stream);
 }
 
-void mergeLooks(DocumentPtr document)
-{
-    LookGroupPtr mainLookGroup = document->addLookGroup(EMPTY_STRING);
-    std::vector<std::string> lookgroupNames;
-    std::set<std::string> looksInLookGroup;
-
-    for (LookGroupPtr lookgroup : document->getLookGroups())
-    {
-        if (lookgroup != mainLookGroup)
-        {
-            // Merge all other lookgroups into the mainLookGroup
-            appendLookGroup(mainLookGroup, lookgroup);
-            lookgroupNames.push_back(lookgroup->getName());
-
-            // Append lookgroup looks to looksInLookGroup if they aren't already part of the set
-            StringVec lookNamesList = splitString(lookgroup->getLooks(), ARRAY_VALID_SEPARATORS);
-            for (std::string lookName : lookNamesList)
-            {
-                if (looksInLookGroup.count(lookName) == 0)
-                {
-                    looksInLookGroup.emplace(lookName);
-                }
-            }
-        }
-    }
-    // Delete the non-mainLookGroup lookgroups
-    for (const std::string& lookgroupName : lookgroupNames)
-    {
-        document->removeChild(lookgroupName);
-    }
-    // Append looks which are not a part of a lookgroup to the mainLookGroup
-    for (LookPtr look : document->getLooks())
-    {
-        if (looksInLookGroup.count(look->getName()) == 0)
-        {
-            appendLook(mainLookGroup, look->getName());
-        }
-    }
-    // Combine the mainLookGroup into a mainLook
-    LookPtr mainLook = combineLooks(mainLookGroup);
-    // Delete the mainLookGroup
-    document->removeChild(mainLookGroup->getName());
-    // Append look names that don't belong to the mainLook to lookNames
-    std::vector<std::string> lookNames;
-    for (LookPtr look : document->getLooks())
-    {
-        if (look != mainLook)
-        {
-            lookNames.push_back(look->getName());
-        }
-    }
-    // Delete all the looks from the document that are in lookNames
-    for (const std::string& lookName : lookNames)
-    {
-        document->removeChild(lookName);
-    }
-}
-
 void RtFileIo::exportDocument(std::ostream& stream, const RtExportOptions* options)
 {
     PvtStage* stage = PvtStage::cast(_stage.get());
@@ -1764,8 +1624,6 @@ void RtFileIo::exportDocument(std::ostream& stream, const RtExportOptions* optio
     if (options)
     {
         xmlExportOptions.writeXIncludeEnable = options->writeIncludes;
-        xmlExportOptions.mergeLooks = options->mergeLooks;
-        xmlExportOptions.lookGroupToMerge = options->lookGroupToMerge;
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
         xmlExportOptions.resolvedTexturePath = options->resolvedTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;
@@ -1789,8 +1647,6 @@ void RtFileIo::exportDocument(const FilePath& documentPath, const RtExportOption
     if (options)
     {
         xmlExportOptions.writeXIncludeEnable = options->writeIncludes;
-        xmlExportOptions.mergeLooks = options->mergeLooks;
-        xmlExportOptions.lookGroupToMerge = options->lookGroupToMerge;
         xmlExportOptions.flattenFilenames = options->flattenFilenames;
         xmlExportOptions.resolvedTexturePath = options->resolvedTexturePath;
         xmlExportOptions.stringResolver = options->stringResolver;

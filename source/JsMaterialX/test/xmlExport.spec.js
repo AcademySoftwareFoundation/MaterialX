@@ -34,19 +34,12 @@ describe('XmlExport', () => {
     it('Export Document', async () => {
         const doc = mx.createDocument();
         await mx.readFromXmlFile(doc, "../../../resources/Materials/TestSuite/stdlib/looks/looks.mtlx");
-        expect(doc.getLookGroups().length).to.equal(1);
-        expect(doc.getLooks().length).to.equal(3);
 
         const exportOptions = new mx.XmlExportOptions();
-        exportOptions.mergeLooks = true;
-        exportOptions.lookGroupToMerge = "lookgroup1";
         const xmlString = mx.exportToXmlString(doc, exportOptions);
 
         const exportedDoc = mx.createDocument();
         await mx.readFromXmlString(exportedDoc, xmlString);
-
-        expect(exportedDoc.getLookGroups().length).to.equal(0);
-        expect(exportedDoc.getLooks().length).to.equal(1);
     });
 });
 

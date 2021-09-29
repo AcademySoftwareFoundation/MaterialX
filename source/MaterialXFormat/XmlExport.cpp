@@ -10,26 +10,12 @@
 namespace MaterialX
 {
 
-namespace
-{
-
-void mergeLooks(DocumentPtr doc, const XmlExportOptions* exportOptions)
-{
-    if (exportOptions && exportOptions->mergeLooks)
-    {
-        doc->mergeLooks(exportOptions->lookGroupToMerge);
-    }
-}
-
-} // anonymous namespace
-
 //
 // XmlExportOptions methods
 //
 
 XmlExportOptions::XmlExportOptions() :
     XmlWriteOptions(),
-    mergeLooks(true),
     flattenFilenames(true),
     modifyInPlace(true)
 {
@@ -47,7 +33,6 @@ void exportToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlExportOpt
         exportDoc = doc->copy();
     }
 
-    mergeLooks(exportDoc, exportOptions);
     if (exportOptions)
     {
         if (exportOptions->libraries)
@@ -74,7 +59,6 @@ void exportToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlExportO
         exportDoc = doc->copy();
     }
 
-    mergeLooks(exportDoc, exportOptions);
     if (exportOptions)
     {
         if (exportOptions->libraries)
@@ -101,7 +85,6 @@ string exportToXmlString(DocumentPtr doc, const XmlExportOptions* exportOptions)
         exportDoc = doc->copy();
     }
 
-    mergeLooks(exportDoc, exportOptions);
     if (exportOptions)
     {
         if (exportOptions->libraries)

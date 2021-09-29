@@ -1178,23 +1178,6 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
     }
 }
 
-TEST_CASE("Runtime: DefaultLook", "[runtime]")
-{
-    mx::RtScopedApiHandle api;
-
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
-    searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
-    api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
-
-    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
-
-    mx::FileSearchPath lookSearchPath(mx::FilePath::getCurrentPath() / "resources" / "LookDev");
-    mx::RtFileIo fileIo(defaultStage);
-    fileIo.read("defaultLook.mtlx", lookSearchPath);
-    fileIo.read("emptyLook.mtlx", lookSearchPath);
-}
-
 TEST_CASE("Runtime: Namespaced definitions", "[runtime]")
 {
     mx::RtScopedApiHandle api;
@@ -1222,82 +1205,6 @@ TEST_CASE("Runtime: Namespaced definitions", "[runtime]")
 
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("adsk_shaders.mtlx", adskTestPath);
-}
-
-TEST_CASE("Runtime: Conflict resolution", "[runtime]")
-{
-    mx::RtScopedApiHandle api;
-
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
-    searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
-    api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
-
-    mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
-    mx::FileSearchPath lookSearchPath(mx::FilePath::getCurrentPath() /
-                                      "resources" /
-                                      "LookDev");
-    mx::RtFileIo fileIo(defaultStage);
-    fileIo.read("defaultLook.mtlx", lookSearchPath);
-    int numBefore = 0;
-    auto stageTraverser = defaultStage->traverse();
-    while (!stageTraverser.isDone()) {
-        ++numBefore;
-        ++stageTraverser;
-    }
-
-    fileIo.read("defaultLook.mtlx", lookSearchPath);
-    int numAfter = 0;
-    stageTraverser = defaultStage->traverse();
-    while (!stageTraverser.isDone()) {
-        ++numAfter;
-        ++stageTraverser;
-    }
-
-    // Everything duplicated.
-    REQUIRE(numBefore * 2 == numAfter);
-
-    // And all duplicates correctly connected:
-    mx::RtPrim lg1 = defaultStage->getPrimAtPath("/defaultLookGroup1");
-    REQUIRE(lg1);
-    mx::RtLookGroup lookgroup1(lg1);
-
-    mx::RtConnectionIterator iter = lookgroup1.getLooks().getConnections();
-    REQUIRE(!iter.isDone());
-    mx::RtPrim lk1 = (*iter).asA<mx::RtPrim>();
-    REQUIRE(lk1);
-    REQUIRE(lk1.getName() == "defaultLook1");
-    ++iter;
-    REQUIRE(iter.isDone());
-
-    mx::RtLook look1(lk1);
-    iter = look1.getMaterialAssigns();
-    REQUIRE(!iter.isDone());
-    mx::RtPrim ma1 = (*iter).asA<mx::RtPrim>();
-    REQUIRE(ma1);
-    REQUIRE(ma1.getName() == "defaultMaterialAssign1");
-    ++iter;
-    REQUIRE(iter.isDone());
-
-    mx::RtMaterialAssign materialassign1(ma1);
-    REQUIRE(materialassign1.getMaterial().isConnected());
-    mx::RtPrim mat1 = materialassign1.getMaterial().getConnection().getParent();
-    REQUIRE(mat1);
-    REQUIRE(mat1.getName() == "defaultMaterial1");
-    iter = materialassign1.getCollection();
-    REQUIRE(!iter.isDone());
-    mx::RtPrim co1 = (*iter).asA<mx::RtPrim>();
-    REQUIRE(co1);
-    REQUIRE(co1.getName() == "defaultCollection1");
-    ++iter;
-    REQUIRE(iter.isDone());
-
-    mx::RtNode material1(mat1);
-    mx::RtInput surfInput = material1.getInput(SURFACESHADER);
-    REQUIRE(surfInput.isConnected());
-    mx::RtPrim sh1 = surfInput.getConnection().getParent();
-    REQUIRE(sh1);
-    REQUIRE(sh1.getName() == "defaultShader1");
 }
 
 TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
@@ -1685,24 +1592,6 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     look2.getInherit().connect(lo1);
     REQUIRE(look2.getInherit().numConnections() == 1);
 
-    //
-    // Test lookgroup
-    //
-    mx::RtPrim lg1 = stage->createPrim("lookgroup1", mx::RtLookGroup::typeName());
-    REQUIRE(lg1.hasApi<mx::RtBindElement>());
-    REQUIRE(lg1.hasApi<mx::RtLookGroup>());
-    mx::RtLookGroup lookgroup1(lg1);
-    lookgroup1.addLook(lo1);
-    lookgroup1.addLook(lo2);
-    REQUIRE(lookgroup1.getLooks().numConnections() == 2);
-    lookgroup1.removeLook(lo1);
-    REQUIRE(lookgroup1.getLooks().numConnections() == 1);
-
-    lookgroup1.setActiveLooks("look1");
-    REQUIRE(lookgroup1.getActiveLooks() == "look1");
-
-    lookgroup1.addLook(lo1);
-
     // Test file I/O
     bool useOptions = false;
     for (int i = 0; i < 2; ++i) {
@@ -1820,46 +1709,9 @@ TEST_CASE("Runtime: Looks", "[runtime]")
         ++iter;
         REQUIRE(iter.isDone());
 
-        //
-        // Check lookgroup
-        //
-        lg1 = stage2->getPrimAtPath("/lookgroup1");
-        REQUIRE(lg1);
-        REQUIRE(lg1.getTypeInfo()->getShortTypeName() == mx::RtLookGroup::typeName());
-        lookgroup1 = lg1;
-        REQUIRE(lookgroup1);
-
-        iter = lookgroup1.getLooks().getConnections();
-        REQUIRE(!iter.isDone());
-        REQUIRE((*iter) == lo2);
-        ++iter;
-        REQUIRE(!iter.isDone());
-        REQUIRE((*iter) == lo1);
-        ++iter;
-        REQUIRE(iter.isDone());
-        REQUIRE(lookgroup1.getActiveLooks() == "look1");
-
         // Try again, with options.
         useOptions = true;
     }
-
-    // Look group relations
-    mx::RtPrim lg2 = stage->createPrim("parent_lookgroup", mx::RtLookGroup::typeName());
-    mx::RtLookGroup lookgroup2(lg2);
-    mx::RtPrim lg3 = stage->createPrim("child_lookgroup", mx::RtLookGroup::typeName());
-    mx::RtLookGroup lookgroup3(lg3);
-    lookgroup2.addLook(lg3);
-    lookgroup2.addLook(lo2);
-    REQUIRE_THROWS(lookgroup2.addLook(assign2.getPrim()));
-
-    iter = lookgroup2.getLooks().getConnections();
-    REQUIRE(!iter.isDone());
-    REQUIRE((*iter) == lg3);
-    ++iter;
-    REQUIRE(!iter.isDone());
-    REQUIRE((*iter) == lo2);
-    lookgroup2.setActiveLooks("child_lookgroup");
-    REQUIRE(lookgroup2.getActiveLooks() == "child_lookgroup");
 }
 
 mx::RtString toTestResolver(const mx::RtString& str, const mx::RtString& type)
@@ -2449,10 +2301,6 @@ TEST_CASE("Runtime: Commands", "[runtime]")
     mx::RtCommand::createPrim(stage, mx::RtString("look"), mx::RtPath("/test/"), mx::RtString::EMPTY, lookResult);
     REQUIRE(!lookResult);
 
-    mx::RtCommandResult lookGroupResult;
-    mx::RtCommand::createPrim(stage, mx::RtString("lookgroup"), mx::RtPath("/test/"), mx::RtString::EMPTY, lookGroupResult);
-    REQUIRE(!lookResult);
-
     // Unknown node types cannot be created. Must be a look managment node, a material node, or have a nodedef.
     mx::RtCommandResult unknownResult;
     mx::RtCommand::createPrim(stage, mx::RtString("unknown"), mx::RtPath("/"), mx::RtString::EMPTY, unknownResult);
@@ -2757,7 +2605,6 @@ TEST_CASE("Export", "[runtime]")
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("looks.mtlx", testSearchPath);
     mx::RtExportOptions exportOptions;
-    exportOptions.lookGroupToMerge = "lookgroup1";
     std::stringstream ss;
     fileIo.exportDocument(ss, &exportOptions);
     mx::RtStagePtr exportStage = api->createStage(mx::RtString("exportStage"));
@@ -2773,17 +2620,6 @@ TEST_CASE("Export", "[runtime]")
             lookCount++;
         }
     }
-    mx::RtSchemaPredicate<mx::RtLookGroup> nodeFilter2;
-    int lookGroupCount = 0;
-    for (auto it = exportStage->traverse(nodeFilter2); !it.isDone(); ++it)
-    {
-        const mx::RtString& typeName = (*it).getTypeName();
-        if (typeName == mx::RtLookGroup::typeName())
-        {
-            lookGroupCount++;
-        }
-    }
-    REQUIRE(lookGroupCount == 0);
 }
 
 
@@ -2850,8 +2686,6 @@ TEST_CASE("Runtime File Path Predicate", "[runtime]")
     mx::RtFileIo fileIo(defaultStage);
     fileIo.read("export.mtlx", testSearchPath);
     mx::RtExportOptions exportOptions;
-    exportOptions.mergeLooks = true;
-    exportOptions.lookGroupToMerge = "defaultLookGroup";
     exportOptions.resolvedTexturePath = testSearchPath;
     mx::FileSearchPath textureSearchPath("resources");
     exportOptions.skipFlattening = [textureSearchPath](const mx::FilePath& filePath) -> bool

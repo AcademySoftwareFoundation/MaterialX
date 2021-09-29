@@ -272,7 +272,7 @@ class MX_CORE_API LookGroup : public Element
         return getAttribute(LOOKS_ATTRIBUTE);
     }
 
-    /// Set the active looks.
+    /// Set the active look.
     void setActiveLook(const string& look)
     {
         setAttribute(ACTIVE_ATTRIBUTE, look);

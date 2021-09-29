@@ -18,8 +18,6 @@ EMSCRIPTEN_BINDINGS(xmlexport)
 
   ems::class_<mx::XmlExportOptions, ems::base<mx::XmlWriteOptions>>("XmlExportOptions")
       .constructor<>()
-      .property("mergeLooks", &mx::XmlExportOptions::mergeLooks)
-      .property("lookGroupToMerge", &mx::XmlExportOptions::lookGroupToMerge)
       .property("flattenFilenames", &mx::XmlExportOptions::flattenFilenames)
       .property("resolvedTexturePath", &mx::XmlExportOptions::resolvedTexturePath)
       .property("stringResolver", &mx::XmlExportOptions::stringResolver);

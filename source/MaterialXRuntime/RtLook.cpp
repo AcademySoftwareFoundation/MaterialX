@@ -16,24 +16,6 @@ namespace MaterialX
 
 namespace
 {
-    class PvtLookGroupPrimSpec : public PvtPrimSpec
-    {
-    public:
-        PvtLookGroupPrimSpec()
-        {
-            // TODO: We should derive this from a data driven XML schema.
-            addPrimAttribute(RtString::DOC, RtType::STRING);
-            addPrimAttribute(RtString::XPOS, RtType::FLOAT);
-            addPrimAttribute(RtString::YPOS, RtType::FLOAT);
-            addPrimAttribute(RtString::WIDTH, RtType::INTEGER);
-            addPrimAttribute(RtString::HEIGHT, RtType::INTEGER);
-            addPrimAttribute(RtString::UICOLOR, RtType::COLOR3);
-            addPrimAttribute(RtString::LOOKS, RtType::STRING);
-            addPrimAttribute(RtString::ACTIVELOOKS, RtType::STRING);
-            addPrimAttribute(RtString::DEFAULT, RtType::STRING);
-        }
-    };
-
     class PvtLookPrimSpec : public PvtPrimSpec
     {
     public:
@@ -66,87 +48,6 @@ namespace
         }
     };
 }
-
-DEFINE_TYPED_SCHEMA(RtLookGroup, "bindelement:lookgroup");
-
-RtPrim RtLookGroup::createPrim(const RtString& typeName, const RtString& name, RtPrim parent)
-{
-    PvtPrim::validateCreation(_typeInfo, typeName, name, parent.getPath());
-
-    static const RtString DEFAULT_NAME("lookgroup1");
-    const RtString primName = name.empty() ? DEFAULT_NAME : name;
-    PvtObjHandle primH = PvtPrim::createNew(&_typeInfo, primName, PvtObject::cast<PvtPrim>(parent));
-
-    PvtPrim* prim = primH->asA<PvtPrim>();
-    prim->createRelationship(RtString::LOOKS);
-
-    return primH;
-}
-
-const RtPrimSpec& RtLookGroup::getPrimSpec() const
-{
-    static const PvtLookGroupPrimSpec s_lookGroupSpec;
-    return s_lookGroupSpec;
-}
-
-void RtLookGroup::setActiveLooks(const string& looks)
-{
-    RtTypedValue* attr = prim()->createAttribute(RtString::ACTIVELOOKS, RtType::STRING);
-    attr->asString() = looks;
-}
-
-void RtLookGroup::appendActiveLook(const string& look)
-{
-    RtTypedValue* attr = prim()->createAttribute(RtString::ACTIVELOOKS, RtType::STRING);
-    StringVec activeLookVec = splitNamePath(attr->asString());
-
-    // Append the look to the active looks if it isn't already in the vector
-    if (std::find(activeLookVec.begin(), activeLookVec.end(), look) == activeLookVec.end())
-    {
-        activeLookVec.push_back(look);
-        attr->asString() = createNamePath(activeLookVec);
-    }
-}
-
-void RtLookGroup::removeActiveLook(const string& look)
-{
-    RtTypedValue* attr = prim()->createAttribute(RtString::ACTIVELOOKS, RtType::STRING);
-    StringVec activeLookVec = splitNamePath(attr->asString());
-    activeLookVec.erase(std::remove(activeLookVec.begin(), activeLookVec.end(), look), activeLookVec.end());
-}
-
-const string& RtLookGroup::getActiveLooks() const
-{
-    const RtTypedValue* attr = prim()->getAttribute(RtString::ACTIVELOOKS);
-    return attr ? attr->asString() : EMPTY_STRING;
-}
-
-void RtLookGroup::addLook(const RtObject& look)
-{
-    getLooks().connect(look);
-}
-
-void RtLookGroup::removeLook(const RtObject& look)
-{
-    getLooks().disconnect(look);
-}
-
-RtRelationship RtLookGroup::getLooks() const
-{
-    return prim()->getRelationship(RtString::LOOKS)->hnd();
-}
-
-bool RtLookGroupConnectableApi::acceptRelationship(const RtRelationship& rel, const RtObject& target) const
-{
-    if (rel.getName() == RtString::LOOKS)
-    {
-        // 'looks' relationship only accepts looks or lookgroups as target.
-        return target.isA<RtPrim>() && 
-            (target.asA<RtPrim>().hasApi<RtLook>() || target.asA<RtPrim>().hasApi<RtLookGroup>());
-    }
-    return false;
-}
-
 
 DEFINE_TYPED_SCHEMA(RtLook, "bindelement:look");
 
