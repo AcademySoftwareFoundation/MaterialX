@@ -86,6 +86,7 @@ jobs:
           python: 3.8
           cmake_config: -G "Visual Studio 16 2019" -A "x64"
           test_generate: ON
+          test_validate: ON
           run_on_push : ON
 
     steps:
@@ -123,7 +124,18 @@ jobs:
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
-
+    
+    - name: Build GLSlangValidator (Windows)
+      if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_validate == 'ON' }}
+      run: |
+        git clone https://github.com/Microsoft/vcpkg
+        cd vcpkg
+        bootstrap-vcpkg.bat
+        vcpkg integrate install
+        vcpkg install glslang:x64-windows
+        cd ..
+        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v 
+         
     - name: Install Python ${{ matrix.python }}
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       uses: actions/setup-python@v2
@@ -178,10 +190,16 @@ jobs:
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_generate == 'ON' }}
       run: |
         mkdir build/generate
-        python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "glsl"
-        python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "osl"
-        python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "mdl"
-        python python/Scripts/generateShader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "essl"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "glsl" 
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "osl"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "mdl"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "essl" 
+
+    - name: Generation Validation Tests
+      if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_validate == 'ON' }}
+      run: |
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "glsl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "essl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
 
     - name: Render Tests
       if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}

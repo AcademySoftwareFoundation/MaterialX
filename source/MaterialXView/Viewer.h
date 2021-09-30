@@ -342,6 +342,7 @@ class Viewer : public ng::Screen
 
     // Shader generator contexts
     mx::GenContext _genContext;
+    mx::GenContext _genContextEssl;
 #if MATERIALX_BUILD_GEN_OSL
     mx::GenContext _genContextOsl;
 #endif
@@ -351,9 +352,6 @@ class Viewer : public ng::Screen
 #if MATERIALX_BUILD_GEN_ARNOLD
     mx::GenContext _genContextArnold;
 #endif
-#if MATERIALX_BUILD_GEN_ESSL
-    mx::GenContext _genContextEssl;
-#endif    
 
     // Unit registry
     mx::UnitConverterRegistryPtr _unitRegistry;

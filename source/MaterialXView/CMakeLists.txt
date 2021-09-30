@@ -77,9 +77,6 @@ endif()
 if (MATERIALX_BUILD_GEN_ARNOLD)
     LIST(APPEND LIBS MaterialXGenArnold)
 endif()
-if (MATERIALX_BUILD_GEN_ESSL)
-    LIST(APPEND LIBS MaterialXGenEssl)
-endif()
 
 target_link_libraries(
      ${LIBS}

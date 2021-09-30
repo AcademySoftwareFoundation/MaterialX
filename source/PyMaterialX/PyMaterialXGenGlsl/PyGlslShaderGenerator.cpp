@@ -7,6 +7,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
+#include <MaterialXGenGlsl/EsslShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
@@ -14,6 +15,8 @@
 
 namespace py = pybind11;
 namespace mx = MaterialX;
+
+// GLSL shader generator bindings
 
 void bindPyGlslShaderGenerator(py::module& mod)
 {
@@ -32,4 +35,16 @@ void bindPyGlslResourceBindingContext(py::module &mod)
         .def(py::init<size_t, size_t>())
         .def("emitDirectives", &mx::GlslResourceBindingContext::emitDirectives)
         .def("emitResourceBindings", &mx::GlslResourceBindingContext::emitResourceBindings);
+}
+
+// Essl shader generator bindings
+
+void bindPyEsslShaderGenerator(py::module& mod)
+{
+    py::class_<mx::EsslShaderGenerator, mx::HwShaderGenerator, mx::EsslShaderGeneratorPtr>(mod, "EsslShaderGenerator")
+        .def_static("create", &mx::EsslShaderGenerator::create)
+        .def(py::init<>())
+        .def("generate", &mx::EsslShaderGenerator::generate)
+        .def("getTarget", &mx::EsslShaderGenerator::getTarget)
+        .def("getVersion", &mx::EsslShaderGenerator::getVersion);
 }

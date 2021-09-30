@@ -15,11 +15,9 @@
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+#include <MaterialXGenGlsl/EsslShaderGenerator.h>
 #ifdef MATERIALX_BUILD_GEN_ARNOLD
 #include <MaterialXGenArnold/ArnoldShaderGenerator.h>
-#endif
-#ifdef MATERIALX_BUILD_GEN_ESSL
-#include <MaterialXGenEssl/EsslShaderGenerator.h>
 #endif
 
 #include <MaterialXFormat/Environ.h>
@@ -43,7 +41,7 @@ const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
 
 const int SHADOW_MAP_SIZE = 2048;
-const int ALBEDO_TABLE_SIZE = 64;
+const int ALBEDO_TABLE_SIZE = 128;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
 
@@ -229,6 +227,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _cameraViewHandler(mx::ViewHandler::create()),
     _shadowViewHandler(mx::ViewHandler::create()),
     _genContext(mx::GlslShaderGenerator::create()),
+    _genContextEssl(mx::EsslShaderGenerator::create()),
 #if MATERIALX_BUILD_GEN_OSL
     _genContextOsl(mx::OslShaderGenerator::create()),
 #endif
@@ -237,9 +236,6 @@ Viewer::Viewer(const std::string& materialFilename,
 #endif
 #if MATERIALX_BUILD_GEN_ARNOLD
     _genContextArnold(mx::ArnoldShaderGenerator::create()),
-#endif
-#if MATERIALX_BUILD_GEN_ESSL
-    _genContextEssl(mx::EsslShaderGenerator::create()),
 #endif
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(true),
@@ -269,33 +265,33 @@ Viewer::Viewer(const std::string& materialFilename,
     // Set the requested background color.
     setBackground(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
 
-    // Set default generator options.
+    // Set default Glsl generator options.
     _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
-    // Set OSL/MDL generator options.
+    // Set Essl generator options
+    _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextEssl.getOptions().fileTextureVerticalFlip = false;
+    _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
+    _genContextEssl.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
+    _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
+
 #if MATERIALX_BUILD_GEN_OSL
+    // Set OSL generator options.
     _genContextOsl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextOsl.getOptions().fileTextureVerticalFlip = false;
 #endif
 #if MATERIALX_BUILD_GEN_MDL
+    // Set MDL generator options.
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
 #if MATERIALX_BUILD_GEN_ARNOLD
     _genContextArnold.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextArnold.getOptions().fileTextureVerticalFlip = false;
-#endif
-#if MATERIALX_BUILD_GEN_ESSL
-    _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
-    _genContextEssl.getOptions().fileTextureVerticalFlip = false;
-    _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
-    _genContextEssl.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
-#endif
-    
+#endif    
 
     // Register the GLSL implementation for <viewdir> used by the environment shader.
     _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + mx::GlslShaderGenerator::TARGET, ViewDirGlsl::create);
@@ -553,9 +549,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
         std::vector<mx::NodePtr> lights;
         _lightHandler->findLights(doc, lights);
         _lightHandler->registerLights(doc, lights, _genContext);
-#if MATERIALX_BUILD_GEN_ESSL
         _lightHandler->registerLights(doc, lights, _genContextEssl);
-#endif
         _lightHandler->setLightSources(lights);
     }
     catch (std::exception& e)
@@ -778,6 +772,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         mProcessEvents = false;
         _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #if MATERIALX_BUILD_GEN_OSL
         _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
@@ -787,9 +782,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
 #if MATERIALX_BUILD_GEN_ARNOLD
         _genContextArnold.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
-#if MATERIALX_BUILD_GEN_ESSL
-        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-#endif        
         for (MaterialPtr material : _materials)
         {
             material->bindShader();
@@ -937,10 +929,8 @@ void Viewer::createAdvancedSettings(Widget* parent)
     referenceQualityBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_MONTE_CARLO : mx::DIRECTIONAL_ALBEDO_TABLE;
-#if MATERIALX_BUILD_GEN_ESSL
         // No Albedo Table support for Essl yet.
         _genContextEssl.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_MONTE_CARLO : mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
-#endif
         reloadShaders();
     });
 
@@ -949,9 +939,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     importanceSampleBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
-#if MATERIALX_BUILD_GEN_ESSL
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
-#endif
         reloadShaders();
     });
 
@@ -1075,12 +1063,13 @@ void Viewer::updateGeometrySelections()
     {
         return;
     }
-    mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-
+    for (auto mesh : _geometryHandler->getMeshes())
+    {
     for (size_t partIndex = 0; partIndex < mesh->getPartitionCount(); partIndex++)
     {
         mx::MeshPartitionPtr part = mesh->getPartition(partIndex);
         _geometryList.push_back(part);
+    }
     }
 
     std::vector<std::string> items;
@@ -1151,12 +1140,11 @@ void Viewer::loadMesh(const mx::FilePath& filename)
     if (_geometryHandler->loadGeometry(filename))
     {
         _meshFilename = filename;
-        const mx::MeshList& meshes = _geometryHandler->getMeshes();
-        if (!meshes.empty())
-        {
             if (_splitByUdims)
+        { 
+            for (auto mesh : _geometryHandler->getMeshes())
             {
-                meshes[0]->splitByUdims();
+                mesh->splitByUdims();
             }
         }
 
@@ -1201,9 +1189,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
     // Clear user data on the generator.
     _genContext.clearUserData();
-#if MATERIALX_BUILD_GEN_ESSL
     _genContextEssl.clearUserData();
-#endif
 
     // Clear materials if merging is not requested.
     if (!_mergeMaterials)
@@ -1325,9 +1311,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             {
                 // Clear cached implementations, in case libraries on the file system have changed.
                 _genContext.clearNodeImplementations();
-#if MATERIALX_BUILD_GEN_ESSL
                 _genContextEssl.clearNodeImplementations();
-#endif
 
                 mx::TypedElementPtr elem = mat->getElement();
 
@@ -1507,7 +1491,6 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                     new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Arnold OSL source: ", sourceFilename);
                 }
 #endif
-#if MATERIALX_BUILD_GEN_ESSL
                 else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
                 {
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
@@ -1517,7 +1500,6 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                     new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Essl source: ",
                         sourceFilename.asString() + "_essl_*.glsl");
                 }
-#endif
                 
             }
         }
@@ -1673,6 +1655,7 @@ void Viewer::loadStandardLibraries()
 
     // Initialize the generator contexts.
     initContext(_genContext);
+    initContext(_genContextEssl);
 #if MATERIALX_BUILD_GEN_OSL
     initContext(_genContextOsl);
 #endif
@@ -1681,9 +1664,6 @@ void Viewer::loadStandardLibraries()
 #endif
 #if MATERIALX_BUILD_GEN_ARNOLD
     initContext(_genContextArnold);
-#endif
-#if MATERIALX_BUILD_GEN_ESSL
-    initContext(_genContextEssl);
 #endif
 }
 
@@ -1756,14 +1736,12 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     }
 #endif
 
-#if MATERIALX_BUILD_GEN_ESSL
     // Save Essl shader source to file.
     if (key == GLFW_KEY_E && action == GLFW_PRESS)
     {
         saveShaderSource(_genContextEssl);
         return true;
     }
-#endif
 
     // Load GLSL shader source from file.  Editing the source files before
     // loading provides a way to debug and experiment with shader source code.
@@ -1963,6 +1941,7 @@ void Viewer::renderFrame()
             _envMaterial->bindViewInformation(envWorld, view, proj);
             _envMaterial->bindImages(_imageHandler, _searchPath, false);
             _envMaterial->drawPartition(envPart);
+            _envMaterial->unbindGeometry();
             glDisable(GL_CULL_FACE);
             glCullFace(GL_BACK);
         }
@@ -1976,6 +1955,7 @@ void Viewer::renderFrame()
     }
 
     // Opaque pass
+    const mx::MeshList& meshList = _geometryHandler->getMeshes();
     for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
@@ -1991,7 +1971,17 @@ void Viewer::renderFrame()
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
         material->bindShader();
-        material->bindMesh(_geometryHandler->getMeshes()[0]);
+        for (auto mesh : meshList)
+        {
+            for (size_t i = 0; i < mesh->getPartitionCount(); i++)
+            {
+                if (mesh->getPartition(i) == geom)
+                {
+                    material->bindMesh(mesh);
+                    break;
+                }
+            }
+        }
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
@@ -2001,6 +1991,7 @@ void Viewer::renderFrame()
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
+        material->unbindGeometry();
         if (material->getShader()->getName() == "__WIRE_SHADER__")
         {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2023,7 +2014,17 @@ void Viewer::renderFrame()
             }
 
             material->bindShader();
-            material->bindMesh(_geometryHandler->getMeshes()[0]);
+            for (auto mesh : meshList)
+            {
+                for (size_t i = 0; i < mesh->getPartitionCount(); i++)
+                {
+                    if (mesh->getPartition(i) == geom)
+                    {
+                        material->bindMesh(mesh);
+                        break;
+                    }
+                }
+            }
             if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
@@ -2033,6 +2034,7 @@ void Viewer::renderFrame()
             material->bindImages(_imageHandler, _searchPath);
             material->drawPartition(geom);
             material->unbindImages(_imageHandler);
+            material->unbindGeometry();
         }
         glDisable(GL_BLEND);
     }
@@ -2052,9 +2054,20 @@ void Viewer::renderFrame()
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         _wireMaterial->bindShader();
-        _wireMaterial->bindMesh(_geometryHandler->getMeshes()[0]);
+        for (auto mesh : meshList)
+        {
+            for (size_t i = 0; i < mesh->getPartitionCount(); i++)
+            {
+                if (mesh->getPartition(i) == getSelectedGeometry())
+                {
+                    _wireMaterial->bindMesh(mesh);
+                    break;
+                }
+            }
+        }
         _wireMaterial->bindViewInformation(world, view, proj);
         _wireMaterial->drawPartition(getSelectedGeometry());
+        _wireMaterial->unbindGeometry();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
@@ -2336,9 +2349,8 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
         mx::Matrix44 worldView = world * view;;
 
-        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-        mx::Vector3 boxMin = mesh->getMinimumBounds();
-        mx::Vector3 boxMax = mesh->getMaximumBounds();
+        mx::Vector3 boxMin = _geometryHandler->getMinimumBounds();
+        mx::Vector3 boxMax = _geometryHandler->getMaximumBounds();
         mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
 
         float zval = ng::project(ng::Vector3f(sphereCenter.data()),
@@ -2409,15 +2421,18 @@ void Viewer::initCamera()
     {
         return;
     }
-    mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+    const mx::Vector3& boxMax = _geometryHandler->getMaximumBounds();
+    const mx::Vector3& boxMin = _geometryHandler->getMinimumBounds();
+    mx::Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
+
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
 
     if (_userCameraEnabled)
     {
-        _meshTranslation = -meshRotation.transformPoint(mesh->getSphereCenter());
-        _meshScale = IDEAL_MESH_SPHERE_RADIUS / mesh->getSphereRadius();
+        _meshTranslation = -meshRotation.transformPoint(sphereCenter);
+        _meshScale = IDEAL_MESH_SPHERE_RADIUS / (sphereCenter - boxMin).getMagnitude();
     }
 }
 
@@ -2530,13 +2545,17 @@ void Viewer::updateShadowMap()
     // Render shadow geometry.
     _shadowMaterial->unbindGeometry();
     _shadowMaterial->bindShader();
-    _shadowMaterial->bindMesh(_geometryHandler->getMeshes()[0]);
-    _shadowMaterial->bindViewInformation(world, view, proj);
-    for (const auto& assignment : _materialAssignments)
+    for (auto mesh : _geometryHandler->getMeshes())
     {
-        mx::MeshPartitionPtr geom = assignment.first;
+        _shadowMaterial->bindMesh(mesh);
+    _shadowMaterial->bindViewInformation(world, view, proj);
+        for (size_t i = 0; i < mesh->getPartitionCount(); i++)
+    {
+            mx::MeshPartitionPtr geom = mesh->getPartition(i);
         _shadowMaterial->drawPartition(geom);
     }
+    }
+    _shadowMaterial->unbindGeometry();
     _shadowMap = framebuffer->getColorImage();
 
     // Apply Gaussian blurring.
@@ -2629,4 +2648,5 @@ void Viewer::renderScreenSpaceQuad(MaterialPtr material)
     
     material->bindMesh(_quadMesh);
     material->drawPartition(_quadMesh->getPartition(0));
+    material->unbindGeometry();
 }

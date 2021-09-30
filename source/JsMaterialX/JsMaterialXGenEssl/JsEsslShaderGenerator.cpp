@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenEssl/EsslShaderGenerator.h>
+#include <MaterialXGenGlsl/EsslShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Util.h>

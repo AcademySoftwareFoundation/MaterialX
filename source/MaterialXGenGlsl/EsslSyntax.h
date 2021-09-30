@@ -15,7 +15,7 @@ namespace MaterialX
 {
 
 /// Syntax class for ESSL (OpenGL ES Shading Language)
-class EsslSyntax : public GlslSyntax
+class MX_GENGLSL_API EsslSyntax : public GlslSyntax
 {
 public:
     EsslSyntax();

@@ -18,7 +18,7 @@ using EsslShaderGeneratorPtr = shared_ptr<class EsslShaderGenerator>;
 
 /// @class EsslShaderGenerator 
 /// An ESSL (OpenGL ES Shading Language) shader generator 
-class EsslShaderGenerator : public GlslShaderGenerator
+class MX_GENGLSL_API EsslShaderGenerator : public GlslShaderGenerator
 {
   public:
     EsslShaderGenerator();

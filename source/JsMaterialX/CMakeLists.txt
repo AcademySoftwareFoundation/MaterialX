@@ -111,7 +111,7 @@ target_link_libraries(JsMaterialXGenShader
     PUBLIC MaterialXCore
     PUBLIC MaterialXFormat
     PUBLIC MaterialXGenShader
-    PUBLIC MaterialXGenEssl
+    PUBLIC MaterialXGenGlsl
     PRIVATE ${CMAKE_DL_LIBS})
 
 # Install the JavaScript output
