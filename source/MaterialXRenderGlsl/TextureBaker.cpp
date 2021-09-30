@@ -64,7 +64,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _optimizeConstants(true),
     _bakedGraphName("NG_baked"),
     _bakedGeomInfoName("GI_baked"),
-    _textureFilenameTemplate("$ASSET_$INPUT$UDIMPREFIX$UDIM.$EXTENSION"),
+    _textureFilenameTemplate("$MATERIAL_$SHADINGMODEL_$INPUT$UDIMPREFIX$UDIM.$EXTENSION"),
     _outputStream(&std::cout),
     _hashImageNames(false),
     _generator(GlslShaderGenerator::create()),
@@ -144,8 +144,10 @@ StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader
     filenameTemplateMap["$ASSET"] = assetPath.getBaseName();
     filenameTemplateMap["$INPUT"] = _bakedInputMap[input->getName()];
     filenameTemplateMap["$EXTENSION"] = _extension;
+    filenameTemplateMap["$MATERIAL"] = _material->getName();
     filenameTemplateMap["$NAMEPATH"] = createValidName(input->getNamePath());
     filenameTemplateMap["$SHADER"] = shader->getName();
+    filenameTemplateMap["$SHADINGMODEL"] = shader->getCategory();
     filenameTemplateMap["$UDIM"] = udim;
     filenameTemplateMap["$UDIMPREFIX"] = "_";
     return filenameTemplateMap;
