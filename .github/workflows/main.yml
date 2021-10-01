@@ -38,7 +38,6 @@ jobs:
           compiler: gcc
           compiler_version: "11"
           python: 3.7
-          test_generate: ON
           test_render: ON
           run_on_push : ON
 
@@ -63,7 +62,6 @@ jobs:
           compiler_version: "12.2"
           python: 3.7
           cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
-          test_generate: ON
           run_on_push : ON
 
         - name: Windows_VS2017_Win32_Python27
@@ -85,7 +83,6 @@ jobs:
           architecture: x64
           python: 3.8
           cmake_config: -G "Visual Studio 16 2019" -A "x64"
-          test_generate: ON
           test_validate: ON
           run_on_push : ON
 
@@ -184,16 +181,13 @@ jobs:
         python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
         python Scripts/mxdoc.py ../libraries/pbrlib/pbrlib_defs.mtlx
-      working-directory: python
-
-    - name: Generation Tests
-      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_generate == 'ON' }}
-      run: |
+        cd ..
         mkdir build/generate
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "glsl" 
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "osl"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "mdl"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "essl" 
+      working-directory: python
 
     - name: Generation Validation Tests
       if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_validate == 'ON' }}
@@ -223,10 +217,3 @@ jobs:
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/
-
-    - name: Upload Shaders
-      uses: actions/upload-artifact@v2
-      if: ${{  matrix.test_generate == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
-      with:
-        name: Shaders_${{ matrix.name }}
-        path: build/generate/
