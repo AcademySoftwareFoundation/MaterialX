@@ -42,7 +42,7 @@ class MX_GENGLSL_API EsslShaderGenerator : public GlslShaderGenerator
     void emitUniforms(GenContext& context, ShaderStage& stage) const override;
     void emitInputs(GenContext& context, ShaderStage& stage) const override;
     void emitOutputs(GenContext& context, ShaderStage& stage) const override;
-    const HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const override;
+    HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const override;
 };
 
 }

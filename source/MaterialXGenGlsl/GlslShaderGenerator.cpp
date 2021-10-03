@@ -275,7 +275,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     // Make sure we initialize/reset the binding context before generation.
-    const HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
     if (resourceBindingCtx)
     {
         resourceBindingCtx->initialize();
@@ -396,7 +396,7 @@ void GlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage)
     const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
     const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
     const string structName        = lightData.getInstance();
-    const HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
     if (resourceBindingCtx)
     {
         resourceBindingCtx->emitStructuredResourceBindings(
@@ -465,7 +465,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-const HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext(GenContext& context) const
+HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext(GenContext& context) const
 {
     return context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
 }
@@ -483,7 +483,7 @@ bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    const HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
 
     // Add directives
     emitDirectives(context, stage);
