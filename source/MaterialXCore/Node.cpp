@@ -267,7 +267,7 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
 
             NodeGraphPtr sourceSubGraph = pair.second;
             std::unordered_map<NodePtr, NodePtr> subNodeMap;
-         
+
             // Create a new instance of each original subnode.
             for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
             {

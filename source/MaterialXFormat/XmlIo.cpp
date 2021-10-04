@@ -6,7 +6,6 @@
 #include <MaterialXFormat/XmlIo.h>
 
 #include <MaterialXFormat/PugiXML/pugixml.hpp>
-#include <MaterialXFormat/Util.h>
 
 #include <MaterialXCore/Types.h>
 
@@ -56,7 +55,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         ConstElementPtr previous = elem->getChild(name);
         if (previous)
         {
-                continue;
+            continue;
         }
 
         // Create the new element.

@@ -124,24 +124,24 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath)
     // Resolve the input filepath.
     FilePath resolvedFilePath = filePath;
     if (_resolver)
-        {
+    {
         resolvedFilePath = _resolver->resolve(resolvedFilePath, FILENAME_TYPE_STRING);
-        }
+    }
 
     // Return a cached image if available.
     ImagePtr cachedImage = getCachedImage(resolvedFilePath);
     if (cachedImage)
-        {
+    {
         return cachedImage;
-        }
+    }
 
     // Load and cache the requested image.
     ImagePtr image = loadImage(_searchPath.find(resolvedFilePath));
-        if (image)
-        {
+    if (image)
+    {
         cacheImage(resolvedFilePath, image);
-            return image;
-        }
+        return image;
+    }
 
     // No valid image was found, so cache the sentinel invalid image.
     cacheImage(resolvedFilePath, _invalidImage);

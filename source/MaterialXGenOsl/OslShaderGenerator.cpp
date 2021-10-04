@@ -479,9 +479,9 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
                     const ShaderMetadata& data = metadata->at(j);
                     if (METADATA_TYPE_BLACKLIST.count(data.type) == 0)
                     {
-                    const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
-                    const string& dataType = _syntax->getTypeName(data.type);
-                    const string dataValue = _syntax->getValue(data.type, *data.value, true);
+                        const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
+                        const string& dataType = _syntax->getTypeName(data.type);
+                        const string dataValue = _syntax->getValue(data.type, *data.value, true);
                         metadataLines.push_back(dataType + " " + data.name + " = " + dataValue + delim);
                     }
                 }
@@ -499,9 +499,9 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
                 for (auto line : metadataLines)
                 {
                     emitLine(line, stage, false);
+                }
+                emitScopeEnd(stage, false, false);
             }
-            emitScopeEnd(stage, false, false);
-        }
         }
 
         if (i < inputs.size())
