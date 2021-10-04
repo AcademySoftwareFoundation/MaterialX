@@ -113,7 +113,7 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     const Syntax& syntax = generator.getSyntax();
 
     // Glsl structures need to be aligned. We make a best effort to base align struct members and add
-    // padding if require.
+    // padding if required.
     // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_uniform_buffer_object.txt
 
     const size_t baseAlignment = 16;

@@ -32,7 +32,7 @@ def main():
     parser.add_argument('--path', dest='paths', action='append', nargs='+', help='An additional absolute search path location (e.g. "/projects/MaterialX")')
     parser.add_argument('--library', dest='libraries', action='append', nargs='+', help='An additional relative path to a custom data library folder (e.g. "libraries/custom")')
     parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "genglsl"). Default is genglsl.')
-    parser.add_argument('--outputPath', dest='outputPath', help='File path to output shaders to.')
+    parser.add_argument('--outputPath', dest='outputPath', help='File path to output shaders to. If not specified, is the location of the input document is used.')
     parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
     parser.add_argument(dest='inputFilename', help='Filename of the input document.')
@@ -111,7 +111,9 @@ def main():
     pathPrefix = ''
     if opts.outputPath and os.path.exists(opts.outputPath):
         pathPrefix = opts.outputPath + os.path.sep
-    print('Output path: ' + pathPrefix)
+    else:
+        pathPrefix = os.path.dirname(os.path.abspath(opts.inputFilename))
+    print('- Shader output path: ' + pathPrefix)
 
     for shaderNode in shaderNodes:
         # Material nodes are not supported directly for generation so find upstream

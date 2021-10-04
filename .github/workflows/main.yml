@@ -110,7 +110,7 @@ jobs:
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
-    
+  
     - name: Build GLSlangValidator (Windows)
       if: matrix.test_validate == 'ON' && runner.os == 'Windows'
       run: |
@@ -164,19 +164,17 @@ jobs:
         python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
         python Scripts/mxdoc.py ../libraries/pbrlib/pbrlib_defs.mtlx
-        cd ..
-        mkdir build/generate
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "glsl" 
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "osl"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "mdl"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "essl" 
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "glsl" 
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "osl"
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "mdl"
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "essl" 
       working-directory: python
 
     - name: Generation Validation Tests
       if: matrix.test_validate == 'ON' && runner.os == 'Windows'
       run: |
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "glsl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --outputPath "build/generate/" --target "essl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --target "glsl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --target "essl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
 
     - name: Render Tests
       if: matrix.test_render == 'ON'
