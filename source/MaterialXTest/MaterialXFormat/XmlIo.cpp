@@ -7,6 +7,7 @@
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
 
 namespace mx = MaterialX;
@@ -170,7 +171,7 @@ TEST_CASE("Load content", "[xmlio]")
 
     // Reconstruct and verify that the document contains no images.
     mx::DocumentPtr writtenDoc = mx::createDocument();
-    mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
+    mx::readFromXmlString(writtenDoc, xmlString, mx::FileSearchPath(), &readOptions);
     REQUIRE(*writtenDoc != *doc);
     unsigned imageElementCount = 0;
     for (mx::ElementPtr elem : writtenDoc->traverseTree())
@@ -203,7 +204,7 @@ TEST_CASE("Load content", "[xmlio]")
 
     // Verify that the document contains no XIncludes.
     writtenDoc = mx::createDocument();
-    mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
+    mx::readFromXmlString(writtenDoc, xmlString, mx::FileSearchPath(), &readOptions);
     bool hasSourceUri = false;
     for (mx::ElementPtr elem : writtenDoc->traverseTree())
     {
@@ -224,3 +225,110 @@ TEST_CASE("Load content", "[xmlio]")
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
 }
+
+TEST_CASE("In memory xincludes", "[xmlio]")
+{
+    mx::FilePath libraryPath("libraries/stdlib");
+    mx::FilePath examplesPath("resources/Materials/Examples/Syntax");
+    mx::FileSearchPath searchPath = libraryPath.asString() +
+        mx::PATH_LIST_SEPARATOR +
+        examplesPath.asString();
+
+    mx::DocumentPtr mainDoc = mx::createDocument();
+    mx::readFromXmlFile(mainDoc, "Xincludes.mtlx", searchPath);
+    REQUIRE(mainDoc->getChild("NG_range_float"));
+    REQUIRE(mainDoc->getChild("testlooks"));
+
+    mx::DocumentPtr mainDoc2 = mx::createDocument();
+    mx::writeToXmlFile(mainDoc, "rootXinclude.mtlx");
+    REQUIRE_THROWS(mx::readFromXmlFile(mainDoc2, "rootXinclude.mtlx"));
+    mx::readFromXmlFile(mainDoc2, "rootXinclude.mtlx", searchPath);
+    REQUIRE(mainDoc2->getChild("NG_range_float"));
+    REQUIRE(mainDoc2->getChild("testlooks"));
+
+    std::string mainDocString;
+    mainDocString = mx::writeToXmlString(mainDoc);
+    mx::DocumentPtr mainDoc3 = mx::createDocument();
+    REQUIRE_THROWS(mx::readFromXmlString(mainDoc3, mainDocString));
+    mx::readFromXmlString(mainDoc3, mainDocString, searchPath);
+    REQUIRE(mainDoc3->getChild("NG_range_float"));
+    REQUIRE(mainDoc3->getChild("testlooks"));
+}
+
+TEST_CASE("Load locale content", "[xmlio_locale]")
+{
+    /// Test locale region
+    /// The character used as the thousands separator.
+    /// The character used as the decimal separator.
+
+    /// In the United States, this character is a comma(, ).
+    /// In Germany, it is a period(.).
+    /// Thus one thousandand twenty - five is displayed as 1, 025 in the United States and 1.025 in Germany.In Sweden, the thousands separator is a space.
+    /// mx:Vector3(1,1.5,2.0) should be interpreted as float[3] = [1.0f, 1.5f, 2.0f]
+    
+    try {
+        //Set locale to de
+        std::locale deLocale("de_DE");
+        std::locale::global(deLocale);
+    }
+    catch (const std::runtime_error& e) {
+        WARN("Unable to change locale " << e.what());
+        return;
+    }
+
+    mx::FilePath libraryPath("libraries/stdlib");
+    mx::FilePath testPath("resources/Materials/TestSuite/locale");
+    mx::FileSearchPath searchPath = libraryPath.asString() +
+        mx::PATH_LIST_SEPARATOR +
+        testPath.asString();
+
+    // Read the standard library.
+    std::vector<mx::DocumentPtr> libs;
+    for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    {
+        mx::DocumentPtr lib = mx::createDocument();
+        mx::readFromXmlFile(lib, filename, searchPath);
+        libs.push_back(lib);
+    }
+
+    // Read and validate each example document.
+    for (const mx::FilePath& filename : testPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    {
+        mx::DocumentPtr doc = mx::createDocument();
+        mx::readFromXmlFile(doc, filename, searchPath);
+        for (mx::DocumentPtr lib : libs)
+        {
+            doc->importLibrary(lib);
+        }
+        std::string message;
+
+        bool docValid = doc->validate(&message);
+        if (!docValid)
+        {
+            WARN("[" + filename.asString() + "] " + message);
+        }
+        REQUIRE(docValid);
+
+        // Traverse the document tree
+        int valueElementCount = 0;
+        int uiattributeCount = 0;
+        for (mx::ElementPtr elem : doc->traverseTree())
+        {
+         
+            if (elem->isA<mx::ValueElement>())
+            {
+                
+                valueElementCount++;
+
+                if (elem->hasAttribute("uiname"))
+                {
+                    REQUIRE(!elem->getAttribute("uiname").empty());
+                    uiattributeCount++;
+                }
+            }
+        }
+        REQUIRE(valueElementCount > 0);
+        REQUIRE(uiattributeCount > 0);
+    }
+}
+
