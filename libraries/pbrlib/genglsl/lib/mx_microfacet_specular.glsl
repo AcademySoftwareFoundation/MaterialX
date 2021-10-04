@@ -58,23 +58,24 @@ vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, float alphaX, float alphaY)
     return H;
 }
 
+// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
+// Equation 34
+float mx_ggx_smith_G1(float cosTheta, float alpha)
+{
+    float cosTheta2 = mx_square(cosTheta);
+    float tanTheta2 = (1.0 - cosTheta2) / cosTheta2;
+    return 2.0 / (1.0 + sqrt(1.0 + mx_square(alpha) * tanTheta2));
+}
+
+// Height-correlated Smith masking-shadowing
 // http://jcgt.org/published/0003/02/03/paper.pdf
 // Equations 72 and 99
-float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
+float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 {
     float alpha2 = mx_square(alpha);
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
     float lambdaV = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotV));
     return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
-}
-
-// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
-// Equation 34
-float mx_ggx_smith_G_separable(float cosTheta, float alpha)
-{
-    float cosTheta2 = mx_square(cosTheta);
-    float tanTheta2 = (1.0 - cosTheta2) / cosTheta2;
-    return 2.0 / (1.0 + sqrt(1.0 + mx_square(alpha) * tanTheta2));
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.
@@ -134,12 +135,12 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
         // Compute the Fresnel term.
         float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);
 
-        // Compute the geometric visibility term, folding in the BRDF denominator and PDF.
-        // http://jcgt.org/published/0007/04/01/paper.pdf, Equation 19
-        float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) / mx_ggx_smith_G_separable(NdotV, roughness);
+        // Compute the sample weight, combining the geometric term, BRDF denominator, and PDF.
+        // https://hal.inria.fr/hal-00996995v2/document, Algorithm 2
+        float weight = mx_ggx_smith_G2(NdotL, NdotV, roughness) / mx_ggx_smith_G1(NdotV, roughness);
         
         // Add the contribution of this sample.
-        AB += vec2(Gvis * (1.0 - Fc), Gvis * Fc);
+        AB += vec2(weight * (1.0 - Fc), weight * Fc);
     }
 
     // Normalize integrated terms.

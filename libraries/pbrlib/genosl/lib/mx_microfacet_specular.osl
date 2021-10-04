@@ -12,9 +12,10 @@ vector mx_ggx_importance_sample_NDF(vector2 Xi, vector X, vector Y, vector N, fl
     return normalize(H);
 }
 
+// Height-correlated Smith masking-shadowing
 // http://jcgt.org/published/0003/02/03/paper.pdf
 // Equations 72 and 99
-float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
+float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 {
     float alpha2 = mx_square(alpha);
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
@@ -65,7 +66,7 @@ color mx_ggx_dir_albedo_monte_carlo(float _NdotV, float roughness, color F0, col
         float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);
 
         // Compute the geometric visibility term.
-        float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
+        float Gvis = mx_ggx_smith_G2(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
         
         // Add the contribution of this sample.
         AB += vector2(Gvis * (1 - Fc), Gvis * Fc);
