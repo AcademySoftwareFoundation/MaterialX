@@ -32,7 +32,7 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
     }
     vec3  F = mx_compute_fresnel(VdotH, fd);
     float D = mx_ggx_NDF(X, Y, H, NdotH, safeRoughness.x, safeRoughness.y);
-    float G = mx_ggx_smith_G(NdotL, NdotV, avgRoughness);
+    float G = mx_ggx_smith_G2(NdotL, NdotV, avgRoughness);
 
     float F0 = mx_ior_to_f0(ior);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);

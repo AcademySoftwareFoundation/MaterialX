@@ -29,9 +29,48 @@ vec3 mx_ggx_importance_sample_NDF(vec2 Xi, vec3 X, vec3 Y, vec3 N, float alphaX,
     return normalize(H);
 }
 
+// http://jcgt.org/published/0007/04/01/paper.pdf
+// Appendix A Listing 1
+vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, float alphaX, float alphaY)
+{
+    // Transform the view direction to the hemisphere configuration.
+    vec3 Vh = normalize(vec3(alphaX * V.x, alphaY * V.y, V.z));
+
+    // Orthonormal basis (with special case if cross product is zero).
+    float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
+    vec3 T1 = lensq > 0.0 ? vec3(-Vh.y, Vh.x, 0.0) / sqrt(lensq) : vec3(1.0, 0.0, 0.0);
+    vec3 T2 = cross(Vh, T1);
+
+    // Parameterization of the projected area.
+    float r = sqrt(Xi.y);
+    float phi = 2.0 * M_PI * Xi.x;
+    float t1 = r * cos(phi);
+    float t2 = r * sin(phi);
+    float s = 0.5 * (1.0 + Vh.z);
+    t2 = (1.0 - s) * sqrt(1.0 - t1 * t1) + s * t2;
+
+    // Reprojection onto hemisphere.
+    vec3 Nh = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)) * Vh;
+
+    // Transform the normal back to the ellipsoid configuration.
+    vec3 H = normalize(vec3(alphaX * Nh.x, alphaY * Nh.y, max(0.0, Nh.z)));
+
+    return H;
+}
+
+// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
+// Equation 34
+float mx_ggx_smith_G1(float cosTheta, float alpha)
+{
+    float cosTheta2 = mx_square(cosTheta);
+    float tanTheta2 = (1.0 - cosTheta2) / cosTheta2;
+    return 2.0 / (1.0 + sqrt(1.0 + mx_square(alpha) * tanTheta2));
+}
+
+// Height-correlated Smith masking-shadowing
 // http://jcgt.org/published/0003/02/03/paper.pdf
 // Equations 72 and 99
-float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
+float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 {
     float alpha2 = mx_square(alpha);
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
@@ -39,15 +78,22 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
     return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
 }
 
-// Rational curve fit approximation for GGX directional albedo.
+// Rational quadratic fit to Monte Carlo data for GGX directional albedo.
 vec3 mx_ggx_dir_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
-    vec4 r = vec4(-0.03056, 0.91808, 1.0, 1.0) +
-             vec4(5.73633, -2.21942, 4.23817, -0.05271) * NdotV +
-             vec4(8.03663, -0.02122, 4.90296, 10.64834) * roughness +
-             vec4(-16.71761, 0.05680, -6.25996, -5.42338) * NdotV * roughness +
-             vec4(6.94236, 1.34623, 6.45697, 11.04905) * mx_square(NdotV) +
-             vec4(0.40356, -0.05725, 3.81770, 21.41884) * mx_square(roughness);
+    float x = NdotV;
+    float y = roughness;
+    float x2 = mx_square(NdotV);
+    float y2 = mx_square(roughness);
+    vec4 r = vec4(0.10901, 0.92163, 1.0, 1.0) +
+             vec4(-0.72019, -2.29412, -1.81963, -0.02130) * x +
+             vec4(9.54750, 1.78914, 8.10489, 15.21516) * y +
+             vec4(-0.93177, -2.62475, 12.89250, -45.75644) * x * y +
+             vec4(29.60456, 1.40796, 29.11995, 13.53548) * x2 +
+             vec4(-8.10263, -0.48479, -7.40042, 34.87345) * y2 +
+             vec4(-27.96958, 0.71494, -36.69717, 26.50811) * x2 * y +
+             vec4(18.28144, -0.50156, 13.79722, 253.01230) * x * y2 +
+             vec4(-4.85579, 1.22080, 32.57057, -162.71012) * x2 * y2;
     vec2 AB = r.xy / r.zw;
     return F0 * AB.x + F90 * AB.y;
 }
@@ -78,7 +124,7 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
         vec2 Xi = mx_spherical_fibonacci(i, SAMPLE_COUNT);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_NDF(Xi, vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1), roughness, roughness);
+        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, roughness, roughness);
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
@@ -89,11 +135,12 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
         // Compute the Fresnel term.
         float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);
 
-        // Compute the geometric visibility term.
-        float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
+        // Compute the sample weight, combining the geometric term, BRDF denominator, and PDF.
+        // https://hal.inria.fr/hal-00996995v2/document, Algorithm 2
+        float weight = mx_ggx_smith_G2(NdotL, NdotV, roughness) / mx_ggx_smith_G1(NdotV, roughness);
         
         // Add the contribution of this sample.
-        AB += vec2(Gvis * (1.0 - Fc), Gvis * Fc);
+        AB += vec2(weight * (1.0 - Fc), weight * Fc);
     }
 
     // Normalize integrated terms.
