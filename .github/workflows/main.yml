@@ -110,7 +110,7 @@ jobs:
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
-  
+
     - name: Build GLSlangValidator (Windows)
       if: matrix.test_validate == 'ON' && runner.os == 'Windows'
       run: |
@@ -120,8 +120,8 @@ jobs:
         vcpkg integrate install
         vcpkg install glslang:x64-windows
         cd ..
-        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v 
-         
+        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
+
     - name: Install Python ${{ matrix.python }}
       uses: actions/setup-python@v2
       with:
