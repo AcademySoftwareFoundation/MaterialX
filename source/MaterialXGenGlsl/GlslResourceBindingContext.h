@@ -23,8 +23,7 @@ using GlslResourceBindingContextPtr = shared_ptr<class GlslResourceBindingContex
 /// Class representing a resource binding for Glsl shader resources.
 class MX_GENGLSL_API GlslResourceBindingContext : public HwResourceBindingContext
 {
-public:
-
+  public:
     GlslResourceBindingContext(size_t uniformBindingLocation, size_t samplerBindingLocation);
 
     static GlslResourceBindingContextPtr create(
@@ -51,7 +50,7 @@ public:
     // Emit separate binding locations for sampler and uniform table
     void enableSeparateBindingLocations(bool separateBindingLocation) { _separateBindingLocation = separateBindingLocation; };
 
-protected:
+  protected:
     // List of required extensions
     StringSet _requiredExtensions;
 
@@ -67,11 +66,10 @@ protected:
     // Initial value of sampler binding location
     size_t _hwInitSamplerBindLocation = 0;
 
-    // Separate binding locations glag
+    // Separate binding locations flag
     // Indicates whether to use a shared binding counter for samplers and uniforms or separate ones.
     // By default a shader counter is used.
     bool _separateBindingLocation = false;
-
 };
 
 } // namespace MaterialX
