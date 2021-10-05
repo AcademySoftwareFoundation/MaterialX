@@ -21,7 +21,7 @@ jobs:
         - name: Linux_EMCC_2
           os: ubuntu-20.04
           compiler_version: "2.0.20"
-          deploy_branch: "main_ilm_javascript"
+          deploy_branch: "refs/heads/main_ilm_javascript"
 
     steps:
     - name: Sync Repository
