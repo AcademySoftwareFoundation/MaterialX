@@ -1,0 +1,86 @@
+name: main_wasm
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+
+  build_wasm:
+    name: Main_WASM
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - name: Linux_EMCC_2
+          os: ubuntu-20.04
+          compiler_version: "2.0.20"
+          deploy_branch: ""
+
+    steps:
+    - name: Sync Repository
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+         node-version: '12'
+
+    - name: Install Dependencies (Linux)
+      run: |
+        sudo apt-get update
+        sudo apt-get install libglu1-mesa-dev xorg-dev
+        mkdir -p tmp
+        cd tmp
+        git clone --recursive https://github.com/emscripten-core/emsdk
+        cd emsdk
+        ./emsdk install ${{ matrix.compiler_version }}
+        ./emsdk activate ${{ matrix.compiler_version }}
+        source ./emsdk_env.sh
+        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
+
+    - name: Create Build Directory
+      run: mkdir javascript_build
+      
+    - name: CMake Generate
+      run: cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF -DMATERIALX_BUILD_GEN_OGSXML=OFF -DMATERIALX_BUILD_GEN_OGSFX=OFF -DMATERIALX_BUILD_GEN_ARNOLD=OFF -DMATERIALX_BUILD_VIEWER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
+      working-directory: javascript_build
+
+    - name: CMake Build
+      run: cmake --build . --target install --config Release --parallel 2
+      working-directory: javascript_build
+    
+    - name: NodeJS Tests
+      run: |
+        npm install
+        npm run test
+      working-directory: source/JsMaterialX/test
+
+    - name: Browser Tests
+      run: |
+        npm install
+        npm run test:browser
+      working-directory: source/JsMaterialX/test/
+
+    - name: Build Sample App
+      if: github.ref == matrix.deploy_branch
+      run: |
+        echo "Running build"
+        cd source/JsMaterialX/JsMaterialXView
+        npm install
+        npm run build
+
+    - name: Deploy Sample App
+      if: github.ref == matrix.deploy_branch
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages
+        folder: source/JsMaterialX/JsMaterialXView/dist
