@@ -74,6 +74,7 @@ jobs:
           architecture: x64
           python: 3.8
           cmake_config: -G "Visual Studio 16 2019" -A "x64"
+          test_validate: ON
 
     steps:
     - name: Sync Repository
@@ -109,6 +110,17 @@ jobs:
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
+
+    - name: Build GLSlangValidator (Windows)
+      if: matrix.test_validate == 'ON' && runner.os == 'Windows'
+      run: |
+        git clone https://github.com/Microsoft/vcpkg
+        cd vcpkg
+        bootstrap-vcpkg.bat
+        vcpkg integrate install
+        vcpkg install glslang:x64-windows
+        cd ..
+        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
 
     - name: Install Python ${{ matrix.python }}
       uses: actions/setup-python@v2
@@ -152,7 +164,17 @@ jobs:
         python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
         python Scripts/mxdoc.py ../libraries/pbrlib/pbrlib_defs.mtlx
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "glsl" 
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "osl"
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "mdl"
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "essl" 
       working-directory: python
+
+    - name: Generation Validation Tests
+      if: matrix.test_validate == 'ON' && runner.os == 'Windows'
+      run: |
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --target "glsl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --target "essl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
 
     - name: Render Tests
       if: matrix.test_render == 'ON'
