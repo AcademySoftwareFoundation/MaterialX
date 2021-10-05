@@ -45,7 +45,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
         vec3 F = mx_compute_fresnel(VdotH, fd);
 
         // Compute the geometric term.
-        float G = mx_ggx_smith_G(NdotL, NdotV, mx_average_roughness(roughness));
+        float G = mx_ggx_smith_G2(NdotL, NdotV, mx_average_roughness(roughness));
         
         // Add the radiance contribution of this sample.
         // From https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf

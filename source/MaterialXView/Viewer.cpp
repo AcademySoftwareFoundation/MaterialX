@@ -929,8 +929,8 @@ void Viewer::createAdvancedSettings(Widget* parent)
     referenceQualityBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_MONTE_CARLO : mx::DIRECTIONAL_ALBEDO_TABLE;
-        // No Albedo Table support for Essl yet.
-        _genContextEssl.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_MONTE_CARLO : mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
+        // There is no Albedo Table support for Essl currently. Always set to curve fit.
+        _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
         reloadShaders();
     });
 
@@ -1065,11 +1065,11 @@ void Viewer::updateGeometrySelections()
     }
     for (auto mesh : _geometryHandler->getMeshes())
     {
-    for (size_t partIndex = 0; partIndex < mesh->getPartitionCount(); partIndex++)
-    {
-        mx::MeshPartitionPtr part = mesh->getPartition(partIndex);
-        _geometryList.push_back(part);
-    }
+        for (size_t partIndex = 0; partIndex < mesh->getPartitionCount(); partIndex++)
+        {
+            mx::MeshPartitionPtr part = mesh->getPartition(partIndex);
+            _geometryList.push_back(part);
+        }
     }
 
     std::vector<std::string> items;
@@ -1140,7 +1140,7 @@ void Viewer::loadMesh(const mx::FilePath& filename)
     if (_geometryHandler->loadGeometry(filename))
     {
         _meshFilename = filename;
-            if (_splitByUdims)
+        if (_splitByUdims)
         { 
             for (auto mesh : _geometryHandler->getMeshes())
             {
@@ -2548,12 +2548,12 @@ void Viewer::updateShadowMap()
     for (auto mesh : _geometryHandler->getMeshes())
     {
         _shadowMaterial->bindMesh(mesh);
-    _shadowMaterial->bindViewInformation(world, view, proj);
+        _shadowMaterial->bindViewInformation(world, view, proj);
         for (size_t i = 0; i < mesh->getPartitionCount(); i++)
-    {
+        {
             mx::MeshPartitionPtr geom = mesh->getPartition(i);
-        _shadowMaterial->drawPartition(geom);
-    }
+            _shadowMaterial->drawPartition(geom);
+        }
     }
     _shadowMaterial->unbindGeometry();
     _shadowMap = framebuffer->getColorImage();

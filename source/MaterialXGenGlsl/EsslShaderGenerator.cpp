@@ -92,7 +92,7 @@ const string EsslShaderGenerator::getVertexDataPrefix(const VariableBlock&) cons
     return EMPTY_STRING;
 }
 
-const HwResourceBindingContextPtr EsslShaderGenerator::getResourceBindingContext(GenContext& context) const
+HwResourceBindingContextPtr EsslShaderGenerator::getResourceBindingContext(GenContext& context) const
 {
     HwResourceBindingContextPtr resoureBindingCtx = GlslShaderGenerator::getResourceBindingContext(context);
     if (resoureBindingCtx) 
