@@ -267,7 +267,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
     _genContextEssl.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
+    _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_ANALYTIC;
 
 #if MATERIALX_BUILD_GEN_OSL
     // Set OSL generator options.
@@ -881,7 +881,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_MONTE_CARLO : mx::DIRECTIONAL_ALBEDO_TABLE;
         // There is no Albedo Table support for Essl currently. Always set to curve fit.
-        _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
+        _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_ANALYTIC;
         reloadShaders();
     });
 
