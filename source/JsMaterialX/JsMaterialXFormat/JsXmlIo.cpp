@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include "../Helpers.h"
+#include <JsMaterialX/Helpers.h>
 #include "./StrContainerTypeRegistration.h"
 #include <MaterialXFormat/XmlIo.h>
 

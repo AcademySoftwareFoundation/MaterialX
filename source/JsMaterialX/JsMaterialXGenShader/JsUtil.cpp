@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include "../Helpers.h"
+#include <JsMaterialX/Helpers.h>
 #include <MaterialXCore/Element.h>
 #include <MaterialXGenShader/Util.h>
 

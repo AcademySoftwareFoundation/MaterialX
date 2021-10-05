@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include "../VectorHelper.h"
+#include <JsMaterialX/VectorHelper.h>
 
 #include <MaterialXCore/Util.h>
 
