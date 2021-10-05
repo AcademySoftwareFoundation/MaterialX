@@ -155,7 +155,8 @@ GlslSyntax::GlslSyntax()
         "image1DShadow", "image2DShadow",
         "image1DArrayShadow", "image2DArrayShadow",
         "imageBuffer", "iimageBuffer", "uimageBuffer",
-        "sizeof", "cast", "namespace", "using", "row_major"
+        "sizeof", "cast", "namespace", "using", "row_major",
+        "sampler"
     });
 
     // Register restricted tokens in GLSL

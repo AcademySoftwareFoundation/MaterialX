@@ -15,6 +15,7 @@
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+#include <MaterialXGenGlsl/EsslShaderGenerator.h>
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
@@ -220,6 +221,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _cameraViewHandler(mx::ViewHandler::create()),
     _shadowViewHandler(mx::ViewHandler::create()),
     _genContext(mx::GlslShaderGenerator::create()),
+    _genContextEssl(mx::EsslShaderGenerator::create()),
 #if MATERIALX_BUILD_GEN_OSL
     _genContextOsl(mx::OslShaderGenerator::create()),
 #endif
@@ -254,18 +256,26 @@ Viewer::Viewer(const std::string& materialFilename,
     // Set the requested background color.
     setBackground(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
 
-    // Set default generator options.
+    // Set default Glsl generator options.
     _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
-    // Set OSL/MDL generator options.
+    // Set Essl generator options
+    _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextEssl.getOptions().fileTextureVerticalFlip = false;
+    _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
+    _genContextEssl.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
+    _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
+
 #if MATERIALX_BUILD_GEN_OSL
+    // Set OSL generator options.
     _genContextOsl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextOsl.getOptions().fileTextureVerticalFlip = false;
 #endif
 #if MATERIALX_BUILD_GEN_MDL
+    // Set MDL generator options.
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
@@ -521,6 +531,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
         std::vector<mx::NodePtr> lights;
         _lightHandler->findLights(doc, lights);
         _lightHandler->registerLights(doc, lights, _genContext);
+        _lightHandler->registerLights(doc, lights, _genContextEssl);
         _lightHandler->setLightSources(lights);
     }
     catch (std::exception& e)
@@ -720,7 +731,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     mergeMaterialsBox->setCallback([this](bool enable)
     {
         _mergeMaterials = enable;
-    });    
+    });
 
     ng::CheckBox* showInputsBox = new ng::CheckBox(advancedPopup, "Show All Inputs");
     showInputsBox->setChecked(_showAllInputs);
@@ -743,6 +754,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         mProcessEvents = false;
         _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #if MATERIALX_BUILD_GEN_OSL
         _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
@@ -868,6 +880,8 @@ void Viewer::createAdvancedSettings(Widget* parent)
     referenceQualityBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_MONTE_CARLO : mx::DIRECTIONAL_ALBEDO_TABLE;
+        // There is no Albedo Table support for Essl currently. Always set to curve fit.
+        _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
         reloadShaders();
     });
 
@@ -876,6 +890,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     importanceSampleBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
+        _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
         reloadShaders();
     });
 
@@ -1125,6 +1140,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
     // Clear user data on the generator.
     _genContext.clearUserData();
+    _genContextEssl.clearUserData();
 
     // Clear materials if merging is not requested.
     if (!_mergeMaterials)
@@ -1246,6 +1262,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             {
                 // Clear cached implementations, in case libraries on the file system have changed.
                 _genContext.clearNodeImplementations();
+                _genContextEssl.clearNodeImplementations();
 
                 mx::TypedElementPtr elem = mat->getElement();
 
@@ -1400,6 +1417,16 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                     new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", sourceFilename);
                 }
 #endif
+                else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
+                {
+                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                    writeTextFile(vertexShader, sourceFilename.asString() + "_essl_vs.glsl");
+                    writeTextFile(pixelShader, sourceFilename.asString() + "_essl_ps.glsl");
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Essl source: ",
+                        sourceFilename.asString() + "_essl_*.glsl");
+                }
+                
             }
         }
     }
@@ -1554,6 +1581,7 @@ void Viewer::loadStandardLibraries()
 
     // Initialize the generator contexts.
     initContext(_genContext);
+    initContext(_genContextEssl);
 #if MATERIALX_BUILD_GEN_OSL
     initContext(_genContextOsl);
 #endif
@@ -1621,6 +1649,13 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 #endif
+
+    // Save Essl shader source to file.
+    if (key == GLFW_KEY_E && action == GLFW_PRESS)
+    {
+        saveShaderSource(_genContextEssl);
+        return true;
+    }
 
     // Load GLSL shader source from file.  Editing the source files before
     // loading provides a way to debug and experiment with shader source code.

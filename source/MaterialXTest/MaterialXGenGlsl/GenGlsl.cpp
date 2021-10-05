@@ -145,7 +145,9 @@ static void generateGlslCode(bool generateLayout = false)
     if (generateLayout)
     {
         // Set binding context to handle resource binding layouts
-        tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, mx::GlslResourceBindingContext::create());
+        mx::GlslResourceBindingContextPtr glslresourceBinding(mx::GlslResourceBindingContext::create());
+        glslresourceBinding->enableSeparateBindingLocations(true);
+        tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, glslresourceBinding);
     }
 
     tester.validate(genOptions, optionsFilePath);

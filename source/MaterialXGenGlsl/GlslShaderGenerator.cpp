@@ -275,7 +275,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     // Make sure we initialize/reset the binding context before generation.
-    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
     if (resourceBindingCtx)
     {
         resourceBindingCtx->initialize();
@@ -296,10 +296,9 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
 
 void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
 
-    // Add directives
-    emitLine("#version " + getVersion(), stage, false);
+    emitDirectives(context, stage);
     if (resourceBindingCtx)
     {
         resourceBindingCtx->emitDirectives(context, stage);
@@ -307,53 +306,16 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitLineBreak(stage);
 
     // Add all constants
-    const VariableBlock& constants = stage.getConstantBlock();
-    if (!constants.empty())
-    {
-        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, stage);
-        emitLineBreak(stage);
-    }
+    emitConstants(context, stage);
 
     // Add all uniforms
-    for (const auto& it : stage.getUniformBlocks())
-    {
-        const VariableBlock& uniforms = *it.second;
-        if (!uniforms.empty())
-        {
-            emitComment("Uniform block: " + uniforms.getName(), stage);
-            if (resourceBindingCtx)
-            {
-                resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
-            }
-            else
-            {
-                emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
-                emitLineBreak(stage);
-            }
-        }
-    }
+    emitUniforms(context, stage);
 
     // Add vertex inputs
-    const VariableBlock& vertexInputs = stage.getInputBlock(HW::VERTEX_INPUTS);
-    if (!vertexInputs.empty())
-    {
-        emitComment("Inputs block: " + vertexInputs.getName(), stage);
-        emitVariableDeclarations(vertexInputs, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
-        emitLineBreak(stage);
-    }
+    emitInputs(context, stage);
 
     // Add vertex data outputs block
-    const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    if (!vertexData.empty())
-    {
-        emitLine("out " + vertexData.getName(), stage, false);
-        emitScopeBegin(stage);
-        emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
-        emitScopeEnd(stage, false, false);
-        emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
-        emitLineBreak(stage);
-        emitLineBreak(stage);
-    }
+    emitOutputs(context, stage);
 
     emitFunctionDefinitions(graph, context, stage);
 
@@ -390,6 +352,124 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
     emitLineBreak(stage);
 }
 
+void GlslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
+{
+    emitLine("#version " + getVersion(), stage, false);
+}
+
+void GlslShaderGenerator::emitConstants(GenContext& context, ShaderStage& stage) const
+{
+    const VariableBlock& constants = stage.getConstantBlock();
+    if (!constants.empty())
+    {
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, stage);
+        emitLineBreak(stage);
+    }
+}
+
+void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) const
+{
+    for (const auto& it : stage.getUniformBlocks())
+    {
+        const VariableBlock& uniforms = *it.second;
+
+        // Skip light uniforms as they are handled separately
+        if (!uniforms.empty() && uniforms.getName() != HW::LIGHT_DATA)
+        {
+            emitComment("Uniform block: " + uniforms.getName(), stage);
+            HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+            if (resourceBindingCtx)
+            {
+                resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
+            }
+            else
+            {
+                emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
+                emitLineBreak(stage);
+            }
+        }
+    }
+}
+
+void GlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage) const
+{
+    const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
+    const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
+    const string structName        = lightData.getInstance();
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->emitStructuredResourceBindings(
+            context, lightData, stage, structName, structArraySuffix);
+    }
+    else
+    {
+        emitLine("struct " + lightData.getName(), stage, false);
+        emitScopeBegin(stage);
+        emitVariableDeclarations(lightData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+        emitScopeEnd(stage, true);
+        emitLineBreak(stage);
+        emitLine("uniform " + lightData.getName() + " " + structName + structArraySuffix, stage);
+    }
+    emitLineBreak(stage);
+}
+
+void GlslShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) const
+{
+BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+    const VariableBlock& vertexInputs = stage.getInputBlock(HW::VERTEX_INPUTS);
+    if (!vertexInputs.empty())
+    {
+        emitComment("Inputs block: " + vertexInputs.getName(), stage);
+        emitVariableDeclarations(vertexInputs, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
+        emitLineBreak(stage);
+    }
+END_SHADER_STAGE(stage, Stage::VERTEX)
+
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+    if (!vertexData.empty())
+    {
+        emitLine("in " + vertexData.getName(), stage, false);
+        emitScopeBegin(stage);
+        emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+        emitScopeEnd(stage, false, false);
+        emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
+        emitLineBreak(stage);
+        emitLineBreak(stage);
+    }
+END_SHADER_STAGE(stage, Stage::PIXEL)
+}
+
+void GlslShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) const
+{
+BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+    const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+    if (!vertexData.empty())
+    {
+        emitLine("out " + vertexData.getName(), stage, false);
+        emitScopeBegin(stage);
+        emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+        emitScopeEnd(stage, false, false);
+        emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
+        emitLineBreak(stage);
+        emitLineBreak(stage);
+    }
+END_SHADER_STAGE(stage, Stage::VERTEX)
+
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    emitComment("Pixel shader outputs", stage);
+    const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
+    emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
+    emitLineBreak(stage);
+END_SHADER_STAGE(stage, Stage::PIXEL)
+}
+
+HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext(GenContext& context) const
+{
+    return context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+}
+
 const string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) const
 {
     return vertexData.getInstance() + ".";
@@ -403,10 +483,10 @@ bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    HwResourceBindingContextPtr resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
 
     // Add directives
-    emitLine("#version " + getVersion(), stage, false);
+    emitDirectives(context, stage);
     if (resourceBindingCtx)
     {
         resourceBindingCtx->emitDirectives(context, stage);
@@ -417,52 +497,17 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitTypeDefinitions(context, stage);
 
     // Add all constants
-    const VariableBlock& constants = stage.getConstantBlock();
-    if (!constants.empty())
-    {
-        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, stage);
-        emitLineBreak(stage);
-    }
+    emitConstants(context, stage);
 
     // Add all uniforms
-    for (const auto& it : stage.getUniformBlocks())
-    {
-        const VariableBlock& uniforms = *it.second;
-
-        // Skip light uniforms as they are handled separately
-        if (!uniforms.empty() && uniforms.getName() != HW::LIGHT_DATA)
-        {
-            emitComment("Uniform block: " + uniforms.getName(), stage);
-            if (resourceBindingCtx)
-            {
-                resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
-            }
-            else
-            {
-                emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), Syntax::SEMICOLON, context, stage);
-                emitLineBreak(stage);
-            }
-        }
-    }
+    emitUniforms(context, stage);
 
     // Add vertex data inputs block
-    const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-    if (!vertexData.empty())
-    {
-        emitLine("in " + vertexData.getName(), stage, false);
-        emitScopeBegin(stage);
-        emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
-        emitScopeEnd(stage, false, false);
-        emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
-        emitLineBreak(stage);
-        emitLineBreak(stage);
-    }
+    emitInputs(context, stage);
 
-    // Add pixel shader outputs
-    emitComment("Pixel shader outputs", stage);
-    const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
-    emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
-    emitLineBreak(stage);
+    // Add the pixel shader output. This needs to be a vec4 for rendering
+    // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
+    emitOutputs(context, stage);
 
     // Add common math functions
     emitInclude("stdlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
@@ -483,24 +528,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
         if (context.getOptions().hwMaxActiveLightSources > 0)
         {
-            const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
-            const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
-            const string structName = lightData.getInstance();
-            if (resourceBindingCtx)
-            {
-                resourceBindingCtx->emitStructuredResourceBindings(
-                    context, lightData, stage, structName, structArraySuffix);
-            }
-            else
-            {
-                emitLine("struct " + lightData.getName(), stage, false);
-                emitScopeBegin(stage);
-                emitVariableDeclarations(lightData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
-                emitScopeEnd(stage, true);
-                emitLineBreak(stage);
-                emitLine("uniform " + lightData.getName() + " " + structName + structArraySuffix, stage);
-            }
-            emitLineBreak(stage);
+          emitLightData(context, stage);
         }
     }
 
