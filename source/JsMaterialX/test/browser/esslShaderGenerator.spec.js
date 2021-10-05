@@ -1,6 +1,7 @@
 // MaterialX is served through a script tag in the test setup.
 
-function createStandardSurfaceMaterial(mx) {
+function createStandardSurfaceMaterial(mx) 
+{
     const doc = mx.createDocument();
     const ssName = 'SR_default';
     const ssNode = doc.addChildOfCategory('standard_surface', ssName);
@@ -14,7 +15,8 @@ function createStandardSurfaceMaterial(mx) {
     return doc;
 }
 
-describe('Generate ESSL Shaders', function () {
+describe('Generate ESSL Shaders', function () 
+{
     let mx;
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl2');

@@ -10,7 +10,7 @@ const materials = fs.readdirSync(stdSurfaceMaterials)
   .map((fileName) => ({name: fileName, value: `${stdSurfaceMaterialsBaseURL}/${fileName}`}));
 
 module.exports = {
-  entry: './src/index.js',
+  entry: './source/index.js',
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist')

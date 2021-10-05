@@ -27,7 +27,8 @@ const materialFilename = new URLSearchParams(document.location.search).get("file
 init();
 
 // If no material file is selected, we programmatically create a jade material as a fallback
-function fallbackMaterial(doc) {
+function fallbackMaterial(doc)
+{
     const ssName = 'SR_default';
     const ssNode = doc.addChildOfCategory('standard_surface', ssName);
     ssNode.setType('surfaceshader');
@@ -78,10 +79,12 @@ function fallbackMaterial(doc) {
     shaderElement.setNodeName(ssName);
 }
 
-function init() {
+function init()
+{
     let canvas = document.getElementById('webglcanvas');
     let materialsSelect = document.getElementById('materials');
-    if (materialFilename) {
+    if (materialFilename)
+    {
       materialsSelect.value = materialFilename;
     }
     let context = canvas.getContext('webgl2');
@@ -97,7 +100,7 @@ function init() {
     scene.background = new THREE.Color(0x4c4c52);
     scene.background.convertSRGBToLinear();
 
-
+    // Set up renderer
     renderer = new THREE.WebGLRenderer({canvas, context});
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -109,7 +112,7 @@ function init() {
 
     window.addEventListener('resize', onWindowResize);
 
-    // controls
+    // Set up controls
     controls = new OrbitControls(camera, renderer.domElement);
 
     // Load model and shaders
@@ -131,7 +134,9 @@ function init() {
             resolve(module); 
           }); }),
         new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
+
     ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, {scene: obj}, mxIn, mtlxMaterial]) => {
+
         // Initialize MaterialX and the shader generation context
         mx = mxIn;
         let doc = mx.createDocument();
@@ -146,9 +151,10 @@ function init() {
         else
             fallbackMaterial(doc);
 
+        // Search for any renderable items
         let elem = mx.findRenderableElement(doc);
 
-        // Handle transparent materials
+        // Perform transparency check on renderable item
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
 
@@ -161,9 +167,10 @@ function init() {
         const lights = findLights(doc);
         const lightData = registerLights(mx, lights, genContext);
 
+        // Generate GLES code
         let shader = gen.generate(elem.getNamePath(), elem, genContext);
 
-        // Get GL ES shaders and uniform values
+        // Get shaders and uniform values
         let vShader = shader.getSourceCode("vertex");
         let fShader = shader.getSourceCode("pixel");       
 
@@ -197,7 +204,8 @@ function init() {
         });
 
         obj.traverse((child) => {
-            if (child.isMesh) {
+            if (child.isMesh)
+            {
               child.geometry.computeTangents();
              
               // Use default MaterialX naming convention.
@@ -232,21 +240,25 @@ function init() {
 
 }
 
-function onWindowResize() {
+function onWindowResize()
+{
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function animate() {  
+function animate()
+{
     requestAnimationFrame(animate);
 
     composer.render();
 
     model.traverse((child) => {
-      if (child.isMesh) {
+      if (child.isMesh) 
+      {
         const uniforms = child.material.uniforms;
-        if(uniforms) {
+        if (uniforms) 
+        {
           uniforms.u_worldMatrix.value = child.matrixWorld;
           uniforms.u_viewProjectionMatrix.value = viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
           

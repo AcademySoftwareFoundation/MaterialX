@@ -2,7 +2,7 @@
   "name": "jsmaterialxview",
   "version": "1.0.0",
   "description": "MaterialX Web Viewer",
-  "main": "src/index.js",
+  "main": "source/index.js",
   "scripts": {
     "start": "webpack serve",
     "build": "webpack"

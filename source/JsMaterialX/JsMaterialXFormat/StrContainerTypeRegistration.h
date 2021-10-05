@@ -15,8 +15,12 @@ template<> struct IsStrContainer<mx::FilePath> : std::true_type {};
 
 using StrContainerIntermediate = std::string;
 
-namespace emscripten {
-namespace internal {
+namespace emscripten 
+{
+
+namespace internal 
+{
+
 template<typename T>
 struct TypeID<T, typename std::enable_if<IsStrContainer<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value, void>::type> {
   static constexpr TYPEID get() {
@@ -35,5 +39,7 @@ struct BindingType<T, typename std::enable_if<IsStrContainer<T>::value, void>::t
     return T(BindingType<StrContainerIntermediate>::fromWireType(v));
   }
 };
+
 } // namespace internal
+
 } // namespace emscripten

@@ -18,7 +18,8 @@ const TARGET_FILE_PREFIX = 'Images/';
  * @param {Object} capabilities
  * @returns {THREE.Texture}
  */
-export function prepareEnvTexture(texture, capabilities) {
+export function prepareEnvTexture(texture, capabilities)
+{
     const rgbaTexture = RGBToRGBA_Float(texture);
     // RGBELoader sets flipY to true by default
     rgbaTexture.flipY = false;
@@ -36,12 +37,14 @@ export function prepareEnvTexture(texture, capabilities) {
  * Create a new (half)float texture containing an alpha channel with a value of 1 from a RGB (half)float texture.
  * @param {THREE.Texture} texture
  */
- function RGBToRGBA_Float(texture) {
+function RGBToRGBA_Float(texture)
+{
     const rgbData = texture.image.data;
     const length = (rgbData.length / 3) * 4;
     let rgbaData;
 
-    switch (texture.type) {
+    switch (texture.type)
+    {
         case THREE.FloatType:
             rgbaData = new Float32Array(length);
             break;
@@ -52,8 +55,10 @@ export function prepareEnvTexture(texture, capabilities) {
           break;
     }
 
-    if (rgbaData) {
-        for (let i = 0; i < length / 4; i++) {
+    if (rgbaData)
+    {
+        for (let i = 0; i < length / 4; i++)
+        {
             rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
             rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
             rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
@@ -65,11 +70,21 @@ export function prepareEnvTexture(texture, capabilities) {
     return texture;
 }
 
-function fromVector(value, dimension) {
+/**
+ * Get Three uniform from MaterialX vector
+ * @param {any} value
+ * @param {any} dimension
+ * @returns {THREE.Uniform}
+ */
+function fromVector(value, dimension)
+{
     let outValue;
     if (value)
+    {
         outValue = value.data();
-    else {
+    }
+    else
+    {
         outValue = []; 
         for(let i = 0; i < dimension; ++i)
             outValue.push(0.0);
@@ -78,15 +93,25 @@ function fromVector(value, dimension) {
     return outValue;
 }
 
-function fromMatrix(matrix, dimension) {
+/**
+ * Get Three uniform from MaterialX matrix
+ * @param {mx.matrix} matrix
+ * @param {mx.matrix.size} dimension
+ */
+function fromMatrix(matrix, dimension)
+{
     let vec = [];
-    if (matrix) {
-        for (let i = 0; i < matrix.numRows(); ++i) {
-            for (let k = 0; k < matrix.numColumns(); ++k) {
+    if (matrix)
+    {
+        for (let i = 0; i < matrix.numRows(); ++i)
+        {
+            for (let k = 0; k < matrix.numColumns(); ++k)
+            {
                 vec.push(matrix.getItem(i, k));
             }
         }    
-    } else {
+    } else
+    {
         for (let i = 0; i < dimension; ++i)
             vec.push(0.0);
     }
@@ -94,9 +119,19 @@ function fromMatrix(matrix, dimension) {
     return vec;
 }
 
-function toThreeUniform(type, value, name, uniforms, textureLoader) {
+/**
+ * Get Three uniform from MaterialX value
+ * @param {mx.Uniform.type} type
+ * @param {mx.Uniform.value} value
+ * @param {mx.Uniform.name} name
+ * @param {mx.Uniforms} uniforms
+ * @param {TREE.textureLoader} textureLoader
+ */
+function toThreeUniform(type, value, name, uniforms, textureLoader)
+{
     let outValue;  
-    switch(type) {
+    switch (type)
+    {
         case 'float':
         case 'integer':
         case 'boolean':
@@ -120,7 +155,8 @@ function toThreeUniform(type, value, name, uniforms, textureLoader) {
             outValue = fromMatrix(value, 16);
             break;
         case 'filename':
-            if (value) {
+            if (value)
+            {
                 const mappedValue = value.replace(FILE_PREFIX, TARGET_FILE_PREFIX)
                 const texture = textureLoader.load(mappedValue);
                 // Set address & filtering mode
@@ -139,9 +175,16 @@ function toThreeUniform(type, value, name, uniforms, textureLoader) {
     return outValue;
 }
 
-function getWrapping(mode) {
+/**
+ * Get Three wrapping mode
+ * @param {mx.TextureFilter.wrap} mode
+ * @returns {THREE.Wrapping}
+ */
+function getWrapping(mode)
+{
     let wrap;
-    switch(mode) {
+    switch (mode)
+    {
         case 1:
             wrap = THREE.ClampToEdgeWrapping;
             break;
@@ -158,7 +201,13 @@ function getWrapping(mode) {
     return wrap;
 }
 
-function getMinFilter(type, generateMipmaps) {
+/**
+ * Get Three minification filter
+ * @param {mx.TextureFilter.minFilter} type
+ * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
+ */
+function getMinFilter(type, generateMipmaps)
+{
     const filterType = generateMipmaps ? THREE.LinearMipMapLinearFilter : THREE.LinearFilter;
     if (type === 0)
     {
@@ -167,7 +216,15 @@ function getMinFilter(type, generateMipmaps) {
     return filterType;
 }
 
-function setTextureParameters(texture, name, uniforms, generateMipmaps = true) {
+/**
+ * Set Three texture parameters
+ * @param {THREE.Texture} texture
+ * @param {mx.Uniform.name} name
+ * @param {mx.Uniforms} uniforms
+ * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
+ */
+function setTextureParameters(texture, name, uniforms, generateMipmaps = true)
+{
     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
     const base = name.substring(0, idx) || name;
 
@@ -185,18 +242,18 @@ function setTextureParameters(texture, name, uniforms, generateMipmaps = true) {
 }
 
 /**
- * Returns all lights nodes in the document
+ * Returns all lights nodes in a MaterialX document
  * @param {mx.Document} doc 
  * @returns {Array.<mx.Node>}
  */
-export function findLights(doc) {
+export function findLights(doc)
+{
     let lights = [];
     for (let node of doc.getNodes())
     {
         if (node.getType() === "lightshader")
             lights.push(node);
     }
-
     return lights;
 }
 
@@ -204,19 +261,22 @@ export function findLights(doc) {
  * Register lights in shader generation context
  * @param {Object} mx MaterialX Module
  * @param {Array.<mx.Node>} lights Light nodes
- * * @param {mx.GenContext} genContext Shader generation context
+ * @param {mx.GenContext} genContext Shader generation context
  * @returns {Array.<mx.Node>}
  */
-export function registerLights(mx, lights, genContext) {
+export function registerLights(mx, lights, genContext)
+{
     mx.HwShaderGenerator.unbindLightShaders(genContext);
 
     const lightTypesBound = {};
     const lightData = [];
     let lightId = 1;
-    for (let light of lights) {
+    for (let light of lights)
+    {
         let nodeDef = light.getNodeDef();
         let nodeName = nodeDef.getName();
-        if (!lightTypesBound[nodeName]) {
+        if (!lightTypesBound[nodeName])
+        {
             lightTypesBound[nodeName] = lightId;
             mx.HwShaderGenerator.bindLightShader(nodeDef, lightId++, genContext);
         }
@@ -239,13 +299,21 @@ export function registerLights(mx, lights, genContext) {
     return lightData;
 }
 
-export function getUniformValues(shaderStage, textureLoader) {
+/**
+ * Get uniform values for a shader
+ * @param {mx.shaderStage} shaderStage
+ * @param {THREE.TextureLoader} textureLoader
+ */
+export function getUniformValues(shaderStage, textureLoader)
+{
     let threeUniforms = {};
 
     const uniformBlocks = Object.values(shaderStage.getUniformBlocks());
     uniformBlocks.forEach(uniforms => {
-        if (!uniforms.empty()) {
-            for (let i=0; i < uniforms.size(); ++i) {
+        if (!uniforms.empty())
+        {
+            for (let i = 0; i < uniforms.size(); ++i)
+            {
                 const variable = uniforms.get(i);                
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
