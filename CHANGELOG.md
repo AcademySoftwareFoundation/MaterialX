@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.38.2] - Development
+## [1.38.2] - 2021-10-07
 
 ### Added
 - Added an initial shader translation graph from Autodesk Standard Surface to UsdPreviewSurface.
