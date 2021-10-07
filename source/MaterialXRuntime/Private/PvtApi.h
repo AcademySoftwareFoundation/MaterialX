@@ -263,17 +263,17 @@ public:
         _implementationSearchPaths.clear();
     }
 
-    void setSearchPath(const FileSearchPath& searchPath)
+    void appendSearchPath(const FileSearchPath& searchPath)
     {
         _searchPaths.append(searchPath);
     }
 
-    void setTextureSearchPath(const FileSearchPath& searchPath)
+    void appendTextureSearchPath(const FileSearchPath& searchPath)
     {
         _textureSearchPaths.append(searchPath);
     }
 
-    void setImplementationSearchPath(const FileSearchPath& searchPath)
+    void appendImplementationSearchPath(const FileSearchPath& searchPath)
     {
         _implementationSearchPaths.append(searchPath);
     }

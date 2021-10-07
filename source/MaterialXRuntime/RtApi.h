@@ -153,15 +153,15 @@ public:
 
     /// Set search path for definition libraries. Can be called multiple times
     /// to append to the current search path.
-    void setSearchPath(const FileSearchPath& searchPath);
+    void appendSearchPath(const FileSearchPath& searchPath);
 
     /// Set search path for texture resources. Can be called multiple times
     /// to append to the current search path.
-    void setTextureSearchPath(const FileSearchPath& searchPath);
+    void appendTextureSearchPath(const FileSearchPath& searchPath);
 
     /// Set search path for implementations used by libraries. Can be called multiple times
     /// to append to the current search path.
-    void setImplementationSearchPath(const FileSearchPath& searchPath);
+    void appendImplementationSearchPath(const FileSearchPath& searchPath);
 
     /// Get the search path for definition libraries.
     const FileSearchPath& getSearchPath() const;
