@@ -79,7 +79,7 @@ float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.
-vec3 mx_ggx_dir_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_analytic(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
     float x = NdotV;
     float y = roughness;
@@ -153,7 +153,7 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
 vec3 mx_ggx_dir_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_dir_albedo_curve_fit(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_analytic(NdotV, roughness, F0, F90);
 #elif DIRECTIONAL_ALBEDO_METHOD == 1
     return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
 #else

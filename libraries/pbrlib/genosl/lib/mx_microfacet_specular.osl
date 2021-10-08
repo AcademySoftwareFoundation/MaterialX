@@ -24,7 +24,7 @@ float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 }
 
 // https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-color mx_ggx_dir_albedo_curve_fit(float NdotV, float roughness, color F0, color F90)
+color mx_ggx_dir_albedo_analytic(float NdotV, float roughness, color F0, color F90)
 {
     vector4 c0 = vector4(-1, -0.0275, -0.572, 0.022);
     vector4 c1 = vector4( 1,  0.0425,  1.04, -0.04 );
@@ -82,7 +82,7 @@ color mx_ggx_dir_albedo_monte_carlo(float _NdotV, float roughness, color F0, col
 color mx_ggx_dir_albedo(float NdotV, float roughness, color F0, color F90)
 {
 #if GGX_DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_dir_albedo_curve_fit(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_analytic(NdotV, roughness, F0, F90);
 #elif GGX_DIRECTIONAL_ALBEDO_METHOD == 1
     return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
 #else
