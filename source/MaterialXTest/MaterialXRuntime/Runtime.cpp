@@ -135,7 +135,7 @@ TEST_CASE("Runtime: Material Element Upgrade", "[runtime]")
     mx::RtScopedApiHandle api;
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
     mx::FileSearchPath testSearchPath(mx::FilePath::getCurrentPath() /
         "resources" /
@@ -1081,7 +1081,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         mx::RtScopedApiHandle api;
 
         // Load in stdlib
-        api->setSearchPath(searchPath);
+        api->appendSearchPath(searchPath);
         api->loadLibrary(TARGETS_NAME, RuntimeGlobals::TARGETS_PATH());
         api->loadLibrary(STDLIB_NAME, RuntimeGlobals::STDLIB_PATH());
         api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH());
@@ -1131,7 +1131,7 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         mx::RtScopedApiHandle api;
 
         // Load in stdlib
-        api->setSearchPath(searchPath);
+        api->appendSearchPath(searchPath);
         api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
         // Create a new working space stage
@@ -1192,7 +1192,7 @@ TEST_CASE("Runtime: Namespaced definitions", "[runtime]")
     {
         searchPath.append(childFolder);
     }
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
@@ -1214,7 +1214,7 @@ TEST_CASE("Runtime: FileIo NodeGraph", "[runtime]")
     // Load in stdlib
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     // Create a main stage
@@ -1290,7 +1290,7 @@ TEST_CASE("Runtime: Rename", "[runtime]")
     // Load in stdlib
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     // Create a main stage
@@ -1332,7 +1332,7 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
 
     // Load in stdlib
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(TARGETS_NAME, RuntimeGlobals::TARGETS_PATH());
     api->loadLibrary(STDLIB_NAME, RuntimeGlobals::STDLIB_PATH());
     api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH());
@@ -1379,7 +1379,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     mx::RtScopedApiHandle api;
 
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(TARGETS_NAME, RuntimeGlobals::TARGETS_PATH());
     api->loadLibrary(STDLIB_NAME, RuntimeGlobals::STDLIB_PATH());
     api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH());
@@ -1545,7 +1545,7 @@ TEST_CASE("Runtime: Looks", "[runtime]")
     // Load libraries so we can create a material
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     const mx::RtString matDef("ND_surfacematerial");
@@ -1769,7 +1769,7 @@ TEST_CASE("Runtime: libraries", "[runtime]")
 
     // Load in all libraries required for materials
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(TARGETS_NAME, RuntimeGlobals::TARGETS_PATH());
     api->loadLibrary(STDLIB_NAME, RuntimeGlobals::STDLIB_PATH());
     api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH());
@@ -1818,17 +1818,17 @@ TEST_CASE("Runtime: libraries", "[runtime]")
     // Set and test search paths
     api->clearSearchPath();
     REQUIRE(api->getSearchPath().isEmpty());
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     REQUIRE(api->getSearchPath().asString() == searchPath.asString());
 
     REQUIRE(api->getTextureSearchPath().isEmpty());
     mx::FileSearchPath texturePath(mx::FilePath::getCurrentPath() / mx::FilePath("resources/Images"));
-    api->setTextureSearchPath(texturePath);
+    api->appendTextureSearchPath(texturePath);
     REQUIRE(api->getTextureSearchPath().find("brass_color.jpg").exists());
 
     REQUIRE(api->getImplementationSearchPath().isEmpty());
     mx::FileSearchPath implPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/genglsl"));
-    api->setImplementationSearchPath(implPath);
+    api->appendImplementationSearchPath(implPath);
     REQUIRE(api->getImplementationSearchPath().find("stdlib_genglsl_unit_impl.mtlx").exists());    
 }
 
@@ -1838,7 +1838,7 @@ TEST_CASE("Runtime: units", "[runtime]")
 
     // Load in all libraries required for materials
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(TARGETS_NAME, RuntimeGlobals::TARGETS_PATH() );
     api->loadLibrary(STDLIB_NAME, RuntimeGlobals::STDLIB_PATH() );
     api->loadLibrary(PBRLIB_NAME, RuntimeGlobals::PBRLIB_PATH() );
@@ -1913,7 +1913,7 @@ TEST_CASE("Runtime: Commands", "[runtime]")
 
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     mx::RtReadOptions options;
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
@@ -2408,7 +2408,7 @@ TEST_CASE("Runtime: graph output connection", "[runtime]")
     // Load in all libraries required for materials
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / RuntimeGlobals::LIBRARY_PATH());
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     const std::string mtlxDoc =
@@ -2592,7 +2592,7 @@ TEST_CASE("Export", "[runtime]")
     mx::RtScopedApiHandle api;
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     mx::FileSearchPath testSearchPath(mx::FilePath::getCurrentPath() /
@@ -2628,7 +2628,7 @@ TEST_CASE("Missing Definition", "[runtime]")
     mx::RtScopedApiHandle api;
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     mx::FilePathVec libraryPath;
@@ -2673,7 +2673,7 @@ TEST_CASE("Runtime File Path Predicate", "[runtime]")
     mx::RtScopedApiHandle api;
     mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     searchPath.append(mx::FilePath::getCurrentPath() / "libraries");
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     mx::FileSearchPath testSearchPath(mx::FilePath::getCurrentPath() /
@@ -2740,7 +2740,7 @@ TEST_CASE("NodeDef in file", "[runtime]")
     {
         searchPath.append(childFolder);
     }
-    api->setSearchPath(searchPath);
+    api->appendSearchPath(searchPath);
     api->loadLibrary(CORE_LIBRARY_NAME, RuntimeGlobals::LIBRARY_PATH());
 
     mx::RtStagePtr defaultStage = api->createStage(mx::RtString("defaultStage"));
