@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <JsMaterialX/Helpers.h>
+#include "../Helpers.h"
 
 #include <MaterialXCore/Unit.h>
 #include <MaterialXGenShader/GenContext.h>
@@ -30,7 +30,7 @@ void initContext(mx::GenContext& context, mx::FileSearchPath searchPath, mx::Doc
     context.getOptions().fileTextureVerticalFlip = false;
     context.getOptions().hwMaxActiveLightSources = 1;
     context.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    context.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_CURVE_FIT;
+    context.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_ANALYTIC;
  
     // Initialize color management.
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
