@@ -24,7 +24,7 @@ EMSCRIPTEN_BINDINGS(GenOptions)
         ;
 
     ems::enum_<mx::HwDirectionalAlbedoMethod>("HwDirectionalAlbedoMethod")
-        .value("DIRECTIONAL_ALBEDO_CURVE_FIT",mx::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_CURVE_FIT)
+        .value("DIRECTIONAL_ALBEDO_ANALYTIC",mx::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_ANALYTIC)
         .value("DIRECTIONAL_ALBEDO_TABLE", mx::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_TABLE)
         .value("DIRECTIONAL_ALBEDO_MONTE_CARLO", mx::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_MONTE_CARLO)
         ;
