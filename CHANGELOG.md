@@ -1,20 +1,51 @@
 # Change Log
 
-## [1.38.2_adsk] - ADSK Development 
+## [1.38.3] - Development WIP
 
-- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader 
+- Unlit / modeling material library
+- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (completion)
+- OCIO v2 support continued (incl OSL testing framework)
+- Reference rendering / MDL DXR improvements
+- Khronos  PBR driven enhancements
+- Nodegraph / nodedef implementation association completion
+  - v1.03 std surface
+- Continued asset support
+  - tokens revised
+  - metadata
+- Real-time / interactive enhancements
+  - GLslang SPIR-V framework
+  - Fragment generation
+- USD/MTLX driven enhancements
 
-## [1.38.2] - Development
+## [1.38.2_adsk] - 2021-10-8
+
+### Autodesk enhancements to merge
+- Unlit shader (in progress)
+- Std surface v1.01 and v1.02
+  - Nodegraph / nodedef implementation association (in progress)
+- OCIO v2 GLSL initial integration
+- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (under review)
+- Localization support for values (not strings)
+- Enhanced texture baking support (for Fusion)  (to merge to main)
+
+### Autodesk only enhancements
+- Export API. (may be removed)
+- Arnold render test suite
+- OGSXML code generator enhancements
+
+## [1.38.2] - 2021-10-07
 
 ### Added
 - Added an initial shader translation graph from Autodesk Standard Surface to UsdPreviewSurface.
 - Added example script translateshader.py with validation in GitHub Actions.
+- Added support for filename templates in texture baking.
 - Added graph definitions for the MaterialX Lama node set.
 - Added UI properties to the interface of UsdPreviewSurface.
+- Added an initial ESSL shader generator.
 - Added support for GCC 11.
-- Added ESSL shader generator
 
 ### Changed
+- Improved the accuracy of directional albedo computations for GGX specular and Imageworks sheen.
 - Updated default color space names to follow ACES 1.2 conventions (e.g. g22_rec709), while maintaining compatibility with legacy names (e.g. gamma22).
 
 ### Fixed
