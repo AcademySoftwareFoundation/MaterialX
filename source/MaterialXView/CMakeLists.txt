@@ -37,7 +37,7 @@ else()
     if(MSVC)
         add_compile_options(-wd4389 -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DEIGEN_DONT_VECTORIZE)
     elseif(APPLE)
-        add_compile_options(-Wno-objc-multiple-method-names -DGL_SILENCE_DEPRECATION)
+        add_compile_options(-Wno-objc-multiple-method-names -Wno-deprecated -DGL_SILENCE_DEPRECATION)
     elseif(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         add_compile_options(-Wno-format-truncation -Wno-implicit-fallthrough -Wno-int-in-bool-context
                             -Wno-maybe-uninitialized -Wno-misleading-indentation)
