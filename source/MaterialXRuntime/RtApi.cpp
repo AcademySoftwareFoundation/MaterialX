@@ -197,19 +197,19 @@ void RtApi::clearImplementationSearchPath()
     _cast(_ptr)->clearImplementationSearchPath();
 }
 
-void RtApi::setSearchPath(const FileSearchPath& searchPath)
+void RtApi::appendSearchPath(const FileSearchPath& searchPath)
 {
-    _cast(_ptr)->setSearchPath(searchPath);
+    _cast(_ptr)->appendSearchPath(searchPath);
 }
 
-void RtApi::setTextureSearchPath(const FileSearchPath& searchPath)
+void RtApi::appendTextureSearchPath(const FileSearchPath& searchPath)
 {
-    _cast(_ptr)->setTextureSearchPath(searchPath);
+    _cast(_ptr)->appendTextureSearchPath(searchPath);
 }
 
-void RtApi::setImplementationSearchPath(const FileSearchPath& searchPath)
+void RtApi::appendImplementationSearchPath(const FileSearchPath& searchPath)
 {
-    _cast(_ptr)->setImplementationSearchPath(searchPath);
+    _cast(_ptr)->appendImplementationSearchPath(searchPath);
 }
 
 const FileSearchPath& RtApi::getSearchPath() const
