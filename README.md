@@ -31,7 +31,7 @@ The JavaScript bindings for MaterialX are based on [emscripten](https://emscript
 The MaterialX repository consists of the following folders:
 
 - [documents](documents) - MaterialX documentation, including the specification and developer guide.
-- [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the standard and physically-based-shading nodes.
+- [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the pattern and shading nodes.
 - [python](python) - Support modules and example scripts for MaterialX Python.
 - [javascript](source/JsMaterialX) - Support modules and tests for MaterialX JavaScript.
 - [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
