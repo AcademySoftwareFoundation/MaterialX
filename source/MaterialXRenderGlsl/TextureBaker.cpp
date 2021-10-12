@@ -145,7 +145,7 @@ StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader
     filenameTemplateMap["$INPUT"] = _bakedInputMap[input->getName()];
     filenameTemplateMap["$EXTENSION"] = _extension;
     filenameTemplateMap["$MATERIAL"] = _material->getName();
-    filenameTemplateMap["$NAMEPATH"] = createValidName(input->getNamePath());
+    filenameTemplateMap["$NAMEPATH"] = createValidName(shader->getInput(filenameTemplateMap["$INPUT"])->getNamePath());
     filenameTemplateMap["$SHADINGMODEL"] = shader->getCategory();
     filenameTemplateMap["$UDIM"] = udim;
     filenameTemplateMap["$UDIMPREFIX"] = "_";
