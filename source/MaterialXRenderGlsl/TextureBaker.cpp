@@ -68,7 +68,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _outputStream(&std::cout),
     _hashImageNames(false),
     _generator(GlslShaderGenerator::create()),
-    _permittedOverrides({ "$ASSET","$NAMEPATH", "$UDIMPREFIX" })
+    _permittedOverrides({ "$ASSET", "$UDIMPREFIX" })
 {
     if (baseType == Image::BaseType::UINT8)
     {
@@ -145,7 +145,6 @@ StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader
     filenameTemplateMap["$INPUT"] = _bakedInputMap[input->getName()];
     filenameTemplateMap["$EXTENSION"] = _extension;
     filenameTemplateMap["$MATERIAL"] = _material->getName();
-    filenameTemplateMap["$NAMEPATH"] = createValidName(shader->getInput(filenameTemplateMap["$INPUT"])->getNamePath());
     filenameTemplateMap["$SHADINGMODEL"] = shader->getCategory();
     filenameTemplateMap["$UDIM"] = udim;
     filenameTemplateMap["$UDIMPREFIX"] = "_";
