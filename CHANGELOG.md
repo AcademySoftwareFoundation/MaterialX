@@ -1,18 +1,18 @@
 # Change Log
 
-## [1.38.3] - Development WIP
+## [1.38.3] - Development
 
-- Unlit / modeling material library
-- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (completion)
-- OCIO v2 support continued (incl OSL testing framework)
-- Reference rendering / MDL DXR improvements
-- Khronos  PBR driven enhancements
+- Unlit / modeling material library (re-discuss)
+- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (WIP under main review)
+- OCIO v2 support continued (WIP)
+- Reference rendering / MDL DXR improvements (WIP)
+- Khronos PBR driven enhancements
 - Nodegraph / nodedef implementation association completion
   - v1.03 std surface
 - Continued asset support
-  - tokens revised
-  - metadata
-- Real-time / interactive enhancements
+  - tokens revised (re-discuss)
+  - metadata (under discussion)
+- Real-time / interactive enhancements (WIP)
   - GLslang SPIR-V framework
   - Fragment generation
 - USD/MTLX driven enhancements

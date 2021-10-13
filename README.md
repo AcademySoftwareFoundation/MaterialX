@@ -4,11 +4,11 @@
 [![Version](https://img.shields.io/github/v/release/materialx/MaterialX)](https://github.com/materialx/MaterialX/releases/latest)
 [![Build Status](https://github.com/MaterialX/MaterialX/workflows/main/badge.svg?branch=main)](https://github.com/MaterialX/MaterialX/actions?query=branch%3Amain)
 
-MaterialX is an open standard for transfer of rich material and look-development content between applications and renderers.  Originated at Lucasfilm in 2012, MaterialX has been used by Industrial Light & Magic (ILM) in feature films such as _Star Wars: The Force Awakens_ and real-time experiences such as _Trials on Tatooine_, and it remains the central material format for new ILM productions.
+MaterialX is an open standard for representing rich material and look-development content in computer graphics, allowing materials and shading models to be expressed independently of their authoring application or rendering environment.  Launched at [Industrial Light & Magic](https://www.ilm.com/) in 2012, MaterialX has been a key technology in feature films such as _Star Wars: The Force Awakens_ and real-time experiences such as _Millennium Falcon: Smugglers Run_.  The project was released as open source in 2017, with companies including Sony Pictures Imageworks, Pixar, Autodesk, Adobe, and SideFX contributing to its ongoing development.  In 2021, MaterialX became the seventh hosted project of the [Academy Software Foundation](https://www.aswf.io/).
 
 ### Quick Start for Developers
 
-- Download the latest version of the [CMake](https://cmake.org/) build system.
+- Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
 - Select the `MATERIALX_BUILD_JS` option to build JavaScript bindings.
@@ -65,13 +65,12 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2017, Python 3.7)](https://github.com/autodesk-forks/MaterialX/releases/latest/download//MaterialX_Windows_VS2017_x64_Python37.zip)
-- [MacOS (Xcode 11, Python 3.7)](https://github.com/autodesk-forks/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_11_Python37.zip)
-- [Linux (GCC 10, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Linux_GCC_10_Python37.zip)
+- [Microsoft Windows (Visual Studio 2017, Python 3.7)](https://github.com/autodesk-forks/MaterialX/releases/latest/download/MaterialX_Windows_VS2017_x64_Python37.zip)
+- [MacOS (Xcode 12, Python 3.7)](https://github.com/autodesk-forks/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_12_Python37.zip)
+- [Linux (GCC 11, Python 3.7)](https://github.com/autodesk-forks/MaterialX/releases/latest/download/MaterialX_Linux_GCC_11_Python37.zip)
 
 ### Additional Resources
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
 - The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
-- Presentations at the [Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) and [MaterialX Birds of a Feather](http://www.materialx.org/assets/MaterialX_Sig2020_BOF_slides.pdf) provide details on the roadmap for MaterialX development.
-- The [JavaScript](source/JsMaterialX/README.md) source folder contains more information about the setup.
+- Presentations at the [Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) and [ASWF Open Source Days](http://www.materialx.org/assets/ASWF_OSD2021_MaterialX_slides_final.pdf) provide details on the roadmap for MaterialX development.

@@ -49,18 +49,18 @@ jobs:
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
           run_on_push : OFF
 
-        - name: MacOS_Xcode_11_Python37
-          os: macos-10.15
+        - name: MacOS_Xcode_12_Python37
+          os: macos-11
           compiler: xcode
-          compiler_version: "11.7"
+          compiler_version: "12.5"
           python: 3.7
           run_on_push : OFF
 
-        - name: MacOS_Xcode_12_Python37
-          os: macos-10.15
+        - name: MacOS_Xcode_13_Python38
+          os: macos-11
           compiler: xcode
-          compiler_version: "12.2"
-          python: 3.7
+          compiler_version: "13.0"
+          python: 3.8
           cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
           run_on_push : ON
 
