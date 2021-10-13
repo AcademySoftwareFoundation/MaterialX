@@ -1,10 +1,21 @@
 # Change Log
 
-## [1.38.2] - Development
+## [1.38.3] - Development
+
+## [1.38.2] - 2021-10-07
 
 ### Added
+- Added an initial shader translation graph from Autodesk Standard Surface to UsdPreviewSurface.
+- Added example script translateshader.py with validation in GitHub Actions.
+- Added support for filename templates in texture baking.
 - Added graph definitions for the MaterialX Lama node set.
+- Added UI properties to the interface of UsdPreviewSurface.
+- Added an initial ESSL shader generator.
 - Added support for GCC 11.
+
+### Changed
+- Improved the accuracy of directional albedo computations for GGX specular and Imageworks sheen.
+- Updated default color space names to follow ACES 1.2 conventions (e.g. g22_rec709), while maintaining compatibility with legacy names (e.g. gamma22).
 
 ### Fixed
 - Fixed the default value of the roughness input of UsdPreviewSurface.

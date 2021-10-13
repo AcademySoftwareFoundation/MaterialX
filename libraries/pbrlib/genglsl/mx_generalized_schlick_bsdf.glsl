@@ -23,10 +23,10 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
     FresnelData fd = mx_init_fresnel_schlick(color0, color90, exponent);
     vec3  F = mx_compute_fresnel(VdotH, fd);
     float D = mx_ggx_NDF(X, Y, H, NdotH, safeRoughness.x, safeRoughness.y);
-    float G = mx_ggx_smith_G(NdotL, NdotV, avgRoughness);
+    float G = mx_ggx_smith_G2(NdotL, NdotV, avgRoughness);
 
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 
@@ -57,7 +57,7 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
     vec2 safeRoughness = clamp(roughness, M_FLOAT_EPS, 1.0);
     float avgRoughness = mx_average_roughness(safeRoughness);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 
@@ -80,7 +80,7 @@ void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec
     vec2 safeRoughness = clamp(roughness, M_FLOAT_EPS, 1.0);
     float avgRoughness = mx_average_roughness(safeRoughness);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 

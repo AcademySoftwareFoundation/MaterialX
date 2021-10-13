@@ -49,14 +49,14 @@ enum HwSpecularEnvironmentMethod
 /// Method to use for directional albedo evaluation
 enum HwDirectionalAlbedoMethod
 {
-    /// Use a curve fit approximation for directional albedo.
-    DIRECTIONAL_ALBEDO_CURVE_FIT,
+    /// Use an analytic approximation for directional albedo.
+    DIRECTIONAL_ALBEDO_ANALYTIC,
 
     /// Use a table look-up for directional albedo.
     DIRECTIONAL_ALBEDO_TABLE,
 
-    /// Use importance sampling for directional albedo.
-    DIRECTIONAL_ALBEDO_IS
+    /// Use Monte Carlo integration for directional albedo.
+    DIRECTIONAL_ALBEDO_MONTE_CARLO
 };
 
 /// @class GenOptions 
@@ -70,7 +70,7 @@ class MX_GENSHADER_API GenOptions
         addUpstreamDependencies(true),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
-        hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_CURVE_FIT),
+        hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
         hwWriteDepthMoments(false),
         hwShadowMap(false),
         hwAmbientOcclusion(false),

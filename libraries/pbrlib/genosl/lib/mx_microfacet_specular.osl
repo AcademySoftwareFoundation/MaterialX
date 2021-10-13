@@ -12,9 +12,10 @@ vector mx_ggx_importance_sample_NDF(vector2 Xi, vector X, vector Y, vector N, fl
     return normalize(H);
 }
 
+// Height-correlated Smith masking-shadowing
 // http://jcgt.org/published/0003/02/03/paper.pdf
 // Equations 72 and 99
-float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
+float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 {
     float alpha2 = mx_square(alpha);
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
@@ -23,7 +24,7 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
 }
 
 // https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-color mx_ggx_directional_albedo_curve_fit(float NdotV, float roughness, color F0, color F90)
+color mx_ggx_dir_albedo_analytic(float NdotV, float roughness, color F0, color F90)
 {
     vector4 c0 = vector4(-1, -0.0275, -0.572, 0.022);
     vector4 c1 = vector4( 1,  0.0425,  1.04, -0.04 );
@@ -33,7 +34,7 @@ color mx_ggx_directional_albedo_curve_fit(float NdotV, float roughness, color F0
     return F0 * AB.x + F90 * AB.y;
 }
 
-color mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, color F0, color F90)
+color mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, color F0, color F90)
 {
     vector2 st = vector2(NdotV, roughness);
     vector AB = texture(GGX_DIRECTIONAL_ALBEDO_TABLE, st.x, st.y);
@@ -41,7 +42,7 @@ color mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, color
 }
 
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-color mx_ggx_directional_albedo_importance_sample(float _NdotV, float roughness, color F0, color F90)
+color mx_ggx_dir_albedo_monte_carlo(float _NdotV, float roughness, color F0, color F90)
 {
     float NdotV = clamp(_NdotV, M_FLOAT_EPS, 1.0);
     vector V = vector(sqrt(1.0 - mx_square(NdotV)), 0.0, NdotV);
@@ -65,7 +66,7 @@ color mx_ggx_directional_albedo_importance_sample(float _NdotV, float roughness,
         float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);
 
         // Compute the geometric visibility term.
-        float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
+        float Gvis = mx_ggx_smith_G2(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
         
         // Add the contribution of this sample.
         AB += vector2(Gvis * (1 - Fc), Gvis * Fc);
@@ -78,26 +79,26 @@ color mx_ggx_directional_albedo_importance_sample(float _NdotV, float roughness,
     return F0 * AB.x + F90 * AB.y;
 }
 
-color mx_ggx_directional_albedo(float NdotV, float roughness, color F0, color F90)
+color mx_ggx_dir_albedo(float NdotV, float roughness, color F0, color F90)
 {
 #if GGX_DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_directional_albedo_curve_fit(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_analytic(NdotV, roughness, F0, F90);
 #elif GGX_DIRECTIONAL_ALBEDO_METHOD == 1
-    return mx_ggx_directional_albedo_table_lookup(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
 #else
-    return mx_ggx_directional_albedo_importance_sample(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_monte_carlo(NdotV, roughness, F0, F90);
 #endif
 }
 
-float mx_ggx_directional_albedo(float NdotV, float roughness, float F0, float F90)
+float mx_ggx_dir_albedo(float NdotV, float roughness, float F0, float F90)
 {
-    color result = mx_ggx_directional_albedo(NdotV, roughness, color(F0), color(F90));
+    color result = mx_ggx_dir_albedo(NdotV, roughness, color(F0), color(F90));
     return result[0];
 }
 
-float mx_ggx_directional_albedo(float NdotV, float roughness, float ior)
+float mx_ggx_dir_albedo(float NdotV, float roughness, float ior)
 {
-    color result = mx_ggx_directional_albedo(NdotV, roughness, color(mx_ior_to_f0(ior)), color(1.0));
+    color result = mx_ggx_dir_albedo(NdotV, roughness, color(mx_ior_to_f0(ior)), color(1.0));
     return result[0];
 }
 
@@ -105,7 +106,7 @@ float mx_ggx_directional_albedo(float NdotV, float roughness, float ior)
 // Equations 14 and 16
 color mx_ggx_energy_compensation(float NdotV, float roughness, color Fss)
 {
-    float Ess = mx_ggx_directional_albedo(NdotV, roughness, 1.0, 1.0);
+    float Ess = mx_ggx_dir_albedo(NdotV, roughness, 1.0, 1.0);
     return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 

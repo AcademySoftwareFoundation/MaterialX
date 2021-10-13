@@ -86,7 +86,7 @@ export float4 mx_gamma18_to_linear_color4(float4 mxp_in)
 
 export color4 mx_gamma18_to_linear_color4(color4 mxp_in)
 {
-    return mk_color4(mx_acescg_to_linear_color4(mk_float4(mxp_in)));
+    return mk_color4(mx_gamma18_to_linear_color4(mk_float4(mxp_in)));
 }
 
 export float3 mx_gamma22_to_linear_color3(float3 mxp_in)
@@ -158,7 +158,7 @@ export float3 mx_srgb_texture_to_lin_rec709_color3(float3 mxp_in)
     float3 gamma = float3(2.4, 2.4, 2.4);
     float3 isAboveBreak = aboveThreshold(outColor, breakPnt);
     float3 linSeg = outColor * slope;
-    float3 powSeg = ::math::pow( ::math::max( float4(0.0, 0.0, 0.0, 0.0), scale * outColor + offset), gamma);
+    float3 powSeg = ::math::pow( ::math::max( float3(0.0, 0.0, 0.0), scale * outColor + offset), gamma);
     return isAboveBreak * powSeg + float3(float3(1.0, 1.0, 1.0) - isAboveBreak) * linSeg;
 }
 

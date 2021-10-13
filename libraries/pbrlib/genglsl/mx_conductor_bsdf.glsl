@@ -30,7 +30,7 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
     vec2 safeRoughness = clamp(roughness, M_FLOAT_EPS, 1.0);
     float avgRoughness = mx_average_roughness(safeRoughness);
     float D = mx_ggx_NDF(X, Y, H, NdotH, safeRoughness.x, safeRoughness.y);
-    float G = mx_ggx_smith_G(NdotL, NdotV, avgRoughness);
+    float G = mx_ggx_smith_G2(NdotL, NdotV, avgRoughness);
 
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
 

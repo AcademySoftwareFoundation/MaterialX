@@ -23,8 +23,7 @@ using GlslResourceBindingContextPtr = shared_ptr<class GlslResourceBindingContex
 /// Class representing a resource binding for Glsl shader resources.
 class MX_GENGLSL_API GlslResourceBindingContext : public HwResourceBindingContext
 {
-public:
-
+  public:
     GlslResourceBindingContext(size_t uniformBindingLocation, size_t samplerBindingLocation);
 
     static GlslResourceBindingContextPtr create(
@@ -43,27 +42,34 @@ public:
     // Emit uniforms with binding information
     void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) override;
 
-    // Emit Structured uniforms with binding information and align members where possible
+    // Emit structured uniforms with binding information and align members where possible
     void emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
-        ShaderStage& stage, const std::string& structInstanceName,
-        const std::string& arraySuffix) override;
+                                        ShaderStage& stage, const std::string& structInstanceName,
+                                        const std::string& arraySuffix) override;
 
-protected:
+    // Emit separate binding locations for sampler and uniform table
+    void enableSeparateBindingLocations(bool separateBindingLocation) { _separateBindingLocation = separateBindingLocation; };
+
+  protected:
     // List of required extensions
     StringSet _requiredExtensions;
 
-    // Binding location for Uniform Blocks
+    // Binding location for uniform blocks
     size_t _hwUniformBindLocation = 0;
 
     // Initial value of uniform binding location
     size_t _hwInitUniformBindLocation = 0;
 
-    // Binding location for Sampler Blocks
+    // Binding location for sampler blocks
     size_t _hwSamplerBindLocation = 0;
 
     // Initial value of sampler binding location
     size_t _hwInitSamplerBindLocation = 0;
 
+    // Separate binding locations flag
+    // Indicates whether to use a shared binding counter for samplers and uniforms or separate ones.
+    // By default a shader counter is used.
+    bool _separateBindingLocation = false;
 };
 
 } // namespace MaterialX

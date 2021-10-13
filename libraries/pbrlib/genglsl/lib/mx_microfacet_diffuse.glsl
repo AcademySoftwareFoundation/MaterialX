@@ -32,7 +32,7 @@ float mx_burley_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 
 // Compute the directional albedo component of Burley diffuse for the given
 // view angle and roughness.  Curve fit provided by Stephen Hill.
-float mx_burley_diffuse_directional_albedo(float NdotV, float roughness)
+float mx_burley_diffuse_dir_albedo(float NdotV, float roughness)
 {
     float x = NdotV;
     float fit0 = 0.97619 - 0.488095 * mx_pow5(1.0 - x);

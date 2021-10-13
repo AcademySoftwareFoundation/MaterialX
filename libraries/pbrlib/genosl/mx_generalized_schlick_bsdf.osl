@@ -22,8 +22,9 @@ void mx_generalized_schlick_bsdf(float weight, color color0, color color90, floa
     // add it here in shader code instead.
     color comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
 
-    // Calculate throughput from directional albedo.
-    color dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    // Calculate directional albedo since we need
+    // to attenuate the base layer according to this.
+    color dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, color(1.0 / 3.0));
     bsdf.throughput = color(1.0 - avgDirAlbedo * weight);
 
