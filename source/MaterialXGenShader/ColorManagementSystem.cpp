@@ -177,7 +177,7 @@ void ColorManagementSystem::connectNodeToShaderOutput(ShaderGraph* graph, Shader
     getPortConnections(graph, colorTransformNode, shaderOutput->getType(), context, inputToConnect, outputToConnect);
     if (inputToConnect && outputToConnect)
     {
-        ShaderInputSet downStreamInputs = shaderOutput->getConnections();
+        ShaderInputVec downStreamInputs = shaderOutput->getConnections();
         for (ShaderInput* downStreamInput : downStreamInputs)
         {
             downStreamInput->breakConnection();

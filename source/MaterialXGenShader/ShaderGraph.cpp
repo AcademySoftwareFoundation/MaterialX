@@ -356,10 +356,9 @@ void ShaderGraph::addUnitTransformNode(ShaderOutput* output, const UnitTransform
         ShaderNode* unitTransformNode = unitTransformNodePtr.get();
         ShaderOutput* unitTransformNodeOutput = unitTransformNode->getOutput(0);
 
-        ShaderInputSet inputs = output->getConnections();
+        ShaderInputVec inputs = output->getConnections();
         for (ShaderInput* input : inputs)
         {
-            string inname = input->getFullName();
             input->breakConnection();
             input->makeConnection(unitTransformNodeOutput);
         }
@@ -1104,9 +1103,9 @@ void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputInde
     if (upstream)
     {
         // Re-route the upstream output to the downstream inputs.
-        // Iterate a copy of the connection set since the
-        // original set will change when breaking connections.
-        ShaderInputSet downstreamConnections = output->getConnections();
+        // Iterate a copy of the connection vector since the
+        // original vector will change when breaking connections.
+        ShaderInputVec downstreamConnections = output->getConnections();
         for (ShaderInput* downstream : downstreamConnections)
         {
             output->breakConnection(downstream);
@@ -1117,9 +1116,9 @@ void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputInde
     {
         // No node connected upstream to re-route,
         // so push the input's value and element path downstream instead.
-        // Iterate a copy of the connection set since the
-        // original set will change when breaking connections.
-        ShaderInputSet downstreamConnections = output->getConnections();
+        // Iterate a copy of the connection vector since the
+        // original vector will change when breaking connections.
+        ShaderInputVec downstreamConnections = output->getConnections();
         for (ShaderInput* downstream : downstreamConnections)
         {
             output->breakConnection(downstream);
@@ -1157,10 +1156,8 @@ void ShaderGraph::topologicalSort()
     // Calculate in-degrees for all nodes, and enqueue those with degree 0.
     std::unordered_map<ShaderNode*, int> inDegree(_nodeMap.size());
     std::deque<ShaderNode*> nodeQueue;
-    for (const auto& it : _nodeMap)
+    for (ShaderNode* node : _nodeOrder)
     {
-        ShaderNode* node = it.second.get();
-
         int connectionCount = 0;
         for (const ShaderInput* input : node->getInputs())
         {
@@ -1190,15 +1187,16 @@ void ShaderGraph::topologicalSort()
 
         // Find connected nodes and decrease their in-degree,
         // adding node to the queue if in-degrees becomes 0.
-        for (const auto& output : node->getOutputs())
+        for (const ShaderOutput* output : node->getOutputs())
         {
-            for (const auto& input : output->getConnections())
+            for (const ShaderInput* input : output->getConnections())
             {
-                if (input->getNode() != this)
+                ShaderNode* downstreamNode = const_cast<ShaderNode*>(input->getNode());
+                if (downstreamNode != this)
                 {
-                    if (--inDegree[input->getNode()] <= 0)
+                    if (--inDegree[downstreamNode] <= 0)
                     {
-                        nodeQueue.push_back(input->getNode());
+                        nodeQueue.push_back(downstreamNode);
                     }
                 }
             }

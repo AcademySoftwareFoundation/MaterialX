@@ -467,10 +467,10 @@ void ShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
                     bsdfInput->makeConnection(output);
 
                     // Bypass the layer node since thin-film is now setup on the bsdf.
-                    // Iterate a copy of the connection set since the original set will
-                    // change when breaking connections.
+                    // Iterate a copy of the connection vector since the original vector
+                    // will change when breaking connections.
                     base->breakConnection();
-                    ShaderInputSet downstreamConnections = layerNode->getOutput()->getConnections();
+                    ShaderInputVec downstreamConnections = layerNode->getOutput()->getConnections();
                     for (ShaderInput* downstream : downstreamConnections)
                     {
                         downstream->breakConnection();
