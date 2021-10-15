@@ -1,0 +1,16 @@
+AllowShortBlocksOnASingleLine: true
+AllowShortLambdasOnASingleLine: false
+AlwaysBreakTemplateDeclarations: No
+BreakBeforeBraces: Allman
+BreakConstructorInitializers: AfterColon
+BreakConstructorInitializersBeforeComma: true
+ColumnLimit: 0
+Cpp11BracedListStyle: false
+IndentCaseLabels: true
+IndentWidth: 4
+LambdaBodyIndentation: OuterScope
+PointerAlignment: Left
+SortIncludes: false
+SpaceAfterCStyleCast: true
+SpaceInEmptyBlock: true
+UseTab: Never
