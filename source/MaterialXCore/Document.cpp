@@ -6,6 +6,7 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXCore/Util.h>
+#include <MaterialXCore/Version.h>
 
 #include <mutex>
 
