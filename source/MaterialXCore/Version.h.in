@@ -1,0 +1,15 @@
+//
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#ifndef MATERIALX_VERSION_H
+#define MATERIALX_VERSION_H
+
+#include <MaterialXCore/Library.h>
+
+#define MATERIALX_MAJOR_VERSION @MATERIALX_MAJOR_VERSION@
+#define MATERIALX_MINOR_VERSION @MATERIALX_MINOR_VERSION@
+#define MATERIALX_BUILD_VERSION @MATERIALX_BUILD_VERSION@
+
+#endif
