@@ -283,6 +283,14 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
 void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPropertyGroup& groups,
                             UIPropertyGroup& unnamedGroups, const string& pathSeparator, bool showAllInputs)
 {
+    // Assign a depth-first index to each element in the document.
+    std::unordered_map<ConstElementPtr, int> indexMap;
+    int curIndex = 0;
+    for (ConstElementPtr elem : doc->traverseTree())
+    {
+        indexMap[elem] = curIndex++;
+    }
+
     // Generated an ordered map of shader inputs.
     using ShaderInputPair = std::pair<InputPtr, ShaderPort*>;
     std::map<int, ShaderInputPair> shaderInputMap;
@@ -326,7 +334,7 @@ void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPrope
         // Add the shader input if unique.
         if (input)
         {
-            int treeIndex = input->getTreeIndex();
+            int treeIndex = indexMap[input];
             if (shaderInputMap.count(treeIndex))
             {
                 continue;
@@ -335,7 +343,7 @@ void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPrope
         }
     }
 
-    // Generate UI properties for each shader input
+    // Generate UI properties for each shader input in order.
     for (const auto& it : shaderInputMap)
     {
         // Retrieve the shader input pair.
