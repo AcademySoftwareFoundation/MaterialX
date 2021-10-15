@@ -81,5 +81,6 @@ void bindPyLook(py::module& mod)
         .def("getVisible", &mx::Visibility::getVisible)
         .def_readonly_static("CATEGORY", &mx::Visibility::CATEGORY);
 
-    mod.def("getGeometryBindings", &mx::getGeometryBindings);
+    mod.def("getGeometryBindings", &mx::getGeometryBindings,
+        py::arg("materialNode") , py::arg("geom") = mx::UNIVERSAL_GEOM_NAME);
 }
