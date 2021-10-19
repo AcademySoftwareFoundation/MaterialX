@@ -38,6 +38,24 @@ jobs:
           python: 3.7
           test_render: ON
 
+        - name: Linux_Clang_9_Python36
+          os: ubuntu-18.04
+          compiler: clang
+          compiler_version: "9"
+          python: 3.6
+
+        - name: Linux_Clang_11_Python37
+          os: ubuntu-20.04
+          compiler: clang
+          compiler_version: "11"
+          python: 3.7
+
+        - name: Linux_Clang_12_Python38
+          os: ubuntu-20.04
+          compiler: clang
+          compiler_version: "12"
+          python: 3.8
+
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
           compiler: xcode
@@ -92,7 +110,7 @@ jobs:
           echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         else
-          sudo apt-get install -y clang-${{ matrix.compiler_version }} g++-multilib
+          sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
           echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
         fi
@@ -111,7 +129,7 @@ jobs:
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
 
-    - name: Build GLSlangValidator (Windows)
+    - name: Install GLSlangValidator (Windows)
       if: matrix.test_validate == 'ON' && runner.os == 'Windows'
       run: |
         git clone https://github.com/Microsoft/vcpkg
@@ -164,17 +182,16 @@ jobs:
         python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
         python Scripts/mxdoc.py ../libraries/pbrlib/pbrlib_defs.mtlx
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "glsl" 
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "osl"
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "mdl"
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path ".." --target "essl" 
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_gold.mtlx --path .. --target glsl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_copper.mtlx --path .. --target osl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_jade.mtlx --path .. --target mdl
       working-directory: python
 
     - name: Generation Validation Tests
       if: matrix.test_validate == 'ON' && runner.os == 'Windows'
       run: |
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --target "glsl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path "." --target "essl" --validator "vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
 
     - name: Render Tests
       if: matrix.test_render == 'ON'
