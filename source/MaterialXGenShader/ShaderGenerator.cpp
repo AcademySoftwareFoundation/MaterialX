@@ -105,7 +105,7 @@ void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& conte
     // Check if it's emitted already.
     if (stage.isEmitted(node, context))
     {
-        emitComment("Omitted node '" + node.getName() + "'. Already called above.", stage);
+        // emitComment("Omitted node '" + node.getName() + "'. Already called above.", stage);
         return;
     }
     // Omit node if it's only used inside a conditional branch
