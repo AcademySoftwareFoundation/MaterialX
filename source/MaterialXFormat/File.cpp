@@ -19,6 +19,13 @@
 #include <dirent.h>
 #endif
 
+#if defined(__linux__)
+#include <linux/limits.h> // for PATH_MAX
+#endif
+#if defined(__FreeBSD__)
+#include <sys/syslimits.h> // for PATH_MAX
+#endif
+
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
 #endif
