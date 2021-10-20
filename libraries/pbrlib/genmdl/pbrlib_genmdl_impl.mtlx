@@ -61,6 +61,7 @@
 
   <!-- <layer> -->
   <implementation name="IM_layer_bsdf_genmdl" nodedef="ND_layer_bsdf" target="genmdl" />
+  <implementation name="IM_layer_vdf_genmdl" nodedef="ND_layer_vdf" target="genmdl" />
 
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genmdl" nodedef="ND_mix_bsdf" sourcecode="mx::pbrlib::mx_mix_bsdf(mxp_fg:{{fg}}, mxp_bg:{{bg}}, mxp_mix:{{mix}})" target="genmdl" />

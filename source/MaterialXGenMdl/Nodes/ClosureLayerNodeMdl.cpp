@@ -34,12 +34,57 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     ShaderInput* baseInput = node.getInput(BASE);
     ShaderOutput* output = node.getOutput();
 
-    // [TODO]
+    //
+    // 1. Handle the BSDF-over-VDF case
+    //
+    if (baseInput->getType() == Type::VDF)
+    {
+        // Make sure we have a top BSDF connected.
+        if (!topInput->getConnection())
+        {
+            // No top BSDF so just emit an empty material.
+            shadergen.emitLine("material " + output->getVariable() + " = material()", stage);
+            return;
+        }
+
+        // Emit function call for top node if it's a sibling node
+        // and not the graph interface.
+        ShaderNode* top = topInput->getConnection()->getNode();
+        if (top->getParent() == node.getParent())
+        {
+            shadergen.emitFunctionCall(*top, context, stage);
+        }
+
+        // Emit function call for base node if it's a sibling node
+        // and not the graph interface.
+        if (baseInput->getConnection())
+        {
+            ShaderNode* base = baseInput->getConnection()->getNode();
+            if (base->getParent() == node.getParent())
+            {
+                shadergen.emitFunctionCall(*base, context, stage);
+            }
+        }
+
+        const string t = shadergen.getUpstreamResult(topInput, context);
+        const string b = shadergen.getUpstreamResult(baseInput, context);
+
+        // Join the BSDF and VDF into a single material.
+        shadergen.emitLine("material " + output->getVariable() 
+            + " = material(surface: " + t + ".surface, backface: " + t + ".backface, ior: " + t + ".ior, volume: " + b + ".volume)", stage);
+
+        return;
+    }
+
+    //
+    // 2. Handle the BSDF-over-BSDF case
+    //
+
     // Make sure the layer is fully connected.
     if (!(topInput->getConnection() && baseInput->getConnection()))
     {
-        // Just declare the output variable with default value.
-        emitOutputVariables(node, context, stage);
+        // Just emit an empty material.
+        shadergen.emitLine("material " + output->getVariable() + " = material()", stage);
         return;
     }
 
