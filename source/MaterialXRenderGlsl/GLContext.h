@@ -15,7 +15,7 @@
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 #include <MaterialXRenderGlsl/External/GLew/glxew.h>
 #endif
 
@@ -25,7 +25,7 @@ namespace MaterialX
 /// Platform dependent definition of a hardware context
 #if defined(_WIN32)
 using HardwareContextHandle = HGLRC;
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 using HardwareContextHandle = GLXContext;
 #else
 using HardwareContextHandle = void*;
@@ -79,7 +79,7 @@ class MX_RENDERGLSL_API GLContext
     // Flag to indicate validity
     bool _isValid;
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
     // An X window used by context operations
     Window _xWindow;
 
