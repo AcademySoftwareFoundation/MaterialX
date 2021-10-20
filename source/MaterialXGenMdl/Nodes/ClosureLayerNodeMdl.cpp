@@ -46,6 +46,14 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     ShaderNode* top = topInput->getConnection()->getNode();
     ShaderNode* base = baseInput->getConnection()->getNode();
 
+    // Make sure top BSDF is a sibling node and not the graph interface.
+    if (top->getParent() != node.getParent())
+    {
+        shadergen.emitComment("Warning: MDL has no support for layering BSDFs through a graph interface. Only the top BSDF will used.", stage);
+        shadergen.emitLine("material " + output->getVariable() + " = " + shadergen.getUpstreamResult(topInput, context), stage);
+        return;
+    }
+
     // Only a subset of the MaterialX BSDF nodes can be layered vertically in MDL.
     // This is because MDL only supports layering through BSDF nesting with a base
     // input, and it's only possible to do this workaround on a subset of the BSDFs.
@@ -54,29 +62,35 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     //
     // TODO: For some cases we could work around this by transforming the graph.
     //
+    //                        bsdf1              
+    // bsdf1                       \             
+    //      \                       layer1       
+    //       mix                   /      \      
+    //      /   \             bsdf3        \     
+    // bsdf2     layer->  ==                mix->
+    //          /             bsdf2        /     
+    //     bsdf3                   \      /      
+    //                              layer2       
+    //                             /             
+    //                        bsdf3              
+    //
     ShaderInput* topNodeBaseInput = top->getInput(BASE);
     if (!topNodeBaseInput)
     {
-        // Make sure it's a sibling node and not the graph interface.
-        if (top->getParent() == node.getParent())
-        {
-            // Change the state so we emit the top BSDF function 
-            // with output variable name from the layer node itself.
-            ShaderOutput* topOutput = top->getOutput();
-            const string topOutputOldVariable = topOutput->getVariable();
-            topOutput->setVariable(output->getVariable());
+        shadergen.emitComment("Warning: MDL has no support for layering BSDF nodes without a base input. Only the top BSDF will used.", stage);
 
-            // Make the call.
-            top->getImplementation().emitFunctionCall(*top, context, stage);
+        // Change the state so we emit the top BSDF function 
+        // with output variable name from the layer node itself.
+        ShaderOutput* topOutput = top->getOutput();
+        const string topOutputOldVariable = topOutput->getVariable();
+        topOutput->setVariable(output->getVariable());
 
-            // Restore state.
-            topOutput->setVariable(topOutputOldVariable);
-        }
-        else
-        {
-            throw ExceptionShaderGenError("Layering BSDF's through the graph interface is not supported, see node '" +
-                node.getName() + "'");
-        }
+        // Make the call.
+        top->getImplementation().emitFunctionCall(*top, context, stage);
+
+        // Restore state.
+        topOutput->setVariable(topOutputOldVariable);
+
         return;
     }
 
@@ -87,29 +101,21 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         shadergen.emitFunctionCall(*base, context, stage);
     }
     // Emit the layer operation with the top BSDF function call.
-    // Make sure it's a sibling node and not the graph interface.
-    if (top->getParent() == node.getParent())
-    {
-        // Change the state so we emit the top BSDF function 
-        // with base BSDF connection and output variable name
-        // from the layer operator itself.
-        topNodeBaseInput->makeConnection(base->getOutput());
-        ShaderOutput* topOutput = top->getOutput();
-        const string topOutputOldVariable = topOutput->getVariable();
-        topOutput->setVariable(output->getVariable());
+    // Change the state so we emit the top BSDF function with
+    // base BSDF connection and output variable name from the
+    // layer operator itself.
+    topNodeBaseInput->makeConnection(base->getOutput());
+    ShaderOutput* topOutput = top->getOutput();
+    const string topOutputOldVariable = topOutput->getVariable();
+    topOutput->setVariable(output->getVariable());
 
-        // Make the call.
-        top->getImplementation().emitFunctionCall(*top, context, stage);
+    // Make the call.
+    top->getImplementation().emitFunctionCall(*top, context, stage);
 
-        // Restore state.
-        topOutput->setVariable(topOutputOldVariable);
-        topNodeBaseInput->breakConnection();
-    }
-    else
-    {
-        throw ExceptionShaderGenError("Layering BSDF's through the graph interface is not supported, see node '" +
-            node.getName() + "'");
-    }
+    // Restore state.
+    topOutput->setVariable(topOutputOldVariable);
+    topNodeBaseInput->breakConnection();
+
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 

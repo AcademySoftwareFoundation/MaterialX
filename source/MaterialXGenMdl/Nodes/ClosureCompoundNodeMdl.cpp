@@ -145,6 +145,9 @@ void ClosureCompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
+        // Emit calls for any closure dependencies upstream from this node.
+        shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+
         // Begin function call.
         if (!_returnStruct.empty())
         {
