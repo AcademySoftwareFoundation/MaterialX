@@ -284,8 +284,20 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // closure/shader nodes and need to be emitted first.
     emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
 
-    // Emit any closure nodes.
-    emitFunctionCalls(graph, context, stage, ShaderNode::Classification::CLOSURE);
+    // Emit function calls for internal closures nodes connected to the graph sockets.
+    // These will in turn emit function calls for any dependent closure nodes upstream.
+    for (ShaderGraphOutputSocket* outputSocket : graph.getOutputSockets())
+    {
+        if (outputSocket->getConnection())
+        {
+            const ShaderNode* upstream = outputSocket->getConnection()->getNode();
+            if (upstream->getParent() == &graph &&
+                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+            {
+                emitFunctionCall(*upstream, context, stage);
+            }
+        }
+    }
 
     // Emit final outputs
     for (size_t i = 0; i < outputs.size(); ++i)

@@ -236,8 +236,24 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLineBreak(stage);
     }
 
-    // Emit function calls for all nodes
-    emitFunctionCalls(graph, context, stage);
+    // Emit all texturing nodes. These are inputs to any
+    // closure/shader nodes and need to be emitted first.
+    emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
+
+    // Emit function calls for internal closures nodes connected to the graph sockets.
+    // These will in turn emit function calls for any dependent closure nodes upstream.
+    for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
+    {
+        if (socket->getConnection())
+        {
+            const ShaderNode* upstream = socket->getConnection()->getNode();
+            if (upstream->getParent() == &graph &&
+                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+            {
+                emitFunctionCall(*upstream, context, stage);
+            }
+        }
+    }
 
     // Get final result
     const string result = getUpstreamResult(outputSocket, context);

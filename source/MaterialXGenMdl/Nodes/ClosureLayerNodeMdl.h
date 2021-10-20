@@ -30,7 +30,7 @@ class MX_GENMDL_API ClosureLayerNodeMdl : public ShaderNodeImpl
 
 
 /// Layarable BSDF node.
-class LayarableNodeMdl : public SourceCodeNodeMdl
+class MX_GENMDL_API LayarableNodeMdl : public SourceCodeNodeMdl
 {
 public:
     static ShaderNodeImplPtr create();
