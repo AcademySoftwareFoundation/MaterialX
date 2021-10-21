@@ -52,7 +52,7 @@ jobs:
         - name: MacOS_Xcode_12_Python37
           os: macos-11
           compiler: xcode
-          compiler_version: "12.5"
+          compiler_version: "12.5.1"
           python: 3.7
           run_on_push : OFF
 
