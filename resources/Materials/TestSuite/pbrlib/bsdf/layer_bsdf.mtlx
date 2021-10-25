@@ -30,11 +30,11 @@
   <nodegraph name="layer_bsdf_test2">
     <dielectric_bsdf name="dielectric_R" type="BSDF">
       <input name="ior" type="float" value="1.8" />
-      <parameter name="scatter_mode" type="string" value="R" />
+      <input name="scatter_mode" type="string" value="R" uniform="true" />
     </dielectric_bsdf>
     <dielectric_bsdf name="dielectric_T" type="BSDF">
       <input name="ior" type="float" value="1.5" />
-      <parameter name="scatter_mode" type="string" value="T" />
+      <input name="scatter_mode" type="string" value="T" uniform="true" />
     </dielectric_bsdf>
     <anisotropic_vdf name="dielectric_interior" type="VDF">
       <input name="absorption" type="vector3" value="0.8, 0.8, 0.1" />
