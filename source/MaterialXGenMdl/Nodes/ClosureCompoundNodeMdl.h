@@ -6,13 +6,14 @@
 #ifndef MATERIALX_CLOSURECOMPOUNDNODEMDL_H
 #define MATERIALX_CLOSURECOMPOUNDNODEMDL_H
 
+#include <MaterialXGenMdl/Export.h>
 #include <MaterialXGenMdl/Nodes/CompoundNodeMdl.h>
 
 namespace MaterialX
 {
 
 /// Compound node implementation
-class ClosureCompoundNodeMdl : public CompoundNodeMdl
+class MX_GENMDL_API ClosureCompoundNodeMdl : public CompoundNodeMdl
 {
   public:
     static ShaderNodeImplPtr create();
