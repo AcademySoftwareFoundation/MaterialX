@@ -21,7 +21,7 @@ const string Visibility::VISIBLE_ATTRIBUTE = "visible";
 const string LookGroup::LOOKS_ATTRIBUTE = "looks";
 const string LookGroup::ACTIVE_ATTRIBUTE = "active";
 
-vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom)
+vector<MaterialAssignPtr> getGeometryBindings(ConstNodePtr materialNode, const string& geom)
 {
     vector<MaterialAssignPtr> matAssigns;
     for (LookPtr look : materialNode->getDocument()->getLooks())
