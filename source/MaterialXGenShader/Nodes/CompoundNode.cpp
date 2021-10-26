@@ -106,9 +106,14 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
 
 void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-        const ShaderGenerator& shadergen = context.getShaderGenerator();
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+        // Emit function calls for all child nodes to the vertex shader stage
+        shadergen.emitFunctionCalls(*_rootGraph, context, stage);
+    END_SHADER_STAGE(stage, Stage::VERTEX)
+
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // Declare the output variables.
         emitOutputVariables(node, context, stage);
 
