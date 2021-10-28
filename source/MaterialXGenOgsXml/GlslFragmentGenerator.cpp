@@ -63,7 +63,7 @@ namespace
         "    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);\r\n"
         "    float avgRoughness = mx_average_roughness(roughness);\r\n"
         "    vec3 F = mx_compute_fresnel(NdotV, fd);\r\n"
-        "    float G = mx_ggx_smith_G(NdotV, NdotV, avgRoughness);\r\n"
+        "    float G = mx_ggx_smith_G2(NdotV, NdotV, avgRoughness);\r\n"
         "    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);\r\n"
         "    float phongExp = mayaRoughnessToPhongExp(sqrt(avgRoughness));\r\n"
         "    vec3 Li = mayaGetSpecularEnvironment(N, V, phongExp);\r\n"
