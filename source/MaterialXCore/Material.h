@@ -30,9 +30,9 @@ MX_CORE_API vector<NodePtr> getShaderNodes(NodePtr materialNode,
 /// Return a vector of all outputs connected to the given node's inputs.
 MX_CORE_API vector<OutputPtr> getConnectedOutputs(NodePtr node);
 
-/// Return a list upstream elements which are connected to a given root element by a connection
+/// Return a list of upstream elements which are connected to a given root element by a connection
 /// of type `material`.
-/// The root elements which are considered are: materialassigns, documents, and nodegraphs.
+/// The root element types which are considered are: materialassign, document, and nodegraph.
 /// @param root element to start from.
 /// @param skipIncludes Skip nodes that are from an included document. 
 MX_CORE_API std::vector<InterfaceElementPtr> getMaterialNodes(ElementPtr root, bool skipIncludes);
