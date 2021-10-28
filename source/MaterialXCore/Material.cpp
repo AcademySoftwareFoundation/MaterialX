@@ -139,13 +139,12 @@ vector<OutputPtr> getConnectedOutputs(NodePtr node)
     return outputVec;
 }
 
-MX_CORE_API vector<NodePtr> getMaterialNodes(ElementPtr root, bool addUnconnectedNodes, bool skipIncludes)
+MX_CORE_API vector<InterfaceElementPtr> getMaterialNodes(ElementPtr root, bool skipIncludes)
 {
-    vector<NodePtr> materialNodes;
+    vector<InterfaceElementPtr> materialNodes;
     std::unordered_set<ElementPtr> processedSources;
 
-    // Handle the case that the root is a graph element. In this either
-    // a document or nodegraph
+    // Handle the case that the root is a graph element ( document or nodegraph )
     GraphElementPtr graphElement = root->asA<GraphElement>();
     if (graphElement)
     {
@@ -153,6 +152,8 @@ MX_CORE_API vector<NodePtr> getMaterialNodes(ElementPtr root, bool addUnconnecte
         NodeGraphPtr nodeGraph = graphElement->asA<NodeGraph>();
 
         // Look for any material nodes exposed as outputs
+        // on the nodegraph. Any other nodes are assumed to 
+        // be "hidden" on purpose.
         if (nodeGraph)
         {
             for (auto graphOutput : nodeGraph->getOutputs())
@@ -170,20 +171,6 @@ MX_CORE_API vector<NodePtr> getMaterialNodes(ElementPtr root, bool addUnconnecte
                     }
                 }
             }
-
-            // Q: Should there be an option to check for stray material nodes ?
-            if (addUnconnectedNodes)
-            {
-                vector<NodePtr> allMaterialNodes = nodeGraph->getMaterialNodes();
-                for (auto node : allMaterialNodes)
-                {
-                    if (!processedSources.count(node))
-                    {
-                        materialNodes.push_back(node);
-                        processedSources.insert(node);
-                    }
-                }
-            }
         }
 
         // Find all material nodes in the document at the top level or inside a nodegraph.
@@ -193,72 +180,43 @@ MX_CORE_API vector<NodePtr> getMaterialNodes(ElementPtr root, bool addUnconnecte
         {
             const std::string documentUri = document->getSourceUri();
 
-            // Look for a nodegraph which outputs materials
+            // Look for any nodegraphs which output materials
             vector<OutputPtr> testOutputs;
             for (NodeGraphPtr docNodeGraph : document->getNodeGraphs())
             {
-                // Skip anything from an include file including libraries.
-                // Skip any nodegraph which is a definition
-                if (!docNodeGraph->hasAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE))
+                // Skip nodegraphs which are definitions or optionally 
+                // skip any nodegraphs from an include file
+                if (docNodeGraph->hasAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE) ||
+                    (skipIncludes && (documentUri != docNodeGraph->getSourceUri())))
                 {
-                    if (skipIncludes && (documentUri != docNodeGraph->getSourceUri()))
+                    continue;
+                }
+
+                // Find if any output is connected to a material node
+                // If so then include the nodegraph in the list to return.
+                for (auto graphOutput : docNodeGraph->getOutputs())
+                {
+                    if (graphOutput->getType() == MATERIAL_TYPE_STRING)
                     {
-                        continue;
-                    }
-                    for (auto graphOutput : docNodeGraph->getOutputs())
-                    {
-                        if (graphOutput->getType() == MATERIAL_TYPE_STRING)
+                        NodePtr node = graphOutput->getConnectedNode();
+                        if (node && node->getType() == MATERIAL_TYPE_STRING &&
+                            !processedSources.count(node))
                         {
-                            testOutputs.push_back(graphOutput);
+                            materialNodes.push_back(docNodeGraph);
+                            processedSources.insert(node);
+                            break;
                         }
                     }
                 }
             }
 
-            // Add in all top-level outputs not already processed.
-            auto docOutputs = document->getOutputs();
-            for (auto docOutput : docOutputs)
+            // Look for material nodes
+            vector<NodePtr> docMaterialNodes = document->getMaterialNodes();
+            for (auto node : docMaterialNodes)
             {
-                if (skipIncludes && (documentUri != docOutput->getSourceUri()))
+                if (!processedSources.count(node))
                 {
-                    continue;
-                }
-                if (docOutput->getType() == MATERIAL_TYPE_STRING)
-                {
-                    testOutputs.push_back(docOutput);
-                }
-            }
-
-            for (OutputPtr output : testOutputs)
-            {
-                if (processedSources.count(output))
-                {
-                    continue;
-                }
-                processedSources.insert(output);
-
-                NodePtr node = output->getConnectedNode();
-                if (node->getType() == MATERIAL_TYPE_STRING)
-                {
-                    if (!processedSources.count(node))
-                    {
-                        materialNodes.push_back(node);
-                        processedSources.insert(node);
-                    }
-                }
-            }
-
-            // Add in stray material nodes
-            if (addUnconnectedNodes)
-            {
-                vector<NodePtr> allMaterialNodes = document->getMaterialNodes();
-                for (auto node : allMaterialNodes)
-                {
-                    if (!processedSources.count(node))
-                    {
-                        materialNodes.push_back(node);
-                        processedSources.insert(node);
-                    }
+                    materialNodes.push_back(node);
                 }
             }
         }
