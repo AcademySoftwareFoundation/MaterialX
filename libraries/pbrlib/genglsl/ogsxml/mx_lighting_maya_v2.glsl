@@ -1,5 +1,10 @@
-// More recent versions of Maya have external lighting functions that can be called:
-#include \"pbrlib/genglsl/lib/mx_microfacet_specular.glsl\"
+// This is the same algorithm as found in libraries\pbrlib\genglsl\lib\mx_environment_prefilter.glsl
+// but adjusted for Maya.
+//
+// Since we are on a more recent versions of Maya, we have external lighting functions that can be
+// called to fetch environment samples:
+
+#include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
 vec3 mx_environment_irradiance(vec3 N)
 {

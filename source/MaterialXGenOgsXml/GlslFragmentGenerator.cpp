@@ -164,9 +164,9 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     if (lighting)
     {
         if (OgsXmlGenerator::useLightAPIV2()) {
-            emitInclude("pbrlib/genglsl/ogsfx/mx_lighting_maya_v2.glsl", context, pixelStage);
+            emitInclude("pbrlib/genglsl/ogsxml/mx_lighting_maya_v2.glsl", context, pixelStage);
         } else {
-            emitInclude("pbrlib/genglsl/ogsfx/mx_lighting_maya_v1.glsl", context, pixelStage);
+            emitInclude("pbrlib/genglsl/ogsxml/mx_lighting_maya_v1.glsl", context, pixelStage);
         }
     }
 
