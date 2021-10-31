@@ -115,13 +115,7 @@ class ShaderRenderTester
 #endif
 
     // Add files to skip
-    void addSkipFiles()
-    {
-        _skipFiles.insert("_options.mtlx");
-        _skipFiles.insert("light_rig_test_1.mtlx");
-        _skipFiles.insert("light_rig_test_2.mtlx");
-        _skipFiles.insert("light_compound_test.mtlx");
-    }
+    void addSkipFiles();
 
     // Load dependencies
     void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath,
