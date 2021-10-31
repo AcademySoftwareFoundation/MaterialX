@@ -283,31 +283,34 @@ XmlWriteOptions::XmlWriteOptions() :
 // Reading
 //
 
-void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readOptions)
+void readFromXmlBuffer(DocumentPtr doc, const char* buffer, FileSearchPath searchPath, const XmlReadOptions* readOptions)
 {
+    searchPath.append(getEnvironmentPath());
+
     xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load_string(buffer, getParseOptions(readOptions));
     validateParseResult(result);
 
-    documentFromXml(doc, xmlDoc, EMPTY_STRING, readOptions);
+    documentFromXml(doc, xmlDoc, searchPath, readOptions);
 }
 
-void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readOptions)
+void readFromXmlStream(DocumentPtr doc, std::istream& stream, FileSearchPath searchPath, const XmlReadOptions* readOptions)
 {
+    searchPath.append(getEnvironmentPath());
+
     xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load(stream, getParseOptions(readOptions));
     validateParseResult(result);
 
-    documentFromXml(doc, xmlDoc, EMPTY_STRING, readOptions);
+    documentFromXml(doc, xmlDoc, searchPath, readOptions);
 }
 
 void readFromXmlFile(DocumentPtr doc, FilePath filename, FileSearchPath searchPath, const XmlReadOptions* readOptions)
 {
-    xml_document xmlDoc;
-
     searchPath.append(getEnvironmentPath());
     filename = searchPath.find(filename);
 
+    xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load_file(filename.asString().c_str(), getParseOptions(readOptions));
     validateParseResult(result, filename);
 
@@ -324,10 +327,10 @@ void readFromXmlFile(DocumentPtr doc, FilePath filename, FileSearchPath searchPa
     documentFromXml(doc, xmlDoc, searchPath, readOptions);
 }
 
-void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readOptions)
+void readFromXmlString(DocumentPtr doc, const string& str, FileSearchPath searchPath, const XmlReadOptions* readOptions)
 {
     std::istringstream stream(str);
-    readFromXmlStream(doc, stream, readOptions);
+    readFromXmlStream(doc, stream, searchPath, readOptions);
 }
 
 //
