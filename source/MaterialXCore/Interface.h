@@ -56,6 +56,7 @@ class MX_CORE_API PortElement : public ValueElement
         ValueElement(parent, category, name)
     {
     }
+
   public:
     virtual ~PortElement() { }
 
@@ -154,7 +155,7 @@ class MX_CORE_API PortElement : public ValueElement
 
     /// Return true if the given channels characters are valid for the given
     /// source type string.
-    static bool validChannelsCharacters(const string &channels, const string &sourceType);
+    static bool validChannelsCharacters(const string& channels, const string& sourceType);
 
     /// Return true if the given channels string is valid for the given source
     /// and destination type strings.
@@ -322,6 +323,7 @@ class MX_CORE_API InterfaceElement : public TypedElement
         _outputCount(0)
     {
     }
+
   public:
     virtual ~InterfaceElement() { }
 
@@ -526,9 +528,9 @@ class MX_CORE_API InterfaceElement : public TypedElement
 
     /// Set the typed value of an input by its name, creating a child element
     /// to hold the input if needed.
-    template<class T> InputPtr setInputValue(const string& name,
-                                             const T& value,
-                                             const string& type = EMPTY_STRING);
+    template <class T> InputPtr setInputValue(const string& name,
+                                              const T& value,
+                                              const string& type = EMPTY_STRING);
 
     /// Return the typed value of an input by its name, taking both the calling
     /// element and its declaration into account.
@@ -663,9 +665,9 @@ class MX_CORE_API InterfaceElement : public TypedElement
     size_t _outputCount;
 };
 
-template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
-                                                           const T& value,
-                                                           const string& type)
+template <class T> InputPtr InterfaceElement::setInputValue(const string& name,
+                                                            const T& value,
+                                                            const string& type)
 {
     InputPtr input = getChildOfType<Input>(name);
     if (!input)
