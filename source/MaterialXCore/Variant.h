@@ -156,7 +156,7 @@ class MX_CORE_API VariantAssign : public Element
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
     static const string VARIANT_SET_ATTRIBUTE;
     static const string VARIANT_ATTRIBUTE;

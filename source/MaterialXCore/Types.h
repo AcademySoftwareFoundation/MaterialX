@@ -285,9 +285,10 @@ class MX_CORE_API Vector2 : public VectorN<Vector2, float, 2>
   public:
     using VectorN<Vector2, float, 2>::VectorN;
     Vector2() = default;
-    Vector2(float x, float y) : VectorN(Uninit{})
+    Vector2(float x, float y) :
+        VectorN(Uninit{})
     {
-        _arr = {x, y};
+        _arr = { x, y };
     }
 
     /// Return the cross product of two vectors.
@@ -304,9 +305,10 @@ class MX_CORE_API Vector3 : public VectorN<Vector3, float, 3>
   public:
     using VectorN<Vector3, float, 3>::VectorN;
     Vector3() = default;
-    Vector3(float x, float y, float z) : VectorN(Uninit{})
+    Vector3(float x, float y, float z) :
+        VectorN(Uninit{})
     {
-        _arr = {x, y, z};
+        _arr = { x, y, z };
     }
 
     /// Return the cross product of two vectors.
@@ -325,9 +327,10 @@ class MX_CORE_API Vector4 : public VectorN<Vector4, float, 4>
   public:
     using VectorN<Vector4, float, 4>::VectorN;
     Vector4() = default;
-    Vector4(float x, float y, float z, float w) : VectorN(Uninit{})
+    Vector4(float x, float y, float z, float w) :
+        VectorN(Uninit{})
     {
-        _arr = {x, y, z, w};
+        _arr = { x, y, z, w };
     }
 };
 
@@ -338,19 +341,19 @@ class MX_CORE_API Quaternion : public VectorN<Vector4, float, 4>
   public:
     using VectorN<Vector4, float, 4>::VectorN;
     Quaternion() = default;
-    Quaternion(float x, float y, float z, float w) : VectorN(Uninit{})
+    Quaternion(float x, float y, float z, float w) :
+        VectorN(Uninit{})
     {
-        _arr = {x, y, z, w};
+        _arr = { x, y, z, w };
     }
 
     Quaternion operator*(const Quaternion& q) const
     {
-        return 
-        { 
-            _arr[0] * q._arr[3] + _arr[3] * q._arr[0] + _arr[1] * q._arr[2] - _arr[2] * q._arr[1], 
+        return {
+            _arr[0] * q._arr[3] + _arr[3] * q._arr[0] + _arr[1] * q._arr[2] - _arr[2] * q._arr[1],
             _arr[1] * q._arr[3] + _arr[3] * q._arr[1] + _arr[2] * q._arr[0] - _arr[0] * q._arr[2],
-            _arr[2] * q._arr[3] + _arr[3] * q._arr[2] + _arr[0] * q._arr[1] - _arr[1] * q._arr[0], 
-            _arr[3] * q._arr[3] - _arr[0] * q._arr[0] - _arr[1] * q._arr[1] - _arr[2] * q._arr[2] 
+            _arr[2] * q._arr[3] + _arr[3] * q._arr[2] + _arr[0] * q._arr[1] - _arr[1] * q._arr[0],
+            _arr[3] * q._arr[3] - _arr[0] * q._arr[0] - _arr[1] * q._arr[1] - _arr[2] * q._arr[2]
         };
     }
 
@@ -377,9 +380,10 @@ class MX_CORE_API Color3 : public VectorN<Color3, float, 3>
   public:
     using VectorN<Color3, float, 3>::VectorN;
     Color3() = default;
-    Color3(float r, float g, float b) : VectorN(Uninit{})
+    Color3(float r, float g, float b) :
+        VectorN(Uninit{})
     {
-        _arr = {r, g, b};
+        _arr = { r, g, b };
     }
 };
 
@@ -390,9 +394,10 @@ class MX_CORE_API Color4 : public VectorN<Color4, float, 4>
   public:
     using VectorN<Color4, float, 4>::VectorN;
     Color4() = default;
-    Color4(float r, float g, float b, float a) : VectorN(Uninit{})
+    Color4(float r, float g, float b, float a) :
+        VectorN(Uninit{})
     {
-        _arr = {r, g, b, a};
+        _arr = { r, g, b, a };
     }
 };
 
@@ -631,9 +636,9 @@ class MX_CORE_API Matrix33 : public MatrixN<Matrix33, float, 3>
              float m20, float m21, float m22) :
         MatrixN(Uninit{})
     {
-        _arr = {m00, m01, m02,
-                m10, m11, m12,
-                m20, m21, m22};
+        _arr = { m00, m01, m02,
+                 m10, m11, m12,
+                 m20, m21, m22 };
     }
 
     /// @name Vector Transformations
@@ -683,10 +688,10 @@ class MX_CORE_API Matrix44 : public MatrixN<Matrix44, float, 4>
              float m30, float m31, float m32, float m33) :
         MatrixN(Uninit{})
     {
-        _arr = {m00, m01, m02, m03,
-                m10, m11, m12, m13,
-                m20, m21, m22, m23,
-                m30, m31, m32, m33};
+        _arr = { m00, m01, m02, m03,
+                 m10, m11, m12, m13,
+                 m20, m21, m22, m23,
+                 m30, m31, m32, m33 };
     }
 
     /// @name Vector Transformations
