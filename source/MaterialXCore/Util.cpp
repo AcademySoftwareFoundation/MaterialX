@@ -13,7 +13,8 @@ namespace MaterialX
 
 const string EMPTY_STRING;
 
-namespace {
+namespace
+{
 
 const string LIBRARY_VERSION_STRING = std::to_string(MATERIALX_MAJOR_VERSION) + "." +
                                       std::to_string(MATERIALX_MINOR_VERSION) + "." +
@@ -25,7 +26,7 @@ const std::tuple<int, int, int> LIBRARY_VERSION_TUPLE(MATERIALX_MAJOR_VERSION,
 
 bool invalidNameChar(char c)
 {
-     return !isalnum(c) && c != '_' && c != ':';
+    return !isalnum(c) && c != '_' && c != ':';
 }
 
 } // anonymous namespace
@@ -102,8 +103,8 @@ string replaceSubstrings(string str, const StringMap& stringMap)
         size_t pos = 0;
         while ((pos = str.find(pair.first, pos)) != string::npos)
         {
-             str.replace(pos, pair.first.length(), pair.second);
-             pos += pair.second.length();
+            str.replace(pos, pair.first.length(), pair.second);
+            pos += pair.second.length();
         }
     }
     return str;
@@ -149,7 +150,7 @@ string createNamePath(const StringVec& nameVec)
     string res;
     for (const string& name : nameVec)
     {
-        res = res.empty() ? name: res + NAME_PATH_SEPARATOR + name;
+        res = res.empty() ? name : res + NAME_PATH_SEPARATOR + name;
     }
     return res;
 }

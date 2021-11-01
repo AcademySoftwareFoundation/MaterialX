@@ -49,10 +49,10 @@ MX_CORE_API bool stringEndsWith(const string& str, const string& suffix);
 MX_CORE_API string trimSpaces(const string& str);
 
 /// Combine the hash of a value with an existing seed.
-template<typename T> void hashCombine(size_t& seed, const T& value)
+template <typename T> void hashCombine(size_t& seed, const T& value)
 {
     seed ^= std::hash<T>()(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-} 
+}
 
 /// Split a name path into string vector
 MX_CORE_API StringVec splitNamePath(const string& namePath);
