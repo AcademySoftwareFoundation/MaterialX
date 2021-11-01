@@ -139,7 +139,7 @@ vector<OutputPtr> getConnectedOutputs(NodePtr node)
     return outputVec;
 }
 
-MX_CORE_API vector<InterfaceElementPtr> getMaterialNodes(ElementPtr root, bool skipIncludes)
+MX_CORE_API vector<InterfaceElementPtr> getMaterials(ElementPtr root, bool skipIncludes)
 {
     vector<InterfaceElementPtr> materialNodes;
     std::unordered_set<ElementPtr> processedSources;
@@ -177,13 +177,13 @@ MX_CORE_API vector<InterfaceElementPtr> getMaterialNodes(ElementPtr root, bool s
             const std::string documentUri = document->getSourceUri();
 
             // Look for any nodegraphs with "material" outputs.
-            vector<OutputPtr> testOutputs;
             for (NodeGraphPtr docNodeGraph : document->getNodeGraphs())
             {
                 // Skip nodegraphs which are definitions or optionally 
                 // skip any nodegraphs from an include file
-                if (docNodeGraph->hasAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE) ||
-                    (skipIncludes && (documentUri != docNodeGraph->getSourceUri())))
+                if ((skipIncludes && (documentUri != docNodeGraph->getSourceUri())) ||
+                    processedSources.count(docNodeGraph) ||
+                    docNodeGraph->getNodeDef())
                 {
                     continue;
                 }
@@ -195,11 +195,10 @@ MX_CORE_API vector<InterfaceElementPtr> getMaterialNodes(ElementPtr root, bool s
                     if (graphOutput->getType() == MATERIAL_TYPE_STRING)
                     {
                         NodePtr node = graphOutput->getConnectedNode();
-                        if (node && node->getType() == MATERIAL_TYPE_STRING &&
-                            !processedSources.count(docNodeGraph))
+                        if (node && node->getType() == MATERIAL_TYPE_STRING)
                         {
                             materialNodes.push_back(docNodeGraph);
-                            processedSources.insert(node);
+                            processedSources.insert(docNodeGraph);
                             break;
                         }
                     }
@@ -231,18 +230,19 @@ MX_CORE_API vector<InterfaceElementPtr> getMaterialNodes(ElementPtr root, bool s
         else
         {
             NodeGraphPtr materialGraph = materialAssign->resolveRootNameReference<NodeGraph>(materialAssign->getMaterial());
-            if (materialGraph)
+            if (materialGraph && !processedSources.count(materialGraph))
             {
+                // If any output is connected to a material node then return the nodegraph
                 for (auto graphOutput : materialGraph->getOutputs())
                 {
                     if (graphOutput->getType() == MATERIAL_TYPE_STRING)
                     {
                         NodePtr node = graphOutput->getConnectedNode();
-                        if (node && (node->getType() == MATERIAL_TYPE_STRING) && 
-                            !processedSources.count(node))
+                        if (node && (node->getType() == MATERIAL_TYPE_STRING))
                         {
-                            materialNodes.push_back(node);
-                            processedSources.insert(node);
+                            materialNodes.push_back(materialGraph);
+                            processedSources.insert(materialGraph);
+                            break;
                         }
                     }
                 }

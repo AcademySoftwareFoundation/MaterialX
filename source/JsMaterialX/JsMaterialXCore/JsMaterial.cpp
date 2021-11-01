@@ -44,5 +44,5 @@ EMSCRIPTEN_BINDINGS(material)
     }));
 
     ems::function("getConnectedOutputs", &mx::getConnectedOutputs);
-    ems::function("getMaterialNodes", &mx::getMaterialNodes);
+    ems::function("getMaterials", &mx::getMaterials);
 }

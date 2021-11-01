@@ -85,12 +85,25 @@ TEST_CASE("Material Discovery", "[material]")
     {
         for (auto materialAssign : look->getMaterialAssigns())
         {
-            std::vector<mx::InterfaceElementPtr> assignNodes = mx::getMaterialNodes(materialAssign, false);
+            std::vector<mx::InterfaceElementPtr> assignNodes = mx::getMaterials(materialAssign, false);
             for (auto assignNode : assignNodes)
             {
-                const std::string& graphNodeName = assignNode->getNamePath();
-                CHECK(assignmentMaterialPaths.count(graphNodeName));
-                foundNames.insert(graphNodeName);
+                if (assignNode->isA<mx::NodeGraph>())
+                {
+                    std::vector<mx::InterfaceElementPtr> assignGraphNodes = mx::getMaterials(assignNode, false);
+                    for (auto assignGraphNode : assignGraphNodes)
+                    {
+                        const std::string& graphNodeName = assignGraphNode->getNamePath();
+                        CHECK(assignmentMaterialPaths.count(graphNodeName));
+                        foundNames.insert(graphNodeName);
+                    }
+                }
+                else
+                {
+                    const std::string& graphNodeName = assignNode->getNamePath();
+                    CHECK(assignmentMaterialPaths.count(graphNodeName));
+                    foundNames.insert(graphNodeName);
+                }
             }
         }
     }
@@ -110,7 +123,7 @@ TEST_CASE("Material Discovery", "[material]")
     mx::StringSet graphNodeNames;
     for (auto nodeGraph : doc->getNodeGraphs())
     {
-        std::vector<mx::InterfaceElementPtr> graphNodes = mx::getMaterialNodes(nodeGraph, false);
+        std::vector<mx::InterfaceElementPtr> graphNodes = mx::getMaterials(nodeGraph, false);
         if (!graphNodes.empty())
         {
             for (auto graphNode : graphNodes)
@@ -132,14 +145,14 @@ TEST_CASE("Material Discovery", "[material]")
         "top_level_material_def_assigned"
     };
     documentMaterialNodePaths.insert(compareGraphNodeNames.begin(), compareGraphNodeNames.end());
-    std::vector<mx::InterfaceElementPtr> docNodes = mx::getMaterialNodes(doc, false);
+    std::vector<mx::InterfaceElementPtr> docNodes = mx::getMaterials(doc, false);
     if (!docNodes.empty())
     {
         for (auto docNode : docNodes)
         {
-            if (docNode->asA<mx::NodeGraph>())
+            if (docNode->isA<mx::NodeGraph>())
             {
-                std::vector<mx::InterfaceElementPtr> docGraphNodes  = mx::getMaterialNodes(docNode, false);
+                std::vector<mx::InterfaceElementPtr> docGraphNodes  = mx::getMaterials(docNode, false);
                 for (auto docGraphNode : docGraphNodes)
                 {
                     // Check that we find the same node names as by directly scanning nodegraphs
@@ -156,8 +169,8 @@ TEST_CASE("Material Discovery", "[material]")
                 foundNames.insert(nodeName);
             }
         }
-        // Note: We are only comparing counts excluding the nodegraph
-        // implementation which contains material node.
+        // Note: We are only comparing counts excluding any nodegraph
+        // implementations which contain material nodes.
         CHECK(documentMaterialNodePaths.size() == foundNames.size());
     }
 }
