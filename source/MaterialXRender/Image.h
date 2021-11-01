@@ -129,6 +129,15 @@ class MX_RENDER_API Image
     /// Set all texels of this image to a uniform color.
     void setUniformColor(const Color4& color);
 
+    /// Apply the given matrix transform to all texels of this image.
+    void applyMatrixTransform(const Matrix33& mat);
+
+    /// Apply the given gamma transform to all texels of this image.
+    void applyGammaTransform(float gamma);
+
+    /// Create a copy of this image with the given channel count and base type.
+    ImagePtr copy(unsigned int channelCount, BaseType baseType) const;
+
     /// Apply a 3x3 box blur to this image, returning a new blurred image.
     ImagePtr applyBoxBlur();
 
