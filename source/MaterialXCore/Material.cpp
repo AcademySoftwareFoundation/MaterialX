@@ -18,7 +18,7 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
     std::set<NodePtr> shaderNodeSet;
 
     vector<InputPtr> inputs = materialNode->getActiveInputs();
-    for (InputPtr input : inputs) 
+    for (InputPtr input : inputs)
     {
         // Scan for a node directly connected to the input.
         // Note that this will handle traversing through interfacename associations.
@@ -29,7 +29,7 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
             {
                 continue;
             }
-                
+
             if (!target.empty())
             {
                 NodeDefPtr nodeDef = shaderNode->getNodeDef(target);

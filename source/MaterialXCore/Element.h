@@ -81,6 +81,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         _root(parent ? parent->getRoot() : nullptr)
     {
     }
+
   public:
     virtual ~Element() { }
     Element(const Element&) = delete;
@@ -372,7 +373,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return true if this element belongs to the given subclass.
     /// If a category string is specified, then both subclass and category
     /// matches are required.
-    template<class T> bool isA(const string& category = EMPTY_STRING) const
+    template <class T> bool isA(const string& category = EMPTY_STRING) const
     {
         if (!asA<T>())
             return false;
@@ -382,10 +383,10 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     }
 
     /// Dynamic cast to an instance of the given subclass.
-    template<class T> shared_ptr<T> asA();
+    template <class T> shared_ptr<T> asA();
 
     /// Dynamic cast to a const instance of the given subclass.
-    template<class T> shared_ptr<const T> asA() const;
+    template <class T> shared_ptr<const T> asA() const;
 
     /// @}
     /// @name Child Elements
@@ -398,7 +399,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @throws Exception if a child of this element already possesses the
     ///     given name.
     /// @return A shared pointer to the new child element.
-    template<class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
+    template <class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
 
     /// Add a child element of the given category and name.
     /// @param category The category string of the new child element.
@@ -429,7 +430,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then an empty shared pointer is returned.
-    template<class T> shared_ptr<T> getChildOfType(const string& name) const
+    template <class T> shared_ptr<T> getChildOfType(const string& name) const
     {
         ElementPtr child = getChild(name);
         return child ? child->asA<T>() : shared_ptr<T>();
@@ -445,9 +446,9 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return a vector of all child elements that are instances of the given
     /// subclass, optionally filtered by the given category string.  The returned
     /// vector maintains the order in which children were added.
-    template<class T> vector< shared_ptr<T> > getChildrenOfType(const string& category = EMPTY_STRING) const
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const
     {
-        vector< shared_ptr<T> > children;
+        vector<shared_ptr<T>> children;
         for (ElementPtr child : _childOrder)
         {
             shared_ptr<T> instance = child->asA<T>();
@@ -474,7 +475,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Remove the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then this method has no effect.
-    template<class T> void removeChildOfType(const string& name)
+    template <class T> void removeChildOfType(const string& name)
     {
         if (getChildOfType<T>(name))
             removeChild(name);
@@ -510,7 +511,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Set the value of an implicitly typed attribute.  Since an attribute
     /// stores no explicit type, the same type argument must be used in
     /// corresponding calls to getTypedAttribute.
-    template<class T> void setTypedAttribute(const string& attrib, const T& data)
+    template <class T> void setTypedAttribute(const string& attrib, const T& data)
     {
         setAttribute(attrib, toValueString(data));
     }
@@ -518,7 +519,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return the value of an implicitly typed attribute. If the given
     /// attribute is not present, or cannot be converted to the given data
     /// type, then the zero value for the data type is returned.
-    template<class T> T getTypedAttribute(const string& attrib) const
+    template <class T> T getTypedAttribute(const string& attrib) const
     {
         if (hasAttribute(attrib))
         {
@@ -578,7 +579,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Return the first ancestor of the given subclass, or an empty shared
     /// pointer if no ancestor of this subclass is found.
-    template<class T> shared_ptr<const T> getAncestorOfType() const
+    template <class T> shared_ptr<const T> getAncestorOfType() const
     {
         for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
@@ -768,7 +769,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Resolve a reference to a named element at the root scope of this document,
     /// taking the namespace at the scope of this element into account.
-    template<class T> shared_ptr<T> resolveRootNameReference(const string& name) const
+    template <class T> shared_ptr<T> resolveRootNameReference(const string& name) const
     {
         ConstElementPtr root = getRoot();
         shared_ptr<T> child = root->getChildOfType<T>(getQualifiedName(name));
@@ -838,6 +839,7 @@ class MX_CORE_API TypedElement : public Element
         Element(parent, category, name)
     {
     }
+
   public:
     virtual ~TypedElement() { }
 
@@ -882,7 +884,7 @@ class MX_CORE_API TypedElement : public Element
 
     /// @}
 
-public:
+  public:
     static const string TYPE_ATTRIBUTE;
 };
 
@@ -895,6 +897,7 @@ class MX_CORE_API ValueElement : public TypedElement
         TypedElement(parent, category, name)
     {
     }
+
   public:
     virtual ~ValueElement() { }
 
@@ -975,7 +978,7 @@ class MX_CORE_API ValueElement : public TypedElement
     /// @{
 
     /// Set the typed value of an element.
-    template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
+    template <class T> void setValue(const T& value, const string& type = EMPTY_STRING)
     {
         setType(!type.empty() ? type : getTypeString<T>());
         setValueString(toValueString(value));
@@ -1141,7 +1144,7 @@ class MX_CORE_API Token : public ValueElement
 ///
 /// The comment text may be accessed with the methods Element::setDocString and
 /// Element::getDocString.
-/// 
+///
 class MX_CORE_API CommentElement : public Element
 {
   public:
@@ -1300,7 +1303,7 @@ class MX_CORE_API ExceptionOrphanedElement : public Exception
     using Exception::Exception;
 };
 
-template<class T> shared_ptr<T> Element::addChild(const string& name)
+template <class T> shared_ptr<T> Element::addChild(const string& name)
 {
     string childName = name;
     if (childName.empty())

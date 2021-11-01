@@ -60,9 +60,9 @@ class MX_CORE_API Value
     virtual ~Value() { }
 
     /// Create a new value from an object of any valid MaterialX type.
-    template<class T> static ValuePtr createValue(const T& data)
+    template <class T> static ValuePtr createValue(const T& data)
     {
-        return std::make_shared< TypedValue<T> >(data);
+        return std::make_shared<TypedValue<T>>(data);
     }
 
     // Create a new value from a C-style string.
@@ -83,12 +83,12 @@ class MX_CORE_API Value
     /// @{
 
     /// Return true if this value is of the given type.
-    template<class T> bool isA() const;
+    template <class T> bool isA() const;
 
     /// Return our underlying data as an object of the given type.
     /// If the given type doesn't match our own data type, then an
     /// exception is thrown.
-    template<class T> const T& asA() const;
+    template <class T> const T& asA() const;
 
     /// Return the type string for this value.
     virtual const string& getTypeString() const = 0;
@@ -97,7 +97,7 @@ class MX_CORE_API Value
     virtual string getValueString() const = 0;
 
     /// Set float formatting for converting values to strings.
-    /// Formats to use are FloatFormatFixed, FloatFormatScientific 
+    /// Formats to use are FloatFormatFixed, FloatFormatScientific
     /// or FloatFormatDefault to set default format.
     static void setFloatFormat(FloatFormat format)
     {
@@ -208,7 +208,7 @@ class MX_CORE_API ScopedFloatFormatting
 };
 
 /// Return the type string associated with the given data type.
-template<class T> MX_CORE_API const string& getTypeString();
+template <class T> MX_CORE_API const string& getTypeString();
 
 /// Convert the given data value to a value string.
 template <class T> MX_CORE_API string toValueString(const T& data);

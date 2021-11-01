@@ -10,7 +10,8 @@
 namespace MaterialX
 {
 
-namespace {
+namespace
+{
 
 const string SCALE_ATTRIBUTE = "scale";
 
