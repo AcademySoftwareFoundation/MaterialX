@@ -10,6 +10,7 @@
 /// Texture baking functionality
 
 #include <iostream>
+#include <regex>
 
 #include <MaterialXCore/Unit.h>
 
@@ -28,6 +29,9 @@ using TextureBakerPtr = shared_ptr<class TextureBaker>;
 
 /// A vector of baked documents with their associated names.
 using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
+
+/// A map of materials to be rendered out and their corresponding udim set.
+using RenderableMaterialMap = std::unordered_map<string, StringVec>;
 
 /// @class TextureBaker
 /// A helper class for baking procedural material content to textures.
@@ -165,6 +169,18 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
         }
     }
 
+    /// Set the renderableMaterialMap to specify which subset of materials to bake out. Defaults to empty.
+    void setRenderableMaterialMap(RenderableMaterialMap renderableMaterialMap)
+    {
+        _renderableMaterialMap = renderableMaterialMap;
+    }
+
+    /// Set the renderableMaterialMap to specify which subset of materials to bake out. Defaults to empty.
+    RenderableMaterialMap getRenderableMaterialMap() const
+    {
+         return _renderableMaterialMap;
+    }
+
     /// Set the output stream for reporting progress and warnings.  Defaults to std::cout.
     void setOutputStream(std::ostream* outputStream)
     {
@@ -243,6 +259,12 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     // Generate a texture filename for the given graph output.
     FilePath generateTextureFilename(const StringMap& fileTemplateMap);
 
+    // Validate and correct the user-provided renderable material map.
+    void validateRenderableMaterialMap(const std::vector<TypedElementPtr>& renderableMaterials);
+
+    // Create map of rendered materials to their corresponding udimSetString.
+    void selectRenderableMaterials(const DocumentPtr doc);
+
     // Write a baked image to disk, returning true if the write was successful.
     bool writeBakedImage(const BakedImage& baked, ImagePtr image);
 
@@ -256,6 +278,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     string _bakedGraphName;
     string _bakedGeomInfoName;
     string _textureFilenameTemplate;
+    string _explicitMaterialOverride;
     std::ostream* _outputStream;
     bool _hashImageNames;
 
@@ -267,6 +290,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     StringSet _permittedOverrides;
     StringMap _texTemplateOverrides;
     StringMap _bakedInputMap;
+    RenderableMaterialMap _renderableMaterialMap;
 
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
 };
