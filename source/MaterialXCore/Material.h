@@ -12,7 +12,6 @@
 #include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Node.h>
-#include <set>
 
 namespace MaterialX
 {
