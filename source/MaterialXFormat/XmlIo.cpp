@@ -20,7 +20,8 @@ namespace MaterialX
 
 const string MTLX_EXTENSION = "mtlx";
 
-namespace {
+namespace
+{
 
 const string XINCLUDE_TAG = "xi:include";
 const string XINCLUDE_NAMESPACE = "xmlns:xi";
@@ -114,8 +115,7 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
 
                     // Write relative include paths in Posix format, and absolute
                     // include paths in native format.
-                    FilePath::Format includeFormat = includePath.isAbsolute() ?
-                        FilePath::FormatNative : FilePath::FormatPosix;
+                    FilePath::Format includeFormat = includePath.isAbsolute() ? FilePath::FormatNative : FilePath::FormatPosix;
                     includeAttr.set_value(includePath.asString(includeFormat).c_str());
 
                     writtenSourceFiles.insert(sourceUri);
