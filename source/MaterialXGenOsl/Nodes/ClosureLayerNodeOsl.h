@@ -25,6 +25,8 @@ class MX_GENOSL_API ClosureLayerNodeOsl : public ShaderNodeImpl
     /// String constants
     static const string TOP;
     static const string BASE;
+    static const string THICKNESS;
+    static const string IOR;
 };
 
 } // namespace MaterialX

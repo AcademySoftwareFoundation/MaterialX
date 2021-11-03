@@ -28,17 +28,43 @@ void ClosureMixNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& c
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
+    ClosureContext* cct = context.getClosureContext();
 
     ShaderNode& node = const_cast<ShaderNode&>(_node);
 
-    // Emit calls for the closure dependencies upstream from this node.
-    shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+    ShaderInput* fg = node.getInput(FG);
+    ShaderInput* bg = node.getInput(BG);
+    ShaderInput* mix = node.getInput(MIX);
+
+    // If the add node has closure parameters set,
+    // we pass this on to both components.
+
+    if (fg->getConnection())
+    {
+        // Make sure it's a connection to a sibling and not the graph interface.
+        ShaderNode* fgNode = fg->getConnection()->getNode();
+        if (fgNode->getParent() == node.getParent())
+        {
+            ScopedAssignClosureParams assign(&node, fgNode, cct);
+            shadergen.emitFunctionCall(*fgNode, context, stage);
+        }
+    }
+    if (bg->getConnection())
+    {
+        // Make sure it's a connection to a sibling and not the graph interface.
+        ShaderNode* bgNode = bg->getConnection()->getNode();
+        if (bgNode->getParent() == node.getParent())
+        {
+            ScopedAssignClosureParams assign(&node, bgNode, cct);
+            shadergen.emitFunctionCall(*bgNode, context, stage);
+        }
+    }
+
+    const string fgResult = shadergen.getUpstreamResult(fg, context);
+    const string bgResult = shadergen.getUpstreamResult(bg, context);
+    const string mixResult = shadergen.getUpstreamResult(mix, context);
 
     ShaderOutput* output = node.getOutput();
-    const string fgResult = shadergen.getUpstreamResult(node.getInput(FG), context);
-    const string bgResult = shadergen.getUpstreamResult(node.getInput(BG), context);
-    const string mixResult = shadergen.getUpstreamResult(node.getInput(MIX), context);
-
     if (output->getType() == Type::BSDF)
     {
         emitOutputVariables(node, context, stage);

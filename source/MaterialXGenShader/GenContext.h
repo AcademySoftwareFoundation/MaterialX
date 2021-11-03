@@ -227,8 +227,11 @@ public:
     /// An array of arguments
     using Arguments = vector<Argument>;
 
+    /// Extra parameters for closure evaluation.
+    using ClosureParams = std::unordered_map<string, const ShaderInput*>;
+
     /// Constructor
-    ClosureContext(int type) : _type(type), _thinfilm(nullptr) {}
+    ClosureContext(int type) : _type(type) {}
 
     /// Return the identifier for this context.
     int getType() const { return _type; }
@@ -259,24 +262,54 @@ public:
         return it != _suffix.end() ? it->second : EMPTY_STRING;
     }
 
-    /// Apply a thin-film node to be used for evaluating BSDFs in this context.
-    void setThinFilm(const ShaderNode* thinfilm)
+    /// Set extra parameters to use for evaluating a closure.
+    void setClosureParams(const ShaderNode* closure, const ClosureParams* params)
     {
-        _thinfilm = thinfilm;
+        if (params)
+        {
+            _params[closure] = params;
+        }
+        else
+        {
+            _params.erase(closure);
+        }
     }
 
-    /// Return a thin-film node if one is set for evaluating BSDFs in this context.
-    const ShaderNode* getThinFilm() const
+    /// Return extra parameters to use for evaluating a closure. Or return
+    /// nullptr if no parameters have been set for the given closure.
+    const ClosureParams* getClosureParams(const ShaderNode* closure) const
     {
-        return _thinfilm;
+        auto it = _params.find(closure);
+        return it != _params.end() ? it->second : nullptr;
     }
 
 protected:
     const int _type;
     std::unordered_map<const TypeDesc*, Arguments> _arguments;
     std::unordered_map<const TypeDesc*, string> _suffix;
-    const ShaderNode* _thinfilm;
+    std::unordered_map<const ShaderNode*, const ClosureParams*> _params;
+
     static const Arguments EMPTY_ARGUMENTS;
+};
+
+/// A RAII class for assigning extra parameters to a closure node.
+/// The parameters are stored in the closure context.
+class MX_GENSHADER_API ScopedAssignClosureParams
+{
+public:
+    /// Constructor for explicit assignment of parameters to a closure node.
+    ScopedAssignClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct);
+
+    /// Constructor for assignment of parameters from one closure node to another.
+    ScopedAssignClosureParams(const ShaderNode* fromNode, const ShaderNode* toNode, ClosureContext* cct);
+
+    /// Destructor restoring the node parameter state on the closure context.
+    ~ScopedAssignClosureParams();
+
+private:
+    ClosureContext* _cct;
+    const ShaderNode* _node;
+    const ClosureContext::ClosureParams* _oldParams;
 };
 
 } // namespace MaterialX

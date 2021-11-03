@@ -17,6 +17,8 @@ namespace MaterialX
 
 const string ClosureLayerNodeOsl::TOP = "top";
 const string ClosureLayerNodeOsl::BASE = "base";
+const string ClosureLayerNodeOsl::THICKNESS = "thickness";
+const string ClosureLayerNodeOsl::IOR = "ior";
 
 ShaderNodeImplPtr ClosureLayerNodeOsl::create()
 {
@@ -56,16 +58,24 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
             throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
         }
 
-        ClosureContext cct(0);
-        cct.setThinFilm(top);
-        context.pushClosureContext(&cct);
-
+        // Store the base result in the layer result variable.
         const string oldVariable = base->getOutput()->getVariable();
         base->getOutput()->setVariable(output->getVariable());
-        shadergen.emitFunctionCall(*base, context, stage);
-        base->getOutput()->setVariable(oldVariable);
 
+        // Set the extra parameters for thin-film.
+        ClosureContext cct(0);
+        context.pushClosureContext(&cct);
+        ClosureContext::ClosureParams params;
+        params[THICKNESS] = top->getInput(THICKNESS);
+        params[IOR] = top->getInput(IOR);
+
+        // Emit the function call.
+        ScopedAssignClosureParams assign(&params, base, &cct);
+        shadergen.emitFunctionCall(*base, context, stage);
+
+        // Restore state.
         context.popClosureContext();
+        base->getOutput()->setVariable(oldVariable);
     }
     else
     {
@@ -79,6 +89,10 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // Make sure the connections are sibling nodes and not the graph interface.
         if (top->getParent() == node.getParent())
         {
+            // If this layer node has closure parameters set,
+            // we pass this on to the top component only.
+            ClosureContext* cct = context.getClosureContext();
+            ScopedAssignClosureParams assign(&node, top, cct);
             shadergen.emitFunctionCall(*top, context, stage);
         }
         if (base->getParent() == node.getParent())

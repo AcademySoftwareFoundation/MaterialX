@@ -26,15 +26,40 @@ void ClosureAddNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& c
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
+    ClosureContext* cct = context.getClosureContext();
 
     ShaderNode& node = const_cast<ShaderNode&>(_node);
 
-    // Emit calls for the closure dependencies upstream from this node.
-    shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+    ShaderInput* in1 = node.getInput(IN1);
+    ShaderInput* in2 = node.getInput(IN2);
+
+    // If the mix node has closure parameters set,
+    // we pass this on to both components.
+
+    if (in1->getConnection())
+    {
+        // Make sure it's a connection to a sibling and not the graph interface.
+        ShaderNode* in1Node = in1->getConnection()->getNode();
+        if (in1Node->getParent() == node.getParent())
+        {
+            ScopedAssignClosureParams assign(&node, in1Node, cct);
+            shadergen.emitFunctionCall(*in1Node, context, stage);
+        }
+    }
+    if (in2->getConnection())
+    {
+        // Make sure it's a connection to a sibling and not the graph interface.
+        ShaderNode* in2Node = in2->getConnection()->getNode();
+        if (in2Node->getParent() == node.getParent())
+        {
+            ScopedAssignClosureParams assign(&node, in2Node, cct);
+            shadergen.emitFunctionCall(*in2Node, context, stage);
+        }
+    }
 
     // Get their results.
-    const string in1Result = shadergen.getUpstreamResult(node.getInput(IN1), context);
-    const string in2Result = shadergen.getUpstreamResult(node.getInput(IN2), context);
+    const string in1Result = shadergen.getUpstreamResult(in1, context);
+    const string in2Result = shadergen.getUpstreamResult(in2, context);
 
     ShaderOutput* output = node.getOutput();
     if (output->getType() == Type::BSDF)

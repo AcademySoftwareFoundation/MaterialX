@@ -27,21 +27,34 @@ void ClosureMultiplyNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenConte
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
     const Syntax& syntax = shadergen.getSyntax();
+    ClosureContext* cct = context.getClosureContext();
 
     ShaderNode& node = const_cast<ShaderNode&>(_node);
 
-    // Emit calls for the closure dependencies upstream from this node.
-    shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+    ShaderInput* in1 = node.getInput(IN1);
+    ShaderInput* in2 = node.getInput(IN2);
+
+    // If the multiply node has closure parameters set,
+    // we pass this on to the in1 closure component.
+
+    if (in1->getConnection())
+    {
+        // Make sure it's a connection to a sibling and not the graph interface.
+        ShaderNode* in1Node = in1->getConnection()->getNode();
+        if (in1Node->getParent() == node.getParent())
+        {
+            ScopedAssignClosureParams assign(&node, in1Node, cct);
+            shadergen.emitFunctionCall(*in1Node, context, stage);
+        }
+    }
 
     // Get their results.
-    const string in1Result = shadergen.getUpstreamResult(node.getInput(IN1), context);
-    const string in2Result = shadergen.getUpstreamResult(node.getInput(IN2), context);
+    const string in1Result = shadergen.getUpstreamResult(in1, context);
+    const string in2Result = shadergen.getUpstreamResult(in2, context);
 
     ShaderOutput* output = node.getOutput();
-
     if (output->getType() == Type::BSDF)
     {
-        ShaderInput* in2 = node.getInput(IN2);
         const string in2clamped = output->getVariable() + "_in2_clamped";
         shadergen.emitLine(syntax.getTypeName(in2->getType()) + " " + in2clamped + " = clamp(" + in2Result + ", 0.0, 1.0)", stage);
 

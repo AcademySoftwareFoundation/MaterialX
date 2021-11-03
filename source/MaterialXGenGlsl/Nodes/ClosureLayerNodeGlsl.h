@@ -22,6 +22,8 @@ class MX_GENGLSL_API ClosureLayerNodeGlsl : public GlslImplementation
     /// String constants
     static const string TOP;
     static const string BASE;
+    static const string THICKNESS;
+    static const string IOR;
 };
 
 } // namespace MaterialX

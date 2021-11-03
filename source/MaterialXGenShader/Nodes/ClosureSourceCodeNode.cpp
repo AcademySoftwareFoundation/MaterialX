@@ -39,24 +39,16 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         ClosureContext* cct = context.getClosureContext();
         if (cct)
         {
-            // Check if thin-film has been added to the BSDF context.
+            // Check if extra parameters has been added for this node.
             const TypeDesc* closureType = output->getType();
-            const ShaderNode* thinfilm = cct->getThinFilm();
-            if (closureType == Type::BSDF && thinfilm)
+            const ClosureContext::ClosureParams* params = cct->getClosureParams(&node);
+            if (closureType == Type::BSDF && params)
             {
-                // Set thin-film parameters on the BSDF.
-                const ShaderInput* thickness = thinfilm->getInput("thickness");
-                const ShaderInput* ior = thinfilm->getInput("ior");
-                if (!(thickness && ior))
+                // Assign the parameters to the BSDF.
+                for (auto it : *params)
                 {
-                    throw ExceptionShaderGenError("Node '" + thinfilm->getName() + "' is not a valid thin_film_bsdf node");
+                    shadergen.emitLine(output->getVariable() + "." + it.first + " = " + shadergen.getUpstreamResult(it.second, context), stage);
                 }
-                shadergen.emitLine(output->getVariable() + ".thickness = " + shadergen.getUpstreamResult(thickness, context), stage);
-                shadergen.emitLine(output->getVariable() + ".ior = " + shadergen.getUpstreamResult(ior, context), stage);
-
-                // Once the thinfilm has been applied we reset it on the context
-                // since we don't want any upstream BSDF to also pick this up.
-                cct->setThinFilm(nullptr);
             }
 
             // Emit function name.

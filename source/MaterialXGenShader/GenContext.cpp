@@ -108,4 +108,42 @@ void GenContext::getOutputSuffix(const ShaderOutput* output, string& suffix) con
     }
 }
 
+
+ScopedAssignClosureParams::ScopedAssignClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct) :
+    _cct(cct),
+    _node(node),
+    _oldParams(nullptr)
+{
+    if (_cct)
+    {
+        _oldParams = _cct->getClosureParams(_node);
+        _cct->setClosureParams(_node, params);
+    }
+}
+
+ScopedAssignClosureParams::ScopedAssignClosureParams(const ShaderNode* fromNode, const ShaderNode* toNode, ClosureContext* cct) :
+    _cct(cct),
+    _node(toNode),
+    _oldParams(nullptr)
+{
+    if (_cct)
+    {
+        const ClosureContext::ClosureParams* newParams = _cct->getClosureParams(fromNode);
+        if (newParams)
+        {
+            _oldParams = _cct->getClosureParams(_node);
+            _cct->setClosureParams(_node, newParams);
+        }
+    }
+}
+
+ScopedAssignClosureParams::~ScopedAssignClosureParams()
+{
+    if (_cct && _oldParams)
+    {
+        _cct->setClosureParams(_node, _oldParams);
+    }
+}
+
+
 } // namespace MaterialX

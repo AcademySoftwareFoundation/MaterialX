@@ -159,7 +159,19 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     {
         // Use the first output for classifying node type for the closure context.
         // This is only relevent for closures, and they only have a single output.
-        const TypeDesc* closureType = _rootGraph->getOutputSocket()->getType();
+        const ShaderOutput* output = _rootGraph->getOutput();
+        const TypeDesc* closureType = output->getType();
+
+        // Check if extra parameters has been added for this node.
+        const ClosureContext::ClosureParams* params = cct->getClosureParams(&node);
+        if (closureType == Type::BSDF && params)
+        {
+            // Assign the parameters to the BSDF.
+            for (auto it : *params)
+            {
+                shadergen.emitLine(output->getVariable() + "." + it.first + " = " + shadergen.getUpstreamResult(it.second, context), stage);
+            }
+        }
 
         // Emit function name.
         shadergen.emitString(_functionName + cct->getSuffix(closureType) + "(", stage);
