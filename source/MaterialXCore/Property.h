@@ -195,9 +195,9 @@ class MX_CORE_API PropertySet : public Element
 
     /// Set the typed value of a property by its name, creating a child element
     /// to hold the property if needed.
-    template<class T> PropertyPtr setPropertyValue(const string& name,
-                                                   const T& value,
-                                                   const string& type = EMPTY_STRING)
+    template <class T> PropertyPtr setPropertyValue(const string& name,
+                                                    const T& value,
+                                                    const string& type = EMPTY_STRING)
     {
         PropertyPtr property = getChildOfType<Property>(name);
         if (!property)
@@ -218,7 +218,7 @@ class MX_CORE_API PropertySet : public Element
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
 };
 
