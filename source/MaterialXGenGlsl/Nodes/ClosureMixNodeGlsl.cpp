@@ -45,7 +45,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         ShaderNode* fgNode = fg->getConnection()->getNode();
         if (fgNode->getParent() == node.getParent())
         {
-            ScopedAssignClosureParams assign(&node, fgNode, cct);
+            ScopedSetClosureParams setParams(&node, fgNode, cct);
             shadergen.emitFunctionCall(*fgNode, context, stage);
         }
     }
@@ -55,7 +55,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         ShaderNode* bgNode = bg->getConnection()->getNode();
         if (bgNode->getParent() == node.getParent())
         {
-            ScopedAssignClosureParams assign(&node, bgNode, cct);
+            ScopedSetClosureParams setParams(&node, bgNode, cct);
             shadergen.emitFunctionCall(*bgNode, context, stage);
         }
     }

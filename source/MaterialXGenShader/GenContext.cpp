@@ -109,7 +109,7 @@ void GenContext::getOutputSuffix(const ShaderOutput* output, string& suffix) con
 }
 
 
-ScopedAssignClosureParams::ScopedAssignClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct) :
+ScopedSetClosureParams::ScopedSetClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct) :
     _cct(cct),
     _node(node),
     _oldParams(nullptr)
@@ -121,11 +121,13 @@ ScopedAssignClosureParams::ScopedAssignClosureParams(const ClosureContext::Closu
     }
 }
 
-ScopedAssignClosureParams::ScopedAssignClosureParams(const ShaderNode* fromNode, const ShaderNode* toNode, ClosureContext* cct) :
+ScopedSetClosureParams::ScopedSetClosureParams(const ShaderNode* fromNode, const ShaderNode* toNode, ClosureContext* cct) :
     _cct(cct),
     _node(toNode),
     _oldParams(nullptr)
 {
+    // The class must be safe for the cases where a context is not set
+    // so make sure to check for nullptr here.
     if (_cct)
     {
         const ClosureContext::ClosureParams* newParams = _cct->getClosureParams(fromNode);
@@ -137,7 +139,7 @@ ScopedAssignClosureParams::ScopedAssignClosureParams(const ShaderNode* fromNode,
     }
 }
 
-ScopedAssignClosureParams::~ScopedAssignClosureParams()
+ScopedSetClosureParams::~ScopedSetClosureParams()
 {
     if (_cct && _oldParams)
     {
@@ -145,5 +147,17 @@ ScopedAssignClosureParams::~ScopedAssignClosureParams()
     }
 }
 
+
+ScopedSetVariableName::ScopedSetVariableName(const string& name, ShaderPort* port) :
+    _port(port),
+    _oldName(port->getVariable())
+{
+    _port->setVariable(name);
+}
+
+ScopedSetVariableName::~ScopedSetVariableName()
+{
+    _port->setVariable(_oldName);
+}
 
 } // namespace MaterialX

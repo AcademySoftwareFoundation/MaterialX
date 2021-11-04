@@ -29,6 +29,7 @@ void ClosureLayerNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext&
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
+    ClosureContext* cct = context.getClosureContext();
 
     ShaderNode& node = const_cast<ShaderNode&>(_node);
 
@@ -42,12 +43,6 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // Just declare the output variable with default value.
         emitOutputVariables(node, context, stage);
         return;
-    }
-
-    ClosureContext* cct = context.getClosureContext();
-    if (!cct)
-    {
-        throw ExceptionShaderGenError("No closure context set to evaluate node '" + node.getName() + "'");
     }
 
     ShaderNode* top = topInput->getConnection()->getNode();
@@ -64,21 +59,17 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
             throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
         }
 
-        // Store the base result in the layer result variable.
-        const string oldVariable = base->getOutput()->getVariable();
-        base->getOutput()->setVariable(output->getVariable());
-
         // Set the extra parameters for thin-film.
         ClosureContext::ClosureParams params;
         params[THICKNESS] = top->getInput(THICKNESS);
         params[IOR] = top->getInput(IOR);
+        ScopedSetClosureParams setParams(&params, base, cct);
+
+        // Store the base result in the layer result variable.
+        ScopedSetVariableName setVariable(output->getVariable(), base->getOutput());
 
         // Emit the function call.
-        ScopedAssignClosureParams assign(&params, base, cct);
         shadergen.emitFunctionCall(*base, context, stage);
-
-        // Restore state.
-        base->getOutput()->setVariable(oldVariable);
     }
     else
     {
@@ -94,7 +85,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         {
             // If this layer node has closure parameters set,
             // we pass this on to the top component only.
-            ScopedAssignClosureParams assign(&node, top, cct);
+            ScopedSetClosureParams setParams(&node, top, cct);
             shadergen.emitFunctionCall(*top, context, stage);
         }
         if (base->getParent() == node.getParent())

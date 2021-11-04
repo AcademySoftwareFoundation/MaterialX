@@ -292,24 +292,39 @@ protected:
     static const Arguments EMPTY_ARGUMENTS;
 };
 
-/// A RAII class for assigning extra parameters to a closure node.
-/// The parameters are stored in the closure context.
-class MX_GENSHADER_API ScopedAssignClosureParams
+/// A RAII class for setting extra parameters for closure evaluation,
+/// stored in the closure context.
+class MX_GENSHADER_API ScopedSetClosureParams
 {
 public:
-    /// Constructor for explicit assignment of parameters to a closure node.
-    ScopedAssignClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct);
+    /// Constructor for setting explicit parameters for a closure node.
+    ScopedSetClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct);
 
-    /// Constructor for assignment of parameters from one closure node to another.
-    ScopedAssignClosureParams(const ShaderNode* fromNode, const ShaderNode* toNode, ClosureContext* cct);
+    /// Constructor for setting parameters from one closure node to another.
+    ScopedSetClosureParams(const ShaderNode* fromNode, const ShaderNode* toNode, ClosureContext* cct);
 
-    /// Destructor restoring the node parameter state on the closure context.
-    ~ScopedAssignClosureParams();
+    /// Destructor restoring the closure parameter state.
+    ~ScopedSetClosureParams();
 
 private:
     ClosureContext* _cct;
     const ShaderNode* _node;
     const ClosureContext::ClosureParams* _oldParams;
+};
+
+/// A RAII class for overriding port variable names.
+class MX_GENSHADER_API ScopedSetVariableName
+{
+public:
+    /// Constructor for setting a new variable name for a port.
+    ScopedSetVariableName(const string& name, ShaderPort* port);
+
+    /// Destructor restoring the original variable name.
+    ~ScopedSetVariableName();
+
+private:
+    ShaderPort* _port;
+    string _oldName;
 };
 
 } // namespace MaterialX

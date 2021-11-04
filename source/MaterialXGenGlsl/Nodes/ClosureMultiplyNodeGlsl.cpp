@@ -43,7 +43,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         ShaderNode* in1Node = in1->getConnection()->getNode();
         if (in1Node->getParent() == node.getParent())
         {
-            ScopedAssignClosureParams assign(&node, in1Node, cct);
+            ScopedSetClosureParams setParams(&node, in1Node, cct);
             shadergen.emitFunctionCall(*in1Node, context, stage);
         }
     }

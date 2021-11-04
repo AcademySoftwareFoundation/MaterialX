@@ -126,15 +126,10 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
         // Change the state so we emit the top BSDF function 
         // with output variable name from the layer node itself.
-        ShaderOutput* topOutput = top->getOutput();
-        const string topOutputOldVariable = topOutput->getVariable();
-        topOutput->setVariable(output->getVariable());
+        ScopedSetVariableName setVariable(output->getVariable(), top->getOutput());
 
         // Make the call.
         top->getImplementation().emitFunctionCall(*top, context, stage);
-
-        // Restore state.
-        topOutput->setVariable(topOutputOldVariable);
 
         return;
     }
@@ -150,15 +145,12 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     // base BSDF connection and output variable name from the
     // layer operator itself.
     topNodeBaseInput->makeConnection(base->getOutput());
-    ShaderOutput* topOutput = top->getOutput();
-    const string topOutputOldVariable = topOutput->getVariable();
-    topOutput->setVariable(output->getVariable());
+    ScopedSetVariableName setVariable(output->getVariable(), top->getOutput());
 
     // Make the call.
     top->getImplementation().emitFunctionCall(*top, context, stage);
 
     // Restore state.
-    topOutput->setVariable(topOutputOldVariable);
     topNodeBaseInput->breakConnection();
 
 END_SHADER_STAGE(stage, Stage::PIXEL)

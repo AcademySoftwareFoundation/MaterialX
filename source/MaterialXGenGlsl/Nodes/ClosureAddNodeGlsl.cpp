@@ -33,8 +33,8 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     ShaderInput* in1 = node.getInput(IN1);
     ShaderInput* in2 = node.getInput(IN2);
 
-    // If the mix node has closure parameters set,
-    // we pass this on to both components.
+    // If the add node has closure parameters set,
+    // we pass this on to both connected components.
 
     if (in1->getConnection())
     {
@@ -42,7 +42,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         ShaderNode* in1Node = in1->getConnection()->getNode();
         if (in1Node->getParent() == node.getParent())
         {
-            ScopedAssignClosureParams assign(&node, in1Node, cct);
+            ScopedSetClosureParams setParams(&node, in1Node, cct);
             shadergen.emitFunctionCall(*in1Node, context, stage);
         }
     }
@@ -52,7 +52,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         ShaderNode* in2Node = in2->getConnection()->getNode();
         if (in2Node->getParent() == node.getParent())
         {
-            ScopedAssignClosureParams assign(&node, in2Node, cct);
+            ScopedSetClosureParams setParams(&node, in2Node, cct);
             shadergen.emitFunctionCall(*in2Node, context, stage);
         }
     }
