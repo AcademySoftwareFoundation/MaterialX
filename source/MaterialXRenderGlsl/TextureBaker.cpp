@@ -484,6 +484,11 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
     BakedDocumentVec bakedDocuments;
     for (auto& pair : _renderableMaterialMap)
     {
+        if (_outputStream)
+        {
+            *_outputStream << std::endl << "Working on material: " << pair.first << std::endl;
+        }
+
         StringVec materialTags = pair.second;
         NodePtr shaderNode;
 
@@ -653,12 +658,15 @@ void TextureBaker::validateRenderableMaterialMap(ConstDocumentPtr doc, const std
             else
             {
                 // Print out not found error message for material.
-                std::cout << "Could not find renderable material " << materialName;
-                if (!tag.empty())
+                if (_outputStream)
                 {
-                   std::cout << " with udim " << tag;
+                    *_outputStream << "Could not find renderable material " << materialName;
+                    if (!tag.empty())
+                    {
+                        *_outputStream << " with udim " << tag;
+                    }
+                    *_outputStream << std::endl;
                 }
-                std::cout << std::endl;
             }
         }
     }
