@@ -25,18 +25,6 @@ const string ALL_UDIMS = "ALL";
 const string SHADER_PREFIX = "SR_";
 const string UDIM_PREFIX = "_";
 
-StringVec getRenderablePaths(ConstDocumentPtr doc)
-{
-    StringVec renderablePaths;
-    std::vector<TypedElementPtr> elems;
-    findRenderableElements(doc, elems);
-    for (TypedElementPtr elem : elems)
-    {
-        renderablePaths.push_back(elem->getNamePath());
-    }
-    return renderablePaths;
-}
-
 string getValueStringFromColor(const Color4& color, const string& type)
 {
     if (type == "color4" || type == "vector4")
@@ -344,7 +332,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     }
 
     // Create a shader node.
-    string shaderName = (_explicitMaterialOverride.empty())? shader->getName() : SHADER_PREFIX + _explicitMaterialOverride;
+    string shaderName = (!_explicitMaterialOverride.empty())? SHADER_PREFIX + _explicitMaterialOverride : shader->getName();
     NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shaderName + BAKED_POSTFIX, shader->getType());
 
     // Optionally create a material node, connecting it to the new shader node.
@@ -504,7 +492,7 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
         {
             string renderablePath = pair.first;
             resolver->setUdimString(tag);
-            if (tag != EMPTY_STRING && renderablePath.find(UDIM_TOKEN) != string::npos)
+            if (!tag.empty() && renderablePath.find(UDIM_TOKEN) != string::npos)
             {
                 // Determine overriding material group for explicit material grouping.
                 string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : UDIM_PREFIX;
@@ -548,13 +536,13 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
 
         // Compute the udim set.
         StringVec udimset = materialTags;
-        if (udimset.size() == 1 && udimset[0] == EMPTY_STRING)
+        if (udimset.size() == 1 && udimset[0].empty())
         {
             udimset.clear();
         }
 
         // Write the baked material and textures.
-        string documentName = (_explicitMaterialOverride.empty())? shaderNode->getName() : _explicitMaterialOverride;
+        string documentName = (!_explicitMaterialOverride.empty())? _explicitMaterialOverride : shaderNode->getName();
         DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimset);
         bakedDocuments.push_back(std::make_pair(documentName, bakedMaterialDoc));
     }
@@ -618,8 +606,7 @@ void TextureBaker::validateRenderableMaterialMap(const std::vector<TypedElementP
             pair.second.clear();
             finalRenderableMaterialMap[pair.first] = {};
             std::regex udim_regex ("(" + UDIM_TOKEN + ")");
-            string material_regex = "^[\\s]*" + std::regex_replace(pair.first, udim_regex, "([\\d]+)") + "[\\s]*$";
-            regex_replace(material_regex, std::regex("(" + UDIM_TOKEN + ")"), "(\\d)*");
+            string material_regex = "^[\\s]*" + regex_replace(pair.first, udim_regex, "([\\d]+)") + "[\\s]*$";
             std::smatch detectedUdim;
             for (TypedElementPtr material : renderableMaterials)
             {
@@ -682,7 +669,7 @@ void TextureBaker::validateRenderableMaterialMap(const std::vector<TypedElementP
     _renderableMaterialMap = finalRenderableMaterialMap;
 }
 
-void TextureBaker::selectRenderableMaterials(DocumentPtr doc)
+void TextureBaker::selectRenderableMaterials(ConstDocumentPtr doc)
 {
     std::vector<TypedElementPtr> renderableMaterials;
     std::unordered_set<ElementPtr> processedSources;

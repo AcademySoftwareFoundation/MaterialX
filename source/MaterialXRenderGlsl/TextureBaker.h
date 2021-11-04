@@ -263,7 +263,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     void validateRenderableMaterialMap(const std::vector<TypedElementPtr>& renderableMaterials);
 
     // Create map of rendered materials to their corresponding udimSetString.
-    void selectRenderableMaterials(const DocumentPtr doc);
+    void selectRenderableMaterials(ConstDocumentPtr doc);
 
     // Write a baked image to disk, returning true if the write was successful.
     bool writeBakedImage(const BakedImage& baked, ImagePtr image);
