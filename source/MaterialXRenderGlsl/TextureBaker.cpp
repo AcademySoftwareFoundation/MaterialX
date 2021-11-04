@@ -602,13 +602,17 @@ void TextureBaker::validateRenderableMaterialMap(ConstDocumentPtr doc, const std
     {
         string materialName = pair.first;
         // Compute the UDIM set if udimset from geominfo used.
-        if (pair.second.size() && pair.second[0] == ALL_UDIMS)
+        StringVec::iterator allUdimsPtr = find(pair.second.begin(), pair.second.end(), ALL_UDIMS);
+        if (allUdimsPtr != pair.second.end())
         {
-            pair.second.clear();
+            pair.second.erase(allUdimsPtr);
             ValuePtr udimsetValue = doc->getGeomPropValue("udimset");
             if (udimsetValue && udimsetValue->isA<StringVec>())
             {
-                pair.second = udimsetValue->asA<StringVec>();
+                StringSet finalSet(pair.second.begin(), pair.second.end());
+                StringVec geomInfo = udimsetValue->asA<StringVec>();
+                finalSet.insert(geomInfo.begin(), geomInfo.end());
+                pair.second.assign(finalSet.begin(), finalSet.end());
             }
         }
 
