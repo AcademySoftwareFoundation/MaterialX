@@ -26,10 +26,6 @@
 #include <MaterialXGenGlsl/Nodes/TransformPointNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/ClosureLayerNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/ClosureMixNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/ClosureAddNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/ClosureMultiplyNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
@@ -39,6 +35,10 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
+#include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
+#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
+#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
+#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
 namespace MaterialX
 {
@@ -245,19 +245,19 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_image_vector4_" + GlslShaderGenerator::TARGET, HwImageNode::create);
 
     // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, ClosureLayerNodeGlsl::create);
-    registerImplementation("IM_layer_vdf_" + GlslShaderGenerator::TARGET, ClosureLayerNodeGlsl::create);
+    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, ClosureLayerNode::create);
+    registerImplementation("IM_layer_vdf_" + GlslShaderGenerator::TARGET, ClosureLayerNode::create);
     // <!-- <mix> -->
-    registerImplementation("IM_mix_bsdf_" + GlslShaderGenerator::TARGET, ClosureMixNodeGlsl::create);
-    registerImplementation("IM_mix_edf_" + GlslShaderGenerator::TARGET, ClosureMixNodeGlsl::create);
+    registerImplementation("IM_mix_bsdf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
+    registerImplementation("IM_mix_edf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
     // <!-- <add> -->
-    registerImplementation("IM_add_bsdf_" + GlslShaderGenerator::TARGET, ClosureAddNodeGlsl::create);
-    registerImplementation("IM_add_edf_" + GlslShaderGenerator::TARGET, ClosureAddNodeGlsl::create);
+    registerImplementation("IM_add_bsdf_" + GlslShaderGenerator::TARGET, ClosureAddNode::create);
+    registerImplementation("IM_add_edf_" + GlslShaderGenerator::TARGET, ClosureAddNode::create);
     // <!-- <multiply> -->
-    registerImplementation("IM_multiply_bsdfC_" + GlslShaderGenerator::TARGET, ClosureMultiplyNodeGlsl::create);
-    registerImplementation("IM_multiply_bsdfF_" + GlslShaderGenerator::TARGET, ClosureMultiplyNodeGlsl::create);
-    registerImplementation("IM_multiply_edfC_" + GlslShaderGenerator::TARGET, ClosureMultiplyNodeGlsl::create);
-    registerImplementation("IM_multiply_edfF_" + GlslShaderGenerator::TARGET, ClosureMultiplyNodeGlsl::create);
+    registerImplementation("IM_multiply_bsdfC_" + GlslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_bsdfF_" + GlslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_edfC_" + GlslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_edfF_" + GlslShaderGenerator::TARGET, ClosureMultiplyNode::create);
 
     // <!-- <thin_film> -->
     registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);

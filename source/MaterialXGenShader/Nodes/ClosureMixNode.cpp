@@ -3,25 +3,24 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenOsl/Nodes/ClosureMixNodeOsl.h>
-
+#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
 namespace MaterialX
 {
 
-const string ClosureMixNodeOsl::FG = "fg";
-const string ClosureMixNodeOsl::BG = "bg";
-const string ClosureMixNodeOsl::MIX = "mix";
+const string ClosureMixNode::FG = "fg";
+const string ClosureMixNode::BG = "bg";
+const string ClosureMixNode::MIX = "mix";
 
-ShaderNodeImplPtr ClosureMixNodeOsl::create()
+ShaderNodeImplPtr ClosureMixNode::create()
 {
-    return std::make_shared<ClosureMixNodeOsl>();
+    return std::make_shared<ClosureMixNode>();
 }
 
-void ClosureMixNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
+void ClosureMixNode::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();

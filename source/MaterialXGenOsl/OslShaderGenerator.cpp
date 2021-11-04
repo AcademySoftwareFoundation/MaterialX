@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
-
 #include <MaterialXGenOsl/OslSyntax.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -16,12 +15,13 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
+#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
+#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
+#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
-#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/ClosureAddNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/ClosureMixNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/ClosureMultiplyNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
 
 namespace MaterialX
 {
@@ -162,22 +162,25 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
     // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
-    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
+    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNode::create);
+    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNode::create);
     // <!-- <mix> -->
-    registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNodeOsl::create);
-    registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNodeOsl::create);
+    registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
+    registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
     // <!-- <add> -->
-    registerImplementation("IM_add_bsdf_" + OslShaderGenerator::TARGET, ClosureAddNodeOsl::create);
-    registerImplementation("IM_add_edf_" + OslShaderGenerator::TARGET, ClosureAddNodeOsl::create);
+    registerImplementation("IM_add_bsdf_" + OslShaderGenerator::TARGET, ClosureAddNode::create);
+    registerImplementation("IM_add_edf_" + OslShaderGenerator::TARGET, ClosureAddNode::create);
     // <!-- <multiply> -->
-    registerImplementation("IM_multiply_bsdfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNodeOsl::create);
-    registerImplementation("IM_multiply_bsdfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNodeOsl::create);
-    registerImplementation("IM_multiply_edfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNodeOsl::create);
-    registerImplementation("IM_multiply_edfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNodeOsl::create);
+    registerImplementation("IM_multiply_bsdfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_bsdfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_edfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_edfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
 
     // <!-- <thin_film> -->
     registerImplementation("IM_thin_film_bsdf_" + OslShaderGenerator::TARGET, NopNode::create);
+
+    // <!-- <surface> -->
+    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

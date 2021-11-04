@@ -231,7 +231,7 @@ public:
     using ClosureParams = std::unordered_map<string, const ShaderInput*>;
 
     /// Constructor
-    ClosureContext(int type) : _type(type) {}
+    ClosureContext(int type = 0) : _type(type) {}
 
     /// Return the identifier for this context.
     int getType() const { return _type; }

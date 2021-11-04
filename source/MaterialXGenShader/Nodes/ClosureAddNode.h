@@ -3,16 +3,16 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_CLOSUREADDNODEGLSL_H
-#define MATERIALX_CLOSUREADDNODEGLSL_H
+#ifndef MATERIALX_CLOSUREADDNODE_H
+#define MATERIALX_CLOSUREADDNODE_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
 
 namespace MaterialX
 {
 
-/// Closure add node implementation for GLSL.
-class MX_GENGLSL_API ClosureAddNodeGlsl : public GlslImplementation
+/// Closure add node implementation.
+class MX_GENSHADER_API ClosureAddNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

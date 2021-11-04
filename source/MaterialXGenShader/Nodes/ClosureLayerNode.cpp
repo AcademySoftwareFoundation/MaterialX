@@ -3,32 +3,29 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
-#include <MaterialXGenOsl/OslShaderGenerator.h>
-
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderNode.h>
-#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
 namespace MaterialX
 {
 
-const string ClosureLayerNodeOsl::TOP = "top";
-const string ClosureLayerNodeOsl::BASE = "base";
-const string ClosureLayerNodeOsl::THICKNESS = "thickness";
-const string ClosureLayerNodeOsl::IOR = "ior";
+const string ClosureLayerNode::TOP = "top";
+const string ClosureLayerNode::BASE = "base";
+const string ClosureLayerNode::THICKNESS = "thickness";
+const string ClosureLayerNode::IOR = "ior";
 
-ShaderNodeImplPtr ClosureLayerNodeOsl::create()
+ShaderNodeImplPtr ClosureLayerNode::create()
 {
-    return std::make_shared<ClosureLayerNodeOsl>();
+    return std::make_shared<ClosureLayerNode>();
 }
 
-void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
+void ClosureLayerNode::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
+    ClosureContext* cct = context.getClosureContext();
 
     ShaderNode& node = const_cast<ShaderNode&>(_node);
 
@@ -59,21 +56,16 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         }
 
         // Set the extra parameters for thin-film.
-        ClosureContext cct(0);
-        context.pushClosureContext(&cct);
         ClosureContext::ClosureParams params;
         params[THICKNESS] = top->getInput(THICKNESS);
         params[IOR] = top->getInput(IOR);
-        ScopedSetClosureParams setParams(&params, base, &cct);
+        ScopedSetClosureParams setParams(&params, base, cct);
 
         // Store the base result in the layer result variable.
         ScopedSetVariableName setVariable(output->getVariable(), base->getOutput());
 
         // Emit the function call.
         shadergen.emitFunctionCall(*base, context, stage);
-
-        // Restore state.
-        context.popClosureContext();
     }
     else
     {
@@ -89,7 +81,6 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         {
             // If this layer node has closure parameters set,
             // we pass this on to the top component only.
-            ClosureContext* cct = context.getClosureContext();
             ScopedSetClosureParams setParams(&node, top, cct);
             shadergen.emitFunctionCall(*top, context, stage);
         }
@@ -106,8 +97,8 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         emitOutputVariables(node, context, stage);
         if (base->getOutput()->getType() == Type::VDF)
         {
-            shadergen.emitLine(output->getVariable() + ".result = " + topResult + ".result + " + baseResult, stage);
-            shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput", stage);
+            shadergen.emitLine(output->getVariable() + ".result = " + topResult + ".result * " + baseResult + ".throughput", stage);
+            shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
         }
         else
         {

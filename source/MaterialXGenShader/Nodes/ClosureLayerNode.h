@@ -3,19 +3,16 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_CLOSURELAYERNODEOSL_H
-#define MATERIALX_CLOSURELAYERNODEOSL_H
+#ifndef MATERIALX_CLOSURELAYERNODE_H
+#define MATERIALX_CLOSURELAYERNODE_H
 
-#include <MaterialXGenOsl/Export.h>
-
-#include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
 
 namespace MaterialX
 {
 
-/// Closure layer node implementation for OSL.
-class MX_GENOSL_API ClosureLayerNodeOsl : public ShaderNodeImpl
+/// Closure layer node implementation.
+class MX_GENSHADER_API ClosureLayerNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

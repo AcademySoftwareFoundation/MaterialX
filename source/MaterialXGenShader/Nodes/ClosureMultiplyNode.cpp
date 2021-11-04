@@ -3,26 +3,23 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenGlsl/Nodes/ClosureMultiplyNodeGlsl.h>
-
+#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenShader/ShaderNode.h>
-#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
 namespace MaterialX
 {
 
-const string ClosureMultiplyNodeGlsl::IN1 = "in1";
-const string ClosureMultiplyNodeGlsl::IN2 = "in2";
+const string ClosureMultiplyNode::IN1 = "in1";
+const string ClosureMultiplyNode::IN2 = "in2";
 
-ShaderNodeImplPtr ClosureMultiplyNodeGlsl::create()
+ShaderNodeImplPtr ClosureMultiplyNode::create()
 {
-    return std::make_shared<ClosureMultiplyNodeGlsl>();
+    return std::make_shared<ClosureMultiplyNode>();
 }
 
-void ClosureMultiplyNodeGlsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
+void ClosureMultiplyNode::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
