@@ -86,7 +86,7 @@ if (MATERIALX_BUILD_GEN_MDL)
     LIST(APPEND MATERIALX_LIBRARIES MaterialXGenMdl)
 endif()
 if (MATERIALX_BUILD_GEN_ARNOLD)
-    LIST(APPEND LIBS MaterialXGenArnold)
+    LIST(APPEND MATERIALX_LIBRARIES MaterialXGenArnold)
 endif()
 
 target_link_libraries(
