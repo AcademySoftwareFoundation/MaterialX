@@ -10,7 +10,6 @@
 /// Texture baking functionality
 
 #include <iostream>
-#include <regex>
 
 #include <MaterialXCore/Unit.h>
 
@@ -260,7 +259,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     FilePath generateTextureFilename(const StringMap& fileTemplateMap);
 
     // Validate and correct the user-provided renderable material map.
-    void validateRenderableMaterialMap(const std::vector<TypedElementPtr>& renderableMaterials);
+    void validateRenderableMaterialMap(ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials);
 
     // Create map of rendered materials to their corresponding udimSetString.
     void selectRenderableMaterials(ConstDocumentPtr doc);

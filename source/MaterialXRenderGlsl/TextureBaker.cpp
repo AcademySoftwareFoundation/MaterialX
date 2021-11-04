@@ -302,7 +302,7 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
     }
 }
 
-DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
+DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimset)
 {
     if (!shader)
     {
@@ -325,10 +325,10 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
         bakedNodeGraph->setColorSpace(_colorSpace);
     }
     _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
-    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
+    GeomInfoPtr bakedGeom = !udimset.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
-        bakedGeom->setGeomPropValue("udimset", udimSet, "stringarray");
+        bakedGeom->setGeomPropValue("udimset", udimset, "stringarray");
     }
 
     // Create a shader node.
@@ -405,7 +405,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
                 // Add the image node.
                 NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName + BAKED_POSTFIX, sourceType);
                 InputPtr input = bakedImage->addInput("file", "filename");
-                StringMap filenameTemplateMap = initializeFileTemplateMap(bakedInput, shader, udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN);
+                StringMap filenameTemplateMap = initializeFileTemplateMap(bakedInput, shader, udimset.empty() ? EMPTY_STRING : UDIM_TOKEN);
                 input->setValueString(generateTextureFilename(filenameTemplateMap));
 
                 // Reconstruct any world-space nodes that were excluded from the baking process.
@@ -595,38 +595,30 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
     }
 }
 
-void TextureBaker::validateRenderableMaterialMap(const std::vector<TypedElementPtr>& renderableMaterials)
+void TextureBaker::validateRenderableMaterialMap(ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials)
 {
     RenderableMaterialMap finalRenderableMaterialMap;
     for (auto& pair : _renderableMaterialMap)
     {
-        // Collect all udims that fit template.
+        string materialName = pair.first;
+        // Compute the UDIM set if udimset from geominfo used.
         if (pair.second.size() && pair.second[0] == ALL_UDIMS)
         {
             pair.second.clear();
-            finalRenderableMaterialMap[pair.first] = {};
-            std::regex udim_regex ("(" + UDIM_TOKEN + ")");
-            string material_regex = "^[\\s]*" + regex_replace(pair.first, udim_regex, "([\\d]+)") + "[\\s]*$";
-            std::smatch detectedUdim;
-            for (TypedElementPtr material : renderableMaterials)
+            ValuePtr udimsetValue = doc->getGeomPropValue("udimset");
+            if (udimsetValue && udimsetValue->isA<StringVec>())
             {
-                regex_search(material->getName(), detectedUdim, std::regex(material_regex));
-                if (!detectedUdim.empty())
-                {
-                    pair.second.push_back(detectedUdim[1]);
-                 }
+                pair.second = udimsetValue->asA<StringVec>();
             }
         }
 
-        string materialName = pair.first;
-        // Mark materials without udims.
-        if (pair.first.find(UDIM_TOKEN) == string::npos || pair.second.empty())
+        // Remove <UDIM> token from material name if no udims.
+        if (pair.second.empty())
         {
             StringResolverPtr resolver = StringResolver::create();
             string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : UDIM_PREFIX;
             resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, "");
             materialName = resolver->resolve(materialName, FILENAME_TYPE_STRING);
-            pair.second.clear();
             pair.second.push_back(EMPTY_STRING);
         }
 
@@ -679,11 +671,11 @@ void TextureBaker::selectRenderableMaterials(ConstDocumentPtr doc)
     {
         // Populate renderableMaterialMap with renderable materials.
         // Compute the UDIM set.
-        ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+        ValuePtr udimsetValue = doc->getGeomPropValue("udimset");
         StringVec udimset;
-        if (udimSetValue && udimSetValue->isA<StringVec>())
+        if (udimsetValue && udimsetValue->isA<StringVec>())
         {
-            udimset = udimSetValue->asA<StringVec>();
+            udimset = udimsetValue->asA<StringVec>();
         }
 
         // Compute the material tag set.
@@ -702,7 +694,7 @@ void TextureBaker::selectRenderableMaterials(ConstDocumentPtr doc)
     else
     {
         // Clean and validate renderableMaterialMap.
-        validateRenderableMaterialMap(renderableMaterials);
+        validateRenderableMaterialMap(doc, renderableMaterials);
     }
 }
 
