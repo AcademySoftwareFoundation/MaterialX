@@ -40,10 +40,10 @@ option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires t
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
-option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." OFF)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
+option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)

@@ -208,14 +208,14 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 MaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
-                if (index >= 0 && static_cast<size_t>(index) < enumValues.size())
-                {
-                    material->modifyUniform(path, enumValues[index]);
-                }
-                else if (index >= 0 && static_cast<size_t>(index) < enumeration.size())
-                {
-                    material->modifyUniform(path, mx::Value::createValue(index), enumeration[index]);
-                }
+                    if (index >= 0 && static_cast<size_t>(index) < enumValues.size())
+                    {
+                        material->modifyUniform(path, enumValues[index]);
+                    }
+                    else if (index >= 0 && static_cast<size_t>(index) < enumeration.size())
+                    {
+                        material->modifyUniform(path, mx::Value::createValue(index), enumeration[index]);
+                    }
                 }
             });
         }
