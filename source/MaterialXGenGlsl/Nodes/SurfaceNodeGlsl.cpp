@@ -22,18 +22,15 @@ SurfaceNodeGlsl::SurfaceNodeGlsl() :
     //
     // Reflection context
     _callReflection.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
-    _callReflection.setSuffix(Type::VDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
     _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
     _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
     _callReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
     // Transmission context
     _callTransmission.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION);
-    _callTransmission.setSuffix(Type::VDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION);
     _callTransmission.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Indirect/Environment context
     _callIndirect.setSuffix(Type::BSDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT);
-    _callIndirect.setSuffix(Type::VDF, HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION);
     _callIndirect.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Emission context
     _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_N));

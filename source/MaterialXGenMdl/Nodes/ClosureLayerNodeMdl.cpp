@@ -25,7 +25,6 @@ ShaderNodeImplPtr ClosureLayerNodeMdl::create()
 
 void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     ShaderNode& node = const_cast<ShaderNode&>(_node);
@@ -152,17 +151,15 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
     // Restore state.
     topNodeBaseInput->breakConnection();
-
-END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 
-ShaderNodeImplPtr LayarableNodeMdl::create()
+ShaderNodeImplPtr LayerableNodeMdl::create()
 {
-    return std::make_shared<LayarableNodeMdl>();
+    return std::make_shared<LayerableNodeMdl>();
 }
 
-void LayarableNodeMdl::addInputs(ShaderNode& node, GenContext&) const
+void LayerableNodeMdl::addInputs(ShaderNode& node, GenContext&) const
 {
     // Add the input to hold base layer BSDF.
     node.addInput(ClosureLayerNodeMdl::BASE, Type::BSDF);

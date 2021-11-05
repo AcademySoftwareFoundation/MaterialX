@@ -15,13 +15,13 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
 
 namespace MaterialX
 {
@@ -162,8 +162,8 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
     // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNode::create);
-    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNode::create);
+    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
+    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
     // <!-- <mix> -->
     registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
     registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);

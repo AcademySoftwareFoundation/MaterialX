@@ -141,7 +141,7 @@ ScopedSetClosureParams::ScopedSetClosureParams(const ShaderNode* fromNode, const
 
 ScopedSetClosureParams::~ScopedSetClosureParams()
 {
-    if (_cct && _oldParams)
+    if (_cct)
     {
         _cct->setClosureParams(_node, _oldParams);
     }

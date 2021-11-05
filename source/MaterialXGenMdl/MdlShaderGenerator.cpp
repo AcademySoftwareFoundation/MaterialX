@@ -164,16 +164,16 @@ MdlShaderGenerator::MdlShaderGenerator() :
     registerImplementation("IM_layer_vdf_" + MdlShaderGenerator::TARGET, ClosureLayerNodeMdl::create);
 
     // <!-- <thin_film_bsdf> -->
-    registerImplementation("IM_thin_film_bsdf_" + MdlShaderGenerator::TARGET, LayarableNodeMdl::create);
+    registerImplementation("IM_thin_film_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, LayarableNodeMdl::create);
+    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, LayarableNodeMdl::create);
+    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <sheen_bsdf> -->
-    registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayarableNodeMdl::create);
+    registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
