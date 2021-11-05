@@ -6,7 +6,7 @@ void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness
 
     if (weight < M_FLOAT_EPS)
     {
-        bsdf.result = 0;
+        bsdf.response = 0;
         return;
     }
 
@@ -27,5 +27,5 @@ void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness
     color comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    bsdf.result = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false);
+    bsdf.response = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false);
 }

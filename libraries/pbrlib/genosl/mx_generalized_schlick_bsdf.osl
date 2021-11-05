@@ -7,7 +7,7 @@ void mx_generalized_schlick_bsdf(float weight, color color0, color color90, floa
     //
     if (weight < M_FLOAT_EPS || scatter_mode == "T")
     {
-        bsdf.result = 0;
+        bsdf.response = 0;
         bsdf.throughput = color(1.0);
         return;
     }
@@ -29,5 +29,5 @@ void mx_generalized_schlick_bsdf(float weight, color color0, color color90, floa
     bsdf.throughput = color(1.0 - avgDirAlbedo * weight);
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    bsdf.result = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, 0);
+    bsdf.response = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, 0);
 }

@@ -6,7 +6,7 @@ void mx_sheen_bsdf(float weight, color Ks, float roughness, vector N, output BSD
 {
     if (weight < M_FLOAT_EPS)
     {
-        bsdf.result = 0;
+        bsdf.response = 0;
         bsdf.throughput = color(1.0);
         return;
     }
@@ -19,6 +19,6 @@ void mx_sheen_bsdf(float weight, color Ks, float roughness, vector N, output BSD
     float NdotV = fabs(dot(N,V));
     float alpha = clamp(roughness, M_FLOAT_EPS, 1.0);
     float albedo = weight * mx_imageworks_sheen_dir_albedo(NdotV, alpha);
-    bsdf.result = albedo * Ks * diffuse(N);
+    bsdf.response = albedo * Ks * diffuse(N);
     bsdf.throughput = 1.0 - albedo;
 }

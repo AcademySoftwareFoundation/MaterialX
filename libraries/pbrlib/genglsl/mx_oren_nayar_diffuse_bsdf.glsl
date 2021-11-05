@@ -13,10 +13,10 @@ void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusi
 
     float NdotL = clamp(dot(normal, L), M_FLOAT_EPS, 1.0);
 
-    bsdf.result = color * occlusion * weight * NdotL * M_PI_INV;
+    bsdf.response = color * occlusion * weight * NdotL * M_PI_INV;
     if (roughness > 0.0)
     {
-        bsdf.result *= mx_oren_nayar_diffuse(L, V, normal, NdotL, roughness);
+        bsdf.response *= mx_oren_nayar_diffuse(L, V, normal, NdotL, roughness);
     }
 }
 
@@ -32,5 +32,5 @@ void mx_oren_nayar_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float
     normal = mx_forward_facing_normal(normal, V);
 
     vec3 Li = mx_environment_irradiance(normal);
-    bsdf.result = Li * color * weight;
+    bsdf.response = Li * color * weight;
 }

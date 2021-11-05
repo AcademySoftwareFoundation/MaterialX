@@ -56,7 +56,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         shadergen.emitLine(syntax.getTypeName(in2->getType()) + " " + in2clamped + " = clamp(" + in2Result + ", 0.0, 1.0)", stage);
 
         emitOutputVariables(node, context, stage);
-        shadergen.emitLine(output->getVariable() + ".result = " + in1Result + ".result * " + in2clamped, stage);
+        shadergen.emitLine(output->getVariable() + ".response = " + in1Result + ".response * " + in2clamped, stage);
         shadergen.emitLine(output->getVariable() + ".throughput = " + in1Result + ".throughput * " + in2clamped, stage);
     }
     else if (output->getType() == Type::EDF)

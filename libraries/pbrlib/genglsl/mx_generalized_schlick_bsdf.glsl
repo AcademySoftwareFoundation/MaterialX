@@ -31,15 +31,15 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 
     // Note: NdotL is cancelled out
-    bsdf.result = D * F * G * comp * occlusion * weight / (4.0 * NdotV);
+    bsdf.response = D * F * G * comp * occlusion * weight / (4.0 * NdotV);
 }
 
 void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (scatter_mode == 1)
     {
-        bsdf.result = color0 * weight;
-        bsdf.throughput = bsdf.result;
+        bsdf.response = color0 * weight;
+        bsdf.throughput = bsdf.response;
         return;
     }
 
@@ -61,7 +61,7 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 
-    bsdf.result = (scatter_mode == 2) ? color0 * weight * bsdf.throughput : vec3(0.0);
+    bsdf.response = (scatter_mode == 2) ? color0 * weight * bsdf.throughput : vec3(0.0);
 }
 
 void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
@@ -85,5 +85,5 @@ void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 
     vec3 Li = mx_environment_radiance(N, V, X, safeRoughness, distribution, fd);
-    bsdf.result = Li * comp * weight;
+    bsdf.response = Li * comp * weight;
 }

@@ -35,7 +35,7 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
 
     // Note: NdotL is cancelled out
-    bsdf.result = D * F * G * comp * occlusion * weight / (4.0 * NdotV);
+    bsdf.response = D * F * G * comp * occlusion * weight / (4.0 * NdotV);
 }
 
 void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
@@ -65,5 +65,5 @@ void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 ior_n, vec3 ior_k, ve
 
     vec3 Li = mx_environment_radiance(N, V, X, safeRoughness, distribution, fd);
 
-    bsdf.result = Li * comp * weight;
+    bsdf.response = Li * comp * weight;
 }

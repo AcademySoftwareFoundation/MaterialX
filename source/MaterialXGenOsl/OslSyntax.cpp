@@ -421,7 +421,7 @@ OslSyntax::OslSyntax()
             "BSDF(null_closure, color(1.0), 0.0, 0.0)",
             "{ 0, color(1.0), 0.0, 0.0 }",
             EMPTY_STRING,
-            "struct BSDF { closure color result; color throughput; float thickness; float ior; };")
+            "struct BSDF { closure color response; color throughput; float thickness; float ior; };")
     );
 
     registerTypeSyntax

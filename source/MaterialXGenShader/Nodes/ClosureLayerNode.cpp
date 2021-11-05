@@ -97,12 +97,12 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         emitOutputVariables(node, context, stage);
         if (base->getOutput()->getType() == Type::VDF)
         {
-            shadergen.emitLine(output->getVariable() + ".result = " + topResult + ".result * " + baseResult + ".throughput", stage);
+            shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response * " + baseResult + ".throughput", stage);
             shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
         }
         else
         {
-            shadergen.emitLine(output->getVariable() + ".result = " + topResult + ".result + " + baseResult + ".result * " + topResult + ".throughput", stage);
+            shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response + " + baseResult + ".response * " + topResult + ".throughput", stage);
             shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
         }
     }

@@ -39,15 +39,15 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
     bsdf.throughput = 1.0 - dirAlbedo * weight;
 
     // Note: NdotL is cancelled out
-    bsdf.result = D * F * G * comp * tint * occlusion * weight / (4.0 * NdotV);
+    bsdf.response = D * F * G * comp * tint * occlusion * weight / (4.0 * NdotV);
 }
 
 void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (scatter_mode == 1)
     {
-        bsdf.result = tint * weight;
-        bsdf.throughput = bsdf.result;
+        bsdf.response = tint * weight;
+        bsdf.throughput = bsdf.response;
         return;
     }
 
@@ -74,7 +74,7 @@ void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, F0, 1.0) * comp;
     bsdf.throughput = 1.0 - dirAlbedo * weight;
 
-    bsdf.result = (scatter_mode == 2) ? tint * weight * bsdf.throughput : vec3(0.0);
+    bsdf.response = (scatter_mode == 2) ? tint * weight * bsdf.throughput : vec3(0.0);
 }
 
 void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
@@ -104,5 +104,5 @@ void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
     bsdf.throughput = 1.0 - dirAlbedo * weight;
 
     vec3 Li = mx_environment_radiance(N, V, X, safeRoughness, distribution, fd);
-    bsdf.result = Li * tint * comp * weight;
+    bsdf.response = Li * tint * comp * weight;
 }
