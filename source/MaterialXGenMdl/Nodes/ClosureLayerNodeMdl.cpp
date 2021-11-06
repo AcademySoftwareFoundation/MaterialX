@@ -104,20 +104,6 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     // So if the top BSDF doesn't have a base input, we can only emit the top BSDF 
     // without any base layering.
     //
-    // TODO: For some cases we could work around this by transforming the graph.
-    //
-    //                        bsdf1              
-    // bsdf1                       \             
-    //      \                       layer1       
-    //       mix                   /      \      
-    //      /   \             bsdf3        \     
-    // bsdf2     layer->  ==                mix->
-    //          /             bsdf2        /     
-    //     bsdf3                   \      /      
-    //                              layer2       
-    //                             /             
-    //                        bsdf3              
-    //
     ShaderInput* topNodeBaseInput = top->getInput(BASE);
     if (!topNodeBaseInput)
     {
