@@ -1,5 +1,5 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -20,9 +20,6 @@ class MX_GENMDL_API ClosureCompoundNodeMdl : public CompoundNodeMdl
 
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
-protected:
-    string _returnStruct;
 };
 
 } // namespace MaterialX

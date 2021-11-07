@@ -29,7 +29,7 @@ class MX_GENMDL_API ClosureLayerNodeMdl : public ShaderNodeImpl
 };
 
 
-/// Layarable BSDF node.
+/// Layerable BSDF node.
 class MX_GENMDL_API LayerableNodeMdl : public SourceCodeNodeMdl
 {
 public:
