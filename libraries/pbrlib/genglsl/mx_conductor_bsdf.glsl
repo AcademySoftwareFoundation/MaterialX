@@ -16,8 +16,11 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
 
     float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
-    float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
     float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
+
+    vec2 safeRoughness = clamp(roughness, M_FLOAT_EPS, 1.0);
+    float avgRoughness = mx_average_roughness(safeRoughness);
+    vec3 Ht = vec3(dot(H, X), dot(H, Y), dot(H, N));
 
     FresnelData fd;
     if (bsdf.thickness > 0.0)
@@ -26,10 +29,7 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
         fd = mx_init_fresnel_conductor(ior_n, ior_k);
 
     vec3 F = mx_compute_fresnel(VdotH, fd);
-
-    vec2 safeRoughness = clamp(roughness, M_FLOAT_EPS, 1.0);
-    float avgRoughness = mx_average_roughness(safeRoughness);
-    float D = mx_ggx_NDF(X, Y, H, NdotH, safeRoughness.x, safeRoughness.y);
+    float D = mx_ggx_NDF(Ht, safeRoughness);
     float G = mx_ggx_smith_G2(NdotL, NdotV, avgRoughness);
 
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);

@@ -2,58 +2,58 @@
 
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.2 Equation 13
-float mx_ggx_NDF(vec3 X, vec3 Y, vec3 H, float NdotH, float alphaX, float alphaY)
+float mx_ggx_NDF(vec3 H, vec2 alpha)
 {
-    float XdotH = dot(X, H);
-    float YdotH = dot(Y, H);
-    float denom = mx_square(XdotH / alphaX) + mx_square(YdotH / alphaY) + mx_square(NdotH);
-    return 1.0 / (M_PI * alphaX * alphaY * mx_square(denom));
+    vec2 He = H.xy / alpha;
+    float denom = dot(He, He) + mx_square(H.z);
+    return 1.0 / (M_PI * alpha.x * alpha.y * mx_square(denom));
 }
 
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.1 Equation 3
-float mx_ggx_PDF(vec3 X, vec3 Y, vec3 H, float NdotH, float LdotH, float alphaX, float alphaY)
+float mx_ggx_PDF(vec3 H, float LdotH, vec2 alpha)
 {
-    return mx_ggx_NDF(X, Y, H, NdotH, alphaX, alphaY) * NdotH / (4.0 * LdotH);
+    float NdotH = H.z;
+    return mx_ggx_NDF(H, alpha) * NdotH / (4.0 * LdotH);
 }
 
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.2 Equation 15
-vec3 mx_ggx_importance_sample_NDF(vec2 Xi, vec3 X, vec3 Y, vec3 N, float alphaX, float alphaY)
+vec3 mx_ggx_importance_sample_NDF(vec2 Xi, vec2 alpha)
 {
     float phi = 2.0 * M_PI * Xi.x;
     float tanTheta = sqrt(Xi.y / (1.0 - Xi.y));
-    vec3 H = X * (tanTheta * alphaX * cos(phi)) +
-             Y * (tanTheta * alphaY * sin(phi)) +
-             N;
+    vec3 H = vec3(tanTheta * alpha.x * cos(phi),
+                  tanTheta * alpha.y * sin(phi),
+                  1.0);
     return normalize(H);
 }
 
 // http://jcgt.org/published/0007/04/01/paper.pdf
 // Appendix A Listing 1
-vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, float alphaX, float alphaY)
+vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, vec2 alpha)
 {
     // Transform the view direction to the hemisphere configuration.
-    vec3 Vh = normalize(vec3(alphaX * V.x, alphaY * V.y, V.z));
+    V = normalize(vec3(V.xy * alpha, V.z));
 
-    // Orthonormal basis (with special case if cross product is zero).
-    float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
-    vec3 T1 = lensq > 0.0 ? vec3(-Vh.y, Vh.x, 0.0) / sqrt(lensq) : vec3(1.0, 0.0, 0.0);
-    vec3 T2 = cross(Vh, T1);
+    // Construct an orthonormal basis from the view direction.
+    float len = length(V.xy);
+    vec3 T1 = (len > 0.0) ? vec3(-V.y, V.x, 0.0) / len : vec3(1.0, 0.0, 0.0);
+    vec3 T2 = cross(V, T1);
 
     // Parameterization of the projected area.
     float r = sqrt(Xi.y);
     float phi = 2.0 * M_PI * Xi.x;
     float t1 = r * cos(phi);
     float t2 = r * sin(phi);
-    float s = 0.5 * (1.0 + Vh.z);
-    t2 = (1.0 - s) * sqrt(1.0 - t1 * t1) + s * t2;
+    float s = 0.5 * (1.0 + V.z);
+    t2 = (1.0 - s) * sqrt(1.0 - mx_square(t1)) + s * t2;
 
     // Reprojection onto hemisphere.
-    vec3 Nh = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)) * Vh;
+    vec3 H = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - mx_square(t1) - mx_square(t2))) * V;
 
-    // Transform the normal back to the ellipsoid configuration.
-    vec3 H = normalize(vec3(alphaX * Nh.x, alphaY * Nh.y, max(0.0, Nh.z)));
+    // Transform the microfacet normal back to the ellipsoid configuration.
+    H = normalize(vec3(H.xy * alpha, max(H.z, 0.0)));
 
     return H;
 }
@@ -124,12 +124,11 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
         vec2 Xi = mx_spherical_fibonacci(i, SAMPLE_COUNT);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, roughness, roughness);
+        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(roughness));
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
         float NdotL = clamp(L.z, M_FLOAT_EPS, 1.0);
-        float NdotH = clamp(H.z, M_FLOAT_EPS, 1.0);
         float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
         // Compute the Fresnel term.

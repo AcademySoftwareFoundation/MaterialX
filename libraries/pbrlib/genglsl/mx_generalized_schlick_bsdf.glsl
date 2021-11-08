@@ -14,15 +14,15 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
 
     float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
-    float NdotH = clamp(dot(N, H), M_FLOAT_EPS, 1.0);
     float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
     vec2 safeRoughness = clamp(roughness, M_FLOAT_EPS, 1.0);
     float avgRoughness = mx_average_roughness(safeRoughness);
+    vec3 Ht = vec3(dot(H, X), dot(H, Y), dot(H, N));
 
     FresnelData fd = mx_init_fresnel_schlick(color0, color90, exponent);
     vec3  F = mx_compute_fresnel(VdotH, fd);
-    float D = mx_ggx_NDF(X, Y, H, NdotH, safeRoughness.x, safeRoughness.y);
+    float D = mx_ggx_NDF(Ht, safeRoughness);
     float G = mx_ggx_smith_G2(NdotL, NdotV, avgRoughness);
 
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
