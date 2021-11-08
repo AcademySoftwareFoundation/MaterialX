@@ -302,7 +302,7 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
     }
 }
 
-DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimset)
+DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
 {
     if (!shader)
     {
@@ -325,10 +325,10 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimset)
         bakedNodeGraph->setColorSpace(_colorSpace);
     }
     _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
-    GeomInfoPtr bakedGeom = !udimset.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
+    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
-        bakedGeom->setGeomPropValue("udimset", udimset, "stringarray");
+        bakedGeom->setGeomPropValue("udimset", udimSet, "stringarray");
     }
 
     // Create a shader node.
@@ -405,7 +405,7 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimset)
                 // Add the image node.
                 NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName + BAKED_POSTFIX, sourceType);
                 InputPtr input = bakedImage->addInput("file", "filename");
-                StringMap filenameTemplateMap = initializeFileTemplateMap(bakedInput, shader, udimset.empty() ? EMPTY_STRING : UDIM_TOKEN);
+                StringMap filenameTemplateMap = initializeFileTemplateMap(bakedInput, shader, udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN);
                 input->setValueString(generateTextureFilename(filenameTemplateMap));
 
                 // Reconstruct any world-space nodes that were excluded from the baking process.
@@ -540,15 +540,15 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
         }
 
         // Compute the udim set.
-        StringVec udimset = materialTags;
-        if (udimset.size() == 1 && udimset[0].empty())
+        StringVec udimSet = materialTags;
+        if (udimSet.size() == 1 && udimSet[0].empty())
         {
-            udimset.clear();
+            udimSet.clear();
         }
 
         // Write the baked material and textures.
         string documentName = (!_explicitMaterialOverride.empty())? _explicitMaterialOverride : shaderNode->getName();
-        DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimset);
+        DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimSet);
         bakedDocuments.push_back(std::make_pair(documentName, bakedMaterialDoc));
     }
 
@@ -606,16 +606,16 @@ void TextureBaker::validateRenderableMaterialMap(ConstDocumentPtr doc, const std
     for (auto& pair : _renderableMaterialMap)
     {
         string materialName = pair.first;
-        // Compute the UDIM set if udimset from geominfo used.
+        // Compute the UDIM set if udim set from geominfo used.
         StringVec::iterator allUdimsPtr = find(pair.second.begin(), pair.second.end(), ALL_UDIMS);
         if (allUdimsPtr != pair.second.end())
         {
             pair.second.erase(allUdimsPtr);
-            ValuePtr udimsetValue = doc->getGeomPropValue("udimset");
-            if (udimsetValue && udimsetValue->isA<StringVec>())
+            ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+            if (udimSetValue && udimSetValue->isA<StringVec>())
             {
                 StringSet finalSet(pair.second.begin(), pair.second.end());
-                StringVec geomInfo = udimsetValue->asA<StringVec>();
+                StringVec geomInfo = udimSetValue->asA<StringVec>();
                 finalSet.insert(geomInfo.begin(), geomInfo.end());
                 pair.second.assign(finalSet.begin(), finalSet.end());
             }
@@ -683,15 +683,15 @@ void TextureBaker::selectRenderableMaterials(ConstDocumentPtr doc)
     {
         // Populate renderableMaterialMap with renderable materials.
         // Compute the UDIM set.
-        ValuePtr udimsetValue = doc->getGeomPropValue("udimset");
-        StringVec udimset;
-        if (udimsetValue && udimsetValue->isA<StringVec>())
+        ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+        StringVec udimSet;
+        if (udimSetValue && udimSetValue->isA<StringVec>())
         {
-            udimset = udimsetValue->asA<StringVec>();
+            udimSet = udimSetValue->asA<StringVec>();
         }
 
         // Compute the material tag set.
-        StringVec materialTags = udimset;
+        StringVec materialTags = udimSet;
         if (materialTags.empty())
         {
             materialTags.push_back(EMPTY_STRING);
