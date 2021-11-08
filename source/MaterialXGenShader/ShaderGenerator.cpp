@@ -296,19 +296,15 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         return impl;
     }
 
-    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
-    if (outputs.empty())
-    {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' as no outputs defined");
-    }
-
-    const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());
+    vector<OutputPtr> outputs = nodedef.getOutputs();
+    const TypeDesc* outputType = outputs.empty() ? nullptr : TypeDesc::get(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-            outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        if (outputType &&
+            (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER))
         {
             impl = ClosureCompoundNode::create();
         }
@@ -324,8 +320,9 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+            if (outputType &&
+                (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                    outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER))
             {
                 impl = ClosureSourceCodeNode::create();
             }
