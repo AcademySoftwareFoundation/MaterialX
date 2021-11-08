@@ -19,12 +19,12 @@ namespace
         "result.direction = L;\n";
 }
 
-LightNodeGlsl::LightNodeGlsl()
+LightNodeGlsl::LightNodeGlsl() : 
+    _callEmission(HwShaderGenerator::ClosureContextType::EMISSION)
 {
     // Emission context
-    _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, "light.direction"));
-    _callEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, "-L"));
+    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, "light.direction"));
+    _callEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, "-L"));
 }
 
 ShaderNodeImplPtr LightNodeGlsl::create()
@@ -50,17 +50,18 @@ void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
-        const ShaderGraph& graph = *node.getParent();
 
         shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, context, stage);
         shadergen.emitLineBreak(stage);
 
-        string emission;
-        shadergen.emitEdfNodes(graph, node, _callEmission, context, stage, emission);
+        context.pushClosureContext(&_callEmission);
+        shadergen.emitFunctionCall(node, context, stage);
+        context.popClosureContext();
+
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Apply quadratic falloff and adjust intensity", stage);
-        shadergen.emitLine("result.intensity = " + emission + " / (distance * distance)", stage);
+        shadergen.emitLine("result.intensity = " + node.getOutput()->getVariable() + " / (distance * distance)", stage);
 
         const ShaderInput* intensity = node.getInput("intensity");
         const ShaderInput* exposure = node.getInput("exposure");

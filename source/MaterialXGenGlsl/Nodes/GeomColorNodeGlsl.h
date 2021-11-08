@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// GeomColor node implementation for GLSL
-class GeomColorNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API GeomColorNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();

@@ -35,8 +35,12 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
-    /// Add all function calls for a graph.
-    void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
+    /// Add all function calls for a graph. If a classification mask is given only functions for
+    /// nodes matching this classification will be emitted.
+    void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification = 0u) const override;
+
+    /// Emit code for starting a new function body.
+    void emitFunctionBodyBegin(const ShaderNode& node, GenContext& context, ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const override;
 
     /// Unique identifier for this generator target
     static const string TARGET;
