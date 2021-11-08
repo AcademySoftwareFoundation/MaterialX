@@ -435,11 +435,11 @@ class MX_CORE_API Member : public TypedElement
 class MX_CORE_API Unit : public Element
 {
   public:
-      Unit(ElementPtr parent, const string& name) :
-          Element(parent, CATEGORY, name)
-      {
-      }
-      virtual ~Unit() { }
+    Unit(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~Unit() { }
 
   public:
     static const string CATEGORY;
@@ -596,7 +596,7 @@ class MX_CORE_API AttributeDef : public TypedElement
     /// @{
 
     /// Set the typed value of an element.
-    template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
+    template <class T> void setValue(const T& value, const string& type = EMPTY_STRING)
     {
         setType(!type.empty() ? type : getTypeString<T>());
         setValueString(toValueString(value));

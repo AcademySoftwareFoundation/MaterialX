@@ -16,42 +16,46 @@ if(APPLE)
     set_source_files_properties(${materialx_source_oc} PROPERTIES
         COMPILE_FLAGS "-x objective-c++")
     set(materialx_source ${materialx_source} ${materialx_source_oc})
-    add_compile_options(-Wno-deprecated-declarations -DGL_SILENCE_DEPRECATION)
+    add_compile_options(-DGL_SILENCE_DEPRECATION)
 elseif(UNIX)
     find_package(X11 REQUIRED)
     find_package(OpenGL REQUIRED)
     if(NOT X11_Xt_FOUND)
-        message("Error in building MaterialXRender: Xt was not found")
+        message("Error in building MaterialXRenderGlsl: Xt was not found")
     endif()
     include_directories(${X11_INCLUDE_DIR})
+endif()
+
+# Disable deprecation warnings for GLew source on Clang.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wno-deprecated-declarations)
 endif()
 
 add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDERGLSL_EXPORTS)
 
+set(COMMON_LIBRARIES
+    MaterialXRenderHw
+    MaterialXGenGlsl
+    ${CMAKE_DL_LIBS})
+
 if(MSVC)
     target_link_libraries(
         MaterialXRenderGlsl
-        MaterialXRenderHw
-        MaterialXGenGlsl
-        Opengl32
-        ${CMAKE_DL_LIBS})
+        ${COMMON_LIBRARIES}
+        Opengl32)
 elseif(APPLE)
     target_link_libraries(
         MaterialXRenderGlsl
-        MaterialXRenderHw
-        MaterialXGenGlsl
-        ${CMAKE_DL_LIBS}
+        ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         "-framework Foundation"
         "-framework Cocoa")
 elseif(UNIX)
     target_link_libraries(
         MaterialXRenderGlsl
-        MaterialXRenderHw
-        MaterialXGenGlsl
-        ${CMAKE_DL_LIBS}
+        ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${X11_LIBRARIES}
         ${X11_Xt_LIB})

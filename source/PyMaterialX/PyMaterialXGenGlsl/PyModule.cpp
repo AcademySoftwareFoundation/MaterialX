@@ -20,5 +20,3 @@ PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 
     bindPyEsslShaderGenerator(mod);
 }
-
-

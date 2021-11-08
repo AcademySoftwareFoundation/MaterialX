@@ -2,6 +2,11 @@
 
 ## [1.38.3] - Development
 
+- Predictive code generation fix
+- Material node discovery 
+- Versioning fixes (WIP)
+- Clang / format support (WIP)
+
 - Unlit / modeling material library (re-discuss)
 - Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (WIP under main review)
 - OCIO v2 support continued (WIP)

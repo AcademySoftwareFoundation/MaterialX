@@ -380,6 +380,7 @@ class MX_CORE_API MaterialAssign : public GeomElement
     {
         removeChildOfType<VariantAssign>(name);
     }
+
   public:
     static const string CATEGORY;
     static const string MATERIAL_ATTRIBUTE;
@@ -501,7 +502,7 @@ class MX_CORE_API Visibility : public GeomElement
 ///             By default, this argument is the universal geometry string "/",
 ///             and all material bindings are returned.
 /// @return Vector of MaterialAssign elements
-MX_CORE_API vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
+MX_CORE_API vector<MaterialAssignPtr> getGeometryBindings(ConstNodePtr materialNode, const string& geom = UNIVERSAL_GEOM_NAME);
 
 } // namespace MaterialX
 

@@ -36,12 +36,21 @@ else()
     set(PREV_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     if(MSVC)
         add_compile_options(-wd4389 -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DEIGEN_DONT_VECTORIZE)
-    elseif(APPLE)
-        add_compile_options(-Wno-objc-multiple-method-names -Wno-deprecated -DGL_SILENCE_DEPRECATION)
-    elseif(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_compile_options(-Wno-deprecated)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         add_compile_options(-Wno-format-truncation -Wno-implicit-fallthrough -Wno-int-in-bool-context
                             -Wno-maybe-uninitialized -Wno-misleading-indentation)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy")
+    endif()
+    if(APPLE)
+        add_compile_options(-Wno-objc-multiple-method-names -DGL_SILENCE_DEPRECATION)
+    endif()
+
+    # Disable NanoGUI compiler modifications for Clang
+    set(PREV_COMPILER_ID CMAKE_CXX_COMPILER_ID)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT APPLE)
+        set(CMAKE_CXX_COMPILER_ID "None")
     endif()
 
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI external/NanoGUI)
@@ -53,6 +62,9 @@ else()
     # Restore warnings for MaterialXView
     set(CMAKE_C_FLAGS ${PREV_CMAKE_C_FLAGS})
     set(CMAKE_CXX_FLAGS ${PREV_CMAKE_CXX_FLAGS})
+
+    # Restore compiler ID for MaterialXView
+    set(CMAKE_CXX_COMPILER_ID PREV_COMPILER_ID)
 endif()
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
@@ -62,24 +74,24 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
-set(LIBS
-    MaterialXView
+set(MATERIALX_LIBRARIES
     MaterialXFormat
     MaterialXGenGlsl
     MaterialXRenderGlsl)
 
 if (MATERIALX_BUILD_GEN_OSL)
-    LIST(APPEND LIBS MaterialXGenOsl)
+    LIST(APPEND MATERIALX_LIBRARIES MaterialXGenOsl)
 endif()
 if (MATERIALX_BUILD_GEN_MDL)
-    LIST(APPEND LIBS MaterialXGenMdl)
+    LIST(APPEND MATERIALX_LIBRARIES MaterialXGenMdl)
 endif()
 if (MATERIALX_BUILD_GEN_ARNOLD)
-    LIST(APPEND LIBS MaterialXGenArnold)
+    LIST(APPEND MATERIALX_LIBRARIES MaterialXGenArnold)
 endif()
 
 target_link_libraries(
-     ${LIBS}
+    MaterialXView
+    ${MATERIALX_LIBRARIES}
     ${NANOGUI_LIBRARIES}
     ${NANOGUI_EXTRA_LIBS})
 

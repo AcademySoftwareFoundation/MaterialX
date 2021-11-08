@@ -214,12 +214,12 @@ void Element::removeAttribute(const string& attrib)
     }
 }
 
-template<class T> shared_ptr<T> Element::asA()
+template <class T> shared_ptr<T> Element::asA()
 {
     return std::dynamic_pointer_cast<T>(getSelf());
 }
 
-template<class T> shared_ptr<const T> Element::asA() const
+template <class T> shared_ptr<const T> Element::asA() const
 {
     return std::dynamic_pointer_cast<const T>(getSelf());
 }
@@ -581,7 +581,7 @@ bool ValueElement::validate(string* message) const
             unitTypeDef = getDocument()->getUnitTypeDef(unittype);
             validateRequire(unitTypeDef != nullptr, res, message, "Unit type definition does not exist in document");
         }
-    }            
+    }
     if (hasUnit())
     {
         bool foundUnit = false;
@@ -615,7 +615,7 @@ void StringResolver::setUvTileString(const string& uvTile)
 {
     setFilenameSubstitution(UV_TILE_TOKEN, uvTile);
 }
-    
+
 string StringResolver::resolve(const string& str, const string& type) const
 {
     if (type == FILENAME_TYPE_STRING)
@@ -644,7 +644,7 @@ bool targetStringsMatch(const string& target1, const string& target2)
     StringSet set2(vec2.begin(), vec2.end());
 
     StringSet matches;
-    std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), 
+    std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(),
                           std::inserter(matches, matches.end()));
     return !matches.empty();
 }
@@ -678,9 +678,9 @@ template <class T> class ElementRegistry
 // Template instantiations
 //
 
-#define INSTANTIATE_SUBCLASS(T)                                     \
-template MX_CORE_API shared_ptr<T> Element::asA<T>();               \
-template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;
+#define INSTANTIATE_SUBCLASS(T)                           \
+    template MX_CORE_API shared_ptr<T> Element::asA<T>(); \
+    template MX_CORE_API shared_ptr<const T> Element::asA<T>() const;
 
 INSTANTIATE_SUBCLASS(Element)
 INSTANTIATE_SUBCLASS(GeomElement)
@@ -690,10 +690,10 @@ INSTANTIATE_SUBCLASS(PortElement)
 INSTANTIATE_SUBCLASS(TypedElement)
 INSTANTIATE_SUBCLASS(ValueElement)
 
-#define INSTANTIATE_CONCRETE_SUBCLASS(T, category)      \
-const string T::CATEGORY(category);                     \
-ElementRegistry<T> registry##T;                         \
-INSTANTIATE_SUBCLASS(T)
+#define INSTANTIATE_CONCRETE_SUBCLASS(T, category) \
+    const string T::CATEGORY(category);            \
+    ElementRegistry<T> registry##T;                \
+    INSTANTIATE_SUBCLASS(T)
 
 INSTANTIATE_CONCRETE_SUBCLASS(AttributeDef, "attributedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Backdrop, "backdrop")
