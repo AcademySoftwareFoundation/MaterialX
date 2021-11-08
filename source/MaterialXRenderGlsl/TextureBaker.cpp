@@ -479,7 +479,19 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
     }
     genContext.getShaderGenerator().setColorManagementSystem(cms);
     StringResolverPtr resolver = StringResolver::create();
-    selectRenderableMaterials(doc);
+
+    // Populate renderableMaterialMap with materials and corresponding udims to be rendered out.
+    std::vector<TypedElementPtr> renderableMaterials;
+    findRenderableElements(doc, renderableMaterials);
+
+    if (_renderableMaterialMap.empty())
+    {
+        _renderableMaterialMap = generateRenderableMaterialMap(doc, renderableMaterials);
+    }
+    else
+    {
+        _renderableMaterialMap = finalizeRenderableMaterialMap(_renderableMaterialMap, doc, renderableMaterials);
+    }
 
     BakedDocumentVec bakedDocuments;
     for (auto& pair : _renderableMaterialMap)
@@ -600,60 +612,94 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
     }
 }
 
-void TextureBaker::validateRenderableMaterialMap(ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials)
+// Generate a renderable material map.
+RenderableMaterialMap TextureBaker::generateRenderableMaterialMap(ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials)
+{
+    RenderableMaterialMap renderableMaterialMap;
+
+    // Compute the UDIM set.
+    ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+    StringVec udimSet;
+    if (udimSetValue && udimSetValue->isA<StringVec>())
+    {
+        udimSet = udimSetValue->asA<StringVec>();
+    }
+
+    // Compute the material tag set.
+    StringVec materialTags = udimSet;
+    if (materialTags.empty())
+    {
+        materialTags.push_back(EMPTY_STRING);
+    }
+
+    // Iterate over material tags.
+    for (const TypedElementPtr& element : renderableMaterials)
+    {
+        renderableMaterialMap[element->getNamePath()] = materialTags;
+    }
+    return renderableMaterialMap;
+}
+
+RenderableMaterialMap TextureBaker::finalizeRenderableMaterialMap(const RenderableMaterialMap renderableMaterialMap, ConstDocumentPtr doc,
+                                                                  const std::vector<TypedElementPtr>& renderableMaterials)
 {
     RenderableMaterialMap finalRenderableMaterialMap;
-    for (auto& pair : _renderableMaterialMap)
+
+    // Compute the UDIM set.
+    ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+    StringVec udimSet;
+    if (udimSetValue && udimSetValue->isA<StringVec>())
+    {
+        udimSet = udimSetValue->asA<StringVec>();
+    }
+
+    for (auto& pair : renderableMaterialMap)
     {
         string materialName = pair.first;
-        // Compute the UDIM set if udim set from geominfo used.
-        StringVec::iterator allUdimsPtr = find(pair.second.begin(), pair.second.end(), ALL_UDIMS);
-        if (allUdimsPtr != pair.second.end())
+        StringVec materialTags = pair.second;
+
+        // Populate materialTags with udim set from geominfo.
+        StringVec::iterator allUdimsPtr = find(materialTags.begin(), materialTags.end(), ALL_UDIMS);
+        if (allUdimsPtr != materialTags.end())
         {
-            pair.second.erase(allUdimsPtr);
-            ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
-            if (udimSetValue && udimSetValue->isA<StringVec>())
+            materialTags.erase(allUdimsPtr);
+            if (!udimSet.empty())
             {
-                StringSet finalSet(pair.second.begin(), pair.second.end());
-                StringVec geomInfo = udimSetValue->asA<StringVec>();
-                finalSet.insert(geomInfo.begin(), geomInfo.end());
-                pair.second.assign(finalSet.begin(), finalSet.end());
+                StringSet finalSet(materialTags.begin(), materialTags.end());
+                finalSet.insert(udimSet.begin(), udimSet.end());
+                materialTags.assign(finalSet.begin(), finalSet.end());
             }
         }
 
         // Remove <UDIM> token from material name if no udims.
-        if (pair.second.empty())
+        if (materialTags.empty())
         {
             StringResolverPtr resolver = StringResolver::create();
             string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : UDIM_PREFIX;
             resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, "");
             materialName = resolver->resolve(materialName, FILENAME_TYPE_STRING);
-            pair.second.push_back(EMPTY_STRING);
+            materialTags.push_back(EMPTY_STRING);
         }
 
         StringResolverPtr resolver = StringResolver::create();
-        for (string tag : pair.second)
+        for (string tag : materialTags)
         {
             resolver->setUdimString(tag);
             string resolvedMaterial = resolver->resolve(materialName, FILENAME_TYPE_STRING);
 
-            auto renderableMaterialPtr = find_if(renderableMaterials.begin(), renderableMaterials.end(), [resolvedMaterial](const TypedElementPtr material) {
-                return material->getName() == resolvedMaterial;
-            });
+            auto renderableMaterialPtr = find_if(renderableMaterials.begin(), renderableMaterials.end(),
+                                                [resolvedMaterial](const TypedElementPtr material)
+                                                {
+                                                    return material->getName() == resolvedMaterial;
+                                                });
 
             // If material is in renderableMaterials, add it back to the final map.
             if (renderableMaterialPtr != renderableMaterials.end())
             {
                 FilePath materialPath = FilePath((*renderableMaterialPtr)->getNamePath());
                 string materialNamePath = materialPath.getParentPath() / materialName;
-                if (finalRenderableMaterialMap.count(materialNamePath))
-                {
-                    finalRenderableMaterialMap[materialNamePath].push_back(tag);
-                }
-                else
-                {
-                    finalRenderableMaterialMap[materialNamePath] = StringVec({ tag });
-                }
+                finalRenderableMaterialMap.emplace(make_pair(materialNamePath, StringVec()));
+                finalRenderableMaterialMap[materialNamePath].push_back(tag);
             }
             else
             {
@@ -670,46 +716,8 @@ void TextureBaker::validateRenderableMaterialMap(ConstDocumentPtr doc, const std
             }
         }
     }
-    _renderableMaterialMap = finalRenderableMaterialMap;
+    return finalRenderableMaterialMap;
 }
-
-void TextureBaker::selectRenderableMaterials(ConstDocumentPtr doc)
-{
-    std::vector<TypedElementPtr> renderableMaterials;
-    std::unordered_set<ElementPtr> processedSources;
-    findRenderableElements(doc, renderableMaterials);
-
-    if (_renderableMaterialMap.empty())
-    {
-        // Populate renderableMaterialMap with renderable materials.
-        // Compute the UDIM set.
-        ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
-        StringVec udimSet;
-        if (udimSetValue && udimSetValue->isA<StringVec>())
-        {
-            udimSet = udimSetValue->asA<StringVec>();
-        }
-
-        // Compute the material tag set.
-        StringVec materialTags = udimSet;
-        if (materialTags.empty())
-        {
-            materialTags.push_back(EMPTY_STRING);
-        }
-
-        // Iterate over material tags.
-        for (const TypedElementPtr& element : renderableMaterials)
-        {
-            _renderableMaterialMap[element->getNamePath()] = materialTags;
-        }
-    }
-    else
-    {
-        // Clean and validate renderableMaterialMap.
-        validateRenderableMaterialMap(doc, renderableMaterials);
-    }
-}
-
 
 void TextureBaker::setupUnitSystem(DocumentPtr unitDefinitions)
 {

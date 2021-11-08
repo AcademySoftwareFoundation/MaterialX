@@ -258,11 +258,11 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     // Generate a texture filename for the given graph output.
     FilePath generateTextureFilename(const StringMap& fileTemplateMap);
 
-    // Validate and correct the user-provided renderable material map.
-    void validateRenderableMaterialMap(ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials);
+    // Generate a renderable material map.
+    RenderableMaterialMap generateRenderableMaterialMap(ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials);
 
-    // Create map of rendered materials to their corresponding udimSetString.
-    void selectRenderableMaterials(ConstDocumentPtr doc);
+    // Finalize the user-provided renderable material map.
+    RenderableMaterialMap finalizeRenderableMaterialMap(const RenderableMaterialMap renderableMaterialMap, ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials);
 
     // Write a baked image to disk, returning true if the write was successful.
     bool writeBakedImage(const BakedImage& baked, ImagePtr image);
