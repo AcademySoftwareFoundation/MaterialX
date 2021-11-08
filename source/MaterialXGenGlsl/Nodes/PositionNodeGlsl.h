@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Position node implementation for GLSL
-class PositionNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API PositionNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();

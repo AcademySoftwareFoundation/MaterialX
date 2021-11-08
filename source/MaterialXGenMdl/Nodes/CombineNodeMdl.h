@@ -6,13 +6,15 @@
 #ifndef MATERIALX_COMBINENODEMDL_H
 #define MATERIALX_COMBINENODEMDL_H
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 
 namespace MaterialX
 {
 
 /// Custom combine node implementation for MDL
-class CombineNodeMdl : public CombineNode
+class MX_GENMDL_API CombineNodeMdl : public CombineNode
 {
   public:
     static ShaderNodeImplPtr create();

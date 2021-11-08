@@ -80,15 +80,26 @@ class MX_GENSHADER_API ShaderGenerator
     /// Add the function definition for a single node.
     virtual void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
-    /// Add the function call for a single node.
-    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
-                                  bool checkScope = true) const;
-
     /// Add all function definitions for a graph.
     virtual void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
-    /// Add all function calls for a graph.
-    virtual void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
+    /// Add the function call for a single node.
+    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope = true) const;
+
+    /// Add all function calls for a graph. If a classification mask is given only functions for
+    /// nodes matching this classification will be emitted.
+    virtual void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification = 0u) const;
+
+    /// Add function calls for nodes connected directly upstream from the given node.
+    /// If a classification mask is given only functions for nodes matching this classification
+    /// will be emitted.
+    virtual void emitDependentFunctionCalls(const ShaderNode& node, GenContext& context, ShaderStage& stage, uint32_t classification = 0u) const;
+
+    /// Emit code for starting a new function body.
+    virtual void emitFunctionBodyBegin(const ShaderNode& node, GenContext& context, ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const;
+
+    /// Emit code for ending a function body.
+    virtual void emitFunctionBodyEnd(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
     /// Emit type definitions for all data types that needs it.
     virtual void emitTypeDefinitions(GenContext& context, ShaderStage& stage) const;
@@ -120,6 +131,9 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                          bool assignValue = true) const;
 
+    /// Return the closure contexts defined for the given node.
+    virtual void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const;
+
     /// Return the result of an upstream connection or value for an input.
     virtual string getUpstreamResult(const ShaderInput* input, GenContext& context) const;
 
@@ -131,6 +145,9 @@ class MX_GENSHADER_API ShaderGenerator
 
     /// Determine if a shader node implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;
+
+    /// Return a registered shader node implementation for the given nodedef.
+    virtual ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const;
 
     /// Sets the color management system
     void setColorManagementSystem(ColorManagementSystemPtr colorManagementSystem)
@@ -156,12 +173,6 @@ class MX_GENSHADER_API ShaderGenerator
         return _unitSystem;
     }
 
-    /// Return a registered shader node implementation given an implementation element.
-    /// The element must be an Implementation or a NodeGraph acting as implementation.
-    /// If no registered implementation is found a 'default' implementation instance
-    /// will be returned, as defined by the createDefaultImplementation method.
-    ShaderNodeImplPtr getImplementation(const InterfaceElement& element, GenContext& context) const;
-
     /// Return the map of token substitutions used by the generator.
     const StringMap& getTokenSubstitutions() const
     {
@@ -185,21 +196,6 @@ class MX_GENSHADER_API ShaderGenerator
 
     /// Create a new stage in a shader.
     virtual ShaderStagePtr createStage(const string& name, Shader& shader) const;
-
-    /// Create a source code implementation which is the implementation class to use
-    /// for nodes that has no specific C++ implementation registered for it.
-    /// Derived classes can override this to use custom source code implementations.
-    virtual ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const;
-
-    /// Create a compound implementation which is the implementation class to use
-    /// for nodes using a nodegraph as their implementation.
-    /// Derived classes can override this to use custom compound implementations.
-    virtual ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const;
-
-    /// Method called on all created shader graphs. By default it does nothing,
-    /// but shader generators can override this to perform custom edits on the graph
-    /// before shader generation starts.
-    virtual void finalizeShaderGraph(ShaderGraph& graph);
 
     /// Set function name for a stage.
     void setFunctionName(const string& functionName, ShaderStage& stage) const

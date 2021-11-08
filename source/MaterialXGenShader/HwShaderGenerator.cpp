@@ -4,11 +4,8 @@
 //
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
-
-#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/HwCompoundNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
@@ -145,18 +142,23 @@ namespace Stage
     const string VERTEX = "vertex";
 }
 
-const HwClosureContext::Arguments HwClosureContext::EMPTY_ARGUMENTS;
+const ClosureContext::Arguments ClosureContext::EMPTY_ARGUMENTS;
 
 //
 // HwShaderGenerator methods
 //
 
 const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_REFLECTION("_reflection");
-const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION("_transmission");
+const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_TRANSMISSION("_transmission");
 const string HwShaderGenerator::CLOSURE_CONTEXT_SUFFIX_INDIRECT("_indirect");
 
 HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
-    ShaderGenerator(syntax)
+    ShaderGenerator(syntax),
+    _defDefault(HwShaderGenerator::ClosureContextType::DEFAULT),
+    _defReflection(HwShaderGenerator::ClosureContextType::REFLECTION),
+    _defTransmission(HwShaderGenerator::ClosureContextType::TRANSMISSION),
+    _defIndirect(HwShaderGenerator::ClosureContextType::INDIRECT),
+    _defEmission(HwShaderGenerator::ClosureContextType::EMISSION)
 {
     // Assign default identifiers names for all tokens.
     // Derived generators can override these names.
@@ -212,27 +214,23 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
 
-    // Create closure contexts for defining closure functions
+    // Setup closure contexts for defining closure functions
     //
     // Reflection context
-    _defReflection = HwClosureContext::create(HwClosureContext::REFLECTION);
-    _defReflection->setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_REFLECTION);
-    _defReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
-    _defReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    _defReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
-    _defReflection->addArgument(Type::BSDF, HwClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
+    _defReflection.setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_REFLECTION);
+    _defReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
+    _defReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    _defReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::WORLD_POSITION));
+    _defReflection.addArgument(Type::BSDF, ClosureContext::Argument(Type::FLOAT, HW::OCCLUSION));
     // Transmission context
-    _defTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
-    _defTransmission->setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION);
-    _defTransmission->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
-    // Indirect context
-    _defIndirect = HwClosureContext::create(HwClosureContext::INDIRECT);
-    _defIndirect->setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_INDIRECT);
-    _defIndirect->addArgument(Type::BSDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    _defTransmission.setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_TRANSMISSION);
+    _defTransmission.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
+    // Environment context
+    _defIndirect.setSuffix(Type::BSDF, CLOSURE_CONTEXT_SUFFIX_INDIRECT);
+    _defIndirect.addArgument(Type::BSDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_V));
     // Emission context
-    _defEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _defEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
-    _defEmission->addArgument(Type::EDF, HwClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
+    _defEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_N));
+    _defEmission.addArgument(Type::EDF, ClosureContext::Argument(Type::VECTOR3, HW::DIR_L));
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -421,9 +419,10 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
 void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const
 {
-    // Omit node if it's tagged to be excluded.
-    if (node.getFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL))
+    // Check if it's emitted already.
+    if (stage.isEmitted(node, context))
     {
+        emitComment("Omitted node '" + node.getName() + "'. Function already called in this scope.", stage);
         return;
     }
 
@@ -437,42 +436,30 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
 
     bool match = true;
 
-    // Check if we have a closure context to modify the function call.
-    HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
-
-    if (ccx && node.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (node.hasClassification(ShaderNode::Classification::CLOSURE) && !node.hasClassification(ShaderNode::Classification::SHADER))
     {
-        // If a layer operator is used the node to check classification on
-        // is the node connected to the top layer input.
-        const ShaderNode* classifyNode = &node;
-        if (node.hasClassification(ShaderNode::Classification::LAYER))
+        // Check if we have a closure context to modify the function call.
+        ClosureContext* cct = context.getClosureContext();
+        if (cct)
         {
-            const ShaderInput* top = node.getInput(LayerNode::TOP);
-            if (top && top->getConnection())
-            {
-                classifyNode = top->getConnection()->getNode();
-            }
+            match =
+                // For reflection and environment we support reflective closures.
+                ((cct->getType() == ClosureContextType::REFLECTION || cct->getType() == ClosureContextType::INDIRECT) &&
+                    node.hasClassification(ShaderNode::Classification::BSDF_R)) ||
+                // For transmissive we support transmissive closures.
+                ((cct->getType() == ClosureContextType::TRANSMISSION) &&
+                    (node.hasClassification(ShaderNode::Classification::BSDF_T) || node.hasClassification(ShaderNode::Classification::VDF))) ||
+                // For emission we only support emission closures.
+                ((cct->getType() == ClosureContextType::EMISSION) &&
+                    (node.hasClassification(ShaderNode::Classification::EDF)));
         }
-
-        match =
-            // For reflection and indirect we don't support pure transmissive closures.
-            ((ccx->getType() == HwClosureContext::REFLECTION || ccx->getType() == HwClosureContext::INDIRECT) &&
-                classifyNode->hasClassification(ShaderNode::Classification::BSDF) &&
-                !classifyNode->hasClassification(ShaderNode::Classification::BSDF_T)) ||
-            // For transmissive we don't support pure reflective closures.
-            (ccx->getType() == HwClosureContext::TRANSMISSION &&
-                classifyNode->hasClassification(ShaderNode::Classification::BSDF) &&
-                !classifyNode->hasClassification(ShaderNode::Classification::BSDF_R)) ||
-            // For emission we only support emission closures.
-            (ccx->getType() == HwClosureContext::EMISSION &&
-                classifyNode->hasClassification(ShaderNode::Classification::EDF));
     }
 
     if (match)
     {
         // A match between closure context and node classification was found.
-        // So emit the function call in this context.
-        node.getImplementation().emitFunctionCall(node, context, stage);
+        // So add the function call in this context.
+        stage.addFunctionCall(node, context);
     }
     else
     {
@@ -483,77 +470,6 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         emitOutput(node.getOutput(), true, true, context, stage);
         emitLineEnd(stage);
     }
-}
-
-void HwShaderGenerator::emitTextureNodes(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
-{
-    // Emit function calls for all texturing nodes
-    bool found = false;
-    for (const ShaderNode* node : graph.getNodes())
-    {
-        if (node->hasClassification(ShaderNode::Classification::TEXTURE) && !node->referencedConditionally())
-        {
-            emitFunctionCall(*node, context, stage, false);
-            found = true;
-        }
-    }
-
-    if (found)
-    {
-        emitLineBreak(stage);
-    }
-}
-
-void HwShaderGenerator::emitBsdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
-                                      GenContext& context, ShaderStage& stage, string& bsdf) const
-{
-    bsdf = _syntax->getTypeSyntax(Type::BSDF).getDefaultValue(false);
-
-    context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
-
-    // Emit function calls for all BSDF nodes used by this surface shader.
-    // The last node will hold the final result.
-    const ShaderNode* last = nullptr;
-    for (const ShaderNode* node : graph.getNodes())
-    {
-        if (node->hasClassification(ShaderNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
-        {
-            emitFunctionCall(*node, context, stage, false);
-            last = node;
-        }
-    }
-    if (last)
-    {
-        bsdf = last->getOutput()->getVariable();
-    }
-
-    context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
-}
-
-void HwShaderGenerator::emitEdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
-                                     GenContext& context, ShaderStage& stage, string& edf) const
-{
-    edf = _syntax->getTypeSyntax(Type::EDF).getDefaultValue(false);
-
-    context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
-
-    // Emit function calls for all EDF nodes used by this shader
-    // The last node will hold the final result
-    const ShaderNode* last = nullptr;
-    for (const ShaderNode* node : graph.getNodes())
-    {
-        if (node->hasClassification(ShaderNode::Classification::EDF) && shaderNode.isUsedClosure(node))
-        {
-            emitFunctionCall(*node, context, stage, false);
-            last = node;
-        }
-    }
-    if (last)
-    {
-        edf = last->getOutput()->getVariable();
-    }
-
-    context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
 }
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
@@ -611,48 +527,39 @@ void HwShaderGenerator::unbindLightShaders(GenContext& context)
     }
 }
 
-void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const
+void HwShaderGenerator::getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& ccts) const
 {
     if (node.hasClassification(ShaderNode::Classification::BSDF))
     {
-        if (node.hasClassification(ShaderNode::Classification::BSDF_R))
+        if (node.hasClassification(ShaderNode::Classification::BSDF_R | ShaderNode::Classification::BSDF_T))
+        {
+            // A general BSDF handling both reflection and transmission
+            ccts.push_back(&_defReflection);
+            ccts.push_back(&_defTransmission);
+            ccts.push_back(&_defIndirect);
+        }
+        else if (node.hasClassification(ShaderNode::Classification::BSDF_R))
         {
             // A BSDF for reflection only
-            ccx.push_back(_defReflection);
-            ccx.push_back(_defIndirect);
+            ccts.push_back(&_defReflection);
+            ccts.push_back(&_defIndirect);
         }
         else if (node.hasClassification(ShaderNode::Classification::BSDF_T))
         {
             // A BSDF for transmission only
-            ccx.push_back(_defTransmission);
-        }
-        else
-        {
-            // A general BSDF handling both reflection and transmission
-            ccx.push_back(_defReflection);
-            ccx.push_back(_defTransmission);
-            ccx.push_back(_defIndirect);
+            ccts.push_back(&_defTransmission);
         }
     }
     else if (node.hasClassification(ShaderNode::Classification::EDF))
     {
         // An EDF
-        ccx.push_back(_defEmission);
+        ccts.push_back(&_defEmission);
     }
-}
-
-ShaderNodeImplPtr HwShaderGenerator::createSourceCodeImplementation(const Implementation&) const
-{
-    // The standard source code implementation
-    // is the implementation to use by default
-    return HwSourceCodeNode::create();
-}
-
-ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(const NodeGraph&) const
-{
-    // The standard compound implementation
-    // is the compound implementation to us by default
-    return HwCompoundNode::create();
+    else if (node.hasClassification(ShaderNode::Classification::SHADER))
+    {
+        // A shader
+        ccts.push_back(&_defDefault);
+    }
 }
 
 void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStage& stage) const

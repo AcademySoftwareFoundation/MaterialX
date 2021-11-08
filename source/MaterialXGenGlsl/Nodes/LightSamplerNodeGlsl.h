@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Utility node for sampling lights for GLSL.
-class LightSamplerNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API LightSamplerNodeGlsl : public GlslImplementation
 {
 public:
     LightSamplerNodeGlsl();

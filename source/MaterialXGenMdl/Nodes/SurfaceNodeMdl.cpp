@@ -17,29 +17,55 @@ ShaderNodeImplPtr SurfaceNodeMdl::create()
     return std::make_shared<SurfaceNodeMdl>();
 }
 
+
+const ShaderInput* findTransmissionIOR(const ShaderNode& node)
+{
+    if (node.hasClassification(ShaderNode::Classification::BSDF_T))
+    {
+        const ShaderInput* ior = node.getInput("ior");
+        if (ior)
+        {
+            bool transparent = true;
+            const ShaderInput* scatterMode = node.getInput("scatter_mode");
+            if (scatterMode && scatterMode->getValue())
+            {
+                const string scatterModeValue = scatterMode->getValue()->getValueString();
+                transparent = scatterModeValue == "T" || scatterModeValue == "RT";
+            }
+            if (transparent)
+            {
+                return ior;
+            }
+        }
+    }
+    for (const ShaderInput* input : node.getInputs())
+    {
+        if (input->getType() == Type::BSDF && input->getConnection())
+        {
+            const ShaderInput* ior = findTransmissionIOR(*input->getConnection()->getNode());
+            if (ior)
+            {
+                return ior;
+            }
+        }
+    }
+    return nullptr;
+}
+
 void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const MdlShaderGenerator& shadergen = static_cast<const MdlShaderGenerator&>(context.getShaderGenerator());
-        const ShaderGraph& graph = *node.getParent();
 
-        // Check if transmission IOR is used in the BSDF graph.
+        // Emit calls for the closure dependencies upstream from this node.
+        shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
+
+        // Check if transmission IOR is used for this shader.
         // MDL only supports a single transmission IOR per material and
         // it is given as an input on the 'material' constructor.
         // So if used we must forward this value/connection to the surface
         // constructor. It's set as an extra input below.
-        const ShaderInput* ior = nullptr;
-        for (const ShaderNode* candidate : graph.getNodes())
-        {
-            if (candidate->hasClassification(ShaderNode::Classification::BSDF_T) && node.isUsedClosure(candidate))
-            {
-                ior = candidate->getInput("ior");
-                if (ior)
-                {
-                    break;
-                }
-            }
-        }
+        const ShaderInput* ior = findTransmissionIOR(node);
 
         shadergen.emitLineBegin(stage);
 

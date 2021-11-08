@@ -1,19 +1,19 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_HWCOMPOUNDNODE_H
-#define MATERIALX_HWCOMPOUNDNODE_H
+#ifndef MATERIALX_CLOSURECOMPOUNDNODE_H
+#define MATERIALX_CLOSURECOMPOUNDNODE_H
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
 
-/// Extending the CompoundNode with requirements for HW.
-class MX_GENSHADER_API HwCompoundNode : public CompoundNode
+/// Extending the CompoundNode with requirements for closures.
+class MX_GENSHADER_API ClosureCompoundNode : public CompoundNode
 {
 public:
     static ShaderNodeImplPtr create();
@@ -23,7 +23,7 @@ public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:
-    void emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const;
+    void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
 };
 
 } // namespace MaterialX

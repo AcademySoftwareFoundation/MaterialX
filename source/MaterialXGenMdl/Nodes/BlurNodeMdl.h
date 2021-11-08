@@ -6,13 +6,15 @@
 #ifndef MATERIALX_BLURNODEMDL_H
 #define MATERIALX_BLURNODEMDL_H
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 
 namespace MaterialX
 {
 
 /// Blur node MDL implementation
-class BlurNodeMdl : public BlurNode
+class MX_GENMDL_API BlurNodeMdl : public BlurNode
 {
   public:
     static ShaderNodeImplPtr create();

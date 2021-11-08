@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Frame node implementation for GLSL
-class FrameNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API FrameNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();

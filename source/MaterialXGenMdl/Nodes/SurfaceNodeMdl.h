@@ -6,13 +6,15 @@
 #ifndef MATERIALX_SURFACENODEMDL_H
 #define MATERIALX_SURFACENODEMDL_H
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
 namespace MaterialX
 {
 
 /// Surface node implementation for MDL
-class SurfaceNodeMdl : public ShaderNodeImpl
+class MX_GENMDL_API SurfaceNodeMdl : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();

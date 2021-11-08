@@ -213,7 +213,7 @@ void ShaderStage::beginScope(Syntax::Punctuation punc)
     }
 
     ++_indentations;
-    _scopes.push_back(punc);
+    _scopes.push_back(Scope(punc));
 }
 
 void ShaderStage::endScope(bool semicolon, bool newline)
@@ -223,7 +223,7 @@ void ShaderStage::endScope(bool semicolon, bool newline)
         throw ExceptionShaderGenError("End scope called with no scope active, please check your beginScope/endScope calls");
     }
 
-    Syntax::Punctuation punc = _scopes.back();
+    Syntax::Punctuation punc = _scopes.back().punctuation;
     _scopes.pop_back();
     --_indentations;
 
@@ -347,11 +347,37 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& cont
     const ShaderNodeImpl& impl = node.getImplementation();
     const size_t id = impl.getHash();
 
+    // Make sure it's not already defined.
     if (!_definedFunctions.count(id))
     {
         _definedFunctions.insert(id);
         impl.emitFunctionDefinition(node, context, *this);
     }
+}
+
+void ShaderStage::addFunctionCall(const ShaderNode& node, GenContext& context)
+{
+    const ClosureContext* cct = context.getClosureContext();
+    const FunctionCallId id(&node, cct ? cct->getType() : 0);
+
+    _scopes.back().functions.insert(id);
+
+    node.getImplementation().emitFunctionCall(node, context, *this);
+}
+
+bool ShaderStage::isEmitted(const ShaderNode& node, GenContext& context) const
+{
+    const ClosureContext* cct = context.getClosureContext();
+    const FunctionCallId id(&node, cct ? cct->getType() : 0);
+
+    for (const Scope& s : _scopes)
+    {
+        if (s.functions.count(id))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 }
