@@ -625,19 +625,18 @@ ConstNodeDefPtr InterfaceElement::getDeclaration(const string&) const
     return NodeDefPtr();
 }
 
-bool InterfaceElement::isTypeCompatible(ConstInterfaceElementPtr declaration) const
+bool InterfaceElement::hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message) const
 {
-    if (getType() != declaration->getType())
+    for (InputPtr input : getActiveInputs())
     {
-        return false;
-    }
-    for (ValueElementPtr value : getActiveValueElements())
-    {
-        ValueElementPtr declarationValue = declaration->getActiveValueElement(value->getName());
-        if (!declarationValue ||
-            declarationValue->getCategory() != value->getCategory() ||
-            declarationValue->getType() != value->getType())
+        InputPtr declarationInput = declaration->getActiveInput(input->getName());
+        if (!declarationInput ||
+            declarationInput->getType() != input->getType())
         {
+            if (message)
+            {
+                *message += "Input '" + input->getName() + "' doesn't match declaration";
+            }
             return false;
         }
     }
