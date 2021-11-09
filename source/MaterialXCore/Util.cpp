@@ -9,8 +9,6 @@
 #include <sstream>
 #include <iomanip>
 
-#include <regex>
-
 namespace MaterialX
 {
 
@@ -177,50 +175,6 @@ string parentNamePath(const string& namePath)
         return createNamePath(nameVec);
     }
     return EMPTY_STRING;
-}
-
-bool isValidIntegerVersionFormat(const string& versionFormat)
-{
-    const std::regex formatIntegerNumberingRegEx("^(([a-zA-Z_]+)?[#]([a-zA-Z_]+)?)$");
-    const bool isIntegerVersioningFormat = std::regex_match(versionFormat, formatIntegerNumberingRegEx);
-    return isIntegerVersioningFormat;
-}
-
-bool isValidFloatVersionFormat(const string& versionFormat)
-{
-    const std::regex formatFloatNumberingRegEx("^(([a-zA-Z_]+)?[.][#]+([a-zA-Z_]+)?)$");
-    const bool isFloatVersioningFormat = std::regex_match(versionFormat, formatFloatNumberingRegEx);
-    return isFloatVersioningFormat;
-}
-
-bool isValidVersionFormat(const string& versionFormat)
-{
-    return (isValidIntegerVersionFormat(versionFormat) || isValidFloatVersionFormat(versionFormat));
-}
-
-string getFormattedVersionString(const string& versionNumber, const string& versionFormat)
-{
-    std::regex numberMaskRegEx("[.]?[#]+");
-    string result = versionFormat;
-    if (isValidVersionFormat(versionFormat)) {
-        result = std::regex_replace(result, numberMaskRegEx, versionNumber);
-        const char decimalComma = ',';
-        const char delim = '_';
-        std::replace(result.begin(), result.end(), decimalComma, delim);
-        return result;
-    } else {
-        return result;
-    }
-}
-
-int getVersionFormatDecimalPrecision(const string& versionFormat)
-{
-    if (isValidFloatVersionFormat(versionFormat)) {
-        size_t digitsCount = std::count(versionFormat.begin(), versionFormat.end(), '#');
-        return digitsCount;
-    } else {
-        return 0;
-    }
 }
 
 string getBaseCompoundName(const string& nodeName, const string& typeNames, const string& version, const string& namespaceString) {

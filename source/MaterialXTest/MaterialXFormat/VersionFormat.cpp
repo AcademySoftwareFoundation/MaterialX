@@ -1,5 +1,5 @@
 #include <MaterialXTest/Catch/catch.hpp>
-#include <MaterialXCore/Util.h>
+#include <MaterialXRuntime/RtVersionResolver.h>
 
 namespace mx = MaterialX;
 
@@ -84,6 +84,15 @@ TEST_CASE("Version formatting", "[version_format]")
     REQUIRE(mx::getVersionFormatDecimalPrecision("prefix.###") == 3);
     REQUIRE(mx::getVersionFormatDecimalPrecision(".###postfix") == 3);
     REQUIRE(mx::getVersionFormatDecimalPrecision("prefix.###postfix") == 3);
+
+    // Version format increment step tests
+    REQUIRE(mx::getVersionIncrementStep(0) == 1.0);
+    REQUIRE(mx::getVersionIncrementStep(1) == 0.1);
+    REQUIRE(mx::getVersionIncrementStep(2) == 0.01);
+    REQUIRE(mx::getVersionIncrementStep(3) == 0.001);
+    REQUIRE(mx::getVersionIncrementStep(4) == 0.0001);
+    REQUIRE(mx::getVersionIncrementStep(5) == 0.00001);
+
 
     // Substituting the version number into the Version Format string
     REQUIRE(mx::getFormattedVersionString("1", "#") == "1");

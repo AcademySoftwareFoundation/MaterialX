@@ -70,23 +70,8 @@ MX_CORE_API string createNamePath(const StringVec& nameVec);
 /// Given a name path, return the parent name path
 MX_CORE_API string parentNamePath(const string& namePath);
 
-/// Validate if the give string is a proper version format.
-MX_CORE_API bool isValidVersionFormat(const string& versionFormat);
-
-/// Validate if the give string is a proper version format like prefix#postfix
-MX_CORE_API bool isValidIntegerVersionFormat(const string& versionFormat);
-
-/// Validate if the give string is a proper version format like prefix.###postfix 
-MX_CORE_API bool isValidFloatVersionFormat(const string& versionFormat);
-
-/// Given the version number and version format return the formatted version string
-MX_CORE_API string getFormattedVersionString(const string& versionNumber, const string& versionFormat);
-
 /// Generates the Base Compound Name given the input
 MX_CORE_API string getBaseCompoundName(const string& nodeName, const string& typeNames, const string& version, const string& namespaceString);
-
-/// Returns the decimal precision of the given version format. i.e. for "#" the result is 0, but for ".##" the result is 2.
-MX_CORE_API int getVersionFormatDecimalPrecision(const string& versionFormat);
 
 } // namespace MaterialX
 
