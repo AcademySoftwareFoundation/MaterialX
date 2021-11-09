@@ -639,14 +639,13 @@ class MX_CORE_API InterfaceElement : public TypedElement
     ///    no declaration was found.
     virtual ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
-    /// Return true if this interface instance is type compatible with the given
-    /// interface declaration.  This may be used to test, for example, whether a
-    /// Node is an instantiation of a given NodeDef.
-    ///
-    /// If the type string of the instance differs from that of the declaration,
-    /// then false is returned.  If the instance possesses an Input with no Input
-    /// of matching type in the declaration, then false is returned.
-    bool isTypeCompatible(ConstInterfaceElementPtr declaration) const;
+    /// Return true if this instance has an exact input match with the given
+    /// declaration, where each input of this the instance corresponds to a
+    /// declaration input of the same name and type.
+    /// 
+    /// If an exact input match is not found, and the optional message argument
+    /// is provided, then an error message will be appended to the given string.
+    bool hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message = nullptr) const;
 
     /// @}
 
