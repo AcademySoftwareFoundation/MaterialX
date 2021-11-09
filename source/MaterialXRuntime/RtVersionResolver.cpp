@@ -2,6 +2,7 @@
 #include <MaterialXRuntime/RtVersionResolver.h>
 
 #include <regex>
+#include <cmath>
 
 namespace MaterialX
 {
