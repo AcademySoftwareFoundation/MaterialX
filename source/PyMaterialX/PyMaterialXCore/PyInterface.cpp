@@ -95,7 +95,8 @@ void bindPyInterface(py::module& mod)
         .def("getDefaultVersion", &mx::InterfaceElement::getDefaultVersion)
         .def("getDeclaration", &mx::InterfaceElement::getDeclaration,
             py::arg("target") = mx::EMPTY_STRING)
-        .def("isTypeCompatible", &mx::InterfaceElement::isTypeCompatible)
+        .def("hasExactInputMatch", &mx::InterfaceElement::hasExactInputMatch,
+            py::arg("declaration"), py::arg("message") = nullptr)
         BIND_INTERFACE_TYPE_INSTANCE(integer, int)
         BIND_INTERFACE_TYPE_INSTANCE(boolean, bool)
         BIND_INTERFACE_TYPE_INSTANCE(float, float)
