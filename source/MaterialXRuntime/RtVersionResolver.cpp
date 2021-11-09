@@ -7,29 +7,29 @@
 namespace MaterialX
 {
 
-bool isValidIntegerVersionFormat(const string& versionFormat)
+bool isValidIntegerVersionFormat(const std::string& versionFormat)
 {
     const std::regex formatIntegerNumberingRegEx("^(([a-zA-Z_]+)?[#]([a-zA-Z_]+)?)$");
     const bool isIntegerVersioningFormat = std::regex_match(versionFormat, formatIntegerNumberingRegEx);
     return isIntegerVersioningFormat;
 }
 
-bool isValidFloatVersionFormat(const string& versionFormat)
+bool isValidFloatVersionFormat(const std::string& versionFormat)
 {
     const std::regex formatFloatNumberingRegEx("^(([a-zA-Z_]+)?[.][#]+([a-zA-Z_]+)?)$");
     const bool isFloatVersioningFormat = std::regex_match(versionFormat, formatFloatNumberingRegEx);
     return isFloatVersioningFormat;
 }
 
-bool isValidVersionFormat(const string& versionFormat)
+bool isValidVersionFormat(const std::string& versionFormat)
 {
     return (isValidIntegerVersionFormat(versionFormat) || isValidFloatVersionFormat(versionFormat));
 }
 
-string getFormattedVersionString(const string& versionNumber, const string& versionFormat)
+std::string getFormattedVersionString(const std::string& versionNumber, const std::string& versionFormat)
 {
     std::regex numberMaskRegEx("[.]?[#]+");
-    string result = versionFormat;
+    std::string result = versionFormat;
     if (isValidVersionFormat(versionFormat)) {
         result = std::regex_replace(result, numberMaskRegEx, versionNumber);
         const char decimalComma = ',';
@@ -41,7 +41,7 @@ string getFormattedVersionString(const string& versionNumber, const string& vers
     }
 }
 
-int getVersionFormatDecimalPrecision(const string& versionFormat)
+int getVersionFormatDecimalPrecision(const std::string& versionFormat)
 {
     if (isValidFloatVersionFormat(versionFormat)) {
         size_t digitsCount = std::count(versionFormat.begin(), versionFormat.end(), '#');
