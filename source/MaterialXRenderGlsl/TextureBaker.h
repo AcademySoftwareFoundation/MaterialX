@@ -29,9 +29,6 @@ using TextureBakerPtr = shared_ptr<class TextureBaker>;
 /// A vector of baked documents with their associated names.
 using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
 
-/// A map of materials to be rendered out and their corresponding udim set.
-using RenderableMaterialMap = std::unordered_map<string, StringVec>;
-
 /// @class TextureBaker
 /// A helper class for baking procedural material content to textures.
 /// TODO: Add support for graphs containing geometric nodes such as position
@@ -168,16 +165,10 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
         }
     }
 
-    /// Set the renderableMaterialMap to specify which subset of materials to bake out. Defaults to empty.
-    void setRenderableMaterialMap(RenderableMaterialMap renderableMaterialMap)
+    /// Set material group name if multiple materials are baked to a single material as a group.
+    void setMaterialGroupName(const string& materialGroupName)
     {
-        _renderableMaterialMap = renderableMaterialMap;
-    }
-
-    /// Set the renderableMaterialMap to specify which subset of materials to bake out. Defaults to empty.
-    RenderableMaterialMap getRenderableMaterialMap() const
-    {
-         return _renderableMaterialMap;
+        _materialGroupName = materialGroupName;
     }
 
     /// Set the output stream for reporting progress and warnings.  Defaults to std::cout.
@@ -218,13 +209,12 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     /// Optimize baked textures before writing.
     void optimizeBakedTextures(NodePtr shader);
 
-    /// Write the baked material with textures to a document.
-    DocumentPtr bakeMaterial(NodePtr shader, const StringVec& udimSet);
+    // TODO: Write images to memory rather than to disk
+    /// Bake material to document in memory and write baked textures to disk.
+    DocumentPtr bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
+                                  const StringVec udimSet, std::string& documentName);
 
-    /// Bake all materials in the given document and return them as a vector.
-    BakedDocumentVec createBakeDocuments(DocumentPtr doc, const FileSearchPath& searchPath);
-
-    /// Bake all materials in the given document and write them to disk.  If multiple documents are written,
+    /// Bake materials in the given document and write them to disk.  If multiple documents are written,
     /// then the given output filename will be used as a template.
     void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFileName);
 
@@ -258,11 +248,8 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     // Generate a texture filename for the given graph output.
     FilePath generateTextureFilename(const StringMap& fileTemplateMap);
 
-    // Generate a renderable material map.
-    RenderableMaterialMap generateRenderableMaterialMap(ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials);
-
-    // Finalize the user-provided renderable material map.
-    RenderableMaterialMap finalizeRenderableMaterialMap(const RenderableMaterialMap renderableMaterialMap, ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials);
+    // Create document that links shader outputs to a material.
+    DocumentPtr generateBakedDocumentFromShader(NodePtr shader, const StringVec& udimSet);
 
     // Write a baked image to disk, returning true if the write was successful.
     bool writeBakedImage(const BakedImage& baked, ImagePtr image);
@@ -277,7 +264,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     string _bakedGraphName;
     string _bakedGeomInfoName;
     string _textureFilenameTemplate;
-    string _explicitMaterialOverride;
+    string _materialGroupName;
     std::ostream* _outputStream;
     bool _hashImageNames;
 
@@ -289,7 +276,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     StringSet _permittedOverrides;
     StringMap _texTemplateOverrides;
     StringMap _bakedInputMap;
-    RenderableMaterialMap _renderableMaterialMap;
 
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
 };

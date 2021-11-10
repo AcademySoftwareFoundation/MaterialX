@@ -34,12 +34,9 @@ void bindPyTextureBaker(py::module& mod)
         .def("setTextureFilenameTemplate", &mx::TextureBaker::setTextureFilenameTemplate)
         .def("getTextureFilenameTemplate", &mx::TextureBaker::getTextureFilenameTemplate)
         .def("setFilenameTemplateVarOverride", &mx::TextureBaker::setFilenameTemplateVarOverride)
-        .def("setRenderableMaterialMap", &mx::TextureBaker::setRenderableMaterialMap)
-        .def("getRenderableMaterialMap", &mx::TextureBaker::getRenderableMaterialMap)
         .def("setHashImageNames", &mx::TextureBaker::setHashImageNames)
         .def("getHashImageNames", &mx::TextureBaker::getHashImageNames)
         .def("setupUnitSystem", &mx::TextureBaker::setupUnitSystem)
-        .def("bakeMaterial", &mx::TextureBaker::bakeMaterial)
-        .def("createBakeDocuments", &mx::TextureBaker::createBakeDocuments)
+        .def("bakeMaterialToDoc", &mx::TextureBaker::bakeMaterialToDoc)
         .def("bakeAllMaterials", &mx::TextureBaker::bakeAllMaterials);
 }

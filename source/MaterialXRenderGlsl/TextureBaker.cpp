@@ -21,7 +21,6 @@ namespace {
 const string SRGB_TEXTURE = "srgb_texture";
 const string LIN_REC709 = "lin_rec709";
 const string BAKED_POSTFIX = "_baked";
-const string ALL_UDIMS = "ALL";
 const string SHADER_PREFIX = "SR_";
 const string UDIM_PREFIX = "_";
 
@@ -116,7 +115,8 @@ FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplate
     {
         string replacement = (_texTemplateOverrides.count(pair.first)) ?
             _texTemplateOverrides[pair.first] : pair.second;
-        replacement = (pair.first == "$MATERIAL" && !_explicitMaterialOverride.empty())? _explicitMaterialOverride : replacement;
+        replacement = (pair.first == "$MATERIAL" && !_texTemplateOverrides.count(pair.first) && !_materialGroupName.empty())?
+            _materialGroupName : replacement;
         replacement = (filenameTemplateMap.at("$UDIM").empty() && pair.first == "$UDIMPREFIX") ?
             EMPTY_STRING : replacement;
 
@@ -302,7 +302,7 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
     }
 }
 
-DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
+DocumentPtr TextureBaker::generateBakedDocumentFromShader(NodePtr shader, const StringVec& udimSet)
 {
     if (!shader)
     {
@@ -332,14 +332,14 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     }
 
     // Create a shader node.
-    string shaderName = (!_explicitMaterialOverride.empty())? SHADER_PREFIX + _explicitMaterialOverride : shader->getName();
+    string shaderName = (!_materialGroupName.empty())? SHADER_PREFIX + _materialGroupName : shader->getName();
     NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shaderName + BAKED_POSTFIX, shader->getType());
 
     // Optionally create a material node, connecting it to the new shader node.
     if (_material)
     {
         string materialName = (_texTemplateOverrides.count("$MATERIAL"))? _texTemplateOverrides["$MATERIAL"] : _material->getName();
-        materialName = (!_explicitMaterialOverride.empty())? _explicitMaterialOverride : materialName;
+        materialName = (!_materialGroupName.empty())? _materialGroupName : materialName;
         NodePtr bakedMaterial = bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
         for (auto sourceMaterialInput : _material->getInputs())
         {
@@ -458,14 +458,16 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     _worldSpaceNodes.clear();
     _bakedInputMap.clear();
     _material = nullptr;
-    _explicitMaterialOverride = EMPTY_STRING;
+    _materialGroupName = EMPTY_STRING;
 
     // Return the baked document on success.
     return bakedTextureDoc;
 }
 
-BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSearchPath& searchPath)
+DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
+                                              const StringVec udimSet, string& documentName)
 {
+    // Set up generator context for material
     GenContext genContext(_generator);
     genContext.getOptions().targetColorSpaceOverride = LIN_REC709;
     genContext.getOptions().fileTextureVerticalFlip = true;
@@ -478,93 +480,73 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
         genContext.registerSourceCodeSearchPath(path / "libraries");
     }
     genContext.getShaderGenerator().setColorManagementSystem(cms);
-    StringResolverPtr resolver = StringResolver::create();
 
-    // Populate renderableMaterialMap with materials and corresponding udims to be rendered out.
-    std::vector<TypedElementPtr> renderableMaterials;
-    findRenderableElements(doc, renderableMaterials);
-
-    if (_renderableMaterialMap.empty())
+    // Compute the material tag set.
+    StringVec materialTags = udimSet;
+    if (materialTags.empty())
     {
-        _renderableMaterialMap = generateRenderableMaterialMap(doc, renderableMaterials);
-    }
-    else
-    {
-        _renderableMaterialMap = finalizeRenderableMaterialMap(_renderableMaterialMap, doc, renderableMaterials);
+        materialTags.push_back(EMPTY_STRING);
     }
 
-    BakedDocumentVec bakedDocuments;
-    for (auto& pair : _renderableMaterialMap)
+    if (_outputStream)
     {
-        if (_outputStream)
-        {
-            *_outputStream << std::endl << "Working on material: " << pair.first << std::endl;
-        }
+        *_outputStream << std::endl << "Working on material: " << materialPath << std::endl;
+    }
 
-        StringVec materialTags = pair.second;
-        NodePtr shaderNode;
+    NodePtr shaderNode;
+    // Iterate over material tags.
+    for (const string& tag : materialTags)
+    {
+        StringResolverPtr resolver = StringResolver::create();
+        resolver->setUdimString(tag);
+        std::string resolvedRenderablePath = materialPath;
 
-        // Iterate over material tags.
-        for (const string& tag : materialTags)
+        // Configures texture baking for materials that explicitly contain the <UDIM> token and will be baked as a group. 
+        if (!tag.empty() && materialPath.find(UDIM_TOKEN) != string::npos)
         {
-            string renderablePath = pair.first;
+            // Determine material group.
+            string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : UDIM_PREFIX;
+            resolver->setUdimString(UDIM_TOKEN);
+            resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, "");
+            _materialGroupName = resolver->resolve(FilePath(materialPath).getBaseName(), FILENAME_TYPE_STRING);
+
+            // Determine explicit material renderable path with the current udim tag.
             resolver->setUdimString(tag);
-            if (!tag.empty() && renderablePath.find(UDIM_TOKEN) != string::npos)
-            {
-                // Determine overriding material group for explicit material grouping.
-                string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : UDIM_PREFIX;
-                resolver->setUdimString(UDIM_TOKEN);
-                resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, "");
-                _explicitMaterialOverride = resolver->resolve(FilePath(renderablePath).getBaseName(), FILENAME_TYPE_STRING);
-
-                // Determine explicit material renderable path with the current udim tag.
-                resolver->setUdimString(tag);
-                resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, udimPrefix + UDIM_TOKEN);
-                renderablePath = resolver->resolve(renderablePath, FILENAME_TYPE_STRING);
-            }
-            ElementPtr elem = doc->getDescendant(renderablePath);
-            if (!elem || !elem->isA<Node>())
-            {
-                continue;
-            }
-            NodePtr materialNode = elem->asA<Node>();
-
-            vector<NodePtr> shaderNodes = getShaderNodes(materialNode);
-            shaderNode = shaderNodes.empty() ? nullptr : shaderNodes[0];
-            if (!shaderNode)
-            {
-                continue;
-            }
-            // Always clear any cached implementations before generation.
-            genContext.clearNodeImplementations();
-
-            ShaderPtr hwShader = createShader("Shader", genContext, shaderNode);
-            if (!hwShader)
-            {
-                continue;
-            }
-            _imageHandler->setSearchPath(searchPath);
-            _imageHandler->setFilenameResolver(resolver);
-            bakeShaderInputs(materialNode, shaderNode, genContext, tag);
-
-            // Optimize baked textures.
-            optimizeBakedTextures(shaderNode);
+            resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, udimPrefix + UDIM_TOKEN);
+            resolvedRenderablePath = resolver->resolve(materialPath, FILENAME_TYPE_STRING);
         }
-
-        // Compute the udim set.
-        StringVec udimSet = materialTags;
-        if (udimSet.size() == 1 && udimSet[0].empty())
+        ElementPtr elem = doc->getDescendant(resolvedRenderablePath);
+        if (!elem || !elem->isA<Node>())
         {
-            udimSet.clear();
+            continue;
         }
+        NodePtr materialNode = elem->asA<Node>();
 
-        // Write the baked material and textures.
-        string documentName = (!_explicitMaterialOverride.empty())? _explicitMaterialOverride : shaderNode->getName();
-        DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimSet);
-        bakedDocuments.push_back(std::make_pair(documentName, bakedMaterialDoc));
+        vector<NodePtr> shaderNodes = getShaderNodes(materialNode);
+        shaderNode = shaderNodes.empty() ? nullptr : shaderNodes[0];
+        if (!shaderNode)
+        {
+            continue;
+        }
+        // Always clear any cached implementations before generation.
+        genContext.clearNodeImplementations();
+
+        ShaderPtr hwShader = createShader("Shader", genContext, shaderNode);
+        if (!hwShader)
+        {
+            continue;
+        }
+        _imageHandler->setSearchPath(searchPath);
+        _imageHandler->setFilenameResolver(resolver);
+        bakeShaderInputs(materialNode, shaderNode, genContext, tag);
+
+        // Optimize baked textures.
+        optimizeBakedTextures(shaderNode);
     }
 
-    return bakedDocuments;
+    // Link the baked material and textures in a MaterialX document.
+    documentName = (!_materialGroupName.empty())? _materialGroupName : shaderNode->getName();
+    return generateBakedDocumentFromShader(shaderNode, udimSet);
 }
 
 void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFilename)
@@ -578,145 +560,49 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
         }
     }
 
-    BakedDocumentVec bakedDocuments = createBakeDocuments(doc, searchPath);
-    size_t bakeCount = bakedDocuments.size();
-    if (bakeCount == 1)
+    std::vector<TypedElementPtr> renderableMaterials;
+    findRenderableElements(doc, renderableMaterials);
+
+    // Compute the UDIM set.
+    ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+    StringVec udimSet;
+    if (udimSetValue && udimSetValue->isA<StringVec>())
     {
-        if (bakedDocuments[0].second)
-        {
-            writeToXmlFile(bakedDocuments[0].second, outputFilename);
-            if (_outputStream)
-            {
-                *_outputStream << "Wrote baked document: " << outputFilename.asString() << std::endl;
-            }
-        }
+        udimSet = udimSetValue->asA<StringVec>();
     }
-    else
+
+    // Bake all materials in documents to memory.
+    BakedDocumentVec bakedDocuments;
+    for (const TypedElementPtr& element : renderableMaterials)
     {
-        // Add additional filename decorations if there are multiple documents.
-        for (size_t i = 0; i < bakeCount; i++)
+        string documentName;
+        DocumentPtr bakedMaterialDoc = bakeMaterialToDoc(doc, searchPath, element->getNamePath(), udimSet, documentName);
+        bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
+    }
+
+    // Write documents in memory to disk.
+    size_t bakeCount = bakedDocuments.size();
+    for (size_t i = 0; i < bakeCount; i++)
+    {
+        if (bakedDocuments[i].second)
         {
-            if (bakedDocuments[i].second)
+            FilePath writeFilename = outputFilename;
+
+            // Add additional filename decorations if there are multiple documents.
+            if (bakedDocuments.size() > 1)
             {
-                FilePath writeFilename = outputFilename;
                 const string extension = writeFilename.getExtension();
                 writeFilename.removeExtension();
                 writeFilename = FilePath(writeFilename.asString() + "_" + bakedDocuments[i].first + "." + extension);
-                writeToXmlFile(bakedDocuments[i].second, writeFilename);
-                if (_outputStream)
-                {
-                    *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
-                }
             }
-        }
-    }
-}
 
-// Generate a renderable material map.
-RenderableMaterialMap TextureBaker::generateRenderableMaterialMap(ConstDocumentPtr doc, const std::vector<TypedElementPtr>& renderableMaterials)
-{
-    RenderableMaterialMap renderableMaterialMap;
-
-    // Compute the UDIM set.
-    ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
-    StringVec udimSet;
-    if (udimSetValue && udimSetValue->isA<StringVec>())
-    {
-        udimSet = udimSetValue->asA<StringVec>();
-    }
-
-    // Compute the material tag set.
-    StringVec materialTags = udimSet;
-    if (materialTags.empty())
-    {
-        materialTags.push_back(EMPTY_STRING);
-    }
-
-    // Iterate over material tags.
-    for (const TypedElementPtr& element : renderableMaterials)
-    {
-        renderableMaterialMap[element->getNamePath()] = materialTags;
-    }
-    return renderableMaterialMap;
-}
-
-RenderableMaterialMap TextureBaker::finalizeRenderableMaterialMap(const RenderableMaterialMap renderableMaterialMap, ConstDocumentPtr doc,
-                                                                  const std::vector<TypedElementPtr>& renderableMaterials)
-{
-    RenderableMaterialMap finalRenderableMaterialMap;
-
-    // Compute the UDIM set.
-    ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
-    StringVec udimSet;
-    if (udimSetValue && udimSetValue->isA<StringVec>())
-    {
-        udimSet = udimSetValue->asA<StringVec>();
-    }
-
-    for (auto& pair : renderableMaterialMap)
-    {
-        string materialName = pair.first;
-        StringVec materialTags = pair.second;
-
-        // Populate materialTags with udim set from geominfo.
-        StringVec::iterator allUdimsPtr = find(materialTags.begin(), materialTags.end(), ALL_UDIMS);
-        if (allUdimsPtr != materialTags.end())
-        {
-            materialTags.erase(allUdimsPtr);
-            if (!udimSet.empty())
+            writeToXmlFile(bakedDocuments[i].second, writeFilename);
+            if (_outputStream)
             {
-                StringSet finalSet(materialTags.begin(), materialTags.end());
-                finalSet.insert(udimSet.begin(), udimSet.end());
-                materialTags.assign(finalSet.begin(), finalSet.end());
-            }
-        }
-
-        // Remove <UDIM> token from material name if no udims.
-        if (materialTags.empty())
-        {
-            StringResolverPtr resolver = StringResolver::create();
-            string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : UDIM_PREFIX;
-            resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, "");
-            materialName = resolver->resolve(materialName, FILENAME_TYPE_STRING);
-            materialTags.push_back(EMPTY_STRING);
-        }
-
-        StringResolverPtr resolver = StringResolver::create();
-        for (string tag : materialTags)
-        {
-            resolver->setUdimString(tag);
-            string resolvedMaterial = resolver->resolve(materialName, FILENAME_TYPE_STRING);
-
-            auto renderableMaterialPtr = find_if(renderableMaterials.begin(), renderableMaterials.end(),
-                                                [resolvedMaterial](const TypedElementPtr material)
-                                                {
-                                                    return material->getName() == resolvedMaterial;
-                                                });
-
-            // If material is in renderableMaterials, add it back to the final map.
-            if (renderableMaterialPtr != renderableMaterials.end())
-            {
-                FilePath materialPath = FilePath((*renderableMaterialPtr)->getNamePath());
-                string materialNamePath = materialPath.getParentPath() / materialName;
-                finalRenderableMaterialMap.emplace(make_pair(materialNamePath, StringVec()));
-                finalRenderableMaterialMap[materialNamePath].push_back(tag);
-            }
-            else
-            {
-                // Print out not found error message for material.
-                if (_outputStream)
-                {
-                    *_outputStream << "Could not find renderable material " << materialName;
-                    if (!tag.empty())
-                    {
-                        *_outputStream << " with udim " << tag;
-                    }
-                    *_outputStream << std::endl;
-                }
+                *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
             }
         }
     }
-    return finalRenderableMaterialMap;
 }
 
 void TextureBaker::setupUnitSystem(DocumentPtr unitDefinitions)
