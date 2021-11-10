@@ -19,7 +19,11 @@
     #include <dirent.h>
 #endif
 
-#if defined(__APPLE__)
+#if defined(__linux__)
+    #include <linux/limits.h>
+#elif defined(__FreeBSD__)
+    #include <sys/syslimits.h>
+#elif defined(__APPLE__)
     #include <mach-o/dyld.h>
 #endif
 
