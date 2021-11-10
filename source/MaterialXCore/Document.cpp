@@ -6,6 +6,7 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXCore/Util.h>
+#include <MaterialXCore/Version.h>
 
 #include <mutex>
 
@@ -15,7 +16,8 @@ namespace MaterialX
 const string Document::CMS_ATTRIBUTE = "cms";
 const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
 
-namespace {
+namespace
+{
 
 NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
 {
@@ -330,7 +332,7 @@ std::pair<int, int> Document::getVersionIntegers() const
 {
     if (!hasVersionString())
     {
-        return {MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION};
+        return { MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION };
     }
     return InterfaceElement::getVersionIntegers();
 }
@@ -546,7 +548,7 @@ void Document::upgradeVersion()
                             elem->removeChild(child->getName());
                         }
                     }
-               }
+                }
             }
         }
 
@@ -1358,10 +1360,10 @@ void Document::upgradeVersion()
         // If they are, rename the nodes.
         for (NodeGraphPtr nodegraph : getNodeGraphs())
         {
-            // Clear out any erroneously set version 
+            // Clear out any erroneously set version
             nodegraph->removeAttribute(InterfaceElement::VERSION_ATTRIBUTE);
 
-            StringSet interfaceNames;            
+            StringSet interfaceNames;
             for (auto child : nodegraph->getChildren())
             {
                 NodePtr node = child->asA<Node>();
@@ -1394,7 +1396,7 @@ void Document::upgradeVersion()
                     node->setName(newNodeName);
                 }
             }
-        }   
+        }
 
         // Convert parameters to inputs, applying uniform markings to converted inputs
         // of nodedefs.

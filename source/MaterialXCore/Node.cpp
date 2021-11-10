@@ -42,7 +42,7 @@ NodePtr Node::getConnectedNode(const string& inputName) const
     {
         return NodePtr();
     }
-    return input->getConnectedNode();    
+    return input->getConnectedNode();
 }
 
 void Node::setConnectedNodeName(const string& inputName, const string& nodeName)
@@ -86,10 +86,10 @@ OutputPtr Node::getConnectedOutput(const string& inputName) const
     {
         return OutputPtr();
     }
-    return input->getConnectedOutput();    
+    return input->getConnectedOutput();
 }
 
-NodeDefPtr Node::getNodeDef(const string& target) const
+NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
 {
     if (hasNodeDefString())
     {
@@ -97,15 +97,29 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     }
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
+    vector<NodeDefPtr> roughMatches;
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
     for (NodeDefPtr nodeDef : nodeDefs)
     {
-        if (targetStringsMatch(nodeDef->getTarget(), target) &&
-            nodeDef->isVersionCompatible(getVersionString()) &&
-            isTypeCompatible(nodeDef))
+        if (!targetStringsMatch(nodeDef->getTarget(), target) ||
+            !nodeDef->isVersionCompatible(getVersionString()) ||
+            nodeDef->getType() != getType())
         {
-            return nodeDef;
+            continue;
         }
+        if (!hasExactInputMatch(nodeDef))
+        {
+            if (allowRoughMatch)
+            {
+                roughMatches.push_back(nodeDef);
+            }
+            continue;
+        }
+        return nodeDef;
+    }
+    if (!roughMatches.empty())
+    {
+        return roughMatches[0];
     }
     return NodeDefPtr();
 }
@@ -132,7 +146,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
     if (port)
     {
         // The connecting element is an input/output port,
-        // so get the name of the output connected to this 
+        // so get the name of the output connected to this
         // port. If no explicit output is specified this will
         // return an empty string which is handled below.
         outputName = &port->getOutputString();
@@ -353,15 +367,15 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                 }
             }
 
-            // Connect any nodegraph outputs within the graph which point to another 
+            // Connect any nodegraph outputs within the graph which point to another
             // flatten node within the nodegraph. As it's been flattened the previous
             // reference is incorrect and needs to be updated.
             if (sourceSubGraph->getOutputCount())
             {
                 for (OutputPtr sourceOutput : getOutputs())
                 {
-                    const string& nodeNameString = sourceOutput->getNodeName(); 
-                    const string& outputString = sourceOutput->getOutputString(); 
+                    const string& nodeNameString = sourceOutput->getNodeName();
+                    const string& outputString = sourceOutput->getOutputString();
 
                     if (nodeNameString != processNode->getName())
                     {
@@ -472,7 +486,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         childQueue.pop_front();
         result.push_back(child);
 
-        // Find connected nodes and decrease their in-degree, 
+        // Find connected nodes and decrease their in-degree,
         // adding node to the queue if in-degrees becomes 0.
         if (child->isA<Node>())
         {
@@ -514,7 +528,7 @@ string GraphElement::asStringDot() const
     for (ElementPtr elem : children)
     {
         string uniqueName = elem->getCategory();
-        while(nameSet.count(uniqueName))
+        while (nameSet.count(uniqueName))
         {
             uniqueName = incrementName(uniqueName);
         }
@@ -655,7 +669,7 @@ void NodeGraph::removeInterfaceName(const string& inputPath)
         const string& interfaceName = input->getInterfaceName();
         getNodeDef()->removeChild(interfaceName);
         input->setInterfaceName(EMPTY_STRING);
-    }   
+    }
 }
 
 void NodeGraph::modifyInterfaceName(const string& inputPath, const string& interfaceName)

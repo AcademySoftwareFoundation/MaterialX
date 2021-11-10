@@ -1,30 +1,29 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_LAYERNODE_H
-#define MATERIALX_LAYERNODE_H
+#ifndef MATERIALX_CLOSURELAYERNODE_H
+#define MATERIALX_CLOSURELAYERNODE_H
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
 namespace MaterialX
 {
 
-/// Layer node implementation
-class MX_GENSHADER_API LayerNode : public ShaderNodeImpl
+/// Closure layer node implementation.
+class MX_GENSHADER_API ClosureLayerNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-    /// Adding a base BSDF input to a node.
-    static void addLayerSupport(ShaderNode& node);
-
     /// String constants
     static const string TOP;
     static const string BASE;
+    static const string THICKNESS;
+    static const string IOR;
 };
 
 } // namespace MaterialX

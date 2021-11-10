@@ -6,9 +6,11 @@
 #ifndef MATERIALX_LIGHTCOMPOUNDNODEGLSL_H
 #define MATERIALX_LIGHTCOMPOUNDNODEGLSL_H
 
+#include <MaterialXGenGlsl/Export.h>
+
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
@@ -16,7 +18,7 @@ namespace MaterialX
 class GlslShaderGenerator;
 
 /// LightCompound node implementation for GLSL
-class LightCompoundNodeGlsl : public CompoundNode
+class MX_GENGLSL_API LightCompoundNodeGlsl : public CompoundNode
 {
 public:
     LightCompoundNodeGlsl();
@@ -34,7 +36,7 @@ public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:
-    void emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const;
+    void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
 
     VariableBlock _lightUniforms;
 };

@@ -1,11 +1,10 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Version.h)
+
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 add_library(MaterialXCore ${materialx_source} ${materialx_headers})
 
-add_definitions(-DMATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION})
-add_definitions(-DMATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION})
-add_definitions(-DMATERIALX_BUILD_VERSION=${MATERIALX_BUILD_VERSION})
 add_definitions(-DMATERIALX_CORE_EXPORTS)
 
 set_target_properties(

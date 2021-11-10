@@ -75,6 +75,19 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
     loadAdditionalLibraries(dependLib, options);
 }
 
+void ShaderRenderTester::addSkipFiles()
+{
+    _skipFiles.insert("_options.mtlx");
+    _skipFiles.insert("light_rig_test_1.mtlx");
+    _skipFiles.insert("light_rig_test_2.mtlx");
+    _skipFiles.insert("light_compound_test.mtlx");
+    _skipFiles.insert("xinclude_search_path.mtlx");
+    _skipFiles.insert("1_38_parameter_to_input.mtlx");
+    _skipFiles.insert("1_36_to_1_37.mtlx");
+    _skipFiles.insert("1_37_to_1_38.mtlx");
+    _skipFiles.insert("material_element_to_surface_material.mtlx");
+}
+
 bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
 {
 #ifdef LOG_TO_FILE

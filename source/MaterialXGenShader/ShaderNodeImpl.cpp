@@ -8,6 +8,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
@@ -54,9 +55,28 @@ void ShaderNodeImpl::emitFunctionCall(const ShaderNode&, GenContext&, ShaderStag
 {
 }
 
+void ShaderNodeImpl::emitOutputVariables(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+{
+    // Default implementation of output variable declaration.
+    // Initialize variables to their type default value.
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    for (size_t i = 0; i < node.numOutputs(); ++i)
+    {
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(i), true, true, context, stage);
+        shadergen.emitLineEnd(stage);
+    }
+}
+
 ShaderGraph* ShaderNodeImpl::getGraph() const
 {
     return nullptr;
+}
+
+
+ShaderNodeImplPtr NopNode::create()
+{
+    return std::make_shared<NopNode>();
 }
 
 } // namespace MaterialX

@@ -127,6 +127,7 @@
       <input name="weight" type="float" value="1" />
       <input name="tint" type="color3" value="1, 1, 1" />
       <input name="ior" type="float" interfacename="ior" />
+      <input name="roughness" type="vector2" value="0.0, 0.0" />
       <input name="normal" type="vector3" nodename="surface_normal" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>

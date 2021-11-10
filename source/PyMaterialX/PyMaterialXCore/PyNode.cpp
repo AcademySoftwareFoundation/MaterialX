@@ -20,7 +20,7 @@ void bindPyNode(py::module& mod)
         .def("setConnectedNodeName", &mx::Node::setConnectedNodeName)
         .def("getConnectedNodeName", &mx::Node::getConnectedNodeName)
         .def("getNodeDef", &mx::Node::getNodeDef,
-            py::arg("target") = mx::EMPTY_STRING)
+            py::arg("target") = mx::EMPTY_STRING, py::arg("allowRoughMatch") = false)
         .def("getImplementation", &mx::Node::getImplementation,
             py::arg("target") = mx::EMPTY_STRING)
         .def("getDownstreamPorts", &mx::Node::getDownstreamPorts)

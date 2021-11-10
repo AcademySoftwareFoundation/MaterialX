@@ -135,7 +135,7 @@ def main():
                 print('--- Wrote pixel shader to: ' + filename)
                 file = open(filename, 'w+')
                 file.write(pixelSource)
-                file.close()                   
+                file.close()
                 validateCode(filename, opts.validator, opts.validatorArgs)
 
                 vertexSource = shader.getSourceCode(mx_gen_shader.VERTEX_STAGE)
@@ -152,7 +152,7 @@ def main():
                 print('--- Wrote pixel shader to: ' + filename)
                 file = open(filename, 'w+')
                 file.write(pixelSource)
-                file.close()                    
+                file.close()
 
         else:
             print('--- Failed to generate code for: ' + shaderNode.getName())

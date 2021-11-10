@@ -96,9 +96,13 @@ class MX_CORE_API Node : public InterfaceElement
     /// by the given target name.
     /// @param target An optional target name, which will be used to filter
     ///    the nodedefs that are considered.
+    /// @param allowRoughMatch If specified, then a rough match will be allowed
+    ///    when an exact match is not found.  An exact match requires that each
+    ///    node input corresponds to a nodedef input of the same name and type.
     /// @return A NodeDef for this node, or an empty shared pointer if none
     ///    was found.
-    NodeDefPtr getNodeDef(const string& target = EMPTY_STRING) const;
+    NodeDefPtr getNodeDef(const string& target = EMPTY_STRING,
+                          bool allowRoughMatch = false) const;
 
     /// @}
     /// @name Implementation References
@@ -133,7 +137,7 @@ class MX_CORE_API Node : public InterfaceElement
 
     /// Given a connecting element (Input or Output) return the NodeDef output
     /// corresponding to the output the element is connected to. This is only valid if
-    /// the NodeDef has explicit outputs defined, e.g. multiple outputs or an explicitly 
+    /// the NodeDef has explicit outputs defined, e.g. multiple outputs or an explicitly
     /// named output. If this is not the case, nullptr is returned, which implies the
     /// node is a standard node with a single implicit output.
     OutputPtr getNodeDefOutput(ElementPtr connectingElement);
@@ -180,6 +184,7 @@ class MX_CORE_API GraphElement : public InterfaceElement
         InterfaceElement(parent, category, name)
     {
     }
+
   public:
     virtual ~GraphElement() { }
 
@@ -292,7 +297,7 @@ class MX_CORE_API GraphElement : public InterfaceElement
 
     /// Flatten any references to graph-based node definitions within this
     /// node graph, replacing each reference with the equivalent node network.
-    void flattenSubgraphs(const string& target = EMPTY_STRING, NodePredicate filter=nullptr);
+    void flattenSubgraphs(const string& target = EMPTY_STRING, NodePredicate filter = nullptr);
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
@@ -332,7 +337,7 @@ class MX_CORE_API NodeGraph : public GraphElement
 
     /// Return the first implementation for this node graph
     /// @return An implementation for this node, or an empty shared pointer if
-    ///    none was found.  
+    ///    none was found.
     InterfaceElementPtr getImplementation() const;
 
     /// @}

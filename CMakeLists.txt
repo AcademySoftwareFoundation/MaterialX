@@ -61,6 +61,11 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
 
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 
+# Settings to define installation layout
+set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
+set(MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING "Install lib path (e.g. 'libs', 'lib').")
+set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtlx std libs (e.g. 'libraries').")
+
 # Helpers for OSL validation
 set(MATERIALX_TESTOSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
 set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
@@ -254,7 +259,7 @@ install(FILES CHANGELOG.md README.md
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
-                                 VERSION ${CMAKE_VERSION}
+                                 VERSION ${MATERIALX_LIBRARY_VERSION}
                                  COMPATIBILITY AnyNewerVersion)
 
 # Package for using the developer build

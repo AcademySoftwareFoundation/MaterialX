@@ -10,17 +10,17 @@
 #include <MaterialXCore/Exception.h>
 
 #if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <direct.h>
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+    #include <direct.h>
 #else
-#include <unistd.h>
-#include <sys/stat.h>
-#include <dirent.h>
+    #include <unistd.h>
+    #include <sys/stat.h>
+    #include <dirent.h>
 #endif
 
 #if defined(__APPLE__)
-#include <mach-o/dyld.h>
+    #include <mach-o/dyld.h>
 #endif
 
 #include <array>
@@ -197,7 +197,7 @@ FilePathVec FilePath::getSubDirectories() const
         return FilePathVec();
     }
 
-    FilePathVec dirs { *this };
+    FilePathVec dirs{ *this };
 
 #if defined(_WIN32)
     WIN32_FIND_DATA fd;
@@ -259,6 +259,15 @@ void FilePath::createDirectory() const
     _mkdir(asString().c_str());
 #else
     mkdir(asString().c_str(), 0777);
+#endif
+}
+
+bool FilePath::setCurrentPath()
+{
+#if defined(_WIN32)
+    return (_chdir(asString().c_str()) == 0);
+#else
+    return (chdir(asString().c_str()) == 0);
 #endif
 }
 
