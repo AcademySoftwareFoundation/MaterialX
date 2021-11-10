@@ -211,6 +211,7 @@ jobs:
       if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_validate == 'ON' }}
       run: |
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
 
     - name: Render Tests
