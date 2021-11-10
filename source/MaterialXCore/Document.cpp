@@ -7,8 +7,10 @@
 
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Version.h>
+#include <MaterialXCore/Node.h>
 
 #include <mutex>
+#include <unordered_set>
 
 namespace MaterialX
 {
@@ -303,6 +305,30 @@ ValuePtr Document::getGeomPropValue(const string& geomPropName, const string& ge
         }
     }
     return value;
+}
+
+std::vector<OutputPtr> Document::getMaterialOutputs(bool skipIncludes) const
+{
+    vector<OutputPtr> materialOutputs;
+
+    const std::string documentUri = getSourceUri();
+    for (NodeGraphPtr docNodeGraph : getNodeGraphs())
+    {
+        // Skip nodegraphs which are definitions or optionally 
+        // skip any nodegraphs from an include file
+        if ((skipIncludes && (documentUri != docNodeGraph->getSourceUri())) ||
+            docNodeGraph->getNodeDef())
+        {
+            continue;
+        }
+
+        std::vector<OutputPtr> docNodeGraphOutputs = docNodeGraph->getMaterialOutputs();
+        if (!docNodeGraphOutputs.empty())
+        {
+            materialOutputs.insert(materialOutputs.end(), docNodeGraphOutputs.begin(), docNodeGraphOutputs.end());
+        }
+    }
+    return materialOutputs;
 }
 
 vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const

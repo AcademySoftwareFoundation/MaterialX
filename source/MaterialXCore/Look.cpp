@@ -4,8 +4,9 @@
 //
 
 #include <MaterialXCore/Look.h>
-
 #include <MaterialXCore/Document.h>
+
+#include <unordered_set>
 
 namespace MaterialX
 {
@@ -123,6 +124,17 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
 NodePtr MaterialAssign::getReferencedMaterial() const
 {
     return resolveRootNameReference<Node>(getMaterial());
+}
+
+std::vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+    NodeGraphPtr materialGraph = resolveRootNameReference<NodeGraph>(getMaterial());
+    if (materialGraph)
+    {
+        return materialGraph->getMaterialOutputs();
+    }
+    return materialOutputs;
 }
 
 vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const

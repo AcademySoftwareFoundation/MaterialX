@@ -313,6 +313,9 @@ class MX_CORE_API MaterialAssign : public GeomElement
         return getAttribute(MATERIAL_ATTRIBUTE);
     }
 
+    ///  Return the outputs on any referenced material
+    std::vector<OutputPtr> getMaterialOutputs() const;
+
     /// @}
     /// @name Exclusive
     /// @{

@@ -88,6 +88,9 @@ class MX_CORE_API Node : public InterfaceElement
     /// not present, then an empty OutputPtr is returned.
     OutputPtr getConnectedOutput(const string& inputName) const;
 
+    /// Return any outputs on the node which are of type "material"
+    std::vector<OutputPtr> getMaterialOutputs() const;
+
     /// @}
     /// @name NodeDef References
     /// @{
@@ -322,6 +325,13 @@ class MX_CORE_API NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
+    /// @name Material References
+    /// @{
+    
+    /// Return any outputs on the nodegraph which are of type "material"
+    std::vector<OutputPtr> getMaterialOutputs() const;
+
+    /// @}
     /// @name NodeDef References
     /// @{
 

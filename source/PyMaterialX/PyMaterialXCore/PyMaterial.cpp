@@ -15,6 +15,5 @@ void bindPyMaterial(py::module& mod)
 {
     mod.def("getShaderNodes", &mx::getShaderNodes,
         py::arg("materialNode"), py::arg("nodeType") = mx::SURFACE_SHADER_TYPE_STRING, py::arg("target") = mx::EMPTY_STRING);
-    mod.def("getConnectedOutputs", &mx::getConnectedOutputs),
-    mod.def("getMaterials", &mx::getMaterials);
+    mod.def("getConnectedOutputs", &mx::getConnectedOutputs);
 }

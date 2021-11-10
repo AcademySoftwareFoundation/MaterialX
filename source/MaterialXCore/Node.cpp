@@ -89,6 +89,23 @@ OutputPtr Node::getConnectedOutput(const string& inputName) const
     return input->getConnectedOutput();
 }
 
+std::vector<OutputPtr> Node::getMaterialOutputs() const
+{
+    std::vector<OutputPtr> materialOutputs;
+
+    if (getType() == MATERIAL_TYPE_STRING)
+    {
+        for (auto nodeOutput : getActiveOutputs())
+        {
+            if (nodeOutput->getType() == MATERIAL_TYPE_STRING)
+            {
+                materialOutputs.push_back(nodeOutput);
+            }
+        }
+    }
+    return materialOutputs;
+}
+
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
     if (hasNodeDefString())
@@ -591,6 +608,23 @@ string GraphElement::asStringDot() const
 //
 // NodeGraph methods
 //
+
+std::vector<OutputPtr> NodeGraph::getMaterialOutputs() const
+{
+    std::vector<OutputPtr> materialOutputs;
+    for (auto graphOutput : getActiveOutputs())
+    {
+        if (graphOutput->getType() == MATERIAL_TYPE_STRING)
+        {
+            NodePtr node = graphOutput->getConnectedNode();
+            if (node && node->getType() == MATERIAL_TYPE_STRING)
+            {
+                materialOutputs.push_back(graphOutput);
+            }
+        }
+    }
+    return materialOutputs;
+}
 
 void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
 {
