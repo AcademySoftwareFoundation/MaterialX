@@ -219,7 +219,7 @@ install(FILES CHANGELOG.md README.md
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
-                                 VERSION ${CMAKE_VERSION}
+                                 VERSION ${MATERIALX_LIBRARY_VERSION}
                                  COMPATIBILITY AnyNewerVersion)
 
 # Package for using the developer build

@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Light node implementation for GLSL
-class LightNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API LightNodeGlsl : public GlslImplementation
 {
   public:
     LightNodeGlsl();
@@ -24,7 +24,7 @@ class LightNodeGlsl : public GlslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   private:
-      HwClosureContextPtr _callEmission;
+      mutable ClosureContext _callEmission;
 };
 
 } // namespace MaterialX

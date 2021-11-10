@@ -6,13 +6,15 @@
 #ifndef MATERIALX_BLURNODEGLSL_H
 #define MATERIALX_BLURNODEGLSL_H
 
+#include <MaterialXGenGlsl/Export.h>
+
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 
 namespace MaterialX
 {
 
 /// Blur node implementation for GLSL
-class BlurNodeGlsl : public BlurNode
+class MX_GENGLSL_API BlurNodeGlsl : public BlurNode
 {
   public:
     static ShaderNodeImplPtr create();

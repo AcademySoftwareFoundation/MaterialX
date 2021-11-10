@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Utility node for getting number of active lights for GLSL.
-class NumLightsNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API NumLightsNodeGlsl : public GlslImplementation
 {
 public:
     NumLightsNodeGlsl();

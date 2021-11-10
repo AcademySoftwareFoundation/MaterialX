@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// TransformNormal node implementation for GLSL
-class TransformNormalNodeGlsl : public TransformVectorNodeGlsl
+class MX_GENGLSL_API TransformNormalNodeGlsl : public TransformVectorNodeGlsl
 {
 public:
     static ShaderNodeImplPtr create();

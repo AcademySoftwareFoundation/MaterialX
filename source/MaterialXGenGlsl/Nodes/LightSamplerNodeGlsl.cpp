@@ -23,14 +23,14 @@ ShaderNodeImplPtr LightSamplerNodeGlsl::create()
     return std::make_shared<LightSamplerNodeGlsl>();
 }
 
-void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         // Emit light sampler function with all bound light types
         shadergen.emitLine(SAMPLE_LIGHTS_FUNC_SIGNATURE, stage, false);
-        shadergen.emitScopeBegin(stage);
+        shadergen.emitFunctionBodyBegin(node, context, stage);
         shadergen.emitLine("result.intensity = vec3(0.0)", stage);
         shadergen.emitLine("result.direction = vec3(0.0)", stage);
 
@@ -48,8 +48,7 @@ void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext&
             }
         }
 
-        shadergen.emitScopeEnd(stage);
-        shadergen.emitLineBreak(stage);
+        shadergen.emitFunctionBodyEnd(node, context, stage);
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 

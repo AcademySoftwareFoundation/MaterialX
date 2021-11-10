@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// GeomPropValue node implementation for GLSL
-class GeomPropValueNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API GeomPropValueNodeGlsl : public GlslImplementation
 {
   public:
     static ShaderNodeImplPtr create();
@@ -25,7 +25,7 @@ class GeomPropValueNodeGlsl : public GlslImplementation
 };
 
 /// GeomPropValue node non-implementation for GLSL
-class GeomPropValueNodeGlslAsUniform : public GlslImplementation
+class MX_GENGLSL_API GeomPropValueNodeGlslAsUniform : public GlslImplementation
 {
   public:
     static ShaderNodeImplPtr create();

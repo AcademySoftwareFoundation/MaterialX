@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Tangent node implementation for GLSL
-class TangentNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API TangentNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();

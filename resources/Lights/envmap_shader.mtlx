@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
 
    <!-- Custom node: <viewdir>                     -->
    <!-- Required by environment shader graph below -->
@@ -46,11 +46,11 @@
        <input name="in2" type="float" nodename="latitude" />
      </combine2>
      <image name="envImage" type="color3">
-       <parameter name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
+       <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" uniform="true" />
        <input name="texcoord" type="vector2" nodename="mapUvs" />
-       <parameter name="uaddressmode" type="string" value="periodic" />
-       <parameter name="vaddressmode" type="string" value="clamp" />
-       <parameter name="filtertype" type="string" value="linear" />
+       <input name="uaddressmode" type="string" value="periodic" uniform="true" />
+       <input name="vaddressmode" type="string" value="clamp" uniform="true" />
+       <input name="filtertype" type="string" value="linear" uniform="true" />
      </image>
 
      <!-- Return the resulting color -->

@@ -5,7 +5,7 @@
 
 #include <MaterialXRenderHw/WindowWrapper.h>
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 #include <X11/Intrinsic.h>
 #elif defined(__APPLE__)
 #include <MaterialXRenderHw/WindowCocoaWrappers.h>
@@ -48,7 +48,7 @@ void WindowWrapper::release()
     _internalHandle = 0;
 }
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 
 WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
                              InternalWindowHandle internalHandle,

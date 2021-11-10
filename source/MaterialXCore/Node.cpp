@@ -89,24 +89,7 @@ OutputPtr Node::getConnectedOutput(const string& inputName) const
     return input->getConnectedOutput();
 }
 
-std::vector<OutputPtr> Node::getMaterialOutputs() const
-{
-    std::vector<OutputPtr> materialOutputs;
-
-    if (getType() == MATERIAL_TYPE_STRING)
-    {
-        for (auto nodeOutput : getActiveOutputs())
-        {
-            if (nodeOutput->getType() == MATERIAL_TYPE_STRING)
-            {
-                materialOutputs.push_back(nodeOutput);
-            }
-        }
-    }
-    return materialOutputs;
-}
-
-NodeDefPtr Node::getNodeDef(const string& target) const
+NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
 {
     if (hasNodeDefString())
     {
@@ -114,15 +97,29 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     }
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
+    vector<NodeDefPtr> roughMatches;
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
     for (NodeDefPtr nodeDef : nodeDefs)
     {
-        if (targetStringsMatch(nodeDef->getTarget(), target) &&
-            nodeDef->isVersionCompatible(getVersionString()) &&
-            isTypeCompatible(nodeDef))
+        if (!targetStringsMatch(nodeDef->getTarget(), target) ||
+            !nodeDef->isVersionCompatible(getVersionString()) ||
+            nodeDef->getType() != getType())
         {
-            return nodeDef;
+            continue;
         }
+        if (!hasExactInputMatch(nodeDef))
+        {
+            if (allowRoughMatch)
+            {
+                roughMatches.push_back(nodeDef);
+            }
+            continue;
+        }
+        return nodeDef;
+    }
+    if (!roughMatches.empty())
+    {
+        return roughMatches[0];
     }
     return NodeDefPtr();
 }
