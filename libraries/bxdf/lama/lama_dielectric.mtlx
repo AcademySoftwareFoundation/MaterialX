@@ -137,9 +137,7 @@
     </dielectric_bsdf>
     <layer name="transmission_layer" type="BSDF">
       <input name="top" type="BSDF" nodename="transmission_bsdf" />
-      <!-- TODO: uncomment once layering BSDFs over VDFs is supported.
       <input name="base" type="VDF" nodename="interior_vdf" />
-      -->
     </layer>
 
     <!-- BRDF -->

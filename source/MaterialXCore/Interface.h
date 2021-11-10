@@ -56,6 +56,7 @@ class MX_CORE_API PortElement : public ValueElement
         ValueElement(parent, category, name)
     {
     }
+
   public:
     virtual ~PortElement() { }
 
@@ -154,7 +155,7 @@ class MX_CORE_API PortElement : public ValueElement
 
     /// Return true if the given channels characters are valid for the given
     /// source type string.
-    static bool validChannelsCharacters(const string &channels, const string &sourceType);
+    static bool validChannelsCharacters(const string& channels, const string& sourceType);
 
     /// Return true if the given channels string is valid for the given source
     /// and destination type strings.
@@ -322,6 +323,7 @@ class MX_CORE_API InterfaceElement : public TypedElement
         _outputCount(0)
     {
     }
+
   public:
     virtual ~InterfaceElement() { }
 
@@ -526,9 +528,9 @@ class MX_CORE_API InterfaceElement : public TypedElement
 
     /// Set the typed value of an input by its name, creating a child element
     /// to hold the input if needed.
-    template<class T> InputPtr setInputValue(const string& name,
-                                             const T& value,
-                                             const string& type = EMPTY_STRING);
+    template <class T> InputPtr setInputValue(const string& name,
+                                              const T& value,
+                                              const string& type = EMPTY_STRING);
 
     /// Return the typed value of an input by its name, taking both the calling
     /// element and its declaration into account.
@@ -637,14 +639,13 @@ class MX_CORE_API InterfaceElement : public TypedElement
     ///    no declaration was found.
     virtual ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
-    /// Return true if this interface instance is type compatible with the given
-    /// interface declaration.  This may be used to test, for example, whether a
-    /// Node is an instantiation of a given NodeDef.
-    ///
-    /// If the type string of the instance differs from that of the declaration,
-    /// then false is returned.  If the instance possesses an Input with no Input
-    /// of matching type in the declaration, then false is returned.
-    bool isTypeCompatible(ConstInterfaceElementPtr declaration) const;
+    /// Return true if this instance has an exact input match with the given
+    /// declaration, where each input of this the instance corresponds to a
+    /// declaration input of the same name and type.
+    /// 
+    /// If an exact input match is not found, and the optional message argument
+    /// is provided, then an error message will be appended to the given string.
+    bool hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message = nullptr) const;
 
     /// @}
 
@@ -663,9 +664,9 @@ class MX_CORE_API InterfaceElement : public TypedElement
     size_t _outputCount;
 };
 
-template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
-                                                           const T& value,
-                                                           const string& type)
+template <class T> InputPtr InterfaceElement::setInputValue(const string& name,
+                                                            const T& value,
+                                                            const string& type)
 {
     InputPtr input = getChildOfType<Input>(name);
     if (!input)

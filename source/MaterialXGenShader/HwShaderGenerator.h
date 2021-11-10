@@ -209,7 +209,6 @@ namespace HW
     extern MX_GENSHADER_API const string ATTR_TRANSPARENT;
 
     /// User data names.
-    extern MX_GENSHADER_API const string USER_DATA_CLOSURE_CONTEXT;
     extern MX_GENSHADER_API const string USER_DATA_LIGHT_SHADERS;
     extern MX_GENSHADER_API const string USER_DATA_BINDING_CONTEXT;
 }
@@ -220,88 +219,16 @@ namespace Stage
     extern MX_GENSHADER_API const string VERTEX;
 }
 
-class HwClosureContext;
 class HwLightShaders;
 class HwShaderGenerator;
 class HwResourceBindingContext;
 
-/// Shared pointer to a HwClosureContext
-using HwClosureContextPtr = shared_ptr<class HwClosureContext>;
 /// Shared pointer to a HwLightShaders
 using HwLightShadersPtr = shared_ptr<class HwLightShaders>;
 /// Shared pointer to a HwShaderGenerator
 using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
 /// Shared pointer to a HwResourceBindingContext
 using HwResourceBindingContextPtr = shared_ptr<class HwResourceBindingContext>;
-
-/// @class HwClosureContext
-/// Class representing a context for closure evaluation on hardware targets.
-/// On hardware BSDF closures are evaluated differently in reflection, transmission
-/// or environment/indirect contexts. This class represents the context we are in
-/// and if extra arguments and function decorators are needed for that context.
-class MX_GENSHADER_API HwClosureContext : public GenUserData
-{
-  public:
-    /// Types of closure contexts.
-    enum Type
-    {
-        REFLECTION,
-        TRANSMISSION,
-        INDIRECT,
-        EMISSION
-    };
-
-    /// An extra argument for closure functions.
-    /// An argument is a pair of strings holding the
-    /// 'type' and 'name' of the argument.
-    using Argument = std::pair<const TypeDesc*, string>;
-    /// An array of arguments
-    using Arguments = vector<Argument>;
-
-    /// Constructor
-    HwClosureContext(int type) : _type(type) {}
-
-    /// Create and return a new instance.
-    static HwClosureContextPtr create(int type)
-    {
-        return std::make_shared<HwClosureContext>(type);
-    }
-
-    /// Return the identifier for this context.
-    int getType() const { return _type; }
-
-    /// For the given node type add an extra argument to be used for the function in this context.
-    void addArgument(const TypeDesc* nodeType, const Argument& arg)
-    {
-        _arguments[nodeType].push_back(arg);
-    }
-
-    /// Return a list of extra argument to be used for the given node in this context.
-    const Arguments& getArguments(const TypeDesc* nodeType) const
-    {
-        auto it = _arguments.find(nodeType);
-        return it != _arguments.end() ? it->second : EMPTY_ARGUMENTS;
-    }
-
-    /// For the given node type set a function name suffix to be used for the function in this context.
-    void setSuffix(const TypeDesc* nodeType, const string& suffix)
-    {
-        _suffix[nodeType] = suffix;
-    }
-
-    /// Return the function name suffix to be used for the given node in this context.
-    const string& getSuffix(const TypeDesc* nodeType) const
-    {
-        auto it = _suffix.find(nodeType);
-        return it != _suffix.end() ? it->second : EMPTY_STRING;
-    }
-
-  protected:
-    const int _type;
-    std::unordered_map<const TypeDesc*, Arguments> _arguments;
-    std::unordered_map<const TypeDesc*, string> _suffix;
-    static const Arguments EMPTY_ARGUMENTS;
-};
 
 /// @class HwLightShaders 
 /// Hardware light shader user data
@@ -359,26 +286,11 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, 
                           bool checkScope = true) const override;
 
-    /// Emit code for all texturing nodes.
-    virtual void emitTextureNodes(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
-
-    /// Emit code for calculating BSDF response for a shader, 
-    /// given the incident and outgoing light directions.
-    /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
-                               GenContext& context, ShaderStage& stage, string& bsdf) const;
-
-    /// Emit code for calculating emission for a surface or light shader,
-    /// given the normal direction of the EDF and the evaluation direction.
-    /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
-                              GenContext& context, ShaderStage& stage, string& edf) const;
-
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;
 
     /// Return the closure contexts defined for the given node.
-    void getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const;
+    void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const override;
 
     /// Bind a light shader to a light type id, for usage in surface shaders created 
     /// by the generator. The lightTypeId should be a unique identifier for the light 
@@ -392,9 +304,19 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Unbind all light shaders previously bound.
     static void unbindLightShaders(GenContext& context);
 
+    /// Types of closure contexts for HW.
+    enum ClosureContextType
+    {
+        DEFAULT,
+        REFLECTION,
+        TRANSMISSION,
+        INDIRECT,
+        EMISSION
+    };
+
     /// String constants for closure context suffixes.
     static const string CLOSURE_CONTEXT_SUFFIX_REFLECTION;
-    static const string CLOSURE_CONTEXT_SUFFIX_TRANSMISSIION;
+    static const string CLOSURE_CONTEXT_SUFFIX_TRANSMISSION;
     static const string CLOSURE_CONTEXT_SUFFIX_INDIRECT;
 
   protected:
@@ -403,17 +325,12 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Create and initialize a new HW shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
-    /// Override the source code implementation creator.
-    ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const override;
-
-    /// Override the compound implementation creator.
-    ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
-
     /// Closure contexts for defining closure functions.
-    HwClosureContextPtr _defReflection;
-    HwClosureContextPtr _defTransmission;
-    HwClosureContextPtr _defIndirect;
-    HwClosureContextPtr _defEmission;
+    mutable ClosureContext _defDefault;
+    mutable ClosureContext _defReflection;
+    mutable ClosureContext _defTransmission;
+    mutable ClosureContext _defIndirect;
+    mutable ClosureContext _defEmission;
 };
 
 /// @class HwResourceBindingContext

@@ -89,7 +89,7 @@ class MX_CORE_API Edge
 class MX_CORE_API TreeIterator
 {
   public:
-    explicit TreeIterator(ElementPtr elem):
+    explicit TreeIterator(ElementPtr elem) :
         _elem(elem),
         _prune(false),
         _holdCount(0)
@@ -192,7 +192,7 @@ class MX_CORE_API TreeIterator
 class MX_CORE_API GraphIterator
 {
   public:
-    explicit GraphIterator(ElementPtr elem):
+    explicit GraphIterator(ElementPtr elem) :
         _upstreamElem(elem),
         _prune(false),
         _holdCount(0)

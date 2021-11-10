@@ -371,6 +371,7 @@ class MX_CORE_API MaterialAssign : public GeomElement
     {
         removeChildOfType<VariantAssign>(name);
     }
+
   public:
     static const string CATEGORY;
     static const string MATERIAL_ATTRIBUTE;

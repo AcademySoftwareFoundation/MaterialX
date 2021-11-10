@@ -227,18 +227,8 @@ bool isTransparentSurface(ElementPtr element, const string& target)
 
         // Handle graph definitions.
         NodeDefPtr nodeDef = node->getNodeDef();
-        if (!nodeDef)
-        {
-            throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getName() +
-                                          "' with category '" + node->getCategory() + "'");
-        }
-        InterfaceElementPtr impl = nodeDef->getImplementation(target);
-        if (!impl)
-        {
-            throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef->getNodeString() +
-                                          "' matching target '" + target + "'");
-        }
-        if (impl->isA<NodeGraph>())
+        InterfaceElementPtr impl = nodeDef ? nodeDef->getImplementation(target) : nullptr;
+        if (impl && impl->isA<NodeGraph>())
         {
             NodeGraphPtr graph = impl->asA<NodeGraph>();
 

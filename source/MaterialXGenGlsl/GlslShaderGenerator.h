@@ -37,15 +37,13 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// Return the version string for the GLSL version this generator is for
     virtual const string& getVersion() const { return VERSION; }
 
-    /// Emit function definitions for all nodes
-    void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
-
-    /// Emit all function calls constructing the shader body
-    void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
-
     /// Emit a shader variable.
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                  bool assignValue = true) const override;
+
+    /// Return a registered shader node implementation given an implementation element.
+    /// The element must be an Implementation or a NodeGraph acting as implementation.
+    ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
     /// Determine the prefix of vertex data variables. 
     virtual const string getVertexDataPrefix(const VariableBlock& vertexData) const;
@@ -78,9 +76,6 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
 
-    /// Override the compound implementation creator in order to handle light compounds.
-    ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
-
     static void toVec4(const TypeDesc* type, string& variable);
 
     /// Nodes used internally for light sampling.
@@ -99,7 +94,7 @@ class MX_GENGLSL_API GlslImplementation : public ShaderNodeImpl
   protected:
     GlslImplementation() {}
 
-    // Integer identifiers for corrdinate spaces
+    // Integer identifiers for coordinate spaces.
     // The order must match the order given for
     // the space enum string in stdlib.
     enum Space

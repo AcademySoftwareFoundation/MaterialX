@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Time node implementation for GLSL
-class TimeNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API TimeNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();

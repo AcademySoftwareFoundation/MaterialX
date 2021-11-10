@@ -74,10 +74,10 @@
   <nodegraph name="dot_matrix33" type="">
     <dot name="dot1" type="matrix33">
       <input name="in" type="matrix33" nodename="constant1" />
-      <parameter name="note" type="string" value="" />
+      <input name="note" type="string" value="" uniform="true" />
     </dot>
     <constant name="constant1" type="matrix33">
-      <parameter name="value" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
+      <input name="value" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
     </constant>
     <transformmatrix name="transformvector1" type="vector3">
       <input name="in" type="vector3" value="0.5, 0.5, 0.5"/>

@@ -88,7 +88,7 @@ class MX_CORE_API LinearUnitConverter : public UnitConverter
   public:
     virtual ~LinearUnitConverter() { }
 
-    /// Creator 
+    /// Creator
     static LinearUnitConverterPtr create(UnitTypeDefPtr UnitDef);
 
     /// Return the unit type string
@@ -104,7 +104,7 @@ class MX_CORE_API LinearUnitConverter : public UnitConverter
     /// @{
 
     /// Return the mappings from unit names to the scale value
-    /// defined by a linear converter. 
+    /// defined by a linear converter.
     const std::unordered_map<string, float>& getUnitScale() const
     {
         return _unitScale;
@@ -172,19 +172,19 @@ class MX_CORE_API UnitConverterRegistry
   public:
     virtual ~UnitConverterRegistry() { }
 
-    /// Creator 
+    /// Creator
     static UnitConverterRegistryPtr create();
 
     /// Add a unit converter for a given UnitDef.
-    /// Returns false if a converter has already been registered for the given UnitDef 
+    /// Returns false if a converter has already been registered for the given UnitDef
     bool addUnitConverter(UnitTypeDefPtr def, UnitConverterPtr converter);
 
     /// Remove a unit converter for a given UnitDef.
-    /// Returns false if a converter does not exist for the given UnitDef 
+    /// Returns false if a converter does not exist for the given UnitDef
     bool removeUnitConverter(UnitTypeDefPtr def);
 
     /// Get a unit converter for a given UnitDef
-    /// Returns any empty pointer if a converter does not exist for the given UnitDef 
+    /// Returns any empty pointer if a converter does not exist for the given UnitDef
     UnitConverterPtr getUnitConverter(UnitTypeDefPtr def);
 
     /// Clear all unit converters from the registry.
