@@ -8,7 +8,7 @@
 
 #include <cctype>
 #include <sstream>
-#include <iomanip> 
+#include <iomanip>
 
 namespace MaterialX
 {
