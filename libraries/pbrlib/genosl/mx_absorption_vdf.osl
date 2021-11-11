@@ -1,0 +1,5 @@
+void mx_absorption_vdf(vector absorption, output VDF vdf)
+{
+    // Not implemented in vanilla OSL
+    vdf = 0;
+}

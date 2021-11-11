@@ -25,6 +25,9 @@
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genglsl" nodedef="ND_sheen_bsdf" file="pbrlib/genglsl/mx_sheen_bsdf.glsl" function="mx_sheen_bsdf" target="genglsl" />
 
+  <!-- <absorption_vdf> -->
+  <implementation name="IM_absorption_vdf_genglsl" nodedef="ND_absorption_vdf" file="pbrlib/genglsl/mx_absorption_vdf.glsl" function="mx_absorption_vdf" target="genglsl" />
+
   <!-- <anisotropic_vdf> -->
   <implementation name="IM_anisotropic_vdf_genglsl" nodedef="ND_anisotropic_vdf" file="pbrlib/genglsl/mx_anisotropic_vdf.glsl" function="mx_anisotropic_vdf" target="genglsl" />
 
