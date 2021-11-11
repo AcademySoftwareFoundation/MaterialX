@@ -176,8 +176,8 @@
     <input name="rotation_angle" type="float" value="0" />
     <input name="rgbamount" type="float" value="1.0" />
     <input name="invert" type="boolean" value="false" />
-    <input name="uaddressmode" type="string" value="periodic" />
-    <input name="vaddressmode" type="string" value="periodic" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uniform="true" />
     <output name="out" type="color3" />
   </nodedef>
   <nodegraph name="NG_bitmap_color3" nodedef="ND_bitmap_color3">
@@ -232,8 +232,8 @@
     <input name="rotation_angle" type="float" value="0" unittype="angle" />
     <!-- normal scale -->
     <input name="normal_scale" type="float" value="1.0" />
-    <input name="uaddressmode" type="string" value="periodic" />
-    <input name="vaddressmode" type="string" value="periodic" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uniform="true" />
     <output name="out" type="vector3" />
   </nodedef>
   <nodegraph name="NG_normal_map" nodedef="ND_normal_map">
@@ -289,8 +289,8 @@
     <input name="invert" type="boolean" value="false" />
     <input name="outlow" type="float" value="0.0" />
     <input name="outhigh" type="float" value="1.0" />
-    <input name="uaddressmode" type="string" value="periodic" />
-    <input name="vaddressmode" type="string" value="periodic" />
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uniform="true" />
     <output name="out" type="float" />
   </nodedef>
   <nodegraph name="NG_bitmap_remap_float" nodedef="ND_bitmap_remap_float">

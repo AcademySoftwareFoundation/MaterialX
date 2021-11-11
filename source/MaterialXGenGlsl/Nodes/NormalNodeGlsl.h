@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Normal node implementation for GLSL
-class NormalNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API NormalNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();

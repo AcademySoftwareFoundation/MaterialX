@@ -6,13 +6,13 @@
 #ifndef MATERIALX_HWIMAGECODENODE_H
 #define MATERIALX_HWIMAGECODENODE_H
 
-#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 namespace MaterialX
 {
 
-/// Extending the HwSourceCodeNode with requirements for image nodes.
-class MX_GENSHADER_API HwImageNode : public HwSourceCodeNode
+/// Extending the SourceCodeNode with requirements for image nodes.
+class MX_GENSHADER_API HwImageNode : public SourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();

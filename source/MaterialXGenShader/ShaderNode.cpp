@@ -75,6 +75,16 @@ void ShaderInput::breakConnection()
     }
 }
 
+ShaderNode* ShaderInput::getConnectedSibling() const
+{
+    if (_connection && _connection->getNode()->getParent() == _node->getParent())
+    {
+        return _connection->getNode();
+    }
+    return nullptr;
+}
+
+
 //
 // ShaderOutput methods
 //
@@ -145,7 +155,6 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
     _parent(parent),
     _name(name),
     _classification(0),
-    _flags(0),
     _impl(nullptr)
 {
 }
@@ -220,11 +229,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Find the implementation for this nodedef
-    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget());
-    if (impl)
-    {
-        newNode->_impl = shadergen.getImplementation(*impl, context);
-    }
+    newNode->_impl = shadergen.getImplementation(nodeDef, context);
     if (!newNode->_impl)
     {
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
@@ -298,18 +303,17 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderOutput* primaryOutput = newNode->getOutput();
     if (primaryOutput->getType() == Type::SURFACESHADER)
     {
-        newNode->_classification = Classification::SURFACE | Classification::SHADER;
+        newNode->_classification = Classification::SURFACE | Classification::SHADER | Classification::CLOSURE;
     }
     else if (primaryOutput->getType() == Type::LIGHTSHADER)
     {
-        newNode->_classification = Classification::LIGHT | Classification::SHADER;
+        newNode->_classification = Classification::LIGHT | Classification::SHADER | Classification::CLOSURE;
     }
     else if (primaryOutput->getType() == Type::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
 
-        // Add additional classifications if the BSDF is restricted to
-        // only reflection or transmission
+        // Add additional classifications for BSDF reflection and/or transmission.
         const string& bsdfType = nodeDef.getAttribute("bsdf");
         if (bsdfType == BSDF_R)
         {
@@ -319,9 +323,13 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             newNode->_classification |= Classification::BSDF_T;
         }
+        else
+        {
+            newNode->_classification |= (Classification::BSDF_R | Classification::BSDF_T);
+        }
 
         // Check specifically for the vertical layering node
-        if (nodeDef.getName() == "ND_layer_bsdf")
+        if (nodeDef.getName() == "ND_layer_bsdf" || nodeDef.getName() == "ND_layer_vdf")
         {
             newNode->_classification |= Classification::LAYER;
         }

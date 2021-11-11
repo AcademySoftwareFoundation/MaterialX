@@ -1,4 +1,5 @@
-void mx_subsurface_bsdf(float weight, color _color, vector radius, float anisotropy, vector _normal, output BSDF result)
+void mx_subsurface_bsdf(float weight, color _color, vector radius, float anisotropy, vector _normal, output BSDF bsdf)
 {
-    result = weight * randomwalk_bssrdf(radius, _color, anisotropy);
+    bsdf.response = weight * randomwalk_bssrdf(radius, _color, anisotropy);
+    bsdf.throughput = color(0.0);
 }

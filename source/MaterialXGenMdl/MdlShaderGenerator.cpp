@@ -12,8 +12,9 @@
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/CombineNodeMdl.h>
-#include <MaterialXGenMdl/Nodes/BsdfNodesMdl.h>
-#include <MaterialXGenMdl/Nodes/ThinFilmNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
@@ -21,7 +22,8 @@
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
+#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
 namespace MaterialX
 {
@@ -158,19 +160,20 @@ MdlShaderGenerator::MdlShaderGenerator() :
     registerImplementation("IM_heighttonormal_vector3_" + MdlShaderGenerator::TARGET, HeightToNormalNodeMdl::create);
 
     // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + MdlShaderGenerator::TARGET, LayerNode::create);
+    registerImplementation("IM_layer_bsdf_" + MdlShaderGenerator::TARGET, ClosureLayerNodeMdl::create);
+    registerImplementation("IM_layer_vdf_" + MdlShaderGenerator::TARGET, ClosureLayerNodeMdl::create);
 
     // <!-- <thin_film_bsdf> -->
-    registerImplementation("IM_thin_film_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmNodeMdl::create);
+    registerImplementation("IM_thin_film_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNodeMdl::create);
+    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, DielectricBsdfNodeMdl::create);
+    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <sheen_bsdf> -->
-    registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, SheenBsdfNodeMdl::create);
+    registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -233,8 +236,24 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLineBreak(stage);
     }
 
-    // Emit function calls for all nodes
-    emitFunctionCalls(graph, context, stage);
+    // Emit all texturing nodes. These are inputs to any
+    // closure/shader nodes and need to be emitted first.
+    emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
+
+    // Emit function calls for internal closures nodes connected to the graph sockets.
+    // These will in turn emit function calls for any dependent closure nodes upstream.
+    for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
+    {
+        if (socket->getConnection())
+        {
+            const ShaderNode* upstream = socket->getConnection()->getNode();
+            if (upstream->getParent() == &graph &&
+                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+            {
+                emitFunctionCall(*upstream, context, stage);
+            }
+        }
+    }
 
     // Get final result
     const string result = getUpstreamResult(outputSocket, context);
@@ -281,6 +300,76 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     replaceTokens(_tokenSubstitutions, stage);
 
     return shader;
+}
+
+
+ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
+{
+    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
+    if (!implElement)
+    {
+        return nullptr;
+    }
+
+    const string& name = implElement->getName();
+
+    // Check if it's created and cached already.
+    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
+    if (impl)
+    {
+        return impl;
+    }
+
+    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
+    if (outputs.empty())
+    {
+        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' as no outputs defined");
+    }
+
+    const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());
+
+    if (implElement->isA<NodeGraph>())
+    {
+        // Use a compound implementation.
+        if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+            outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        {
+            impl = ClosureCompoundNodeMdl::create();
+        }
+        else
+        {
+            impl = CompoundNodeMdl::create();
+        }
+    }
+    else if (implElement->isA<Implementation>())
+    {
+        // Try creating a new in the factory.
+        impl = _implFactory.create(name);
+        if (!impl)
+        {
+            // Fall back to source code implementation.
+            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+            {
+                impl = ClosureSourceCodeNodeMdl::create();
+            }
+            else
+            {
+                impl = SourceCodeNodeMdl::create();
+            }
+        }
+    }
+    if (!impl)
+    {
+        return nullptr;
+    }
+
+    impl->initialize(*implElement, context);
+
+    // Cache it.
+    context.addNodeImplementation(name, impl);
+
+    return impl;
 }
 
 string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& context) const
@@ -567,24 +656,6 @@ void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
 
         emitLineEnd(stage, false);
     }
-}
-
-ShaderNodeImplPtr MdlShaderGenerator::createSourceCodeImplementation(const Implementation&) const
-{
-    return SourceCodeNodeMdl::create();
-}
-
-ShaderNodeImplPtr MdlShaderGenerator::createCompoundImplementation(const NodeGraph&) const
-{
-    // The standard compound implementation
-    // is the compound implementation to us by default
-    return CompoundNodeMdl::create();
-}
-
-void MdlShaderGenerator::finalizeShaderGraph(ShaderGraph& /*graph*/)
-{
-    // NOTE: Don't call the base class ShaderGenerator::finalizeShaderGraph here to
-    // transform thin-film nodes, since MDL has explicit support for the thin-film node.
 }
 
 namespace MDL

@@ -277,6 +277,10 @@ class MX_GENSHADER_API ShaderInput : public ShaderPort
     /// Get optional channels value
     const string& getChannels() const { return _channels; }
 
+    /// Return the sibling node connected upstream,
+    /// or nullptr if there is no sibling upstream.
+    ShaderNode* getConnectedSibling() const;
+
   protected:
     ShaderOutput* _connection;
     string _channels;
@@ -308,14 +312,6 @@ class MX_GENSHADER_API ShaderOutput : public ShaderPort
     friend class ShaderInput;
 };
 
-
-/// Flags for tagging shader nodes.
-enum class ShaderNodeFlag
-{
-    /// Omit the function call for this node.
-    EXCLUDE_FUNCTION_CALL = 1 << 0,
-};
-
 /// @class ShaderNode
 /// Class representing a node in the shader generation DAG
 class MX_GENSHADER_API ShaderNode
@@ -337,8 +333,8 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t CONSTANT      = 1 << 5;  /// A constant node
         // Specific closure types
         static const uint32_t BSDF          = 1 << 6;  /// A BSDF node
-        static const uint32_t BSDF_R        = 1 << 7;  /// A BSDF node only for reflection
-        static const uint32_t BSDF_T        = 1 << 8;  /// A BSDF node only for transmission
+        static const uint32_t BSDF_R        = 1 << 7;  /// A reflection BSDF node
+        static const uint32_t BSDF_T        = 1 << 8;  /// A transmission BSDF node
         static const uint32_t EDF           = 1 << 9;  /// A EDF node
         static const uint32_t VDF           = 1 << 10; /// A VDF node
         static const uint32_t LAYER         = 1 << 11; /// A node for vertical layering of other closure nodes
@@ -455,12 +451,6 @@ class MX_GENSHADER_API ShaderNode
     /// Returns true if this node is only referenced by a conditional.
     bool referencedConditionally() const;
 
-    /// Returns true if the given node is a closure used by this node.
-    bool isUsedClosure(const ShaderNode* node) const
-    {
-        return _usedClosures.count(node) > 0;
-    }
-
     /// Initialize this shader node with all required data
     /// from the given node and nodedef.
     void initialize(const Node& node, const NodeDef& nodeDef, GenContext& context);
@@ -514,18 +504,6 @@ class MX_GENSHADER_API ShaderNode
         return (!_impl || _impl->isEditable(input));
     }
 
-    /// Set the on|off state of a given flag.
-    void setFlag(ShaderNodeFlag flag, bool value)
-    {
-        _flags = value ? (_flags | uint32_t(flag)) : (_flags & ~uint32_t(flag));
-    }
-
-    /// Return the on|off state of a given flag.
-    bool getFlag(ShaderNodeFlag flag) const
-    {
-        return ((_flags & uint32_t(flag)) != 0);
-    }
-
   protected:
     /// Create metadata from the nodedef according to registered metadata.
     void createMetadata(const NodeDef& nodeDef, GenContext& context);
@@ -533,7 +511,6 @@ class MX_GENSHADER_API ShaderNode
     const ShaderGraph* _parent;
     string _name;
     uint32_t _classification;
-    uint32_t _flags;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;
     vector<ShaderInput*> _inputOrder;
@@ -544,7 +521,6 @@ class MX_GENSHADER_API ShaderNode
     ShaderNodeImplPtr _impl;
     ShaderMetadataVecPtr _metadata;
     ScopeInfo _scopeInfo;
-    std::set<const ShaderNode*> _usedClosures;
 
     friend class ShaderGraph;
 };

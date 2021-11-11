@@ -9,8 +9,8 @@
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
+#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXFormat/File.h>
@@ -90,27 +90,6 @@ void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext&
     stage.addFunctionDefinition(node, context);
 }
 
-void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
-                                       bool checkScope) const
-{
-    // Omit node if it's tagged to be excluded.
-    if (node.getFlag(ShaderNodeFlag::EXCLUDE_FUNCTION_CALL))
-    {
-        return;
-    }
-
-    // Omit node if it's only used inside a conditional branch
-    if (checkScope && node.referencedConditionally())
-    {
-        emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
-                    node.getScopeInfo().conditionalNode->getName() + "'", stage);
-        return;
-    }
-
-    // Emit the function call.
-    node.getImplementation().emitFunctionCall(node, context, stage);
-}
-
 void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     // Emit function definitions for all nodes in the graph.
@@ -120,13 +99,57 @@ void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenConte
     }
 }
 
-void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
+    bool checkScope) const
 {
-    // Emit function calls for all nodes in the graph.
+    // Check if it's emitted already.
+    if (stage.isEmitted(node, context))
+    {
+        // emitComment("Omitted node '" + node.getName() + "'. Already called above.", stage);
+        return;
+    }
+    // Omit node if it's only used inside a conditional branch
+    if (checkScope && node.referencedConditionally())
+    {
+        emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
+            node.getScopeInfo().conditionalNode->getName() + "'", stage);
+        return;
+    }
+    stage.addFunctionCall(node, context);
+}
+
+void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
+{
     for (ShaderNode* node : graph.getNodes())
     {
-        emitFunctionCall(*node, context, stage);
+        if (!classification || node->hasClassification(classification))
+        {
+            emitFunctionCall(*node, context, stage);
+        }
     }
+}
+
+void ShaderGenerator::emitDependentFunctionCalls(const ShaderNode& node, GenContext& context, ShaderStage& stage, uint32_t classification) const
+{
+    for (ShaderInput* input : node.getInputs())
+    {
+        const ShaderNode* upstream = input->getConnectedSibling();
+        if (upstream && (!classification || upstream->hasClassification(classification)))
+        {
+            emitFunctionCall(*upstream, context, stage);
+        }
+    }
+}
+
+void ShaderGenerator::emitFunctionBodyBegin(const ShaderNode&, GenContext&, ShaderStage& stage, Syntax::Punctuation punc) const
+{
+    emitScopeBegin(stage, punc);
+}
+
+void ShaderGenerator::emitFunctionBodyEnd(const ShaderNode&, GenContext&, ShaderStage& stage) const
+{
+    emitScopeEnd(stage);
+    emitLineBreak(stage);
 }
 
 void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
@@ -218,6 +241,10 @@ void ShaderGenerator::emitOutput(const ShaderOutput* output, bool includeType, b
     }
 }
 
+void ShaderGenerator::getClosureContexts(const ShaderNode&, vector<ClosureContext*>&) const
+{
+}
+
 string ShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& context) const
 {
     if (!input->getConnection())
@@ -252,9 +279,15 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-ShaderNodeImplPtr ShaderGenerator::getImplementation(const InterfaceElement& element, GenContext& context) const
+ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
 {
-    const string& name = element.getName();
+    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
+    if (!implElement)
+    {
+        return nullptr;
+    }
+
+    const string& name = implElement->getName();
 
     // Check if it's created and cached already.
     ShaderNodeImplPtr impl = context.findNodeImplementation(name);
@@ -263,26 +296,51 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const InterfaceElement& ele
         return impl;
     }
 
-    if (element.isA<NodeGraph>())
+    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
+    if (outputs.empty())
+    {
+        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' as no outputs defined");
+    }
+
+    const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());
+
+    if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        impl = createCompoundImplementation(static_cast<const NodeGraph&>(element));
+        if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+            outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        {
+            impl = ClosureCompoundNode::create();
+        }
+        else
+        {
+            impl = CompoundNode::create();
+        }
     }
-    else if (element.isA<Implementation>())
+    else if (implElement->isA<Implementation>())
     {
         // Try creating a new in the factory.
         impl = _implFactory.create(name);
         if (!impl)
         {
-            // Fall back to the source code implementation.
-            impl = createSourceCodeImplementation(static_cast<const Implementation&>(element));
+            // Fall back to source code implementation.
+            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+            {
+                impl = ClosureSourceCodeNode::create();
+            }
+            else
+            {
+                impl = SourceCodeNode::create();
+            }
         }
     }
-    else
+    if (!impl)
     {
-        throw ExceptionShaderGenError("Element '" + name + "' is neither an Implementation nor an NodeGraph");
+        return nullptr;
     }
-    impl->initialize(element, context);
+
+    impl->initialize(*implElement, context);
 
     // Cache it.
     context.addNodeImplementation(name, impl);
@@ -386,100 +444,6 @@ void ShaderGenerator::replaceTokens(const StringMap& substitutions, ShaderStage&
 ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) const
 {
     return shader.createStage(name, _syntax);
-}
-
-ShaderNodeImplPtr ShaderGenerator::createSourceCodeImplementation(const Implementation&) const
-{
-    // The standard source code implementation
-    // is the implementation to use by default
-    return SourceCodeNode::create();
-}
-
-ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(const NodeGraph&) const
-{
-    // The standard compound implementation
-    // is the compound implementation to us by default
-    return CompoundNode::create();
-}
-
-void ShaderGenerator::finalizeShaderGraph(ShaderGraph& graph)
-{
-    // Find all thin-film nodes and reconnect them to the 'thinfilm' input
-    // on BSDF nodes layered underneath.
-    for (ShaderNode* node : graph.getNodes())
-    {
-        if (node->hasClassification(ShaderNode::Classification::THINFILM))
-        {
-            ShaderOutput* output = node->getOutput();
-
-            // Change type to our 'thinfilm' data type since this
-            // is not a BSDF in our default implementation.
-            output->setType(Type::THINFILM);
-
-            // Find vertical layering nodes connected to this thinfilm.
-            vector<ShaderNode*> layerNodes;
-            for (ShaderInput* dest : output->getConnections())
-            {
-                ShaderNode* layerNode = dest->getNode();
-
-                // Make sure the connection is valid.
-                if (!layerNode->hasClassification(ShaderNode::Classification::LAYER) ||
-                    dest->getName() != LayerNode::TOP)
-                {
-                    throw ExceptionShaderGenError("Invalid connection from '" + node->getName() + "' to '" + layerNode->getName() + "." + dest->getName() + "'. " +
-                        "Thin-film can only be connected to a <layer> operator's top input.");
-                }
-
-                layerNodes.push_back(layerNode);
-            }
-
-            // Remove all connections to the thin-film node downstream.
-            output->breakConnections();
-
-            for (ShaderNode* layerNode : layerNodes)
-            {
-                ShaderInput* base = layerNode->getInput(LayerNode::BASE);
-                if (base && base->getConnection())
-                {
-                    ShaderNode* bsdf = base->getConnection()->getNode();
-
-                    // Save the output to use for bypassing the layer node below.
-                    ShaderOutput* bypassOutput = bsdf->getOutput();
-
-                    // Handle the case where the bsdf below is an additional layer operator.
-                    if (bsdf->hasClassification(ShaderNode::Classification::LAYER))
-                    {
-                        // In this case get the top bsdf since this is where microfacet bsdfs
-                        // are placed. Only one such extra layer indirection is supported.
-                        // We need this in order to support having thin-film applied to a
-                        // microfacet bsdf that itself is layered on top of a substrate.
-                        ShaderInput* top = bsdf->getInput(LayerNode::TOP);
-                        bsdf = top && top->getConnection() ? top->getConnection()->getNode() : nullptr;
-                    }
-
-                    ShaderInput* bsdfInput = bsdf ? bsdf->getInput(ThinFilmNode::THINFILM_INPUT) : nullptr;
-                    if (!bsdfInput)
-                    {
-                        throw ExceptionShaderGenError("No BSDF node supporting thin-film was found for '" + node->getName() + "'");
-                    }
-
-                    // Connect the thinfilm node to the bsdf input.
-                    bsdfInput->makeConnection(output);
-
-                    // Bypass the layer node since thin-film is now setup on the bsdf.
-                    // Iterate a copy of the connection vector since the original vector
-                    // will change when breaking connections.
-                    base->breakConnection();
-                    ShaderInputVec downstreamConnections = layerNode->getOutput()->getConnections();
-                    for (ShaderInput* downstream : downstreamConnections)
-                    {
-                        downstream->breakConnection();
-                        downstream->makeConnection(bypassOutput);
-                    }
-                }
-            }
-        }
-    }
 }
 
 } // namespace MaterialX

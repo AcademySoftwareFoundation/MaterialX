@@ -36,7 +36,8 @@ void SurfaceNodeMaya::emitLightLoop(const ShaderNode& node, GenContext& context,
 {
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
-    const ShaderGraph& graph = *node.getParent();
+    const ShaderInput* bsdfInput = node.getInput("bsdf");
+    const ShaderNode* bsdf = bsdfInput->getConnectedSibling();
 
     shadergen.emitComment("Light loop", stage);
     shadergen.emitLine("int numLights = mayaGetNumLights()", stage);
@@ -50,12 +51,12 @@ void SurfaceNodeMaya::emitLightLoop(const ShaderNode& node, GenContext& context,
     shadergen.emitLineBreak(stage);
 
     shadergen.emitComment("Calculate the BSDF response for this light source", stage);
-    string bsdf;
-    shadergen.emitBsdfNodes(graph, node, _callReflection, context, stage, bsdf);
-    shadergen.emitLineBreak(stage);
+    context.pushClosureContext(&_callReflection);
+    shadergen.emitFunctionCall(*bsdf, context, stage);
+    context.popClosureContext();
 
     shadergen.emitComment("Accumulate the light's contribution", stage);
-    shadergen.emitLine(outColor + " += lightShader.specularI * " + bsdf, stage);
+    shadergen.emitLine(outColor + " += lightShader.specularI * " + bsdf->getOutput()->getVariable() + ".response", stage);
 
     shadergen.emitScopeEnd(stage);
     shadergen.emitLineBreak(stage);
