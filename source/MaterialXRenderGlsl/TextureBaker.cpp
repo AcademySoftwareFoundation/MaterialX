@@ -234,6 +234,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     }
     _bakedImageMap[output].push_back(baked);
 
+    // TODO: Write images to memory rather than to disk.
     // Write non-uniform images to disk.
     if (!baked.isUniform)
     {
@@ -490,7 +491,7 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
 
     if (_outputStream)
     {
-        *_outputStream << std::endl << "Working on material: " << materialPath << std::endl;
+        *_outputStream << "Working on material: " << materialPath << std::endl;
     }
 
     NodePtr shaderNode;
@@ -542,6 +543,11 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
 
         // Optimize baked textures.
         optimizeBakedTextures(shaderNode);
+    }
+
+    if (_outputStream)
+    {
+        *_outputStream << std::endl;
     }
 
     // Link the baked material and textures in a MaterialX document.

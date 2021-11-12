@@ -209,7 +209,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     /// Optimize baked textures before writing.
     void optimizeBakedTextures(NodePtr shader);
 
-    // TODO: Write images to memory rather than to disk
     /// Bake material to document in memory and write baked textures to disk.
     DocumentPtr bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
                                   const StringVec udimSet, std::string& documentName);
