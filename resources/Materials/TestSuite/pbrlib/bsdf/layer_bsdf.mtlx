@@ -54,4 +54,29 @@
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
+  <nodegraph name="layer_bsdf_test3">
+    <dielectric_bsdf name="dielectric_R" type="BSDF">
+      <input name="ior" type="float" value="1.8" />
+      <input name="scatter_mode" type="string" value="R" uniform="true" />
+    </dielectric_bsdf>
+    <dielectric_bsdf name="dielectric_T" type="BSDF">
+      <input name="ior" type="float" value="1.5" />
+      <input name="scatter_mode" type="string" value="T" uniform="true" />
+    </dielectric_bsdf>
+    <absorption_vdf name="dielectric_absorption_interior" type="VDF">
+      <input name="absorption" type="vector3" value="0.8, 0.8, 0.1" />
+    </absorption_vdf>
+    <layer name="dielectric_T_with_interior" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_T" />
+      <input name="base" type="VDF" nodename="dielectric_absorption_interior" />
+    </layer>
+    <layer name="dielectric" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_R" />
+      <input name="base" type="BSDF" nodename="dielectric_T_with_interior" />
+    </layer>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="dielectric" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
 </materialx>
