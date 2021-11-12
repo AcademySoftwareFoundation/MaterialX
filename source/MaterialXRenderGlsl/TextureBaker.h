@@ -249,7 +249,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     FilePath generateTextureFilename(const StringMap& fileTemplateMap);
 
     // Create document that links shader outputs to a material.
-    DocumentPtr generateBakedDocumentFromShader(NodePtr shader, const StringVec& udimSet);
+    DocumentPtr generateNewDocumentFromShader(NodePtr shader, const StringVec& udimSet);
 
     // Write a baked image to disk, returning true if the write was successful.
     bool writeBakedImage(const BakedImage& baked, ImagePtr image);

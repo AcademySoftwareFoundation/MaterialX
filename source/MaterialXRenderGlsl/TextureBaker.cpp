@@ -22,7 +22,7 @@ const string SRGB_TEXTURE = "srgb_texture";
 const string LIN_REC709 = "lin_rec709";
 const string BAKED_POSTFIX = "_baked";
 const string SHADER_PREFIX = "SR_";
-const string UDIM_PREFIX = "_";
+const string DEFAULT_UDIM_PREFIX = "_";
 
 string getValueStringFromColor(const Color4& color, const string& type)
 {
@@ -139,7 +139,7 @@ StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader
     filenameTemplateMap["$MATERIAL"] = _material->getName();
     filenameTemplateMap["$SHADINGMODEL"] = shader->getCategory();
     filenameTemplateMap["$UDIM"] = udim;
-    filenameTemplateMap["$UDIMPREFIX"] = UDIM_PREFIX;
+    filenameTemplateMap["$UDIMPREFIX"] = DEFAULT_UDIM_PREFIX;
     return filenameTemplateMap;
 }
 
@@ -302,7 +302,7 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
     }
 }
 
-DocumentPtr TextureBaker::generateBakedDocumentFromShader(NodePtr shader, const StringVec& udimSet)
+DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const StringVec& udimSet)
 {
     if (!shader)
     {
@@ -505,7 +505,7 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
         if (!tag.empty() && materialPath.find(UDIM_TOKEN) != string::npos)
         {
             // Determine material group.
-            string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : UDIM_PREFIX;
+            string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : DEFAULT_UDIM_PREFIX;
             resolver->setUdimString(UDIM_TOKEN);
             resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, "");
             _materialGroupName = resolver->resolve(FilePath(materialPath).getBaseName(), FILENAME_TYPE_STRING);
@@ -546,7 +546,7 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
 
     // Link the baked material and textures in a MaterialX document.
     documentName = (!_materialGroupName.empty())? _materialGroupName : shaderNode->getName();
-    return generateBakedDocumentFromShader(shaderNode, udimSet);
+    return generateNewDocumentFromShader(shaderNode, udimSet);
 }
 
 void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFilename)
