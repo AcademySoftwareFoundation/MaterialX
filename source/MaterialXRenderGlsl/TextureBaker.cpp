@@ -466,7 +466,7 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
 }
 
 DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
-                                              const StringVec udimSet, string& documentName)
+                                            const StringVec udimSet, string& documentName)
 {
     // Set up generator context for material
     GenContext genContext(_generator);
@@ -491,10 +491,11 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
 
     if (_outputStream)
     {
-        *_outputStream << "Working on material: " << materialPath << std::endl;
+        *_outputStream << "Processing material: " << materialPath << std::endl;
     }
 
     NodePtr shaderNode;
+
     // Iterate over material tags.
     for (const string& tag : materialTags)
     {
@@ -516,6 +517,7 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
             resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, udimPrefix + UDIM_TOKEN);
             resolvedRenderablePath = resolver->resolve(materialPath, FILENAME_TYPE_STRING);
         }
+
         ElementPtr elem = doc->getDescendant(resolvedRenderablePath);
         if (!elem || !elem->isA<Node>())
         {
@@ -529,6 +531,7 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
         {
             continue;
         }
+
         // Always clear any cached implementations before generation.
         genContext.clearNodeImplementations();
 
@@ -543,11 +546,6 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
 
         // Optimize baked textures.
         optimizeBakedTextures(shaderNode);
-    }
-
-    if (_outputStream)
-    {
-        *_outputStream << std::endl;
     }
 
     // Link the baked material and textures in a MaterialX document.
@@ -606,6 +604,10 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
             if (_outputStream)
             {
                 *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
+                if (i + 1 < bakeCount)
+                {
+                    *_outputStream << std::endl;
+                }
             }
         }
     }
