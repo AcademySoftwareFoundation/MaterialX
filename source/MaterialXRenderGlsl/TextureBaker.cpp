@@ -21,18 +21,8 @@ namespace {
 const string SRGB_TEXTURE = "srgb_texture";
 const string LIN_REC709 = "lin_rec709";
 const string BAKED_POSTFIX = "_baked";
-
-StringVec getRenderablePaths(ConstDocumentPtr doc)
-{
-    StringVec renderablePaths;
-    std::vector<TypedElementPtr> elems;
-    findRenderableElements(doc, elems);
-    for (TypedElementPtr elem : elems)
-    {
-        renderablePaths.push_back(elem->getNamePath());
-    }
-    return renderablePaths;
-}
+const string SHADER_PREFIX = "SR_";
+const string DEFAULT_UDIM_PREFIX = "_";
 
 string getValueStringFromColor(const Color4& color, const string& type)
 {
@@ -68,7 +58,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _outputStream(&std::cout),
     _hashImageNames(false),
     _generator(GlslShaderGenerator::create()),
-    _permittedOverrides({ "$ASSET", "$UDIMPREFIX" })
+    _permittedOverrides({ "$ASSET", "$MATERIAL", "$UDIMPREFIX" })
 {
     if (baseType == Image::BaseType::UINT8)
     {
@@ -147,7 +137,7 @@ StringMap TextureBaker::initializeFileTemplateMap(InputPtr input, NodePtr shader
     filenameTemplateMap["$MATERIAL"] = _material->getName();
     filenameTemplateMap["$SHADINGMODEL"] = shader->getCategory();
     filenameTemplateMap["$UDIM"] = udim;
-    filenameTemplateMap["$UDIMPREFIX"] = "_";
+    filenameTemplateMap["$UDIMPREFIX"] = DEFAULT_UDIM_PREFIX;
     return filenameTemplateMap;
 }
 
@@ -242,6 +232,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     }
     _bakedImageMap[output].push_back(baked);
 
+    // TODO: Write images to memory rather than to disk.
     // Write non-uniform images to disk.
     if (!baked.isUniform)
     {
@@ -310,7 +301,7 @@ void TextureBaker::optimizeBakedTextures(NodePtr shader)
     }
 }
 
-DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
+DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const StringVec& udimSet)
 {
     if (!shader)
     {
@@ -345,7 +336,8 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     // Optionally create a material node, connecting it to the new shader node.
     if (_material)
     {
-        NodePtr bakedMaterial = bakedTextureDoc->addNode(_material->getCategory(), _material->getName() + BAKED_POSTFIX, _material->getType());
+        string materialName = (_texTemplateOverrides.count("$MATERIAL"))? _texTemplateOverrides["$MATERIAL"] : _material->getName();
+        NodePtr bakedMaterial = bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
         for (auto sourceMaterialInput : _material->getInputs())
         {
             const string& sourceMaterialInputName = sourceMaterialInput->getName();
@@ -468,8 +460,15 @@ DocumentPtr TextureBaker::bakeMaterial(NodePtr shader, const StringVec& udimSet)
     return bakedTextureDoc;
 }
 
-BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSearchPath& searchPath)
+DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
+                                            const StringVec udimSet, string& documentName)
 {
+    if (_outputStream)
+    {
+        *_outputStream << "Processing material: " << materialPath << std::endl;
+    }
+
+    // Set up generator context for material
     GenContext genContext(_generator);
     genContext.getOptions().targetColorSpaceOverride = LIN_REC709;
     genContext.getOptions().fileTextureVerticalFlip = true;
@@ -482,67 +481,53 @@ BakedDocumentVec TextureBaker::createBakeDocuments(DocumentPtr doc, const FileSe
         genContext.registerSourceCodeSearchPath(path / "libraries");
     }
     genContext.getShaderGenerator().setColorManagementSystem(cms);
-    StringResolverPtr resolver = StringResolver::create();
-    StringVec renderablePaths = getRenderablePaths(doc);
 
-    BakedDocumentVec bakedDocuments;
-    for (const string& renderablePath : renderablePaths)
+    // Compute the material tag set.
+    StringVec materialTags = udimSet;
+    if (materialTags.empty())
     {
-        ElementPtr elem = doc->getDescendant(renderablePath);
-        if (!elem || !elem->isA<Node>())
+        materialTags.push_back(EMPTY_STRING);
+    }
+
+    ElementPtr elem = doc->getDescendant(materialPath);
+    if (!elem || !elem->isA<Node>())
+    {
+        return nullptr;
+    }
+    NodePtr materialNode = elem->asA<Node>();
+
+    vector<NodePtr> shaderNodes = getShaderNodes(materialNode);
+    NodePtr shaderNode = shaderNodes.empty() ? nullptr : shaderNodes[0];
+    if (!shaderNode)
+    {
+        return nullptr;
+    }
+
+    StringResolverPtr resolver = StringResolver::create();
+
+    // Iterate over material tags.
+    for (const string& tag : materialTags)
+    {
+        // Always clear any cached implementations before generation.
+        genContext.clearNodeImplementations();
+
+        ShaderPtr hwShader = createShader("Shader", genContext, shaderNode);
+        if (!hwShader)
         {
             continue;
         }
-        NodePtr materialNode = elem->asA<Node>();
-
-        vector<NodePtr> shaderNodes = getShaderNodes(materialNode);
-        NodePtr shaderNode = shaderNodes.empty() ? nullptr : shaderNodes[0];
-        if (!shaderNode)
-        {
-            continue;
-        }
-
-        // Compute the UDIM set.
-        ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
-        StringVec udimSet;
-        if (udimSetValue && udimSetValue->isA<StringVec>())
-        {
-            udimSet = udimSetValue->asA<StringVec>();
-        }
-
-        // Compute the material tag set.
-        StringVec materialTags = udimSet;
-        if (materialTags.empty())
-        {
-            materialTags.push_back(EMPTY_STRING);
-        }
-
-        // Iterate over material tags.
-        for (const string& tag : materialTags)
-        {
-            // Always clear any cached implementations before generation.
-            genContext.clearNodeImplementations();
-
-            ShaderPtr hwShader = createShader("Shader", genContext, shaderNode);
-            if (!hwShader)
-            {
-                continue;
-            }
-            _imageHandler->setSearchPath(searchPath);
-            resolver->setUdimString(tag);
-            _imageHandler->setFilenameResolver(resolver);
-            bakeShaderInputs(materialNode, shaderNode, genContext, tag);
-        }
+        _imageHandler->setSearchPath(searchPath);
+        resolver->setUdimString(tag);
+        _imageHandler->setFilenameResolver(resolver);
+        bakeShaderInputs(materialNode, shaderNode, genContext, tag);
 
         // Optimize baked textures.
         optimizeBakedTextures(shaderNode);
-
-        // Write the baked material and textures.
-        DocumentPtr bakedMaterialDoc = bakeMaterial(shaderNode, udimSet);
-        bakedDocuments.push_back(std::make_pair(shaderNode->getName(), bakedMaterialDoc));
     }
 
-    return bakedDocuments;
+    // Link the baked material and textures in a MaterialX document.
+    documentName = shaderNode->getName();
+    return generateNewDocumentFromShader(shaderNode, udimSet);
 }
 
 void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFilename)
@@ -556,35 +541,56 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
         }
     }
 
-    BakedDocumentVec bakedDocuments = createBakeDocuments(doc, searchPath);
-    size_t bakeCount = bakedDocuments.size();
-    if (bakeCount == 1)
+    std::vector<TypedElementPtr> renderableMaterials;
+    findRenderableElements(doc, renderableMaterials);
+
+    // Compute the UDIM set.
+    ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+    StringVec udimSet;
+    if (udimSetValue && udimSetValue->isA<StringVec>())
     {
-        if (bakedDocuments[0].second)
+        udimSet = udimSetValue->asA<StringVec>();
+    }
+
+    // Bake all materials in documents to memory.
+    BakedDocumentVec bakedDocuments;
+    for (size_t i = 0; i < renderableMaterials.size(); i++)
+    {
+        if (_outputStream && i > 0)
         {
-            writeToXmlFile(bakedDocuments[0].second, outputFilename);
-            if (_outputStream)
-            {
-                *_outputStream << "Wrote baked document: " << outputFilename.asString() << std::endl;
-            }
+            *_outputStream << std::endl;
+        }
+
+        const TypedElementPtr& element = renderableMaterials[i];
+        string documentName;
+        DocumentPtr bakedMaterialDoc = bakeMaterialToDoc(doc, searchPath, element->getNamePath(), udimSet, documentName);
+        if (bakedMaterialDoc)
+        {
+            bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
         }
     }
-    else
+
+    // Write documents in memory to disk.
+    size_t bakeCount = bakedDocuments.size();
+    for (size_t i = 0; i < bakeCount; i++)
     {
-        // Add additional filename decorations if there are multiple documents.
-        for (size_t i = 0; i < bakeCount; i++)
+        if (bakedDocuments[i].second)
         {
-            if (bakedDocuments[i].second)
+            FilePath writeFilename = outputFilename;
+
+            // Add additional filename decorations if there are multiple documents.
+            if (bakedDocuments.size() > 1)
             {
-                FilePath writeFilename = outputFilename;
                 const string extension = writeFilename.getExtension();
                 writeFilename.removeExtension();
-                writeFilename = FilePath(writeFilename.asString() + "_" + bakedDocuments[i].first + "." + extension);
-                writeToXmlFile(bakedDocuments[i].second, writeFilename);
-                if (_outputStream)
-                {
-                    *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
-                }
+                string filenameSeparator = writeFilename.isDirectory()? EMPTY_STRING : "_";
+                writeFilename = FilePath(writeFilename.asString() + filenameSeparator + bakedDocuments[i].first + "." + extension);
+            }
+
+            writeToXmlFile(bakedDocuments[i].second, writeFilename);
+            if (_outputStream)
+            {
+                *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
             }
         }
     }
