@@ -115,8 +115,6 @@ FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplate
     {
         string replacement = (_texTemplateOverrides.count(pair.first)) ?
             _texTemplateOverrides[pair.first] : pair.second;
-        replacement = (pair.first == "$MATERIAL" && !_texTemplateOverrides.count(pair.first) && !_materialGroupName.empty())?
-            _materialGroupName : replacement;
         replacement = (filenameTemplateMap.at("$UDIM").empty() && pair.first == "$UDIMPREFIX") ?
             EMPTY_STRING : replacement;
 
@@ -333,14 +331,12 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
     }
 
     // Create a shader node.
-    string shaderName = (!_materialGroupName.empty())? SHADER_PREFIX + _materialGroupName : shader->getName();
-    NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shaderName + BAKED_POSTFIX, shader->getType());
+    NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + BAKED_POSTFIX, shader->getType());
 
     // Optionally create a material node, connecting it to the new shader node.
     if (_material)
     {
         string materialName = (_texTemplateOverrides.count("$MATERIAL"))? _texTemplateOverrides["$MATERIAL"] : _material->getName();
-        materialName = (!_materialGroupName.empty())? _materialGroupName : materialName;
         NodePtr bakedMaterial = bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
         for (auto sourceMaterialInput : _material->getInputs())
         {
@@ -459,7 +455,6 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
     _worldSpaceNodes.clear();
     _bakedInputMap.clear();
     _material = nullptr;
-    _materialGroupName = EMPTY_STRING;
 
     // Return the baked document on success.
     return bakedTextureDoc;
@@ -468,6 +463,11 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
 DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
                                             const StringVec udimSet, string& documentName)
 {
+    if (_outputStream)
+    {
+        *_outputStream << "Processing material: " << materialPath << std::endl;
+    }
+
     // Set up generator context for material
     GenContext genContext(_generator);
     genContext.getOptions().targetColorSpaceOverride = LIN_REC709;
@@ -489,49 +489,25 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
         materialTags.push_back(EMPTY_STRING);
     }
 
-    if (_outputStream)
+    ElementPtr elem = doc->getDescendant(materialPath);
+    if (!elem || !elem->isA<Node>())
     {
-        *_outputStream << "Processing material: " << materialPath << std::endl;
+        return nullptr;
+    }
+    NodePtr materialNode = elem->asA<Node>();
+
+    vector<NodePtr> shaderNodes = getShaderNodes(materialNode);
+    NodePtr shaderNode = shaderNodes.empty() ? nullptr : shaderNodes[0];
+    if (!shaderNode)
+    {
+        return nullptr;
     }
 
-    NodePtr shaderNode;
+    StringResolverPtr resolver = StringResolver::create();
 
     // Iterate over material tags.
     for (const string& tag : materialTags)
     {
-        StringResolverPtr resolver = StringResolver::create();
-        resolver->setUdimString(tag);
-        std::string resolvedRenderablePath = materialPath;
-
-        // Configures texture baking for materials that explicitly contain the <UDIM> token and will be baked as a group. 
-        if (!tag.empty() && materialPath.find(UDIM_TOKEN) != string::npos)
-        {
-            // Determine material group.
-            string udimPrefix = (_texTemplateOverrides.count("$UDIMPREFIX")) ? _texTemplateOverrides["$UDIMPREFIX"] : DEFAULT_UDIM_PREFIX;
-            resolver->setUdimString(UDIM_TOKEN);
-            resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, "");
-            _materialGroupName = resolver->resolve(FilePath(materialPath).getBaseName(), FILENAME_TYPE_STRING);
-
-            // Determine explicit material renderable path with the current udim tag.
-            resolver->setUdimString(tag);
-            resolver->setFilenameSubstitution(udimPrefix + UDIM_TOKEN, udimPrefix + UDIM_TOKEN);
-            resolvedRenderablePath = resolver->resolve(materialPath, FILENAME_TYPE_STRING);
-        }
-
-        ElementPtr elem = doc->getDescendant(resolvedRenderablePath);
-        if (!elem || !elem->isA<Node>())
-        {
-            continue;
-        }
-        NodePtr materialNode = elem->asA<Node>();
-
-        vector<NodePtr> shaderNodes = getShaderNodes(materialNode);
-        shaderNode = shaderNodes.empty() ? nullptr : shaderNodes[0];
-        if (!shaderNode)
-        {
-            continue;
-        }
-
         // Always clear any cached implementations before generation.
         genContext.clearNodeImplementations();
 
@@ -541,6 +517,7 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
             continue;
         }
         _imageHandler->setSearchPath(searchPath);
+        resolver->setUdimString(tag);
         _imageHandler->setFilenameResolver(resolver);
         bakeShaderInputs(materialNode, shaderNode, genContext, tag);
 
@@ -549,7 +526,7 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
     }
 
     // Link the baked material and textures in a MaterialX document.
-    documentName = (!_materialGroupName.empty())? _materialGroupName : shaderNode->getName();
+    documentName = shaderNode->getName();
     return generateNewDocumentFromShader(shaderNode, udimSet);
 }
 
@@ -581,7 +558,14 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
     {
         string documentName;
         DocumentPtr bakedMaterialDoc = bakeMaterialToDoc(doc, searchPath, element->getNamePath(), udimSet, documentName);
-        bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
+        if (bakedMaterialDoc)
+        {
+            bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
+        }
+        if (_outputStream)
+        {
+            *_outputStream << std::endl;
+        }
     }
 
     // Write documents in memory to disk.
@@ -597,7 +581,8 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
             {
                 const string extension = writeFilename.getExtension();
                 writeFilename.removeExtension();
-                writeFilename = FilePath(writeFilename.asString() + "_" + bakedDocuments[i].first + "." + extension);
+                string filenameSeparator = writeFilename.isDirectory()? EMPTY_STRING : "_";
+                writeFilename = FilePath(writeFilename.asString() + filenameSeparator + bakedDocuments[i].first + "." + extension);
             }
 
             writeToXmlFile(bakedDocuments[i].second, writeFilename);

@@ -165,12 +165,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
         }
     }
 
-    /// Set material group name if multiple materials are baked to a single material as a group.
-    void setMaterialGroupName(const string& materialGroupName)
-    {
-        _materialGroupName = materialGroupName;
-    }
-
     /// Set the output stream for reporting progress and warnings.  Defaults to std::cout.
     void setOutputStream(std::ostream* outputStream)
     {
@@ -263,7 +257,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     string _bakedGraphName;
     string _bakedGeomInfoName;
     string _textureFilenameTemplate;
-    string _materialGroupName;
     std::ostream* _outputStream;
     bool _hashImageNames;
 
