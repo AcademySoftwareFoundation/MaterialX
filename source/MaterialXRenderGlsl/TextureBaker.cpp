@@ -554,17 +554,19 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
 
     // Bake all materials in documents to memory.
     BakedDocumentVec bakedDocuments;
-    for (const TypedElementPtr& element : renderableMaterials)
+    for (size_t i = 0; i < renderableMaterials.size(); i++)
     {
+        if (_outputStream && i > 0)
+        {
+            *_outputStream << std::endl;
+        }
+
+        const TypedElementPtr& element = renderableMaterials[i];
         string documentName;
         DocumentPtr bakedMaterialDoc = bakeMaterialToDoc(doc, searchPath, element->getNamePath(), udimSet, documentName);
         if (bakedMaterialDoc)
         {
             bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
-        }
-        if (_outputStream)
-        {
-            *_outputStream << std::endl;
         }
     }
 
@@ -589,10 +591,6 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
             if (_outputStream)
             {
                 *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
-                if (i + 1 < bakeCount)
-                {
-                    *_outputStream << std::endl;
-                }
             }
         }
     }
