@@ -2,6 +2,20 @@
 
 ## [1.38.3] - Development
 
+### Added
+- Added preprocessor definitions for the API version to MaterialXCore.
+- Added an initial ClangFormat file for the MaterialX codebase.
+- Added color transform methods to the Image class.
+- Added support for Xcode 13.
+
+### Changed
+- Refactored BSDF handling in shader generation, allowing for more flexible and efficient vertical layering.
+- Optimized GLSL implementations for GGX specular, moving common computations to tangent space.
+
+### Fixed
+- Fixed a bug that caused shader inputs to be skipped in createUIPropertyGroups.
+- Fixed the value of transmission roughness in UsdPreviewSurface.
+
 ## [1.38.2] - 2021-10-07
 
 ### Added
