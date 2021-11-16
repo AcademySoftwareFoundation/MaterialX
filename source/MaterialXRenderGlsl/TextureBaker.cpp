@@ -562,10 +562,6 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
         {
             bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
         }
-        if (_outputStream)
-        {
-            *_outputStream << std::endl;
-        }
     }
 
     // Write documents in memory to disk.
