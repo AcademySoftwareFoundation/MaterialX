@@ -329,7 +329,7 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// @name Material References
     /// @{
     
-    /// Return any outputs on the nodegraph which are of type "material"
+    /// Return all material-type outputs of the nodegraph.
     std::vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}

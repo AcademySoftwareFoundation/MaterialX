@@ -4,10 +4,6 @@
 //
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Node.h>
-#include <MaterialXCore/Material.h>
-
-#include <unordered_set>
 
 namespace MaterialX
 {

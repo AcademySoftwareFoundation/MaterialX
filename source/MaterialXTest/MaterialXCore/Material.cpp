@@ -14,80 +14,6 @@
 
 namespace mx = MaterialX;
 
-namespace
-{
-
-// Utility function for testing material discovery
-std::vector<mx::InterfaceElementPtr> getMaterials(mx::ElementPtr root, bool skipIncludes)
-{
-    std::vector<mx::InterfaceElementPtr> materialNodes;
-    std::unordered_set<mx::ElementPtr> processedSources;
-
-    // Look for any material nodes exposed as outputs
-    // on the nodegraph. Any other nodes are assumed to 
-    // be "hidden" on purpose.
-    mx::NodeGraphPtr nodeGraph = root->asA<mx::NodeGraph>();
-    if (nodeGraph)
-    {
-        for (auto nodeGraphOutput : nodeGraph->getMaterialOutputs())
-        {
-            mx::NodePtr nodeGraphNode = nodeGraphOutput->getConnectedNode();
-            if (nodeGraphNode && !processedSources.count(nodeGraphNode))
-            {
-                materialNodes.push_back(nodeGraphNode);
-                processedSources.insert(nodeGraphNode);
-            }
-        }
-    }
-
-    // Find all nodes which have a "material" output at the document level
-    mx::DocumentPtr document = root->asA<mx::Document>();
-    if (document)
-    {
-        for (auto documentOutput : document->getMaterialOutputs(skipIncludes))
-        {
-            mx::NodePtr documentNode = documentOutput->getConnectedNode();
-            if (documentNode && !processedSources.count(documentNode))
-            {
-                materialNodes.push_back(documentNode);
-                processedSources.insert(documentNode);
-            }
-        }
-        for (auto documentNode : document->getMaterialNodes())
-        {
-            if (!processedSources.count(documentNode))
-            {
-                materialNodes.push_back(documentNode);
-                processedSources.insert(documentNode);
-            }
-        }
-    }
-
-    // Look for materials associated with a material assignment
-    mx::MaterialAssignPtr materialAssign = root->asA<mx::MaterialAssign>();
-    if (materialAssign)
-    {
-        for (auto assignOutput : materialAssign->getMaterialOutputs())
-        {
-            mx::NodePtr assignNode = assignOutput->getConnectedNode();
-            if (assignNode && !processedSources.count(assignNode))
-            {
-                materialNodes.push_back(assignNode);
-                processedSources.insert(assignNode);
-            }
-        }
-        mx::NodePtr referenceMaterial = materialAssign->getReferencedMaterial();
-        if (referenceMaterial && !processedSources.count(referenceMaterial))
-        {
-            materialNodes.push_back(referenceMaterial);
-        }
-    }
-
-    return materialNodes;
-}
-
-}
-
 TEST_CASE("Material", "[material]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -150,43 +76,49 @@ TEST_CASE("Material Discovery", "[material]")
 
     mx::StringSet foundNames;
 
-    // Material assignment test
+    // 1. Find all materials referenced by material assignments.
+    //    Tests both finding direct node connections as well as traversing through
+    //    connected nodegraphs
     mx::StringSet assignmentMaterialPaths =
     {
-        "top_level_material_assigned", // material node at top level
-        "top_level_material_in_graph_assigned/surfacematerial1", // material node in nodegraph
-        "top_level_material_def_assigned" // custom material at top level
+        "top_level_material_assigned", // reference to material node from standard library
+        "top_level_material_def_assigned", // reference to a custom material node
+        "top_level_material_in_graph_assigned/surfacematerial1" // reference of material node in nodegraph
     };
+    std::unordered_set<mx::ElementPtr> processedSources;
+    std::vector<mx::InterfaceElementPtr> assignNodes;
     for (auto look : doc->getLooks())
     {
         for (auto materialAssign : look->getMaterialAssigns())
         {
-            std::vector<mx::InterfaceElementPtr> assignNodes = getMaterials(materialAssign, false);
-            for (auto assignNode : assignNodes)
+            for (auto assignOutput : materialAssign->getMaterialOutputs())
             {
-                if (assignNode && assignNode->isA<mx::NodeGraph>())
+                mx::NodePtr assignNode = assignOutput->getConnectedNode();
+                if (assignNode && !processedSources.count(assignNode))
                 {
-                    std::vector<mx::InterfaceElementPtr> assignGraphNodes = getMaterials(assignNode, false);
-                    for (auto assignGraphNode : assignGraphNodes)
-                    {
-                        const std::string& graphNodeName = assignGraphNode->getNamePath();
-                        CHECK(assignmentMaterialPaths.count(graphNodeName));
-                        foundNames.insert(graphNodeName);
-                    }
-                }
-                else
-                {
-                    const std::string& graphNodeName = assignNode->getNamePath();
-                    CHECK(assignmentMaterialPaths.count(graphNodeName));
-                    foundNames.insert(graphNodeName);
+                    assignNodes.push_back(assignNode);
+                    processedSources.insert(assignNode);
                 }
             }
+            mx::NodePtr referenceMaterial = materialAssign->getReferencedMaterial();
+            if (referenceMaterial && !processedSources.count(referenceMaterial))
+            {
+                assignNodes.push_back(referenceMaterial);
+            }
         }
+    }
+    for (auto assignNode : assignNodes)
+    {
+        const std::string& graphNodeName = assignNode->getNamePath();
+        CHECK(assignmentMaterialPaths.count(graphNodeName));
+        foundNames.insert(graphNodeName);
     }
     CHECK(assignmentMaterialPaths.size() == foundNames.size());
     foundNames.clear();
 
-    // Nodegraph level test
+    // 2. Nodegraph level test
+    //    Look for any material nodes exposed as outputs on the nodegraph. 
+    //    Any other nodes are assumed to be "hidden" on purpose.
     mx::StringSet compareGraphNodeNames =
     {
         "top_level_material_in_graph_no_assign/surfacematerial1", // Material in a nodegraph
@@ -199,7 +131,15 @@ TEST_CASE("Material Discovery", "[material]")
     mx::StringSet graphNodeNames;
     for (auto nodeGraph : doc->getNodeGraphs())
     {
-        std::vector<mx::InterfaceElementPtr> graphNodes = getMaterials(nodeGraph, false);
+        std::vector<mx::InterfaceElementPtr> graphNodes;
+        for (auto nodeGraphOutput : nodeGraph->getMaterialOutputs())
+        {
+            mx::NodePtr nodeGraphNode = nodeGraphOutput->getConnectedNode();
+            if (nodeGraphNode)
+            {
+                graphNodes.push_back(nodeGraphNode);
+            }
+        }
         if (!graphNodes.empty())
         {
             for (auto graphNode : graphNodes)
@@ -211,9 +151,10 @@ TEST_CASE("Material Discovery", "[material]")
             }
         }
     }
-    CHECK((compareGraphNodeNames.size()+ compareImplGraphNodeNames.size()) == graphNodeNames.size());
+    CHECK((compareGraphNodeNames.size() + compareImplGraphNodeNames.size()) == graphNodeNames.size());
 
-    // Document level test
+    // 3. Document level test
+    //    Find all material nodes at the top level or within top level nodegraphs
     mx::StringSet documentMaterialNodePaths = {
         "top_level_material_no_asssign",
         "top_level_material_assigned",
@@ -221,29 +162,36 @@ TEST_CASE("Material Discovery", "[material]")
         "top_level_material_def_assigned"
     };
     documentMaterialNodePaths.insert(compareGraphNodeNames.begin(), compareGraphNodeNames.end());
-    std::vector<mx::InterfaceElementPtr> docNodes = getMaterials(doc, false);
+    processedSources.clear();
+    std::vector<mx::InterfaceElementPtr> docNodes;
+    if (doc)
+    {
+        for (auto documentOutput : doc->getMaterialOutputs())
+        {
+            mx::NodePtr documentNode = documentOutput->getConnectedNode();
+            if (documentNode && !processedSources.count(documentNode))
+            {
+                docNodes.push_back(documentNode);
+                processedSources.insert(documentNode);
+            }
+        }
+        CHECK(!docNodes.empty());
+        for (auto documentNode : doc->getMaterialNodes())
+        {
+            if (!processedSources.count(documentNode))
+            {
+                docNodes.push_back(documentNode);
+                processedSources.insert(documentNode);
+            }
+        }
+    }
     if (!docNodes.empty())
     {
         for (auto docNode : docNodes)
         {
-            if (docNode->isA<mx::NodeGraph>())
-            {
-                std::vector<mx::InterfaceElementPtr> docGraphNodes  = getMaterials(docNode, false);
-                for (auto docGraphNode : docGraphNodes)
-                {
-                    // Check that we find the same node names as by directly scanning nodegraphs
-                    // above
-                    const std::string& nodeName = docGraphNode->getNamePath();
-                    CHECK(graphNodeNames.count(nodeName));
-                    foundNames.insert(nodeName);
-                }
-            }
-            else
-            {
-                const std::string& nodeName = docNode->getNamePath();
-                CHECK(documentMaterialNodePaths.count(nodeName));
-                foundNames.insert(nodeName);
-            }
+            const std::string& nodeName = docNode->getNamePath();
+            CHECK(documentMaterialNodePaths.count(nodeName));
+            foundNames.insert(nodeName);
         }
         // Note: We are only comparing counts excluding any nodegraph
         // implementations which contain material nodes.

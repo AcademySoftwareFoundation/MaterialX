@@ -6,8 +6,6 @@
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Document.h>
 
-#include <unordered_set>
-
 namespace MaterialX
 {
 

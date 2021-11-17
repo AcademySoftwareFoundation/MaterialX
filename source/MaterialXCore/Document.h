@@ -174,8 +174,8 @@ class MX_CORE_API Document : public GraphElement
     /// @name Material Outputs
     /// @{
     
-    /// Return outputs on nodegraps which are of type "material"
-    std::vector<OutputPtr> getMaterialOutputs(bool skipIncludes) const;
+    /// Return material-type outputs for all nodegraphs in the document.
+    std::vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}
     /// @name Look Elements
