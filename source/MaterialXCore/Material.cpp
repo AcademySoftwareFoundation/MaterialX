@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/MateriaL.h>
+#include <MaterialXCore/Material.h>
 
 namespace MaterialX
 {
