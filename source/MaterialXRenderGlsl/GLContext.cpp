@@ -5,7 +5,7 @@
 
 #if defined(_WIN32)
 #include <windows.h>
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 #include <X11/Intrinsic.h>
 #elif defined(__APPLE__)
 #include <MaterialXRenderHw/WindowCocoaWrappers.h>
@@ -68,7 +68,7 @@ GLContext::GLContext(SimpleWindowPtr window, HardwareContextHandle sharedWithCon
     }
 }
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 
 GLContext::GLContext(const SimpleWindowPtr window, HardwareContextHandle sharedWithContext) :
     _window(window),
@@ -156,7 +156,7 @@ GLContext::~GLContext()
 
         wglDeleteContext(_contextHandle);
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 
         glXMakeCurrent(_xDisplay, None, NULL);
 
@@ -191,7 +191,7 @@ int GLContext::makeCurrent()
 
 #if defined(_WIN32)
     makeCurrentOk = wglMakeCurrent(_window->getWindowWrapper()->internalHandle(), _contextHandle);
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
     makeCurrentOk = glXMakeCurrent(_xDisplay, _xWindow, _contextHandle);
 #elif defined(__APPLE__)
     NSOpenGLMakeCurrent(_contextHandle);
