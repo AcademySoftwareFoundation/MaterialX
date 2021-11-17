@@ -381,7 +381,7 @@ export(EXPORT MaterialX
 
 # Package for using the installed build
 install(EXPORT MaterialX
-        DESTINATION cmake
+        DESTINATION ${MATERIALX_INSTALL_LIB_PATH}/cmake
         FILE MaterialXConfig.cmake)
 install(FILES "${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake"
-        DESTINATION cmake)
+        DESTINATION ${MATERIALX_INSTALL_LIB_PATH}/cmake)
