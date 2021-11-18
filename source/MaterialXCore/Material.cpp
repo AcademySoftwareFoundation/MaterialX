@@ -254,3 +254,4 @@ MX_CORE_API vector<InterfaceElementPtr> getMaterials(ElementPtr root, bool skipI
 }
 
 } // namespace MaterialX
+
