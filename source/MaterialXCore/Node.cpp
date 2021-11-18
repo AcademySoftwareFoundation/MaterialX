@@ -606,9 +606,9 @@ string GraphElement::asStringDot() const
 // NodeGraph methods
 //
 
-std::vector<OutputPtr> NodeGraph::getMaterialOutputs() const
+vector<OutputPtr> NodeGraph::getMaterialOutputs() const
 {
-    std::vector<OutputPtr> materialOutputs;
+    vector<OutputPtr> materialOutputs;
     for (auto graphOutput : getActiveOutputs())
     {
         if (graphOutput->getType() == MATERIAL_TYPE_STRING)

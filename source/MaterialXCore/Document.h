@@ -175,7 +175,7 @@ class MX_CORE_API Document : public GraphElement
     /// @{
     
     /// Return material-type outputs for all nodegraphs in the document.
-    std::vector<OutputPtr> getMaterialOutputs() const;
+    vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}
     /// @name Look Elements

@@ -124,7 +124,7 @@ NodePtr MaterialAssign::getReferencedMaterial() const
     return resolveRootNameReference<Node>(getMaterial());
 }
 
-std::vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
+vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
 {
     vector<OutputPtr> materialOutputs;
     NodeGraphPtr materialGraph = resolveRootNameReference<NodeGraph>(getMaterial());

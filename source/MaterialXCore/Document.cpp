@@ -305,22 +305,22 @@ ValuePtr Document::getGeomPropValue(const string& geomPropName, const string& ge
     return value;
 }
 
-std::vector<OutputPtr> Document::getMaterialOutputs() const
+vector<OutputPtr> Document::getMaterialOutputs() const
 {
     vector<OutputPtr> materialOutputs;
 
-    const std::string documentUri = getSourceUri();
+    const string documentUri = getSourceUri();
     for (NodeGraphPtr docNodeGraph : getNodeGraphs())
     {
         // Skip nodegraphs which are either definitions or are from 
         // an included file
-        const std::string graphUri = docNodeGraph->getSourceUri();
+        const string graphUri = docNodeGraph->getSourceUri();
         if (docNodeGraph->getNodeDef() || (!graphUri.empty() && documentUri != graphUri ))
         {
             continue;
         }
 
-        std::vector<OutputPtr> docNodeGraphOutputs = docNodeGraph->getMaterialOutputs();
+        vector<OutputPtr> docNodeGraphOutputs = docNodeGraph->getMaterialOutputs();
         if (!docNodeGraphOutputs.empty())
         {
             materialOutputs.insert(materialOutputs.end(), docNodeGraphOutputs.begin(), docNodeGraphOutputs.end());
@@ -575,8 +575,8 @@ void Document::upgradeVersion()
                 }
             }
 
-            std::string udimSetString;
-            for (const std::string& udim : udimSet)
+            string udimSetString;
+            for (const string& udim : udimSet)
             {
                 if (udimSetString.empty())
                 {
