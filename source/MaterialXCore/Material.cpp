@@ -136,3 +136,4 @@ vector<OutputPtr> getConnectedOutputs(NodePtr node)
 }
 
 } // namespace MaterialX
+

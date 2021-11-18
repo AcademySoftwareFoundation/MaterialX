@@ -326,6 +326,13 @@ class MX_CORE_API NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
+    /// @name Material References
+    /// @{
+    
+    /// Return all material-type outputs of the nodegraph.
+    vector<OutputPtr> getMaterialOutputs() const;
+
+    /// @}
     /// @name NodeDef References
     /// @{
 

@@ -606,6 +606,23 @@ string GraphElement::asStringDot() const
 // NodeGraph methods
 //
 
+vector<OutputPtr> NodeGraph::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+    for (auto graphOutput : getActiveOutputs())
+    {
+        if (graphOutput->getType() == MATERIAL_TYPE_STRING)
+        {
+            NodePtr node = graphOutput->getConnectedNode();
+            if (node && node->getType() == MATERIAL_TYPE_STRING)
+            {
+                materialOutputs.push_back(graphOutput);
+            }
+        }
+    }
+    return materialOutputs;
+}
+
 void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
 {
     if (nodeDef)
