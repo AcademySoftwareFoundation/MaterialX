@@ -1945,7 +1945,6 @@ void Viewer::renderFrame()
             _envMaterial->bindViewInformation(envWorld, view, proj);
             _envMaterial->bindImages(_imageHandler, _searchPath, false);
             _envMaterial->drawPartition(envPart);
-            _envMaterial->unbindGeometry();
             glDisable(GL_CULL_FACE);
             glCullFace(GL_BACK);
         }
@@ -1959,7 +1958,6 @@ void Viewer::renderFrame()
     }
 
     // Opaque pass
-    const mx::MeshList& meshList = _geometryHandler->getMeshes();
     for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
@@ -1975,17 +1973,7 @@ void Viewer::renderFrame()
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
         material->bindShader();
-        for (auto mesh : meshList)
-        {
-            for (size_t i = 0; i < mesh->getPartitionCount(); i++)
-            {
-                if (mesh->getPartition(i) == geom)
-                {
-                    material->bindMesh(mesh);
-                    break;
-                }
-            }
-        }
+        material->bindMesh(_geometryHandler->findParentMesh(geom));
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
@@ -1995,7 +1983,6 @@ void Viewer::renderFrame()
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
-        material->unbindGeometry();
         if (material->getShader()->getName() == "__WIRE_SHADER__")
         {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2018,17 +2005,7 @@ void Viewer::renderFrame()
             }
 
             material->bindShader();
-            for (auto mesh : meshList)
-            {
-                for (size_t i = 0; i < mesh->getPartitionCount(); i++)
-                {
-                    if (mesh->getPartition(i) == geom)
-                    {
-                        material->bindMesh(mesh);
-                        break;
-                    }
-                }
-            }
+            material->bindMesh(_geometryHandler->findParentMesh(geom));
             if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
@@ -2038,7 +2015,6 @@ void Viewer::renderFrame()
             material->bindImages(_imageHandler, _searchPath);
             material->drawPartition(geom);
             material->unbindImages(_imageHandler);
-            material->unbindGeometry();
         }
         glDisable(GL_BLEND);
     }
@@ -2058,20 +2034,9 @@ void Viewer::renderFrame()
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         _wireMaterial->bindShader();
-        for (auto mesh : meshList)
-        {
-            for (size_t i = 0; i < mesh->getPartitionCount(); i++)
-            {
-                if (mesh->getPartition(i) == getSelectedGeometry())
-                {
-                    _wireMaterial->bindMesh(mesh);
-                    break;
-                }
-            }
-        }
+        _wireMaterial->bindMesh(_geometryHandler->findParentMesh(getSelectedGeometry()));
         _wireMaterial->bindViewInformation(world, view, proj);
         _wireMaterial->drawPartition(getSelectedGeometry());
-        _wireMaterial->unbindGeometry();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
@@ -2559,7 +2524,6 @@ void Viewer::updateShadowMap()
             _shadowMaterial->drawPartition(geom);
         }
     }
-    _shadowMaterial->unbindGeometry();
     _shadowMap = framebuffer->getColorImage();
 
     // Apply Gaussian blurring.
@@ -2652,5 +2616,4 @@ void Viewer::renderScreenSpaceQuad(MaterialPtr material)
     
     material->bindMesh(_quadMesh);
     material->drawPartition(_quadMesh->getPartition(0));
-    material->unbindGeometry();
 }

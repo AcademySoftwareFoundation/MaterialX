@@ -113,6 +113,22 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath)
     return loaded;
 }
 
+MeshPtr GeometryHandler::findParentMesh(MeshPartitionPtr part)
+{
+    for (MeshPtr mesh : getMeshes())
+    {
+        for (size_t i = 0; i < mesh->getPartitionCount(); i++)
+        {
+            if (mesh->getPartition(i) == part)
+            {
+                return mesh;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
 MeshPtr GeometryHandler::createQuadMesh()
 {
     MeshStreamPtr quadPositions = MeshStream::create(HW::IN_POSITION, MeshStream::POSITION_ATTRIBUTE, 0);
