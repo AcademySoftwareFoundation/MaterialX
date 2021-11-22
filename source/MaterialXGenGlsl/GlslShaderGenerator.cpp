@@ -696,6 +696,38 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitFunctionBodyEnd(graph, context, stage);
 }
 
+void GlslShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+{
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+
+    // Emit Light functions if requested
+    if (requiresLighting(graph) && context.getOptions().hwMaxActiveLightSources > 0)
+    {
+        // For surface shaders we need light shaders
+        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+        {
+            // Emit functions for all bound light shaders
+            HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+            if (lightShaders)
+            {
+                for (const auto& it : lightShaders->get())
+                {
+                    emitFunctionDefinition(*it.second, context, stage);
+                }
+            }
+            // Emit functions for light sampling
+            for (const auto& it : _lightSamplingNodes)
+            {
+                emitFunctionDefinition(*it, context, stage);
+            }
+        }
+    }
+END_SHADER_STAGE(stage, Stage::PIXEL)
+
+    // Call parent to emit all other functions
+    HwShaderGenerator::emitFunctionDefinitions(graph, context, stage);
+}
+
 void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
 {
     if (type->isFloat3())
