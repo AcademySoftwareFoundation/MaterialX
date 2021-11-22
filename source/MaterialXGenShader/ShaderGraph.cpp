@@ -315,7 +315,7 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
         ShaderNode* colorTransformNode = colorTransformNodePtr.get();
         ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
 
-        ShaderInputSet inputs = output->getConnections();
+        ShaderInputVec inputs = output->getConnections();
         for (ShaderInput* input : inputs)
         {
             input->breakConnection();
