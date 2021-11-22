@@ -145,17 +145,6 @@ jobs:
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
 
-    - name: Install GLSlangValidator (Windows)
-      if: matrix.test_validate == 'ON' && runner.os == 'Windows'
-      run: |
-        git clone https://github.com/Microsoft/vcpkg
-        cd vcpkg
-        bootstrap-vcpkg.bat
-        vcpkg integrate install
-        vcpkg install glslang:x64-windows
-        cd ..
-        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
-
     - name: Install Python ${{ matrix.python }}
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       uses: actions/setup-python@v2
@@ -230,7 +219,7 @@ jobs:
         vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
-
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2
       if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' }}
