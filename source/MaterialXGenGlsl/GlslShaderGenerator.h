@@ -38,7 +38,7 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     virtual const string& getVersion() const { return VERSION; }
 
     /// Emit function definitions for all nodes (for 3rd party code with custom shading)
-    void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
+    virtual void emitLightSampleFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Emit a shader variable.
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
