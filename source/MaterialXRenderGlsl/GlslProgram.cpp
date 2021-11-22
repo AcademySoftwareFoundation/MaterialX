@@ -30,8 +30,7 @@ int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 GlslProgram::GlslProgram() :
     _programId(UNDEFINED_OPENGL_RESOURCE_ID),
     _shader(nullptr),
-    _vertexArray(UNDEFINED_OPENGL_RESOURCE_ID),
-    _lastGeometryName(EMPTY_STRING)
+    _vertexArray(UNDEFINED_OPENGL_RESOURCE_ID)
 {
 }
 
@@ -241,63 +240,6 @@ bool GlslProgram::bind()
     return false;
 }
 
-void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
-                             GeometryHandlerPtr geometryHandler,
-                             ImageHandlerPtr imageHandler,
-                             LightHandlerPtr lightHandler)
-{
-    // Bind the program to use
-    if (!bind())
-    {
-        throw ExceptionRenderError("Cannot bind inputs without a valid program");
-    }
-
-    checkGlErrors("after program bind inputs");
-
-    // Parse for uniforms and attributes
-    getUniformsList();
-    getAttributesList();
-
-    const MeshList& meshes = geometryHandler->getMeshes();
-    if (meshes.size() > 0 && meshes[0]->getIdentifier() != _lastGeometryName)
-    {
-        unbindGeometry();
-        _lastGeometryName = meshes[0]->getIdentifier();
-    }
-    // Bind based on inputs found
-    bindViewInformation(viewHandler);
-    for (const auto& mesh : geometryHandler->getMeshes())
-    {
-        bindMesh(mesh);
-    }
-
-    bindTextures(imageHandler);
-    bindTimeAndFrame();
-    bindLighting(lightHandler, imageHandler);
-
-    // Set up raster state for transparency as needed
-    if (_shader->hasAttribute(HW::ATTR_TRANSPARENT))
-    {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
-    else
-    {
-        glDisable(GL_BLEND);
-    }
-}
-
-void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
-{
-    imageHandler->unbindImages();
-
-    // Clean up raster state if transparency was set in bindInputs()
-    if (_shader->hasAttribute(HW::ATTR_TRANSPARENT))
-    {
-        glDisable(GL_BLEND);
-    }
-}
-
 void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mesh)
 {
     if (!mesh)
@@ -478,21 +420,19 @@ void GlslProgram::bindMesh(MeshPtr mesh)
 
 void GlslProgram::unbindGeometry()
 {
-    // Cleanup attribute bindings
-    //
-    int numberAttributes = 0;
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &numberAttributes);
+    // Unbind all geometry buffers.
+    glBindVertexArray(UNDEFINED_OPENGL_RESOURCE_ID);
+    glBindBuffer(GL_ARRAY_BUFFER, UNDEFINED_OPENGL_RESOURCE_ID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UNDEFINED_OPENGL_RESOURCE_ID);
+
+    // Disable vertex attribute arrays.
     for (int i : _enabledStreamLocations)
     {
         glDisableVertexAttribArray(i);
     }
     _enabledStreamLocations.clear();
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
 
-    // Clean up buffers
-    //
+    // Release attribute buffers.
     for (const auto& attributeBufferId : _attributeBufferIds)
     {
         unsigned int bufferId = attributeBufferId.second;
@@ -502,6 +442,15 @@ void GlslProgram::unbindGeometry()
         }
     }
     _attributeBufferIds.clear();
+
+    // Release vertex array.
+    if (_vertexArray != UNDEFINED_OPENGL_RESOURCE_ID)
+    {
+        glDeleteVertexArrays(1, &_vertexArray);
+        _vertexArray = UNDEFINED_OPENGL_RESOURCE_ID;
+    }
+
+    // Release index buffers.
     for (const auto& indexBufferId : _indexBufferIds)
     {
         unsigned int bufferId = indexBufferId.second;
@@ -511,9 +460,6 @@ void GlslProgram::unbindGeometry()
         }
     }
     _indexBufferIds.clear();
-
-    glDeleteVertexArrays(1, &_vertexArray);
-    _vertexArray = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
 
     checkGlErrors("after program unbind geometry");
 }
