@@ -46,6 +46,7 @@ jobs:
           compiler: clang
           compiler_version: "9"
           python: 3.6
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
           run_on_push : OFF
 
         - name: Linux_Clang_11_Python37
