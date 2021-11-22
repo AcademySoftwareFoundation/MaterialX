@@ -515,6 +515,7 @@ void Material::unbindGeometry() const
 {
     if (_glProgram)
     {
+        _glProgram->bind();
         _glProgram->unbindGeometry();
     }
 }
