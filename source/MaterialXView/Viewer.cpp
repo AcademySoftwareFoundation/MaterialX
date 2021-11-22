@@ -564,8 +564,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
 
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
 {
-    const mx::MeshList& meshes = _geometryHandler->getMeshes();
-    if (meshes.empty() || !geometry)
+    if (!geometry || _geometryHandler->getMeshes().empty())
     {
         return;
     }
@@ -1163,6 +1162,16 @@ void Viewer::loadMesh(const mx::FilePath& filename)
             {
                 assignMaterial(geom, material);
             }
+        }
+
+        // Unbind utility materials from the previous geometry.
+        if (_wireMaterial)
+        {
+            _wireMaterial->unbindGeometry();
+        }
+        if (_shadowMaterial)
+        {
+            _shadowMaterial->unbindGeometry();
         }
 
         invalidateShadowMap();
@@ -1968,10 +1977,6 @@ void Viewer::renderFrame()
             continue;
         }
 
-        if (material->getShader()->getName() == "__WIRE_SHADER__")
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
         material->bindShader();
         material->bindMesh(_geometryHandler->findParentMesh(geom));
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
@@ -1983,10 +1988,6 @@ void Viewer::renderFrame()
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
-        if (material->getShader()->getName() == "__WIRE_SHADER__")
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
     }
 
     // Transparent pass
@@ -2512,7 +2513,6 @@ void Viewer::updateShadowMap()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Render shadow geometry.
-    _shadowMaterial->unbindGeometry();
     _shadowMaterial->bindShader();
     for (auto mesh : _geometryHandler->getMeshes())
     {
