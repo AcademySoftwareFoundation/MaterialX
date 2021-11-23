@@ -1078,7 +1078,7 @@ void Viewer::updateGeometrySelections()
     std::vector<std::string> items;
     for (const mx::MeshPartitionPtr& part : _geometryList)
     {
-        std::string geomName = part->getIdentifier();
+        std::string geomName = part->getName();
         mx::StringVec geomSplit = mx::splitString(geomName, ":");
         if (!geomSplit.empty() && !geomSplit[geomSplit.size() - 1].empty())
         {
@@ -1374,8 +1374,12 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     // Apply geometric assignments specified in the document, if any.
                     for (mx::MeshPartitionPtr part : _geometryList)
                     {
-                        std::string partGeomName = part->getIdentifier();
-                        if (!getGeometryBindings(materialNode, partGeomName).empty())
+                        std::string geom = part->getName();
+                        for (const std::string& id : part->getSourceNames())
+                        {
+                            geom += mx::ARRAY_PREFERRED_SEPARATOR + id;
+                        }
+                        if (!getGeometryBindings(materialNode, geom).empty())
                         {
                             assignMaterial(part, mat);
                         }
@@ -1386,7 +1390,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     {
                         for (mx::MeshPartitionPtr geom : _geometryList)
                         {
-                            if (geom->getIdentifier() == udim)
+                            if (geom->getName() == udim)
                             {
                                 assignMaterial(geom, mat);
                             }
