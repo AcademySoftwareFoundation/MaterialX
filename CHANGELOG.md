@@ -2,41 +2,19 @@
 
 ## [1.38.3] - Development
 
-- Predictive code generation fix
-- Material node discovery 
-- Versioning fixes (WIP)
-- Clang / format support (WIP)
+### Added
+- Added preprocessor definitions for the API version to MaterialXCore.
+- Added an initial ClangFormat file for the MaterialX codebase.
+- Added color transform methods to the Image class.
+- Added support for Xcode 13.
 
-- Unlit / modeling material library (re-discuss)
-- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (WIP under main review)
-- OCIO v2 support continued (WIP)
-- Reference rendering / MDL DXR improvements (WIP)
-- Khronos PBR driven enhancements
-- Nodegraph / nodedef implementation association completion
-  - v1.03 std surface
-- Continued asset support
-  - tokens revised (re-discuss)
-  - metadata (under discussion)
-- Real-time / interactive enhancements (WIP)
-  - GLslang SPIR-V framework
-  - Fragment generation
-- USD/MTLX driven enhancements
+### Changed
+- Refactored BSDF handling in shader generation, allowing for more flexible and efficient vertical layering.
+- Optimized GLSL implementations for GGX specular, moving common computations to tangent space.
 
-## [1.38.2_adsk] - 2021-10-8
-
-### Autodesk enhancements to merge
-- Unlit shader (in progress)
-- Std surface v1.01 and v1.02
-  - Nodegraph / nodedef implementation association (in progress)
-- OCIO v2 GLSL initial integration
-- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (under review)
-- Localization support for values (not strings)
-- Enhanced texture baking support (for Fusion)  (to merge to main)
-
-### Autodesk only enhancements
-- Export API. (may be removed)
-- Arnold render test suite
-- OGSXML code generator enhancements
+### Fixed
+- Fixed a bug that caused shader inputs to be skipped in createUIPropertyGroups.
+- Fixed the value of transmission roughness in UsdPreviewSurface.
 
 ## [1.38.2] - 2021-10-07
 

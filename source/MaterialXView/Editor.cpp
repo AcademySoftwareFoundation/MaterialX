@@ -350,7 +350,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 if (material)
                 {
                     mx::Vector3 v(c.r(), c.g(), c.b());
-                material->modifyUniform(path, mx::Value::createValue(v));
+                    material->modifyUniform(path, mx::Value::createValue(v));
                 }
             });
         }

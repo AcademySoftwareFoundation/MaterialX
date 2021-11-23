@@ -96,9 +96,13 @@ class MX_CORE_API Node : public InterfaceElement
     /// by the given target name.
     /// @param target An optional target name, which will be used to filter
     ///    the nodedefs that are considered.
+    /// @param allowRoughMatch If specified, then a rough match will be allowed
+    ///    when an exact match is not found.  An exact match requires that each
+    ///    node input corresponds to a nodedef input of the same name and type.
     /// @return A NodeDef for this node, or an empty shared pointer if none
     ///    was found.
-    NodeDefPtr getNodeDef(const string& target = EMPTY_STRING) const;
+    NodeDefPtr getNodeDef(const string& target = EMPTY_STRING,
+                          bool allowRoughMatch = false) const;
 
     /// @}
     /// @name Implementation References
@@ -322,6 +326,13 @@ class MX_CORE_API NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
+    /// @name Material References
+    /// @{
+    
+    /// Return all material-type outputs of the nodegraph.
+    vector<OutputPtr> getMaterialOutputs() const;
+
+    /// @}
     /// @name NodeDef References
     /// @{
 

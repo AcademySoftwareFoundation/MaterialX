@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXCore/Look.h>
-
 #include <MaterialXCore/Document.h>
 
 namespace MaterialX
@@ -145,6 +144,19 @@ void Look::append(const LookPtr& source)
 NodePtr MaterialAssign::getReferencedMaterial() const
 {
     return resolveRootNameReference<Node>(getMaterial());
+}
+
+vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+    // Note: Only nodegraphs are examined. When explicit outputs on nodes
+    // are supported then nodes will be also be considered (getReferencedMaterial()).
+    NodeGraphPtr materialGraph = resolveRootNameReference<NodeGraph>(getMaterial());
+    if (materialGraph)
+    {
+        return materialGraph->getMaterialOutputs();
+    }
+    return materialOutputs;
 }
 
 vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const

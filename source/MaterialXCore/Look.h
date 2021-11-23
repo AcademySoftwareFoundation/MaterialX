@@ -322,6 +322,9 @@ class MX_CORE_API MaterialAssign : public GeomElement
         return getAttribute(MATERIAL_ATTRIBUTE);
     }
 
+    ///  Return material-type outputs for all referenced nodegraphs
+    vector<OutputPtr> getMaterialOutputs() const;
+
     /// @}
     /// @name Exclusive
     /// @{

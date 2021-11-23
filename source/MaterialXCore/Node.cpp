@@ -89,7 +89,7 @@ OutputPtr Node::getConnectedOutput(const string& inputName) const
     return input->getConnectedOutput();
 }
 
-NodeDefPtr Node::getNodeDef(const string& target) const
+NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
 {
     if (hasNodeDefString())
     {
@@ -97,15 +97,29 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     }
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
+    vector<NodeDefPtr> roughMatches;
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
     for (NodeDefPtr nodeDef : nodeDefs)
     {
-        if (targetStringsMatch(nodeDef->getTarget(), target) &&
-            nodeDef->isVersionCompatible(getVersionString()) &&
-            isTypeCompatible(nodeDef))
+        if (!targetStringsMatch(nodeDef->getTarget(), target) ||
+            !nodeDef->isVersionCompatible(getVersionString()) ||
+            nodeDef->getType() != getType())
         {
-            return nodeDef;
+            continue;
         }
+        if (!hasExactInputMatch(nodeDef))
+        {
+            if (allowRoughMatch)
+            {
+                roughMatches.push_back(nodeDef);
+            }
+            continue;
+        }
+        return nodeDef;
+    }
+    if (!roughMatches.empty())
+    {
+        return roughMatches[0];
     }
     return NodeDefPtr();
 }
@@ -591,6 +605,23 @@ string GraphElement::asStringDot() const
 //
 // NodeGraph methods
 //
+
+vector<OutputPtr> NodeGraph::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+    for (auto graphOutput : getActiveOutputs())
+    {
+        if (graphOutput->getType() == MATERIAL_TYPE_STRING)
+        {
+            NodePtr node = graphOutput->getConnectedNode();
+            if (node && node->getType() == MATERIAL_TYPE_STRING)
+            {
+                materialOutputs.push_back(graphOutput);
+            }
+        }
+    }
+    return materialOutputs;
+}
 
 void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
 {

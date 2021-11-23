@@ -299,7 +299,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
     vector<OutputPtr> outputs = nodedef.getActiveOutputs();
     if (outputs.empty())
     {
-        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' as no outputs defined");
+        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
     const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());

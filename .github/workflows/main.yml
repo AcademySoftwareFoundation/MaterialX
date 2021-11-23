@@ -39,13 +39,14 @@ jobs:
           compiler_version: "11"
           python: 3.7
           test_render: ON
-          run_on_push : ON
+          run_on_push : OFF
 
         - name: Linux_Clang_9_Python36
           os: ubuntu-18.04
           compiler: clang
           compiler_version: "9"
           python: 3.6
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
           run_on_push : OFF
 
         - name: Linux_Clang_11_Python37
@@ -60,6 +61,7 @@ jobs:
           compiler: clang
           compiler_version: "12"
           python: 3.8
+          test_render: ON
           run_on_push : ON
 
         - name: MacOS_Xcode_10_Python27
@@ -75,7 +77,7 @@ jobs:
           compiler: xcode
           compiler_version: "12.5.1"
           python: 3.7
-          run_on_push : ON
+          run_on_push: ON
 
         - name: MacOS_Xcode_13_Python38
           os: macos-11
@@ -85,18 +87,11 @@ jobs:
           cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
           run_on_push : OFF
 
-        - name: Windows_VS2017_Win32_Python27
-          os: windows-2016
+        - name: Windows_VS2019_Win32_Python27
+          os: windows-2019
           architecture: x86
           python: 2.7
-          cmake_config: -G "Visual Studio 15 2017" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
-          run_on_push : OFF
-
-        - name: Windows_VS2017_x64_Python37
-          os: windows-2016
-          architecture: x64
-          python: 3.7
-          cmake_config: -G "Visual Studio 15 2017" -A "x64"
+          cmake_config: -G "Visual Studio 16 2019" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
           run_on_push : OFF
 
         - name: Windows_VS2019_x64_Python38
@@ -104,6 +99,13 @@ jobs:
           architecture: x64
           python: 3.8
           cmake_config: -G "Visual Studio 16 2019" -A "x64"
+          run_on_push: OFF
+
+        - name: Windows_VS2022_x64_Python39
+          os: windows-2022
+          architecture: x64
+          python: 3.9
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_validate: ON
           run_on_push : ON
 
@@ -142,17 +144,6 @@ jobs:
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
-
-    - name: Build GLSlangValidator (Windows)
-      if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_validate == 'ON' }}
-      run: |
-        git clone https://github.com/Microsoft/vcpkg
-        cd vcpkg
-        bootstrap-vcpkg.bat
-        vcpkg integrate install
-        vcpkg install glslang:x64-windows
-        cd ..
-        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
 
     - name: Install Python ${{ matrix.python }}
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
@@ -207,13 +198,6 @@ jobs:
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_jade.mtlx --path .. --target mdl
       working-directory: python
 
-    - name: Generation Validation Tests
-      if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) && matrix.test_validate == 'ON' }}
-      run: |
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
-
     - name: Render Tests
       if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       run: |
@@ -223,6 +207,19 @@ jobs:
         build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_BrassAverage.png
         build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_CarpaintTranslated.png
 
+    - name: Shader Validation Tests
+      if: matrix.test_validate == 'ON' && runner.os == 'Windows'
+      run: |
+        git clone https://github.com/Microsoft/vcpkg
+        cd vcpkg
+        bootstrap-vcpkg.bat
+        vcpkg integrate install
+        vcpkg install glslang:x64-windows
+        cd ..
+        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2
       if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' }}

@@ -20,7 +20,7 @@ void bindPyNode(py::module& mod)
         .def("setConnectedNodeName", &mx::Node::setConnectedNodeName)
         .def("getConnectedNodeName", &mx::Node::getConnectedNodeName)
         .def("getNodeDef", &mx::Node::getNodeDef,
-            py::arg("target") = mx::EMPTY_STRING)
+            py::arg("target") = mx::EMPTY_STRING, py::arg("allowRoughMatch") = false)
         .def("getImplementation", &mx::Node::getImplementation,
             py::arg("target") = mx::EMPTY_STRING)
         .def("getDownstreamPorts", &mx::Node::getDownstreamPorts)
@@ -49,6 +49,7 @@ void bindPyNode(py::module& mod)
         .def("asStringDot", &mx::GraphElement::asStringDot);
 
     py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::GraphElement>(mod, "NodeGraph")
+        .def("getMaterialOutputs", &mx::NodeGraph::getMaterialOutputs)        
         .def("setNodeDef", &mx::NodeGraph::setNodeDef)
         .def("getNodeDef", &mx::NodeGraph::getNodeDef)
         .def("getDeclaration", &mx::NodeGraph::getDeclaration)

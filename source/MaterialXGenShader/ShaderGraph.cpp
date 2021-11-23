@@ -414,11 +414,17 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
     GenContext& context,
     ElementPtr& root)
 {
-    NodeDefPtr nodeDef = node->getNodeDef();
+    NodeDefPtr nodeDef = node->getNodeDef(EMPTY_STRING, true);
+    string message;
     if (!nodeDef)
     {
         throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getName() +
                                       "' with category '" + node->getCategory() + "'");
+    }
+    if (!node->hasExactInputMatch(nodeDef, &message))
+    {
+        std::cerr << "Nodedef " << nodeDef->getName() << " is not an exact match for shader node '" << node->getName() <<
+                     " (" << message << ")" << std::endl;
     }
 
     ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, name, node->getDocument(), context.getReservedWords());
