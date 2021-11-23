@@ -149,6 +149,8 @@ NodePtr MaterialAssign::getReferencedMaterial() const
 vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
 {
     vector<OutputPtr> materialOutputs;
+    // Note: Only nodegraphs are examined. When explicit outputs on nodes
+    // are supported then nodes will be also be considered (getReferencedMaterial()).
     NodeGraphPtr materialGraph = resolveRootNameReference<NodeGraph>(getMaterial());
     if (materialGraph)
     {
