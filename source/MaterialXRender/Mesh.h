@@ -161,16 +161,30 @@ class MX_RENDER_API MeshPartition
         _indices.resize(indexCount);
     }
 
-    /// Get geometry identifier
-    const string& getIdentifier() const
+    /// Set the name of this partition.
+    void setName(const string& val)
     {
-        return _identifier;
+        _name = val;
     }
 
-    /// Set geometry identifier
-    void setIdentifier(const string& val)
+    /// Return the name of this partition.
+    const string& getName() const
     {
-        _identifier = val;
+        return _name;
+    }
+
+    /// Add a source name, representing a partition that was processed
+    /// to generate this one.
+    void addSourceName(const string& val)
+    {
+        _sourceNames.insert(val);
+    }
+
+    /// Return the vector of source names, representing all partitions
+    /// that were processed to generate this one.
+    const StringSet& getSourceNames() const
+    {
+        return _sourceNames;
     }
 
     /// Return indexing
@@ -198,7 +212,8 @@ class MX_RENDER_API MeshPartition
     }
 
   private:
-    string _identifier;
+    string _name;
+    StringSet _sourceNames;
     MeshIndexBuffer _indices;
     size_t _faceCount;
 };
@@ -217,19 +232,19 @@ using MeshMap = std::unordered_map<string, MeshPtr>;
 class MX_RENDER_API Mesh
 {
   public:
-    Mesh(const string& identifier);
+    Mesh(const string& name);
     ~Mesh() { }
 
     /// Create a new mesh
-    static MeshPtr create(const string& identifier)
+    static MeshPtr create(const string& name)
     {
-        return std::make_shared<Mesh>(identifier);
+        return std::make_shared<Mesh>(name);
     }
 
-    /// Get mesh identifier
-    const string& getIdentifier() const
+    /// Return the name of this mesh.
+    const string& getName() const
     {
-        return _identifier;
+        return _name;
     }
 
     /// Set the mesh's source URI.
@@ -395,7 +410,7 @@ class MX_RENDER_API Mesh
     void splitByUdims();
 
   private:
-    string _identifier;
+    string _name;
     string _sourceUri;
 
     Vector3 _minimumBounds;
