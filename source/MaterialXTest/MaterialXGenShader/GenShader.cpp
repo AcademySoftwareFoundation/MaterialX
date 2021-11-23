@@ -15,6 +15,16 @@
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
 
+#ifdef MATERIALX_BUILD_GEN_GLSL
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+#include <MaterialXGenOsl/OslShaderGenerator.h>
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+#include <MaterialXGenMdl/MdlShaderGenerator.h>
+#endif
+
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -217,3 +227,65 @@ TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
     CHECK(failedTests.empty());
 }
 
+void testDeterministicGeneration(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    const mx::FilePath testFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx");
+    const mx::string testElement = "SR_marble1";
+
+    const size_t numRuns = 10;
+    mx::vector<mx::DocumentPtr> testDocs(numRuns);
+    mx::StringVec sourceCode(numRuns);
+
+    for (size_t i = 0; i < numRuns; ++i)
+    {
+        mx::DocumentPtr testDoc = mx::createDocument();
+        mx::readFromXmlFile(testDoc, testFile);
+        testDoc->importLibrary(libraries);
+
+        // Keep the document alive to make sure
+        // new memory is allocated for each run
+        testDocs[i] = testDoc;
+
+        mx::ElementPtr element = testDoc->getChild(testElement);
+        CHECK(element);
+
+        mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+        sourceCode[i] = shader->getSourceCode();
+
+        if (i > 0)
+        {
+            // Check if the generated source code is the same
+            // for each successive run.
+            CHECK(sourceCode[i] == sourceCode[0]);
+        }
+    }
+}
+
+TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
+{
+    const mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf" }, searchPath, libraries);
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        testDeterministicGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::GenContext context(mx::OslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        testDeterministicGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+    {
+        mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        testDeterministicGeneration(libraries, context);
+    }
+#endif
+}

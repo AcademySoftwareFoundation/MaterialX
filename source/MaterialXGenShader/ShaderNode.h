@@ -34,8 +34,8 @@ using ShaderInputPtr = shared_ptr<class ShaderInput>;
 using ShaderOutputPtr = shared_ptr<class ShaderOutput>;
 /// Shared pointer to a ShaderNode
 using ShaderNodePtr = shared_ptr<class ShaderNode>;
-/// Shared pointer to a ShaderInput
-using ShaderInputSet = std::set<ShaderInput*>;
+/// A vector of ShaderInput pointers
+using ShaderInputVec = vector<ShaderInput*>;
 
 
 /// Metadata to be exported to generated shader.
@@ -296,11 +296,7 @@ class MX_GENSHADER_API ShaderOutput : public ShaderPort
 
     /// Return a set of connections to downstream node inputs,
     /// empty if not connected.
-    ShaderInputSet& getConnections() { return _connections; }
-
-    /// Return a set of connections to downstream node inputs,
-    /// empty if not connected.
-    const ShaderInputSet& getConnections() const { return _connections; }
+    const ShaderInputVec& getConnections() const { return _connections; }
 
     /// Make a connection from this output to the given input
     void makeConnection(ShaderInput* dst);
@@ -312,7 +308,7 @@ class MX_GENSHADER_API ShaderOutput : public ShaderPort
     void breakConnections();
 
   protected:
-    ShaderInputSet _connections;
+    ShaderInputVec _connections;
     friend class ShaderInput;
 };
 
