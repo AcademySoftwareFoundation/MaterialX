@@ -90,7 +90,7 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
         size_t faceCount = indexCount / FACE_VERTEX_COUNT;
 
         MeshPartitionPtr part = MeshPartition::create();
-        part->setIdentifier(shape.name);
+        part->setName(shape.name);
         part->setFaceCount(faceCount);
         mesh->addPartition(part);
 
