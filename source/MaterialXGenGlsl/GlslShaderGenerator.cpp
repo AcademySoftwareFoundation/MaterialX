@@ -571,25 +571,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitInclude(ShaderGenerator::T_FILE_TRANSFORM_UV, context, stage);
     }
 
-    // Emit Light function definitions if requested.
-    if (lighting && context.getOptions().hwMaxActiveLightSources > 0 &&
-        graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
-    {
-        // Emit function definitions for all bound light shaders.
-        HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
-        if (lightShaders)
-        {
-            for (const auto& it : lightShaders->get())
-            {
-                emitFunctionDefinition(*it.second, context, stage);
-            }
-        }
-        // Emit function definitions for light sampling.
-        for (const auto& it : _lightSamplingNodes)
-        {
-            emitFunctionDefinition(*it, context, stage);
-        }
-    }
+    emitLightFunctionDefinitions(graph, context, stage);
 
     // Emit function definitions for all nodes in the graph.
     emitFunctionDefinitions(graph, context, stage);
@@ -694,6 +676,35 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     // End main function
     emitFunctionBodyEnd(graph, context, stage);
+}
+
+void GlslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+{
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+
+    // Emit Light functions if requested
+    if (requiresLighting(graph) && context.getOptions().hwMaxActiveLightSources > 0)
+    {
+        // For surface shaders we need light shaders
+        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+        {
+            // Emit functions for all bound light shaders
+            HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+            if (lightShaders)
+            {
+                for (const auto& it : lightShaders->get())
+                {
+                    emitFunctionDefinition(*it.second, context, stage);
+                }
+            }
+            // Emit functions for light sampling
+            for (const auto& it : _lightSamplingNodes)
+            {
+                emitFunctionDefinition(*it, context, stage);
+            }
+        }
+    }
+END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)

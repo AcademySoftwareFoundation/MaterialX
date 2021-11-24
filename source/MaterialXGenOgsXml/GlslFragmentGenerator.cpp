@@ -254,7 +254,8 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     // Add function body
     emitScopeBegin(pixelStage);
 
-    if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (graph.hasClassification(ShaderNode::Classification::CLOSURE) &&
+        !graph.hasClassification(ShaderNode::Classification::SHADER))
     {
         // Handle the case where the graph is a direct closure.
         // We don't support rendering closures without attaching 
