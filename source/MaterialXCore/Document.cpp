@@ -153,22 +153,12 @@ void Document::initialize()
     setVersionIntegers(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
 }
 
-NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& category,
-                                         const string& version, bool isDefaultVersion, const string& group, 
-                                         string& newGraphName, const string& namespaceString)
+NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
+                                         const string& version, bool isDefaultVersion, const string& group, string& newGraphName)
 {
-    if (!nodeGraph || nodeDefName.empty() || category.empty())
+    if (getNodeDef(nodeDefName))
     {
-        throw Exception("Invalid input arguments specified for nodedef creation");
-    }
-
-    // Always store nodedef name as fully qualified name
-    bool isNameSpaced = !namespaceString.empty();
-    string qualifiedNodeDefName = isNameSpaced ? (namespaceString + NAME_PREFIX_SEPARATOR + nodeDefName) : nodeDefName;
-    
-    if (getNodeDef(qualifiedNodeDefName))
-    {
-        throw Exception("Cannot create duplicate nodedef: " + qualifiedNodeDefName);
+        throw Exception("Cannot create duplicate nodedef: " + nodeDefName);
     }
 
     NodeGraphPtr graph = nodeGraph;
@@ -181,10 +171,10 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         graph = addNodeGraph(newGraphName);
         graph->copyContentFrom(nodeGraph);
     }
-    graph->setNodeDefString(qualifiedNodeDefName);
-    
-    NodeDefPtr nodeDef = addChild<NodeDef>(qualifiedNodeDefName);
-    nodeDef->setNodeString(category);
+    graph->setNodeDefString(nodeDefName);
+
+    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
+    nodeDef->setNodeString(node);
     if (!group.empty())
     {
         nodeDef->setNodeGroup(group);
@@ -198,63 +188,6 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         if (isDefaultVersion)
         {
             nodeDef->setDefaultVersion(true);
-        }
-    }
-
-    // Set the namespace for the functional graph and nodedef
-    if (isNameSpaced)
-    {
-        graph->setNamespace(namespaceString);
-        nodeDef->setNamespace(namespaceString);
-    }
-
-    for (auto child : graph->getChildren())
-    {
-        // Check for direct children and add first. Then check for inputs with interface names
-        // on interior nodes. Only add nodedef children once.
-        for (ValueElementPtr directElem : graph->getChildrenOfType<ValueElement>())
-        {
-            if (!nodeDef->getChild(directElem->getName()))
-            {
-                if (directElem->isA<Input>())
-                {
-                    InputPtr newInput = nodeDef->addInput(directElem->getName(), directElem->getType());
-                    newInput->copyContentFrom(directElem);
-                }
-                if (directElem->isA<Token>())
-                {
-                    TokenPtr newToken = nodeDef->addToken(directElem->getName());
-                    newToken->copyContentFrom(directElem);
-                    newToken->setInterfaceName(EMPTY_STRING);
-                }
-            }
-        }
-
-        NodePtr graphNode = child->asA<Node>();
-        if (graphNode)
-        {
-            for (ValueElementPtr elem : graphNode->getChildrenOfType<ValueElement>())
-            {
-                const string& interfaceName = elem->getInterfaceName();
-                if (!interfaceName.empty() &&
-                    !nodeDef->getChild(interfaceName))
-                {
-                    if (elem->isA<Input>())
-                    {
-                        InputPtr newInput = nodeDef->addInput(interfaceName, elem->getType());
-                        newInput->copyContentFrom(elem);
-                        newInput->setInterfaceName(EMPTY_STRING);
-                    }
-                    if (elem->isA<Token>())
-                    {
-                        TokenPtr newToken = nodeDef->addToken(interfaceName);
-                        newToken->copyContentFrom(elem);
-                        newToken->setInterfaceName(EMPTY_STRING);
-                    }
-                }
-                elem->setAttribute("xpos", EMPTY_STRING);
-                elem->setAttribute("ypos", EMPTY_STRING);
-            }
         }
     }
 
