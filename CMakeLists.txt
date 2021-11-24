@@ -1,6 +1,23 @@
+# MaterialX Version
+set(MATERIALX_MAJOR_VERSION 1)
+set(MATERIALX_MINOR_VERSION 38)
+set(MATERIALX_BUILD_VERSION 3)
+set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
+
+# Cmake setup
+cmake_minimum_required(VERSION 3.1)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+set(CMAKE_MACOSX_RPATH ON)
+enable_testing()
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# Javascript setup 
+# NOTE: This make set CMAKE_TOOLCHAIN_FILE which needs to happen before calling project()
 option(MATERIALX_BUILD_JS "Build the MaterialX Javascript package from C++ bindings. Requires the emscripten environment." OFF)
 set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'C:/emsdk').")
-
 if (MATERIALX_BUILD_JS)
     # Set the the emsdk path
     if (EXISTS "${MATERIALX_EMSDK_PATH}")
@@ -10,7 +27,6 @@ if (MATERIALX_BUILD_JS)
     endif()
 
     if (EMSDK_PATH)
-        # NOTE: Setting the CMAKE_TOOLCHAIN_FILE needs to happen before calling project()
         set(CMAKE_TOOLCHAIN_FILE "${EMSDK_PATH}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
     else()
         message("The EMSDK path was not supplied, disabling MATERIALX_BUILD_JS")
@@ -19,19 +35,6 @@ if (MATERIALX_BUILD_JS)
 endif()
 
 project(MaterialX)
-set(MATERIALX_MAJOR_VERSION 1)
-set(MATERIALX_MINOR_VERSION 38)
-set(MATERIALX_BUILD_VERSION 3)
-set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
-
-cmake_minimum_required(VERSION 3.1)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
-set(CMAKE_MACOSX_RPATH ON)
-enable_testing()
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
