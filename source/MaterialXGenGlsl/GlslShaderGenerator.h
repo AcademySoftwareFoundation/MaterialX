@@ -37,9 +37,6 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// Return the version string for the GLSL version this generator is for
     virtual const string& getVersion() const { return VERSION; }
 
-    /// Emit function definitions for light sampling code
-    virtual void emitLightSamplerFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
-
     /// Emit a shader variable.
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                  bool assignValue = true) const override;
@@ -78,6 +75,9 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
 
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
+
+    /// Emit function definitions for lighting code
+    virtual void emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     static void toVec4(const TypeDesc* type, string& variable);
 

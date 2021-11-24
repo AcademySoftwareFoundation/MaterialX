@@ -571,7 +571,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitInclude(ShaderGenerator::T_FILE_TRANSFORM_UV, context, stage);
     }
 
-    emitLightSamplerFunctionDefinitions(graph, context, stage);
+    emitLightFunctionDefinitions(graph, context, stage);
 
     // Emit function definitions for all nodes in the graph.
     emitFunctionDefinitions(graph, context, stage);
@@ -678,7 +678,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitFunctionBodyEnd(graph, context, stage);
 }
 
-void GlslShaderGenerator::emitLightSamplerFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+void GlslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
