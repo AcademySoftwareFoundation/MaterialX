@@ -212,16 +212,40 @@ void GlslRenderer::render()
             }
             else
             {
-                // Bind the program to use
-                _program->bind();
-                _program->bindInputs(_viewHandler, _geometryHandler, _imageHandler, _lightHandler);
-
-                // Draw all the partitions of all the meshes in the handler
-                for (const auto& mesh : _geometryHandler->getMeshes())
+                // Bind the shader program.
+                if (!_program->bind())
                 {
+                    throw ExceptionRenderError("Cannot bind inputs without a valid program");
+                }
+
+                // Update uniforms and attributes.
+                _program->getUniformsList();
+                _program->getAttributesList();
+
+                // Bind shader properties.
+                _program->bindViewInformation(_viewHandler);
+                _program->bindTextures(_imageHandler);
+                _program->bindLighting(_lightHandler, _imageHandler);
+                _program->bindTimeAndFrame();
+
+                // Set blend state for the given material.
+                if (_program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT))
+                {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                }
+                else
+                {
+                    glDisable(GL_BLEND);
+                }
+
+                // Bind each mesh and draw its partitions.
+                for (MeshPtr mesh : _geometryHandler->getMeshes())
+                {
+                    _program->bindMesh(mesh);
                     for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                     {
-                        auto part = mesh->getPartition(i);
+                        MeshPartitionPtr part = mesh->getPartition(i);
                         _program->bindPartition(part);
                         MeshIndexBuffer& indexData = part->getIndices();
                         glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
@@ -229,8 +253,14 @@ void GlslRenderer::render()
                 }
 
                 // Unbind resources
+                _imageHandler->unbindImages();
                 _program->unbind();
-                _program->unbindInputs(_imageHandler);
+
+                // Restore blend state.
+                if (_program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT))
+                {
+                    glDisable(GL_BLEND);
+                }
             }
         }
     }
