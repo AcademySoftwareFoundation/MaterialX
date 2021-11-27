@@ -183,23 +183,14 @@ bool Material::bindPartition(mx::MeshPartitionPtr part) const
     return true;
 }
 
-void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj)
+void Material::bindViewInformation(mx::CameraPtr camera)
 {
     if (!_glProgram)
     {
         return;
     }
 
-    mx::Matrix44 viewProj = view * proj;
-    mx::Matrix44 invView = view.getInverse();
-    mx::Matrix44 invTransWorld = world.getInverse().getTranspose();
-    mx::Vector3 viewPosition(invView[3][0], invView[3][1], invView[3][2]);
-
-    // Bind view properties.
-    _glProgram->bindUniform(mx::HW::WORLD_MATRIX, mx::Value::createValue(world), false);
-    _glProgram->bindUniform(mx::HW::VIEW_PROJECTION_MATRIX, mx::Value::createValue(viewProj), false);
-    _glProgram->bindUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, mx::Value::createValue(invTransWorld), false);
-    _glProgram->bindUniform(mx::HW::VIEW_POSITION, mx::Value::createValue(viewPosition), false);
+    _glProgram->bindViewInformation(camera);
 }
 
 void Material::unbindImages(mx::ImageHandlerPtr imageHandler)

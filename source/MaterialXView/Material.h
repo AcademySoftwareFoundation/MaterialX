@@ -145,7 +145,7 @@ class Material
     void bindShader();
 
     /// Bind viewing information for this material.
-    void bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj);
+    void bindViewInformation(mx::CameraPtr camera);
 
     /// Bind all images for this material.
     void bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath, bool enableMipmaps = true);
