@@ -11,10 +11,10 @@
 
 #include <MaterialXRenderGlsl/Export.h>
 
+#include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/ViewHandler.h>
 
 #include <MaterialXGenShader/Shader.h>
 
@@ -179,7 +179,7 @@ class MX_RENDERGLSL_API GlslProgram
     void bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imageHandler);
 
     /// Bind view information
-    void bindViewInformation(ViewHandlerPtr viewHandler);
+    void bindViewInformation(CameraPtr camera);
 
     /// Bind time and frame
     void bindTimeAndFrame();
