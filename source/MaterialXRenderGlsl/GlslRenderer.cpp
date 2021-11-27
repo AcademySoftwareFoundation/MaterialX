@@ -46,7 +46,7 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _geometryHandler = GeometryHandler::create();
     _geometryHandler->addLoader(TinyObjLoader::create());
 
-    _viewHandler = ViewHandler::create();
+    _camera = Camera::create();
 }
 
 void GlslRenderer::initialize()
@@ -157,12 +157,8 @@ void GlslRenderer::updateViewInformation()
     float fH = std::tan(FOV_PERSP / 360.0f * PI) * NEAR_PLANE_PERSP;
     float fW = fH * 1.0f;
 
-    _viewHandler->viewMatrix = ViewHandler::createViewMatrix(_eye, _center, _up);
-    _viewHandler->projectionMatrix = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, NEAR_PLANE_PERSP, FAR_PLANE_PERSP);
-
-    Matrix44 invView = _viewHandler->viewMatrix.getInverse();
-    _viewHandler->viewDirection = { invView[2][0], invView[2][1], invView[2][2] };
-    _viewHandler->viewPosition = { invView[3][0], invView[3][1], invView[3][2] };
+    _camera->setViewMatrix(Camera::createViewMatrix(_eye, _center, _up));
+    _camera->setProjectionMatrix(Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, NEAR_PLANE_PERSP, FAR_PLANE_PERSP));
 }
 
 void GlslRenderer::updateWorldInformation()
@@ -175,8 +171,8 @@ void GlslRenderer::updateWorldInformation()
     float sphereRadius = (sphereCenter - boxMin).getMagnitude() * geometryRatio;
     float meshFit = 2.0f / sphereRadius;
     Vector3 modelTranslation = sphereCenter * -1.0f;
-    _viewHandler->worldMatrix = Matrix44::createTranslation(modelTranslation) *
-                                Matrix44::createScale(Vector3(_objectScale * meshFit));
+    _camera->setWorldMatrix(Matrix44::createTranslation(modelTranslation) *
+                            Matrix44::createScale(Vector3(_objectScale * meshFit)));
 }
 
 void GlslRenderer::render()
@@ -223,7 +219,7 @@ void GlslRenderer::render()
                 _program->getAttributesList();
 
                 // Bind shader properties.
-                _program->bindViewInformation(_viewHandler);
+                _program->bindViewInformation(_camera);
                 _program->bindTextures(_imageHandler);
                 _program->bindLighting(_lightHandler, _imageHandler);
                 _program->bindTimeAndFrame();
