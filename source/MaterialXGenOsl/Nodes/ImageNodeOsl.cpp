@@ -18,123 +18,64 @@ namespace MaterialX
     return std::make_shared<ImageNodeOsl>();
 }
 
-void ImageNodeOsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
-{
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-        // Emit function definition for non-inlined functions
-        if (!_inlined && !_functionSource.empty())
-        {
-            const ShaderGenerator& shadergen = context.getShaderGenerator();
-            shadergen.emitBlock(_functionSource, context, stage);
-            shadergen.emitLineBreak(stage);
-        }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
-}
 
 void ImageNodeOsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-        const ShaderGenerator& shadergen = context.getShaderGenerator();
-        if (_inlined)
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    const Syntax& syntax = shadergen.getSyntax();
+    
+    // Set color space override value if any
+    const ShaderInput* fileInput = nullptr;
+    for (ShaderInput* input : node.getInputs())
+    {
+        if (input->getType() == Type::FILENAME &&
+            !input->getConnection())
         {
-            // An inline function call
-
-            static const string prefix("{{");
-            static const string postfix("}}");
-
-            size_t pos = 0;
-            size_t i = _functionSource.find_first_of(prefix);
-            StringSet variableNames;
-            StringVec code;
-            while (i != string::npos)
-            {
-                code.push_back(_functionSource.substr(pos, i - pos));
-                size_t j = _functionSource.find_first_of(postfix, i + 2);
-                if (j == string::npos)
-                {
-                    throw ExceptionShaderGenError("Malformed inline expression in implementation for node " + node.getName());
-                }
-
-                const string variable = _functionSource.substr(i + 2, j - i - 2);
-                const ShaderInput* input = node.getInput(variable);
-                if (!input)
-                {
-                    throw ExceptionShaderGenError("Could not find an input named '" + variable +
-                        "' on node '" + node.getName() + "'");
-                }
-
-                if (input->getConnection())
-                {
-                    code.push_back(shadergen.getUpstreamResult(input, context));
-                }
-                else
-                {
-                    string variableName = node.getName() + "_" + input->getName() + "_tmp";
-                    if (!variableNames.count(variableName))
-                    {
-                        ShaderPort v(nullptr, input->getType(), variableName, input->getValue());
-                        shadergen.emitLineBegin(stage);
-                        const Syntax& syntax = shadergen.getSyntax();
-                        const string valueStr = (v.getValue() ? syntax.getValue(v.getType(), *v.getValue()) : syntax.getDefaultValue(v.getType()));
-                        const string& qualifier = syntax.getConstantQualifier();
-                        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
-                        str += syntax.getTypeName(v.getType()) + " " + v.getVariable();
-                        str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
-                        shadergen.emitString(str, stage);
-                        shadergen.emitLineEnd(stage);
-                        variableNames.insert(variableName);
-                    }
-                    code.push_back(variableName);
-                }
-
-                pos = j + 2;
-                i = _functionSource.find_first_of(prefix, pos);
-            }
-            code.push_back(_functionSource.substr(pos));
-
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = ", stage);
-            for (const string& c : code)
-            {
-                shadergen.emitString(c, stage);
-            }
-            shadergen.emitLineEnd(stage);
+            fileInput = input;
+            break;
         }
-        else
-        {
-            // An ordinary source code function call
+    }
+    if (fileInput)
+    {
+        string variable = fileInput->getVariable();
+        string fileName = fileInput->getValue() ? syntax.getValue(fileInput->getType(), *fileInput->getValue()) : 
+                                                  syntax.getDefaultValue(fileInput->getType());
+        string colorspace = EMPTY_STRING;
+        shadergen.emitString(variable + "." + "filename" + " = " + fileName, stage);
+        shadergen.emitLineEnd(stage);
+    }
 
-            // Declare the output variables.
-            emitOutputVariables(node, context, stage);
+    // Declare the output variables.
+    emitOutputVariables(node, context, stage);
 
-            shadergen.emitLineBegin(stage);
-            string delim = "";
+    shadergen.emitLineBegin(stage);
+    string delim = "";
 
-            // Emit function name.
-            shadergen.emitString(_functionName + "(", stage);
+    // Emit function name.
+    shadergen.emitString(_functionName + "(", stage);
 
-            // Emit all inputs on the node.
-            for (ShaderInput* input : node.getInputs())
-            {
-                shadergen.emitString(delim, stage);
-                shadergen.emitInput(input, context, stage);
-                delim = ", ";
-            }
+    // Emit all inputs on the node.
+    for (ShaderInput* input : node.getInputs())
+    {
+        shadergen.emitString(delim, stage);
+        shadergen.emitInput(input, context, stage);
+        delim = ", ";
+    }
 
-            // Emit node outputs.
-            for (size_t i = 0; i < node.numOutputs(); ++i)
-            {
-                shadergen.emitString(delim, stage);
-                shadergen.emitOutput(node.getOutput(i), false, false, context, stage);
-                delim = ", ";
-            }
+    // Emit node outputs.
+    for (size_t i = 0; i < node.numOutputs(); ++i)
+    {
+        shadergen.emitString(delim, stage);
+        shadergen.emitOutput(node.getOutput(i), false, false, context, stage);
+        delim = ", ";
+    }
 
-            // End function call
-            shadergen.emitString(")", stage);
-            shadergen.emitLineEnd(stage);
-        }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    // End function call
+    shadergen.emitString(")", stage);
+    shadergen.emitLineEnd(stage);
+
+END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX
