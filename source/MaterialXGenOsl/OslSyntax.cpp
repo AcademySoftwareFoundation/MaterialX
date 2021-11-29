@@ -246,6 +246,55 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
     }
 };
 
+class FileFormatSyntax : public AggregateTypeSyntax
+{
+  public:
+    FileFormatSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                     const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                     const StringVec& members = EMPTY_MEMBERS) :
+        AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+    {}
+
+    string getValue(const Value& value, bool uniform) const
+    {
+        StringVec values;
+        values.push_back(value.getValueString());
+        values.push_back(EMPTY_STRING); // TODO: How to get color space initialized
+
+        return getValue(values, uniform);
+    }
+
+    string getValue(const StringVec& values, bool uniform) const
+    {
+        if (values.size() != 2)
+        {
+            throw ExceptionShaderGenError("Incorrect number of values given to construct a value");
+        }
+
+        StringStream ss;
+        if (!uniform)
+        {
+            ss << getName() + "( ";
+        }
+        else
+        { 
+            ss << "{ ";
+        }
+        ss << "\"" << values[0] << "\", ";
+        ss << "\"" << values[1] << "\"";
+        if (!uniform)
+        {
+            ss << " )";
+        }
+        else
+        { 
+            ss << " }";
+        }
+        return ss.str();
+    }
+};
+
+
 } // anonymous namespace
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
@@ -407,7 +456,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::FILENAME,
-        std::make_shared<AggregateTypeSyntax>(
+        std::make_shared<FileFormatSyntax>(
             "FILEINPUT",
             "FILEINPUT(\"\", \"\")",
             "(\"\", \"\")",
