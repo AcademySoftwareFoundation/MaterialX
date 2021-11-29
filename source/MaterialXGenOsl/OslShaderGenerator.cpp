@@ -22,6 +22,7 @@
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/ImageNodeOsl.h>
 
 namespace MaterialX
 {
@@ -181,6 +182,14 @@ OslShaderGenerator::OslShaderGenerator() :
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
+
+    // <!-- <image> -->
+    registerImplementation("IM_image_float_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
+    registerImplementation("IM_image_color3_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
+    registerImplementation("IM_image_color4_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
+    registerImplementation("IM_image_vector2_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
+    registerImplementation("IM_image_vector3_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
+    registerImplementation("IM_image_vector4_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -474,7 +483,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
     {
         { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
         { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
+        //{ Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
         { Type::BOOLEAN,  ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
     };
 
@@ -483,6 +492,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         Type::VECTOR2, // Custom struct types doesn't support metadata declarations.
         Type::VECTOR4, //
         Type::COLOR4,  //
+        Type::FILENAME, //
         Type::BSDF     //
     };
 

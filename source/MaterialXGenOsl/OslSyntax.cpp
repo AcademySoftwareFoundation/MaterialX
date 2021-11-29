@@ -407,10 +407,12 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::FILENAME,
-        std::make_shared<StringTypeSyntax>(
-            "string",
-            "\"\"",
-            "\"\"")
+        std::make_shared<AggregateTypeSyntax>(
+            "FILEINPUT",
+            "FILEINPUT(\"\", \"\")",
+            "(\"\", \"\")",
+            EMPTY_STRING,
+            "struct FILEINPUT { string filename; string colorspace; };")
     );
 
     registerTypeSyntax
