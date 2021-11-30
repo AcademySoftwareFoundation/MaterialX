@@ -403,6 +403,5 @@ class Viewer : public ng::Screen
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
 extern const float DEFAULT_CAMERA_VIEW_ANGLE;
 extern const float DEFAULT_CAMERA_ZOOM;
-extern const int DEFAULT_ENV_SAMPLE_COUNT;
 
 #endif // MATERIALXVIEW_VIEWER_H

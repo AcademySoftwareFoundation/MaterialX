@@ -17,6 +17,8 @@
 namespace MaterialX
 {
 
+extern MX_RENDER_API const int DEFAULT_ENV_SAMPLES;
+
 class GenContext;
 
 /// Shared pointer to a LightHandler
@@ -31,7 +33,11 @@ using LightIdMap = std::unordered_map<string, unsigned int>;
 class MX_RENDER_API LightHandler
 {
   public:
-    LightHandler()
+    LightHandler() :
+        _lightTransform(Matrix44::IDENTITY),
+        _directLighting(true),
+        _indirectLighting(true),
+        _envSamples(DEFAULT_ENV_SAMPLES)
     {
     }
     virtual ~LightHandler() { }
@@ -39,39 +45,48 @@ class MX_RENDER_API LightHandler
     /// Create a new light handler
     static LightHandlerPtr create() { return std::make_shared<LightHandler>(); }
 
-    /// Adds a light source node
-    void addLightSource(NodePtr node);
-
-    /// Return the vector of active light sources.
-    const vector<NodePtr>& getLightSources() const
+    /// @name Global State
+    /// @{
+    
+    /// Set the light transform.
+    void setLightTransform(const Matrix44& mat)
     {
-        return _lightSources;
+        _lightTransform = mat;
     }
 
-    /// Return the first active light source, if any, of the given category.
-    NodePtr getFirstLightOfCategory(const string& category)
+    /// Return the light transform.
+    Matrix44 getLightTransform() const
     {
-        for (NodePtr light : _lightSources)
-        {
-            if (light->getCategory() == category)
-            {
-                return light;
-            }
-        }
-        return nullptr;
+        return _lightTransform;
     }
 
-    /// Get a list of identifiers associated with a given light nodedef
-    const std::unordered_map<string, unsigned int>& getLightIdentifierMap() const
+    /// Set whether direct lighting is enabled.
+    void setDirectLighting(bool enable)
     {
-        return _lightIdentifierMap;
+        _directLighting = enable;
     }
 
-    /// Set the list of light sources.
-    void setLightSources(const vector<NodePtr>& lights)
+    /// Return whether direct lighting is enabled.
+    bool getDirectLighting() const
     {
-        _lightSources = lights;
+        return _directLighting;
     }
+
+    /// Set whether indirect lighting is enabled.
+    void setIndirectLighting(bool enable)
+    {
+        _indirectLighting = enable;
+    }
+
+    /// Return whether indirect lighting is enabled.
+    bool getIndirectLighting() const
+    {
+        return _indirectLighting;
+    }
+
+    /// @}
+    /// @name Environment Lighting
+    /// @{
 
     /// Set the environment radiance map
     void setEnvRadianceMap(ImagePtr map)
@@ -109,6 +124,60 @@ class MX_RENDER_API LightHandler
         return _albedoTable;
     }
 
+    /// Set the number of environment lighting samples.
+    void setEnvSamples(int samples)
+    {
+        _envSamples = samples;
+    }
+
+    /// Return the number of environment lighting samples.
+    int getEnvSamples() const
+    {
+        return _envSamples;
+    }
+
+    /// @}
+    /// @name Light Sources
+    /// @{
+
+    /// Add a light source.
+    void addLightSource(NodePtr node);
+
+    /// Set the vector of light sources.
+    void setLightSources(const vector<NodePtr>& lights)
+    {
+        _lightSources = lights;
+    }
+
+    /// Return the vector of light sources.
+    const vector<NodePtr>& getLightSources() const
+    {
+        return _lightSources;
+    }
+
+    /// Return the first light source, if any, of the given category.
+    NodePtr getFirstLightOfCategory(const string& category)
+    {
+        for (NodePtr light : _lightSources)
+        {
+            if (light->getCategory() == category)
+            {
+                return light;
+            }
+        }
+        return nullptr;
+    }
+
+    /// @}
+    /// @name Light IDs
+    /// @{
+
+    /// Get a list of identifiers associated with a given light nodedef
+    const std::unordered_map<string, unsigned int>& getLightIdMap() const
+    {
+        return _lightIdMap;
+    }
+
     /// From a set of nodes, create a mapping of corresponding
     /// nodedef identifiers to numbers
     LightIdMap computeLightIdMap(const vector<NodePtr>& nodes);
@@ -124,12 +193,20 @@ class MX_RENDER_API LightHandler
     /// @param context Context to update
     void registerLights(DocumentPtr doc, const vector<NodePtr>& lights, GenContext& context);
 
-  private:
-    vector<NodePtr> _lightSources;
-    std::unordered_map<string, unsigned int> _lightIdentifierMap;
+    /// @}
+
+  protected:
+    Matrix44 _lightTransform;
+    bool _directLighting;
+    bool _indirectLighting;
+
     ImagePtr _envRadianceMap;
     ImagePtr _envIrradianceMap;
     ImagePtr _albedoTable;
+    int _envSamples;
+
+    vector<NodePtr> _lightSources;
+    std::unordered_map<string, unsigned int> _lightIdMap;
 };
 
 } // namespace MaterialX
