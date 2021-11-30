@@ -850,7 +850,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                         _logFile << ">> Failed to generate code for nodedef: " << nodeDefName << std::endl;
                         codeGenerationFailures++;
                     }
-                    else if (_writeShadersToDisk && sourceCode.size())
+                    else if (/*_writeShadersToDisk &&*/ sourceCode.size())
                     {
                         const std::string elementNameSuffix(bindingContextUsed ? LAYOUT_SUFFIX : mx::EMPTY_STRING);
 

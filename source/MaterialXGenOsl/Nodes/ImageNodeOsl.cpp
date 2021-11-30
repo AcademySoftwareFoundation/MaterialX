@@ -23,26 +23,44 @@ void ImageNodeOsl::emitFunctionCall(const ShaderNode& node, GenContext& context,
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    const Syntax& syntax = shadergen.getSyntax();
+    //const Syntax& syntax = shadergen.getSyntax();
     
     // Set color space override value if any
-    const ShaderInput* fileInput = nullptr;
+    string filename;
+    string colorSpace;
+    string variable;
     for (ShaderInput* input : node.getInputs())
     {
-        if (input->getType() == Type::FILENAME &&
-            !input->getConnection())
+        if (input && input->getValue() && input->getType() == Type::FILENAME)
         {
-            fileInput = input;
+            ShaderOutput* upstreamOutput = input->getConnection();
+            if (upstreamOutput)
+            {
+                colorSpace = upstreamOutput->getColorspace();
+                if (upstreamOutput->getValue())
+                {
+                    filename = upstreamOutput->getValue()->getValueString();
+                }
+                variable = upstreamOutput->getVariable();
+                std::cout << "Emit output port: " << filename << ". colorspace: " << colorSpace << std::endl;
+            }
+            else // if (colorSpace.empty())
+            { 
+                colorSpace = input->getColorspace();
+                filename = input->getValue()->getValueString();
+                variable = input->getVariable();
+                std::cout << "Emit input port: " << filename << ". colorspace: " << colorSpace << std::endl;
+            }
             break;
         }
     }
-    if (fileInput)
+    if (!filename.empty())
     {
-        string variable = fileInput->getVariable();
-        string fileName = fileInput->getValue() ? syntax.getValue(fileInput->getType(), *fileInput->getValue()) : 
-                                                  syntax.getDefaultValue(fileInput->getType());
-        string colorspace = EMPTY_STRING;
-        shadergen.emitString(variable + "." + "filename" + " = " + fileName, stage);
+        shadergen.emitLineBegin(stage);
+        shadergen.emitString(variable + "." + "filename" + " = \"" + filename + "\"", stage);
+        shadergen.emitLineEnd(stage);
+        shadergen.emitLineBegin(stage);
+        shadergen.emitString(variable + "." + "colorspace" + " = \"" + colorSpace + "\"", stage);
         shadergen.emitLineEnd(stage);
     }
 

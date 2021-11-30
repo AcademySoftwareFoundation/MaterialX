@@ -1623,9 +1623,9 @@ void Viewer::initContext(mx::GenContext& context)
     }
 
     // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
-    cms->loadLibrary(_stdLib);
-    context.getShaderGenerator().setColorManagementSystem(cms);
+    //mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    //cms->loadLibrary(_stdLib);
+    //context.getShaderGenerator().setColorManagementSystem(cms);
 
     // Initialize unit management.
     mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getTarget());
