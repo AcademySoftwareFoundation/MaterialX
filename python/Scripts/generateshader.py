@@ -15,7 +15,7 @@ def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
     if codevalidator and os.path.isfile(codevalidator):
         cmd = codevalidator + ' ' + sourceCodeFile 
         if codevalidatorArgs:
-            cmd + ' ' + codevalidatorArgs
+            cmd += ' ' + codevalidatorArgs
         print('----- Run: '+ cmd)
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -35,6 +35,7 @@ def main():
     parser.add_argument('--outputPath', dest='outputPath', help='File path to output shaders to. If not specified, is the location of the input document is used.')
     parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
+    parser.add_argument('--vulkanGlsl', dest='vulkanCompliantGlsl', default=False, type=bool, help='Set to True to generate Vulkan-compliant GLSL when using the genglsl target.')
     parser.add_argument(dest='inputFilename', help='Filename of the input document.')
     opts = parser.parse_args()
 
@@ -77,8 +78,15 @@ def main():
         shadergen = mx_gen_glsl.EsslShaderGenerator.create()
     else:
         shadergen = mx_gen_glsl.GlslShaderGenerator.create()
+            
     context = mx_gen_shader.GenContext(shadergen)
     context.registerSourceCodeSearchPath(searchPath)
+
+    # If we're generating Vulkan-compliant GLSL then set the binding context
+    if opts.vulkanCompliantGlsl:
+        bindingContext = mx_gen_glsl.GlslResourceBindingContext.create(0,0)
+        context.pushUserData('udbinding', bindingContext)
+
     genoptions = context.getOptions() 
     genoptions.shaderInterfaceType = int(mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE)
 
