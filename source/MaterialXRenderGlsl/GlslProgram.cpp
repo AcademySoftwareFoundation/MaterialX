@@ -8,6 +8,7 @@
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
 
+#include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
@@ -17,6 +18,13 @@
 
 namespace MaterialX
 {
+
+namespace
+{
+
+const float PI = std::acos(-1.0f);
+
+} // anonymous namespace
 
 // OpenGL Constants
 unsigned int GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID = 0;
@@ -555,138 +563,114 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
         throw ExceptionRenderError("Cannot bind without a valid program");
     }
 
-    const GlslProgram::InputMap& uniformList = getUniformsList();
-    GLint location = GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
-
-    // Set the number of active light sources
-    size_t lightCount = lightHandler->getLightSources().size();
-    auto input = uniformList.find(HW::NUM_ACTIVE_LIGHT_SOURCES);
-    if (input != uniformList.end())
+    // Bind environment lighting properties.
+    Matrix44 envRotation = Matrix44::createRotationY(PI) * lightHandler->getLightTransform().getTranspose();
+    bindUniform(HW::ENV_MATRIX, Value::createValue(envRotation), false);
+    bindUniform(HW::ENV_RADIANCE_SAMPLES, Value::createValue(lightHandler->getEnvSamples()), false);
+    ImageMap envImages =
     {
-        location = input->second->location;
-        if (location >= 0)
-        {
-            glUniform1i(location, int(lightCount));
-        }
-    }
-    else
-    {
-        // No lighting information so nothing further to do
-        lightCount = 0;
-    }
-
-    if (lightCount == 0 &&
-        !lightHandler->getEnvRadianceMap() &&
-        !lightHandler->getEnvIrradianceMap())
-    {
-        return;
-    }
-
-    // Bind environment lights.
-    ImageMap envLights =
-    {
-        { HW::ENV_RADIANCE, lightHandler->getEnvRadianceMap() },
-        { HW::ENV_IRRADIANCE, lightHandler->getEnvIrradianceMap() }
+        { HW::ENV_RADIANCE, lightHandler->getIndirectLighting() ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
+        { HW::ENV_IRRADIANCE, lightHandler->getIndirectLighting() ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
     };
-    for (const auto& env : envLights)
+    for (const auto& env : envImages)
     {
-        auto iblUniform = uniformList.find(env.first);
-        GlslProgram::InputPtr inputPtr = iblUniform != uniformList.end() ? iblUniform->second : nullptr;
-        if (inputPtr)
+        std::string uniform = env.first;
+        ImagePtr image = env.second;
+        if (image && hasUniform(env.first))
         {
-            ImagePtr image;
-            if (inputPtr->value)
+            ImageSamplingProperties samplingProperties;
+            samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::PERIODIC;
+            samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
+
+            // Bind the environment image.
+            if (imageHandler->bindImage(image, samplingProperties))
             {
-                string filename = inputPtr->value->getValueString();
-                if (!filename.empty())
+                GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
+                int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
+                if (textureLocation >= 0)
                 {
-                    image = imageHandler->acquireImage(filename);
+                    bindUniform(uniform, Value::createValue(textureLocation));
+                }
+
+                // Bind any associated uniforms.
+                if (uniform == HW::ENV_RADIANCE)
+                {
+                    bindUniform(HW::ENV_RADIANCE_MIPS, Value::createValue((int) image->getMaxMipCount()), false);
                 }
             }
-            if (!image)
+        }
+    }
+
+    // Bind direct lighting properties.
+    if (hasUniform(HW::NUM_ACTIVE_LIGHT_SOURCES))
+    {
+        int lightCount = lightHandler->getDirectLighting() ? (int) lightHandler->getLightSources().size() : 0;
+        bindUniform(HW::NUM_ACTIVE_LIGHT_SOURCES, Value::createValue(lightCount));
+        LightIdMap idMap = lightHandler->computeLightIdMap(lightHandler->getLightSources());
+        size_t index = 0;
+        for (NodePtr light : lightHandler->getLightSources())
+        {
+            auto nodeDef = light->getNodeDef();
+            if (!nodeDef)
             {
-                image = env.second;
+                continue;
             }
 
-            if (image)
-            {
-                ImageSamplingProperties samplingProperties;
-                samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::PERIODIC;
-                samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
-                samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
+            const std::string prefix = HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(index) + "]";
 
-                if (imageHandler->bindImage(image, samplingProperties))
+            // Set light type id
+            std::string lightType(prefix + ".type");
+            if (hasUniform(lightType))
+            {
+                unsigned int lightTypeValue = idMap[nodeDef->getName()];
+                bindUniform(lightType, Value::createValue((int) lightTypeValue));
+            }
+
+            // Set all inputs
+            for (const auto& input : light->getInputs())
+            {
+                // Make sure we have a value to set
+                if (input->hasValue())
                 {
-                    GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
-                    int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
-                    if (textureLocation >= 0)
+                    std::string inputName(prefix + "." + input->getName());
+                    if (hasUniform(inputName))
                     {
-                        glUniform1i(inputPtr->location, textureLocation);
-                    }
-                    if (iblUniform->first == HW::ENV_RADIANCE)
-                    {
-                        // This is our radiance texture so set the mip count.
-                        auto mipsUniform = uniformList.find(HW::ENV_RADIANCE_MIPS);
-                        if (mipsUniform != uniformList.end() && mipsUniform->second->location >= 0)
+                        if (input->getName() == "direction" && input->hasValue() && input->getValue()->isA<Vector3>())
                         {
-                            glUniform1i(mipsUniform->second->location, image->getMaxMipCount());
+                            Vector3 dir = input->getValue()->asA<Vector3>();
+                            dir = lightHandler->getLightTransform().transformVector(dir);
+                            bindUniform(inputName, Value::createValue(dir));
+                        }
+                        else
+                        {
+                            bindUniform(inputName, input->getValue());
                         }
                     }
                 }
             }
+
+            ++index;
         }
     }
 
-    const vector<NodePtr> lightList = lightHandler->getLightSources();
-    const std::unordered_map<string, unsigned int>& ids = lightHandler->getLightIdentifierMap();
-
-    size_t index = 0;
-    for (const auto& light : lightList)
+    // Bind the directional albedo table, if needed.
+    ImagePtr albedoTable = lightHandler->getAlbedoTable();
+    if (albedoTable && hasUniform(HW::ALBEDO_TABLE))
     {
-        auto nodeDef = light->getNodeDef();
-        if (!nodeDef)
+        ImageSamplingProperties samplingProperties;
+        samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
+        if (imageHandler->bindImage(albedoTable, samplingProperties))
         {
-            continue;
-        }
-        const string& nodeDefName = nodeDef->getName();
-        const string prefix = HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(index) + "]";
-
-        // Set light type id
-        bool boundType = false;
-        input = uniformList.find(prefix + ".type");
-        if (input != uniformList.end())
-        {
-            location = input->second->location;
-            if (location >= 0)
+            GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
+            int textureLocation = textureHandler->getBoundTextureLocation(albedoTable->getResourceId());
+            if (textureLocation >= 0)
             {
-                auto it = ids.find(nodeDefName);
-                if (it != ids.end())
-                {
-                    glUniform1i(location, it->second);
-                    boundType = true;
-                }
+                bindUniform(HW::ALBEDO_TABLE, Value::createValue(textureLocation));
             }
         }
-        if (!boundType)
-        {
-            continue;
-        }
-
-        // Set all inputs
-        for (const auto& lightInput : light->getInputs())
-        {
-            // Make sure we have a value to set
-            if (lightInput->hasValue())
-            {
-                input = uniformList.find(prefix + "." + lightInput->getName());
-                if (input != uniformList.end())
-                {
-                    bindUniformLocation(input->second->location, lightInput->getValue());
-                }
-            }
-        }
-
-        ++index;
     }
 }
 
@@ -826,37 +810,15 @@ void GlslProgram::bindViewInformation(CameraPtr camera)
     bindUniform(HW::WORLD_VIEW_PROJECTION_MATRIX, Value::createValue(worldViewProj), false);
 }
 
-void GlslProgram::bindTimeAndFrame()
+void GlslProgram::bindTimeAndFrame(float time, float frame)
 {
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
         throw ExceptionRenderError("Cannot bind time/frame without a valid program");
     }
 
-    GLint location = GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
-
-    // Bind time
-    const GlslProgram::InputMap& uniformList = getUniformsList();
-    auto input = uniformList.find(HW::TIME);
-    if (input != uniformList.end())
-    {
-        location = input->second->location;
-        if (location >= 0)
-        {
-            glUniform1f(location, 1.0f);
-        }
-    }
-
-    // Bind frame
-    input = uniformList.find(HW::FRAME);
-    if (input != uniformList.end())
-    {
-        location = input->second->location;
-        if (location >= 0)
-        {
-            glUniform1f(location, 1.0f);
-        }
-    }
+    bindUniform(HW::TIME, Value::createValue(time), false);
+    bindUniform(HW::FRAME, Value::createValue(frame), false);
 }
 
 bool GlslProgram::hasActiveAttributes() const
