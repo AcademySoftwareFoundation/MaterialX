@@ -1,6 +1,5 @@
 #include <MaterialXView/Viewer.h>
 
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
@@ -8,7 +7,6 @@
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
-#include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
@@ -34,9 +32,9 @@
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
 const float DEFAULT_CAMERA_ZOOM = 1.0f;
-const int DEFAULT_ENV_SAMPLE_COUNT = 16;
 
-namespace {
+namespace
+{
 
 const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
@@ -239,7 +237,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _renderTransparency(true),
     _renderDoubleSided(true),
     _outlineSelection(false),
-    _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
+    _envSampleCount(mx::DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
     _targetShader("standard_surface"),
     _captureRequested(false),
@@ -1813,11 +1811,10 @@ void Viewer::renderFrame()
     updateAlbedoTable();
 
     // Update lighting state.
-    LightingState lightingState;
-    lightingState.lightTransform = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI);
-    lightingState.directLighting = _directLighting;
-    lightingState.indirectLighting = _indirectLighting;
-    lightingState.envSamples = _envSampleCount;
+    _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
+    _lightHandler->setDirectLighting(_directLighting);
+    _lightHandler->setIndirectLighting(_indirectLighting);
+    _lightHandler->setEnvSamples(_envSampleCount);
 
     // Update shadow state.
     ShadowState shadowState;
@@ -1880,7 +1877,7 @@ void Viewer::renderFrame()
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
         material->bindViewInformation(_viewCamera);
-        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
+        material->bindLighting(_lightHandler, _imageHandler, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
@@ -1908,7 +1905,7 @@ void Viewer::renderFrame()
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
             material->bindViewInformation(_viewCamera);
-            material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
+            material->bindLighting(_lightHandler, _imageHandler, shadowState);
             material->bindImages(_imageHandler, _searchPath);
             material->drawPartition(geom);
             material->unbindImages(_imageHandler);
