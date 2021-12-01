@@ -387,6 +387,7 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
         // and are editable by users.
         if (inputSocket->getConnections().size() && graph->isEditable(*inputSocket))
         {
+            std::cout << "input: " << inputSocket->getPath() << ". value " << (inputSocket->getValue() ? inputSocket->getValue()->getValueString() : EMPTY_STRING) << ". colorspace: " << inputSocket->getColorspace() << std::endl;
             uniforms.add(inputSocket->getSelf());
         }
     }
@@ -500,10 +501,17 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
     {
         const ShaderPort* input = inputs[i];
 
+        std::cout << "Emit input: " << input->getPath() << ". value: " << input->getValue()->getValueString() << ". colorspace: " << input->getColorspace() << std::endl;
+
         const string& type = _syntax->getTypeName(input->getType());
-        const string value = (input->getValue() ?
+        string value = (input->getValue() ?
             _syntax->getValue(input->getType(), *input->getValue(), true) :
             _syntax->getDefaultValue(input->getType(), true));
+
+        if (input->getType() == Type::FILENAME)
+        {
+
+        }
 
         emitLineBegin(stage);
 

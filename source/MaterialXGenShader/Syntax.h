@@ -21,6 +21,7 @@ namespace MaterialX
 class Syntax;
 class TypeSyntax;
 class TypeDesc;
+class ShaderPort;
 
 /// Shared pointer to a Syntax
 using SyntaxPtr = shared_ptr<Syntax>;
@@ -101,6 +102,8 @@ class MX_GENSHADER_API Syntax
 
     /// Returns the value string for a given type and value object
     virtual string getValue(const TypeDesc* type, const Value& value, bool uniform = false) const;
+
+    virtual string getValue(ShaderPort* port, bool uniform = false) const;
 
     /// Get syntax for a swizzled variable
     virtual string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
