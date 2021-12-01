@@ -560,8 +560,8 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
     if (!lights.empty())
     {
         // Create a list of unique nodedefs and ids for them
-        _lightIdentifierMap = computeLightIdMap(lights);
-        for (const auto& id : _lightIdentifierMap)
+        _lightIdMap = computeLightIdMap(lights);
+        for (const auto& id : _lightIdMap)
         {
             mx::NodeDefPtr nodedef = doc->getNodeDef(id.first);
             if (nodedef)

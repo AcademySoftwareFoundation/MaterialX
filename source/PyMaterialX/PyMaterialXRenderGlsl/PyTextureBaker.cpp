@@ -37,7 +37,6 @@ void bindPyTextureBaker(py::module& mod)
         .def("setHashImageNames", &mx::TextureBaker::setHashImageNames)
         .def("getHashImageNames", &mx::TextureBaker::getHashImageNames)
         .def("setupUnitSystem", &mx::TextureBaker::setupUnitSystem)
-        .def("bakeMaterial", &mx::TextureBaker::bakeMaterial)
-        .def("createBakeDocuments", &mx::TextureBaker::createBakeDocuments)
+        .def("bakeMaterialToDoc", &mx::TextureBaker::bakeMaterialToDoc)
         .def("bakeAllMaterials", &mx::TextureBaker::bakeAllMaterials);
 }

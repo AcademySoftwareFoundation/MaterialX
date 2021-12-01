@@ -99,6 +99,10 @@ class MX_RENDER_API GeometryHandler
         return _meshes;
     }
 
+    /// Return the first mesh in our list containing the given partition.
+    /// If no matching mesh is found, then nullptr is returned.
+    MeshPtr findParentMesh(MeshPartitionPtr part);
+
     /// Return the minimum bounds for all meshes
     const Vector3& getMinimumBounds() const
     {

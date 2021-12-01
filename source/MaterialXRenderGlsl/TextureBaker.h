@@ -203,13 +203,11 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     /// Optimize baked textures before writing.
     void optimizeBakedTextures(NodePtr shader);
 
-    /// Write the baked material with textures to a document.
-    DocumentPtr bakeMaterial(NodePtr shader, const StringVec& udimSet);
+    /// Bake material to document in memory and write baked textures to disk.
+    DocumentPtr bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
+                                  const StringVec udimSet, std::string& documentName);
 
-    /// Bake all materials in the given document and return them as a vector.
-    BakedDocumentVec createBakeDocuments(DocumentPtr doc, const FileSearchPath& searchPath);
-
-    /// Bake all materials in the given document and write them to disk.  If multiple documents are written,
+    /// Bake materials in the given document and write them to disk.  If multiple documents are written,
     /// then the given output filename will be used as a template.
     void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFileName);
 
@@ -242,6 +240,9 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
 
     // Generate a texture filename for the given graph output.
     FilePath generateTextureFilename(const StringMap& fileTemplateMap);
+
+    // Create document that links shader outputs to a material.
+    DocumentPtr generateNewDocumentFromShader(NodePtr shader, const StringVec& udimSet);
 
     // Write a baked image to disk, returning true if the write was successful.
     bool writeBakedImage(const BakedImage& baked, ImagePtr image);

@@ -89,10 +89,10 @@ jobs:
           python: 3.8
           cmake_config: -G "Visual Studio 16 2019" -A "x64"
 
-        - name: Windows_VS2022_x64_Python37
+        - name: Windows_VS2022_x64_Python39
           os: windows-2022
           architecture: x64
-          python: 3.8
+          python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_validate: ON
 
@@ -199,6 +199,7 @@ jobs:
         vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
 
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2

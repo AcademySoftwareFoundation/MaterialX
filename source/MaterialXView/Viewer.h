@@ -1,15 +1,14 @@
 #ifndef MATERIALXVIEW_VIEWER_H
 #define MATERIALXVIEW_VIEWER_H
 
-#include <MaterialXView/Camera.h>
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
 
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 
+#include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/ViewHandler.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
@@ -211,7 +210,7 @@ class Viewer : public ng::Screen
     mx::ElementPredicate getElementPredicate();
 
     void initCamera();
-    void updateViewHandlers();
+    void updateCameras();
     void updateGeometrySelections();
     void updateMaterialSelections();
     void updateMaterialSelectionUI();
@@ -244,7 +243,6 @@ class Viewer : public ng::Screen
 
   private:
     ng::Window* _window;
-    Camera _arcball;
 
     mx::FilePath _materialFilename;
     mx::FilePath _meshFilename;
@@ -269,7 +267,7 @@ class Viewer : public ng::Screen
     mx::Vector3 _userTranslation;
     mx::Vector3 _userTranslationStart;
     bool _userTranslationActive;
-    ng::Vector2i _userTranslationPixel;
+    mx::Vector2 _userTranslationPixel;
 
     // Document management
     mx::DocumentPtr _stdLib;
@@ -315,14 +313,15 @@ class Viewer : public ng::Screen
     // Material assignments
     std::map<mx::MeshPartitionPtr, MaterialPtr> _materialAssignments;
 
+    // Cameras
+    mx::CameraPtr _viewCamera;
+    mx::CameraPtr _envCamera;
+    mx::CameraPtr _shadowCamera;
+
     // Resource handlers
     mx::GeometryHandlerPtr _geometryHandler;
     mx::ImageHandlerPtr _imageHandler;
     mx::LightHandlerPtr _lightHandler;
-
-    // View handlers
-    mx::ViewHandlerPtr _cameraViewHandler;
-    mx::ViewHandlerPtr _shadowViewHandler;
 
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
@@ -389,6 +388,5 @@ class Viewer : public ng::Screen
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
 extern const float DEFAULT_CAMERA_VIEW_ANGLE;
 extern const float DEFAULT_CAMERA_ZOOM;
-extern const int DEFAULT_ENV_SAMPLE_COUNT;
 
 #endif // MATERIALXVIEW_VIEWER_H
