@@ -56,12 +56,15 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     }
     if (!filename.empty())
     {
+        // Can't overwrite an input parameter. Seems wrong place to do this.
+#if 0
         shadergen.emitLineBegin(stage);
         shadergen.emitString(variable + "." + "filename" + " = \"" + filename + "\"", stage);
         shadergen.emitLineEnd(stage);
         shadergen.emitLineBegin(stage);
         shadergen.emitString(variable + "." + "colorspace" + " = \"" + colorSpace + "\"", stage);
         shadergen.emitLineEnd(stage);
+#endif
     }
 
     // Declare the output variables.
