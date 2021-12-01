@@ -254,6 +254,19 @@ class FileFormatSyntax : public AggregateTypeSyntax
                      const StringVec& members = EMPTY_MEMBERS) :
         AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
     {}
+    
+    string getValue(ShaderPort* port, bool uniform) const override
+    {
+        if (!port)
+        {
+            return EMPTY_STRING;
+        }
+
+        StringVec values;
+        values.push_back(port->getValue() ? port->getValue()->getValueString() : EMPTY_STRING);
+        values.push_back(port->getColorspace());
+        return getValue(values, uniform);
+    }
 
     string getValue(const Value& value, bool uniform) const
     {

@@ -98,10 +98,13 @@ const TypeDesc* Syntax::getTypeDescription(const TypeSyntaxPtr& typeSyntax) cons
 
 string Syntax::getValue(ShaderPort* port, bool uniform) const
 {
-    string value = (port->getValue() ?
-            getValue(port->getType(), *port->getValue(), uniform) :
-            getDefaultValue(port->getType(), uniform));
-    return value;
+    const TypeSyntax& syntax = getTypeSyntax(port->getType());
+    return syntax.getValue(port, uniform);
+    //string value = (port->getValue() ?
+    //        getValue(port->getType(), *port->getValue(), uniform) :
+    //        getDefaultValue(port->getType(), uniform));
+    //return value;
+    //return value;
 }
 
 string Syntax::getValue(const TypeDesc* type, const Value& value, bool uniform) const
@@ -351,6 +354,14 @@ TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const str
 {
 }
 
+ string TypeSyntax::getValue(ShaderPort* port, bool uniform) const
+ {
+     if (!port || !port->getValue())
+     {
+         return getDefaultValue(uniform);
+     }
+     return getValue(*port->getValue(), uniform);
+ }
 
 ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
                                    const string& typeAlias, const string& typeDefinition) :

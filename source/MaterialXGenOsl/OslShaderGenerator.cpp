@@ -501,12 +501,13 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
     {
         const ShaderPort* input = inputs[i];
 
-        std::cout << "Emit input: " << input->getPath() << ". value: " << input->getValue()->getValueString() << ". colorspace: " << input->getColorspace() << std::endl;
+        std::cout << "Emit input: " << input->getPath() << ". value: " << (input->getValue() ? input->getValue()->getValueString() : EMPTY_STRING) << ". colorspace: " << input->getColorspace() << std::endl;
 
         const string& type = _syntax->getTypeName(input->getType());
-        string value = (input->getValue() ?
-            _syntax->getValue(input->getType(), *input->getValue(), true) :
-            _syntax->getDefaultValue(input->getType(), true));
+        string value = _syntax->getValue((ShaderPort*)input, true);
+        //(input->getValue() ?
+        //    _syntax->getValue(input->getType(), *input->getValue(), true) :
+        //    _syntax->getDefaultValue(input->getType(), true));
 
         if (input->getType() == Type::FILENAME)
         {

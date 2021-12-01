@@ -236,6 +236,8 @@ class MX_GENSHADER_API TypeSyntax
     /// can be swizzled.
     const StringVec& getMembers() const { return _members; }
 
+    virtual string getValue(ShaderPort* port, bool uniform) const;
+
     /// Returns a value formatted according to this type syntax.
     /// The value is constructed from the given value object.
     virtual string getValue(const Value& value, bool uniform) const = 0;
