@@ -268,7 +268,7 @@ class FileFormatSyntax : public AggregateTypeSyntax
         return getValue(values, uniform);
     }
 
-    string getValue(const Value& value, bool uniform) const
+    string getValue(const Value& value, bool uniform) const override
     {
         StringVec values;
         values.push_back(value.getValueString());
@@ -277,7 +277,7 @@ class FileFormatSyntax : public AggregateTypeSyntax
         return getValue(values, uniform);
     }
 
-    string getValue(const StringVec& values, bool uniform) const
+    string getValue(const StringVec& values, bool uniform) const override
     {
         if (values.size() != 2)
         {
