@@ -22,12 +22,12 @@
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
-#include <MaterialXGenOsl/Nodes/ImageNodeOsl.h>
 
 namespace MaterialX
 {
 
 const string OslShaderGenerator::TARGET = "genosl";
+const string OslShaderGenerator::T_FILE_EXTRA_ARGUMENTS = "$extraTextureLookupArguments";
 
 //
 // OslShaderGenerator methods
@@ -184,12 +184,15 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
 
     // <!-- <image> -->
-    registerImplementation("IM_image_float_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
-    registerImplementation("IM_image_color3_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
-    registerImplementation("IM_image_color4_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
-    registerImplementation("IM_image_vector2_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
-    registerImplementation("IM_image_vector3_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
-    registerImplementation("IM_image_vector4_" + OslShaderGenerator::TARGET, ImageNodeOsl::create);
+    registerImplementation("IM_image_float_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
+    registerImplementation("IM_image_color3_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
+    registerImplementation("IM_image_color4_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
+    registerImplementation("IM_image_vector2_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
+    registerImplementation("IM_image_vector3_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
+    registerImplementation("IM_image_vector4_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
+
+    // Extra arguments for texture lookups.
+    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = EMPTY_STRING;
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const

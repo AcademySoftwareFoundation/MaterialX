@@ -15,8 +15,7 @@ void mx_image_color4(FILEINPUT fileinput, string layer, color4 default_value, ve
     vector2 st = mx_transform_uv(texcoord);
     float alpha;
     color rgb = texture(fileinput.filename, st.x, st.y, "alpha", alpha, "subimage", layer,
-                        "missingcolor", missingColor, "missingalpha", missingAlpha, "swrap", uaddressmode, "twrap", vaddressmode
-                        /* , "colorspace", fileinput.colorspace */);
+                        "missingcolor", missingColor, "missingalpha", missingAlpha, "swrap", uaddressmode, "twrap", vaddressmode $extraTextureLookupArguments );
 
     out = color4(rgb, alpha);
 }

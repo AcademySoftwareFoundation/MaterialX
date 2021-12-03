@@ -12,8 +12,6 @@ void mx_image_color3(FILEINPUT fileinput, string layer, color default_value, vec
 
     color missingColor = default_value;
     vector2 st = mx_transform_uv(texcoord);
-    out = texture(fileinput.filename, st.x, st.y, "subimage", layer, "missingcolor", missingColor, "swrap", uaddressmode, "twrap", vaddressmode 
-    /* , "colorspace", fileinput.colorspace */);
+    out = texture(fileinput.filename, st.x, st.y, "subimage", layer, "missingcolor", missingColor, "swrap", uaddressmode, "twrap", vaddressmode $extraTextureLookupArguments);
 }
 
-// split this, use osl version w/o cs for now + add in an override impl. See other arnold overrides.
