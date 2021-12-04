@@ -219,7 +219,10 @@ void documentFromXml(DocumentPtr doc,
         elementFromXml(xmlRoot, doc, readOptions);
     }
 
-    doc->upgradeVersion();
+    if (!readOptions || readOptions->upgradeVersion)
+    {
+        doc->upgradeVersion();
+    }
 }
 
 void validateParseResult(xml_parse_result& result, const FilePath& filename = FilePath())
@@ -265,8 +268,9 @@ unsigned int getParseOptions(const XmlReadOptions* readOptions)
 //
 
 XmlReadOptions::XmlReadOptions() :
-    readXIncludeFunction(readFromXmlFile),
-    readComments(false)
+    readComments(false),
+    upgradeVersion(true),
+    readXIncludeFunction(readFromXmlFile)
 {
 }
 
