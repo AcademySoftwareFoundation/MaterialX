@@ -35,13 +35,17 @@ class MX_FORMAT_API XmlReadOptions
     XmlReadOptions();
     ~XmlReadOptions() { }
 
-    /// If provided, this function will be invoked when an XInclude reference
-    /// needs to be read into a document.  Defaults to readFromXmlFile.
-    XmlReadFunction readXIncludeFunction;
-
     /// If true, then XML comments will be read into documents as comment elements.
     /// Defaults to false.
     bool readComments;
+
+    /// If true, then documents from earlier versions of MaterialX will be upgraded
+    /// to the current version.  Defaults to true.
+    bool upgradeVersion;
+
+    /// If provided, this function will be invoked when an XInclude reference
+    /// needs to be read into a document.  Defaults to readFromXmlFile.
+    XmlReadFunction readXIncludeFunction;
 
     /// The vector of parent XIncludes at the scope of the current document.
     /// Defaults to an empty vector.
