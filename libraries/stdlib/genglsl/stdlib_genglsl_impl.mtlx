@@ -129,6 +129,16 @@
   <!-- <cellnoise3d> -->
   <implementation name="IM_cellnoise3d_float_genglsl" nodedef="ND_cellnoise3d_float" file="stdlib/genglsl/mx_cellnoise3d_float.glsl" function="mx_cellnoise3d_float" target="genglsl" />
 
+  <!-- <worleynoise2d> -->
+  <implementation name="IM_worleynoise2d_float_genglsl" nodedef="ND_worleynoise2d_float" file="stdlib/genglsl/mx_worleynoise2d_float.glsl" function="mx_worleynoise2d_float" target="genglsl" />
+  <implementation name="IM_worleynoise2d_vector2_genglsl" nodedef="ND_worleynoise2d_vector2" file="stdlib/genglsl/mx_worleynoise2d_vector2.glsl" function="mx_worleynoise2d_vector2" target="genglsl" />
+  <implementation name="IM_worleynoise2d_vector3_genglsl" nodedef="ND_worleynoise2d_vector3" file="stdlib/genglsl/mx_worleynoise2d_vector3.glsl" function="mx_worleynoise2d_vector3" target="genglsl" />
+
+  <!-- <worleynoise3d> -->
+  <implementation name="IM_worleynoise3d_float_genglsl" nodedef="ND_worleynoise3d_float" file="stdlib/genglsl/mx_worleynoise3d_float.glsl" function="mx_worleynoise3d_float" target="genglsl" />
+  <implementation name="IM_worleynoise3d_vector2_genglsl" nodedef="ND_worleynoise3d_vector2" file="stdlib/genglsl/mx_worleynoise3d_vector2.glsl" function="mx_worleynoise3d_vector2" target="genglsl" />
+  <implementation name="IM_worleynoise3d_vector3_genglsl" nodedef="ND_worleynoise3d_vector3" file="stdlib/genglsl/mx_worleynoise3d_vector3.glsl" function="mx_worleynoise3d_vector3" target="genglsl" />
+
   <!-- ======================================================================== -->
   <!-- Global nodes                                                             -->
   <!-- ======================================================================== -->
