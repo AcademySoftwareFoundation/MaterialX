@@ -32,13 +32,14 @@
   <!-- Render test Suite Options -->
   <nodedef name="TestSuiteOptions">
     <!-- List of comma separated file names acts as a filter to only test documents with these names -->
-    <input name="overrideFiles" type="string" value="filename_cm_test.mtlx" />
+    <input name="overrideFiles" type="string" value="" />
 
     <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
     <input name="lightFiles" type="string" value="light_rig_test_2.mtlx" />
 
     <!-- Comma separated list of target" specifiers to indicate which
          code generators to use. -->
+    <input name="targets" type="string" value="genglsl,genosl,genmdl,arnold,ogsfx,ogsxml" />
     <input name="targets" type="string" value="genglsl,genosl,genmdl" />
 
      <!-- Check the count of number of implementations used for a given generator -->

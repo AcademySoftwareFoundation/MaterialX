@@ -3,10 +3,6 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#if defined(_WIN32)
-#pragma optimize("", off)
-#endif
-
 #include <MaterialXGenShader/ShaderGraph.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -1497,7 +1493,3 @@ void ShaderGraphEdgeIterator::returnPathDownstream(ShaderOutput* upstream)
 }
 
 } // namespace MaterialX
-
-#if defined(_WIN32)
-#pragma optimize("", on)
-#endif
