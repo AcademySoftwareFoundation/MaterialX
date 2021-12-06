@@ -826,22 +826,16 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
         }
     }
 
-    // 
     // Handle colorspace and unit conversion if needed.
-    string targetColorSpace;
-    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-    //if (colorManagementSystem)
-    {
-        targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
-            _document->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
-    }
-
     UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
     const string& targetDistanceUnit = context.getOptions().targetDistanceUnit;
 
+    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+    string targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
+        _document->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
+
     for (InputPtr input : node.getInputs())
     {
-        // It is sufficient that the input type is a filename regardless of whether it is marked as a uniform 
         if (input->getType() == FILENAME_TYPE_STRING)
         {
             ShaderOutput* shaderOutput = newNode->getOutput();
@@ -903,13 +897,16 @@ const ShaderNode* ShaderGraph::getNode(const string& name) const
 void ShaderGraph::finalize(GenContext& context)
 {
     // Insert color transformation nodes where needed
-    for (const auto& it : _inputColorTransformMap)
-    {
-        addColorTransformNode(it.first, it.second, context);
-    }
-    for (const auto& it : _outputColorTransformMap)
-    {
-        addColorTransformNode(it.first, it.second, context);
+    if (context.getOptions().emitColorTransforms)
+    { 
+        for (const auto& it : _inputColorTransformMap)
+        {
+            addColorTransformNode(it.first, it.second, context);
+        }
+        for (const auto& it : _outputColorTransformMap)
+        {
+            addColorTransformNode(it.first, it.second, context);
+        }
     }
     _inputColorTransformMap.clear();
     _outputColorTransformMap.clear();
@@ -964,7 +961,7 @@ void ShaderGraph::finalize(GenContext& context)
                             inputSocket->setPath(input->getPath());
                             inputSocket->setValue(input->getValue());
                             inputSocket->setUnit(input->getUnit());
-                            if (!input->getColorspace().empty())
+                            //if (!input->getColorspace().empty())
                             { 
                                 inputSocket->setColorspace(input->getColorspace());
                             }
@@ -1121,7 +1118,7 @@ void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputInde
                 downstream->setUnit(inputUnit);
             }
             const string& inputColorspace= input->getColorspace();
-            if (!inputColorspace.empty())
+            //if (!inputColorspace.empty())
             {
                 downstream->setColorspace(inputColorspace);
             }
@@ -1310,7 +1307,7 @@ void ShaderGraph::setVariableNames(GenContext& context)
 }
 
 string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderPort* shaderPort, 
-                                            ValueElementPtr input, const string& targetColorSpace, bool asInput)
+                                              ValueElementPtr input, const string& targetColorSpace, bool asInput)
 {
     if (targetColorSpace.empty())
     {
@@ -1318,7 +1315,6 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
     }
 
     const string& sourceColorSpace = input->getActiveColorSpace();
-    string returnColorSpace;
     if (shaderPort && !sourceColorSpace.empty())
     {
         if (shaderPort->getType() == Type::COLOR3 || shaderPort->getType() == Type::COLOR4)
@@ -1329,7 +1325,6 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
                 // Cache colorspace on shader port
                 shaderPort->setColorspace(sourceColorSpace);
                 shaderPort->setPath(input->getNamePath());
-                returnColorSpace = sourceColorSpace;
                 if (asInput)
                 { 
                     std::cout << "Input: " << input->getNamePath() << ". colorspace: " << shaderPort->getColorspace() << std::endl;
@@ -1345,11 +1340,11 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
                     {
                         if (asInput)
                         {
-                            //_inputColorTransformMap.emplace(static_cast<ShaderInput*>(shaderPort), transform);
+                            _inputColorTransformMap.emplace(static_cast<ShaderInput*>(shaderPort), transform);
                         }
                         else
                         {
-                            //_outputColorTransformMap.emplace(static_cast<ShaderOutput*>(shaderPort), transform);
+                            _outputColorTransformMap.emplace(static_cast<ShaderOutput*>(shaderPort), transform);
                         }
                     }
                     else
@@ -1361,7 +1356,7 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
             }
         }
     }
-    return returnColorSpace;
+    return sourceColorSpace;
 }
 
 void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort* shaderPort, ValueElementPtr input, const string& globalTargetUnitSpace, bool asInput)

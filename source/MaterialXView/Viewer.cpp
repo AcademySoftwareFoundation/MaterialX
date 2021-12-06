@@ -1623,9 +1623,9 @@ void Viewer::initContext(mx::GenContext& context)
     }
 
     // Initialize color management.
-    //mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
-    //cms->loadLibrary(_stdLib);
-    //context.getShaderGenerator().setColorManagementSystem(cms);
+    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    cms->loadLibrary(_stdLib);
+    context.getShaderGenerator().setColorManagementSystem(cms);
 
     // Initialize unit management.
     mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getTarget());
@@ -1675,12 +1675,14 @@ void Viewer::loadStandardLibraries()
     initContext(_genContextEssl);
 #if MATERIALX_BUILD_GEN_OSL
     initContext(_genContextOsl);
+    _genContextOsl.getOptions().emitColorTransforms = false;
 #endif
 #if MATERIALX_BUILD_GEN_MDL
     initContext(_genContextMdl);
 #endif
 #if MATERIALX_BUILD_GEN_ARNOLD
     initContext(_genContextArnold);
+    _genContextArnold.getOptions().emitColorTransforms = false;
 #endif
 }
 
