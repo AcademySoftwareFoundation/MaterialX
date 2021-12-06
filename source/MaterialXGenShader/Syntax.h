@@ -103,7 +103,8 @@ class MX_GENSHADER_API Syntax
     /// Returns the value string for a given type and value object
     virtual string getValue(const TypeDesc* type, const Value& value, bool uniform = false) const;
 
-    virtual string getValue(ShaderPort* port, bool uniform = false) const;
+    /// Returns the value string for a given shader port object
+    virtual string getValue(const ShaderPort* port, bool uniform = false) const;
 
     /// Get syntax for a swizzled variable
     virtual string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
@@ -236,7 +237,9 @@ class MX_GENSHADER_API TypeSyntax
     /// can be swizzled.
     const StringVec& getMembers() const { return _members; }
 
-    virtual string getValue(ShaderPort* port, bool uniform) const;
+    /// Returns the value formatted acoording to the this type syntax
+    /// The value is constructed from the given shader port object.
+    virtual string getValue(const ShaderPort* port, bool uniform) const;
 
     /// Returns a value formatted according to this type syntax.
     /// The value is constructed from the given value object.

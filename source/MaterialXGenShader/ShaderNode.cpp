@@ -12,18 +12,6 @@
 namespace MaterialX
 {
 
-void ShaderPort::setColorspace(const string& colorspace)
-{
-    if (colorspace.empty())
-        return;
-    //if (!_colorspace.empty())
-    //{
-    //    std::cout << "Trying to overwrite: " << _colorspace << " with: " << colorspace << std::endl;
-    //    return;
-    //}
-    _colorspace = colorspace;
-}
-
 const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 
 //

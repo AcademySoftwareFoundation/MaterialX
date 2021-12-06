@@ -96,15 +96,10 @@ const TypeDesc* Syntax::getTypeDescription(const TypeSyntaxPtr& typeSyntax) cons
     return nullptr;
 }
 
-string Syntax::getValue(ShaderPort* port, bool uniform) const
+string Syntax::getValue(const ShaderPort* port, bool uniform) const
 {
     const TypeSyntax& syntax = getTypeSyntax(port->getType());
     return syntax.getValue(port, uniform);
-    //string value = (port->getValue() ?
-    //        getValue(port->getType(), *port->getValue(), uniform) :
-    //        getDefaultValue(port->getType(), uniform));
-    //return value;
-    //return value;
 }
 
 string Syntax::getValue(const TypeDesc* type, const Value& value, bool uniform) const
@@ -354,7 +349,7 @@ TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const str
 {
 }
 
- string TypeSyntax::getValue(ShaderPort* port, bool uniform) const
+ string TypeSyntax::getValue(const ShaderPort* port, bool uniform) const
  {
      if (!port || !port->getValue())
      {

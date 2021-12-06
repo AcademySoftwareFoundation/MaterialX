@@ -255,7 +255,7 @@ class FileFormatSyntax : public AggregateTypeSyntax
         AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
     {}
     
-    string getValue(ShaderPort* port, bool uniform) const override
+    string getValue(const ShaderPort* port, bool uniform) const override
     {
         if (!port)
         {
