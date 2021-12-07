@@ -29,6 +29,7 @@ EMSCRIPTEN_BINDINGS(xmlio)
                 }
             })
         .property("readComments", &mx::XmlReadOptions::readComments)
+        .property("upgradeVersion", &mx::XmlReadOptions::upgradeVersion)                
         .property("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
 
     ems::class_<mx::XmlWriteOptions>("XmlWriteOptions")
