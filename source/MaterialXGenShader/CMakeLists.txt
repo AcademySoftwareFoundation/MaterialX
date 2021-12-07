@@ -12,6 +12,10 @@ add_library(MaterialXGenShader ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_GENSHADER_EXPORTS)
 
+if (MATERIALX_BUILD_SHARED_LIBS)
+target_compile_definitions(MaterialXGenShader PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
+endif()
+
 target_link_libraries(
     MaterialXGenShader
     MaterialXCore

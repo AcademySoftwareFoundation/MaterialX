@@ -8,6 +8,10 @@ add_library(MaterialXRenderOsl ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDEROSL_EXPORTS)
 
+if (MATERIALX_BUILD_SHARED_LIBS)
+target_compile_definitions(MaterialXRenderOsl PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
+endif()
+
 set_target_properties(
     MaterialXRenderOsl PROPERTIES
     OUTPUT_NAME MaterialXRenderOsl

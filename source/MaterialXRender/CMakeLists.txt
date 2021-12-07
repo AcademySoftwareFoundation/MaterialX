@@ -20,6 +20,10 @@ add_library(MaterialXRender ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDER_EXPORTS)
 
+if (MATERIALX_BUILD_SHARED_LIBS)
+target_compile_definitions(MaterialXRender PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
+endif()
+
 target_link_libraries(
     MaterialXRender
     MaterialXGenShader

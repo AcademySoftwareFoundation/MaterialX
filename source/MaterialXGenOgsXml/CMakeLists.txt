@@ -28,6 +28,10 @@ add_library(MaterialXGenOgsXml
 
 add_definitions(-DMATERIALX_GENOGSXML_EXPORTS)
 
+if (MATERIALX_BUILD_SHARED_LIBS)
+target_compile_definitions(MaterialXGenOgsXml PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
+endif()
+
 set_target_properties(
     MaterialXGenOgsXml PROPERTIES
     OUTPUT_NAME MaterialXGenOgsXml
