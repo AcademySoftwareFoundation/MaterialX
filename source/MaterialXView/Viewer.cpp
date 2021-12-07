@@ -1929,10 +1929,6 @@ void Viewer::renderFrame()
                                    _shadowCamera->getWorldViewProjMatrix();
     }
 
-    const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
-    const mx::Matrix44& view = _cameraViewHandler->viewMatrix;
-    const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
-
     if (_srgbFrameBuffer)
     {
         glEnable(GL_FRAMEBUFFER_SRGB);
