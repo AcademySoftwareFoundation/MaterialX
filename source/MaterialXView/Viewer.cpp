@@ -1,6 +1,5 @@
 #include <MaterialXView/Viewer.h>
 
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
@@ -8,7 +7,6 @@
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
-#include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
@@ -37,9 +35,9 @@
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
 const float DEFAULT_CAMERA_ZOOM = 1.0f;
-const int DEFAULT_ENV_SAMPLE_COUNT = 16;
 
-namespace {
+namespace
+{
 
 const int MIN_ENV_SAMPLES = 4;
 const int MAX_ENV_SAMPLES = 1024;
@@ -208,7 +206,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _cameraZoom(DEFAULT_CAMERA_ZOOM),
     _userCameraEnabled(true),
     _userTranslationActive(false),
-    _userTranslationPixel(0, 0),
     _lightRotation(0.0f),
     _directLighting(true),
     _indirectLighting(true),
@@ -227,9 +224,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _selectedMaterial(0),
     _materialLabel(nullptr),
     _materialSelectionBox(nullptr),
+    _viewCamera(mx::Camera::create()),
+    _envCamera(mx::Camera::create()),
+    _shadowCamera(mx::Camera::create()),
     _lightHandler(mx::LightHandler::create()),
-    _cameraViewHandler(mx::ViewHandler::create()),
-    _shadowViewHandler(mx::ViewHandler::create()),
     _genContext(mx::GlslShaderGenerator::create()),
     _genContextEssl(mx::EsslShaderGenerator::create()),
 #if MATERIALX_BUILD_GEN_OSL
@@ -248,7 +246,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _renderTransparency(true),
     _renderDoubleSided(true),
     _outlineSelection(false),
-    _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
+    _envSampleCount(mx::DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
     _targetShader("standard_surface"),
     _captureRequested(false),
@@ -423,7 +421,7 @@ void Viewer::initialize()
     initCamera();
     setResizeCallback([this](ng::Vector2i size)
     {
-        _arcball.setSize(mx::Vector2(static_cast<float>(size[0]), static_cast<float>(size[1])));
+        _viewCamera->setViewportSize(mx::Vector2(static_cast<float>(size[0]), static_cast<float>(size[1])));
     });
 
     // Update geometry selections.
@@ -1913,11 +1911,10 @@ void Viewer::renderFrame()
     updateAlbedoTable();
 
     // Update lighting state.
-    LightingState lightingState;
-    lightingState.lightTransform = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI);
-    lightingState.directLighting = _directLighting;
-    lightingState.indirectLighting = _indirectLighting;
-    lightingState.envSamples = _envSampleCount;
+    _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
+    _lightHandler->setDirectLighting(_directLighting);
+    _lightHandler->setIndirectLighting(_indirectLighting);
+    _lightHandler->setEnvSamples(_envSampleCount);
 
     // Update shadow state.
     ShadowState shadowState;
@@ -1927,15 +1924,9 @@ void Viewer::renderFrame()
     {
         updateShadowMap();
         shadowState.shadowMap = _shadowMap;
-        shadowState.shadowMatrix = _cameraViewHandler->worldMatrix.getInverse() *
-            _shadowViewHandler->worldMatrix *
-            _shadowViewHandler->viewMatrix *
-            _shadowViewHandler->projectionMatrix;
+        shadowState.shadowMatrix = _viewCamera->getWorldMatrix().getInverse() *
+                                   _shadowCamera->getWorldViewProjMatrix();
     }
-
-    const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
-    const mx::Matrix44& view = _cameraViewHandler->viewMatrix;
-    const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
 
     if (_srgbFrameBuffer)
     {
@@ -1947,7 +1938,6 @@ void Viewer::renderFrame()
     {
         auto meshes = _envGeometryHandler->getMeshes();
         auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
-        mx::Matrix44 envWorld = mx::Matrix44::createScale(mx::Vector3(300.0f));
         float longitudeOffset = (_lightRotation / 360.0f) + 0.5f;
         _envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
 
@@ -1957,7 +1947,7 @@ void Viewer::renderFrame()
             glCullFace(GL_FRONT);
             _envMaterial->bindShader();
             _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
-            _envMaterial->bindViewInformation(envWorld, view, proj);
+            _envMaterial->bindViewInformation(_envCamera);
             _envMaterial->bindImages(_imageHandler, _searchPath, false);
             _envMaterial->drawPartition(envPart);
             glDisable(GL_CULL_FACE);
@@ -1989,8 +1979,8 @@ void Viewer::renderFrame()
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
-        material->bindViewInformation(world, view, proj);
-        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
+        material->bindViewInformation(_viewCamera);
+        material->bindLighting(_lightHandler, _imageHandler, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
@@ -2017,8 +2007,8 @@ void Viewer::renderFrame()
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
-            material->bindViewInformation(world, view, proj);
-            material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
+            material->bindViewInformation(_viewCamera);
+            material->bindLighting(_lightHandler, _imageHandler, shadowState);
             material->bindImages(_imageHandler, _searchPath);
             material->drawPartition(geom);
             material->unbindImages(_imageHandler);
@@ -2042,7 +2032,7 @@ void Viewer::renderFrame()
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         _wireMaterial->bindShader();
         _wireMaterial->bindMesh(_geometryHandler->findParentMesh(getSelectedGeometry()));
-        _wireMaterial->bindViewInformation(world, view, proj);
+        _wireMaterial->bindViewInformation(_viewCamera);
         _wireMaterial->drawPartition(getSelectedGeometry());
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
@@ -2230,7 +2220,7 @@ void Viewer::drawContents()
         return;
     }
 
-    updateViewHandlers();
+    updateCameras();
 
     mx::checkGlErrors("before viewer render");
 
@@ -2312,42 +2302,26 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
         return true;
     }
 
-    if (_arcball.applyMotion(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1]))))
+    mx::Vector2 pos((float) p.x(), (float) p.y());
+    if (_viewCamera->applyArcballMotion(pos))
     {
         return true;
     }
 
     if (_userTranslationActive)
     {
-        updateViewHandlers();
-        const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
-        const mx::Matrix44& view = _cameraViewHandler->viewMatrix;
-        const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
-        mx::Matrix44 worldView = world * view;;
+        updateCameras();
 
         mx::Vector3 boxMin = _geometryHandler->getMinimumBounds();
         mx::Vector3 boxMax = _geometryHandler->getMaximumBounds();
         mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
 
-        float zval = ng::project(ng::Vector3f(sphereCenter.data()),
-                                 ng::Matrix4f(worldView.data()),
-                                 ng::Matrix4f(proj.data()),
-                                 mSize).z();
-        ng::Vector3f pos1 = ng::unproject(ng::Vector3f((float) p.x(),
-                                                       (float) (mSize.y() - p.y()),
-                                                       (float) zval),
-                                          ng::Matrix4f(worldView.data()),
-                                          ng::Matrix4f(proj.data()),
-                                          mSize);
-        ng::Vector3f pos0 = ng::unproject(ng::Vector3f((float) _userTranslationPixel.x(),
-                                                       (float) (mSize.y() - _userTranslationPixel.y()),
-                                                       (float) zval),
-                                          ng::Matrix4f(worldView.data()),
-                                          ng::Matrix4f(proj.data()),
-                                          mSize);
-        ng::Vector3f delta = pos1 - pos0;
-        _userTranslation = _userTranslationStart +
-                            mx::Vector3(delta.data(), delta.data() + delta.size());
+        float viewZ = _viewCamera->projectToViewport(sphereCenter)[2];
+        mx::Vector3 pos1 = _viewCamera->unprojectFromViewport(
+            mx::Vector3(pos[0], (float) mSize.y() - pos[1], viewZ));
+        mx::Vector3 pos0 = _viewCamera->unprojectFromViewport(
+            mx::Vector3(_userTranslationPixel[0], (float) mSize.y() - _userTranslationPixel[1], viewZ));
+        _userTranslation = _userTranslationStart + (pos1 - pos0);
 
         return true;
     }
@@ -2362,20 +2336,21 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
         return true;
     }
 
+    mx::Vector2 pos((float) p.x(), (float) p.y());
     if (button == GLFW_MOUSE_BUTTON_1 && !modifiers)
     {
-        _arcball.buttonEvent(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), down);
+        _viewCamera->arcballButtonEvent(pos, down);
     }
     else if (button == GLFW_MOUSE_BUTTON_2 ||
             (button == GLFW_MOUSE_BUTTON_1 && modifiers == GLFW_MOD_SHIFT))
     {
         _userTranslationStart = _userTranslation;
         _userTranslationActive = true;
-        _userTranslationPixel = p;
+        _userTranslationPixel = pos;
     }
     if (button == GLFW_MOUSE_BUTTON_1 && !down)
     {
-        _arcball.buttonEvent(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), false);
+        _viewCamera->arcballButtonEvent(pos, false);
     }
     if (!down)
     {
@@ -2386,8 +2361,7 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
 
 void Viewer::initCamera()
 {
-    _arcball = Camera();
-    _arcball.setSize(mx::Vector2(static_cast<float>(mSize[0]), static_cast<float>(mSize[1])));
+    _viewCamera->setViewportSize(mx::Vector2(static_cast<float>(mSize[0]), static_cast<float>(mSize[1])));
 
     // Disable user camera controls when non-centered views are requested.
     _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
@@ -2412,7 +2386,7 @@ void Viewer::initCamera()
     }
 }
 
-void Viewer::updateViewHandlers()
+void Viewer::updateCameras()
 {
     float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
     float fW = fH * (float) mSize.x() / (float) mSize.y();
@@ -2424,28 +2398,32 @@ void Viewer::updateViewHandlers()
     mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
     if (_userCameraEnabled)
     {
-        arcball = _arcball.matrix();
+        arcball = _viewCamera->arcballMatrix();
     }
 
-    _cameraViewHandler->worldMatrix = meshRotation *
-                                      mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
-                                      mx::Matrix44::createScale(mx::Vector3(_meshScale * _cameraZoom));
-    _cameraViewHandler->viewMatrix = arcball * mx::ViewHandler::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp);
-    _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist);
+    _viewCamera->setWorldMatrix(meshRotation *
+                                mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
+                                mx::Matrix44::createScale(mx::Vector3(_meshScale * _cameraZoom)));
+    _viewCamera->setViewMatrix(arcball * mx::Camera::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp));
+    _viewCamera->setProjectionMatrix(mx::Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist));
+
+    _envCamera->setWorldMatrix(mx::Matrix44::createScale(mx::Vector3(300.0f)));
+    _envCamera->setViewMatrix(_viewCamera->getViewMatrix());
+    _envCamera->setProjectionMatrix(_viewCamera->getProjectionMatrix());
 
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
         mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
         float r = mesh->getSphereRadius();
-        _shadowViewHandler->worldMatrix = meshRotation *
-                                          mx::Matrix44::createTranslation(-mesh->getSphereCenter());
-        _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
+        _shadowCamera->setWorldMatrix(meshRotation *
+                                      mx::Matrix44::createTranslation(-mesh->getSphereCenter()));
+        _shadowCamera->setProjectionMatrix(mx::Camera::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f));
         mx::ValuePtr value = dirLight->getInputValue("direction");
         if (value->isA<mx::Vector3>())
         {
             mx::Vector3 dir = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI).transformVector(value->asA<mx::Vector3>());
-            _shadowViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp);
+            _shadowCamera->setViewMatrix(mx::Camera::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp));
         }
     }
 }
@@ -2503,10 +2481,6 @@ void Viewer::updateShadowMap()
         return;
     }
 
-    const mx::Matrix44& world = _shadowViewHandler->worldMatrix;
-    const mx::Matrix44& view = _shadowViewHandler->viewMatrix;
-    const mx::Matrix44& proj = _shadowViewHandler->projectionMatrix;
-
     mx::ImageSamplingProperties blurSamplingProperties;
     blurSamplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
     blurSamplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
@@ -2523,7 +2497,7 @@ void Viewer::updateShadowMap()
     for (auto mesh : _geometryHandler->getMeshes())
     {
         _shadowMaterial->bindMesh(mesh);
-        _shadowMaterial->bindViewInformation(world, view, proj);
+        _shadowMaterial->bindViewInformation(_shadowCamera);
         for (size_t i = 0; i < mesh->getPartitionCount(); i++)
         {
             mx::MeshPartitionPtr geom = mesh->getPartition(i);
