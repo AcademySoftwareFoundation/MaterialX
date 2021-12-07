@@ -707,7 +707,19 @@ void NodeGraph::modifyInterfaceName(const string& inputPath, const string& inter
 
 NodeDefPtr NodeGraph::getNodeDef() const
 {
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
+    NodeDefPtr nodedef = resolveRootNameReference<NodeDef>(getNodeDefString());
+    // If not directly defined look for an implementation which has a nodedef association
+    if (!nodedef)
+    {
+        for (auto impl : getDocument()->getImplementations())
+        {
+            if (impl->getNodeGraph() == getQualifiedName(getName()))
+            {
+                nodedef = impl->getNodeDef();
+            }
+        }
+    }
+    return nodedef;
 }
 
 InterfaceElementPtr NodeGraph::getImplementation() const

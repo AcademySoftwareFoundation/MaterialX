@@ -3,10 +3,16 @@
   <!--
     Autodesk Standard Surface node definition.
   -->
-  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" nodegroup="pbr" doc="Autodesk standard surface shader" version="1.0.1" isdefaultversion="true">
-    <input name="base" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base"
+  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" nodegroup="pbr" doc="Autodesk standard surface shader" version="1.0.1" isdefaultversion="true" 
+           inherit="ND_standard_surface_surfaceshader_100">
+    <input name="base" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base" doc="Multiplier on the intensity of the diffuse reflection." />
+    <input name="base_color" type="color3" value="0.8, 0.8, 0.8" uimin="0,0,0" uimax="1,1,1" uiname="Base Color" uifolder="Base" doc="Color of the diffuse reflection." />    
+  </nodedef>
+
+  <nodedef name="ND_standard_surface_surfaceshader_100" node="standard_surface" nodegroup="pbr" doc="Autodesk standard surface shader" version="1.0.0" >
+    <input name="base" type="float" value="0.8" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base"
            doc="Multiplier on the intensity of the diffuse reflection." />
-    <input name="base_color" type="color3" value="0.8, 0.8, 0.8" uimin="0,0,0" uimax="1,1,1" uiname="Base Color" uifolder="Base"
+    <input name="base_color" type="color3" value="1.0, 1.0, 1.0" uimin="0,0,0" uimax="1,1,1" uiname="Base Color" uifolder="Base"
            doc="Color of the diffuse reflection." />
     <input name="diffuse_roughness" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Diffuse Roughness" uifolder="Base" uiadvanced="true"
            doc="Roughness of the diffuse reflection. Higher values cause the surface to appear flatter and darker." />
@@ -92,9 +98,21 @@
   </nodedef>
 
   <!--
+      Association between imlementation and definition.
+      Note that version 1.0.1 only changes some default values and thus reuses the same 1.0.0 nodegraph implementation
+   -->
+   <implementation name="IMPL_standard_surface_surfaceshader_101"
+       nodedef="ND_standard_surface_surfaceshader"
+       nodegraph="NG_standard_surface_surfaceshader_100" />
+
+   <implementation name="IMPL_standard_surface_surfaceshader_100"
+      nodedef="ND_standard_surface_surfaceshader_100"
+      nodegraph="NG_standard_surface_surfaceshader_100" />
+
+   <!--
     Autodesk Standard Surface nodegraph implementation.
   -->
-  <nodegraph name="IMPL_standard_surface_surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+  <nodegraph name="NG_standard_surface_surfaceshader_100">
 
     <!-- Roughness influence by coat-->
     <multiply name="coat_affect_roughness_multiply1" type="float">
