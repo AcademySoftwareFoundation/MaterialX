@@ -1,6 +1,6 @@
 #include "$fileTransformUv"
 
-void mx_image_vector4(FILENPUT fileinput, string layer, vector4 default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output vector4 out)
+void mx_image_vector4(FILEINPUT fileinput, string layer, vector4 default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output vector4 out)
 {
     if (fileinput.filename == "" ||
         (uaddressmode == "constant" && (texcoord.x<0.0 || texcoord.x>1.0)) ||
