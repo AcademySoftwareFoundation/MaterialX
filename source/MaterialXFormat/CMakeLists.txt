@@ -8,10 +8,6 @@ add_library(MaterialXFormat ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_FORMAT_EXPORTS)
 
-if (MATERIALX_BUILD_SHARED_LIBS)
-target_compile_definitions(MaterialXFormat PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
-endif()
-
 set_target_properties(
     MaterialXFormat PROPERTIES
     OUTPUT_NAME MaterialXFormat

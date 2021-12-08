@@ -8,10 +8,6 @@ add_library(MaterialXGenMdl ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_GENMDL_EXPORTS)
 
-if (MATERIALX_BUILD_SHARED_LIBS)
-target_compile_definitions(MaterialXGenMdl PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
-endif()
-
 set_target_properties(
     MaterialXGenMdl PROPERTIES
     OUTPUT_NAME MaterialXGenMdl

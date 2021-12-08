@@ -17,10 +17,6 @@ add_library(MaterialXRenderHw ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDERHW_EXPORTS)
 
-if (MATERIALX_BUILD_SHARED_LIBS)
-target_compile_definitions(MaterialXRenderHw PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
-endif()
-
 if(MSVC)
     target_link_libraries(
         MaterialXRenderHw

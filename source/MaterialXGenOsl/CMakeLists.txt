@@ -8,10 +8,6 @@ add_library(MaterialXGenOsl ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_GENOSL_EXPORTS)
 
-if (MATERIALX_BUILD_SHARED_LIBS)
-target_compile_definitions(MaterialXGenOsl PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
-endif()
-
 set_target_properties(
     MaterialXGenOsl PROPERTIES
     OUTPUT_NAME MaterialXGenOsl

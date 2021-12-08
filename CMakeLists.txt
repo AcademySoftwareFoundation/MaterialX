@@ -255,7 +255,7 @@ function(assign_source_group prefix)
     endforeach()
 endfunction(assign_source_group)
 
-# Adjust settings for shared libraries if requested
+# Propagate shared library setting to NanoGUI:
 if(MATERIALX_BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS "ON")
 else()
