@@ -85,6 +85,15 @@ if (MATERIALX_BUILD_GEN_MDL)
     set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
 endif()
 
+###############################################################################
+# Library name custom suffix
+# This helps an application that needs to ship a dynamic library MaterialX ensure
+# that it has a unique name that won't conflict with one elsewhere on the
+# system.
+
+set (MATERIALX_LIBNAME_SUFFIX "" CACHE STRING
+     "Specify a suffix to all libraries that are built")
+
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
