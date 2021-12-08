@@ -491,7 +491,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
             if (!nodeColorspace.empty())
             {
                 inputSocket->setColorspace(nodeColorspace);
-                input->setColorspace(inputSocket->getColorspace());
+                input->setColorspace(nodeColorspace);
             }
         }
 
@@ -1104,7 +1104,11 @@ void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputInde
             {
                 downstream->setUnit(inputUnit);
             }
-            downstream->setColorspace(input->getColorspace());
+            const string& inputColorspace = input->getColorspace();
+            if (!inputColorspace.empty())
+            {
+                downstream->setColorspace(inputColorspace);
+            }
 
             // Swizzle the input value. Once done clear the channel to indicate
             // no further swizzling is reqiured.
@@ -1307,7 +1311,6 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
             {
                 // Cache colorspace on shader port
                 shaderPort->setColorspace(sourceColorSpace);
-                shaderPort->setPath(input->getNamePath());
                 if (colorManagementSystem)
                 { 
                     ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType());

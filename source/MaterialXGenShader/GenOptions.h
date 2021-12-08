@@ -151,9 +151,9 @@ class MX_GENSHADER_API GenOptions
     /// Defaults to false.
     bool hwWriteAlbedoTable;
 
-    /// Enable emitting colorspace transform code if a color management.
+    /// Enable emitting colorspace transform code if a color management 
     /// system is defined.
-    /// Default is set to true.
+    /// Defaults to true.
     bool emitColorTransforms;
 };
 

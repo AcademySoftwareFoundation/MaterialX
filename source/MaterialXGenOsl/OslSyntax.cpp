@@ -246,10 +246,10 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
     }
 };
 
-class FileFormatSyntax : public AggregateTypeSyntax
+class OSLFilenameTypeSyntax : public AggregateTypeSyntax
 {
   public:
-    FileFormatSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+    OSLFilenameTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
                      const StringVec& members = EMPTY_MEMBERS) :
         AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
@@ -262,19 +262,17 @@ class FileFormatSyntax : public AggregateTypeSyntax
             return EMPTY_STRING;
         }
 
-        StringVec values;
-        values.push_back(port->getValue() ? port->getValue()->getValueString() : EMPTY_STRING);
-        values.push_back(port->getColorspace());
-        return getValue(values, uniform);
+        const string prefix = uniform ? "{" : getName() + "(";
+        const string suffix = uniform ? "}" : ")";
+        const string filename = port->getValue() ? port->getValue()->getValueString() : EMPTY_STRING;
+        return prefix + "\"" + filename + "\", \"" + port->getColorspace() + "\"" + suffix;
     }
 
     string getValue(const Value& value, bool uniform) const override
     {
-        StringVec values;
-        values.push_back(value.getValueString());
-        values.push_back(EMPTY_STRING); // TODO: How to get color space initialized
-
-        return getValue(values, uniform);
+        const string prefix = uniform ? "{" : getName() + "(";
+        const string suffix = uniform ? "}" : ")";
+        return prefix + "\"" + value.getValueString() + "\", \"\"" + suffix;
     }
 
     string getValue(const StringVec& values, bool uniform) const override
@@ -284,26 +282,9 @@ class FileFormatSyntax : public AggregateTypeSyntax
             throw ExceptionShaderGenError("Incorrect number of values given to construct a value");
         }
 
-        StringStream ss;
-        if (!uniform)
-        {
-            ss << getName() + "( ";
-        }
-        else
-        { 
-            ss << "{ ";
-        }
-        ss << "\"" << values[0] << "\", ";
-        ss << "\"" << values[1] << "\"";
-        if (!uniform)
-        {
-            ss << " )";
-        }
-        else
-        { 
-            ss << " }";
-        }
-        return ss.str();
+        const string prefix = uniform ? "{" : getName() + "(";
+        const string suffix = uniform ? "}" : ")";
+        return prefix + "\"" + values[0] + "\", \"" + values[1] + "\"" + suffix;
     }
 };
 
@@ -469,12 +450,12 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::FILENAME,
-        std::make_shared<FileFormatSyntax>(
-            "FILEINPUT",
-            "FILEINPUT(\"\", \"\")",
+        std::make_shared<OSLFilenameTypeSyntax>(
+            "FILETEXTURE",
+            "FILETEXTURE(\"\", \"\")",
             "(\"\", \"\")",
             EMPTY_STRING,
-            "struct FILEINPUT { string filename; string colorspace; };")
+            "struct FILETEXTURE{ string filename; string colorspace; };")
     );
 
     registerTypeSyntax

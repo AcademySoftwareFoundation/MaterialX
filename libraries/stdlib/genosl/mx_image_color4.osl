@@ -1,8 +1,8 @@
 #include "$fileTransformUv"
 
-void mx_image_color4(FILEINPUT fileinput, string layer, color4 default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output color4 out)
+void mx_image_color4(FILETEXTURE file, string layer, color4 default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output color4 out)
 {
-    if (fileinput.filename == "" ||
+    if (file.filename == "" ||
         (uaddressmode == "constant" && (texcoord.x<0.0 || texcoord.x>1.0)) ||
         (vaddressmode == "constant" && (texcoord.y<0.0 || texcoord.y>1.0)))
     {
@@ -14,7 +14,7 @@ void mx_image_color4(FILEINPUT fileinput, string layer, color4 default_value, ve
     float missingAlpha = default_value.a;
     vector2 st = mx_transform_uv(texcoord);
     float alpha;
-    color rgb = texture(fileinput.filename, st.x, st.y, "alpha", alpha, "subimage", layer,
+    color rgb = texture(file.filename, st.x, st.y, "alpha", alpha, "subimage", layer,
                         "missingcolor", missingColor, "missingalpha", missingAlpha, "swrap", uaddressmode, "twrap", vaddressmode $extraTextureLookupArguments );
 
     out = color4(rgb, alpha);

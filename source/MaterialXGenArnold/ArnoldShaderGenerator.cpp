@@ -21,7 +21,7 @@ ArnoldShaderGenerator::ArnoldShaderGenerator()
     _syntax->registerReservedWords(reservedWords);
 
     // Set colorspace argument for texture lookups
-    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = ", \"colorspace\", fileinput.colorspace";
+    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = ", \"colorspace\", file.colorspace";
 }
 
 }
