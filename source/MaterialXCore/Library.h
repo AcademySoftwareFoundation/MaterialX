@@ -44,8 +44,9 @@
     #define MATERIALX_IMPORT_EXTERN_TEMPLATE(...)
 #endif
 
-namespace @MATERIALX_NAMESPACE@
-{
+#include <MaterialXCore/Generated.h>
+
+MATERIALX_NAMESPACE_BEGIN
 
 using std::string;
 using std::vector;
@@ -59,12 +60,6 @@ using StringMap = std::unordered_map<string, string>;
 /// A set of strings.
 using StringSet = std::set<string>;
 
-} // namespace MaterialX
-
-// Allow downstream clients to still use the MaterialX namespace:
-namespace MaterialX = @MATERIALX_NAMESPACE@;
-
-#define MATERIALX_NAMESPACE_BEGIN namespace @MATERIALX_NAMESPACE@ {
-#define MATERIALX_NAMESPACE_END }
+MATERIALX_NAMESPACE_END
 
 #endif

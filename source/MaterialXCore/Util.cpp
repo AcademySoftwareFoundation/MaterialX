@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXCore/Types.h>
-#include <MaterialXCore/Version.h>
 
 #include <cctype>
 #include <sstream>

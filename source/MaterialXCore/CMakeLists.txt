@@ -1,5 +1,4 @@
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Version.h)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Library.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Library.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Generated.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Generated.h)
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
