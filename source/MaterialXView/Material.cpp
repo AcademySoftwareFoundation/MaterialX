@@ -8,12 +8,6 @@
 
 #include <MaterialXFormat/Util.h>
 
-namespace {
-
-const float PI = std::acos(-1.0f);
-
-} // anonymous namespace
-
 //
 // Material methods
 //
@@ -183,23 +177,14 @@ bool Material::bindPartition(mx::MeshPartitionPtr part) const
     return true;
 }
 
-void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj)
+void Material::bindViewInformation(mx::CameraPtr camera)
 {
     if (!_glProgram)
     {
         return;
     }
 
-    mx::Matrix44 viewProj = view * proj;
-    mx::Matrix44 invView = view.getInverse();
-    mx::Matrix44 invTransWorld = world.getInverse().getTranspose();
-    mx::Vector3 viewPosition(invView[3][0], invView[3][1], invView[3][2]);
-
-    // Bind view properties.
-    _glProgram->bindUniform(mx::HW::WORLD_MATRIX, mx::Value::createValue(world), false);
-    _glProgram->bindUniform(mx::HW::VIEW_PROJECTION_MATRIX, mx::Value::createValue(viewProj), false);
-    _glProgram->bindUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, mx::Value::createValue(invTransWorld), false);
-    _glProgram->bindUniform(mx::HW::VIEW_POSITION, mx::Value::createValue(viewPosition), false);
+    _glProgram->bindViewInformation(camera);
 }
 
 void Material::unbindImages(mx::ImageHandlerPtr imageHandler)
@@ -289,113 +274,15 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
     return nullptr;
 }
 
-void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                          const LightingState& lightingState, const ShadowState& shadowState)
+void Material::bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const ShadowState& shadowState)
 {
     if (!_glProgram)
     {
         return;
     }
 
-    // Bind environment lighting properties.
-    if (_glProgram->hasUniform(mx::HW::ENV_MATRIX))
-    {
-        mx::Matrix44 envRotation = mx::Matrix44::createRotationY(PI) * lightingState.lightTransform.getTranspose();
-        _glProgram->bindUniform(mx::HW::ENV_MATRIX, mx::Value::createValue(envRotation));
-    }
-    if (_glProgram->hasUniform(mx::HW::ENV_RADIANCE_SAMPLES))
-    {
-        _glProgram->bindUniform(mx::HW::ENV_RADIANCE_SAMPLES, mx::Value::createValue(lightingState.envSamples));
-    }
-    mx::ImageMap envImages =
-    {
-        { mx::HW::ENV_RADIANCE, lightingState.indirectLighting ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
-        { mx::HW::ENV_IRRADIANCE, lightingState.indirectLighting ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
-    };
-    for (const auto& env : envImages)
-    {
-        std::string uniform = env.first;
-        mx::ImagePtr image = env.second;
-        if (image && _glProgram->hasUniform(env.first))
-        {
-            mx::ImageSamplingProperties samplingProperties;
-            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
-            samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
-
-            // Bind the environment image.
-            if (imageHandler->bindImage(image, samplingProperties))
-            {
-                mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
-                int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
-                if (textureLocation >= 0)
-                {
-                    _glProgram->bindUniform(uniform, mx::Value::createValue(textureLocation));
-                }
-
-                // Bind any associated uniforms.
-                if (uniform == mx::HW::ENV_RADIANCE)
-                {
-                    if (_glProgram->hasUniform(mx::HW::ENV_RADIANCE_MIPS))
-                    {
-                        _glProgram->bindUniform(mx::HW::ENV_RADIANCE_MIPS, mx::Value::createValue((int) image->getMaxMipCount()));
-                    }
-                }
-            }
-        }
-    }
-
-    // Bind direct lighting properties.
-    if (_glProgram->hasUniform(mx::HW::NUM_ACTIVE_LIGHT_SOURCES))
-    {
-        int lightCount = lightingState.directLighting ? (int) lightHandler->getLightSources().size() : 0;
-        _glProgram->bindUniform(mx::HW::NUM_ACTIVE_LIGHT_SOURCES, mx::Value::createValue(lightCount));
-        mx::LightIdMap idMap = lightHandler->computeLightIdMap(lightHandler->getLightSources());
-        size_t index = 0;
-        for (mx::NodePtr light : lightHandler->getLightSources())
-        {
-            auto nodeDef = light->getNodeDef();
-            if (!nodeDef)
-            {
-                continue;
-            }
-
-            const std::string prefix = mx::HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(index) + "]";
-
-            // Set light type id
-            std::string lightType(prefix + ".type");
-            if (_glProgram->hasUniform(lightType))
-            {
-                unsigned int lightTypeValue = idMap[nodeDef->getName()];
-                _glProgram->bindUniform(lightType, mx::Value::createValue((int) lightTypeValue));
-            }
-
-            // Set all inputs
-            for (const auto& input : light->getInputs())
-            {
-                // Make sure we have a value to set
-                if (input->hasValue())
-                {
-                    std::string inputName(prefix + "." + input->getName());
-                    if (_glProgram->hasUniform(inputName))
-                    {
-                        if (input->getName() == "direction" && input->hasValue() && input->getValue()->isA<mx::Vector3>())
-                        {
-                            mx::Vector3 dir = input->getValue()->asA<mx::Vector3>();
-                            dir = lightingState.lightTransform.transformVector(dir);
-                            getProgram()->bindUniform(inputName, mx::Value::createValue(dir));
-                        }
-                        else
-                        {
-                            getProgram()->bindUniform(inputName, input->getValue());
-                        }
-                    }
-                }
-            }
-
-            ++index;
-        }
-    }
+    // Bind environment and local lighting.
+    _glProgram->bindLighting(lightHandler, imageHandler);
 
     // Bind shadow map properties
     if (shadowState.shadowMap && _glProgram->hasUniform(mx::HW::SHADOW_MAP))
@@ -437,28 +324,6 @@ void Material::bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr 
             }
         }
         _glProgram->bindUniform(mx::HW::AMB_OCC_GAIN, mx::Value::createValue(shadowState.ambientOcclusionGain));
-    }
-
-    // Bind the directional albedo table.
-    if (genContext.getOptions().hwDirectionalAlbedoMethod == mx::DIRECTIONAL_ALBEDO_TABLE)
-    {
-        if (_glProgram->hasUniform(mx::HW::ALBEDO_TABLE))
-        {
-            mx::ImageSamplingProperties samplingProperties;
-            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-            samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
-            mx::ImagePtr albedoTable = lightHandler->getAlbedoTable();
-            if (imageHandler->bindImage(albedoTable, samplingProperties))
-            {
-                mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
-                int textureLocation = textureHandler->getBoundTextureLocation(albedoTable->getResourceId());
-                if (textureLocation >= 0)
-                {
-                    _glProgram->bindUniform(mx::HW::ALBEDO_TABLE, mx::Value::createValue(textureLocation));
-                }
-            }
-        }
     }
 }
 

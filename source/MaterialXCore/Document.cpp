@@ -452,20 +452,22 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
 bool Document::validate(string* message) const
 {
     bool res = true;
-    validateRequire(hasVersionString(), res, message, "Missing version string");
+    std::pair<int, int> expectedVersion(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
+    validateRequire(getVersionIntegers() >= expectedVersion, res, message, "Unsupported document version");
+    validateRequire(getVersionIntegers() <= expectedVersion, res, message, "Future document version");
     return GraphElement::validate(message) && res;
 }
 
 void Document::upgradeVersion()
 {
-    std::pair<int, int> versions = getVersionIntegers();
-    int majorVersion = versions.first;
-    int minorVersion = versions.second;
-    if (majorVersion == MATERIALX_MAJOR_VERSION &&
-        minorVersion == MATERIALX_MINOR_VERSION)
+    std::pair<int, int> documentVersion = getVersionIntegers();
+    std::pair<int, int> expectedVersion(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
+    if (documentVersion >= expectedVersion)
     {
         return;
     }
+    int majorVersion = documentVersion.first;
+    int minorVersion = documentVersion.second;
 
     // Upgrade from v1.22 to v1.23
     if (majorVersion == 1 && minorVersion == 22)
@@ -1477,7 +1479,11 @@ void Document::upgradeVersion()
         minorVersion = 38;
     }
 
-    setVersionIntegers(majorVersion, minorVersion);
+    std::pair<int, int> upgradedVersion(majorVersion, minorVersion);
+    if (upgradedVersion == expectedVersion)
+    {
+        setVersionIntegers(majorVersion, minorVersion);
+    }
 }
 
 void Document::invalidateCache()
