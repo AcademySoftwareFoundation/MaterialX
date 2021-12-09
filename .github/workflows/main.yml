@@ -221,14 +221,14 @@ jobs:
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
     - name: Upload Installed Package
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v2.2.4
       if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' }}
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Renders
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v2.2.4
       if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       with:
         name: Renders_${{ matrix.name }}
