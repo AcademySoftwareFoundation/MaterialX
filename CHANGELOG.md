@@ -3,18 +3,25 @@
 ## [1.38.3] - Development
 
 ### Added
+- Added support for nodedef/nodegraph associations via implementation elements, allowing nodes to share graph definitions.
+- Added an upgradeVersion option to XmlReadOptions, allowing utilities to disable version upgrades when needed.
 - Added preprocessor definitions for the API version to MaterialXCore.
-- Added an initial ClangFormat file for the MaterialX codebase.
 - Added color transform methods to the Image class.
+- Added an initial ClangFormat file for the MaterialX codebase.
+- Added initial support for FreeBSD.
 - Added support for Xcode 13.
 
 ### Changed
 - Refactored BSDF handling in shader generation, allowing for more flexible and efficient vertical layering.
 - Optimized GLSL implementations for GGX specular, moving common computations to tangent space.
+- Merged the ViewHandler and viewer camera into a new Camera class in MaterialXRender.
+- Updated the PyBind11 library to version 2.7.1
 
 ### Fixed
+- Fixed a performance regression in MaterialXView for multi-UDIM assets.
 - Fixed a bug that caused shader inputs to be skipped in createUIPropertyGroups.
 - Fixed the value of transmission roughness in UsdPreviewSurface.
+- Fixed Vulkan compatibility for generated GLSL code.
 
 ## [1.38.2] - 2021-10-07
 
