@@ -317,7 +317,7 @@ OslSyntax::OslSyntax()
         "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet",
         "reflection", "transparent", "debug", "holdout", "subsurface", 
         // TODO: Add all OSL standard library functions names
-        "mix", "rotate"
+        "mix", "rotate", "textureresource"
     });
 
     //
@@ -451,11 +451,11 @@ OslSyntax::OslSyntax()
     (
         Type::FILENAME,
         std::make_shared<OSLFilenameTypeSyntax>(
-            "FILETEXTURE",
-            "FILETEXTURE(\"\", \"\")",
+            "textureresource ",
+            "textureresource (\"\", \"\")",
             "(\"\", \"\")",
             EMPTY_STRING,
-            "struct FILETEXTURE{ string filename; string colorspace; };")
+            "struct textureresource { string filename; string colorspace; };")
     );
 
     registerTypeSyntax

@@ -1,6 +1,6 @@
 #include "$fileTransformUv"
 
-void mx_image_color4(FILETEXTURE file, string layer, color4 default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output color4 out)
+void mx_image_color4(textureresource file, string layer, color4 default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output color4 out)
 {
     if (file.filename == "" ||
         (uaddressmode == "constant" && (texcoord.x<0.0 || texcoord.x>1.0)) ||
