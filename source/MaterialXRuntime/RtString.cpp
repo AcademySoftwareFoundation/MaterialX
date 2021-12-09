@@ -9,8 +9,8 @@
 #include <cstring>
 #include <mutex>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 struct RtStringRegistry
 {
@@ -138,4 +138,4 @@ const RtString RtString::DEFAULT("default");
 const RtString RtString::DEFAULTINPUT("defaultinput");
 const RtString RtString::UNKNOWN("unknown");
 
-}
+MATERIALX_NAMESPACE_END

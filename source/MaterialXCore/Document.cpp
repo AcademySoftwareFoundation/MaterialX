@@ -10,8 +10,8 @@
 
 #include <mutex>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string Document::CMS_ATTRIBUTE = "cms";
 const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
@@ -1491,4 +1491,4 @@ void Document::invalidateCache()
     _cache->valid = false;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

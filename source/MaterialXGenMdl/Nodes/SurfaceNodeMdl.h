@@ -10,8 +10,8 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Surface node implementation for MDL
 class MX_GENMDL_API SurfaceNodeMdl : public ShaderNodeImpl
@@ -22,6 +22,6 @@ class MX_GENMDL_API SurfaceNodeMdl : public ShaderNodeImpl
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

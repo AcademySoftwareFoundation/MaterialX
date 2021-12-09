@@ -8,8 +8,8 @@
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 namespace
 {
     // TODO: We should derive this from a data driven XML schema.
@@ -97,4 +97,4 @@ const RtString& RtNodeImpl::getImplName() const
     return attr ? attr->asInternString() : RtString::EMPTY;
 }
 
-}
+MATERIALX_NAMESPACE_END

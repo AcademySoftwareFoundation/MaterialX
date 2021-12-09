@@ -11,8 +11,8 @@
 
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RtValue::RtValue(const Matrix33& v, RtPrim& prim)
 {
@@ -101,4 +101,4 @@ void RtValue::fromString(const RtString& type, const string& src, RtValue& dest)
     typeDef->fromStringValue(src, dest);
 }
 
-}
+MATERIALX_NAMESPACE_END

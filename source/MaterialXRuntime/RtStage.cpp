@@ -13,8 +13,8 @@
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtApi.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -234,4 +234,4 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
     return nodedef.getPrim();
 }
 
-}
+MATERIALX_NAMESPACE_END

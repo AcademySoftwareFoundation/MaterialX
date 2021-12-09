@@ -16,8 +16,8 @@
 
 #include <map>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Shared pointer to a GeometryLoader
 using GeometryLoaderPtr = std::shared_ptr<class GeometryLoader>;
@@ -129,6 +129,6 @@ class MX_RENDER_API GeometryHandler
     Vector3 _maximumBounds;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

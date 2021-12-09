@@ -8,8 +8,8 @@
 
 #include <string>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 namespace Cross
 {
     /// Initialize global state necessary for cross-compilation.
@@ -37,7 +37,7 @@ namespace Cross
         const std::string& glslFragment,
         const std::string& fragmentName
     );
-}
+MATERIALX_NAMESPACE_END
 }
 
 #endif

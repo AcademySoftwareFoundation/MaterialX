@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/Private/PvtPrim.h>
 #include <MaterialXRuntime/Private/PvtStage.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -390,4 +390,4 @@ void RtStageIterator::abort()
     _ptr = nullptr;
 }
 
-}
+MATERIALX_NAMESPACE_END

@@ -5,8 +5,8 @@
 
 #include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -52,4 +52,4 @@ void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenCon
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

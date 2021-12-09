@@ -25,8 +25,8 @@
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -665,4 +665,4 @@ namespace MDL
     const string OUTPUTS  = "o";
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

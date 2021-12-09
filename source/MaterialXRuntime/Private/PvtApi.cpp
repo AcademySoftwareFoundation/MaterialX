@@ -15,8 +15,8 @@
 #include <MaterialXRuntime/RtFileIo.h>
 #include <MaterialXRuntime/RtPath.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -254,4 +254,4 @@ RtString PvtApi::makeUniqueStageName(const RtString& name) const
     return newName;
 }
 
-}
+MATERIALX_NAMESPACE_END

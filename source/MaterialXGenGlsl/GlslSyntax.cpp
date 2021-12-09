@@ -7,8 +7,8 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -426,4 +426,4 @@ bool GlslSyntax::remapEnumeration(const string& value, const TypeDesc* type, con
     return true;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

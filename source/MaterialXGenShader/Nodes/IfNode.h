@@ -8,8 +8,8 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class IfNode
 /// Abstract base class for implementions which handle if conditions.
@@ -67,6 +67,6 @@ class MX_GENSHADER_API IfEqualNode : public IfNode
     static string EQUALITY_STRING;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

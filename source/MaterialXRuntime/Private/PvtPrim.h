@@ -16,8 +16,8 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 // Allocator class handling allocation of data for prims.
 // The data allocated is kept by the allocator and freed
@@ -419,6 +419,6 @@ public:
     PvtAllocator _allocator; // TODO: Start using this allocator, change default value from strings to actual value type.
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

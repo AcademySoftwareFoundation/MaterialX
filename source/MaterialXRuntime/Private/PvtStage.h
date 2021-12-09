@@ -15,8 +15,8 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class PvtStage;
 
@@ -196,6 +196,6 @@ protected:
     friend class PvtObject;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

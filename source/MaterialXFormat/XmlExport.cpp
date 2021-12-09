@@ -7,8 +7,8 @@
 
 #include <MaterialXFormat/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 //
 // XmlExportOptions methods
@@ -103,4 +103,4 @@ string exportToXmlString(DocumentPtr doc, const XmlExportOptions* exportOptions)
     return writeToXmlString(exportDoc, exportOptions);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

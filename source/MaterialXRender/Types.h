@@ -12,8 +12,8 @@
 #include <MaterialXCore/Types.h>
 #include <MaterialXRender/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class Vector3d
 /// A vector of three floating-point values (double-precision)
@@ -154,6 +154,6 @@ class MX_RENDER_API Half
     uint16_t _data;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -11,8 +11,8 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class ScalarUnitNode : public ShaderNodeImpl
 {
@@ -258,4 +258,4 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     return shaderNode;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

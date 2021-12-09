@@ -13,8 +13,8 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Shared pointer to an MdlShaderGenerator
 using MdlShaderGeneratorPtr = shared_ptr<class MdlShaderGenerator>;
@@ -60,6 +60,6 @@ namespace MDL
     extern MX_GENMDL_API const string OUTPUTS;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

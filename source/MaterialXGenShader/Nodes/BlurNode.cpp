@@ -9,8 +9,8 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Name of function to compute sample size in uv space. Takes uv, filter size, and filter offset
 /// as input, and return a 2 channel vector as output
@@ -218,4 +218,4 @@ void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, Sha
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

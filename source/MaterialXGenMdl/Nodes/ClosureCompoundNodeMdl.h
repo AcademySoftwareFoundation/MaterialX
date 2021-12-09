@@ -9,8 +9,8 @@
 #include <MaterialXGenMdl/Export.h>
 #include <MaterialXGenMdl/Nodes/CompoundNodeMdl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Compound node implementation
 class MX_GENMDL_API ClosureCompoundNodeMdl : public CompoundNodeMdl
@@ -22,6 +22,6 @@ class MX_GENMDL_API ClosureCompoundNodeMdl : public CompoundNodeMdl
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -33,8 +33,8 @@
 #include <fstream>
 #include <map>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -1658,4 +1658,4 @@ void RtFileIo::exportDocument(const FilePath& documentPath, const RtExportOption
     exportToXmlFile(document, documentPath, &xmlExportOptions);
 }
 
-}
+MATERIALX_NAMESPACE_END

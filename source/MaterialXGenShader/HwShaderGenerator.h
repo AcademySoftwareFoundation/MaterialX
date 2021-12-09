@@ -14,8 +14,8 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /*
 The HW shader generators have a number of predefined variables (inputs and uniforms) with binding rules.
@@ -356,6 +356,6 @@ class MX_GENSHADER_API HwResourceBindingContext : public GenUserData
 
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

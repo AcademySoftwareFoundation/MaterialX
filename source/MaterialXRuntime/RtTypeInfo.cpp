@@ -7,8 +7,8 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 struct PvtTypeNameInfo
 {
@@ -68,4 +68,4 @@ bool RtTypeInfo::isCompatible(const RtString& typeName) const
     return static_cast<PvtTypeNameInfo*>(_ptr)->allNames.count(typeName) > 0;
 }
 
-}
+MATERIALX_NAMESPACE_END

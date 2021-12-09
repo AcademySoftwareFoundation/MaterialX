@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class RtConnectionIterator;
 
@@ -56,6 +56,6 @@ public:
     string getObjectNames() const;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

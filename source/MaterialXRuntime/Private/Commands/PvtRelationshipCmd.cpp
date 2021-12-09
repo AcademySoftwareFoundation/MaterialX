@@ -5,8 +5,8 @@
 
 #include <MaterialXRuntime/Private/Commands/PvtRelationshipCmd.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 PvtCommandPtr PvtRelationshipCmd::create(const RtRelationship& rel, const RtObject& obj, ConnectionChange change)
 {
@@ -87,4 +87,4 @@ void PvtRelationshipCmd::breakConnection(RtCommandResult& result)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

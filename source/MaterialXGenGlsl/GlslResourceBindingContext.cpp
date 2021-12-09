@@ -5,8 +5,8 @@
 
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 //
 // GlslResourceBindingContext
@@ -184,4 +184,4 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);
 }
-}
+MATERIALX_NAMESPACE_END

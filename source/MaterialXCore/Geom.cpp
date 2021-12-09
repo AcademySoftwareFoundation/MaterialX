@@ -7,8 +7,8 @@
 
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string GEOM_PATH_SEPARATOR = "/";
 const string UNIVERSAL_GEOM_NAME = GEOM_PATH_SEPARATOR;
@@ -179,4 +179,4 @@ bool Collection::validate(string* message) const
     return Element::validate(message) && res;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

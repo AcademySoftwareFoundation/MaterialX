@@ -8,8 +8,8 @@
 
 #include <MaterialXRuntime/RtString.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class RtColorManagementSystem
 {
@@ -29,7 +29,7 @@ public:
     const RtStringVec& getColorSpaceNames() const override;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif
 

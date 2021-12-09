@@ -7,8 +7,8 @@
 
 #include <MaterialXRuntime/Private/PvtTypeDef.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const RtString RtTypeDef::BASETYPE_NONE("none");
 const RtString RtTypeDef::BASETYPE_BOOLEAN("boolean");
@@ -131,4 +131,4 @@ const RtTypeDef* RtTypeDef::findType(const RtString& name)
     return PvtTypeDefRegistry::get().findType(name);
 }
 
-}
+MATERIALX_NAMESPACE_END

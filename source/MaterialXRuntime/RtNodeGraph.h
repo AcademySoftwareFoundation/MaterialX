@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeDef.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class RtPrimIterator;
 
@@ -87,6 +87,6 @@ public:
     string asStringDot() const;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

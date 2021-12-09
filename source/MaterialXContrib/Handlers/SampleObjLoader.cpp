@@ -13,8 +13,8 @@
 #include <iomanip>  
 #include <limits>
 
-namespace MaterialX
-{ 
+MATERIALX_NAMESPACE_BEGIN
+
 bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     std::ifstream objfile;
@@ -308,4 +308,4 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
     return true;
 }
 
-}
+MATERIALX_NAMESPACE_END

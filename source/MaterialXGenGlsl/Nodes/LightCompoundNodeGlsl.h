@@ -12,8 +12,8 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class GlslShaderGenerator;
 
@@ -41,6 +41,6 @@ protected:
     VariableBlock _lightUniforms;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

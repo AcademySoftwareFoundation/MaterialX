@@ -10,9 +10,11 @@
 /// Publishing version formatting methods
 
 #include <string>
+#include <MaterialXCore/Library.h>
 
-namespace MaterialX
-{
+
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Validate if the give string is a proper version format.
 bool isValidVersionFormat(const std::string& versionFormat);
@@ -34,6 +36,6 @@ int getVersionFormatDecimalPrecision(const std::string& versionFormat);
 /// decimal precision of 2, then the increment step is 0.01
 double getVersionIncrementStep(const int decimalPrecision);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

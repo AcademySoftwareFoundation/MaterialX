@@ -13,8 +13,8 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class FilePath;
 using FilePathVec = vector<FilePath>;
@@ -348,6 +348,6 @@ class MX_FORMAT_API FileSearchPath
 /// Return a FileSearchPath object from search path environment variable.
 MX_FORMAT_API FileSearchPath getEnvironmentPath(const string& sep = PATH_LIST_SEPARATOR);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

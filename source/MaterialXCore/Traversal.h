@@ -11,8 +11,8 @@
 
 #include <MaterialXCore/Exception.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class Element;
 
@@ -397,6 +397,6 @@ extern MX_CORE_API const TreeIterator NULL_TREE_ITERATOR;
 extern MX_CORE_API const GraphIterator NULL_GRAPH_ITERATOR;
 extern MX_CORE_API const InheritanceIterator NULL_INHERITANCE_ITERATOR;
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

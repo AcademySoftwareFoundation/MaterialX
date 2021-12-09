@@ -11,8 +11,8 @@
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 using ArnoldShaderGeneratorPtr = shared_ptr<class ArnoldShaderGenerator>;
 
@@ -32,6 +32,6 @@ public:
     static const string TARGET;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

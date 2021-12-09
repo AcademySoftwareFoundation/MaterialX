@@ -9,8 +9,8 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 //
 // ColorSpaceTransform methods
@@ -189,4 +189,4 @@ void ColorManagementSystem::connectNodeToShaderOutput(ShaderGraph* graph, Shader
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

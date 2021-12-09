@@ -11,8 +11,8 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -175,4 +175,4 @@ bool RtMaterialAssignConnectableApi::acceptRelationship(const RtRelationship& re
     return false;
 }
 
-}
+MATERIALX_NAMESPACE_END

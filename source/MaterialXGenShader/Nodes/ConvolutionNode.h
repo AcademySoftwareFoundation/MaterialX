@@ -10,8 +10,8 @@
 
 #include <array>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 extern MX_GENSHADER_API const std::array<float, 3> GAUSSIAN_KERNEL_3;
 extern MX_GENSHADER_API const std::array<float, 5> GAUSSIAN_KERNEL_5;
@@ -50,6 +50,6 @@ class MX_GENSHADER_API ConvolutionNode : public ShaderNodeImpl
                             StringVec& sampleStrings) const;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

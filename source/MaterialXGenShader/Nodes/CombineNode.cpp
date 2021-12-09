@@ -9,8 +9,8 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 ShaderNodeImplPtr CombineNode::create()
 {
@@ -140,4 +140,4 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

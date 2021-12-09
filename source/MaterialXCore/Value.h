@@ -14,8 +14,8 @@
 #include <MaterialXCore/Types.h>
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// A vector of integers.
 using IntVec = vector<int>;
@@ -241,6 +241,6 @@ MX_CORE_EXTERN_TEMPLATE(TypedValue<StringVec>);
 MX_CORE_EXTERN_TEMPLATE(TypedValue<long>);
 MX_CORE_EXTERN_TEMPLATE(TypedValue<double>);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

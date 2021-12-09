@@ -8,8 +8,8 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Closure layer node implementation.
 class MX_GENSHADER_API ClosureLayerNode : public ShaderNodeImpl
@@ -26,6 +26,6 @@ class MX_GENSHADER_API ClosureLayerNode : public ShaderNodeImpl
     static const string IOR;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

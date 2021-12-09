@@ -13,8 +13,8 @@
 
 #include <chrono>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class ScopedTimer
 /// A class for scoped event timing
@@ -41,6 +41,6 @@ class MX_RENDER_API ScopedTimer
     std::chrono::time_point<clock> _startTime;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

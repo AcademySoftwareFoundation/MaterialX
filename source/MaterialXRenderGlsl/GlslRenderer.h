@@ -16,8 +16,8 @@
 
 #include <MaterialXRender/ShaderRenderer.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 using GLContextPtr = std::shared_ptr<class GLContext>;
 using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
@@ -131,6 +131,6 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     Color4 _clearColor;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

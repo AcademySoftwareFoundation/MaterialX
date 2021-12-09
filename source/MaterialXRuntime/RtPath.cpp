@@ -8,8 +8,8 @@
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtObject.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RtPath::RtPath() :
     _ptr(new PvtPath())
@@ -84,4 +84,4 @@ bool RtPath::isRoot() const
     return static_cast<PvtPath*>(_ptr)->isRoot();
 }
 
-}
+MATERIALX_NAMESPACE_END

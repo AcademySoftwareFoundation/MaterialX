@@ -7,8 +7,8 @@
 
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
@@ -171,4 +171,4 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
     return unitDefs;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

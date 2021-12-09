@@ -5,8 +5,8 @@
 
 #include <MaterialXRuntime/RtColorManagementSystem.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -31,4 +31,4 @@ const RtStringVec& RtDefaultColorManagementSystem::getColorSpaceNames() const
     return DEFAULT_COLOR_SPACES_NAMES;
 }
 
-}
+MATERIALX_NAMESPACE_END

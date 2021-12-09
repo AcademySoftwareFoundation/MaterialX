@@ -11,8 +11,8 @@
 
 #include <MaterialXGenOgsFx/OgsFxShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// An OgsFx shader generator targeting the glslShader plugin in Maya
 /// This generator shader is identical to the OgsFxShaderGenerator class except
@@ -35,6 +35,6 @@ protected:
     void getTechniqueParams(const Shader& shader, string& params) const override;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -11,8 +11,8 @@
 
 #include <MaterialXCore/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 extern MX_CORE_API const string EMPTY_STRING;
 
@@ -73,6 +73,6 @@ MX_CORE_API string parentNamePath(const string& namePath);
 /// Generates the Base Compound Name given the input
 MX_CORE_API string getBaseCompoundName(const string& nodeName, const string& typeNames, const string& version, const string& namespaceString);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

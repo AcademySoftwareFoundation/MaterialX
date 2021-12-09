@@ -12,8 +12,8 @@
 #include <iostream>
 #include <queue>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 //
 // ShaderGraph methods
@@ -1452,4 +1452,4 @@ void ShaderGraphEdgeIterator::returnPathDownstream(ShaderOutput* upstream)
     _downstream = nullptr;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -10,8 +10,8 @@
 
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Node implementation using data-driven static source code.
 /// This is the default implementation used for all nodes that 
@@ -29,6 +29,6 @@ protected:
     string _returnStruct;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

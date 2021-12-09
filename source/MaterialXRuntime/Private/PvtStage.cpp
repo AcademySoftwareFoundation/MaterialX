@@ -17,8 +17,8 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const RtTypeInfo PvtStage::RootPrim::_typeInfo("stagerootprim");
 
@@ -361,4 +361,4 @@ PvtStageIterator& PvtStageIterator::operator++()
     return *this;
 }
 
-}
+MATERIALX_NAMESPACE_END

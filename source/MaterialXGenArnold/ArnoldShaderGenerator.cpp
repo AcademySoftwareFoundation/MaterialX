@@ -5,8 +5,8 @@
 
 #include <MaterialXGenArnold/ArnoldShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string ArnoldShaderGenerator::TARGET = "arnold";
 
@@ -21,4 +21,4 @@ ArnoldShaderGenerator::ArnoldShaderGenerator()
     _syntax->registerReservedWords(reservedWords);
 }
 
-}
+MATERIALX_NAMESPACE_END

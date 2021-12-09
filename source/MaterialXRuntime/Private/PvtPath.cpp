@@ -8,8 +8,8 @@
 
 #include <MaterialXRuntime/RtPath.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string PvtPath::SEPARATOR("/");
 const RtString PvtPath::ROOT_NAME("/");
@@ -37,4 +37,4 @@ void PvtPath::setObject(const PvtObject* obj)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

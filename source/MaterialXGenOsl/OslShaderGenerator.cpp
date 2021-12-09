@@ -23,8 +23,8 @@
 #include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string OslShaderGenerator::TARGET = "genosl";
 
@@ -582,4 +582,4 @@ namespace OSL
     const string OUTPUTS  = "o";
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -7,8 +7,8 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -310,4 +310,4 @@ bool UnitConverterRegistry::convertToUnit(DocumentPtr doc, const string& unitTyp
     return convertedUnits;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

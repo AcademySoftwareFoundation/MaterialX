@@ -7,8 +7,8 @@
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -599,4 +599,4 @@ bool hasElementAttributes(OutputPtr output, const StringVec& attributes)
     return false;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -11,8 +11,8 @@
 
 #include <MaterialXGenShader/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class GenUserData;
 
@@ -57,6 +57,6 @@ class MX_GENSHADER_API GenUserData : public std::enable_shared_from_this<GenUser
     GenUserData() { }
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_GENCONTEXT_H

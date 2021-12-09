@@ -14,8 +14,8 @@
 #include <atomic>
 #include <memory>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Base class for classes using the shared/weak pointer.
 template<typename T>
@@ -93,6 +93,6 @@ void intrusive_ptr_release(T* p)                                    \
 friend void intrusive_ptr_add_ref(T* obj);                          \
 friend void intrusive_ptr_release(T* obj);                          \
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

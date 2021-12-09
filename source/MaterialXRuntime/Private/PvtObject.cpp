@@ -13,8 +13,8 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RT_DEFINE_RUNTIME_OBJECT(PvtObject, RtObjType::OBJECT, "PvtObject")
 RT_DEFINE_REF_PTR_FUNCTIONS(PvtObject)
@@ -140,4 +140,4 @@ RtString PvtObjectList::rename(const RtString& name, const RtString& newName, co
     return finalName;
 }
 
-}
+MATERIALX_NAMESPACE_END

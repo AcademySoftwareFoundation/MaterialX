@@ -10,8 +10,8 @@
 #include <sstream>
 #include <iomanip>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string EMPTY_STRING;
 
@@ -199,4 +199,4 @@ string getBaseCompoundName(const string& nodeName, const string& typeNames, cons
     return tempStream.str();
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

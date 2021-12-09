@@ -11,8 +11,8 @@
 #include <MaterialXRenderHw/WindowCocoaWrappers.h>
 #endif
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 #if defined(_WIN32)
 
@@ -114,4 +114,4 @@ WindowWrapperPtr WindowWrapper::create(ExternalWindowHandle externalHandle,
     return std::shared_ptr<WindowWrapper>(new WindowWrapper(externalHandle, internalHandle, display));
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

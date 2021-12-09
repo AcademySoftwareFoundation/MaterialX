@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/RtSchema.h>
 #include <MaterialXRuntime/RtTraversal.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @struct RtNodeLayout
 /// Container for node layout information.
@@ -183,6 +183,6 @@ public:
     RtNodeLayout getNodeLayout();
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

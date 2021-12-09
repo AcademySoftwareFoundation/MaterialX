@@ -9,8 +9,8 @@
 #include <MaterialXGenGlsl/Export.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// SurfaceShader node implementation for GLSL
 /// Used for all surface shaders implemented in source code.
@@ -26,6 +26,6 @@ class MX_GENGLSL_API SurfaceShaderNodeGlsl : public SourceCodeNode
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -8,8 +8,8 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -502,4 +502,4 @@ void OgsFxShaderGenerator::getTechniqueParams(const Shader&, string&) const
     // Default implementation doesn't use any technique parameters
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

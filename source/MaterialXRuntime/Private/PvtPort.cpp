@@ -9,8 +9,8 @@
 
 #include <MaterialXRuntime/RtConnectableApi.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RT_DEFINE_RUNTIME_OBJECT(PvtPort, RtObjType::PORT, "PvtPort")
 
@@ -126,4 +126,4 @@ void PvtOutput::clearConnections()
     _connections.clear();
 }
 
-}
+MATERIALX_NAMESPACE_END

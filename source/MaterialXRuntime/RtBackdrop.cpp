@@ -7,8 +7,8 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 namespace
 {
     // TODO: We should derive this from a data driven XML schema.
@@ -94,4 +94,4 @@ float RtBackdrop::getHeight() const
     return attr ? attr->asFloat() : 0.0f;
 }
 
-}
+MATERIALX_NAMESPACE_END

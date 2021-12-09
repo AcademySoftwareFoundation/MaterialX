@@ -8,8 +8,8 @@
 
 #include <MaterialXRuntime/RtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 PvtCommandPtr PvtRenamePrimCmd::create(RtStagePtr stage, const RtPath& path, const RtString& newName)
 {
@@ -71,4 +71,4 @@ void PvtRenamePrimCmd::undo(RtCommandResult& result)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

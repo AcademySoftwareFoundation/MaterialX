@@ -7,8 +7,8 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 DEFINE_TYPED_SCHEMA(RtGeneric, "generic");
 
@@ -41,4 +41,4 @@ void RtGeneric::setKind(const RtString& kind)
     attr->asInternString() = kind;
 }
 
-}
+MATERIALX_NAMESPACE_END

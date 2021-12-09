@@ -8,8 +8,8 @@
 
 #include <MaterialXRender/ImageHandler.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 /// Shared pointer to an TinyEXRImageLoader
 using TinyEXRImageLoaderPtr = std::shared_ptr<class TinyEXRImageLoader>;
 
@@ -35,6 +35,6 @@ public:
     ImagePtr loadImage(const FilePath& filePath) override;
 };
 
-} // namespace MaterialX;
+MATERIALX_NAMESPACE_END
 
 #endif

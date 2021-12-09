@@ -7,8 +7,8 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 ShaderNodeImplPtr BitangentNodeGlsl::create()
 {
@@ -86,4 +86,4 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

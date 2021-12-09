@@ -5,8 +5,8 @@
 
 #include <MaterialXRuntime/Private/Commands/PvtCreatePrimCmd.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 PvtCommandPtr PvtCreatePrimCmd::create(RtStagePtr stage, const RtString& typeName, const RtPath& parentPath, const RtString& name)
 {
@@ -72,4 +72,4 @@ void PvtCreatePrimCmd::redo(RtCommandResult& result)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

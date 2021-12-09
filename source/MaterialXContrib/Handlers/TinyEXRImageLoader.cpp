@@ -31,8 +31,8 @@
 
 #include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 bool TinyEXRImageLoader::saveImage(const FilePath& filePath,
                                    ConstImagePtr image,
                                    bool /*verticalFlip*/)
@@ -94,4 +94,4 @@ ImagePtr TinyEXRImageLoader::loadImage(const FilePath& filePath)
     return image;
 }
 
-}
+MATERIALX_NAMESPACE_END

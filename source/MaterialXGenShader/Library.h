@@ -12,8 +12,8 @@
 
 #include <MaterialXCore/Exception.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class Shader;
 class ShaderStage;
@@ -44,6 +44,6 @@ using GenContextPtr = shared_ptr<GenContext>;
 
 template<class T> using CreatorFunction = shared_ptr<T>(*)();
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_GENSHADERLIBRARY_H

@@ -16,8 +16,8 @@
 
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 extern MX_RENDER_API const string IMAGE_PROPERTY_SEPARATOR;
 extern MX_RENDER_API const string UADDRESS_MODE_SUFFIX;
@@ -266,6 +266,6 @@ class MX_RENDER_API ImageHandler
     ImagePtr _invalidImage;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

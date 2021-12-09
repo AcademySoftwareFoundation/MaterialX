@@ -5,8 +5,8 @@
 
 #include <MaterialXRuntime/Private/PvtMessage.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 PvtMessageHandler::PvtMessageHandler() :
     _callbackIdCounter(1)
@@ -200,4 +200,4 @@ void PvtMessageHandler::sendRelationshipMessage(const RtRelationship& rel, const
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

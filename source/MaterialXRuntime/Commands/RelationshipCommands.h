@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/RtCommand.h>
 #include <MaterialXRuntime/RtRelationship.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 namespace RtCommand
 {
     /// Make a connection between a relationship port and a target object.
@@ -23,6 +23,6 @@ namespace RtCommand
     void breakRelationship(const RtRelationship& rel, const RtObject& obj, RtCommandResult& result);
 
 } // RtCommand
-} // MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

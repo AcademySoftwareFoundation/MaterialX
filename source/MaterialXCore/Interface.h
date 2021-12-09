@@ -13,8 +13,8 @@
 
 #include <MaterialXCore/Geom.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class PortElement;
 class Input;
@@ -685,6 +685,6 @@ template <class T> InputPtr InterfaceElement::setInputValue(const string& name,
     return input;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

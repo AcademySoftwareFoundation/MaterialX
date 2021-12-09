@@ -9,8 +9,8 @@
 #include <iostream>
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 string readFile(const FilePath& filePath)
 {
@@ -218,4 +218,4 @@ bool isValidPath(const string& path)
     return path.find(PATH_LIST_SEPARATOR) == std::string::npos;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

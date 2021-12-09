@@ -384,8 +384,8 @@ TEST_CASE("Runtime: Types", "[runtime]")
     REQUIRE_THROWS(color4Type->getComponentName(7));
 }
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 // Test adding reference count to a class
 class Foo : public mx::RtRefCounted<Foo>
@@ -409,7 +409,7 @@ int Foo::deconstruct = 0;
 RT_DECLARE_REF_PTR_TYPE(Foo, FooPtr)
 RT_DEFINE_REF_PTR_FUNCTIONS(Foo)
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 TEST_CASE("Runtime: RefCount", "[runtime]")
 {

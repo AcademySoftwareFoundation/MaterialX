@@ -12,8 +12,8 @@
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 ShaderNodeImplPtr CompoundNode::create()
 {
@@ -145,4 +145,4 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

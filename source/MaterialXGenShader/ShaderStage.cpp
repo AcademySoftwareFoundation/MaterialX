@@ -14,8 +14,8 @@
 
 #include <MaterialXFormat/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace Stage
 {
@@ -380,4 +380,4 @@ bool ShaderStage::isEmitted(const ShaderNode& node, GenContext& context) const
     return false;
 }
 
-}
+MATERIALX_NAMESPACE_END

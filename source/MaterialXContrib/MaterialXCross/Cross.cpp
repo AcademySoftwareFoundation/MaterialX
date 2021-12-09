@@ -12,8 +12,8 @@
 
 #include "spirv_hlsl.hpp"
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 namespace Cross
 {
 namespace
@@ -285,4 +285,4 @@ std::string glslToHlsl(
 }
 
 }
-}
+MATERIALX_NAMESPACE_END
