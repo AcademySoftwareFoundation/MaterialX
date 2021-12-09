@@ -94,6 +94,6 @@ SimpleWindow::~SimpleWindow()
     }
 }
 
-MATERIALX_NAMESPACE_BEGIN
+MATERIALX_NAMESPACE_END
 
 #endif
