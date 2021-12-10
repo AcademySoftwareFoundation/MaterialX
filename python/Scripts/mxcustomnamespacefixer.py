@@ -1,5 +1,5 @@
 # Fixup code namespaces to be customizable:
-# As run for MATX-341 update phase
+# As run for fixing namespaces in codebase for Github issue #773
 
 import subprocess, os
 
