@@ -183,14 +183,6 @@ OslShaderGenerator::OslShaderGenerator() :
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
 
-    // <!-- <image> -->
-    registerImplementation("IM_image_float_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
-    registerImplementation("IM_image_color3_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
-    registerImplementation("IM_image_color4_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
-    registerImplementation("IM_image_vector2_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
-    registerImplementation("IM_image_vector3_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
-    registerImplementation("IM_image_vector4_" + OslShaderGenerator::TARGET, SourceCodeNode::create);
-
     // Extra arguments for texture lookups.
     _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = EMPTY_STRING;
 }
