@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class UnitConverter;
 class LinearUnitConverter;
 class UnitConverterRegistry;

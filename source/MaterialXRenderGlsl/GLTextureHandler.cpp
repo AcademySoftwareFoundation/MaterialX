@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
     ImageHandler(imageLoader)
 {

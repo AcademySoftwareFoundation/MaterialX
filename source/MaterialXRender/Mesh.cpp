@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string MeshStream::POSITION_ATTRIBUTE("position");
 const string MeshStream::NORMAL_ATTRIBUTE("normal");
 const string MeshStream::TEXCOORD_ATTRIBUTE("texcoord");

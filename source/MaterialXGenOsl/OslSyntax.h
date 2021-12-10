@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class OslSyntax
 /// Syntax class for OSL (Open Shading Language)
 class MX_GENOSL_API OslSyntax : public Syntax

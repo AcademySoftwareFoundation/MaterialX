@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string ClosureMultiplyNode::IN1 = "in1";
 const string ClosureMultiplyNode::IN2 = "in2";
 

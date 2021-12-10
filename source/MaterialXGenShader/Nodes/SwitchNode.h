@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Switch node implementation
 class MX_GENSHADER_API SwitchNode : public ShaderNodeImpl
 {

@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 extern MX_CORE_API const string COLOR_SEMANTIC;
 extern MX_CORE_API const string SHADER_SEMANTIC;
 

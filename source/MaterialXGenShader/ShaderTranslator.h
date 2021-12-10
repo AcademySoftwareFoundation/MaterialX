@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// A shared pointer to a ShaderTranslator
 using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
 

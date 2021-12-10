@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 
 //

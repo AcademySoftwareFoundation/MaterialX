@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Element;
 class TypedElement;
 class ValueElement;

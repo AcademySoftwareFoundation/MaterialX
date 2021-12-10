@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 #if defined(_WIN32)
 
 GLContext::GLContext(SimpleWindowPtr window, HardwareContextHandle sharedWithContext) :

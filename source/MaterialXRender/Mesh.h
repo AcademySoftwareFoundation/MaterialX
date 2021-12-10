@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Geometry index buffer
 using MeshIndexBuffer = vector<uint32_t>;
 /// Float geometry buffer

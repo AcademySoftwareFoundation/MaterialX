@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Compound node implementation
 class MX_GENSHADER_API CompoundNode : public ShaderNodeImpl
 {

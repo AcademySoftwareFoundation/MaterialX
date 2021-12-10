@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 #if defined(_WIN32)
 
 WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,

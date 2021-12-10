@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 SurfaceNodeGlsl::SurfaceNodeGlsl() :
     _callReflection(HwShaderGenerator::ClosureContextType::REFLECTION),
     _callTransmission(HwShaderGenerator::ClosureContextType::TRANSMISSION),

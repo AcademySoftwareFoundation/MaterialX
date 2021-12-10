@@ -20,7 +20,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class ShaderGenerator
 /// Base class for shader generators
 /// All third-party shader generators should derive from this class.

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class MX_GENMDL_API ClosureSourceCodeNodeMdl : public SourceCodeNodeMdl
 {
 public:

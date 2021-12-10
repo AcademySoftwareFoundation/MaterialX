@@ -18,7 +18,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class XmlReadOptions;
 
 extern MX_FORMAT_API const string MTLX_EXTENSION;

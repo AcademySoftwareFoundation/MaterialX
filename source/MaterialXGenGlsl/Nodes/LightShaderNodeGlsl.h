@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// LightShader node implementation for GLSL
 /// Used for all light shaders implemented in source code.
 class MX_GENGLSL_API LightShaderNodeGlsl : public SourceCodeNode

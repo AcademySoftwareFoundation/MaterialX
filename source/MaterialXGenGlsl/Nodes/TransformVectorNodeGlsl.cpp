@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr TransformVectorNodeGlsl::create()
 {
     return std::make_shared<TransformVectorNodeGlsl>();

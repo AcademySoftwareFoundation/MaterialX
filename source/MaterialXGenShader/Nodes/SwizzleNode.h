@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Swizzle node implementation
 class MX_GENSHADER_API SwizzleNode : public ShaderNodeImpl
 {

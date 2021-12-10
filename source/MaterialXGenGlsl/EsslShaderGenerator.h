@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 using EsslShaderGeneratorPtr = shared_ptr<class EsslShaderGenerator>;
 
 /// @class EsslShaderGenerator 

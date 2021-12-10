@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class GLFramebuffer;
 
 /// Shared pointer to a GLFramebuffer

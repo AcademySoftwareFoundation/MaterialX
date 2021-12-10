@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr CompoundNode::create()
 {
     return std::make_shared<CompoundNode>();

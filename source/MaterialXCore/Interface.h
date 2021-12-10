@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PortElement;
 class Input;
 class Output;

@@ -23,7 +23,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace {
 
 const float MAX_FLOAT = std::numeric_limits<float>::max();

@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Blur node implementation for OSL
 class MX_GENOSL_API BlurNodeOsl : public BlurNode
 {

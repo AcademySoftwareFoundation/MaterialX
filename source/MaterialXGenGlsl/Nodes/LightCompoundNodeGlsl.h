@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class GlslShaderGenerator;
 
 /// LightCompound node implementation for GLSL

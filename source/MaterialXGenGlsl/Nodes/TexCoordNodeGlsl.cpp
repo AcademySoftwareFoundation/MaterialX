@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr TexCoordNodeGlsl::create()
 {
     return std::make_shared<TexCoordNodeGlsl>();

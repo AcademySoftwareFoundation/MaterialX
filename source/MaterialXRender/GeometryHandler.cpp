@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 void GeometryHandler::addLoader(GeometryLoaderPtr loader)
 {
     const StringSet& extensions = loader->supportedExtensions();

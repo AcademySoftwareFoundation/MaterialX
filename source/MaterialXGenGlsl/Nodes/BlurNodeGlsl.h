@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Blur node implementation for GLSL
 class MX_GENGLSL_API BlurNodeGlsl : public BlurNode
 {

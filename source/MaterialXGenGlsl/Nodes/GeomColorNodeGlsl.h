@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// GeomColor node implementation for GLSL
 class MX_GENGLSL_API GeomColorNodeGlsl : public GlslImplementation
 {

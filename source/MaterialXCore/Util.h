@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 extern MX_CORE_API const string EMPTY_STRING;
 
 /// Return the version of the MaterialX library as a string.

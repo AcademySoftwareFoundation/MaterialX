@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string ClosureLayerNodeMdl::TOP = "top";
 const string ClosureLayerNodeMdl::BASE = "base";
 

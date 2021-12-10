@@ -23,7 +23,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
 
 //

@@ -18,7 +18,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Shared pointer to a shader renderer
 using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
 

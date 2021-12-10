@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr GeomColorNodeGlsl::create()
 {
     return std::make_shared<GeomColorNodeGlsl>();

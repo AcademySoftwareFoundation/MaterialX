@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr SourceCodeNodeMdl::create()
 {
     return std::make_shared<SourceCodeNodeMdl>();

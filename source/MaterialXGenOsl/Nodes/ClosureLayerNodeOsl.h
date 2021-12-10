@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Closure layer node OSL implementation.
 class MX_GENOSL_API ClosureLayerNodeOsl : public ClosureLayerNode
 {

@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string DEFAULT_TYPE_STRING = "color3";
 const string FILENAME_TYPE_STRING = "filename";
 const string GEOMNAME_TYPE_STRING = "geomname";

@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     const string NUM_LIGHTS_FUNC_SIGNATURE = "int numActiveLightSources()";

@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Variant;
 class VariantSet;
 class VariantAssign;

@@ -17,7 +17,6 @@ using namespace pugi;
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string MTLX_EXTENSION = "mtlx";
 
 namespace

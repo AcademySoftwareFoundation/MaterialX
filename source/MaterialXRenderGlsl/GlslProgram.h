@@ -20,7 +20,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 // Shared pointer to a GlslProgram
 using GlslProgramPtr = std::shared_ptr<class GlslProgram>;
 

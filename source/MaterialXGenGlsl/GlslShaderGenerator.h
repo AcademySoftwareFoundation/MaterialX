@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 using GlslShaderGeneratorPtr = shared_ptr<class GlslShaderGenerator>;
 
 /// Base class for GLSL (OpenGL Shading Language) code generation.

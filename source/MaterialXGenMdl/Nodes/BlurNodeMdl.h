@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Blur node MDL implementation
 class MX_GENMDL_API BlurNodeMdl : public BlurNode
 {

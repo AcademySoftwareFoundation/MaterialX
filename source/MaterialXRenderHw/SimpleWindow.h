@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// SimpleWindow shared pointer
 using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
 

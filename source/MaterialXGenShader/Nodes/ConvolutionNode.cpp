@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace {
 
 const string SAMPLE2D_INPUT = "texcoord";

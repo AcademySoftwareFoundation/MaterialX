@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 //
 // ShaderNodeImpl methods
 //

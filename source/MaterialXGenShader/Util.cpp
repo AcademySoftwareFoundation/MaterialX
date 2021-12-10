@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     bool isEqual(const float& v1, const float& v2)

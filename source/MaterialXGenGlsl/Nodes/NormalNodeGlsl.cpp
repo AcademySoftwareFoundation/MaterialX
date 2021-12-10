@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr NormalNodeGlsl::create()
 {
     return std::make_shared<NormalNodeGlsl>();

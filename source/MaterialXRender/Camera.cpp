@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 Matrix44 Camera::createViewMatrix(const Vector3& eye,
                                   const Vector3& target,
                                   const Vector3& up)

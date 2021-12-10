@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Element;
 
 using ElementPtr = shared_ptr<Element>;

@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Node implementation using data-driven static source code.
 /// This is the default implementation used for all nodes that 
 /// do not have a custom ShaderNodeImpl class.

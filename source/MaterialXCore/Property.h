@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Property;
 class PropertyAssign;
 class PropertySet;

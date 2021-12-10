@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 void checkGlErrors(const string& context)
 {
     for (GLenum error = glGetError(); error; error = glGetError())

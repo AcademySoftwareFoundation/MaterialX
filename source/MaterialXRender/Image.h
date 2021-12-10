@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Image;
 
 /// A shared pointer to an image

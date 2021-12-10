@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, const string& target)
 {
     vector<NodePtr> shaderNodeVec;

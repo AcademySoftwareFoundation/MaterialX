@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 SimpleWindow::SimpleWindow()
 {
     clearInternalState();

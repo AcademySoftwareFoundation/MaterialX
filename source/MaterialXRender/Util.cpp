@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderPtr createShader(const string& shaderName, GenContext& context, ElementPtr elem)
 {
     return context.getShaderGenerator().generate(shaderName, elem, context);

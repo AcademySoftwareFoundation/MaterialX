@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     const string LIGHT_DIRECTION_CALCULATION =

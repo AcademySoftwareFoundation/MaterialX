@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace {
 
 const double PI = std::acos(-1.0);

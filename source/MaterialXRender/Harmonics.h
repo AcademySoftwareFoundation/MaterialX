@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Class template for a vector of spherical harmonic coefficients.
 ///
 /// Template parameter C is the coefficient type (e.g. double, Color3).

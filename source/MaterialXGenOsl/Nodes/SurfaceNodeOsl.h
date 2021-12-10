@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Surface node implementation for OSL
 class MX_GENOSL_API SurfaceNodeOsl : public ClosureSourceCodeNode
 {

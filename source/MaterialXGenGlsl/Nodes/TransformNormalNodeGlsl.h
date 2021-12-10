@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// TransformNormal node implementation for GLSL
 class MX_GENGLSL_API TransformNormalNodeGlsl : public TransformVectorNodeGlsl
 {

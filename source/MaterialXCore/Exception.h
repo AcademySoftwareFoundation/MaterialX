@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class Exception
 /// The base class for exceptions that are propagated from the MaterialX library
 /// to the client application.

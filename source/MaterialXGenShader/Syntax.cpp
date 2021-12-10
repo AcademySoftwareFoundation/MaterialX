@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string Syntax::NEWLINE = "\n";
 const string Syntax::SEMICOLON = ";";
 const string Syntax::COMMA = ",";

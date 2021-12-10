@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class MX_GENSHADER_API ClosureSourceCodeNode : public SourceCodeNode
 {
 public:

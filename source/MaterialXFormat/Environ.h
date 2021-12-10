@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Return the value of an environment variable by name
 MX_FORMAT_API string getEnviron(const string& name);
 

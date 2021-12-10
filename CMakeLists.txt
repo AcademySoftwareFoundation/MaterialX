@@ -57,9 +57,7 @@ if (MATERIALX_BUILD_GEN_MDL)
     set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
 endif()
 
-###############################################################################
 # Namespace
-
 set(MATERIALX_NAMESPACE_SUFFIX "" CACHE STRING "Add a suffix to the main MaterialX C++ namespace: Options include dev, staging, <YOURFACILITY> etc.")
 if(MATERIALX_NAMESPACE_SUFFIX STREQUAL "")
 	set(MATERIALX_NAMESPACE "MaterialX_v${MATERIALX_MAJOR_VERSION}_${MATERIALX_MINOR_VERSION}_${MATERIALX_BUILD_VERSION}")
@@ -68,13 +66,10 @@ else()
 endif()
 message(STATUS "Setting namespace to '${MATERIALX_NAMESPACE}'")
 
-
-###############################################################################
 # Library name custom suffix
 # This helps an application that needs to ship a dynamic library MaterialX ensure
 # that it has a unique name that won't conflict with one elsewhere on the
 # system.
-
 set (MATERIALX_LIBNAME_SUFFIX "" CACHE STRING
      "Specify a suffix to all libraries that are built")
 

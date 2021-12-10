@@ -19,7 +19,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class ShaderGenerator;
 
 /// A shared pointer to a ColorManagementSystem

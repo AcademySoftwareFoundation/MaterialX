@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Surface node implementation for MDL
 class MX_GENMDL_API SurfaceNodeMdl : public ShaderNodeImpl
 {
