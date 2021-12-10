@@ -947,6 +947,8 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 {
                     Input* input = inputIt->second.get();
                     input->path = v->getPath();
+                    input->unit = v->getUnit();
+                    input->colorspace = v->getColorspace();
                     input->value = v->getValue();
                     if (input->gltype == glType)
                     {
@@ -960,6 +962,8 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                             + "\". Type: \"" + v->getType()->getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
+                            + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
+                            + "\". Colorspace: \"" + (!v->getColorspace().empty() ? v->getColorspace() : "<none>")
                             + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
@@ -985,6 +989,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                         input->value = v->getValue();
                         input->path = v->getPath();
                         input->unit = v->getUnit();
+                        input->colorspace = v->getColorspace();
                     }
                     else
                     {
@@ -995,6 +1000,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
+                            + "\". Colorspace: \"" + (!v->getColorspace().empty() ? v->getColorspace() : "<none>")
                             + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
@@ -1182,6 +1188,7 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
         string type = input.second->typeString;
         string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
         string unit = input.second->unit;
+        string colorspace = input.second->colorspace;
         bool isConstant = input.second->isConstant;
         outputStream << "Program Uniform: \"" << input.first
             << "\". Location:" << location
@@ -1194,6 +1201,8 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
             outputStream << ". Value: " << value;
             if (!unit.empty())
                 outputStream << ". Unit: " << unit;
+            if (!colorspace.empty())
+                outputStream << ". Colorspace: " << colorspace;
         }
         outputStream << ". Is constant: " << isConstant;
         if (!input.second->path.empty())
