@@ -88,7 +88,7 @@ endif()
 # Namespace
 set(MATERIALX_NAMESPACE_SUFFIX "" CACHE STRING "Add a suffix to the main MaterialX C++ namespace: Options include dev, staging, <YOURFACILITY> etc.")
 if(MATERIALX_NAMESPACE_SUFFIX STREQUAL "")
-	set(MATERIALX_NAMESPACE "MaterialX_v${MATERIALX_MAJOR_VERSION}_${MATERIALX_MINOR_VERSION}_${MATERIALX_BUILD_VERSION}")
+    set(MATERIALX_NAMESPACE "MaterialX_v${MATERIALX_MAJOR_VERSION}_${MATERIALX_MINOR_VERSION}_${MATERIALX_BUILD_VERSION}")
 else()
     set(MATERIALX_NAMESPACE "MaterialX_${MATERIALX_NAMESPACE_SUFFIX}_v${MATERIALX_MAJOR_VERSION}_${MATERIALX_MINOR_VERSION}_${MATERIALX_BUILD_VERSION}")
 endif()
@@ -96,10 +96,8 @@ message(STATUS "Setting namespace to '${MATERIALX_NAMESPACE}'")
 
 # Library name custom suffix
 # This helps an application that needs to ship a dynamic library MaterialX ensure
-# that it has a unique name that won't conflict with one elsewhere on the
-# system.
-set (MATERIALX_LIBNAME_SUFFIX "" CACHE STRING
-     "Specify a suffix to all libraries that are built")
+# that it has a unique name that won't conflict with one elsewhere on the system.
+set (MATERIALX_LIBNAME_SUFFIX "" CACHE STRING "Specify a suffix to all libraries that are built")
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
