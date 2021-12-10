@@ -9,7 +9,8 @@
 
 #include <sstream>
 
-MATERIALX_NAMESPACE_BEGIN
+namespace MaterialX
+{
 
 namespace
 {
@@ -264,7 +265,7 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
         const string prefix = uniform ? "{" : getName() + "(";
         const string suffix = uniform ? "}" : ")";
         const string filename = port->getValue() ? port->getValue()->getValueString() : EMPTY_STRING;
-        return prefix + "\"" + filename + "\", \"" + port->getColorspace() + "\"" + suffix;
+        return prefix + "\"" + filename + "\", \"" + port->getColorSpace() + "\"" + suffix;
     }
 
     string getValue(const Value& value, bool uniform) const override
@@ -534,4 +535,4 @@ const string& OslSyntax::getOutputQualifier() const
     return OUTPUT_QUALIFIER;
 }
 
-MATERIALX_NAMESPACE_END
+} // namespace MaterialX

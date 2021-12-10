@@ -12,7 +12,8 @@
 #include <iostream>
 #include <queue>
 
-MATERIALX_NAMESPACE_BEGIN
+namespace MaterialX
+{
 
 //
 // ShaderGraph methods
@@ -270,13 +271,29 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
     {
         return;
     }
-
     const string colorTransformNodeName = input->getFullName() + "_cm";
     ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, context);
+
     if (colorTransformNodePtr)
     {
         addNode(colorTransformNodePtr);
-        colorManagementSystem->connectNodeToShaderInput(this, colorTransformNodePtr.get(), input, context);
+
+        ShaderNode* colorTransformNode = colorTransformNodePtr.get();
+        ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
+
+        ShaderInput* shaderInput = colorTransformNode->getInput(0);
+        shaderInput->setVariable(input->getFullName());
+        shaderInput->setValue(input->getValue());
+        shaderInput->setPath(input->getPath());
+        shaderInput->setUnit(EMPTY_STRING);
+
+        if (input->isBindInput())
+        {
+            ShaderOutput* oldConnection = input->getConnection();
+            shaderInput->makeConnection(oldConnection);
+        }
+
+        input->makeConnection(colorTransformNodeOutput);
     }
 }
 
@@ -294,7 +311,20 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
     if (colorTransformNodePtr)
     {
         addNode(colorTransformNodePtr);
-        colorManagementSystem->connectNodeToShaderOutput(this, colorTransformNodePtr.get(), output, context);
+
+        ShaderNode* colorTransformNode = colorTransformNodePtr.get();
+        ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
+
+        ShaderInputVec inputs = output->getConnections();
+        for (ShaderInput* input : inputs)
+        {
+            input->breakConnection();
+            input->makeConnection(colorTransformNodeOutput);
+        }
+
+        // Connect the node to the upstream output
+        ShaderInput* colorTransformNodeInput = colorTransformNode->getInput(0);
+        colorTransformNodeInput->makeConnection(output);
     }
 }
 
@@ -326,7 +356,7 @@ void ShaderGraph::addUnitTransformNode(ShaderInput* input, const UnitTransform& 
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
         shaderInput->setUnit(input->getUnit());
-        shaderInput->setColorspace(input->getColorspace());
+        shaderInput->setColorSpace(input->getColorSpace());
 
         if (input->isBindInput())
         {
@@ -489,8 +519,8 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
             const string& nodeColorspace = nodeInput->getColorSpace();
             if (!nodeColorspace.empty())
             {
-                inputSocket->setColorspace(nodeColorspace);
-                input->setColorspace(nodeColorspace);
+                inputSocket->setColorSpace(nodeColorspace);
+                input->setColorSpace(nodeColorspace);
             }
         }
 
@@ -536,7 +566,7 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
         const string& inputName = nodeInput->getName();
         const string path = nodePath + NAME_PATH_SEPARATOR + inputName;
         const string& unit = nodeInput->getUnit();
-        const string& colorspace = nodeInput->getColorSpace();
+        const string& colorSpace = nodeInput->getColorSpace();
         ShaderInput* input = newNode->getInput(inputName);
         if (input)
         {
@@ -548,9 +578,9 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
             {
                 input->setUnit(unit);
             }
-            if (input->getColorspace().empty() && !colorspace.empty())
+            if (input->getColorSpace().empty() && !colorSpace.empty())
             {
-                input->setColorspace(colorspace);
+                input->setColorSpace(colorSpace);
             }
         }
         ShaderGraphInputSocket* inputSocket = graph->getInputSocket(inputName);
@@ -564,9 +594,9 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
             {
                 inputSocket->setUnit(unit);
             }
-            if (inputSocket->getColorspace().empty() && !colorspace.empty())
+            if (inputSocket->getColorSpace().empty() && !colorSpace.empty())
             {
-                inputSocket->setColorspace(colorspace);
+                inputSocket->setColorSpace(colorSpace);
             }
         }
     }
@@ -630,10 +660,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         {
             outputSocket->setUnit(outputUnit);
         }
-        const string& outputColorspace = output->getColorSpace();
-        if (!outputColorspace.empty())
+        const string& outputColorSpace = output->getColorSpace();
+        if (!outputColorSpace.empty())
         {
-            outputSocket->setColorspace(outputColorspace);
+            outputSocket->setColorSpace(outputColorSpace);
         }
 
         // Start traversal from this output
@@ -714,11 +744,11 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                         inputSocket->setUnit(unit);
                         input->setUnit(unit);
                     }
-                    const string& colorspace = nodePort->getColorSpace();
-                    if (!colorspace.empty())
+                    const string& colorSpace = nodePort->getColorSpace();
+                    if (!colorSpace.empty())
                     {
-                        inputSocket->setColorspace(colorspace);
-                        input->setColorspace(colorspace);
+                        inputSocket->setColorSpace(colorSpace);
+                        input->setColorSpace(colorSpace);
                     }
                 }
 
@@ -831,11 +861,11 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
             ShaderOutput* shaderOutput = newNode->getOutput();
             if (shaderOutput)
             {
-                string cs = populateColorTransformMap(colorManagementSystem, shaderOutput, input, targetColorSpace, false);
+                string colorSpace = populateColorTransformMap(colorManagementSystem, shaderOutput, input, targetColorSpace, false);
                 ShaderInput* shaderInput = newNode->getInput(input->getName());
-                if (shaderInput && !cs.empty())
+                if (shaderInput && !colorSpace.empty())
                 {
-                    shaderInput->setColorspace(cs);
+                    shaderInput->setColorSpace(colorSpace);
                 }
                 populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
             }
@@ -950,7 +980,7 @@ void ShaderGraph::finalize(GenContext& context)
                             inputSocket->setPath(input->getPath());
                             inputSocket->setValue(input->getValue());
                             inputSocket->setUnit(input->getUnit());
-                            inputSocket->setColorspace(input->getColorspace());
+                            inputSocket->setColorSpace(input->getColorSpace());
                             if (input->isUniform())
                             {
                                 inputSocket->setUniform();
@@ -1103,10 +1133,10 @@ void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputInde
             {
                 downstream->setUnit(inputUnit);
             }
-            const string& inputColorspace = input->getColorspace();
-            if (!inputColorspace.empty())
+            const string& inputColorSpace = input->getColorSpace();
+            if (!inputColorSpace.empty())
             {
-                downstream->setColorspace(inputColorspace);
+                downstream->setColorSpace(inputColorSpace);
             }
 
             // Swizzle the input value. Once done clear the channel to indicate
@@ -1309,7 +1339,7 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
             if (sourceColorSpace != targetColorSpace)
             {
                 // Cache colorspace on shader port
-                shaderPort->setColorspace(sourceColorSpace);
+                shaderPort->setColorSpace(sourceColorSpace);
                 if (colorManagementSystem)
                 { 
                     ColorSpaceTransform transform(sourceColorSpace, targetColorSpace, shaderPort->getType());
@@ -1494,4 +1524,4 @@ void ShaderGraphEdgeIterator::returnPathDownstream(ShaderOutput* upstream)
     _downstream = nullptr;
 }
 
-MATERIALX_NAMESPACE_END
+} // namespace MaterialX
