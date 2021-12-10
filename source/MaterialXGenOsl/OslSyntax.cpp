@@ -265,7 +265,7 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
         const string prefix = uniform ? "{" : getName() + "(";
         const string suffix = uniform ? "}" : ")";
         const string filename = port->getValue() ? port->getValue()->getValueString() : EMPTY_STRING;
-        return prefix + "\"" + filename + "\", \"" + port->getColorspace() + "\"" + suffix;
+        return prefix + "\"" + filename + "\", \"" + port->getColorSpace() + "\"" + suffix;
     }
 
     string getValue(const Value& value, bool uniform) const override

@@ -173,10 +173,10 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     ValuePtr getValue() const { return _value; }
 
     /// Set a source color space for the value on this port.
-    void setColorspace(const string& colorspace) { _colorspace = colorspace; }
+    void setColorSpace(const string& colorspace) { _colorspace = colorspace; }
 
     /// Return the source color space for the value on this port.
-    const string& getColorspace() const { return _colorspace; }
+    const string& getColorSpace() const { return _colorspace; }
 
     /// Set a unit type for the value on this port.
     void setUnit(const string& unit) { _unit = unit; }
