@@ -13,8 +13,7 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Value.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // Shader methods
@@ -73,4 +72,4 @@ ShaderStagePtr Shader::createStage(const string& name, ConstSyntaxPtr syntax)
     return s;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -10,8 +10,7 @@
 
 #include <MaterialXCore/Value.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string Syntax::NEWLINE = "\n";
 const string Syntax::SEMICOLON = ";";
@@ -426,4 +425,4 @@ string AggregateTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) 
     return ss.str();
 }
 
-}
+MATERIALX_NAMESPACE_END

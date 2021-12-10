@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr SurfaceNodeOsl::create()
 {
@@ -26,4 +25,4 @@ void SurfaceNodeOsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
     context.popClosureContext();
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

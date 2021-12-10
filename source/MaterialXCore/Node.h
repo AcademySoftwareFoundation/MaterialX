@@ -13,8 +13,7 @@
 
 #include <MaterialXCore/Definition.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Node;
 class GraphElement;
@@ -486,6 +485,6 @@ class MX_CORE_API Backdrop : public Element
     static const string HEIGHT_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

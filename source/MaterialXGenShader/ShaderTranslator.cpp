@@ -7,8 +7,7 @@
 
 #include <MaterialXCore/Material.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // ShaderTranslator methods
@@ -204,4 +203,4 @@ void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destCategor
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

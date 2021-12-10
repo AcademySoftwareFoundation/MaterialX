@@ -9,8 +9,7 @@
 #include <MaterialXGenGlsl/Export.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Surface node implementation for GLSL
 class MX_GENGLSL_API SurfaceNodeGlsl : public GlslImplementation
@@ -34,6 +33,6 @@ class MX_GENGLSL_API SurfaceNodeGlsl : public GlslImplementation
     mutable ClosureContext _callEmission;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

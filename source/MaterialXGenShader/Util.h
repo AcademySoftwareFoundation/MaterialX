@@ -15,8 +15,7 @@
 
 #include <unordered_set>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ShaderGenerator;
 
@@ -93,6 +92,6 @@ MX_GENSHADER_API NodePtr connectsToWorldSpaceNode(OutputPtr output);
 /// @param attributes Attributes to test for
 MX_GENSHADER_API bool hasElementAttributes(OutputPtr output, const StringVec& attributes);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

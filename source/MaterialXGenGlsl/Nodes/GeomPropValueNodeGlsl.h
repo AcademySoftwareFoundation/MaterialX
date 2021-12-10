@@ -8,8 +8,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// GeomPropValue node implementation for GLSL
 class MX_GENGLSL_API GeomPropValueNodeGlsl : public GlslImplementation
@@ -35,6 +34,6 @@ class MX_GENGLSL_API GeomPropValueNodeGlslAsUniform : public GlslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

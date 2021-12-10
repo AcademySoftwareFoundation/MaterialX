@@ -16,8 +16,7 @@
 #include <MaterialXFormat/Export.h>
 #include <MaterialXFormat/File.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class XmlReadOptions;
 
@@ -186,6 +185,6 @@ MX_FORMAT_API void prependXInclude(DocumentPtr doc, const FilePath& filename);
 
 /// @}
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -10,8 +10,7 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Compound node implementation
 class MX_GENSHADER_API CompoundNode : public ShaderNodeImpl
@@ -34,6 +33,6 @@ class MX_GENSHADER_API CompoundNode : public ShaderNodeImpl
     string _functionName;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

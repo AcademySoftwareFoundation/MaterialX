@@ -16,8 +16,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -1234,4 +1233,4 @@ void GlslProgram::printAttributes(std::ostream& outputStream)
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

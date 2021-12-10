@@ -8,8 +8,7 @@
 #include <limits>
 #include <map>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string MeshStream::POSITION_ATTRIBUTE("position");
 const string MeshStream::NORMAL_ATTRIBUTE("normal");
@@ -277,4 +276,4 @@ void MeshStream::transform(const Matrix44 &matrix)
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

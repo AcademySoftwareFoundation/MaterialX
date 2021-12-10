@@ -5,8 +5,7 @@
 
 #include <MaterialXRender/Camera.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 Matrix44 Camera::createViewMatrix(const Vector3& eye,
                                   const Vector3& target,
@@ -101,4 +100,4 @@ bool Camera::applyArcballMotion(const Vector2& pos)
     return true;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

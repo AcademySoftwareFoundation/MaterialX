@@ -12,8 +12,7 @@
     #include <windows.h>
 #endif
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 string getEnviron(const string& name)
 {
@@ -51,4 +50,4 @@ bool removeEnviron(const string& name)
 #endif
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

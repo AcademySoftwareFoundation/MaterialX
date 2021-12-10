@@ -32,8 +32,7 @@
 #include <cerrno>
 #include <cstring>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string VALID_SEPARATORS = "/\\";
 
@@ -356,4 +355,4 @@ FileSearchPath getEnvironmentPath(const string& sep)
     return FileSearchPath(searchPathEnv, sep);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

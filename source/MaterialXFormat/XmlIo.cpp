@@ -15,8 +15,7 @@
 
 using namespace pugi;
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string MTLX_EXTENSION = "mtlx";
 
@@ -372,4 +371,4 @@ void prependXInclude(DocumentPtr doc, const FilePath& filename)
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

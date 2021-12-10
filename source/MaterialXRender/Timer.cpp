@@ -5,8 +5,7 @@
 
 #include <MaterialXRender/Timer.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ScopedTimer::ScopedTimer(double* externalCounter) :
     _externalCounter(externalCounter)
@@ -41,4 +40,4 @@ void ScopedTimer::endTimer()
     _active = false;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

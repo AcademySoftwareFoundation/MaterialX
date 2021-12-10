@@ -10,8 +10,7 @@
 
 #include <limits>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 void GeometryHandler::addLoader(GeometryLoaderPtr loader)
 {
@@ -154,4 +153,4 @@ MeshPtr GeometryHandler::createQuadMesh()
     return quadMesh;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

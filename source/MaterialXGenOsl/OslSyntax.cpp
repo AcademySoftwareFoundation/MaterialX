@@ -9,8 +9,7 @@
 
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -535,4 +534,4 @@ const string& OslSyntax::getOutputQualifier() const
     return OUTPUT_QUALIFIER;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
