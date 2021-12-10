@@ -278,9 +278,8 @@ function(assign_source_group prefix)
     endforeach()
 endfunction(assign_source_group)
 
-# Adjust settings for shared libraries if requested
+# Propagate shared library setting to NanoGUI:
 if(MATERIALX_BUILD_SHARED_LIBS)
-    add_definitions(-DMATERIALX_BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS "ON")
 else()
     set(BUILD_SHARED_LIBS "OFF")
@@ -393,18 +392,23 @@ endif()
 install(FILES CHANGELOG.md README.md
         DESTINATION ${CMAKE_INSTALL_PREFIX})
 
+set(MATERIALX_GEN_CONFIG_PATH "${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
+
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
+configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
+                              ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
+                              INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
+                              PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
+write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
                                  VERSION ${MATERIALX_LIBRARY_VERSION}
                                  COMPATIBILITY AnyNewerVersion)
 
-# Package for using the developer build
-export(EXPORT MaterialX
-       FILE ${CMAKE_BINARY_DIR}/cmake/MaterialXConfig.cmake)
+# Install the auto-generated CMake configuration files:
 
-# Package for using the installed build
 install(EXPORT MaterialX
-        DESTINATION ${MATERIALX_INSTALL_LIB_PATH}/cmake
-        FILE MaterialXConfig.cmake)
-install(FILES "${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake"
-        DESTINATION ${MATERIALX_INSTALL_LIB_PATH}/cmake)
+        DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
+        FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
+
+install(FILES "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+        "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
+        DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")

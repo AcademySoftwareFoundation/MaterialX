@@ -378,6 +378,7 @@ bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
 TEST_CASE("Render: Arnold TestSuite", "[renderarnold]")
 {
     ArnoldShaderRenderTester renderTester;
+    renderTester.setEmitColorTransforms(false);
 
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
     const mx::FilePath testRootPath = currentPath / mx::FilePath("resources/Materials/TestSuite");

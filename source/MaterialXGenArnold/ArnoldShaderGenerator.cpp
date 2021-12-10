@@ -19,6 +19,9 @@ ArnoldShaderGenerator::ArnoldShaderGenerator()
                                       "volume_matte" };
 
     _syntax->registerReservedWords(reservedWords);
+
+    // Set colorspace argument for texture lookups
+    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = ", \"colorspace\", file.colorspace";
 }
 
 MATERIALX_NAMESPACE_END

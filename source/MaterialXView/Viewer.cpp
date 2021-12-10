@@ -1673,12 +1673,14 @@ void Viewer::loadStandardLibraries()
     initContext(_genContextEssl);
 #if MATERIALX_BUILD_GEN_OSL
     initContext(_genContextOsl);
+    _genContextOsl.getOptions().emitColorTransforms = false;
 #endif
 #if MATERIALX_BUILD_GEN_MDL
     initContext(_genContextMdl);
 #endif
 #if MATERIALX_BUILD_GEN_ARNOLD
     initContext(_genContextArnold);
+    _genContextArnold.getOptions().emitColorTransforms = false;
 #endif
 }
 

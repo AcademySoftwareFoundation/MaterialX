@@ -31,5 +31,8 @@ void bindPyGenOptions(py::module& mod)
         .def_readwrite("hwTransparency", &mx::GenOptions::hwTransparency)
         .def_readwrite("hwSpecularEnvironmentMethod", &mx::GenOptions::hwSpecularEnvironmentMethod)
         .def_readwrite("hwMaxActiveLightSources", &mx::GenOptions::hwMaxActiveLightSources)
+        .def_readwrite("hwNormalizeUdimTexCoords", &mx::GenOptions::hwNormalizeUdimTexCoords)
+        .def_readwrite("hwWriteAlbedoTable", &mx::GenOptions::hwWriteAlbedoTable)
+        .def_readwrite("emitColorTransforms", &mx::GenOptions::emitColorTransforms)
         .def(py::init<>());
 }

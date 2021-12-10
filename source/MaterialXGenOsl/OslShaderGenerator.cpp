@@ -27,6 +27,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 
 const string OslShaderGenerator::TARGET = "genosl";
+const string OslShaderGenerator::T_FILE_EXTRA_ARGUMENTS = "$extraTextureLookupArguments";
 
 //
 // OslShaderGenerator methods
@@ -181,6 +182,9 @@ OslShaderGenerator::OslShaderGenerator() :
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
+
+    // Extra arguments for texture lookups.
+    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = EMPTY_STRING;
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -483,6 +487,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         Type::VECTOR2, // Custom struct types doesn't support metadata declarations.
         Type::VECTOR4, //
         Type::COLOR4,  //
+        Type::FILENAME, //
         Type::BSDF     //
     };
 
@@ -491,9 +496,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         const ShaderPort* input = inputs[i];
 
         const string& type = _syntax->getTypeName(input->getType());
-        const string value = (input->getValue() ?
-            _syntax->getValue(input->getType(), *input->getValue(), true) :
-            _syntax->getDefaultValue(input->getType(), true));
+        string value = _syntax->getValue((ShaderPort*)input, true);
 
         emitLineBegin(stage);
 

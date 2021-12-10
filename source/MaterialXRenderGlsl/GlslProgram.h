@@ -102,6 +102,8 @@ class MX_RENDERGLSL_API GlslProgram
         string path;
         /// Unit
         string unit;
+        /// Colorspace 
+        string colorspace;
 
         /// Program input constructor
         Input(int inputLocation, int inputType, int inputSize, string inputPath)
