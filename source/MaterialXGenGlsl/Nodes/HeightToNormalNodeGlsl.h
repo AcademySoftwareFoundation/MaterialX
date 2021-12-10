@@ -10,8 +10,8 @@
 
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// HeightToNormal node implementation for GLSL
 class MX_GENGLSL_API HeightToNormalNodeGlsl : public ConvolutionNode
@@ -33,6 +33,6 @@ class MX_GENGLSL_API HeightToNormalNodeGlsl : public ConvolutionNode
                                     unsigned int filterWidth, StringVec& offsetStrings) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

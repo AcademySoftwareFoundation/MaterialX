@@ -16,8 +16,8 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Shared pointer to a shader renderer
 using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
@@ -178,6 +178,6 @@ class MX_RENDER_API ExceptionRenderError : public Exception
     StringVec _errorLog;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

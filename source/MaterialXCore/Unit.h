@@ -14,8 +14,8 @@
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class UnitConverter;
 class LinearUnitConverter;
@@ -207,6 +207,6 @@ class MX_CORE_API UnitConverterRegistry
     UnitConverterPtrMap _unitConverters;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

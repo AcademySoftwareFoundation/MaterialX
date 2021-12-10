@@ -16,8 +16,8 @@
 #include <array>
 #include <cmath>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 extern MX_CORE_API const string DEFAULT_TYPE_STRING;
 extern MX_CORE_API const string FILENAME_TYPE_STRING;
@@ -738,6 +738,6 @@ class MX_CORE_API Matrix44 : public MatrixN<Matrix44, float, 4>
     static const Matrix44 IDENTITY;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

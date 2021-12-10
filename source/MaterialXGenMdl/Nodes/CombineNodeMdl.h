@@ -10,8 +10,8 @@
 
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Custom combine node implementation for MDL
 class MX_GENMDL_API CombineNodeMdl : public CombineNode
@@ -22,6 +22,6 @@ class MX_GENMDL_API CombineNodeMdl : public CombineNode
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

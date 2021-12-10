@@ -17,8 +17,8 @@
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Read the given file and return a string containing its contents; if the read is not
 /// successful, then the empty string is returned.
@@ -58,6 +58,6 @@ MX_FORMAT_API StringSet loadLibraries(const FilePathVec& libraryFolders,
 /// @param customResolver An optional custom resolver to apply.
 MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -11,8 +11,8 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// A shared pointer to a ShaderTranslator
 using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
@@ -47,6 +47,6 @@ class MX_GENSHADER_API ShaderTranslator
     NodePtr _translationNode;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

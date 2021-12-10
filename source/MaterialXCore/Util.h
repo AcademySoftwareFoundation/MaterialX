@@ -11,8 +11,8 @@
 
 #include <MaterialXCore/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 extern MX_CORE_API const string EMPTY_STRING;
 
@@ -63,6 +63,6 @@ MX_CORE_API string createNamePath(const StringVec& nameVec);
 /// Given a name path, return the parent name path
 MX_CORE_API string parentNamePath(const string& namePath);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

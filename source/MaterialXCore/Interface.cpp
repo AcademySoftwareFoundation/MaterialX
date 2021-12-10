@@ -12,8 +12,8 @@
 
 #include <stdexcept>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::NODE_GRAPH_ATTRIBUTE = "nodegraph";
@@ -643,4 +643,4 @@ bool InterfaceElement::hasExactInputMatch(ConstInterfaceElementPtr declaration, 
     return true;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

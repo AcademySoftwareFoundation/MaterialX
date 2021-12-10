@@ -11,8 +11,8 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 ShaderNodeImplPtr SourceCodeNodeMdl::create()
 {
@@ -147,4 +147,4 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

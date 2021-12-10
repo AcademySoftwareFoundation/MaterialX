@@ -9,8 +9,8 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const StringVec IfNode::INPUT_NAMES = { "value1", "value2", "in1", "in2" };
 string IfGreaterEqNode::EQUALITY_STRING = " >= ";
@@ -92,4 +92,4 @@ ShaderNodeImplPtr IfEqualNode::create()
 }
 
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

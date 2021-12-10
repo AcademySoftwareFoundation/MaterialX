@@ -6,8 +6,8 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 //
 // GenContext methods
@@ -160,4 +160,4 @@ ScopedSetVariableName::~ScopedSetVariableName()
     _port->setVariable(_oldName);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

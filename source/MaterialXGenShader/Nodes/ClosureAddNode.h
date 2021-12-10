@@ -8,8 +8,8 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Closure add node implementation.
 class MX_GENSHADER_API ClosureAddNode : public ShaderNodeImpl
@@ -24,6 +24,6 @@ class MX_GENSHADER_API ClosureAddNode : public ShaderNodeImpl
     static const string IN2;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

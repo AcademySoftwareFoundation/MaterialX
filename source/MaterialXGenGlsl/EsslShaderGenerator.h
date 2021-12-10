@@ -11,8 +11,8 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 using EsslShaderGeneratorPtr = shared_ptr<class EsslShaderGenerator>;
 
@@ -45,6 +45,6 @@ class MX_GENGLSL_API EsslShaderGenerator : public GlslShaderGenerator
     HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const override;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

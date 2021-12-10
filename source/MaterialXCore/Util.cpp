@@ -4,12 +4,11 @@
 //
 
 #include <MaterialXCore/Types.h>
-#include <MaterialXCore/Version.h>
 
 #include <cctype>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string EMPTY_STRING;
 
@@ -166,4 +165,4 @@ string parentNamePath(const string& namePath)
     return EMPTY_STRING;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

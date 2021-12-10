@@ -15,8 +15,8 @@
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Value.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class Element;
 class TypedElement;
@@ -1324,6 +1324,6 @@ MX_CORE_API bool targetStringsMatch(const string& target1, const string& target2
 /// element in depth-first order.
 MX_CORE_API string prettyPrint(ConstElementPtr elem);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

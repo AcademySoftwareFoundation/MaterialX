@@ -13,8 +13,8 @@
 #include <fstream>
 #include <limits>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 //
 // Global functions
@@ -526,4 +526,4 @@ void Image::releaseResourceBuffer()
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -5,8 +5,8 @@
 
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 ShaderNodeImplPtr TransformNormalNodeGlsl::create()
 {
@@ -26,4 +26,4 @@ const string& TransformNormalNodeGlsl::getMatrix(const string& fromSpace, const 
     return EMPTY_STRING;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

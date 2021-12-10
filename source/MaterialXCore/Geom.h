@@ -13,8 +13,8 @@
 
 #include <MaterialXCore/Element.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 extern MX_CORE_API const string GEOM_PATH_SEPARATOR;
 extern MX_CORE_API const string UNIVERSAL_GEOM_NAME;
@@ -598,6 +598,6 @@ template <class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
 /// @todo Geometry name expressions are not yet supported.
 MX_CORE_API bool geomStringsMatch(const string& geom1, const string& geom2, bool contains = false);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

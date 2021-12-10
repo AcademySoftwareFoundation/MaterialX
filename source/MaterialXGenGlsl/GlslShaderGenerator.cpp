@@ -40,8 +40,8 @@
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string GlslShaderGenerator::TARGET = "genglsl";
 const string GlslShaderGenerator::VERSION = "400";
@@ -869,4 +869,4 @@ bool GlslImplementation::isEditable(const ShaderInput& input) const
     return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
 
-}
+MATERIALX_NAMESPACE_END

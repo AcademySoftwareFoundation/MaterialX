@@ -13,8 +13,8 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const float PI = std::acos(-1.0f);
 
@@ -339,4 +339,4 @@ void GlslRenderer::setClearColor(const Color4& clearColor)
     _clearColor = clearColor;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

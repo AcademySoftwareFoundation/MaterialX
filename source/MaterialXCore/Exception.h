@@ -13,8 +13,8 @@
 /// @file
 /// Base exception classes
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class Exception
 /// The base class for exceptions that are propagated from the MaterialX library
@@ -51,6 +51,6 @@ class MX_CORE_API Exception : public std::exception
     string _msg;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

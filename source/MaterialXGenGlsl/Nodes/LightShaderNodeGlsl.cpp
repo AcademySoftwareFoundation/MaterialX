@@ -7,8 +7,8 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 LightShaderNodeGlsl::LightShaderNodeGlsl() :
     _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
@@ -73,4 +73,4 @@ void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& contex
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

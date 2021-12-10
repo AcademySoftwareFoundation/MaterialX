@@ -7,8 +7,8 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -244,4 +244,4 @@ void UnitConverterRegistry::write(DocumentPtr doc) const
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

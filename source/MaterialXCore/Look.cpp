@@ -6,8 +6,8 @@
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string MaterialAssign::MATERIAL_ATTRIBUTE = "material";
 const string MaterialAssign::EXCLUSIVE_ATTRIBUTE = "exclusive";
@@ -146,4 +146,4 @@ vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const
     return activeAssigns;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -18,8 +18,8 @@
 
 #include <MaterialXCore/Exception.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class ShaderGenerator
 /// Base class for shader generators
@@ -226,6 +226,6 @@ class MX_GENSHADER_API ExceptionShaderGenError : public Exception
     using Exception::Exception;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_SHADERGENERATOR_H

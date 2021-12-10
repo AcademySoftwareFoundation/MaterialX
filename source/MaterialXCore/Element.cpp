@@ -11,8 +11,8 @@
 
 #include <iterator>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string Element::NAME_ATTRIBUTE = "name";
 const string Element::FILE_PREFIX_ATTRIBUTE = "fileprefix";
@@ -695,4 +695,4 @@ INSTANTIATE_CONCRETE_SUBCLASS(VariantAssign, "variantassign")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")
 INSTANTIATE_CONCRETE_SUBCLASS(Visibility, "visibility")
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

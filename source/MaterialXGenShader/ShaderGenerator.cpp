@@ -21,8 +21,8 @@
 
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
 
@@ -446,4 +446,4 @@ ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) 
     return shader.createStage(name, _syntax);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

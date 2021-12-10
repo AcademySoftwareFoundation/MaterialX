@@ -11,8 +11,8 @@
 
 #include <MaterialXCore/Definition.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 ShaderNodeImplPtr ClosureCompoundNodeMdl::create()
 {
@@ -181,4 +181,4 @@ void ClosureCompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -13,8 +13,8 @@
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Shared pointer to a GlslResourceBindingContext
 using GlslResourceBindingContextPtr = shared_ptr<class GlslResourceBindingContext>;
@@ -72,6 +72,6 @@ class MX_GENGLSL_API GlslResourceBindingContext : public HwResourceBindingContex
     bool _separateBindingLocation = false;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

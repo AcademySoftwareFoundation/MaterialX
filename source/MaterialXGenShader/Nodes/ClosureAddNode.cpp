@@ -8,8 +8,8 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string ClosureAddNode::IN1 = "in1";
 const string ClosureAddNode::IN2 = "in2";
@@ -72,4 +72,4 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

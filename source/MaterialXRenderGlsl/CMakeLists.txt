@@ -63,7 +63,7 @@ endif()
 
 set_target_properties(
     MaterialXRenderGlsl PROPERTIES
-    OUTPUT_NAME MaterialXRenderGlsl
+    OUTPUT_NAME MaterialXRenderGlsl${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"

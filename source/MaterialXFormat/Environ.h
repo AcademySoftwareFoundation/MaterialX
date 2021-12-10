@@ -13,8 +13,8 @@
 
 #include <MaterialXFormat/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Return the value of an environment variable by name
 MX_FORMAT_API string getEnviron(const string& name);
@@ -25,6 +25,6 @@ MX_FORMAT_API bool setEnviron(const string& name, const string& value);
 /// Remove an environment variable by name
 MX_FORMAT_API bool removeEnviron(const string& name);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_ENVIRON_H

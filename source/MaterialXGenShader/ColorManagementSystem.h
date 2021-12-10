@@ -17,8 +17,8 @@
 
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class ShaderGenerator;
 
@@ -76,6 +76,6 @@ class MX_GENSHADER_API ColorManagementSystem
     DocumentPtr _document;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

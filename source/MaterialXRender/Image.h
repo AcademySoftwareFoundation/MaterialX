@@ -15,8 +15,8 @@
 
 #include <MaterialXCore/Types.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class Image;
 
@@ -227,6 +227,6 @@ MX_RENDER_API ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
 /// Compute the maximum width and height of all images in the given vector.
 MX_RENDER_API std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -13,8 +13,8 @@
 
 #include <MaterialXCore/Interface.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 extern MX_CORE_API const string COLOR_SEMANTIC;
 extern MX_CORE_API const string SHADER_SEMANTIC;
@@ -675,6 +675,6 @@ class MX_CORE_API AttributeDef : public TypedElement
     static const string EXPORTABLE_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

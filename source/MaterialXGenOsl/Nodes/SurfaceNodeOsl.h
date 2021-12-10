@@ -11,8 +11,8 @@
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Surface node implementation for OSL
 class MX_GENOSL_API SurfaceNodeOsl : public ClosureSourceCodeNode
@@ -26,6 +26,6 @@ class MX_GENOSL_API SurfaceNodeOsl : public ClosureSourceCodeNode
     mutable ClosureContext _cct;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif
