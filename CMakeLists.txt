@@ -68,8 +68,7 @@ message(STATUS "Setting namespace to '${MATERIALX_NAMESPACE}'")
 
 # Library name custom suffix
 # This helps an application that needs to ship a dynamic library MaterialX ensure
-# that it has a unique name that won't conflict with one elsewhere on the
-# system.
+# that it has a unique name that won't conflict with one elsewhere on the system.
 set (MATERIALX_LIBNAME_SUFFIX "" CACHE STRING
      "Specify a suffix to all libraries that are built")
 
