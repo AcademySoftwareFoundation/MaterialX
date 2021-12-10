@@ -17,8 +17,7 @@
 
 #include <map>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @name Shader Utilities
 /// @{
@@ -112,6 +111,6 @@ MX_RENDER_API void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& 
 
 /// @}
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

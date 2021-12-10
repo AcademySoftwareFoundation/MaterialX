@@ -10,8 +10,7 @@
 
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr BlurNodeMdl::create()
 {
@@ -189,4 +188,4 @@ void BlurNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

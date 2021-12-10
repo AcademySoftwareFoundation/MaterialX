@@ -9,8 +9,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 string readFile(const FilePath& filePath)
 {
@@ -201,4 +200,4 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

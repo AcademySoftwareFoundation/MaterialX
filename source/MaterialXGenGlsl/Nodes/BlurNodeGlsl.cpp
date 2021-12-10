@@ -10,8 +10,7 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr BlurNodeGlsl::create()
 {
@@ -25,4 +24,4 @@ void BlurNodeGlsl::emitSamplingFunctionDefinition(const ShaderNode& /*node*/, Ge
     shadergen.emitLineBreak(stage);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

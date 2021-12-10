@@ -10,8 +10,7 @@
 
 #include <MaterialXCore/Types.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to a Camera
 using CameraPtr = std::shared_ptr<class Camera>;
@@ -194,6 +193,6 @@ class MX_RENDER_API Camera
     float _arcballSpeed;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

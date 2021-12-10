@@ -20,8 +20,7 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Syntax;
 class ShaderGraphEdge;
@@ -265,6 +264,6 @@ class MX_GENSHADER_API ShaderGraphEdgeIterator
     std::set<ShaderOutput*> _path;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

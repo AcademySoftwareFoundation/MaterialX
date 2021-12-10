@@ -7,8 +7,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr TangentNodeGlsl::create()
 {
@@ -84,4 +83,4 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

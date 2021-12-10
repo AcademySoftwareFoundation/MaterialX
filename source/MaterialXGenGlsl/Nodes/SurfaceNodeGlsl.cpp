@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 SurfaceNodeGlsl::SurfaceNodeGlsl() :
     _callReflection(HwShaderGenerator::ClosureContextType::REFLECTION),
@@ -267,4 +266,4 @@ void SurfaceNodeGlsl::emitLightLoop(const ShaderNode& node, GenContext& context,
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

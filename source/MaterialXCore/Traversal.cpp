@@ -7,8 +7,7 @@
 
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const Edge NULL_EDGE(nullptr, nullptr, nullptr);
 
@@ -216,4 +215,4 @@ InheritanceIterator& InheritanceIterator::operator++()
     return *this;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -10,8 +10,7 @@
 
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Closure layer node OSL implementation.
 class MX_GENOSL_API ClosureLayerNodeOsl : public ClosureLayerNode
@@ -21,6 +20,6 @@ class MX_GENOSL_API ClosureLayerNodeOsl : public ClosureLayerNode
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

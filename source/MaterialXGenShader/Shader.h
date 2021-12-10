@@ -15,8 +15,7 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderStage.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ShaderGenerator;
 class Shader;
@@ -111,6 +110,6 @@ class MX_GENSHADER_API Shader
     friend class ShaderGenerator;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

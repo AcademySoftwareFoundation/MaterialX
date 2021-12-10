@@ -10,11 +10,10 @@
 
 #include <memory>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 EsslSyntax::EsslSyntax()
 {
 }
 
-}
+MATERIALX_NAMESPACE_END

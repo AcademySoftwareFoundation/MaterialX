@@ -5,8 +5,7 @@
 
 #include <MaterialXCore/Material.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, const string& target)
 {
@@ -135,5 +134,5 @@ vector<OutputPtr> getConnectedOutputs(NodePtr node)
     return outputVec;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 

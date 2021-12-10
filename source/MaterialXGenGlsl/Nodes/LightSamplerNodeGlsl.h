@@ -8,8 +8,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Utility node for sampling lights for GLSL.
 class MX_GENGLSL_API LightSamplerNodeGlsl : public GlslImplementation
@@ -22,6 +21,6 @@ public:
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

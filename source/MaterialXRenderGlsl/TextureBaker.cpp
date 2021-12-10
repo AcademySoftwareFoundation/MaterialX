@@ -13,8 +13,7 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace {
 
@@ -618,4 +617,4 @@ void TextureBaker::setupUnitSystem(DocumentPtr unitDefinitions)
     _generator->getUnitSystem()->setUnitConverterRegistry(registry);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

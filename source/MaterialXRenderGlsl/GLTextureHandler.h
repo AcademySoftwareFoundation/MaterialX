@@ -13,8 +13,7 @@
 
 #include <MaterialXRender/ImageHandler.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to an OpenGL texture handler
 using GLTextureHandlerPtr = std::shared_ptr<class GLTextureHandler>;
@@ -68,6 +67,6 @@ class MX_RENDERGLSL_API GLTextureHandler : public ImageHandler
     std::vector<unsigned int> _boundTextureLocations;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

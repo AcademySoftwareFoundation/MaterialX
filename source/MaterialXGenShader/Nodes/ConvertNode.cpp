@@ -10,8 +10,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr ConvertNode::create()
 {
@@ -138,4 +137,4 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

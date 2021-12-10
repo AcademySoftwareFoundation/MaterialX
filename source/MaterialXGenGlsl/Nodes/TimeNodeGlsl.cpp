@@ -7,8 +7,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr TimeNodeGlsl::create()
 {
@@ -35,4 +34,4 @@ void TimeNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context,
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
