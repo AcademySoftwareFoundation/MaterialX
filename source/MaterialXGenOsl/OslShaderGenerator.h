@@ -49,6 +49,8 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     void registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const override;
 
 protected:
+    // Extra file arguments for texture lookup call
+    static const string T_FILE_EXTRA_ARGUMENTS;
 
     /// Create and initialize a new OSL shader for shader generation.
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
