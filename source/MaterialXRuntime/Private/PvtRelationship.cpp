@@ -9,8 +9,8 @@
 
 #include <MaterialXRuntime/RtConnectableApi.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RT_DEFINE_RUNTIME_OBJECT(PvtRelationship, RtObjType::RELATIONSHIP, "PvtRelationship")
 
@@ -60,4 +60,4 @@ void PvtRelationship::disconnect(PvtObject* obj)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

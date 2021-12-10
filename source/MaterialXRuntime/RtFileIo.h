@@ -17,8 +17,8 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class RtReadOptions
 /// A set of options for controlling the behavior of read functions.
@@ -180,6 +180,6 @@ private:
     friend class PvtApi;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

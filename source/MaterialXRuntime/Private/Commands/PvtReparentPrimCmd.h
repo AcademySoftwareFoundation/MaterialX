@@ -11,8 +11,8 @@
 #include <MaterialXRuntime/RtStage.h>
 #include <MaterialXRuntime/RtPath.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class PvtReparentPrimCmd : public PvtCommand
 {
@@ -36,6 +36,6 @@ private:
     RtString _originalName;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

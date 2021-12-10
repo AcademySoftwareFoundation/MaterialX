@@ -21,8 +21,8 @@
 #include <MaterialXRuntime/Private/PvtApi.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -308,4 +308,4 @@ RtApi& RtApi::get()
     return _instance;
 }
 
-}
+MATERIALX_NAMESPACE_END

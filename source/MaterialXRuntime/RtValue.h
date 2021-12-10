@@ -14,8 +14,8 @@
 
 #include <MaterialXCore/Types.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class RtValue
 /// Generic value class for storing values of all the data types
@@ -552,6 +552,6 @@ private:
     RtValue _value;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

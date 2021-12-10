@@ -17,8 +17,8 @@
 
 #include <MaterialXFormat/File.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class ClosureContext;
 
@@ -327,6 +327,6 @@ private:
     string _oldName;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_GENCONTEXT_H

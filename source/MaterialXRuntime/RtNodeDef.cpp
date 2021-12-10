@@ -11,8 +11,8 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -274,4 +274,4 @@ RtNodeLayout RtNodeDef::getNodeLayout()
     return layout;
 }
 
-}
+MATERIALX_NAMESPACE_END

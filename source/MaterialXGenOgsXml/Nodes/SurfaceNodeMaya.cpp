@@ -8,8 +8,8 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace {
     const string MX_MAYA_EXTERNAL_LIGHTS = "mayaExternalLightFunctions";
@@ -62,4 +62,4 @@ void SurfaceNodeMaya::emitLightLoop(const ShaderNode& node, GenContext& context,
     shadergen.emitLineBreak(stage);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

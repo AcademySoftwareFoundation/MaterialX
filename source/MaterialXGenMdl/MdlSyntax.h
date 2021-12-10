@@ -13,8 +13,8 @@
 
 #include <MaterialXGenShader/Syntax.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class MdlSyntax;
 
@@ -77,6 +77,6 @@ namespace Type
     extern MX_GENMDL_API const TypeDesc* MDL_DISTRIBUTIONTYPE;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

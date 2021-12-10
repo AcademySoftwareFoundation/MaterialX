@@ -11,8 +11,8 @@
 
 #include <MaterialXGenShader/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 using ChannelMap = std::unordered_map<char, int>;
 
@@ -147,6 +147,6 @@ namespace Type
     extern MX_GENSHADER_API const TypeDesc* LIGHTSHADER;
 } // namespace Type
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

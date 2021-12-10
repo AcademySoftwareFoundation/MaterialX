@@ -11,8 +11,8 @@
 
 #include <MaterialXRuntime/RtSchema.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class RtTargetDef
 /// Schemas for targetdef prims, handling the definition of an implementation target.
@@ -35,6 +35,6 @@ public:
     bool isMatching(const RtString& target) const;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

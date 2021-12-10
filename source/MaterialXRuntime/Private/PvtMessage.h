@@ -8,8 +8,8 @@
 
 #include <MaterialXRuntime/RtMessage.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 enum class PvtMessageType
 {
@@ -94,6 +94,6 @@ private:
     PvtCallbackIdMap<PvtRelationshipObserver> _relationshipObservers;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

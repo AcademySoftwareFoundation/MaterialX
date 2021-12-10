@@ -8,8 +8,8 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Node implementation using data-driven static source code.
 /// This is the default implementation used for all nodes that 
@@ -29,6 +29,6 @@ protected:
     string _functionSource;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

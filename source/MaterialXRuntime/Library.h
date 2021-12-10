@@ -17,8 +17,8 @@
 #include <limits>
 #include <cstring>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Number to match if an index is valid.
 const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
@@ -74,6 +74,6 @@ inline T_TO _reinterpret_cast(const T_FROM v)
     return tmp;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

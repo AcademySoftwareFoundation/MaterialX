@@ -13,8 +13,8 @@
 
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Return a vector of all shader nodes connected to the given material node's inputs,
 /// filtered by the given shader type and target.  By default, all surface shader nodes
@@ -29,6 +29,6 @@ MX_CORE_API vector<NodePtr> getShaderNodes(NodePtr materialNode,
 /// Return a vector of all outputs connected to the given node's inputs.
 MX_CORE_API vector<OutputPtr> getConnectedOutputs(NodePtr node);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

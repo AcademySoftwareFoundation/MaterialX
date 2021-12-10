@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/RtSchema.h>
 #include <MaterialXRuntime/RtTraversal.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class RtBindElement
 /// Base class for all schemas handling material bindings.
@@ -40,6 +40,6 @@ public:
     }
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

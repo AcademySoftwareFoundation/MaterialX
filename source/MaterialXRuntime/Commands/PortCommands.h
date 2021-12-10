@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/RtCommand.h>
 #include <MaterialXRuntime/RtPort.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 namespace RtCommand
 {
     /// Set a port value from data given as a value string.
@@ -68,6 +68,6 @@ namespace RtCommand
     void breakConnection(const RtOutput& src, const RtInput& dest, RtCommandResult& result);
 
 } // RtCommand
-} // MAterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -11,8 +11,8 @@
 
 #include <MaterialXRuntime/RtCommand.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace RtCommand
 {
@@ -27,6 +27,6 @@ namespace RtCommand
     void flushUndoQueue();
 }
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -18,8 +18,8 @@
     #pragma warning(pop)
 #endif
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 bool OiioImageLoader::saveImage(const FilePath& filePath,
                                 ConstImagePtr image,
@@ -121,4 +121,4 @@ ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
     return image;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtPath.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class PvtCopyPrimCmd : public PvtCommand
 {
@@ -40,6 +40,6 @@ private:
     RtPrim _copy;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

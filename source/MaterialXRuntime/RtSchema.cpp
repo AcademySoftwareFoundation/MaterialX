@@ -7,8 +7,8 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -46,4 +46,4 @@ bool RtTypedSchema::isCompatible(const RtPrim& prim) const
     return prim && prim.getTypeInfo()->isCompatible(getTypeInfo().getShortTypeName());
 }
 
-}
+MATERIALX_NAMESPACE_END

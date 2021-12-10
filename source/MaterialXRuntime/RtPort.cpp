@@ -8,8 +8,8 @@
 #include <MaterialXRuntime/Private/PvtPort.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RT_DEFINE_RUNTIME_OBJECT(RtPort, RtObjType::PORT, "RtPort")
 
@@ -190,4 +190,4 @@ RtConnectionIterator RtOutput::getConnections() const
     return hnd()->asA<PvtOutput>()->getConnections();
 }
 
-}
+MATERIALX_NAMESPACE_END

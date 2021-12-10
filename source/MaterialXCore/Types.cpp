@@ -5,8 +5,8 @@
 
 #include <MaterialXCore/Types.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string DEFAULT_TYPE_STRING = "color3";
 const string FILENAME_TYPE_STRING = "filename";
@@ -289,4 +289,4 @@ Matrix44 Matrix44::createRotation(const Quaternion& q)
                     0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

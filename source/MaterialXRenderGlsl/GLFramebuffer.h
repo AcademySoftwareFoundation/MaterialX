@@ -13,8 +13,8 @@
 
 #include <MaterialXRender/ImageHandler.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class GLFramebuffer;
 
@@ -89,6 +89,6 @@ class MX_RENDERGLSL_API GLFramebuffer
     unsigned int _depthTexture;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -7,8 +7,8 @@
 
 #include <MaterialXRuntime/Private/PvtRelationship.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RT_DEFINE_RUNTIME_OBJECT(RtRelationship, RtObjType::RELATIONSHIP, "RtRelationship")
 
@@ -73,4 +73,4 @@ string RtRelationship::getObjectNames() const
     return result;
 }
 
-}
+MATERIALX_NAMESPACE_END

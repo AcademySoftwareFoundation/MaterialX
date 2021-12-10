@@ -9,8 +9,8 @@
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Surface node implementation for GLSL
 class SurfaceNodeMaya : public SurfaceNodeGlsl
@@ -25,6 +25,6 @@ class SurfaceNodeMaya : public SurfaceNodeGlsl
     void emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

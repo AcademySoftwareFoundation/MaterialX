@@ -10,8 +10,8 @@
 #include <MaterialXRuntime/Private/PvtCommand.h>
 #include <MaterialXRuntime/Private/Commands/PvtRelationshipCmd.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 namespace RtCommand
 {
 
@@ -28,4 +28,4 @@ void breakRelationship(const RtRelationship& rel, const RtObject& obj, RtCommand
 }
 
 } // RtCommand
-} // MaterialX
+MATERIALX_NAMESPACE_END

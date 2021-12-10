@@ -8,8 +8,8 @@
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 PvtCommandPtr PvtConnectionCmd::create(const RtOutput& src, const RtInput& dest, ConnectionChange change)
 {
@@ -124,4 +124,4 @@ void PvtInterfaceConnectionCmd::updateConnectionProperties(const RtOutput& src, 
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

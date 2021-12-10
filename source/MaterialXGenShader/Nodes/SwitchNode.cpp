@@ -9,8 +9,8 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const StringVec SwitchNode::INPUT_NAMES = { "in1", "in2", "in3", "in4", "in5", "which" };
 
@@ -80,4 +80,4 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

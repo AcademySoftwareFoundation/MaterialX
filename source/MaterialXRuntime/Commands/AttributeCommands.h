@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/RtCommand.h>
 #include <MaterialXRuntime/RtString.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace RtCommand
 {
@@ -24,6 +24,6 @@ namespace RtCommand
     void removeAttribute(const RtObject& obj, const RtString& name, RtCommandResult& result);
 }
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -11,8 +11,8 @@
 
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 // Custom types to handle enumeration output
 namespace Type
@@ -633,4 +633,4 @@ void MdlSyntax::makeValidName(string& name) const
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -9,8 +9,8 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 // Additional implementaton arguments for image nodes
 string HwImageNode::UV_SCALE = "uv_scale";
 string HwImageNode::UV_OFFSET = "uv_offset";
@@ -68,4 +68,4 @@ void HwImageNode::setValues(const Node& node, ShaderNode& shaderNode, GenContext
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

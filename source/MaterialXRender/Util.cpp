@@ -7,8 +7,8 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 ShaderPtr createShader(const string& shaderName, GenContext& context, ElementPtr elem)
 {
@@ -383,4 +383,4 @@ void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPrope
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

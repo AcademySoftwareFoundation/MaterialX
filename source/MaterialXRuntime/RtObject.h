@@ -14,8 +14,8 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class PvtObject;
 class PvtPrim;
@@ -190,6 +190,6 @@ protected:
     friend class RtSchemaBase;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

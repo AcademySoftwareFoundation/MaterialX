@@ -8,8 +8,8 @@
 
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Blur node implementation
 class MX_GENSHADER_API BlurNode : public ConvolutionNode
@@ -59,6 +59,6 @@ class MX_GENSHADER_API BlurNode : public ConvolutionNode
     static const string FILTER_SIZE_STRING;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

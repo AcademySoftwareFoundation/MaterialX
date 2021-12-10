@@ -11,8 +11,8 @@
 #include <MaterialXRuntime/RtPort.h>
 #include <MaterialXRuntime/RtValue.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class PvtSetPortValueCmd : public PvtCommand
 {
@@ -31,6 +31,6 @@ private:
     RtValue _oldValue;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

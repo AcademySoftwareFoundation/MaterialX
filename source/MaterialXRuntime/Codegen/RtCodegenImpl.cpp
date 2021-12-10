@@ -8,8 +8,8 @@
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 void RtCodegenImpl::addInputs(const RtNode& /*node*/, GenContext& /*context*/) const
 {
@@ -27,4 +27,4 @@ void RtCodegenImpl::emitFunctionCall(const RtNode& /*node*/, GenContext& /*conte
 {
 }
 
-}
+MATERIALX_NAMESPACE_END

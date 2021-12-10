@@ -13,8 +13,8 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class RtConnectableApi;
 using RtConnectableApiPtr = shared_ptr<RtConnectableApi>;
@@ -61,6 +61,6 @@ public:
     static RtConnectableApi* get(const RtPrim& prim);
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

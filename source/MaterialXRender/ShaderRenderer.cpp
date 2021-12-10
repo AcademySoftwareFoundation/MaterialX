@@ -5,8 +5,8 @@
 
 #include <MaterialXRender/ShaderRenderer.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 void ShaderRenderer::createProgram(ShaderPtr)
 {
@@ -20,4 +20,4 @@ void ShaderRenderer::setSize(unsigned int, unsigned int)
 {
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -9,8 +9,8 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RT_DEFINE_RUNTIME_OBJECT(RtPrim, RtObjType::PRIM, "RtPrim")
 
@@ -179,4 +179,4 @@ bool RtAttributeSpec::isExportable() const
     return static_cast<PvtAttributeSpec*>(_ptr)->exportable;
 }
 
-}
+MATERIALX_NAMESPACE_END

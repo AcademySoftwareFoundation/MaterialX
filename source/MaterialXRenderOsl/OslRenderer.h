@@ -14,8 +14,8 @@
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 // Shared pointer to an OslRenderer
 using OslRendererPtr = std::shared_ptr<class OslRenderer>;
@@ -254,6 +254,6 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     bool _useTestRender;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

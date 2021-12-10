@@ -13,8 +13,8 @@
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 using GlslShaderGeneratorPtr = shared_ptr<class GlslShaderGenerator>;
 
@@ -118,6 +118,6 @@ class MX_GENGLSL_API GlslImplementation : public ShaderNodeImpl
     static const string GEOMPROP;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

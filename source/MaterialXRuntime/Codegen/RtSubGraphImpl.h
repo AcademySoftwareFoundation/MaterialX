@@ -11,8 +11,8 @@
 
 #include <MaterialXRuntime/Codegen/RtCodegenImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class RtSubGraphImpl
 /// A node implementation using a subgraph.
@@ -37,6 +37,6 @@ public:
     void emitFunctionCall(const RtNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

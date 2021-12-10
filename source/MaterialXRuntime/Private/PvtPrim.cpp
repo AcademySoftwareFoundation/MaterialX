@@ -10,8 +10,8 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RT_DEFINE_RUNTIME_OBJECT(PvtPrim, RtObjType::PRIM, "PvtPrim")
 
@@ -268,4 +268,4 @@ RtAttributeSpec* PvtPrimSpec::create(const RtString& name, const RtString& type,
     return spec;
 }
 
-}
+MATERIALX_NAMESPACE_END

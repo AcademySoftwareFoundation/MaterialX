@@ -20,8 +20,8 @@
 
 #include <MaterialXCore/Unit.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class RtApi
 {
@@ -281,6 +281,6 @@ public:
     }
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class RtPath
 /// Class representing a path which points to, and uniquely identifies,
@@ -85,6 +85,6 @@ private:
     friend class PvtPath;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

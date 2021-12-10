@@ -11,8 +11,8 @@
 
 #include <MaterialXGenShader/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Type of shader interface to be generated
 enum ShaderInterfaceType
@@ -157,6 +157,6 @@ class MX_GENSHADER_API GenOptions
     bool emitColorTransforms;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

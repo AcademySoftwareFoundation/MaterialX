@@ -5,8 +5,8 @@
 
 #include <MaterialXRuntime/RtType.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const RtString RtType::BOOLEAN("boolean");
 const RtString RtType::INTEGER("integer");
@@ -39,4 +39,4 @@ const RtString RtType::LIGHTSHADER("lightshader");
 const RtString RtType::MATERIAL("material");
 const RtString RtType::AUTO("auto");
 
-}
+MATERIALX_NAMESPACE_END

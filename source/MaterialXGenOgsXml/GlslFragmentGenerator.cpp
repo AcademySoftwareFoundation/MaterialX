@@ -10,8 +10,8 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace Stage
 {
@@ -466,4 +466,4 @@ void GlslFragmentGenerator::emitVariableDeclaration(const ShaderPort* variable, 
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

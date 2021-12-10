@@ -18,8 +18,8 @@
 #include <MaterialXFormat/XmlExport.h>
 #include <MaterialXFormat/XmlIo.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Read the given file and return a string containing its contents; if the read is not
 /// successful, then the empty string is returned.
@@ -63,6 +63,6 @@ MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searc
 
 /// Return true if the given string is valid environment path value.
 MX_FORMAT_API bool isValidPath(const string& path);
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -11,8 +11,8 @@
 
 #include <MaterialXRuntime/RtSchema.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class RtNodeImpl
 /// Base class for schemas handling node implementation prims.
@@ -56,6 +56,6 @@ public:
     const RtString& getImplName() const;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

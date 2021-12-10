@@ -8,8 +8,8 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 DEFINE_TYPED_SCHEMA(RtBindElement, "bindelement");
 
@@ -24,4 +24,4 @@ const RtPrimSpec& RtBindElement::getPrimSpec() const
     return s_primSpec;
 }
 
-}
+MATERIALX_NAMESPACE_END

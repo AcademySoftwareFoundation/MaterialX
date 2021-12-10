@@ -16,9 +16,10 @@ using Widget = struct _WidgetRec*;
 #endif
 
 #include <memory>
+#include <MaterialXCore/Library.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 /// OS specific type windowing definitions
 #if defined(_WIN32)
 /// External handle is a window handle
@@ -115,6 +116,6 @@ class WindowWrapper
 #endif
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -8,8 +8,8 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const int DEFAULT_ENV_SAMPLES = 16;
 
@@ -79,4 +79,4 @@ void LightHandler::registerLights(DocumentPtr doc, const vector<NodePtr>& lights
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

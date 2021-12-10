@@ -9,8 +9,8 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 static const string IN_STRING("in");
 static const string CHANNELS_STRING("channels");
@@ -65,4 +65,4 @@ bool SwizzleNode::isEditable(const ShaderInput& input) const
     return (input.getName() != CHANNELS_STRING);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

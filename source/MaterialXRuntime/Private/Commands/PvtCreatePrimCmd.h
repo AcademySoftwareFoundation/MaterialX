@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/RtPrim.h>
 #include <MaterialXRuntime/RtPath.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class PvtCreatePrimCmd : public PvtCommand
 {
@@ -39,6 +39,6 @@ private:
     RtPrim _prim;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

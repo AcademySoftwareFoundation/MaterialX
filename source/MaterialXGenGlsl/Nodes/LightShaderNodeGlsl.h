@@ -9,8 +9,8 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// LightShader node implementation for GLSL
 /// Used for all light shaders implemented in source code.
@@ -33,6 +33,6 @@ protected:
     VariableBlock _lightUniforms;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

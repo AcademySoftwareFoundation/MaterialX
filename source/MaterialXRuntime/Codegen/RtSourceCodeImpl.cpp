@@ -12,8 +12,8 @@
 #include <MaterialXFormat/Util.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 DEFINE_TYPED_SCHEMA(RtSourceCodeImpl, "nodeimpl:sourcecodeimpl");
 
@@ -99,4 +99,4 @@ void RtSourceCodeImpl::emitFunctionCall(const RtNode& /*node*/, GenContext& /*co
 {
 }
 
-}
+MATERIALX_NAMESPACE_END

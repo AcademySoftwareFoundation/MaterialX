@@ -12,8 +12,8 @@
 
 #include <MaterialXCore/Element.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace
 {
@@ -412,4 +412,4 @@ string RtNodeGraph::asStringDot() const
     return dot;
 }
 
-}
+MATERIALX_NAMESPACE_END

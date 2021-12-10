@@ -9,8 +9,8 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 
@@ -592,4 +592,4 @@ ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
     return output.get();
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

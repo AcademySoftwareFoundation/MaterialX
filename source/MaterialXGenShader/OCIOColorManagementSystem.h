@@ -13,8 +13,8 @@
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class OCIOInformation;
 
@@ -86,6 +86,6 @@ public:
 };
 
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

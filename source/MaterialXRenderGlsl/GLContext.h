@@ -19,8 +19,8 @@
 #include <MaterialXRenderGlsl/External/GLew/glxew.h>
 #endif
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Platform dependent definition of a hardware context
 #if defined(_WIN32)
@@ -88,6 +88,6 @@ class MX_RENDERGLSL_API GLContext
 #endif
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

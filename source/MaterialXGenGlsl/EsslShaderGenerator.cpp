@@ -8,8 +8,8 @@
 
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 const string EsslShaderGenerator::TARGET = "essl";
 const string EsslShaderGenerator::VERSION = "300 es"; // Current target is WebGL 2.0
@@ -102,4 +102,4 @@ HwResourceBindingContextPtr EsslShaderGenerator::getResourceBindingContext(GenCo
     return resoureBindingCtx;
 }
 
-}
+MATERIALX_NAMESPACE_END

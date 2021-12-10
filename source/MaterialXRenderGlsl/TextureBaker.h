@@ -20,8 +20,8 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// A shared pointer to a TextureBaker
 using TextureBakerPtr = shared_ptr<class TextureBaker>;
@@ -260,6 +260,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

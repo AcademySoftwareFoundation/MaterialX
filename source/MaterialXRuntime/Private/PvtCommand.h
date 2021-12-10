@@ -11,8 +11,8 @@
 
 #include <MaterialXRuntime/Private/PvtMessage.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 // Base class for runtime commands.
 class PvtCommand
@@ -88,6 +88,6 @@ private:
     vector<PvtCommandPtr> _redoQueue;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

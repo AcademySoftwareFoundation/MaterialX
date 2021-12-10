@@ -8,8 +8,8 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class ExportResolver
 {
@@ -91,6 +91,6 @@ MX_FORMAT_API string exportToXmlString(DocumentPtr doc, const XmlExportOptions* 
 
 /// @}
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

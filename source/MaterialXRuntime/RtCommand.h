@@ -13,8 +13,8 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// @class RtCommandResult
 /// Class holding the results of a command execution.
@@ -73,6 +73,6 @@ private:
     RtObject _object;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

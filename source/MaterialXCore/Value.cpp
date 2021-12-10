@@ -9,8 +9,8 @@
 #include <sstream>
 #include <type_traits>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 Value::CreatorMap Value::_creatorMap;
 Value::FloatFormat Value::_floatFormat = Value::FloatFormatDefault;
@@ -303,4 +303,4 @@ INSTANTIATE_TYPE(StringVec, "stringarray")
 INSTANTIATE_TYPE(long, "integer")
 INSTANTIATE_TYPE(double, "float")
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

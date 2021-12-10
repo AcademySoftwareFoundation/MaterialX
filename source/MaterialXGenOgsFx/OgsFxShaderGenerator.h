@@ -11,8 +11,8 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 using OgsFxShaderGeneratorPtr = shared_ptr<class OgsFxShaderGenerator>;
 
@@ -58,6 +58,6 @@ namespace Stage
     extern const string EFFECT;
 }
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

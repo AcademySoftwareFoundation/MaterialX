@@ -26,7 +26,7 @@ add_subdirectory(libraries)
 
 set_target_properties(
     MaterialXGenArnold PROPERTIES
-    OUTPUT_NAME MaterialXGenArnold
+    OUTPUT_NAME MaterialXGenArnold${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"

@@ -11,8 +11,8 @@
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// A shared pointer to a DefaultColorManagementSystem
 using DefaultColorManagementSystemPtr = shared_ptr<class DefaultColorManagementSystem>;
@@ -44,6 +44,6 @@ class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSyst
     string _target;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

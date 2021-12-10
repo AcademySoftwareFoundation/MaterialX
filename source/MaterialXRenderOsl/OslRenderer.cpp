@@ -13,8 +13,8 @@
 
 #include <fstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 // Statics
 string OslRenderer::OSL_CLOSURE_COLOR_STRING("closure color");
@@ -406,4 +406,4 @@ ImagePtr OslRenderer::captureImage(ImagePtr)
     return returnImage;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

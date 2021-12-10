@@ -13,8 +13,8 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 using OslShaderGeneratorPtr = shared_ptr<class OslShaderGenerator>;
 
@@ -73,6 +73,6 @@ namespace OSL
     extern MX_GENOSL_API const string OUTPUTS;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -10,8 +10,8 @@
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Compound node implementation
 class MX_GENMDL_API CompoundNodeMdl : public CompoundNode
@@ -27,6 +27,6 @@ protected:
     string _returnStruct;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

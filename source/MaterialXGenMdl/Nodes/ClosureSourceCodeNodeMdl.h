@@ -8,8 +8,8 @@
 
 #include <MaterialXGenMdl/Nodes/SourceCodeNodeMdl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class MX_GENMDL_API ClosureSourceCodeNodeMdl : public SourceCodeNodeMdl
 {
@@ -19,6 +19,6 @@ public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

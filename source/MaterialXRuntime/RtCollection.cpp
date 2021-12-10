@@ -8,8 +8,8 @@
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 namespace
 {
     class PvtCollectionPrimSpec : public PvtPrimSpec
@@ -101,4 +101,4 @@ bool RtCollectionConnectableApi::acceptRelationship(const RtRelationship& rel, c
     return false;
 }
 
-}
+MATERIALX_NAMESPACE_END

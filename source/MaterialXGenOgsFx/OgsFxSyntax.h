@@ -11,8 +11,8 @@
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 /// Syntax class for OgsFx
 class OgsFxSyntax : public GlslSyntax
@@ -25,6 +25,6 @@ public:
     static SyntaxPtr create() { return std::make_shared<OgsFxSyntax>(); }
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

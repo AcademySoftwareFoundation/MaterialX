@@ -15,8 +15,8 @@
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Value.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class Syntax;
 class TypeSyntax;
@@ -298,6 +298,6 @@ class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
     string getValue(const StringVec& values, bool uniform) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

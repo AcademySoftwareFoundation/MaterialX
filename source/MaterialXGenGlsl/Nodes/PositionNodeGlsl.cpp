@@ -7,8 +7,8 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 ShaderNodeImplPtr PositionNodeGlsl::create()
 {
@@ -83,4 +83,4 @@ void PositionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

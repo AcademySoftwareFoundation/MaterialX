@@ -7,8 +7,8 @@
 
 #include <MaterialXRuntime/Private/PvtApi.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 RtCallbackId RtMessage::addCreatePrimCallback(RtCreatePrimCallbackFunc callback, void* userData)
 {
@@ -60,4 +60,4 @@ void RtMessage::removeCallback(RtCallbackId id)
     PvtApi::cast(RtApi::get())->getMessageHandler().removeCallback(id);
 }
 
-}
+MATERIALX_NAMESPACE_END

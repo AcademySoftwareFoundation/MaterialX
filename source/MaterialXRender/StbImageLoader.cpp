@@ -24,8 +24,8 @@
     #pragma warning(pop)
 #endif
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 bool StbImageLoader::saveImage(const FilePath& filePath,
                                ConstImagePtr image,
@@ -118,4 +118,4 @@ ImagePtr StbImageLoader::loadImage(const FilePath& filePath)
     return image;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

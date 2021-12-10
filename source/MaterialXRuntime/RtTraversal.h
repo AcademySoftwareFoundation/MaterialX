@@ -12,8 +12,8 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 class PvtPrim;
 class RtPrim;
@@ -322,6 +322,6 @@ private:
     void* _ptr;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

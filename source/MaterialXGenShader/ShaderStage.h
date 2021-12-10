@@ -25,8 +25,8 @@
 #define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
 #define END_SHADER_STAGE(stage, name) }
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 namespace Stage
 {
@@ -344,6 +344,6 @@ inline void addStageConnector(const string& block,
     addStageInput(block, type, name, to);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

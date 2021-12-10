@@ -4,8 +4,8 @@
 #include <regex>
 #include <cmath>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
 
 bool isValidIntegerVersionFormat(const std::string& versionFormat)
 {
@@ -62,4 +62,4 @@ double getVersionIncrementStep(const int decimalPrecision)
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

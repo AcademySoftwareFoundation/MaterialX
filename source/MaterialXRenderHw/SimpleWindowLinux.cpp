@@ -12,8 +12,7 @@
 #include <X11/Xlib.h> // for XEvent definition
 #include <X11/Intrinsic.h> // for XtCallbackProc definition
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 SimpleWindow::SimpleWindow()
 {
@@ -95,6 +94,6 @@ SimpleWindow::~SimpleWindow()
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

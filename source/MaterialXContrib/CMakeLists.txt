@@ -14,7 +14,7 @@ add_library(MaterialXContrib STATIC
 
 set_target_properties(
     MaterialXContrib PROPERTIES
-    OUTPUT_NAME MaterialXContrib
+    OUTPUT_NAME MaterialXContrib${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"

@@ -19,8 +19,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ShaderNode;
 class ShaderPort;
@@ -534,6 +533,6 @@ class MX_GENSHADER_API ShaderNode
     friend class ShaderGraph;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif
