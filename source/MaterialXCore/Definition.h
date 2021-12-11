@@ -263,7 +263,6 @@ class MX_CORE_API Implementation : public InterfaceElement
         return getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
     }
 
-
     /// @}
     /// @name NodeDef References
     /// @{
