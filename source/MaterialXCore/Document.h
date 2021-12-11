@@ -172,7 +172,7 @@ class MX_CORE_API Document : public GraphElement
     /// @}
     /// @name Material Outputs
     /// @{
-    
+
     /// Return material-type outputs for all nodegraphs in the document.
     vector<OutputPtr> getMaterialOutputs() const;
 

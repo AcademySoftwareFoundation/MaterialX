@@ -135,4 +135,3 @@ vector<OutputPtr> getConnectedOutputs(NodePtr node)
 }
 
 MATERIALX_NAMESPACE_END
-
