@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 RT_DEFINE_RUNTIME_OBJECT(RtPort, RtObjType::PORT, "RtPort")
 
 RtPort::RtPort(PvtObjHandle hnd) :

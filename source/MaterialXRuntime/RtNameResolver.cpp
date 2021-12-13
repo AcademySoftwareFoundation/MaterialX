@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 RtNameResolverRegistryPtr RtNameResolverRegistry::createNew()
 {
     RtNameResolverRegistryPtr result(new RtNameResolverRegistry());

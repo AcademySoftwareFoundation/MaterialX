@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Look;
 class LookGroup;
 class LookInherit;

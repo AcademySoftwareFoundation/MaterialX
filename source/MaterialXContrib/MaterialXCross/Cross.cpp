@@ -13,7 +13,6 @@
 #include "spirv_hlsl.hpp"
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace Cross
 {
 namespace

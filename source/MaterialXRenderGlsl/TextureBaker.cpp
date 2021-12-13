@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace {
 
 const string SRGB_TEXTURE = "srgb_texture";

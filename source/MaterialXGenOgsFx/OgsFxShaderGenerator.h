@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 using OgsFxShaderGeneratorPtr = shared_ptr<class OgsFxShaderGenerator>;
 
 /// A GLSL shader generator targeting the OgsFX file format

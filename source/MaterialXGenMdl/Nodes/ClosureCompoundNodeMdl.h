@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Compound node implementation
 class MX_GENMDL_API ClosureCompoundNodeMdl : public CompoundNodeMdl
 {

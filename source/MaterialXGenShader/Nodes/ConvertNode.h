@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Convert node implementation
 class MX_GENSHADER_API ConvertNode : public ShaderNodeImpl
 {

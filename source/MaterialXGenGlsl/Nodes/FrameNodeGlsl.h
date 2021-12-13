@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Frame node implementation for GLSL
 class MX_GENGLSL_API FrameNodeGlsl : public GlslImplementation
 {

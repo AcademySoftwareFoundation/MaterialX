@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Syntax;
 class TypeSyntax;
 class TypeDesc;

@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Extending the CompoundNode with requirements for closures.
 class MX_GENSHADER_API ClosureCompoundNode : public CompoundNode
 {

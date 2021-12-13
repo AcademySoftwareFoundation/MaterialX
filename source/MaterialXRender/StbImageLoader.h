@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Shared pointer to an StbImageLoader
 using StbImageLoaderPtr = std::shared_ptr<class StbImageLoader>;
 

@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtCommandResult
 /// Class holding the results of a command execution.
 class RtCommandResult

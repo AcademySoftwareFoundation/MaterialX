@@ -21,7 +21,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Platform dependent definition of a hardware context
 #if defined(_WIN32)
 using HardwareContextHandle = HGLRC;

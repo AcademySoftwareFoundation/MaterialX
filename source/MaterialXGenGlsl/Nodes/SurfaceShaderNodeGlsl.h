@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// SurfaceShader node implementation for GLSL
 /// Used for all surface shaders implemented in source code.
 class MX_GENGLSL_API SurfaceShaderNodeGlsl : public SourceCodeNode

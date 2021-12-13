@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Function type for creating a value of a specific data type.
 using RtValueCreateFunc = std::function<RtValue(RtPrim& owner)>;
 

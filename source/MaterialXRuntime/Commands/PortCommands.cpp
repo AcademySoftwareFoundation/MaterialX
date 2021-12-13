@@ -12,7 +12,6 @@
 #include <MaterialXRuntime/Private/Commands/PvtConnectionCmd.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace RtCommand
 {
 

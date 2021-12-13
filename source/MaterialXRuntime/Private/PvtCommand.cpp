@@ -8,7 +8,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 PvtMessageHandler& PvtCommand::msg()
 {
     return PvtApi::cast(RtApi::get())->getMessageHandler();

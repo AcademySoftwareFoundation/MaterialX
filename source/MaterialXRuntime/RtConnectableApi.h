@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class RtConnectableApi;
 using RtConnectableApiPtr = shared_ptr<RtConnectableApi>;
 

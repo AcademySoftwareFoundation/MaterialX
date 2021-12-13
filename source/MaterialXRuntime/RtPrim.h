@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class RtPrimIterator;
 class RtInputIterator;
 class RtOutputIterator;

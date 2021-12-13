@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtSourceCodeImpl
 /// Node implementation using shader source code.
 class RtSourceCodeImpl : public RtCodegenImpl

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     // Private implementation of targetdef prims.

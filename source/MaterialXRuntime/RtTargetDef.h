@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtTargetDef
 /// Schemas for targetdef prims, handling the definition of an implementation target.
 class RtTargetDef : public RtTypedSchema

@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string EMPTY_STRING;
 
 namespace

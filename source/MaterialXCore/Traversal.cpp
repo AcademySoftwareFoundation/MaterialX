@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const Edge NULL_EDGE(nullptr, nullptr, nullptr);
 
 const TreeIterator NULL_TREE_ITERATOR(nullptr);

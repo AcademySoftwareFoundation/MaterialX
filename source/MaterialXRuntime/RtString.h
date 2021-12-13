@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtString
 /// Interned string class. Holds a unique reference to a string.
 /// All string instances are kept in an internal registry and a hash of the

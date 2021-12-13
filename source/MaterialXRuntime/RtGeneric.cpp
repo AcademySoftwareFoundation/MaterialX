@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 DEFINE_TYPED_SCHEMA(RtGeneric, "generic");
 
 RtPrim RtGeneric::createPrim(const RtString& typeName, const RtString& name, RtPrim parent)

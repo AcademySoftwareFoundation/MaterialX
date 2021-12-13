@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace Stage
 {
     /// A special stage for private uniform definitions that are not included

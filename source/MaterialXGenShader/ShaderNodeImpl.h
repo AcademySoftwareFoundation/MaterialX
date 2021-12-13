@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class InterfaceElement;
 class Node;
 using ShaderGraphInputSocket = ShaderOutput;

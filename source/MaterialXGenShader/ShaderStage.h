@@ -27,7 +27,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace Stage
 {
     /// Identifier for pixel stage.

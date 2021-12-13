@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 LightShaderNodeGlsl::LightShaderNodeGlsl() :
     _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
 {

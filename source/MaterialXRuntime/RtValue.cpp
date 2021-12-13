@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 RtValue::RtValue(const Matrix33& v, RtPrim& prim)
 {
     // Allocate storage for the value.

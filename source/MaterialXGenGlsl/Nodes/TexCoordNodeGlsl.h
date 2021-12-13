@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// TexCoord node implementation for GLSL
 class MX_GENGLSL_API TexCoordNodeGlsl : public GlslImplementation
 {

@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string GEOM_PATH_SEPARATOR = "/";
 const string UNIVERSAL_GEOM_NAME = GEOM_PATH_SEPARATOR;
 const string UDIMSET = "udimset";

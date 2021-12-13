@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class IfNode
 /// Abstract base class for implementions which handle if conditions.
 class MX_GENSHADER_API IfNode : public ShaderNodeImpl

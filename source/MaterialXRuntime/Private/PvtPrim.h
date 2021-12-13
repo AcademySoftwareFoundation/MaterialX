@@ -18,7 +18,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 // Allocator class handling allocation of data for prims.
 // The data allocated is kept by the allocator and freed
 // upon allocator destruction or by calling free() explicitly.

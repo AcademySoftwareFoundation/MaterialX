@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 RT_DEFINE_RUNTIME_OBJECT(PvtPrim, RtObjType::PRIM, "PvtPrim")
 
 PvtPrim::PvtPrim(const RtTypeInfo* typeInfo, const RtString& name, PvtPrim* parent) :

@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtPrim;
 class RtPrim;
 class RtStage;

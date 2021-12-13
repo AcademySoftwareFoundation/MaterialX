@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class ShaderGenerator;
 
 /// Returns true if the given element is a surface shader with the potential

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 PvtCommandPtr PvtConnectionCmd::create(const RtOutput& src, const RtInput& dest, ConnectionChange change)
 {
     return std::make_shared<PvtConnectionCmd>(src, dest, change);

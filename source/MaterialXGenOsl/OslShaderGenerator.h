@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 using OslShaderGeneratorPtr = shared_ptr<class OslShaderGenerator>;
 
 /// @class OslShaderGenerator

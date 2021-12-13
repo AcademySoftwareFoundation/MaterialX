@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtNode
 /// Schema for node prims.
 class RtNode : public RtTypedSchema

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Closure layer node implementation.
 class MX_GENSHADER_API ClosureLayerNode : public ShaderNodeImpl
 {

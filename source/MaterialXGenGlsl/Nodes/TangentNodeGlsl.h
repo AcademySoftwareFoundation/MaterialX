@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Tangent node implementation for GLSL
 class MX_GENGLSL_API TangentNodeGlsl : public GlslImplementation
 {

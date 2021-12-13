@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtObject;
 class PvtPrim;
 class PvtPort;

@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string ArnoldShaderGenerator::TARGET = "arnold";
 
 

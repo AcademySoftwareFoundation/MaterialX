@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Class holding identifiers for the built in data types.
 class RtType
 {

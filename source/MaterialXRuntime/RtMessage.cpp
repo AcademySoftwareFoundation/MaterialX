@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 RtCallbackId RtMessage::addCreatePrimCallback(RtCreatePrimCallbackFunc callback, void* userData)
 {
     return PvtApi::cast(RtApi::get())->getMessageHandler().addCreatePrimCallback(callback, userData);

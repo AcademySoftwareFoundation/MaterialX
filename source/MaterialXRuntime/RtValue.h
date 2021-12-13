@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtValue
 /// Generic value class for storing values of all the data types
 /// supported by the API. Values that fit into 16 bytes of data

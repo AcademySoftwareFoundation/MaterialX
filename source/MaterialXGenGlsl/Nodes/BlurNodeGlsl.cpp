@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr BlurNodeGlsl::create()
 {
     return std::make_shared<BlurNodeGlsl>();

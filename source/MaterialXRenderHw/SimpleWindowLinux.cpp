@@ -13,7 +13,6 @@
 #include <X11/Intrinsic.h> // for XtCallbackProc definition
 
 MATERIALX_NAMESPACE_BEGIN
-
 SimpleWindow::SimpleWindow()
 {
     clearInternalState();

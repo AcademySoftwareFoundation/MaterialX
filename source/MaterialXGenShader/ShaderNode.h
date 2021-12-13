@@ -20,7 +20,6 @@
 #include <iostream>
 
 MATERIALX_NAMESPACE_BEGIN
-
 class ShaderNode;
 class ShaderPort;
 class ShaderInput;

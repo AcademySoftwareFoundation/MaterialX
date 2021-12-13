@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 PvtRemoveAttributeCmd::PvtRemoveAttributeCmd(const RtObject& obj, const RtString& name) :
     PvtCommand(),
     _obj(obj),

@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr TimeNodeGlsl::create()
 {
     return std::make_shared<TimeNodeGlsl>();

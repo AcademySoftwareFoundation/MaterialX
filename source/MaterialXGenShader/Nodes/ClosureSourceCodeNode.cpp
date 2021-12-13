@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr ClosureSourceCodeNode::create()
 {
     return std::make_shared<ClosureSourceCodeNode>();

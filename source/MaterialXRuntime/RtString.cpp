@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 struct RtStringRegistry
 {
     typedef RtString::Entry Entry;

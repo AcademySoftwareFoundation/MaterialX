@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr BitangentNodeGlsl::create()
 {
     return std::make_shared<BitangentNodeGlsl>();

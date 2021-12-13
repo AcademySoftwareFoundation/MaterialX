@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class MX_GENOGSXML_API OgsXmlGenerator
 {
 public:

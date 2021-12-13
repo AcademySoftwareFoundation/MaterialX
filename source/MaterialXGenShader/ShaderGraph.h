@@ -22,7 +22,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Syntax;
 class ShaderGraphEdge;
 class ShaderGraphEdgeIterator;

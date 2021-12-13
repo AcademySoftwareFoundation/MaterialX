@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 PvtCommandPtr PvtRelationshipCmd::create(const RtRelationship& rel, const RtObject& obj, ConnectionChange change)
 {
     return std::make_shared<PvtRelationshipCmd>(rel, obj, change);

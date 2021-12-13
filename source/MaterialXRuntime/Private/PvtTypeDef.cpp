@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
 static string VALUE_STRING_ONE = "1";

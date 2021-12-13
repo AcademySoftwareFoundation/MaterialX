@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class MdlSyntax;
 
 /// Shared pointer to an MdlSyntax

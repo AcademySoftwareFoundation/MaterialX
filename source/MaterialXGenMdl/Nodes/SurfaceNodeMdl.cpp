@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr SurfaceNodeMdl::create()
 {
     return std::make_shared<SurfaceNodeMdl>();

@@ -20,7 +20,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 bool OiioImageLoader::saveImage(const FilePath& filePath,
                                 ConstImagePtr image,
                                 bool verticalFlip)

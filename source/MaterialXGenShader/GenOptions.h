@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Type of shader interface to be generated
 enum ShaderInterfaceType
 {

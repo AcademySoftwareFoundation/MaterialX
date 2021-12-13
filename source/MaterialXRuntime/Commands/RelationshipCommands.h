@@ -13,7 +13,6 @@
 #include <MaterialXRuntime/RtRelationship.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace RtCommand
 {
     /// Make a connection between a relationship port and a target object.

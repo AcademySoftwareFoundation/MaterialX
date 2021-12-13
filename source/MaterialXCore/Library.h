@@ -47,7 +47,6 @@
 #include <MaterialXCore/Generated.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 using std::string;
 using std::vector;
 using std::shared_ptr;

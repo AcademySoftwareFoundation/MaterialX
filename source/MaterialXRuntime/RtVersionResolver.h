@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Validate if the give string is a proper version format.
 bool isValidVersionFormat(const std::string& versionFormat);
 

@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// A shared pointer to a DefaultColorManagementSystem
 using DefaultColorManagementSystemPtr = shared_ptr<class DefaultColorManagementSystem>;
 

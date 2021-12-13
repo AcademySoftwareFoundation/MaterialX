@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 PvtMessageHandler::PvtMessageHandler() :
     _callbackIdCounter(1)
 {}

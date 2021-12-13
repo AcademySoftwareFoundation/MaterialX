@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 RT_DEFINE_RUNTIME_OBJECT(PvtPort, RtObjType::PORT, "PvtPort")
 
 PvtPort::PvtPort(const RtString& name, const RtString& type, uint32_t flags, PvtPrim* parent) :

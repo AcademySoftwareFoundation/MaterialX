@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 RT_DEFINE_RUNTIME_OBJECT(RtObject, RtObjType::OBJECT, "object")
 
 RtObject::RtObject() :

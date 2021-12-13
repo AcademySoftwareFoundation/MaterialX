@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtObject;
 
 /// Class representing a unique path to an object in the stage.

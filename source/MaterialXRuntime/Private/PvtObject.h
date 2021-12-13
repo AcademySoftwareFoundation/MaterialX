@@ -21,7 +21,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 // Class representing an object in the scene hierarchy.
 // This is the base class for prims, attributes and relationships.
 class PvtObject : public RtRefCounted<PvtObject>

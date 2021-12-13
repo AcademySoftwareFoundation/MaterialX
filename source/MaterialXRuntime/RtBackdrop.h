@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtBackdrop
 /// Schema for backdrop prims.
 class RtBackdrop : public RtTypedSchema

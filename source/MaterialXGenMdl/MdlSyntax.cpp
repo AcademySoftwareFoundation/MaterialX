@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 // Custom types to handle enumeration output
 namespace Type
 {

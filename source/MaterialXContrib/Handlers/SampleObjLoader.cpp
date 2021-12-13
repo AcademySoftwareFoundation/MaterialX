@@ -14,7 +14,6 @@
 #include <limits>
 
 MATERIALX_NAMESPACE_BEGIN
-
 bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     std::ifstream objfile;

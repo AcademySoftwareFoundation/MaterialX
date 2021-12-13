@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Shared pointer to an PvtUserStringResolver
 using PvtUserStringResolverPtr = std::shared_ptr<class PvtUserStringResolver>;
 

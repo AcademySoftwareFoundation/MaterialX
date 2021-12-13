@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtRelationship : public PvtObject
 {
     RT_DECLARE_RUNTIME_OBJECT(PvtRelationship)

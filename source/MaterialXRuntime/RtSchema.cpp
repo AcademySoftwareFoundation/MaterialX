@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     static const RtStringVec EMPTY_ATTR_NAMES;

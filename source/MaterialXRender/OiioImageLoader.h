@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Shared pointer to an OiioImageLoader
 using OiioImageLoaderPtr = std::shared_ptr<class OiioImageLoader>;
 

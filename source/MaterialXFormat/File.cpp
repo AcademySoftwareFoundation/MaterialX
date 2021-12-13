@@ -34,7 +34,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string VALID_SEPARATORS = "/\\";
 
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';

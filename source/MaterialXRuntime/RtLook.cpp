@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     class PvtLookPrimSpec : public PvtPrimSpec

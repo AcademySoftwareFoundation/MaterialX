@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 using ChannelMap = std::unordered_map<char, int>;
 
 /// @class TypeDesc

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Bitangent node implementation for GLSL
 class MX_GENGLSL_API BitangentNodeGlsl : public GlslImplementation
 {

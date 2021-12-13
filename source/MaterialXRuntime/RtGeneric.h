@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtGeneric
 /// Schema for generic/unknown prims.
 class RtGeneric : public RtTypedSchema

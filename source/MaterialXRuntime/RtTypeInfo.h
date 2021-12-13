@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtTypeInfo
 /// Class holding type information for typed schemas.
 class RtTypeInfo

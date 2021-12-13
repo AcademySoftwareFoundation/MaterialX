@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// TransformVector node implementation for GLSL
 class MX_GENGLSL_API TransformVectorNodeGlsl : public GlslImplementation
 {

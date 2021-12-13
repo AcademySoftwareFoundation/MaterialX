@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtCodegenImpl
 /// Base class for all node implementations that use shader code generation.
 class RtCodegenImpl : public RtNodeImpl

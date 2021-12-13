@@ -19,7 +19,6 @@ namespace OCIO = OCIO_NAMESPACE;
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string OCIOColorManagementSystem::CMS_NAME = "ocio_cms";
 
 // Defines an unsupported language.

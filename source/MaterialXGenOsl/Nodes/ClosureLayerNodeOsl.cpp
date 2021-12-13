@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr ClosureLayerNodeOsl::create()
 {
     return std::make_shared<ClosureLayerNodeOsl>();

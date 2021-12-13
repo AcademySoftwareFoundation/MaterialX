@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class Factory
 /// Factory class for creating instances of classes given their type name.
 template<class T> class Factory

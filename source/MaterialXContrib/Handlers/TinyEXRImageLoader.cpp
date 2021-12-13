@@ -32,7 +32,6 @@
 #include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 bool TinyEXRImageLoader::saveImage(const FilePath& filePath,
                                    ConstImagePtr image,
                                    bool /*verticalFlip*/)

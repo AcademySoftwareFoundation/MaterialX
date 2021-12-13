@@ -22,7 +22,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// A shared pointer to a TextureBaker
 using TextureBakerPtr = shared_ptr<class TextureBaker>;
 

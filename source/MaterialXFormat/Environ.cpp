@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 string getEnviron(const string& name)
 {
 #if defined(_WIN32)

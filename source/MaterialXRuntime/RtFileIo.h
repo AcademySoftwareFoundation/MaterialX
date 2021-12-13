@@ -19,7 +19,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtReadOptions
 /// A set of options for controlling the behavior of read functions.
 class RtReadOptions

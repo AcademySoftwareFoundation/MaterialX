@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 DEFINE_TYPED_SCHEMA(RtBindElement, "bindelement");
 
 RtPrim RtBindElement::createPrim(const RtString&, const RtString&, RtPrim)

@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr ConvertNode::create()
 {
     return std::make_shared<ConvertNode>();

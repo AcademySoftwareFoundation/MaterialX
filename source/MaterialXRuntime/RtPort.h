@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class RtValue;
 class RtOutput;
 class RtConnectionIterator;

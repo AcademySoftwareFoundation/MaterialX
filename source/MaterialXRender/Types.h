@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class Vector3d
 /// A vector of three floating-point values (double-precision)
 class MX_RENDER_API Vector3d : public VectorN<Vector3d, double, 3>

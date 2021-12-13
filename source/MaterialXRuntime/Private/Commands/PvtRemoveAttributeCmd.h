@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtRemoveAttributeCmd : public PvtCommand
 {
 public:

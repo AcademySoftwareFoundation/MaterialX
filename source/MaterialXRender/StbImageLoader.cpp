@@ -26,7 +26,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 bool StbImageLoader::saveImage(const FilePath& filePath,
                                ConstImagePtr image,
                                bool verticalFlip)

@@ -18,7 +18,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 using GLContextPtr = std::shared_ptr<class GLContext>;
 using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
 

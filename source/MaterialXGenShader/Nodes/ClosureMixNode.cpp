@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string ClosureMixNode::FG = "fg";
 const string ClosureMixNode::BG = "bg";
 const string ClosureMixNode::MIX = "mix";

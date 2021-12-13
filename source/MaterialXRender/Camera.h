@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Shared pointer to a Camera
 using CameraPtr = std::shared_ptr<class Camera>;
 

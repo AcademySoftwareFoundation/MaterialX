@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Position node implementation for GLSL
 class MX_GENGLSL_API PositionNodeGlsl : public GlslImplementation
 {

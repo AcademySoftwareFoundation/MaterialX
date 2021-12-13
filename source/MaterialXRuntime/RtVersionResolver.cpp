@@ -6,7 +6,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 bool isValidIntegerVersionFormat(const std::string& versionFormat)
 {
     const std::regex formatIntegerNumberingRegEx("^(([a-zA-Z_]+)?[#]([a-zA-Z_]+)?)$");

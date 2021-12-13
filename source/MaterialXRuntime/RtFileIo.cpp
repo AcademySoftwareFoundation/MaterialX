@@ -35,7 +35,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     // Lists of attributes which are handled explicitly by read/write and should be ignored when reading/writing attributes.

@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     static const RtStringVec DEFAULT_COLOR_SPACES_NAMES {

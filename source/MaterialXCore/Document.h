@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Document;
 
 /// A shared pointer to a Document

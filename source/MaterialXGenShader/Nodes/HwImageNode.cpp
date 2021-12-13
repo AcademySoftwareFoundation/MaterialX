@@ -10,7 +10,6 @@
 #include <iostream>
 
 MATERIALX_NAMESPACE_BEGIN
-
 // Additional implementaton arguments for image nodes
 string HwImageNode::UV_SCALE = "uv_scale";
 string HwImageNode::UV_OFFSET = "uv_offset";

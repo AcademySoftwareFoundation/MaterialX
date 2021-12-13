@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// HeightToNormal node implementation for MDL
 class MX_GENMDL_API HeightToNormalNodeMdl : public ConvolutionNode
 {

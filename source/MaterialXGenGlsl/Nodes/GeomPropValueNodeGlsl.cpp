@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr GeomPropValueNodeGlsl::create()
 {
     return std::make_shared<GeomPropValueNodeGlsl>();

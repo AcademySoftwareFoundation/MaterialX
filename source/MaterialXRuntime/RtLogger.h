@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 using RtLoggerPtr = std::shared_ptr<class RtLogger>;
 
 /// @class RtLogger

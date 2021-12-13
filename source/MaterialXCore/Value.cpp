@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 Value::CreatorMap Value::_creatorMap;
 Value::FloatFormat Value::_floatFormat = Value::FloatFormatDefault;
 int Value::_floatPrecision = 6;

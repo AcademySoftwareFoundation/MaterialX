@@ -8,7 +8,6 @@
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace
 {
     // TODO: We should derive this from a data driven XML schema.

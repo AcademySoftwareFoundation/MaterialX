@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace RtCommand
 {
     /// Create a new prim at the root of the stage.

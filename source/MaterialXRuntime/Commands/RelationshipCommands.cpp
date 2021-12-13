@@ -11,7 +11,6 @@
 #include <MaterialXRuntime/Private/Commands/PvtRelationshipCmd.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace RtCommand
 {
 

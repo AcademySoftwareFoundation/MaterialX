@@ -19,7 +19,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class ClosureContext;
 
 /// @class GenContext 

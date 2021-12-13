@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class Node;
 class GraphElement;
 class NodeGraph;

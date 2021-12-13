@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const StringVec IfNode::INPUT_NAMES = { "value1", "value2", "in1", "in2" };
 string IfGreaterEqNode::EQUALITY_STRING = " >= ";
 string IfGreaterNode::EQUALITY_STRING = " > ";

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     static const StringMap OGSFX_GET_LIGHT_DATA_MAP =

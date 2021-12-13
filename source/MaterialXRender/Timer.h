@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class ScopedTimer
 /// A class for scoped event timing
 class MX_RENDER_API ScopedTimer

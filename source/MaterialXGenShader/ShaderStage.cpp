@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace Stage
 {
     const string PIXEL = "pixel";

@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 // Statics
 string OslRenderer::OSL_CLOSURE_COLOR_STRING("closure color");
 

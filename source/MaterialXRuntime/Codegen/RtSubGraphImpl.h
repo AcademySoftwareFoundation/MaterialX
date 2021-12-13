@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtSubGraphImpl
 /// A node implementation using a subgraph.
 class RtSubGraphImpl : public RtCodegenImpl

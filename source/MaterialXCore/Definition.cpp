@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
 

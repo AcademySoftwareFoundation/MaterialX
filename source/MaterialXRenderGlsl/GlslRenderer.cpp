@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const float PI = std::acos(-1.0f);
 
 // View information

@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace HW
 {
     const string T_IN_POSITION                    = "$inPosition";

@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const RtString RtType::BOOLEAN("boolean");
 const RtString RtType::INTEGER("integer");
 const RtString RtType::FLOAT("float");

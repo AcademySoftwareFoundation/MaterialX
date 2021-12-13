@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Shared pointer to a GlslResourceBindingContext
 using GlslResourceBindingContextPtr = shared_ptr<class GlslResourceBindingContext>;
 

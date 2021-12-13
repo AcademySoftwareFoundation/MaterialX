@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 DEFINE_TYPED_SCHEMA(RtSubGraphImpl, "nodeimpl:subgraphimpl");
 
 RtPrim RtSubGraphImpl::createPrim(const RtString& typeName, const RtString& name, RtPrim parent)

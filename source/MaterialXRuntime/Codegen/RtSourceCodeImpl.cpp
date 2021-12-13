@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 DEFINE_TYPED_SCHEMA(RtSourceCodeImpl, "nodeimpl:sourcecodeimpl");
 
 RtPrim RtSourceCodeImpl::createPrim(const RtString& typeName, const RtString& name, RtPrim parent)

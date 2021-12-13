@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Return a vector of all shader nodes connected to the given material node's inputs,
 /// filtered by the given shader type and target.  By default, all surface shader nodes
 /// are returned.

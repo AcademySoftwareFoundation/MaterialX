@@ -9,7 +9,6 @@
 #include <MaterialXRender/ImageHandler.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 /// Shared pointer to an TinyEXRImageLoader
 using TinyEXRImageLoaderPtr = std::shared_ptr<class TinyEXRImageLoader>;
 

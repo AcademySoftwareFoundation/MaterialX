@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 RtPath::RtPath() :
     _ptr(new PvtPath())
 {

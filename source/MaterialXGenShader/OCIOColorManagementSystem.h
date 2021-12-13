@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class OCIOInformation;
 
 /// A shared pointer to a OCIOColorManagementSystem

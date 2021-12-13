@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 extern MX_GENSHADER_API const std::array<float, 3> GAUSSIAN_KERNEL_3;
 extern MX_GENSHADER_API const std::array<float, 5> GAUSSIAN_KERNEL_5;
 extern MX_GENSHADER_API const std::array<float, 7> GAUSSIAN_KERNEL_7;

@@ -19,7 +19,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @name Shader Utilities
 /// @{
 

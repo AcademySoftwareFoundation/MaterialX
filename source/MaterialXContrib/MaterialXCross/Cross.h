@@ -9,7 +9,6 @@
 #include <string>
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace Cross
 {
     /// Initialize global state necessary for cross-compilation.

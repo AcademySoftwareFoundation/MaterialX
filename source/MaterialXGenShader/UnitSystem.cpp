@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class ScalarUnitNode : public ShaderNodeImpl
 {
   public:

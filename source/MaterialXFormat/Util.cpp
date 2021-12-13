@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 string readFile(const FilePath& filePath)
 {
     std::ifstream file(filePath.asString(), std::ios::in);

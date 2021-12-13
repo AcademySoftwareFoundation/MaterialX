@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ScopedTimer::ScopedTimer(double* externalCounter) :
     _externalCounter(externalCounter)
 {

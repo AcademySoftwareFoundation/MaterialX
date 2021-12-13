@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /*
 The HW shader generators have a number of predefined variables (inputs and uniforms) with binding rules.
 When these are used by a shader the application must bind them to the expected data. The following table is

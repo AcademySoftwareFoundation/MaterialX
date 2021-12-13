@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string PvtPath::SEPARATOR("/");
 const RtString PvtPath::ROOT_NAME("/");
 

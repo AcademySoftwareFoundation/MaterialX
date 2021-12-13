@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string MayaGlslPluginShaderGenerator::TARGET = "ogsfx_mayaglslplugin";
 
 MayaGlslPluginShaderGenerator::MayaGlslPluginShaderGenerator() :

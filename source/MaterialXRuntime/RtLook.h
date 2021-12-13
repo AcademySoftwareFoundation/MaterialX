@@ -18,7 +18,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtLookGroup
 /// Schema for 'lookgroup' prims.
 class RtLookGroup : public RtBindElement

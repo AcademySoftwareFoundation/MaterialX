@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     // OgsFx has different syntax for values at uniform initialization and at 

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 enum class PvtMessageType
 {
     CREATE_PRIM,

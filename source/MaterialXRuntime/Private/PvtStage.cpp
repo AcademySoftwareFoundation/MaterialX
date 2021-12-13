@@ -19,7 +19,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const RtTypeInfo PvtStage::RootPrim::_typeInfo("stagerootprim");
 
 PvtStage::RootPrim::RootPrim(RtStageWeakPtr stage) :

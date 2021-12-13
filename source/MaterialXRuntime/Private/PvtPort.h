@@ -20,7 +20,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtPort : public PvtObject
 {
     RT_DECLARE_RUNTIME_OBJECT(PvtPort)

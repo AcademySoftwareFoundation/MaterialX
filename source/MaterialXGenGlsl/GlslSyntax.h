@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Syntax class for GLSL (OpenGL Shading Language)
 class MX_GENGLSL_API GlslSyntax : public Syntax
 {

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Blur node implementation
 class MX_GENSHADER_API BlurNode : public ConvolutionNode
 {

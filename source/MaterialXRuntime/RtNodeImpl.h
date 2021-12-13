@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtNodeImpl
 /// Base class for schemas handling node implementation prims.
 class RtNodeImpl : public RtTypedSchema

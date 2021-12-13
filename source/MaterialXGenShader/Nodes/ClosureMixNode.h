@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Closure mix node implementation.
 class MX_GENSHADER_API ClosureMixNode : public ShaderNodeImpl
 {

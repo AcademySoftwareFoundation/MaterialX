@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// A vector of integers.
 using IntVec = vector<int>;
 /// A vector of booleans.

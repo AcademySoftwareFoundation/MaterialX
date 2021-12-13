@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 PvtCommandPtr PvtReparentPrimCmd::create(RtStagePtr stage, const RtPath& path, const RtPath& newParentPath)
 {
     return std::make_shared<PvtReparentPrimCmd>(stage, path, newParentPath);

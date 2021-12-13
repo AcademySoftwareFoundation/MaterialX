@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// An OgsFx shader generator targeting the glslShader plugin in Maya
 /// This generator shader is identical to the OgsFxShaderGenerator class except
 /// transparency handling is declared differently in the technique section.

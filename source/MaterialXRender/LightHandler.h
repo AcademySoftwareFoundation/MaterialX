@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 extern MX_RENDER_API const int DEFAULT_ENV_SAMPLES;
 
 class GenContext;

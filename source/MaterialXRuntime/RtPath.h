@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtPath
 /// Class representing a path which points to, and uniquely identifies,
 /// an object in a stage.

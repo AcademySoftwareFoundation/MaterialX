@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class GenUserData;
 
 /// Shared pointer to a GenUserData

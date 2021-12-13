@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string ClosureLayerNode::TOP = "top";
 const string ClosureLayerNode::BASE = "base";
 const string ClosureLayerNode::THICKNESS = "thickness";

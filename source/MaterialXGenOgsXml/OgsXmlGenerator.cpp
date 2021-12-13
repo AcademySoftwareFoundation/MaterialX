@@ -17,7 +17,6 @@ using namespace pugi;
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
 	typedef std::unordered_map<string, const pugi::char_t*> OGS_TYPE_MAP_T;

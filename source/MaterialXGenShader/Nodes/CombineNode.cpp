@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr CombineNode::create()
 {
     return std::make_shared<CombineNode>();

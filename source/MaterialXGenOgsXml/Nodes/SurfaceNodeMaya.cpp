@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace {
     const string MX_MAYA_EXTERNAL_LIGHTS = "mayaExternalLightFunctions";
 }

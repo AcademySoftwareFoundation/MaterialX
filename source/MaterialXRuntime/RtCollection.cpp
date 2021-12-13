@@ -9,7 +9,6 @@
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace
 {
     class PvtCollectionPrimSpec : public PvtPrimSpec

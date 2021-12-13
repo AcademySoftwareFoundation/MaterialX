@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 PvtSetPortValueCmd::PvtSetPortValueCmd(const RtPort& port, const RtValue& value) :
     _port(port),
     _value(RtValue::clone(port.getType(), value, port.getParent()))

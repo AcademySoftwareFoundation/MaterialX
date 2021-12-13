@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 PvtCommandPtr PvtCopyPrimCmd::create(RtStagePtr stage, const RtPrim& prim, const RtPath& parentPath)
 {
     return std::make_shared<PvtCopyPrimCmd>(stage, prim, parentPath);

@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Shared pointer to a TinyObjLoader
 using TinyObjLoaderPtr = std::shared_ptr<class TinyObjLoader>;
 

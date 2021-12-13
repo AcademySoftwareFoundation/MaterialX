@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtCollection
 /// Schema for collection prims.
 class RtCollection : public RtBindElement

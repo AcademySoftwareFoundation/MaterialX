@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr PositionNodeGlsl::create()
 {
     return std::make_shared<PositionNodeGlsl>();

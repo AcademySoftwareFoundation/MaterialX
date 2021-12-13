@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     const RtString DEFAULT_LIBRARY_NAME("default");

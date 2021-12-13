@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 // Shared pointer to an OslRenderer
 using OslRendererPtr = std::shared_ptr<class OslRenderer>;
 

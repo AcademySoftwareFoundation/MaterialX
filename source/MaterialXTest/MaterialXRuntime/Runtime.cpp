@@ -386,7 +386,6 @@ TEST_CASE("Runtime: Types", "[runtime]")
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 // Test adding reference count to a class
 class Foo : public mx::RtRefCounted<Foo>
 {

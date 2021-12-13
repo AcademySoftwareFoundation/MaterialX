@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     /// Name of filter function to call to compute normals from input samples

@@ -8,7 +8,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 //
 // GenContext methods
 //

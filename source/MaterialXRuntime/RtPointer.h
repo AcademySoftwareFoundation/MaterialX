@@ -16,7 +16,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Base class for classes using the shared/weak pointer.
 template<typename T>
 using RtSharedBase = std::enable_shared_from_this<T>;

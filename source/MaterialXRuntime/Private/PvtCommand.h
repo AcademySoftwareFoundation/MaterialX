@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 // Base class for runtime commands.
 class PvtCommand
 {

@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 using ArnoldShaderGeneratorPtr = shared_ptr<class ArnoldShaderGenerator>;
 
 /// @class ArnoldShaderGenerator 

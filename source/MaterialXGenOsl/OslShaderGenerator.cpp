@@ -25,7 +25,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string OslShaderGenerator::TARGET = "genosl";
 const string OslShaderGenerator::T_FILE_EXTRA_ARGUMENTS = "$extraTextureLookupArguments";
 

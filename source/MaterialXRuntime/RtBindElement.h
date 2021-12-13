@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @class RtBindElement
 /// Base class for all schemas handling material bindings.
 class RtBindElement : public RtTypedSchema

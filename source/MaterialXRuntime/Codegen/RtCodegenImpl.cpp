@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 void RtCodegenImpl::addInputs(const RtNode& /*node*/, GenContext& /*context*/) const
 {
 }

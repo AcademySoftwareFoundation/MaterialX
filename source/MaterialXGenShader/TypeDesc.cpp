@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     using TypeDescPtr = std::unique_ptr<TypeDesc>;

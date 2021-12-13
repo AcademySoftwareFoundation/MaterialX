@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const int DEFAULT_ENV_SAMPLES = 16;
 
 void LightHandler::addLightSource(NodePtr node)

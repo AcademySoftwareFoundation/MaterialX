@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class RtRelationshipIterator;
 class RtPrimIterator;
 class RtSchemaBase;

@@ -8,7 +8,6 @@
 #include <MaterialXRuntime/Private/PvtLogger.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace
 {
     inline PvtLogger* _cast(void* ptr)

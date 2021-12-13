@@ -15,7 +15,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class FilePath;
 using FilePathVec = vector<FilePath>;
 

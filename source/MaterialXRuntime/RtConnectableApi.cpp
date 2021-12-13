@@ -8,7 +8,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     RtStringMap<RtConnectableApiPtr> s_connectableApiRegistry;

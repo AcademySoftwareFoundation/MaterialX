@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string VariantAssign::VARIANT_SET_ATTRIBUTE = "variantset";
 const string VariantAssign::VARIANT_ATTRIBUTE = "variant";
 

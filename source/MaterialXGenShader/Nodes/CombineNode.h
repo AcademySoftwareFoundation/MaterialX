@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Combine node implementation
 class MX_GENSHADER_API CombineNode : public ShaderNodeImpl
 {

@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 LightCompoundNodeGlsl::LightCompoundNodeGlsl() :
     _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
 {

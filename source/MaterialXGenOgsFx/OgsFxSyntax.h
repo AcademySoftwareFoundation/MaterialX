@@ -13,7 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Syntax class for OgsFx
 class OgsFxSyntax : public GlslSyntax
 {

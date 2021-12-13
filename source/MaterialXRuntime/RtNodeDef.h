@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// @struct RtNodeLayout
 /// Container for node layout information.
 struct RtNodeLayout

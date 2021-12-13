@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtStringResolverPair;
 
 /// Shared pointer to a PvtStringResolverPair

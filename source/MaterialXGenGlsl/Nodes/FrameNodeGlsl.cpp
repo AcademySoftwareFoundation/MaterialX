@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 ShaderNodeImplPtr FrameNodeGlsl::create()
 {
     return std::make_shared<FrameNodeGlsl>();

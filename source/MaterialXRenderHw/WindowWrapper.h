@@ -19,7 +19,6 @@ using Widget = struct _WidgetRec*;
 #include <MaterialXCore/Library.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 /// OS specific type windowing definitions
 #if defined(_WIN32)
 /// External handle is a window handle

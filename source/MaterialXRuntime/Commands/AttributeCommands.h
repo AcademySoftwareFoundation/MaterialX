@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace RtCommand
 {
     /// Set an attribute value from data given as a value string. Creates the attribute if it doesn't exist.

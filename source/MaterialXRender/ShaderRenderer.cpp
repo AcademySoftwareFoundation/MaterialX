@@ -7,7 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 void ShaderRenderer::createProgram(ShaderPtr)
 {
 }

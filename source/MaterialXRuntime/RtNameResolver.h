@@ -17,7 +17,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtNameResolverRegistry;
 
 /// Shared pointer to an RtNameResolverRegistry

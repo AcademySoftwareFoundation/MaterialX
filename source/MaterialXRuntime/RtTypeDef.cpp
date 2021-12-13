@@ -9,7 +9,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const RtString RtTypeDef::BASETYPE_NONE("none");
 const RtString RtTypeDef::BASETYPE_BOOLEAN("boolean");
 const RtString RtTypeDef::BASETYPE_FLOAT("float");

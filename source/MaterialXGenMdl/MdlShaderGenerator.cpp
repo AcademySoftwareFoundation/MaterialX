@@ -27,7 +27,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     std::unordered_map<string, string> GEOMPROP_DEFINITIONS =

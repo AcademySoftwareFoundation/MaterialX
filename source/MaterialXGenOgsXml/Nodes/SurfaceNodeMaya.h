@@ -11,7 +11,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Surface node implementation for GLSL
 class SurfaceNodeMaya : public SurfaceNodeGlsl
 {

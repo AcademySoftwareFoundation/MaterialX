@@ -13,7 +13,6 @@
 #include <MaterialXRuntime/RtPort.h>
 
 MATERIALX_NAMESPACE_BEGIN
-
 namespace RtCommand
 {
     /// Set a port value from data given as a value string.

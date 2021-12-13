@@ -14,7 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 class PvtRemovePrimCmd : public PvtCommandList
 {
 public:

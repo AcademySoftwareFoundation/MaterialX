@@ -23,7 +23,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 namespace
 {
     // Syntactic sugar

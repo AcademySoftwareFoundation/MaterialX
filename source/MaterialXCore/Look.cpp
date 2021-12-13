@@ -8,7 +8,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 const string MaterialAssign::MATERIAL_ATTRIBUTE = "material";
 const string MaterialAssign::EXCLUSIVE_ATTRIBUTE = "exclusive";
 

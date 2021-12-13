@@ -10,7 +10,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// GeomPropValue node implementation for GLSL
 class MX_GENGLSL_API GeomPropValueNodeGlsl : public GlslImplementation
 {
