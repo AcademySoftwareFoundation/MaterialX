@@ -3,8 +3,8 @@
 ## [1.38.3] - Development
 
 ### Added
-- Added support for nodedef/nodegraph associations via implementation elements, allowing nodes to share graph definitions.
-- Added an upgradeVersion option to XmlReadOptions, allowing utilities to disable version upgrades when needed.
+- Added NodeDef inheritance for Autodesk Standard Surface versions 1.0.0 and 1.0.1.
+- Added versioning and customization support to MaterialX namespaces in C++.
 - Added preprocessor definitions for the API version to MaterialXCore.
 - Added color transform methods to the Image class.
 - Added an initial ClangFormat file for the MaterialX codebase.
@@ -14,7 +14,9 @@
 ### Changed
 - Refactored BSDF handling in shader generation, allowing for more flexible and efficient vertical layering.
 - Optimized GLSL implementations for GGX specular, moving common computations to tangent space.
+- Refactored the TextureBaker API for clarity and flexibility.
 - Merged the ViewHandler and viewer camera into a new Camera class in MaterialXRender.
+- Updated CMake configuration generation logic, adding handling for shared library builds.
 - Updated the PyBind11 library to version 2.7.1
 
 ### Fixed
