@@ -651,7 +651,7 @@ class MX_CORE_API InterfaceElement : public TypedElement
     /// Return true if this instance has an exact input match with the given
     /// declaration, where each input of this the instance corresponds to a
     /// declaration input of the same name and type.
-    /// 
+    ///
     /// If an exact input match is not found, and the optional message argument
     /// is provided, then an error message will be appended to the given string.
     bool hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message = nullptr) const;

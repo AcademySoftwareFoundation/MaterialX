@@ -30,6 +30,8 @@ void bindPyShaderPort(py::module& mod)
         .def("getPath", &mx::ShaderPort::getPath)
         .def("setUnit", &mx::ShaderPort::setUnit)
         .def("getUnit", &mx::ShaderPort::getUnit)
+        .def("setColorSpace", &mx::ShaderPort::setColorSpace)
+        .def("getColorSpace", &mx::ShaderPort::getColorSpace)
         .def("isUniform", &mx::ShaderPort::isUniform)
         .def("isEmitted", &mx::ShaderPort::isEmitted);
 }

@@ -8,7 +8,6 @@
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
-#include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/Timer.h>
 #include <MaterialXRender/Util.h>
