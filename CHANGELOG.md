@@ -3,7 +3,7 @@
 ## [1.38.3] - 2021-12-14
 
 ### Added
-- Added inheritance structure for Autodesk Standard Surface versions 1.0.0 and 1.0.1.
+- Added an inheritance structure for versions of Autodesk Standard Surface.
 - Added versioning and customization support to MaterialX namespaces in C++.
 - Added preprocessor definitions for the API version to MaterialXCore.
 - Added color transform methods to the Image class.
