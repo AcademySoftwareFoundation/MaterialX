@@ -241,10 +241,6 @@ class MX_GENSHADER_API TypeSyntax
     virtual string getValue(const ShaderPort* port, bool uniform) const;
 
     /// Returns a value formatted according to this type syntax.
-    /// The value is constructed from the given shader port object.
-    virtual string getValue(const ShaderPort* port, bool uniform) const;
-
-    /// Returns a value formatted according to this type syntax.
     /// The value is constructed from the given value object.
     virtual string getValue(const Value& value, bool uniform) const = 0;
 

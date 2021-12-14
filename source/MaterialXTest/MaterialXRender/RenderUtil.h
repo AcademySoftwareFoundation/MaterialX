@@ -94,6 +94,11 @@ class ShaderRenderTester
 
     bool validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath);
 
+    void setColorManagementConfigFile(const mx::FilePath& path)
+    {
+        _colorManagementConfigFile = path;
+    }
+
     void setEmitColorTransforms(bool val)
     {
         _emitColorTransforms = val;
@@ -171,8 +176,9 @@ class ShaderRenderTester
                      mx::DocumentPtr dependLib);
 
     virtual bool canBake() const { return false; }
-    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*imageSearchPath*/, const mx::FilePath& /*outputFilename*/,
-                         unsigned int /*bakeWidth*/, unsigned int /*bakeHeight*/, bool /*bakeHdr*/, std::ostream& /*log*/) {};
+    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*imageSearchPath*/,
+                         const mx::FileSearchPath& /*codeSearchPath*/, const mx::FilePath& /*outputFilename*/,
+                         const GenShaderUtil::TestSuiteOptions::BakeSetting& /*bakeOptions*/, std::ostream& /*log*/) {};
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;

@@ -270,29 +270,13 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
     {
         return;
     }
+
     const string colorTransformNodeName = input->getFullName() + "_cm";
     ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, context);
-
     if (colorTransformNodePtr)
     {
         addNode(colorTransformNodePtr);
-
-        ShaderNode* colorTransformNode = colorTransformNodePtr.get();
-        ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
-
-        ShaderInput* shaderInput = colorTransformNode->getInput(0);
-        shaderInput->setVariable(input->getFullName());
-        shaderInput->setValue(input->getValue());
-        shaderInput->setPath(input->getPath());
-        shaderInput->setUnit(EMPTY_STRING);
-
-        if (input->isBindInput())
-        {
-            ShaderOutput* oldConnection = input->getConnection();
-            shaderInput->makeConnection(oldConnection);
-        }
-
-        input->makeConnection(colorTransformNodeOutput);
+        colorManagementSystem->connectNodeToShaderInput(this, colorTransformNodePtr.get(), input, context);
     }
 }
 
@@ -310,20 +294,7 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
     if (colorTransformNodePtr)
     {
         addNode(colorTransformNodePtr);
-
-        ShaderNode* colorTransformNode = colorTransformNodePtr.get();
-        ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
-
-        ShaderInputVec inputs = output->getConnections();
-        for (ShaderInput* input : inputs)
-        {
-            input->breakConnection();
-            input->makeConnection(colorTransformNodeOutput);
-        }
-
-        // Connect the node to the upstream output
-        ShaderInput* colorTransformNodeInput = colorTransformNode->getInput(0);
-        colorTransformNodeInput->makeConnection(output);
+        colorManagementSystem->connectNodeToShaderOutput(this, colorTransformNodePtr.get(), output, context);
     }
 }
 

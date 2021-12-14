@@ -9,6 +9,7 @@
 #include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXRender/LightHandler.h>
 
 #include <MaterialXGenOgsFx/MayaGlslPluginShaderGenerator.h>
 
