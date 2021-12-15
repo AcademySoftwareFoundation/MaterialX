@@ -212,6 +212,11 @@ bool Node::validate(string* message) const
     bool res = true;
     validateRequire(!getCategory().empty(), res, message, "Node element is missing a category");
     validateRequire(hasType(), res, message, "Node element is missing a type");
+    if (getCategory() == SURFACE_MATERIAL_NODE_STRING ||
+        getCategory() == VOLUME_MATERIAL_NODE_STRING)
+    {
+        validateRequire(!getChildren().empty(), res, message, "Material node is empty");
+    }
     return InterfaceElement::validate(message) && res;
 }
 

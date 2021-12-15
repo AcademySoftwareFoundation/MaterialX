@@ -80,7 +80,7 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
         if (materialNodeDef)
         {
             InterfaceElementPtr impl = materialNodeDef->getImplementation();
-            if (impl->isA<NodeGraph>())
+            if (impl && impl->isA<NodeGraph>())
             {
                 NodeGraphPtr implGraph = impl->asA<NodeGraph>();
                 for (OutputPtr defOutput : materialNodeDef->getOutputs())
