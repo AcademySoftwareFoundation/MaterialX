@@ -209,7 +209,6 @@ void GlslRenderer::render()
             {
                 // Bind the program to use
                 _program->bind();
-                _program->bindInputs(_viewHandler, _geometryHandler, _imageHandler, _lightHandler);
 
                if (_colorManagementSystem)
                 {
