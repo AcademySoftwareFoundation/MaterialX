@@ -262,6 +262,15 @@ ElementPtr Element::addChildOfCategory(const string& category, string name)
     return child;
 }
 
+void Element::addChild(ElementPtr child)
+{
+    if (_childMap.count(child->getName()))
+    {
+        throw Exception("Child name is not unique: " + child->getName());
+    }
+    registerChildElement(child);
+}
+
 ElementPtr Element::changeChildCategory(ElementPtr child, const string& category)
 {
     int childIndex = getChildIndex(child->getName());

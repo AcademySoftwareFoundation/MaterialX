@@ -400,6 +400,12 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @return A shared pointer to the new child element.
     template <class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
 
+    /// Add a child element.
+    /// @param child A shared pointer to the child element.
+    /// @throws Exception if a child of this element already possesses the
+    ///     given name.
+    void addChild(ElementPtr child);
+
     /// Add a child element of the given category and name.
     /// @param category The category string of the new child element.
     ///     If the category string is recognized, then the correponding Element
