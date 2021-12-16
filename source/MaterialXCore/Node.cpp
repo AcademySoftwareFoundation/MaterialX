@@ -212,11 +212,15 @@ bool Node::validate(string* message) const
     bool res = true;
     validateRequire(!getCategory().empty(), res, message, "Node element is missing a category");
     validateRequire(hasType(), res, message, "Node element is missing a type");
-    if (getCategory() == SURFACE_MATERIAL_NODE_STRING ||
-        getCategory() == VOLUME_MATERIAL_NODE_STRING)
+
+    NodeDefPtr nodeDef = getNodeDef(EMPTY_STRING, true);
+    if (nodeDef)
     {
-        validateRequire(!getChildren().empty(), res, message, "Material node is empty");
+        string matchMessage;
+        bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
+        validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
     }
+
     return InterfaceElement::validate(message) && res;
 }
 
