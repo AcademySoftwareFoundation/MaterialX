@@ -135,7 +135,7 @@ TEST_CASE("Version", "[document]")
             { "invertmatrix", 2},
             { "rotate2d", 1},
             { "rotate3d", 1},
-            { "transformmatrix", 8},
+            { "transformmatrix", 7},
             { "ifgreatereq", 7},
             { "separate2", 1},
             { "separate3", 1},
