@@ -30,7 +30,6 @@ TEST_CASE("UnitAttribute", "[unit]")
     constant->setName("constant1");
     constant->setInputValue("value", mx::Color3(0.5f));
     mx::InputPtr input = constant->getInput("value");
-    input->setName("param1");
     input->setUnitType("distance");
     input->setUnit("meter");
     REQUIRE(input->hasUnit());

@@ -421,11 +421,6 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
         throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getName() +
                                       "' with category '" + node->getCategory() + "'");
     }
-    if (!node->hasExactInputMatch(nodeDef, &message))
-    {
-        std::cerr << "Nodedef " << nodeDef->getName() << " is not an exact match for shader node '" << node->getName() <<
-                     " (" << message << ")" << std::endl;
-    }
 
     ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, name, node->getDocument(), context.getReservedWords());
 
