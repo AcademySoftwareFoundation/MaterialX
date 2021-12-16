@@ -7,7 +7,9 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXCore/Document.h>
+#include <MaterialXCore/Value.h>
 #include <iostream>
 
 #ifdef OpenColorIO_SKIP_IMPORTS
@@ -17,8 +19,6 @@
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE;
 
-MATERIALX_NAMESPACE_BEGIN
-
 const string OCIOColorManagementSystem::CMS_NAME = "ocio_cms";
 
 // Defines an unsupported language.
@@ -27,10 +27,27 @@ const int OCIO_UNSUPPORT_LANGUAGE = -1;
 // Mapping from supported MaterialX targets to OCIO shading languages
 using OCIOLanguageMap = std::unordered_map<std::string, OCIO::GpuLanguage>;
 
+// Input name on implementation
+const string IN_PIXEL_STRING = "inPixel";
+
+const size_t OCIO_RESOURCEMAP_SIZE = size_t(ColorManagementSystem::ResourceType::TEXTURE3D) + 1;
+
 // OCIO related information
 class OCIOInformation
 {
   public:
+    OCIOInformation::OCIOInformation()
+    {
+        for (size_t i = 0; i < OCIO_RESOURCEMAP_SIZE; i++)
+        {
+            resourceMap[i] = std::make_shared<ColorManagementResourceMap>();
+        }
+    }
+    virtual OCIOInformation::~OCIOInformation()
+    {
+        resourceMap->reset();
+    }
+
     // OCIO config file to use
     OCIO::ConstConfigRcPtr config = nullptr;
     // Target to language map
@@ -39,7 +56,177 @@ class OCIOInformation
     int language = OCIO_UNSUPPORT_LANGUAGE;
     // MaterialX target
     std::string target;
+
+    // Uniform resources 
+    void updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc);
+
+    // Texture resources 
+    void updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc);
+
+    ColorManagementResourceMapPtr resourceMap[OCIO_RESOURCEMAP_SIZE];
 };
+
+void OCIOInformation::updateUniformResources(OCIO::GpuShaderDescRcPtr shaderDesc)
+{
+    ColorManagementResourceMap& rmap = *(resourceMap[(int)ColorManagementSystem::ResourceType::UNIFORM]);
+
+    if (!shaderDesc)
+    {
+        return;
+    }
+
+    unsigned int uniformCount = shaderDesc->getNumUniforms();
+    for (unsigned int i = 0; i < uniformCount; i++)
+    {
+        OCIO::GpuShaderDesc::UniformData uniformData;
+        std::string uniformName = shaderDesc->getUniform(i, uniformData);
+        switch (uniformData.m_type)
+        {
+            case OCIO::UniformDataType::UNIFORM_BOOL:
+            {
+                // Note: Booleans become float uniforms
+                ValuePtr val = Value::createValue(uniformData.m_getBool() ? 1.0f : 0.0f);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
+                break;
+            }
+            case OCIO::UniformDataType::UNIFORM_DOUBLE:
+            {
+                ValuePtr val = Value::createValue(static_cast<float>(uniformData.m_getDouble()));
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
+                break;
+            }
+            case OCIO::UniformDataType::UNIFORM_FLOAT3:
+            {
+                Vector3 vec3 = { static_cast<float>(uniformData.m_getFloat3()[0]),
+                                 static_cast<float>(uniformData.m_getFloat3()[1]),
+                                 static_cast<float>(uniformData.m_getFloat3()[2]) };
+                ValuePtr val = Value::createValue(vec3);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
+                break;
+            }
+            case OCIO::UniformDataType::UNIFORM_VECTOR_FLOAT:
+            {
+                size_t vectorSize = static_cast<size_t>(uniformData.m_vectorFloat.m_getSize());
+                const float* data = static_cast<const float*>(uniformData.m_vectorFloat.m_getVector());
+                FloatVec vecarray(data, data+vectorSize);
+                ValuePtr val = Value::createValue(vecarray);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
+                break;
+            }
+            case OCIO::UniformDataType::UNIFORM_VECTOR_INT:
+            {
+                size_t vectorSize = static_cast<size_t>(uniformData.m_vectorInt.m_getSize());
+                const int* data = static_cast<const int*>(uniformData.m_vectorInt.m_getVector());
+
+                IntVec vecarray(data, data+vectorSize);
+                ValuePtr val = Value::createValue(vecarray);
+                rmap[uniformName] = ColorSpaceConstant::create(uniformName, val);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        };
+    }
+}
+
+void OCIOInformation::updateTextureResources(OCIO::GpuShaderDescRcPtr shaderDesc)
+{
+    // Process 3d textures
+    ColorManagementResourceMap& rmap3D = *(resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE3D]);
+
+    unsigned int textureCount = shaderDesc->getNum3DTextures();
+    for (unsigned idx = 0; idx < textureCount; ++idx)
+    {
+        const char * textureName = nullptr;
+        const char * samplerName = nullptr;
+        unsigned int edgeLength = 0;
+        OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+        shaderDesc->get3DTexture(idx, textureName, samplerName, edgeLength, interpolation);
+
+        if (!textureName || !*textureName
+            || !samplerName || !*samplerName
+            || edgeLength == 0)
+        {
+            throw Exception("OCIO 3D texture data is corrupted: " + std::string(textureName));
+        }
+
+        const float* data = nullptr;
+        shaderDesc->get3DTextureValues(idx, data);
+        if (!data)
+        {
+            throw Exception("OCIO 3D texture values are missing: " + std::string(textureName));
+        }
+
+        size_t offset = static_cast<size_t>(edgeLength * edgeLength* edgeLength);
+        FloatVec vecarray(data, data + offset);
+        ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, vecarray);
+        newTexture->width = newTexture->height = newTexture->depth = edgeLength;
+        newTexture->channelCount = 3;
+        if (interpolation == OCIO::INTERP_LINEAR)
+        {
+            newTexture->interpolation = ColorSpaceTexture::InterpolationType::LINEAR;
+        }
+        else if (interpolation == OCIO::INTERP_CUBIC)
+        {
+            newTexture->interpolation = ColorSpaceTexture::InterpolationType::CUBIC;
+        }
+        else
+        {
+            newTexture->interpolation = ColorSpaceTexture::InterpolationType::NEAREST;
+        }
+        rmap3D[samplerName] = newTexture;
+    }
+
+    // Process 1D and 2D Textures
+    ColorManagementResourceMap& rmap1D = *(resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE1D]);
+    ColorManagementResourceMap& rmap2D = *(resourceMap[(int)ColorManagementSystem::ResourceType::TEXTURE2D]);
+
+    textureCount = shaderDesc->getNumTextures();
+    for (unsigned idx = 0; idx < textureCount; ++idx)
+    {
+        const char * textureName = nullptr;
+        const char * samplerName = nullptr;
+        unsigned width = 0;
+        unsigned height = 0;
+        OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+        OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
+        shaderDesc->getTexture(idx, textureName, samplerName, width, height, channel, interpolation);
+
+        if (!textureName || !*textureName
+            || !samplerName || !*samplerName
+            || width == 0)
+        {
+            throw Exception("OCIO 1D texture data is corrupted: " + std::string(textureName));
+        }
+
+        const float* data = 0x0;
+        shaderDesc->getTextureValues(idx, data);
+        if (!data)
+        {
+            throw Exception("OCIO 1D texture values are missing: " + std::string(textureName));
+        }
+
+        size_t offset = static_cast<size_t>(width*height);
+        FloatVec vecarray(data, data + offset);        
+
+        ColorSpaceTexturePtr newTexture = ColorSpaceTexture::create(samplerName, vecarray);
+        newTexture->width = width;
+        newTexture->height = height;
+        newTexture->depth = 1;
+        newTexture->channelCount = (channel == OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL) ? 3 : 1;
+
+        if (height > 1)
+        {
+            rmap2D[samplerName] = newTexture;
+        }
+        else
+        {
+            rmap1D[samplerName] = newTexture;
+        }
+    }
+}
 
 OCIOColorManagementSystemPtr OCIOColorManagementSystem::create(const string& target)
 {
@@ -110,9 +297,8 @@ bool OCIOColorManagementSystem::readConfigFile(const FilePath& configFile)
                 return (_ocioInfo->config->getNumColorSpaces() > 0);
             }
         }
-        catch (const OCIO::Exception& e)
+        catch (const OCIO::Exception& /*e*/)
         {
-            std::cout << "Error reading config file: '" + configFile.asString() + "' Error : " + e.what() << std::endl;
             // Do not continue to throw an exception but instead use return status code
         }
     }
@@ -132,8 +318,9 @@ bool OCIOColorManagementSystem::supportsTransform(const ColorSpaceTransform& tra
     {
         processor = _ocioInfo->config->getProcessor(transform.sourceSpace.c_str(), transform.targetSpace.c_str());
     }
-    catch (const OCIO::Exception&)
+    catch (const OCIO::Exception&e)
     {
+        std::cout << "FAILED supports transform: " + transform.sourceSpace + " to: " + transform.targetSpace + std::string(e.what()) << std::endl;
         // Do not throw an exception here but just return a status
         return false;
     }
@@ -221,11 +408,18 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
         // a valid function name is created here
         std::string transformFunctionName = "IM_" + createValidName(transform.sourceSpace) + "_to_" + createValidName(transform.targetSpace) + "_" + typeName + "_ocio";
         shaderDesc->setFunctionName(transformFunctionName.c_str());
+        shaderDesc->setResourcePrefix(transformFunctionName.c_str());
         
         // Retrieve information
         gpu->extractGpuShaderInfo(shaderDesc);
 
         std::string fullFunction = shaderDesc->getShaderText();
+        // TODO: Comment out uniforms as a workaround as the uniforms are always embedded as
+        // part of the function string
+        StringMap uniformDecl;
+        uniformDecl["uniform"] = "//uniform";
+        fullFunction = replaceSubstrings(fullFunction, uniformDecl);
+
         std::string functionName = shaderDesc->getFunctionName();
         std::string outputName = shaderDesc->getPixelName();
 
@@ -253,6 +447,10 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
         }
         */
 
+        // Cache binding information
+        _ocioInfo->updateUniformResources(shaderDesc);
+        _ocioInfo->updateTextureResources(shaderDesc);
+       
         // Create an implementation based on source code
         ImplementationPtr impl = _document->getImplementation(transformFunctionName);
         if (!impl)
@@ -260,11 +458,50 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
             impl = _document->addImplementation(transformFunctionName);
 
             // Note: There is only one input so we just use the default name: "inPixel".
-            impl->addInput("inPixel", typeName);
+            InputPtr pixelInput = impl->addInput(IN_PIXEL_STRING, typeName);
+            pixelInput->setIsUniform(false);
             impl->addOutput(outputName, typeName);
             impl->setAttribute("sourcecode", fullFunction);
             impl->setAttribute("function", functionName);
             impl->setAttribute("target", _ocioInfo->target);
+
+            // Add all of the additional uniforms as additional inputs on the impl so it can be accessed later one in the shader node ?
+            for (auto rmap : _ocioInfo->resourceMap)
+            {
+                if (_ocioInfo->resourceMap[(int)ColorManagementSystem::ResourceType::UNIFORM] == rmap)
+                {
+                    for (auto rmapItem : *rmap)
+                    {
+                        ColorSpaceConstantPtr uniformItem = std::static_pointer_cast<ColorSpaceConstant>(rmapItem.second);
+                        ValuePtr uniformValue = uniformItem->_value;
+                        InputPtr newInput = impl->addInput(rmapItem.first, uniformValue->getTypeString());
+                        if (newInput)
+                        {
+                            newInput->setValue(uniformValue->getValueString(), uniformValue->getTypeString());
+                            newInput->setIsUniform(true);
+                        }
+                    }
+                }
+                else
+                {
+                    for (auto rmapItem : *rmap)
+                    {
+                        ColorSpaceTexturePtr uniformItem = std::static_pointer_cast<ColorSpaceTexture>(rmapItem.second);
+                        const FloatVec& vecarray = uniformItem->data;
+                        ValuePtr uniformValue = Value::createValue(vecarray);
+                        InputPtr newInput = impl->addInput(rmapItem.first, uniformValue->getTypeString());
+                        if (newInput)
+                        {
+                            newInput->setValue(uniformValue->getValueString(), uniformValue->getTypeString());
+                            newInput->setAttribute("width", std::to_string(uniformItem->width));
+                            newInput->setAttribute("height", std::to_string(uniformItem->height));
+                            newInput->setAttribute("depth", std::to_string(uniformItem->depth));
+                            newInput->setAttribute("channels", std::to_string(uniformItem->channelCount));
+                            newInput->setIsUniform(true);
+                        }
+                    }
+                }
+            }
         }
         return impl;
     }
@@ -277,13 +514,77 @@ ImplementationPtr OCIOColorManagementSystem::getImplementation(const ColorSpaceT
     return nullptr;
 }
 
+const ColorManagementResourceMapPtr OCIOColorManagementSystem::getResource(ResourceType resourceType) const
+{
+    if (_ocioInfo)
+    {
+        return _ocioInfo->resourceMap[(int)resourceType];
+    }
+    return nullptr;
+}
+
+void OCIOColorManagementSystem::clearResources()
+{
+    if (_ocioInfo)
+    {
+        _ocioInfo->resourceMap->reset();
+    }
+}
+
+
 //
 // OCIO source code node method
 //
 
+OCIOSourceCodeNode::OCIOSourceCodeNode()
+    : _cmUniforms(ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS, EMPTY_STRING)
+{
+}
+
 ShaderNodeImplPtr OCIOSourceCodeNode::create()
 {
     return std::make_shared<OCIOSourceCodeNode>();
+}
+
+void OCIOSourceCodeNode::initialize(const InterfaceElement& element, GenContext& context)
+{
+    SourceCodeNode::initialize(element, context);
+
+    // Cache a uniform block
+    for (auto nodeInput : element.getInputs())
+    {
+        if (nodeInput->getName() != IN_PIXEL_STRING)
+        {
+            string uniformType = nodeInput->getType();
+            if (uniformType == "floatarray" || uniformType == "intarray")
+            {
+                // This will create a sampler. 
+                // NOTE: The value is never set here even though it is storable as is. 
+                _cmUniforms.add(Type::FILENAME, nodeInput->getName());
+            }
+            else
+            {
+                _cmUniforms.add(TypeDesc::get(nodeInput->getType()), nodeInput->getName(), nodeInput->getValue());
+            }
+        }
+    }
+}
+
+void OCIOSourceCodeNode::createVariables(const ShaderNode& /*node*/, GenContext& /*context*/, Shader& shader) const
+{
+    // Add to CM uniform block
+    if (!_cmUniforms.empty())
+    {
+        ShaderStage& stage = shader.getStage(Stage::PIXEL);
+        stage.createUniformBlock(ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS);
+        VariableBlock& uniformBlock = stage.getUniformBlock(ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS);
+
+        for (size_t i = 0; i < _cmUniforms.size(); ++i)
+        {
+            ShaderPort* u = const_cast<ShaderPort*>(_cmUniforms[i]);
+            uniformBlock.add(u->getSelf());
+        }
+    }
 }
 
 void OCIOSourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const

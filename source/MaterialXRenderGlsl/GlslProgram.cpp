@@ -15,6 +15,7 @@
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
+#include <cstring>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -543,6 +544,104 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 ImageSamplingProperties samplingProperties;
                 samplingProperties.setProperties(uniform.first, publicUniforms);
                 bindTexture(uniformType, uniformLocation, fileName, imageHandler, samplingProperties);
+            }
+        }
+    }
+}
+
+void GlslProgram::bindColorManagement(ColorManagementSystemPtr cms, ImageHandlerPtr imageHandler)
+{
+    if (!cms || !imageHandler)
+    {
+        return;
+    }
+
+    // Handle non-texture uniforms
+    ColorManagementResourceMapPtr uniformItems = cms->getResource(ColorManagementSystem::ResourceType::UNIFORM);
+    if (uniformItems)
+    {
+        for (auto uniformItem : *uniformItems)
+        {
+            std::string uniformName = uniformItem.first;
+            ColorSpaceConstantPtr uniformPtr = std::static_pointer_cast<ColorSpaceConstant>(uniformItem.second);
+            ValuePtr uniformValue = uniformPtr->_value;
+            if (hasUniform(uniformName))
+            {
+                bindUniform(uniformName, uniformValue);
+            }
+        }
+    }
+
+    // Handle texture uniforms. 
+    // Note: Need support for 3D images to support binding here
+    ColorManagementSystem::ResourceType textureTypes[] = {
+        ColorManagementSystem::ResourceType::TEXTURE1D, ColorManagementSystem::ResourceType::TEXTURE2D
+        /* , ColorManagementSystem::ResourceType::TEXTURE3D */
+    };
+
+    for (auto textureType : textureTypes)
+    {
+        uniformItems = cms->getResource(textureType);
+        if (uniformItems)
+        {
+            ImageSamplingProperties samplingProperties;
+            samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
+
+            for (auto uniformItem : *uniformItems)
+            {
+                std::string uniformName = uniformItem.first;
+                ColorSpaceTexturePtr uniformTexture = std::static_pointer_cast<ColorSpaceTexture>(uniformItem.second);
+
+                // Create an new image if needed and bind it to the appropriate location
+                // Note that if the image with the uniform name already exists then it will be
+                // returned from the image cache and reused.
+                if (hasUniform(uniformName))
+                {
+                    ImagePtr uniformImage = imageHandler->getImage(uniformName);
+                    if (!uniformImage)
+                    {
+                        uniformImage = imageHandler->createImage(uniformName,
+                                                                 uniformTexture->width,
+                                                                 uniformTexture->height,
+                                                                 uniformTexture->channelCount,
+                                                                 Image::BaseType::FLOAT);
+                        if (uniformImage)
+                        {
+                            void* pixels = uniformImage->getResourceBuffer();
+                            if (!pixels)
+                            {
+                                continue;
+                            }
+                            FloatVec& pixelData = uniformTexture->data;
+                            std::memcpy(pixels, pixelData.data(), pixelData.size() * uniformImage->getBaseStride());
+                        }
+                    }
+                    if (!uniformImage || !uniformImage->getResourceBuffer())
+                    {
+                        continue;
+                    }
+
+                    // Bind the image.
+                    samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
+                    if (uniformTexture->interpolation == ColorSpaceTexture::InterpolationType::NEAREST)
+                    {
+                        samplingProperties.filterType = ImageSamplingProperties::FilterType::CLOSEST;
+                    }
+                    else if (uniformTexture->interpolation == ColorSpaceTexture::InterpolationType::CUBIC)
+                    {
+                        samplingProperties.filterType = ImageSamplingProperties::FilterType::CUBIC;
+                    }
+                    if (imageHandler->bindImage(uniformImage, samplingProperties))
+                    {
+                        GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
+                        int textureLocation = textureHandler->getBoundTextureLocation(uniformImage->getResourceId());
+                        if (textureLocation >= 0)
+                        {
+                            bindUniform(uniformName, Value::createValue(textureLocation));
+                        }
+                    }
+                }
             }
         }
     }

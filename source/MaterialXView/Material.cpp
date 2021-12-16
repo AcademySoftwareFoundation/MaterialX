@@ -237,6 +237,28 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
     }
 }
 
+mx::ImagePtr Material::bindImage(const mx::ImagePtr image, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
+                                 const mx::ImageSamplingProperties& samplingProperties)
+{
+    if (!_glProgram || !image)
+    {
+        return nullptr;
+    }
+
+    // Bind the image and set its sampling properties.
+    if (imageHandler->bindImage(image, samplingProperties))
+    {
+        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+        int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
+        if (textureLocation >= 0)
+        {
+            _glProgram->bindUniform(uniformName, mx::Value::createValue(textureLocation), false);
+            return image;
+        }
+    }
+    return nullptr;
+}
+
 mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
                                  const mx::ImageSamplingProperties& samplingProperties)
 {
@@ -260,18 +282,7 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
         return nullptr;
     }
 
-    // Bind the image and set its sampling properties.
-    if (imageHandler->bindImage(image, samplingProperties))
-    {
-        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
-        int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
-        if (textureLocation >= 0)
-        {
-            _glProgram->bindUniform(uniformName, mx::Value::createValue(textureLocation), false);
-            return image;
-        }
-    }
-    return nullptr;
+    return bindImage(image, uniformName, imageHandler, samplingProperties);   
 }
 
 void Material::bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const ShadowState& shadowState)
@@ -363,6 +374,15 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
             }
         }
     }
+}
+
+void Material::bindColorManagement(mx::ColorManagementSystemPtr cms, mx::ImageHandlerPtr imageHandler)
+{
+    if (!_glProgram)
+    {
+        return;
+    }
+    _glProgram->bindColorManagement(cms, imageHandler);
 }
 
 void Material::drawPartition(mx::MeshPartitionPtr part) const

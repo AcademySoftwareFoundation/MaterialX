@@ -207,21 +207,13 @@ void GlslRenderer::render()
             }
             else
             {
-                // Bind the shader program.
-                if (!_program->bind())
+                // Bind the program to use
+                _program->bind();
+
+               if (_colorManagementSystem)
                 {
-                    throw ExceptionRenderError("Cannot bind inputs without a valid program");
+                    _program->bindColorManagement(_colorManagementSystem, _imageHandler);
                 }
-
-                // Update uniforms and attributes.
-                _program->getUniformsList();
-                _program->getAttributesList();
-
-                // Bind shader properties.
-                _program->bindViewInformation(_camera);
-                _program->bindTextures(_imageHandler);
-                _program->bindLighting(_lightHandler, _imageHandler);
-                _program->bindTimeAndFrame();
 
                 // Set blend state for the given material.
                 if (_program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT))

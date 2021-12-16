@@ -11,6 +11,34 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+// Color management uniform block name
+std::string ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS = "ColorManagmentUniforms";
+
+//
+// Color management uniform methods
+//
+ColorSpaceConstant::ColorSpaceConstant(const string name, const ValuePtr value)
+    : ColorSpaceUniform(name),
+    _value(value)
+{
+}
+
+ColorSpaceConstantPtr ColorSpaceConstant::create(const std::string& name, const ValuePtr value)
+{
+    return std::make_shared<ColorSpaceConstant>(name, value);
+}
+
+ColorSpaceTexture::ColorSpaceTexture(const string name, const FloatVec& inputData)
+    : ColorSpaceUniform(name),
+      data(inputData.begin(), inputData.end())
+{
+}
+
+ColorSpaceTexturePtr ColorSpaceTexture::create(const std::string& name, const FloatVec& data)
+{
+    return std::make_shared<ColorSpaceTexture>(name, data);
+}
+
 //
 // ColorSpaceTransform methods
 //
