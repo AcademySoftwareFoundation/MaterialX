@@ -7,8 +7,7 @@
 
 #include <MaterialXRuntime/RtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 PvtSetPortValueCmd::PvtSetPortValueCmd(const RtPort& port, const RtValue& value) :
     _port(port),
@@ -96,4 +95,4 @@ void PvtSetPortValueCmd::redo(RtCommandResult& result)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

@@ -21,8 +21,7 @@
 #include <MaterialXRuntime/Private/PvtCommand.h>
 #include <MaterialXRuntime/Private/PvtMessage.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtApi
 {
@@ -263,17 +262,17 @@ public:
         _implementationSearchPaths.clear();
     }
 
-    void setSearchPath(const FileSearchPath& searchPath)
+    void appendSearchPath(const FileSearchPath& searchPath)
     {
         _searchPaths.append(searchPath);
     }
 
-    void setTextureSearchPath(const FileSearchPath& searchPath)
+    void appendTextureSearchPath(const FileSearchPath& searchPath)
     {
         _textureSearchPaths.append(searchPath);
     }
 
-    void setImplementationSearchPath(const FileSearchPath& searchPath)
+    void appendImplementationSearchPath(const FileSearchPath& searchPath)
     {
         _implementationSearchPaths.append(searchPath);
     }
@@ -293,7 +292,7 @@ public:
         return _implementationSearchPaths;
     }
 
-    RtStagePtr loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
+    RtStagePtr loadLibrary(const RtString& name, const FilePathVec& libraryPaths, const RtReadOptions* options = nullptr, bool forceReload = false);
     void unloadLibrary(const RtString& name);
     void unloadLibraries();
 
@@ -411,6 +410,6 @@ public:
     PvtObjectList _targetdefs;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -13,8 +13,7 @@
 
 #include <MaterialXCore/Element.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 extern MX_CORE_API const string GEOM_PATH_SEPARATOR;
 extern MX_CORE_API const string UNIVERSAL_GEOM_NAME;
@@ -66,7 +65,7 @@ class MX_CORE_API GeomPath
     {
     }
     ~GeomPath() { }
-    
+
     bool operator==(const GeomPath& rhs) const
     {
         return _vec == rhs._vec &&
@@ -157,6 +156,7 @@ class MX_CORE_API GeomElement : public Element
         Element(parent, category, name)
     {
     }
+
   public:
     virtual ~GeomElement() { }
 
@@ -324,9 +324,9 @@ class MX_CORE_API GeomInfo : public GeomElement
 
     /// Set the value of a GeomProp by its name, creating a child element
     /// to hold the GeomProp if needed.
-    template<class T> GeomPropPtr setGeomPropValue(const string& name,
-                                                   const T& value,
-                                                   const string& type = EMPTY_STRING);
+    template <class T> GeomPropPtr setGeomPropValue(const string& name,
+                                                    const T& value,
+                                                    const string& type = EMPTY_STRING);
 
     /// Set the string value of a Token by its name, creating a child element
     /// to hold the Token if needed.
@@ -371,8 +371,8 @@ class MX_CORE_API GeomProp : public ValueElement
 class MX_CORE_API GeomPropDef : public Element
 {
   public:
-      GeomPropDef(ElementPtr parent, const string& name) :
-          Element(parent, CATEGORY, name)
+    GeomPropDef(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
     {
     }
     virtual ~GeomPropDef() { }
@@ -585,9 +585,9 @@ class MX_CORE_API Collection : public Element
     static const string INCLUDE_COLLECTION_ATTRIBUTE;
 };
 
-template<class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
-                                                         const T& value,
-                                                         const string& type)
+template <class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
+                                                          const T& value,
+                                                          const string& type)
 {
     GeomPropPtr geomProp = getChildOfType<GeomProp>(name);
     if (!geomProp)
@@ -608,6 +608,6 @@ template<class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
 /// @todo Geometry name expressions are not yet supported.
 MX_CORE_API bool geomStringsMatch(const string& geom1, const string& geom2, bool contains = false);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

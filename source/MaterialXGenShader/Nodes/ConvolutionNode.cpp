@@ -10,8 +10,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace {
 
@@ -225,4 +224,4 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
     }
 } 
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 // Color management uniform block name
 std::string ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS = "ColorManagmentUniforms";
@@ -205,7 +204,7 @@ void ColorManagementSystem::connectNodeToShaderOutput(ShaderGraph* graph, Shader
     getPortConnections(graph, colorTransformNode, shaderOutput->getType(), context, inputToConnect, outputToConnect);
     if (inputToConnect && outputToConnect)
     {
-        ShaderInputSet downStreamInputs = shaderOutput->getConnections();
+        ShaderInputVec downStreamInputs = shaderOutput->getConnections();
         for (ShaderInput* downStreamInput : downStreamInputs)
         {
             downStreamInput->breakConnection();
@@ -217,4 +216,4 @@ void ColorManagementSystem::connectNodeToShaderOutput(ShaderGraph* graph, Shader
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

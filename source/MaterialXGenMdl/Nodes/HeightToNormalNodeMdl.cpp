@@ -10,8 +10,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -30,7 +29,7 @@ namespace
 
 ShaderNodeImplPtr HeightToNormalNodeMdl::create()
 {
-    return std::shared_ptr<HeightToNormalNodeMdl>(new HeightToNormalNodeMdl());
+    return std::make_shared<HeightToNormalNodeMdl>();
 }
 
 void HeightToNormalNodeMdl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
@@ -106,4 +105,4 @@ const string& HeightToNormalNodeMdl::getTarget() const
     return MdlShaderGenerator::TARGET;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

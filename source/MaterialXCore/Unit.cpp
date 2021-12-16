@@ -7,10 +7,10 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
-namespace {
+namespace
+{
 
 const string SCALE_ATTRIBUTE = "scale";
 
@@ -309,4 +309,4 @@ bool UnitConverterRegistry::convertToUnit(DocumentPtr doc, const string& unitTyp
     return convertedUnits;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

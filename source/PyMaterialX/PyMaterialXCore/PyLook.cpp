@@ -52,8 +52,8 @@ void bindPyLook(py::module& mod)
     py::class_<mx::LookGroup, mx::LookGroupPtr, mx::Element>(mod, "LookGroup")
         .def("getLooks", &mx::LookGroup::getLooks)
         .def("setLooks", &mx::LookGroup::setLooks)
-        .def("setActiveLook", &mx::LookGroup::setActiveLook)
         .def("getActiveLook", &mx::LookGroup::getActiveLook)
+        .def("setActiveLook", &mx::LookGroup::setActiveLook)
         .def_readonly_static("CATEGORY", &mx::LookGroup::CATEGORY)
         .def_readonly_static("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
         .def_readonly_static("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE);
@@ -62,6 +62,7 @@ void bindPyLook(py::module& mod)
         .def("setMaterial", &mx::MaterialAssign::setMaterial)
         .def("hasMaterial", &mx::MaterialAssign::hasMaterial)
         .def("getMaterial", &mx::MaterialAssign::getMaterial)
+        .def("getMaterialOutputs", &mx::MaterialAssign::getMaterialOutputs)        
         .def("setExclusive", &mx::MaterialAssign::setExclusive)
         .def("getExclusive", &mx::MaterialAssign::getExclusive)
         .def("getReferencedMaterial", &mx::MaterialAssign::getReferencedMaterial)
@@ -81,5 +82,6 @@ void bindPyLook(py::module& mod)
         .def("getVisible", &mx::Visibility::getVisible)
         .def_readonly_static("CATEGORY", &mx::Visibility::CATEGORY);
 
-    mod.def("getGeometryBindings", &mx::getGeometryBindings);
+    mod.def("getGeometryBindings", &mx::getGeometryBindings,
+        py::arg("materialNode") , py::arg("geom") = mx::UNIVERSAL_GEOM_NAME);
 }

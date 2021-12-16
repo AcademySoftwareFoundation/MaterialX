@@ -16,7 +16,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
 
     float avgRoughness = mx_average_roughness(roughness);
     vec3 F = mx_compute_fresnel(NdotV, fd);
-    float G = mx_ggx_smith_G(NdotV, NdotV, avgRoughness);
+    float G = mx_ggx_smith_G2(NdotV, NdotV, avgRoughness);
     vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
     vec3 Li = mx_latlong_map_lookup(L, $envMatrix, mx_latlong_compute_lod(avgRoughness), $envRadiance);
 

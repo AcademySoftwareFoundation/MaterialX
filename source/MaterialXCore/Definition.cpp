@@ -7,8 +7,7 @@
 
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
@@ -27,6 +26,7 @@ const string TypeDef::SEMANTIC_ATTRIBUTE = "semantic";
 const string TypeDef::CONTEXT_ATTRIBUTE = "context";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
+const string Implementation::NODE_GRAPH_ATTRIBUTE = "nodegraph";
 const string UnitDef::UNITTYPE_ATTRIBUTE = "unittype";
 const string AttributeDef::ATTRNAME_ATTRIBUTE = "attrname";
 const string AttributeDef::VALUE_ATTRIBUTE = "value";
@@ -170,4 +170,4 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
     return unitDefs;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

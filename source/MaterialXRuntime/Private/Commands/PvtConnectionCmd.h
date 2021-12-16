@@ -10,8 +10,7 @@
 
 #include <MaterialXRuntime/RtPort.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtConnectionCmd : public PvtCommand
 {
@@ -51,6 +50,6 @@ class PvtInterfaceConnectionCmd : public PvtConnectionCmd
     void updateConnectionProperties(const RtOutput& src, const RtInput& dest, RtCommandResult& result) override;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

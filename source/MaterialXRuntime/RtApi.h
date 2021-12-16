@@ -20,8 +20,7 @@
 
 #include <MaterialXCore/Unit.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class RtApi
 {
@@ -153,15 +152,15 @@ public:
 
     /// Set search path for definition libraries. Can be called multiple times
     /// to append to the current search path.
-    void setSearchPath(const FileSearchPath& searchPath);
+    void appendSearchPath(const FileSearchPath& searchPath);
 
     /// Set search path for texture resources. Can be called multiple times
     /// to append to the current search path.
-    void setTextureSearchPath(const FileSearchPath& searchPath);
+    void appendTextureSearchPath(const FileSearchPath& searchPath);
 
     /// Set search path for implementations used by libraries. Can be called multiple times
     /// to append to the current search path.
-    void setImplementationSearchPath(const FileSearchPath& searchPath);
+    void appendImplementationSearchPath(const FileSearchPath& searchPath);
 
     /// Get the search path for definition libraries.
     const FileSearchPath& getSearchPath() const;
@@ -176,11 +175,17 @@ public:
     /// @name Library management
     /// @{
 
-    /// Load a file or folder of files into a new library. The search paths previously set
+    /// Load folder of files into a new library. The search paths previously set
     /// will be used to find the files if the given path is a relative path.
     /// All definitions and implementations found will be registered and available to use
     /// for content creation as long as the library remains loaded.
-    RtStagePtr loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options = nullptr, bool forceReload = false);
+    RtStagePtr loadLibrary(const RtString& name, const FilePath& libraryPath, const RtReadOptions* options = nullptr, bool forceReload = false);
+
+    /// Load folders of files into a new library. The search paths previously set
+    /// will be used to find the files if the given path is a relative path.
+    /// All definitions and implementations found will be registered and available to use
+    /// for content creation as long as the library remains loaded.
+    RtStagePtr loadLibrary(const RtString& name, const FilePathVec& libraryPaths, const RtReadOptions* options = nullptr, bool forceReload = false);
 
     /// Unload a previously loaded library.
     /// All definitions and implementations in the library will be
@@ -275,6 +280,6 @@ public:
     }
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

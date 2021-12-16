@@ -15,10 +15,10 @@
 
 #include <MaterialXFormat/Export.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/XmlExport.h>
 #include <MaterialXFormat/XmlIo.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Read the given file and return a string containing its contents; if the read is not
 /// successful, then the empty string is returned.
@@ -29,35 +29,39 @@ MX_FORMAT_API void getSubdirectories(const FilePathVec& rootDirectories, const F
 
 /// Scans for all documents under a root path and returns documents which can be loaded
 MX_FORMAT_API void loadDocuments(const FilePath& rootPath,
-                   const FileSearchPath& searchPath,
-                   const StringSet& skipFiles,
-                   const StringSet& includeFiles,
-                   vector<DocumentPtr>& documents,
-                   StringVec& documentsPaths,
-                   const XmlReadOptions* readOptions = nullptr,
-                   StringVec* errors = nullptr);
+                                 const FileSearchPath& searchPath,
+                                 const StringSet& skipFiles,
+                                 const StringSet& includeFiles,
+                                 vector<DocumentPtr>& documents,
+                                 StringVec& documentsPaths,
+                                 const XmlReadOptions* readOptions = nullptr,
+                                 StringVec* errors = nullptr);
 
 /// Load a given MaterialX library into a document
 MX_FORMAT_API void loadLibrary(const FilePath& file,
-                 DocumentPtr doc,
-                 const FileSearchPath& searchPath = FileSearchPath(), 
-                 const XmlReadOptions* readOptions = nullptr);
+                               DocumentPtr doc,
+                               const FileSearchPath& searchPath = FileSearchPath(),
+                               const XmlReadOptions* readOptions = nullptr);
 
 /// Load all MaterialX files within the given library folders into a document,
 /// using the given search path to locate the folders on the file system.
 MX_FORMAT_API StringSet loadLibraries(const FilePathVec& libraryFolders,
-                        const FileSearchPath& searchPath,
-                        DocumentPtr doc,
-                        const StringSet& excludeFiles = StringSet(),
-                        const XmlReadOptions* readOptions = nullptr);
+                                      const FileSearchPath& searchPath,
+                                      DocumentPtr doc,
+                                      const StringSet& excludeFiles = StringSet(),
+                                      const XmlReadOptions* readOptions = nullptr);
 
 /// Flatten all filenames in the given document, applying string resolvers at the
 /// scope of each element and removing all fileprefix attributes.
 /// @param doc The document to modify.
 /// @param searchPath An optional search path for relative to absolute path conversion.
 /// @param customResolver An optional custom resolver to apply.
-MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr);
+/// @param skipFlattening An optional parameter that skips converting a path to an absolute one when it returns true.
+MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr, const FilePathPredicate& skipFlattening = nullptr);
 
-} // namespace MaterialX
+
+/// Return true if the given string is valid environment path value.
+MX_FORMAT_API bool isValidPath(const string& path);
+MATERIALX_NAMESPACE_END
 
 #endif

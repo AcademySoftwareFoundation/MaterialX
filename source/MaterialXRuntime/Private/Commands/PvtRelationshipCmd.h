@@ -10,8 +10,7 @@
 
 #include <MaterialXRuntime/RtPort.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtRelationshipCmd : public PvtCommand
 {
@@ -36,6 +35,6 @@ private:
     ConnectionChange _change;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

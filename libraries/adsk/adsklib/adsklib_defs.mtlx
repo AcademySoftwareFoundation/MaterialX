@@ -102,7 +102,6 @@
   
   <!--
    Nodegraphs for Autodesk materials.
-   Based on Mapping rules define at https://wiki.autodesk.com/x/YmVwI 
   -->
   <nodedef name="ND_adsk_metal" node="metal" version="1.0.1" isdefaultversion="true" namespace="adsk">
     <input name="metal_f0" type="color3" value="1, 1, 1" />

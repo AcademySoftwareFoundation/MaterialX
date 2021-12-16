@@ -133,7 +133,7 @@ static void generateGlslCode(bool generateLayout = false)
     testRootPaths.push_back(testRootPath3);
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    bool writeShadersToDisk = false;   
+    bool writeShadersToDisk = false;
 
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
@@ -145,7 +145,9 @@ static void generateGlslCode(bool generateLayout = false)
     if (generateLayout)
     {
         // Set binding context to handle resource binding layouts
-        tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, mx::GlslResourceBindingContext::create());
+        mx::GlslResourceBindingContextPtr glslresourceBinding(mx::GlslResourceBindingContext::create());
+        glslresourceBinding->enableSeparateBindingLocations(true);
+        tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, glslresourceBinding);
     }
 
     GenShaderUtil::TestSuiteOptions options;

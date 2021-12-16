@@ -8,8 +8,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -114,8 +113,6 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     emitLineBreak(fx);
 
     // Add global constants and type definitions
-    emitInclude("pbrlib/genglsl/lib/mx_defines.glsl", context, fx);
-    emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), fx, false);
     emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(context.getOptions().hwMaxActiveLightSources), fx, false);
     emitLineBreak(fx);
     emitTypeDefinitions(context, fx);
@@ -300,7 +297,7 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
     }
 
     // Emit common math functions
-    emitInclude("pbrlib/genglsl/lib/mx_math.glsl", context, stage);
+    emitInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
     // Set the include file to use for uv transformations,
@@ -330,7 +327,8 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
     emitLine("void main()", stage, false);
     emitScopeBegin(stage);
 
-    if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (graph.hasClassification(ShaderNode::Classification::CLOSURE) &&
+        !graph.hasClassification(ShaderNode::Classification::SHADER))
     {
         // Handle the case where the graph is a direct closure.
         // We don't support rendering closures without attaching
@@ -503,4 +501,4 @@ void OgsFxShaderGenerator::getTechniqueParams(const Shader&, string&) const
     // Default implementation doesn't use any technique parameters
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

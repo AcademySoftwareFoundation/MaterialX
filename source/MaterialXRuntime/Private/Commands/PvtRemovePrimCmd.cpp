@@ -6,8 +6,7 @@
 #include <MaterialXRuntime/Private/Commands/PvtRemovePrimCmd.h>
 #include <MaterialXRuntime/Private/Commands/PvtConnectionCmd.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 PvtCommandPtr PvtRemovePrimCmd::create(RtStagePtr stage, const RtPath& path)
 {
@@ -94,4 +93,4 @@ void PvtRemovePrimCmd::undo(RtCommandResult& result)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

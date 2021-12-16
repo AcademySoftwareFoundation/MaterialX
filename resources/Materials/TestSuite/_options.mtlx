@@ -41,7 +41,7 @@
          code generators to use. -->
     <input name="targets" type="string" value="genglsl,genosl,genmdl,arnold,ogsfx,ogsxml" />
 
-    <!-- Check the count of number of implementations used for a given generator -->
+     <!-- Check the count of number of implementations used for a given generator -->
     <input name="checkImplCount" type="boolean" value="true" />
 
     <!-- Run using a given set of shader interface generation options. Default value is 2 where:

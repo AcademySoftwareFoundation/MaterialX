@@ -211,7 +211,9 @@ TEST_CASE("Flatten", "[nodegraph]")
     const mx::FilePathVec libraryFolders;
     mx::FileSearchPath libraryRoot(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     mx::loadLibraries(libraryFolders, libraryRoot, doc);
-    mx::readFromXmlFile(doc, "PreFlattenedGraph.mtlx", searchPath);
+    searchPath = mx::FileSearchPath("resources/Materials/TestSuite/stdlib/definition/");
+    mx::readFromXmlFile(doc, "definition_using_definitions.mtlx", searchPath);
+    REQUIRE(doc->validate());
 
     doc->flattenSubgraphs(mx::EMPTY_STRING,
         [](mx::NodePtr node)

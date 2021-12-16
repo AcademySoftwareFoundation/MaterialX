@@ -13,8 +13,7 @@
 
 #include <MaterialXCore/Interface.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Variant;
 class VariantSet;
@@ -156,12 +155,12 @@ class MX_CORE_API VariantAssign : public Element
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
     static const string VARIANT_SET_ATTRIBUTE;
     static const string VARIANT_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -4,10 +4,8 @@
 //
 
 #include <MaterialXGenArnold/ArnoldShaderGenerator.h>
-#include <MaterialXGenShader/Nodes/BsdfNodes.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string ArnoldShaderGenerator::TARGET = "arnold";
 
@@ -21,17 +19,8 @@ ArnoldShaderGenerator::ArnoldShaderGenerator()
 
     _syntax->registerReservedWords(reservedWords);
 
-    // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + ArnoldShaderGenerator::TARGET, DielectricBsdfNode::create);
-
-    // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + ArnoldShaderGenerator::TARGET, DielectricBsdfNode::create);
-
-    // <!-- <conductor_bsdf> -->
-    registerImplementation("IM_conductor_bsdf_" + ArnoldShaderGenerator::TARGET, ConductorBsdfNode::create);
-
-    // <!-- <sheen_bsdf> -->
-    registerImplementation("IM_sheen_bsdf_" + ArnoldShaderGenerator::TARGET, SheenBsdfNode::create);
+    // Set colorspace argument for texture lookups
+    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = ", \"colorspace\", file.colorspace";
 }
 
-}
+MATERIALX_NAMESPACE_END

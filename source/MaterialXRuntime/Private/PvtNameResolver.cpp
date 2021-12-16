@@ -7,8 +7,7 @@
 
 #include <MaterialXRuntime/Library.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to an PvtUserStringResolver
 using PvtUserStringResolverPtr = std::shared_ptr<class PvtUserStringResolver>;
@@ -154,7 +153,7 @@ RtString PvtNameResolverRegistry::resolveIdentifier(const RtString& valueToResol
     }
     
     RtString result = valueToResolve;
-    for (const auto resolverPair : _resolvers)
+    for (const auto& resolverPair : _resolvers)
     {
         if (resolverPair.second && resolverPair.second->getType() == elementType)
         {
@@ -185,4 +184,4 @@ RtString PvtNameResolverRegistry::resolveIdentifier(const RtString& valueToResol
     return result;
 }
 
-}
+MATERIALX_NAMESPACE_END

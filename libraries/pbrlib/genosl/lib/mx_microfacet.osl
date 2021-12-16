@@ -36,7 +36,8 @@ float mx_average_roughness(vector2 roughness)
 // https://www.graphics.rwth-aachen.de/publication/2/jgt.pdf
 float mx_golden_ratio_sequence(int i)
 {
-    return mx_fract((float(i) + 1.0) * M_GOLDEN_RATIO);
+    float GOLDEN_RATIO = 1.6180339887498948;
+    return mx_fract((float(i) + 1.0) * GOLDEN_RATIO);
 }
 
 // https://people.irisa.fr/Ricardo.Marques/articles/2013/SF_CGF.pdf

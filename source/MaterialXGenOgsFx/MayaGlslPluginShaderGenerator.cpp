@@ -8,8 +8,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string MayaGlslPluginShaderGenerator::TARGET = "ogsfx_mayaglslplugin";
 
@@ -33,4 +32,4 @@ void MayaGlslPluginShaderGenerator::getTechniqueParams(const Shader& shader, str
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

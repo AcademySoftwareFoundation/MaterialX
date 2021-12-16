@@ -8,11 +8,10 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Time node implementation for GLSL
-class TimeNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API TimeNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();
@@ -22,6 +21,6 @@ public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

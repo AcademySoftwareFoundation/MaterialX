@@ -10,9 +10,10 @@
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
 #include <cstring>
+#include <fstream>
+#include <limits>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // Global functions
@@ -344,6 +345,52 @@ void Image::setUniformColor(const Color4& color)
     }
 }
 
+void Image::applyMatrixTransform(const Matrix33& mat)
+{
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            Color4 color = getTexelColor(x, y);
+            Vector3 vec(color[0], color[1], color[2]);
+            vec = mat.multiply(vec);
+            setTexelColor(x, y, Color4(vec[0], vec[1], vec[2], color[3]));
+        }
+    }
+}
+
+void Image::applyGammaTransform(float gamma)
+{
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            Color4 color = getTexelColor(x, y);
+            Vector3 vec(color[0], color[1], color[2]);
+            vec[0] = std::pow(std::max(vec[0], 0.0f), gamma);
+            vec[1] = std::pow(std::max(vec[1], 0.0f), gamma);
+            vec[2] = std::pow(std::max(vec[2], 0.0f), gamma);
+            setTexelColor(x, y, Color4(vec[0], vec[1], vec[2], color[3]));
+        }
+    }
+}
+
+ImagePtr Image::copy(unsigned int channelCount, BaseType baseType) const
+{
+    ImagePtr newImage = Image::create(getWidth(), getHeight(), channelCount, baseType);
+    newImage->createResourceBuffer();
+
+    for (int y = 0; y < (int) getHeight(); y++)
+    {
+        for (int x = 0; x < (int) getWidth(); x++)
+        {
+            newImage->setTexelColor(x, y, getTexelColor(x, y));
+        }
+    }
+
+    return newImage;
+}
+
 ImagePtr Image::applyBoxBlur()
 {
     ImagePtr blurImage = Image::create(getWidth(), getHeight(), getChannelCount(), getBaseType());
@@ -439,6 +486,22 @@ ImagePair Image::splitByLuminance(float luminance)
     return std::make_pair(underflowImage, overflowImage);
 }
 
+void Image::writeTable(const FilePath& filePath, unsigned int channel)
+{
+    std::ofstream ofs(filePath.asString());
+    ofs << "X Y Z" << std::endl;
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            double dx = ((double) x + 0.5) / (double) getWidth();
+            double dy = ((double) y + 0.5) / (double) getHeight();
+            double dz = getTexelColor(x, y)[channel];
+            ofs << dx << " " << dy << " " << dz << std::endl;
+        }
+    }
+}
+
 void Image::createResourceBuffer()
 {
     releaseResourceBuffer();
@@ -462,4 +525,4 @@ void Image::releaseResourceBuffer()
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

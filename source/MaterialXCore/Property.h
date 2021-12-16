@@ -13,8 +13,7 @@
 
 #include <MaterialXCore/Geom.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Property;
 class PropertyAssign;
@@ -195,9 +194,9 @@ class MX_CORE_API PropertySet : public Element
 
     /// Set the typed value of a property by its name, creating a child element
     /// to hold the property if needed.
-    template<class T> PropertyPtr setPropertyValue(const string& name,
-                                                   const T& value,
-                                                   const string& type = EMPTY_STRING)
+    template <class T> PropertyPtr setPropertyValue(const string& name,
+                                                    const T& value,
+                                                    const string& type = EMPTY_STRING)
     {
         PropertyPtr property = getChildOfType<Property>(name);
         if (!property)
@@ -218,7 +217,7 @@ class MX_CORE_API PropertySet : public Element
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
 };
 
@@ -267,6 +266,6 @@ class MX_CORE_API PropertySetAssign : public GeomElement
     static const string PROPERTY_SET_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

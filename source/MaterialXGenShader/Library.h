@@ -12,8 +12,7 @@
 
 #include <MaterialXCore/Exception.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Shader;
 class ShaderStage;
@@ -25,6 +24,7 @@ class ShaderOutput;
 class ShaderNodeImpl;
 class GenOptions;
 class GenContext;
+class ClosureContext;
 class TypeDesc;
 
 /// A string stream
@@ -43,6 +43,6 @@ using GenContextPtr = shared_ptr<GenContext>;
 
 template<class T> using CreatorFunction = shared_ptr<T>(*)();
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_GENSHADERLIBRARY_H

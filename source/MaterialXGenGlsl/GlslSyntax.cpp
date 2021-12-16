@@ -6,10 +6,8 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -155,7 +153,8 @@ GlslSyntax::GlslSyntax()
         "image1DShadow", "image2DShadow",
         "image1DArrayShadow", "image2DArrayShadow",
         "imageBuffer", "iimageBuffer", "uimageBuffer",
-        "sizeof", "cast", "namespace", "using", "row_major"
+        "sizeof", "cast", "namespace", "using", "row_major",
+        "mix", "sampler"
     });
 
     // Register restricted tokens in GLSL
@@ -309,9 +308,10 @@ GlslSyntax::GlslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(0.0)",
-            "BSDF(0.0)",
-            "vec3")
+            "BSDF(vec3(0.0),vec3(1.0), 0.0, 0.0)",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "struct BSDF { vec3 response; vec3 throughput; float thickness; float ior; };")
     );
 
     registerTypeSyntax
@@ -328,11 +328,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
-            "VDF",
-            "VDF(vec3(0.0),vec3(0.0))",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            "struct VDF { vec3 absorption; vec3 scattering; };")
+            "BSDF",
+            "BSDF(vec3(0.0),vec3(1.0), 0.0, 0.0)",
+            EMPTY_STRING)
     );
 
     registerTypeSyntax
@@ -351,10 +349,10 @@ GlslSyntax::GlslSyntax()
         Type::VOLUMESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "volumeshader",
-            "volumeshader(VDF(vec3(0.0),vec3(0.0)),EDF(0.0))",
+            "volumeshader(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct volumeshader { VDF vdf; EDF edf; };")
+            "struct volumeshader { vec3 color; vec3 transparency; };")
     );
 
     registerTypeSyntax
@@ -377,17 +375,6 @@ GlslSyntax::GlslSyntax()
             EMPTY_STRING,
             EMPTY_STRING,
             "struct lightshader { vec3 intensity; vec3 direction; };")
-    );
-
-    registerTypeSyntax
-    (
-        Type::THINFILM,
-        std::make_shared<AggregateTypeSyntax>(
-            "thinfilm",
-            "thinfilm(0.0,1.5)",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            "struct thinfilm { float thickness; float ior; };")
     );
 }
 
@@ -438,4 +425,4 @@ bool GlslSyntax::remapEnumeration(const string& value, const TypeDesc* type, con
     return true;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

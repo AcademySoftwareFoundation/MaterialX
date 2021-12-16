@@ -14,8 +14,7 @@
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Document;
 
@@ -169,6 +168,13 @@ class MX_CORE_API Document : public GraphElement
     {
         removeChildOfType<GeomPropDef>(name);
     }
+
+    /// @}
+    /// @name Material Outputs
+    /// @{
+
+    /// Return material-type outputs for all nodegraphs in the document.
+    vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}
     /// @name Look Elements
@@ -332,7 +338,7 @@ class MX_CORE_API Document : public GraphElement
 
     /// Create a NodeDef declaration which is based on a NodeGraph.
     /// @param nodeGraph NodeGraph used to create NodeDef
-    /// @param nodeDefName Declaration name 
+    /// @param nodeDefName Declaration name
     /// @param node Node type for the new declaration
     /// @param version Version for the new declaration
     /// @param isDefaultVersion If a version is specified is thie definition the default version
@@ -560,7 +566,7 @@ class MX_CORE_API Document : public GraphElement
     void removeUnitDef(const string& name)
     {
         removeChildOfType<UnitDef>(name);
-    }    
+    }
 
     /// @}
     /// @name UnitTypeDef Elements
@@ -682,6 +688,6 @@ class MX_CORE_API Document : public GraphElement
 /// @relates Document
 MX_CORE_API DocumentPtr createDocument();
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

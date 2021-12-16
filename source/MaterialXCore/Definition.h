@@ -13,8 +13,7 @@
 
 #include <MaterialXCore/Interface.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 extern MX_CORE_API const string COLOR_SEMANTIC;
 extern MX_CORE_API const string SHADER_SEMANTIC;
@@ -243,6 +242,28 @@ class MX_CORE_API Implementation : public InterfaceElement
     }
 
     /// @}
+    /// @name Nodegraph String
+    /// @{
+
+    /// Set the nodegraph string for the Implementation.
+    void setNodeGraph(const string& nodegraph)
+    {
+        setAttribute(NODE_GRAPH_ATTRIBUTE, nodegraph);
+    }
+
+    /// Return true if the given Implementation has a nodegraph string.
+    bool hasNodeGraph() const
+    {
+        return hasAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+
+    /// Return the nodegraph string for the Implementation.
+    const string& getNodeGraph() const
+    {
+        return getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name NodeDef References
     /// @{
 
@@ -274,6 +295,7 @@ class MX_CORE_API Implementation : public InterfaceElement
     static const string CATEGORY;
     static const string FILE_ATTRIBUTE;
     static const string FUNCTION_ATTRIBUTE;
+    static const string NODE_GRAPH_ATTRIBUTE;
 };
 
 /// @class TypeDef
@@ -411,11 +433,11 @@ class MX_CORE_API Member : public TypedElement
 class MX_CORE_API Unit : public Element
 {
   public:
-      Unit(ElementPtr parent, const string& name) :
-          Element(parent, CATEGORY, name)
-      {
-      }
-      virtual ~Unit() { }
+    Unit(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~Unit() { }
 
   public:
     static const string CATEGORY;
@@ -572,7 +594,7 @@ class MX_CORE_API AttributeDef : public TypedElement
     /// @{
 
     /// Set the typed value of an element.
-    template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
+    template <class T> void setValue(const T& value, const string& type = EMPTY_STRING)
     {
         setType(!type.empty() ? type : getTypeString<T>());
         setValueString(toValueString(value));
@@ -651,6 +673,6 @@ class MX_CORE_API AttributeDef : public TypedElement
     static const string EXPORTABLE_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

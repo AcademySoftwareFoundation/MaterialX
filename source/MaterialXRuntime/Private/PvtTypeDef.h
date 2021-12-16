@@ -9,8 +9,7 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtTypeDef.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtTypeDef
 {
@@ -140,6 +139,6 @@ private:
     RtStringMap<RtTypeDef*> _typesByName;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

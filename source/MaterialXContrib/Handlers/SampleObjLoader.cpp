@@ -13,8 +13,7 @@
 #include <iomanip>  
 #include <limits>
 
-namespace MaterialX
-{ 
+MATERIALX_NAMESPACE_BEGIN
 bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     std::ifstream objfile;
@@ -135,7 +134,7 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
             valstring >> name;
 
             currentPartition = MeshPartition::create();
-            currentPartition->setIdentifier(name);
+            currentPartition->setName(name);
             partitions.push_back(currentPartition);
         }
         else if (line.substr(0, 2) == "f ")
@@ -168,7 +167,7 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
             if (!currentPartition)
             {
                 currentPartition = MeshPartition::create();
-                currentPartition->setIdentifier("Partition" + std::to_string(mesh->getPartitionCount()));
+                currentPartition->setName("Partition" + std::to_string(mesh->getPartitionCount()));
                 partitions.push_back(currentPartition);
             }
             
@@ -308,4 +307,4 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
     return true;
 }
 
-}
+MATERIALX_NAMESPACE_END

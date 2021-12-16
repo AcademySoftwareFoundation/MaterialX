@@ -9,8 +9,7 @@
 #include <MaterialXRuntime/Private/PvtPort.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 PvtCommandPtr PvtCopyPrimCmd::create(RtStagePtr stage, const RtPrim& prim, const RtPath& parentPath)
 {
@@ -227,4 +226,4 @@ void PvtCopyPrimCmd::copyMetadata(const PvtObject* src, PvtObject* dest)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

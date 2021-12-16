@@ -12,8 +12,7 @@
 #include <MaterialXRuntime/RtSchema.h>
 #include <MaterialXRuntime/RtTraversal.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class RtNode
 /// Schema for node prims.
@@ -103,6 +102,6 @@ public:
     }
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

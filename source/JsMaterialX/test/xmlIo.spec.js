@@ -26,7 +26,6 @@ describe('XmlIo', () => {
         'MaterialBasic.mtlx',
         'MultiOutput.mtlx',
         'NodeGraphs.mtlx',
-        'PreFlattenedGraph.mtlx',
         'PreShaderComposite.mtlx',
         'SimpleSrf.mtlx',
         'SubGraphs.mtlx',

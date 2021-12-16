@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <!--
-    TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+    TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
     All rights reserved.  See LICENSE.txt for license.
 
     Declarations of standard data types and nodes included in the MaterialX specification.
@@ -246,7 +246,7 @@
     <input name="exposure" type="float" value="0.0" doc="Exposure control for the light intensity" />
     <output name="out" type="lightshader" />
   </nodedef>
-   
+
   <!--
     Node: unlit_surface
     Uniform emission surface shader. Variants exist for the following input types: color3, color4, vec2, vec3, vec4, and float.
@@ -312,6 +312,11 @@
     <input name="base" type="BSDF" value="" />
     <output name="out" type="BSDF" />
   </nodedef>
+  <nodedef name="ND_layer_vdf" node="layer" nodegroup="pbr" defaultinput="top" doc="Layer a BSDF over a VDF describing the interior media.">
+    <input name="top" type="BSDF" value="" />
+    <input name="base" type="VDF" value="" />
+    <output name="out" type="BSDF" />
+  </nodedef>
 
   <!--
     Node: <mix>
@@ -319,19 +324,19 @@
   <nodedef name="ND_mix_bsdf" node="mix" nodegroup="pbr" defaultinput="bg" doc="Mix two BSDF's according to an input mix amount.">
     <input name="fg" type="BSDF" value="" />
     <input name="bg" type="BSDF" value="" />
-    <input name="mix" type="float" value="1.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
+    <input name="mix" type="float" value="0.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
     <output name="out" type="BSDF" />
   </nodedef>
   <nodedef name="ND_mix_edf" node="mix" nodegroup="pbr" defaultinput="bg" doc="Mix two EDF's according to an input mix amount.">
     <input name="fg" type="EDF" value="" />
     <input name="bg" type="EDF" value="" />
-    <input name="mix" type="float" value="1.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
+    <input name="mix" type="float" value="0.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
     <output name="out" type="EDF" />
   </nodedef>
   <nodedef name="ND_mix_vdf" node="mix" nodegroup="pbr" defaultinput="bg" doc="Mix two VDF's according to an input mix amount.">
     <input name="fg" type="VDF" value="" />
     <input name="bg" type="VDF" value="" />
-    <input name="mix" type="float" value="1.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
+    <input name="mix" type="float" value="0.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]." />
     <output name="out" type="VDF" />
   </nodedef>
 
@@ -416,9 +421,14 @@
     <input name="anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" />
     <output name="out" type="vector2" />
   </nodedef>
+
+  <!--
+    Node: <blackbody>
+    Returns the radiant emittance of a blackbody radiator with the given temperature.
+  -->
   <nodedef name="ND_blackbody" node="blackbody" nodegroup="pbr" doc="Returns the radiant emittance of a blackbody radiator with the given temperature.">
     <input name="temperature" type="float" value="5000.0" />
-    <output name="out" type="float" />
+    <output name="out" type="color3" />
   </nodedef>
 
   <!--

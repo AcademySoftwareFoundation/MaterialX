@@ -16,8 +16,7 @@
 #include <MaterialXRuntime/RtBindElement.h>
 #include <MaterialXRuntime/RtConnectableApi.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class RtLookGroup
 /// Schema for 'lookgroup' prims.
@@ -129,6 +128,6 @@ public:
     bool acceptRelationship(const RtRelationship& rel, const RtObject& target) const override;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

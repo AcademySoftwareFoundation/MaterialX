@@ -25,8 +25,7 @@
 #define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
 #define END_SHADER_STAGE(stage, name) }
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace Stage
 {
@@ -122,6 +121,15 @@ class MX_GENSHADER_API VariableBlock
 /// resulting source code for the stage.
 class MX_GENSHADER_API ShaderStage
 {
+public:
+    using FunctionCallId = std::pair<const ShaderNode*, int>;
+    struct Scope
+    {
+        Syntax::Punctuation punctuation;
+        std::set<FunctionCallId> functions;
+        Scope(Syntax::Punctuation p) : punctuation(p) {}
+    };
+
   public:
     /// Contructor.
     ShaderStage(const string& name, ConstSyntaxPtr syntax);
@@ -185,11 +193,7 @@ class MX_GENSHADER_API ShaderStage
     {
         return _outputs;
     }
-
-    /// Return the uniform values
-    string getUniformValues() const;
  
-  protected:
     /// Start a new scope using the given bracket type.
     void beginScope(Syntax::Punctuation punc = Syntax::CURLY_BRACKETS);
 
@@ -230,8 +234,14 @@ class MX_GENSHADER_API ShaderStage
         _code += str.str();
     }
 
-    /// Add the function definition for a node.
+    /// Add the function definition for a node's implementation.
     void addFunctionDefinition(const ShaderNode& node, GenContext& context);
+
+    /// Add the function call for the given node.
+    void addFunctionCall(const ShaderNode& node, GenContext& context);
+
+    /// Return true if the function for the given node has been emitted in the current scope.
+    bool isEmitted(const ShaderNode& node, GenContext& context) const;
 
     /// Set stage function name.
     void setFunctionName(const string& functionName) 
@@ -253,7 +263,7 @@ class MX_GENSHADER_API ShaderStage
     int _indentations;
 
     /// Current scope.
-    vector<Syntax::Punctuation> _scopes;
+    vector<Scope> _scopes;
 
     /// Set of include files that has been included.
     StringSet _includes;
@@ -333,6 +343,6 @@ inline void addStageConnector(const string& block,
     addStageInput(block, type, name, to);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

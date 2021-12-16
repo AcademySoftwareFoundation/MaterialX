@@ -10,8 +10,7 @@
 
 #include <MaterialXCore/Value.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string Syntax::NEWLINE = "\n";
 const string Syntax::SEMICOLON = ";";
@@ -94,6 +93,12 @@ const TypeDesc* Syntax::getTypeDescription(const TypeSyntaxPtr& typeSyntax) cons
         }
     }
     return nullptr;
+}
+
+string Syntax::getValue(const ShaderPort* port, bool uniform) const
+{
+    const TypeSyntax& syntax = getTypeSyntax(port->getType());
+    return syntax.getValue(port, uniform);
 }
 
 string Syntax::getValue(const TypeDesc* type, const Value& value, bool uniform) const
@@ -343,6 +348,14 @@ TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const str
 {
 }
 
+ string TypeSyntax::getValue(const ShaderPort* port, bool uniform) const
+ {
+     if (!port || !port->getValue())
+     {
+         return getDefaultValue(uniform);
+     }
+     return getValue(*port->getValue(), uniform);
+ }
 
 ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
                                    const string& typeAlias, const string& typeDefinition) :
@@ -412,4 +425,4 @@ string AggregateTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) 
     return ss.str();
 }
 
-}
+MATERIALX_NAMESPACE_END

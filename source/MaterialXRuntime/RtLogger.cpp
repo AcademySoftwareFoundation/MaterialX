@@ -7,8 +7,7 @@
 
 #include <MaterialXRuntime/Private/PvtLogger.h>
 
-namespace MaterialX {
-
+MATERIALX_NAMESPACE_BEGIN
 namespace
 {
     inline PvtLogger* _cast(void* ptr)
@@ -39,5 +38,5 @@ void RtLogger::log(MessageType type, const string& msg) {
     _cast(_ptr)->log(type, msg);
 }
 
-}
+MATERIALX_NAMESPACE_END
 

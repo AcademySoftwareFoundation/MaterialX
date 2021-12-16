@@ -1,16 +1,19 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Generated.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Generated.h)
+
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 add_library(MaterialXCore ${materialx_source} ${materialx_headers})
 
-add_definitions(-DMATERIALX_MAJOR_VERSION=${MATERIALX_MAJOR_VERSION})
-add_definitions(-DMATERIALX_MINOR_VERSION=${MATERIALX_MINOR_VERSION})
-add_definitions(-DMATERIALX_BUILD_VERSION=${MATERIALX_BUILD_VERSION})
 add_definitions(-DMATERIALX_CORE_EXPORTS)
+
+if (MATERIALX_BUILD_SHARED_LIBS)
+target_compile_definitions(MaterialXCore PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
+endif()
 
 set_target_properties(
     MaterialXCore PROPERTIES
-    OUTPUT_NAME MaterialXCore
+    OUTPUT_NAME MaterialXCore${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"

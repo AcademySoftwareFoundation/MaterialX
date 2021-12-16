@@ -102,7 +102,8 @@ static void generateArnoldOslCode()
     bool writeShadersToDisk = false;
     OslShaderGeneratorTester tester(mx::ArnoldShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
-    const mx::GenOptions genOptions;
+    mx::GenOptions genOptions;
+    genOptions.emitColorTransforms = false;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
 }

@@ -235,7 +235,7 @@ TEST_CASE("In memory xincludes", "[xmlio]")
         examplesPath.asString();
 
     mx::DocumentPtr mainDoc = mx::createDocument();
-    mx::readFromXmlFile(mainDoc, "Xincludes.mtlx", searchPath);
+    mx::readFromXmlFile(mainDoc, "resources/Materials/TestSuite/stdlib/organization/xinclude_search_path.mtlx", searchPath);
     REQUIRE(mainDoc->getChild("NG_range_float"));
     REQUIRE(mainDoc->getChild("testlooks"));
 

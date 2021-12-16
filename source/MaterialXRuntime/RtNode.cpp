@@ -10,8 +10,7 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -164,4 +163,4 @@ const RtString& RtNode::getVersion() const
     return attr ? attr->asInternString() : RtString::EMPTY;
 }
 
-}
+MATERIALX_NAMESPACE_END

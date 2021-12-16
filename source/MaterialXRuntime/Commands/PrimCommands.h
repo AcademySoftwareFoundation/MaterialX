@@ -13,8 +13,7 @@
 #include <MaterialXRuntime/RtStage.h>
 #include <MaterialXRuntime/RtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace RtCommand
 {
@@ -44,6 +43,6 @@ namespace RtCommand
     void reparentPrim(RtStagePtr stage, const RtPath& path, const RtPath& newParentPath, RtCommandResult& result);
 }
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

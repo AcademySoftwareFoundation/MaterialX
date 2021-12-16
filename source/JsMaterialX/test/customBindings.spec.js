@@ -107,9 +107,7 @@ describe('Custom Bindings', () => {
         const doc = mx.createDocument();
         expect(doc.validate()).to.be.true;
         doc.removeAttribute(mx.InterfaceElement.VERSION_ATTRIBUTE);
-        expect(doc.validate()).to.be.false;
-        expect(doc.validate(message)).to.be.false;
-        expect(message.message).to.include('Missing version string');
+        expect(doc.validate()).to.be.true;
 
         // Should invoke Node::validate
         const node = doc.addNode('node');

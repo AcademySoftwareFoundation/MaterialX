@@ -11,8 +11,7 @@
 
 #include <MaterialXGenShader/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Type of shader interface to be generated
 enum ShaderInterfaceType
@@ -49,14 +48,14 @@ enum HwSpecularEnvironmentMethod
 /// Method to use for directional albedo evaluation
 enum HwDirectionalAlbedoMethod
 {
-    /// Use a curve fit approximation for directional albedo.
-    DIRECTIONAL_ALBEDO_CURVE_FIT,
+    /// Use an analytic approximation for directional albedo.
+    DIRECTIONAL_ALBEDO_ANALYTIC,
 
     /// Use a table look-up for directional albedo.
     DIRECTIONAL_ALBEDO_TABLE,
 
-    /// Use importance sampling for directional albedo.
-    DIRECTIONAL_ALBEDO_IS
+    /// Use Monte Carlo integration for directional albedo.
+    DIRECTIONAL_ALBEDO_MONTE_CARLO
 };
 
 /// @class GenOptions 
@@ -70,14 +69,14 @@ class MX_GENSHADER_API GenOptions
         addUpstreamDependencies(true),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
-        hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_CURVE_FIT),
+        hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
         hwWriteDepthMoments(false),
         hwShadowMap(false),
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
-        hwMaxRadianceSamples(1024)
+        emitColorTransforms(true)
     {
     }
     virtual ~GenOptions() { }
@@ -151,11 +150,12 @@ class MX_GENSHADER_API GenOptions
     /// Defaults to false.
     bool hwWriteAlbedoTable;
 
-    /// Sets the maximum number of radiance samples 
-    unsigned int hwMaxRadianceSamples;
-
+    /// Enable emitting colorspace transform code if a color management 
+    /// system is defined.
+    /// Defaults to true.
+    bool emitColorTransforms;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -15,8 +15,7 @@
 #include <MaterialXRuntime/RtPort.h>
 #include <MaterialXRuntime/RtRelationship.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class RtRelationshipIterator;
 class RtPrimIterator;
@@ -87,6 +86,6 @@ public:
     static void removeCallback(RtCallbackId id);
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

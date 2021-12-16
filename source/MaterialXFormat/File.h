@@ -13,8 +13,7 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class FilePath;
 using FilePathVec = vector<FilePath>;
@@ -38,11 +37,11 @@ class MX_FORMAT_API FilePath
     {
         FormatWindows = 0,
         FormatPosix = 1,
-    #if defined(_WIN32)
+#if defined(_WIN32)
         FormatNative = FormatWindows
-    #else
+#else
         FormatNative = FormatPosix
-    #endif
+#endif
     };
 
   public:
@@ -51,7 +50,7 @@ class MX_FORMAT_API FilePath
     {
     }
     ~FilePath() { }
-    
+
     bool operator==(const FilePath& rhs) const
     {
         return _vec == rhs._vec &&
@@ -275,7 +274,7 @@ class MX_FORMAT_API FileSearchPath
     {
         _paths.insert(_paths.begin(), path);
     }
-    
+
     /// Clear all paths from the sequence.
     void clear()
     {
@@ -299,7 +298,7 @@ class MX_FORMAT_API FileSearchPath
     {
         return _paths[index];
     }
-    
+
     /// Return the const path at the given index.
     const FilePath& operator[](size_t index) const
     {
@@ -312,7 +311,7 @@ class MX_FORMAT_API FileSearchPath
     /// filename is returned unmodified.
     FilePath find(const FilePath& filename) const
     {
-        if (_paths.empty() || filename.isEmpty()) 
+        if (_paths.empty() || filename.isEmpty())
         {
             return filename;
         }
@@ -348,6 +347,6 @@ class MX_FORMAT_API FileSearchPath
 /// Return a FileSearchPath object from search path environment variable.
 MX_FORMAT_API FileSearchPath getEnvironmentPath(const string& sep = PATH_LIST_SEPARATOR);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

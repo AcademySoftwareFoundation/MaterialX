@@ -9,8 +9,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 void checkGlErrors(const string& context)
 {
@@ -20,4 +19,4 @@ void checkGlErrors(const string& context)
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

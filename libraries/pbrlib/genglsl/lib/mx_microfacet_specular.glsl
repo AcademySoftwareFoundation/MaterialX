@@ -1,37 +1,76 @@
 #include "pbrlib/genglsl/lib/mx_microfacet.glsl"
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.2 Equation 13
-float mx_ggx_NDF(vec3 X, vec3 Y, vec3 H, float NdotH, float alphaX, float alphaY)
+float mx_ggx_NDF(vec3 H, vec2 alpha)
 {
-    float XdotH = dot(X, H);
-    float YdotH = dot(Y, H);
-    float denom = mx_square(XdotH / alphaX) + mx_square(YdotH / alphaY) + mx_square(NdotH);
-    return 1.0 / (M_PI * alphaX * alphaY * mx_square(denom));
+    vec2 He = H.xy / alpha;
+    float denom = dot(He, He) + mx_square(H.z);
+    return 1.0 / (M_PI * alpha.x * alpha.y * mx_square(denom));
 }
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.1 Equation 3
-float mx_ggx_PDF(vec3 X, vec3 Y, vec3 H, float NdotH, float LdotH, float alphaX, float alphaY)
+float mx_ggx_PDF(vec3 H, float LdotH, vec2 alpha)
 {
-    return mx_ggx_NDF(X, Y, H, NdotH, alphaX, alphaY) * NdotH / (4.0 * LdotH);
+    float NdotH = H.z;
+    return mx_ggx_NDF(H, alpha) * NdotH / (4.0 * LdotH);
 }
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.2 Equation 15
-vec3 mx_ggx_importance_sample_NDF(vec2 Xi, vec3 X, vec3 Y, vec3 N, float alphaX, float alphaY)
+vec3 mx_ggx_importance_sample_NDF(vec2 Xi, vec2 alpha)
 {
     float phi = 2.0 * M_PI * Xi.x;
     float tanTheta = sqrt(Xi.y / (1.0 - Xi.y));
-    vec3 H = X * (tanTheta * alphaX * cos(phi)) +
-             Y * (tanTheta * alphaY * sin(phi)) +
-             N;
+    vec3 H = vec3(tanTheta * alpha.x * cos(phi),
+                  tanTheta * alpha.y * sin(phi),
+                  1.0);
     return normalize(H);
 }
 
+// http://jcgt.org/published/0007/04/01/paper.pdf
+// Appendix A Listing 1
+vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, vec2 alpha)
+{
+    // Transform the view direction to the hemisphere configuration.
+    V = normalize(vec3(V.xy * alpha, V.z));
+
+    // Construct an orthonormal basis from the view direction.
+    float len = length(V.xy);
+    vec3 T1 = (len > 0.0) ? vec3(-V.y, V.x, 0.0) / len : vec3(1.0, 0.0, 0.0);
+    vec3 T2 = cross(V, T1);
+
+    // Parameterization of the projected area.
+    float r = sqrt(Xi.y);
+    float phi = 2.0 * M_PI * Xi.x;
+    float t1 = r * cos(phi);
+    float t2 = r * sin(phi);
+    float s = 0.5 * (1.0 + V.z);
+    t2 = (1.0 - s) * sqrt(1.0 - mx_square(t1)) + s * t2;
+
+    // Reprojection onto hemisphere.
+    vec3 H = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - mx_square(t1) - mx_square(t2))) * V;
+
+    // Transform the microfacet normal back to the ellipsoid configuration.
+    H = normalize(vec3(H.xy * alpha, max(H.z, 0.0)));
+
+    return H;
+}
+
+// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
+// Equation 34
+float mx_ggx_smith_G1(float cosTheta, float alpha)
+{
+    float cosTheta2 = mx_square(cosTheta);
+    float tanTheta2 = (1.0 - cosTheta2) / cosTheta2;
+    return 2.0 / (1.0 + sqrt(1.0 + mx_square(alpha) * tanTheta2));
+}
+
+// Height-correlated Smith masking-shadowing
 // http://jcgt.org/published/0003/02/03/paper.pdf
 // Equations 72 and 99
-float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
+float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 {
     float alpha2 = mx_square(alpha);
     float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
@@ -39,18 +78,27 @@ float mx_ggx_smith_G(float NdotL, float NdotV, float alpha)
     return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
 }
 
-// https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-vec3 mx_ggx_directional_albedo_curve_fit(float NdotV, float roughness, vec3 F0, vec3 F90)
+// Rational quadratic fit to Monte Carlo data for GGX directional albedo.
+vec3 mx_ggx_dir_albedo_analytic(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
-    const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
-    const vec4 c1 = vec4( 1,  0.0425,  1.04, -0.04 );
-    vec4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+    float x = NdotV;
+    float y = roughness;
+    float x2 = mx_square(NdotV);
+    float y2 = mx_square(roughness);
+    vec4 r = vec4(0.10901, 0.92163, 1.0, 1.0) +
+             vec4(-0.72019, -2.29412, -1.81963, -0.02130) * x +
+             vec4(9.54750, 1.78914, 8.10489, 15.21516) * y +
+             vec4(-0.93177, -2.62475, 12.89250, -45.75644) * x * y +
+             vec4(29.60456, 1.40796, 29.11995, 13.53548) * x2 +
+             vec4(-8.10263, -0.48479, -7.40042, 34.87345) * y2 +
+             vec4(-27.96958, 0.71494, -36.69717, 26.50811) * x2 * y +
+             vec4(18.28144, -0.50156, 13.79722, 253.01230) * x * y2 +
+             vec4(-4.85579, 1.22080, 32.57057, -162.71012) * x2 * y2;
+    vec2 AB = r.xy / r.zw;
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
     vec2 res = textureSize($albedoTable, 0);
@@ -64,7 +112,7 @@ vec3 mx_ggx_directional_albedo_table_lookup(float NdotV, float roughness, vec3 F
 }
 
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
     vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
@@ -76,22 +124,22 @@ vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, v
         vec2 Xi = mx_spherical_fibonacci(i, SAMPLE_COUNT);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_NDF(Xi, vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1), roughness, roughness);
+        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(roughness));
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
         float NdotL = clamp(L.z, M_FLOAT_EPS, 1.0);
-        float NdotH = clamp(H.z, M_FLOAT_EPS, 1.0);
         float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
 
         // Compute the Fresnel term.
         float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);
 
-        // Compute the geometric visibility term.
-        float Gvis = mx_ggx_smith_G(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
+        // Compute the sample weight, combining the geometric term, BRDF denominator, and PDF.
+        // https://hal.inria.fr/hal-00996995v2/document, Algorithm 2
+        float weight = mx_ggx_smith_G2(NdotL, NdotV, roughness) / mx_ggx_smith_G1(NdotV, roughness);
         
         // Add the contribution of this sample.
-        AB += vec2(Gvis * (1.0 - Fc), Gvis * Fc);
+        AB += vec2(weight * (1.0 - Fc), weight * Fc);
     }
 
     // Normalize integrated terms.
@@ -101,27 +149,27 @@ vec3 mx_ggx_directional_albedo_importance_sample(float NdotV, float roughness, v
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_directional_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_directional_albedo_curve_fit(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_analytic(NdotV, roughness, F0, F90);
 #elif DIRECTIONAL_ALBEDO_METHOD == 1
-    return mx_ggx_directional_albedo_table_lookup(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
 #else
-    return mx_ggx_directional_albedo_importance_sample(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_monte_carlo(NdotV, roughness, F0, F90);
 #endif
 }
 
-float mx_ggx_directional_albedo(float NdotV, float roughness, float F0, float F90)
+float mx_ggx_dir_albedo(float NdotV, float roughness, float F0, float F90)
 {
-    return mx_ggx_directional_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
+    return mx_ggx_dir_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
 }
 
 // https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 // Equations 14 and 16
 vec3 mx_ggx_energy_compensation(float NdotV, float roughness, vec3 Fss)
 {
-    float Ess = mx_ggx_directional_albedo(NdotV, roughness, 1.0, 1.0);
+    float Ess = mx_ggx_dir_albedo(NdotV, roughness, 1.0, 1.0);
     return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 
@@ -383,4 +431,18 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
         return mx_fresnel_schlick(cosTheta, fd.ior, fd.extinction, fd.exponent);
     else
         return mx_fresnel_airy(cosTheta, fd.ior, fd.extinction, fd.tf_thickness, fd.tf_ior);
+}
+
+vec2 mx_latlong_projection(vec3 dir)
+{
+    float latitude = -asin(dir.y) * M_PI_INV + 0.5;
+    float longitude = atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
+    return vec2(longitude, latitude);
+}
+
+vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D envSampler)
+{
+    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
+    vec2 uv = mx_latlong_projection(envDir);
+    return textureLod(envSampler, uv, lod).rgb;
 }

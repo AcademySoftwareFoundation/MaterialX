@@ -12,8 +12,7 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class RtTypeInfo
 /// Class holding type information for typed schemas.
@@ -50,6 +49,6 @@ private:
     void* _ptr;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

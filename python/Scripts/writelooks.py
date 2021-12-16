@@ -78,12 +78,8 @@ def main():
     # PropertySet
     #
     propset = doc.addPropertySet("standard")
-    p = propset.addProperty("displacementbound_sphere")
-    p.setTarget("rmanris")
-    p.setValue(0.05)
-    p = propset.addProperty("trace_maxdiffusedepth")
-    p.setTarget("rmanris")
-    p.setValue(3.0)
+    p = propset.setPropertyValue("displacementbound_sphere", 0.05)
+    p = propset.setPropertyValue("trace_maxdiffusedepth", 3.0)
 
     #
     # Looks

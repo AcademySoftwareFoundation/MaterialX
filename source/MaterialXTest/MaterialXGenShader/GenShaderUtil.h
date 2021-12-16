@@ -284,7 +284,7 @@ class ShaderGeneratorTester
     mx::StringVec _testStages;
 
     std::vector<mx::NodePtr> _lights;
-    std::unordered_map<std::string, unsigned int> _lightIdentifierMap;
+    std::unordered_map<std::string, unsigned int> _lightIdMap;
 
     std::unordered_map<std::string, mx::GenUserDataPtr> _userData;
     mx::StringSet _usedImplementations;

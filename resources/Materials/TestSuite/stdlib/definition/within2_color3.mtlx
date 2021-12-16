@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodedef name="ND_within2_color3" node="within2" version="1.0" isdefaultversion="true" nodegroup="Test">
+    <input name="amplitude" type="vector3" value="1, 1, 1" uivisible="true" />
+    <output name="out" type="color3" value="0, 0, 0" />
+  </nodedef>
+  <nodegraph name="NG_within2_color3" xpos="-19.5049" ypos="739.646" nodedef="ND_within2_color3">
+    <input name="amplitude" type="vector3" value="1, 1, 1" uivisible="true" />
+    <TEST_COMPOUND_PUBLISH name="TEST_COMPOUND_PUBLISH2" type="color3" nodedef="ND_TEST_COMPOUND_PUBLISH_color3" version="1.0" xpos="-39.3003" ypos="-115.304">
+      <input name="amplitude" type="vector3" interfacename="amplitude" value="1, 1, 1" uivisible="true" />
+    </TEST_COMPOUND_PUBLISH>
+    <output name="out" type="color3" nodename="TEST_COMPOUND_PUBLISH2" />
+  </nodegraph>
+</materialx>

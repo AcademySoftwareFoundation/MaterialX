@@ -11,8 +11,7 @@
 #include <MaterialXGenOgsXml/Export.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class MX_GENOGSXML_API OgsXmlGenerator
 {
@@ -47,6 +46,6 @@ private:
     static bool sUseLightAPIV2;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

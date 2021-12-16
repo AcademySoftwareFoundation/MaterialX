@@ -5,8 +5,7 @@
 
 #include <MaterialXCore/Material.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, const string& target)
 {
@@ -14,7 +13,7 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
     std::set<NodePtr> shaderNodeSet;
 
     vector<InputPtr> inputs = materialNode->getActiveInputs();
-    for (InputPtr input : inputs) 
+    for (InputPtr input : inputs)
     {
         // Scan for a node directly connected to the input.
         // Note that this will handle traversing through interfacename associations.
@@ -25,7 +24,7 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
             {
                 continue;
             }
-                
+
             if (!target.empty())
             {
                 NodeDefPtr nodeDef = shaderNode->getNodeDef(target);
@@ -81,7 +80,7 @@ vector<NodePtr> getShaderNodes(NodePtr materialNode, const string& nodeType, con
         if (materialNodeDef)
         {
             InterfaceElementPtr impl = materialNodeDef->getImplementation();
-            if (impl->isA<NodeGraph>())
+            if (impl && impl->isA<NodeGraph>())
             {
                 NodeGraphPtr implGraph = impl->asA<NodeGraph>();
                 for (OutputPtr defOutput : materialNodeDef->getOutputs())
@@ -135,4 +134,4 @@ vector<OutputPtr> getConnectedOutputs(NodePtr node)
     return outputVec;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

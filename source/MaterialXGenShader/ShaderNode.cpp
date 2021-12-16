@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 
@@ -45,19 +44,45 @@ ShaderInput::ShaderInput(ShaderNode* node, const TypeDesc* type, const string& n
 
 void ShaderInput::makeConnection(ShaderOutput* src)
 {
-    breakConnection();
-    _connection = src;
-    src->_connections.insert(this);
+    // Make sure this is a new connection.
+    if (src != _connection)
+    {
+        // Break the old connection.
+        breakConnection();
+        if (src)
+        {
+            // Make the new connection.
+            _connection = src;
+            src->_connections.push_back(this);
+        }
+    }
 }
 
 void ShaderInput::breakConnection()
 {
     if (_connection)
     {
-        _connection->_connections.erase(this);
+        // Find and erase this input from the connected output's connection vector.
+        ShaderInputVec& connected = _connection->_connections;
+        ShaderInputVec::iterator it = std::find(connected.begin(), connected.end(), this);
+        if (it != connected.end())
+        {
+            connected.erase(it);
+        }
+        // Clear the connection.
         _connection = nullptr;
     }
 }
+
+ShaderNode* ShaderInput::getConnectedSibling() const
+{
+    if (_connection && _connection->getNode()->getParent() == _node->getParent())
+    {
+        return _connection->getNode();
+    }
+    return nullptr;
+}
+
 
 //
 // ShaderOutput methods
@@ -75,7 +100,7 @@ void ShaderOutput::makeConnection(ShaderInput* dst)
 
 void ShaderOutput::breakConnection(ShaderInput* dst)
 {
-    if (!_connections.count(dst))
+    if (std::find(_connections.begin(), _connections.end(), dst) == _connections.end())
     {
         throw ExceptionShaderGenError(
             "Cannot break non-existent connection from output: " + getFullName()
@@ -86,8 +111,8 @@ void ShaderOutput::breakConnection(ShaderInput* dst)
 
 void ShaderOutput::breakConnections()
 {
-    ShaderInputSet inputSet(_connections);
-    for (ShaderInput* input : inputSet)
+    ShaderInputVec inputVec(_connections);
+    for (ShaderInput* input : inputVec)
     {
         input->breakConnection();
     }
@@ -129,7 +154,6 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
     _parent(parent),
     _name(name),
     _classification(0),
-    _flags(0),
     _impl(nullptr)
 {
 }
@@ -204,11 +228,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Find the implementation for this nodedef
-    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget());
-    if (impl)
-    {
-        newNode->_impl = shadergen.getImplementation(*impl, context);
-    }
+    newNode->_impl = shadergen.getImplementation(nodeDef, context);
     if (!newNode->_impl)
     {
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
@@ -282,18 +302,17 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderOutput* primaryOutput = newNode->getOutput();
     if (primaryOutput->getType() == Type::SURFACESHADER)
     {
-        newNode->_classification = Classification::SURFACE | Classification::SHADER;
+        newNode->_classification = Classification::SURFACE | Classification::SHADER | Classification::CLOSURE;
     }
     else if (primaryOutput->getType() == Type::LIGHTSHADER)
     {
-        newNode->_classification = Classification::LIGHT | Classification::SHADER;
+        newNode->_classification = Classification::LIGHT | Classification::SHADER | Classification::CLOSURE;
     }
     else if (primaryOutput->getType() == Type::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
 
-        // Add additional classifications if the BSDF is restricted to
-        // only reflection or transmission
+        // Add additional classifications for BSDF reflection and/or transmission.
         const string& bsdfType = nodeDef.getAttribute("bsdf");
         if (bsdfType == BSDF_R)
         {
@@ -303,9 +322,13 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             newNode->_classification |= Classification::BSDF_T;
         }
+        else
+        {
+            newNode->_classification |= (Classification::BSDF_R | Classification::BSDF_T);
+        }
 
         // Check specifically for the vertical layering node
-        if (nodeDef.getName() == "ND_layer_bsdf")
+        if (nodeDef.getName() == "ND_layer_bsdf" || nodeDef.getName() == "ND_layer_vdf")
         {
             newNode->_classification |= Classification::LAYER;
         }
@@ -568,4 +591,4 @@ ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
     return output.get();
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

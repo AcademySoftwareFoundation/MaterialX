@@ -15,8 +15,7 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class RtPrimSpec;
 
@@ -188,6 +187,6 @@ public:                                                                         
 #define DEFINE_TYPED_SCHEMA(T, typeNameHierachy)                                            \
 const RtTypeInfo T::_typeInfo(typeNameHierachy);                                            \
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

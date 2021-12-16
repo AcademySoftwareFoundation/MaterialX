@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
-
 #include <MaterialXGenOsl/OslSyntax.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -15,16 +14,19 @@
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
-#include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
-#include <MaterialXGenShader/Nodes/BsdfNodes.h>
+#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
+#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
+#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
-namespace MaterialX
-{
+#include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
+
+MATERIALX_NAMESPACE_BEGIN
 
 const string OslShaderGenerator::TARGET = "genosl";
+const string OslShaderGenerator::T_FILE_EXTRA_ARGUMENTS = "$extraTextureLookupArguments";
 
 //
 // OslShaderGenerator methods
@@ -160,22 +162,28 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
 
     // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, LayerNode::create);
+    registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
+    registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
+    // <!-- <mix> -->
+    registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
+    registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
+    // <!-- <add> -->
+    registerImplementation("IM_add_bsdf_" + OslShaderGenerator::TARGET, ClosureAddNode::create);
+    registerImplementation("IM_add_edf_" + OslShaderGenerator::TARGET, ClosureAddNode::create);
+    // <!-- <multiply> -->
+    registerImplementation("IM_multiply_bsdfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_bsdfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_edfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_edfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
 
-    // <!-- <thin_film_bsdf> -->
-    registerImplementation("IM_thin_film_bsdf_" + OslShaderGenerator::TARGET, ThinFilmNode::create);
+    // <!-- <thin_film> -->
+    registerImplementation("IM_thin_film_bsdf_" + OslShaderGenerator::TARGET, NopNode::create);
 
-    // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + OslShaderGenerator::TARGET, DielectricBsdfNode::create);
+    // <!-- <surface> -->
+    registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
 
-    // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + OslShaderGenerator::TARGET, DielectricBsdfNode::create);
-
-    // <!-- <conductor_bsdf> -->
-    registerImplementation("IM_conductor_bsdf_" + OslShaderGenerator::TARGET, ConductorBsdfNode::create);
-
-    // <!-- <sheen_bsdf> -->
-    registerImplementation("IM_sheen_bsdf_" + OslShaderGenerator::TARGET, SheenBsdfNode::create);
+    // Extra arguments for texture lookups.
+    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = EMPTY_STRING;
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -197,7 +205,6 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // Add global constants and type definitions
     emitTypeDefinitions(context, stage);
     emitLine("#define M_FLOAT_EPS 1e-8", stage, false);
-    emitLine("#define M_GOLDEN_RATIO 1.6180339887498948482045868343656", stage, false);
     emitLine("#define GGX_DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
     emitLine("#define GGX_DIRECTIONAL_ALBEDO_TABLE \"" + albedoTableFilePath + "\"", stage, false);
     emitLineBreak(stage);
@@ -269,7 +276,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitScopeEnd(stage);
 
     // Begin shader body
-    emitScopeBegin(stage);
+    emitFunctionBodyBegin(graph, context, stage);
 
     // Emit constants
     const VariableBlock& constants = stage.getConstantBlock();
@@ -279,8 +286,24 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLineBreak(stage);
     }
 
-    // Emit function calls for all nodes
-    emitFunctionCalls(graph, context, stage);
+    // Emit all texturing nodes. These are inputs to any
+    // closure/shader nodes and need to be emitted first.
+    emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
+
+    // Emit function calls for internal closures nodes connected to the graph sockets.
+    // These will in turn emit function calls for any dependent closure nodes upstream.
+    for (ShaderGraphOutputSocket* outputSocket : graph.getOutputSockets())
+    {
+        if (outputSocket->getConnection())
+        {
+            const ShaderNode* upstream = outputSocket->getConnection()->getNode();
+            if (upstream->getParent() == &graph &&
+                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+            {
+                emitFunctionCall(*upstream, context, stage);
+            }
+        }
+    }
 
     // Emit final outputs
     for (size_t i = 0; i < outputs.size(); ++i)
@@ -291,7 +314,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     }
 
     // End shader body
-    emitScopeEnd(stage);
+    emitFunctionBodyEnd(graph, context, stage);
 
     // Perform token substitution
     replaceTokens(_tokenSubstitutions, stage);
@@ -372,13 +395,39 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     return shader;
 }
 
-void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
 {
-    if (!graph.hasClassification(ShaderNode::Classification::TEXTURE))
+    // Special handling for closures functions.
+    if ((classification & ShaderNode::Classification::CLOSURE) != 0)
+    {
+        // Emit function calls for closures connected to the outputs.
+        // These will internally emit other closure function calls 
+        // for upstream nodes if needed.
+        for (ShaderGraphOutputSocket* outputSocket : graph.getOutputSockets())
+        {
+            const ShaderNode* upstream = outputSocket->getConnection() ? outputSocket->getConnection()->getNode() : nullptr;
+            if (upstream && upstream->hasClassification(classification))
+            {
+                emitFunctionCall(*upstream, context, stage, false);
+            }
+        }
+    }
+    else
+    {
+        // Not a closures graph so just generate all
+        // function calls in order.
+        ShaderGenerator::emitFunctionCalls(graph, context, stage, classification);
+    }
+}
+
+void OslShaderGenerator::emitFunctionBodyBegin(const ShaderNode& node, GenContext&, ShaderStage& stage, Syntax::Punctuation punc) const
+{
+    emitScopeBegin(stage, punc);
+
+    if (node.hasClassification(ShaderNode::Classification::CLOSURE))
     {
         emitLine("closure color null_closure = 0", stage);
     }
-    ShaderGenerator::emitFunctionCalls(graph, context, stage);
 }
 
 void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) const
@@ -424,14 +473,29 @@ namespace
 
 void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
 {
+    const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
+    {
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
+        { Type::BOOLEAN,  ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
+    };
+
+    const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
+    {
+        Type::VECTOR2, // Custom struct types doesn't support metadata declarations.
+        Type::VECTOR4, //
+        Type::COLOR4,  //
+        Type::FILENAME, //
+        Type::BSDF     //
+    };
+
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         const ShaderPort* input = inputs[i];
 
         const string& type = _syntax->getTypeName(input->getType());
-        const string value = (input->getValue() ?
-            _syntax->getValue(input->getType(), *input->getValue(), true) :
-            _syntax->getDefaultValue(input->getType(), true));
+        string value = _syntax->getValue((ShaderPort*)input, true);
 
         emitLineBegin(stage);
 
@@ -451,39 +515,43 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         // Add shader input metadata.
         //
 
-        const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
-        {
-            { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-            { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-            { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
-            { Type::BOOLEAN,  ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
-        };
-
         auto widgetMetadataIt = UI_WIDGET_METADATA.find(input->getType());
         const ShaderMetadata* widgetMetadata = widgetMetadataIt != UI_WIDGET_METADATA.end() ? &widgetMetadataIt->second : nullptr;
         const ShaderMetadataVecPtr& metadata = input->getMetadata();
+
         if (widgetMetadata || (metadata && metadata->size()))
         {
-            emitLineEnd(stage, false);
-            emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+            StringVec metadataLines;
             if (metadata)
             {
                 for (size_t j = 0; j < metadata->size(); ++j)
                 {
                     const ShaderMetadata& data = metadata->at(j);
-                    const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
-                    const string& dataType = _syntax->getTypeName(data.type);
-                    const string dataValue = _syntax->getValue(data.type, *data.value, true);
-                    emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
+                    if (METADATA_TYPE_BLACKLIST.count(data.type) == 0)
+                    {
+                        const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
+                        const string& dataType = _syntax->getTypeName(data.type);
+                        const string dataValue = _syntax->getValue(data.type, *data.value, true);
+                        metadataLines.push_back(dataType + " " + data.name + " = " + dataValue + delim);
+                    }
                 }
             }
             if (widgetMetadata)
             {
                 const string& dataType = _syntax->getTypeName(widgetMetadata->type);
                 const string dataValue = _syntax->getValue(widgetMetadata->type, *widgetMetadata->value, true);
-                emitLine(dataType + " " + widgetMetadata->name + " = " + dataValue, stage, false);
+                metadataLines.push_back(dataType + " " + widgetMetadata->name + " = " + dataValue);
             }
-            emitScopeEnd(stage, false, false);
+            if (metadataLines.size())
+            {
+                emitLineEnd(stage, false);
+                emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+                for (auto line : metadataLines)
+                {
+                    emitLine(line, stage, false);
+                }
+                emitScopeEnd(stage, false, false);
+            }
         }
 
         if (i < inputs.size())
@@ -516,4 +584,4 @@ namespace OSL
     const string OUTPUTS  = "o";
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

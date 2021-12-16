@@ -15,8 +15,7 @@
 
 #include <MaterialXFormat/File.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class RtPath;
 
@@ -107,6 +106,6 @@ protected:
     friend class PvtRemovePrimCmd;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

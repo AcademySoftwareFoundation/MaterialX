@@ -13,8 +13,7 @@
 #include <memory>
 #include <MaterialXRender/GeometryHandler.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 /// Shared pointer to an SampleObjLoader
 using SampleObjLoaderPtr = std::shared_ptr<class SampleObjLoader>;
 
@@ -58,5 +57,5 @@ class SampleObjLoader : public GeometryLoader
     bool _debugDump;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 #endif

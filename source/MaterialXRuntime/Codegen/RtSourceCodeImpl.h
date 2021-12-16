@@ -11,8 +11,7 @@
 
 #include <MaterialXRuntime/Codegen/RtCodegenImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class RtSourceCodeImpl
 /// Node implementation using shader source code.
@@ -55,6 +54,6 @@ public:
     void emitFunctionCall(const RtNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

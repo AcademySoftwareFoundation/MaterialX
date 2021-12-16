@@ -88,7 +88,7 @@ describe('Document', () => {
 
         // Bind the roughness input to a value
         const instanceRoughness = shaderNode.setInputValueFloat('roughness', 0.5);
-        expect(instanceRoughness.getValue()).to.equal(0.5);
+        expect(instanceRoughness.getValue().getData()).to.equal(0.5);
         expect(instanceRoughness.getDefaultValue().getData()).to.equal(0.25);
 
         // Create a look for the material
@@ -119,7 +119,7 @@ describe('Document', () => {
         propertyAssign.setValueBoolean(true);
         expect(propertyAssign.getProperty()).to.equal('twosided');
         expect(propertyAssign.getGeom()).to.equal('/robot1');
-        expect(propertyAssign.getValue()).to.equal(true);
+        expect(propertyAssign.getValue().getData()).to.equal(true);
 
         // Create a property set assignment
         const propertySet = doc.addPropertySet();

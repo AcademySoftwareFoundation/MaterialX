@@ -10,8 +10,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace Stage
 {
@@ -20,55 +19,12 @@ namespace Stage
 
 namespace
 {
-    // This is the same algorithm as found in libraries\pbrlib\genglsl\lib\mx_environment_prefilter.glsl
-    // but adjusted for Maya. At this time we will compute a roughness based on the radiance and
-    // irradiance samples, so materials with small amount of roughness will look wrong.
-    //
-    // A more precise roughness computation can be done using Maya samplers, but this requires
-    // knowing that the Maya sampling functions are there, otherwise compilation will fail unless
-    // there is an IBL active in the Maya lighting.
-    const string MX_ENVIRONMENT_MAYA =
-        "#include \"pbrlib/genglsl/lib/mx_microfacet_specular.glsl\"\r\n"
-        "vec3 mx_environment_irradiance(vec3 N)\r\n"
-        "{\r\n"
-        "    return g_diffuseI;\r\n"
-        "}\r\n"
-        "vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)\r\n"
-        "{\r\n"
-        "    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);\r\n"
-        "    float avgRoughness = mx_average_roughness(roughness);\r\n"
-        "    vec3 F = mx_compute_fresnel(NdotV, fd);\r\n"
-        "    float G = mx_ggx_smith_G(NdotV, NdotV, avgRoughness);\r\n"
-        "    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);\r\n"
-        "    vec3 Li = mix(g_specularI, g_diffuseI, avgRoughness);\r\n"
-        "    return Li * F * G * comp;\r\n"
-        "}\r\n";
-
     // Lighting support found in the materialXLightDataBuilder fragment found in
     // source\MaterialXContrib\MaterialXMaya\vp2ShaderFragments.
     const string LIGHT_LOOP_RESULT = "lightLoopResult";
     const string MAYA_ENV_IRRADIANCE_SAMPLE = "diffuseI";
     const string MAYA_ENV_RADIANCE_SAMPLE = "specularI";
     const string MAYA_ENV_ROUGHNESS = "roughness";
-
-    // More recent versions of Maya have external lighting functions that can be called:
-    const string MX_ENVIRONMENT_MAYA_EXTERNAL =
-        "#include \"pbrlib/genglsl/lib/mx_microfacet_specular.glsl\"\r\n"
-        "vec3 mx_environment_irradiance(vec3 N)\r\n"
-        "{\r\n"
-        "    return mayaGetIrradianceEnvironment(N);\r\n"
-        "}\r\n"
-        "vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)\r\n"
-        "{\r\n"
-        "    float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);\r\n"
-        "    float avgRoughness = mx_average_roughness(roughness);\r\n"
-        "    vec3 F = mx_compute_fresnel(NdotV, fd);\r\n"
-        "    float G = mx_ggx_smith_G(NdotV, NdotV, avgRoughness);\r\n"
-        "    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);\r\n"
-        "    float phongExp = mayaRoughnessToPhongExp(sqrt(avgRoughness));\r\n"
-        "    vec3 Li = mayaGetSpecularEnvironment(N, V, phongExp);\r\n"
-        "    return Li * F * G * comp;\r\n"
-        "}\r\n";
 }
 
 string GlslFragmentSyntax::getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const
@@ -185,11 +141,8 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     }
 
     // Add global constants and type definitions
-    emitInclude("pbrlib/genglsl/lib/mx_defines.glsl", context, pixelStage);
-
     const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
     emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), pixelStage, false);
-    emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), pixelStage, false);
     emitLineBreak(pixelStage);
     emitTypeDefinitions(context, pixelStage);
 
@@ -204,15 +157,15 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     const bool lighting = requiresLighting(graph);
 
     // Emit common math functions
-    emitInclude("pbrlib/genglsl/lib/mx_math.glsl", context, pixelStage);
+    emitInclude("stdlib/genglsl/lib/mx_math.glsl", context, pixelStage);
     emitLineBreak(pixelStage);
 
     if (lighting)
     {
         if (OgsXmlGenerator::useLightAPIV2()) {
-            emitBlock(MX_ENVIRONMENT_MAYA_EXTERNAL, context, pixelStage);
+            emitInclude("pbrlib/genglsl/ogsxml/mx_lighting_maya_v2.glsl", context, pixelStage);
         } else {
-            emitBlock(MX_ENVIRONMENT_MAYA, context, pixelStage);
+            emitInclude("pbrlib/genglsl/ogsxml/mx_lighting_maya_v1.glsl", context, pixelStage);
         }
     }
 
@@ -300,7 +253,8 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     // Add function body
     emitScopeBegin(pixelStage);
 
-    if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (graph.hasClassification(ShaderNode::Classification::CLOSURE) &&
+        !graph.hasClassification(ShaderNode::Classification::SHADER))
     {
         // Handle the case where the graph is a direct closure.
         // We don't support rendering closures without attaching 
@@ -511,4 +465,4 @@ void GlslFragmentGenerator::emitVariableDeclaration(const ShaderPort* variable, 
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

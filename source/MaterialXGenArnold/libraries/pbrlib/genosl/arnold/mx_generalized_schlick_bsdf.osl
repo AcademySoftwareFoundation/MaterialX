@@ -1,13 +1,14 @@
 #include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
-void mx_generalized_schlick_bsdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, BSDF base, thinfilm tf, output BSDF result)
+void mx_generalized_schlick_bsdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
 {
     //
     // TODO: We need handling of transmission for generalized schlick
     //
     if (weight < M_FLOAT_EPS || scatter_mode == "T")
     {
-        result = base;
+        bsdf.response = 0;
+        bsdf.throughput = color(1.0);
         return;
     }
 
@@ -17,13 +18,13 @@ void mx_generalized_schlick_bsdf(float weight, color color0, color color90, floa
 
     // Calculate directional albedo since we need
     // to attenuate the base layer according to this.
-    color dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90);
+    color dirAlbedo = mx_ggx_dir_albedo(NdotV, avgRoughness, color0, color90);
     float avgDirAlbedo = dot(dirAlbedo, color(1.0 / 3.0));
+    bsdf.throughput = color(1.0 - avgDirAlbedo * weight);
 
     // NOTE: No compensation for multiscatter is done here since this is already
     // handled internally in Arnold's microfacet closure.
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    result = F * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false)
-             + base * (1.0 - avgDirAlbedo * weight);
+    bsdf.response = F * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, 0);
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodedef name="ND_TEST_COMPOUND_PUBLISH_color3" node="TEST_COMPOUND_PUBLISH" version="1.0" isdefaultversion="true" nodegroup="Test">
+    <input name="amplitude" type="vector3" value="1, 1, 1" />
+    <input name="in2" type="color3" value="1, 1, 1" />
+    <output name="out" type="color3" value="0, 0, 0" />
+  </nodedef>
+  <nodegraph name="NG_TEST_COMPOUND_PUBLISH_color3" xpos="300.624" ypos="-92.5505" nodedef="ND_TEST_COMPOUND_PUBLISH_color3">
+    <input name="amplitude" type="vector3" value="1, 1, 1" />
+    <input name="in2" type="color3" value="1, 1, 1" />
+    <fractal3d name="fractal3d" type="color3" xpos="-16.7897" ypos="-72.9978">
+      <input name="amplitude" type="vector3" interfacename="amplitude" value="1, 1, 1" uivisible="true" />
+    </fractal3d>
+    <multiply name="multiply" type="color3" xpos="317.097" ypos="-148.216">
+      <input name="in1" type="color3" nodename="fractal3d" uivisible="true" />
+      <input name="in2" type="color3" interfacename="in2" value="1, 1, 1" uivisible="true" />
+    </multiply>
+    <output name="out" type="color3" nodename="multiply" />
+  </nodegraph>
+</materialx>

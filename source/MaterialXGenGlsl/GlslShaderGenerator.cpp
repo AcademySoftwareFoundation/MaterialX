@@ -16,7 +16,6 @@
 #include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TimeNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/SurfaceShaderNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightCompoundNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
@@ -28,19 +27,20 @@
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 
-#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
-#include <MaterialXGenShader/Nodes/LayerNode.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
-#include <MaterialXGenShader/Nodes/BsdfNodes.h>
+#include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
+#include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
+#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
+#include <MaterialXGenShader/Nodes/ClosureAddNode.h>
+#include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string GlslShaderGenerator::TARGET = "genglsl";
 const string GlslShaderGenerator::VERSION = "400";
@@ -244,22 +244,22 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_image_vector4_" + GlslShaderGenerator::TARGET, HwImageNode::create);
 
     // <!-- <layer> -->
-    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, LayerNode::create);
+    registerImplementation("IM_layer_bsdf_" + GlslShaderGenerator::TARGET, ClosureLayerNode::create);
+    registerImplementation("IM_layer_vdf_" + GlslShaderGenerator::TARGET, ClosureLayerNode::create);
+    // <!-- <mix> -->
+    registerImplementation("IM_mix_bsdf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
+    registerImplementation("IM_mix_edf_" + GlslShaderGenerator::TARGET, ClosureMixNode::create);
+    // <!-- <add> -->
+    registerImplementation("IM_add_bsdf_" + GlslShaderGenerator::TARGET, ClosureAddNode::create);
+    registerImplementation("IM_add_edf_" + GlslShaderGenerator::TARGET, ClosureAddNode::create);
+    // <!-- <multiply> -->
+    registerImplementation("IM_multiply_bsdfC_" + GlslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_bsdfF_" + GlslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_edfC_" + GlslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+    registerImplementation("IM_multiply_edfF_" + GlslShaderGenerator::TARGET, ClosureMultiplyNode::create);
 
-    // <!-- <thin_film_bsdf> -->
-    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, ThinFilmNode::create);
-
-    // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + GlslShaderGenerator::TARGET, HwDielectricBsdfNode::create);
-
-    // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + GlslShaderGenerator::TARGET, HwDielectricBsdfNode::create);
-
-    // <!-- <conductor_bsdf> -->
-    registerImplementation("IM_conductor_bsdf_" + GlslShaderGenerator::TARGET, HwConductorBsdfNode::create);
-
-    // <!-- <sheen_bsdf> -->
-    registerImplementation("IM_sheen_bsdf_" + GlslShaderGenerator::TARGET, HwSheenBsdfNode::create);
+    // <!-- <thin_film> -->
+    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
@@ -309,7 +309,7 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitConstants(context, stage);
 
     // Add all uniforms
-    emitUniforms(context, stage, resourceBindingCtx);
+    emitUniforms(context, stage);
 
     // Add vertex inputs
     emitInputs(context, stage);
@@ -322,12 +322,18 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     // Add main function
     setFunctionName("main", stage);
     emitLine("void main()", stage, false);
-    emitScopeBegin(stage);
+    emitFunctionBodyBegin(graph, context, stage);
     emitLine("vec4 hPositionWorld = " + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_POSITION + ", 1.0)", stage);
     emitLine("gl_Position = " + HW::T_VIEW_PROJECTION_MATRIX + " * hPositionWorld", stage);
-    emitFunctionCalls(graph, context, stage);
-    emitScopeEnd(stage);
-    emitLineBreak(stage);
+
+    // For vertex stage just emit all function calls in order
+    // and ignore conditional scope.
+    for (const ShaderNode* node : graph.getNodes())
+    {
+        emitFunctionCall(*node, context, stage, false);
+    }
+
+    emitFunctionBodyEnd(graph, context, stage);
 }
 
 void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const
@@ -352,12 +358,6 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
     emitLineBreak(stage);
 }
 
-bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
-{
-    return graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
-           graph.hasClassification(ShaderNode::Classification::BSDF);
-}
-
 void GlslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     emitLine("#version " + getVersion(), stage, false);
@@ -373,7 +373,7 @@ void GlslShaderGenerator::emitConstants(GenContext& context, ShaderStage& stage)
     }
 }
 
-void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr& resourceBindingCtx) const
+void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) const
 {
     for (const auto& it : stage.getUniformBlocks())
     {
@@ -383,6 +383,7 @@ void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage, 
         if (!uniforms.empty() && uniforms.getName() != HW::LIGHT_DATA)
         {
             emitComment("Uniform block: " + uniforms.getName(), stage);
+            HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
             if (resourceBindingCtx)
             {
                 resourceBindingCtx->emitResourceBindings(context, uniforms, stage);
@@ -396,11 +397,12 @@ void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage, 
     }
 }
 
-void GlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage, HwResourceBindingContextPtr& resourceBindingCtx) const
+void GlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage) const
 {
     const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
     const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
     const string structName        = lightData.getInstance();
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
     if (resourceBindingCtx)
     {
         resourceBindingCtx->emitStructuredResourceBindings(
@@ -469,7 +471,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-const HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext(GenContext& context) const
+HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext(GenContext& context) const
 {
     return context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
 }
@@ -477,6 +479,12 @@ const HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext
 const string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) const
 {
     return vertexData.getInstance() + ".";
+}
+
+bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
+{
+    return graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
+           graph.hasClassification(ShaderNode::Classification::BSDF);
 }
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
@@ -491,35 +499,14 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
     emitLineBreak(stage);
 
-    // Add global constants and type definitions
-    emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_defines.glsl", context, stage);
-
-    if (context.getOptions().hwMaxActiveLightSources > 0)
-    {
-        const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
-        emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
-    }
-    emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
-    emitLine("#define " + HW::ENV_RADIANCE_MAX_SAMPLES + " " + std::to_string(context.getOptions().hwMaxRadianceSamples), stage, false);
-    emitLineBreak(stage);
+    // Add type definitions
     emitTypeDefinitions(context, stage);
 
     // Add all constants
     emitConstants(context, stage);
 
     // Add all uniforms
-    emitUniforms(context, stage, resourceBindingCtx);
-
-    bool lighting = requiresLighting(graph);
-
-    bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
-                     context.getOptions().hwWriteDepthMoments;
-
-    // Add light data block if needed
-    if (lighting && context.getOptions().hwMaxActiveLightSources > 0)
-    {
-        emitLightData(context, stage, resourceBindingCtx);
-    }
+    emitUniforms(context, stage);
 
     // Add vertex data inputs block
     emitInputs(context, stage);
@@ -528,23 +515,39 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     emitOutputs(context, stage);
 
-    // Emit common math functions
-    emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
+    // Add common math functions
+    emitInclude("stdlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
-    // Emit lighting and shadowing code
+    // Add lighting support
+    bool lighting = requiresLighting(graph);
     if (lighting)
     {
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+            const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
+            emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
+        }
+        emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
+        emitLineBreak(stage);
         emitSpecularEnvironment(context, stage);
+
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+          emitLightData(context, stage);
+        }
     }
+
+    // Add shadowing support
+    bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
+                     context.getOptions().hwWriteDepthMoments;
     if (shadowing)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_shadow.glsl", context, stage);
     }
 
     // Emit directional albedo table code.
-    if (context.getOptions().hwDirectionalAlbedoMethod == DIRECTIONAL_ALBEDO_TABLE ||
-        context.getOptions().hwWriteAlbedoTable)
+    if (context.getOptions().hwWriteAlbedoTable)
     {
         emitInclude("pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_table.glsl", context, stage);
         emitLineBreak(stage);
@@ -567,7 +570,9 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitInclude(ShaderGenerator::T_FILE_TRANSFORM_UV, context, stage);
     }
 
-    // Add all functions for node implementations
+    emitLightFunctionDefinitions(graph, context, stage);
+
+    // Emit function definitions for all nodes in the graph.
     emitFunctionDefinitions(graph, context, stage);
 
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
@@ -575,9 +580,10 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Add main function
     setFunctionName("main", stage);
     emitLine("void main()", stage, false);
-    emitScopeBegin(stage);
+    emitFunctionBodyBegin(graph, context, stage);
 
-    if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (graph.hasClassification(ShaderNode::Classification::CLOSURE) && 
+        !graph.hasClassification(ShaderNode::Classification::SHADER))
     {
         // Handle the case where the graph is a direct closure.
         // We don't support rendering closures without attaching 
@@ -590,12 +596,29 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
     else if (context.getOptions().hwWriteAlbedoTable)
     {
-        emitLine(outputSocket->getVariable() + " = vec4(mx_ggx_directional_albedo_generate_table(), 0.0, 1.0)", stage);
+        emitLine(outputSocket->getVariable() + " = vec4(mx_generate_dir_albedo_table(), 1.0)", stage);
     }
     else
     {
-        // Add all function calls
-        emitFunctionCalls(graph, context, stage);
+        // Add all function calls.
+        //
+        // Surface shaders need special handling.
+        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+        {
+            // Emit all texturing nodes. These are inputs to any
+            // closure/shader nodes and need to be emitted first.
+            emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
+
+            // Emit function calls for all surface shader nodes.
+            // These will internally emit their closure function calls.
+            emitFunctionCalls(graph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE);
+        }
+        else
+        {
+            // No surface shader graph so just generate all
+            // function calls in order.
+            emitFunctionCalls(graph, context, stage);
+        }
 
         // Emit final output
         const ShaderOutput* outputConnection = outputSocket->getConnection();
@@ -651,16 +674,15 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
 
     // End main function
-    emitScopeEnd(stage);
-    emitLineBreak(stage);
+    emitFunctionBodyEnd(graph, context, stage);
 }
 
-void GlslShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+void GlslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
     // Emit Light functions if requested
-    if (context.getOptions().hwMaxActiveLightSources > 0)
+    if (requiresLighting(graph) && context.getOptions().hwMaxActiveLightSources > 0)
     {
         // For surface shaders we need light shaders
         if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
@@ -680,46 +702,6 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
                 emitFunctionDefinition(*it, context, stage);
             }
         }
-    }
-END_SHADER_STAGE(stage, Stage::PIXEL)
-
-    // Call parent to emit all other functions
-    HwShaderGenerator::emitFunctionDefinitions(graph, context, stage);
-}
-
-void GlslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
-{
-BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-    // For vertex stage just emit all function calls in order
-    // and ignore conditional scope.
-    for (const ShaderNode* node : graph.getNodes())
-    {
-        emitFunctionCall(*node, context, stage, false);
-    }
-END_SHADER_STAGE(stage, Stage::VERTEX)
-
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    // For pixel stage surface shaders need special handling
-    if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
-    {
-        // Handle all texturing nodes. These are inputs to any
-        // closure/shader nodes and need to be emitted first.
-        emitTextureNodes(graph, context, stage);
-
-        // Emit function calls for all surface shader nodes
-        for (const ShaderNode* node : graph.getNodes())
-        {
-            if (node->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
-            {
-                emitFunctionCall(*node, context, stage, false);
-            }
-        }
-    }
-    else
-    {
-        // No surface shader or closure graph,
-        // so generate a normel function call.
-        HwShaderGenerator::emitFunctionCalls(graph, context, stage);
     }
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
@@ -793,18 +775,77 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
     }
 }
 
-ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(const NodeGraph& impl) const
+ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef, GenContext& context) const
 {
-    NodeDefPtr nodeDef = impl.getNodeDef();
-    if (!nodeDef)
+    InterfaceElementPtr implElement = nodedef.getImplementation(getTarget());
+    if (!implElement)
     {
-        throw ExceptionShaderGenError("Error creating compound implementation. Given nodegraph '" + impl.getName() + "' has no nodedef set");
+        return nullptr;
     }
-    if (TypeDesc::get(nodeDef->getType()) == Type::LIGHTSHADER)
+
+    const string& name = implElement->getName();
+
+    // Check if it's created and cached already.
+    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
+    if (impl)
     {
-        return LightCompoundNodeGlsl::create();
+        return impl;
     }
-    return HwShaderGenerator::createCompoundImplementation(impl);
+
+    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
+    if (outputs.empty())
+    {
+        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
+    }
+
+    const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());
+
+    if (implElement->isA<NodeGraph>())
+    {
+        // Use a compound implementation.
+        if (outputType == Type::LIGHTSHADER)
+        {
+            impl = LightCompoundNodeGlsl::create();
+        }
+        else if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                 outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        {
+            impl = ClosureCompoundNode::create();
+        }
+        else
+        {
+            impl = CompoundNode::create();
+        }
+    }
+    else if (implElement->isA<Implementation>())
+    {
+        // Try creating a new in the factory.
+        impl = _implFactory.create(name);
+        if (!impl)
+        {
+            // Fall back to source code implementation.
+            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+            {
+                impl = ClosureSourceCodeNode::create();
+            }
+            else
+            {
+                impl = SourceCodeNode::create();
+            }
+        }
+    }
+    if (!impl)
+    {
+        return nullptr;
+    }
+
+    impl->initialize(*implElement, context);
+
+    // Cache it.
+    context.addNodeImplementation(name, impl);
+
+    return impl;
 }
 
 
@@ -838,4 +879,4 @@ bool GlslImplementation::isEditable(const ShaderInput& input) const
     return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
 
-}
+MATERIALX_NAMESPACE_END

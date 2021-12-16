@@ -13,8 +13,7 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace Stage
 {
@@ -58,6 +57,6 @@ class MX_GENOGSXML_API GlslFragmentGenerator : public GlslShaderGenerator
     static void toVec3(const TypeDesc* type, string& variable);
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

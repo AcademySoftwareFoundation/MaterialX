@@ -12,8 +12,7 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class RtValue;
 class RtOutput;
@@ -179,6 +178,6 @@ public:
     friend class RtInput;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -6,12 +6,10 @@
 #include <MaterialXGenOsl/OslSyntax.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/Nodes/ThinFilmNode.h>
 
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -247,6 +245,49 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
     }
 };
 
+class OSLFilenameTypeSyntax : public AggregateTypeSyntax
+{
+  public:
+    OSLFilenameTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                     const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                     const StringVec& members = EMPTY_MEMBERS) :
+        AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+    {}
+    
+    string getValue(const ShaderPort* port, bool uniform) const override
+    {
+        if (!port)
+        {
+            return EMPTY_STRING;
+        }
+
+        const string prefix = uniform ? "{" : getName() + "(";
+        const string suffix = uniform ? "}" : ")";
+        const string filename = port->getValue() ? port->getValue()->getValueString() : EMPTY_STRING;
+        return prefix + "\"" + filename + "\", \"" + port->getColorSpace() + "\"" + suffix;
+    }
+
+    string getValue(const Value& value, bool uniform) const override
+    {
+        const string prefix = uniform ? "{" : getName() + "(";
+        const string suffix = uniform ? "}" : ")";
+        return prefix + "\"" + value.getValueString() + "\", \"\"" + suffix;
+    }
+
+    string getValue(const StringVec& values, bool uniform) const override
+    {
+        if (values.size() != 2)
+        {
+            throw ExceptionShaderGenError("Incorrect number of values given to construct a value");
+        }
+
+        const string prefix = uniform ? "{" : getName() + "(";
+        const string suffix = uniform ? "}" : ")";
+        return prefix + "\"" + values[0] + "\", \"" + values[1] + "\"" + suffix;
+    }
+};
+
+
 } // anonymous namespace
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
@@ -275,7 +316,7 @@ OslSyntax::OslSyntax()
         "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet",
         "reflection", "transparent", "debug", "holdout", "subsurface", 
         // TODO: Add all OSL standard library functions names
-        "mix", "rotate"
+        "mix", "rotate", "textureresource"
     });
 
     //
@@ -408,20 +449,23 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::FILENAME,
-        std::make_shared<StringTypeSyntax>(
-            "string",
-            "\"\"",
-            "\"\"")
+        std::make_shared<OSLFilenameTypeSyntax>(
+            "textureresource ",
+            "textureresource (\"\", \"\")",
+            "(\"\", \"\")",
+            EMPTY_STRING,
+            "struct textureresource { string filename; string colorspace; };")
     );
 
     registerTypeSyntax
     (
         Type::BSDF,
-        std::make_shared<ScalarTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "null_closure",
-            "0",
-            "closure color")
+            "BSDF(null_closure, color(1.0), 0.0, 0.0)",
+            "{ 0, color(1.0), 0.0, 0.0 }",
+            EMPTY_STRING,
+            "struct BSDF { closure color response; color throughput; float thickness; float ior; };")
     );
 
     registerTypeSyntax
@@ -483,17 +527,6 @@ OslSyntax::OslSyntax()
             "0",
             "closure color")
     );
-
-    registerTypeSyntax
-    (
-        Type::THINFILM,
-        std::make_shared<AggregateTypeSyntax>(
-            "thinfilm",
-            "thinfilm(0.0, 1.5)",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            "struct thinfilm { float thickness; float ior; };")
-    );
 }
 
 const string& OslSyntax::getOutputQualifier() const
@@ -501,4 +534,4 @@ const string& OslSyntax::getOutputQualifier() const
     return OUTPUT_QUALIFIER;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

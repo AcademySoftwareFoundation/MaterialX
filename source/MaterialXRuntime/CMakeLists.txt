@@ -32,7 +32,7 @@ add_library(MaterialXRuntime STATIC
 
 set_target_properties(
     MaterialXRuntime PROPERTIES
-    OUTPUT_NAME MaterialXRuntime
+    OUTPUT_NAME MaterialXRuntime${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"

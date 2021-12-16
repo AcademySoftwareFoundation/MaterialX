@@ -36,12 +36,12 @@ void bindPyDocument(py::module& mod)
         .def("getGeomPropDef", &mx::Document::getGeomPropDef)
         .def("getGeomPropDefs", &mx::Document::getGeomPropDefs)
         .def("removeGeomPropDef", &mx::Document::removeGeomPropDef)
+        .def("getMaterialOutputs", &mx::Document::getMaterialOutputs)        
         .def("addLook", &mx::Document::addLook,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getLook", &mx::Document::getLook)
         .def("getLooks", &mx::Document::getLooks)
         .def("removeLook", &mx::Document::removeLook)
-        .def("mergeLooks", &mx::Document::mergeLooks)
         .def("addLookGroup", &mx::Document::addLookGroup,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getLookGroup", &mx::Document::getLookGroup)

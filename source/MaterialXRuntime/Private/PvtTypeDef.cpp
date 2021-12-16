@@ -11,8 +11,7 @@
 
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -410,4 +409,4 @@ RtTypeDef* PvtTypeDefRegistry::newType(const RtString& name, const RtString& bas
     return ptr;
 }
 
-}
+MATERIALX_NAMESPACE_END

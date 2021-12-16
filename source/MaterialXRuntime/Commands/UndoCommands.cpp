@@ -8,8 +8,7 @@
 
 #include <MaterialXRuntime/Private/PvtApi.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace RtCommand
 {
@@ -31,4 +30,4 @@ void flushUndoQueue()
 
 }
 
-}
+MATERIALX_NAMESPACE_END

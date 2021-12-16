@@ -10,8 +10,7 @@
 
 #include <MaterialXRuntime/RtValue.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtSetAttributeCmd : public PvtCommand
 {
@@ -32,6 +31,6 @@ private:
     bool _attrCreated;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

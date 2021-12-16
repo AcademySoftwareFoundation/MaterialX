@@ -15,8 +15,7 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtStringResolverPair;
 
@@ -92,7 +91,7 @@ private:
     PvtStringResolverMap _resolvers;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif
 

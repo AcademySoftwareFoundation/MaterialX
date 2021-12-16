@@ -12,8 +12,7 @@
 #include <MaterialXCore/Types.h>
 #include <MaterialXRender/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class Vector3d
 /// A vector of three floating-point values (double-precision)
@@ -21,7 +20,7 @@ class MX_RENDER_API Vector3d : public VectorN<Vector3d, double, 3>
 {
   public:
     using VectorN<Vector3d, double, 3>::VectorN;
-    Vector3d() { }
+    Vector3d() = default;
     Vector3d(double x, double y, double z) : VectorN(Uninit{})
     {
         _arr = {x, y, z};
@@ -34,7 +33,7 @@ class MX_RENDER_API Vector4d : public VectorN<Vector4d, double, 4>
 {
   public:
     using VectorN<Vector4d, double, 4>::VectorN;
-    Vector4d() { }
+    Vector4d() = default;
     Vector4d(double x, double y, double z, double w) : VectorN(Uninit{})
     {
         _arr = {x, y, z, w};
@@ -47,7 +46,7 @@ class MX_RENDER_API Color3d : public VectorN<Color3d, double, 3>
 {
   public:
     using VectorN<Color3d, double, 3>::VectorN;
-    Color3d() { }
+    Color3d() = default;
     Color3d(double r, double g, double b) : VectorN(Uninit{})
     {
         _arr = {r, g, b};
@@ -154,6 +153,6 @@ class MX_RENDER_API Half
     uint16_t _data;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

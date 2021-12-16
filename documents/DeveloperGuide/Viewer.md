@@ -6,22 +6,16 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 <p float="left">
-  <img src="/documents/Images/MaterialXView_Marble.png" width="213" />
-  <img src="/documents/Images/MaterialXView_Copper.png" width="213" />
-  <img src="/documents/Images/MaterialXView_Plastic.png" width="213" />
-  <img src="/documents/Images/MaterialXView_Carpaint.png" width="213" />
+  <img src="/documents/Images/MaterialXView_Marble.png" width="248" />
+  <img src="/documents/Images/MaterialXView_Copper.png" width="248" />
+  <img src="/documents/Images/MaterialXView_Plastic.png" width="248" />
+  <img src="/documents/Images/MaterialXView_Carpaint.png" width="248" />
 </p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 <p float="left">
-  <img src="/documents/Images/MaterialXView_TiledBrass.png" width="430" />
-  <img src="/documents/Images/MaterialXView_TiledWood.png" width="430" />
-</p>
-
-**Figure 3:** Droid character materials in the MaterialX viewer. © & TM Lucasfilm Ltd. Used with permission.
-<p float="left">
-  <img src="/documents/Images/MaterialXView_BB8.png" width="430" />
-  <img src="/documents/Images/MaterialXView_R2D2.png" width="430" />
+  <img src="/documents/Images/MaterialXView_TiledBrass.png" width="500" />
+  <img src="/documents/Images/MaterialXView_TiledWood.png" width="500" />
 </p>
 
 ## Building The MaterialX Viewer
@@ -45,7 +39,7 @@ If a loaded geometry contains more than one geometric group, then a `Select Geom
 
 To change the displayed material, click `Load Material` and navigate to the [Materials/Examples/StandardSurface](../../resources/Materials/Examples/StandardSurface) or [Materials/Examples/UsdPreviewSurface](../../resources/Materials/Examples/UsdPreviewSurface) folders, which contain a selection of example materials in the MTLX format.
 
-Once a material is loaded into the viewer, its parameters may be inspected and adjusted by clicking the `Property Editor` and scrolling through the list of parameters.  An edited material may be saved to the file system by clicking `Save Material`.  Clicking on `Advanced Settings` and enabling `Show Advanced Properties` will extend the set of material properties that are displayed in the editor.
+Once a material is loaded into the viewer, its parameters may be inspected and adjusted by clicking the `Property Editor` and scrolling through the list of parameters.  An edited material may be saved to the file system by clicking `Save Material`.
 
 Multiple material documents can be combined in a single session by navigating to `Advanced Settings` and enabling `Merge Materials`.  Loading new materials with this setting enabled will add them to the current material list, where they can be assigned to geometry via the `Assigned Material` drop-down box.  Alternatively the `LEFT` and `RIGHT` arrows can be used to cycle through the list of available materials.
 
@@ -71,8 +65,9 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 - `L`: Load GLSL shader source from file.  Editing the source files before loading provides a way to debug and experiment with shader source code.
 - `D`: Save each node graph in the current material as a DOT file.  See www.graphviz.org for more details on this format.
 - `F`: Capture the current frame and save to file.
-- `W`: Create a wedge rendering and save to file.
-- `B`: Bake the current material to textures.
+- `W`: Create a wedge rendering and save to file.  See `Advanced Settings` for additional controls.
+- `T`: Translate the current material to a different shading model.  See `Advanced Settings` for additional controls.
+- `B`: Bake the current material to textures.  See `Advanced Settings` for additional controls.
 - `UP` : Select the previous geometry.
 - `DOWN` : Select the next geometry.
 - `RIGHT` : Switch to the next material.

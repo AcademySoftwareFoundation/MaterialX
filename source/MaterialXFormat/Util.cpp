@@ -9,8 +9,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 string readFile(const FilePath& filePath)
 {
@@ -140,7 +139,7 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     return loadedLibraries;
 }
 
-void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringResolverPtr customResolver)
+void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringResolverPtr customResolver, const FilePathPredicate& skipFlattening)
 {
     for (ElementPtr elem : doc->traverseTree())
     {
@@ -163,6 +162,15 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
             elementResolver->setFilePrefix(EMPTY_STRING);
         }
         string resolvedString = valueElem->getResolvedValueString(elementResolver);
+
+        if (skipFlattening)
+        {
+            FilePath resolvedValue(resolvedString);
+            if (skipFlattening(resolvedValue))
+            {
+                continue;
+            }
+        }
 
         // Convert relative to absolute pathing if the file is not already found
         if (!searchPath.isEmpty())
@@ -201,4 +209,12 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
     }
 }
 
-} // namespace MaterialX
+
+bool isValidPath(const string& path)
+{
+    // The column and semicolumn chars are used to separate paths in env vars on different os.
+    // Do not allow both of them to have more portable values.
+    return path.find(PATH_LIST_SEPARATOR) == std::string::npos;
+}
+
+MATERIALX_NAMESPACE_END

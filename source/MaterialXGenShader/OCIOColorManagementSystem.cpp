@@ -19,8 +19,6 @@
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE;
 
-namespace MaterialX
-{
 const string OCIOColorManagementSystem::CMS_NAME = "ocio_cms";
 
 // Defines an unsupported language.
@@ -631,4 +629,4 @@ void OCIOSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& co
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

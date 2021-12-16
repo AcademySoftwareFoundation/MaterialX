@@ -14,8 +14,7 @@
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class OCIOInformation;
 
@@ -100,6 +99,6 @@ class MX_GENSHADER_API OCIOSourceCodeNode : public SourceCodeNode
 };
 
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

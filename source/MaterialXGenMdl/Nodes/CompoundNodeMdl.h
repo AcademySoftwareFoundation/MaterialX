@@ -6,13 +6,14 @@
 #ifndef MATERIALX_COMPOUNDNODEMDL_H
 #define MATERIALX_COMPOUNDNODEMDL_H
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Compound node implementation
-class CompoundNodeMdl : public CompoundNode
+class MX_GENMDL_API CompoundNodeMdl : public CompoundNode
 {
   public:
     static ShaderNodeImplPtr create();
@@ -25,6 +26,6 @@ protected:
     string _returnStruct;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

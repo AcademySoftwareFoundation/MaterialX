@@ -7,8 +7,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr TexCoordNodeGlsl::create()
 {
@@ -58,4 +57,4 @@ void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

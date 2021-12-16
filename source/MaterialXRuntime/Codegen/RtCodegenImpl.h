@@ -14,8 +14,7 @@
 
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class RtCodegenImpl
 /// Base class for all node implementations that use shader code generation.
@@ -40,6 +39,6 @@ protected:
     RtCodegenImpl(const RtPrim& prim) : RtNodeImpl(prim) {}
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

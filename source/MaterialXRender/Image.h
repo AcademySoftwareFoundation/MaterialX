@@ -9,12 +9,13 @@
 /// @file
 /// Image class
 
-#include <MaterialXCore/Types.h>
-
 #include <MaterialXRender/Export.h>
 
-namespace MaterialX
-{
+#include <MaterialXFormat/File.h>
+
+#include <MaterialXCore/Types.h>
+
+MATERIALX_NAMESPACE_BEGIN
 
 class Image;
 
@@ -127,6 +128,15 @@ class MX_RENDER_API Image
     /// Set all texels of this image to a uniform color.
     void setUniformColor(const Color4& color);
 
+    /// Apply the given matrix transform to all texels of this image.
+    void applyMatrixTransform(const Matrix33& mat);
+
+    /// Apply the given gamma transform to all texels of this image.
+    void applyGammaTransform(float gamma);
+
+    /// Create a copy of this image with the given channel count and base type.
+    ImagePtr copy(unsigned int channelCount, BaseType baseType) const;
+
     /// Apply a 3x3 box blur to this image, returning a new blurred image.
     ImagePtr applyBoxBlur();
 
@@ -136,6 +146,10 @@ class MX_RENDER_API Image
     /// Split this image by the given luminance threshold, returning the
     /// resulting underflow and overflow images.
     ImagePair splitByLuminance(float luminance);
+
+    /// Save a channel of this image to disk as a text table, in a format
+    /// that can be used for curve and surface fitting.
+    void writeTable(const FilePath& filePath, unsigned int channel);
 
     /// @}
     /// @name Resource Buffers
@@ -212,6 +226,6 @@ MX_RENDER_API ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
 /// Compute the maximum width and height of all images in the given vector.
 MX_RENDER_API std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

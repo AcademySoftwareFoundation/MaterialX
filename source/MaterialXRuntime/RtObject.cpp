@@ -10,8 +10,7 @@
 
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 RT_DEFINE_RUNTIME_OBJECT(RtObject, RtObjType::OBJECT, "object")
 
@@ -119,4 +118,4 @@ const PvtObjHandle& RtObject::hnd() const
 }
 #endif
 
-}
+MATERIALX_NAMESPACE_END

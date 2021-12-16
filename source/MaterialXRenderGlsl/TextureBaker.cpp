@@ -13,8 +13,7 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace {
 
@@ -168,8 +167,8 @@ void TextureBaker::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext
         }
     }
 
-    // Unbind all images used to generate this set of shader inputs.
-    _imageHandler->unbindImages();
+    // Release all images used to generate this set of shader inputs.
+    _imageHandler->clearImageCache();
 }
 
 void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& texturefilepath)
@@ -576,4 +575,4 @@ void TextureBaker::setupUnitSystem(DocumentPtr unitDefinitions)
     _generator->getUnitSystem()->setUnitConverterRegistry(registry);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -423,6 +423,7 @@ bool ShaderGeneratorTester::generateCode(mx::GenContext& context, const std::str
     catch (mx::Exception& e)
     {
         log << ">> Code generation failure: " << e.what() << "\n";
+        WARN(std::string(e.what()) + " in " + shaderName);
         shader = nullptr;
     }
     CHECK(shader);
@@ -534,12 +535,8 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "bxdf", "lights" };
     loadLibraries(libraries, _libSearchPath, _dependLib, _skipLibraryFiles);
-
-    // Load shader definitions used in the test suite.
-    loadLibrary(mx::FilePath("bxdf/standard_surface.mtlx"), _dependLib, _libSearchPath);
-    loadLibrary(mx::FilePath("bxdf/usd_preview_surface.mtlx"), _dependLib, _libSearchPath);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -548,6 +545,11 @@ void ShaderGeneratorTester::addSkipFiles()
     _skipFiles.insert("light_rig_test_1.mtlx");
     _skipFiles.insert("light_rig_test_2.mtlx");
     _skipFiles.insert("light_compound_test.mtlx");
+    _skipFiles.insert("xinclude_search_path.mtlx");
+    _skipFiles.insert("1_38_parameter_to_input.mtlx");
+    _skipFiles.insert("1_36_to_1_37.mtlx");
+    _skipFiles.insert("1_37_to_1_38.mtlx");
+    _skipFiles.insert("material_element_to_surface_material.mtlx");
 }
 
 void ShaderGeneratorTester::addSkipNodeDefs()
@@ -601,8 +603,8 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
     if (!lights.empty())
     {
         // Create a list of unique nodedefs and ids for them
-        _lightIdentifierMap = computeLightIdMap(lights);
-        for (const auto& id : _lightIdentifierMap)
+        _lightIdMap = computeLightIdMap(lights);
+        for (const auto& id : _lightIdMap)
         {
             mx::NodeDefPtr nodedef = doc->getNodeDef(id.first);
             if (nodedef)

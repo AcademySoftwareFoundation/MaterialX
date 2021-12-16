@@ -15,8 +15,7 @@
 #include <MaterialXCore/Property.h>
 #include <MaterialXCore/Variant.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Look;
 class LookGroup;
@@ -272,7 +271,7 @@ class MX_CORE_API LookGroup : public Element
         return getAttribute(LOOKS_ATTRIBUTE);
     }
 
-    /// Set the active looks.
+    /// Set the active look.
     void setActiveLook(const string& look)
     {
         setAttribute(ACTIVE_ATTRIBUTE, look);
@@ -321,6 +320,9 @@ class MX_CORE_API MaterialAssign : public GeomElement
     {
         return getAttribute(MATERIAL_ATTRIBUTE);
     }
+
+    ///  Return material-type outputs for all referenced nodegraphs
+    vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}
     /// @name Exclusive
@@ -380,6 +382,7 @@ class MX_CORE_API MaterialAssign : public GeomElement
     {
         removeChildOfType<VariantAssign>(name);
     }
+
   public:
     static const string CATEGORY;
     static const string MATERIAL_ATTRIBUTE;
@@ -501,8 +504,8 @@ class MX_CORE_API Visibility : public GeomElement
 ///             By default, this argument is the universal geometry string "/",
 ///             and all material bindings are returned.
 /// @return Vector of MaterialAssign elements
-MX_CORE_API vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
+MX_CORE_API vector<MaterialAssignPtr> getGeometryBindings(ConstNodePtr materialNode, const string& geom = UNIVERSAL_GEOM_NAME);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

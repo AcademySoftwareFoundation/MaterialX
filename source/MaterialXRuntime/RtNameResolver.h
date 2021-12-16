@@ -15,8 +15,7 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtNameResolverRegistry;
 
@@ -82,6 +81,6 @@ private:
     std::unique_ptr<PvtNameResolverRegistry> _nameResolverRegistry;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

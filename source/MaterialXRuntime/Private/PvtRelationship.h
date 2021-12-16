@@ -14,8 +14,7 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtRelationship : public PvtObject
 {
@@ -58,6 +57,6 @@ protected:
     friend class RtConnectionIterator;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

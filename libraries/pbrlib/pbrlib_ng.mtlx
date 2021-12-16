@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <!--
-    TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+    TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
     All rights reserved.  See LICENSE.txt for license.
 
     Graph definitions of standard nodes included in the MaterialX specification.
@@ -18,7 +18,7 @@
     </roughness_anisotropy>
     <output name="out" type="vector2" nodename="roughness1" />
   </nodegraph>
-   
+
   <!-- Uniform emission surface shader which accepts a color4 input. -->
   <nodegraph name="NG_unlit_surface_color4"  nodedef="ND_unlit_surface_color4" >
      <input name="color" type="color4" value="1, 1, 1, 1" />

@@ -21,8 +21,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace {
 
@@ -90,7 +89,7 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
         size_t faceCount = indexCount / FACE_VERTEX_COUNT;
 
         MeshPartitionPtr part = MeshPartition::create();
-        part->setIdentifier(shape.name);
+        part->setName(shape.name);
         part->setFaceCount(faceCount);
         mesh->addPartition(part);
 
@@ -177,4 +176,4 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
     return true;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

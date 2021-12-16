@@ -3,7 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#include "../Helpers.h"
+
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderStage.h>
 
 #include <emscripten/bind.h>
 
@@ -15,6 +18,6 @@ EMSCRIPTEN_BINDINGS(Shader)
     ems::class_<mx::Shader>("Shader")
         .smart_ptr<std::shared_ptr<mx::Shader>>("ShaderPtr")
         .function("getSourceCode", &mx::Shader::getSourceCode)
-        .function("getUniformValues", &mx::Shader::getUniformValues);
+        .function("getStage", PTR_RETURN_OVERLOAD(mx::ShaderStage& (mx::Shader::*)(const std::string&), &mx::Shader::getStage), ems::allow_raw_pointers())
         ;
 }

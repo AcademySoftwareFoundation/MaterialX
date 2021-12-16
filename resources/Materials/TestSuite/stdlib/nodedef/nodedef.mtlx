@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodedef name="ND_nodedef_test" node="nodedef_test" nodegroup="texture2d">
+    <parameter name="file" type="filename" value=""/>
+    <input name="default" type="float" value="0.0"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
+    <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
+    <input name="uvoffset" type="vector2" value="0.0, 0.0"/>
+    <input name="realworldimagesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <input name="realworldtilesize" type="vector2" value="1.0, 1.0" unittype="distance"/>
+    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
+    <parameter name="framerange" type="string" value=""/>
+    <input name="frameoffset" type="integer" value="0"/>
+    <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror"/>
+    <output name="out" type="float" default="0.0"/>
+  </nodedef>
+  <nodegraph name="NG_nodedef_test" nodedef="ND_nodedef_test">
+    <multiply name="N_mult_float" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord"/>
+      <input name="in2" type="vector2" interfacename="uvtiling"/>
+    </multiply>
+    <subtract name="N_sub_float" type="vector2">
+      <input name="in1" type="vector2" nodename="N_mult_float"/>
+      <input name="in2" type="vector2" interfacename="uvoffset"/>
+    </subtract>
+    <divide name="N_divimgsize_float" type="vector2">
+      <input name="in1" type="vector2" nodename="N_sub_float"/>
+      <input name="in2" type="vector2" interfacename="realworldimagesize"/>
+    </divide>
+    <multiply name="N_multtilesize_float" type="vector2">
+      <input name="in1" type="vector2" nodename="N_divimgsize_float"/>
+      <input name="in2" type="vector2" interfacename="realworldtilesize"/>
+    </multiply>
+    <image name="N_img_float" type="float">
+      <parameter name="file" type="filename" interfacename="file"/>
+      <input name="default" type="float" interfacename="default"/>
+      <input name="texcoord" type="vector2" nodename="N_multtilesize_float"/>
+      <parameter name="uaddressmode" type="string" value="periodic"/>
+      <parameter name="vaddressmode" type="string" value="periodic"/>
+      <parameter name="filtertype" type="string" interfacename="filtertype"/>
+      <parameter name="framerange" type="string" interfacename="framerange"/>
+      <input name="frameoffset" type="integer" interfacename="frameoffset"/>
+      <parameter name="frameendaction" type="string" interfacename="frameendaction"/>
+    </image>
+    <output name="out" type="float" nodename="N_img_float"/>
+  </nodegraph>
+</materialx>

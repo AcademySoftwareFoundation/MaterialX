@@ -15,6 +15,16 @@
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXGenShader/Util.h>
 
+#ifdef MATERIALX_BUILD_GEN_GLSL
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+#include <MaterialXGenOsl/OslShaderGenerator.h>
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+#include <MaterialXGenMdl/MdlShaderGenerator.h>
+#endif
+
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -94,7 +104,7 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE(mx::TypeDesc::get("bar") == nullptr);
 }
 
-TEST_CASE("GenShader: Translation Check", "[genshader]")
+TEST_CASE("GenShader: Graph + Nodedf Transparency Check", "[genshader]")
 {
     mx::FileSearchPath searchPath;
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
@@ -170,7 +180,7 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
     for (mx::FilePath& mtlxFile : testPath.getFilesInDirectory("mtlx"))
     {
         mx::DocumentPtr doc = mx::createDocument();
-        loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf", "translation" }, searchPath, doc);
+        loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
 
         mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
         mtlxFile.removeExtension();
@@ -196,3 +206,127 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
     }
 }
 
+TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
+{
+    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::FileSearchPath searchPath(currentPath);
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    const mx::FilePath resourcePath(currentPath / "resources");
+    mx::StringVec failedTests;
+    mx::FilePathVec testFiles = {
+        "Materials/Examples/StandardSurface/standard_surface_default.mtlx",
+        "Materials/Examples/StandardSurface/standard_surface_glass.mtlx",
+        "Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx",
+        "Materials/TestStuie/pbrlib/surfaceshader/transparency_nodedef_test.mtlx",
+        "Materials/TestStuie/pbrlib/surfaceshader/transparency_test.mtlx",
+    };
+    std::vector<bool> transparencyTest = { false, true, true, true, true };
+    for (size_t i=0; i < testFiles.size(); i++)
+    {
+        const mx::FilePath& testFile = resourcePath / testFiles[i];
+        bool testValue = transparencyTest[i];
+
+        mx::DocumentPtr testDoc = mx::createDocument();
+        testDoc->importLibrary(libraries);
+
+        try
+        {
+            mx::readFromXmlFile(testDoc, testFile, searchPath);
+            std::vector<mx::TypedElementPtr> renderables;
+            mx::findRenderableElements(testDoc, renderables);
+            for (auto renderable : renderables)
+            {
+                mx::NodePtr node = renderable->asA<mx::Node>();
+                if (!node)
+                {
+                    continue;
+                }
+                if (node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING)
+                {
+                    std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
+                    if (!shaderNodes.empty())
+                        node = shaderNodes[0];
+                }
+                if (testValue != mx::isTransparentSurface(node))
+                {
+                    failedTests.push_back(std::string("File: ") + testFile.asString() + std::string(". Element: ")
+                        + renderable->getNamePath() + std::string(" should be:" + std::to_string(testValue)));
+                }
+            }
+        }
+        catch (mx::Exception& e)
+        {
+            INFO(std::string("Test failed: ") + std::string(e.what()));
+        }
+    }
+    for (auto failedTest : failedTests)
+    {
+        INFO(failedTest);
+    }
+    CHECK(failedTests.empty());
+}
+
+void testDeterministicGeneration(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    const mx::FilePath testFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx");
+    const mx::string testElement = "SR_marble1";
+
+    const size_t numRuns = 10;
+    mx::vector<mx::DocumentPtr> testDocs(numRuns);
+    mx::StringVec sourceCode(numRuns);
+
+    for (size_t i = 0; i < numRuns; ++i)
+    {
+        mx::DocumentPtr testDoc = mx::createDocument();
+        mx::readFromXmlFile(testDoc, testFile);
+        testDoc->importLibrary(libraries);
+
+        // Keep the document alive to make sure
+        // new memory is allocated for each run
+        testDocs[i] = testDoc;
+
+        mx::ElementPtr element = testDoc->getChild(testElement);
+        CHECK(element);
+
+        mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+        sourceCode[i] = shader->getSourceCode();
+
+        if (i > 0)
+        {
+            // Check if the generated source code is the same
+            // for each successive run.
+            CHECK(sourceCode[i] == sourceCode[0]);
+        }
+    }
+}
+
+TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
+{
+    const mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf" }, searchPath, libraries);
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        testDeterministicGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::GenContext context(mx::OslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        testDeterministicGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+    {
+        mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        testDeterministicGeneration(libraries, context);
+    }
+#endif
+}

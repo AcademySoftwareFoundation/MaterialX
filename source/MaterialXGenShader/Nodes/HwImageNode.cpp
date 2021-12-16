@@ -3,18 +3,16 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 // Additional implementaton arguments for image nodes
-const string UV_SCALE = "uv_scale";
-const string UV_OFFSET = "uv_offset";
+string HwImageNode::UV_SCALE = "uv_scale";
+string HwImageNode::UV_OFFSET = "uv_offset";
 
 ShaderNodeImplPtr HwImageNode::create()
 {
@@ -69,4 +67,4 @@ void HwImageNode::setValues(const Node& node, ShaderNode& shaderNode, GenContext
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

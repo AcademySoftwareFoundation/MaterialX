@@ -8,8 +8,7 @@
 
 #include <MaterialXRuntime/RtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 PvtCommandPtr PvtReparentPrimCmd::create(RtStagePtr stage, const RtPath& path, const RtPath& newParentPath)
 {
@@ -119,4 +118,4 @@ void PvtReparentPrimCmd::undo(RtCommandResult& result)
     }
 }
 
-}
+MATERIALX_NAMESPACE_END

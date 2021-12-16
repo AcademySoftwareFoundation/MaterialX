@@ -12,8 +12,7 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtObject;
 
@@ -144,6 +143,6 @@ private:
     vector<RtString> _elements;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -22,7 +22,8 @@ namespace RenderUtil
 {
 
 ShaderRenderTester::ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
-    _shaderGenerator(shaderGenerator)
+    _shaderGenerator(shaderGenerator),
+    _emitColorTransforms(true)
 {
 }
 
@@ -61,21 +62,13 @@ void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
 
     stream << "---------------------------------------" << std::endl;
     options.print(stream);
-
-    //if (options.checkImplCount)
-    //{
-    //    stream << "---------------------------------------" << std::endl;
-    //    mx::StringSet whiteList;
-    //    getImplementationWhiteList(whiteList);
-    //    GenShaderUtil::checkImplementationUsage(language, usedImpls, whiteList, dependLib, context, stream);
-    //}
 }
 
 void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath, mx::DocumentPtr& dependLib)
 {
     dependLib = mx::createDocument();
 
-    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "lights" };
+    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "bxdf", "lights" };
     mx::loadLibraries(libraries, searchPath, dependLib);
     for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
     {
@@ -87,12 +80,21 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
         }
     }
 
-    // Load shader definitions used in the test suite.
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
-
     // Load any addition per renderer libraries
     loadAdditionalLibraries(dependLib, options);
+}
+
+void ShaderRenderTester::addSkipFiles()
+{
+    _skipFiles.insert("_options.mtlx");
+    _skipFiles.insert("light_rig_test_1.mtlx");
+    _skipFiles.insert("light_rig_test_2.mtlx");
+    _skipFiles.insert("light_compound_test.mtlx");
+    _skipFiles.insert("xinclude_search_path.mtlx");
+    _skipFiles.insert("1_38_parameter_to_input.mtlx");
+    _skipFiles.insert("1_36_to_1_37.mtlx");
+    _skipFiles.insert("1_37_to_1_38.mtlx");
+    _skipFiles.insert("material_element_to_surface_material.mtlx");
 }
 
 bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
@@ -129,7 +131,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Profiling times
     RenderUtil::RenderProfileTimes profileTimes;
     // Global setup timer
-    RenderUtil::AdditiveScopedTimer totalTime(profileTimes.totalTime, "Global total time");
+    mx::ScopedTimer totalTime(&profileTimes.totalTime);
 
     // Add files to override the files in the test suite to be tested.
     mx::StringSet testfileOverride;
@@ -138,7 +140,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
         testfileOverride.insert(filterFile);
     }
 
-    RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.ioTime, "Global I/O time");
+    mx::ScopedTimer ioTimer(&profileTimes.ioTime);
     mx::FilePathVec dirs;
     if (options.externalTestPaths.size() == 0)
     {
@@ -175,7 +177,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     ioTimer.endTimer();
 
     // Create renderers and generators
-    RenderUtil::AdditiveScopedTimer setupTime(profileTimes.languageTimes.setupTime, "Setup time");
+    mx::ScopedTimer setupTime(&profileTimes.languageTimes.setupTime);
 
     _colorManagementSystem = nullptr;
 #ifdef MATERIALX_BUILD_OCIO
@@ -226,6 +228,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";
 
+    // Set whether to emit colorspace transforms
+    context.getOptions().emitColorTransforms = _emitColorTransforms;
+
     // Register shader metadata defined in the libraries.
     _shaderGenerator->registerShaderMetadata(dependLib, context);
 
@@ -238,8 +243,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     pathMap["/"] = "_";
     pathMap[":"] = "_";
 
-    RenderUtil::AdditiveScopedTimer validateTimer(profileTimes.validateTime, "Global validation time");
-    RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");
+    mx::ScopedTimer validateTimer(&profileTimes.validateTime);
+    mx::ScopedTimer renderableSearchTimer(&profileTimes.renderableSearchTime);
 
     mx::StringSet usedImpls;
 

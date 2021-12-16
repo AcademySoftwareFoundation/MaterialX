@@ -1,78 +1,66 @@
 # MaterialX Data Libraries
 
-The following is the layout of the definitions and implementations provided as part of the core libraries.
+This folder contains the standard data libraries for MaterialX, providing declarations and graph definitions for the MaterialX nodes, and source code for all supported shader generators.
 
-These libraries can be used to build shading networks which can be accepted by code generators to produce shader code.
-
-The following core "targets": GLSL, MDL and OSL. Additional Autodesk specific targets are also supported including Arnold which is a variant on OSL code generation.
-
-## Standard Library
+## Standard Pattern Library
 - [stdlib](stdlib)
-    - [stdlib_defs.mtlx](stdlib/stdlib_defs.mtlx) : Single node nodedef definitions file.
-    - [stdlib_ng.mtlx](stdlib/stdlib_ng.mtlx) :  Node graph definitions file.
+    - [stdlib_defs.mtlx](stdlib/stdlib_defs.mtlx) : Nodedef declarations.
+    - [stdlib_ng.mtlx](stdlib/stdlib_ng.mtlx) : Nodegraph definitions.
     - [genglsl](stdlib/genglsl): GLSL language support.
         - lib : Shader utility files.
-        - [stdlib_genglsl_impl.mtlx](stdlib/genglsl/stdlib_genglsl_impl.mtlx) : Mapping from definitions to implementations
+        - [stdlib_genglsl_impl.mtlx](stdlib/genglsl/stdlib_genglsl_impl.mtlx) : Mapping from declarations to implementations.
         - [stdlib_genglsl_cm_impl.mtlx](stdlib/genglsl/stdlib_genglsl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
         - [stdlib_genglsl_unit_impl.mtlx](stdlib/genosl/stdlib_genglsl_unit_impl.mtlx) : Real world unit support implementations.
         - GLSL implementation files.
     - [genosl](stdlib/genosl): OSL language support.
         - lib: Shader utility files.
-        - [stdlib_genosl_impl.mtlx](stdlib/genosl/stdlib_genosl_impl.mtlx) : Mapping from definitions to implementations
+        - [stdlib_genosl_impl.mtlx](stdlib/genosl/stdlib_genosl_impl.mtlx) : Mapping from declarations to implementations.
         - [stdlib_genosl_cm_impl.mtlx](stdlib/genosl/stdlib_genosl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
         - [stdlib_genosl_unit_impl.mtlx](stdlib/genosl/stdlib_genosl_unit_impl.mtlx) : Real world unit support implementations.
         -  OSL implementation files.
-    - [osl](stdlib/osl): OSL reference implementation
-        -  OSL implementation files.
+    - [osl](stdlib/osl): OSL reference implementations.
+        - These are the original OSL reference implementations from MaterialX v1.35, and will be replaced with generated OSL code in the future.
     - [genmdl](stdlib/genmdl): MDL language support.
-        - [stdlib_genmdl_impl.mtlx](stdlib/genosl/stdlib_genmdl_impl.mtlx) : Mapping from definitions to implementations
+        - [stdlib_genmdl_impl.mtlx](stdlib/genosl/stdlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
         - [stdlib_genmdl_cm_impl.mtlx](stdlib/genosl/stdlib_genmdl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
         - [stdlib_genmdl_unit_impl.mtlx](stdlib/genosl/stdlib_genmdl_unit_impl.mtlx) : Real world unit support implementations.
 
-## Physically-Based Shading Library
+## Physically Based Shading Library
 - [pbrlib](pbrlib)
-    - [pbrlib_defs.mtlx](pbrlib/pbrlib_defs.mtlx) : Single node definitions file.
-    - [pbrlib_ng.mtlx](pbrlib/pbrlib_ng.mtlx) : Node graph definitions file.
+    - [pbrlib_defs.mtlx](pbrlib/pbrlib_defs.mtlx) : Nodedef declarations.
+    - [pbrlib_ng.mtlx](pbrlib/pbrlib_ng.mtlx) : Nodegraph definitions.
     - [genglsl](pbrlib/genglsl) : GLSL language support
         - lib : Shader utility files.
-        - [pbrlib_genglsl_impl.mtlx](pbrlib/genglsl/pbrlib_genglsl_impl.mtlx) : Mapping from definitions to implementations
+        - [pbrlib_genglsl_impl.mtlx](pbrlib/genglsl/pbrlib_genglsl_impl.mtlx) : Mapping from declarations to implementations.
         - GLSL implementation files.
     - [genosl](pbrlib/genosl) : OSL language support
         - lib : Utilities
-        - [pbrlib_genosl_impl.mtlx](pbrlib/genosl/pbrlib_genosl_impl.mtlx) : Mapping from definitions to implementations
+        - [pbrlib_genosl_impl.mtlx](pbrlib/genosl/pbrlib_genosl_impl.mtlx) : Mapping from declarations to implementations.
         - OSL implementation files.
     - [genmdl](pbrlib/genmdl) : MDL language support
-        - [pbrlib_genmdl_impl.mtlx](pbrlib/genosl/pbrlib_genmdl_impl.mtlx) : Mapping from definitions to implementations.
-        - Note: MDL implementation files are in a "package" folder found under
-        [source/MaterialXGenMdl/mdl/materialx](../source/MaterialXGenMdl/mdl/materialx)
+        - [pbrlib_genmdl_impl.mtlx](pbrlib/genosl/pbrlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
+        - Note: MDL implementation files are in a "package" folder found under [source/MaterialXGenMdl/mdl/materialx](../source/MaterialXGenMdl/mdl/materialx)
 
-## Autodesk Sample Definitions
-- These are examples showing some of the complexity of a possible material asset.
-Makes use of both stdlib, and pbrlib libraries.
-- [adsk](adsk)
-  - [adsklib](adsk/adsklib) : Sample core definitions.
-  - [shaders](adsk/shader) : Sample shader definitions.
-  - [materials](adsk/materials) : Sample material definitions.
-  - [materials](adsk/textures) : Images used by definitions.
+## BxDF Graph Library
+- [bxdf](bxdf)
+    - [standard_surface.mtlx](bxdf/standard_surface.mtlx) : Graph definition of the [Autodesk Standard Surface](https://autodesk.github.io/standard-surface/) shading model.
+    - [usd_preview_surface.mtlx](bxdf/usd_preview_surface.mtlx) : Graph definition of the [UsdPreviewSurface](https://graphics.pixar.com/usd/docs/UsdPreviewSurface-Proposal.html) shading model.
+    - [lama](bxdf/lama) : Graph definitions of the [MaterialX Lama](https://rmanwiki.pixar.com/display/REN24/MaterialX+Lama) node set.
 
 ## Target Definitions
-- Each target implementation requires a target definition for definition / implementation correspondence to work.
-- [targets](targets) is the folder holding documents which declare these definitions.
-- There are definition files for the following core targets:
+- Each target implementation requires a target definition for declaration / implementation correspondence to work.
+- The [targets](targets) folder contains definition files for the following core targets:
+  - GLSL : `genglsl`
   - OSL : `genosl`
-  - Desktop GLSL : `genglsl`
   - MDL : `genmdl`
-- There are definitions files for the following Autodesk specific targets:
-  - OGS : `ogsfx`, and `ogsxml` (for Maya integration)
-  - Arnold : `arnold`
 - Any additional target files should be added under this folder and loaded in as required.
 
 ### Target Support
 - GLSL target support is for version 4.0 or higher.
 - OSL target support is for version 1.9.10 or higher.
 - MDL target support is for version 1.6.
-- "Default" color management support includes OSL,  GLSL, and MDL implementations for the following non-LUT transforms:
-    - lin_rec709, gamma18, gamma22, gamma24, acescg, g22_acescg, srgb_texture
+- "Default" color management support includes OSL, GLSL, and MDL implementations for the following color spaces:
+    - lin_rec709, g18_rec709, g22_rec709, rec709_display, acescg (lin_ap1), g22_ap1, srgb_texture
 - Basic GLSL `lightshader` node definitions and implementations are provided for the following light types:
     - point, directional, spot
 - Code generation does not currently support:

@@ -10,8 +10,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXFormat/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr SourceCodeNode::create()
 {
@@ -155,13 +154,8 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         {
             // An ordinary source code function call
 
-            // Declare the output variables
-            for (size_t i = 0; i < node.numOutputs(); ++i)
-            {
-                shadergen.emitLineBegin(stage);
-                shadergen.emitOutput(node.getOutput(i), true, true, context, stage);
-                shadergen.emitLineEnd(stage);
-            }
+            // Declare the output variables.
+            emitOutputVariables(node, context, stage);
 
             shadergen.emitLineBegin(stage);
             string delim = "";
@@ -192,4 +186,4 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

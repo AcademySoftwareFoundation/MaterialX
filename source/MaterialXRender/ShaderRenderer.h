@@ -9,16 +9,14 @@
 /// @file
 /// Base class for shader rendering
 
-#include <MaterialXRender/Export.h>
+#include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/ViewHandler.h>
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to a shader renderer
 using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
@@ -39,6 +37,18 @@ class MX_RENDER_API ShaderRenderer
 
     /// Initialize the renderer.
     virtual void initialize() { }
+
+    /// Set the camera.
+    void setCamera(CameraPtr camera)
+    {
+        _camera = camera;
+    }
+
+    /// Return the camera.
+    CameraPtr getCamera() const
+    {
+        return _camera;
+    }
 
     /// Set the image handler used by this renderer for image I/O.
     void setImageHandler(ImageHandlerPtr imageHandler)
@@ -74,18 +84,6 @@ class MX_RENDER_API ShaderRenderer
     GeometryHandlerPtr getGeometryHandler() const
     {
         return _geometryHandler;
-    }
-
-    /// Set the view handler.
-    void setViewHandler(ViewHandlerPtr viewHandler)
-    {
-        _viewHandler = viewHandler;
-    }
-
-    /// Return the view handler.
-    ViewHandlerPtr getViewHandler() const
-    {
-        return _viewHandler;
     }
 
     /// Set color management system
@@ -150,34 +148,34 @@ class MX_RENDER_API ShaderRenderer
     unsigned int _height;
     Image::BaseType _baseType;
 
+    CameraPtr _camera;
     ImageHandlerPtr _imageHandler;
     GeometryHandlerPtr _geometryHandler;
     LightHandlerPtr _lightHandler;
-    ViewHandlerPtr _viewHandler;
 
     ColorManagementSystemPtr _colorManagementSystem;
 };
 
-/// @class ExceptionShaderRenderError
-/// An exception that is thrown when shader rendering fails.
-/// An error log of shader errors is cached as part of the exception.
-/// For example, if shader compilation fails, then a list of compilation errors is cached.
-class MX_RENDER_API ExceptionShaderRenderError : public Exception
+/// @class ExceptionRenderError
+/// An exception that is thrown when a rendering operation fails.
+/// Optionally stores an additional error log, which can be used to
+/// store and retrieve shader compilation errors.
+class MX_RENDER_API ExceptionRenderError : public Exception
 {
   public:
-    ExceptionShaderRenderError(const string& msg, const StringVec& errorList) :
+    ExceptionRenderError(const string& msg, const StringVec& errorLog = StringVec()) :
         Exception(msg),
-        _errorLog(errorList)
+        _errorLog(errorLog)
     {
     }
 
-    ExceptionShaderRenderError(const ExceptionShaderRenderError& e) :
+    ExceptionRenderError(const ExceptionRenderError& e) :
         Exception(e),
         _errorLog(e._errorLog)
     {
     }
 
-    ExceptionShaderRenderError& operator=(const ExceptionShaderRenderError& e)         
+    ExceptionRenderError& operator=(const ExceptionRenderError& e)         
     {
         Exception::operator=(e);
         _errorLog = e._errorLog;
@@ -193,6 +191,6 @@ class MX_RENDER_API ExceptionShaderRenderError : public Exception
     StringVec _errorLog;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

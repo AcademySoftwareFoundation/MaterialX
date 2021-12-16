@@ -7,8 +7,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace {
 
@@ -331,4 +330,4 @@ ImagePtr renderReferenceIrradiance(ConstImagePtr env, unsigned int width, unsign
     return outImage;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

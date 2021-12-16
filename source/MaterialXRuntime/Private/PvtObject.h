@@ -19,8 +19,7 @@
 /// @file
 /// TODO: Docs
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 // Class representing an object in the scene hierarchy.
 // This is the base class for prims, attributes and relationships.
@@ -284,6 +283,6 @@ private:
     friend class RtRelationshipIterator;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

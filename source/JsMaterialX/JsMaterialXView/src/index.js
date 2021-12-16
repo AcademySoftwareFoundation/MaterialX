@@ -14,7 +14,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
-import { prepareEnvTexture, toThreeUniforms, findLights, registerLights } from './helper.js'
+import { prepareEnvTexture, findLights, registerLights, getUniformValues } from './helper.js'
 
 let camera, scene, model, renderer, composer, controls, mx;
 
@@ -164,11 +164,12 @@ function init() {
         let shader = gen.generate(elem.getNamePath(), elem, genContext);
 
         // Get GL ES shaders and uniform values
-        let fShader = shader.getSourceCode("pixel");       
         let vShader = shader.getSourceCode("vertex");
+        let fShader = shader.getSourceCode("pixel");       
+
         let uniforms = {
-          ...toThreeUniforms(JSON.parse(shader.getUniformValues("vertex")), textureLoader),
-          ...toThreeUniforms(JSON.parse(shader.getUniformValues("pixel")), textureLoader)
+          ...getUniformValues(shader.getStage('vertex'), textureLoader),
+          ...getUniformValues(shader.getStage('pixel'), textureLoader),
         }
 
         const radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
@@ -217,7 +218,7 @@ function init() {
         bbox.getBoundingSphere(bsphere);
 
         controls.target = bsphere.center;
-        camera.position.y = camera.position.z = bsphere.radius * 2.5;
+        camera.position.y = camera.position.z = bsphere.radius * 1.5;
         controls.update();
 
         camera.far = bsphere.radius * 10;

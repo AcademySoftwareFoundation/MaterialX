@@ -13,8 +13,7 @@
 
 #include <bitset>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PvtLogger
 {
@@ -50,6 +49,6 @@ private:
     RtLogger*       _logger;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

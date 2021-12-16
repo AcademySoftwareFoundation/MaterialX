@@ -10,6 +10,7 @@ function createStandardSurfaceMaterial(mx) {
     const shaderElement = smNode.addInput('surfaceshader');
     shaderElement.setType('surfaceshader');
     shaderElement.setNodeName(ssName);
+    expect(doc.validate()).to.be.true;
     return doc;
 }
 
@@ -34,20 +35,45 @@ describe('Generate ESSL Shaders', function () {
         doc.importLibrary(stdlib);
 
         const elem = mx.findRenderableElement(doc);
-        const mxShader = gen.generate(elem.getNamePath(), elem, genContext);
+        try 
+        {
+            const mxShader = gen.generate(elem.getNamePath(), elem, genContext);
 
-        const fShader = mxShader.getSourceCode("pixel");
-        const vShader = mxShader.getSourceCode("vertex");
+            const fShader = mxShader.getSourceCode("pixel");
+            const vShader = mxShader.getSourceCode("vertex");
 
-        const glVertexShader = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(glVertexShader, vShader);
-        gl.compileShader(glVertexShader);
+            const glVertexShader = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(glVertexShader, vShader);
+            gl.compileShader(glVertexShader);
+            if (!gl.getShaderParameter(glVertexShader, gl.COMPILE_STATUS)) 
+            {
+                console.error("-------- VERTEX SHADER FAILED TO COMPILE: ----------------");
+                console.error("--- VERTEX SHADER LOG ---");
+                console.error(gl.getShaderInfoLog(glVertexShader));
+                console.error("--- VERTEX SHADER START ---");
+                console.error(fShader);
+                console.error("--- VERTEX SHADER END ---");
+            }
+            expect(gl.getShaderParameter(glVertexShader, gl.COMPILE_STATUS)).to.equal(true);
 
-        const glPixelShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(glPixelShader, fShader);
-        gl.compileShader(glPixelShader);
-
-        expect(gl.getShaderParameter(glVertexShader, gl.COMPILE_STATUS)).to.equal(true);
-        expect(gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS)).to.equal(true);
+            const glPixelShader = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(glPixelShader, fShader);
+            gl.compileShader(glPixelShader);
+            if (!gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS)) 
+            {
+                console.error("-------- PIXEL SHADER FAILED TO COMPILE: ----------------");
+                console.error("--- PIXEL SHADER LOG ---");
+                console.error(gl.getShaderInfoLog(glPixelShader));
+                console.error("--- PIXEL SHADER START ---");
+                console.error(fShader);
+                console.error("--- PIXEL SHADER END ---");
+            }
+            expect(gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS)).to.equal(true);
+        }
+        catch (errPtr)
+        {
+            console.error("-------- Failed code generation: ----------------");
+            console.error(mx.getExceptionMessage(errPtr));   
+        }
     });
 });

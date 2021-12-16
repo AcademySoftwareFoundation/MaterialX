@@ -10,8 +10,7 @@
 
 #include <memory>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -143,4 +142,4 @@ OgsFxSyntax::OgsFxSyntax()
     );
 }
 
-}
+MATERIALX_NAMESPACE_END

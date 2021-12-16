@@ -15,8 +15,7 @@
 #include <MaterialXRuntime/RtPort.h>
 #include <MaterialXRuntime/RtRelationship.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class RtPrimIterator;
 class RtInputIterator;
@@ -195,6 +194,6 @@ protected:
     RtPrimSpec() {}
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

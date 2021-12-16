@@ -6,13 +6,14 @@
 #ifndef MATERIALX_HEIGHTTONORMALNODEGLSL_H
 #define MATERIALX_HEIGHTTONORMALNODEGLSL_H
 
+#include <MaterialXGenGlsl/Export.h>
+
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// HeightToNormal node implementation for GLSL
-class HeightToNormalNodeGlsl : public ConvolutionNode
+class MX_GENGLSL_API HeightToNormalNodeGlsl : public ConvolutionNode
 {
   public:
     static ShaderNodeImplPtr create();
@@ -23,9 +24,6 @@ class HeightToNormalNodeGlsl : public ConvolutionNode
     const string& getTarget() const override;
 
   protected:
-    /// Constructor
-    HeightToNormalNodeGlsl();
-
     /// Return if given type is an acceptible input
     bool acceptsInputType(const TypeDesc* type) const override;
 
@@ -34,6 +32,6 @@ class HeightToNormalNodeGlsl : public ConvolutionNode
                                     unsigned int filterWidth, StringVec& offsetStrings) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

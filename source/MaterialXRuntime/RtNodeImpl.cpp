@@ -8,8 +8,7 @@
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 namespace
 {
     // TODO: We should derive this from a data driven XML schema.
@@ -20,6 +19,7 @@ namespace
         {
             addPrimAttribute(RtString::DOC, RtType::STRING);
             addPrimAttribute(RtString::NODEDEF, RtType::INTERNSTRING);
+            addPrimAttribute(RtString::NODEGRAPH, RtType::INTERNSTRING);
             addPrimAttribute(RtString::TARGET, RtType::INTERNSTRING);
             addPrimAttribute(RtString::FILE, RtType::STRING);
             addPrimAttribute(RtString::SOURCECODE, RtType::STRING);
@@ -72,6 +72,18 @@ const RtString& RtNodeImpl::getNodeDef() const
     return attr ? attr->asInternString() : RtString::EMPTY;
 }
 
+void RtNodeImpl::setNodeGraph(const RtString& nodegraph)
+{
+    RtTypedValue* attr = createAttribute(RtString::NODEGRAPH, RtType::INTERNSTRING);
+    attr->asInternString() = nodegraph;
+}
+
+const RtString& RtNodeImpl::getNodeGraph() const
+{
+    const RtTypedValue* attr = getAttribute(RtString::NODEGRAPH, RtType::INTERNSTRING);
+    return attr ? attr->asInternString() : RtString::EMPTY;
+}
+
 void RtNodeImpl::setImplName(const RtString& implname)
 {
     RtTypedValue* attr = createAttribute(RtString::IMPLNAME, RtType::INTERNSTRING);
@@ -84,4 +96,4 @@ const RtString& RtNodeImpl::getImplName() const
     return attr ? attr->asInternString() : RtString::EMPTY;
 }
 
-}
+MATERIALX_NAMESPACE_END

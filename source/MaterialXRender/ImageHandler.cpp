@@ -10,8 +10,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string IMAGE_PROPERTY_SEPARATOR("_");
 const string UADDRESS_MODE_SUFFIX(IMAGE_PROPERTY_SEPARATOR + "uaddressmode");
@@ -344,4 +343,4 @@ void ImageSamplingProperties::setProperties(const string& fileNameUniform,
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

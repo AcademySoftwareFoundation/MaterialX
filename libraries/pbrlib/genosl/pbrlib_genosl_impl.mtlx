@@ -2,13 +2,13 @@
 <materialx version="1.38">
 
   <!-- <oren_nayar_diffuse_bsdf> -->
-  <implementation name="IM_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_oren_nayar_diffuse_bsdf" file="pbrlib/genosl/mx_oren_nayar_diffuse_bsdf.inline" target="genosl" />
+  <implementation name="IM_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_oren_nayar_diffuse_bsdf" file="pbrlib/genosl/mx_oren_nayar_diffuse_bsdf.osl" function="mx_oren_nayar_diffuse_bsdf" target="genosl" />
 
   <!-- <burley_diffuse_bsdf> -->
   <implementation name="IM_burley_diffuse_bsdf_genosl" nodedef="ND_burley_diffuse_bsdf" file="pbrlib/genosl/mx_burley_diffuse_bsdf.osl" function="mx_burley_diffuse_bsdf" target="genosl" />
 
   <!-- <translucent_bsdf> -->
-  <implementation name="IM_translucent_bsdf_genosl" nodedef="ND_translucent_bsdf" file="pbrlib/genosl/mx_translucent_bsdf.inline" target="genosl" />
+  <implementation name="IM_translucent_bsdf_genosl" nodedef="ND_translucent_bsdf" file="pbrlib/genosl/mx_translucent_bsdf.osl" function="mx_translucent_bsdf" target="genosl" />
 
   <!-- <dielectric_bsdf> -->
   <implementation name="IM_dielectric_bsdf_genosl" nodedef="ND_dielectric_bsdf" file="pbrlib/genosl/mx_dielectric_bsdf.osl" function="mx_dielectric_bsdf" target="genosl" />
@@ -25,6 +25,9 @@
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" file="pbrlib/genosl/mx_sheen_bsdf.osl" function="mx_sheen_bsdf" target="genosl" />
 
+  <!-- <anisotropic_vdf> -->
+  <implementation name="IM_anisotropic_vdf_genosl" nodedef="ND_anisotropic_vdf" file="pbrlib/genosl/mx_anisotropic_vdf.osl" function="mx_anisotropic_vdf" target="genosl" />
+
   <!-- <thin_film_bsdf> -->
   <implementation name="IM_thin_film_bsdf_genosl" nodedef="ND_thin_film_bsdf" target="genosl" />
 
@@ -33,20 +36,21 @@
 
   <!-- <layer> -->
   <implementation name="IM_layer_bsdf_genosl" nodedef="ND_layer_bsdf" target="genosl" />
+  <implementation name="IM_layer_vdf_genosl" nodedef="ND_layer_vdf" target="genosl" />
 
   <!-- <mix> -->
-  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" file="pbrlib/genosl/mx_mix.inline" target="genosl" />
-  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" file="pbrlib/genosl/mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" target="genosl" />
+  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" target="genosl" />
 
   <!-- <add> -->
-  <implementation name="IM_add_bsdf_genosl" nodedef="ND_add_bsdf" file="pbrlib/genosl/mx_add.inline" target="genosl" />
-  <implementation name="IM_add_edf_genosl" nodedef="ND_add_edf" file="pbrlib/genosl/mx_add.inline" target="genosl" />
+  <implementation name="IM_add_bsdf_genosl" nodedef="ND_add_bsdf" target="genosl" />
+  <implementation name="IM_add_edf_genosl" nodedef="ND_add_edf" target="genosl" />
 
   <!-- <multiply> -->
-  <implementation name="IM_multiply_bsdfC_genosl" nodedef="ND_multiply_bsdfC" file="pbrlib/genosl/mx_multiply_bsdf.inline" target="genosl" />
-  <implementation name="IM_multiply_bsdfF_genosl" nodedef="ND_multiply_bsdfF" file="pbrlib/genosl/mx_multiply_bsdf.inline" target="genosl" />
-  <implementation name="IM_multiply_edfC_genosl" nodedef="ND_multiply_edfC" file="pbrlib/genosl/mx_multiply_edf.inline" target="genosl" />
-  <implementation name="IM_multiply_edfF_genosl" nodedef="ND_multiply_edfF" file="pbrlib/genosl/mx_multiply_edf.inline" target="genosl" />
+  <implementation name="IM_multiply_bsdfC_genosl" nodedef="ND_multiply_bsdfC" target="genosl" />
+  <implementation name="IM_multiply_bsdfF_genosl" nodedef="ND_multiply_bsdfF" target="genosl" />
+  <implementation name="IM_multiply_edfC_genosl" nodedef="ND_multiply_edfC" target="genosl" />
+  <implementation name="IM_multiply_edfF_genosl" nodedef="ND_multiply_edfF" target="genosl" />
 
   <!-- <surface> -->
   <implementation name="IM_surface_genosl" nodedef="ND_surface" file="pbrlib/genosl/mx_surface.osl" function="mx_surface" target="genosl" />

@@ -7,30 +7,26 @@
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
-    const float EPS_ZERO = 0.00001f;
-    const float ONE_VALUE = 1.0f;
-    const float ZERO_VALUE = 0.0f;
-    
-    bool isEqual(const float& v, const float& v2)
+    bool isEqual(const float& v1, const float& v2)
     {
-        return std::abs(v - v2) < EPS_ZERO;
+        const float EPSILON = 0.00001f;
+        return std::abs(v1 - v2) < EPSILON;
     }
 
-    bool isEqual(ValuePtr value, const float& value2)
+    bool isEqual(ValuePtr value, const float& f)
     {
-        if (value->isA<float>() && isEqual(value->asA<float>(), value2))
+        if (value->isA<float>() && isEqual(value->asA<float>(), f))
         {
             return true;
         }
         else if (value->isA<Color3>())
         {
-            const Color3& value3 = value->asA<Color3>();
-            if (isEqual(value3[0], value2) && isEqual(value3[1], value2) && isEqual(value3[2], value2))
+            const Color3& color = value->asA<Color3>();
+            if (isEqual(color[0], f) && isEqual(color[1], f) && isEqual(color[2], f))
             {
                 return true;
             }
@@ -93,9 +89,9 @@ namespace
         }
 
         // Inputs on a surface shader which are checked for transparency
-        const OpaqueTestPairList inputPairList = { {"opacity", ONE_VALUE},
-                                                   {"existence", ONE_VALUE},
-                                                   {"transmission", ZERO_VALUE} };
+        const OpaqueTestPairList inputPairList = { {"opacity", 1.0f},
+                                                   {"existence", 1.0f},
+                                                   {"transmission", 0.0f} };
 
 
         // Check against the interface if a node is passed in to check against
@@ -144,9 +140,16 @@ namespace
                         return false;
                     }
                 }
-                if (checkInput->getConnectedNode())
+
+                // If mapped but not an adjustment then assume transparency
+                NodePtr inputNode = checkInput->getConnectedNode();
+                if (inputNode)
                 {
-                    return true;
+                    NodeDefPtr nodeDef = inputNode->getNodeDef();
+                    if (nodeDef && nodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) != NodeDef::ADJUSTMENT_NODE_GROUP)
+                    {
+                        return true;
+                    }
                 }
                 else
                 {
@@ -161,8 +164,7 @@ namespace
         return false;
     }
 
-    bool isTransparentShaderGraph(OutputPtr output, const string& target,
-                                  NodePtr& interfaceNode)
+    bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr interfaceNode)
     {
         for (GraphIterator it = output->traverseGraph().begin(); it != GraphIterator::end(); ++it)
         {
@@ -192,12 +194,10 @@ namespace
                         if (impl && impl->isA<NodeGraph>())
                         {
                             NodeGraphPtr graph = impl->asA<NodeGraph>();
-
                             vector<OutputPtr> outputs = graph->getActiveOutputs();
                             if (outputs.size() > 0)
                             {
                                 const OutputPtr& graphOutput = outputs[0];
-                                OpaqueTestPairList opaqueInputList;
                                 if (isTransparentShaderGraph(graphOutput, target, node))
                                 {
                                     return true;
@@ -226,18 +226,8 @@ bool isTransparentSurface(ElementPtr element, const string& target)
 
         // Handle graph definitions.
         NodeDefPtr nodeDef = node->getNodeDef();
-        if (!nodeDef)
-        {
-            throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getName() +
-                                          "' with category '" + node->getCategory() + "'");
-        }
-        InterfaceElementPtr impl = nodeDef->getImplementation(target);
-        if (!impl)
-        {
-            throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef->getNodeString() +
-                                          "' matching target '" + target + "'");
-        }
-        if (impl->isA<NodeGraph>())
+        InterfaceElementPtr impl = nodeDef ? nodeDef->getImplementation(target) : nullptr;
+        if (impl && impl->isA<NodeGraph>())
         {
             NodeGraphPtr graph = impl->asA<NodeGraph>();
 
@@ -247,7 +237,6 @@ bool isTransparentSurface(ElementPtr element, const string& target)
                 const OutputPtr& output = outputs[0];
                 if (output->getType() == SURFACE_SHADER_TYPE_STRING)
                 {
-                    OpaqueTestPairList opaqueInputList;
                     if (isTransparentShaderGraph(output, target, node))
                     {
                         return true;
@@ -553,11 +542,11 @@ void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scal
         }
     }
     // Extend to upper right corner of a tile
-    maxUV[0] += ONE_VALUE;
-    maxUV[1] += ONE_VALUE;
+    maxUV[0] += 1.0f;
+    maxUV[1] += 1.0f;
 
-    scaleUV[0] = ONE_VALUE / (maxUV[0] - minUV[0]);
-    scaleUV[1] = ONE_VALUE / (maxUV[1] - minUV[1]);
+    scaleUV[0] = 1.0f / (maxUV[0] - minUV[0]);
+    scaleUV[1] = 1.0f / (maxUV[1] - minUV[1]);
     offsetUV[0] = -minUV[0];
     offsetUV[1] = -minUV[1];
 }
@@ -609,4 +598,4 @@ bool hasElementAttributes(OutputPtr output, const StringVec& attributes)
     return false;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

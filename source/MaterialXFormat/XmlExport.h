@@ -8,8 +8,7 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ExportResolver
 {
@@ -17,7 +16,11 @@ class ExportResolver
     virtual void resolve(DocumentPtr document) = 0;
 };
 
+/// An export resolver
 using ExportResolverPtr = shared_ptr<ExportResolver>;
+
+/// This function will be used to exclude specific file paths from a target operation
+using FilePathPredicate = std::function<bool(const FilePath&)>;
 
 /// @class XmlExportOptions
 /// A set of options for controlling the behavior of XML export functions.
@@ -36,6 +39,9 @@ class MX_FORMAT_API XmlExportOptions : public XmlWriteOptions
 
     /// Whether to flatten filenames. By default filenames are flattened.
     bool flattenFilenames;
+
+    // Predicate to use to skip flattening when flattening filenames is enabled
+    FilePathPredicate skipFlattening;
 
     /// Resolved texture path for flattening filenames
     FileSearchPath resolvedTexturePath;
@@ -84,6 +90,6 @@ MX_FORMAT_API string exportToXmlString(DocumentPtr doc, const XmlExportOptions* 
 
 /// @}
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -8,8 +8,7 @@
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 DEFINE_TYPED_SCHEMA(RtSubGraphImpl, "nodeimpl:subgraphimpl");
 
@@ -44,4 +43,4 @@ void RtSubGraphImpl::emitFunctionCall(const RtNode& /*node*/, GenContext& /*cont
 {
 }
 
-}
+MATERIALX_NAMESPACE_END

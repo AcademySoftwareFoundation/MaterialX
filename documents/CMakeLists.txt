@@ -9,12 +9,12 @@ set(DOXYGEN_INPUT_LIST ${CMAKE_SOURCE_DIR}/documents/DeveloperGuide
                        ${CMAKE_SOURCE_DIR}/source/MaterialXGenGlsl/Nodes
                        ${CMAKE_SOURCE_DIR}/source/MaterialXGenOsl
                        ${CMAKE_SOURCE_DIR}/source/MaterialXGenMdl
-                       ${CMAKE_SOURCE_DIR}/source/MaterialXGenOgsFx
-                       ${CMAKE_SOURCE_DIR}/source/MaterialXGenArnold
                        ${CMAKE_SOURCE_DIR}/source/MaterialXRender
                        ${CMAKE_SOURCE_DIR}/source/MaterialXRenderHw
                        ${CMAKE_SOURCE_DIR}/source/MaterialXRenderGlsl
                        ${CMAKE_SOURCE_DIR}/source/MaterialXRenderOsl
+                       ${CMAKE_SOURCE_DIR}/source/MaterialXGenOgsFx
+                       ${CMAKE_SOURCE_DIR}/source/MaterialXGenArnold
                        )
 string (REPLACE ";" " " DOXYGEN_INPUT_STR "${DOXYGEN_INPUT_LIST}")
 

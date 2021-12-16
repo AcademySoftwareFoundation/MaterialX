@@ -10,8 +10,7 @@
 
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 RT_DEFINE_RUNTIME_OBJECT(PvtPrim, RtObjType::PRIM, "PvtPrim")
 
@@ -154,7 +153,7 @@ RtPrimIterator PvtPrim::getChildren(RtObjectPredicate predicate) const
 
 RtString PvtPrim::makeUniqueChildName(const RtString& name) const
 {
-    RtString newName = name;
+    RtString newName = RtString(createValidName(name.str()));
 
     // Check if there is another child with this name.
     // We must check both prims, inputs and outputs since in
@@ -268,4 +267,4 @@ RtAttributeSpec* PvtPrimSpec::create(const RtString& name, const RtString& type,
     return spec;
 }
 
-}
+MATERIALX_NAMESPACE_END

@@ -6,7 +6,6 @@
 #include <MaterialXFormat/XmlIo.h>
 
 #include <MaterialXFormat/PugiXML/pugixml.hpp>
-#include <MaterialXFormat/Util.h>
 
 #include <MaterialXCore/Types.h>
 
@@ -16,12 +15,12 @@
 
 using namespace pugi;
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string MTLX_EXTENSION = "mtlx";
 
-namespace {
+namespace
+{
 
 const string XINCLUDE_TAG = "xi:include";
 const string XINCLUDE_NAMESPACE = "xmlns:xi";
@@ -56,14 +55,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         ConstElementPtr previous = elem->getChild(name);
         if (previous)
         {
-            if (!readOptions || !readOptions->generateUniqueNames)
-            {
-                continue;
-            }
-            else
-            {
-                name = elem->createValidChildName(name);
-            }
+            continue;
         }
 
         // Create the new element.
@@ -122,8 +114,7 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
 
                     // Write relative include paths in Posix format, and absolute
                     // include paths in native format.
-                    FilePath::Format includeFormat = includePath.isAbsolute() ?
-                        FilePath::FormatNative : FilePath::FormatPosix;
+                    FilePath::Format includeFormat = includePath.isAbsolute() ? FilePath::FormatNative : FilePath::FormatPosix;
                     includeAttr.set_value(includePath.asString(includeFormat).c_str());
 
                     writtenSourceFiles.insert(sourceUri);
@@ -227,7 +218,10 @@ void documentFromXml(DocumentPtr doc,
         elementFromXml(xmlRoot, doc, readOptions);
     }
 
-    doc->upgradeVersion();
+    if (!readOptions || readOptions->upgradeVersion)
+    {
+        doc->upgradeVersion();
+    }
 }
 
 void validateParseResult(xml_parse_result& result, const FilePath& filename = FilePath())
@@ -273,8 +267,9 @@ unsigned int getParseOptions(const XmlReadOptions* readOptions)
 //
 
 XmlReadOptions::XmlReadOptions() :
-    readXIncludeFunction(readFromXmlFile),
-    readComments(false)
+    readComments(false),
+    upgradeVersion(true),
+    readXIncludeFunction(readFromXmlFile)
 {
 }
 
@@ -376,4 +371,4 @@ void prependXInclude(DocumentPtr doc, const FilePath& filename)
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

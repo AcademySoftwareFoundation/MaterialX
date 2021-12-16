@@ -15,8 +15,7 @@
 
 using namespace pugi;
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -490,4 +489,4 @@ void OgsXmlGenerator::setUseLightAPIV2(bool val) {
 }
 
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

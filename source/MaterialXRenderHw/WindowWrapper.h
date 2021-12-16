@@ -9,16 +9,16 @@
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 #include <X11/X.h> // for Window
 #include <X11/Xlib.h> // for Display
 using Widget = struct _WidgetRec*;
 #endif
 
 #include <memory>
+#include <MaterialXCore/Library.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 /// OS specific type windowing definitions
 #if defined(_WIN32)
 /// External handle is a window handle
@@ -27,7 +27,7 @@ using ExternalWindowHandle = HWND;
 using InternalWindowHandle = HDC;
 /// Display handle concept has no equivalence on Windows
 using DisplayHandle = void*;
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 /// External handle is a widget
 using ExternalWindowHandle = Widget;
 /// Internal handle is the window for the widget
@@ -90,7 +90,7 @@ class WindowWrapper
     /// Release resources stored in wrapper
     void release();
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
     /// Return X display
     Display* getXDisplay() const
     {
@@ -107,7 +107,7 @@ class WindowWrapper
     ExternalWindowHandle _externalHandle;
     InternalWindowHandle _internalHandle;
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
     /// Window ID of framebuffer instance created in the wrapper
     Window _framebufferWindow;
     /// X Display
@@ -115,6 +115,6 @@ class WindowWrapper
 #endif
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

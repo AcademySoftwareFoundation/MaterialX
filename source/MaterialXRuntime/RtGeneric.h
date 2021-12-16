@@ -11,8 +11,7 @@
 
 #include <MaterialXRuntime/RtSchema.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class RtGeneric
 /// Schema for generic/unknown prims.
@@ -33,6 +32,6 @@ public:
     void setKind(const RtString& kind);
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

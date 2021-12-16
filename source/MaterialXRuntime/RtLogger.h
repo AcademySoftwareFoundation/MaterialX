@@ -11,8 +11,7 @@
 /// @file RtLogger.h
 /// Base class for logging messages. Derived classes can be used to route messages to various locations.
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 using RtLoggerPtr = std::shared_ptr<class RtLogger>;
 
@@ -50,6 +49,6 @@ protected:
     friend class PvtLogger;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

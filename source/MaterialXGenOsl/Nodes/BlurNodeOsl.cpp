@@ -10,12 +10,11 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr BlurNodeOsl::create()
 {
-    return std::shared_ptr<BlurNodeOsl>(new BlurNodeOsl());
+    return std::make_shared<BlurNodeOsl>();
 }
 
 void BlurNodeOsl::emitSamplingFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
@@ -25,4 +24,4 @@ void BlurNodeOsl::emitSamplingFunctionDefinition(const ShaderNode& /*node*/, Gen
     shadergen.emitLineBreak(stage);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

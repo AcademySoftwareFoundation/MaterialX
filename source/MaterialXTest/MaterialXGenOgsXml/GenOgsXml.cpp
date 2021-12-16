@@ -106,7 +106,7 @@ static void generateXmlCode()
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genogsxml_generate_test.txt");
 
-    bool writeShadersToDisk = true;
+    bool writeShadersToDisk = false;
     OgsXmlShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
     const mx::GenOptions genOptions;

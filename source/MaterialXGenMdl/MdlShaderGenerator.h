@@ -13,8 +13,7 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to an MdlShaderGenerator
 using MdlShaderGeneratorPtr = shared_ptr<class MdlShaderGenerator>;
@@ -35,6 +34,10 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
+    /// Return a registered shader node implementation given an implementation element.
+    /// The element must be an Implementation or a NodeGraph acting as implementation.
+    ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
+
     /// Return the result of an upstream connection or value for an input.
     string getUpstreamResult(const ShaderInput* input, GenContext& context) const override;
 
@@ -44,15 +47,6 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
   protected:
     // Create and initialize a new MDL shader for shader generation.
     ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
-
-    // Override the sourcecode implementation creator
-    ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const override;
-
-    // Override the compound implementation creator.
-    ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
-
-    // Override the shader graph finalization.
-    void finalizeShaderGraph(ShaderGraph& graph) override;
 
     // Emit a block of shader inputs.
     void emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const;
@@ -65,6 +59,6 @@ namespace MDL
     extern MX_GENMDL_API const string OUTPUTS;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

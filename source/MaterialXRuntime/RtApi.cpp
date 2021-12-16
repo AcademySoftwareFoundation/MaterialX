@@ -21,8 +21,7 @@
 #include <MaterialXRuntime/Private/PvtApi.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -58,7 +57,6 @@ void RtApi::initialize()
     registerTypedSchema<RtSubGraphImpl>();
     registerTypedSchema<RtBackdrop>();
     registerTypedSchema<RtBindElement>();
-    registerTypedSchema<RtLookGroup, RtLookGroupConnectableApi>();
     registerTypedSchema<RtLook, RtLookConnectableApi>();
     registerTypedSchema<RtMaterialAssign, RtMaterialAssignConnectableApi>();
     registerTypedSchema<RtCollection, RtCollectionConnectableApi>();
@@ -79,7 +77,6 @@ void RtApi::shutdown()
     unregisterTypedSchema<RtSubGraphImpl>();
     unregisterTypedSchema<RtBackdrop>();
     unregisterTypedSchema<RtBindElement>();
-    unregisterTypedSchema<RtLookGroup>();
     unregisterTypedSchema<RtLook>();
     unregisterTypedSchema<RtMaterialAssign>();
     unregisterTypedSchema<RtCollection>();
@@ -199,19 +196,19 @@ void RtApi::clearImplementationSearchPath()
     _cast(_ptr)->clearImplementationSearchPath();
 }
 
-void RtApi::setSearchPath(const FileSearchPath& searchPath)
+void RtApi::appendSearchPath(const FileSearchPath& searchPath)
 {
-    _cast(_ptr)->setSearchPath(searchPath);
+    _cast(_ptr)->appendSearchPath(searchPath);
 }
 
-void RtApi::setTextureSearchPath(const FileSearchPath& searchPath)
+void RtApi::appendTextureSearchPath(const FileSearchPath& searchPath)
 {
-    _cast(_ptr)->setTextureSearchPath(searchPath);
+    _cast(_ptr)->appendTextureSearchPath(searchPath);
 }
 
-void RtApi::setImplementationSearchPath(const FileSearchPath& searchPath)
+void RtApi::appendImplementationSearchPath(const FileSearchPath& searchPath)
 {
-    _cast(_ptr)->setImplementationSearchPath(searchPath);
+    _cast(_ptr)->appendImplementationSearchPath(searchPath);
 }
 
 const FileSearchPath& RtApi::getSearchPath() const
@@ -229,9 +226,14 @@ const FileSearchPath& RtApi::getImplementationSearchPath() const
     return _cast(_ptr)->getImplementationSearchPath();
 }
 
-RtStagePtr RtApi::loadLibrary(const RtString& name, const FilePath& path, const RtReadOptions* options, bool forceReload)
+RtStagePtr RtApi::loadLibrary(const RtString& name, const FilePath& libraryPath, const RtReadOptions* options, bool forceReload)
 {
-    return _cast(_ptr)->loadLibrary(name, path, options, forceReload);
+    return _cast(_ptr)->loadLibrary(name, { libraryPath }, options, forceReload);
+}
+
+RtStagePtr RtApi::loadLibrary(const RtString& name, const FilePathVec& libraryPaths, const RtReadOptions* options, bool forceReload)
+{
+    return _cast(_ptr)->loadLibrary(name, libraryPaths, options, forceReload);
 }
 
 void RtApi::unloadLibrary(const RtString& name)
@@ -305,4 +307,4 @@ RtApi& RtApi::get()
     return _instance;
 }
 
-}
+MATERIALX_NAMESPACE_END

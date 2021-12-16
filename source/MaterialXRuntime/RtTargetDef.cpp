@@ -8,8 +8,7 @@
 #include <MaterialXRuntime/Private/PvtPath.h>
 #include <MaterialXRuntime/Private/PvtPrim.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -78,4 +77,4 @@ bool RtTargetDef::isMatching(const RtString& target) const
     return prim()->asA<PvtTargetDefPrim>()->matchingTargets.count(target) != 0;
 }
 
-}
+MATERIALX_NAMESPACE_END

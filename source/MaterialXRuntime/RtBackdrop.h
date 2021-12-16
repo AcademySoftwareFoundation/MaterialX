@@ -11,8 +11,7 @@
 
 #include <MaterialXRuntime/RtSchema.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class RtBackdrop
 /// Schema for backdrop prims.
@@ -46,6 +45,6 @@ public:
     float getHeight() const;
 };
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

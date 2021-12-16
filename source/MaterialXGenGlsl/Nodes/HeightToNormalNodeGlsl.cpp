@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -27,13 +26,9 @@ namespace
     const float filterOffset = 0.0;
 }
 
-HeightToNormalNodeGlsl::HeightToNormalNodeGlsl()
-{
-}
-
 ShaderNodeImplPtr HeightToNormalNodeGlsl::create()
 {
-    return std::shared_ptr<HeightToNormalNodeGlsl>(new HeightToNormalNodeGlsl());
+    return std::make_shared<HeightToNormalNodeGlsl>();
 }
 
 void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
@@ -113,4 +108,4 @@ const string& HeightToNormalNodeGlsl::getTarget() const
 }
 
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

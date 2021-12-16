@@ -13,8 +13,7 @@
 #include <MaterialXRuntime/Private/PvtStage.h>
 #include <MaterialXRuntime/Private/PvtApi.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -160,7 +159,12 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
         throw ExceptionRuntimeError("The nodedef name '" + nodeDefName.str() + "' is not unique");
     }
 
-    PvtPrim* nodedefPrim = stage->createPrim(stage->getPath(), nodeDefName, RtNodeDef::typeName());
+    // Always used qualified namespace
+    const bool isNameSpaced = !namespaceString.empty();
+    string qualifiedNodeDefName = isNameSpaced ? namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str() : nodeDefName.str();
+    qualifiedNodeDefName = createValidName(qualifiedNodeDefName);
+
+    PvtPrim* nodedefPrim = stage->createPrim(stage->getPath(), RtString(qualifiedNodeDefName), RtNodeDef::typeName());
     RtNodeDef nodedef(nodedefPrim->hnd());
 
     // Set node, version and optional node group
@@ -208,10 +212,6 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
         RtValue::copy(output.getType(), output.getValue(), nodedefOutput.getValue());
     }
 
-    // Always used qualified namespace
-    const bool isNameSpaced = !namespaceString.empty();
-    const RtString qualifiedNodeDefName = isNameSpaced ? RtString(namespaceString.str() + MaterialX::NAME_PREFIX_SEPARATOR + nodeDefName.str()) : nodeDefName;
-
     // Set namespace for the nodegraph and nodedef
     if (isNameSpaced)
     {
@@ -221,8 +221,7 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
 
     // Set the definition on the nodegraph
     // turning this into a functional graph
-    // Note that the nodeDefName is a Qualified node def name.
-    nodegraph.setDefinition(qualifiedNodeDefName);
+    nodegraph.setDefinition(RtString(qualifiedNodeDefName));
 
     // Create the relationship between nodedef and it's implementation.
     nodedef.getNodeImpls().connect(nodegraph.getPrim());
@@ -234,4 +233,4 @@ RtPrim RtStage::createNodeDef(RtPrim nodegraphPrim,
     return nodedef.getPrim();
 }
 
-}
+MATERIALX_NAMESPACE_END

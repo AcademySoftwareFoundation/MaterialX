@@ -1,11 +1,49 @@
 # Change Log
 
-## [1.38.2_adsk] - In Development for 1.38.2
+## [1.38.4] - Development
 
-- Javascript bindings for MaterialXCore, MaterialXFormat, MaterialXGenShader (wip)
-- OCIO-v2 support (wip)
-- SPIR-V support (wip)
-- Token support (wip)
+## [1.38.3] - 2021-12-14
+
+### Added
+- Added an inheritance structure for versions of Autodesk Standard Surface.
+- Added versioning and customization support to MaterialX namespaces in C++.
+- Added preprocessor definitions for the API version to MaterialXCore.
+- Added color transform methods to the Image class.
+- Added an initial ClangFormat file for the MaterialX codebase.
+- Added initial support for FreeBSD.
+- Added support for Xcode 13.
+
+### Changed
+- Refactored BSDF handling in shader generation, allowing for more flexible and efficient vertical layering.
+- Optimized GLSL implementations for GGX specular, moving common computations to tangent space.
+- Merged the ViewHandler and viewer camera into a new Camera class in MaterialXRender.
+- Updated CMake configuration generation logic, adding handling for shared library builds.
+- Updated the PyBind11 library to version 2.7.1
+
+### Fixed
+- Fixed a performance regression in MaterialXView for multi-UDIM assets.
+- Fixed a bug that caused shader inputs to be skipped in createUIPropertyGroups.
+- Fixed the value of transmission roughness in UsdPreviewSurface.
+- Fixed Vulkan compatibility for generated GLSL code.
+
+## [1.38.2] - 2021-10-07
+
+### Added
+- Added an initial shader translation graph from Autodesk Standard Surface to UsdPreviewSurface.
+- Added example script translateshader.py with validation in GitHub Actions.
+- Added support for filename templates in texture baking.
+- Added graph definitions for the MaterialX Lama node set.
+- Added UI properties to the interface of UsdPreviewSurface.
+- Added an initial ESSL shader generator.
+- Added support for GCC 11.
+
+### Changed
+- Improved the accuracy of directional albedo computations for GGX specular and Imageworks sheen.
+- Updated default color space names to follow ACES 1.2 conventions (e.g. g22_rec709), while maintaining compatibility with legacy names (e.g. gamma22).
+
+### Fixed
+- Fixed the default value of the roughness input of UsdPreviewSurface.
+- Fixed the assignment of channel names in EXR files written through OpenImageIO.
 
 ## [1.38.1_adsk] - 2021-06-23
 

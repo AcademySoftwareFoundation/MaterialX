@@ -11,8 +11,7 @@
 
 #include <MaterialXRuntime/Library.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class RtString
 /// Interned string class. Holds a unique reference to a string.
@@ -265,6 +264,7 @@ public:
     static const RtString NAMESPACE;
     static const RtString NODE;
     static const RtString NODEDEF;
+    static const RtString NODEGRAPH;
     static const RtString NODEGROUP;
     static const RtString NODEIMPL;
     static const RtString NOTE;
@@ -288,6 +288,6 @@ using RtStringSet = std::unordered_set<RtString, RtString::FastHash>;
 /// Class representing a vector of RtStrings.
 using RtStringVec = vector<RtString>;
 
-}
+MATERIALX_NAMESPACE_END
 
 #endif

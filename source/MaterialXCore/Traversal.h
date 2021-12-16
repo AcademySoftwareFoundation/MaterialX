@@ -11,8 +11,7 @@
 
 #include <MaterialXCore/Exception.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Element;
 
@@ -89,7 +88,7 @@ class MX_CORE_API Edge
 class MX_CORE_API TreeIterator
 {
   public:
-    explicit TreeIterator(ElementPtr elem):
+    explicit TreeIterator(ElementPtr elem) :
         _elem(elem),
         _prune(false),
         _holdCount(0)
@@ -192,7 +191,7 @@ class MX_CORE_API TreeIterator
 class MX_CORE_API GraphIterator
 {
   public:
-    explicit GraphIterator(ElementPtr elem):
+    explicit GraphIterator(ElementPtr elem) :
         _upstreamElem(elem),
         _prune(false),
         _holdCount(0)
@@ -397,6 +396,6 @@ extern MX_CORE_API const TreeIterator NULL_TREE_ITERATOR;
 extern MX_CORE_API const GraphIterator NULL_GRAPH_ITERATOR;
 extern MX_CORE_API const InheritanceIterator NULL_INHERITANCE_ITERATOR;
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif
