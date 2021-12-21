@@ -106,8 +106,8 @@ jobs:
           architecture: x64
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
-          test_validate: ON
-          run_on_push : ON
+          test_shaders: ON
+          run_on_push: ON
 
     steps:
     - name: Sync Repository
@@ -145,12 +145,26 @@ jobs:
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
 
+    - name: Install Dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        git clone -b 2021.05.12 https://github.com/Microsoft/vcpkg
+        vcpkg/bootstrap-vcpkg.bat
+        echo $PWD/build/installed/bin | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo $PWD/vcpkg/installed/x64-windows/bin | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo $PWD/vcpkg/installed/x64-windows/tools | Out-File -FilePath $env:GITHUB_PATH -Append
+
     - name: Install Python ${{ matrix.python }}
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
+
+    - name: Install OpenImageIO
+      if: matrix.install_oiio == 'ON' && runner.os == 'Windows'
+      run: |
+        vcpkg/vcpkg install openimageio --triplet=x64-windows
 
     - name: Create Build Directory
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
@@ -176,7 +190,7 @@ jobs:
         echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
 
     - name: Set Runtime Path (Windows)
-      if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev') }}
+      if: runner.os == 'Windows'
       run: echo "$PWD" | Out-File -FilePath $env:GITHUB_PATH -Append
       working-directory: build/installed/bin
 
@@ -198,6 +212,15 @@ jobs:
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_jade.mtlx --path .. --target mdl
       working-directory: python
 
+    - name: Shader Validation Tests
+      if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
+      run: |
+        vcpkg/vcpkg install glslang --triplet=x64-windows
+        glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator glslangValidator.exe
+
     - name: Render Tests
       if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       run: |
@@ -207,19 +230,6 @@ jobs:
         build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_BrassAverage.png
         build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_CarpaintTranslated.png
 
-    - name: Shader Validation Tests
-      if: matrix.test_validate == 'ON' && runner.os == 'Windows'
-      run: |
-        git clone https://github.com/Microsoft/vcpkg
-        cd vcpkg
-        bootstrap-vcpkg.bat
-        vcpkg integrate install
-        vcpkg install glslang:x64-windows
-        cd ..
-        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2.2.4
       if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' }}
