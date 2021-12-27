@@ -61,7 +61,7 @@ The following packages contain pre-built binaries for the latest release, includ
 
 - [Microsoft Windows (Visual Studio 2019, Python 3.8)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2019_x64_Python38.zip)
 - [MacOS (Xcode 12, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_12_Python37.zip)
-- [Linux (GCC 11, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Linux_GCC_11_Python37.zip)
+- [Linux (GCC 10, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Linux_GCC_10_Python37.zip)
 
 ### Additional Resources
 
