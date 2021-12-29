@@ -1,4 +1,4 @@
-name: main_wasm
+name: javascript
 
 on:
   push:
@@ -11,8 +11,8 @@ on:
 
 jobs:
 
-  build_wasm:
-    name: Main_WASM
+  build:
+    name: Build
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
