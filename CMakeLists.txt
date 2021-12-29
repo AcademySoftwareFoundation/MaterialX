@@ -1,7 +1,7 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 38)
-set(MATERIALX_BUILD_VERSION 3)
+set(MATERIALX_BUILD_VERSION 4)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
@@ -91,6 +91,21 @@ set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtl
 if (MATERIALX_BUILD_JS)
     set(MATERIALX_BUILD_GEN_GLSL ON)
 endif()
+
+# Namespace
+set(MATERIALX_NAMESPACE_SUFFIX "" CACHE STRING "Add a suffix to the main MaterialX C++ namespace: Options include dev, staging, <YOURFACILITY> etc.")
+if(MATERIALX_NAMESPACE_SUFFIX STREQUAL "")
+    set(MATERIALX_NAMESPACE "MaterialX_v${MATERIALX_MAJOR_VERSION}_${MATERIALX_MINOR_VERSION}_${MATERIALX_BUILD_VERSION}")
+else()
+    set(MATERIALX_NAMESPACE "MaterialX_${MATERIALX_NAMESPACE_SUFFIX}_v${MATERIALX_MAJOR_VERSION}_${MATERIALX_MINOR_VERSION}_${MATERIALX_BUILD_VERSION}")
+endif()
+message(STATUS "Setting namespace to '${MATERIALX_NAMESPACE}'")
+
+# Library name custom suffix
+# This helps an application that needs to ship a dynamic library MaterialX ensure
+# that it has a unique name that won't conflict with one elsewhere on the system.
+set (MATERIALX_LIBNAME_SUFFIX "" CACHE STRING "Specify a suffix to all libraries that are built")
+
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
@@ -99,6 +114,8 @@ mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 mark_as_advanced(MATERIALX_BUILD_TESTS)
 mark_as_advanced(MATERIALX_BUILD_SHARED_LIBS)
+mark_as_advanced(MATERIALX_NAMESPACE_SUFFIX)
+mark_as_advanced(MATERIALX_LIBNAME_SUFFIX)
 mark_as_advanced(MATERIALX_PYTHON_LTO)
 mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 mark_as_advanced(MATERIALX_TEST_RENDER)
@@ -184,9 +201,8 @@ function(assign_source_group prefix)
     endforeach()
 endfunction(assign_source_group)
 
-# Adjust settings for shared libraries if requested
+# Propagate shared library setting to NanoGUI:
 if(MATERIALX_BUILD_SHARED_LIBS)
-    add_definitions(-DMATERIALX_BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS "ON")
 else()
     set(BUILD_SHARED_LIBS "OFF")
@@ -260,18 +276,23 @@ endif()
 install(FILES CHANGELOG.md README.md
         DESTINATION ${CMAKE_INSTALL_PREFIX})
 
+set(MATERIALX_GEN_CONFIG_PATH "${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
+
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
+configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
+                              ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
+                              INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
+                              PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
+write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
                                  VERSION ${MATERIALX_LIBRARY_VERSION}
                                  COMPATIBILITY AnyNewerVersion)
 
-# Package for using the developer build
-export(EXPORT MaterialX
-       FILE ${CMAKE_BINARY_DIR}/cmake/MaterialXConfig.cmake)
+# Install the auto-generated CMake configuration files:
 
-# Package for using the installed build
 install(EXPORT MaterialX
-        DESTINATION ${MATERIALX_INSTALL_LIB_PATH}/cmake
-        FILE MaterialXConfig.cmake)
-install(FILES "${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake"
-        DESTINATION ${MATERIALX_INSTALL_LIB_PATH}/cmake)
+        DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
+        FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
+
+install(FILES "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+        "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
+        DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")

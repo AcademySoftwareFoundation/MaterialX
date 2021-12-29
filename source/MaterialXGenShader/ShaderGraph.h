@@ -20,8 +20,7 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Syntax;
 class ShaderGraphEdge;
@@ -178,7 +177,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
 
     /// Populates the input or output color transform map if the provided input/parameter
     /// has a color space attribute and has a type of color3 or color4.
-    void populateColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderPort* shaderPort, ValueElementPtr element, const string& targetColorSpace, bool asInput);
+    string populateColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderPort* shaderPort, ValueElementPtr element, const string& targetColorSpace, bool asInput);
 
     /// Populates the appropriate unit transform map if the provided input/parameter or output
     /// has a unit attribute and is of the supported type
@@ -265,6 +264,6 @@ class MX_GENSHADER_API ShaderGraphEdgeIterator
     std::set<ShaderOutput*> _path;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

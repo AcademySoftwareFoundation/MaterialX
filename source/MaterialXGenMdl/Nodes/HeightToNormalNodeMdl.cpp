@@ -10,8 +10,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -106,4 +105,4 @@ const string& HeightToNormalNodeMdl::getTarget() const
     return MdlShaderGenerator::TARGET;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

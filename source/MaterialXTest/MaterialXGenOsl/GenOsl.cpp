@@ -175,7 +175,7 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
     context.registerSourceCodeSearchPath(searchPath);
 
     // Metadata to export must be registered in the context before shader generation starts.
-    // Custom generators can override this mehtod to customize which metadata gets registered.
+    // Custom generators can override this method to customize which metadata gets registered.
     generator->registerShaderMetadata(doc, context);
 
     // Generate the shader and write to file for inspection.

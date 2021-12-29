@@ -8,8 +8,7 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Switch node implementation
 class MX_GENSHADER_API SwitchNode : public ShaderNodeImpl
@@ -23,6 +22,6 @@ public:
     static const StringVec INPUT_NAMES;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

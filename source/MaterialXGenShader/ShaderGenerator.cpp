@@ -21,8 +21,7 @@
 
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
 
@@ -382,7 +381,8 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
         ShaderMetadata(ValueElement::UI_STEP_ATTRIBUTE, nullptr),
         ShaderMetadata(ValueElement::UI_ADVANCED_ATTRIBUTE, Type::BOOLEAN),
         ShaderMetadata(ValueElement::DOC_ATTRIBUTE, Type::STRING),
-        ShaderMetadata(ValueElement::UNIT_ATTRIBUTE, Type::STRING)
+        ShaderMetadata(ValueElement::UNIT_ATTRIBUTE, Type::STRING),
+        ShaderMetadata(ValueElement::COLOR_SPACE_ATTRIBUTE, Type::STRING)
     };
     for (auto data : defaultMetadata)
     {
@@ -446,4 +446,4 @@ ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) 
     return shader.createStage(name, _syntax);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

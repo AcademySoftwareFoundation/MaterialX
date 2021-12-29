@@ -18,8 +18,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 // Shared pointer to a GlslProgram
 using GlslProgramPtr = std::shared_ptr<class GlslProgram>;
@@ -102,6 +101,8 @@ class MX_RENDERGLSL_API GlslProgram
         string path;
         /// Unit
         string unit;
+        /// Colorspace 
+        string colorspace;
 
         /// Program input constructor
         Input(int inputLocation, int inputType, int inputSize, string inputPath)
@@ -265,6 +266,6 @@ class MX_RENDERGLSL_API GlslProgram
     std::set<int> _enabledStreamLocations;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

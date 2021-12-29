@@ -8,8 +8,7 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string ClosureLayerNode::TOP = "top";
 const string ClosureLayerNode::BASE = "base";
@@ -109,4 +108,4 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

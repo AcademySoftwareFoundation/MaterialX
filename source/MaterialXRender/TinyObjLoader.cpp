@@ -21,8 +21,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace {
 
@@ -177,4 +176,4 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
     return true;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -12,8 +12,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
     ImageHandler(imageLoader)
@@ -286,4 +285,4 @@ void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned i
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

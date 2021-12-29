@@ -13,8 +13,7 @@
 
 #include <MaterialXCore/Geom.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Property;
 class PropertyAssign;
@@ -267,6 +266,6 @@ class MX_CORE_API PropertySetAssign : public GeomElement
     static const string PROPERTY_SET_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

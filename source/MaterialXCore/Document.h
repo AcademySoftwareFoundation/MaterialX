@@ -14,8 +14,7 @@
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Document;
 
@@ -173,7 +172,7 @@ class MX_CORE_API Document : public GraphElement
     /// @}
     /// @name Material Outputs
     /// @{
-    
+
     /// Return material-type outputs for all nodegraphs in the document.
     vector<OutputPtr> getMaterialOutputs() const;
 
@@ -684,6 +683,6 @@ class MX_CORE_API Document : public GraphElement
 /// @relates Document
 MX_CORE_API DocumentPtr createDocument();
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

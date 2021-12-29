@@ -11,8 +11,7 @@
 
 #include <MaterialXGenShader/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Type of shader interface to be generated
 enum ShaderInterfaceType
@@ -76,7 +75,8 @@ class MX_GENSHADER_API GenOptions
         hwAmbientOcclusion(false),
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
-        hwWriteAlbedoTable(false)
+        hwWriteAlbedoTable(false),
+        emitColorTransforms(true)
     {
     }
     virtual ~GenOptions() { }
@@ -149,8 +149,13 @@ class MX_GENSHADER_API GenOptions
     /// Enables the writing of a directional albedo table.
     /// Defaults to false.
     bool hwWriteAlbedoTable;
+
+    /// Enable emitting colorspace transform code if a color management 
+    /// system is defined.
+    /// Defaults to true.
+    bool emitColorTransforms;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

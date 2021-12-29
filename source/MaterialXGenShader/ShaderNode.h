@@ -17,8 +17,7 @@
 
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ShaderNode;
 class ShaderPort;
@@ -172,6 +171,12 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     /// Return the value set on this port.
     ValuePtr getValue() const { return _value; }
 
+    /// Set a source color space for the value on this port.
+    void setColorSpace(const string& colorspace) { _colorspace = colorspace; }
+
+    /// Return the source color space for the value on this port.
+    const string& getColorSpace() const { return _colorspace; }
+
     /// Set a unit type for the value on this port.
     void setUnit(const string& unit) { _unit = unit; }
 
@@ -245,6 +250,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     string _variable;
     ValuePtr _value;
     string _unit;
+    string _colorspace;
     string _geomprop;
     ShaderMetadataVecPtr _metadata;
     uint32_t _flags;
@@ -525,6 +531,6 @@ class MX_GENSHADER_API ShaderNode
     friend class ShaderGraph;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

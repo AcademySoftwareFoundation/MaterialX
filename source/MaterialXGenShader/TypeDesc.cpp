@@ -7,8 +7,7 @@
 
 #include <MaterialXCore/Exception.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
@@ -98,4 +97,4 @@ namespace Type
     const TypeDesc* MATERIAL           = TypeDesc::registerType("material", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_MATERIAL, 1, false);
 }
 
-}
+MATERIALX_NAMESPACE_END

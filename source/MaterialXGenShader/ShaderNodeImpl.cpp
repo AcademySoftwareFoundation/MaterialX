@@ -10,8 +10,7 @@
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // ShaderNodeImpl methods
@@ -79,4 +78,4 @@ ShaderNodeImplPtr NopNode::create()
     return std::make_shared<NopNode>();
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

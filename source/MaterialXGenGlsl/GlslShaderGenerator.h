@@ -13,8 +13,7 @@
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 using GlslShaderGeneratorPtr = shared_ptr<class GlslShaderGenerator>;
 
@@ -76,6 +75,9 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
 
+    /// Emit function definitions for lighting code
+    virtual void emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
+
     static void toVec4(const TypeDesc* type, string& variable);
 
     /// Nodes used internally for light sampling.
@@ -115,6 +117,6 @@ class MX_GENGLSL_API GlslImplementation : public ShaderNodeImpl
     static const string GEOMPROP;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

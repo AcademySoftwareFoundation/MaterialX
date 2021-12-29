@@ -12,8 +12,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string ClosureLayerNodeMdl::TOP = "top";
 const string ClosureLayerNodeMdl::BASE = "base";
@@ -151,4 +150,4 @@ void LayerableNodeMdl::addInputs(ShaderNode& node, GenContext&) const
     node.addInput(ClosureLayerNodeMdl::BASE, Type::BSDF);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

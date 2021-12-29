@@ -15,8 +15,7 @@
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GLContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 #if defined(_WIN32)
 
@@ -204,4 +203,4 @@ int GLContext::makeCurrent()
     return makeCurrentOk;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

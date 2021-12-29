@@ -47,22 +47,16 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 <p float="left">
-  <img src="/documents/Images/MaterialXView_Marble.png" width="206" />
-  <img src="/documents/Images/MaterialXView_Copper.png" width="206" /> 
-  <img src="/documents/Images/MaterialXView_Plastic.png" width="206" /> 
-  <img src="/documents/Images/MaterialXView_Carpaint.png" width="206" /> 
+  <img src="/documents/Images/MaterialXView_Marble.png" width="204" />
+  <img src="/documents/Images/MaterialXView_Copper.png" width="204" /> 
+  <img src="/documents/Images/MaterialXView_Plastic.png" width="204" /> 
+  <img src="/documents/Images/MaterialXView_Carpaint.png" width="204" /> 
 </p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 <p float="left">
-  <img src="/documents/Images/MaterialXView_TiledBrass.png" width="416" />
-  <img src="/documents/Images/MaterialXView_TiledWood.png" width="416" /> 
-</p>
-
-**Figure 3:** Droid character materials in the MaterialX viewer. © & TM Lucasfilm Ltd. Used with permission.
-<p float="left">
-  <img src="/documents/Images/MaterialXView_BB8.png" width="416" />
-  <img src="/documents/Images/MaterialXView_R2D2.png" width="416" /> 
+  <img src="/documents/Images/MaterialXView_TiledBrass.png" width="412" />
+  <img src="/documents/Images/MaterialXView_TiledWood.png" width="412" /> 
 </p>
 
 ### Pre-Built Binaries
@@ -71,7 +65,7 @@ The following packages contain pre-built binaries for the latest release, includ
 
 - [Microsoft Windows (Visual Studio 2019, Python 3.8)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Windows_VS2019_x64_Python38.zip)
 - [MacOS (Xcode 12, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_12_Python37.zip)
-- [Linux (GCC 11, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Linux_GCC_11_Python37.zip)
+- [Linux (GCC 10, Python 3.7)](https://github.com/materialx/MaterialX/releases/latest/download/MaterialX_Linux_GCC_10_Python37.zip)
 
 ### Additional Resources
 

@@ -9,8 +9,7 @@
 #include <MaterialXRenderHw/WindowWrapper.h>
 #include <string>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 SimpleWindow::SimpleWindow()
 {
@@ -118,6 +117,6 @@ SimpleWindow::~SimpleWindow()
     UnregisterClass(_windowClassName, GetModuleHandle(NULL));
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

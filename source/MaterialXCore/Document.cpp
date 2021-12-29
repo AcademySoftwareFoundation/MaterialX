@@ -6,12 +6,10 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXCore/Util.h>
-#include <MaterialXCore/Version.h>
 
 #include <mutex>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string Document::CMS_ATTRIBUTE = "cms";
 const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
@@ -331,10 +329,9 @@ vector<OutputPtr> Document::getMaterialOutputs() const
     const string documentUri = getSourceUri();
     for (NodeGraphPtr docNodeGraph : getNodeGraphs())
     {
-        // Skip nodegraphs which are either definitions or are from 
-        // an included file
+        // Skip nodegraphs which are either definitions or are from an included file.
         const string graphUri = docNodeGraph->getSourceUri();
-        if (docNodeGraph->getNodeDef() || (!graphUri.empty() && documentUri != graphUri ))
+        if (docNodeGraph->getNodeDef() || (!graphUri.empty() && documentUri != graphUri))
         {
             continue;
         }
@@ -1408,4 +1405,4 @@ void Document::invalidateCache()
     _cache->valid = false;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -11,8 +11,7 @@
 
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // GLFramebuffer methods
@@ -211,4 +210,4 @@ void GLFramebuffer::blit()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

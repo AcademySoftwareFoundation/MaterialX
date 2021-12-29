@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr ClosureLayerNodeOsl::create()
 {
@@ -105,4 +104,4 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

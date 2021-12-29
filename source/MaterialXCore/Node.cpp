@@ -10,8 +10,7 @@
 
 #include <deque>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string Backdrop::CONTAINS_ATTRIBUTE = "contains";
 const string Backdrop::WIDTH_ATTRIBUTE = "width";
@@ -213,6 +212,15 @@ bool Node::validate(string* message) const
     bool res = true;
     validateRequire(!getCategory().empty(), res, message, "Node element is missing a category");
     validateRequire(hasType(), res, message, "Node element is missing a type");
+
+    NodeDefPtr nodeDef = getNodeDef(EMPTY_STRING, true);
+    if (nodeDef)
+    {
+        string matchMessage;
+        bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
+        validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
+    }
+
     return InterfaceElement::validate(message) && res;
 }
 
@@ -802,4 +810,4 @@ bool Backdrop::validate(string* message) const
     return Element::validate(message) && res;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
