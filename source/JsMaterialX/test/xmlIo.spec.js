@@ -10,27 +10,19 @@ describe('XmlIo', () => {
     // These should be relative to cwd
     const includeTestPath = 'data/includes';
     const libraryPath = '../../../libraries/stdlib';
-    const examplesPath = '../../../resources/Materials/Examples/Syntax';
+    const examplesPath = '../../../resources/Materials/Examples';
     // TODO: Is there a better way to get these filenames than hardcoding them here?
     // The C++ tests load all files in the given directories. This would work in Node, but not in the browser.
     // Should we use a pre-test script that fetches the files and makes them available somehow?
     const libraryFilenames = ['stdlib_defs.mtlx', 'stdlib_ng.mtlx'];
-    const examplesWithIncludes = [
-        'Looks.mtlx',
-        'PaintMaterials.mtlx',
-        'PostShaderComposite.mtlx',
+    const exampleFilenames = [
+        'StandardSurface/standard_surface_brass_tiled.mtlx',
+        'StandardSurface/standard_surface_brick_procedural.mtlx',
+        'StandardSurface/standard_surface_carpaint.mtlx',
+        'StandardSurface/standard_surface_marble_solid.mtlx',
+        'UsdPreviewSurface/usd_preview_surface_gold.mtlx',
+        'UsdPreviewSurface/usd_preview_surface_plastic.mtlx',
     ];
-    const examplesWithoutIncludes = [
-        'CustomNode.mtlx',
-        'GeomInfos.mtlx',
-        'MaterialBasic.mtlx',
-        'MultiOutput.mtlx',
-        'NodeGraphs.mtlx',
-        'PreShaderComposite.mtlx',
-        'SimpleSrf.mtlx',
-        'SubGraphs.mtlx',
-    ];
-    const exampleFilenames = examplesWithIncludes.concat(examplesWithoutIncludes);
 
     async function readStdLibrary(asString = false) {
         const libs = [];
@@ -77,12 +69,12 @@ describe('XmlIo', () => {
         mx = await Module();
     });
 
-    it('Read XML without includes from file', async () => {
+    it('Read XML from file', async () => {
         // Read the standard library
         const libs = await readStdLibrary(false);
 
         // Read and validate the example documents.
-        await readAndValidateExamples(examplesWithoutIncludes, libs,
+        await readAndValidateExamples(exampleFilenames, libs,
             async (document, file, sp) => {
                 await mx.readFromXmlFile(document, file, sp);
             }, examplesPath);
@@ -90,7 +82,7 @@ describe('XmlIo', () => {
         // Read the same document twice, and verify that duplicate elements
         // are skipped.
         const doc = mx.createDocument();
-        const filename = 'CustomNode.mtlx';
+        const filename = 'StandardSurface/standard_surface_carpaint.mtlx';
         await mx.readFromXmlFile(doc, filename, examplesPath);
         const copy = doc.copy();
         await mx.readFromXmlFile(doc, filename, examplesPath);
@@ -98,13 +90,13 @@ describe('XmlIo', () => {
         expect(copy.equals(doc)).to.be.true;
     }).timeout(TIMEOUT);
 
-    it('Read XML without includes from string', async () => {
+    it('Read XML from string', async () => {
         // Read the standard library
         const libs = await readStdLibrary(true);
 
         // Read and validate each example document.
-        const examplesWithoutIncludesStrings = getMtlxStrings(examplesWithoutIncludes, examplesPath);
-        await readAndValidateExamples(examplesWithoutIncludesStrings, libs,
+        const examplesStrings = getMtlxStrings(exampleFilenames, examplesPath);
+        await readAndValidateExamples(examplesStrings, libs,
             async (document, file) => {
                 await mx.readFromXmlString(document, file);
             });
@@ -112,33 +104,12 @@ describe('XmlIo', () => {
         // Read the same document twice, and verify that duplicate elements
         // are skipped.
         const doc = mx.createDocument();
-        const file = examplesWithoutIncludesStrings[examplesWithoutIncludes.indexOf('CustomNode.mtlx')];
+        const file = examplesStrings[exampleFilenames.indexOf('StandardSurface/standard_surface_carpaint.mtlx')];
         await mx.readFromXmlString(doc, file);
         const copy = doc.copy();
         await mx.readFromXmlString(doc, file);
         expect(doc.validate()).to.be.true;
         expect(copy.equals(doc)).to.be.true;
-    }).timeout(TIMEOUT);
-
-    it('Read XML with includes', async () => {
-        const searchPath = libraryPath + ';' + examplesPath;
-
-        // Read the standard library
-        const libs = await readStdLibrary(false);
-
-        // Read and validate the example documents from files
-        await readAndValidateExamples(examplesWithIncludes, libs,
-            async (document, file, sp) => {
-                await mx.readFromXmlFile(document, file, sp);
-            }, searchPath);
-
-        // Read and validate the example documents as strings
-        const examplesWithIncludesStrings = getMtlxStrings(examplesWithIncludes, searchPath);
-        await readAndValidateExamples(examplesWithIncludesStrings, libs,
-            async (document, file, sp) => {
-                expect(async () => await mx.readFromXmlString(document, file)).to.throw;
-                await mx.readFromXmlString(document, file, sp);
-            }, searchPath);
     }).timeout(TIMEOUT);
 
     it('Read XML with recursive includes', async () => {
