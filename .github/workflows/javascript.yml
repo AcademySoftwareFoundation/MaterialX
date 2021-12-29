@@ -38,9 +38,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libglu1-mesa-dev xorg-dev
-        mkdir -p tmp
-        cd tmp
-        git clone --recursive https://github.com/emscripten-core/emsdk
+        git clone https://github.com/emscripten-core/emsdk --recursive
         cd emsdk
         ./emsdk install ${{ matrix.compiler_version }}
         ./emsdk activate ${{ matrix.compiler_version }}
