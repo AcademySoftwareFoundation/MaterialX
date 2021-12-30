@@ -14,18 +14,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Javascript setup 
-# NOTE: This make set CMAKE_TOOLCHAIN_FILE which needs to happen before calling project()
-option(MATERIALX_BUILD_JS "Build the MaterialX Javascript package from C++ bindings. Requires the emscripten environment." OFF)
-set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'C:/emsdk').")
+# JavaScript setup 
+option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
+set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
 if (MATERIALX_BUILD_JS)
-    # Set the the emsdk path
     if (EXISTS "${MATERIALX_EMSDK_PATH}")
         set(EMSDK_PATH ${MATERIALX_EMSDK_PATH})
     elseif (EXISTS $ENV{EMSDK})
         set(EMSDK_PATH $ENV{EMSDK})
     endif()
-
     if (EMSDK_PATH)
         set(CMAKE_TOOLCHAIN_FILE "${EMSDK_PATH}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
     else()
@@ -64,6 +61,10 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
 
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 
+if (MATERIALX_BUILD_JS)
+    set(MATERIALX_BUILD_GEN_GLSL ON)
+endif()
+
 # Settings to define installation layout
 set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
 set(MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING "Install lib path (e.g. 'libs', 'lib').")
@@ -81,15 +82,6 @@ if (MATERIALX_BUILD_GEN_MDL)
     set(MATERIALX_MDL_RENDER_ARGUMENTS "" CACHE STRING "Custom arguments for renderer.")
     set(MATERIALX_MDL_MODULE_PATHS "" CACHE FILEPATH "Comma separated list of MDL module paths.")
     set(MATERIALX_INSTALL_MDL_MODULE_PATH ${MATERIALX_INSTALL_STDLIB_PATH} CACHE FILEPATH "Install path for mdl module.")
-endif()
-
-# Settings to define installation layout
-set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
-set(MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING "Install lib path (e.g. 'libs', 'lib').")
-set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtlx std libs (e.g. 'libraries').")
-
-if (MATERIALX_BUILD_JS)
-    set(MATERIALX_BUILD_GEN_GLSL ON)
 endif()
 
 # Namespace
@@ -131,6 +123,8 @@ mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_INSTALL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
 mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
+mark_as_advanced(MATERIALX_BUILD_JS)
+mark_as_advanced(MATERIALX_EMSDK_PATH)
 if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
     mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
