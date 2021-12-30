@@ -30,7 +30,6 @@ jobs:
           compiler: gcc
           compiler_version: "10"
           python: 3.7
-          build_javascript: ON
 
         - name: Linux_GCC_11_Python39
           os: ubuntu-20.04
@@ -51,6 +50,7 @@ jobs:
           compiler: clang
           compiler_version: "11"
           python: 3.7
+          build_javascript: ON
 
         - name: Linux_Clang_12_Python39
           os: ubuntu-20.04
@@ -152,6 +152,22 @@ jobs:
       run: |
         vcpkg/vcpkg install openimageio --triplet=x64-windows
 
+    - name: Install Emscripten
+      if: matrix.build_javascript == 'ON'
+      run: |
+        git clone https://github.com/emscripten-core/emsdk --recursive
+        cd emsdk
+        ./emsdk install 2.0.20
+        ./emsdk activate 2.0.20
+        source ./emsdk_env.sh
+        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
+
+    - name: Install Node
+      if: matrix.build_javascript == 'ON'
+      uses: actions/setup-node@v1
+      with:
+         node-version: '12'
+
     - name: Create Build Directory
       run: mkdir build
       
@@ -205,22 +221,6 @@ jobs:
         build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_BrassAverage.png
         build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_CarpaintTranslated.png
 
-    - name: Setup Node
-      if: matrix.build_javascript == 'ON'
-      uses: actions/setup-node@v1
-      with:
-         node-version: '12'
-
-    - name: Install Emscripten
-      if: matrix.build_javascript == 'ON'
-      run: |
-        git clone https://github.com/emscripten-core/emsdk --recursive
-        cd emsdk
-        ./emsdk install 2.0.20
-        ./emsdk activate 2.0.20
-        source ./emsdk_env.sh
-        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
-
     - name: JavaScript Create Build Directory
       if: matrix.build_javascript == 'ON'
       run: mkdir javascript_build
@@ -250,9 +250,8 @@ jobs:
       working-directory: source/JsMaterialX/test/
 
     - name: JavaScript Build Sample App
-      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
+      if: matrix.build_javascript == 'ON'
       run: |
-        echo "Running build"
         cd source/JsMaterialX/JsMaterialXView
         npm install
         npm run build
