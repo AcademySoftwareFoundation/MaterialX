@@ -30,6 +30,7 @@ jobs:
           compiler: gcc
           compiler_version: "10"
           python: 3.7
+          build_javascript: ON
 
         - name: Linux_GCC_11_Python39
           os: ubuntu-20.04
@@ -203,6 +204,65 @@ jobs:
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr --path .
         build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_BrassAverage.png
         build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_CarpaintTranslated.png
+
+    - name: Setup Node
+      if: matrix.build_javascript == 'ON'
+      uses: actions/setup-node@v1
+      with:
+         node-version: '12'
+
+    - name: Install Emscripten
+      if: matrix.build_javascript == 'ON'
+      run: |
+        git clone https://github.com/emscripten-core/emsdk --recursive
+        cd emsdk
+        ./emsdk install 2.0.20
+        ./emsdk activate 2.0.20
+        source ./emsdk_env.sh
+        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
+
+    - name: JavaScript Create Build Directory
+      if: matrix.build_javascript == 'ON'
+      run: mkdir javascript_build
+      
+    - name: JavaScript CMake Generate
+      if: matrix.build_javascript == 'ON'
+      run: cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF -DMATERIALX_BUILD_VIEWER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
+      working-directory: javascript_build
+
+    - name: JavaScript CMake Build
+      if: matrix.build_javascript == 'ON'
+      run: cmake --build . --target install --config Release --parallel 2
+      working-directory: javascript_build
+    
+    - name: JavaScript Node Tests
+      if: matrix.build_javascript == 'ON'
+      run: |
+        npm install
+        npm run test
+      working-directory: source/JsMaterialX/test
+
+    - name: JavaScript Browser Tests
+      if: matrix.build_javascript == 'ON'
+      run: |
+        npm install
+        npm run test:browser
+      working-directory: source/JsMaterialX/test/
+
+    - name: JavaScript Build Sample App
+      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
+      run: |
+        echo "Running build"
+        cd source/JsMaterialX/JsMaterialXView
+        npm install
+        npm run build
+
+    - name: JavaScript Deploy Sample App
+      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages
+        folder: source/JsMaterialX/JsMaterialXView/dist
 
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2
