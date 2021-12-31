@@ -235,17 +235,11 @@ jobs:
       run: cmake --build . --target install --config Release --parallel 2
       working-directory: javascript_build
     
-    - name: JavaScript Node Tests
+    - name: JavaScript Tests
       if: matrix.build_javascript == 'ON'
       run: |
         npm install
         npm run test
-      working-directory: source/JsMaterialX/JsMaterialXTest
-
-    - name: JavaScript Browser Tests
-      if: matrix.build_javascript == 'ON'
-      run: |
-        npm install
         npm run test:browser
       working-directory: source/JsMaterialX/JsMaterialXTest
 
