@@ -1,4 +1,4 @@
-import Module from '../../javascript_build/installed/JavaScript/MaterialX/JsMaterialXCore.js';
+import Module from './_build/JsMaterialXCore.js';
 import { expect } from 'chai';
 import { getMtlxStrings } from './testHelpers';
 
