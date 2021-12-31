@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
-//#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <emscripten/bind.h>
