@@ -183,7 +183,7 @@ const glPixelShader = gl.createShader(gl.FRAGMENT_SHADER);
 gl.shaderSource(glPixelShader, fShader);
 gl.compileShader(glPixelShader);
 ```
-However, any rendering framework that supports custom shaders should do. In the [JsMaterialXView sample app](./JsMaterialXView/src/index.js) we use the [RawShaderMaterial](https://threejs.org/docs/index.html?q=RawSh#api/en/materials/RawShaderMaterial) class from [three.js](https://threejs.org/).
+However, any rendering framework that supports custom shaders should do. In the [Web Viewer sample app](./MaterialXView/src/index.js) we use the [RawShaderMaterial](https://threejs.org/docs/index.html?q=RawSh#api/en/materials/RawShaderMaterial) class from [three.js](https://threejs.org/).
 
 #### Getting the shader uniforms
 The uniform values can be obtained from the shader as a JSON, either for the vertex or the pixel shader.
@@ -192,7 +192,7 @@ shader.getUniformValues("vertex");
 shader.getUniformValues("pixel")
 ```
 Each entry corresponds to a uniform name and the value is an object which contains the type as specified in the generators Syntax class and the stringified value. Some of the commonly used uniform names in the generated shader are listed [here](../../documents/DeveloperGuide/ShaderGeneration.md#162-variable-naming-convention).
-An example that parses the JSON and feeds the uniform data to a three.js based application can be found in the [JsMaterialXView Sample App](./JsMaterialXView/src/index.js).
+An example that parses the JSON and feeds the uniform data to a three.js based application can be found in the [Web Viewer Sample App](./MaterialXView/src/index.js).
 
 ## Maintaining the Bindings
 This section provides some background on binding creation for contributors. In general, we recommed to look at existing bindings for examples.
