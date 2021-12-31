@@ -3,7 +3,7 @@ const fs = require('fs');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const stdSurfaceMaterials = "../../../resources/Materials/Examples/StandardSurface";
+const stdSurfaceMaterials = "../../resources/Materials/Examples/StandardSurface";
 const stdSurfaceMaterialsBaseURL = "Materials/Examples/StandardSurface";
 
 const materials = fs.readdirSync(stdSurfaceMaterials)
@@ -26,21 +26,21 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { 
-          context: "../../../resources/Images",
+          context: "../../resources/Images",
           from: "*.jpg", 
           to: "Images",
         },
         { from: "./public", to: 'public' },
-        { from: "../../../resources/Images/greysphere_calibration.png", to: "Images" },
-        { from: "../../../resources/Geometry/shaderball.glb",  to: "Geometry"},
+        { from: "../../resources/Images/greysphere_calibration.png", to: "Images" },
+        { from: "../../resources/Geometry/shaderball.glb",  to: "Geometry"},
         { from: "node_modules/three/examples/js/libs/draco",  to: "draco"},
-        { from: "../../../resources/Lights/san_giuseppe_bridge_split.hdr", to: "Lights" },
-        { from: "../../../resources/Lights/san_giuseppe_bridge_split.mtlx", to: "Lights" },
-        { from: "../../../resources/Lights/irradiance/san_giuseppe_bridge_split.hdr", to: "Lights/irradiance" },
+        { from: "../../resources/Lights/san_giuseppe_bridge_split.hdr", to: "Lights" },
+        { from: "../../resources/Lights/san_giuseppe_bridge_split.mtlx", to: "Lights" },
+        { from: "../../resources/Lights/irradiance/san_giuseppe_bridge_split.hdr", to: "Lights/irradiance" },
         { from: stdSurfaceMaterials, to: stdSurfaceMaterialsBaseURL },
-        { from: "../../../javascript_build/bin/JsMaterialXGenShader.wasm" },
-        { from: "../../../javascript_build/bin/JsMaterialXGenShader.js" },
-        { from: "../../../javascript_build/bin/JsMaterialXGenShader.data" },
+        { from: "../../javascript_build/bin/JsMaterialXGenShader.wasm" },
+        { from: "../../javascript_build/bin/JsMaterialXGenShader.js" },
+        { from: "../../javascript_build/bin/JsMaterialXGenShader.data" },
       ],
     }),
   ]

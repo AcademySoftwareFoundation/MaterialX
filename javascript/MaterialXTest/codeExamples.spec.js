@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Module from './_build/JsMaterialXCore.js';
+import Module from '../../javascript_build/installed/JavaScript/MaterialX/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers';
 
 describe('Code Examples', () => {
@@ -79,7 +79,7 @@ describe('Code Examples', () => {
     it('Traversing a Document Tree', async () => {
         const xmlStr = getMtlxStrings(
             ['standard_surface_greysphere_calibration.mtlx'],
-            '../../../resources/Materials/Examples/StandardSurface'
+            '../../resources/Materials/Examples/StandardSurface'
         )[0];
         const mx = await Module();
 
@@ -112,7 +112,7 @@ describe('Code Examples', () => {
     });
 
     it('Building a MaterialX Document', async () => {
-        const xmlStr = getMtlxStrings(['MaterialBasic.mtlx'], '../../../resources/Materials/Examples/Syntax')[0];
+        const xmlStr = getMtlxStrings(['MaterialBasic.mtlx'], '../../resources/Materials/Examples/Syntax')[0];
         const mx = await Module();
 
         // Read a document from disk.

@@ -241,21 +241,21 @@ jobs:
         npm install
         npm run test
         npm run test:browser
-      working-directory: source/JsMaterialX/JsMaterialXTest
+      working-directory: javascript/MaterialXTest
 
     - name: JavaScript Build Sample App
       if: matrix.build_javascript == 'ON'
       run: |
         npm install
         npm run build
-      working-directory: source/JsMaterialX/JsMaterialXView
+      working-directory: javascript/MaterialXView
 
     - name: JavaScript Deploy Sample App
       if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
       uses: JamesIves/github-pages-deploy-action@4.1.4
       with:
         branch: gh-pages
-        folder: source/JsMaterialX/JsMaterialXView/dist
+        folder: javascript/MaterialXView/dist
 
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2

@@ -1,4 +1,4 @@
-import Module from './_build/JsMaterialXCore.js';
+import Module from '../../javascript_build/installed/JavaScript/MaterialX/JsMaterialXCore.js';
 import { expect } from 'chai';
 import { getMtlxStrings } from './testHelpers';
 
@@ -9,8 +9,8 @@ describe('XmlIo', () => {
 
     // These should be relative to cwd
     const includeTestPath = 'data/includes';
-    const libraryPath = '../../../libraries/stdlib';
-    const examplesPath = '../../../resources/Materials/Examples';
+    const libraryPath = '../../libraries/stdlib';
+    const examplesPath = '../../resources/Materials/Examples';
     // TODO: Is there a better way to get these filenames than hardcoding them here?
     // The C++ tests load all files in the given directories. This would work in Node, but not in the browser.
     // Should we use a pre-test script that fetches the files and makes them available somehow?

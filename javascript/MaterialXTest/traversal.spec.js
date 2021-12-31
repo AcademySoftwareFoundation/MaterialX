@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Module from './_build/JsMaterialXCore.js';
+import Module from '../../javascript_build/installed/JavaScript/MaterialX/JsMaterialXCore.js';
 
 describe('Traversal', () => {
     let mx;

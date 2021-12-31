@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import Module from './_build/JsMaterialXCore.js';
+import Module from '../../javascript_build/installed/JavaScript/MaterialX/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers';
 
 describe('Custom Bindings', () => {
-    const examplesPath = '../../../resources/Materials/Examples/Syntax';
+    const examplesPath = '../../resources/Materials/Examples/Syntax';
 
     let mx; 
     before(async () => {

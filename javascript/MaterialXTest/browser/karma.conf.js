@@ -1,6 +1,6 @@
 module.exports = function(config) {
     config.set({
-        basePath: '../', // base is the test folder
+        basePath: '../', // base is the javascript folder
         files: [
             { pattern: '_build/JsMaterialXGenShader.js', watched: false, included: true, served: true },
             { pattern: '_build/JsMaterialXGenShader.wasm', watched: false, included: false, served: true },
