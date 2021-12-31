@@ -240,21 +240,21 @@ jobs:
       run: |
         npm install
         npm run test
-      working-directory: source/JsMaterialX/test
+      working-directory: source/JsMaterialX/JsMaterialXTest
 
     - name: JavaScript Browser Tests
       if: matrix.build_javascript == 'ON'
       run: |
         npm install
         npm run test:browser
-      working-directory: source/JsMaterialX/test/
+      working-directory: source/JsMaterialX/JsMaterialXTest
 
     - name: JavaScript Build Sample App
       if: matrix.build_javascript == 'ON'
       run: |
-        cd source/JsMaterialX/JsMaterialXView
         npm install
         npm run build
+      working-directory: source/JsMaterialX/JsMaterialXView
 
     - name: JavaScript Deploy Sample App
       if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'

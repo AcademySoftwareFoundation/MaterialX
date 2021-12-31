@@ -16,15 +16,14 @@ if NOT ["%errorlevel%"]==["0"] pause
 @echo --------------------- Run JavaScript Tests ---------------------
 @echo on
 cd ..
-cd source/JsMaterialX/test
+cd source/JsMaterialX/JsMaterialXTest
 call npm install
 call npm run test
 call npm run test:browser
 if NOT ["%errorlevel%"]==["0"] pause
 @echo --------------------- Run Interactive Viewer ---------------------
 @echo on
-cd ..
-cd JsMaterialXView
+cd ../JsMaterialXView
 call npm install
 call npm run build
 call npm install http-server -g
