@@ -59,7 +59,7 @@ For follow-up builds (i.e. after changing the source code), remove the `<cmake g
 After building the project the `JsMaterialXCore.wasm`, `JsMaterialXCore.js`, `JsMaterialXGenShader.wasm`, `JsMaterialXGenShader.js` and `JsMaterialXGenShader.data` files can be found in the global install directory of this project.
 
 ## Testing
-The JavaScript tests are located in the `test` folder and use the `.spec.js` suffix.
+The JavaScript tests are located in the `MaterialXTest` folder and use the `.spec.js` suffix.
 
 #### Setup
 These tests require `node.js`, which is shipped with the emscripten environment. Make sure to `source` the `emsdk/emsdk_env.sh` script before running the steps described below, if you don't have NodeJs installed on your system already (running the command is not required otherwise).
@@ -69,7 +69,7 @@ These tests require `node.js`, which is shipped with the emscripten environment.
 npm install
 ```
 
-2. Run the tests from the test directory.
+2. Run the tests from the MaterialXTest directory.
 ```sh
 npm run test
 ```
