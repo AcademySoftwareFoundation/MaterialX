@@ -1,6 +1,6 @@
-# MaterialX JavaScript Bindings
+# MaterialX JavaScript
 
-This folder contains the JavaScript bindings for the MaterialX library. The bindings are generated using the emscripten SDK.
+This folder contains tests and examples that leverage the JavaScript bindings for the MaterialX library. The bindings are generated using the emscripten SDK.
 
 ## Generating the Bindings
 
