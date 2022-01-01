@@ -125,7 +125,7 @@ function fromMatrix(matrix, dimension)
  * @param {mx.Uniform.value} value
  * @param {mx.Uniform.name} name
  * @param {mx.Uniforms} uniforms
- * @param {TREE.textureLoader} textureLoader
+ * @param {THREE.textureLoader} textureLoader
  */
 function toThreeUniform(type, value, name, uniforms, textureLoader)
 {
