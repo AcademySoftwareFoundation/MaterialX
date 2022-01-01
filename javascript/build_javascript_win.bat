@@ -8,8 +8,8 @@ if NOT ["%errorlevel%"]==["0"] pause
 @echo --------------------- Build MaterialX With JavaScript ---------------------
 @echo on
 cd %MATERIALX_LOCATION%
-mkdir javascript_build
-cd javascript_build
+mkdir build_javascript
+cd build_javascript
 cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=%EMSDK_LOCATION% -G Ninja -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF ..
 cmake --build . --target install --config  RelWithDebInfo --parallel 2
 if NOT ["%errorlevel%"]==["0"] pause
