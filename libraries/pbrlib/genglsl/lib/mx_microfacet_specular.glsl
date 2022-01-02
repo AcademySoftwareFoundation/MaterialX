@@ -100,14 +100,11 @@ vec3 mx_ggx_dir_albedo_analytic(float NdotV, float roughness, vec3 F0, vec3 F90)
 
 vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
-#if DIRECTIONAL_ALBEDO_METHOD == 1
-    vec2 res = textureSize($albedoTable, 0);
-    if (res.x > 1)
+    if (textureSize($albedoTable, 0).x > 1)
     {
         vec2 AB = texture($albedoTable, vec2(NdotV, roughness)).rg;
         return F0 * AB.x + F90 * AB.y;
     }
-#endif
     return vec3(0.0);
 }
 
