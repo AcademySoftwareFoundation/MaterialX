@@ -38,10 +38,12 @@ float mx_imageworks_sheen_dir_albedo_analytic(float NdotV, float roughness)
 
 float mx_imageworks_sheen_dir_albedo_table_lookup(float NdotV, float roughness)
 {
+#if DIRECTIONAL_ALBEDO_METHOD == 1
     if (textureSize($albedoTable, 0).x > 1)
     {
         return texture($albedoTable, vec2(NdotV, roughness)).b;
     }
+#endif
     return 0.0;
 }
 
