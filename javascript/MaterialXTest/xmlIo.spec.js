@@ -248,4 +248,3 @@ describe('XmlIo', () => {
         expect(matches.length).to.equal(0);
     });
 });
-
