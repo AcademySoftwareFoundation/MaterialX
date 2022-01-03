@@ -26,52 +26,12 @@ const materialFilename = new URLSearchParams(document.location.search).get("file
 
 init();
 
-// If no material file is selected, we programmatically create a jade material as a fallback
+// If no material file is selected, we programmatically create a default material as a fallback
 function fallbackMaterial(doc)
 {
     const ssName = 'SR_default';
     const ssNode = doc.addChildOfCategory('standard_surface', ssName);
     ssNode.setType('surfaceshader');
-    ssNode.setInputValueFloat('base', 1.0);
-    ssNode.setInputValueColor3('base_color', new mx.Color3(0.8, 0.8, 0.8));
-    ssNode.setInputValueFloat('diffuse_roughness', 0);
-    ssNode.setInputValueFloat('specular', 1);
-    ssNode.setInputValueColor3('specular_color', new mx.Color3(1, 1, 1));
-    ssNode.setInputValueFloat('specular_roughness', 0.2);
-    ssNode.setInputValueFloat('specular_IOR', 1.5);
-    ssNode.setInputValueFloat('specular_anisotropy', 0);
-    ssNode.setInputValueFloat('specular_rotation', 0);
-    ssNode.setInputValueFloat('metalness', 0);
-    ssNode.setInputValueFloat('transmission', 0);
-    ssNode.setInputValueColor3('transmission_color', new mx.Color3(1, 1, 1));
-    ssNode.setInputValueFloat('transmission_depth', 0);
-    ssNode.setInputValueColor3('transmission_scatter', new mx.Color3(0, 0, 0));
-    ssNode.setInputValueFloat('transmission_scatter_anisotropy', 0);
-    ssNode.setInputValueFloat('transmission_dispersion', 0);
-    ssNode.setInputValueFloat('transmission_extra_roughness', 0);
-    ssNode.setInputValueFloat('subsurface', 0)
-    ssNode.setInputValueColor3('subsurface_color', new mx.Color3(1, 1, 1));
-    ssNode.setInputValueColor3('subsurface_radius', new mx.Color3(1, 1, 1));
-    ssNode.setInputValueFloat('subsurface_scale', 1);
-    ssNode.setInputValueFloat('subsurface_anisotropy', 0);
-    ssNode.setInputValueFloat('sheen', 0);
-    ssNode.setInputValueColor3('sheen_color', new mx.Color3(1, 1, 1));
-    ssNode.setInputValueFloat('sheen_roughness', 0.3);
-    ssNode.setInputValueBoolean('thin_walled', false);
-    ssNode.setInputValueFloat('coat', 0);
-    ssNode.setInputValueColor3('coat_color', new mx.Color3(1, 1, 1));
-    ssNode.setInputValueFloat('coat_roughness', 0.1);
-    ssNode.setInputValueFloat('coat_anisotropy', 0.0);
-    ssNode.setInputValueFloat('coat_rotation', 0.0);
-    ssNode.setInputValueFloat('coat_IOR', 1.5);
-    ssNode.setInputValueFloat('coat_affect_color', 0);
-    ssNode.setInputValueFloat('coat_affect_roughness', 0);
-    ssNode.setInputValueFloat('thin_film_thickness', 0);
-    ssNode.setInputValueFloat('thin_film_IOR', 1.5);
-    ssNode.setInputValueFloat('emission', 0);
-    ssNode.setInputValueColor3('emission_color', new mx.Color3(1, 1, 1));
-    ssNode.setInputValueColor3('opacity', new mx.Color3(1, 1, 1));
-
     const smNode = doc.addChildOfCategory('surfacematerial', 'Default');
     smNode.setType('material');
     const shaderElement = smNode.addInput('surfaceshader');
