@@ -43,12 +43,11 @@ function init()
 {
     let canvas = document.getElementById('webglcanvas');
     let materialsSelect = document.getElementById('materials');
-    if (materialFilename)
-    {
-      materialsSelect.value = materialFilename;
-    }
     let context = canvas.getContext('webgl2');
 
+    materialsSelect.value = materialFilename ?
+                            materialFilename :
+                            'Materials/Examples/StandardSurface/standard_surface_default.mtlx';
     materialsSelect.addEventListener('change', (e) => {
       window.location.href = `${window.location.origin}${window.location.pathname}?file=${e.target.value}`;
     });
