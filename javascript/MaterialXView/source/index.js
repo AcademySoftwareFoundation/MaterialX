@@ -185,7 +185,8 @@ function init()
         bbox.getBoundingSphere(bsphere);
 
         controls.target = bsphere.center;
-        camera.position.y = camera.position.z = bsphere.radius * 1.5;
+        camera.position.y = bsphere.radius * 0.75;
+        camera.position.z = bsphere.radius * 1.75;
         controls.update();
 
         camera.far = bsphere.radius * 10;
