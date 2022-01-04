@@ -111,7 +111,7 @@ install(TARGETS MaterialXView
     EXPORT MaterialX
     RUNTIME DESTINATION bin)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)
+    DESTINATION "bin" OPTIONAL)
 
     
 # Copy over libraries and resources to local build area

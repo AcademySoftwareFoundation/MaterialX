@@ -383,9 +383,9 @@ endif()
 
 # Install root-level documents
 install(FILES CHANGELOG.md README.md
-        DESTINATION ${CMAKE_INSTALL_PREFIX})
+        DESTINATION .)
 
-set(MATERIALX_GEN_CONFIG_PATH "${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
+set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in

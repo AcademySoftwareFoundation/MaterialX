@@ -38,4 +38,4 @@ else()
     PRIVATE ${CMAKE_DL_LIBS})
 endif()
 install(TARGETS PyMaterialXRender
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/python/MaterialX")
+        DESTINATION "python/MaterialX")
