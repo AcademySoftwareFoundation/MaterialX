@@ -1,29 +1,10 @@
-option(MATERIALX_BUILD_JS "Build the MaterialX Javascript package from C++ bindings. Requires the emscripten environment." OFF)
-set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'C:/emsdk').")
-
-if (MATERIALX_BUILD_JS)
-    # Set the the emsdk path
-    if (EXISTS "${MATERIALX_EMSDK_PATH}")
-        set(EMSDK_PATH ${MATERIALX_EMSDK_PATH})
-    elseif (EXISTS $ENV{EMSDK})
-        set(EMSDK_PATH $ENV{EMSDK})
-    endif()
-
-    if (EMSDK_PATH)
-        # NOTE: Setting the CMAKE_TOOLCHAIN_FILE needs to happen before calling project()
-        set(CMAKE_TOOLCHAIN_FILE "${EMSDK_PATH}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
-    else()
-        message("The EMSDK path was not supplied, disabling MATERIALX_BUILD_JS")
-        set(MATERIALX_BUILD_JS OFF)
-    endif()
-endif()
-
-project(MaterialX)
+# MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 38)
 set(MATERIALX_BUILD_VERSION 4)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
+# Cmake setup
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
@@ -32,6 +13,25 @@ enable_testing()
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# JavaScript setup 
+option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
+set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
+if (MATERIALX_BUILD_JS)
+    if (EXISTS "${MATERIALX_EMSDK_PATH}")
+        set(EMSDK_PATH ${MATERIALX_EMSDK_PATH})
+    elseif (EXISTS $ENV{EMSDK})
+        set(EMSDK_PATH $ENV{EMSDK})
+    endif()
+    if (EMSDK_PATH)
+        set(CMAKE_TOOLCHAIN_FILE "${EMSDK_PATH}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
+    else()
+        message("The EMSDK path was not supplied, disabling MATERIALX_BUILD_JS")
+        set(MATERIALX_BUILD_JS OFF)
+    endif()
+endif()
+
+project(MaterialX)
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." ON)
@@ -63,6 +63,10 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 
 set(MATERIALX_OCIO_DIR "" CACHE PATH "Path to the root folder of the OpenColorIO installation.")
+
+if (MATERIALX_BUILD_JS)
+    set(MATERIALX_BUILD_GEN_GLSL ON)
+endif()
 
 # Settings to define installation layout
 set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
@@ -126,6 +130,8 @@ mark_as_advanced(MATERIALX_ARNOLD_EXECUTABLE)
 mark_as_advanced(MATERIALX_INSTALL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
 mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
+mark_as_advanced(MATERIALX_BUILD_JS)
+mark_as_advanced(MATERIALX_EMSDK_PATH)
 
 ### ADSK only modules ###
 option(MATERIALX_BUILD_CONTRIB "Build contribution folder." ON)

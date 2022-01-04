@@ -18,5 +18,4 @@ EMSCRIPTEN_BINDINGS(ShaderGenerator)
         .function("getTarget", &mx::ShaderGenerator::getTarget)
         .function("generate", &mx::ShaderGenerator::generate)
         ;
-
 }

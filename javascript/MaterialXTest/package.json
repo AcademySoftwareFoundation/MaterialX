@@ -1,0 +1,32 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf ./_build/",
+    "copyBuild": "copyfiles -f ../build/bin/JsMaterialX* _build",
+    "pretest": "npm run clean && npm run copyBuild",
+    "test": "npm run mocha",
+    "test:browser": "npm run karma -- --browsers ChromeHeadless --singleRun true",
+    "mocha": "mocha '*.spec.js' --require @babel/register --timeout 5000",
+    "karma": "karma start browser/karma.conf.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/register": "^7.14.5",
+    "chai": "^4.2.0",
+    "copyfiles": "^2.2.0",
+    "karma": "^6.3.4",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-mocha": "^2.0.1",
+    "karma-mocha-reporter": "^2.2.5",
+    "mocha": "^7.1.2",
+    "rimraf": "^3.0.2"
+  }
+}

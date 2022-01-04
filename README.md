@@ -35,6 +35,7 @@ The JavaScript bindings for MaterialX are based on [emscripten](https://emscript
 The MaterialX repository consists of the following folders:
 
 - [documents](documents) - MaterialX documentation, including the specification and developer guide.
+- [javascript](javascript) - Support modules and example scripts for MaterialX JavaScript.
 - [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the pattern and shading nodes.
 - [python](python) - Support modules and example scripts for MaterialX Python.
 - [javascript](source/JsMaterialX) - Support modules and tests for MaterialX JavaScript.
@@ -71,4 +72,5 @@ The following packages contain pre-built binaries for the latest release, includ
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
 - The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
+- The [JavaScript](javascript) folder contains details on building JavaScript bindings for MaterialX.
 - Presentations at the [Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) and [ASWF Open Source Days](http://www.materialx.org/assets/ASWF_OSD2021_MaterialX_slides_final.pdf) provide details on the roadmap for MaterialX development.

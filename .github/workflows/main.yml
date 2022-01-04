@@ -166,14 +166,28 @@ jobs:
       run: |
         vcpkg/vcpkg install openimageio --triplet=x64-windows
 
-    - name: Create Build Directory
-      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
-      run: mkdir build
-      
+    - name: Install Emscripten
+      if: matrix.build_javascript == 'ON'
+      run: |
+        git clone https://github.com/emscripten-core/emsdk --recursive
+        cd emsdk
+        ./emsdk install 2.0.20
+        ./emsdk activate 2.0.20
+        source ./emsdk_env.sh
+        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
+
+    - name: Install Node
+      if: matrix.build_javascript == 'ON'
+      uses: actions/setup-node@v1
+      with:
+         node-version: '12'
+
     - name: CMake Generate
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
-      run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_RUNTIME=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
-      working-directory: build
+      run: |
+        mkdir build
+        cd build
+        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
 
     - name: CMake Build
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
@@ -229,6 +243,40 @@ jobs:
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr --path .
         build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_BrassAverage.png
         build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_CarpaintTranslated.png
+
+    - name: JavaScript CMake Generate
+      if: matrix.build_javascript == 'ON'
+      run: |
+        mkdir javascript/build
+        cd javascript/build
+        cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF ../..
+
+    - name: JavaScript CMake Build
+      if: matrix.build_javascript == 'ON'
+      run: cmake --build . --target install --config Release --parallel 2
+      working-directory: javascript/build
+    
+    - name: JavaScript Unit Tests
+      if: matrix.build_javascript == 'ON'
+      run: |
+        npm install
+        npm run test
+        npm run test:browser
+      working-directory: javascript/MaterialXTest
+
+    - name: Build Web Viewer
+      if: matrix.build_javascript == 'ON'
+      run: |
+        npm install
+        npm run build
+      working-directory: javascript/MaterialXView
+
+    - name: Deploy Web Viewer
+      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages
+        folder: javascript/MaterialXView/dist
 
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2.2.4

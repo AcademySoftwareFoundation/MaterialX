@@ -1,4 +1,4 @@
-#include "../Helpers.h"
+#include <JsMaterialX/Helpers.h>
 #include <MaterialXFormat/Util.h>
 
 #include <emscripten/bind.h>
