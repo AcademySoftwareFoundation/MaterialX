@@ -223,17 +223,17 @@ jobs:
 
     - name: JavaScript Create Build Directory
       if: matrix.build_javascript == 'ON'
-      run: mkdir build_javascript
+      run: mkdir javascript/build
       
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'
-      run: cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF ..
-      working-directory: build_javascript
+      run: cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF ../..
+      working-directory: javascript/build
 
     - name: JavaScript CMake Build
       if: matrix.build_javascript == 'ON'
       run: cmake --build . --target install --config Release --parallel 2
-      working-directory: build_javascript
+      working-directory: javascript/build
     
     - name: JavaScript Tests
       if: matrix.build_javascript == 'ON'
