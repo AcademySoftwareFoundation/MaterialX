@@ -52,7 +52,7 @@ function init()
       window.location.href = `${window.location.origin}${window.location.pathname}?file=${e.target.value}`;
     });
 
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 100);
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100);
 
     // Set up scene
     scene = new THREE.Scene();
@@ -102,11 +102,14 @@ function init()
         let gen = new mx.EsslShaderGenerator();
         let genContext = new mx.GenContext(gen);
         let stdlib = mx.loadStandardLibraries(genContext);
-        doc.importLibrary(stdlib);        
+        doc.importLibrary(stdlib);
+
+        // Set search path.
+        const searchPath = 'Materials/Examples/StandardSurface';
 
         // Load material
         if (mtlxMaterial)
-            await mx.readFromXmlString(doc, mtlxMaterial);
+            await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
         else
             fallbackMaterial(doc);
 
@@ -185,8 +188,8 @@ function init()
         bbox.getBoundingSphere(bsphere);
 
         controls.target = bsphere.center;
-        camera.position.y = bsphere.radius * 0.75;
-        camera.position.z = bsphere.radius * 1.75;
+        camera.position.y = bsphere.radius * 0.65;
+        camera.position.z = bsphere.radius * 1.95;
         controls.update();
 
         camera.far = bsphere.radius * 10;
