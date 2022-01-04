@@ -288,6 +288,16 @@ int main(int argc, char* const argv[])
 #ifdef MATERIALX_BUILD_OCIO
         viewer->setOCIOConfigFile(ocioConfigFile);
 #endif
+        viewer->initialize();
+        if (!bakeFilename.empty()) 
+        {
+            viewer->bakeTextures();
+            viewer->requestExit();
+        } 
+        else 
+        {            
+            viewer->setVisible(true);
+        }
         if (!captureFilename.empty())
         {
             viewer->requestFrameCapture(captureFilename);
