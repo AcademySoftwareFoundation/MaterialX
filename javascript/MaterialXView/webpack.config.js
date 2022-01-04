@@ -33,7 +33,6 @@ module.exports = {
         { from: "./public", to: 'public' },
         { from: "../../resources/Images/greysphere_calibration.png", to: "Images" },
         { from: "../../resources/Geometry/shaderball.glb",  to: "Geometry"},
-        { from: "node_modules/three/examples/js/libs/draco",  to: "draco"},
         { from: "../../resources/Lights/san_giuseppe_bridge_split.hdr", to: "Lights" },
         { from: "../../resources/Lights/san_giuseppe_bridge_split.mtlx", to: "Lights" },
         { from: "../../resources/Lights/irradiance/san_giuseppe_bridge_split.hdr", to: "Lights/irradiance" },

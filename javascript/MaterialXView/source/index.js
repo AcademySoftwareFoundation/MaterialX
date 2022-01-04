@@ -5,7 +5,6 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -76,10 +75,7 @@ function init()
 
     // Load model and shaders
     const fileloader = new THREE.FileLoader();
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath( 'draco/' );
     const gltfLoader = new GLTFLoader();
-    gltfLoader.setDRACOLoader( dracoLoader );
     const hdrloader = new RGBELoader();
     const textureLoader = new THREE.TextureLoader();
 
