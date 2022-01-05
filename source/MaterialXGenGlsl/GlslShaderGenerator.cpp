@@ -521,6 +521,15 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     // Add lighting support
     bool lighting = requiresLighting(graph);
+    
+    // define Albedo table type
+    if (lighting || context.getOptions().hwWriteAlbedoTable)
+    {
+        emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
+        emitLineBreak(stage);
+    }
+    
+    // Add Lighting function
     if (lighting)
     {
         if (context.getOptions().hwMaxActiveLightSources > 0)
@@ -528,8 +537,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
             const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
             emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
         }
-        emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
-        emitLineBreak(stage);
         emitSpecularEnvironment(context, stage);
 
         if (context.getOptions().hwMaxActiveLightSources > 0)
