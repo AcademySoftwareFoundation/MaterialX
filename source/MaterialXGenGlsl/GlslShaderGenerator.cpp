@@ -522,7 +522,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Add lighting support
     bool lighting = requiresLighting(graph);
     
-    // define Albedo table type
+    // Define directional albedo approach
     if (lighting || context.getOptions().hwWriteAlbedoTable)
     {
         emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
