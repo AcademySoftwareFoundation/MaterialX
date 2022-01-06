@@ -519,7 +519,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitInclude("stdlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
-    // Add lighting support
+    // Determine whether lighting is required
     bool lighting = requiresLighting(graph);
     
     // Define directional albedo approach
@@ -529,7 +529,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitLineBreak(stage);
     }
     
-    // Add Lighting function
+    // Add lighting support
     if (lighting)
     {
         if (context.getOptions().hwMaxActiveLightSources > 0)
