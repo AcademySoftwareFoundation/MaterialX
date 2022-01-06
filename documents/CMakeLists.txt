@@ -27,5 +27,5 @@ if(DOXYGEN_FOUND)
                        COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/resources/Images ${CMAKE_CURRENT_BINARY_DIR})
     install(DIRECTORY ${DOXYGEN_HTML_OUTPUT_DIR}
-            DESTINATION "${CMAKE_INSTALL_PREFIX}/documents" MESSAGE_NEVER)
+            DESTINATION "documents" MESSAGE_NEVER)
 endif(DOXYGEN_FOUND)
