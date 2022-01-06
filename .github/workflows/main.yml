@@ -178,15 +178,6 @@ jobs:
       run: cmake --build . --target install --config Release --parallel 2
       working-directory: build
 
-    - name: Initialize Virtual Framebuffer
-      if: matrix.test_render == 'ON' && runner.os == 'Linux'
-      run: |
-        Xvfb :1 -screen 0 1280x960x24 &
-        echo "DISPLAY=:1" >> $GITHUB_ENV
-        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
-        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
-        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
-
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config Release
       working-directory: build
@@ -210,6 +201,15 @@ jobs:
         glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator glslangValidator.exe
+
+    - name: Initialize Virtual Framebuffer
+      if: matrix.test_render == 'ON' && runner.os == 'Linux'
+      run: |
+        Xvfb :1 -screen 0 1280x960x24 &
+        echo "DISPLAY=:1" >> $GITHUB_ENV
+        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
+        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
+        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
 
     - name: Render Tests
       if: matrix.test_render == 'ON'
@@ -249,10 +249,11 @@ jobs:
 
     - name: Deploy Web Viewer
       if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
-      uses: JamesIves/github-pages-deploy-action@4.1.4
+      uses: JamesIves/github-pages-deploy-action@4.1.9
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
+        single-commit: true
 
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2
