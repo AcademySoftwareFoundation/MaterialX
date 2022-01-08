@@ -370,7 +370,6 @@ export float3 mx_fractal_noise_float3(
     return result;
 }
 
-
 float mx_8bits_to_01(int bits)
 {
     return float(bits) / float(0xff);
