@@ -418,8 +418,6 @@ float mx_worley_distance3(float3 p, int x, int y, int z, int xoff, int yoff, int
 
 export float mx_worley_noise_float(float2 p, float jitter, int metric)
 {
-//    int X, Y;
-//    float2 localpos = float2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
     float ix = math::floor(p.x);
     float iy = math::floor(p.y);
     int X = int(ix);
@@ -442,8 +440,6 @@ export float mx_worley_noise_float(float2 p, float jitter, int metric)
 
 export float2 mx_worley_noise_float2(float2 p, float jitter, int metric)
 {
-//    int X, Y;
-//    float2 localpos = float2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
     float ix = math::floor(p.x);
     float iy = math::floor(p.y);
     int X = int(ix);
@@ -474,8 +470,6 @@ export float2 mx_worley_noise_float2(float2 p, float jitter, int metric)
 
 export float3 mx_worley_noise_float3(float2 p, float jitter, int metric)
 {
-//    int X, Y;
-//    float2 localpos = float2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
     float ix = math::floor(p.x);
     float iy = math::floor(p.y);
     int X = int(ix);
@@ -512,8 +506,6 @@ export float3 mx_worley_noise_float3(float2 p, float jitter, int metric)
 
 export float mx_worley_noise_float(float3 p, float jitter, int metric)
 {
-//    int X, Y, Z;
-//    float3 localpos = float3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
     float ix = math::floor(p.x);
     float iy = math::floor(p.y);
     float iz = math::floor(p.z);
@@ -541,8 +533,6 @@ export float mx_worley_noise_float(float3 p, float jitter, int metric)
 
 export float2 mx_worley_noise_float2(float3 p, float jitter, int metric)
 {
-//    int X, Y, Z;
-//    float3 localpos = float3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
     float ix = math::floor(p.x);
     float iy = math::floor(p.y);
     float iz = math::floor(p.z);
@@ -578,8 +568,6 @@ export float2 mx_worley_noise_float2(float3 p, float jitter, int metric)
 
 export float3 mx_worley_noise_float3(float3 p, float jitter, int metric)
 {
-//    int X, Y, Z;
-//    float3 localpos = float3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
     float ix = math::floor(p.x);
     float iy = math::floor(p.y);
     float iz = math::floor(p.z);
