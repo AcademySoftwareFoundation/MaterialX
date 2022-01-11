@@ -305,7 +305,10 @@ export material mx_sheen_bsdf(
             base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
-    )
+    ),
+    // we need to carry volume properties along for SSS
+    ior:    mxp_base.ior,
+    volume: mxp_base.volume
 );
 
 export material mx_thin_film_bsdf(
