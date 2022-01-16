@@ -105,8 +105,6 @@ void checkImplementations(mx::GenContext& context,
         "anisotropic_vdf",
         "thin_surface",
         "thin_film_bsdf",
-        "worleynoise2d",
-        "worleynoise3d",
         "geompropvalue",
         "surfacematerial",
         "volumematerial"
