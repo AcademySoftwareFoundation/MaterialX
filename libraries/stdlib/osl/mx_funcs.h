@@ -483,6 +483,13 @@ float mx_floorfrac(float x, output int i)
 }
 
 /// Bitwise circular rotation left by k bits (for 32 bit unsigned integers)
+///
+/// TODO:
+/// The right shift operation below should be an unsigned int right shift
+/// in order to match the hash used in GLSL and MDL. This is not supported
+/// in OSL so for now the hashes are not the same and the results produced
+/// are not identical between GLSL/MDL/OSL.
+///
 int mx_rotl32(int x, int k)
 {
     return (x<<k) | (x>>(32-k));
