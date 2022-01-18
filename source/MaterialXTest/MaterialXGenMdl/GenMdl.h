@@ -70,11 +70,11 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "worleynoise", "displacementshader",
+            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_angle",
             "geompropvalue", "surfacematerial", "volumematerial", "IM_absorption_vdf_", "IM_mix_vdf_",
-            "IM_anisotropic_vdf_", "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", "IM_thin_film_bsdf_",
-            "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_", "ND_backface_util"
+            "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", 
+            "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
