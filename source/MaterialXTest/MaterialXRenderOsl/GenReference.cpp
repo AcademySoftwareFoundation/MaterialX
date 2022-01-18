@@ -170,12 +170,12 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     context.getOptions().fileTextureVerticalFlip = true;
     context.getOptions().addUpstreamDependencies = false;
 
-    bool runCompileTest = !std::string(MATERIALX_TESTOSLC_EXECUTABLE).empty();
+    bool runCompileTest = !std::string(MATERIALX_OSL_BINARY_OSLC).empty();
     mx::OslRendererPtr oslRenderer = nullptr;
     if (runCompileTest)
     {
         oslRenderer = mx::OslRenderer::create();
-        oslRenderer->setOslCompilerExecutable(MATERIALX_TESTOSLC_EXECUTABLE);
+        oslRenderer->setOslCompilerExecutable(MATERIALX_OSL_BINARY_OSLC);
         oslRenderer->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
     }
 

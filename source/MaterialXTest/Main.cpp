@@ -4,7 +4,11 @@
 //
 
 #define CATCH_CONFIG_RUNNER
+
 #include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXFormat/File.h>
+
+namespace mx = MaterialX;
 
 int main(int argc, char* const argv[])
 {
@@ -24,6 +28,16 @@ int main(int argc, char* const argv[])
         session.configData().outputFilename = "";
     }
 #endif
+
+    mx::FilePath resourcesPath = mx::FilePath::getCurrentPath() / "resources";
+    if (!resourcesPath.exists())
+    {
+        resourcesPath = mx::FilePath::getModulePath().getParentPath() / "resources";
+        if (resourcesPath.exists())
+        {
+            resourcesPath.getParentPath().setCurrentPath();
+        }
+    }
 
     int returnCode = session.applyCommandLine(argc, argv);
     if (returnCode != 0)

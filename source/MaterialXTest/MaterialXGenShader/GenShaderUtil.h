@@ -134,11 +134,11 @@ class TestSuiteOptions
     // Transforms UVs of loaded geometry
     mx::Matrix44 transformUVs;
 
-    // Additional library paths
-    mx::FileSearchPath externalLibraryPaths;
+    // Extra library paths
+    mx::FileSearchPath extraLibraryPaths;
 
-    // Additional testPaths paths
-    mx::FileSearchPath externalTestPaths;
+    // Render test paths
+    mx::FileSearchPath renderTestPaths;
 
     // Wedge parameters
     mx::StringVec wedgeFiles;
