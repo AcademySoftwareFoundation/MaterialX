@@ -904,8 +904,8 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tSpecular Environment Method: " << specularEnvironmentMethod << std::endl;
     output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
     output << "\tIrradiance IBL File Path: " << irradianceIBLPath.asString() << std::endl;
-    output << "\tExternal library paths: " << externalLibraryPaths.asString() << std::endl;
-    output << "\tExternal test root paths: " << externalTestPaths.asString() << std::endl;
+    output << "\tExtra library paths: " << extraLibraryPaths.asString() << std::endl;
+    output << "\tRender test paths: " << renderTestPaths.asString() << std::endl;
 }
 
 bool TestSuiteOptions::readOptions(const std::string& optionFile)
@@ -937,8 +937,8 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string TRANSFORM_UVS_STRING("transformUVs");
     const std::string SPHERE_OBJ("sphere.obj");
     const std::string SHADERBALL_OBJ("shaderball.obj");
-    const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
-    const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
+    const std::string EXTRA_LIBRARY_PATHS("extraLibraryPaths");
+    const std::string RENDER_TEST_PATHS("renderTestPaths");
     const std::string WEDGE_FILES("wedgeFiles");
     const std::string WEDGE_PARAMETERS("wedgeParameters");
     const std::string WEDGE_RANGE_MIN("wedgeRangeMin");
@@ -1059,20 +1059,20 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         transformUVs = val->asA<mx::Matrix44>();
                     }
-                    else if (name == EXTERNAL_LIBRARY_PATHS)
+                    else if (name == EXTRA_LIBRARY_PATHS)
                     {
                         mx::StringVec list = mx::splitString(p->getValueString(), ",");
                         for (const auto& l : list)
                         {
-                            externalLibraryPaths.append(mx::FilePath(l));
+                            extraLibraryPaths.append(mx::FilePath(l));
                         }
                     }
-                    else if (name == EXTERNAL_TEST_PATHS)
+                    else if (name == RENDER_TEST_PATHS)
                     {
                         mx::StringVec list = mx::splitString(p->getValueString(), ",");
                         for (const auto& l : list)
                         {
-                            externalTestPaths.append(mx::FilePath(l));
+                            renderTestPaths.append(mx::FilePath(l));
                         }
                     }
                     else if (name == WEDGE_FILES)
