@@ -83,7 +83,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     string shaderPath = shaderFilePath.asString();
 
     // Set output image name.
-    string outputFileName = shaderPath + "_osl.exr";
+    string outputFileName = shaderPath + "_osl.png";
     _oslOutputFileName = outputFileName;
 
     // Use a known error file name to check
@@ -217,7 +217,7 @@ void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, co
     string shaderPath = shaderFilePath.asString();
 
     // Set output image name.
-    string outputFileName = shaderPath + ".testshade.exr";
+    string outputFileName = shaderPath + ".testshade.png";
     _oslOutputFileName = outputFileName;
 
     // Use a known error file name to check
