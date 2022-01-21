@@ -383,9 +383,14 @@
     <input name="anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" />
     <output name="out" type="vector2" />
   </nodedef>
+
+  <!--
+    Node: <blackbody>
+    Returns the radiant emittance of a blackbody radiator with the given temperature.
+  -->
   <nodedef name="ND_blackbody" node="blackbody" nodegroup="pbr" doc="Returns the radiant emittance of a blackbody radiator with the given temperature.">
     <input name="temperature" type="float" value="5000.0" />
-    <output name="out" type="float" />
+    <output name="out" type="color3" />
   </nodedef>
 
   <!--

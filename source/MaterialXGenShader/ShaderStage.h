@@ -25,8 +25,7 @@
 #define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
 #define END_SHADER_STAGE(stage, name) }
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace Stage
 {
@@ -140,6 +139,9 @@ public:
 
     /// Return the stage function name.
     const string& getFunctionName() const { return _functionName; }
+
+    /// Set the stage source code.
+    void setSourceCode(const string& code) { _code = code; }
 
     /// Return the stage source code.
     const string& getSourceCode() const { return _code; }
@@ -344,6 +346,6 @@ inline void addStageConnector(const string& block,
     addStageInput(block, type, name, to);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

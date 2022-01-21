@@ -9,8 +9,7 @@
 #include <MaterialXGenGlsl/Export.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Surface node implementation for GLSL
 class MX_GENGLSL_API SurfaceNodeGlsl : public GlslImplementation
@@ -24,9 +23,9 @@ class MX_GENGLSL_API SurfaceNodeGlsl : public GlslImplementation
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-  private:
-    ShaderNode* getConnectedNode() const;
+    virtual void emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const;
 
+  protected:
     /// Closure contexts for calling closure functions.
     mutable ClosureContext _callReflection;
     mutable ClosureContext _callTransmission;
@@ -34,6 +33,6 @@ class MX_GENGLSL_API SurfaceNodeGlsl : public GlslImplementation
     mutable ClosureContext _callEmission;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

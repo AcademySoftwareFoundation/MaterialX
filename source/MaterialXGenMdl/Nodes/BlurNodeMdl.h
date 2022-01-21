@@ -10,8 +10,7 @@
 
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Blur node MDL implementation
 class MX_GENMDL_API BlurNodeMdl : public BlurNode
@@ -29,6 +28,6 @@ class MX_GENMDL_API BlurNodeMdl : public BlurNode
                            const string& sampleName, const StringVec& sampleStrings) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

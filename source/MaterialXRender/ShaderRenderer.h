@@ -9,16 +9,14 @@
 /// @file
 /// Base class for shader rendering
 
-#include <MaterialXRender/Export.h>
+#include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/ViewHandler.h>
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to a shader renderer
 using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
@@ -39,6 +37,18 @@ class MX_RENDER_API ShaderRenderer
 
     /// Initialize the renderer.
     virtual void initialize() { }
+
+    /// Set the camera.
+    void setCamera(CameraPtr camera)
+    {
+        _camera = camera;
+    }
+
+    /// Return the camera.
+    CameraPtr getCamera() const
+    {
+        return _camera;
+    }
 
     /// Set the image handler used by this renderer for image I/O.
     void setImageHandler(ImageHandlerPtr imageHandler)
@@ -74,18 +84,6 @@ class MX_RENDER_API ShaderRenderer
     GeometryHandlerPtr getGeometryHandler() const
     {
         return _geometryHandler;
-    }
-
-    /// Set the view handler.
-    void setViewHandler(ViewHandlerPtr viewHandler)
-    {
-        _viewHandler = viewHandler;
-    }
-
-    /// Return the view handler.
-    ViewHandlerPtr getViewHandler() const
-    {
-        return _viewHandler;
     }
 
     /// @}
@@ -138,10 +136,10 @@ class MX_RENDER_API ShaderRenderer
     unsigned int _height;
     Image::BaseType _baseType;
 
+    CameraPtr _camera;
     ImageHandlerPtr _imageHandler;
     GeometryHandlerPtr _geometryHandler;
     LightHandlerPtr _lightHandler;
-    ViewHandlerPtr _viewHandler;
 };
 
 /// @class ExceptionRenderError
@@ -179,6 +177,6 @@ class MX_RENDER_API ExceptionRenderError : public Exception
     StringVec _errorLog;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

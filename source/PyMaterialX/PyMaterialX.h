@@ -12,15 +12,6 @@
 // include within any PyMaterialX source file.
 //
 
-#ifdef _MSC_VER
-#define HAVE_ACOSH
-#define HAVE_ASINH
-#define HAVE_ATANH
-#define HAVE_HYPOT
-#define HAVE_LOG1P
-#define HAVE_ROUND
-#endif
-
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 

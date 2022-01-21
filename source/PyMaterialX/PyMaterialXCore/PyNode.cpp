@@ -49,6 +49,7 @@ void bindPyNode(py::module& mod)
         .def("asStringDot", &mx::GraphElement::asStringDot);
 
     py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::GraphElement>(mod, "NodeGraph")
+        .def("getMaterialOutputs", &mx::NodeGraph::getMaterialOutputs)        
         .def("setNodeDef", &mx::NodeGraph::setNodeDef)
         .def("getNodeDef", &mx::NodeGraph::getNodeDef)
         .def("getDeclaration", &mx::NodeGraph::getDeclaration)

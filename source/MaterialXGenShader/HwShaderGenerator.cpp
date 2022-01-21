@@ -10,8 +10,7 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace HW
 {
@@ -572,4 +571,4 @@ void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStag
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

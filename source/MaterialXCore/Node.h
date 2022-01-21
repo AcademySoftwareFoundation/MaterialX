@@ -13,8 +13,7 @@
 
 #include <MaterialXCore/Definition.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Node;
 class GraphElement;
@@ -326,6 +325,13 @@ class MX_CORE_API NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
+    /// @name Material References
+    /// @{
+
+    /// Return all material-type outputs of the nodegraph.
+    vector<OutputPtr> getMaterialOutputs() const;
+
+    /// @}
     /// @name NodeDef References
     /// @{
 
@@ -479,6 +485,6 @@ class MX_CORE_API Backdrop : public Element
     static const string HEIGHT_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

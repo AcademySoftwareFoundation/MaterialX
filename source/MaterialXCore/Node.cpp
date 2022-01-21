@@ -10,8 +10,7 @@
 
 #include <deque>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string Backdrop::CONTAINS_ATTRIBUTE = "contains";
 const string Backdrop::WIDTH_ATTRIBUTE = "width";
@@ -213,6 +212,15 @@ bool Node::validate(string* message) const
     bool res = true;
     validateRequire(!getCategory().empty(), res, message, "Node element is missing a category");
     validateRequire(hasType(), res, message, "Node element is missing a type");
+
+    NodeDefPtr nodeDef = getNodeDef(EMPTY_STRING, true);
+    if (nodeDef)
+    {
+        string matchMessage;
+        bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
+        validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
+    }
+
     return InterfaceElement::validate(message) && res;
 }
 
@@ -606,6 +614,23 @@ string GraphElement::asStringDot() const
 // NodeGraph methods
 //
 
+vector<OutputPtr> NodeGraph::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+    for (auto graphOutput : getActiveOutputs())
+    {
+        if (graphOutput->getType() == MATERIAL_TYPE_STRING)
+        {
+            NodePtr node = graphOutput->getConnectedNode();
+            if (node && node->getType() == MATERIAL_TYPE_STRING)
+            {
+                materialOutputs.push_back(graphOutput);
+            }
+        }
+    }
+    return materialOutputs;
+}
+
 void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
 {
     if (nodeDef)
@@ -690,7 +715,19 @@ void NodeGraph::modifyInterfaceName(const string& inputPath, const string& inter
 
 NodeDefPtr NodeGraph::getNodeDef() const
 {
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
+    NodeDefPtr nodedef = resolveRootNameReference<NodeDef>(getNodeDefString());
+    // If not directly defined look for an implementation which has a nodedef association
+    if (!nodedef)
+    {
+        for (auto impl : getDocument()->getImplementations())
+        {
+            if (impl->getNodeGraph() == getQualifiedName(getName()))
+            {
+                nodedef = impl->getNodeDef();
+            }
+        }
+    }
+    return nodedef;
 }
 
 InterfaceElementPtr NodeGraph::getImplementation() const
@@ -773,4 +810,4 @@ bool Backdrop::validate(string* message) const
     return Element::validate(message) && res;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

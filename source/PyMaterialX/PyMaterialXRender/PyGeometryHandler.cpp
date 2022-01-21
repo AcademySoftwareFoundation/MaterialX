@@ -46,6 +46,7 @@ void bindPyGeometryHandler(py::module& mod)
         .def("getGeometry", &mx::GeometryHandler::getGeometry)
         .def("loadGeometry", &mx::GeometryHandler::loadGeometry)
         .def("getMeshes", &mx::GeometryHandler::getMeshes)
+        .def("findParentMesh", &mx::GeometryHandler::findParentMesh)
         .def("getMinimumBounds", &mx::GeometryHandler::getMinimumBounds)
         .def("getMaximumBounds", &mx::GeometryHandler::getMaximumBounds);
 }

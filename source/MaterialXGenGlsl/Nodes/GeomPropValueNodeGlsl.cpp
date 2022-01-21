@@ -7,8 +7,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr GeomPropValueNodeGlsl::create()
 {
@@ -101,4 +100,4 @@ void GeomPropValueNodeGlslAsUniform::emitFunctionCall(const ShaderNode& node, Ge
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

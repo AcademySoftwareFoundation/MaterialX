@@ -101,8 +101,7 @@ vec3 mx_ggx_dir_albedo_analytic(float NdotV, float roughness, vec3 F0, vec3 F90)
 vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
-    vec2 res = textureSize($albedoTable, 0);
-    if (res.x > 1)
+    if (textureSize($albedoTable, 0).x > 1)
     {
         vec2 AB = texture($albedoTable, vec2(NdotV, roughness)).rg;
         return F0 * AB.x + F90 * AB.y;
@@ -440,9 +439,9 @@ vec2 mx_latlong_projection(vec3 dir)
     return vec2(longitude, latitude);
 }
 
-vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D sampler)
+vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D envSampler)
 {
     vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
     vec2 uv = mx_latlong_projection(envDir);
-    return textureLod(sampler, uv, lod).rgb;
+    return textureLod(envSampler, uv, lod).rgb;
 }

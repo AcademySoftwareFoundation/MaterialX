@@ -84,7 +84,7 @@ TEST_CASE("GenShader: GLSL Implementation Check", "[genglsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 62);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 54);
 }
 
 TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
@@ -124,19 +124,16 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
 
 static void generateGlslCode(bool generateLayout = false)
 {
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
+    testRootPaths.push_back("resources/Materials/TestSuite");
+    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
+    testRootPaths.push_back("resources/Materials/Examples/UsdPreviewSurface");
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     bool writeShadersToDisk = false;
 
     const mx::GenOptions genOptions;
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
     const mx::FilePath logPath(generateLayout ? "genglsl_glsl420_layout_generate_test.txt" : "genglsl_glsl400_generate_test.txt");
 

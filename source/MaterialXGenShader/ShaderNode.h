@@ -17,8 +17,7 @@
 
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ShaderNode;
 class ShaderPort;
@@ -34,8 +33,8 @@ using ShaderInputPtr = shared_ptr<class ShaderInput>;
 using ShaderOutputPtr = shared_ptr<class ShaderOutput>;
 /// Shared pointer to a ShaderNode
 using ShaderNodePtr = shared_ptr<class ShaderNode>;
-/// Shared pointer to a ShaderInput
-using ShaderInputSet = std::set<ShaderInput*>;
+/// A vector of ShaderInput pointers
+using ShaderInputVec = vector<ShaderInput*>;
 
 
 /// Metadata to be exported to generated shader.
@@ -172,6 +171,12 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     /// Return the value set on this port.
     ValuePtr getValue() const { return _value; }
 
+    /// Set a source color space for the value on this port.
+    void setColorSpace(const string& colorspace) { _colorspace = colorspace; }
+
+    /// Return the source color space for the value on this port.
+    const string& getColorSpace() const { return _colorspace; }
+
     /// Set a unit type for the value on this port.
     void setUnit(const string& unit) { _unit = unit; }
 
@@ -245,6 +250,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     string _variable;
     ValuePtr _value;
     string _unit;
+    string _colorspace;
     string _geomprop;
     ShaderMetadataVecPtr _metadata;
     uint32_t _flags;
@@ -296,11 +302,7 @@ class MX_GENSHADER_API ShaderOutput : public ShaderPort
 
     /// Return a set of connections to downstream node inputs,
     /// empty if not connected.
-    ShaderInputSet& getConnections() { return _connections; }
-
-    /// Return a set of connections to downstream node inputs,
-    /// empty if not connected.
-    const ShaderInputSet& getConnections() const { return _connections; }
+    const ShaderInputVec& getConnections() const { return _connections; }
 
     /// Make a connection from this output to the given input
     void makeConnection(ShaderInput* dst);
@@ -312,7 +314,7 @@ class MX_GENSHADER_API ShaderOutput : public ShaderPort
     void breakConnections();
 
   protected:
-    ShaderInputSet _connections;
+    ShaderInputVec _connections;
     friend class ShaderInput;
 };
 
@@ -529,6 +531,6 @@ class MX_GENSHADER_API ShaderNode
     friend class ShaderGraph;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

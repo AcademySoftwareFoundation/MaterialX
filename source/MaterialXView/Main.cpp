@@ -87,7 +87,7 @@ int main(int argc, char* const argv[])
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
     float cameraZoom(DEFAULT_CAMERA_ZOOM);
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    int envSampleCount = DEFAULT_ENV_SAMPLE_COUNT;
+    int envSampleCount = mx::DEFAULT_ENV_SAMPLES;
     float lightRotation = 0.0f;
     DocumentModifiers modifiers;
     int screenWidth = 1280;

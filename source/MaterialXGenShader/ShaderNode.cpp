@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 
@@ -45,16 +44,32 @@ ShaderInput::ShaderInput(ShaderNode* node, const TypeDesc* type, const string& n
 
 void ShaderInput::makeConnection(ShaderOutput* src)
 {
-    breakConnection();
-    _connection = src;
-    src->_connections.insert(this);
+    // Make sure this is a new connection.
+    if (src != _connection)
+    {
+        // Break the old connection.
+        breakConnection();
+        if (src)
+        {
+            // Make the new connection.
+            _connection = src;
+            src->_connections.push_back(this);
+        }
+    }
 }
 
 void ShaderInput::breakConnection()
 {
     if (_connection)
     {
-        _connection->_connections.erase(this);
+        // Find and erase this input from the connected output's connection vector.
+        ShaderInputVec& connected = _connection->_connections;
+        ShaderInputVec::iterator it = std::find(connected.begin(), connected.end(), this);
+        if (it != connected.end())
+        {
+            connected.erase(it);
+        }
+        // Clear the connection.
         _connection = nullptr;
     }
 }
@@ -85,7 +100,7 @@ void ShaderOutput::makeConnection(ShaderInput* dst)
 
 void ShaderOutput::breakConnection(ShaderInput* dst)
 {
-    if (!_connections.count(dst))
+    if (std::find(_connections.begin(), _connections.end(), dst) == _connections.end())
     {
         throw ExceptionShaderGenError(
             "Cannot break non-existent connection from output: " + getFullName()
@@ -96,8 +111,8 @@ void ShaderOutput::breakConnection(ShaderInput* dst)
 
 void ShaderOutput::breakConnections()
 {
-    ShaderInputSet inputSet(_connections);
-    for (ShaderInput* input : inputSet)
+    ShaderInputVec inputVec(_connections);
+    for (ShaderInput* input : inputVec)
     {
         input->breakConnection();
     }
@@ -576,4 +591,4 @@ ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
     return output.get();
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -14,8 +14,7 @@
 #include <MaterialXGenShader/Export.h>
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class InterfaceElement;
 class Node;
@@ -116,6 +115,6 @@ public:
     static ShaderNodeImplPtr create();
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

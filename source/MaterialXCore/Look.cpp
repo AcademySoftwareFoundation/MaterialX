@@ -4,11 +4,9 @@
 //
 
 #include <MaterialXCore/Look.h>
-
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string MaterialAssign::MATERIAL_ATTRIBUTE = "material";
 const string MaterialAssign::EXCLUSIVE_ATTRIBUTE = "exclusive";
@@ -125,6 +123,17 @@ NodePtr MaterialAssign::getReferencedMaterial() const
     return resolveRootNameReference<Node>(getMaterial());
 }
 
+vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+    NodeGraphPtr materialGraph = resolveRootNameReference<NodeGraph>(getMaterial());
+    if (materialGraph)
+    {
+        return materialGraph->getMaterialOutputs();
+    }
+    return materialOutputs;
+}
+
 vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const
 {
     vector<VariantAssignPtr> activeAssigns;
@@ -136,4 +145,4 @@ vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const
     return activeAssigns;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -15,8 +15,7 @@
 #include <MaterialXCore/Property.h>
 #include <MaterialXCore/Variant.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Look;
 class LookGroup;
@@ -313,6 +312,9 @@ class MX_CORE_API MaterialAssign : public GeomElement
         return getAttribute(MATERIAL_ATTRIBUTE);
     }
 
+    ///  Return the outputs on any referenced material
+    vector<OutputPtr> getMaterialOutputs() const;
+
     /// @}
     /// @name Exclusive
     /// @{
@@ -495,6 +497,6 @@ class MX_CORE_API Visibility : public GeomElement
 /// @return Vector of MaterialAssign elements
 MX_CORE_API vector<MaterialAssignPtr> getGeometryBindings(ConstNodePtr materialNode, const string& geom = UNIVERSAL_GEOM_NAME);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

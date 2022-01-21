@@ -18,15 +18,6 @@ class DocumentModifiers
     std::string filePrefixTerminator;
 };
 
-class LightingState
-{
-  public:
-    mx::Matrix44 lightTransform;
-    bool directLighting = true;
-    bool indirectLighting = true;
-    int envSamples = 16;
-};
-
 class ShadowState
 {
   public:
@@ -145,7 +136,7 @@ class Material
     void bindShader();
 
     /// Bind viewing information for this material.
-    void bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj);
+    void bindViewInformation(mx::CameraPtr camera);
 
     /// Bind all images for this material.
     void bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath, bool enableMipmaps = true);
@@ -158,8 +149,7 @@ class Material
                            const mx::ImageSamplingProperties& samplingProperties);
 
     /// Bind lights to shader.
-    void bindLights(const mx::GenContext& genContext, mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
-                    const LightingState& lightingState, const ShadowState& shadowState);
+    void bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const ShadowState& shadowState);
 
     /// Bind units.
     void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);

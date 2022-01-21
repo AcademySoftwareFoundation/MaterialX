@@ -89,7 +89,7 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 63);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 55);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
@@ -175,7 +175,7 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
     context.registerSourceCodeSearchPath(searchPath);
 
     // Metadata to export must be registered in the context before shader generation starts.
-    // Custom generators can override this mehtod to customize which metadata gets registered.
+    // Custom generators can override this method to customize which metadata gets registered.
     generator->registerShaderMetadata(doc, context);
 
     // Generate the shader and write to file for inspection.
@@ -189,13 +189,11 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
 
 static void generateOslCode()
 {
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
+    testRootPaths.push_back("resources/Materials/TestSuite");
+    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
+    testRootPaths.push_back("resources/Materials/Examples/UsdPreviewSurface");
+
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/osl"));
@@ -207,7 +205,7 @@ static void generateOslCode()
     tester.addSkipLibraryFiles();
 
     const mx::GenOptions genOptions;
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
 }
 

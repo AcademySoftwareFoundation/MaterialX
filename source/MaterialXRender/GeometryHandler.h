@@ -16,8 +16,7 @@
 
 #include <map>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to a GeometryLoader
 using GeometryLoaderPtr = std::shared_ptr<class GeometryLoader>;
@@ -99,6 +98,10 @@ class MX_RENDER_API GeometryHandler
         return _meshes;
     }
 
+    /// Return the first mesh in our list containing the given partition.
+    /// If no matching mesh is found, then nullptr is returned.
+    MeshPtr findParentMesh(MeshPartitionPtr part);
+
     /// Return the minimum bounds for all meshes
     const Vector3& getMinimumBounds() const
     {
@@ -125,6 +128,6 @@ class MX_RENDER_API GeometryHandler
     Vector3 _maximumBounds;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

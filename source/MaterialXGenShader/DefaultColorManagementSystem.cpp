@@ -7,8 +7,7 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace {
 
@@ -67,4 +66,4 @@ ImplementationPtr DefaultColorManagementSystem::getImplementation(const ColorSpa
     return nullptr;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

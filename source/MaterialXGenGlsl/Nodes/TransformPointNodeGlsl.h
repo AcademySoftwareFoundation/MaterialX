@@ -8,8 +8,7 @@
 
 #include <MaterialXGenGlsl/Nodes/TransformVectorNodeGlsl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// TransformPoint node implementation for GLSL
 class MX_GENGLSL_API TransformPointNodeGlsl : public TransformVectorNodeGlsl
@@ -21,6 +20,6 @@ protected:
     virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

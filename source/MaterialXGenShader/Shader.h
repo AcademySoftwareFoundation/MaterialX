@@ -15,8 +15,7 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderStage.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ShaderGenerator;
 class Shader;
@@ -95,10 +94,13 @@ class MX_GENSHADER_API Shader
     /// Return true if this shader matches the given classification.
     bool hasClassification(unsigned int c) const { return _graph->hasClassification(c); }
 
-    /// Return the final shader source code for a given shader stage
+    /// Set the shader source code for a given shader stage.
+    const void setSourceCode(const string& code, const string& stage = Stage::PIXEL) { getStage(stage).setSourceCode(code); }
+
+    /// Return the shader source code for a given shader stage.
     const string& getSourceCode(const string& stage = Stage::PIXEL) const { return getStage(stage).getSourceCode(); }
 
-  protected: 
+  protected:
     /// Create a new stage in the shader.
     ShaderStagePtr createStage(const string& name, ConstSyntaxPtr syntax);
 
@@ -111,6 +113,6 @@ class MX_GENSHADER_API Shader
     friend class ShaderGenerator;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

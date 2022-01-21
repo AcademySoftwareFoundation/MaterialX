@@ -21,8 +21,7 @@
 
 #include <sstream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
 
@@ -296,15 +295,19 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         return impl;
     }
 
-    vector<OutputPtr> outputs = nodedef.getOutputs();
-    const TypeDesc* outputType = outputs.empty() ? nullptr : TypeDesc::get(outputs[0]->getType());
+    vector<OutputPtr> outputs = nodedef.getActiveOutputs();
+    if (outputs.empty())
+    {
+        throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
+    }
+
+    const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType &&
-            (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER))
+        if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+            outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
         {
             impl = ClosureCompoundNode::create();
         }
@@ -320,9 +323,8 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType &&
-                (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                    outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER))
+            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
+                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
             {
                 impl = ClosureSourceCodeNode::create();
             }
@@ -379,7 +381,8 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
         ShaderMetadata(ValueElement::UI_STEP_ATTRIBUTE, nullptr),
         ShaderMetadata(ValueElement::UI_ADVANCED_ATTRIBUTE, Type::BOOLEAN),
         ShaderMetadata(ValueElement::DOC_ATTRIBUTE, Type::STRING),
-        ShaderMetadata(ValueElement::UNIT_ATTRIBUTE, Type::STRING)
+        ShaderMetadata(ValueElement::UNIT_ATTRIBUTE, Type::STRING),
+        ShaderMetadata(ValueElement::COLOR_SPACE_ATTRIBUTE, Type::STRING)
     };
     for (auto data : defaultMetadata)
     {
@@ -443,4 +446,4 @@ ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) 
     return shader.createStage(name, _syntax);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

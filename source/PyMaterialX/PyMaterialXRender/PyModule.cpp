@@ -17,7 +17,7 @@ void bindPyStbImageLoader(py::module& mod);
 void bindPyOiioImageLoader(py::module& mod);
 #endif
 void bindPyTinyObjLoader(py::module& mod);
-void bindPyViewHandler(py::module& mod);
+void bindPyCamera(py::module& mod);
 void bindPyShaderRenderer(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRender, mod)
@@ -34,6 +34,6 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
     bindPyOiioImageLoader(mod);
 #endif
     bindPyTinyObjLoader(mod);
-    bindPyViewHandler(mod);
+    bindPyCamera(mod);
     bindPyShaderRenderer(mod);
 }

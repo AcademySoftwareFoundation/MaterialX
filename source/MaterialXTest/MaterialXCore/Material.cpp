@@ -7,6 +7,10 @@
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Value.h>
+#include <MaterialXFormat/XmlIo.h>
+#include <MaterialXFormat/Util.h>
+
+#include <unordered_set>
 
 namespace mx = MaterialX;
 
@@ -53,4 +57,67 @@ TEST_CASE("Material", "[material]")
     REQUIRE(instanceSpecColor->getValue()->asA<mx::Color3>() == mx::Color3(1.0f));
     REQUIRE(instanceSpecColor->getDefaultValue()->asA<mx::Color3>() == mx::Color3(0.0f));
     REQUIRE(doc->validate());
+}
+
+TEST_CASE("Material Discovery", "[material]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    mx::FileSearchPath searchPath(currentPath / mx::FilePath("resources/Materials/TestSuite"));
+    mx::FilePath filename = "stdlib/materials/material_node_discovery.mtlx";
+    mx::readFromXmlFile(doc, filename, searchPath);
+
+    // 1. Find all materials referenced by material assignments
+    //    which are found in connected nodegraphs
+    std::unordered_set<mx::ElementPtr> foundNodes;
+    for (auto look : doc->getLooks())
+    {
+        for (auto materialAssign : look->getMaterialAssigns())
+        {
+            for (auto assignOutput : materialAssign->getMaterialOutputs())
+            {
+                mx::NodePtr assignNode = assignOutput->getConnectedNode();
+                if (assignNode)
+                {
+                    foundNodes.insert(assignNode);
+                }
+            }
+        }
+    }
+    CHECK(foundNodes.size() == 1);
+
+    // 2. Nodegraph Test: Find all graphs with material nodes exposed as outputs.
+    //    
+    foundNodes.clear();
+    for (auto nodeGraph : doc->getNodeGraphs())
+    {
+        for (auto nodeGraphOutput : nodeGraph->getMaterialOutputs())
+        {
+            mx::NodePtr nodeGraphNode = nodeGraphOutput->getConnectedNode();
+            if (nodeGraphNode)
+            {
+                foundNodes.insert(nodeGraphNode);
+            }
+        }
+    }
+    CHECK(foundNodes.size() == 3);
+
+    // 3. Document test: Find all material nodes within nodegraphs
+    //    which are not implementations. This will return less nodes
+    //    as implementation graphs exist in the document.
+    foundNodes.clear();
+    std::vector<mx::InterfaceElementPtr> docNodes;
+    if (doc)
+    {
+        for (auto documentOutput : doc->getMaterialOutputs())
+        {
+            mx::NodePtr documentNode = documentOutput->getConnectedNode();
+            if (documentNode)
+            {
+                foundNodes.insert(documentNode);
+            }
+        }
+    }
+    CHECK(foundNodes.size() == 2);
 }

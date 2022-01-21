@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Extending the CompoundNode with requirements for closures.
 class MX_GENSHADER_API ClosureCompoundNode : public CompoundNode
@@ -26,6 +25,6 @@ protected:
     void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

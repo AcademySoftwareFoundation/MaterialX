@@ -11,8 +11,7 @@
 #include <MaterialXRenderHw/Export.h>
 #include <MaterialXRenderHw/WindowWrapper.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// SimpleWindow shared pointer
 using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
@@ -84,6 +83,6 @@ class MX_RENDERHW_API SimpleWindow
 #endif
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

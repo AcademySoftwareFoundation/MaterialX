@@ -19,7 +19,8 @@ void bindPyGenContext(py::module& mod)
         .def("getOptions", static_cast<mx::GenOptions& (mx::GenContext::*)()>(&mx::GenContext::getOptions), py::return_value_policy::reference)
         .def("registerSourceCodeSearchPath", static_cast<void (mx::GenContext::*)(const mx::FilePath&)>(&mx::GenContext::registerSourceCodeSearchPath))
         .def("registerSourceCodeSearchPath", static_cast<void (mx::GenContext::*)(const mx::FileSearchPath&)>(&mx::GenContext::registerSourceCodeSearchPath))
-        .def("resolveSourceFile", &mx::GenContext::resolveSourceFile);
+        .def("resolveSourceFile", &mx::GenContext::resolveSourceFile)
+        .def("pushUserData", &mx::GenContext::pushUserData);
 }
 
 void bindPyGenUserData(py::module& mod)
