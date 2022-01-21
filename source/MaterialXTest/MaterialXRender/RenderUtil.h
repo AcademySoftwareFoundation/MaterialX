@@ -92,7 +92,7 @@ class ShaderRenderTester
     ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator);
     virtual ~ShaderRenderTester();
 
-    bool validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath);
+    bool validate(const mx::FilePath optionsFilePath);
 
     void setEmitColorTransforms(bool val)
     {

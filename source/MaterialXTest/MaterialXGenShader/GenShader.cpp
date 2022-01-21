@@ -178,10 +178,10 @@ TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
         "Materials/Examples/StandardSurface/standard_surface_default.mtlx", 
         "Materials/Examples/StandardSurface/standard_surface_glass.mtlx",
         "Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx",
-        "Materials/TestStuie/pbrlib/surfaceshader/transparency_nodedef_test.mtlx",
-        "Materials/TestStuie/pbrlib/surfaceshader/transparency_test.mtlx",
+        "Materials/TestSuite/pbrlib/surfaceshader/transparency_nodedef_test.mtlx",
+        "Materials/TestSuite/pbrlib/surfaceshader/transparency_test.mtlx",
     };
-    std::vector<bool> transparencyTest = { false, true, true, true };
+    std::vector<bool> transparencyTest = { false, true, true, true, true };
     for (size_t i=0; i<testFiles.size(); i++)
     {
         const mx::FilePath& testFile = resourcePath / testFiles[i];
