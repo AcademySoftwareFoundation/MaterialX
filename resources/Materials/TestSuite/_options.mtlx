@@ -106,12 +106,12 @@
     <!-- Transforms UVs of loaded geometry -->
     <input name="transformUVs" type="matrix44" value="1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -0.235f, 1.0f, 0.0f, 1.0f" />
 
-    <!-- External testing: extra comma separated list of library paths -->
-    <input name="externalLibraryPaths" type="string" value="" />
+    <!-- List of extra library paths for generator and render tests -->
+    <input name="extraLibraryPaths" type="string" value="" />
 
-    <!-- External testing: extra comma separated list of test root paths -->
-    <input name="externalTestPaths" type="string" value="" />
-     
+    <!-- List of document paths for render tests -->
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/Examples/UsdPreviewSurface,resources/Materials/TestSuite" />
+
     <!-- Color management configuration file. Only applicable if building with OCIO -->
     <input name="colorManagementConfigFile" type="string" value="" />
 

@@ -962,8 +962,8 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tSpecular Environment Method: " << specularEnvironmentMethod << std::endl;
     output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
     output << "\tIrradiance IBL File Path: " << irradianceIBLPath.asString() << std::endl;
-    output << "\tExternal library paths: " << externalLibraryPaths.asString() << std::endl;
-    output << "\tExternal test root paths: " << externalTestPaths.asString() << std::endl;
+    output << "\tExtra library paths: " << extraLibraryPaths.asString() << std::endl;
+    output << "\tRender test paths: " << renderTestPaths.asString() << std::endl;
     output << "\tColor management config file: " << colorManagementConfigFile.asString() << std::endl;
 }
 
@@ -998,9 +998,14 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
     const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
-    const std::string COLORMANAGEMENT_CONFIG_FILE("colorManagementConfigFile");
-    const std::string WEDGE_SETTING("wedgerender");
-    const std::string BAKER_SETTINGS("baker");
+    const std::string WEDGE_FILES("wedgeFiles");
+    const std::string WEDGE_PARAMETERS("wedgeParameters");
+    const std::string WEDGE_RANGE_MIN("wedgeRangeMin");
+    const std::string WEDGE_RANGE_MAX("wedgeRangeMax");
+    const std::string WEDGE_STEPS("wedgeSteps");
+    const std::string BAKE_FILES("bakeFiles");
+    const std::string BAKE_HDRS("bakeHdrs");
+    const std::string BAKE_RESOLUTIONS("bakeResolutions");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -1177,20 +1182,20 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         transformUVs = val->asA<mx::Matrix44>();
                     }
-                    else if (name == EXTERNAL_LIBRARY_PATHS)
+                    else if (name == EXTRA_LIBRARY_PATHS)
                     {
                         mx::StringVec list = mx::splitString(p->getValueString(), ",");
                         for (const auto& l : list)
                         {
-                            externalLibraryPaths.append(mx::FilePath(l));
+                            extraLibraryPaths.append(mx::FilePath(l));
                         }
                     }
-                    else if (name == EXTERNAL_TEST_PATHS)
+                    else if (name == RENDER_TEST_PATHS)
                     {
                         mx::StringVec list = mx::splitString(p->getValueString(), ",");
                         for (const auto& l : list)
                         {
-                            externalTestPaths.append(mx::FilePath(l));
+                            renderTestPaths.append(mx::FilePath(l));
                         }
                     }
                     else if (name == COLORMANAGEMENT_CONFIG_FILE)

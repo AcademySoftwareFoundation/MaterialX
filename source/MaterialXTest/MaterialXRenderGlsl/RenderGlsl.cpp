@@ -410,6 +410,8 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
+    std::cout << "Validating GLSL rendering for: " << doc->getSourceUri() << std::endl;
+
     mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -729,20 +731,13 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 {
     GlslShaderRenderTester renderTester(mx::GlslShaderGenerator::create());
 
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
-
-    GenShaderUtil::TestSuiteOptions options;
+  GenShaderUtil::TestSuiteOptions options;
     if (options.readOptions(optionsFilePath))
     {
         renderTester.setColorManagementConfigFile(options.colorManagementConfigFile);
     }
-    renderTester.validate(testRootPaths, optionsFilePath);
+
+    renderTester.validate(optionsFilePath);
 }

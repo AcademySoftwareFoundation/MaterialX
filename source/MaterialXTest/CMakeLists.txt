@@ -5,8 +5,6 @@ list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/catch.hpp")
 assign_source_group("Source Files" ${materialx_source})
 assign_source_group("Header Files" ${materialx_headers})
 
-set(MATERIALX_TEST_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-
 # Discover all tests and allow them to be run in parallel (ctest -j20):
 function(add_tests _sources)
   foreach(src_file ${_sources})
