@@ -29,6 +29,8 @@ int main(int argc, char* const argv[])
     }
 #endif
 
+    // If the current path has no valid resources folder, as can occur when launching the
+    // test suite from an IDE, then align the current path with the module path.
     mx::FilePath resourcesPath = mx::FilePath::getCurrentPath() / "resources";
     if (!resourcesPath.exists())
     {
