@@ -19,10 +19,13 @@ if(APPLE)
     add_compile_options(-DGL_SILENCE_DEPRECATION)
 elseif(UNIX)
     find_package(X11 REQUIRED)
-    find_package(OpenGL REQUIRED)
+    # Note - can't just require the Xt component because FindX11 in cmake 3.1
+    # doesn't support it
     if(NOT X11_Xt_FOUND)
-        message("Error in building MaterialXRenderGlsl: Xt was not found")
+        message(FATAL_ERROR "Error in building MaterialXRenderGlsl: Xt was not found")
     endif()
+
+    find_package(OpenGL REQUIRED)
     include_directories(${X11_INCLUDE_DIR})
 endif()
 

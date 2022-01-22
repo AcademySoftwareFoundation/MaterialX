@@ -8,6 +8,13 @@ if(APPLE)
   set_source_files_properties(${materialx_source_oc} PROPERTIES
                               COMPILE_FLAGS "-x objective-c++")
   set(materialx_source ${materialx_source} ${materialx_source_oc})
+elseif(UNIX)
+  find_package(X11 REQUIRED)
+  # Note - can't just require the Xt component because FindX11 in cmake 3.1
+  # doesn't support it
+  if(NOT X11_Xt_FOUND)
+    message(FATAL_ERROR "Error in building MaterialXRenderHw: Xt was not found")
+  endif()
 endif()
 
 assign_source_group("Source Files" ${materialx_source})
