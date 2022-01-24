@@ -101,6 +101,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     REQUIRE(envIrradiance);
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
+    _lightHandler->setEnvSamples(256);
 }
 
 //

@@ -97,7 +97,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     std::string docValidLogFilename = _shaderGenerator->getTarget() + "_render_doc_validation_log.txt";
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "__render_profiling_log.txt");
+    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "_render_profiling_log.txt");
     std::ostream& profilingLog(profilingLogfile);
 #else
     std::ostream& log(std::cout);
