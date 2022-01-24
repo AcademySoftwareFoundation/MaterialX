@@ -113,7 +113,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     const string INPUT_SHADER_PARAMETER_OVERRIDES("%input_shader_parameter_overrides%");
     const string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
     const string BACKGROUND_COLOR_STRING("%background_color%");
-    const string backgroundColor("0.4 0.4 0.4"); // TODO: Make this a user input
+    const string backgroundColor("0.3 0.3 0.32"); // TODO: Make this a user input
 
     StringMap replacementMap;
     replacementMap[OUTPUT_SHADER_TYPE_STRING] = outputShader;
@@ -158,16 +158,17 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     string command(_oslTestRenderExecutable);
     command += " " + sceneFileName;
     command += " " + outputFileName;
-    command += " -r " + std::to_string(_width) + " " + std::to_string(_height) + " --path " + osoPaths;
+    command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
+    command += " --path " + osoPaths;
     if (isColorClosure)
     {
-        command += " -aa 4 "; // Images are very noisy without anti-aliasing
+        command += " -aa 6"; // Increase rays per pixel for lit surfaces
     }
     command += " > " + errorFile + redirectString;
 
     // Repeat the render command to allow for sporadic errors.
     int returnValue = 0;
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 5; i++)
     {
         returnValue = std::system(command.c_str());
         if (!returnValue)
