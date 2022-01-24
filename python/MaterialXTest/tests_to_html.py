@@ -69,18 +69,18 @@ def main(args=None):
             if curFile.endswith(args.sourcelang + ".png"):
                 sourceFiles.append(curFile)
                 sourceCount += 1
-            else:
-                sourceFiles.append("")
-            if curFile.endswith(args.destlang + ".png"):
-                destFiles.append(curFile)
-                destCount += 1
-            else:
-                destFiles.append("")
+                # Allow for just one language to be shown if source and dest are the same.
+                # Otherwise add in equivalent name with dest language replacement 
+                if args.sourcelang != args.destlang:
+                    destFile = curFile.replace(args.sourcelang, args.destlang)
+                    destFiles.append(destFile)
+                else:
+                    destFiles.append("")
 
-        if sourceCount > 0 or destCount > 0:
+        if sourceFiles:
             fh.write("<p>" + subdir + ":</p>\n")
             fh.write("<table>\n")
-            for sourceFile, destFile in zip_longest(sourceFiles, destFiles):
+            for sourceFile, destFile in zip(sourceFiles, destFiles):
                 fullsourcePath = os.path.join(subdir, sourceFile) if sourceFile else None
                 fulldestPath = os.path.join(subdir, destFile) if destFile else None
                 if sourceFile and destFile and DIFF_ENABLED and args.CREATE_DIFF:
