@@ -81,7 +81,7 @@
     <input name="shadedGeometry" type="string" value="sphere.obj" />
 
     <!-- Amount to scale geometry. -->
-    <input name="geometryScale" type="float" value="40.0" />
+    <input name="geometryScale" type="float" value="1.0" />
 
     <!-- Enable direct lighting. Default is true. -->
     <input name="enableDirectLighting" type="boolean" value="false" />

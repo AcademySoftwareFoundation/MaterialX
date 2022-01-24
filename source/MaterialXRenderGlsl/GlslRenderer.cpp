@@ -34,11 +34,11 @@ GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Im
 GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
     _initialized(false),
-    _eye(0.0f, 0.0f, 4.0f),
+    _eye(0.0f, 0.0f, 3.0f),
     _center(0.0f, 0.0f, 0.0f),
     _up(0.0f, 1.0f, 0.0f),
     _objectScale(1.0f),
-    _clearColor(0.4f, 0.4f, 0.4f, 1.0f)
+    _clearColor(0.3f, 0.3f, 0.32f, 1.0f)
 {
     _program = GlslProgram::create();
 
@@ -162,16 +162,7 @@ void GlslRenderer::updateViewInformation()
 
 void GlslRenderer::updateWorldInformation()
 {
-    float aspectRatio = float(_width) / float(_height);
-    float geometryRatio = _height < _width ?  aspectRatio : (1.0f / aspectRatio);
-    Vector3 boxMin = _geometryHandler->getMinimumBounds();
-    Vector3 boxMax = _geometryHandler->getMaximumBounds();
-    Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
-    float sphereRadius = (sphereCenter - boxMin).getMagnitude() * geometryRatio;
-    float meshFit = 2.0f / sphereRadius;
-    Vector3 modelTranslation = sphereCenter * -1.0f;
-    _camera->setWorldMatrix(Matrix44::createTranslation(modelTranslation) *
-                            Matrix44::createScale(Vector3(_objectScale * meshFit)));
+     _camera->setWorldMatrix(Matrix44::createScale(Vector3(_objectScale)));
 }
 
 void GlslRenderer::render()
