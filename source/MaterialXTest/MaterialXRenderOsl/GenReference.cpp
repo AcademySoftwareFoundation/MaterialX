@@ -167,6 +167,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
     mx::GenContext context(generator);
     context.registerSourceCodeSearchPath(librariesPath);
+    context.registerSourceCodeSearchPath(librariesPath / mx::FilePath("stdlib/genosl/include"));
     context.getOptions().fileTextureVerticalFlip = true;
     context.getOptions().addUpstreamDependencies = false;
 
@@ -237,7 +238,16 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
                 }
             }
         }
-        catch (mx::Exception & e)
+        catch (mx::ExceptionRenderError& e)
+        {
+            logFile << "Error compiling OSL reference for '" << nodeName << "' : " << std::endl;
+            logFile << e.what() << std::endl;
+            for (const std::string& error : e.errorLog())
+            {
+                logFile << error << std::endl;
+            }
+        }
+        catch (mx::Exception& e)
         {
             logFile << "Error generating OSL reference for '" << nodeName << "' : " << std::endl;
             logFile << e.what() << std::endl;

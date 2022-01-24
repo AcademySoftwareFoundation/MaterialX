@@ -1,6 +1,6 @@
-<!-- Template for taking an input color shader and rendering without lighting -->
+<!-- Template for an unlit scene in testrender -->
 <World>
-   <Camera eye="0, 0, 4"  dir="0,0,-1"  fov="70" />
+   <Camera eye="0, 0, 3" dir="0, 0, -1" fov="79.3" />
 
    <!-- Background clear
    %background_color% : is the background color
@@ -25,6 +25,6 @@
       shader %output_shader_type% outputShader;
       connect inputShader.%input_shader_output% outputShader.%output_shader_input%;
    </ShaderGroup>
-   <Sphere center="0,0,0" radius="1.0" />
 
+   <Sphere center="0, 0, 0" radius="1" />
 </World>
