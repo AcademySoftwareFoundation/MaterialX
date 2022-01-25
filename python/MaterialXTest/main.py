@@ -31,8 +31,7 @@ _exampleDir = os.path.join(_fileDir, '../../resources/Materials/Examples/')
 _searchPath = _libraryDir + mx.PATH_LIST_SEPARATOR + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
-                     'stdlib_ng.mtlx',
-                     'osl/stdlib_osl_impl.mtlx')
+                     'stdlib_ng.mtlx')
 _exampleFilenames = ('StandardSurface/standard_surface_brass_tiled.mtlx',
                      'StandardSurface/standard_surface_brick_procedural.mtlx',
                      'StandardSurface/standard_surface_carpaint.mtlx',

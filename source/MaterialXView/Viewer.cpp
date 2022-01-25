@@ -121,6 +121,21 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
             }
         }
     }
+
+    // Remap unsupported texture coordinate indices.
+    for (mx::ElementPtr elem : doc->traverseTree())
+    {
+        mx::NodePtr node = elem->asA<mx::Node>();
+        if (node && node->getCategory() == "texcoord")
+        {
+            mx::InputPtr index = node->getInput("index");
+            mx::ValuePtr value = index ? index->getValue() : nullptr;
+            if (value && value->isA<int>() && value->asA<int>() != 0)
+            {
+                index->setValue(0);
+            }
+        }
+    }
 }
 
 // ViewDir implementation for GLSL
@@ -2108,7 +2123,17 @@ void Viewer::drawContents()
     }
 
     // Render the current frame.
-    renderFrame();
+    try
+    {
+        renderFrame();
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning,
+            "Failed to render frame: ", e.what());
+        _materialAssignments.clear();
+        glDisable(GL_FRAMEBUFFER_SRGB);
+    }
 
     // Capture the current frame.
     if (_captureRequested)
