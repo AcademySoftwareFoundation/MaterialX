@@ -103,7 +103,7 @@ TEST_CASE("GenShader: MDL Unique Names", "[genmdl]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     context.registerSourceCodeSearchPath(searchPath);
     // TODO: Add path to find MDL module files
-    // context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+    // context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/mdl"));
 
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }

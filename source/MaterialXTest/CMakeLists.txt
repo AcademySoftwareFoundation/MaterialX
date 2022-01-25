@@ -85,13 +85,6 @@ add_custom_command(TARGET MaterialXTest POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_BINARY_DIR}/bin/libraries)
 
-if(MATERIALX_BUILD_GEN_OSL)
-    install(DIRECTORY DESTINATION ${CMAKE_BINARY_DIR}/bin/libraries/stdlib/reference/osl)
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stdlib/osl/"
-        DESTINATION ${CMAKE_BINARY_DIR}/bin/libraries/stdlib/reference/osl
-        FILES_MATCHING PATTERN "*.h")
-endif()
-
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
         DESTINATION ${CMAKE_BINARY_DIR}/bin/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
