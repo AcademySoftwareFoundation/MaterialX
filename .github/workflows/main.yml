@@ -30,6 +30,7 @@ jobs:
           compiler: gcc
           compiler_version: "10"
           python: 3.7
+          upload_shaders: ON
 
         - name: Linux_GCC_11_Python39
           os: ubuntu-20.04
@@ -260,6 +261,13 @@ jobs:
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
+
+    - name: Upload Reference Shaders
+      uses: actions/upload-artifact@v2
+      if: matrix.upload_shaders == 'ON'
+      with:
+        name: Reference_Shaders_${{ matrix.name }}
+        path: build/bin/reference/
 
     - name: Upload Renders
       uses: actions/upload-artifact@v2

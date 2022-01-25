@@ -99,7 +99,7 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     context.registerSourceCodeSearchPath(searchPath);
     // Add path to find OSL include files
-    context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+    context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/genosl/include"));
 
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
@@ -196,7 +196,7 @@ static void generateOslCode()
 
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/osl"));
+    srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/genosl/include"));
     srcSearchPath.append(mx::FilePath::getCurrentPath());
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
 
