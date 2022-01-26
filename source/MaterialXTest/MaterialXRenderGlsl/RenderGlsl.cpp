@@ -434,7 +434,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
                 contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
-				contextOptions.fileTextureVerticalFlip = true;
+                contextOptions.fileTextureVerticalFlip = true;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
