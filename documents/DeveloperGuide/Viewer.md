@@ -95,8 +95,7 @@ The following are common command-line options for MaterialXView, and a complete 
 - `--screenHeight [INTEGER]` : Specify the height of the screen image in pixels (defaults to 960)
 - `--screenColor [VECTOR3]` : Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)
 - `--captureFilename [FILENAME]` : Specify the filename to which the first rendered frame should be written
-- `--msaa [INTEGER]` : Specify the multisampling count for screen anti-aliasing (defaults to 0)
-- `--refresh [INTEGER]` : Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)
+- `--refresh [FLOAT]` : Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)
 - `--remap [TOKEN1:TOKEN2]` : Specify the remapping from one token to another when MaterialX document is loaded
 - `--skip [NAME]` : Specify to skip elements matching the given name attribute
 - `--terminator [STRING]` : Specify to enforce the given terminator string for file prefixes

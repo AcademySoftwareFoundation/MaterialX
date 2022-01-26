@@ -29,8 +29,7 @@ const std::string options =
 "    --bakeWidth [INTEGER]          Specify the target width for texture baking (defaults to maximum image width of the source document)\n"
 "    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
 "    --bakeFilename [STRING]        Specify the output document filename for texture baking\n"
-"    --msaa [INTEGER]               Specify the multisampling count for screen anti-aliasing (defaults to 0)\n"
-"    --refresh [INTEGER]            Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
+"    --refresh [FLOAT]              Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
 "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
 "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
 "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
@@ -97,8 +96,7 @@ int main(int argc, char* const argv[])
     int bakeWidth = 0;
     int bakeHeight = 0;
     std::string bakeFilename;
-    int multiSampleCount = 0;
-    int refresh = 50;
+    float refresh = 50.0f;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -191,13 +189,9 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "string", bakeFilename);
         }
-        else if (token == "--msaa")
-        {
-            parseToken(nextToken, "integer", multiSampleCount);
-        }
         else if (token == "--refresh")
         {
-            parseToken(nextToken, "integer", refresh);
+            parseToken(nextToken, "float", refresh);
         }
         else if (token == "--remap")
         {
@@ -251,8 +245,7 @@ int main(int argc, char* const argv[])
                                             libraryFolders,
                                             screenWidth,
                                             screenHeight,
-                                            screenColor,
-                                            multiSampleCount);
+                                            screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
         viewer->setCameraPosition(cameraPosition);
@@ -274,7 +267,7 @@ int main(int argc, char* const argv[])
         } 
         else 
         {            
-            viewer->setVisible(true);
+            viewer->set_visible(true);
         }
         if (!captureFilename.empty())
         {
