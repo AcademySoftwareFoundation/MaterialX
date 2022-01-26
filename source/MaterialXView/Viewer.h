@@ -27,8 +27,7 @@ class Viewer : public ng::Screen
            const mx::FilePathVec& libraryFolders,
            int screenWidth,
            int screenHeight,
-           const mx::Color3& screenColor,
-           int multiSampleCount);
+           const mx::Color3& screenColor);
     ~Viewer() { }
 
     // Initialize the viewer for rendering.
@@ -178,13 +177,13 @@ class Viewer : public ng::Screen
     void bakeTextures();
 
   private:
-    void drawContents() override;
-    bool keyboardEvent(int key, int scancode, int action, int modifiers) override;
-    bool scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel) override;
-    bool mouseMotionEvent(const ng::Vector2i& p, const ng::Vector2i& rel, int button, int modifiers) override;
-    bool mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int modifiers) override;
-    void initContext(mx::GenContext& context);
+    void draw_contents() override;
+    bool keyboard_event(int key, int scancode, int action, int modifiers) override;
+    bool scroll_event(const ng::Vector2i& p, const ng::Vector2f& rel) override;
+    bool mouse_motion_event(const ng::Vector2i& p, const ng::Vector2i& rel, int button, int modifiers) override;
+    bool mouse_button_event(const ng::Vector2i& p, int button, bool down, int modifiers) override;
 
+    void initContext(mx::GenContext& context);
     void loadMesh(const mx::FilePath& filename);
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);

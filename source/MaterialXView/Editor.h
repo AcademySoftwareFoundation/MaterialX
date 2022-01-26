@@ -30,7 +30,7 @@ class PropertyEditor
         if (value != _visible)
         {
             _visible = value;
-            _window->setVisible(_visible);
+            _window->set_visible(_visible);
         }
     }
 

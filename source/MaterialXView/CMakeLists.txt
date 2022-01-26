@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 17)
+
 option(MATERIALX_NANOGUI_EXTERNAL "Build aginst an external install of NanoGUI (NANOGUI_ROOT may also need to be set)" OFF)
 
 if (MATERIALX_NANOGUI_EXTERNAL)
@@ -26,7 +28,8 @@ else()
             "git submodule update --init --recursive")
     endif()
 
-    set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
+    set(NANOGUI_BACKEND OpenGL CACHE STRING " " FORCE)
+    set(NANOGUI_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
     set(NANOGUI_BUILD_SHARED OFF CACHE BOOL " " FORCE)
     set(NANOGUI_BUILD_PYTHON OFF CACHE BOOL " " FORCE)
     set(NANOGUI_INSTALL OFF CACHE BOOL " " FORCE)
@@ -35,16 +38,11 @@ else()
     set(PREV_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
     set(PREV_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     if(MSVC)
-        add_compile_options(-wd4389 -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DEIGEN_DONT_VECTORIZE)
+        add_compile_options(-wd4389)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         add_compile_options(-Wno-deprecated)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        add_compile_options(-Wno-format-truncation -Wno-implicit-fallthrough -Wno-int-in-bool-context
-                            -Wno-maybe-uninitialized -Wno-misleading-indentation)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy")
-    endif()
-    if(APPLE)
-        add_compile_options(-Wno-objc-multiple-method-names -DGL_SILENCE_DEPRECATION)
+        add_compile_options(-Wno-format-truncation)
     endif()
 
     # Disable NanoGUI compiler modifications for Clang
@@ -54,7 +52,7 @@ else()
     endif()
 
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI external/NanoGUI)
-    set_property(TARGET nanogui nanogui-obj glfw glfw_objects PROPERTY FOLDER "External")
+    set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "External")
 
     set(NANOGUI_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../;${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI/include")
     set(NANOGUI_LIBRARIES "nanogui")

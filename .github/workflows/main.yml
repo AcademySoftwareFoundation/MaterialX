@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_5_Python27
+        - name: Linux_GCC_7_Python27
           os: ubuntu-18.04
           compiler: gcc
-          compiler_version: "5"
+          compiler_version: "7"
           python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
           run_on_push : OFF
