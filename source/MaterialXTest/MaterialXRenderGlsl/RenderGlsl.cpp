@@ -38,8 +38,6 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void createRenderer(std::ostream& log) override;
 
-    void transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const;
-
     bool runRenderer(const std::string& shaderName,
                      mx::TypedElementPtr element,
                      mx::GenContext& context,
@@ -376,30 +374,6 @@ void addAdditionalTestStreams(mx::MeshPtr mesh)
     }
 }
 
-void GlslShaderRenderTester::transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const
-{
-    for(mx::MeshPtr mesh : meshes)
-    {
-        // Transform texture coordinates.
-        mx::MeshStreamPtr uvStream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
-        uvStream->transform(matrixTransform);
-
-        // Regenerate tangents
-        mx::MeshStreamPtr tangentStream = mesh->getStream(mx::MeshStream::TANGENT_ATTRIBUTE, 0);
-        if (tangentStream)
-        {
-            mesh->removeStream(tangentStream);
-            tangentStream = mesh->generateTangents(mesh->getStream(mx::MeshStream::POSITION_ATTRIBUTE, 0),
-                                                   mesh->getStream(mx::MeshStream::NORMAL_ATTRIBUTE, 0),
-                                                   uvStream);
-            if (tangentStream)
-            {
-                mesh->addStream(tangentStream);
-            }
-        }
-    }
-}
-
 bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           mx::TypedElementPtr element,
                                           mx::GenContext& context,
@@ -465,6 +439,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
                 contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
+                contextOptions.fileTextureVerticalFlip = true;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -537,7 +512,6 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                         if (!meshes.empty())
                         {
                             addAdditionalTestStreams(meshes[0]);
-                            transformUVs(meshes, testOptions.transformUVs);
                         }
                     }
 
@@ -571,7 +545,6 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                         if (!meshes.empty())
                         {
                             addAdditionalTestStreams(meshes[0]);
-                            transformUVs(meshes, testOptions.transformUVs);
                         }
                     }
 
