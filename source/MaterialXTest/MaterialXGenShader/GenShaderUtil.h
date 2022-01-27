@@ -131,9 +131,6 @@ class TestSuiteOptions
     // Irradiance IBL file.
     mx::FilePath irradianceIBLPath;
 
-    // Transforms UVs of loaded geometry
-    mx::Matrix44 transformUVs;
-
     // Extra library paths
     mx::FileSearchPath extraLibraryPaths;
 
