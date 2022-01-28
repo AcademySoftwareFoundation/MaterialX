@@ -434,7 +434,6 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
                 contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
-                contextOptions.fileTextureVerticalFlip = true;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -477,75 +476,40 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             bool validated = false;
             try
             {
+				// Set geometry
                 mx::GeometryHandlerPtr geomHandler = _renderer->getGeometryHandler();
+				mx::FilePath geomPath;
+				if (!testOptions.shadedGeometry.isEmpty())
+				{
+					if (!testOptions.shadedGeometry.isAbsolute())
+					{
+						geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
+					}
+					else
+					{
+						geomPath = testOptions.shadedGeometry;
+					}
+				}
+				else
+				{
+					geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
+				}
+
+                if (!geomHandler->hasGeometry(geomPath))
+				{
+                    // For test sphere and plane geometry perform a V-flip of texture coordinates.
+                    const std::string baseName = geomPath.getBaseName();
+                    bool uvVerticalFlip = baseName == "sphere.obj" || baseName == "plane.obj";
+					geomHandler->clearGeometry();
+					geomHandler->loadGeometry(geomPath,uvVerticalFlip);
+					for (mx::MeshPtr mesh : geomHandler->getMeshes())
+					{
+						addAdditionalTestStreams(mesh);
+					}
+				}
 
                 bool isShader = mx::elementRequiresShading(element);
-                if (isShader)
-                {
-                    // Set shaded element geometry
-                    mx::FilePath geomPath;
-                    if (!testOptions.shadedGeometry.isEmpty())
-                    {
-                        if (!testOptions.shadedGeometry.isAbsolute())
-                        {
-                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
-                        }
-                        else
-                        {
-                            geomPath = testOptions.shadedGeometry;
-                        }
-                    }
-                    else
-                    {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/shaderball.obj");
-                    }
-                    if (!geomHandler->hasGeometry(geomPath))
-                    {
-                        geomHandler->clearGeometry();
-                        geomHandler->loadGeometry(geomPath);
-                        const mx::MeshList& meshes = geomHandler->getMeshes();
-                        if (!meshes.empty())
-                        {
-                            addAdditionalTestStreams(meshes[0]);
-                        }
-                    }
-
-                    // Set shaded element lights
-                    _renderer->setLightHandler(_lightHandler);
-                }
-                else
-                {
-                    // Set unshaded element geometry
-                    mx::FilePath geomPath;
-                    if (!testOptions.unShadedGeometry.isEmpty())
-                    {
-                        if (!testOptions.unShadedGeometry.isAbsolute())
-                        {
-                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.unShadedGeometry;
-                        }
-                        else
-                        {
-                            geomPath = testOptions.unShadedGeometry;
-                        }
-                    }
-                    else
-                    {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
-                    }
-                    if (!geomHandler->hasGeometry(geomPath))
-                    {
-                        geomHandler->clearGeometry();
-                        geomHandler->loadGeometry(geomPath);
-                        const mx::MeshList& meshes = geomHandler->getMeshes();
-                        if (!meshes.empty())
-                        {
-                            addAdditionalTestStreams(meshes[0]);
-                        }
-                    }
-
-                    // Clear lights for unshaded element
-                    _renderer->setLightHandler(nullptr);
-                }
+                _renderer->setLightHandler(isShader ? _lightHandler : nullptr);
 
                 {
                     mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);

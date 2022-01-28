@@ -31,7 +31,7 @@ class MX_RENDER_API TinyObjLoader : public GeometryLoader
     static TinyObjLoaderPtr create() { return std::make_shared<TinyObjLoader>(); }
 
     /// Load geometry from disk
-    bool load(const FilePath& filePath, MeshList& meshList) override;
+    bool load(const FilePath& filePath, MeshList& meshList, bool uvVerticalFlip = false) override;
 };
 
 MATERIALX_NAMESPACE_END
