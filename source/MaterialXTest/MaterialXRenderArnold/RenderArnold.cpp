@@ -380,16 +380,7 @@ TEST_CASE("Render: Arnold TestSuite", "[renderarnold]")
     ArnoldShaderRenderTester renderTester;
     renderTester.setEmitColorTransforms(false);
 
-    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    const mx::FilePath testRootPath = currentPath / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = currentPath / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = currentPath / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
-
-    renderTester.validate(testRootPaths, optionsFilePath);
+    renderTester.validate(optionsFilePath);
 }

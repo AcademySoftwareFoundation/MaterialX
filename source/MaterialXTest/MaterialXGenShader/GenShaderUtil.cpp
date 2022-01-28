@@ -996,16 +996,11 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string TRANSFORM_UVS_STRING("transformUVs");
     const std::string SPHERE_OBJ("sphere.obj");
     const std::string SHADERBALL_OBJ("shaderball.obj");
-    const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
-    const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
-    const std::string WEDGE_FILES("wedgeFiles");
-    const std::string WEDGE_PARAMETERS("wedgeParameters");
-    const std::string WEDGE_RANGE_MIN("wedgeRangeMin");
-    const std::string WEDGE_RANGE_MAX("wedgeRangeMax");
-    const std::string WEDGE_STEPS("wedgeSteps");
-    const std::string BAKE_FILES("bakeFiles");
-    const std::string BAKE_HDRS("bakeHdrs");
-    const std::string BAKE_RESOLUTIONS("bakeResolutions");
+    const std::string EXTRA_LIBRARY_PATHS("extraLibraryPaths");
+    const std::string RENDER_TEST_PATHS("renderTestPaths");
+    const std::string COLORMANAGEMENT_CONFIG_FILE("colorManagementConfigFile");
+    const std::string WEDGE_SETTING("wedgerender");
+    const std::string BAKER_SETTINGS("baker");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
